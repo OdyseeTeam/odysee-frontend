@@ -4,17 +4,19 @@ import * as PAGES from 'constants/pages';
 import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from 'redux/selectors/claims';
 import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
-import { isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { search, hash } = state.router.location;
   const { match } = props || {};
+  const { pathname } = state.router.location || {};
 
-  const matchedPath = buildMatchWithHash(match, hash);
+  const matchedPath = match ? buildMatchWithHash(match, hash) : buildMatchFromPath(pathname);
   let uri = getUriFromMatch(matchedPath);
 
   const urlParams = new URLSearchParams(search);
@@ -25,7 +27,8 @@ const select = (state, props) => {
   const claimId = claim?.claim_id;
 
   const channelClaim = getChannelFromClaim(claim);
-  const { claim_id: channelClaimId, canonical_url: channelUri } = channelClaim || {};
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const { canonical_url: channelUri } = channelClaim || {};
 
   const latestContentClaim =
     featureParam === PAGES.LIVE_NOW
@@ -40,6 +43,17 @@ const select = (state, props) => {
 
   if (latestClaimUrl) uri = latestClaimUrl;
 
+  // Detect collections from playlist-style URIs even if claim isn't resolved as a collection
+  let detectedCollectionId = null;
+  if (uri && typeof uri === 'string' && uri.toLowerCase().includes('lbry://playlist')) {
+    const match = uri.match(/[#:/]([0-9a-f]{40})/i);
+    if (match) detectedCollectionId = match[1];
+  }
+
+  const isCollection = (claim && claim.value_type === 'collection') || Boolean(detectedCollectionId);
+  const collectionId = claim && claim.value_type === 'collection' ? claim.claim_id : detectedCollectionId;
+  const renderMode = uri ? makeSelectFileRenderModeForUri(uri)(state) : undefined;
+
   return {
     uri,
     claimId,
@@ -47,6 +61,9 @@ const select = (state, props) => {
     canonicalUrl,
     channelUri,
     channelClaimId,
+    isCollection,
+    collectionId,
+    renderMode,
     latestClaimUrl,
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),
@@ -64,12 +81,25 @@ const perform = {
 export default connect(select, perform)(EmbedWrapperPage);
 
 function getUriFromMatch(match) {
-  if (match) {
-    const { claimName, claimId } = match.params;
+  if (match && match.params) {
+    const { claimName, claimId } = match.params || {};
+
+    if (!claimName) {
+      return '';
+    }
+
+    // Special case: don't resolve "home" as a claim (it has its own route)
+    if (claimName === 'home' && !claimId) {
+      return '';
+    }
 
     // https://{DOMAIN}/claimName/claimId
     const isOldPermanentUriFormat =
-      !claimName.startsWith('@') && !claimName.includes(':') && !claimName.includes('#') && claimId;
+      typeof claimName === 'string' &&
+      !claimName.startsWith('@') &&
+      !claimName.includes(':') &&
+      !claimName.includes('#') &&
+      claimId;
 
     // https://{DOMAIN}/channelName/claimName/
     // on match channelName = claimName / claimName = claimId
@@ -86,7 +116,7 @@ function getUriFromMatch(match) {
     }
 
     if (isCanonicalUriFormat) {
-      return normalizeURI(claimName + '/' + (claimId || ''));
+      return normalizeURI(String(claimName) + '/' + (claimId || ''));
     }
   }
 
@@ -96,15 +126,20 @@ function getUriFromMatch(match) {
 function buildMatchWithHash(match, hash) {
   const matchedPath = Object.assign({}, match);
 
+  // Ensure params object exists
+  if (!matchedPath.params) {
+    matchedPath.params = {};
+  }
+
   // if a claim is using the hash canonical format ("lbry://@chanelName#channelClaimId/streamName#streamClaimId"
   // instead of "lbry://@chanelName:channelClaimId/streamName:streamClaimId")
-  if (hash && hash.length > 0) {
+  if (hash && hash.length > 0 && matchedPath.params) {
     // the hash is on the channel part of the uri
     if (hash.includes('/')) {
       const newClaimNameParam = matchedPath.params.claimName;
       const claimIdPart = hash.substring(0, hash.indexOf('/'));
 
-      if (!newClaimNameParam.includes(claimIdPart)) {
+      if (newClaimNameParam && !newClaimNameParam.includes(claimIdPart)) {
         matchedPath.params.claimName = newClaimNameParam + claimIdPart;
         matchedPath.params.claimId = hash.substring(hash.indexOf('/') + 1);
       }
@@ -112,9 +147,26 @@ function buildMatchWithHash(match, hash) {
       // the hash is on the stream part of the uri, so it looks like
       // "lbry://@chanelName:channelClaimId/streamName#streamClaimId" instead of
       // "lbry://@chanelName:channelClaimId/streamName:streamClaimId"
-      matchedPath.params.claimId = matchedPath.params.claimId + hash;
+      matchedPath.params.claimId = (matchedPath.params.claimId || '') + hash;
     }
   }
 
+  return matchedPath;
+}
+
+function buildMatchFromPath(pathname) {
+  const matchedPath = { params: {} };
+  try {
+    if (!pathname) return matchedPath;
+    const parts = pathname.split('/').filter(Boolean);
+    // Expect ['$', 'embed', <claimName>, <claimId>?]
+    const embedIdx = parts.indexOf('embed');
+    if (embedIdx > -1) {
+      const claimName = decodeURIComponent(parts[embedIdx + 1] || '');
+      const claimId = decodeURIComponent(parts[embedIdx + 2] || '');
+      matchedPath.params.claimName = claimName;
+      if (claimId) matchedPath.params.claimId = claimId;
+    }
+  } catch (e) {}
   return matchedPath;
 }

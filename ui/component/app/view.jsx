@@ -211,6 +211,22 @@ function App(props: Props) {
 
     // Only 1 nag is possible, so show the most important:
 
+    // Active uploads warning (show globally so users know why the browser prompts on leave)
+    if (uploadCount > 0 && !embedPath) {
+      const onUploadPage =
+        location?.pathname?.startsWith(`/$/${PAGES.UPLOAD}`) || location?.pathname?.startsWith(`/$/${PAGES.UPLOADS}`);
+      if (!onUploadPage) {
+        return (
+          <Nag
+            type="helpful"
+            message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
+            actionText={__('View Uploads')}
+            onClick={() => history.push(`/$/${PAGES.UPLOADS}`)}
+          />
+        );
+      }
+    }
+
     if (user === null && !embedPath) {
       return <NagNoUser />;
     }
@@ -254,7 +270,8 @@ function App(props: Props) {
   }, [userId]);
 
   useEffect(() => {
-    if (syncIsLocked) {
+    const onSettingsPage = pathname && pathname.startsWith(`/$/${PAGES.SETTINGS}`);
+    if (syncIsLocked && onSettingsPage) {
       const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
       const handleBeforeUnload = (event) => {
         event.preventDefault();
@@ -264,7 +281,7 @@ function App(props: Props) {
       BeforeUnload.register(handleBeforeUnload, msg);
       return () => BeforeUnload.unregister(handleBeforeUnload);
     }
-  }, [syncIsLocked]);
+  }, [syncIsLocked, pathname]);
 
   useEffect(() => {
     if (!uploadCount) return;

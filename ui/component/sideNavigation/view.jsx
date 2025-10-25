@@ -33,19 +33,24 @@ type SideNavLink = {
   noI18n?: boolean,
 };
 
-const getHomeButton = (additionalAction) => ({
-  title: 'Home',
-  link: `/`,
-  icon: ICONS.HOME,
-  onClick: () => {
-    if (window.location.pathname === '/') {
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      if (additionalAction) {
-        additionalAction();
+const getHomeButton = (additionalAction) => {
+  const isEmbed = typeof window !== 'undefined' && window.location.pathname.startsWith('/$/embed');
+  const homePath = isEmbed ? '/$/embed/home' : '/';
+
+  return {
+    title: 'Home',
+    link: homePath,
+    icon: ICONS.HOME,
+    onClick: () => {
+      if (typeof window !== 'undefined' && window.location.pathname === homePath) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        if (additionalAction) {
+          additionalAction();
+        }
       }
-    }
-  },
-});
+    },
+  };
+};
 
 const RECENT_FROM_FOLLOWING = {
   title: 'Following --[sidebar button]--',

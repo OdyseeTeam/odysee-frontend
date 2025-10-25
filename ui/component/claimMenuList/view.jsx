@@ -341,6 +341,7 @@ function ClaimMenuList(props: Props) {
     };
 
     const ToggleLastUsedCollectionMenuItems = () => {
+      if (!lastUsedCollections || !Array.isArray(lastUsedCollections)) return null;
       return lastUsedCollections.map((lastUsedCollection) => {
         return (
           <MenuItem
@@ -621,6 +622,8 @@ function ClaimMenuList(props: Props) {
                   {__('Copy Link')}
                 </div>
               </MenuItem>
+
+              {/* Embed menu item removed to avoid scope creep in this commit */}
 
               {isChannelPage && IS_WEB && rssUrl && (
                 <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>

@@ -92,7 +92,7 @@ function getCategoryMeta(path) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path, urlQueryString, baseUrl } = overrideOptions;
+  const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl } = overrideOptions;
   const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
@@ -134,7 +134,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_miniapp',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -151,7 +151,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_frame',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -162,7 +162,15 @@ function buildOgMetadata(overrideOptions = {}) {
     out += `\n<meta name="fc:frame:image" content="${splashImageUrl}"/>`;
     out += `\n<meta name="fc:frame:button:1" content="Open on Odysee"/>`;
     out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
-    out += `\n<meta name="fc:frame:button:1:target" content="${url}"/>`;
+    out += `\n<meta name="fc:frame:button:1:target" content="${fcActionUrl || url}"/>`;
+
+    // If Farcaster MiniApp/Frame tags are emitted, also include a minimal
+    // "ready" signal so clients can hook in immediately.
+    if (fcActionUrl) {
+      const readyScript = `\n<script>(function(){function r(){try{var s=(window.miniapp&&window.miniapp.sdk)||window.sdk||(window.frame&&window.frame.sdk);if(s&&s.actions&&typeof s.actions.ready==='function'){s.actions.ready();}if(window.parent&&window.parent.postMessage){window.parent.postMessage({type:'miniapp-ready'},'*');}return true;}catch(e){return false;}}var a=0,m=50,t=setInterval(function(){a++;if(r()){clearInterval(t);}else if(a>=m){clearInterval(t);try{if(window.parent&&window.parent.postMessage){window.parent.postMessage({type:'miniapp-ready-timeout'},'*');}}catch(e){}}},100);})();</script>`;
+      out += readyScript;
+    }
+
     return out;
   } catch (e) {
     return head;
@@ -198,8 +206,8 @@ function buildHead() {
   );
 }
 
-function buildBasicOgMetadata() {
-  const head = BEGIN_STR + addFavicon() + buildOgMetadata() + FINAL_STR;
+function buildBasicOgMetadata(overrideOptions = {}) {
+  const head = BEGIN_STR + addFavicon() + buildOgMetadata(overrideOptions) + FINAL_STR;
   return head;
 }
 
@@ -512,8 +520,10 @@ async function getHtml(ctx) {
   const query = ctx.query;
   const requestPath = unscapeHtmlProperty(decodeURIComponent(ctx.path));
 
-  if (requestPath.length === 0) {
-    const ogMetadata = buildBasicOgMetadata();
+  if (requestPath === '/' || requestPath.length === 0) {
+    // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
+    // Use current origin to avoid pointing to production URL in dev.
+    let ogMetadata = buildBasicOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${ctx.origin}/$/embed/home` });
     return insertToHead(html, ogMetadata);
   }
 
@@ -553,6 +563,12 @@ async function getHtml(ctx) {
   }
 
   if (requestPath.includes(embedPath)) {
+    // Special-case: homepage embed (early) only when enabled
+    if (requestPath === '/$/embed/home' || requestPath === '/$/embed/home/') {
+      const ogMetadata = buildOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${ctx.origin}/$/embed/home` });
+      return insertToHead(html, ogMetadata);
+    }
+    // Otherwise, try to resolve an embed claim
     const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, '').replace('/', '#'));
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
@@ -563,6 +579,11 @@ async function getHtml(ctx) {
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+    }
+    // Late special-case: homepage embed when not enabled (maintain old order)
+    if (requestPath === '/$/embed/home' || requestPath === '/$/embed/home/') {
+      const ogMetadata = buildOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${URL}/$/embed/home` });
+      return insertToHead(html, ogMetadata);
     }
 
     return insertToHead(html);

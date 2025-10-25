@@ -41,3 +41,5 @@ package-lock.json
 .env.lbrytv
 analyzeResults*.html
 ecosystem.config.js
+
+.claude/settings.local.json
