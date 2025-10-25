@@ -75,6 +75,7 @@ const CheckoutPage = lazyImport(() => import('page/checkoutPage' /* webpackChunk
 const CreatorDashboard = lazyImport(() => import('page/creatorDashboard' /* webpackChunkName: "creatorDashboard" */));
 const DiscoverPage = lazyImport(() => import('page/discover' /* webpackChunkName: "discover" */));
 const EmbedWrapperPage = lazyImport(() => import('page/embedWrapper' /* webpackChunkName: "embedWrapper" */));
+const EmbedHomePage = lazyImport(() => import('page/embedHome' /* webpackChunkName: "embedHome" */));
 const PopoutChatPage = lazyImport(() => import('page/popoutChatWrapper' /* webpackChunkName: "popoutChat" */));
 const FeaturedChannelsPage = lazyImport(() =>
   import('page/featuredChannels' /* webpackChunkName: "featuredChannels" */)
@@ -257,7 +258,7 @@ function AppRouter(props: Props) {
         component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen, wildWestDisabled]);
+  }, [homepageData, isLargeScreen, wildWestDisabled, isSmallScreen, isMediumScreen]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -472,6 +473,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
+        <Route path={`/$/${PAGES.EMBED}/home`} exact component={EmbedHomePage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 

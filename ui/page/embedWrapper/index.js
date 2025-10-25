@@ -47,6 +47,7 @@ const select = (state, props) => {
     canonicalUrl,
     channelUri,
     channelClaimId,
+    isCollection: claim && claim.value_type === 'collection',
     latestClaimUrl,
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),

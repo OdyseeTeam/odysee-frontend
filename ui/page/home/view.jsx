@@ -298,8 +298,11 @@ function HomePage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
+  const isEmbedHome =
+    typeof window !== 'undefined' && window.location && window.location.pathname.startsWith('/$/embed/');
+
   return (
-    <Page className="homePage-wrapper" fullWidthPage>
+    <Page className="homePage-wrapper" fullWidthPage noHeader={isEmbedHome} noFooter={isEmbedHome}>
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
           <Yrbl
@@ -328,7 +331,8 @@ function HomePage(props: Props) {
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
-            const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
+            const bannerForPosition =
+              homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
 
             return (
               <React.Fragment key={id}>
