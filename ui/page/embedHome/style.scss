@@ -1,0 +1,106 @@
+.homePage-wrapper--embed {
+  background-color: var(--color-background);
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+
+  .embed-home__header {
+    background: var(--color-header-background);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-m) var(--spacing-l);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .embed-home__branding {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-s);
+
+    .icon {
+      color: var(--color-primary);
+    }
+  }
+
+  .embed-home__auth-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: var(--color-primary-alpha);
+    padding: var(--spacing-xs) var(--spacing-s);
+    border-radius: var(--border-radius);
+    font-size: var(--font-small);
+    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+
+    .icon {
+      color: var(--color-primary);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      span {
+        display: none; // Hide text on mobile, keep icon
+      }
+    }
+  }
+
+  .embed-home__title {
+    font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .embed-home__content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-l);
+
+    @media (max-width: $breakpoint-small) {
+      padding: var(--spacing-m);
+    }
+  }
+
+  .embed-home__footer {
+    background: var(--color-card-background);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-l);
+    text-align: center;
+    margin-top: var(--spacing-xl);
+
+    .button {
+      font-weight: var(--font-weight-bold);
+    }
+  }
+
+  // Adjust grid spacing for embed
+  .claim-grid__wrapper {
+    margin-bottom: var(--spacing-xl);
+
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-l);
+    }
+  }
+
+  .claim-grid__header {
+    margin-bottom: var(--spacing-m);
+  }
+
+  .claim-grid__title--secondary {
+    margin-top: var(--spacing-m);
+    display: inline-flex;
+  }
+
+  // Make content more compact for embed
+  .homePage-wrapper__section-title {
+    margin-bottom: var(--spacing-s);
+  }
+}
