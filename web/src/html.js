@@ -92,7 +92,7 @@ function getCategoryMeta(path) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path, urlQueryString, baseUrl } = overrideOptions;
+  const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl } = overrideOptions;
   const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
@@ -134,7 +134,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_miniapp',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -151,7 +151,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_frame',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -198,8 +198,8 @@ function buildHead() {
   );
 }
 
-function buildBasicOgMetadata() {
-  const head = BEGIN_STR + addFavicon() + buildOgMetadata() + FINAL_STR;
+function buildBasicOgMetadata(overrideOptions = {}) {
+  const head = BEGIN_STR + addFavicon() + buildOgMetadata(overrideOptions) + FINAL_STR;
   return head;
 }
 
@@ -513,7 +513,8 @@ async function getHtml(ctx) {
   const requestPath = unscapeHtmlProperty(decodeURIComponent(ctx.path));
 
   if (requestPath.length === 0) {
-    const ogMetadata = buildBasicOgMetadata();
+    // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
+    const ogMetadata = buildBasicOgMetadata({ fcActionUrl: `${URL}/$/embed/home` });
     return insertToHead(html, ogMetadata);
   }
 
@@ -563,6 +564,12 @@ async function getHtml(ctx) {
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+    }
+
+    // Special-case: homepage embed
+    if (requestPath === `/$/${PAGES.EMBED}/home` || requestPath === `/$/${PAGES.EMBED}/home/`) {
+      const ogMetadata = buildOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${URL}/$/embed/home` });
+      return insertToHead(html, ogMetadata);
     }
 
     return insertToHead(html);

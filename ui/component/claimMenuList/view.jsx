@@ -19,6 +19,7 @@ import {
   generateShortShareUrl,
   formatLbryUrlForWeb,
 } from 'util/url';
+import { generateEmbedIframeData } from 'util/web';
 import { useHistory } from 'react-router';
 import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
@@ -288,6 +289,26 @@ function ClaimMenuList(props: Props) {
     }
   }
 
+  function buildEmbedSrcFromClaim(targetClaim: Claim) {
+    try {
+      const canonical = targetClaim?.canonical_url || targetClaim?.permanent_url;
+      if (!canonical) return '';
+      const path = canonical.replace('lbry://', '').replace(/#/g, ':');
+      return `${URL}/$/embed/${path}`;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function handleCopyEmbed() {
+    // Determine which claim to embed: channel, collection, or content (including markdown)
+    const target = isChannel ? claim : isCollectionClaim ? claim : contentClaim || claim;
+    const src = buildEmbedSrcFromClaim(target);
+    if (!src) return doToast({ message: __('Failed to build embed URL'), isError: true });
+    const { html } = generateEmbedIframeData(src);
+    copyToClipboard(html, 'Embed code copied.', 'Failed to copy embed code.');
+  }
+
   function handleReportContent() {
     const claimId = contentClaim?.claim_id;
     // $FlowFixMe
@@ -341,6 +362,7 @@ function ClaimMenuList(props: Props) {
     };
 
     const ToggleLastUsedCollectionMenuItems = () => {
+      if (!lastUsedCollections || !Array.isArray(lastUsedCollections)) return null;
       return lastUsedCollections.map((lastUsedCollection) => {
         return (
           <MenuItem
@@ -621,6 +643,15 @@ function ClaimMenuList(props: Props) {
                   {__('Copy Link')}
                 </div>
               </MenuItem>
+
+              {(isChannel || isCollectionClaim || (contentClaim && contentClaim.value_type === 'stream')) && (
+                <MenuItem className="comment__menu-option" onSelect={handleCopyEmbed}>
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.EMBED} />
+                    {__('Copy Embed')}
+                  </div>
+                </MenuItem>
+              )}
 
               {isChannelPage && IS_WEB && rssUrl && (
                 <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>
