@@ -1,4 +1,5 @@
 const { fetchStreamUrl } = require('./fetchStreamUrl');
+const config = require('../../config');
 const { getHomepage } = require('./homepageApi');
 const { getHtml } = require('./html');
 const { getMinVersion } = require('./minVersion');
@@ -98,17 +99,23 @@ router.post(`/$/frame`, async (ctx) => {
   await handleFramePost(ctx);
 });
 
-router.get('*', async (ctx) => {
+router.get('*', async (ctx, next) => {
   const requestedUrl = ctx.url;
 
-  if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
-    // If the file exists, `app.use(serve(DIST_ROOT))` would have handled it.
-    // Handle the non-existent file here, otherwise it'll get resolved to a
-    // claim with the name 'public'.
-    ctx.status = 404;
-    ctx.body = 'Resource not found';
-    ctx.set('Cache-Control', 'no-store');
-    return;
+  if (config.DYNAMIC_ROUTES_FIRST) {
+    // Dynamic-first: let static middleware handle assets
+    if (requestedUrl.startsWith('/public/') || requestedUrl === '/sw.js') {
+      await next();
+      return;
+    }
+  } else {
+    // Static-first (prod): if a /public/*.js wasn't found by static, avoid claim collision
+    if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
+      ctx.status = 404;
+      ctx.body = 'Resource not found';
+      ctx.set('Cache-Control', 'no-store');
+      return;
+    }
   }
 
   const html = await getHtml(ctx);

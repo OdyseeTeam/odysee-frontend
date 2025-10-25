@@ -341,6 +341,7 @@ function ClaimMenuList(props: Props) {
     };
 
     const ToggleLastUsedCollectionMenuItems = () => {
+      if (!lastUsedCollections || !Array.isArray(lastUsedCollections)) return null;
       return lastUsedCollections.map((lastUsedCollection) => {
         return (
           <MenuItem

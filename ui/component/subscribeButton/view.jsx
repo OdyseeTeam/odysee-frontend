@@ -91,19 +91,20 @@ export default function SubscribeButton(props: Props) {
           title={titlePrefix}
           href={isEmbed && `${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
           onClick={
-            !isEmbed &&
-            ((e) => {
-              e.stopPropagation();
+            !isEmbed
+              ? (e) => {
+                  e.stopPropagation();
 
-              subscriptionHandler(
-                {
-                  channelName: '@' + rawChannelName,
-                  uri: uri,
-                  notificationsDisabled: true,
-                },
-                true
-              );
-            })
+                  subscriptionHandler(
+                    {
+                      channelName: '@' + rawChannelName,
+                      uri: uri,
+                      notificationsDisabled: true,
+                    },
+                    true
+                  );
+                }
+              : undefined
           }
         />
       </div>
@@ -124,19 +125,20 @@ export default function SubscribeButton(props: Props) {
         title={titlePrefix}
         href={isEmbed && `/$/${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
         onClick={
-          !isEmbed &&
-          ((e) => {
-            e.stopPropagation();
+          !isEmbed
+            ? (e) => {
+                e.stopPropagation();
 
-            subscriptionHandler(
-              {
-                channelName: claimName,
-                uri: permanentUrl,
-                notificationsDisabled: true,
-              },
-              true
-            );
-          })
+                subscriptionHandler(
+                  {
+                    channelName: claimName,
+                    uri: permanentUrl,
+                    notificationsDisabled: true,
+                  },
+                  true
+                );
+              }
+            : undefined
         }
       />
       {isSubscribed && uiNotificationsEnabled && (
