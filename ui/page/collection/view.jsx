@@ -51,8 +51,9 @@ const CollectionPage = (props: Props) => {
 
   const {
     push,
-    location: { search, state },
+    location: { search, state, pathname },
   } = useHistory();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { showEdit: pageShowEdit } = state || {};
 
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
@@ -97,7 +98,7 @@ const CollectionPage = (props: Props) => {
 
   if (geoRestriction) {
     return (
-      <Page>
+      <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty">
           <Yrbl
             title={__('Content unavailable')}
@@ -120,7 +121,7 @@ const CollectionPage = (props: Props) => {
 
   if (!collection && !isResolvingCollection) {
     return (
-      <Page>
+      <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty empty">{__('Nothing here')}</div>
       </Page>
     );
@@ -142,7 +143,7 @@ const CollectionPage = (props: Props) => {
   }
 
   return (
-    <Page className="playlists-page__wrapper">
+    <Page className="playlists-page__wrapper" noSideNavigation={isEmbedPath}>
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader

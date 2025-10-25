@@ -331,7 +331,7 @@ function SocialShare(props: SocialShareStateProps) {
                 href={`tg://msg_url?url=${shareUrl.urlNoReferral}&amp;text=text`}
               />
             )}
-            {webShareable && !isCollection && (
+            {webShareable && (
               <Button
                 className="share"
                 iconSize={24}
@@ -362,7 +362,15 @@ function SocialShare(props: SocialShareStateProps) {
             </div>
           )}
           {showEmbed &&
-            (!isChannel ? (
+            (isChannel ? (
+              <>
+                <EmbedTextArea label={__('Embedded Channel')} claim={claim} />
+                <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
+                <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
+              </>
+            ) : isCollection ? (
+              <EmbedTextArea label={__('Embedded Playlist')} claim={claim} />
+            ) : (
               <EmbedTextArea
                 label={__('Embedded')}
                 claim={claim}
@@ -371,11 +379,6 @@ function SocialShare(props: SocialShareStateProps) {
                 referralCode={referralCode}
                 uriAccessKey={uriAccessKey}
               />
-            ) : (
-              <>
-                <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
-                <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
-              </>
             ))}
           {showClaimLinks && <div className="section">{claimLinkElements}</div>}
         </>
