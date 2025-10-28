@@ -158,6 +158,61 @@ export function doCommentList(
   };
 }
 
+// Fetch comments by a known claim-id (used for external content like YouTube IDs)
+export function doCommentListForId(
+  externalClaimId: string,
+  parentId: ?string,
+  page: number = 1,
+  pageSize: number = 99999,
+  sortBy: ?number = SORT_BY.NEWEST
+) {
+  return async (dispatch: Dispatch) => {
+    if (!externalClaimId) {
+      return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: 'missing claim id' });
+    }
+
+    dispatch({ type: ACTIONS.COMMENT_LIST_STARTED, data: { parentId } });
+
+    return Comments.comment_list({
+      page,
+      claim_id: externalClaimId,
+      page_size: pageSize,
+      parent_id: parentId,
+      top_level: !parentId,
+      sort_by: sortBy,
+    })
+      .then((result: CommentListResponse) => {
+        const { items: comments, total_items, total_filtered_items, total_pages } = result;
+
+        const returnResult = () => {
+          dispatch({
+            type: ACTIONS.COMMENT_LIST_COMPLETED,
+            data: {
+              comments,
+              parentId,
+              totalItems: total_items,
+              totalFilteredItems: total_filtered_items,
+              totalPages: total_pages,
+              claimId: externalClaimId,
+            },
+          });
+          return result;
+        };
+
+        // Batch resolve comment authors
+        const commentChannelIds = comments && comments.map((c) => c.channel_id || '');
+        if (commentChannelIds) {
+          return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
+        }
+
+        return returnResult();
+      })
+      .catch((error) => {
+        dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+      });
+  };
+}
+
 export function doCommentListOwn(
   channelId: string,
   page: number = 1,
@@ -723,7 +778,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     const mentionedChannels: Array<MentionedChannel> = [];
 
     const claim = selectClaimForClaimId(state, claim_id);
-    const targetClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim_id; // claim_id is for anonymous content and on channel page comments
+    const targetClaimId = claim && claim.signing_channel ? claim.signing_channel.claim_id : claim_id; // claim_id is for anonymous content and on channel page comments
 
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line

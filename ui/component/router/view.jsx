@@ -45,6 +45,7 @@ const IconsViewerPage = lazyImport(() => import('page/iconsViewer' /* webpackChu
 
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
+const WooPage = lazyImport(() => import('web/page/woo' /* webpackChunkName: "woo" */));
 
 const SignInPage = lazyImport(() => import('page/signIn' /* webpackChunkName: "signIn" */));
 const SignInWalletPasswordPage = lazyImport(() =>
@@ -362,6 +363,8 @@ function AppRouter(props: Props) {
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
+        {/* Watch On Odysee (YouTube oEmbed) */}
+        <Route path="/woo/:ytId" exact component={WooPage} />
         <Redirect
           from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`}
           to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
