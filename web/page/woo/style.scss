@@ -1,0 +1,15 @@
+.woo__recommended {
+  // Hide channel avatar in the right-rail list
+  .claim-preview__channel-staked {
+    display: none !important;
+  }
+
+  // Improve text wrapping like standard file pages (avoid cramped rows)
+  .claim-preview__title .truncated-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal;
+  }
+}
