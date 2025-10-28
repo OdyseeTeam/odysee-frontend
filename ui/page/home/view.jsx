@@ -294,7 +294,6 @@ function HomePage(props: Props) {
     function resolveTitleOverride(title: string) {
         return title === 'Recent From Following' ? 'Following' : title;
     }
-    const sectionTitle = resolveTitleOverride(title);
 
     const claimTiles = (
       <ClaimTilesDiscover
@@ -307,7 +306,7 @@ function HomePage(props: Props) {
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
         fetchViewCount
-        sectionTitle={sectionTitle}
+        sectionTitle={title}
       />
     );
 

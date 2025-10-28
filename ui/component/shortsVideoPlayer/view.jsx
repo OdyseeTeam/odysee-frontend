@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
+import { useHistory } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
   onViewModeChange?: (mode: string) => void,
   hasChannel?: boolean,
   hasPlaylist?: boolean,
-  handleBackButton?: ()=>void;
+  handleBackButton?: () => void,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
@@ -41,17 +42,22 @@ const ShortsVideoPlayer = React.memo<Props>(
         onViewModeChange(mode);
       }
     };
+    const {
+      location: { search },
+    } = useHistory();
+    const urlParams = new URLSearchParams(search);
+    const isShortVideo = urlParams.get('view') === 'shorts';
     return (
       <div className="shorts-page__video-section">
         <Button
           button="close"
           icon={ICONS.BACK}
-          className="shorts-page__back-button"
+          className="shorts-page__info-button shorts-page__back-button"
           onClick={handleBackButton}
           aria-label={__('Go back')}
         />
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
-          <VideoClaimInitiator uri={uri} />
+          {isShortVideo && <VideoClaimInitiator uri={isShortVideo ? uri : ''} />}
         </div>
 
         {!isMobile && hasChannel && hasPlaylist && (

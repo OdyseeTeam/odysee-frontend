@@ -134,7 +134,7 @@ export default function ClaimList(props: Props) {
   const { location } = useHistory();
 
   const queryParams = new URLSearchParams(location.search);
-  const isShorts = queryParams.get('t') === 'shorts';
+  const isShorts = queryParams.get('view') === 'shortsTab';
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);

@@ -219,7 +219,7 @@ function ClaimTilesDiscover(props: Props) {
     <ul
       ref={listRef}
       className={classNames('claim-grid', {
-        'claim-shorts-grid': props.isShorts,
+        'claim-shorts-grid': props.isShorts || sectionTitle === 'Shorts',
       })}
     >
       {!loading && finalUris && finalUris.length

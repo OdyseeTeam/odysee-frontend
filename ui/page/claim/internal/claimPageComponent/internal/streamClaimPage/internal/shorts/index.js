@@ -103,8 +103,6 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
-  console.log(shortsRecommendedUris);
-
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
@@ -141,21 +139,9 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   clearPosition: (uri) => dispatch(clearPosition(uri)),
-  doNavigateToNextShort: (nextUri) => {
-    if (nextUri) {
-      window.history.pushState(null, '', nextUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-  },
-  doNavigateToPreviousShort: (previousUri) => {
-    if (previousUri) {
-      window.history.pushState(null, '', previousUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-  },
   doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
-  doFetchRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),
+  doFetchShortsRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),
   doFetchChannelShorts: (channelId) => {
     return dispatch(
       doClaimSearch({

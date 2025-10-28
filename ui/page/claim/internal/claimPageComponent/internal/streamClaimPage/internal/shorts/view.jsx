@@ -38,7 +38,7 @@ type Props = {
   doNavigateToPreviousShort: (previousUri: string) => void,
   doToggleShortsSidePanel: () => void,
   doSetShortsSidePanel: (isOpen: boolean) => void,
-  doFetchRecommendedContent: (uri: string, fypParam?: ?FypParam, isShorts?: boolean) => void,
+  doFetchShortsRecommendedContent: (uri: string, fypParam?: ?FypParam) => void,
   doSetShortsPlaylist: (uris: Array<string>) => void,
   doClearShortsPlaylist: () => void,
   channelId: ?string,
@@ -72,11 +72,9 @@ export default function ShortsPage(props: Props) {
     commentsListTitle,
     contentUnlocked,
     clearPosition,
-    doNavigateToNextShort,
-    doNavigateToPreviousShort,
     doSetShortsSidePanel,
     doToggleShortsSidePanel,
-    doFetchRecommendedContent,
+    doFetchShortsRecommendedContent,
     doSetShortsPlaylist,
     doClearShortsPlaylist,
     sidePanelOpen,
@@ -90,7 +88,6 @@ export default function ShortsPage(props: Props) {
     thumbnail,
     autoPlayNextShort,
     doToggleShortsAutoplay,
-    isClaimShort,
   } = props;
 
   const {
@@ -114,6 +111,8 @@ export default function ShortsPage(props: Props) {
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
   const hasInitializedRef = React.useRef(false);
+  const entryUrlRef = React.useRef(null);
+  const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
 
   const fetchForMode = React.useCallback(
     (mode) => {
@@ -121,10 +120,10 @@ export default function ShortsPage(props: Props) {
       if (mode === 'channel' && channelId) {
         doFetchChannelShorts(channelId);
       } else {
-        doFetchRecommendedContent(uri, fypParam);
+        doFetchShortsRecommendedContent(uri, fypParam);
       }
     },
-    [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]
+    [channelId, uri, uuid, doFetchChannelShorts, doFetchShortsRecommendedContent]
   );
 
   const handlePlayPause = React.useCallback(() => {
@@ -149,13 +148,6 @@ export default function ShortsPage(props: Props) {
   );
 
   React.useEffect(() => {
-    if (isClaimShort && !search.includes('view=shorts')) {
-      const shortsUrl = uri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
-      history.replace(shortsUrl);
-    }
-  }, [isClaimShort, search, uri, history]);
-
-  React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
       const isNavigatingToShorts = location.search.includes('view=shorts');
       const isNavigatingFromShorts = search.includes('view=shorts');
@@ -177,7 +169,6 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
-
       if (isShortFromChannelPage) {
         doSetShortsViewMode('channel');
       }
@@ -210,13 +201,36 @@ export default function ShortsPage(props: Props) {
     }
   }, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
 
+  const handleInfoButtonClick = React.useCallback(() => {
+    if (isMobile) {
+      setMobileModalOpen(true);
+    } else {
+      doToggleShortsSidePanel();
+    }
+  }, [isMobile, doToggleShortsSidePanel]);
+
+  React.useEffect(() => {
+    if (!entryUrlRef.current) {
+      const urlParams = new URLSearchParams(search);
+      const fromChannel = urlParams.get('from') === 'channel';
+
+      if (fromChannel && channelUri) {
+        entryUrlRef.current = channelUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shortsTab';
+      } else {
+        entryUrlRef.current = '/';
+      }
+    }
+  }, [search, channelUri]);
+
   const goToNext = React.useCallback(() => {
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
     }
 
     clearPosition(uri);
-    doNavigateToNextShort(nextRecommendedShort, history);
+
+    const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+    history.replace(shortsUrl);
 
     const claim = fileInfo?.claim;
     const currentClaimId = claim?.claim_id;
@@ -230,26 +244,27 @@ export default function ShortsPage(props: Props) {
     isSearchingRecommendations,
     uri,
     clearPosition,
-    doNavigateToNextShort,
+    history,
     fileInfo,
     onRecommendationClicked,
-    history,
   ]);
 
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
 
     clearPosition(uri);
-    doNavigateToPreviousShort(previousRecommendedShort, history);
-  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, doNavigateToPreviousShort, history]);
 
-  const handleInfoButtonClick = React.useCallback(() => {
-    if (isMobile) {
-      setMobileModalOpen(true);
+    const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+    history.replace(shortsUrl);
+  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, history]);
+
+  const handleBackButton = React.useCallback(() => {
+    if (entryUrlRef.current) {
+      history.push(entryUrlRef.current);
     } else {
-      doToggleShortsSidePanel();
+      history.push('/');
     }
-  }, [isMobile, doToggleShortsSidePanel]);
+  }, [history]);
 
   React.useEffect(() => {
     const handleKeyPress = (e) => {
@@ -327,19 +342,6 @@ export default function ShortsPage(props: Props) {
     };
   }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext]);
 
-const handleBackButton = React.useCallback(() => {
-  const urlParams = new URLSearchParams(search);
-  const fromChannel = urlParams.get('from') === 'channel';
-
-  if (fromChannel && channelUri) {
-    let channelPath = channelUri.replace('lbry://', '/').replace(/#/g, ':');
-    channelPath += '?view=shortsTab';
-    history.push(channelPath);
-  } else {
-    history.push('/');
-  }
-}, [search, channelUri, history]);
-
   const isSwipeEnabled = !mobileModalOpen;
 
   if (isMature) {
@@ -352,7 +354,7 @@ const handleBackButton = React.useCallback(() => {
           hasPlaylist={hasPlaylist}
           onNext={goToNext}
           onPrevious={goToPrevious}
-          isLoading={isSearchingRecommendations}
+          isLoading={isLoadingContent}
           currentIndex={currentIndex}
           totalVideos={shortsRecommendedUris?.length || 0}
           isAtStart={isAtStart}
@@ -408,7 +410,7 @@ const handleBackButton = React.useCallback(() => {
                   hasPlaylist={hasPlaylist}
                   onNext={goToNext}
                   onPrevious={goToPrevious}
-                  isLoading={isSearchingRecommendations}
+                  isLoading={isLoadingContent}
                   currentIndex={currentIndex}
                   totalVideos={shortsRecommendedUris?.length || 0}
                   isAtStart={isAtStart}

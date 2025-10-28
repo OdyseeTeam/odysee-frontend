@@ -1383,7 +1383,8 @@
 
 .claim-shorts-grid {
   @media (max-width: $breakpoint-small) {
-    gap: 10px !important;
+    display: flex;
+    gap: 5px !important;
     align-items: flex-start !important;
     :not(:first-child) {
       margin-top: 1px !important;

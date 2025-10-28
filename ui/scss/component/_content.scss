@@ -623,11 +623,16 @@
       height: 100%;
       border-radius: 0;
 
-      video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 10px !important;
+      .video-js-parent {
+        background-color: black;
+        border-radius: 10px;
+
+        video {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 10px !important;
+        }
       }
     }
   }
@@ -866,6 +871,8 @@
     left: 0;
     right: 0;
     bottom: 0;
+    overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: none !important;
   }
 
   .shorts-page__container {
@@ -882,12 +889,9 @@
     height: 100svh !important;
     overflow: hidden !important;
   }
-
-  body.shorts-view-active {
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    height: 100svh !important;
+  body.shorts-viewer *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
   }
 }

@@ -120,7 +120,7 @@ const StreamClaimPage = (props: Props) => {
     if (isShortVideo) {
       return (
         <React.Suspense fallback={null}>
-          <ShortsPage uri={uri} accessStatus={accessStatus} />
+          <ShortsPage uri={uri} accessStatus={accessStatus} key={uri} />
         </React.Suspense>
       );
     }

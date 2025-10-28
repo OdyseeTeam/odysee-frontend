@@ -198,7 +198,7 @@ function ContentTab(props: Props) {
             isShortFromChannelPage={shortsOnly}
             {...(excludeShorts &&
               !shortsOnly && {
-                duration: '>180',
+                contentAspectRatio: '>1',
               })}
             {...(shortsOnly && {
               duration: '<=180',

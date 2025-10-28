@@ -317,8 +317,8 @@ function VideoRenderFloating(props: Props) {
   }, [doClearPlayingSource, isComment, isFloating]);
 
   React.useEffect(() => {
-    if (isFloating) doFetchRecommendedContent(uri);
-  }, [doFetchRecommendedContent, isFloating, uri]);
+    if (isFloating && !isShortVideo) doFetchRecommendedContent(uri);
+  }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
 
   React.useEffect(() => {
     return () => {
