@@ -39,8 +39,6 @@ const select = (state, props) => {
   const filterData = selectFilteredDataForUri(state, uri);
   const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
 
-  console.log(uri);
-
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),

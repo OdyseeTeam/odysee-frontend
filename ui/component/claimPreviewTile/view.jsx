@@ -104,8 +104,6 @@ function ClaimPreviewTile(props: Props) {
 
   const isEmbed = React.useContext(EmbedContext);
 
-  console.log(claim);
-
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
@@ -213,8 +211,6 @@ function ClaimPreviewTile(props: Props) {
       </li>
     );
   }
-
-  console.log(sectionTitle);
   return (
     <li
       onClick={handleClick}

@@ -286,8 +286,6 @@ export const doFetchShortsRecommendedContent =
 
       const { title } = claim.value;
 
-      console.log('options', options);
-
       if (title && options) {
         dispatch(doSearch(title, options));
       }

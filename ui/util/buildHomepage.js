@@ -385,8 +385,6 @@ export function GetLinksData(
     // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
-
-  console.log(rowData);
   return rowData;
 }
 
