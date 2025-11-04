@@ -616,7 +616,7 @@ function doSignOutAction() {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
         })
         // $FlowFixMe
-        .finally(() => location.reload());
+        .finally(() => setTimeout(() => location.reload(), 300));
     }
   };
 }
