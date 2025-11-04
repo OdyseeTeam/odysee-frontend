@@ -607,16 +607,18 @@ function doSignOutAction() {
     } finally {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
-        .then(() => {
+        .then(async () => {
           // @if TARGET='web'
-          return window.persistor.purge();
+          window.persistor.pause();
+          await window.persistor.flush();
+          await window.persistor.purge();
           // @endif
         })
         .catch((err) => {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
         })
         // $FlowFixMe
-        .finally(() => setTimeout(() => location.reload(), 300));
+        .finally(() => location.reload());
     }
   };
 }
