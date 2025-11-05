@@ -60,54 +60,46 @@
   background: var(--color-header-background);
 }
 
-.shorts-page__close-button {
-  background: transparent;
-  border: none;
-  color: var(--color-text);
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  border-radius: 4px;
-
-  &:hover {
-    background: var(--color-button-secondary-bg-hover);
-  }
+.shorts-page__close-button-container{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 20px;
 }
 
+.shorts-page__close-button{
+  position: relative;
+  width: fit-content;
+  color: var(--color-text);
+
+  &:hover {
+      background: var(--color-button-secondary-bg-hover);
+      border-radius: 5px;
+  }
+  @media screen and (max-width: $breakpoint-small) {
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--color-button-secondary-bg-hover);
+    }
+  }
+}
 .shorts-page__side-panel-content {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-m);
 }
 
-.shorts-page__info-button {
-  position: fixed;
-  top: 40vh;
-  right: calc(50% - 450px / 2 - 60px);
-  background: rgba(45, 44, 44, 0.895) !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 48px !important;
-  height: 48px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: white !important;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  z-index: 1001 !important;
-
-  .icon {
-    color: white !important;
-  }
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.9) !important;
-  }
-}
 
 
 
-.shorts-page-menu__button {
+.shorts-page__info-button{
   position: fixed;
   top: 70px;
   right: calc(50% - 450px / 2 - 60px);
@@ -123,7 +115,6 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   z-index: 1001 !important;
-  transform: rotate(90deg);
 
   .icon {
     color: white !important;
@@ -205,7 +196,7 @@
   }
 
   .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(50% - 380px / 2 - 60px);
+    right: calc(50.5% - 380px / 2 - 60px);
   }
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
@@ -228,16 +219,17 @@
 
 .shorts-page__navigation {
   position: fixed;
-  top: calc(40vh + 68px);
+  bottom: 3vh;
   right: calc(50% - 450px/ 2 - 60px);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--spacing-s);
   z-index: 1001;
   transition: right 0.3s ease-in-out;
 }
 
-.shorts-page__nav-button {
+.shorts-page__actions-button {
   background: rgba(45, 44, 44, 0.895) !important;
   border-radius: 50% !important;
   width: 48px !important;
@@ -263,17 +255,57 @@
   }
 }
 
+.shorts-page__actions-button--next,.shorts-page__actions-button--previous{
+  width: 60px !important;
+  height: 60px !important;
+}
+
+.shorts-page__actions-button.button-like span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.shorts-page__actions-button.button-dislike span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.fire-and-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  span{
+    font-size: .9rem;
+  }
+}
+
+.slime-and-count{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  span{
+    font-size: .9rem;
+  }
+}
+
 .shorts-page__container--panel-open {
   .shorts-page__info-button {
     right: calc(50% - 330px / 2 + 270px - 60px);
   }
 
   .shorts-page__navigation {
-    right: calc(50% - 330px / 2 + 270px - 60px);
+    right: calc(49.5% - 330px / 2 + 270px - 60px);
   }
 
   .shorts-page__back-button {
-    left: calc(50% - 85vw / 2 - 60px);
+    left: calc(54% - 85vw / 2 - 60px);
   }
 
   
@@ -348,7 +380,7 @@
    }
 
 .shorts-page__navigation {
-  .shorts-page__nav-button {
+  .shorts-page__actions-button {
     transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
 
     &--hidden {
@@ -517,12 +549,89 @@
 }
 
 @media (min-width: $breakpoint-large) {
-
   .shorts-page__info-button {
     right: calc(50% - 28vw / 2 - 60px);
   }
 
   .shorts-page__navigation {
-    right: calc(50% - 28vw / 2 - 60px);
+    right: calc(49.8% - 28vw / 2 - 60px);
+    bottom: 8.5vh;
+  }
+
+  .shorts-page__container--panel-open {
+    .shorts-page__navigation {
+      right: calc(51.5% - 330px / 2 + 270px - 60px);
+    }
+
+    .shorts-page__info-button {
+      right: calc(51.8% - 330px / 2 + 270px - 60px);
+    }
+  }
+}
+
+.shorts-page,.main--shorts-page {
+  .content__cover {
+    width: 450px !important;
+    height: 90vh !important;
+    max-height: 90vh !important;
+    position: fixed;
+    left: 49.6% !important;
+    top: 0 !important;
+    transform: translate(-50%, 0%) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    border-radius: 10px !important;
+    aspect-ratio: 9/16;
+    background-size: cover !important;
+    background-position: center !important;
+    margin: 0 !important;
+    margin-top: 60px!important;
+    z-index: 100000000!important;
+
+    &.content__cover--panel-open {
+      transform: translate(-130%, 0%) !important;
+
+      @media (max-width: $breakpoint-small) {
+        transform: translate(-50%, 0%) !important;
+      }
+
+      @media (max-width: 1180px) and (min-width: $breakpoint-small) {
+        transform: translate(-105%, 0%) !important;
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100svh !important;
+      max-height: 100vh !important;
+      max-height: 100svh !important;
+      left: 0 !important;
+      transform: none !important;
+      border-radius: 0 !important;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      object-fit: cover;
+    }
+
+    @media (min-width: $breakpoint-large) {
+      width: 28vw !important;
+    }
+
+    @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
+      width: 350px !important;
+    }
+    &.content__cover--side-panel-open {
+    transform: translate(-130%, 0%) !important;
+
+    @media (max-width: $breakpoint-small) {
+      transform: translate(-50%, 0%) !important;
+    }
+
+    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
+      transform: translate(-105%, 0%) !important;
+    }
+  }
   }
 }

@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
 import {
   selectClaimIsNsfwForUri,
@@ -40,7 +41,7 @@ import {
   doClearShortsPlaylist,
 } from '../../../../../../../../redux/actions/shorts';
 import { doClaimSearch } from 'redux/actions/claims';
-import { toggleAutoplayNextShort } from 'redux/actions/settings';
+import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
 
 const selectShortsRecommendedContent = createSelector(
@@ -103,6 +104,8 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
+  console.log(shortsRecommendedUris);
+
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
@@ -133,7 +136,9 @@ const select = (state, props) => {
     channelUri,
     thumbnail,
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isClaimShort: isClaimShort(claim),
+    claimId,
   };
 };
 
@@ -156,6 +161,7 @@ const perform = (dispatch) => ({
       })
     );
   },
+  doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
   doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),
@@ -163,4 +169,8 @@ const perform = (dispatch) => ({
   doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
 });
 
-export default withRouter(connect(select, perform)(ShortsPage));
+export default withRouter(
+  connect(select, perform)(
+    ShortsPage
+  )
+);

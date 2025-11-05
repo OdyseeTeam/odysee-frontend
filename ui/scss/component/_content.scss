@@ -612,8 +612,7 @@
   border-radius: 0;
 
   aspect-ratio: 9/16;
-
-  .content__wrapper {
+  .content__wrapper{
     width: 100% !important;
     border-radius: 10px;
     position: relative !important;
@@ -636,7 +635,6 @@
       }
     }
   }
-
   .video-js {
     width: 100%;
     height: 100%;

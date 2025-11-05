@@ -5,12 +5,13 @@ import { useIsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
-import ShortsNavigation from 'component/shortsNavigation';
+import ShortsActions from 'component/shortsActions';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
-import SwipeNavigationPortal from 'component/shortsNavigation/swipeNavigation';
+import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
+import * as SETTINGS from 'constants/settings';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -53,6 +54,10 @@ type Props = {
   doToggleShortsAutoplay: () => void,
   doSetShortsAutoplay: (enabled: boolean) => void,
   isClaimShort: boolean,
+  claimId?: string,
+  autoplayMedia: boolean,
+  doSetClientSetting: (key: string, value: boolean) => void,
+  streamClaim?: () => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -73,7 +78,6 @@ export default function ShortsPage(props: Props) {
     contentUnlocked,
     clearPosition,
     doSetShortsSidePanel,
-    doToggleShortsSidePanel,
     doFetchShortsRecommendedContent,
     doSetShortsPlaylist,
     doClearShortsPlaylist,
@@ -105,6 +109,7 @@ export default function ShortsPage(props: Props) {
   const [localViewMode, setLocalViewMode] = React.useState(
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
+  const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
 
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
@@ -146,6 +151,34 @@ export default function ShortsPage(props: Props) {
     },
     [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode]
   );
+
+  const handleCommentsClick = React.useCallback(() => {
+    if (isMobile) {
+      setMobileModalOpen(true);
+      setPanelMode('comments');
+    } else {
+      setPanelMode('comments');
+      doSetShortsSidePanel(true);
+    }
+  }, [isMobile, doSetShortsSidePanel]);
+
+  const handleInfoButtonClick = React.useCallback(() => {
+    if (isMobile) {
+      setMobileModalOpen(true);
+      setPanelMode('info');
+    } else {
+      setPanelMode('info');
+      doSetShortsSidePanel(true);
+    }
+  }, [isMobile, doSetShortsSidePanel]);
+
+  const handleClosePanel = React.useCallback(() => {
+    if (isMobile) {
+      setMobileModalOpen(false);
+    } else {
+      doSetShortsSidePanel(false);
+    }
+  }, [isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
@@ -200,14 +233,6 @@ export default function ShortsPage(props: Props) {
       }
     }
   }, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
-
-  const handleInfoButtonClick = React.useCallback(() => {
-    if (isMobile) {
-      setMobileModalOpen(true);
-    } else {
-      doToggleShortsSidePanel();
-    }
-  }, [isMobile, doToggleShortsSidePanel]);
 
   React.useEffect(() => {
     if (!entryUrlRef.current) {
@@ -350,7 +375,7 @@ export default function ShortsPage(props: Props) {
         <div className={SHORTS_PLAYER_WRAPPER_CLASS}>
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
-        <ShortsNavigation
+        <ShortsActions
           hasPlaylist={hasPlaylist}
           onNext={goToNext}
           onPrevious={goToPrevious}
@@ -383,6 +408,9 @@ export default function ShortsPage(props: Props) {
         title={title}
         channelUri={channelUri}
         thumbnailUrl={thumbnail}
+        hasChannel={!!channelId}
+        hasPlaylist={hasPlaylist}
+        uri={uri}
       />
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
@@ -406,7 +434,7 @@ export default function ShortsPage(props: Props) {
               />
 
               {!isMobile && (
-                <ShortsNavigation
+                <ShortsActions
                   hasPlaylist={hasPlaylist}
                   onNext={goToNext}
                   onPrevious={goToPrevious}
@@ -417,6 +445,9 @@ export default function ShortsPage(props: Props) {
                   isAtEnd={isAtEnd}
                   autoPlayNextShort={autoPlayNextShort}
                   doToggleShortsAutoplay={doToggleShortsAutoplay}
+                  uri={uri}
+                  onCommentsClick={handleCommentsClick}
+                  onInfoClick={handleInfoButtonClick}
                 />
               )}
             </div>
@@ -431,6 +462,8 @@ export default function ShortsPage(props: Props) {
               commentsDisabled={commentsDisabled}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
+              isComments={panelMode === 'comments'}
+              onClose={handleClosePanel}
             />
           )}
 
@@ -446,6 +479,8 @@ export default function ShortsPage(props: Props) {
               commentsListTitle={commentsListTitle}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
+              autoPlayNextShort={autoPlayNextShort}
+              doToggleShortsAutoplay={doToggleShortsAutoplay}
             />
           )}
         </div>

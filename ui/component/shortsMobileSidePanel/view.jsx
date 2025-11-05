@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import FileTitleSection from 'component/fileTitleSection';
 import Empty from 'component/common/empty';
 import Button from 'component/button';
+import classnames from 'classnames';
 import './style.scss';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -26,6 +27,8 @@ type Props = {
   commentsListTitle: string,
   linkedCommentId?: string,
   threadCommentId?: string,
+  autoPlayNextShort?: boolean,
+  doToggleShortsAutoplay?: () => void,
 };
 
 export default function MobilePanel(props: Props) {
@@ -39,6 +42,8 @@ export default function MobilePanel(props: Props) {
     commentsDisabled,
     linkedCommentId,
     threadCommentId,
+    autoPlayNextShort,
+    doToggleShortsAutoplay,
   } = props;
 
   const modalRef = React.useRef();
@@ -90,6 +95,17 @@ export default function MobilePanel(props: Props) {
         icon={ICONS.INFO}
         iconSize={20}
         title={__('Show Details')}
+      />
+      <Button
+        className={classnames('shorts-mobile-panel__autoplay-next button-bubble', {
+          'button-bubble--active': autoPlayNextShort,
+        })}
+        isShorts
+        requiresAuth={IS_WEB}
+        title={__('Autoplay Next')}
+        onClick={doToggleShortsAutoplay}
+        icon={ICONS.AUTOPLAY_NEXT}
+        iconSize={24}
       />
 
       {(isOpen || isClosing) && (

@@ -3,9 +3,6 @@ import React from 'react';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import Icon from 'component/common/icon';
-import classnames from 'classnames';
 import { useHistory } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -30,18 +27,8 @@ const ShortsVideoPlayer = React.memo<Props>(
     sidePanelOpen,
     onInfoButtonClick,
     primaryPlayerWrapperClass,
-    viewMode = 'related',
-    channelName,
-    onViewModeChange,
-    hasChannel = false,
-    hasPlaylist,
     handleBackButton,
   }: Props) => {
-    const handleViewModeSelect = (mode: string) => {
-      if (onViewModeChange) {
-        onViewModeChange(mode);
-      }
-    };
     const {
       location: { search },
     } = useHistory();
@@ -59,50 +46,6 @@ const ShortsVideoPlayer = React.memo<Props>(
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
           {isShortVideo && <VideoClaimInitiator uri={isShortVideo ? uri : ''} />}
         </div>
-
-        {!isMobile && hasChannel && hasPlaylist && (
-          <Menu>
-            <MenuButton
-              className="shorts-page__info-button shorts-page-menu__button"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              <Icon size={20} icon={ICONS.MORE} />
-            </MenuButton>
-
-            <MenuList className="menu__list shorts-page__view-menu">
-              <MenuItem
-                className={classnames('comment__menu-option', {
-                  'comment__menu-option--active': viewMode === 'related',
-                })}
-                onSelect={() => handleViewModeSelect('related')}
-              >
-                <div className="menu__link">
-                  <Icon aria-hidden iconColor={viewMode === 'related' ? 'var(--color-primary)' : undefined} />
-                  {__('Related')}
-                </div>
-              </MenuItem>
-
-              <MenuItem
-                className={classnames('comment__menu-option', {
-                  'comment__menu-option--active': viewMode === 'channel',
-                })}
-                onSelect={() => handleViewModeSelect('channel')}
-              >
-                <div className="menu__link">
-                  <Icon iconColor={viewMode === 'channel' ? 'var(--color-primary)' : undefined} />
-                  {__('From %channel%', {
-                    channel:
-                      channelName && channelName.length > 20
-                        ? channelName.substring(0, 20) + '...'
-                        : channelName || 'Channel',
-                  })}
-                </div>
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        )}
 
         {!isMobile && (
           <Button

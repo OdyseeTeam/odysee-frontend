@@ -21,6 +21,7 @@ type Props = {
   obscurePreview: boolean,
   renderMode: string,
   videoTheaterMode: boolean,
+  sidePanelOpen: boolean,
 };
 
 const ClaimCoverRender = (props: Props) => {
@@ -35,6 +36,7 @@ const ClaimCoverRender = (props: Props) => {
     obscurePreview,
     renderMode,
     videoTheaterMode,
+    sidePanelOpen,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -59,6 +61,7 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
+        'content__cover--side-panel-open': sidePanelOpen,
       })}
     >
       {children}

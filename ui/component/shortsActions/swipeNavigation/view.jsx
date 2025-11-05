@@ -4,7 +4,11 @@ import { createPortal } from 'react-dom';
 import classnames from 'classnames';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 import { Link } from 'react-router-dom';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import './style.scss';
 
 type Props = {
@@ -26,6 +30,10 @@ type Props = {
   title?: string,
   channelUri?: string,
   thumbnailUrl?: string,
+  hasChannel?: boolean,
+  hasPlaylist?: boolean,
+  handleViewModeSelect?: (mode: string) => void,
+  streamClaim?: StreamClaim,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -46,6 +54,9 @@ const SwipeNavigationPortal = React.memo<Props>(
     title,
     channelUri,
     thumbnailUrl,
+    hasChannel,
+    hasPlaylist,
+    streamClaim,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -53,6 +64,12 @@ const SwipeNavigationPortal = React.memo<Props>(
     const isScrollingRef = React.useRef(false);
     const scrollLockRef = React.useRef(false);
     const isTapRef = React.useRef(false);
+
+    const handleViewModeSelect = (mode: string) => {
+      if (onViewModeChange) {
+        onViewModeChange(mode);
+      }
+    };
 
     const handleTouchStart = React.useCallback(
       (e) => {
@@ -197,9 +214,18 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     if (!targetContainer) return null;
 
+    console.log(!isMobile);
+    console.log(hasChannel);
+    console.log(hasPlaylist);
+
     return createPortal(
       <div
-        onClick={onPlayPause}
+        onClick={() => {
+          onPlayPause();
+          if (streamClaim) {
+            streamClaim();
+          }
+        }}
         ref={overlayRef}
         className={`
           swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} 
@@ -207,22 +233,69 @@ const SwipeNavigationPortal = React.memo<Props>(
         `}
       >
         {channelName && (
-          <div className="swipe-navigation-overlay__content-info">
-            <div className="swipe-navigation-overlay__text-info">
-              {channelUri && channelName && (
-                <Link
-                  to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
-                  className="swipe-navigation-overlay__channel"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
-                  <span className="swipe-navigation-overlay__channel-name">{channelName}</span>
-                </Link>
-              )}
+          <>
+            <div className="swipe-navigation-overlay__content-info">
+              <div className="swipe-navigation-overlay__text-info">
+                {channelUri && channelName && (
+                  <Link
+                    to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
+                    className="swipe-navigation-overlay__channel"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                    <span className="swipe-navigation-overlay__channel-name">{channelName}</span>
+                  </Link>
+                )}
+              </div>
+              <span className="swipe-navigation-overlay__title">{title}</span>
             </div>
-          </div>
+          </>
+        )}
+
+        {!isMobile && hasChannel && (
+          <Menu>
+            <MenuButton
+              className="shorts-page-menu__button"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Icon size={20} icon={ICONS.MORE} />
+            </MenuButton>
+
+            <MenuList className="menu__list shorts-page__view-menu">
+              <MenuItem
+                className={classnames('comment__menu-option', {
+                  'comment__menu-option--active': viewMode === 'related',
+                })}
+                onSelect={() => handleViewModeSelect('related')}
+              >
+                <div className="menu__link">
+                  <Icon aria-hidden iconColor={viewMode === 'related' ? 'var(--color-primary)' : undefined} />
+                  {__('Related')}
+                </div>
+              </MenuItem>
+
+              <MenuItem
+                className={classnames('comment__menu-option', {
+                  'comment__menu-option--active': viewMode === 'channel',
+                })}
+                onSelect={() => handleViewModeSelect('channel')}
+              >
+                <div className="menu__link">
+                  <Icon iconColor={viewMode === 'channel' ? 'var(--color-primary)' : undefined} />
+                  {__('From %channel%', {
+                    channel:
+                      channelName && channelName.length > 20
+                        ? channelName.substring(0, 20) + '...'
+                        : channelName || 'Channel',
+                  })}
+                </div>
+              </MenuItem>
+            </MenuList>
+          </Menu>
         )}
 
         {showViewToggle && onViewModeChange && (
@@ -234,7 +307,7 @@ const SwipeNavigationPortal = React.memo<Props>(
               label={__('Related')}
               onClick={(e) => {
                 e.stopPropagation();
-                onViewModeChange('related');
+                handleViewModeSelect('related');
               }}
             />
             <Button
@@ -249,7 +322,7 @@ const SwipeNavigationPortal = React.memo<Props>(
               })}
               onClick={(e) => {
                 e.stopPropagation();
-                onViewModeChange('channel');
+                handleViewModeSelect('channel');
               }}
             />
           </div>
@@ -261,4 +334,4 @@ const SwipeNavigationPortal = React.memo<Props>(
   }
 );
 
-export default SwipeNavigationPortal;
+export default withStreamClaimRender(SwipeNavigationPortal);
