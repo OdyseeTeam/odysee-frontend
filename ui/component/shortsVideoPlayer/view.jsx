@@ -17,18 +17,10 @@ type Props = {
   onViewModeChange?: (mode: string) => void,
   hasChannel?: boolean,
   hasPlaylist?: boolean,
-  handleBackButton?: () => void,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
-  ({
-    uri,
-    isMobile,
-    sidePanelOpen,
-    onInfoButtonClick,
-    primaryPlayerWrapperClass,
-    handleBackButton,
-  }: Props) => {
+  ({ uri, isMobile, sidePanelOpen, onInfoButtonClick, primaryPlayerWrapperClass }: Props) => {
     const {
       location: { search },
     } = useHistory();
@@ -36,13 +28,13 @@ const ShortsVideoPlayer = React.memo<Props>(
     const isShortVideo = urlParams.get('view') === 'shorts';
     return (
       <div className="shorts-page__video-section">
-        <Button
+        {/* <Button
           button="close"
           icon={ICONS.BACK}
           className="shorts-page__info-button shorts-page__back-button"
           onClick={handleBackButton}
           aria-label={__('Go back')}
-        />
+        /> */}
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
           {isShortVideo && <VideoClaimInitiator uri={isShortVideo ? uri : ''} />}
         </div>

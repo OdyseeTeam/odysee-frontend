@@ -11,7 +11,6 @@ import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
-import * as SETTINGS from 'constants/settings';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -283,14 +282,6 @@ export default function ShortsPage(props: Props) {
     history.replace(shortsUrl);
   }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, history]);
 
-  const handleBackButton = React.useCallback(() => {
-    if (entryUrlRef.current) {
-      history.push(entryUrlRef.current);
-    } else {
-      history.push('/');
-    }
-  }, [history]);
-
   React.useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === 'ArrowUp') {
@@ -359,9 +350,7 @@ export default function ShortsPage(props: Props) {
         }, 500);
       }
     };
-
     videoElement.addEventListener('ended', handleEnded);
-
     return () => {
       videoElement.removeEventListener('ended', handleEnded);
     };
@@ -430,7 +419,6 @@ export default function ShortsPage(props: Props) {
                 onViewModeChange={handleViewModeChange}
                 hasChannel={!!channelId}
                 hasPlaylist={hasPlaylist}
-                handleBackButton={handleBackButton}
               />
 
               {!isMobile && (

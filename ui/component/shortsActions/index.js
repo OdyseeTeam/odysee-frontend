@@ -8,8 +8,10 @@ import {
   selectClaimIsMine,
   selectScheduledStateForUri,
   makeSelectTagInClaimOrChannelForUri,
+  selectIsUriUnlisted,
 } from 'redux/selectors/claims';
 import { DISABLE_SLIMES_VIDEO_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
+import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -29,6 +31,9 @@ const select = (state, props) => {
     disableSlimes:
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state),
+    isUnlisted: selectIsUriUnlisted(state, uri),
+    webShareable: true,
+    collectionId: props.collectionId,
   };
 };
 
@@ -36,6 +41,7 @@ const perform = {
   doFetchReactions,
   doReactionLike,
   doReactionDislike,
+  doOpenModal,
 };
 
 export default connect(select, perform)(ShortsActions);
