@@ -69,8 +69,6 @@ const ShortsActions = React.memo<Props>(
     isUnlisted,
     doOpenModal,
   }: Props) => {
-    if (!hasPlaylist) return null;
-
     const handleShareClick = React.useCallback(() => {
       doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId });
     }, [doOpenModal, uri, webShareable, collectionId]);
@@ -95,7 +93,6 @@ const ShortsActions = React.memo<Props>(
         }
       };
     }, [claimId, doFetchReactions, isLivestreamClaim]);
-    if (!hasPlaylist) return null;
     const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
 
     return (
@@ -107,7 +104,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.UP}
             iconSize={24}
             title={__('Previous Short')}
-            disabled={isLoading || isAtStart}
+            disabled={isLoading || isAtStart || !hasPlaylist}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--next"
@@ -115,7 +112,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.DOWN}
             iconSize={24}
             title={__('Next Short')}
-            disabled={isLoading || isAtEnd}
+            disabled={isLoading || isAtEnd || !hasPlaylist}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--comments"
@@ -123,7 +120,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.COMMENTS_LIST}
             iconSize={20}
             title={__('Comments')}
-            disabled={isLoading}
+            disabled={isLoading || !hasPlaylist}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--share"
@@ -131,7 +128,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.SHARE}
             iconSize={20}
             title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-            disabled={isLoading}
+            disabled={isLoading || !hasPlaylist}
           />
           {/* <Button
               className="shorts-page__actions-button shorts-page__actions-button--share"
@@ -147,7 +144,7 @@ const ShortsActions = React.memo<Props>(
               icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
               iconSize={20}
               title={__('I Like This')}
-              disabled={isLoading || isAtEnd}
+              disabled={isLoading || !hasPlaylist}
               requiresAuth
               authSrc="filereaction_like"
               className={classnames('shorts-page__actions-button button--file-action button-like', {
@@ -179,6 +176,7 @@ const ShortsActions = React.memo<Props>(
               className={classnames('shorts-page__actions-button button--file-action button-dislike', {
                 'button--slime': myReaction === REACTION_TYPES.DISLIKE,
               })}
+              disabled={isLoading || !hasPlaylist}
               label={
                 <>
                   {myReaction === REACTION_TYPES.DISLIKE && (
@@ -206,6 +204,7 @@ const ShortsActions = React.memo<Props>(
             onClick={doToggleShortsAutoplay}
             icon={ICONS.AUTOPLAY_NEXT}
             iconSize={24}
+            disabled={isLoading || !hasPlaylist}
           />
         </>
       </div>
