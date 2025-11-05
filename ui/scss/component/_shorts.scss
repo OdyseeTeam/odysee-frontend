@@ -588,6 +588,10 @@
     margin-top: 60px!important;
     z-index: 100000000!important;
 
+  .button--play {
+    display: block!important;
+  }
+
     &.content__cover--panel-open {
       transform: translate(-130%, 0%) !important;
 

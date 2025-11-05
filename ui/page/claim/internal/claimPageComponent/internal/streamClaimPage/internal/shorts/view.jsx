@@ -469,6 +469,9 @@ export default function ShortsPage(props: Props) {
               threadCommentId={threadCommentId}
               autoPlayNextShort={autoPlayNextShort}
               doToggleShortsAutoplay={doToggleShortsAutoplay}
+              onInfoButtonClick={handleInfoButtonClick}
+              onCommentsClick={handleCommentsClick}
+              isComments={panelMode === 'comments'}
             />
           )}
         </div>
