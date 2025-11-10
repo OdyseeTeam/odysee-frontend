@@ -164,7 +164,7 @@ export default function MobilePanel(props: Props) {
           <Button
             onClick={() => doReactionLike(uri)}
             icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
-            iconSize={24}
+            iconSize={16}
             title={__('I Like This')}
             requiresAuth
             authSrc="filereaction_like"
@@ -211,7 +211,7 @@ export default function MobilePanel(props: Props) {
                 )}
               </>
             }
-            iconSize={24}
+            iconSize={16}
             icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
             onClick={() => doReactionDislike(uri)}
           />
@@ -225,7 +225,7 @@ export default function MobilePanel(props: Props) {
             className="shorts-mobile-panel__action-button"
             onClick={onCommentsClick}
             icon={ICONS.COMMENTS_LIST}
-            iconSize={20}
+            iconSize={16}
           />
           <span className="shorts-mobile-panel__count">Comments</span>
         </div>
@@ -234,7 +234,7 @@ export default function MobilePanel(props: Props) {
             className="shorts-mobile-panel__action-button"
             onClick={handleShareClick}
             icon={ICONS.SHARE}
-            iconSize={24}
+            iconSize={16}
             title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
           />
           <span className="shorts-mobile-panel__count">Share</span>
@@ -245,7 +245,7 @@ export default function MobilePanel(props: Props) {
             className="shorts-mobile-panel__action-button"
             onClick={onInfoButtonClick}
             icon={ICONS.INFO}
-            iconSize={20}
+            iconSize={16}
           />
           <span className="shorts-mobile-panel__count">Details</span>
         </div>
@@ -276,7 +276,7 @@ export default function MobilePanel(props: Props) {
             <div className="shorts-mobile-panel__header">
               <div className="shorts-mobile-panel__drag-handle" />
               <div className="shorts-mobile-panel__title-section">
-                <div>{__('Video Details')}</div>
+                <div>{isComments ? __('Comments') : __('Video Details')}</div>
                 <Button
                   className="shorts-mobile-panel__close-button"
                   onClick={handleClose}

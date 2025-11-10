@@ -104,8 +104,6 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
-  console.log(shortsRecommendedUris);
-
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),

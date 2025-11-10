@@ -214,10 +214,6 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     if (!targetContainer) return null;
 
-    console.log(!isMobile);
-    console.log(hasChannel);
-    console.log(hasPlaylist);
-
     return createPortal(
       <div
         onClick={() => {
