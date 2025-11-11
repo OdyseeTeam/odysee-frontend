@@ -270,8 +270,7 @@ function App(props: Props) {
   }, [userId]);
 
   useEffect(() => {
-    const onSettingsPage = pathname && pathname.startsWith(`/$/${PAGES.SETTINGS}`);
-    if (syncIsLocked && onSettingsPage) {
+    if (syncIsLocked) {
       const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
       const handleBeforeUnload = (event) => {
         event.preventDefault();
@@ -281,7 +280,7 @@ function App(props: Props) {
       BeforeUnload.register(handleBeforeUnload, msg);
       return () => BeforeUnload.unregister(handleBeforeUnload);
     }
-  }, [syncIsLocked, pathname]);
+  }, [syncIsLocked]);
 
   useEffect(() => {
     if (!uploadCount) return;
