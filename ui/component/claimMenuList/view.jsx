@@ -623,8 +623,6 @@ function ClaimMenuList(props: Props) {
                 </div>
               </MenuItem>
 
-              {/* Embed menu item removed to avoid scope creep in this commit */}
-
               {isChannelPage && IS_WEB && rssUrl && (
                 <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>
                   <div className="menu__link">
