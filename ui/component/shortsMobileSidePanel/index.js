@@ -11,27 +11,21 @@ const select = (state, props) => {
   const { claim_id: claimId } = claim || {};
 
   return {
-    // Reactions
     claimId,
     myReaction: selectMyReactionForUri(state, uri),
     likeCount: selectLikeCountForUri(state, uri),
     dislikeCount: selectDislikeCountForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
-
-    // Share
     isUnlisted: selectIsUriUnlisted(state, uri),
     webShareable: true,
-    collectionId: props.collectionId, // Pass through from props if available
+    collectionId: props.collectionId,
   };
 };
 
 const perform = {
-  // Reactions
   doFetchReactions,
   doReactionLike,
   doReactionDislike,
-
-  // Share
   doOpenModal,
 };
 

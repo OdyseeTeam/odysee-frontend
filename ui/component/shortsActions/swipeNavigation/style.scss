@@ -1,6 +1,6 @@
 .swipe-navigation-overlay {
   position: fixed;
-  z-index: 9998;
+  z-index: 1;
   pointer-events: none;
   background: transparent;
   overflow: hidden;
@@ -16,6 +16,7 @@
     // border: 1px solid red;
     left: 49.6%;
     transform: translateX(-50%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     @media (max-width: 900px) {
       width: 100%;
       height: 83%;
@@ -32,6 +33,7 @@
   }
   &.shorts__viewer--panel-open {
     transform: translate(-130%, 0%) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     @media (max-width: 786px) {
       transform: translate(-50%, 0%) !important;
@@ -46,6 +48,9 @@
     @media (min-width: 2500px) {
       transform: translate(-129%, 0%) !important;
     }
+  }
+  @media screen and (max-width: 786px){
+    z-index:0;
   }
 }
 
@@ -147,5 +152,121 @@
 
   .swipe-navigation-overlay__channel-name {
     font-size: 13px;
+  }
+}
+
+.shorts-mobile-panel__actions {
+  position: fixed;
+  bottom: 10vh;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10001;
+  pointer-events: auto;
+}
+
+.shorts-mobile-panel__action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.shorts-mobile-panel__action-button {
+  background: rgba(45, 44, 44, 0.6) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+
+  .icon {
+    color: white !important;
+  }
+
+  &.button-bubble--active {
+    background: var(--color-primary) !important;
+
+    &:hover {
+      background: var(--color-primary-alt) !important;
+    }
+  }
+
+  .button__label {
+    display: none;
+  }
+}
+
+.shorts-mobile-panel__count {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
+  min-width: 30px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .swipe-navigation-overlay__content-info {
+    top: 80%;
+    left: 5px;
+    right: 16px;
+    padding: 16px;
+    background: transparent;
+    width: 60%;
+  }
+
+  .swipe-navigation-overlay__thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+
+  .swipe-navigation-overlay__title {
+    font-size: 14px;
+    -webkit-line-clamp: 2;
+  }
+
+  .swipe-navigation-overlay__channel-name {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .shorts-mobile-panel__actions {
+    bottom: 5vh;
+    gap: 6px;
+  }
+
+  .shorts-mobile-panel__action-button {
+    width: 45px !important;
+    height: 45px !important;
+    min-width: 45px !important;
+    min-height: 45px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .shorts-mobile-panel__actions {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shorts-mobile-panel__action-button {
+    transition-duration: 0.15s;
+  }
+
+  .shorts-mobile-panel__action-button:hover {
+    transform: none;
   }
 }

@@ -29,6 +29,7 @@ import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
 import { isClaimShort } from 'util/claim';
 import {HomepageTitles} from 'util/buildHomepage';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 type Props = {
   uri: string,
@@ -103,6 +104,7 @@ function ClaimPreviewTile(props: Props) {
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
+  const pageHistory = useHistory();
 
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -129,6 +131,7 @@ function ClaimPreviewTile(props: Props) {
       onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
     },
   };
+  const queryParams = new URLSearchParams(pageHistory.location.search);
 
   const signingChannel = claim && claim.signing_channel;
   const isChannel = claim && claim.value_type === 'channel';
@@ -139,6 +142,7 @@ function ClaimPreviewTile(props: Props) {
   const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
 
   const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const useShortsThumb = (sectionTitle === 'Shorts') || queryParams.get('view') === 'shortsTab';
 
   let shouldHide = false;
 
@@ -192,7 +196,9 @@ function ClaimPreviewTile(props: Props) {
           pulse: pulse,
         })}
       >
-        <div className="media__thumb" />
+        <div className={classnames('media__thumb',
+          {'media__thumb__short': useShortsThumb}
+          )} />
         <div className="placeholder__wrapper">
           <div className="claim-tile__title" />
           <div className="claim-tile__title_b" />

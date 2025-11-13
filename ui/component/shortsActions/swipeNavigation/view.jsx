@@ -7,11 +7,16 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import { Link } from 'react-router-dom';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import { formatNumberWithCommas } from 'util/number';
+import * as REACTION_TYPES from 'constants/reactions';
+import Skeleton from '@mui/material/Skeleton';
 import './style.scss';
 
 type Props = {
+  uri?: string,
   children: React.Node,
   onNext: () => void,
   onPrevious: () => void,
@@ -32,12 +37,28 @@ type Props = {
   thumbnailUrl?: string,
   hasChannel?: boolean,
   hasPlaylist?: boolean,
+  autoPlayNextShort?: boolean,
+  doToggleShortsAutoplay?: () => void,
   handleViewModeSelect?: (mode: string) => void,
   streamClaim?: StreamClaim,
+  onCommentsClick?: () => void,
+  onInfoButtonClick?: () => void,
+  likeCount: number,
+  dislikeCount: number,
+  myReaction: ?string,
+  isLivestreamClaim?: boolean,
+  doFetchReactions: (claimId: ?string) => void,
+  doReactionLike: (uri: string) => void,
+  doReactionDislike: (uri: string) => void,
+  isUnlisted: ?boolean,
+  doOpenModal?: (id: string, props: any) => void,
+  webShareable?: boolean,
+  collectionId?: string,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
   ({
+    uri,
     children,
     onNext,
     onPrevious,
@@ -56,7 +77,20 @@ const SwipeNavigationPortal = React.memo<Props>(
     thumbnailUrl,
     hasChannel,
     hasPlaylist,
+    onInfoButtonClick,
+    autoPlayNextShort,
+    doToggleShortsAutoplay,
+    onCommentsClick,
+    likeCount,
+    dislikeCount,
+    myReaction,
+    doReactionLike,
+    doReactionDislike,
     streamClaim,
+    webShareable,
+    isUnlisted,
+    collectionId,
+    doOpenModal,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -64,8 +98,26 @@ const SwipeNavigationPortal = React.memo<Props>(
     const isScrollingRef = React.useRef(false);
     const scrollLockRef = React.useRef(false);
     const isTapRef = React.useRef(false);
+    const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
 
-    const handleViewModeSelect = (mode: string) => {
+    const isInsideSidePanel = React.useCallback((el) => {
+      let node = el;
+      while (node) {
+        if (node.classList && (node.classList.contains('shorts-page__side-panel') || node.classList.contains('shorts-page__side-panel--open'))) {
+          return true;
+        }
+        node = node.parentElement;
+      }
+      return false;
+    }, []);
+
+    const handleShareClick = React.useCallback(() => {
+      if (doOpenModal) {
+        doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId });
+      }
+    }, [doOpenModal, uri, webShareable, collectionId]);
+
+    const handleViewModeSelect = (mode) => {
       if (onViewModeChange) {
         onViewModeChange(mode);
       }
@@ -228,6 +280,112 @@ const SwipeNavigationPortal = React.memo<Props>(
           ${sidePanelOpen ? 'shorts__viewer--panel-open' : ''}
         `}
       >
+        <div className="shorts-mobile-panel__actions">
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            onClick={() => doReactionLike(uri)}
+            icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+            iconSize={16}
+            title={__('I Like This')}
+            requiresAuth
+            authSrc="filereaction_like"
+            className={classnames('shorts-mobile-panel__action-button button--file-action button-like', {
+              'button--fire': myReaction === REACTION_TYPES.LIKE,
+            })}
+            label={
+              <>
+                {myReaction === REACTION_TYPES.LIKE && (
+                  <>
+                    <div className="button__fire-glow" />
+                    <div className="button__fire-particle1" />
+                    <div className="button__fire-particle2" />
+                    <div className="button__fire-particle3" />
+                    <div className="button__fire-particle4" />
+                    <div className="button__fire-particle5" />
+                    <div className="button__fire-particle6" />
+                  </>
+                )}
+              </>
+            }
+          />
+          <span className="shorts-mobile-panel__count">
+            {Number.isInteger(likeCount) ? formatNumberWithCommas(likeCount, 0) : Placeholder}
+          </span>
+        </div>
+
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            requiresAuth
+            authSrc={'filereaction_dislike'}
+            title={__('I dislike this')}
+            className={classnames('shorts-mobile-panel__action-button button--file-action button-dislike', {
+              'button--slime': myReaction === REACTION_TYPES.DISLIKE,
+            })}
+            label={
+              <>
+                {myReaction === REACTION_TYPES.DISLIKE && (
+                  <>
+                    <div className="button__slime-stain" />
+                    <div className="button__slime-drop1" />
+                    <div className="button__slime-drop2" />
+                  </>
+                )}
+              </>
+            }
+            iconSize={16}
+            icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+            onClick={() => doReactionDislike(uri)}
+          />
+          <span className="shorts-mobile-panel__count">
+            {Number.isInteger(dislikeCount) ? formatNumberWithCommas(dislikeCount, 0) : Placeholder}
+          </span>
+        </div>
+
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onCommentsClick}
+            icon={ICONS.COMMENTS_LIST}
+            iconSize={16}
+          />
+          <span className="shorts-mobile-panel__count">{__('Comments')}</span>
+        </div>
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={handleShareClick}
+            icon={ICONS.SHARE}
+            iconSize={16}
+            title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+          />
+          <span className="shorts-mobile-panel__count">{__('Share')}</span>
+        </div>
+
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onInfoButtonClick}
+            icon={ICONS.INFO}
+            iconSize={16}
+          />
+          <span className="shorts-mobile-panel__count">{__('Details')}</span>
+        </div>
+
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            className={classnames('shorts-mobile-panel__action-button button-bubble', {
+              'button-bubble--active': autoPlayNextShort,
+            })}
+            isShorts
+            requiresAuth={IS_WEB}
+            title={__('Autoplay Next')}
+            onClick={doToggleShortsAutoplay}
+            icon={ICONS.AUTOPLAY_NEXT}
+            iconSize={24}
+          />
+          <span className="shorts-mobile-panel__count">{__('Auto Next')}</span>
+        </div>
+      </div>
         {channelName && (
           <>
             <div className="swipe-navigation-overlay__content-info">

@@ -33,6 +33,10 @@
     transition: background-size 0.2s ease-in-out;
   }
 
+  .media__thumb__short{
+  aspect-ratio: 9 / 16;
+}
+
   .claim-preview__title {
     font-weight: var(--font-weight-bold);
     overflow: hidden;

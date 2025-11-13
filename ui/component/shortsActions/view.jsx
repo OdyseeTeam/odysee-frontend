@@ -110,35 +110,11 @@ const ShortsActions = React.memo<Props>(
             title={__('Next Short')}
             disabled={isLoading || isAtEnd || !hasPlaylist}
           />
-          <Button
-            className="shorts-page__actions-button shorts-page__actions-button--comments"
-            onClick={onCommentsClick}
-            icon={ICONS.COMMENTS_LIST}
-            iconSize={20}
-            title={__('Comments')}
-            disabled={isLoading || !hasPlaylist}
-          />
-          <Button
-            className="shorts-page__actions-button shorts-page__actions-button--share"
-            onClick={handleShareClick}
-            icon={ICONS.SHARE}
-            iconSize={20}
-            title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-            disabled={isLoading || !hasPlaylist}
-          />
-          {/* <Button
-              className="shorts-page__actions-button shorts-page__actions-button--share"
-              onClick={onNext}
-              icon={ICONS.SUPPORT}
-              iconSize={20}
-              title={__('Next Short')}
-              disabled={isLoading || isAtEnd}
-            /> */}
-          <div className="fire-and-count">
+           <div className="fire-and-count">
             <Button
               onClick={() => doReactionLike(uri)}
               icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
-              iconSize={20}
+              iconSize={16}
               title={__('I Like This')}
               disabled={isLoading || !hasPlaylist}
               requiresAuth
@@ -184,24 +160,58 @@ const ShortsActions = React.memo<Props>(
                   )}
                 </>
               }
-              iconSize={20}
+              iconSize={16}
               icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
               onClick={() => doReactionDislike(uri)}
             />
             {Number.isInteger(dislikeCount) ? <span>{formatNumberWithCommas(dislikeCount, 0)}</span> : Placeholder}
           </div>
-          <Button
-            className={classnames('shorts-page__actions-button button-bubble', {
-              'button-bubble--active': autoPlayNextShort,
-            })}
-            isShorts
-            requiresAuth={IS_WEB}
-            title={__('Autoplay Next')}
-            onClick={doToggleShortsAutoplay}
-            icon={ICONS.AUTOPLAY_NEXT}
-            iconSize={24}
-            disabled={isLoading || !hasPlaylist}
-          />
+          <div className="shorts-actions__item">
+            <Button
+              className="shorts-page__actions-button shorts-page__actions-button--comments"
+              onClick={onCommentsClick}
+              icon={ICONS.COMMENTS_LIST}
+              iconSize={16}
+              title={__('Comments')}
+              disabled={isLoading || !hasPlaylist}
+            />
+            <p>{__('Comments')}</p>
+          </div>
+
+          <div className="shorts-actions__item">
+            <Button
+              className="shorts-page__actions-button shorts-page__actions-button--share"
+              onClick={handleShareClick}
+              icon={ICONS.SHARE}
+              iconSize={16}
+              title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+              disabled={isLoading || !hasPlaylist}
+            />
+            <p>{__('Share')}</p>
+          </div>
+          {/* <Button
+              className="shorts-page__actions-button shorts-page__actions-button--share"
+              onClick={onNext}
+              icon={ICONS.SUPPORT}
+              iconSize={20}
+              title={__('Next Short')}
+              disabled={isLoading || isAtEnd}
+            /> */}
+          <div className="shorts-actions__item">
+            <Button
+              className={classnames('shorts-page__actions-button button-bubble', {
+                'button-bubble--active': autoPlayNextShort,
+              })}
+              isShorts
+              requiresAuth={IS_WEB}
+              title={__('Autoplay Next')}
+              onClick={doToggleShortsAutoplay}
+              icon={ICONS.AUTOPLAY_NEXT}
+              iconSize={16}
+              disabled={isLoading || !hasPlaylist}
+            />
+            <p>{__('Auto Next')}</p>
+          </div>
         </>
       </div>
     );

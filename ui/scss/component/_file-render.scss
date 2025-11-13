@@ -75,6 +75,9 @@
       .media__thumb {
         width: var(--file-list-thumbnail-width);
       }
+      .media__thumb__short{
+      aspect-ratio: 9 / 16;
+      }
       .placeholder__wrapper {
         .claim-preview__title {
           width: 95%;

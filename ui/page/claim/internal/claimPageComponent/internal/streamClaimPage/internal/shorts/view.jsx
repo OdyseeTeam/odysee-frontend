@@ -11,6 +11,7 @@ import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
+import * as SETTINGS from 'constants/settings';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -91,6 +92,8 @@ export default function ShortsPage(props: Props) {
     thumbnail,
     autoPlayNextShort,
     doToggleShortsAutoplay,
+    autoplayMedia,
+    doSetClientSetting,
   } = props;
 
   const {
@@ -117,6 +120,19 @@ export default function ShortsPage(props: Props) {
   const hasInitializedRef = React.useRef(false);
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
+  const originalAutoplayMediaRef = React.useRef(autoplayMedia);
+  const isFirstShortRef = React.useRef(currentIndex === -1);
+
+  console.log(currentIndex)
+
+  React.useEffect(() => {
+    console.log('isFirstShortRef', isFirstShortRef.current);
+    console.log('autoPlayNextShort', autoPlayNextShort);
+    console.log('originalAutoplayMediaRef', originalAutoplayMediaRef.current);
+    if (isFirstShortRef.current && autoPlayNextShort && originalAutoplayMediaRef.current) {
+      doSetClientSetting(SETTINGS.AUTOPLAY_NEXT, true);
+    }
+  }, [autoPlayNextShort, doSetClientSetting]);
 
   const fetchForMode = React.useCallback(
     (mode) => {
@@ -186,6 +202,7 @@ export default function ShortsPage(props: Props) {
 
       if (isNavigatingFromShorts && !isNavigatingToShorts) {
         doClearShortsPlaylist();
+        isFirstShortRef.current = true;
       }
     });
 
@@ -194,6 +211,7 @@ export default function ShortsPage(props: Props) {
       const currentUrl = window.location.search;
       if (!currentUrl.includes('view=shorts')) {
         doClearShortsPlaylist();
+        isFirstShortRef.current = true;
       }
     };
   }, [history, search, doClearShortsPlaylist]);
@@ -252,6 +270,7 @@ export default function ShortsPage(props: Props) {
     }
 
     clearPosition(uri);
+    isFirstShortRef.current = false;
 
     const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
     history.replace(shortsUrl);
@@ -277,6 +296,7 @@ export default function ShortsPage(props: Props) {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
 
     clearPosition(uri);
+    isFirstShortRef.current = false;
 
     const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
     history.replace(shortsUrl);
@@ -400,6 +420,11 @@ export default function ShortsPage(props: Props) {
         hasChannel={!!channelId}
         hasPlaylist={hasPlaylist}
         uri={uri}
+        autoPlayNextShort={autoPlayNextShort}
+        doToggleShortsAutoplay={doToggleShortsAutoplay}
+        onInfoButtonClick={handleInfoButtonClick}
+        onCommentsClick={handleCommentsClick}
+        isComments={panelMode === 'comments'}
       />
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
@@ -467,11 +492,6 @@ export default function ShortsPage(props: Props) {
               commentsListTitle={commentsListTitle}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
-              autoPlayNextShort={autoPlayNextShort}
-              doToggleShortsAutoplay={doToggleShortsAutoplay}
-              onInfoButtonClick={handleInfoButtonClick}
-              onCommentsClick={handleCommentsClick}
-              isComments={panelMode === 'comments'}
             />
           )}
         </div>

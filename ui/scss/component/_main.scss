@@ -613,6 +613,9 @@ body {
       height: 6rem;
       border-radius: 50%;
     }
+    .media__thumb__short{
+      aspect-ratio: 9 / 16;
+    }
     .channel-thumbnail {
       display: none;
     }

@@ -124,6 +124,7 @@ function FileThumbnail(props: Props) {
       className={classnames('media__thumb', className, {
         'media__thumb--resolving': hasResolvedClaim === false,
         'media__thumb--small': small,
+        'media__thumb__short': isShort,
       })}
     >
       {children}

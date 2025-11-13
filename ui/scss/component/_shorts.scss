@@ -224,7 +224,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-s);
+  gap: 8px;
   z-index: 1001;
   transition: right 0.3s ease-in-out;
 }
@@ -232,8 +232,8 @@
 .shorts-page__actions-button {
   background: rgba(45, 44, 44, 0.895) !important;
   border-radius: 50% !important;
-  width: 48px !important;
-  height: 48px !important;
+  width: 40px !important;
+  height: 40px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -260,6 +260,7 @@
   height: 60px !important;
 }
 
+
 .shorts-page__actions-button.button-like span {
   display: flex;
   align-items: center;
@@ -273,6 +274,16 @@
   flex-direction: column;
 }
 
+.shorts-actions__item{
+  display: flex;
+  flex-direction:column;
+  justify-content: center;
+  align-items: center;
+  p{
+    font-size: .7rem;
+  }
+}
+
 .fire-and-count {
   display: flex;
   flex-direction: column;
@@ -280,7 +291,7 @@
   justify-content: center;
   color: white !important;
   span{
-    font-size: .9rem;
+    font-size: .7rem;
   }
 }
 
@@ -291,7 +302,7 @@
   justify-content: center;
   color: white !important;
   span{
-    font-size: .9rem;
+    font-size: .7rem;
   }
 }
 
@@ -395,7 +406,7 @@
   }
 
    .button-bubble {
-      padding: 8px 16px;
+      padding: 12px 10px;
       border-radius: 20px;
       background: transparent;
       color: white;
@@ -406,10 +417,10 @@
       transition: all 0.2s ease-in-out;
       white-space: nowrap;
 
-      // &:hover {
-      //   background: rgba(0, 0, 0, 0.8);
-      //   border-color: rgba(255, 255, 255, 0.3);
-      // }
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
 
       &--active {
         background: var(--color-primary)!important;
