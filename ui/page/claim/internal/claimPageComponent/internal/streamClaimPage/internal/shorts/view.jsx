@@ -120,19 +120,8 @@ export default function ShortsPage(props: Props) {
   const hasInitializedRef = React.useRef(false);
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
-  const originalAutoplayMediaRef = React.useRef(autoplayMedia);
-  const isFirstShortRef = React.useRef(currentIndex === -1);
-
-  console.log(currentIndex)
-
-  React.useEffect(() => {
-    console.log('isFirstShortRef', isFirstShortRef.current);
-    console.log('autoPlayNextShort', autoPlayNextShort);
-    console.log('originalAutoplayMediaRef', originalAutoplayMediaRef.current);
-    if (isFirstShortRef.current && autoPlayNextShort && originalAutoplayMediaRef.current) {
-      doSetClientSetting(SETTINGS.AUTOPLAY_NEXT, true);
-    }
-  }, [autoPlayNextShort, doSetClientSetting]);
+const originalAutoplayMediaRef = React.useRef(autoplayMedia);
+const firstShortPlayedRef = React.useRef(false);
 
   const fetchForMode = React.useCallback(
     (mode) => {
@@ -196,13 +185,15 @@ export default function ShortsPage(props: Props) {
   }, [isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
+    const originalAutoplay = originalAutoplayMediaRef.current;
     const unlisten = history.listen((location, action) => {
       const isNavigatingToShorts = location.search.includes('view=shorts');
       const isNavigatingFromShorts = search.includes('view=shorts');
 
       if (isNavigatingFromShorts && !isNavigatingToShorts) {
-        doClearShortsPlaylist();
-        isFirstShortRef.current = true;
+      doClearShortsPlaylist();
+      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, originalAutoplayMediaRef.current);
+      firstShortPlayedRef.current = false;
       }
     });
 
@@ -210,11 +201,12 @@ export default function ShortsPage(props: Props) {
       unlisten();
       const currentUrl = window.location.search;
       if (!currentUrl.includes('view=shorts')) {
-        doClearShortsPlaylist();
-        isFirstShortRef.current = true;
+     doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, originalAutoplay);
+     firstShortPlayedRef.current = false;
+      doClearShortsPlaylist();
       }
     };
-  }, [history, search, doClearShortsPlaylist]);
+  }, [history, search, doClearShortsPlaylist, doSetClientSetting]);
 
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
@@ -265,12 +257,18 @@ export default function ShortsPage(props: Props) {
   }, [search, channelUri]);
 
   const goToNext = React.useCallback(() => {
+    firstShortPlayedRef.current = true;
+
+    if (!firstShortPlayedRef.current) {
+      firstShortPlayedRef.current = true;
+    } else {
+      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
+    }
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
     }
 
     clearPosition(uri);
-    isFirstShortRef.current = false;
 
     const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
     history.replace(shortsUrl);
@@ -290,13 +288,14 @@ export default function ShortsPage(props: Props) {
     history,
     fileInfo,
     onRecommendationClicked,
+    autoPlayNextShort,
+    doSetClientSetting,
   ]);
 
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
 
     clearPosition(uri);
-    isFirstShortRef.current = false;
 
     const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
     history.replace(shortsUrl);
