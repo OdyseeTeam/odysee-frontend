@@ -124,7 +124,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
 
     const collectionId =
-      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
+      (urlParams && (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || urlParams.get('lid'))) ||
       (currentUriPlaying && playingCollectionId) ||
       undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
@@ -217,10 +217,19 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
       // $FlowIgnore
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
-      const isHome = pathname === '/';
+      const isHome = pathname === '/' || pathname === '/$/embed/home';
+
+      // Prevent repeated 'isHome' updateClaim that can create loops on homepage
+      const homeGuardKey = `home-init:${uri}`;
 
       if (canViewFile) {
-        if (isHome) updateClaim('isHome');
+        if (isHome) {
+          if (!window.__homeInitFlags) window.__homeInitFlags = {};
+          if (!window.__homeInitFlags[homeGuardKey]) {
+            window.__homeInitFlags[homeGuardKey] = true;
+            updateClaim('isHome');
+          }
+        }
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
@@ -248,7 +257,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
-    }, [pathname, sourceLoaded, canViewFile]);
+    }, [pathname, sourceLoaded, canViewFile, uri]);
+
+    // Ensure non-video embeds (e.g. markdown) fetch their source in embed mode
+    React.useEffect(() => {
+      if (canViewFile && renderMode === 'md' && !streamingUrl) {
+        doFileGetForUri(uri, fileGetOptions);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canViewFile, renderMode, streamingUrl, uri]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {

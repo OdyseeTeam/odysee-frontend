@@ -162,6 +162,7 @@ type Props = {
     length: number,
     location: { pathname: string },
     push: (string) => void,
+    replace: (string) => void,
     state: {},
     replaceState: ({}, string, string) => void,
     listen: (any) => () => void,
@@ -257,7 +258,7 @@ function AppRouter(props: Props) {
         component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen, wildWestDisabled]);
+  }, [homepageData, isLargeScreen, wildWestDisabled, isSmallScreen, isMediumScreen]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -356,7 +357,9 @@ function AppRouter(props: Props) {
   // in the browser causing a redirect loop
   const decodedUrl = decodeURIComponent(pathname) + search;
   if (decodedUrl !== pathname + search) {
-    return <Redirect to={decodedUrl} />;
+    // Use history.replace instead of <Redirect> to avoid adding extra entries.
+    history.replace(decodedUrl);
+    return null;
   }
 
   return (
@@ -472,6 +475,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
+        <Route path={`/$/${PAGES.EMBED}/home`} exact component={HomePage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
