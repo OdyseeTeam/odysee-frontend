@@ -140,7 +140,19 @@ export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
   if (homepages) {
-    const meme = homepages[homepageCode]?.meme;
+    const homepageData = homepages[homepageCode];
+
+    let meme;
+    const build = window.odysee?.build;
+
+    if (build?.apkUpdater) {
+      meme = homepageData?.meme_android_apk || homepageData?.meme_android || homepageData?.meme;
+    } else if (build?.googlePlay) {
+      meme = homepageData?.meme_android_google || homepageData?.meme_android || homepageData?.meme;
+    } else {
+      meme = homepageData?.meme_android || homepageData?.meme;
+    }
+
     if (meme && meme.text && meme.url) {
       return meme;
     }
