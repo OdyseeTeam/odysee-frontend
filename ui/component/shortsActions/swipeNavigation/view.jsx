@@ -100,17 +100,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     const isTapRef = React.useRef(false);
     const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
 
-    const isInsideSidePanel = React.useCallback((el) => {
-      let node = el;
-      while (node) {
-        if (node.classList && (node.classList.contains('shorts-page__side-panel') || node.classList.contains('shorts-page__side-panel--open'))) {
-          return true;
-        }
-        node = node.parentElement;
-      }
-      return false;
-    }, []);
-
     const handleShareClick = React.useCallback(() => {
       if (doOpenModal) {
         doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId });

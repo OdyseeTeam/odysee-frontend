@@ -22,7 +22,6 @@ type Props = {
   isComments?: boolean,
 };
 
-const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
 export default function MobilePanel(props: Props) {
   const {
@@ -35,9 +34,6 @@ export default function MobilePanel(props: Props) {
     linkedCommentId,
     threadCommentId,
     isComments,
-    claimId,
-    isLivestreamClaim,
-    doFetchReactions,
   } = props;
 
   const modalRef = React.useRef();

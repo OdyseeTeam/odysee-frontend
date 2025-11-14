@@ -14,6 +14,7 @@ import { useHistory } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
+let ORIGINAL_AUTOPLAY_SETTING = null;
 
 type Props = {
   uri: string,
@@ -120,8 +121,17 @@ export default function ShortsPage(props: Props) {
   const hasInitializedRef = React.useRef(false);
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
-const originalAutoplayMediaRef = React.useRef(autoplayMedia);
-const firstShortPlayedRef = React.useRef(false);
+  const firstShortPlayedRef = React.useRef(false);
+  if (ORIGINAL_AUTOPLAY_SETTING === null) {
+    ORIGINAL_AUTOPLAY_SETTING = autoplayMedia;
+  }
+
+  const isSwipeInsideSidePanel = React.useCallback((clientX, clientY) => {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (!el) return false;
+
+    return !!el.closest('.shorts-page__side-panel, .shorts-page__side-panel--open');
+  }, []);
 
   const fetchForMode = React.useCallback(
     (mode) => {
@@ -185,28 +195,29 @@ const firstShortPlayedRef = React.useRef(false);
   }, [isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
-    const originalAutoplay = originalAutoplayMediaRef.current;
-    const unlisten = history.listen((location, action) => {
-      const isNavigatingToShorts = location.search.includes('view=shorts');
-      const isNavigatingFromShorts = search.includes('view=shorts');
+  const unlisten = history.listen((location, action) => {
+    const isNavigatingToShorts = location.search.includes('view=shorts');
+    const isNavigatingFromShorts = search.includes('view=shorts');
 
-      if (isNavigatingFromShorts && !isNavigatingToShorts) {
-      doClearShortsPlaylist();
-      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, originalAutoplayMediaRef.current);
+   if (isNavigatingFromShorts && !isNavigatingToShorts) {
+        doClearShortsPlaylist();
+        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
+        firstShortPlayedRef.current = false;
+        ORIGINAL_AUTOPLAY_SETTING = null;
+      }
+  });
+
+  return () => {
+    unlisten();
+    const currentUrl = window.location.search;
+    if (!currentUrl.includes('view=shorts')) {
+      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
       firstShortPlayedRef.current = false;
-      }
-    });
-
-    return () => {
-      unlisten();
-      const currentUrl = window.location.search;
-      if (!currentUrl.includes('view=shorts')) {
-     doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, originalAutoplay);
-     firstShortPlayedRef.current = false;
       doClearShortsPlaylist();
-      }
-    };
-  }, [history, search, doClearShortsPlaylist, doSetClientSetting]);
+      ORIGINAL_AUTOPLAY_SETTING = null;
+    }
+  };
+}, [history, search, doClearShortsPlaylist, doSetClientSetting]);
 
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
@@ -257,12 +268,11 @@ const firstShortPlayedRef = React.useRef(false);
   }, [search, channelUri]);
 
   const goToNext = React.useCallback(() => {
-    firstShortPlayedRef.current = true;
-
-    if (!firstShortPlayedRef.current) {
+   if (!firstShortPlayedRef.current) {
       firstShortPlayedRef.current = true;
-    } else {
-      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
+      if (ORIGINAL_AUTOPLAY_SETTING === false && autoPlayNextShort) {
+        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, true);
+      }
     }
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
@@ -327,7 +337,13 @@ const firstShortPlayedRef = React.useRef(false);
       if (mobileModalOpen) return;
       if (scrollLockRef.current) return;
 
-      e.preventDefault();
+      const { clientX, clientY } = e;
+
+     if (isSwipeInsideSidePanel(clientX, clientY)) {
+       scrollLockRef.current = false;
+       return e.stopPropagation();
+     }
+     e.preventDefault();
       scrollLockRef.current = true;
 
       if (e.deltaY > 0) {
@@ -340,7 +356,7 @@ const firstShortPlayedRef = React.useRef(false);
         scrollLockRef.current = false;
       }, 500);
     },
-    [goToNext, goToPrevious, mobileModalOpen]
+    [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
 
   React.useEffect(() => {
@@ -491,6 +507,7 @@ const firstShortPlayedRef = React.useRef(false);
               commentsListTitle={commentsListTitle}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
+              isComments={panelMode === 'comments'}
             />
           )}
         </div>
