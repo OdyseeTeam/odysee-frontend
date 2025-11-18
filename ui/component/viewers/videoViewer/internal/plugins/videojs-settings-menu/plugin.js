@@ -9,9 +9,10 @@ import type { Player } from '../../videojs';
 // (1) Register settings (must be after all the imports above):
 import './menuItems/AutoPlayNextMenuItem';
 import './menuItems/SnapshotMenuItem';
+import './menuItems/LoopMenuItem';
 
 // (2) Define the display order
-const DISPLAY_ORDER = ['PlaybackRateSettingItem', 'AutoPlayNextMenuItem', 'SnapshotMenuItem'];
+const DISPLAY_ORDER = ['PlaybackRateSettingItem', 'AutoPlayNextMenuItem', 'LoopMenuItem', 'SnapshotMenuItem'];
 
 // ****************************************************************************
 // settingsMenu
