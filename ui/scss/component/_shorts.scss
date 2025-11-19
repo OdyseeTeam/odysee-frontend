@@ -102,12 +102,12 @@
 .shorts-page__info-button{
   position: fixed;
   top: 70px;
-  right: calc(50% - 450px / 2 - 60px);
+  right: calc(50% - 380px / 2 - 60px);
   background: rgba(45, 44, 44, 0.895) !important;
   border: none !important;
   border-radius: 50% !important;
-  width: 48px !important;
-  height: 48px !important;
+  width: 45px !important;
+  height: 45px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -121,7 +121,7 @@
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.9) !important;
+    background: var(--color-odysee) !important;
   }
 }
 
@@ -220,7 +220,7 @@
 .shorts-page__navigation {
   position: fixed;
   bottom: 3vh;
-  right: calc(50% - 450px/ 2 - 60px);
+  right: calc(50% - 400px/ 2 - 60px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -245,8 +245,8 @@
     color: white !important;
   }
 
-  &:hover {
-    background: var(--color-odysee);
+  &:hover:not(.button--file-action) {
+    background: var(--color-odysee)!important;
   }
 
   &:disabled {
@@ -353,11 +353,11 @@
   }
 
   .shorts-page__info-button {
-    right: calc(50% - 450px / 2 - 60px);
+    right: calc(50% - 400px / 2 - 60px);
   }
 
   .shorts-page__navigation {
-    right: calc(50% - 450px / 2 - 60px);
+    right: calc(50% - 400px / 2 - 60px);
   }
 }
 
@@ -418,7 +418,7 @@
       white-space: nowrap;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--color-odysee)!important;
         border-color: rgba(255, 255, 255, 0.3);
       }
 
@@ -519,7 +519,7 @@
       white-space: nowrap;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--color-odysee);
         border-color: rgba(255, 255, 255, 0.3);
       }
 
@@ -582,7 +582,7 @@
 
 .shorts-page,.main--shorts-page {
   .content__cover {
-    width: 450px !important;
+    width: 380px !important;
     height: 90vh !important;
     max-height: 90vh !important;
     position: fixed;

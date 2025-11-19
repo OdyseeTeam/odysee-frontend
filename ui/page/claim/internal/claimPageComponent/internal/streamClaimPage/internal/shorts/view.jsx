@@ -122,6 +122,7 @@ export default function ShortsPage(props: Props) {
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const firstShortPlayedRef = React.useRef(false);
+
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia;
   }
@@ -171,20 +172,28 @@ export default function ShortsPage(props: Props) {
       setMobileModalOpen(true);
       setPanelMode('comments');
     } else {
-      setPanelMode('comments');
-      doSetShortsSidePanel(true);
+      if (sidePanelOpen && panelMode === 'comments') {
+        doSetShortsSidePanel(false);
+      } else {
+        setPanelMode('comments');
+        doSetShortsSidePanel(true);
+      }
     }
-  }, [isMobile, doSetShortsSidePanel]);
+  }, [isMobile, doSetShortsSidePanel, sidePanelOpen, panelMode]);
 
   const handleInfoButtonClick = React.useCallback(() => {
     if (isMobile) {
       setMobileModalOpen(true);
       setPanelMode('info');
     } else {
-      setPanelMode('info');
-      doSetShortsSidePanel(true);
+      if (sidePanelOpen && panelMode === 'info') {
+        doSetShortsSidePanel(false);
+      } else {
+        setPanelMode('info');
+        doSetShortsSidePanel(true);
+      }
     }
-  }, [isMobile, doSetShortsSidePanel]);
+  }, [isMobile, doSetShortsSidePanel, sidePanelOpen, panelMode]);
 
   const handleClosePanel = React.useCallback(() => {
     if (isMobile) {
@@ -195,29 +204,59 @@ export default function ShortsPage(props: Props) {
   }, [isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
-  const unlisten = history.listen((location, action) => {
-    const isNavigatingToShorts = location.search.includes('view=shorts');
-    const isNavigatingFromShorts = search.includes('view=shorts');
+    const unlisten = history.listen((location, action) => {
+      const currentSearch = history.location?.search || '';
+      const nextSearch = location.search || '';
 
-   if (isNavigatingFromShorts && !isNavigatingToShorts) {
+      const currentParams = new URLSearchParams(currentSearch);
+      const nextParams = new URLSearchParams(nextSearch);
+
+      const isCurrentlyInShortsPlayer = currentParams.get('view') === 'shorts';
+      const isNavigatingToShortsPlayer = nextParams.get('view') === 'shorts';
+      const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
+      const isNavigatingToHome = location.pathname === '/' && !nextSearch;
+
+      const isBackNavigation = action === 'POP';
+
+      const shouldCleanup =
+        (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
+        (isCurrentlyInShortsPlayer && isNavigatingToHome) ||
+        (isBackNavigation && isCurrentlyInShortsPlayer && isNavigatingToShortsTab) ||
+        (isCurrentlyInShortsPlayer && isNavigatingToShortsTab);
+
+      if (shouldCleanup && ORIGINAL_AUTOPLAY_SETTING !== null) {
         doClearShortsPlaylist();
         doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
         firstShortPlayedRef.current = false;
         ORIGINAL_AUTOPLAY_SETTING = null;
       }
-  });
+    });
 
-  return () => {
-    unlisten();
-    const currentUrl = window.location.search;
-    if (!currentUrl.includes('view=shorts')) {
-      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
-      firstShortPlayedRef.current = false;
-      doClearShortsPlaylist();
-      ORIGINAL_AUTOPLAY_SETTING = null;
-    }
-  };
-}, [history, search, doClearShortsPlaylist, doSetClientSetting]);
+    return () => {
+      unlisten();
+
+      const currentUrl = history.location?.search || '';
+      const currentPath = history.location?.pathname || '/';
+
+      const currentParams = new URLSearchParams(currentUrl);
+      const isInShortsPlayer = currentParams.get('view') === 'shorts';
+      const isInShortsTab = currentParams.get('view') === 'shortsTab';
+      const isHomePage = currentPath === '/' && !currentUrl;
+
+      // restore original autoplay when leaving video shorts player -> channel page
+      const shouldCleanupOnUnmount =
+        (!isInShortsPlayer && !isInShortsTab) ||
+        (!isInShortsPlayer && isInShortsTab) ||
+        isHomePage;
+
+      if (shouldCleanupOnUnmount && ORIGINAL_AUTOPLAY_SETTING !== null) {
+        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
+        firstShortPlayedRef.current = false;
+        doClearShortsPlaylist();
+        ORIGINAL_AUTOPLAY_SETTING = null;
+      }
+    };
+  }, [history, doClearShortsPlaylist, doSetClientSetting]);
 
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
@@ -268,7 +307,7 @@ export default function ShortsPage(props: Props) {
   }, [search, channelUri]);
 
   const goToNext = React.useCallback(() => {
-   if (!firstShortPlayedRef.current) {
+    if (!firstShortPlayedRef.current) {
       firstShortPlayedRef.current = true;
       if (ORIGINAL_AUTOPLAY_SETTING === false && autoPlayNextShort) {
         doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, true);
@@ -339,11 +378,11 @@ export default function ShortsPage(props: Props) {
 
       const { clientX, clientY } = e;
 
-     if (isSwipeInsideSidePanel(clientX, clientY)) {
-       scrollLockRef.current = false;
-       return e.stopPropagation();
-     }
-     e.preventDefault();
+      if (isSwipeInsideSidePanel(clientX, clientY)) {
+        scrollLockRef.current = false;
+        return e.stopPropagation();
+      }
+      e.preventDefault();
       scrollLockRef.current = true;
 
       if (e.deltaY > 0) {

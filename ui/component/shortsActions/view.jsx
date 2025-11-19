@@ -100,7 +100,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.UP}
             iconSize={24}
             title={__('Previous Short')}
-            disabled={isLoading || isAtStart || !hasPlaylist}
+            disabled={isAtStart || !hasPlaylist}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--next"
@@ -108,7 +108,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.DOWN}
             iconSize={24}
             title={__('Next Short')}
-            disabled={isLoading || isAtEnd || !hasPlaylist}
+            disabled={isAtEnd || !hasPlaylist}
           />
            <div className="fire-and-count">
             <Button
@@ -116,7 +116,7 @@ const ShortsActions = React.memo<Props>(
               icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
               iconSize={16}
               title={__('I Like This')}
-              disabled={isLoading || !hasPlaylist}
+              disabled={!hasPlaylist}
               requiresAuth
               authSrc="filereaction_like"
               className={classnames('shorts-page__actions-button button--file-action button-like', {
@@ -148,7 +148,7 @@ const ShortsActions = React.memo<Props>(
               className={classnames('shorts-page__actions-button button--file-action button-dislike', {
                 'button--slime': myReaction === REACTION_TYPES.DISLIKE,
               })}
-              disabled={isLoading || !hasPlaylist}
+              disabled={!hasPlaylist}
               label={
                 <>
                   {myReaction === REACTION_TYPES.DISLIKE && (
@@ -173,7 +173,7 @@ const ShortsActions = React.memo<Props>(
               icon={ICONS.COMMENTS_LIST}
               iconSize={16}
               title={__('Comments')}
-              disabled={isLoading || !hasPlaylist}
+              disabled={!hasPlaylist}
             />
             <p>{__('Comments')}</p>
           </div>
@@ -185,7 +185,7 @@ const ShortsActions = React.memo<Props>(
               icon={ICONS.SHARE}
               iconSize={16}
               title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-              disabled={isLoading || !hasPlaylist}
+              disabled={!hasPlaylist}
             />
             <p>{__('Share')}</p>
           </div>
@@ -202,7 +202,6 @@ const ShortsActions = React.memo<Props>(
               className={classnames('shorts-page__actions-button button-bubble', {
                 'button-bubble--active': autoPlayNextShort,
               })}
-              isShorts
               requiresAuth={IS_WEB}
               title={__('Autoplay Next')}
               onClick={doToggleShortsAutoplay}

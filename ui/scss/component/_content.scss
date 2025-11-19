@@ -598,7 +598,7 @@
 }
 
 .shorts__viewer {
-  width: 450px !important;
+  width: 380px !important;
   height: 90vh !important;
   max-height: 90vh !important;
 
@@ -609,7 +609,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   border: none;
-  border-radius: 0;
+  border-radius: 10px;
 
   aspect-ratio: 9/16;
   .content__wrapper{
@@ -620,7 +620,7 @@
     .file-render--video {
       width: 100%;
       height: 100%;
-      border-radius: 0;
+      border-radius: 10px;
 
       .video-js-parent {
         background-color: black;

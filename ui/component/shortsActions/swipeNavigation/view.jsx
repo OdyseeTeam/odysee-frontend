@@ -365,7 +365,6 @@ const SwipeNavigationPortal = React.memo<Props>(
             className={classnames('shorts-mobile-panel__action-button button-bubble', {
               'button-bubble--active': autoPlayNextShort,
             })}
-            isShorts
             requiresAuth={IS_WEB}
             title={__('Autoplay Next')}
             onClick={doToggleShortsAutoplay}

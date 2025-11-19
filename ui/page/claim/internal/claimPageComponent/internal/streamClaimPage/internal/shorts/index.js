@@ -4,7 +4,6 @@ import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
-import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
 import {
   selectClaimIsNsfwForUri,
