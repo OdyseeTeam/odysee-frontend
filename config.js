@@ -115,6 +115,8 @@ const config = {
   // FROM COMMAND LINE
   COMMIT_ID: process.env.COMMIT_ID,
   NODE_ENV: process.env.NODE_ENV,
+  // Dev/staged feature gating
+  DYNAMIC_ROUTES_FIRST: process.env.DYNAMIC_ROUTES_FIRST === 'true',
 };
 
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;

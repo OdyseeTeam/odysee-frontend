@@ -109,7 +109,8 @@ function ClaimTilesDiscover(props: Props) {
   const uris = (prefixUris || []).concat(claimSearchUris);
   if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
 
-  if (window.location.pathname === '/') {
+  // Treat the embed homepage the same as the main homepage for pin injection.
+  if (window.location.pathname === '/' || window.location.pathname === '/$/embed/home') {
     injectPinUrls(uris, pins, resolvedPinUris);
   }
 

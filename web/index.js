@@ -30,11 +30,24 @@ app.use(redirectMiddleware);
 app.use(iframeDestroyerMiddleware);
 app.use(appStringsMiddleWare);
 
-app.use(
-  serve(DIST_ROOT, {
-    maxage: 3600000, // set a cache time of one hour, helpful for mobile dev
-  })
-);
+if (config.DYNAMIC_ROUTES_FIRST) {
+  // Route dynamic pages first so we can inject proper meta (/, embeds, etc)
+  app.use(router.routes());
 
-app.use(router.routes());
+  // Then fall through to static assets (e.g. /public/*)
+  app.use(
+    serve(DIST_ROOT, {
+      maxage: 3600000,
+    })
+  );
+} else {
+  // Default: serve static first (production-safe), then dynamic routes
+  app.use(
+    serve(DIST_ROOT, {
+      maxage: 3600000,
+    })
+  );
+  app.use(router.routes());
+}
+
 app.listen(config.WEB_SERVER_PORT, () => `Server up at localhost:${config.WEB_SERVER_PORT}`);

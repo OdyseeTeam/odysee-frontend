@@ -23,6 +23,7 @@ import { useGetAds } from 'effects/use-get-ads';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import FileReactions from 'component/fileReactions';
 import { useHistory } from 'react-router';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
@@ -532,6 +533,8 @@ function VideoViewer(props: Props) {
     playerRef.current.play();
   }
 
+  const [hovered, setHovered] = useState(false);
+
   return (
     <>
       {isEmbedded && (
@@ -545,6 +548,8 @@ function VideoViewer(props: Props) {
           'file-viewer--is-playing': isPlaying,
           'file-viewer--ended-embed': showEmbedEndOverlay,
         })}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
         {showRecommendationOverlay && (
@@ -632,6 +637,34 @@ function VideoViewer(props: Props) {
           isUnlisted={isClaimUnlisted(claim)}
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
         />
+
+        {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (
+          <div
+            style={{
+              position: 'absolute',
+              right: '8px',
+              bottom: '48px', // sit just above the seek bar
+              zIndex: 7,
+              display: 'flex',
+              gap: '8px',
+              pointerEvents: 'auto',
+              background: 'rgba(0, 0, 0, 0.45)',
+              borderRadius: '8px',
+              padding: '6px 8px',
+              alignItems: 'center',
+              backdropFilter: 'blur(1.5px)',
+              // Improve legibility of hover states inside the overlay by
+              // overriding the colors used by file-action hover styles.
+              // This keeps counts/icons high-contrast on dark background.
+              '--color-link': 'var(--color-text)',
+              '--color-fire': 'var(--color-text)',
+              '--color-slime': 'var(--color-text)',
+            }}
+            aria-label={__('Reactions')}
+          >
+            <FileReactions uri={uri} />
+          </div>
+        )}
       </div>
     </>
   );

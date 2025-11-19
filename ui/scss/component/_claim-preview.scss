@@ -498,7 +498,7 @@
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
     }
-    .claim-preview-metadata {      
+    .claim-preview-metadata {
       .claim-tile__info {
         margin-top: auto;
         align-items: flex-end;
@@ -570,11 +570,11 @@
 
       a.button-following {
         .button__content {
-          width:100%;
+          width: 100%;
         }
       }
       button.button-following:last-of-type {
-        max-width:fit-content;
+        max-width: fit-content;
       }
 
       span {
@@ -677,12 +677,12 @@
       flex-direction: column;
 
       .claim-preview-metadata {
-        .claim-tile__info {          
+        .claim-tile__info {
           .media__subtitle {
-            margin-top:2px;
-            .button--uri-indicator{
-              .button__content{
-                .channel-name{
+            margin-top: 2px;
+            .button--uri-indicator {
+              .button__content {
+                .channel-name {
                   font-size: var(--font-xxsmall) !important;
                 }
               }
@@ -1506,7 +1506,7 @@
   }
 }
 
-.embed__wrapper .claim-preview--tile {
+.embed__wrapper .file-viewer .claim-preview--tile {
   margin-bottom: 0px !important;
   width: unset !important;
   margin: 0px !important;

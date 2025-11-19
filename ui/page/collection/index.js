@@ -20,9 +20,9 @@ import { doCollectionEdit, doRemoveFromUnsavedChangesCollectionsForCollectionId 
 import CollectionPage from './view';
 
 const select = (state, props) => {
-  const { match } = props;
-  const { params } = match;
-  const { collectionId } = params;
+  const collectionIdFromProp = props && props.collectionId;
+  const collectionIdFromMatch = props && props.match && props.match.params && props.match.params.collectionId;
+  const collectionId = collectionIdFromProp || collectionIdFromMatch;
 
   const claim = selectClaimForId(state, collectionId);
 
