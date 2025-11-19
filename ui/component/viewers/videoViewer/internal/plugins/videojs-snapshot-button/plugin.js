@@ -10,6 +10,7 @@ type Options = {
 };
 
 function onPlayerReady(player: Player, options: Options) {
+  console.log('onPlayerReady called');
   const button = videojs.getComponent('Button');
   const snapshotButton = videojs.extend(button, {
     constructor: function () {
@@ -30,51 +31,117 @@ function onPlayerReady(player: Player, options: Options) {
       this.hide();
     },
     handleClick: function () {
-      const link = document.createElement('a');
+      console.log('Snapshot button clicked');
       const video = document.querySelector('video.vjs-tech');
+
+      if (!video) {
+        console.error('Video element not found');
+        alert('Error: Video element not found');
+        return;
+      }
 
       const width = player.videoWidth();
       const height = player.videoHeight();
 
+      console.log('Video dimensions:', width, height);
+
       const canvas = Object.assign(document.createElement('canvas'), { width, height });
-      if (!video) return;
-      // $FlowIssue (when the class is added to the querySelector it errors)
       canvas.getContext('2d').drawImage(video, 0, 0, width, height);
 
-      link.href = canvas.toDataURL('image/jpeg');
-
       // strip emojis
-      // explanation: https://stackoverflow.com/a/63464318/3973137
-      link.download =
+      const filename =
         options.fileTitle
           .replace(/[^\p{L}\p{N}\p{P}\p{Z}^$\n]/gu, '')
-          // remove last character if it's a space
           .replace(/\s+$/, '')
-          // remove last character if period
           .replace(/\.$/, '') + '.jpg';
 
-      link.click();
+      console.log('Generating snapshot:', filename);
 
-      link.remove();
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error('Failed to create blob');
+          alert('Error: Failed to create image');
+          return;
+        }
+
+        console.log('Blob created, size:', blob.size);
+
+        if (!window.resolveLocalFileSystemURL) {
+          console.error('Cordova File plugin not available');
+          alert('Error: File plugin not available');
+          return;
+        }
+
+        const targetDir = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
+        console.log('Target directory:', targetDir);
+
+        window.resolveLocalFileSystemURL(
+          targetDir,
+          (dirEntry) => {
+            console.log('Directory entry:', dirEntry);
+            dirEntry.getFile(
+              filename,
+              { create: true, exclusive: false },
+              (fileEntry) => {
+                console.log('File entry:', fileEntry);
+                fileEntry.createWriter(
+                  (fileWriter) => {
+                    fileWriter.onwriteend = () => {
+                      console.log('Snapshot saved to:', fileEntry.nativeURL);
+                      alert(`Snapshot saved successfully!`);
+                    };
+                    fileWriter.onerror = (e) => {
+                      console.error('Write error:', e);
+                      alert('Error writing file: ' + JSON.stringify(e));
+                    };
+                    fileWriter.write(blob);
+                  },
+                  (e) => {
+                    console.error('Create writer error:', e);
+                    alert('Error creating writer: ' + JSON.stringify(e));
+                  }
+                );
+              },
+              (e) => {
+                console.error('Get file error:', e);
+                alert('Error getting file: ' + JSON.stringify(e));
+              }
+            );
+          },
+          (e) => {
+            console.error('Resolve URL error:', e);
+            alert('Error accessing directory: ' + JSON.stringify(e));
+          }
+        );
+      }, 'image/jpeg');
+
       canvas.remove();
     },
   });
   videojs.registerComponent('snapshotButton', snapshotButton);
+  console.log('snapshotButton component registered');
 
   player.one('canplay', function () {
+    console.log('canplay event - adding snapshotButton to control bar');
     player.getChild('controlBar').removeChild('snapshotButton');
     player.getChild('controlBar').addChild('snapshotButton', {});
+    console.log('snapshotButton added to control bar');
   });
 }
 
 function snapshotButton(options: Options) {
+  console.log('snapshotButton plugin initializing');
   // needed for canvas to work with cors
   // $FlowFixMe
   this.el().childNodes[0].setAttribute('crossorigin', 'anonymous');
 
   const IS_MOBILE = videojs.browser.IS_ANDROID || videojs.browser.IS_IOS;
-  if (!IS_MOBILE) {
+  console.log('IS_MOBILE:', IS_MOBILE, 'window.cordova:', window.cordova);
+  if (!IS_MOBILE || window.cordova) {
+    console.log('Calling onPlayerReady');
     this.ready(() => onPlayerReady(this, videojs.mergeOptions(defaultOptions, options)));
+  } else {
+    console.log('Skipping onPlayerReady - mobile and not cordova');
   }
 }
 

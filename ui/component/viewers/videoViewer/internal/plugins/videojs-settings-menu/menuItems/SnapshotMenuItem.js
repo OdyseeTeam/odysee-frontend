@@ -14,24 +14,25 @@ class SnapshotMenuItem extends SettingMenuItem {
     });
 
     this.addClass('vjs-setting-snapshot');
-
-    if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
-      this.hide();
-    } else {
-      this.show();
-    }
+    this.hide();
   }
 
   handleClick() {
+    console.log('SnapshotMenuItem clicked');
     const controlBar = this.player_?.controlBar;
+    console.log('controlBar:', controlBar);
     const snapshotButton = controlBar && controlBar.getChild('snapshotButton');
+    console.log('snapshotButton:', snapshotButton);
     if (snapshotButton) {
+      console.log('Triggering snapshotButton click');
       // TODO: This is a crappy workaround. The snapshot-capturing logic needs
       // to be factored out so both the Button and Menu version can use it.
       // For now, just click the Button version programmatically.
       snapshotButton.trigger('click');
 
       this.options_.menu.menuButton_.hideMenu();
+    } else {
+      console.error('snapshotButton not found in controlBar');
     }
   }
 }

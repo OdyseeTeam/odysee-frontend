@@ -30,7 +30,22 @@ export function makeUploadRequest(
   const body = new FormData();
 
   if (file) {
-    body.append('file', file);
+    const fileName = file.name || 'file.md';
+    console.log('Publishing file:', {
+      fileName,
+      fileType: file.type,
+      fileSize: file.size,
+      isFile: file instanceof File,
+      isBlob: file instanceof Blob,
+      hasName: Boolean(file.name),
+    });
+    if (file instanceof Blob && !(file instanceof File)) {
+      console.log('Appending Blob with explicit filename:', fileName);
+      body.append('file', file, fileName);
+    } else {
+      console.log('Appending File object');
+      body.append('file', file);
+    }
     delete params['remote_url'];
   } else if (remoteUrl) {
     body.append('remote_url', remoteUrl);

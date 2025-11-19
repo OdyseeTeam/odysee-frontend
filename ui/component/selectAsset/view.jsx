@@ -43,7 +43,10 @@ function SelectAsset(props: Props) {
   const [actualFileBlob, setActualFileBlob] = React.useState(null);
   const isAnimated =
     // $FlowIgnore
-    (fileSelected && fileSelected.type && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) ||
+    (fileSelected &&
+      fileSelected.type &&
+      typeof fileSelected.type === 'string' &&
+      (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) ||
     false;
 
   const [cropInit, setCropInit] = React.useState(false);

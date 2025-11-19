@@ -310,7 +310,23 @@ function PostForm(props: Props) {
     if (fileText) {
       const fileName = name || title;
       if (fileName) {
-        return new File([fileText], `${fileName}.md`, { type: 'text/markdown' });
+        const blob = new Blob([fileText], { type: 'text/markdown' });
+        const fileNameWithExt = `${fileName}.md`;
+
+        let file;
+        try {
+          file = new File([blob], fileNameWithExt, { type: 'text/markdown' });
+          if (typeof file.name !== 'string' || file.size === 0) {
+            throw new Error('File constructor broken');
+          }
+          return file;
+        } catch (e) {
+          console.log('File constructor not supported or broken, using Blob fallback');
+          blob.name = fileNameWithExt;
+          blob.lastModifiedDate = new Date();
+          blob.lastModified = Date.now();
+          return blob;
+        }
       }
     }
   }

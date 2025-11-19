@@ -65,7 +65,7 @@ function SelectThumbnail(props: Props) {
   let isSupportedVideo = false;
   if (typeof actualFilePath === 'string') {
     isSupportedVideo = Lbry.getMediaType(null, actualFilePath) === 'video';
-  } else if (actualFilePath && actualFilePath.type) {
+  } else if (actualFilePath && actualFilePath.type && typeof actualFilePath.type === 'string') {
     isSupportedVideo = actualFilePath.type.split('/')[0] === 'video';
   }
 

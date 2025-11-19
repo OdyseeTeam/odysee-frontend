@@ -314,6 +314,10 @@ function VideoViewer(props: Props) {
         handlePlayNextUri();
       } else {
         setShowRecommendationOverlay(true);
+        const touchOverlay = document.querySelector('.vjs-touch-overlay');
+        if (touchOverlay) {
+          touchOverlay.style.display = 'none';
+        }
       }
     }
 
@@ -336,6 +340,10 @@ function VideoViewer(props: Props) {
   // MORE ON PLAY STUFF
   function onPlay(player) {
     setShowRecommendationOverlay(false);
+    const touchOverlay = document.querySelector('.vjs-touch-overlay');
+    if (touchOverlay) {
+      touchOverlay.style.display = '';
+    }
     videoEnded.current = false;
     if (isEmbedded) {
       try {
@@ -357,6 +365,10 @@ function VideoViewer(props: Props) {
 
   function onPlayerClosed(event, player) {
     setShowRecommendationOverlay(false);
+    const touchOverlay = document.querySelector('.vjs-touch-overlay');
+    if (touchOverlay) {
+      touchOverlay.style.display = '';
+    }
     handlePosition(player);
     analytics.video.videoIsPlaying(false, player);
     if (window.cordova) window.odysee.functions.onPause();
@@ -474,6 +486,10 @@ function VideoViewer(props: Props) {
 
     function onSeeking() {
       setShowRecommendationOverlay(false);
+      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      if (touchOverlay) {
+        touchOverlay.style.display = '';
+      }
     }
 
     function onQualityChanged() {

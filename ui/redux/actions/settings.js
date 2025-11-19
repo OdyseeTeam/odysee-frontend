@@ -393,7 +393,6 @@ export function doFetchHomepages(hp?: string) {
         }
       })
       .catch((e) => {
-        console.log('doFetchHomepages:', e); // eslint-disable-line no-console
         dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
       });
   };

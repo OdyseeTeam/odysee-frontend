@@ -375,7 +375,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
 
     assert(typeof file !== 'string');
 
-    const contentType = file.type && file.type.split('/');
+    const contentType = file.type && typeof file.type === 'string' && file.type.split('/');
     const isVideo = contentType ? contentType[0] === 'video' : false;
     const isMp4 = contentType ? contentType[1] === 'mp4' : false;
 
@@ -556,9 +556,18 @@ export const doUploadThumbnail =
         fileName = 'thumbnail.png';
         fileType = 'image/png';
 
+        const byteString = atob(base64Image);
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+          uint8Array[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([uint8Array], { type: fileType });
+        const file = new File([blob], fileName, { type: fileType });
+
         const data = new FormData();
         // $FlowFixMe
-        data.append('file-input', { uri: 'file://' + filePath, type: fileType, name: fileName });
+        data.append('file-input', file);
         data.append('upload', 'Upload');
         return doUpload(data);
       });
@@ -571,7 +580,9 @@ export const doUploadThumbnail =
         size = stats.size;
         fileType = `image/${fileExt.slice(1)}`;
       } else if (thumbnailBlob) {
-        fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
+        fileExt = `.${
+          thumbnailBlob.type && typeof thumbnailBlob.type === 'string' && thumbnailBlob.type.split('/')[1]
+        }`;
         fileName = thumbnailBlob.name;
         fileType = thumbnailBlob.type;
         size = thumbnailBlob.size;
