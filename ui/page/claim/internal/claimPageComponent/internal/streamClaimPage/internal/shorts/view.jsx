@@ -1,6 +1,5 @@
 // @flow
 import * as React from 'react';
-import FileTitleSection from 'component/fileTitleSection';
 import { useIsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
@@ -27,7 +26,6 @@ type Props = {
   audioVideoDuration: ?number,
   commentsListTitle: string,
   fileInfo: FileListItem,
-  isMature: boolean,
   linkedCommentId?: string,
   threadCommentId?: string,
   position: number,
@@ -71,7 +69,6 @@ export default function ShortsPage(props: Props) {
     currentIndex = -1,
     isSearchingRecommendations,
     fileInfo,
-    isMature,
     linkedCommentId,
     threadCommentId,
     commentsDisabled,
@@ -126,6 +123,10 @@ export default function ShortsPage(props: Props) {
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia;
   }
+
+  console.log('autoplaynext', autoPlayNextShort);
+  console.log('autoplaymedia', autoplayMedia);
+  console.log('original autoplay', ORIGINAL_AUTOPLAY_SETTING);
 
   const isSwipeInsideSidePanel = React.useCallback((clientX, clientY) => {
     const el = document.elementFromPoint(clientX, clientY);
@@ -407,53 +408,69 @@ export default function ShortsPage(props: Props) {
   }, [handleScroll]);
 
   React.useEffect(() => {
-    const videoElement = document.querySelector('.vjs-tech');
-    if (!videoElement) return;
+    let cleanupFn = null;
+    let lastVideoElement = null;
 
-    const handleEnded = () => {
-      if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
-        setTimeout(() => {
-          goToNext();
-        }, 500);
-      } else {
-        setTimeout(() => {
-          videoElement.currentTime = 0;
-          videoElement.play().catch((error) => {
-            console.log(error);
-          });
-        }, 500);
+    const attachListener = () => {
+      const videoElement = document.querySelector('.vjs-tech');
+
+      if (!videoElement || videoElement === lastVideoElement) {
+        return lastVideoElement !== null;
       }
+      if (cleanupFn) {
+        cleanupFn();
+        cleanupFn = null;
+      }
+
+      const handleEnded = () => {
+        console.log('Video ended, autoPlayNextShort:', autoPlayNextShort);
+        if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
+          setTimeout(() => {
+            goToNext();
+          }, 500);
+        } else {
+          setTimeout(() => {
+            videoElement.currentTime = 0;
+            videoElement.play().catch((error) => {
+              console.log(error);
+            });
+          }, 100);
+        }
+      };
+
+      videoElement.addEventListener('ended', handleEnded);
+      lastVideoElement = videoElement;
+      cleanupFn = () => {
+        videoElement.removeEventListener('ended', handleEnded);
+        lastVideoElement = null;
+      };
+
+      console.log('Attached ended listener to video element for uri:', uri);
+      return true;
     };
-    videoElement.addEventListener('ended', handleEnded);
+    attachListener();
+    const interval = setInterval(() => {
+      attachListener();
+    }, 100);
+
+    const handlePlaying = () => {
+      attachListener();
+    };
+    document.addEventListener('playing', handlePlaying, true);
+
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 10000);
+
     return () => {
-      videoElement.removeEventListener('ended', handleEnded);
+      clearInterval(interval);
+      clearTimeout(timeout);
+      document.removeEventListener('playing', handlePlaying, true);
+      if (cleanupFn) cleanupFn();
     };
-  }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext]);
+  }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext, uri]);
 
   const isSwipeEnabled = !mobileModalOpen;
-
-  if (isMature) {
-    return (
-      <div className="shorts-page shorts-page--blocked">
-        <div className={SHORTS_PLAYER_WRAPPER_CLASS}>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
-        </div>
-        <ShortsActions
-          hasPlaylist={hasPlaylist}
-          onNext={goToNext}
-          onPrevious={goToPrevious}
-          isLoading={isLoadingContent}
-          currentIndex={currentIndex}
-          totalVideos={shortsRecommendedUris?.length || 0}
-          isAtStart={isAtStart}
-          isAtEnd={isAtEnd}
-          autoPlayNextShort={autoPlayNextShort}
-          doToggleShortsAutoplay={doToggleShortsAutoplay}
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       <SwipeNavigationPortal
