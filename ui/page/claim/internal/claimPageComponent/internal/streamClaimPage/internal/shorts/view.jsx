@@ -121,7 +121,7 @@ export default function ShortsPage(props: Props) {
   const firstShortPlayedRef = React.useRef(false);
 
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
-    ORIGINAL_AUTOPLAY_SETTING = autoplayMedia;
+    ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
   }
 
   console.log('autoplaynext', autoPlayNextShort);
