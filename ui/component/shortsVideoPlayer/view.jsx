@@ -14,15 +14,89 @@ type Props = {
   sidePanelOpen: boolean,
   onInfoButtonClick: () => void,
   primaryPlayerWrapperClass: string,
+  goToNext: () => void,
+  nextRecommendedShort: ?string,
+  autoPlayNextShort: boolean,
+  isAtEnd: boolean,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
-  ({ uri, isMobile, upcomingUris = [], sidePanelOpen, onInfoButtonClick, primaryPlayerWrapperClass }: Props) => {
+  ({
+    uri,
+    isMobile,
+    sidePanelOpen,
+    onInfoButtonClick,
+    primaryPlayerWrapperClass,
+    goToNext,
+    nextRecommendedShort,
+    autoPlayNextShort,
+    isAtEnd,
+  }: Props) => {
     const {
       location: { search },
     } = useHistory();
     const urlParams = new URLSearchParams(search);
     const isShortVideo = urlParams.get('view') === 'shorts';
+
+    React.useEffect(() => {
+      let cleanupFn = null;
+      let lastVideoElement = null;
+
+      const attachListener = () => {
+        const videoElement = document.querySelector('.vjs-tech');
+
+        if (!videoElement || videoElement === lastVideoElement) {
+          return lastVideoElement !== null;
+        }
+        if (cleanupFn) {
+          cleanupFn();
+          cleanupFn = null;
+        }
+
+        const handleEnded = () => {
+          if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
+            setTimeout(() => {
+              goToNext();
+            }, 500);
+          } else {
+            setTimeout(() => {
+              videoElement.currentTime = 0;
+              videoElement.play().catch((error) => {
+                console.log(error);
+              });
+            }, 100);
+          }
+        };
+
+        videoElement.addEventListener('ended', handleEnded);
+        lastVideoElement = videoElement;
+        cleanupFn = () => {
+          videoElement.removeEventListener('ended', handleEnded);
+          lastVideoElement = null;
+        };
+        return true;
+      };
+      attachListener();
+      const interval = setInterval(() => {
+        attachListener();
+      }, 100);
+
+      const handlePlaying = () => {
+        attachListener();
+      };
+      document.addEventListener('playing', handlePlaying, true);
+
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+      }, 10000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+        document.removeEventListener('playing', handlePlaying, true);
+        if (cleanupFn) cleanupFn();
+      };
+    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext, uri]);
 
     return (
       <div className="shorts-page__video-section">

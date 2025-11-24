@@ -98,6 +98,10 @@ export default function ShortsPage(props: Props) {
     location: { search },
   } = useHistory();
 
+  console.log('autoplaynext', autoPlayNextShort);
+  console.log('autoplaymedia', autoplayMedia);
+  console.log('original autoplay', ORIGINAL_AUTOPLAY_SETTING);
+
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const history = useHistory();
@@ -119,14 +123,11 @@ export default function ShortsPage(props: Props) {
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const firstShortPlayedRef = React.useRef(false);
+  const isSwipeEnabled = !mobileModalOpen;
 
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
   }
-
-  console.log('autoplaynext', autoPlayNextShort);
-  console.log('autoplaymedia', autoplayMedia);
-  console.log('original autoplay', ORIGINAL_AUTOPLAY_SETTING);
 
   const isSwipeInsideSidePanel = React.useCallback((clientX, clientY) => {
     const el = document.elementFromPoint(clientX, clientY);
@@ -145,27 +146,6 @@ export default function ShortsPage(props: Props) {
       }
     },
     [channelId, uri, uuid, doFetchChannelShorts, doFetchShortsRecommendedContent]
-  );
-
-  const handlePlayPause = React.useCallback(() => {
-    const videoElement = document.querySelector('.vjs-tech');
-    if (videoElement) {
-      if (videoElement.paused) {
-        videoElement.play();
-      } else {
-        videoElement.pause();
-      }
-    }
-  }, []);
-
-  const handleViewModeChange = React.useCallback(
-    (mode) => {
-      setLocalViewMode(mode);
-      doSetShortsViewMode(mode);
-      doSetShortsPlaylist([]);
-      fetchForMode(mode);
-    },
-    [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode]
   );
 
   const handleCommentsClick = React.useCallback(() => {
@@ -246,9 +226,7 @@ export default function ShortsPage(props: Props) {
 
       // restore original autoplay when leaving video shorts player -> channel page
       const shouldCleanupOnUnmount =
-        (!isInShortsPlayer && !isInShortsTab) ||
-        (!isInShortsPlayer && isInShortsTab) ||
-        isHomePage;
+        (!isInShortsPlayer && !isInShortsTab) || (!isInShortsPlayer && isInShortsTab) || isHomePage;
 
       if (shouldCleanupOnUnmount && ORIGINAL_AUTOPLAY_SETTING !== null) {
         doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
@@ -308,27 +286,93 @@ export default function ShortsPage(props: Props) {
   }, [search, channelUri]);
 
   const goToNext = React.useCallback(() => {
+    if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
+      return;
+    }
+
     if (!firstShortPlayedRef.current) {
       firstShortPlayedRef.current = true;
       if (ORIGINAL_AUTOPLAY_SETTING === false && autoPlayNextShort) {
         doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, true);
       }
     }
-    if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
-      return;
+
+    const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
+    const overlayEl = document.querySelector('.swipe-navigation-overlay');
+
+    if (videoEl) {
+  console.log('🎯 Selected element:', videoEl.className);
+  console.log('🎨 BEFORE - transform:', window.getComputedStyle(videoEl).transform);
+  console.log('⏱️ BEFORE - transition:', window.getComputedStyle(videoEl).transition);
+  
+  const isMobile = window.innerWidth <= 768;
+  
+  // Remove existing transitions
+  videoEl.style.cssText = videoEl.style.cssText.replace(/transition[^;]*/gi, '');
+  videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+  
+  if (overlayEl) {
+    overlayEl.style.cssText = overlayEl.style.cssText.replace(/transition[^;]*/gi, '');
+    overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+  }
+  
+  void videoEl.offsetHeight;
+  if (overlayEl) void overlayEl.offsetHeight;
+
+  if (isMobile) {
+    videoEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
+    if (overlayEl) {
+      overlayEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
     }
-
-    clearPosition(uri);
-
-    const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
-    history.replace(shortsUrl);
-
-    const claim = fileInfo?.claim;
-    const currentClaimId = claim?.claim_id;
-    if (currentClaimId) {
-      const nextClaimId = nextRecommendedShort.split('#')[1] || nextRecommendedShort.split('/').pop();
-      onRecommendationClicked(currentClaimId, nextClaimId);
+  } else {
+    const computedStyle = window.getComputedStyle(videoEl);
+    const matrix = new DOMMatrix(computedStyle.transform);
+    const currentXpx = matrix.m41;
+    
+    console.log('📍 Current X position:', currentXpx);
+    
+    videoEl.style.setProperty('transform', `translate(${currentXpx}px, -100vh)`, 'important');
+    
+    if (overlayEl) {
+      const overlayComputedStyle = window.getComputedStyle(overlayEl);
+      const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
+      const overlayXpx = overlayMatrix.m41;
+      overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, -100vh)`, 'important');
     }
+  }
+  
+  console.log('🎨 AFTER - transform:', window.getComputedStyle(videoEl).transform);
+  console.log('⏱️ AFTER - transition:', window.getComputedStyle(videoEl).transition);
+  console.log('📐 Inline style:', videoEl.style.transform);
+}
+
+    setTimeout(() => {
+      clearPosition(uri);
+      const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+      history.replace(shortsUrl);
+
+      const claim = fileInfo?.claim;
+      const currentClaimId = claim?.claim_id;
+      if (currentClaimId) {
+        const nextClaimId = nextRecommendedShort.split('#')[1] || nextRecommendedShort.split('/').pop();
+        onRecommendationClicked(currentClaimId, nextClaimId);
+      }
+
+      setTimeout(() => {
+        const newVideoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
+        const newOverlayEl = document.querySelector('.swipe-navigation-overlay');
+
+        if (newVideoEl) {
+          newVideoEl.style.removeProperty('transform');
+          newVideoEl.style.removeProperty('transition');
+        }
+
+        if (newOverlayEl) {
+          newOverlayEl.style.removeProperty('transform');
+          newOverlayEl.style.removeProperty('transition');
+        }
+      }, 100);
+    }, 350);
   }, [
     nextRecommendedShort,
     isAtEnd,
@@ -345,32 +389,58 @@ export default function ShortsPage(props: Props) {
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
 
-    clearPosition(uri);
+    const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
+    const overlayEl = document.querySelector('.swipe-navigation-overlay');
 
-    const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
-    history.replace(shortsUrl);
-  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, history]);
+    if (videoEl) {
+      const isMobile = window.innerWidth <= 768;
+      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      if (overlayEl) {
+        overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      }
+      void videoEl.offsetHeight;
+      if (overlayEl) void overlayEl.offsetHeight;
+      if (isMobile) {
+        videoEl.style.setProperty('transform', 'translateY(100vh)', 'important');
+        if (overlayEl) {
+          overlayEl.style.setProperty('transform', 'translateY(100vh)', 'important');
+        }
+      } else {
+        const computedStyle = window.getComputedStyle(videoEl);
+        const matrix = new DOMMatrix(computedStyle.transform);
+        const currentXpx = matrix.m41;
+        videoEl.style.setProperty('transform', `translate(${currentXpx}px, 100vh)`, 'important');
 
-  React.useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        goToPrevious();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        goToNext();
-      } else if (e.key === 'Escape') {
-        if (mobileModalOpen) {
-          setMobileModalOpen(false);
-        } else if (sidePanelOpen) {
-          doSetShortsSidePanel(false);
+        if (overlayEl) {
+          const overlayComputedStyle = window.getComputedStyle(overlayEl);
+          const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
+          const overlayXpx = overlayMatrix.m41;
+          overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, 100vh)`, 'important');
         }
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [goToNext, goToPrevious, sidePanelOpen, mobileModalOpen, doSetShortsSidePanel]);
+    setTimeout(() => {
+      clearPosition(uri);
+      const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+      history.replace(shortsUrl);
+
+      setTimeout(() => {
+        const newVideoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
+        const newOverlayEl = document.querySelector('.swipe-navigation-overlay');
+
+        if (newVideoEl) {
+          newVideoEl.style.removeProperty('transform');
+          newVideoEl.style.removeProperty('transition');
+        }
+
+        if (newOverlayEl) {
+          newOverlayEl.style.removeProperty('transform');
+          newOverlayEl.style.removeProperty('transition');
+        }
+      }, 100);
+    }, 350);
+  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, history]);
 
   const handleScroll = React.useCallback(
     (e) => {
@@ -406,75 +476,9 @@ export default function ShortsPage(props: Props) {
     container.addEventListener('wheel', handleScroll, { passive: false });
     return () => container.removeEventListener('wheel', handleScroll);
   }, [handleScroll]);
-
-  React.useEffect(() => {
-    let cleanupFn = null;
-    let lastVideoElement = null;
-
-    const attachListener = () => {
-      const videoElement = document.querySelector('.vjs-tech');
-
-      if (!videoElement || videoElement === lastVideoElement) {
-        return lastVideoElement !== null;
-      }
-      if (cleanupFn) {
-        cleanupFn();
-        cleanupFn = null;
-      }
-
-      const handleEnded = () => {
-        console.log('Video ended, autoPlayNextShort:', autoPlayNextShort);
-        if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
-          setTimeout(() => {
-            goToNext();
-          }, 500);
-        } else {
-          setTimeout(() => {
-            videoElement.currentTime = 0;
-            videoElement.play().catch((error) => {
-              console.log(error);
-            });
-          }, 100);
-        }
-      };
-
-      videoElement.addEventListener('ended', handleEnded);
-      lastVideoElement = videoElement;
-      cleanupFn = () => {
-        videoElement.removeEventListener('ended', handleEnded);
-        lastVideoElement = null;
-      };
-
-      console.log('Attached ended listener to video element for uri:', uri);
-      return true;
-    };
-    attachListener();
-    const interval = setInterval(() => {
-      attachListener();
-    }, 100);
-
-    const handlePlaying = () => {
-      attachListener();
-    };
-    document.addEventListener('playing', handlePlaying, true);
-
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 10000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-      document.removeEventListener('playing', handlePlaying, true);
-      if (cleanupFn) cleanupFn();
-    };
-  }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext, uri]);
-
-  const isSwipeEnabled = !mobileModalOpen;
   return (
     <>
       <SwipeNavigationPortal
-        onPlayPause={handlePlayPause}
         onNext={goToNext}
         onPrevious={goToPrevious}
         isEnabled={isSwipeEnabled && hasPlaylist}
@@ -484,7 +488,10 @@ export default function ShortsPage(props: Props) {
         showViewToggle={!!channelId}
         viewMode={localViewMode}
         channelName={channelName}
-        onViewModeChange={handleViewModeChange}
+        setLocalViewMode={setLocalViewMode}
+        doSetShortsViewMode={doSetShortsViewMode}
+        doSetShortsPlaylist={doSetShortsPlaylist}
+        fetchForMode={fetchForMode}
         title={title}
         channelUri={channelUri}
         thumbnailUrl={thumbnail}
@@ -507,14 +514,10 @@ export default function ShortsPage(props: Props) {
                 sidePanelOpen={sidePanelOpen}
                 onInfoButtonClick={handleInfoButtonClick}
                 primaryPlayerWrapperClass={PRIMARY_PLAYER_WRAPPER_CLASS}
-                onNext={goToNext}
-                onPrevious={goToPrevious}
-                onScroll={handleScroll}
-                viewMode={localViewMode}
-                channelName={channelName}
-                onViewModeChange={handleViewModeChange}
-                hasChannel={!!channelId}
-                hasPlaylist={hasPlaylist}
+                goToNext={goToNext}
+                nextRecommendedShort={nextRecommendedShort}
+                autoPlayNextShort={autoPlayNextShort}
+                isAtEnd={isAtEnd}
               />
 
               {!isMobile && (

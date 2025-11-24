@@ -189,20 +189,11 @@ const ShortsActions = React.memo<Props>(
             />
             <p>{__('Share')}</p>
           </div>
-          {/* <Button
-              className="shorts-page__actions-button shorts-page__actions-button--share"
-              onClick={onNext}
-              icon={ICONS.SUPPORT}
-              iconSize={20}
-              title={__('Next Short')}
-              disabled={isLoading || isAtEnd}
-            /> */}
           <div className="shorts-actions__item">
             <Button
               className={classnames('shorts-page__actions-button button-bubble', {
                 'button-bubble--active': autoPlayNextShort,
               })}
-              requiresAuth={IS_WEB}
               title={__('Autoplay Next')}
               onClick={doToggleShortsAutoplay}
               icon={ICONS.AUTOPLAY_NEXT}

@@ -588,8 +588,10 @@
     position: fixed;
     left: 49.6% !important;
     top: 0 !important;
-    transform: translate(-50%, 0%) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(-50%, 0%);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     border-radius: 10px !important;
     aspect-ratio: 9/16;
@@ -650,3 +652,5 @@
   }
   }
 }
+
+

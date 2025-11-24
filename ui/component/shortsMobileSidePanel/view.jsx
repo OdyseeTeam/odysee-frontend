@@ -22,7 +22,6 @@ type Props = {
   isComments?: boolean,
 };
 
-
 export default function MobilePanel(props: Props) {
   const {
     isOpen,
