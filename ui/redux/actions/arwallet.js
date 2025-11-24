@@ -71,12 +71,12 @@ export function doArInit() {
 
 export function doArConnect() {
   LocalStorage.setItem('WANDER_DISCONNECT', 'false');
-  return async (dispatch: Dispatch, getState: GetState) => {    
+  return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         // $FlowIgnore
-        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);        
+        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
         window.wanderInstance.close();
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
@@ -117,10 +117,11 @@ export function doArConnect() {
         }
       } catch (e) {
         console.error('error:', e);
-        if(e.includes('User cancelled the AuthRequest')){
+        const msg = typeof e === 'string' ? e : e && e.message ? e.message : undefined;
+        if (typeof msg === 'string' && msg.includes('User cancelled the AuthRequest')) {
           LocalStorage.setItem('WANDER_DISCONNECT', 'true');
-        }          
-        dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
+        }
+        dispatch({ type: ARCONNECT_FAILURE, data: { error: msg || 'Error connecting to Arconnect.' } });
       }
     } else {
       dispatch({ type: ARCONNECT_FAILURE, data: { error: 'Arconnect not found, install the extension.' } });
@@ -291,7 +292,7 @@ export const doArTip = (
             type: AR_TIP_STATUS_ERROR,
             data: { claimId: claimId, error: 'error: arweave transaction failed' },
           });
-          return  { error: error?.message || error };
+          return { error: error?.message || error };
         }
       } else if (tipParams.currency === 'USD') {
         // This not currently used
@@ -318,7 +319,7 @@ export const doArTip = (
           type: AR_TIP_STATUS_ERROR,
           data: { claimId: claimId, error: er },
         });
-        return  { error: er };
+        return { error: er };
       }
 
       await Lbryio.call(
@@ -358,14 +359,17 @@ export const doCleanTips = () => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const currentState = getState();
     if (Object.keys(currentState.arwallet?.tippingStatusById).length === 1) {
-      dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' } });
+      dispatch({
+        type: AR_TIP_STATUS_ERROR,
+        data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' },
+      });
     }
   };
 };
 
-const getBalanceEndpoint = (wallet: string, gateway: string) => {  
+const getBalanceEndpoint = (wallet: string, gateway: string) => {
   return `https://${gateway}/wallet/${wallet}/balance`;
-}  
+};
 
 const fetchARBalance = async (address: string) => {
   const gateways = ['arweave.net', 'permagate.io', 'zerosettle.online', 'zigza.xyz', 'ario-gateway.nethermind.dev'];
@@ -462,16 +466,20 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       }
       const response = await arweave.transactions.post(transaction);
 
-      dispatch(doToast({
-        message: `${amountAr} AR successfully sent to ${recipientAddress}`,
-      }));
+      dispatch(
+        doToast({
+          message: `${amountAr} AR successfully sent to ${recipientAddress}`,
+        })
+      );
       dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });
       return { txId: response.id };
     } catch (e) {
-      dispatch(doToast({
-        message: e.message || 'Failed to send AR',
-        isError: true,
-      }));
+      dispatch(
+        doToast({
+          message: e.message || 'Failed to send AR',
+          isError: true,
+        })
+      );
       dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });
       return { error: e.message || 'Failed to send AR' };
     }

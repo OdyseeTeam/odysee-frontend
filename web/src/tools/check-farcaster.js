@@ -120,8 +120,8 @@ async function checkEmbed(pageUrl) {
     actionUrl = a.url || null;
     if (actionUrl) {
       console.log(`Action URL: ${actionUrl}`);
-      const isEmbed = /\/%24\/embed\//.test(actionUrl);
-      ok(isEmbed, 'action.url uses /%24/embed/ path');
+      const isEmbed = /\/(%24|\$)\/embed\//.test(actionUrl);
+      ok(isEmbed, 'action.url uses /$/embed/ path');
       try {
         const aRes = await fetchUrl(actionUrl);
         ok(aRes.status === 200, 'action.url returns 200');
