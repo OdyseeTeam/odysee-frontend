@@ -98,10 +98,6 @@ export default function ShortsPage(props: Props) {
     location: { search },
   } = useHistory();
 
-  console.log('autoplaynext', autoPlayNextShort);
-  console.log('autoplaymedia', autoplayMedia);
-  console.log('original autoplay', ORIGINAL_AUTOPLAY_SETTING);
-
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const history = useHistory();
@@ -301,50 +297,32 @@ export default function ShortsPage(props: Props) {
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
 
     if (videoEl) {
-  console.log('🎯 Selected element:', videoEl.className);
-  console.log('🎨 BEFORE - transform:', window.getComputedStyle(videoEl).transform);
-  console.log('⏱️ BEFORE - transition:', window.getComputedStyle(videoEl).transition);
-  
-  const isMobile = window.innerWidth <= 768;
-  
-  // Remove existing transitions
-  videoEl.style.cssText = videoEl.style.cssText.replace(/transition[^;]*/gi, '');
-  videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-  
-  if (overlayEl) {
-    overlayEl.style.cssText = overlayEl.style.cssText.replace(/transition[^;]*/gi, '');
-    overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-  }
-  
-  void videoEl.offsetHeight;
-  if (overlayEl) void overlayEl.offsetHeight;
+      const isMobile = window.innerWidth <= 768;
+      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      if (overlayEl) {
+        overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      }
+      void videoEl.offsetHeight;
+      if (overlayEl) void overlayEl.offsetHeight;
 
-  if (isMobile) {
-    videoEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
-    if (overlayEl) {
-      overlayEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
+      if (isMobile) {
+        videoEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
+        if (overlayEl) {
+          overlayEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
+        }
+      } else {
+        const computedStyle = window.getComputedStyle(videoEl);
+        const matrix = new DOMMatrix(computedStyle.transform);
+        const currentXpx = matrix.m41;
+        videoEl.style.setProperty('transform', `translate(${currentXpx}px, -100vh)`, 'important');
+        if (overlayEl) {
+          const overlayComputedStyle = window.getComputedStyle(overlayEl);
+          const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
+          const overlayXpx = overlayMatrix.m41;
+          overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, -100vh)`, 'important');
+        }
+      }
     }
-  } else {
-    const computedStyle = window.getComputedStyle(videoEl);
-    const matrix = new DOMMatrix(computedStyle.transform);
-    const currentXpx = matrix.m41;
-    
-    console.log('📍 Current X position:', currentXpx);
-    
-    videoEl.style.setProperty('transform', `translate(${currentXpx}px, -100vh)`, 'important');
-    
-    if (overlayEl) {
-      const overlayComputedStyle = window.getComputedStyle(overlayEl);
-      const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
-      const overlayXpx = overlayMatrix.m41;
-      overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, -100vh)`, 'important');
-    }
-  }
-  
-  console.log('🎨 AFTER - transform:', window.getComputedStyle(videoEl).transform);
-  console.log('⏱️ AFTER - transition:', window.getComputedStyle(videoEl).transition);
-  console.log('📐 Inline style:', videoEl.style.transform);
-}
 
     setTimeout(() => {
       clearPosition(uri);
