@@ -21,9 +21,10 @@ function PublishBid(props: Props) {
   const { name, myClaimForUri, bid, isResolvingUri, amountNeededForTakeover, updatePublishForm, balance } = props;
   const [bidError, setBidError] = useState(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
+  const [bidHasExceededDefaultAmount] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
 
   useEffect(() => {
-    if (bid < MINIMUM_PUBLISH_BID) {
+    if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
       updatePublishForm({ bid: parseFloat(MINIMUM_PUBLISH_BID) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,7 +50,7 @@ function PublishBid(props: Props) {
     updatePublishForm({ bidError: bidError });
   }, [bid, previousBidAmount, balance, updatePublishForm]);
 
-  return (
+  return bidHasExceededDefaultAmount ? (
     <Card
       className={!name ? 'disabled' : ''}
       actions={
@@ -78,7 +79,7 @@ function PublishBid(props: Props) {
         />
       }
     />
-  );
+  ) : null;
 }
 
 export default PublishBid;

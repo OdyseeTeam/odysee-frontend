@@ -11,12 +11,19 @@
     top: var(--spacing-xxxxs);
     right: 0;
     padding: 2px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    min-width: 40px;
-    min-height: 40px;
     border-radius: 50%;
     z-index: 2;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
 
     &[aria-expanded='true'] {
       opacity: 1;
@@ -33,16 +40,16 @@
     transition: background-size 0.2s ease-in-out;
   }
 
-  .media__thumb__short{
-  aspect-ratio: 9 / 16;
-}
+  .media__thumb__short {
+    aspect-ratio: 9 / 16;
+  }
 
   .claim-preview__title {
     font-weight: var(--font-weight-bold);
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin-right: var(--spacing-xl);
+    margin-right: var(--spacing-m);
     color: rgba(var(--color-text-base), 0.9);
   }
 
@@ -180,6 +187,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-s);
+
     $width: 100%;
     width: $width;
     @include handleClaimTileGifThumbnail($width);
@@ -580,6 +589,15 @@
         margin-top: 0;
       }
 
+      a.button-following {
+        .button__content {
+          width: 100%;
+        }
+      }
+      button.button-following:last-of-type {
+        max-width: fit-content;
+      }
+
       span {
         font-size: var(--font-xsmall);
         font-weight: var(--font-weight-bold);
@@ -678,6 +696,21 @@
   @media (max-width: $breakpoint-small) {
     .claim-preview__text {
       flex-direction: column;
+
+      .claim-preview-metadata {
+        .claim-tile__info {
+          .media__subtitle {
+            margin-top: 2px;
+            .button--uri-indicator {
+              .button__content {
+                .channel-name {
+                  font-size: var(--font-xxsmall) !important;
+                }
+              }
+            }
+          }
+        }
+      }
       .claim-preview__actions {
         flex-direction: row;
         justify-content: flex-start !important;
@@ -839,7 +872,6 @@
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
-
     .claim-preview-metadata {
       .claim-tile__info {
         .channel-thumbnail {

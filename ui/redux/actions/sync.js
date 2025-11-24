@@ -109,24 +109,22 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
   };
 }
 
-export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
-  const getSyncPending = selectGetSyncIsPending(state);
-  const setSyncPending = selectSetSyncIsPending(state);
-  const syncLocked = selectSyncIsLocked(state);
+export const doGetSyncDesktop =
+  (cb?: (any, any) => void, password?: string) => (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
+    const getSyncPending = selectGetSyncIsPending(state);
+    const setSyncPending = selectSetSyncIsPending(state);
+    const syncLocked = selectSyncIsLocked(state);
 
-  return getSavedPassword().then((savedPassword) => {
-    const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
+    return getSavedPassword().then((savedPassword) => {
+      const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
 
-    if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
-      return dispatch(doGetSync(passwordArgument, cb));
-    }
-  });
-};
+      if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
+        return dispatch(doGetSync(passwordArgument, cb));
+      }
+    });
+  };
 
 /**
  * doSyncLoop
@@ -247,7 +245,11 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
       .catch((syncAttemptError) => {
         const badPasswordError =
           syncAttemptError && syncAttemptError.data && syncAttemptError.data.name === BAD_PASSWORD_ERROR_NAME;
-        const tooBigDataError = Boolean(syncAttemptError?.message?.match(/rpc call sync_apply\(\) on.*?status code: 413. could not decode body to rpc response: invalid character/))
+        const tooBigDataError = Boolean(
+          syncAttemptError?.message?.match(
+            /rpc call sync_apply\(\) on.*?status code: 413. could not decode body to rpc response: invalid character/
+          )
+        );
 
         if (data.unlockFailed) {
           dispatch({ type: ACTIONS.GET_SYNC_FAILED, data: { error: syncAttemptError } });
@@ -489,6 +491,7 @@ export function doPopulateSharedUserState(sharedSettings: any) {
       savedCollectionIds,
       lastViewedAnnouncement,
     } = extractUserState(sharedSettings);
+
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
       data: {

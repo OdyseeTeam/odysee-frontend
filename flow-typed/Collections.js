@@ -28,10 +28,10 @@ declare type CollectionState = {
   builtin: CollectionGroup,
   savedIds: Array<string>,
   resolvedIds: ?Array<string>,
+  lastUsedCollectionIds: ?Array<string>,
   // -- local --
   collectionItemsFetchingIds: Array<string>,
   queue: Collection,
-  lastUsedCollection: ?string,
   isFetchingMyCollections: ?boolean,
   thumbnailClaimsFetchingCollectionIds: Array<string>,
 };

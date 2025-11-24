@@ -33,6 +33,7 @@ function CollectionPublishAdditionalOptions(props: Props) {
 
   const [hideSection, setHideSection] = React.useState(true);
   const [bidError, setBidError] = React.useState('');
+  const [bidHasExceededDefaultAmount] = React.useState(Boolean(formParams.bid && formParams.bid > MINIMUM_PUBLISH_BID));
 
   const { languages } = formParams;
 
@@ -116,24 +117,26 @@ function CollectionPublishAdditionalOptions(props: Props) {
                   </FormField>
                 </div>
 
-                <div className="publish-row">
-                  <PublishBidTab
-                    params={formParams}
-                    bidError={bidError}
-                    onChange={(event) =>
-                      handleBidChange(
-                        parseFloat(event.target.value),
-                        amount,
-                        balance,
-                        (value) => {
-                          updateFormErrors('bid', value);
-                          setBidError(value);
-                        },
-                        updateFormParams
-                      )
-                    }
-                  />
-                </div>
+                {bidHasExceededDefaultAmount && (
+                  <div className="publish-row">
+                    <PublishBidTab
+                      params={formParams}
+                      bidError={bidError}
+                      onChange={(event) =>
+                        handleBidChange(
+                          parseFloat(event.target.value),
+                          amount,
+                          balance,
+                          (value) => {
+                            updateFormErrors('bid', value);
+                            setBidError(value);
+                          },
+                          updateFormParams
+                        )
+                      }
+                    />
+                  </div>
+                )}
               </div>
             )}
 

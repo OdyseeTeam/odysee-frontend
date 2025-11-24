@@ -26,9 +26,9 @@ const defaultState: CollectionState = {
   updated: {},
   unsavedChanges: {},
   savedIds: [],
+  lastUsedCollectionIds: [],
   // -- local --
   isFetchingMyCollections: undefined,
-  lastUsedCollection: undefined,
   collectionItemsFetchingIds: [],
   queue: {
     ...defaultCollectionState,
@@ -61,13 +61,16 @@ const collectionsReducer = handleActions(
       };
 
       const newList = Object.assign({}, newListTemplate, { ...params });
-      const { unpublished: lists } = state;
+      const { unpublished: lists, lastUsedCollectionIds } = state;
       const newLists = Object.assign({}, lists, { [params.id]: newList });
+      const newLastUsedCollectionIds = [params.id]
+        .concat(lastUsedCollectionIds.filter((id) => id !== params.id))
+        .splice(0, 3);
 
       return {
         ...state,
         unpublished: newLists,
-        lastUsedCollection: params.id,
+        lastUsedCollectionIds: newLastUsedCollectionIds,
       };
     },
 
@@ -113,10 +116,10 @@ const collectionsReducer = handleActions(
       return {
         ...state,
         [collectionKey]: collectionsByIdForKey,
-        lastUsedCollection:
-          state.lastUsedCollection === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES
-            ? null
-            : state.lastUsedCollection,
+        lastUsedCollectionIds:
+          state.lastUsedCollectionIds === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES
+            ? state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)
+            : [id].concat(state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)).splice(0, 3),
       };
     },
 
@@ -145,7 +148,9 @@ const collectionsReducer = handleActions(
       const newState = {
         ...state,
         [collectionKey]: { ...currentCollections, [id]: newCollection },
-        lastUsedCollection: id,
+        lastUsedCollectionIds: ![COLS.WATCH_LATER_ID, COLS.FAVORITES_ID].includes(id)
+          ? [id].concat(state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)).splice(0, 3)
+          : state.lastUsedCollectionIds,
       };
 
       // Remove un-wanted versions of the list

@@ -6,6 +6,7 @@ import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { COLLECTION_PAGE } from 'constants/urlParams';
+import * as TAGS from 'constants/tags';
 
 import { FormField, FormUrlName } from 'component/common/form';
 import { FormContext } from 'component/common/form-components/form';
@@ -160,6 +161,12 @@ function CollectionGeneralTab(props: Props) {
               hideHeader
               label={__('Selected Tags')}
               empty={__('No tags added')}
+              excludedControlTags={[
+                TAGS.DISABLE_COMMENTS_TAG,
+                TAGS.DISABLE_DOWNLOAD_BUTTON_TAG,
+                TAGS.DISABLE_REACTIONS_COMMENTS_TAG,
+                TAGS.DISABLE_SLIMES_COMMENTS_TAG,
+              ]}
               limitSelect={TAGS_LIMIT}
               help={__(
                 "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."

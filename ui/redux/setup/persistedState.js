@@ -31,7 +31,15 @@ const FILTERS = {
   ]),
   subscriptions: createFilter('subscriptions', ['subscriptions']),
   settings: createBlacklistFilter('settings', ['loadedLanguages']),
-  collections: createFilter('collections', ['builtin', 'savedIds', 'unpublished', 'edited', 'updated', 'pending']),
+  collections: createFilter('collections', [
+    'builtin',
+    'savedIds',
+    'unpublished',
+    'edited',
+    'updated',
+    'pending',
+    'lastUsedCollectionIds',
+  ]),
 };
 
 const whiteListedReducers = [
