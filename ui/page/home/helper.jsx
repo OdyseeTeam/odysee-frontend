@@ -77,6 +77,11 @@ export function getSortedRowData(
         }
       }
 
+      if (!homepageOrder.active.includes('FYP') && !homepageOrder.hidden.includes('FYP')) {
+        let followingIndex = homepageOrder.active.indexOf('FOLLOWING');
+        if (followingIndex !== -1) sortedRowData.splice(followingIndex + 1, 0, FYP_SECTION);
+      }
+
       if (
         homepageOrder.active &&
         !homepageOrder.active.includes('BANNER') &&
