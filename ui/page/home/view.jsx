@@ -81,7 +81,6 @@ function HomePage(props: Props) {
     fetchingActiveLivestreams,
     homepageOrder,
     doOpenModal,
-    userHasOdyseeMembership,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
   } = props;
@@ -109,7 +108,7 @@ function HomePage(props: Props) {
       showIndividualTags,
       showNsfw
     );
-    return getSortedRowData(authenticated, userHasOdyseeMembership, homepageOrder, homepageData, rowData);
+    return getSortedRowData(authenticated, homepageOrder, homepageData, rowData);
   }, [
     authenticated,
     followedTags,
@@ -123,7 +122,6 @@ function HomePage(props: Props) {
     showPersonalizedChannels,
     showPersonalizedTags,
     subscribedChannelIds,
-    userHasOdyseeMembership,
   ]);
 
   type Cache = {
@@ -328,7 +326,8 @@ function HomePage(props: Props) {
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
-            const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
+            const bannerForPosition =
+              homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
 
             return (
               <React.Fragment key={id}>

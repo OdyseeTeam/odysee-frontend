@@ -15,6 +15,7 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?b
   const x: Array<RowDataItem> = [];
 
   rowData.forEach((data: RowDataItem) => {
+    console.log(data);
     if (!data.hideByDefault) {
       x.push(data);
     }
@@ -29,7 +30,6 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?b
 
 export function getSortedRowData(
   authenticated: boolean,
-  hasMembership: ?boolean,
   homepageOrder: HomepageOrder,
   homepageData: any,
   rowData: Array<RowDataItem>
@@ -44,7 +44,7 @@ export function getSortedRowData(
         if (dataIndex !== -1) {
           sortedRowData.push(rowData[dataIndex]);
           rowData.splice(dataIndex, 1);
-        } else if (key === 'FYP' && hasMembership) {
+        } else if (key === 'FYP') {
           sortedRowData.push(FYP_SECTION);
         } else if (key === 'BANNER' && hasBanner) {
           sortedRowData.push({ id: 'BANNER', title: undefined });
@@ -87,12 +87,12 @@ export function getSortedRowData(
       }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-      sortedRowData = pushAllValidCategories(rowData, hasMembership);
+      sortedRowData = pushAllValidCategories(rowData, authenticated);
       if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
     }
   } else {
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-    sortedRowData = pushAllValidCategories(rowData, hasMembership);
+    sortedRowData = pushAllValidCategories(rowData, authenticated);
   }
 
   return sortedRowData;
