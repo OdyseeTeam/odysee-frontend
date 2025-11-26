@@ -29,7 +29,6 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?b
 
 export function getSortedRowData(
   authenticated: boolean,
-  hasMembership: ?boolean,
   homepageOrder: HomepageOrder,
   homepageData: any,
   rowData: Array<RowDataItem>
@@ -44,7 +43,7 @@ export function getSortedRowData(
         if (dataIndex !== -1) {
           sortedRowData.push(rowData[dataIndex]);
           rowData.splice(dataIndex, 1);
-        } else if (key === 'FYP' && hasMembership) {
+        } else if (key === 'FYP') {
           sortedRowData.push(FYP_SECTION);
         } else if (key === 'BANNER' && hasBanner) {
           sortedRowData.push({ id: 'BANNER', title: undefined });
@@ -77,6 +76,11 @@ export function getSortedRowData(
         }
       }
 
+      if (!homepageOrder.active.includes('FYP') && !homepageOrder.hidden.includes('FYP')) {
+        let followingIndex = homepageOrder.active.indexOf('FOLLOWING');
+        if (followingIndex !== -1) sortedRowData.splice(followingIndex + 1, 0, FYP_SECTION);
+      }
+
       if (
         homepageOrder.active &&
         !homepageOrder.active.includes('BANNER') &&
@@ -87,12 +91,12 @@ export function getSortedRowData(
       }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-      sortedRowData = pushAllValidCategories(rowData, hasMembership);
+      sortedRowData = pushAllValidCategories(rowData, authenticated);
       if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
     }
   } else {
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-    sortedRowData = pushAllValidCategories(rowData, hasMembership);
+    sortedRowData = pushAllValidCategories(rowData, authenticated);
   }
 
   return sortedRowData;
