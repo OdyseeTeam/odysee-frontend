@@ -8,6 +8,7 @@ import MobileActions from '../shortsMobileActions';
 import ViewModeToggle from './viewModeToggle';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Link } from 'react-router-dom';
+const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
 type Props = {
   uri?: string,
@@ -43,6 +44,9 @@ type Props = {
   doSetShortsViewMode?: (mode: string) => void,
   doSetShortsPlaylist?: (playlist: Array<any>) => void,
   fetchForMode?: (mode: string) => void,
+  claimId?: string,
+  isLivestreamClaim?: boolean,
+  doFetchReactions?: (claimId: ?string) => void,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -80,6 +84,9 @@ const SwipeNavigationPortal = React.memo<Props>(
     doSetShortsViewMode,
     doSetShortsPlaylist,
     fetchForMode,
+    claimId,
+    isLivestreamClaim,
+    doFetchReactions,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -87,6 +94,27 @@ const SwipeNavigationPortal = React.memo<Props>(
     const isScrollingRef = React.useRef(false);
     const scrollLockRef = React.useRef(false);
     const isTapRef = React.useRef(false);
+
+    React.useEffect(() => {
+      function fetchReactions() {
+        doFetchReactions(claimId);
+      }
+
+      let fetchInterval;
+      if (claimId) {
+        fetchReactions();
+
+        if (isLivestreamClaim) {
+          fetchInterval = setInterval(fetchReactions, LIVE_REACTION_FETCH_MS);
+        }
+      }
+
+      return () => {
+        if (fetchInterval) {
+          clearInterval(fetchInterval);
+        }
+      };
+    }, [claimId, doFetchReactions, isLivestreamClaim]);
 
     const handleViewModeChange = React.useCallback(
       (mode) => {
@@ -158,7 +186,7 @@ const SwipeNavigationPortal = React.memo<Props>(
 
         if (!touchEndRef.current || !isScrollingRef.current) return;
         const swipeDistance = touchStartRef.current.y - touchEndRef.current.y;
-        const minSwipeDistance = 50;
+        const minSwipeDistance = 10;
 
         if (Math.abs(swipeDistance) > minSwipeDistance) {
           e.preventDefault();

@@ -13,7 +13,6 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 import { useHistory } from 'react-router';
-import { is } from 'bluebird';
 import {HomepageTitles} from 'util/buildHomepage';
 
 const Draggable = React.lazy(() =>

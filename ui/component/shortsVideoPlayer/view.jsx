@@ -62,7 +62,8 @@ const ShortsVideoPlayer = React.memo<Props>(
             setTimeout(() => {
               videoElement.currentTime = 0;
               videoElement.play().catch((error) => {
-                console.log(error);
+              // eslint-disable-next-line no-console
+                console.error(error);
               });
             }, 100);
           }

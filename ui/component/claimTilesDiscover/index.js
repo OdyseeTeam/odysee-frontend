@@ -17,8 +17,6 @@ import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
 
 import ClaimListDiscover from './view';
-import { selectClaimForUri } from '../../redux/selectors/claims';
-import { isClaimShort } from '../../util/claim';
 
 function resolveHideMembersOnly(global, override) {
   return override === undefined || override === null ? global : override;

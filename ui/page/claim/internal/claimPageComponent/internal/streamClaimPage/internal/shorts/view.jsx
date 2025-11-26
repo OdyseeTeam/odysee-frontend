@@ -285,6 +285,7 @@ export default function ShortsPage(props: Props) {
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
     }
+    scrollLockRef.current = true;
 
     if (!firstShortPlayedRef.current) {
       firstShortPlayedRef.current = true;
@@ -349,20 +350,10 @@ export default function ShortsPage(props: Props) {
           newOverlayEl.style.removeProperty('transform');
           newOverlayEl.style.removeProperty('transition');
         }
+        scrollLockRef.current = false;
       }, 100);
     }, 350);
-  }, [
-    nextRecommendedShort,
-    isAtEnd,
-    isSearchingRecommendations,
-    uri,
-    clearPosition,
-    history,
-    fileInfo,
-    onRecommendationClicked,
-    autoPlayNextShort,
-    doSetClientSetting,
-  ]);
+  }, [nextRecommendedShort, isAtEnd, isSearchingRecommendations, uri, clearPosition, history, fileInfo, onRecommendationClicked, autoPlayNextShort, doSetClientSetting]);
 
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;

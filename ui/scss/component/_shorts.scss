@@ -5,6 +5,7 @@
   position: absolute;
 }
 
+
 .shorts-page__container {
   display: flex;
   height: 86vh !important;
@@ -219,7 +220,7 @@
 
 .shorts-page__navigation {
   position: fixed;
-  bottom: 3vh;
+  top: 0;
   right: calc(50% - 400px/ 2 - 60px);
   display: flex;
   flex-direction: column;
@@ -227,6 +228,9 @@
   gap: 8px;
   z-index: 1001;
   transition: right 0.3s ease-in-out;
+  justify-content: flex-end;
+  height: 90vh;
+  margin-top: 60px;
 }
 
 .shorts-page__actions-button {
@@ -589,9 +593,9 @@
     left: 49.6% !important;
     top: 0 !important;
     transform: translate(-50%, 0%);
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    // transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+    //             width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    //             height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     border-radius: 10px !important;
     aspect-ratio: 9/16;
