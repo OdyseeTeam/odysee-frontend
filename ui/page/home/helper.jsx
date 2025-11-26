@@ -15,7 +15,6 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?b
   const x: Array<RowDataItem> = [];
 
   rowData.forEach((data: RowDataItem) => {
-    console.log(data);
     if (!data.hideByDefault) {
       x.push(data);
     }
