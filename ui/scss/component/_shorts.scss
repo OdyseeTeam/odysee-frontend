@@ -634,6 +634,7 @@
       position: fixed;
       top: 0;
       object-fit: cover;
+      z-index: 1000!important;
     }
 
     @media (min-width: $breakpoint-large) {

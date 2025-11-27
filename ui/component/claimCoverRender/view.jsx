@@ -9,6 +9,8 @@ import { EmbedContext } from 'contexts/embed';
 
 import useGetPoster from 'effects/use-get-poster';
 import Button from 'component/button';
+import useSwipeNavigation from 'effects/use-swipe-navigation';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   children: any,
@@ -16,6 +18,9 @@ type Props = {
   href?: string,
   transparent?: boolean,
   onClick?: () => void,
+  onSwipeNext?: () => void,
+  onSwipePrevious?: () => void,
+  enableSwipe?: boolean,
   // -- redux --
   claimThumbnail?: string,
   obscurePreview: boolean,
@@ -31,6 +36,9 @@ const ClaimCoverRender = (props: Props) => {
     href,
     transparent,
     onClick,
+    onSwipeNext,
+    onSwipePrevious,
+    enableSwipe,
     // -- redux --
     claimThumbnail,
     obscurePreview,
@@ -40,17 +48,32 @@ const ClaimCoverRender = (props: Props) => {
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
+    const {
+    location: { search },
+  } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const isShortsParam = urlParams.get('view') === 'shorts';
 
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const thumbnail = useGetPoster(claimThumbnail);
+
+  const swipeRef = useSwipeNavigation({
+    onSwipeNext,
+    onSwipePrevious,
+    isEnabled: enableSwipe && isMobile,
+    minSwipeDistance: 50,
+    tapDuration: 200,
+    onTap: enableSwipe ? onClick : undefined,
+  });
 
   const isNavigateLink = href;
   const Wrapper = isNavigateLink ? Button : 'div';
 
   return (
     <Wrapper
-      ref={passedRef}
+      ref={isShortsParam ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}

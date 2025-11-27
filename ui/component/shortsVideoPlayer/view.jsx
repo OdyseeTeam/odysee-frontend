@@ -14,10 +14,12 @@ type Props = {
   sidePanelOpen: boolean,
   onInfoButtonClick: () => void,
   primaryPlayerWrapperClass: string,
-  goToNext: () => void,
   nextRecommendedShort: ?string,
   autoPlayNextShort: boolean,
   isAtEnd: boolean,
+  onSwipeNext?: () => void,
+  onSwipePrevious?: () => void,
+  enableSwipe?: boolean,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
@@ -27,10 +29,10 @@ const ShortsVideoPlayer = React.memo<Props>(
     sidePanelOpen,
     onInfoButtonClick,
     primaryPlayerWrapperClass,
-    goToNext,
     nextRecommendedShort,
     autoPlayNextShort,
     isAtEnd,
+    onSwipeNext,
   }: Props) => {
     const {
       location: { search },
@@ -56,7 +58,7 @@ const ShortsVideoPlayer = React.memo<Props>(
         const handleEnded = () => {
           if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
             setTimeout(() => {
-              goToNext();
+              onSwipeNext();
             }, 500);
           } else {
             setTimeout(() => {
@@ -97,12 +99,16 @@ const ShortsVideoPlayer = React.memo<Props>(
         document.removeEventListener('playing', handlePlaying, true);
         if (cleanupFn) cleanupFn();
       };
-    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext, uri]);
+    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, uri]);
 
     return (
       <div className="shorts-page__video-section">
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
-          {isShortVideo && <VideoClaimInitiator uri={uri} />}
+          {isShortVideo && (
+            <VideoClaimInitiator
+              uri={uri}
+            />
+          )}
         </div>
 
         {!isMobile && (

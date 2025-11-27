@@ -13,7 +13,6 @@
     width: 380px;
     height: 82vh;
     top: 59px;
-    // border: 1px solid red;
     left: 49.6%;
     transform: translateX(-50%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -31,6 +30,7 @@
       width: 352px !important;
     }
   }
+
   &.shorts__viewer--panel-open {
     transform: translate(-130%, 0%) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

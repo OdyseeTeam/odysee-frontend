@@ -57,6 +57,7 @@ type Props = {
   autoplayMedia: boolean,
   doSetClientSetting: (key: string, value: boolean) => void,
   streamClaim?: () => void,
+  doFileGetForUri: (uri: string) => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -92,6 +93,7 @@ export default function ShortsPage(props: Props) {
     doToggleShortsAutoplay,
     autoplayMedia,
     doSetClientSetting,
+    doFileGetForUri,
   } = props;
 
   const {
@@ -110,6 +112,7 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
+  const [videoStarted, setVideoStarted] = React.useState(false);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
 
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
@@ -119,6 +122,8 @@ export default function ShortsPage(props: Props) {
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const firstShortPlayedRef = React.useRef(false);
+  const PRELOAD_BATCH_SIZE = 3;
+  const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !mobileModalOpen;
 
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
@@ -179,6 +184,45 @@ export default function ShortsPage(props: Props) {
       doSetShortsSidePanel(false);
     }
   }, [isMobile, doSetShortsSidePanel]);
+
+  React.useEffect(() => {
+    if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
+    if (currentIndex < 0) return;
+    if (!doFileGetForUri) return;
+    const currentBatch = Math.floor(currentIndex / PRELOAD_BATCH_SIZE);
+    const nextBatchStart = (currentBatch + 1) * PRELOAD_BATCH_SIZE;
+    const preloadEndIndex = Math.min(nextBatchStart + PRELOAD_BATCH_SIZE, shortsRecommendedUris.length);
+    const urisToPreload = [];
+
+    for (let i = currentIndex + 1; i < preloadEndIndex; i++) {
+      const uriToPreload = shortsRecommendedUris[i];
+      if (uriToPreload && !preloadedUrisRef.current.has(uriToPreload)) {
+        urisToPreload.push(uriToPreload);
+        preloadedUrisRef.current.add(uriToPreload);
+      }
+    }
+    urisToPreload.forEach((preloadUri, index) => {
+      setTimeout(() => {
+        doFileGetForUri(preloadUri);
+      }, index * 300);
+    });
+  }, [currentIndex, shortsRecommendedUris, doFileGetForUri]);
+
+  React.useEffect(() => {
+    preloadedUrisRef.current.clear();
+  }, [uri]);
+
+  React.useEffect(() => {
+    const checkVideoPlaying = setInterval(() => {
+      const videoEl = document.querySelector('.vjs-tech');
+      if (videoEl && !videoEl.paused) {
+        setVideoStarted(true);
+        clearInterval(checkVideoPlaying);
+      }
+    }, 100);
+
+    return () => clearInterval(checkVideoPlaying);
+}, [search, uri]);
 
   React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
@@ -292,6 +336,9 @@ export default function ShortsPage(props: Props) {
       if (ORIGINAL_AUTOPLAY_SETTING === false && autoPlayNextShort) {
         doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, true);
       }
+    }
+    if (ORIGINAL_AUTOPLAY_SETTING === false && !autoPlayNextShort) {
+      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
     }
 
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
@@ -438,6 +485,8 @@ export default function ShortsPage(props: Props) {
     [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
 
+  console.log(shortsRecommendedUris);
+
   React.useEffect(() => {
     const container = shortsContainerRef.current;
     if (!container) return;
@@ -445,9 +494,10 @@ export default function ShortsPage(props: Props) {
     container.addEventListener('wheel', handleScroll, { passive: false });
     return () => container.removeEventListener('wheel', handleScroll);
   }, [handleScroll]);
+
   return (
     <>
-      <SwipeNavigationPortal
+      {videoStarted && <SwipeNavigationPortal
         onNext={goToNext}
         onPrevious={goToPrevious}
         isEnabled={isSwipeEnabled && hasPlaylist}
@@ -472,7 +522,7 @@ export default function ShortsPage(props: Props) {
         onInfoButtonClick={handleInfoButtonClick}
         onCommentsClick={handleCommentsClick}
         isComments={panelMode === 'comments'}
-      />
+      />}
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
           <div className="shorts-page__main-content">
@@ -483,10 +533,12 @@ export default function ShortsPage(props: Props) {
                 sidePanelOpen={sidePanelOpen}
                 onInfoButtonClick={handleInfoButtonClick}
                 primaryPlayerWrapperClass={PRIMARY_PLAYER_WRAPPER_CLASS}
-                goToNext={goToNext}
                 nextRecommendedShort={nextRecommendedShort}
                 autoPlayNextShort={autoPlayNextShort}
                 isAtEnd={isAtEnd}
+                onSwipeNext={goToNext}
+                onSwipePrevious={goToPrevious}
+                enableSwipe={isSwipeEnabled}
               />
 
               {!isMobile && (

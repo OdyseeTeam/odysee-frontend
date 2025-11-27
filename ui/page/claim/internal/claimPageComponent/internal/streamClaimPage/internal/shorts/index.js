@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { doFileGetForUri } from 'redux/actions/file';
 
 import {
   selectClaimIsNsfwForUri,
@@ -74,7 +75,7 @@ const selectShortsRecommendedContent = createSelector(
         duration: '<=180',
         content_aspect_ratio: '<1',
         order_by: ['release_time'],
-        page_size: 100,
+        page_size: 50,
         page: 1,
         claim_type: ['stream'],
         has_source: true,
@@ -151,13 +152,14 @@ const perform = (dispatch) => ({
         duration: '<=180',
         content_aspect_ratio: '<1',
         order_by: ['release_time'],
-        page_size: 100,
+        page_size: 50,
         page: 1,
         claim_type: ['stream'],
         has_source: true,
       })
     );
   },
+  doFileGetForUri: (uri) => dispatch(doFileGetForUri(uri)),
   doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
