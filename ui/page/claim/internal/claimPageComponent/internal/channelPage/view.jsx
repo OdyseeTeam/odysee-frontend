@@ -76,6 +76,7 @@ type Props = {
   banState: any,
   isMature: boolean,
   isGlobalMod: boolean,
+  hideShorts: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -103,6 +104,7 @@ function ChannelPage(props: Props) {
     banState,
     isMature,
     isGlobalMod,
+    hideShorts,
   } = props;
   const {
     push,
@@ -159,6 +161,7 @@ function ChannelPage(props: Props) {
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
+  const [hasShorts, setHasShorts] = React.useState(true);
 
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
@@ -186,6 +189,10 @@ function ChannelPage(props: Props) {
       passive: true,
     });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const handleShortsLoaded = React.useCallback((count) => {
+    setHasShorts(count > 0);
   }, []);
 
   let collectionEmpty;
@@ -318,6 +325,14 @@ function ChannelPage(props: Props) {
       doMembershipMine();
     }
   }, [doMembershipMine, myMembershipsFetched]);
+
+  React.useEffect(() => {
+    if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+      const url = formatLbryUrlForWeb(uri);
+      const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+      push(`${url}${search}`);
+    }
+  }, [hideShorts, currentView, uri, push]);
 
   if (editing) {
     return <ChannelEdit uri={uri} onDone={() => goBack()} />;
@@ -484,7 +499,12 @@ function ChannelPage(props: Props) {
               <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
                 {__('Content')}
               </Tab>
-              <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
+              <Tab
+                disabled={editing || !showClaims || !hasShorts}
+                className={classnames({ 'tab--hidden': !hasShorts || hideShorts })}
+                aria-selected={tabIndex === 2}
+                onClick={() => onTabChange(2)}
+              >
                 {__('Shorts')}
               </Tab>
               <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
@@ -537,7 +557,7 @@ function ChannelPage(props: Props) {
               )}
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
+              <div style={{ display: currentView === CHANNEL_PAGE.VIEWS.SHORTS ? 'block' : 'none' }}>
                 <ContentTab
                   uri={uri}
                   channelIsBlackListed={channelIsBlackListed}
@@ -545,9 +565,10 @@ function ChannelPage(props: Props) {
                   claimType={['stream']}
                   empty={<section className="main--empty">{__('No Shorts Found')}</section>}
                   filters={filters}
+                  loadedCallback={handleShortsLoaded}
                   shortsOnly
                 />
-              )}
+              </div>
             </TabPanel>
             <TabPanel>
               {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (

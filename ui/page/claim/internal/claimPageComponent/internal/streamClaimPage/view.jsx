@@ -40,6 +40,7 @@ type Props = {
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
   isClaimShort: boolean,
+  disableShortsView: boolean,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
@@ -66,10 +67,12 @@ const StreamClaimPage = (props: Props) => {
     doSetPrimaryUri,
     doToggleAppDrawer,
     isClaimShort,
+    disableShortsView,
   } = props;
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
+  const history = useHistory();
 
   const isHidden = isClaimFiltered || isClaimBlackListed;
 
@@ -77,12 +80,11 @@ const StreamClaimPage = (props: Props) => {
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = history.location;
 
   const urlParams = new URLSearchParams(search);
-  const isShortVideo = urlParams.get('view') === 'shorts' || isClaimShort;
+  const shortsView = urlParams.get('view') === 'shorts';
+  const isShortVideo = isClaimShort && !disableShortsView;
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
@@ -92,6 +94,33 @@ const StreamClaimPage = (props: Props) => {
     // would trigger the drawer
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (!isClaimShort && shortsView) {
+      const urlParams = new URLSearchParams(search);
+      urlParams.delete('view');
+      const newSearch = urlParams.toString();
+      const { pathname } = window.location;
+      const newUrl = `${pathname}${newSearch ? `?${newSearch}` : ''}`;
+      window.history.replaceState({}, '', newUrl);
+      window.location.reload();
+    }
+  }, [isClaimShort, shortsView, search]);
+
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(search);
+    if (isShortVideo && !shortsView) {
+      urlParams.set('view', 'shorts');
+      const newSearch = urlParams.toString();
+      const { pathname } = window.location;
+      const newUrl = `${pathname}?${newSearch}`;
+      window.history.replaceState({}, '', newUrl);
+    } else if (!isShortVideo && shortsView) {
+      urlParams.delete('view');
+      const newSearch = urlParams.toString();
+      history.replace(`${history.location.pathname}${newSearch ? `?${newSearch}` : ''}`);
+    }
+  }, [isShortVideo, shortsView, urlParams, search]);
 
   React.useEffect(() => {
     doSetContentHistoryItem(uri);

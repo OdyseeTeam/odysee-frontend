@@ -15,12 +15,13 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
-import { selectLanguage } from 'redux/selectors/settings';
+import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
 import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doMembershipMine } from 'redux/actions/memberships';
 import { PREFERENCE_EMBED } from 'constants/tags';
 import ChannelPage from './view';
+import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -47,6 +48,7 @@ const select = (state, props) => {
     banState: selectBanStateForUri(state, props.uri),
     isMature: claim ? isClaimNsfw(claim) : false,
     isGlobalMod: Boolean(selectUser(state)?.global_mod),
+    hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   };
 };
 

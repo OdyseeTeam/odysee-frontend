@@ -226,4 +226,7 @@ export const selectPreferredCurrency = (state: State) => {
 };
 
 export const selectAutoplayNext = (state: State) => Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
-export const selectAutoplayNextShorts = (state: State) => Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+export const selectAutoplayNextShorts = (state: State) =>
+  Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+export const selectDisableShortsView = (state: State) =>
+  Boolean(selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
