@@ -242,7 +242,7 @@ function AppWrapper() {
     if (readyToLaunch && persistDone) {
       app.store.dispatch(doDaemonReady());
       app.store.dispatch(doLoadBuiltInHomepageData());
-      // app.store.dispatch(doFetchHomepages());
+      app.store.dispatch(doFetchHomepages());
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {

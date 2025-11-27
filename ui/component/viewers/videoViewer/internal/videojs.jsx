@@ -588,6 +588,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           .then((_) => {
             // $FlowIssue
             vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+
+            if (isShortsParam && vjsPlayer.muted()) {
+              setTimeout(() => {
+                vjsPlayer.muted(false);
+                vjsPlayer.volume(1.0);
+              }, 100);
+            }
           })
           .catch((error) => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
@@ -596,7 +603,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
 
             if (noPermissionError) {
-              if (IS_IOS) {
+              if (IS_IOS || isShortsParam) {
                 // autoplay not allowed, mute video, play and show 'tap to unmute' button
                 // $FlowIssue
                 vjsPlayer?.muted(true);

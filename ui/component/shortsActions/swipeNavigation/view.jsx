@@ -2,12 +2,15 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
 import ViewModeSelector from './viewModeSelector';
 import MobileActions from '../shortsMobileActions';
 import ViewModeToggle from './viewModeToggle';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Link } from 'react-router-dom';
+
+const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
 type Props = {
   uri?: string,
@@ -43,6 +46,9 @@ type Props = {
   doSetShortsViewMode?: (mode: string) => void,
   doSetShortsPlaylist?: (playlist: Array<any>) => void,
   fetchForMode?: (mode: string) => void,
+  claimId?: string,
+  isLivestreamClaim?: boolean,
+  doFetchReactions?: (claimId: ?string) => void,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -80,13 +86,32 @@ const SwipeNavigationPortal = React.memo<Props>(
     doSetShortsViewMode,
     doSetShortsPlaylist,
     fetchForMode,
+    claimId,
+    isLivestreamClaim,
+    doFetchReactions,
   }: Props) => {
-    const overlayRef = React.useRef();
-    const touchStartRef = React.useRef(null);
-    const touchEndRef = React.useRef(null);
-    const isScrollingRef = React.useRef(false);
     const scrollLockRef = React.useRef(false);
-    const isTapRef = React.useRef(false);
+
+    React.useEffect(() => {
+      function fetchReactions() {
+        doFetchReactions(claimId);
+      }
+
+      let fetchInterval;
+      if (claimId) {
+        fetchReactions();
+
+        if (isLivestreamClaim) {
+          fetchInterval = setInterval(fetchReactions, LIVE_REACTION_FETCH_MS);
+        }
+      }
+
+      return () => {
+        if (fetchInterval) {
+          clearInterval(fetchInterval);
+        }
+      };
+    }, [claimId, doFetchReactions, isLivestreamClaim]);
 
     const handleViewModeChange = React.useCallback(
       (mode) => {
@@ -109,74 +134,21 @@ const SwipeNavigationPortal = React.memo<Props>(
       }
     }, []);
 
-    const handleTouchStart = React.useCallback(
-      (e) => {
-        if (!isEnabled) return;
-        touchStartRef.current = {
-          y: e.targetTouches[0].clientY,
-          x: e.targetTouches[0].clientX,
-          time: Date.now(),
-        };
-        touchEndRef.current = null;
-        isScrollingRef.current = false;
-        isTapRef.current = true;
-      },
-      [isEnabled]
-    );
+    const handleTap = React.useCallback(() => {
+      handlePlayPause();
+      if (streamClaim) {
+        streamClaim();
+      }
+    }, [handlePlayPause, streamClaim]);
 
-    const handleTouchMove = React.useCallback(
-      (e) => {
-        if (!isEnabled || !touchStartRef.current) return;
-        const currentY = e.targetTouches[0].clientY;
-        const currentX = e.targetTouches[0].clientX;
-        const diffY = Math.abs(touchStartRef.current.y - currentY);
-        const diffX = Math.abs(touchStartRef.current.x - currentX);
-
-        if (diffY > 15) {
-          isScrollingRef.current = true;
-          isTapRef.current = false;
-        }
-        if (diffX > diffY) {
-          isTapRef.current = false;
-        }
-        touchEndRef.current = { y: currentY, x: currentX };
-      },
-      [isEnabled]
-    );
-
-    const handleTouchEnd = React.useCallback(
-      (e) => {
-        if (!isEnabled || !touchStartRef.current) return;
-        const touchDuration = Date.now() - touchStartRef.current.time;
-
-        if (isTapRef.current && touchDuration < 200) {
-          touchStartRef.current = null;
-          touchEndRef.current = null;
-          isScrollingRef.current = false;
-          return;
-        }
-
-        if (!touchEndRef.current || !isScrollingRef.current) return;
-        const swipeDistance = touchStartRef.current.y - touchEndRef.current.y;
-        const minSwipeDistance = 50;
-
-        if (Math.abs(swipeDistance) > minSwipeDistance) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (swipeDistance > 0) {
-            onNext();
-          } else {
-            onPrevious();
-          }
-        }
-
-        touchStartRef.current = null;
-        touchEndRef.current = null;
-        isScrollingRef.current = false;
-        isTapRef.current = false;
-      },
-      [onNext, onPrevious, isEnabled]
-    );
+    const overlayRef = useSwipeNavigation({
+      onSwipeNext: onNext,
+      onSwipePrevious: onPrevious,
+      isEnabled: isEnabled && isMobile,
+      minSwipeDistance: 10,
+      tapDuration: 200,
+      onTap: handleTap,
+    });
 
     const handleWheel = React.useCallback(
       (e) => {
@@ -215,28 +187,18 @@ const SwipeNavigationPortal = React.memo<Props>(
       const overlay = overlayRef.current;
       if (!overlay || !isEnabled) return;
 
-      if (isMobile) {
-        overlay.addEventListener('touchstart', handleTouchStart, { passive: true });
-        overlay.addEventListener('touchmove', handleTouchMove, { passive: true });
-        overlay.addEventListener('touchend', handleTouchEnd, { passive: false });
-      }
       if (!isMobile) {
         overlay.addEventListener('wheel', handleWheel, { passive: false });
       }
       window.addEventListener('keydown', handleKeyDown);
 
       return () => {
-        if (isMobile) {
-          overlay.removeEventListener('touchstart', handleTouchStart);
-          overlay.removeEventListener('touchmove', handleTouchMove);
-          overlay.removeEventListener('touchend', handleTouchEnd);
-        }
         if (!isMobile) {
           overlay.removeEventListener('wheel', handleWheel);
         }
         window.removeEventListener('keydown', handleKeyDown);
       };
-    }, [isMobile, isEnabled, handleTouchStart, handleTouchMove, handleTouchEnd, handleWheel, handleKeyDown]);
+    }, [isMobile, isEnabled, handleWheel, handleKeyDown, overlayRef]);
 
     const targetContainer = React.useMemo(() => {
       if (containerSelector) {
@@ -246,15 +208,9 @@ const SwipeNavigationPortal = React.memo<Props>(
     }, [containerSelector]);
 
     if (!targetContainer) return null;
-
     return createPortal(
       <div
-        onClick={() => {
-          handlePlayPause();
-          if (streamClaim) {
-            streamClaim();
-          }
-        }}
+        onClick={handleTap}
         ref={overlayRef}
         className={`
           swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} 

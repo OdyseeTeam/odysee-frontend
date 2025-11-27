@@ -612,7 +612,7 @@
   border-radius: 10px;
 
   aspect-ratio: 9/16;
-  .content__wrapper{
+  .content__wrapper {
     width: 100% !important;
     border-radius: 10px;
     position: relative !important;
@@ -674,7 +674,7 @@
       .vjs-menu-button {
         display: none;
       }
-      
+
       @media screen and (max-width: $breakpoint-small) {
         position: absolute !important;
         bottom: 0;
@@ -696,7 +696,7 @@
         line-height: 80px;
       }
     }
-    
+
     .vjs-touch-overlay {
       max-height: 100vh !important;
     }
@@ -762,7 +762,6 @@
     }
   }
 
-
   @media (max-width: $breakpoint-small) {
     width: 100vw !important;
     height: 100vh !important;
@@ -773,7 +772,7 @@
     transform: none !important;
     border-radius: 0;
     overflow: hidden;
-    
+
     position: fixed;
     top: 0;
 
@@ -799,7 +798,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         video {
           width: 100vw !important;
           height: 90vh !important;
@@ -870,7 +869,7 @@
     right: 0;
     bottom: 0;
     overscroll-behavior: none !important;
-  -webkit-overflow-scrolling: none !important;
+    -webkit-overflow-scrolling: none !important;
   }
 
   .shorts-page__container {
@@ -888,8 +887,8 @@
     overflow: hidden !important;
   }
   body.shorts-viewer *::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }

@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { doFileGetForUri } from 'redux/actions/file';
 
 import {
   selectClaimIsNsfwForUri,
@@ -158,6 +159,7 @@ const perform = (dispatch) => ({
       })
     );
   },
+  doFileGetForUri: (uri) => dispatch(doFileGetForUri(uri)),
   doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
@@ -166,8 +168,4 @@ const perform = (dispatch) => ({
   doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
 });
 
-export default withRouter(
-  connect(select, perform)(
-    ShortsPage
-  )
-);
+export default withRouter(connect(select, perform)(ShortsPage));

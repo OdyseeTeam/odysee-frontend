@@ -57,6 +57,9 @@ type Props = {
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doClearPlayingUri: () => void,
+  onSwipeNext?: () => void,
+  onSwipePrevious?: () => void,
+  enableSwipe?: boolean,
 };
 
 /**
@@ -106,6 +109,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doStartFloatingPlayingUri,
       doMembershipList,
       doClearPlayingUri,
+      onSwipeNext,
+      onSwipePrevious,
+      enableSwipe,
     } = props;
 
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
@@ -334,8 +340,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           </>
         );
       } else if (isPlayable && !autoplayVideo) {
+        console.log(onSwipeNext, onSwipePrevious, enableSwipe);
         return (
-          <ClaimCoverRender uri={uri} onClick={handleClick}>
+          <ClaimCoverRender
+            onSwipeNext={onSwipeNext}
+            onSwipePrevious={onSwipePrevious}
+            enableSwipe={enableSwipe}
+            uri={uri}
+            onClick={handleClick}
+          >
             {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
           </ClaimCoverRender>

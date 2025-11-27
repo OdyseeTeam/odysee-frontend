@@ -31,6 +31,7 @@ const VideoJsEvents = ({
   claimRewards,
   playerServerRef,
   isLivestreamClaim,
+  isShortsParam,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -122,7 +123,17 @@ const VideoJsEvents = ({
     // $FlowIssue
     player.bigPlayButton?.hide();
 
-    if (player && (player.muted() || player.volume() === 0)) {
+    if (isShortsParam) {
+      if (player.muted()) {
+        player.muted(false);
+        player.play().catch(() => {
+          player.muted(true);
+          player.play().then(() => {
+            showTapButton(TAP.UNMUTE);
+          });
+        });
+      }
+    } else if (player && (player.muted() || player.volume() === 0)) {
       // The css starts as "hidden". We make it visible here without
       // re-rendering the whole thing.
       showTapButton(TAP.UNMUTE);
