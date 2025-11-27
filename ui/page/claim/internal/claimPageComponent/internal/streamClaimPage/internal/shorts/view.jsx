@@ -496,8 +496,6 @@ export default function ShortsPage(props: Props) {
     [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
 
-  console.log(shortsRecommendedUris);
-
   React.useEffect(() => {
     const container = shortsContainerRef.current;
     if (!container) return;
