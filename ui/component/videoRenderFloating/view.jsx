@@ -87,6 +87,7 @@ type Props = {
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   sidePanelOpen: boolean,
   isClaimShort?: boolean,
+  disableShortsView?: boolean,
 };
 
 function VideoRenderFloating(props: Props) {
@@ -125,6 +126,7 @@ function VideoRenderFloating(props: Props) {
     sidePanelOpen,
     contentUnlocked,
     isClaimShort,
+    disableShortsView,
   } = props;
 
   const { state } = location;
@@ -145,7 +147,8 @@ function VideoRenderFloating(props: Props) {
 
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
-  const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled || isShortVideo);
+  const noFloatingPlayer =
+    !overrideFloating && (!isFloating || !floatingPlayerEnabled || (isClaimShort && !disableShortsView));
 
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
@@ -435,8 +438,8 @@ function VideoRenderFloating(props: Props) {
         <div
           id="abcd"
           className={classnames({
-            [CONTENT_VIEWER_CLASS]: !isShortVideo,
-            [SHORTS_VIEWER_CLASS]: isShortVideo,
+            [CONTENT_VIEWER_CLASS]: !isShortVideo || disableShortsView,
+            [SHORTS_VIEWER_CLASS]: isShortVideo && !disableShortsView,
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,

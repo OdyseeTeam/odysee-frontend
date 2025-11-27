@@ -125,6 +125,7 @@ export default function ShortsPage(props: Props) {
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !mobileModalOpen;
+  const hasEnsuredViewParam = React.useRef(false);
 
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
@@ -204,7 +205,7 @@ export default function ShortsPage(props: Props) {
     urisToPreload.forEach((preloadUri, index) => {
       setTimeout(() => {
         doFileGetForUri(preloadUri);
-      }, index * 300);
+      }, index * 100);
     });
   }, [currentIndex, shortsRecommendedUris, doFileGetForUri]);
 
@@ -324,6 +325,17 @@ export default function ShortsPage(props: Props) {
       }
     }
   }, [search, channelUri]);
+
+  React.useEffect(() => {
+    if (hasEnsuredViewParam.current) return;
+
+    const urlParams = new URLSearchParams(search);
+    if (urlParams.get('view') !== 'shorts') {
+      urlParams.set('view', 'shorts');
+      history.replace(`${history.location.pathname}?${urlParams.toString()}`);
+    }
+    hasEnsuredViewParam.current = true;
+  }, [search, history]);
 
   const goToNext = React.useCallback(() => {
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
@@ -495,8 +507,6 @@ export default function ShortsPage(props: Props) {
     },
     [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
-
-  console.log(shortsRecommendedUris);
 
   React.useEffect(() => {
     const container = shortsContainerRef.current;

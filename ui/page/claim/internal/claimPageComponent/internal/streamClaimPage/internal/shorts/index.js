@@ -134,6 +134,7 @@ const select = (state, props) => {
     channelUri,
     thumbnail,
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
     autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isClaimShort: isClaimShort(claim),
     claimId,

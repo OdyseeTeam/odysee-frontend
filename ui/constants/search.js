@@ -41,6 +41,7 @@ export const SEARCH_OPTIONS = {
   DEBOOST_SAME_CREATOR: 'deboost_same_creator',
   MAX_ASPECT_RATIO: 'max_aspect_ratio',
   CONTENT_ASPECT_RATIO: 'content_aspect_ratio',
+  CONTENT_ASPECT_RATIO_OR_MISSING: 'content_aspect_ratio_or_missing',
 };
 
 export const SEARCH_PAGE_SIZE = 20;

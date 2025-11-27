@@ -121,7 +121,18 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   }
 
   const additionalOptions = {};
-  const { related_to, nsfw, free_only, language, gid, uuid, max_aspect_ratio, deboost_same_creator, content_aspect_ratio } = options;
+  const {
+    related_to,
+    nsfw,
+    free_only,
+    language,
+    gid,
+    uuid,
+    max_aspect_ratio,
+    deboost_same_creator,
+    content_aspect_ratio,
+    content_aspect_ratio_or_missing,
+  } = options;
 
   if (related_to) {
     additionalOptions[SEARCH_OPTIONS.RELATED_TO] = related_to;
@@ -154,6 +165,10 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
 
   if (content_aspect_ratio) {
     additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO] = content_aspect_ratio;
+  }
+
+  if (content_aspect_ratio_or_missing) {
+    additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO_OR_MISSING] = content_aspect_ratio_or_missing;
   }
 
   const { store } = window;

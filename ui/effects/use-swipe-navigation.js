@@ -42,7 +42,7 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
       const diffY = Math.abs(touchStartRef.current.y - currentY);
       const diffX = Math.abs(touchStartRef.current.x - currentX);
 
-      if (diffY > 15) {
+      if (diffY > 20) {
         isScrollingRef.current = true;
         isTapRef.current = false;
       }

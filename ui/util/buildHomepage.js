@@ -388,4 +388,18 @@ export function GetLinksData(
   return rowData;
 }
 
-export type HomepageTitles = 'Recent From Following' | 'Featured' | 'Discover' | 'Pop Culture' | 'Artists' | 'Education' | 'Lifestyle' | 'Gaming' | 'Spooky' | 'Tech' | 'Comedy' | 'Music' | 'Sports' | 'Finance 2.0' | 'Shorts'
+export type HomepageTitles =
+  | 'Recent From Following'
+  | 'Featured'
+  | 'Discover'
+  | 'Pop Culture'
+  | 'Artists'
+  | 'Education'
+  | 'Lifestyle'
+  | 'Gaming'
+  | 'Spooky'
+  | 'Tech'
+  | 'Comedy'
+  | 'Music'
+  | 'Sports'
+  | 'Finance 2.0';
