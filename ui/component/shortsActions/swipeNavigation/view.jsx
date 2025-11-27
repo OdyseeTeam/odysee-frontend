@@ -134,20 +134,12 @@ const SwipeNavigationPortal = React.memo<Props>(
       }
     }, []);
 
-    const handleTap = React.useCallback(() => {
-      handlePlayPause();
-      if (streamClaim) {
-        streamClaim();
-      }
-    }, [handlePlayPause, streamClaim]);
-
     const overlayRef = useSwipeNavigation({
       onSwipeNext: onNext,
       onSwipePrevious: onPrevious,
       isEnabled: isEnabled && isMobile,
       minSwipeDistance: 10,
       tapDuration: 200,
-      onTap: handleTap,
     });
 
     const handleWheel = React.useCallback(
@@ -210,7 +202,12 @@ const SwipeNavigationPortal = React.memo<Props>(
     if (!targetContainer) return null;
     return createPortal(
       <div
-        onClick={handleTap}
+        onClick={() => {
+          handlePlayPause();
+          if (streamClaim) {
+            streamClaim();
+          }
+        }}
         ref={overlayRef}
         className={`
           swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} 
