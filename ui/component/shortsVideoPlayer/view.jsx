@@ -33,6 +33,8 @@ const ShortsVideoPlayer = React.memo<Props>(
     autoPlayNextShort,
     isAtEnd,
     onSwipeNext,
+    onSwipePrevious,
+    enableSwipe,
   }: Props) => {
     const {
       location: { search },
@@ -107,6 +109,9 @@ const ShortsVideoPlayer = React.memo<Props>(
           {isShortVideo && (
             <VideoClaimInitiator
               uri={uri}
+              onSwipeNext={onSwipeNext}
+              onSwipePrevious={onSwipePrevious}
+              enableSwipe={enableSwipe}
             />
           )}
         </div>
