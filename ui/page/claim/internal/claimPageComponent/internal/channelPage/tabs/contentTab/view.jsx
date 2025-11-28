@@ -73,7 +73,6 @@ function ContentTab(props: Props) {
     empty,
     activeLivestreamForChannel,
     shortsOnly,
-    excludeShorts,
   } = props;
 
   const {
@@ -196,10 +195,10 @@ function ContentTab(props: Props) {
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
-            {...(excludeShorts &&
-              !shortsOnly && {
-                contentAspectRatio: '>1',
-              })}
+            // {...(excludeShorts &&
+            //   !shortsOnly && {
+            //     contentAspectRatio: '>1',
+            //   })}
             {...(shortsOnly && {
               duration: '<=180',
               contentType: CS.FILE_VIDEO,
