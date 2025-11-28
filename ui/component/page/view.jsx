@@ -60,7 +60,7 @@ function Page(props: Props) {
   } = props;
 
   const {
-    location: { pathname, hash },
+    location: { pathname, hash, search },
   } = useHistory();
 
   const theaterMode =
@@ -80,6 +80,8 @@ function Page(props: Props) {
   } catch (e) {}
 
   const isAbsoluteSideNavHidden = (isOnFilePage || isMobile) && !sidebarOpen;
+  const urlParams = new URLSearchParams(search);
+  const isShortVideo = urlParams.get('view') === 'shorts';
 
   React.useEffect(() => {
     if (isOnFilePage || isSmallScreen) setSidebarOpen(false);
@@ -137,13 +139,14 @@ function Page(props: Props) {
               'main--full-width': fullWidthPage,
               'main--auth-page': authPage,
               'main--file-page': filePage,
-              'main--video-page': filePage && !theaterMode && !livestream && !isMarkdown,
+              'main--video-page': filePage && !theaterMode && !livestream && !isMarkdown && !isShortVideo,
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
               'main--livestream': livestream && !theaterMode,
               'main--livestream--theater-mode': livestream && theaterMode,
               'main--popout-chat': isPopoutWindow,
+              'main--shorts-page': isShortVideo,
             })}
           >
             {children}

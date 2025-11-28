@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { lazy } from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 
@@ -216,7 +216,6 @@ function HomePage(props: Props) {
         </React.Fragment>
       );
     }
-
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
@@ -224,6 +223,10 @@ function HomePage(props: Props) {
         ))}
       </ul>
     );
+
+    function resolveTitleOverride(title: string) {
+      return title === 'Recent From Following' ? 'Following' : title;
+    }
 
     const claimTiles = (
       <ClaimTilesDiscover
@@ -236,14 +239,11 @@ function HomePage(props: Props) {
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
         fetchViewCount
+        sectionTitle={title}
       />
     );
 
     const HeaderArea = () => {
-      function resolveTitleOverride(title: string) {
-        return title === 'Recent From Following' ? 'Following' : title;
-      }
-
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
@@ -328,7 +328,8 @@ function HomePage(props: Props) {
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
-            const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
+            const bannerForPosition =
+              homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
 
             return (
               <React.Fragment key={id}>

@@ -27,6 +27,9 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
 import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
+import { isClaimShort } from 'util/claim';
+import {HomepageTitles} from 'util/buildHomepage';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 type Props = {
   uri: string,
@@ -58,6 +61,9 @@ type Props = {
   defaultCollectionAction: string,
   onlyThumb?: boolean,
   onClickHandledByParent?: boolean,
+  isShort?: boolean,
+  isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -92,9 +98,13 @@ function ClaimPreviewTile(props: Props) {
     defaultCollectionAction,
     onlyThumb,
     onClickHandledByParent,
+    isShort,
+    isShortFromChannelPage,
+    sectionTitle,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
+  const pageHistory = useHistory();
 
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -111,14 +121,17 @@ function ClaimPreviewTile(props: Props) {
     isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
       : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
-        (listId ? generateListSearchUrlParams(listId) : '') +
-        (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
+       (listId ? generateListSearchUrlParams(listId) : '') +
+      (claim && isClaimShort(claim) ? '?view=shorts' : '') +
+      (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : '') +
+      (isShort && isShortFromChannelPage ? `${(claim && isClaimShort(claim)) || fypId ? '&' : '?'}from=channel` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {
       onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
     },
   };
+  const queryParams = new URLSearchParams(pageHistory.location.search);
 
   const signingChannel = claim && claim.signing_channel;
   const isChannel = claim && claim.value_type === 'channel';
@@ -129,6 +142,7 @@ function ClaimPreviewTile(props: Props) {
   const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
 
   const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const useShortsThumb = (sectionTitle === 'Shorts') || queryParams.get('view') === 'shortsTab';
 
   let shouldHide = false;
 
@@ -182,7 +196,9 @@ function ClaimPreviewTile(props: Props) {
           pulse: pulse,
         })}
       >
-        <div className="media__thumb" />
+        <div className={classnames('media__thumb',
+          {'media__thumb__short': useShortsThumb}
+          )} />
         <div className="placeholder__wrapper">
           <div className="claim-tile__title" />
           <div className="claim-tile__title_b" />
@@ -201,17 +217,24 @@ function ClaimPreviewTile(props: Props) {
       </li>
     );
   }
-
   return (
     <li
       onClick={handleClick}
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
+        'claim-preview__wrapper--short': isShort && (sectionTitle === 'Shorts'),
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
+        <FileThumbnail
+          isShort={isShort}
+          thumbnail={thumbnailUrl}
+          allowGifs
+          tileLayout
+          uri={uri}
+          secondaryUri={firstCollectionItemUrl}
+        >
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || showCollectionContext) && (

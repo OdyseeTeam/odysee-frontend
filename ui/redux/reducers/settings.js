@@ -90,6 +90,7 @@ const defaultState = {
   },
 };
 defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT] = defaultState.clientSettings[SETTINGS.AUTOPLAY_MEDIA];
+defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT_SHORTS] = false;
 
 reducers[ACTIONS.REHYDRATE] = (state, action) => {
   const { clientSettings } = state;

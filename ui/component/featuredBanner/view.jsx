@@ -29,7 +29,6 @@ export default function FeaturedBanner(props: Props) {
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
   const { push } = useHistory();
 
-
   React.useEffect(() => {
     if (featured && width) {
       const interval = setInterval(() => {

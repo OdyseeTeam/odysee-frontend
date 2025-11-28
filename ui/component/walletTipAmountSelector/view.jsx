@@ -175,8 +175,7 @@ function WalletTipAmountSelector(props: Props) {
               className={classnames('button-toggle button-toggle--expandformobile', {
                 'button-toggle--active':
                   convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
-                'button-toggle--disabled':
-                  (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
+                'button-toggle--disabled': activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0),
               })}
               label={defaultAmount}
               icon={activeTab === TAB_USD ? 'USD' : 'LBC'}

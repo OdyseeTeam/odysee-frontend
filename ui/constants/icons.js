@@ -229,3 +229,6 @@ export const LOCK = 'Lock';
 export const WEB = 'Globe';
 export const SHARE = 'Share2';
 export const EXTERNAL = 'ExternalLink';
+export const AUTOPLAY_NEXT = 'AutoPlay';
+export const COMMENTS_LIST = 'CommentsList';
+export const TIMES = 'Times';

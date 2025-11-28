@@ -12,12 +12,14 @@ type Props = {
   tileLayout: boolean,
   orderBy?: ?string,
   minDuration?: ?number,
+  maxDuration?: ?number,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };
 
 export function SearchResults(props: Props) {
-  const { searchQuery, claimId, showMature, tileLayout, orderBy, minDuration, onResults, doResolveUris } = props;
+  const { searchQuery, claimId, showMature, tileLayout, orderBy, minDuration, onResults, doResolveUris, maxDuration } =
+    props;
 
   const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
@@ -62,6 +64,7 @@ export function SearchResults(props: Props) {
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
             (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
+            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${minDuration}` : '') +
             `&size=${SEARCH_PAGE_SIZE}`
         )
         .then(({ body: results }) => {
@@ -90,7 +93,7 @@ export function SearchResults(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration]);
+  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration, maxDuration]);
 
   if (!searchResults) {
     return null;

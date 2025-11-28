@@ -369,6 +369,15 @@ export const selectClaimIsMineForUri = (state: State, rawUri: string) => {
   return selectClaimIsMine(state, claimsByUri && claimsByUri[uri]);
 };
 
+export const selectIsShortForUri = createCachedSelector(selectClaimForUri, (claim) => {
+  if (!claim || !claim.value) return false;
+  const video = claim.value.video;
+  if (!video) return false;
+  const isShortDuration = video.duration && video.duration <= 180;
+  const isVertical = video.height && video.width && video.height > video.width;
+  return isShortDuration && isVertical;
+})((state, uri) => String(uri));
+
 export const selectMyPurchases = (state: State) => selectState(state).myPurchases;
 export const selectPurchaseUriSuccess = (state: State) => selectState(state).purchaseUriSuccess;
 export const selectMyPurchasesCount = (state: State) => selectState(state).myPurchasesPageTotalResults;

@@ -17,6 +17,7 @@ import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import formatMediaDuration from 'util/formatMediaDuration';
 import ClaimPreviewTile from './view';
+import { selectIsShortForUri } from '../../redux/selectors/claims';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -43,6 +44,7 @@ const select = (state, props) => {
     viewCount: selectViewCountForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
     defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
+    isShort: selectIsShortForUri(state, props.uri),
   };
 };
 

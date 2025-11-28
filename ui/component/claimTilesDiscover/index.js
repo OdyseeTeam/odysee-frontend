@@ -29,6 +29,7 @@ const select = (state, props) => {
   const hideReposts = selectClientSetting(state, SETTINGS.HIDE_REPOSTS);
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = selectMutedAndBlockedChannelIds(state);
+  const hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
 
   // TODO: memoize these 2 function calls. Lots of params, though; might not be feasible.
   const options = resolveSearchOptions({
@@ -37,13 +38,30 @@ const select = (state, props) => {
     hideReposts,
     forceShowReposts,
     mutedAndBlockedChannelIds,
+    hideShorts,
     pageSize: 8,
     ...props,
   });
+
   const searchKey = createNormalizedClaimSearchKey(options);
+  let claimSearchResults = selectClaimSearchByQuery(state)[searchKey];
+
+  // if (claimSearchResults) {
+  //   if (props.isShorts) {
+  //     claimSearchResults = claimSearchResults.filter((uri) => {
+  //       const claim = selectClaimForUri(state, uri);
+  //       return claim && isClaimShort(claim);
+  //     });
+  //   } else if (props.excludeShorts !== false) {
+  //     claimSearchResults = claimSearchResults.filter((uri) => {
+  //       const claim = selectClaimForUri(state, uri);
+  //       return claim && !isClaimShort(claim);
+  //     });
+  //   }
+  // }
 
   return {
-    claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
+    claimSearchResults,
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
@@ -72,6 +90,7 @@ function resolveSearchOptions(props) {
     forceShowReposts,
     hideMembersOnly,
     mutedAndBlockedChannelIds,
+    hideShorts,
     location,
     pageSize,
     claimType,
@@ -89,6 +108,7 @@ function resolveSearchOptions(props) {
     timestamp,
     claimIds,
     duration,
+    contentAspectRatio,
   } = props;
 
   const urlParams = new URLSearchParams(location.search);
@@ -182,8 +202,17 @@ function resolveSearchOptions(props) {
     options.claim_ids = claimIds;
   }
 
-  if (duration) {
-    options.duration = duration;
+  if (hideShorts) {
+    options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
+    options.content_aspect_ratio = `>${SETTINGS.SHORTS_ASPECT_RATIO_LIMIT}`;
+  } else {
+    if (duration) {
+      options.duration = duration;
+    }
+
+    if (contentAspectRatio) {
+      options.content_aspect_ratio = contentAspectRatio;
+    }
   }
 
   return options;

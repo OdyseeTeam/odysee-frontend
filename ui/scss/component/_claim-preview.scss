@@ -40,6 +40,10 @@
     transition: background-size 0.2s ease-in-out;
   }
 
+  .media__thumb__short {
+    aspect-ratio: 9 / 16;
+  }
+
   .claim-preview__title {
     font-weight: var(--font-weight-bold);
     overflow: hidden;
@@ -95,6 +99,23 @@
       right: 4px !important;
       opacity: 0.6;
     }
+  }
+}
+
+.claim-preview__wrapper--short {
+  .media__thumb {
+    background-size: cover;
+    aspect-ratio: 9 / 16;
+  }
+
+  &:hover {
+    .media__thumb {
+      background-size: cover;
+      aspect-ratio: 9 / 16;
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    width: 48.5% !important;
   }
 }
 
@@ -498,7 +519,7 @@
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
     }
-    .claim-preview-metadata {      
+    .claim-preview-metadata {
       .claim-tile__info {
         margin-top: auto;
         align-items: flex-end;
@@ -570,11 +591,11 @@
 
       a.button-following {
         .button__content {
-          width:100%;
+          width: 100%;
         }
       }
       button.button-following:last-of-type {
-        max-width:fit-content;
+        max-width: fit-content;
       }
 
       span {
@@ -677,12 +698,12 @@
       flex-direction: column;
 
       .claim-preview-metadata {
-        .claim-tile__info {          
+        .claim-tile__info {
           .media__subtitle {
-            margin-top:2px;
-            .button--uri-indicator{
-              .button__content{
-                .channel-name{
+            margin-top: 2px;
+            .button--uri-indicator {
+              .button__content {
+                .channel-name {
                   font-size: var(--font-xxsmall) !important;
                 }
               }
@@ -1394,6 +1415,17 @@
   flex-wrap: wrap;
   list-style: none;
   align-items: flex-start;
+}
+
+.claim-shorts-grid {
+  @media (max-width: $breakpoint-small) {
+    display: flex;
+    gap: 5px !important;
+    align-items: flex-start !important;
+    :not(:first-child) {
+      margin-top: 1px !important;
+    }
+  }
 }
 
 .claim-grid__wrapper {

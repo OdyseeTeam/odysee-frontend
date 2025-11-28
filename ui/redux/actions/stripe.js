@@ -274,7 +274,7 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
     console.error(e);
 
     // Re-registering address to current account, different from "address already exists for another user" error
-    if (e.message === "address already exists") {
+    if (e.message === 'address already exists') {
       return;
     }
 

@@ -13,7 +13,7 @@ import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSear
 import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
-import { getRecommendationSearchOptions } from 'util/search';
+import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
 import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -247,6 +247,50 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
     data: { query, uris },
   });
 };
+
+export const doFetchShortsRecommendedContent =
+  (uri: string, fyp: ?FypParam = null, forChannel: ?boolean = false) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const matureEnabled = selectShowMatureContent(state);
+    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const languageSetting = selectLanguage(state);
+    const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
+    const language = searchInLanguage ? languageSetting : null;
+
+    if (claim && claim.value && claim.claim_id) {
+    let idToUse;
+    if (forChannel) {
+      const channelClaim = claim.signing_channel;
+      idToUse = channelClaim?.claim_id;
+      if (!idToUse) {
+        console.error('No channel ID found for channel shorts mode');
+        return;
+      }
+    } else {
+      idToUse = claim.claim_id;
+    }
+      const options: SearchOptions = getShortsRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        idToUse,
+        language,
+        forChannel
+      );
+
+      if (fyp) {
+        options['gid'] = fyp.gid;
+        options['uuid'] = fyp.uuid;
+      }
+
+      const { title } = claim.value;
+
+      if (title && options) {
+        dispatch(doSearch(title, options));
+      }
+    }
+  };
 
 export const doFetchRecommendedContent =
   (uri: string, fyp: ?FypParam = null) =>

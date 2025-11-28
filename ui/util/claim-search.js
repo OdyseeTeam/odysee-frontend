@@ -41,7 +41,7 @@ export const CsOptHelper = {
     duration: Duration,
     durationVal?: string,
     minMinutes?: number,
-    maxMinutes?: number
+    maxMinutes?: number,
   ) => {
     const claimTypesWithDurations = [CS.CLAIM_STREAM, CS.CLAIM_REPOST];
     const claimTypesArray = Array.isArray(claimTypes) ? claimTypes : [claimTypes];
@@ -65,7 +65,7 @@ export const CsOptHelper = {
           const state = store.getState();
           hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
         }
-        x = durationVal || (hideShorts && `>=${SETTINGS.SHORTS_DURATION_LIMIT}`) || undefined;
+        x = (hideShorts && `>=${SETTINGS.SHORTS_DURATION_LIMIT}`) || durationVal || undefined;
         break;
       case CS.DURATION.SHORT:
         x = '<=240';

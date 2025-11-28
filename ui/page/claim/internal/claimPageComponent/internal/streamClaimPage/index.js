@@ -22,6 +22,7 @@ import * as TAGS from 'constants/tags';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import StreamClaimPage from './view';
+import { isClaimShort } from '../../../../../../util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -53,6 +54,7 @@ const select = (state, props) => {
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
     isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
     isClaimFiltered,
+    isClaimShort: isClaimShort(claim),
   };
 };
 

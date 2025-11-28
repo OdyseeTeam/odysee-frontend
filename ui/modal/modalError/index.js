@@ -9,7 +9,10 @@ const select = (state) => ({
 });
 
 const perform = (dispatch) => ({
-  closeModal: () => {dispatch(doDismissError()); dispatch(doHideModal())},
+  closeModal: () => {
+    dispatch(doDismissError());
+    dispatch(doHideModal());
+  },
 });
 
 export default connect(select, perform)(ModalError);

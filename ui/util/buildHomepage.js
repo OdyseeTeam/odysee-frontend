@@ -142,7 +142,8 @@ export function GetLinksData(
   showNsfw?: boolean
 ) {
   function getPageSize(originalSize, following) {
-    if(following) return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
+    if (following)
+      return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 
@@ -170,6 +171,25 @@ export function GetLinksData(
     };
     // $FlowFixMe flow thinks this might not be Array<string>
     rowData.push(RECENT_FROM_FOLLOWING);
+
+    // const SHORTS_SECTION = {
+    //   id: 'SHORTS',
+    //   title: __('Shorts'),
+    //   route: `/$/${PAGES.DISCOVER}?t=shorts`,
+    //   icon: ICONS.VIDEO,
+    //   hideSort: false,
+    //   options: {
+    //     claimType: ['stream'],
+    //     orderBy: CS.ORDER_BY_NEW,
+    //     pageSize: getPageSize(24),
+    //     limitClaimsPerChannel: 1,
+    //     releaseTime: `>${Math.floor(moment().subtract(1, 'months').startOf('week').unix())}`,
+    //     duration: '<=180',
+    //     excludeShorts: false,
+    //     // channelIds: subscribedChannelIds,
+    //   },
+    // };
+    // rowData.push(SHORTS_SECTION);
   }
 
   // **************************************************************************
@@ -365,6 +385,7 @@ export function GetLinksData(
     // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
-
   return rowData;
 }
+
+export type HomepageTitles = 'Recent From Following' | 'Featured' | 'Discover' | 'Pop Culture' | 'Artists' | 'Education' | 'Lifestyle' | 'Gaming' | 'Spooky' | 'Tech' | 'Comedy' | 'Music' | 'Sports' | 'Finance 2.0' | 'Shorts'
