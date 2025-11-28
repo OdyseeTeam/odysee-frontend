@@ -447,7 +447,7 @@ export default function ClaimList(props: Props) {
                       );
                     }}
                   </Draggable>
-                </React.Suspense>
+                  </React.Suspense>
               ))}
               {droppableProvided.placeholder}
             </>
