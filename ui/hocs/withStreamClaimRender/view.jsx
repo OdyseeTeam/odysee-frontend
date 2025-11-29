@@ -340,9 +340,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           </>
         );
       } else if (isPlayable && !autoplayVideo) {
-        console.log(onSwipeNext,
-    onSwipePrevious,
-    enableSwipe);
         return (
           <ClaimCoverRender
             onSwipeNext={onSwipeNext}
