@@ -563,17 +563,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
-      if (isShortsParam) {
+      if (isShortsParam && isMobile) {
         vjsPlayer.muted(false);
-        vjsPlayer.volume(1.0);
 
         vjsPlayer.on('play', () => {
           vjsPlayer.muted(false);
-          vjsPlayer.volume(1.0);
         });
         vjsPlayer.on('loadedmetadata', () => {
           vjsPlayer.muted(false);
-          vjsPlayer.volume(1.0);
         });
       }
 

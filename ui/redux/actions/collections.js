@@ -168,16 +168,15 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
           const extraBytes = parseInt(scriptSizeError.at(1).toString()) - maxSize;
           const itemsToDelete = Math.ceil(extraBytes / itemSizeInTx);
 
-          customMessage =
-            __('Playlist exceeds size limits.') +
-            ' ' +
-            (itemsToDelete > 1
-              ? __('Please remove %itemsToDelete% items', { itemsToDelete })
-              : __('Please remove 1 item')) +
-            ' ' +
-            (extraBytes > 1
-              ? __('or %extraBytes% characters of text.', { extraBytes })
-              : __('or 1 character of text.'));
+          customMessage = __('Playlist exceeds size limits.') +
+          ' ' +
+          (itemsToDelete > 1
+            ? __('Please remove %itemsToDelete% items', {itemsToDelete})
+            : __('Please remove 1 item')) +
+          ' ' +
+          (extraBytes > 1
+            ? __('or %extraBytes% characters of text.', {extraBytes})
+            : __('or 1 character of text.'));
         }
         dispatch(doToast({ message: customMessage || error.message, isError: true }));
         reject(error);
@@ -273,98 +272,97 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems =
-  (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch, getState: GetState) => {
-    const sortResults = (resultItems: Array<Claim>) => {
-      const newItems: Array<Claim> = [];
+const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch, getState: GetState) => {
+  const sortResults = (resultItems: Array<Claim>) => {
+    const newItems: Array<Claim> = [];
 
-      items.forEach((item) => {
-        const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
+    items.forEach((item) => {
+      const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
 
-        if (index >= 0) newItems.push(resultItems[index]);
+      if (index >= 0) newItems.push(resultItems[index]);
+    });
+
+    return newItems;
+  };
+
+  const mergeBatches = (arrayOfResults: Array<any>) => {
+    let resultItems = [];
+
+    arrayOfResults.forEach((result: any) => {
+      // $FlowFixMe
+      const claims = result.items || Object.values(result).map((item) => item.stream || item);
+      resultItems = resultItems.concat(claims);
+    });
+
+    return resultItems;
+  };
+
+  try {
+    const state = getState();
+    const batchSize = pageSize || FETCH_BATCH_SIZE;
+    const uriBatches: Array<Promise<any>> = [];
+    const idBatches: Array<Promise<any>> = [];
+
+    const totalItems = items.length;
+
+    for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+      const batchInitialIndex = i * batchSize;
+      const batchLength = (i + 1) * batchSize;
+
+      // --> Filter in case null/undefined are collection items
+      const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
+
+      const uris = new Set([]);
+      const ids = new Set([]);
+      batchItems.forEach((item) => {
+        if (item.startsWith('lbry://')) {
+          uris.add(item);
+        } else {
+          ids.add(item);
+        }
       });
 
-      return newItems;
-    };
+      if (uris.size > 0) {
+        uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
+      }
+      if (ids.size > 0) {
+        idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
+      }
+    }
+    const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
+    const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
 
-    const mergeBatches = (arrayOfResults: Array<any>) => {
-      let resultItems = [];
+    // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
+    let itemsWereFetching = resultItems.length !== items.length;
 
-      arrayOfResults.forEach((result: any) => {
-        // $FlowFixMe
-        const claims = result.items || Object.values(result).map((item) => item.stream || item);
-        resultItems = resultItems.concat(claims);
-      });
+    // Related to above. Collection with deleted items would never get "resolved: true" status.
+    // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
+    if (itemsWereFetching) {
+      const resolvingIds = selectResolvingIds(state);
+      const resolvingUris = selectResolvingUris(state);
+      const failedToResolveUris = selectFailedToResolveUris(state);
+      const failedToResolveIds = selectFailedToResolveIds(state);
+      const failedItems = failedToResolveIds.concat(failedToResolveUris);
+      if (items.some((item) => failedItems.includes(item))) {
+        // itemsWereFetching stays true
+      } else if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
+        itemsWereFetching = false;
+      } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
+        itemsWereFetching = false;
+      } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
+        itemsWereFetching = false;
+      }
+    }
 
+    if (resultItems && !itemsWereFetching) {
       return resultItems;
-    };
-
-    try {
-      const state = getState();
-      const batchSize = pageSize || FETCH_BATCH_SIZE;
-      const uriBatches: Array<Promise<any>> = [];
-      const idBatches: Array<Promise<any>> = [];
-
-      const totalItems = items.length;
-
-      for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-        const batchInitialIndex = i * batchSize;
-        const batchLength = (i + 1) * batchSize;
-
-        // --> Filter in case null/undefined are collection items
-        const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
-
-        const uris = new Set([]);
-        const ids = new Set([]);
-        batchItems.forEach((item) => {
-          if (item.startsWith('lbry://')) {
-            uris.add(item);
-          } else {
-            ids.add(item);
-          }
-        });
-
-        if (uris.size > 0) {
-          uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
-        }
-        if (ids.size > 0) {
-          idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
-        }
-      }
-      const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
-      const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
-
-      // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
-      let itemsWereFetching = resultItems.length !== items.length;
-
-      // Related to above. Collection with deleted items would never get "resolved: true" status.
-      // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
-      if (itemsWereFetching) {
-        const resolvingIds = selectResolvingIds(state);
-        const resolvingUris = selectResolvingUris(state);
-        const failedToResolveUris = selectFailedToResolveUris(state);
-        const failedToResolveIds = selectFailedToResolveIds(state);
-        const failedItems = failedToResolveIds.concat(failedToResolveUris);
-        if (items.some((item) => failedItems.includes(item))) {
-          // itemsWereFetching stays true
-        } else if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
-          itemsWereFetching = false;
-        } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
-          itemsWereFetching = false;
-        } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
-          itemsWereFetching = false;
-        }
-      }
-
-      if (resultItems && !itemsWereFetching) {
-        return resultItems;
-      } else {
-        return null;
-      }
-    } catch (e) {
+    } else {
       return null;
     }
-  };
+  } catch (e) {
+    return null;
+  }
+};
 
 export const doFetchItemsInCollection =
   (params: { collectionId: string, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
