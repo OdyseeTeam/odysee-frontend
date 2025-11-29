@@ -550,6 +550,19 @@ function ChannelPage(props: Props) {
               )}
             </TabPanel>
             <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream']}
+                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
+                  filters={filters}
+                  shortsOnly
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
               {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
                 <ContentTab
                   claimType={'collection'}

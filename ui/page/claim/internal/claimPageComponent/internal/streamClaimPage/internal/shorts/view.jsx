@@ -125,6 +125,7 @@ export default function ShortsPage(props: Props) {
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !mobileModalOpen;
+  const hasEnsuredViewParam = React.useRef(false);
 
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
@@ -222,7 +223,7 @@ export default function ShortsPage(props: Props) {
     }, 100);
 
     return () => clearInterval(checkVideoPlaying);
-}, [search, uri]);
+  }, [search, uri]);
 
   React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
@@ -325,6 +326,17 @@ export default function ShortsPage(props: Props) {
     }
   }, [search, channelUri]);
 
+  React.useEffect(() => {
+    if (hasEnsuredViewParam.current) return;
+
+    const urlParams = new URLSearchParams(search);
+    if (urlParams.get('view') !== 'shorts') {
+      urlParams.set('view', 'shorts');
+      history.replace(`${history.location.pathname}?${urlParams.toString()}`);
+    }
+    hasEnsuredViewParam.current = true;
+  }, [search, history]);
+
   const goToNext = React.useCallback(() => {
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
@@ -400,7 +412,18 @@ export default function ShortsPage(props: Props) {
         scrollLockRef.current = false;
       }, 100);
     }, 350);
-  }, [nextRecommendedShort, isAtEnd, isSearchingRecommendations, uri, clearPosition, history, fileInfo, onRecommendationClicked, autoPlayNextShort, doSetClientSetting]);
+  }, [
+    nextRecommendedShort,
+    isAtEnd,
+    isSearchingRecommendations,
+    uri,
+    clearPosition,
+    history,
+    fileInfo,
+    onRecommendationClicked,
+    autoPlayNextShort,
+    doSetClientSetting,
+  ]);
 
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
@@ -485,8 +508,6 @@ export default function ShortsPage(props: Props) {
     [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
 
-  console.log(shortsRecommendedUris);
-
   React.useEffect(() => {
     const container = shortsContainerRef.current;
     if (!container) return;
@@ -497,32 +518,34 @@ export default function ShortsPage(props: Props) {
 
   return (
     <>
-      {videoStarted && <SwipeNavigationPortal
-        onNext={goToNext}
-        onPrevious={goToPrevious}
-        isEnabled={isSwipeEnabled && hasPlaylist}
-        isMobile={isMobile}
-        className="shorts-swipe-overlay"
-        sidePanelOpen={sidePanelOpen}
-        showViewToggle={!!channelId}
-        viewMode={localViewMode}
-        channelName={channelName}
-        setLocalViewMode={setLocalViewMode}
-        doSetShortsViewMode={doSetShortsViewMode}
-        doSetShortsPlaylist={doSetShortsPlaylist}
-        fetchForMode={fetchForMode}
-        title={title}
-        channelUri={channelUri}
-        thumbnailUrl={thumbnail}
-        hasChannel={!!channelId}
-        hasPlaylist={hasPlaylist}
-        uri={uri}
-        autoPlayNextShort={autoPlayNextShort}
-        doToggleShortsAutoplay={doToggleShortsAutoplay}
-        onInfoButtonClick={handleInfoButtonClick}
-        onCommentsClick={handleCommentsClick}
-        isComments={panelMode === 'comments'}
-      />}
+      {videoStarted && (
+        <SwipeNavigationPortal
+          onNext={goToNext}
+          onPrevious={goToPrevious}
+          isEnabled={isSwipeEnabled && hasPlaylist}
+          isMobile={isMobile}
+          className="shorts-swipe-overlay"
+          sidePanelOpen={sidePanelOpen}
+          showViewToggle={!!channelId}
+          viewMode={localViewMode}
+          channelName={channelName}
+          setLocalViewMode={setLocalViewMode}
+          doSetShortsViewMode={doSetShortsViewMode}
+          doSetShortsPlaylist={doSetShortsPlaylist}
+          fetchForMode={fetchForMode}
+          title={title}
+          channelUri={channelUri}
+          thumbnailUrl={thumbnail}
+          hasChannel={!!channelId}
+          hasPlaylist={hasPlaylist}
+          uri={uri}
+          autoPlayNextShort={autoPlayNextShort}
+          doToggleShortsAutoplay={doToggleShortsAutoplay}
+          onInfoButtonClick={handleInfoButtonClick}
+          onCommentsClick={handleCommentsClick}
+          isComments={panelMode === 'comments'}
+        />
+      )}
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
           <div className="shorts-page__main-content">
