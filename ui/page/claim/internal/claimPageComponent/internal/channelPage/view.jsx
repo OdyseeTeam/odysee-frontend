@@ -549,7 +549,7 @@ function ChannelPage(props: Props) {
                 />
               )}
             </TabPanel>
-            <TabPanel>
+            {/* <TabPanel>
               {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
                 <ContentTab
                   uri={uri}
@@ -561,7 +561,7 @@ function ChannelPage(props: Props) {
                   shortsOnly
                 />
               )}
-            </TabPanel>
+            </TabPanel> */}
             <TabPanel>
               {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
                 <ContentTab
