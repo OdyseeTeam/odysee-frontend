@@ -168,8 +168,4 @@ const perform = (dispatch) => ({
   doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
 });
 
-export default withRouter(
-  connect(select, perform)(
-    ShortsPage
-  )
-);
+export default withRouter(connect(select, perform)(ShortsPage));

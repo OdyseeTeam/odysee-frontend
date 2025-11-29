@@ -563,6 +563,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
+      if (isShortsParam && isMobile) {
+        vjsPlayer.muted(false);
+
+        vjsPlayer.on('play', () => {
+          vjsPlayer.muted(false);
+        });
+        vjsPlayer.on('loadedmetadata', () => {
+          vjsPlayer.muted(false);
+        });
+      }
+
       if (canUseOldPlayer) {
         // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
