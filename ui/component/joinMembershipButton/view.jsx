@@ -55,10 +55,16 @@ const JoinMembershipButton = (props: Props) => {
   const fpdaInFuture = firstPaymentDue && nowMoment.diff(moment(firstPaymentDue)) < 0;
   const endsInFuture = endsAt && nowMoment.diff(moment(endsAt)) < 0;
 
-  const shouldRenew = firstPaymentDue && acceptsPayments && endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
+  const shouldRenew =
+    firstPaymentDue &&
+    acceptsPayments &&
+    endsAt &&
+    moment().isAfter(moment(endsAt).subtract(7, 'days')) &&
+    (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
 
-  const pending = validUserMembershipForChannel?.payments.some(p => p.status === 'submitted');
+  const pending =
+    validUserMembershipForChannel && validUserMembershipForChannel.payments.some((p) => p.status === 'submitted');
 
   const getDeadline = () => {
     if (fpdaInFuture) {
@@ -87,8 +93,9 @@ const JoinMembershipButton = (props: Props) => {
     // if you're on the channel page channelPath comes with a leading / already
     if (isChannelPage) channelPath = channelPath.substr(1);
 
-    const membershipIndex =
-      creatorTiers.findIndex((res) => res.name === validUserMembershipForChannel?.membership.name);
+    const membershipIndex = creatorTiers.findIndex(
+      (res) => res.name === validUserMembershipForChannel?.membership.name
+    );
     /*
     membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index,
      */
@@ -103,7 +110,7 @@ const JoinMembershipButton = (props: Props) => {
       } else if (pending) {
         return 'Verifying';
       } else {
-          return membershipName;
+        return membershipName;
       }
     };
 
@@ -126,9 +133,21 @@ const JoinMembershipButton = (props: Props) => {
           {...DEFAULT_PROPS}
           className="button--membership"
           label={__('Renew', { membership_tier_name: membershipName })}
-          title={__('Renew "%membership_tier_name%" by %deadline%', { membership_tier_name: membershipName, deadline: getDeadline() })}
-          onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, isRenew: true, membershipIndex: membershipIndex, membershipId: validUserMembershipForChannel.membership.id, passedTierIndex: membershipIndex })}
-          style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
+          title={__('Renew "%membership_tier_name%" by %deadline%', {
+            membership_tier_name: membershipName,
+            deadline: getDeadline(),
+          })}
+          onClick={() =>
+            doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+              uri,
+              fileUri,
+              isRenew: true,
+              membershipIndex: membershipIndex,
+              membershipId: validUserMembershipForChannel?.membership?.id,
+              passedTierIndex: membershipIndex,
+            })
+          }
+          style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
         />
       );
     }
@@ -151,7 +170,7 @@ const JoinMembershipButton = (props: Props) => {
       label={__('Join')}
       title={__('Become A Member')}
       onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
-      style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
+      style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
     />
   );
 };

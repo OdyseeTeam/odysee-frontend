@@ -230,8 +230,8 @@ export const isClaimShort = (claim: ?Claim): boolean => {
   if (!media) return false;
 
   const SHORTS_MAX_DURATION = 180;
-  const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
-  const isVertical = media.height && media.width && media.height > media.width;
+  const isShortDuration = typeof media.duration === 'number' && media.duration <= SHORTS_MAX_DURATION;
+  const isVertical = typeof media.height === 'number' && typeof media.width === 'number' && media.height > media.width;
   return isShortDuration && isVertical;
 };
 

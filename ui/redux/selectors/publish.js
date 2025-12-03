@@ -181,7 +181,7 @@ export const selectValidTierIdsForCurrentForm = createSelector(
     }
 
     const perkName = getRestrictivePerkName(type, liveCreateType, liveEditType);
-    const tiers: MembershipSubs = tiersByCreatorId[channelId] || [];
+    const tiers: CreatorMemberships = tiersByCreatorId[channelId] || [];
     const validTiers = filterMembershipTiersWithPerk(tiers, perkName);
     return validTiers.map((tier) => tier?.membership_id);
   }

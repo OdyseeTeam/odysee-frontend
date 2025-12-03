@@ -64,7 +64,7 @@ export function SearchResults(props: Props) {
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
             (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
-            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${minDuration}` : '') +
+            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${maxDuration}` : '') +
             `&size=${SEARCH_PAGE_SIZE}`
         )
         .then(({ body: results }) => {

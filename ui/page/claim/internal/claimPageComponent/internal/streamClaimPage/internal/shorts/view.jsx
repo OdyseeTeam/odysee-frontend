@@ -104,7 +104,7 @@ export default function ShortsPage(props: Props) {
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const history = useHistory();
   const isMobile = useIsMobile();
-  const shortsContainerRef = React.useRef();
+  const shortsContainerRef = React.useRef<any>();
   const [uuid] = React.useState(Uuidv4());
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
@@ -216,7 +216,7 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     const checkVideoPlaying = setInterval(() => {
       const videoEl = document.querySelector('.vjs-tech');
-      if (videoEl && !videoEl.paused) {
+      if (videoEl instanceof HTMLVideoElement && !videoEl.paused) {
         setVideoStarted(true);
         clearInterval(checkVideoPlaying);
       }
@@ -372,11 +372,13 @@ export default function ShortsPage(props: Props) {
         }
       } else {
         const computedStyle = window.getComputedStyle(videoEl);
+        // $FlowIssue
         const matrix = new DOMMatrix(computedStyle.transform);
         const currentXpx = matrix.m41;
         videoEl.style.setProperty('transform', `translate(${currentXpx}px, -100vh)`, 'important');
         if (overlayEl) {
           const overlayComputedStyle = window.getComputedStyle(overlayEl);
+          // $FlowIssue
           const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
           const overlayXpx = overlayMatrix.m41;
           overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, -100vh)`, 'important');
@@ -446,12 +448,14 @@ export default function ShortsPage(props: Props) {
         }
       } else {
         const computedStyle = window.getComputedStyle(videoEl);
+        // $FlowIssue
         const matrix = new DOMMatrix(computedStyle.transform);
         const currentXpx = matrix.m41;
         videoEl.style.setProperty('transform', `translate(${currentXpx}px, 100vh)`, 'important');
 
         if (overlayEl) {
           const overlayComputedStyle = window.getComputedStyle(overlayEl);
+          // $FlowIssue
           const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
           const overlayXpx = overlayMatrix.m41;
           overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, 100vh)`, 'important');

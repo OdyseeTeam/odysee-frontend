@@ -178,9 +178,11 @@ export const doMembershipBuy =
 
       if (currencyType === 'AR') {
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
+        // $FlowIgnore
         const { transactionId: txid, error } = await sendWinstons(payeeAddress, cryptoAmount, tags);
         if (error) {
           // TODO pass error to redux
+          // $FlowIgnore
           throw new Error(error?.message || error);
         }
         transactionId = txid;
@@ -218,12 +220,12 @@ export const doMembershipBuy =
     }
   };
 
-export const doMembershipBuyClear = () => (dispatch) => {
+export const doMembershipBuyClear = () => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_CLEAR });
 };
 
 export const doMembershipCancelForMembershipId =
-  (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {
+  (membershipId: number, revert?: boolean) => async (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
 
     return await Lbryio.call('membership_v2/subscription', 'cancel', { membership_id: membershipId, revert }, 'post')
