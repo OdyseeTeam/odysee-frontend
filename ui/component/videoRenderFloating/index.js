@@ -77,6 +77,7 @@ const select = (state, props) => {
     canViewFile: selectCanViewFileForUri(state, uri),
     sidePanelOpen: selectShortsSidePanelOpen(state),
     isClaimShort: isClaimShort(claim),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
   };
 };
 

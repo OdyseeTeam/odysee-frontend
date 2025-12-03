@@ -20,7 +20,7 @@ import ClaimListHeader from 'component/claimListHeader';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
-import {HomepageTitles} from 'util/buildHomepage';
+import { HomepageTitles } from 'util/buildHomepage';
 
 type Props = {
   uris: Array<string>,
@@ -122,6 +122,7 @@ type Props = {
   isShortFromChannelPage?: boolean,
   sectionTitle?: HomepageTitles,
   contentAspectRatio?: string,
+  excludeShortsAspectRatio?: boolean,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -205,6 +206,7 @@ function ClaimListDiscover(props: Props) {
     isShortFromChannelPage,
     sectionTitle,
     contentAspectRatio,
+    excludeShortsAspectRatio,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -468,7 +470,9 @@ function ClaimListDiscover(props: Props) {
     options = csOptionsHook(options);
   }
 
-  if (contentAspectRatio) {
+  if (excludeShortsAspectRatio) {
+    options.content_aspect_ratio__or_missing = '>1';
+  } else if (contentAspectRatio) {
     options.content_aspect_ratio = contentAspectRatio;
   }
 
