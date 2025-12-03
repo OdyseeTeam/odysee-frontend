@@ -15,7 +15,7 @@ type Props = {
   claim: Claim,
   activeChannel: ChannelClaim,
   incognito: boolean,
-  getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  getExistingTiers: ({ channel_claim_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: Array<CreatorMembership>,
   isStillEditing: boolean,
   memberRestrictionOn: boolean,
@@ -66,7 +66,8 @@ function PublishProtectedContent(props: Props) {
     updatePublishForm({ memberRestrictionOn: !memberRestrictionOn });
   }
 
-  function toggleMemberRestrictionTierId(id: number) {
+  function toggleMemberRestrictionTierId(id: number | void) {
+    if (typeof id !== 'number') return;
     if (memberRestrictionTierIds.includes(id)) {
       updatePublishForm({
         memberRestrictionTierIds: memberRestrictionTierIds.filter((x) => x !== id),

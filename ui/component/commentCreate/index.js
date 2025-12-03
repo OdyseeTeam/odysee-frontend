@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { hasLegacyOdyseePremium, selectUserExperimentalUi } from 'redux/selectors/user';
+import { hasLegacyOdyseePremium } from 'redux/selectors/user';
 import {
   selectClaimForUri,
   selectClaimIsMine,
@@ -78,7 +78,6 @@ const select = (state, props) => {
     isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: hasLegacyOdyseePremium(state),
-    experimentalUi: selectUserExperimentalUi(state),
     recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
     arweaveTippingError: selectArweaveTippingErrorForId(state, channelClaimId),
     canReceiveTips,

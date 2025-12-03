@@ -20,6 +20,7 @@ declare type GenericClaim = {
   amount: string, // bid amount at time of tx
   canonical_url: string, // URL with short id, includes channel with short id
   claim_id: string, // unique claim identifier
+  channel_id?: string, // shown if signing channel can't be resolved
   claim_sequence: number, // not being used currently
   claim_op: 'create' | 'update',
   confirmations: number,
@@ -79,6 +80,15 @@ declare type GenericMetadata = {
   languages?: Array<string>,
   tags?: Array<string>,
   locations?: Array<Location>,
+  fee?: Fee,
+  video?: {
+    duration: number,
+    height: number,
+    width: number,
+  },
+  audio?: {
+    duration: number,
+  },
 };
 
 declare type ChannelMetadataKey =

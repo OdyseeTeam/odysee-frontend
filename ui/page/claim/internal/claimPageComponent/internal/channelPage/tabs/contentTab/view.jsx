@@ -199,12 +199,14 @@ function ContentTab(props: Props) {
             //   !shortsOnly && {
             //     contentAspectRatio: '>1',
             //   })}
-            {...(shortsOnly && {
-              duration: '<=180',
-              contentType: CS.FILE_VIDEO,
-              contentAspectRatio: '<1',
-              sectionTitle: 'Shorts',
-            })}
+            {...(shortsOnly
+              ? {
+                  duration: '<=180',
+                  contentType: CS.FILE_VIDEO,
+                  contentAspectRatio: '<1',
+                  sectionTitle: 'Shorts',
+                }
+              : {})}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">

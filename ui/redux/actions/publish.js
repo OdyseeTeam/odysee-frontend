@@ -726,7 +726,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
         // Repopulate membership restriction IDs
-        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForContentClaimId(
+        let protectedMembershipIds: Array<number> | void | null = selectProtectedContentMembershipsForContentClaimId(
           state,
           claim.claim_id
         );

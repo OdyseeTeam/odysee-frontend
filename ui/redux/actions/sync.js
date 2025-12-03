@@ -246,6 +246,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         const badPasswordError =
           syncAttemptError && syncAttemptError.data && syncAttemptError.data.name === BAD_PASSWORD_ERROR_NAME;
         const tooBigDataError = Boolean(
+          // $FlowIgnore
           syncAttemptError?.message?.match(
             /rpc call sync_apply\(\) on.*?status code: 413. could not decode body to rpc response: invalid character/
           )
@@ -287,7 +288,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
           });
 
           if (tooBigDataError && !noWalletError) {
-            handleCallback(false, true, 0);
+            handleCallback(false, true);
           }
 
           // user doesn't have a synced wallet
