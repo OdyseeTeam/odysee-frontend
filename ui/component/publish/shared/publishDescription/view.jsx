@@ -36,6 +36,7 @@ function PublishDescription(props: Props) {
             onChange={(value) =>
               updatePublishForm({ description: !SIMPLE_SITE && advancedEditor ? value : value.target.value })
             }
+            hideSuggestions
             quickActionLabel={!SIMPLE_SITE && (advancedEditor ? __('Simple Editor') : __('Advanced Editor'))}
             quickActionHandler={toggleMarkdown}
             textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
