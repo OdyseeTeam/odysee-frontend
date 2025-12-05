@@ -193,6 +193,14 @@ export default function TextareaWithSuggestions(props: Props) {
       allOptionsGrouped.map(({ label }) => label)
     ) || [];
 
+  const restoreCursorPosition = (cursorIndex) => {
+      if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
+        queueMicrotask(() => {
+          inputRef.current.setSelectionRange(cursorIndex, cursorIndex)
+        });
+      }
+  };
+
   /** --------- **/
   /** Functions **/
   /** --------- **/
@@ -206,6 +214,7 @@ export default function TextareaWithSuggestions(props: Props) {
 
     if (!suggestionMatches) {
       if (suggestionValue) setSuggestionValue(null);
+      restoreCursorPosition(cursorIndex);
       return; // Exit here and avoid unnecessary behavior
     }
 
@@ -261,6 +270,8 @@ export default function TextareaWithSuggestions(props: Props) {
       inputRef.current.removeAttribute('typing-term');
       setSuggestionValue(null);
     }
+
+    restoreCursorPosition(cursorIndex);
   }
 
   const handleSelect = React.useCallback(
@@ -285,7 +296,7 @@ export default function TextareaWithSuggestions(props: Props) {
       // $FlowFixMe
       const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
       // $FlowFixMe
-      const contentEnd = messageValue.length > suggestionValue.lastIndex ? endTo : ' ';
+      const contentEnd = endTo.startsWith(' ') ? endTo : ' ' + endTo;
 
       const newValue = contentBegin + replaceValue + contentEnd;
 
@@ -297,7 +308,7 @@ export default function TextareaWithSuggestions(props: Props) {
       if (!key && inputRef && inputRef.current) inputRef.current.removeAttribute('typing-term');
 
       elem.focus();
-      elem.setSelectionRange(newCursorPos, newCursorPos);
+      restoreCursorPosition(newCursorPos);
     },
     [messageValue, inputRef, onChange, suggestionValue]
   );
