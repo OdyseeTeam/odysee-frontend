@@ -227,12 +227,19 @@ export const isClaimShort = (claim: ?Claim): boolean => {
   if (!claim || !claim.value) return false;
 
   const media = claim.value.video || claim.value.audio;
+
   if (!media) return false;
 
   const SHORTS_MAX_DURATION = 180;
   const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
-  const isVertical = media.height && media.width && media.height > media.width;
-  return isShortDuration && isVertical;
+
+  if (!media.width || !media.height) return false;
+
+  const aspectRatio = media.height / media.width;
+  const SHORTS_RATIO_TARGET = 16 / 9;
+  const TOLERANCE = 0.15;
+  const isVerticalShort = Math.abs(aspectRatio - SHORTS_RATIO_TARGET) <= TOLERANCE;
+  return isShortDuration && isVerticalShort;
 };
 
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;

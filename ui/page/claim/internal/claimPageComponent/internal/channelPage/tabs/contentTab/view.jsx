@@ -51,6 +51,7 @@ type Props = {
   activeLivestreamForChannel: ?LivestreamActiveClaim,
   shortsOnly?: boolean,
   excludeShorts?: boolean,
+  loadedCallback?: (number) => void,
 };
 
 function ContentTab(props: Props) {
@@ -73,6 +74,8 @@ function ContentTab(props: Props) {
     empty,
     activeLivestreamForChannel,
     shortsOnly,
+    loadedCallback,
+    excludeShorts,
   } = props;
 
   const {
@@ -195,6 +198,7 @@ function ContentTab(props: Props) {
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
+            excludeShortsAspectRatio={excludeShorts}
             // {...(excludeShorts &&
             //   !shortsOnly && {
             //     contentAspectRatio: '>1',
@@ -205,6 +209,7 @@ function ContentTab(props: Props) {
               contentAspectRatio: '<1',
               sectionTitle: 'Shorts',
             })}
+            loadedCallback={loadedCallback}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">

@@ -205,7 +205,7 @@ export default function ShortsPage(props: Props) {
     urisToPreload.forEach((preloadUri, index) => {
       setTimeout(() => {
         doFileGetForUri(preloadUri);
-      }, index * 300);
+      }, index * 100);
     });
   }, [currentIndex, shortsRecommendedUris, doFileGetForUri]);
 

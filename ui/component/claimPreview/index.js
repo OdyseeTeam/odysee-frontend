@@ -59,6 +59,7 @@ const select = (state, props) => {
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
     thumbnailFromClaim: selectThumbnailForUri(state, props.uri),
     defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
   };
 };
 
