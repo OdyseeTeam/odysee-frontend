@@ -21,6 +21,7 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
 import { HomepageTitles } from 'util/buildHomepage';
+import * as SETTINGS from 'constants/settings';
 
 type Props = {
   uris: Array<string>,
@@ -103,6 +104,7 @@ type Props = {
   loading: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
+  hideShorts: boolean,
   languageSetting: string,
   searchInLanguage: boolean,
   mutedAndBlockedChannelIds: Array<ClaimId>,
@@ -207,6 +209,7 @@ function ClaimListDiscover(props: Props) {
     sectionTitle,
     contentAspectRatio,
     excludeShortsAspectRatio,
+    hideShorts,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -470,8 +473,10 @@ function ClaimListDiscover(props: Props) {
     options = csOptionsHook(options);
   }
 
-  if (excludeShortsAspectRatio) {
-    options.content_aspect_ratio__or_missing = '>1';
+  if (excludeShortsAspectRatio || hideShorts) {
+    options.exclude_shorts = true;
+    options.exclude_shorts_aspect_ratio_lte = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+    options.exclude_shorts_duration_lte = SETTINGS.SHORTS_DURATION_LTE;
   } else if (contentAspectRatio) {
     options.content_aspect_ratio = contentAspectRatio;
   }

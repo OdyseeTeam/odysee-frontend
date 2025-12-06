@@ -189,8 +189,8 @@ function resolveSearchOptions(props) {
   }
 
   if (hideShorts) {
-    options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
-    options.content_aspect_ratio_or_missing = `>${SETTINGS.SHORTS_ASPECT_RATIO_LIMIT}`;
+    // options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
+    options.exclude_shorts = true;
   } else {
     if (duration) {
       options.duration = duration;

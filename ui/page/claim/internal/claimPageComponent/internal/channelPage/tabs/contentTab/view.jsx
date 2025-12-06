@@ -199,17 +199,13 @@ function ContentTab(props: Props) {
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
             excludeShortsAspectRatio={excludeShorts}
-            // {...(excludeShorts &&
-            //   !shortsOnly && {
-            //     contentAspectRatio: '>1',
-            //   })}
             {...(shortsOnly && {
               duration: '<=180',
               contentType: CS.FILE_VIDEO,
-              contentAspectRatio: '<1',
+              contentAspectRatio: '<.95',
               sectionTitle: 'Shorts',
             })}
-            loadedCallback={loadedCallback}
+            loadedCallback={shortsOnly && searchQuery.length > 0 ? undefined : loadedCallback}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">
@@ -244,6 +240,10 @@ function ContentTab(props: Props) {
                 minDuration={hideShorts ? SETTINGS.SHORTS_DURATION_LIMIT : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
+                {...(shortsOnly && {
+                  maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
+                  maxAspectRatio: 0.9999,
+                })}
               />
             }
             isChannel

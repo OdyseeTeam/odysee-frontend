@@ -132,7 +132,17 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     deboost_same_creator,
     content_aspect_ratio,
     content_aspect_ratio_or_missing,
+    exclude_shorts,
+    // exclude_shorts_aspect_ratio_lte,
+    // exclude_shorts_duration_lte,
   } = options;
+
+  const { store } = window;
+  let hideShorts = false;
+  if (store) {
+    const state = store.getState();
+    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  }
 
   if (related_to) {
     additionalOptions[SEARCH_OPTIONS.RELATED_TO] = related_to;
@@ -171,16 +181,21 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO_OR_MISSING] = content_aspect_ratio_or_missing;
   }
 
-  const { store } = window;
-  let hideShorts = false;
-  if (store) {
-    const state = store.getState();
-    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  if (exclude_shorts || hideShorts) {
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = exclude_shorts;
   }
 
-  if (hideShorts && isDurationFilterSupported && !isCustomDurationSet) {
-    additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
-  }
+  // if (exclude_shorts_aspect_ratio_lte) {
+  //   additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE] = exclude_shorts_aspect_ratio_lte;
+  // }
+
+  // if (exclude_shorts_duration_lte) {
+  //   additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE] = exclude_shorts_duration_lte;
+  // }
+
+  // if (hideShorts && isDurationFilterSupported && !isCustomDurationSet) {
+  //   additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
+  // }
 
   if (additionalOptions) {
     Object.keys(additionalOptions).forEach((key) => {

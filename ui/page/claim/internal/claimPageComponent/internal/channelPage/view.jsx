@@ -76,6 +76,7 @@ type Props = {
   banState: any,
   isMature: boolean,
   isGlobalMod: boolean,
+  hideShorts: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -103,6 +104,7 @@ function ChannelPage(props: Props) {
     banState,
     isMature,
     isGlobalMod,
+    hideShorts,
   } = props;
   const {
     push,
@@ -324,6 +326,14 @@ function ChannelPage(props: Props) {
     }
   }, [doMembershipMine, myMembershipsFetched]);
 
+React.useEffect(() => {
+  if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+    const url = formatLbryUrlForWeb(uri);
+    const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+    push(`${url}${search}`);
+  }
+}, [hideShorts, currentView, uri, push]);
+
   if (editing) {
     return <ChannelEdit uri={uri} onDone={() => goBack()} />;
   }
@@ -491,7 +501,7 @@ function ChannelPage(props: Props) {
               </Tab>
               <Tab
                 disabled={editing || !showClaims || !hasShorts}
-                className={classnames({ 'tab--hidden': !hasShorts })}
+                className={classnames({ 'tab--hidden': !hasShorts || hideShorts})}
                 aria-selected={tabIndex === 2}
                 onClick={() => onTabChange(2)}
               >
