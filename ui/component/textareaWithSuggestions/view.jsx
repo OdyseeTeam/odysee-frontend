@@ -213,8 +213,10 @@ export default function TextareaWithSuggestions(props: Props) {
     const suggestionMatches = value.match(SUGGESTION_REGEX);
 
     if (!suggestionMatches) {
-      if (suggestionValue) setSuggestionValue(null);
-      restoreCursorPosition(cursorIndex);
+      if (suggestionValue) {
+        setSuggestionValue(null);
+        restoreCursorPosition(cursorIndex);
+      }
       return; // Exit here and avoid unnecessary behavior
     }
 
