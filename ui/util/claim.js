@@ -227,20 +227,21 @@ export const isClaimShort = (claim: ?Claim): boolean => {
   if (!claim || !claim.value) return false;
 
   const media = claim.value.video || claim.value.audio;
-
   if (!media) return false;
 
   const SHORTS_MAX_DURATION = 180;
   const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
+  if (!isShortDuration) return false;
 
   if (!media.width || !media.height) return false;
 
-  const aspectRatio = media.height / media.width;
-  const SHORTS_RATIO_TARGET = 16 / 9;
-  const TOLERANCE = 0.15;
-  const isVerticalShort = Math.abs(aspectRatio - SHORTS_RATIO_TARGET) <= TOLERANCE;
-  return isShortDuration && isVerticalShort;
-};
+  const aspectRatio = media.width / media.height;
 
+  const MAX_VERTICAL_RATIO = 0.9;
+
+  const isVerticalOrNear = aspectRatio <= MAX_VERTICAL_RATIO;
+
+  return isVerticalOrNear;
+};
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: ?Claim) => getClaimMeta(claim)?.reposted;

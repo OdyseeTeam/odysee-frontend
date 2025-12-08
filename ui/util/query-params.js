@@ -181,7 +181,11 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO_OR_MISSING] = content_aspect_ratio_or_missing;
   }
 
-  if (exclude_shorts || hideShorts) {
+  if (exclude_shorts) {
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = exclude_shorts;
+  }
+
+  if (hideShorts) {
     additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = exclude_shorts;
   }
 
