@@ -3,7 +3,6 @@ import React from 'react';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
-import * as MODALS from 'constants/modal_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
@@ -33,7 +32,7 @@ type Props = {
   webShareable: boolean,
   collectionId?: string,
   isUnlisted: ?boolean,
-  doOpenModal: (id: string, modalProps: any) => void,
+  handleShareClick: () => void,
 };
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -60,15 +59,9 @@ const ShortsActions = React.memo<Props>(
     autoPlayNextShort,
     onCommentsClick,
     doToggleShortsAutoplay,
-    webShareable,
-    collectionId,
     isUnlisted,
-    doOpenModal,
+    handleShareClick,
   }: Props) => {
-    const handleShareClick = React.useCallback(() => {
-      doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId });
-    }, [doOpenModal, uri, webShareable, collectionId]);
-
     React.useEffect(() => {
       function fetchReactions() {
         doFetchReactions(claimId);

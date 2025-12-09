@@ -43,6 +43,7 @@ import {
 import { doClaimSearch } from 'redux/actions/claims';
 import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
+import { doOpenModal } from 'redux/actions/app';
 
 const selectShortsRecommendedContent = createSelector(
   [
@@ -138,6 +139,8 @@ const select = (state, props) => {
     autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isClaimShort: isClaimShort(claim),
     claimId,
+    webShareable: true,
+    collectionId: props.collectionId,
   };
 };
 
@@ -167,6 +170,7 @@ const perform = (dispatch) => ({
   doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),
   doSetShortsAutoplay: (enabled) => dispatch(doSetShortsAutoplay(enabled)),
   doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
+  doOpenModal: (id, modalProps) => dispatch(doOpenModal(id, modalProps)),
 });
 
 export default withRouter(connect(select, perform)(ShortsPage));

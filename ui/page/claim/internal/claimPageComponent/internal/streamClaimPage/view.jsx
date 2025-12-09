@@ -109,7 +109,7 @@ const StreamClaimPage = (props: Props) => {
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(search);
-    if (isShortVideo && !shortsView) {
+    if (isShortVideo && shortsView) {
       urlParams.set('view', 'shorts');
       const newSearch = urlParams.toString();
       const { pathname } = window.location;
@@ -120,7 +120,7 @@ const StreamClaimPage = (props: Props) => {
       const newSearch = urlParams.toString();
       history.replace(`${history.location.pathname}${newSearch ? `?${newSearch}` : ''}`);
     }
-  }, [isShortVideo, shortsView, urlParams, search]);
+  }, [isShortVideo, shortsView, urlParams, search, history]);
 
   React.useEffect(() => {
     doSetContentHistoryItem(uri);
