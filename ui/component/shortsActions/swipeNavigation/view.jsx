@@ -49,6 +49,7 @@ type Props = {
   claimId?: string,
   isLivestreamClaim?: boolean,
   doFetchReactions?: (claimId: ?string) => void,
+  handleShareClick?: () => void,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -89,6 +90,7 @@ const SwipeNavigationPortal = React.memo<Props>(
     claimId,
     isLivestreamClaim,
     doFetchReactions,
+    handleShareClick,
   }: Props) => {
     const scrollLockRef = React.useRef(false);
 
@@ -229,6 +231,7 @@ const SwipeNavigationPortal = React.memo<Props>(
           webShareable={webShareable}
           collectionId={collectionId}
           doOpenModal={doOpenModal}
+          onShareClick={handleShareClick}
         />
 
         {channelName && (

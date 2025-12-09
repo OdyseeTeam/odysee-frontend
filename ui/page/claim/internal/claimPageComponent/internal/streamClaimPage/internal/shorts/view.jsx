@@ -11,6 +11,7 @@ import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
 import * as SETTINGS from 'constants/settings';
+import * as MODALS from 'constants/modal_types';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 let ORIGINAL_AUTOPLAY_SETTING = null;
@@ -58,6 +59,9 @@ type Props = {
   doSetClientSetting: (key: string, value: boolean) => void,
   streamClaim?: () => void,
   doFileGetForUri: (uri: string) => void,
+  webShareable?: boolean,
+  collectionId?: string,
+  doOpenModal: (id: string, modalProps: any) => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -94,6 +98,9 @@ export default function ShortsPage(props: Props) {
     autoplayMedia,
     doSetClientSetting,
     doFileGetForUri,
+    webShareable,
+    collectionId,
+    doOpenModal,
   } = props;
 
   const {
@@ -149,6 +156,10 @@ export default function ShortsPage(props: Props) {
     },
     [channelId, uri, uuid, doFetchChannelShorts, doFetchShortsRecommendedContent]
   );
+
+  const handleShareClick = React.useCallback(() => {
+    doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId });
+  }, [doOpenModal, uri, webShareable, collectionId]);
 
   const handleCommentsClick = React.useCallback(() => {
     if (isMobile) {
@@ -544,6 +555,7 @@ export default function ShortsPage(props: Props) {
           onInfoButtonClick={handleInfoButtonClick}
           onCommentsClick={handleCommentsClick}
           isComments={panelMode === 'comments'}
+          handleShareClick={handleShareClick}
         />
       )}
       <div className="shorts-page" ref={shortsContainerRef}>
@@ -579,6 +591,7 @@ export default function ShortsPage(props: Props) {
                   uri={uri}
                   onCommentsClick={handleCommentsClick}
                   onInfoClick={handleInfoButtonClick}
+                  handleShareClick={handleShareClick}
                 />
               )}
             </div>
