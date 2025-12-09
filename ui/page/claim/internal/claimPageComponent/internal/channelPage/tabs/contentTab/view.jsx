@@ -51,6 +51,7 @@ type Props = {
   activeLivestreamForChannel: ?LivestreamActiveClaim,
   shortsOnly?: boolean,
   excludeShorts?: boolean,
+  loadedCallback?: (number) => void,
 };
 
 function ContentTab(props: Props) {
@@ -73,6 +74,8 @@ function ContentTab(props: Props) {
     empty,
     activeLivestreamForChannel,
     shortsOnly,
+    loadedCallback,
+    excludeShorts,
   } = props;
 
   const {
@@ -195,16 +198,14 @@ function ContentTab(props: Props) {
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
-            // {...(excludeShorts &&
-            //   !shortsOnly && {
-            //     contentAspectRatio: '>1',
-            //   })}
+            excludeShortsAspectRatio={excludeShorts}
             {...(shortsOnly && {
               duration: '<=180',
               contentType: CS.FILE_VIDEO,
-              contentAspectRatio: '<1',
+              contentAspectRatio: '<.95',
               sectionTitle: 'Shorts',
             })}
+            loadedCallback={shortsOnly && searchQuery.length > 0 ? undefined : loadedCallback}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">
@@ -239,6 +240,10 @@ function ContentTab(props: Props) {
                 minDuration={hideShorts ? SETTINGS.SHORTS_DURATION_LIMIT : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
+                {...(shortsOnly && {
+                  maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
+                  maxAspectRatio: 0.9999,
+                })}
               />
             }
             isChannel

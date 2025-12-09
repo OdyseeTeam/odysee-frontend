@@ -46,20 +46,6 @@ const select = (state, props) => {
   const searchKey = createNormalizedClaimSearchKey(options);
   let claimSearchResults = selectClaimSearchByQuery(state)[searchKey];
 
-  // if (claimSearchResults) {
-  //   if (props.isShorts) {
-  //     claimSearchResults = claimSearchResults.filter((uri) => {
-  //       const claim = selectClaimForUri(state, uri);
-  //       return claim && isClaimShort(claim);
-  //     });
-  //   } else if (props.excludeShorts !== false) {
-  //     claimSearchResults = claimSearchResults.filter((uri) => {
-  //       const claim = selectClaimForUri(state, uri);
-  //       return claim && !isClaimShort(claim);
-  //     });
-  //   }
-  // }
-
   return {
     claimSearchResults,
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
@@ -203,8 +189,8 @@ function resolveSearchOptions(props) {
   }
 
   if (hideShorts) {
-    options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
-    options.content_aspect_ratio = `>${SETTINGS.SHORTS_ASPECT_RATIO_LIMIT}`;
+    // options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
+    options.exclude_shorts = true;
   } else {
     if (duration) {
       options.duration = duration;

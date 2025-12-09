@@ -4,6 +4,7 @@ import ClaimList from 'component/claimList';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
 import * as CS from 'constants/claim_search';
 import { lighthouse } from 'redux/actions/search';
+import { max } from 'moment/moment';
 
 type Props = {
   searchQuery: string,
@@ -13,13 +14,24 @@ type Props = {
   orderBy?: ?string,
   minDuration?: ?number,
   maxDuration?: ?number,
+  maxAspectRatio?: ?string,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };
 
 export function SearchResults(props: Props) {
-  const { searchQuery, claimId, showMature, tileLayout, orderBy, minDuration, onResults, doResolveUris, maxDuration } =
-    props;
+  const {
+    searchQuery,
+    claimId,
+    showMature,
+    tileLayout,
+    orderBy,
+    minDuration,
+    onResults,
+    doResolveUris,
+    maxDuration,
+    maxAspectRatio,
+  } = props;
 
   const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
@@ -64,8 +76,9 @@ export function SearchResults(props: Props) {
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
             (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
-            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${minDuration}` : '') +
-            `&size=${SEARCH_PAGE_SIZE}`
+            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${maxDuration}` : '') +
+            `&size=${SEARCH_PAGE_SIZE}` +
+            (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '')
         )
         .then(({ body: results }) => {
           const urls = results.map(({ name, claimId }) => {
@@ -93,7 +106,7 @@ export function SearchResults(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration, maxDuration]);
+  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration, maxDuration, maxAspectRatio]);
 
   if (!searchResults) {
     return null;

@@ -11,14 +11,7 @@ type SwipeNavigationOptions = {
 };
 
 export default function useSwipeNavigation(options: SwipeNavigationOptions) {
-  const {
-    onSwipeNext,
-    onSwipePrevious,
-    isEnabled = true,
-    minSwipeDistance = 50,
-    tapDuration = 200,
-    onTap,
-  } = options;
+  const { onSwipeNext, onSwipePrevious, isEnabled = true, minSwipeDistance = 50, tapDuration = 200, onTap } = options;
 
   const elementRef = useRef(null);
   const touchStartRef = useRef(null);
@@ -49,7 +42,7 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
       const diffY = Math.abs(touchStartRef.current.y - currentY);
       const diffX = Math.abs(touchStartRef.current.x - currentX);
 
-      if (diffY > 15) {
+      if (diffY > 20) {
         isScrollingRef.current = true;
         isTapRef.current = false;
       }

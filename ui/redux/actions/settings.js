@@ -550,6 +550,22 @@ export function toggleAutoplayNext() {
   };
 }
 
+export function toggleDisableShortsView() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const ready = selectPrefsReady(state);
+    const disableShortsView = selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW);
+
+    dispatch(doSetClientSetting(SETTINGS.DISABLE_SHORTS_VIEW, !disableShortsView, ready));
+
+    dispatch(
+      doToast({
+        message: disableShortsView ? __('Shorts View is disabled') : __('Shorts View is enabled.'),
+      })
+    );
+  };
+}
+
 export function toggleAutoplayNextShort() {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();

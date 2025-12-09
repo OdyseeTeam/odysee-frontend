@@ -115,6 +115,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   thumbnailFromClaim: string,
   defaultCollectionAction: string,
+  disableShortsView: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -191,6 +192,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doDisablePlayerDrag,
     thumbnailFromClaim,
     defaultCollectionAction,
+    disableShortsView,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -277,7 +279,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     });
   }
 
-  if (shortClaim) {
+  if (shortClaim && !disableShortsView) {
     navigateSearch.set('view', 'shorts');
   }
 

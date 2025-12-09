@@ -231,9 +231,17 @@ export const isClaimShort = (claim: ?Claim): boolean => {
 
   const SHORTS_MAX_DURATION = 180;
   const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
-  const isVertical = media.height && media.width && media.height > media.width;
-  return isShortDuration && isVertical;
-};
+  if (!isShortDuration) return false;
 
+  if (!media.width || !media.height) return false;
+
+  const aspectRatio = media.width / media.height;
+
+  const MAX_VERTICAL_RATIO = 0.9;
+
+  const isVerticalOrNear = aspectRatio <= MAX_VERTICAL_RATIO;
+
+  return isVerticalOrNear;
+};
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: ?Claim) => getClaimMeta(claim)?.reposted;
