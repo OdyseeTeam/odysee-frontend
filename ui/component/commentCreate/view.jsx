@@ -23,7 +23,6 @@ import { TipReviewBox, TipActionButton } from './internal/tip-contents';
 import { FormChannelSelector, HelpText } from './internal/extra-contents';
 import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
-import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import { TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
@@ -65,7 +64,6 @@ type Props = {
   uri: string,
   disableInput?: boolean,
   recipientArweaveTipInfo: any,
-  experimentalUi: boolean,
   canReceiveTips: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
@@ -85,15 +83,7 @@ type Props = {
     preferredCurrency: string,
     (any) => void
   ) => string,
-  doArTip: (
-    ArTipParams,
-    anonymous: boolean,
-    UserParams,
-    claimId: string,
-    stripe: ?string,
-    preferredCurrency: string,
-    (any) => void
-  ) => void,
+  doArTip: (ArTipParams, anonymous: boolean, UserParams, claimId: string, stripe: ?string) => Promise<any>,
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
   myChannelClaimIds: ?Array<string>,
@@ -119,7 +109,6 @@ export function CommentCreate(props: Props) {
     activeChannelUrl,
     bottom,
     recipientArweaveTipInfo,
-    experimentalUi,
     canReceiveTips,
     channelClaimId,
     claimId,
@@ -184,7 +173,7 @@ export function CommentCreate(props: Props) {
   const [isReviewingStickerComment, setReviewingStickerComment] = React.useState();
   const [selectedSticker, setSelectedSticker] = React.useState();
   const [tipAmount, setTipAmount] = React.useState(1);
-  const [convertedAmount, setConvertedAmount] = React.useState();
+  // const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
   const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
   const [activeTab, setActiveTab] = React.useState();
@@ -249,7 +238,7 @@ export function CommentCreate(props: Props) {
         setTipSelector(true);
       }
     },
-    [canReceiveTips, onSlimInputClose]
+    [onSlimInputClose]
   );
 
   const commentSelectorsProps = React.useMemo(() => {
@@ -465,8 +454,6 @@ export function CommentCreate(props: Props) {
 
     setSubmitting(true);
 
-    const params = { amount: tipAmount, claim_id: claimId, channel_id: activeChannelClaimId };
-
     if (activeTab === TAB_USD) {
       const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
       const transactionCurrency = activeTab === TAB_USD ? 'AR' : 'USD';
@@ -488,13 +475,14 @@ export function CommentCreate(props: Props) {
         txid: undefined,
         payment_tx_id: activeTab === TAB_USD ? 'dummy_txid' : undefined,
         environment: stripeEnvironment,
+        sticker: false, // dummy value for lint
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
         amount: getAmount(), // dummy amount
         currency: transactionCurrency, // AR
         dry_run: true,
       };
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
-        .then((res: {}) => {
+        .then((res: Object) => {
           if (res && res.signature) {
             // tell apis about a tip, get a token and amount
             // make transaction
@@ -904,7 +892,7 @@ export function CommentCreate(props: Props) {
               activeTab={TAB_USD}
               amount={tipAmount}
               uri={uri}
-              convertedAmount={convertedAmount}
+              // convertedAmount={convertedAmount}
               customTipAmount={stickerPrice}
               exchangeRate={exchangeRate}
               fiatConversion={selectedSticker && !!selectedSticker.price}

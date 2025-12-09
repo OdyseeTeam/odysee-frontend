@@ -73,9 +73,7 @@ const PreviewPage = (props: Props) => {
     paymentsEnabled,
   } = props;
 
-  const {
-    activeArStatus,
-  } = useArStatus();
+  const { activeArStatus } = useArStatus();
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
@@ -104,11 +102,7 @@ const PreviewPage = (props: Props) => {
       return (
         <div className="join-membership__empty">
           <h2 className="header--no-memberships">{__('Closed to New Members')}</h2>
-          <p>
-            {__(
-              'Unfortunately, this membership is not accepting new members at this time.'
-            )}
-          </p>
+          <p>{__('Unfortunately, this membership is not accepting new members at this time.')}</p>
           <div>
             <Button
               icon={ICONS.MEMBERSHIP}
@@ -205,22 +199,30 @@ const PreviewPage = (props: Props) => {
         )}
 
         <div className="join-membership__tab">
-          {creatorMemberships.filter(m => m.enabled === true).map((membership, index) => (
-            <MembershipTier
-              membership={membership}
-              handleSelect={() => {
-                setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index, isChannelTab: isChannelTab });
-              }}
-              index={index}
-              length={creatorMemberships.length}
-              key={index}
-              isOwnChannel={channelIsMine}
-              userHasCreatorMembership={userHasACreatorMembership} // here
-              isChannelTab
-              disabled={activeArStatus !== 'connected'}
-            />
-          ))}
+          {creatorMemberships
+            .filter((m) => m.enabled === true)
+            .map((membership, index) => (
+              <MembershipTier
+                membership={membership}
+                handleSelect={() => {
+                  setMembershipIndex(index);
+                  doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                    uri,
+                    membershipIndex: index,
+                    membershipId: membership.membership_id,
+                    passedTierIndex: index,
+                    isChannelTab: isChannelTab,
+                  });
+                }}
+                index={index}
+                length={creatorMemberships.length}
+                key={index}
+                isOwnChannel={channelIsMine}
+                userHasCreatorMembership={userHasACreatorMembership} // here
+                isChannelTab
+                disabled={activeArStatus !== 'connected'}
+              />
+            ))}
         </div>
       </>
     );
@@ -290,7 +292,7 @@ const PreviewPage = (props: Props) => {
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
           label={__('Join X for $%membership_price% per month', {
-            membership_price: selectedCreatorMembership?.prices[0].amount / 100,
+            membership_price: Number(selectedCreatorMembership?.prices[0].amount) / 100,
           })}
           requiresAuth
           onClick={handleSelect}
@@ -298,9 +300,7 @@ const PreviewPage = (props: Props) => {
 
         {creatorPurchaseDisabled && (
           <span className="error-bubble">
-            {channelIsMine
-              ? __("You're not able to signup for your own memberships")
-              : __("You're already a member.")}
+            {channelIsMine ? __("You're not able to signup for your own memberships") : __("You're already a member.")}
           </span>
         )}
       </div>

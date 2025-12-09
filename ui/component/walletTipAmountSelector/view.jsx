@@ -61,7 +61,7 @@ function WalletTipAmountSelector(props: Props) {
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
-  const amountInArEstimated = (amount / arExchangeRate?.ar).toFixed(6);
+  const amountInArEstimated = Number((amount / arExchangeRate?.ar).toFixed(6));
 
   const tipAmountsToDisplay = DEFAULT_TIP_AMOUNTS;
 

@@ -20,7 +20,7 @@ type Props = {
   preferredCurrency: ?string,
   incognito: boolean,
   isRenewal?: boolean,
-  balance: ArweaveBalance,
+  balance: WalletBalance,
   exchangeRate: { ar: number },
   doArConnect: () => void,
   membershipBuyError: string,
@@ -36,7 +36,7 @@ const ConfirmationPage = (props: Props) => {
     purchasePending,
     preferredCurrency,
     incognito,
-    isRenewal,
+    isRenewal = false,
     balance,
     exchangeRate,
     doArConnect,
@@ -57,7 +57,7 @@ const ConfirmationPage = (props: Props) => {
     };
   }, [doMembershipBuyClear]);
 
-  const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
+  const total = Number((Number(selectedCreatorMembership.prices[0].amount) / 100).toFixed(2));
   return (
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
@@ -134,7 +134,7 @@ const ConfirmationPage = (props: Props) => {
 
             <SubmitButton
               isRenewal={isRenewal}
-              disabled={!arBalance || (dollarsPerAr && Number(dollarsPerAr) * arBalance < total)}
+              disabled={!arBalance || (!!dollarsPerAr && Number(dollarsPerAr) * arBalance < total)}
               modalState={{ passedTierIndex: selectedMembershipIndex }}
             />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />

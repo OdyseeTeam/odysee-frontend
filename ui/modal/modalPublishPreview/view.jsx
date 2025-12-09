@@ -61,7 +61,7 @@ type Props = {
   publishing: boolean,
   isLivestreamClaim: boolean,
   remoteFile: ?string,
-  myMembershipTiers: MembershipTiers,
+  myMembershipTiers: Object,
   memberRestrictionTierIds: Array<number>,
   memberRestrictionStatus: MemberRestrictionStatus,
   visibility: Visibility,
@@ -330,7 +330,7 @@ const ModalPublishPreview = (props: Props) => {
 
     return (
       <div className="publish-preview__tier-restrictions">
-        {myMembershipTiers.map((tier: MembershipTier) => {
+        {myMembershipTiers.map((tier: CreatorMembership) => {
           const tierId = tier?.membership_id || '0';
           const tierSelected = memberRestrictionTierIds.includes(tierId);
 

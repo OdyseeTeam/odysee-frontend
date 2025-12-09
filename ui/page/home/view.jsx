@@ -1,5 +1,5 @@
 // @flow
-import React, { lazy } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 

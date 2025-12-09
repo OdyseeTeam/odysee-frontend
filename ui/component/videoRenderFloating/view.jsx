@@ -553,7 +553,7 @@ type GlobalStylesProps = {
   mainFilePlaying: boolean,
   isLandscapeRotated: boolean,
   isTabletLandscape: boolean,
-  isShortVideo: boolean,
+  isShortVideo?: boolean,
 };
 
 const PlayerGlobalStyles = (props: GlobalStylesProps) => {
