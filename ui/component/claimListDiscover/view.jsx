@@ -20,7 +20,7 @@ import ClaimListHeader from 'component/claimListHeader';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
-import { HomepageTitles } from 'util/buildHomepage';
+import type { HomepageTitles } from 'util/buildHomepage';
 import * as SETTINGS from 'constants/settings';
 
 type Props = {
@@ -338,6 +338,7 @@ function ClaimListDiscover(props: Props) {
     not_tags: CsOptHelper.not_tags(notTagInput),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
+    content_aspect_ratio: undefined,
     ...(durationOption ? { duration: durationOption } : {}),
   };
 

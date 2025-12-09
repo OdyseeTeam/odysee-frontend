@@ -2,9 +2,7 @@
 import type { Duration } from 'constants/claim_search';
 
 import * as CS from 'constants/claim_search';
-import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
-import { selectClientSetting } from 'redux/selectors/settings';
 
 /**
  * Common logic to generate ClaimSearch option payload.

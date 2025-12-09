@@ -138,6 +138,7 @@ function FileListPublished(props: Props) {
   const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
+      // $FlowIgnore
       any_tags: Object.values(SCHEDULED_TAGS),
       channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
@@ -373,6 +374,7 @@ function FileListPublished(props: Props) {
     const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
 
     return hasChannels ? (
+      // $FlowIgnore[incompatible-cast]: filterType is never 'All' here, probably.
       <ClaimSearchView key={filterType} csOptions={csOptions[filterType]} layout="list" pagination="infinite" />
     ) : (
       <Yrbl

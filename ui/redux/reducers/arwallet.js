@@ -3,12 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-export type WalletBalance = {
-  ar: string,
-  u: string,
-  usdc: number,
-};
-
 export type ExchangeRates = {
   ar: number,
 };
@@ -103,7 +97,7 @@ reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
 };
 
 reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {
-  return { ...state, exchangeRates: { ar: action.data }};
+  return { ...state, exchangeRates: { ar: action.data } };
 };
 
 reducers[ACTIONS.AR_SEND_STARTED] = (state) => ({

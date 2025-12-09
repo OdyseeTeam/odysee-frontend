@@ -23,7 +23,13 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
-type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type ArTipParams = {
+  tipAmountTwoPlaces: number,
+  tipChannelName: string,
+  channelClaimId: string,
+  recipientAddress: string,
+  currency: string,
+};
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 type Props = {
   activeChannelId?: string,
@@ -49,20 +55,20 @@ type Props = {
   customText?: string,
   doHideModal: () => void,
   doArTip: (
-    TipParams,
+    ArTipParams,
     anonymous: boolean,
     UserParams,
     claimId: string,
     stripeEnvironment: ?string,
     preferredCurrency: string
-  ) => void,
+  ) => Promise<any>,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
   doToast: ({ message: string, subMessage?: string, isError?: boolean }) => void,
   setAmount?: (number, string) => void,
   modalProps?: any,
   canReceiveTips?: boolean,
-  arweaveTipData?: ArweaveTipDataForId,
-  doTipAccountCheckForUri: () => void,
+  arweaveTipData: ArweaveTipDataForId,
+  doTipAccountCheckForUri: (string) => void,
   checkingAccount: boolean,
 };
 
@@ -237,7 +243,7 @@ export default function WalletSendTip(props: Props) {
       } else {
         const arweaveTipAddress = arweaveTipData.address;
         const currencyToUse = activeTab === TAB_USD ? 'AR' : 'USD';
-        const tipParams: TipParams = {
+        const tipParams: ArTipParams = {
           tipAmountTwoPlaces: tipAmount,
           tipChannelName: tipChannelName || '',
           channelClaimId: channelClaimId || '',
@@ -274,18 +280,6 @@ export default function WalletSendTip(props: Props) {
   }
 
   function buildButtonText() {
-    // test if frontend will show up as isNan
-    function isNan(tipAmount) {
-      // testing for NaN ES5 style https://stackoverflow.com/a/35912757/3973137
-      // also sometimes it's returned as a string
-      // eslint-disable-next-line
-      return tipAmount !== tipAmount || tipAmount === 'NaN';
-    }
-
-    function convertToTwoDecimals(number) {
-      return (Math.round(number * 100) / 100).toFixed(2);
-    }
-
     // build button text based on tab
     switch (activeTab) {
       case TAB_BOOST:
@@ -359,10 +353,11 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
-                    {activeTab === TAB_USD 
-                      ? (<p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>)
-                      : (<p>{`${(Math.round(tipAmount * 100) / 100).toFixed(2)} ${ICONS.LBC}`}</p>)
-                    }
+                    {activeTab === TAB_USD ? (
+                      <p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : (
+                      <p>{`${(Math.round(tipAmount * 100) / 100).toFixed(2)} ${ICONS.LBC}`}</p>
+                    )}
                   </div>
                 </div>
               </div>

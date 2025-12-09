@@ -9,7 +9,7 @@ import * as KEYCODES from 'constants/keycodes';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
-const RightSideActions = (props: Props) => {
+const RightSideActions = () => {
   const { searchText, setSearchText, isFilteringEnabled, sortOption, updateFilteringSetting, setFilterParamsChanged } =
     React.useContext(FileListContext);
 
