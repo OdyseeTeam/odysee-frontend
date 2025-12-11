@@ -435,15 +435,17 @@ export default function ShortsPage(props: Props) {
         const previewTranslateY = -videoRect.height;
         if (isMobile) {
           videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl && !autoPlayNextShort) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
-          if (previewEl) previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
+          if (previewEl && !autoPlayNextShort) {
+            const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+            previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
+          }
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -512,7 +514,7 @@ export default function ShortsPage(props: Props) {
       const isMobile = window.innerWidth <= 768;
       const videoRect = videoEl.getBoundingClientRect();
 
-      if (previewEl) {
+      if (previewEl && !autoPlayNextShort) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
@@ -542,15 +544,17 @@ export default function ShortsPage(props: Props) {
         const previewTranslateY = videoRect.height;
         if (isMobile) {
           videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl && !autoPlayNextShort) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
-          if (previewEl) previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
+          if (previewEl && !autoPlayNextShort) {
+            const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+            previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
+          }
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -582,7 +586,7 @@ export default function ShortsPage(props: Props) {
         document.body.style.overflow = '';
       }, 100);
     }, 350);
-  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail, sidePanelOpen]);
+  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail, sidePanelOpen, autoPlayNextShort]);
 
   const handleScroll = React.useCallback(
     (e) => {
