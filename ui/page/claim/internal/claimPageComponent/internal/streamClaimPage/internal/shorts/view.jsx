@@ -405,7 +405,7 @@ export default function ShortsPage(props: Props) {
       const isMobile = window.innerWidth <= 768;
       const videoRect = videoEl.getBoundingClientRect();
 
-      if (previewEl) {
+      if (previewEl && !autoPlayNextShort) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
