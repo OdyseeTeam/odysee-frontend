@@ -5,31 +5,31 @@ import { getThumbnailCdnUrl } from 'util/thumbnail';
 // $FlowFixMe cannot resolve ...
 import FileRenderPlaceholder from 'static/img/fileRenderPlaceholder.png';
 
-export default function useGetPoster(claimThumbnail: ?string) {
+export default function useGetPoster(claimThumbnail: ?string, isShorts?: boolean) {
   const [thumbnail, setThumbnail] = React.useState(() => {
     if (claimThumbnail) {
-      return getThumbnailCdnUrl({
-        thumbnail: claimThumbnail,
-        width: THUMBNAIL_WIDTH_POSTER,
-        height: THUMBNAIL_HEIGHT_POSTER,
-      });
+      return getThumbnailCdnUrl(
+        isShorts
+          ? { thumbnail: claimThumbnail, isShorts: true }
+          : { thumbnail: claimThumbnail, width: THUMBNAIL_WIDTH_POSTER, height: THUMBNAIL_HEIGHT_POSTER }
+      );
     }
-    return FileRenderPlaceholder;
+    return isShorts ? null : FileRenderPlaceholder;
   });
 
   React.useEffect(() => {
     if (!claimThumbnail) {
-      setThumbnail(FileRenderPlaceholder);
+      setThumbnail(isShorts ? null : FileRenderPlaceholder);
     } else {
       setThumbnail(
-        getThumbnailCdnUrl({
-          thumbnail: claimThumbnail,
-          width: THUMBNAIL_WIDTH_POSTER,
-          height: THUMBNAIL_HEIGHT_POSTER,
-        })
+        getThumbnailCdnUrl(
+          isShorts
+            ? { thumbnail: claimThumbnail, isShorts: true }
+            : { thumbnail: claimThumbnail, width: THUMBNAIL_WIDTH_POSTER, height: THUMBNAIL_HEIGHT_POSTER }
+        )
       );
     }
-  }, [claimThumbnail]);
+  }, [claimThumbnail, isShorts]);
 
   return thumbnail;
 }

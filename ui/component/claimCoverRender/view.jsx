@@ -57,7 +57,7 @@ const ClaimCoverRender = (props: Props) => {
 
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
-  const thumbnail = useGetPoster(claimThumbnail);
+  const thumbnail = useGetPoster(claimThumbnail, isShortsParam);
 
   const swipeRef = useSwipeNavigation({
     onSwipeNext,
