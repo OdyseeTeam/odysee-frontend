@@ -6,7 +6,16 @@ import { getThumbnailCdnUrl } from 'util/thumbnail';
 import FileRenderPlaceholder from 'static/img/fileRenderPlaceholder.png';
 
 export default function useGetPoster(claimThumbnail: ?string) {
-  const [thumbnail, setThumbnail] = React.useState(FileRenderPlaceholder);
+  const [thumbnail, setThumbnail] = React.useState(() => {
+    if (claimThumbnail) {
+      return getThumbnailCdnUrl({
+        thumbnail: claimThumbnail,
+        width: THUMBNAIL_WIDTH_POSTER,
+        height: THUMBNAIL_HEIGHT_POSTER,
+      });
+    }
+    return FileRenderPlaceholder;
+  });
 
   React.useEffect(() => {
     if (!claimThumbnail) {

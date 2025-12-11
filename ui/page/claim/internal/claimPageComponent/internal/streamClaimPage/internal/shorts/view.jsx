@@ -12,6 +12,7 @@ import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import * as MODALS from 'constants/modal_types';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 let ORIGINAL_AUTOPLAY_SETTING = null;
@@ -62,6 +63,9 @@ type Props = {
   webShareable?: boolean,
   collectionId?: string,
   doOpenModal: (id: string, modalProps: any) => void,
+  nextThumbnail?: string,
+  previousThumbnail?: string,
+  doResolveUri: (uri: string) => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -101,6 +105,9 @@ export default function ShortsPage(props: Props) {
     webShareable,
     collectionId,
     doOpenModal,
+    nextThumbnail,
+    previousThumbnail,
+    doResolveUri,
   } = props;
 
   const {
@@ -121,6 +128,8 @@ export default function ShortsPage(props: Props) {
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
   const [videoStarted, setVideoStarted] = React.useState(false);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
+  const nextPreviewRef = React.useRef(null);
+  const prevPreviewRef = React.useRef(null);
 
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
   const isAtStart = currentIndex <= 0;
@@ -223,6 +232,26 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     preloadedUrisRef.current.clear();
   }, [uri]);
+
+  React.useEffect(() => {
+    if (nextRecommendedShort && !nextThumbnail) {
+      doResolveUri(nextRecommendedShort);
+    }
+    if (previousRecommendedShort && !previousThumbnail) {
+      doResolveUri(previousRecommendedShort);
+    }
+  }, [nextRecommendedShort, previousRecommendedShort, nextThumbnail, previousThumbnail, doResolveUri]);
+
+  React.useEffect(() => {
+    if (nextThumbnail) {
+      const img = new Image();
+      img.src = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
+    }
+    if (previousThumbnail) {
+      const img = new Image();
+      img.src = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
+    }
+  }, [nextThumbnail, previousThumbnail]);
 
   React.useEffect(() => {
     const checkVideoPlaying = setInterval(() => {
@@ -349,7 +378,7 @@ export default function ShortsPage(props: Props) {
   }, [search, history]);
 
   const goToNext = React.useCallback(() => {
-    if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
+    if (!nextRecommendedShort || isAtEnd) {
       return;
     }
     scrollLockRef.current = true;
@@ -364,35 +393,59 @@ export default function ShortsPage(props: Props) {
       doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
     }
 
+    if (window.player) window.player.pause();
+
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
+    const previewEl = nextPreviewRef.current;
 
     if (videoEl) {
       const isMobile = window.innerWidth <= 768;
-      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      if (overlayEl) {
-        overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      }
-      void videoEl.offsetHeight;
-      if (overlayEl) void overlayEl.offsetHeight;
+      const videoRect = videoEl.getBoundingClientRect();
 
-      if (isMobile) {
-        videoEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
-        if (overlayEl) {
-          overlayEl.style.setProperty('transform', 'translateY(-100vh)', 'important');
+      if (previewEl) {
+        previewEl.style.position = 'fixed';
+        previewEl.style.width = videoRect.width + 'px';
+        previewEl.style.height = videoRect.height + 'px';
+        previewEl.style.left = videoRect.left + 'px';
+        previewEl.style.top = videoRect.bottom + 'px';
+        previewEl.style.zIndex = '2';
+        previewEl.style.borderRadius = isMobile ? '0' : '10px';
+        previewEl.style.backgroundColor = '#000';
+        previewEl.style.transform = 'translateY(0)';
+        if (nextThumbnail) {
+          const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
+          previewEl.style.backgroundImage = `url(${thumbUrl})`;
+          previewEl.style.backgroundSize = 'cover';
+          previewEl.style.backgroundPosition = 'center';
         }
-      } else {
-        const computedStyle = window.getComputedStyle(videoEl);
-        const matrix = new DOMMatrix(computedStyle.transform);
-        const currentXpx = matrix.m41;
-        videoEl.style.setProperty('transform', `translate(${currentXpx}px, -100vh)`, 'important');
-        if (overlayEl) {
-          const overlayComputedStyle = window.getComputedStyle(overlayEl);
-          const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
-          const overlayXpx = overlayMatrix.m41;
-          overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, -100vh)`, 'important');
-        }
+        void previewEl.offsetHeight;
+        previewEl.style.transition = 'transform 0.3s ease';
       }
+
+      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      if (overlayEl) overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      void videoEl.offsetHeight;
+
+      requestAnimationFrame(() => {
+        const videoTranslateY = -(videoRect.height + videoRect.top);
+        const previewTranslateY = -videoRect.height;
+        if (isMobile) {
+          videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
+        } else {
+          const computedStyle = window.getComputedStyle(videoEl);
+          const matrix = new DOMMatrix(computedStyle.transform);
+          const currentXpx = matrix.m41;
+          videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (overlayEl) {
+            const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
+            overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
+          }
+        }
+      });
     }
 
     setTimeout(() => {
@@ -415,10 +468,12 @@ export default function ShortsPage(props: Props) {
           newVideoEl.style.removeProperty('transform');
           newVideoEl.style.removeProperty('transition');
         }
-
         if (newOverlayEl) {
           newOverlayEl.style.removeProperty('transform');
           newOverlayEl.style.removeProperty('transition');
+        }
+        if (previewEl) {
+          previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
         }
         scrollLockRef.current = false;
       }, 100);
@@ -426,7 +481,6 @@ export default function ShortsPage(props: Props) {
   }, [
     nextRecommendedShort,
     isAtEnd,
-    isSearchingRecommendations,
     uri,
     clearPosition,
     history,
@@ -434,40 +488,65 @@ export default function ShortsPage(props: Props) {
     onRecommendationClicked,
     autoPlayNextShort,
     doSetClientSetting,
+    nextThumbnail,
   ]);
 
   const goToPrevious = React.useCallback(() => {
-    if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
+    if (!previousRecommendedShort || isAtStart) return;
+
+    if (window.player) window.player.pause();
 
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
+    const previewEl = prevPreviewRef.current;
 
     if (videoEl) {
       const isMobile = window.innerWidth <= 768;
-      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      if (overlayEl) {
-        overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      }
-      void videoEl.offsetHeight;
-      if (overlayEl) void overlayEl.offsetHeight;
-      if (isMobile) {
-        videoEl.style.setProperty('transform', 'translateY(100vh)', 'important');
-        if (overlayEl) {
-          overlayEl.style.setProperty('transform', 'translateY(100vh)', 'important');
-        }
-      } else {
-        const computedStyle = window.getComputedStyle(videoEl);
-        const matrix = new DOMMatrix(computedStyle.transform);
-        const currentXpx = matrix.m41;
-        videoEl.style.setProperty('transform', `translate(${currentXpx}px, 100vh)`, 'important');
+      const videoRect = videoEl.getBoundingClientRect();
 
-        if (overlayEl) {
-          const overlayComputedStyle = window.getComputedStyle(overlayEl);
-          const overlayMatrix = new DOMMatrix(overlayComputedStyle.transform);
-          const overlayXpx = overlayMatrix.m41;
-          overlayEl.style.setProperty('transform', `translate(${overlayXpx}px, 100vh)`, 'important');
+      if (previewEl) {
+        previewEl.style.position = 'fixed';
+        previewEl.style.width = videoRect.width + 'px';
+        previewEl.style.height = videoRect.height + 'px';
+        previewEl.style.left = videoRect.left + 'px';
+        previewEl.style.top = (videoRect.top - videoRect.height) + 'px';
+        previewEl.style.zIndex = '2';
+        previewEl.style.borderRadius = isMobile ? '0' : '10px';
+        previewEl.style.backgroundColor = '#000';
+        previewEl.style.transform = 'translateY(0)';
+        if (previousThumbnail) {
+          const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
+          previewEl.style.backgroundImage = `url(${thumbUrl})`;
+          previewEl.style.backgroundSize = 'cover';
+          previewEl.style.backgroundPosition = 'center';
         }
+        void previewEl.offsetHeight;
+        previewEl.style.transition = 'transform 0.3s ease';
       }
+
+      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      if (overlayEl) overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
+      void videoEl.offsetHeight;
+
+      requestAnimationFrame(() => {
+        const videoTranslateY = window.innerHeight - videoRect.top;
+        const previewTranslateY = videoRect.height;
+        if (isMobile) {
+          videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
+        } else {
+          const computedStyle = window.getComputedStyle(videoEl);
+          const matrix = new DOMMatrix(computedStyle.transform);
+          const currentXpx = matrix.m41;
+          videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (overlayEl) {
+            const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
+            overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
+          }
+        }
+      });
     }
 
     setTimeout(() => {
@@ -483,14 +562,16 @@ export default function ShortsPage(props: Props) {
           newVideoEl.style.removeProperty('transform');
           newVideoEl.style.removeProperty('transition');
         }
-
         if (newOverlayEl) {
           newOverlayEl.style.removeProperty('transform');
           newOverlayEl.style.removeProperty('transition');
         }
+        if (previewEl) {
+          previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
+        }
       }, 100);
     }, 350);
-  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, history]);
+  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail]);
 
   const handleScroll = React.useCallback(
     (e) => {
@@ -529,6 +610,8 @@ export default function ShortsPage(props: Props) {
 
   return (
     <>
+      <div ref={nextPreviewRef} className="shorts-preview shorts-preview--next" />
+      <div ref={prevPreviewRef} className="shorts-preview shorts-preview--prev" />
       {videoStarted && (
         <SwipeNavigationPortal
           onNext={goToNext}
