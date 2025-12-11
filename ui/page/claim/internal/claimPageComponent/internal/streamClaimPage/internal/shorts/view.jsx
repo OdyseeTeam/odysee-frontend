@@ -395,6 +395,8 @@ export default function ShortsPage(props: Props) {
 
     if (window.player) window.player.pause();
 
+    document.body.style.overflow = 'hidden';
+
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
     const previewEl = nextPreviewRef.current;
@@ -407,12 +409,12 @@ export default function ShortsPage(props: Props) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
-        previewEl.style.left = videoRect.left + 'px';
+        previewEl.style.left = isMobile ? '0' : '49.6%';
         previewEl.style.top = videoRect.bottom + 'px';
         previewEl.style.zIndex = '2';
         previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = 'translateY(0)';
+        previewEl.style.transform = isMobile ? 'translateY(0)' : 'translate(-50%, 0)';
         if (nextThumbnail) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
@@ -439,7 +441,7 @@ export default function ShortsPage(props: Props) {
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -476,6 +478,7 @@ export default function ShortsPage(props: Props) {
           previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
         }
         scrollLockRef.current = false;
+        document.body.style.overflow = '';
       }, 100);
     }, 350);
   }, [
@@ -496,6 +499,8 @@ export default function ShortsPage(props: Props) {
 
     if (window.player) window.player.pause();
 
+    document.body.style.overflow = 'hidden';
+
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
     const previewEl = prevPreviewRef.current;
@@ -508,12 +513,12 @@ export default function ShortsPage(props: Props) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
-        previewEl.style.left = videoRect.left + 'px';
+        previewEl.style.left = isMobile ? '0' : '49.6%';
         previewEl.style.top = (videoRect.top - videoRect.height) + 'px';
         previewEl.style.zIndex = '2';
         previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = 'translateY(0)';
+        previewEl.style.transform = isMobile ? 'translateY(0)' : 'translate(-50%, 0)';
         if (previousThumbnail) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
@@ -540,7 +545,7 @@ export default function ShortsPage(props: Props) {
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -569,6 +574,7 @@ export default function ShortsPage(props: Props) {
         if (previewEl) {
           previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
         }
+        document.body.style.overflow = '';
       }, 100);
     }, 350);
   }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail]);
