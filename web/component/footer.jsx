@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import Button from 'component/button';
 import { SIMPLE_SITE } from 'config';
-// import * as PAGES from 'constants/pages';
+import { useLocation } from 'react-router';
+import classnames from 'classnames';
 
 export default function Footer() {
   useEffect(() => {
@@ -24,11 +25,16 @@ export default function Footer() {
     checkForOneTrust();
   }, []);
 
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const isShorts = urlParams.get('view') === 'shorts';
+
   if (!SIMPLE_SITE) {
     return null;
   }
+
   return (
-    <footer className="footer">
+    <footer className={classnames('footer', { 'footer--shorts': isShorts })}>
       <ul className="navigation__tertiary footer__links">
         <li className="footer__link">
           <Button

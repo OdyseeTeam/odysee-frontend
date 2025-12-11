@@ -76,6 +76,7 @@ const defaultState = {
     // Content
     [SETTINGS.SHOW_MATURE]: false,
     [SETTINGS.AUTOPLAY_MEDIA]: true,
+    [SETTINGS.DISABLE_SHORTS_VIEW]: false,
     [SETTINGS.FLOATING_PLAYER]: true,
     [SETTINGS.AUTO_DOWNLOAD]: true,
     [SETTINGS.HIDE_MEMBERS_ONLY_CONTENT]: false,
@@ -90,6 +91,7 @@ const defaultState = {
   },
 };
 defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT] = defaultState.clientSettings[SETTINGS.AUTOPLAY_MEDIA];
+defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT_SHORTS] = false;
 
 reducers[ACTIONS.REHYDRATE] = (state, action) => {
   const { clientSettings } = state;

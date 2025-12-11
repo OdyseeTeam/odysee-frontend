@@ -1,0 +1,176 @@
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { createSelector } from 'reselect';
+import * as TAGS from 'constants/tags';
+import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { doFileGetForUri } from 'redux/actions/file';
+
+import {
+  selectClaimIsNsfwForUri,
+  selectClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectClaimSearchByQuery,
+} from 'redux/selectors/claims';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
+import {
+  selectContentPositionForUri,
+  selectPlayingCollectionId,
+  selectIsUriCurrentlyPlaying,
+  selectIsAutoplayCountdownForUri,
+} from 'redux/selectors/content';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { clearPosition } from 'redux/actions/content';
+import { selectIsSearching } from 'redux/selectors/search';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
+
+import ShortsPage from './view';
+import {
+  selectShortsSidePanelOpen,
+  selectShortsPlaylist,
+  selectShortsViewMode,
+} from '../../../../../../../../redux/selectors/shorts';
+import {
+  doSetShortsSidePanel,
+  doToggleShortsSidePanel,
+  doSetShortsPlaylist,
+  doSetShortsViewMode,
+  doSetShortsAutoplay,
+  doClearShortsPlaylist,
+} from '../../../../../../../../redux/actions/shorts';
+import { doClaimSearch } from 'redux/actions/claims';
+import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
+import { doFetchShortsRecommendedContent } from 'redux/actions/search';
+import { doOpenModal } from 'redux/actions/app';
+
+const selectShortsRecommendedContent = createSelector(
+  [
+    selectShortsPlaylist,
+    selectShortsViewMode,
+    (state, props) => {
+      if (!props?.uri) return [];
+      const claim = selectClaimForUri(state, props.uri);
+      if (!claim?.value?.title) return [];
+
+      const searchResults = state.search.resultsByQuery;
+      const titleEncoded = encodeURIComponent(claim.value.title);
+
+      for (const queryKey in searchResults) {
+        if (queryKey.includes(`s=${titleEncoded}`) && queryKey.includes('max_aspect_ratio=0.999')) {
+          return searchResults[queryKey]?.uris || [];
+        }
+      }
+      return [];
+    },
+    (state, props) => {
+      if (!props?.uri) return [];
+      const claim = selectClaimForUri(state, props.uri);
+      const channelId = getChannelIdFromClaim(claim);
+      if (!channelId) return [];
+
+      const claimSearchByQuery = selectClaimSearchByQuery(state);
+      const searchKey = createNormalizedClaimSearchKey({
+        channel_ids: [channelId],
+        duration: '<=180',
+        content_aspect_ratio: '<1',
+        order_by: ['release_time'],
+        page_size: 50,
+        page: 1,
+        claim_type: ['stream'],
+        has_source: true,
+      });
+
+      return claimSearchByQuery[searchKey] || [];
+    },
+  ],
+  (shortsPlaylist, viewMode, relatedUris, channelUris) => {
+    if (shortsPlaylist.length > 0) return shortsPlaylist;
+    return viewMode === 'channel' ? channelUris : relatedUris;
+  }
+);
+
+const select = (state, props) => {
+  const { uri, location } = props;
+  const urlParams = new URLSearchParams(location.search);
+  const claim = selectClaimForUri(state, uri);
+  const channelId = getChannelIdFromClaim(claim);
+  const claimId = claim?.claim_id;
+  const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+  const shortsRecommendedUris = selectShortsRecommendedContent(state, props);
+  const currentIndex = shortsRecommendedUris.findIndex((shortUri) => shortUri === uri);
+
+  const title = claim?.value?.title;
+  const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
+  const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
+
+  return {
+    commentsListTitle: selectCommentsListTitleForUri(state, uri),
+    fileInfo: makeSelectFileInfoForUri(uri)(state),
+    isMature: selectClaimIsNsfwForUri(state, uri),
+    isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
+    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
+    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
+    playingCollectionId: selectPlayingCollectionId(state),
+    position: selectContentPositionForUri(state, uri),
+    commentsDisabled:
+      commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
+    sidePanelOpen: selectShortsSidePanelOpen(state),
+    shortsRecommendedUris,
+    nextRecommendedShort:
+      currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
+        ? shortsRecommendedUris[currentIndex + 1]
+        : null,
+    previousRecommendedShort: currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null,
+    currentIndex,
+    channelId,
+    channelName: claim?.signing_channel?.name,
+    isSearchingRecommendations: selectIsSearching(state),
+    searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
+    viewMode: selectShortsViewMode(state),
+    title,
+    channelUri,
+    thumbnail,
+    autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
+    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
+    isClaimShort: isClaimShort(claim),
+    claimId,
+    webShareable: true,
+    collectionId: props.collectionId,
+  };
+};
+
+const perform = (dispatch) => ({
+  clearPosition: (uri) => dispatch(clearPosition(uri)),
+  doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
+  doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
+  doFetchShortsRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),
+  doFetchChannelShorts: (channelId) => {
+    return dispatch(
+      doClaimSearch({
+        channel_ids: [channelId],
+        duration: '<=180',
+        content_aspect_ratio: '<1',
+        order_by: ['release_time'],
+        page_size: 50,
+        page: 1,
+        claim_type: ['stream'],
+        has_source: true,
+      })
+    );
+  },
+  doFileGetForUri: (uri) => dispatch(doFileGetForUri(uri)),
+  doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
+  doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
+  doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
+  doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),
+  doSetShortsAutoplay: (enabled) => dispatch(doSetShortsAutoplay(enabled)),
+  doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
+  doOpenModal: (id, modalProps) => dispatch(doOpenModal(id, modalProps)),
+});
+
+export default withRouter(connect(select, perform)(ShortsPage));

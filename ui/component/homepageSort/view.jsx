@@ -14,6 +14,7 @@ const Lazy = {
 const NON_CATEGORY = Object.freeze({
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
+  SHORTS: { label: 'Shorts' },
   FYP: { label: 'Recommended' },
 });
 
@@ -61,6 +62,10 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
         } else if (key === 'UPCOMING') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
+          else activeOrder.push(key);
+        } else if (key === 'SHORTS') {
+          let followingIndex = activeOrder.indexOf('FOLLOWING');
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
           else activeOrder.push(key);
         } else if (key === 'DISCOVERY_CHANNEL' || key === 'EXPLORABLE_CHANNEL') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');

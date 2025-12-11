@@ -44,6 +44,7 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import { isClaimShort } from '../../util/claim';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -114,6 +115,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   thumbnailFromClaim: string,
   defaultCollectionAction: string,
+  disableShortsView: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -190,6 +192,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doDisablePlayerDrag,
     thumbnailFromClaim,
     defaultCollectionAction,
+    disableShortsView,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -212,6 +215,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
+  const shortClaim = isClaimShort(claim);
 
   const backgroundImage = thumbnailFromClaim
     ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
@@ -272,6 +277,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     Object.keys(searchParams).forEach((key) => {
       navigateSearch.set(key, searchParams[key]);
     });
+  }
+
+  if (shortClaim && !disableShortsView) {
+    navigateSearch.set('view', 'shorts');
   }
 
   const handleNavLinkClick = (e) => {

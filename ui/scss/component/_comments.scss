@@ -822,6 +822,9 @@ $thumbnailWidthSmall: 2rem;
         height: calc(#{$width} * (9 / 16));
       }
     }
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
+    }
 
     .channel-thumbnail {
       // @include handleChannelGif(calc(5rem * 9 / 16));

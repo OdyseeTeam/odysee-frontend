@@ -93,6 +93,7 @@ type Props = {
   isDownloadDisabled: boolean,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   doSetVideoSourceLoaded: (uri: string) => void,
+  autoPlayNextShort: boolean,
 };
 
 /*
@@ -151,6 +152,7 @@ function VideoViewer(props: Props) {
     isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
+    autoPlayNextShort,
   } = props;
 
   const videoEnded = React.useRef(false);
@@ -654,6 +656,7 @@ function VideoViewer(props: Props) {
           isDownloadDisabled={isDownloadDisabled}
           isUnlisted={isClaimUnlisted(claim)}
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
+          autoPlayNextShort={autoPlayNextShort}
         />
       </div>
     </>

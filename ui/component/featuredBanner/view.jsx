@@ -5,7 +5,6 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
-import { useHistory } from 'react-router';
 import './style.lazy.scss';
 
 type Props = {
@@ -28,7 +27,6 @@ export default function FeaturedBanner(props: Props) {
   const wrapper = React.useRef(null);
   const menuRef = React.useRef(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
-  const { push } = useHistory();
 
   // Clear banner state when user logs out (for Cordova)
   React.useEffect(() => {
@@ -104,7 +102,7 @@ export default function FeaturedBanner(props: Props) {
         behavior: 'smooth',
       });
     } else {
-      push('$/portal/adventureaddict');
+      window.odysee.functions.history.push('$/portal/adventureaddict');
     }
   }
 

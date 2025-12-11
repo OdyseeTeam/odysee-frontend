@@ -1,0 +1,76 @@
+.vertical-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-right: 20px;
+  margin-top: 15px;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-primary, #000);
+    opacity: 0.3;
+    animation: vertical-pulse 1.2s ease-in-out infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+
+  &--small {
+    gap: 6px;
+
+    .vertical-loader__dot {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  &--large {
+    gap: 10px;
+
+    .vertical-loader__dot {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}
+
+@keyframes vertical-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes vertical-fade {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.vertical-loader--fade {
+  .vertical-loader__dot {
+    animation-name: vertical-fade;
+  }
+}

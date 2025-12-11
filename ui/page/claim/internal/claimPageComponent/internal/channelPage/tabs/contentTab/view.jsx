@@ -51,6 +51,9 @@ type Props = {
   doFetchChannelLiveStatus: (string) => void,
   // activeLivestreamForChannel: any,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
+  shortsOnly?: boolean,
+  excludeShorts?: boolean,
+  loadedCallback?: (number) => void,
 };
 
 function ContentTab(props: Props) {
@@ -72,6 +75,9 @@ function ContentTab(props: Props) {
     claimType,
     empty,
     activeLivestreamForChannel,
+    shortsOnly,
+    loadedCallback,
+    excludeShorts,
   } = props;
 
   const {
@@ -105,7 +111,7 @@ function ContentTab(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
-  const showScheduledLiveStreams = claimType !== 'collection'; // i.e. not on the playlist page.
+  const showScheduledLiveStreams = claimType !== 'collection' && !shortsOnly; // i.e. not on the playlist page.
   const scheduledChanIds = React.useMemo(() => [claimId], [claimId]);
 
   function handleInputChange(e) {
@@ -193,6 +199,15 @@ function ContentTab(props: Props) {
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
+            isShortFromChannelPage={shortsOnly}
+            excludeShortsAspectRatio={excludeShorts}
+            {...(shortsOnly && {
+              duration: '<=180',
+              contentType: CS.FILE_VIDEO,
+              contentAspectRatio: '<.95',
+              sectionTitle: 'Shorts',
+            })}
+            loadedCallback={shortsOnly && searchQuery.length > 0 ? undefined : loadedCallback}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">
@@ -227,6 +242,10 @@ function ContentTab(props: Props) {
                 minDuration={hideShorts ? SETTINGS.SHORTS_DURATION_LIMIT : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
+                {...(shortsOnly && {
+                  maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
+                  maxAspectRatio: 0.9999,
+                })}
               />
             }
             isChannel

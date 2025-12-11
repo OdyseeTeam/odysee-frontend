@@ -549,6 +549,38 @@ export function toggleAutoplayNext() {
   };
 }
 
+export function toggleDisableShortsView() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const ready = selectPrefsReady(state);
+    const disableShortsView = selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW);
+
+    dispatch(doSetClientSetting(SETTINGS.DISABLE_SHORTS_VIEW, !disableShortsView, ready));
+
+    dispatch(
+      doToast({
+        message: disableShortsView ? __('Shorts View is disabled') : __('Shorts View is enabled.'),
+      })
+    );
+  };
+}
+
+export function toggleAutoplayNextShort() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const ready = selectPrefsReady(state);
+    const autoplayNextShort = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS);
+
+    dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_NEXT_SHORTS, !autoplayNextShort, ready));
+
+    dispatch(
+      doToast({
+        message: autoplayNextShort ? __('Autoplay Next short is off.') : __('Autoplay Next short is on.'),
+      })
+    );
+  };
+}
+
 export const doSetDefaultVideoQuality = (value: any) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
 

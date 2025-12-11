@@ -32,6 +32,7 @@ import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
+import { useLocation } from 'react-router';
 import { platform } from 'util/platform';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
@@ -125,6 +126,7 @@ type Props = {
   isDownloadDisabled: boolean,
   isUnlisted: boolean,
   doSetVideoSourceLoaded: (uri: string) => void,
+  autoPlayNextShort: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -195,6 +197,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isDownloadDisabled,
     isUnlisted,
     doSetVideoSourceLoaded,
+    autoPlayNextShort,
   } = props;
 
   const isMobile = useIsMobile();
@@ -213,6 +216,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIOS();
 
+  const { search } = useLocation();
+
   // initiate keyboard shortcuts
   const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
     keyboardShorcuts({
@@ -226,6 +231,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const [reload, setReload] = useState('initial');
 
   const { createVideoPlayerDOM } = functions({ isAudio });
+  const urlParams = new URLSearchParams(search);
+  const isShortsParam = urlParams.get('view') === 'shorts';
 
   const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
     tapToUnmuteRef,
@@ -243,6 +250,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playerServerRef,
     isLivestreamClaim,
     channelTitle,
+    isShortsParam,
+    autoPlayNextShort,
   });
 
   const videoJsOptions = {
@@ -591,6 +600,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
+      if (isShortsParam && isMobile) {
+        vjsPlayer.muted(false);
+
+        vjsPlayer.on('play', () => {
+          vjsPlayer.muted(false);
+        });
+        vjsPlayer.on('loadedmetadata', () => {
+          vjsPlayer.muted(false);
+        });
+      }
+
       if (canUseOldPlayer) {
         // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
@@ -612,6 +632,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           .then((_) => {
             // $FlowIssue
             vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+
+            if (isShortsParam && vjsPlayer.muted()) {
+              setTimeout(() => {
+                vjsPlayer.muted(false);
+                vjsPlayer.volume(1.0);
+              }, 100);
+            }
           })
           .catch((error) => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
@@ -620,7 +647,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
 
             if (noPermissionError) {
-              if (IS_IOS) {
+              if (IS_IOS || isShortsParam) {
                 // autoplay not allowed, mute video, play and show 'tap to unmute' button
                 // $FlowIssue
                 vjsPlayer?.muted(true);
@@ -714,14 +741,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   return (
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
-      <Button
-        label={__('Tap to unmute')}
-        button="link"
-        icon={ICONS.VOLUME_MUTED}
-        className="video-js--tap-to-unmute"
-        onClick={unmuteAndHideHint}
-        ref={tapToUnmuteRef}
-      />
+      {!isShortsParam && (
+        <Button
+          label={__('Tap to unmute')}
+          button="link"
+          icon={ICONS.VOLUME_MUTED}
+          className="video-js--tap-to-unmute"
+          onClick={unmuteAndHideHint}
+          ref={tapToUnmuteRef}
+        />
+      )}
       <Button
         label={__('Retry')}
         button="link"

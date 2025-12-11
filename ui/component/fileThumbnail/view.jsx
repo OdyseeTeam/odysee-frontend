@@ -33,7 +33,7 @@ type Props = {
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
   thumbnailFromSecondaryClaim: ?string,
-  // doResolveUri: (uri: string) => void,
+  isShort: ?string, // doResolveUri: (uri: string) => void,
 };
 
 function FileThumbnail(props: Props) {
@@ -51,6 +51,7 @@ function FileThumbnail(props: Props) {
     hasResolvedClaim,
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
+    isShort,
     // doResolveUri,
   } = props;
 
@@ -70,6 +71,7 @@ function FileThumbnail(props: Props) {
     return (
       url && (
         <FreezeframeWrapper
+          isShort={isShort}
           small={small}
           src={url}
           className={classnames('media__thumb', className, {
@@ -95,6 +97,7 @@ function FileThumbnail(props: Props) {
         width: isMobile && tileLayout ? THUMBNAIL_WIDTH_POSTER : THUMBNAIL_WIDTH,
         height: isMobile && tileLayout ? THUMBNAIL_HEIGHT_POSTER : THUMBNAIL_HEIGHT,
         quality: THUMBNAIL_QUALITY,
+        isShorts: isShort,
       });
     }
   }
@@ -121,6 +124,7 @@ function FileThumbnail(props: Props) {
       className={classnames('media__thumb', className, {
         'media__thumb--resolving': hasResolvedClaim === false,
         'media__thumb--small': small,
+        media__thumb__short: isShort,
       })}
     >
       {children}

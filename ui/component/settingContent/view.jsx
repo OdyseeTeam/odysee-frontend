@@ -183,7 +183,7 @@ export default function SettingContent(props: Props) {
 const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
-  HIDE_SHORTS: 'You will not see content under 1min long. Also hides non-video/audio content.',
+  HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',

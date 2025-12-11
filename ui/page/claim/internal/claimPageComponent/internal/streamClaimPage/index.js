@@ -15,6 +15,8 @@ import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constant
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { doToggleAppDrawer } from 'redux/actions/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim } from 'util/claim';
 
 import * as TAGS from 'constants/tags';
@@ -22,6 +24,7 @@ import * as TAGS from 'constants/tags';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import StreamClaimPage from './view';
+import { isClaimShort } from '../../../../../../util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -52,7 +55,9 @@ const select = (state, props) => {
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
     isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
     isClaimFiltered,
+    isClaimShort: isClaimShort(claim),
   };
 };
 

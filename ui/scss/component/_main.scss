@@ -274,6 +274,13 @@ body {
   }
 }
 
+.main--shorts-page {
+  height: 85vh;
+  @media (min-width: $breakpoint-small) {
+    height: fit-content !important;
+  }
+}
+
 .main--video-page {
   @media (min-width: $breakpoint-medium) {
     $recommended-width: calc(var(--recommended-content-width) - var(--spacing-l) * 3 - var(--spacing-m) * 2);
@@ -612,6 +619,9 @@ body {
       width: 6rem !important;
       height: 6rem;
       border-radius: 50%;
+    }
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
     }
     .channel-thumbnail {
       display: none;

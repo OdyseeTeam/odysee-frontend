@@ -43,7 +43,7 @@ export const HIDE_MEMBERS_ONLY_CONTENT = 'hide_members_only_content';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const HIDE_SHORTS = 'hide_shorts';
 export const DEFAULT_COLLECTION_ACTION = 'default_collection_action';
-export const SHORTS_DURATION_LIMIT = '61';
+export const SHORTS_DURATION_LIMIT = '180';
 export const HIDE_SCHEDULED_LIVESTREAMS = 'hide_scheduled_livestreams';
 export const SUPPORT_OPTION = 'support_option';
 export const TILE_LAYOUT = 'tile_layout';
@@ -53,6 +53,11 @@ export const PREFERRED_CURRENCY = 'preferred_currency';
 export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
 export const UPLOAD_PAGE_FILTERING = 'upload_page_filtering';
+export const AUTOPLAY_NEXT_SHORTS = 'autoplay_next_shorts';
+export const SHORTS_ASPECT_RATIO_LIMIT = '1';
+export const SHORTS_ASPECT_RATIO_LTE = '0.95';
+export const SHORTS_DURATION_LTE = '180';
+export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',

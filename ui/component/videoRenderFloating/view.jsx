@@ -46,6 +46,7 @@ import withStreamClaimRender from 'hocs/withStreamClaimRender';
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
 const CONTENT_VIEWER_CLASS = 'content__viewer';
+const SHORTS_VIEWER_CLASS = 'shorts__viewer';
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
 // ****************************************************************************
@@ -72,7 +73,7 @@ type Props = {
   playingCollection: Collection,
   hasClaimInQueue: boolean,
   mainPlayerDimensions: { height: number, width: number },
-  location: { state?: { overrideFloating?: boolean } },
+  location: { search: string, state?: { overrideFloating?: boolean } },
   contentUnlocked: boolean,
   isAutoplayCountdown: ?boolean,
   autoplayCountdownUri: ?string,
@@ -84,6 +85,9 @@ type Props = {
   doOpenModal: (id: string, {}) => void,
   doClearPlayingSource: () => void,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
+  sidePanelOpen: boolean,
+  isClaimShort?: boolean,
+  disableShortsView?: boolean,
 };
 
 function VideoRenderFloating(props: Props) {
@@ -119,11 +123,17 @@ function VideoRenderFloating(props: Props) {
     doOpenModal,
     doClearPlayingSource,
     doSetShowAutoplayCountdownForUri,
+    sidePanelOpen,
     contentUnlocked,
+    isClaimShort,
+    disableShortsView,
   } = props;
 
   const { state } = location;
   const { overrideFloating } = state || {};
+
+  const urlParams = new URLSearchParams(location.search);
+  const isShortVideo = urlParams.get('view') === 'shorts' || isClaimShort;
 
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
@@ -137,7 +147,8 @@ function VideoRenderFloating(props: Props) {
 
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
-  const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled);
+  const noFloatingPlayer =
+    !overrideFloating && (!isFloating || !floatingPlayerEnabled || (isClaimShort && !disableShortsView));
 
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
@@ -157,7 +168,6 @@ function VideoRenderFloating(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   // const [isPortraitVideo, setIsPortraitVideo] = React.useState(false);
   const isPortraitVideo = React.useRef(false);
-
   // ****************************************************************************
   // FUNCTIONS
   // ****************************************************************************
@@ -310,8 +320,8 @@ function VideoRenderFloating(props: Props) {
   }, [doClearPlayingSource, isComment, isFloating]);
 
   React.useEffect(() => {
-    if (isFloating) doFetchRecommendedContent(uri);
-  }, [doFetchRecommendedContent, isFloating, uri]);
+    if (isFloating && !isShortVideo) doFetchRecommendedContent(uri);
+  }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
 
   React.useEffect(() => {
     return () => {
@@ -410,6 +420,7 @@ function VideoRenderFloating(props: Props) {
           mainFilePlaying={mainFilePlaying}
           isLandscapeRotated={isLandscapeRotated}
           isTabletLandscape={isTabletLandscape}
+          isShortVideo={isShortVideo}
         />
       ) : null}
 
@@ -426,7 +437,9 @@ function VideoRenderFloating(props: Props) {
       >
         <div
           id="abcd"
-          className={classnames([CONTENT_VIEWER_CLASS], {
+          className={classnames({
+            [CONTENT_VIEWER_CLASS]: !isShortVideo || disableShortsView,
+            [SHORTS_VIEWER_CLASS]: isShortVideo && !disableShortsView,
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
@@ -434,6 +447,7 @@ function VideoRenderFloating(props: Props) {
             'content__viewer--disable-click': wasDragging,
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             'content__viewer--portrait': isPortraitVideo.current,
+            'shorts__viewer--panel-open': isShortVideo && sidePanelOpen,
           })}
           style={
             !isFloating && fileViewerRect
@@ -539,6 +553,7 @@ type GlobalStylesProps = {
   mainFilePlaying: boolean,
   isLandscapeRotated: boolean,
   isTabletLandscape: boolean,
+  isShortVideo: boolean,
 };
 
 const PlayerGlobalStyles = (props: GlobalStylesProps) => {
@@ -552,6 +567,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     mainFilePlaying,
     isLandscapeRotated,
     isTabletLandscape,
+    isShortVideo,
   } = props;
 
   const justChanged = React.useRef();
@@ -682,7 +698,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     background: videoGreaterThanLandscape && mainFilePlaying && !forceDefaults ? 'transparent !important' : undefined,
   };
   const maxHeight = {
-    maxHeight: !theaterMode && !isMobile ? 'var(--desktop-portrait-player-max-height)' : undefined,
+    maxHeight: !theaterMode && !isMobile && !isShortVideo ? 'var(--desktop-portrait-player-max-height)' : undefined,
   };
 
   return (

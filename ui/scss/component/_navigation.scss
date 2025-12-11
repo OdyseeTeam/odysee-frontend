@@ -55,7 +55,7 @@
 
   animation-timing-function: var(--resizing-animation-function);
   transition: transform var(--resizing-animation-timing);
-  z-index: 4;
+  z-index: 100000;
   background-color: var(--color-card-background);
   transform: translateX(0);
   transform-origin: left;
