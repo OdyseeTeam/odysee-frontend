@@ -1,6 +1,6 @@
 .swipe-navigation-overlay {
   position: fixed;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
   background: transparent;
   overflow: hidden;
@@ -48,9 +48,6 @@
     @media (min-width: 2500px) {
       transform: translate(-129%, 0%) !important;
     }
-  }
-  @media screen and (max-width: 786px) {
-    z-index: 3;
   }
 }
 
