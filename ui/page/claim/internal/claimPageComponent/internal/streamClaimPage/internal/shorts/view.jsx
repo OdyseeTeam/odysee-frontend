@@ -414,7 +414,8 @@ export default function ShortsPage(props: Props) {
         previewEl.style.zIndex = '2';
         previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = isMobile ? 'translateY(0)' : 'translate(-50%, 0)';
+        const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+        previewEl.style.transform = isMobile ? 'translateY(0)' : `translate(${panelTransformX}, 0)`;
         if (nextThumbnail) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
@@ -441,7 +442,8 @@ export default function ShortsPage(props: Props) {
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
+          const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+          if (previewEl) previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -492,6 +494,7 @@ export default function ShortsPage(props: Props) {
     autoPlayNextShort,
     doSetClientSetting,
     nextThumbnail,
+    sidePanelOpen,
   ]);
 
   const goToPrevious = React.useCallback(() => {
@@ -518,7 +521,8 @@ export default function ShortsPage(props: Props) {
         previewEl.style.zIndex = '2';
         previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = isMobile ? 'translateY(0)' : 'translate(-50%, 0)';
+        const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+        previewEl.style.transform = isMobile ? 'translateY(0)' : `translate(${panelTransformX}, 0)`;
         if (previousThumbnail) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
@@ -545,7 +549,8 @@ export default function ShortsPage(props: Props) {
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
+          const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
+          if (previewEl) previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
           if (overlayEl) {
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty('transform', `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`, 'important');
@@ -577,7 +582,7 @@ export default function ShortsPage(props: Props) {
         document.body.style.overflow = '';
       }, 100);
     }, 350);
-  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail]);
+  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail, sidePanelOpen]);
 
   const handleScroll = React.useCallback(
     (e) => {
