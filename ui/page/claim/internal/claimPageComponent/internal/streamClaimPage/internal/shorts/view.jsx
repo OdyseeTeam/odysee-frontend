@@ -405,22 +405,23 @@ export default function ShortsPage(props: Props) {
       const isMobile = window.innerWidth <= 768;
       const videoRect = videoEl.getBoundingClientRect();
 
-      if (previewEl && !autoPlayNextShort) {
+      if (previewEl) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
         previewEl.style.left = isMobile ? '0' : '49.6%';
         previewEl.style.top = videoRect.bottom + 'px';
         previewEl.style.zIndex = '2';
-        previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
         const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
         previewEl.style.transform = isMobile ? 'translateY(0)' : `translate(${panelTransformX}, 0)`;
-        if (nextThumbnail) {
+        if (nextThumbnail && !autoPlayNextShort) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
           previewEl.style.backgroundSize = 'cover';
           previewEl.style.backgroundPosition = 'center';
+        } else {
+          previewEl.style.backgroundImage = 'none';
         }
         void previewEl.offsetHeight;
         previewEl.style.transition = 'transform 0.3s ease';
@@ -435,14 +436,14 @@ export default function ShortsPage(props: Props) {
         const previewTranslateY = -videoRect.height;
         if (isMobile) {
           videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl && !autoPlayNextShort) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl && !autoPlayNextShort) {
+          if (previewEl) {
             const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
             previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
           }
@@ -514,22 +515,23 @@ export default function ShortsPage(props: Props) {
       const isMobile = window.innerWidth <= 768;
       const videoRect = videoEl.getBoundingClientRect();
 
-      if (previewEl && !autoPlayNextShort) {
+      if (previewEl) {
         previewEl.style.position = 'fixed';
         previewEl.style.width = videoRect.width + 'px';
         previewEl.style.height = videoRect.height + 'px';
         previewEl.style.left = isMobile ? '0' : '49.6%';
         previewEl.style.top = (videoRect.top - videoRect.height) + 'px';
         previewEl.style.zIndex = '2';
-        previewEl.style.borderRadius = isMobile ? '0' : '10px';
         previewEl.style.backgroundColor = '#000';
         const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
         previewEl.style.transform = isMobile ? 'translateY(0)' : `translate(${panelTransformX}, 0)`;
-        if (previousThumbnail) {
+        if (previousThumbnail && !autoPlayNextShort) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
           previewEl.style.backgroundImage = `url(${thumbUrl})`;
           previewEl.style.backgroundSize = 'cover';
           previewEl.style.backgroundPosition = 'center';
+        } else {
+          previewEl.style.backgroundImage = 'none';
         }
         void previewEl.offsetHeight;
         previewEl.style.transition = 'transform 0.3s ease';
@@ -544,14 +546,14 @@ export default function ShortsPage(props: Props) {
         const previewTranslateY = videoRect.height;
         if (isMobile) {
           videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl && !autoPlayNextShort) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
+          if (previewEl) previewEl.style.transform = `translateY(${previewTranslateY}px)`;
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl && !autoPlayNextShort) {
+          if (previewEl) {
             const panelTransformX = sidePanelOpen ? '-130%' : '-50%';
             previewEl.style.transform = `translate(${panelTransformX}, ${previewTranslateY}px)`;
           }

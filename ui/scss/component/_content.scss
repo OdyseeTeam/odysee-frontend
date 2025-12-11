@@ -611,17 +611,24 @@
 
   border: none;
   border-radius: 10px;
+  overflow: hidden;
 
   aspect-ratio: 9/16;
   .content__wrapper {
     width: 100% !important;
     border-radius: 10px;
     position: relative !important;
+    overflow: hidden;
 
     .file-render--video {
       width: 100%;
       height: 100%;
       border-radius: 10px;
+      overflow: hidden;
+
+      &::after {
+        border-radius: 10px;
+      }
 
       .video-js-parent {
         background-color: black;
