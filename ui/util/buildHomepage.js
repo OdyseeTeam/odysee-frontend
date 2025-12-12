@@ -27,6 +27,7 @@ export type HomepageCat = {
   excludedChannelIds?: Array<string>,
   searchLanguages?: Array<string>,
   duration?: string,
+  exclude_shorts?: boolean,
   mixIn?: Array<string>,
   hideByDefault?: boolean,
 };
@@ -117,6 +118,7 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
       limitClaimsPerChannel: limitClaims,
       searchLanguages: cat.searchLanguages,
       duration: cat.duration || undefined,
+      excludeShorts: cat.exclude_shorts ? true : undefined,
       releaseTime: `>${Math.floor(
         moment()
           .subtract(cat.daysOfContent || 30, 'days')
