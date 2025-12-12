@@ -10,6 +10,42 @@
   }
 }
 
+.shorts-page,
+.main--shorts-page {
+  @media (max-width: $breakpoint-small) {
+    & ~ .header,
+    & + .header {
+      background-color: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+}
+
+body:has(.shorts-page),
+body:has(.main--shorts-page) {
+  @media (max-width: $breakpoint-small) {
+    .header {
+      transition: background-color var(--resizing-animation-timing), backdrop-filter var(--resizing-animation-timing), -webkit-backdrop-filter var(--resizing-animation-timing);
+    }
+  }
+}
+
+body:has(.shorts-page):not(:has(.navigation__overlay--active)),
+body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
+  @media (max-width: $breakpoint-small) {
+    .header {
+      background-color: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .notification__bubble {
+      border-color: var(--color-notification) !important;
+    }
+  }
+}
+
 .shorts-page {
   width: 98.5%;
   height: fit-content;
@@ -111,7 +147,7 @@
 .shorts-page__info-button {
   position: fixed;
   top: 70px;
-  right: calc(50% - 380px / 2 - 60px);
+  right: calc(50% - 400px / 2 - 60px + 7.5px);
   background: rgba(45, 44, 44, 0.895) !important;
   border: none !important;
   border-radius: 50% !important;
@@ -200,11 +236,11 @@
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
   .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(50% - 380px / 2 - 60px);
+    right: calc(50% - 380px / 2 - 60px + 7.5px);
   }
 
   .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(50.5% - 380px / 2 - 60px);
+    right: calc(50% - 380px / 2 - 60px + 7.5px);
   }
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
@@ -213,11 +249,11 @@
 
 @media (min-width: $breakpoint-large) {
   .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(50% - 28vw / 2 - 60px);
+    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
   }
 
   .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(50% - 28vw / 2 - 60px);
+    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
   }
 
   .shorts-page__back-button {
@@ -319,7 +355,7 @@
 
 .shorts-page__container--panel-open {
   .shorts-page__info-button {
-    right: calc(50% - 330px / 2 + 270px - 60px);
+    right: calc(49.5% - 330px / 2 + 270px - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
@@ -332,7 +368,7 @@
 
   @media (max-width: 1180px) and (min-width: $breakpoint-small) {
     .shorts-page__info-button {
-      right: calc(50% - 500px / 2 + 270px - 60px);
+      right: calc(50% - 500px / 2 + 270px - 60px + 7.5px);
     }
 
     .shorts-page__navigation {
@@ -363,7 +399,7 @@
   }
 
   .shorts-page__info-button {
-    right: calc(50% - 400px / 2 - 60px);
+    right: calc(50% - 400px / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
@@ -384,7 +420,7 @@
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
   .shorts-page__info-button {
-    right: calc(50% - 380px / 2 - 60px);
+    right: calc(50% - 380px / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
@@ -587,7 +623,7 @@
 
 @media (min-width: $breakpoint-large) {
   .shorts-page__info-button {
-    right: calc(50% - 28vw / 2 - 60px);
+    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
@@ -601,7 +637,7 @@
     }
 
     .shorts-page__info-button {
-      right: calc(51.8% - 330px / 2 + 270px - 60px);
+      right: calc(51.5% - 330px / 2 + 270px - 60px + 7.5px);
     }
   }
 }
@@ -613,12 +649,10 @@
     height: 90vh !important;
     max-height: 90vh !important;
     position: fixed;
-    left: 49.6% !important;
+    left: 50% !important;
     top: 0 !important;
-    transform: translate(-50%, 0%);
-    // transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    //             width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    //             height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(calc(-50% - 6px), 0%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     border-radius: 10px !important;
     overflow: hidden;
@@ -656,7 +690,8 @@
       border-radius: 0 !important;
       overflow: hidden;
       position: fixed;
-      top: 0;
+      top: 0 !important;
+      margin-top: 0 !important;
       object-fit: cover;
       z-index: 2 !important;
     }

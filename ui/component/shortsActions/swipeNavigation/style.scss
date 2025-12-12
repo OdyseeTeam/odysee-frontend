@@ -13,7 +13,7 @@
     width: 380px;
     height: 82vh;
     top: 59px;
-    left: 49.6%;
+    left: 50%;
     transform: translateX(-50%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     @media (max-width: 900px) {
@@ -23,7 +23,6 @@
     }
     @media (min-width: 1600px) {
       width: 28.2vw !important;
-      left: 49.75%;
       overflow: hidden;
     }
     @media (max-width: 1380px) and (min-width: 900px) and (max-height: 860px) {
@@ -129,10 +128,11 @@
 
 @media (max-width: 768px) {
   .swipe-navigation-overlay__content-info {
-    top: 80%;
+    top: auto;
+    bottom: 0;
     left: 5px;
     right: 70px;
-    padding: 16px;
+    padding: 16px 16px 0 16px;
     background: transparent;
     width: calc(100% - 75px);
   }
@@ -154,13 +154,14 @@
 
 .shorts-mobile-panel__actions {
   position: fixed;
-  bottom: 5vh;
+  bottom: 0;
   right: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 10001;
   pointer-events: auto;
+  padding: 10px 0 0 0;
 }
 
 .shorts-mobile-panel__action-item {
