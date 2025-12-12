@@ -20,6 +20,7 @@ import Tooltip from 'component/common/tooltip';
 import NotificationHeaderButton from 'component/headerNotificationButton';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
 
 type HeaderMenuButtonProps = {
   currentTheme: string,
@@ -60,6 +61,8 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   const uploadProps = { requiresAuth: !authenticated };
 
   const isMobile = useIsMobile();
+  const { location } = useHistory();
+  const isShortsPage = new URLSearchParams(location.search).get('view') === 'shorts';
 
   const handleClickAway = () => {
     if (!clicked) {
@@ -91,7 +94,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
 
   return (
     <>
-      {open && (
+      {open && !isShortsPage && (
         <Global
           styles={{
             body: {

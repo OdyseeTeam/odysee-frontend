@@ -27,6 +27,7 @@ type Props = {
   renderMode: string,
   videoTheaterMode: boolean,
   sidePanelOpen: boolean,
+  autoplayMedia: boolean,
 };
 
 const ClaimCoverRender = (props: Props) => {
@@ -45,10 +46,11 @@ const ClaimCoverRender = (props: Props) => {
     renderMode,
     videoTheaterMode,
     sidePanelOpen,
+    autoplayMedia,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
-    const {
+  const {
     location: { search },
   } = useHistory();
 
@@ -76,7 +78,11 @@ const ClaimCoverRender = (props: Props) => {
       ref={isShortsParam ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
-      style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
+      style={
+        thumbnail && !obscurePreview && !(isShortsParam && autoplayMedia)
+          ? { backgroundImage: `url("${thumbnail}")` }
+          : {}
+      }
       className={classnames('content__cover', {
         'content__cover--embed': isEmbed,
         'content__cover--black-background': !transparent,
