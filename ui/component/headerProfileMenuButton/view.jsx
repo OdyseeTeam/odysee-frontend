@@ -57,7 +57,6 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   const handleClose = () => setAnchorEl(null);
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
-  // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
   const uploadProps = { requiresAuth: !authenticated };
 
   const isMobile = useIsMobile();
@@ -131,7 +130,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge allowGifs />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}

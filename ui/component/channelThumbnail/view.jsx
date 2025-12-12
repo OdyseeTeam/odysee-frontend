@@ -65,6 +65,11 @@ function ChannelThumbnail(props: Props) {
   const isAnimated = channelThumbnail && (channelThumbnail.endsWith('gif') || channelThumbnail.endsWith('webp'));
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
 
+  const stableFreezeUrlRef = React.useRef(null);
+  if (isAnimated && !allowGifs && channelThumbnail) {
+    stableFreezeUrlRef.current = getImageProxyUrl(channelThumbnail);
+  }
+
   const badgeProps = React.useMemo(() => {
     return {
       membershipName: odyseeMembership,
@@ -92,22 +97,19 @@ function ChannelThumbnail(props: Props) {
     }
   }, [doResolveUri, shouldResolve, uri]);
 
-  if (isAnimated && !allowGifs) {
-    const url = getImageProxyUrl(channelThumbnail);
+  if (stableFreezeUrlRef.current) {
     return (
-      url && (
-        <FreezeframeWrapper
-          src={url}
-          className={classnames('channel-thumbnail', className, {
-            'channel-thumbnail--small': small,
-            'channel-thumbnail--xsmall': xsmall,
-            'channel-thumbnail--xxsmall': xxsmall,
-            'channel-thumbnail--resolving': isResolving,
-          })}
-        >
-          {showMemberBadge ? <MembershipBadge {...badgeProps} /> : null}
-        </FreezeframeWrapper>
-      )
+      <FreezeframeWrapper
+        src={stableFreezeUrlRef.current}
+        className={classnames('channel-thumbnail', className, {
+          'channel-thumbnail--small': small,
+          'channel-thumbnail--xsmall': xsmall,
+          'channel-thumbnail--xxsmall': xxsmall,
+          'channel-thumbnail--resolving': isResolving,
+        })}
+      >
+        {showMemberBadge ? <MembershipBadge {...badgeProps} /> : null}
+      </FreezeframeWrapper>
     );
   }
 
