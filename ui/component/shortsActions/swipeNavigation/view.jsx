@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import { createPortal } from 'react-dom';
+import classnames from 'classnames';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
@@ -211,10 +212,10 @@ const SwipeNavigationPortal = React.memo<Props>(
           }
         }}
         ref={overlayRef}
-        className={`
-          swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} 
-          ${sidePanelOpen ? 'shorts__viewer--panel-open' : ''}
-        `}
+        className={classnames('swipe-navigation-overlay', className, {
+          'swipe-navigation-overlay--enabled': isEnabled,
+          'shorts__viewer--panel-open': sidePanelOpen,
+        })}
       >
         <MobileActions
           uri={uri}
