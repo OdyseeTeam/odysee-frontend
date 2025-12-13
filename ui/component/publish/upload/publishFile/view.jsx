@@ -181,7 +181,7 @@ function PublishFile(props: Props) {
     // @if TARGET='web'
     if (fileSizeTooBig) {
       return (
-        <p className="help--error">
+        <p className="help--warning">
           {UPLOAD_SIZE_MESSAGE}{' '}
           <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>

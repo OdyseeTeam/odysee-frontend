@@ -8,6 +8,7 @@ const select = (state) => ({
   title: selectPublishFormValue(state, 'title'),
   bidError: selectPublishFormValue(state, 'bidError'),
   fileBitrate: selectPublishFormValue(state, 'fileBitrate'),
+  fileSizeTooBig: selectPublishFormValue(state, 'fileSizeTooBig'),
   editingURI: selectPublishFormValue(state, 'editingURI'),
   uploadThumbnailStatus: selectPublishFormValue(state, 'uploadThumbnailStatus'),
   thumbnail: selectPublishFormValue(state, 'thumbnail'),

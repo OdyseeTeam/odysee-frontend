@@ -39,6 +39,7 @@ const select = (state) => {
     // Need this to make it easier to find the source on previously published content
     isStillEditing: selectIsStillEditing(state),
     filePath: selectPublishFormValue(state, 'filePath'),
+    fileSizeTooBig: selectPublishFormValue(state, 'fileSizeTooBig'),
     remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
     memberRestrictionStatus: selectMemberRestrictionStatus(state),
