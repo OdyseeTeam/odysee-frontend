@@ -1061,6 +1061,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
             delete pendingById[claim.claim_id];
           }
 
+          // $FlowIgnore
           if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
             membershipCheckClaimIds.push(claim.claim_id);
           }

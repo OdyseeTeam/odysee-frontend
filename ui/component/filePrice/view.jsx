@@ -28,7 +28,7 @@ type Props = {
 class FilePrice extends React.PureComponent<Props> {
   static defaultProps = { showFullPrice: false };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (!prevProps.costInfo && this.props.costInfo && !this.props.purchaseInfo) {
       this.props.doTipAccountCheckForUri(this.props.uri);
     }

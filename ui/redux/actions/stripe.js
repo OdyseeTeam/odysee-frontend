@@ -288,7 +288,7 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
-export const doRegisterArweaveAddressClear = () => (dispatch) => {
+export const doRegisterArweaveAddressClear = () => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
 };
 

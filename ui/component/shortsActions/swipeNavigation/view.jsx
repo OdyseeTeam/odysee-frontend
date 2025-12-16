@@ -40,13 +40,13 @@ type Props = {
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
   isUnlisted: ?boolean,
-  doOpenModal?: (id: string, props: any) => void,
+  doOpenModal: (id: string, props: any) => void,
   webShareable?: boolean,
   collectionId?: string,
-  setLocalViewMode?: (mode: string) => void,
-  doSetShortsViewMode?: (mode: string) => void,
-  doSetShortsPlaylist?: (playlist: Array<any>) => void,
-  fetchForMode?: (mode: string) => void,
+  setLocalViewMode: (mode: string) => void,
+  doSetShortsViewMode: (mode: string) => void,
+  doSetShortsPlaylist: (playlist: Array<any>) => void,
+  fetchForMode: (mode: string) => void,
   claimId?: string,
   isLivestreamClaim?: boolean,
   doFetchReactions?: (claimId: ?string) => void,
@@ -127,7 +127,7 @@ const SwipeNavigationPortal = React.memo<Props>(
     );
 
     const handlePlayPause = React.useCallback(() => {
-      const videoElement = document.querySelector('.vjs-tech');
+      const videoElement: any = document.querySelector('.vjs-tech');
       if (videoElement) {
         if (videoElement.paused) {
           videoElement.play();

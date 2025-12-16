@@ -15,14 +15,23 @@ import I18nMessage from 'component/i18nMessage';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
 
+type Props = {
+  cardHeader: any,
+  wallet: any,
+  balance: any,
+  arWalletStatus: any,
+  activeArStatus: any,
+  doArSend: any,
+};
+
 function Overview(props: Props) {
   const { cardHeader, wallet, balance, arWalletStatus, activeArStatus, doArSend } = props;
 
   const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true');
-  const inputAmountRef = React.useRef();
-  const inputReceivingAddressRef = React.useRef();
+  const inputAmountRef = React.useRef<any>();
+  const inputReceivingAddressRef = React.useRef<any>();
   const walletType = LocalStorage.getItem('WALLET_TYPE');
 
   React.useEffect(() => {
@@ -109,33 +118,39 @@ function Overview(props: Props) {
   }, [activeArStatus, balance]);
 
   React.useEffect(() => {
-    LocalStorage.setItem('WANDER_QR', showQR);
+    LocalStorage.setItem('WANDER_QR', String(showQR));
   }, [showQR]);
 
   function handleCheckForm() {
     const amountInput = inputAmountRef.current;
     const addressInput = inputReceivingAddressRef.current;
 
-    const amountCursor = amountInput.selectionStart;
-    const addressCursor = addressInput.selectionStart;
+    const amountCursor = amountInput?.selectionStart;
+    const addressCursor = addressInput?.selectionStart;
 
-    const rawAmount = amountInput.value;
-    const rawAddress = addressInput.value;
+    const rawAmount = amountInput?.value;
+    const rawAddress = addressInput?.value;
 
-    const trimmedAmount = rawAmount.replace(/\s/g, '');
-    const trimmedAddress = rawAddress.replace(/\s/g, '');
+    const trimmedAmount = rawAmount && rawAmount.replace(/\s/g, '');
+    const trimmedAddress = rawAddress && rawAddress.replace(/\s/g, '');
 
-    if (rawAmount !== trimmedAmount) {
+    if (rawAmount !== trimmedAmount && amountInput) {
       amountInput.value = trimmedAmount;
-      amountInput.setSelectionRange(amountCursor - (rawAmount.length - trimmedAmount.length), amountCursor - (rawAmount.length - trimmedAmount.length));
+      amountInput.setSelectionRange(
+        Number(amountCursor) - (Number(rawAmount?.length) - Number(trimmedAmount?.length)),
+        Number(amountCursor) - (Number(rawAmount?.length) - Number(trimmedAmount?.length))
+      );
     }
 
-    if (rawAddress !== trimmedAddress) {
+    if (rawAddress !== trimmedAddress && addressInput) {
       addressInput.value = trimmedAddress;
-      addressInput.setSelectionRange(addressCursor - (rawAddress.length - trimmedAddress.length), addressCursor - (rawAddress.length - trimmedAddress.length));
+      addressInput.setSelectionRange(
+        Number(addressCursor) - (Number(rawAddress?.length) - Number(trimmedAddress?.length)),
+        Number(addressCursor) - (Number(rawAddress?.length) - Number(trimmedAddress?.length))
+      );
     }
 
-    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
+    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(String(address));
     const check =
       trimmedAmount &&
       Number(trimmedAmount) <= Number(balance.ar) &&
@@ -145,13 +160,14 @@ function Overview(props: Props) {
   }
 
   function handleSetMaxAmount() {
-    inputAmountRef.current.value = balance.ar;
+    inputAmountRef.current && (inputAmountRef.current.value = balance.ar);
     handleCheckForm();
   }
 
   const handleSendClick = () => {
-    const recipientAddress = inputReceivingAddressRef.current.value.trim();
-    const amountAr = Number(inputAmountRef.current.value);
+    // $FlowIgnore
+    const recipientAddress = inputReceivingAddressRef.current?.value?.trim();
+    const amountAr = Number(inputAmountRef?.current?.value);
     if (!recipientAddress || !amountAr) return;
     doArSend(recipientAddress, amountAr);
   };

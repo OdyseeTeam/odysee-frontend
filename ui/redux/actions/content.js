@@ -379,8 +379,8 @@ export function doPlaylistAddAndAllowPlaying({
         }
       }
     } else {
-      const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
-      const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
+      const hasItemsResolved = !!collectionId && selectCollectionHasItemsResolvedForId(state, collectionId);
+      const isPrivateVersion = !!collectionId && selectHasPrivateCollectionForId(state, collectionId);
       let collectionUrls;
       if (hasItemsResolved || isPrivateVersion) {
         collectionUrls = selectUrlsForCollectionId(state, collectionId);
@@ -395,6 +395,7 @@ export function doPlaylistAddAndAllowPlaying({
           message:
             __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
               playlist_name: collectionName,
+              // $FlowIgnore
             }) + (collectionUrls?.length ? ` (${remove ? collectionUrls.length - 1 : collectionUrls.length + 1})` : ''),
           actionText: isPlayingCollection || hasItemPlaying || remove ? __('Edit Playlist') : __('Start Playing'),
           action: isPlayingCollection || hasItemPlaying || remove ? handleEdit : startPlaying,

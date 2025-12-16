@@ -25,7 +25,7 @@ type Props = {
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
-  channelClaimId: ?string,
+  channelClaimId: string,
   creatorMemberships: ?CreatorMemberships,
   incognito: boolean,
   unlockableTierIds: Array<number>,
@@ -87,7 +87,8 @@ const JoinMembershipCard = (props: Props) => {
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(
     passedTierIndex || cheapestPlanIndex || membershipIndex
   );
-  const selectedCreatorMembership: CreatorMembership = creatorMemberships && creatorMemberships[selectedMembershipIndex];
+  const selectedCreatorMembership: ?CreatorMembership =
+    creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
     if (!selectedCreatorMembership || isPurchasing.current) return; // TODO handle error
@@ -127,7 +128,8 @@ const JoinMembershipCard = (props: Props) => {
           ),
         });
 
-        const purchasingUnlockableContentTier = unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
+        const purchasingUnlockableContentTier =
+          unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
 
         if (shouldNavigate && purchasingUnlockableContentTier) {
           push(formatLbryUrlForWeb(uri));
@@ -135,9 +137,7 @@ const JoinMembershipCard = (props: Props) => {
       })
       .catch((e) => {
         doToast({
-          message: __(
-            e?.message || e
-          ),
+          message: __(e?.message || e),
           isError: true,
         });
         isPurchasing.current = false;
@@ -190,8 +190,11 @@ const JoinMembershipCard = (props: Props) => {
         })}
         body={
           <>
-            {isOnConfirmationPage && creatorMemberships.length ? (
-              <ConfirmationPage {...pageProps} onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)} />
+            {isOnConfirmationPage && creatorMemberships?.length ? (
+              <ConfirmationPage
+                {...pageProps}
+                onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)}
+              />
             ) : (
               <PreviewPage
                 {...pageProps}

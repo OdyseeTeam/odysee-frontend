@@ -7,8 +7,8 @@ type Props = {
   sortKey: string | null,
   ownKey: string,
   order: string | null,
-  setKey: () => void,
-  setOrder: () => void,
+  setKey: (key: ?string) => void,
+  setOrder: (order: ?string) => void,
 };
 
 export default function (props: Props) {
@@ -48,7 +48,7 @@ export default function (props: Props) {
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') onDownClick(e);
+              if (e.key === 'Enter' || e.key === ' ') onDownClick();
             }}
           >
             &#9650;
@@ -59,7 +59,7 @@ export default function (props: Props) {
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') onDownClick(e);
+              if (e.key === 'Enter' || e.key === ' ') onDownClick();
             }}
           >
             &#9660;

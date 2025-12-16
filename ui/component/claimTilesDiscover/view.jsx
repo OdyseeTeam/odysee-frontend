@@ -7,7 +7,7 @@ import I18nMessage from 'component/i18nMessage';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 import classNames from 'classnames';
-import {HomepageTitles} from 'util/buildHomepage';
+import type { HomepageTitles } from 'util/buildHomepage';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -246,14 +246,26 @@ function ClaimTilesDiscover(props: Props) {
               );
             } else {
               return (
-                <ClaimPreviewTile sectionTitle={sectionTitle} showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+                <ClaimPreviewTile
+                  sectionTitle={sectionTitle}
+                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                  key={i}
+                  placeholder
+                  pulse
+                />
               );
             }
           })
         : new Array(pageSize)
             .fill(1)
             .map((x, i) => (
-              <ClaimPreviewTile sectionTitle={sectionTitle} showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+              <ClaimPreviewTile
+                sectionTitle={sectionTitle}
+                showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                key={i}
+                placeholder
+                pulse
+              />
             ))}
     </ul>
   );

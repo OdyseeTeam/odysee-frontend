@@ -51,7 +51,7 @@ export const doToggleShortsAutoplay = () => ({
   type: ACTIONS.TOGGLE_SHORTS_AUTOPLAY,
 });
 
-export const doSetShortsAutoplay = (enabled) => ({
+export const doSetShortsAutoplay = (enabled: boolean) => ({
   type: ACTIONS.SET_SHORTS_AUTOPLAY,
   data: enabled,
 });

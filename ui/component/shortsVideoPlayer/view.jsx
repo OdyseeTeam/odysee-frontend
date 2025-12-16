@@ -17,7 +17,7 @@ type Props = {
   nextRecommendedShort: ?string,
   autoPlayNextShort: boolean,
   isAtEnd: boolean,
-  onSwipeNext?: () => void,
+  onSwipeNext: () => void,
   onSwipePrevious?: () => void,
   enableSwipe?: boolean,
 };
@@ -47,7 +47,7 @@ const ShortsVideoPlayer = React.memo<Props>(
       let lastVideoElement = null;
 
       const attachListener = () => {
-        const videoElement = document.querySelector('.vjs-tech');
+        const videoElement: any = document.querySelector('.vjs-tech');
 
         if (!videoElement || videoElement === lastVideoElement) {
           return lastVideoElement !== null;
@@ -66,7 +66,7 @@ const ShortsVideoPlayer = React.memo<Props>(
             setTimeout(() => {
               videoElement.currentTime = 0;
               videoElement.play().catch((error) => {
-              // eslint-disable-next-line no-console
+                // eslint-disable-next-line no-console
                 console.error(error);
               });
             }, 100);

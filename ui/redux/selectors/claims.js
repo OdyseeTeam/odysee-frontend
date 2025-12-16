@@ -552,6 +552,7 @@ export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
+    // $FlowIgnore
     const forceCreationTimestamp = claim?.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED);
     const timestamp =
       claim &&

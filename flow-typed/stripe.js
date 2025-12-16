@@ -1,3 +1,9 @@
+declare type WalletBalance = {
+  ar: number,
+  u: number,
+  usdc: number,
+};
+
 declare type StripeState = {
   accountCheckFetchingIds: ClaimIds,
   canReceiveFiatTipsById: { [id: string]: boolean },
@@ -250,6 +256,8 @@ declare type StripeTransaction = {
   type: StripeTransactionType,
   tipper_channel_claim_id: string,
   tipper_channel_name: string,
+  locked_rate: string,
+  payment_intent_id: string,
 };
 declare type StripeTransactions = Array<StripeTransaction>;
 
