@@ -71,6 +71,9 @@ Go to the website to interact on this frontend.
 5. Run `yarn` to install.
 6. Run `NODE_ENV=production yarn compile:web` to build.
 7. Set up pm2 to start `./web/index.js`.
+
+Optional (for Live Captions / WebGPU + wasm threads):
+- Run the web server with `ENABLE_CROSS_ORIGIN_ISOLATION=1` and `CROSS_ORIGIN_EMBEDDER_POLICY=credentialless` so the app can use `SharedArrayBuffer` (enables multi-threaded WASM and lower CPU).
 </details>
 
 <details>
