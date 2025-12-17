@@ -19,10 +19,6 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?b
     if (!data.hideByDefault) {
       x.push(data);
     }
-
-    if (data.id === 'FOLLOWING' && isAuthenticated) {
-      x.push(FYP_SECTION);
-    }
   });
 
   return x;
@@ -75,11 +71,6 @@ export function getSortedRowData(
         } else {
           sortedRowData.push(discoveryChannel);
         }
-      }
-
-      if (!homepageOrder.active.includes('FYP') && !homepageOrder.hidden.includes('FYP')) {
-        let followingIndex = homepageOrder.active.indexOf('FOLLOWING');
-        if (followingIndex !== -1) sortedRowData.splice(followingIndex + 1, 0, FYP_SECTION);
       }
 
       if (

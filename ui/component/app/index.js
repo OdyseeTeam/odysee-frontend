@@ -1,5 +1,6 @@
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
+import * as SETTINGS from 'constants/settings';
 import {
   selectGetSyncErrorMessage,
   selectPrefsReady,
@@ -17,12 +18,20 @@ import {
   selectThemePath,
   selectDefaultChannelClaim,
   selectHomepageAnnouncement,
+  selectClientSetting,
 } from 'redux/selectors/settings';
 import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
+import { selectPersonalRecommendations } from 'redux/selectors/search';
+import {
+  doOpenAnnouncements,
+  doSetLanguage,
+  doSetDefaultChannel,
+  doFetchLanguage,
+  doSetClientSetting,
+} from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer } from 'redux/actions/app';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
 
@@ -45,6 +54,9 @@ const select = (state) => ({
   myChannelClaimIds: selectMyChannelClaimIds(state),
   defaultChannelClaim: selectDefaultChannelClaim(state),
   announcement: selectHomepageAnnouncement(state),
+  homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
+  isFypModalShown: selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN),
+  personalRecommendations: selectPersonalRecommendations(state),
 });
 
 const perform = {
@@ -60,6 +72,8 @@ const perform = {
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
   doSetAssignedLbrynetServer,
+  doOpenModal,
+  doSetClientSetting,
 };
 
 export default hot(connect(select, perform)(App));
