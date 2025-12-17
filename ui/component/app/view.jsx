@@ -367,7 +367,7 @@ function App(props: Props) {
       subtitle: __(
         'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
       ),
-      labelOk: __('Yes') + '!',
+      labelOk: __('Yes!'),
       labelCancel: __('Customize'),
       onConfirm: (closeModal) => {
         closeModal();
