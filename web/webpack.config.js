@@ -15,6 +15,10 @@ const { insertVariableXml, getOpenSearchXml } = require('./src/xml');
 const CUSTOM_ROOT = path.resolve(__dirname, '../custom/');
 const STATIC_ROOT = path.resolve(__dirname, '../static/');
 const UI_ROOT = path.resolve(__dirname, '../ui/');
+const WEB_NODE_MODULES = path.resolve(__dirname, 'node_modules/');
+const HF_TRANSFORMERS_DIST = path.join(WEB_NODE_MODULES, '@huggingface', 'transformers', 'dist');
+const XENOVA_TRANSFORMERS_DIST = path.join(WEB_NODE_MODULES, '@xenova', 'transformers', 'dist');
+const TRANSFORMERS_DIST = fs.existsSync(HF_TRANSFORMERS_DIST) ? HF_TRANSFORMERS_DIST : XENOVA_TRANSFORMERS_DIST;
 const DIST_STAGE = { DIR: 'dist_stage', PATH: path.resolve(__dirname, 'dist_stage/') };
 const DIST = { DIR: 'dist', PATH: path.resolve(__dirname, 'dist/') };
 const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
@@ -29,6 +33,30 @@ const BUILD_REV = `${BUILD_TIME_STR}${COMMIT_ID ? `.${COMMIT_ID.slice(0, 10)}` :
 
 const useStagingRoot = hasSentryToken && isProduction && process.platform !== 'win32';
 const output = useStagingRoot ? DIST_STAGE : DIST;
+
+function patchTransformersExecutionProviders(content) {
+  if (!content) return content;
+  const source = content.toString();
+
+  // Prefer WebGPU when available, then WebGL, then WASM.
+  // The underlying ONNX runtime will fall back automatically if a backend can't initialize.
+  let patched = source;
+
+  // Unminified bundle has:
+  // const executionProviders = [
+  //     // 'webgpu',
+  //     'wasm'
+  // ];
+  patched = patched.replace(
+    /const executionProviders\s*=\s*\[[\s\S]*?\n\];/m,
+    "const executionProviders = [\n    'webgpu',\n    'webgl',\n    'wasm'\n];"
+  );
+
+  // Minified bundle uses a short variable name for providers (exported as `executionProviders:()=>l`).
+  patched = patched.replace(/\bconst\s+l=\["wasm"\];/m, 'const l=["webgpu","webgl","wasm"];');
+
+  return patched === source ? content : Buffer.from(patched);
+}
 
 if (useStagingRoot) {
   // Clear staging folder
@@ -94,6 +122,40 @@ const copyWebpackCommands = [
   {
     from: `${STATIC_ROOT}/img/cookie.svg`,
     to: `${output.PATH}/public/img/cookie.svg`,
+  },
+  {
+    from: `${STATIC_ROOT}/whisper-live-captions-worker.js`,
+    to: `${output.PATH}/public/whisper-live-captions-worker.js`,
+    force: true,
+  },
+  {
+    from: `${STATIC_ROOT}/whisper-live-captions-audio-worklet.js`,
+    to: `${output.PATH}/public/whisper-live-captions-audio-worklet.js`,
+    force: true,
+  },
+  {
+    from: TRANSFORMERS_DIST,
+    to: `${output.PATH}/public/transformers/`,
+    globOptions: {
+      ignore: ['**/transformers.js', '**/transformers.min.js'],
+    },
+    force: true,
+  },
+  {
+    from: path.join(TRANSFORMERS_DIST, 'transformers.js'),
+    to: `${output.PATH}/public/transformers/transformers.js`,
+    transform(content) {
+      return patchTransformersExecutionProviders(content);
+    },
+    force: true,
+  },
+  {
+    from: path.join(TRANSFORMERS_DIST, 'transformers.min.js'),
+    to: `${output.PATH}/public/transformers/transformers.min.js`,
+    transform(content) {
+      return patchTransformersExecutionProviders(content);
+    },
+    force: true,
   },
   {
     from: `${STATIC_ROOT}/cast/`,
@@ -210,6 +272,13 @@ const webConfig = {
     static: {
       directory: path.join(__dirname, DIST.DIR),
     },
+    headers:
+      process.env.ENABLE_CROSS_ORIGIN_ISOLATION === '1' || process.env.ENABLE_CROSS_ORIGIN_ISOLATION === 'true'
+        ? {
+            'Cross-Origin-Opener-Policy': 'same-origin',
+            'Cross-Origin-Embedder-Policy': process.env.CROSS_ORIGIN_EMBEDDER_POLICY || 'credentialless',
+          }
+        : {},
   },
   module: {
     rules: [

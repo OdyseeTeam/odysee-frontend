@@ -26,6 +26,7 @@ import settingsMenu from './plugins/videojs-settings-menu/plugin';
 import timeMarkerPlugin from './plugins/videojs-time-marker/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
 import snapshotButton from './plugins/videojs-snapshot-button/plugin';
+import liveCaptions from './plugins/videojs-live-captions/plugin';
 
 // import runAds from './ads';
 import videojs from 'video.js';
@@ -144,6 +145,7 @@ const PLUGIN_MAP = {
   watchdog: watchdog,
   snapshotButton: snapshotButton,
   timeMarkerPlugin: timeMarkerPlugin,
+  liveCaptions: liveCaptions,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -215,7 +217,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const overrideNativeVhs = !platform.isIOS();
 
   const {
-    location: { pathname, search },
+    location: { search },
   } = useHistory();
 
   // initiate keyboard shortcuts
@@ -317,6 +319,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       player.i18n();
       player.settingsMenu();
+      if (IS_WEB) {
+        player.liveCaptions({ enabled: false });
+      }
       player.timeMarkerPlugin();
       player.hlsQualitySelector({ displayCurrentQuality: true });
 
@@ -564,13 +569,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.load();
 
       if (isShortsParam && isMobile) {
-        vjsPlayer.muted(false);
+        const player = vjsPlayer;
+        player.muted(false);
 
-        vjsPlayer.on('play', () => {
-          vjsPlayer.muted(false);
+        player.on('play', () => {
+          player.muted(false);
         });
-        vjsPlayer.on('loadedmetadata', () => {
-          vjsPlayer.muted(false);
+        player.on('loadedmetadata', () => {
+          player.muted(false);
         });
       }
 
@@ -598,12 +604,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         promise
           .then((_) => {
             // $FlowIssue
-            vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+             vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
 
-            if (isShortsParam && vjsPlayer.muted()) {
+            const player: any = vjsPlayer;
+            if (isShortsParam && player && player.muted()) {
               setTimeout(() => {
-                vjsPlayer.muted(false);
-                vjsPlayer.volume(1.0);
+                player.muted(false);
+                player.volume(1.0);
               }, 100);
             }
           })

@@ -10,9 +10,24 @@ import type { Player } from '../../videojs';
 import './menuItems/AutoPlayNextMenuItem';
 import './menuItems/SnapshotMenuItem';
 import './menuItems/LoopMenuItem';
+import './menuItems/LiveCaptionsMenuItem';
+import './menuItems/LiveCaptionsModelMenuItem';
+import './menuItems/LiveCaptionsDeviceMenuItem';
+import './menuItems/LiveCaptionsPerformanceMenuItem';
+import './menuItems/LiveCaptionsWasmThreadsMenuItem';
 
 // (2) Define the display order
-const DISPLAY_ORDER = ['PlaybackRateSettingItem', 'AutoPlayNextMenuItem', 'LoopMenuItem', 'SnapshotMenuItem'];
+const DISPLAY_ORDER = [
+  'PlaybackRateSettingItem',
+  'LiveCaptionsMenuItem',
+  'LiveCaptionsModelMenuItem',
+  'LiveCaptionsDeviceMenuItem',
+  'LiveCaptionsPerformanceMenuItem',
+  'LiveCaptionsWasmThreadsMenuItem',
+  'AutoPlayNextMenuItem',
+  'LoopMenuItem',
+  'SnapshotMenuItem',
+];
 
 // ****************************************************************************
 // settingsMenu

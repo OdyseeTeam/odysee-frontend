@@ -23,6 +23,7 @@ export const VJS_COMP = Object.freeze({
   AUTOPLAY_NEXT_BUTTON: 'AutoplayNextButton',
   AUTOPLAY_NEXT_MENU_ITEM: 'AutoPlayNextMenuItem',
   LOOP_MENU_ITEM: 'LoopMenuItem',
+  LIVE_CAPTIONS_MENU_ITEM: 'LiveCaptionsMenuItem',
 });
 
 // Custom videojs event names
@@ -32,4 +33,6 @@ export const VJS_EVENTS = Object.freeze({
   SRC_CHANGED: 'src_changed',
   // Player removed but not disposed. Plugins should perform cleanup.
   PLAYER_CLOSED: 'player_closed',
+  // Live captions plugin toggled.
+  LIVE_CAPTIONS_STATE: 'live_captions_state',
 });

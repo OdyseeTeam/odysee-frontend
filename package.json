@@ -27,7 +27,9 @@
     "dev": "yarn dev:electron",
     "dev:electron": "cross-env NODE_ENV=development node ./electron/devServer.js",
     "dev:web": "yarn copyenv && cd web && yarn dev",
+    "dev:web:coi": "yarn copyenv && cd web && yarn dev:coi",
     "dev:web-server": "cross-env NODE_ENV=development yarn compile:web && concurrently \"cross-env NODE_ENV=development yarn compile:web --watch\" \"cd web && yarn dev:server\"",
+    "dev:web-server:coi": "cross-env ENABLE_CROSS_ORIGIN_ISOLATION=1 CROSS_ORIGIN_EMBEDDER_POLICY=credentialless NODE_ENV=development yarn compile:web && concurrently \"cross-env ENABLE_CROSS_ORIGIN_ISOLATION=1 CROSS_ORIGIN_EMBEDDER_POLICY=credentialless NODE_ENV=development yarn compile:web --watch\" \"cd web && yarn dev:server:coi\"",
     "dev:internal-apis": "LBRY_API_URL='http://localhost:8080' yarn dev:electron",
     "dev:iatv": "LBRY_API_URL='http://localhost:15400' SDK_API_URL='http://localhost:15100' yarn dev:web",
     "run:web-server": "cross-env NODE_ENV=production yarn compile:web && cd web && yarn dev:server",
@@ -265,7 +267,7 @@
     "video.js": "7.21.4"
   },
   "engines": {
-    "node": "^18.14",
+    "node": "^24.11",
     "yarn": "^1.3"
   },
   "husky": {

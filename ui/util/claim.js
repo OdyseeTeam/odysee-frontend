@@ -226,16 +226,20 @@ export const getThumbnailFromClaim = (claim: ?Claim) => {
 export const isClaimShort = (claim: ?Claim): boolean => {
   if (!claim || !claim.value) return false;
 
-  const media = claim.value.video || claim.value.audio;
+  const value: any = claim.value;
+  const media: any = value.video || value.audio;
   if (!media) return false;
 
   const SHORTS_MAX_DURATION = 180;
-  const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
+  const duration = Number(media.duration);
+  const isShortDuration = isFinite(duration) && duration <= SHORTS_MAX_DURATION;
   if (!isShortDuration) return false;
 
-  if (!media.width || !media.height) return false;
+  const width = Number(media.width);
+  const height = Number(media.height);
+  if (!isFinite(width) || !isFinite(height) || width <= 0 || height <= 0) return false;
 
-  const aspectRatio = media.width / media.height;
+  const aspectRatio = width / height;
 
   const MAX_VERTICAL_RATIO = 0.9;
 

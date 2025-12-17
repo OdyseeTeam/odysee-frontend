@@ -6,6 +6,7 @@ type Props = {
   height?: number,
   width?: number,
   quality?: number,
+  isShorts?: boolean,
 };
 
 export function getThumbnailCdnUrl(props: Props) {
