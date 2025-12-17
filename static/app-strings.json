@@ -2980,6 +2980,8 @@
   "Failed to apply membership tiers. Access to the content may still be restricted.": "Failed to apply membership tiers. Access to the content may still be restricted.",
   "If the issue persists, please reach out to help@odysee.com": "If the issue persists, please reach out to help@odysee.com",
   "Creator only": "Creator only",
+  "Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.": "Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.",
+  "Homepage recommendations available": "Homepage recommendations available",
   
   "--end--": "--end--"
 }

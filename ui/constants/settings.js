@@ -58,6 +58,7 @@ export const SHORTS_ASPECT_RATIO_LIMIT = '1';
 export const SHORTS_ASPECT_RATIO_LTE = '0.95';
 export const SHORTS_DURATION_LTE = '180';
 export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
+export const FYP_MODAL_SHOWN = 'fyp_modal_shown';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',

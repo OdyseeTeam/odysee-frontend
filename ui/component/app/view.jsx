@@ -1,5 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
 import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
@@ -57,6 +59,8 @@ const LATEST_PATH = `/$/${PAGES.LATEST}/`;
 const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
 const EMBED_PATH = `/$/${PAGES.EMBED}/`;
 
+type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
 type Props = {
   language: string,
   languages: Array<string>,
@@ -89,10 +93,15 @@ type Props = {
   defaultChannelClaim: ?any,
   nagsShown: boolean,
   announcement: string,
+  homepageOrder: HomepageOrder,
+  isFypModalShown: boolean,
+  personalRecommendations: { gid: string, uris: Array<string>, fetched: boolean },
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
+  doOpenModal: (id: string, ?{}) => void,
+  doSetClientSetting: (string, boolean, ?boolean) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -127,10 +136,15 @@ function App(props: Props) {
     fetchModAmIList,
     defaultChannelClaim,
     announcement,
+    homepageOrder,
+    isFypModalShown,
+    personalRecommendations,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
+    doOpenModal,
+    doSetClientSetting,
   } = props;
 
   const isMobile = useIsMobile();
@@ -334,6 +348,51 @@ function App(props: Props) {
       doSetDefaultChannel(activeChannelClaim.claim_id);
     }
   }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel, hasMyChannels, prefsReady]);
+
+  useEffect(() => {
+    if (
+      isFypModalShown ||
+      !prefsReady ||
+      // $FlowIgnore
+      homepageOrder.active?.includes('FYP') ||
+      // $FlowIgnore
+      homepageOrder.hidden?.includes('FYP') ||
+      !personalRecommendations.uris.length
+    ) {
+      return;
+    }
+
+    doOpenModal(MODALS.CONFIRM, {
+      title: __('Homepage recommendations available'),
+      subtitle: __(
+        'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
+      ),
+      labelOk: __('Yes') + '!',
+      labelCancel: __('Customize'),
+      onConfirm: (closeModal) => {
+        closeModal();
+
+        const newHomePageOrder = {
+          ...homepageOrder,
+          active: homepageOrder?.active ? ['FYP', ...homepageOrder.active] : ['FYP'],
+        };
+        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+      },
+      onCancel: (closeModal) => {
+        closeModal();
+
+        const newHomePageOrder = {
+          ...homepageOrder,
+          hidden: homepageOrder?.hidden ? ['FYP', ...homepageOrder.hidden] : ['FYP'],
+        };
+        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+
+        doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE);
+      },
+    });
+  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal]);
 
   useEffect(() => {
     // $FlowFixMe
