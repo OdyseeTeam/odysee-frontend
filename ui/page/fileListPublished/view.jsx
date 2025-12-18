@@ -267,7 +267,7 @@ function FileListPublished(props: Props) {
         return comparisonObj.a.localeCompare(comparisonObj.b, undefined, { numeric: true, sensitivity: 'base' });
       }
 
-      function getComparisonObj() {
+      function populateComparisonObj() {
         let timestampComparisonObj = {};
         switch (memoizedSortOption.key) {
           case FILE_LIST.SORT_KEYS.RELEASED_AT:
@@ -276,9 +276,9 @@ function FileListPublished(props: Props) {
 
             timestampComparisonObj = {
               // $FlowFixMe
-              a: firstComparisonItem.value?.release_time || firstComparisonItem.meta.creation_timestamp,
+              a: !firstComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) && firstComparisonItem.value?.release_time ? firstComparisonItem.value?.release_time : firstComparisonItem.meta.creation_timestamp,
               // $FlowFixMe
-              b: secondComparisonItem.value?.release_time || secondComparisonItem.meta.creation_timestamp,
+              b: !secondComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) && secondComparisonItem.value?.release_time ? secondComparisonItem.value?.release_time : secondComparisonItem.meta.creation_timestamp,
             };
 
             Object.assign(comparisonObj, timestampComparisonObj);
@@ -300,7 +300,7 @@ function FileListPublished(props: Props) {
         }
       }
 
-      getComparisonObj();
+      populateComparisonObj();
 
       // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
