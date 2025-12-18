@@ -54,8 +54,7 @@ export default function SearchChannelField(props: Props) {
 
   function removeTag(tagToRemove: Tag) {
     const uri = parseUri(tagToRemove.name);
-
-    if (uri && uri.isChannel && uri.claimName && uri.claimId) {
+    if (uri && uri.claimName && uri.claimId) {
       if (values.includes(tagToRemove.name)) {
         if (onRemove) {
           onRemove(tagToRemove.name);
