@@ -14,8 +14,9 @@ const FYP_SECTION: RowDataItem = {
 function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?boolean) {
   const x: Array<RowDataItem> = [];
 
+  if (!Array.isArray(rowData)) return x;
+
   rowData.forEach((data: RowDataItem) => {
-    console.log(data);
     if (!data.hideByDefault) {
       x.push(data);
     }
@@ -31,6 +32,8 @@ export function getSortedRowData(
   rowData: Array<RowDataItem>
 ) {
   let sortedRowData: Array<RowDataItem> = [];
+  if (!Array.isArray(rowData)) return sortedRowData;
+
   const hasBanner = Boolean(homepageData?.featured);
 
   if (authenticated) {
