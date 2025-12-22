@@ -1,4 +1,6 @@
 // @flow
+import { htmlDecode } from 'util/url';
+
 const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
@@ -375,9 +377,3 @@ export function getOldFormatForLbryUri(uri: string) {
   return uri.replace(/:/g, '#').replace('#', ':');
 }
 
-function htmlDecode(str) {
-  if (typeof str !== "string") return str;
-  const txt = document.createElement("textarea");
-  txt.innerHTML = str;
-  return txt.value;
-}
