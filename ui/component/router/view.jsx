@@ -17,7 +17,7 @@ import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
-import { getPathForPage } from 'util/url';
+import { getPathForPage, htmlDecode } from 'util/url';
 
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
 
@@ -357,6 +357,12 @@ function AppRouter(props: Props) {
   const decodedUrl = decodeURIComponent(pathname) + search;
   if (decodedUrl !== pathname + search) {
     return <Redirect to={decodedUrl} />;
+  }
+
+  // Try to support strange cases where url has html encoding
+  const htmlDecodedUrl = htmlDecode(pathname + hash + search);
+  if (htmlDecodedUrl !== pathname + hash + search) {
+    return <Redirect to={htmlDecodedUrl} />;
   }
 
   return (

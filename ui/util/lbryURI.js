@@ -1,4 +1,6 @@
 // @flow
+import { htmlDecode } from 'util/url';
+
 const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
@@ -53,7 +55,8 @@ export function parseURI(url: string, requireProto: boolean = false): LbryUrlObj
     [QSStrippedURL, qs] = qsRegexResult.slice(1).map((match) => match || null);
   }
 
-  const cleanURL = QSStrippedURL || url;
+  // Try to support strange cases where url has html encoding
+  const cleanURL = htmlDecode(QSStrippedURL || url);
   const regexMatch = componentsRegex.exec(cleanURL) || [];
   const [proto, ...rest] = regexMatch.slice(1).map((match) => match || null);
   const path = rest.join('');
@@ -373,3 +376,4 @@ export function sanitizeName(name: string) {
 export function getOldFormatForLbryUri(uri: string) {
   return uri.replace(/:/g, '#').replace('#', ':');
 }
+

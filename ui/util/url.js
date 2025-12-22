@@ -274,3 +274,10 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 
   return embedUrlParams;
 };
+
+export function htmlDecode(str) {
+  if (typeof str !== "string") return str;
+  const txt = document.createElement("textarea");
+  txt.innerHTML = str;
+  return txt.value;
+}
