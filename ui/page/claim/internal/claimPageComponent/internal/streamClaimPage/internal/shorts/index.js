@@ -40,7 +40,7 @@ import {
   doSetShortsAutoplay,
   doClearShortsPlaylist,
 } from '../../../../../../../../redux/actions/shorts';
-import { doClaimSearch } from 'redux/actions/claims';
+import { doClaimSearch, doResolveUri } from 'redux/actions/claims';
 import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
 import { doOpenModal } from 'redux/actions/app';
@@ -105,6 +105,16 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
+  const nextShortUri =
+    currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
+      ? shortsRecommendedUris[currentIndex + 1]
+      : null;
+  const prevShortUri = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
+  const nextShortClaim = nextShortUri ? selectClaimForUri(state, nextShortUri) : null;
+  const prevShortClaim = prevShortUri ? selectClaimForUri(state, prevShortUri) : null;
+  const nextThumbnail = nextShortClaim?.value?.thumbnail?.url || null;
+  const previousThumbnail = prevShortClaim?.value?.thumbnail?.url || null;
+
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
@@ -141,6 +151,8 @@ const select = (state, props) => {
     claimId,
     webShareable: true,
     collectionId: props.collectionId,
+    nextThumbnail,
+    previousThumbnail,
   };
 };
 
@@ -171,6 +183,7 @@ const perform = (dispatch) => ({
   doSetShortsAutoplay: (enabled) => dispatch(doSetShortsAutoplay(enabled)),
   doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
   doOpenModal: (id, modalProps) => dispatch(doOpenModal(id, modalProps)),
+  doResolveUri: (uri) => dispatch(doResolveUri(uri)),
 });
 
 export default withRouter(connect(select, perform)(ShortsPage));

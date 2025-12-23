@@ -162,8 +162,8 @@ export default function ClaimList(props: Props) {
   const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
 
   React.useEffect(() => {
-    if (typeof loadedCallback === 'function') loadedCallback(totalLength);
-  }, [totalLength]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (typeof loadedCallback === 'function' && !loading) loadedCallback(totalLength);
+  }, [totalLength, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const noResultMsg = searchInLanguage
     ? __('No results. Contents may be hidden by the Language filter.')

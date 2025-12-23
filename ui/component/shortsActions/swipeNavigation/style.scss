@@ -1,6 +1,6 @@
 .swipe-navigation-overlay {
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   background: transparent;
   overflow: hidden;
@@ -12,22 +12,22 @@
   &.shorts-swipe-overlay {
     width: 380px;
     height: 82vh;
-    top: 59px;
-    left: 49.6%;
-    transform: translateX(-50%);
+    top: 60px;
+    left: 50%;
+    transform: translate(calc(-50% - 6px), 0%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
     @media (max-width: 900px) {
       width: 100%;
       height: 83%;
       overflow: hidden;
     }
     @media (min-width: 1600px) {
-      width: 28.2vw !important;
-      left: 49.75%;
+      width: 28vw !important;
       overflow: hidden;
     }
     @media (max-width: 1380px) and (min-width: 900px) and (max-height: 860px) {
-      width: 352px !important;
+      width: 350px !important;
     }
   }
 
@@ -48,9 +48,6 @@
     @media (min-width: 2500px) {
       transform: translate(-129%, 0%) !important;
     }
-  }
-  @media screen and (max-width: 786px) {
-    z-index: 0;
   }
 }
 
@@ -132,12 +129,13 @@
 
 @media (max-width: 768px) {
   .swipe-navigation-overlay__content-info {
-    top: 80%;
+    top: auto;
+    bottom: 0;
     left: 5px;
-    right: 16px;
-    padding: 16px;
+    right: 70px;
+    padding: 16px 16px 0 16px;
     background: transparent;
-    width: 60%;
+    width: calc(100% - 75px);
   }
 
   .swipe-navigation-overlay__thumbnail {
@@ -148,7 +146,6 @@
   .swipe-navigation-overlay__title {
     font-size: 14px;
     -webkit-line-clamp: 2;
-    width: 80%;
   }
 
   .swipe-navigation-overlay__channel-name {
@@ -158,13 +155,14 @@
 
 .shorts-mobile-panel__actions {
   position: fixed;
-  bottom: 5vh;
+  bottom: 0;
   right: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 10001;
   pointer-events: auto;
+  padding: 10px 0 0 0;
 }
 
 .shorts-mobile-panel__action-item {
@@ -215,31 +213,6 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
   min-width: 30px;
   text-align: center;
-}
-
-@media (max-width: 768px) {
-  .swipe-navigation-overlay__content-info {
-    top: 80%;
-    left: 5px;
-    right: 16px;
-    padding: 16px;
-    background: transparent;
-    width: 60%;
-  }
-
-  .swipe-navigation-overlay__thumbnail {
-    width: 50px;
-    height: 50px;
-  }
-
-  .swipe-navigation-overlay__title {
-    font-size: 14px;
-    -webkit-line-clamp: 2;
-  }
-
-  .swipe-navigation-overlay__channel-name {
-    font-size: 13px;
-  }
 }
 
 @media (max-width: 768px) and (orientation: landscape) {

@@ -4,6 +4,10 @@
 $base-zindex: 0;
 $transition-duration: 300ms;
 
+.freezeframe-img {
+  opacity: 0;
+}
+
 // Classnames must line up with classes in classes.js
 .ff-container {
   position: absolute;
@@ -29,7 +33,6 @@ $transition-duration: 300ms;
     opacity: 0;
 
     &.ff-canvas-ready {
-      transition: opacity $transition-duration;
       opacity: 1;
     }
   }
@@ -49,12 +52,9 @@ $transition-duration: 300ms;
 
   &.ff-inactive {
     .ff-canvas.ff-canvas-ready {
-      transition: opacity $transition-duration;
       opacity: 1;
     }
     .ff-image {
-      transition: opacity $transition-duration;
-      transition-delay: 170ms;
       opacity: 0;
     }
   }

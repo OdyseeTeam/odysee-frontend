@@ -692,25 +692,34 @@
   height: 90vh !important;
   max-height: 90vh !important;
 
-  position: absolute;
+  position: fixed;
   left: 50% !important;
   top: 0 !important;
-  transform: translate(-50%, 0%) !important;
+  margin-top: 60px !important;
+  transform: translate(calc(-50% - 6px), 0%) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
 
   border: none;
   border-radius: 10px;
+  overflow: hidden;
 
   aspect-ratio: 9/16;
   .content__wrapper {
     width: 100% !important;
     border-radius: 10px;
     position: relative !important;
+    overflow: hidden;
 
     .file-render--video {
       width: 100%;
       height: 100%;
       border-radius: 10px;
+      overflow: hidden;
+
+      &::after {
+        border-radius: 10px;
+      }
 
       .video-js-parent {
         background-color: black;
@@ -862,6 +871,7 @@
     overflow: hidden;
     position: fixed;
     top: 0;
+    margin-top: 0 !important;
 
     .content__wrapper {
       width: 100vw !important;

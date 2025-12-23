@@ -21,6 +21,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     sidePanelOpen: selectShortsSidePanelOpen(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
   };
 };
 
