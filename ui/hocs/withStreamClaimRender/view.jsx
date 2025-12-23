@@ -14,6 +14,10 @@ import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
 
+// Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
+const HOME_INIT_FLAGS_MAX_SIZE = 100;
+const homeInitFlags: Set<string> = new Set();
+
 type Props = {
   uri: string,
   children?: any,
@@ -225,14 +229,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
       const isHome = pathname === '/' || pathname === '/$/embed/home';
 
-      // Prevent repeated 'isHome' updateClaim that can create loops on homepage
-      const homeGuardKey = `home-init:${uri}`;
-
       if (canViewFile) {
         if (isHome) {
-          if (!window.__homeInitFlags) window.__homeInitFlags = {};
-          if (!window.__homeInitFlags[homeGuardKey]) {
-            window.__homeInitFlags[homeGuardKey] = true;
+          if (!homeInitFlags.has(uri)) {
+            if (homeInitFlags.size >= HOME_INIT_FLAGS_MAX_SIZE) {
+              homeInitFlags.clear();
+            }
+            homeInitFlags.add(uri);
             updateClaim('isHome');
           }
         }

@@ -45,9 +45,9 @@ const select = (state, props) => {
 
   // Detect collections from playlist-style URIs even if claim isn't resolved as a collection
   let detectedCollectionId = null;
-  if (uri && typeof uri === 'string' && uri.toLowerCase().includes('lbry://playlist')) {
-    const match = uri.match(/[#:/]([0-9a-f]{40})/i);
-    if (match) detectedCollectionId = match[1];
+  if (uri && typeof uri === 'string' && uri.toLowerCase().includes('/playlist')) {
+    const collectionIdMatch = uri.match(/[#:/]([0-9a-f]{40})/i);
+    if (collectionIdMatch) detectedCollectionId = collectionIdMatch[1];
   }
 
   const isCollection = (claim && claim.value_type === 'collection') || Boolean(detectedCollectionId);
