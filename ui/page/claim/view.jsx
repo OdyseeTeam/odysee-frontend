@@ -53,6 +53,17 @@ const ClaimPage = (props: Props) => {
     [chatDisabled]
   );
 
+  const ChannelPageWrapper = React.useMemo(
+    () =>
+      ({ children }: { children: any }) =>
+        (
+          <Page className="channelPage-wrapper" noFooter fullWidthPage noSideNavigation={isEmbedPath}>
+            {children}
+          </Page>
+        ),
+    [isEmbedPath]
+  );
+
   if (isChannel) {
     const urlParams = new URLSearchParams(search);
     const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
@@ -71,16 +82,10 @@ const ClaimPage = (props: Props) => {
       return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageEditingWrapperLocal} Wrapper={Page} />;
     }
 
-    const ChannelPageWrapperLocal = ({ children }: { children: any }) => (
-      <Page className="channelPage-wrapper" noFooter fullWidthPage noSideNavigation={isEmbedPath}>
-        {children}
-      </Page>
-    );
-
     return (
       <ClaimPageComponent
         uri={uri}
-        ClaimRenderWrapper={ChannelPageWrapperLocal}
+        ClaimRenderWrapper={ChannelPageWrapper}
         Wrapper={Page}
         latestContentPath={latestContentPath}
         liveContentPath={liveContentPath}

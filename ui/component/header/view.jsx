@@ -117,7 +117,7 @@ const Header = (props: Props) => {
 
   // Sign out if they click the "x" when they are on the password prompt
   const authHeaderAction = syncError && { onClick: signOut };
-  const isEmbedPath = pathname.startsWith('/$/embed');
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const homeButtonNavigationProps = (isVerifyPage && {}) ||
     (authHeader && authHeaderAction) || { navigate: isEmbedPath ? '/$/embed/home' : '/' };
   const sidebarLabel = sidebarOpen
