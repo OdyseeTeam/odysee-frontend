@@ -39,29 +39,27 @@ const WalletPage = (props: Props) => {
   } = useHistory();
 
   // @if TARGET='web'
-  // Some contexts (e.g. HTML entity decoding) can turn `&currency=` into `¤cy=`.
-  // Normalize it so the Wallet tabs don't get stuck due to missing params.
-  const normalizedSearch = (search || '').replace(/%C2%A4cy=/gi, '&currency=').replace(/¤cy=/g, '&currency=');
-  const urlParams = new URLSearchParams(normalizedSearch);
+  const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
   const currencyValue = urlParams.get(CURRENCY_QUERY_PARAM);
   const transactionType = urlParams.get('transactionType');
 
-  let tabIndex = 0;
+  let tabIndex;
   switch (currentView) {
     case TABS.LBRY_CREDITS_TAB:
       tabIndex = 0;
       break;
-
     case TABS.PAYMENT_HISTORY:
-      // If the param is missing/malformed, default to Credits history.
-      if (!currencyValue || currencyValue === CREDITS_QUERY_PARAM_VALUE) {
+      if (currencyValue === CREDITS_QUERY_PARAM_VALUE) {
         tabIndex = 1;
       } else if (currencyValue === FIAT_QUERY_PARAM_VALUE) {
-        tabIndex = transactionType === 'tips' ? 2 : 3;
+        if (transactionType === 'tips') {
+          tabIndex = 2;
+        } else {
+          tabIndex = 3;
+        }
       }
       break;
-
     default:
       tabIndex = 0;
       break;
@@ -73,26 +71,20 @@ const WalletPage = (props: Props) => {
   }, []);
 
   function onTabChange(newTabIndex) {
-    const urlParams = new URLSearchParams();
+    let url = `/$/${PAGES.WALLET}?`;
 
     if (newTabIndex === 0) {
-      urlParams.set(TAB_QUERY, TABS.LBRY_CREDITS_TAB);
+      url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     } else if (newTabIndex === 1) {
-      urlParams.set(TAB_QUERY, TABS.PAYMENT_HISTORY);
-      urlParams.set(CURRENCY_QUERY_PARAM, CREDITS_QUERY_PARAM_VALUE);
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${CREDITS_QUERY_PARAM_VALUE}`;
     } else if (newTabIndex === 2) {
-      urlParams.set(TAB_QUERY, TABS.PAYMENT_HISTORY);
-      urlParams.set(CURRENCY_QUERY_PARAM, FIAT_QUERY_PARAM_VALUE);
-      urlParams.set('transactionType', 'tips');
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=tips`;
     } else if (newTabIndex === 3) {
-      urlParams.set(TAB_QUERY, TABS.PAYMENT_HISTORY);
-      urlParams.set(CURRENCY_QUERY_PARAM, FIAT_QUERY_PARAM_VALUE);
-      urlParams.set('transactionType', 'rentals-purchases');
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=rentals-purchases`;
     } else {
-      urlParams.set(TAB_QUERY, TABS.LBRY_CREDITS_TAB);
+      url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     }
-
-    push(`/$/${PAGES.WALLET}?${urlParams.toString()}`);
+    push(url);
   }
   // @endif
 
@@ -133,7 +125,7 @@ const WalletPage = (props: Props) => {
                   {!loading && (
                     <>
                       {showIntro && <YrblWalletEmpty includeWalletLink />}
-                      <div className="card-stack">{tabIndex === 1 && <TxoList search={normalizedSearch} />}</div>
+                      <div className="card-stack">{tabIndex === 1 && <TxoList search={search} />}</div>
                     </>
                   )}
                 </div>
@@ -150,7 +142,7 @@ const WalletPage = (props: Props) => {
                   )}
                   {!loading && (
                     <>
-                      <div className="card-stack">{tabIndex === 2 && <TxoList search={normalizedSearch} />}</div>
+                      <div className="card-stack">{tabIndex === 2 && <TxoList search={search} />}</div>
                     </>
                   )}
                 </div>
@@ -167,7 +159,7 @@ const WalletPage = (props: Props) => {
                   )}
                   {!loading && (
                     <>
-                      <div className="card-stack">{tabIndex === 3 && <TxoList search={normalizedSearch} />}</div>
+                      <div className="card-stack">{tabIndex === 3 && <TxoList search={search} />}</div>
                     </>
                   )}
                 </div>
@@ -190,7 +182,7 @@ const WalletPage = (props: Props) => {
               <YrblWalletEmpty includeWalletLink />
             ) : (
               <div className="card-stack">
-                <TxoList search={normalizedSearch} />
+                <TxoList search={search} />
               </div>
             )}
           </>

@@ -482,7 +482,7 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
             message: shouldSupport ? __('Boost transaction successful.') : __('Tip successfully sent.'),
             subMessage: __("I'm sure they appreciate it!"),
             linkText: `${params.amount} LBC`,
-            linkTarget: `/${PAGES.WALLET}?tab=fiat-payment-history&currency=credits`,
+            linkTarget: `/${PAGES.WALLET}?tab=fiat-payment-history`,
           })
         );
       }
