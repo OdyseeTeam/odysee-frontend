@@ -58,7 +58,6 @@ type Props = {
   claimId?: string,
   autoplayMedia: boolean,
   doSetClientSetting: (key: string, value: boolean) => void,
-  streamClaim?: () => void,
   doFileGetForUri: (uri: string) => void,
   webShareable?: boolean,
   collectionId?: string,

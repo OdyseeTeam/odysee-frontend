@@ -31,7 +31,6 @@ type Props = {
   hasChannel?: boolean,
   autoPlayNextShort?: boolean,
   doToggleShortsAutoplay?: () => void,
-  streamClaim?: StreamClaim,
   onCommentsClick?: () => void,
   onInfoButtonClick?: () => void,
   likeCount: number,
@@ -79,7 +78,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     myReaction,
     doReactionLike,
     doReactionDislike,
-    streamClaim,
     webShareable,
     isUnlisted,
     collectionId,
@@ -207,9 +205,6 @@ const SwipeNavigationPortal = React.memo<Props>(
       <div
         onClick={() => {
           handlePlayPause();
-          if (streamClaim) {
-            streamClaim();
-          }
         }}
         ref={overlayRef}
         className={classnames('swipe-navigation-overlay', className, {
