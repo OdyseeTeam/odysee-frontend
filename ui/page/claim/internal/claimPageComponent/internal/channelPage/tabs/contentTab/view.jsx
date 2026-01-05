@@ -243,7 +243,7 @@ function ContentTab(props: Props) {
                 {...(shortsOnly ? {
                   maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
                   maxAspectRatio: 0.9999,
-                }: {})}
+                } : {})}
               />
             }
             isChannel

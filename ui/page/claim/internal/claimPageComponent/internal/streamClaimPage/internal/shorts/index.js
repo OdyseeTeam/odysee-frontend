@@ -116,7 +116,7 @@ const select = (state, props) => {
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
-    claim,
+    fileInfo: makeSelectFileInfoForUri(uri)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
