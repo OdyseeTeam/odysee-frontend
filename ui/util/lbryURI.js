@@ -376,4 +376,3 @@ export function sanitizeName(name: string) {
 export function getOldFormatForLbryUri(uri: string) {
   return uri.replace(/:/g, '#').replace('#', ':');
 }
-

@@ -280,7 +280,7 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 // to salvage malformed URLs without breaking query parameters
 // like "&currency".
 export function htmlDecode(str) {
-  if (typeof str !== "string" || !str.includes('&')) return str;
+  if (typeof str !== 'string' || !str.includes('&')) return str;
   return str.replace(/&quot;/gi, '"')
         .replace(/&#0*34;/gi, '"')
         .replace(/&#x27;/gi, "'")

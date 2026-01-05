@@ -78,6 +78,8 @@ export default function MobilePanel(props: Props) {
     }
   }, [isOpen]);
 
+  if (!document.body) return null;
+
   return createPortal(
     <div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>
       {(isOpen || isClosing) && (

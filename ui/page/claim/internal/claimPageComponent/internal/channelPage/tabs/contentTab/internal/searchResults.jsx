@@ -13,7 +13,7 @@ type Props = {
   orderBy?: ?string,
   minDuration?: ?number,
   maxDuration?: ?number,
-  maxAspectRatio?: ?string,
+  maxAspectRatio?: ?string | ?number,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };

@@ -97,7 +97,7 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     React.useEffect(() => {
       function fetchReactions() {
-        doFetchReactions(claimId);
+        if (doFetchReactions) doFetchReactions(claimId);
       }
 
       let fetchInterval;

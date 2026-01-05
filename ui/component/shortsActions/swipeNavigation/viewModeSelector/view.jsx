@@ -31,7 +31,6 @@ const ViewModeSelector = ({ viewMode, channelName, onViewModeChange }: Props) =>
           onSelect={() => onViewModeChange('related')}
         >
           <div className="menu__link">
-            <Icon aria-hidden iconColor={viewMode === 'related' ? 'var(--color-primary)' : undefined} />
             {__('Related')}
           </div>
         </MenuItem>
@@ -43,7 +42,6 @@ const ViewModeSelector = ({ viewMode, channelName, onViewModeChange }: Props) =>
           onSelect={() => onViewModeChange('channel')}
         >
           <div className="menu__link">
-            <Icon iconColor={viewMode === 'channel' ? 'var(--color-primary)' : undefined} />
             {__('From %channel%', {
               channel:
                 channelName && channelName.length > 20

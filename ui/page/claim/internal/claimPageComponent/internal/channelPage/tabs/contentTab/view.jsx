@@ -199,12 +199,12 @@ function ContentTab(props: Props) {
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
             excludeShortsAspectRatio={excludeShorts}
-            {...(shortsOnly && {
+            {...(shortsOnly ? {
               duration: '<=180',
               contentType: CS.FILE_VIDEO,
               contentAspectRatio: '<.95',
               sectionTitle: 'Shorts',
-            })}
+            } : {})}
             loadedCallback={shortsOnly && searchQuery.length > 0 ? undefined : loadedCallback}
             meta={
               showFilters && (
@@ -240,10 +240,10 @@ function ContentTab(props: Props) {
                 minDuration={hideShorts ? SETTINGS.SHORTS_DURATION_LIMIT : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
-                {...(shortsOnly && {
+                {...(shortsOnly ? {
                   maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
                   maxAspectRatio: 0.9999,
-                })}
+                }: {})}
               />
             }
             isChannel

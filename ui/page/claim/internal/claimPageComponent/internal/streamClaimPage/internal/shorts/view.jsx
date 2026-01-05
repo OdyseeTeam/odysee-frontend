@@ -245,11 +245,13 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (nextThumbnail) {
       const img = new Image();
-      img.src = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
+      const src = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
+      if (src) img.src = src;
     }
     if (previousThumbnail) {
       const img = new Image();
-      img.src = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
+      const src = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
+      if (src) img.src = src;
     }
   }, [nextThumbnail, previousThumbnail]);
 
@@ -395,7 +397,7 @@ export default function ShortsPage(props: Props) {
 
     if (window.player) window.player.pause();
 
-    document.body.style.overflow = 'hidden';
+    if (document.body) document.body.style.overflow = 'hidden';
 
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
@@ -417,7 +419,7 @@ export default function ShortsPage(props: Props) {
         previewEl.style.transform = 'translate(-50%, 0)';
         if (nextThumbnail && !autoplayMedia) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
-          previewEl.style.backgroundImage = `url(${thumbUrl})`;
+          previewEl.style.backgroundImage = `url(${String(thumbUrl)})`;
           previewEl.style.backgroundSize = 'cover';
           previewEl.style.backgroundPosition = 'center';
         } else {
@@ -440,11 +442,13 @@ export default function ShortsPage(props: Props) {
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
+          // $FlowFixMe 
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
           if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
           if (overlayEl) {
+            // $FlowFixMe 
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty(
               'transform',
@@ -484,7 +488,7 @@ export default function ShortsPage(props: Props) {
           previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
         }
         scrollLockRef.current = false;
-        document.body.style.overflow = '';
+        if (document.body) document.body.style.overflow = '';
       }, 100);
     }, 350);
   }, [
@@ -493,7 +497,7 @@ export default function ShortsPage(props: Props) {
     uri,
     clearPosition,
     history,
-    fileInfo,
+    //fileInfo,
     onRecommendationClicked,
     autoPlayNextShort,
     doSetClientSetting,
@@ -506,7 +510,7 @@ export default function ShortsPage(props: Props) {
 
     if (window.player) window.player.pause();
 
-    document.body.style.overflow = 'hidden';
+    if (document.body) document.body.style.overflow = 'hidden';
 
     const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
     const overlayEl = document.querySelector('.swipe-navigation-overlay');
@@ -528,7 +532,7 @@ export default function ShortsPage(props: Props) {
         previewEl.style.transform = 'translate(-50%, 0)';
         if (previousThumbnail && !autoplayMedia) {
           const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
-          previewEl.style.backgroundImage = `url(${thumbUrl})`;
+          previewEl.style.backgroundImage = `url(${String(thumbUrl)})`;
           previewEl.style.backgroundSize = 'cover';
           previewEl.style.backgroundPosition = 'center';
         } else {
@@ -551,11 +555,13 @@ export default function ShortsPage(props: Props) {
           if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
         } else {
           const computedStyle = window.getComputedStyle(videoEl);
+          // $FlowFixMe 
           const matrix = new DOMMatrix(computedStyle.transform);
           const currentXpx = matrix.m41;
           videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
           if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
           if (overlayEl) {
+            // $FlowFixMe 
             const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
             overlayEl.style.setProperty(
               'transform',
@@ -587,7 +593,7 @@ export default function ShortsPage(props: Props) {
         if (previewEl) {
           previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
         }
-        document.body.style.overflow = '';
+        if (document.body) document.body.style.overflow = '';
       }, 100);
     }, 350);
   }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail, autoplayMedia]);
