@@ -496,7 +496,7 @@ export default function ShortsPage(props: Props) {
     uri,
     clearPosition,
     history,
-    //fileInfo,
+    fileInfo,
     onRecommendationClicked,
     autoPlayNextShort,
     doSetClientSetting,
