@@ -12,6 +12,7 @@ import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import * as MODALS from 'constants/modal_types';
+import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
@@ -27,7 +28,6 @@ type Props = {
   isSearchingRecommendations?: boolean,
   audioVideoDuration: ?number,
   commentsListTitle: string,
-  fileInfo: FileListItem,
   linkedCommentId?: string,
   threadCommentId?: string,
   position: number,
@@ -76,7 +76,6 @@ export default function ShortsPage(props: Props) {
     previousRecommendedShort,
     currentIndex = -1,
     isSearchingRecommendations,
-    fileInfo,
     linkedCommentId,
     threadCommentId,
     commentsDisabled,
@@ -99,6 +98,7 @@ export default function ShortsPage(props: Props) {
     autoPlayNextShort,
     doToggleShortsAutoplay,
     autoplayMedia,
+    claimId,
     doSetClientSetting,
     doFileGetForUri,
     webShareable,
@@ -118,7 +118,8 @@ export default function ShortsPage(props: Props) {
   const history = useHistory();
   const isMobile = useIsMobile();
   const shortsContainerRef = React.useRef<any>();
-  const [uuid] = React.useState(Uuidv4());
+  const fypId = urlParams.get(FYP_ID);
+  const [uuid] = React.useState(fypId ? Uuidv4() : '');
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
   const [localViewMode, setLocalViewMode] = React.useState(
@@ -155,14 +156,14 @@ export default function ShortsPage(props: Props) {
 
   const fetchForMode = React.useCallback(
     (mode) => {
-      const fypParam = uuid ? { uuid } : null;
+      const fypParam = fypId && uuid ? { gid: fypId, uuid } : null;
       if (mode === 'channel' && channelId) {
         doFetchChannelShorts(channelId);
       } else {
         doFetchShortsRecommendedContent(uri, fypParam);
       }
     },
-    [channelId, uri, uuid, doFetchChannelShorts, doFetchShortsRecommendedContent]
+    [channelId, uri, uuid, fypId, doFetchChannelShorts, doFetchShortsRecommendedContent]
   );
 
   const handleShareClick = React.useCallback(() => {
@@ -336,13 +337,10 @@ export default function ShortsPage(props: Props) {
   }, [reduxViewMode, localViewMode]);
 
   React.useEffect(() => {
-    const claim = fileInfo?.claim;
-    const claimId = claim?.claim_id;
-
     if (claimId && hasPlaylist) {
       onRecommendationsLoaded(claimId, shortsRecommendedUris, uuid);
     }
-  }, [shortsRecommendedUris, fileInfo, onRecommendationsLoaded, uuid, hasPlaylist]);
+  }, [shortsRecommendedUris, claimId, onRecommendationsLoaded, uuid, hasPlaylist]);
 
   React.useEffect(() => {
     if (shortsRecommendedUris && shortsRecommendedUris.length > 0) {
@@ -464,8 +462,7 @@ export default function ShortsPage(props: Props) {
       const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
       history.replace(shortsUrl);
 
-      const claim = fileInfo?.claim;
-      const currentClaimId = claim?.claim_id;
+      const currentClaimId = claimId;
       if (currentClaimId) {
         const nextClaimId = nextRecommendedShort.split('#')[1] || nextRecommendedShort.split('/').pop();
         onRecommendationClicked(currentClaimId, nextClaimId);
@@ -496,7 +493,7 @@ export default function ShortsPage(props: Props) {
     uri,
     clearPosition,
     history,
-    fileInfo,
+    claimId,
     onRecommendationClicked,
     autoPlayNextShort,
     doSetClientSetting,
