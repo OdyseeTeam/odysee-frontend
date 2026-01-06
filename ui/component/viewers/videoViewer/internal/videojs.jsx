@@ -208,6 +208,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const volumePanelRef = useRef();
 
   const keyDownHandlerRef = useRef();
+  const keyUpHandlerRef = useRef();
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
 
@@ -219,14 +220,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   } = useHistory();
 
   // initiate keyboard shortcuts
-  const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
-    keyboardShorcuts({
-      isMobile,
-      isLivestreamClaim,
-      toggleVideoTheaterMode,
-      playNext,
-      playPrevious,
-    });
+  const {
+    createKeyDownShortcutsHandler,
+    createKeyUpShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
+    isMobile,
+    isLivestreamClaim,
+    toggleVideoTheaterMode,
+    playNext,
+    playPrevious,
+  });
 
   const [reload, setReload] = useState('initial');
 
@@ -441,14 +446,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       volumePanelRef.current = playerRef.current?.controlBar?.getChild(VIDEOJS_VOLUME_PANEL_CLASS)?.el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const keyUpHandler = createKeyUpShortcutsHandler(playerRef, containerRef);
       const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
       const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
       window.addEventListener('keydown', keyDownHandler);
+      window.addEventListener('keyup', keyUpHandler);
       const containerDiv = containerRef.current;
       containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
       if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
 
       keyDownHandlerRef.current = keyDownHandler;
+      keyUpHandlerRef.current = keyUpHandler;
       videoScrollHandlerRef.current = videoScrollHandler;
       volumePanelScrollHandlerRef.current = volumePanelHandler;
 
@@ -658,6 +666,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // Cleanup
     return () => {
       window.removeEventListener('keydown', keyDownHandlerRef.current);
+      window.removeEventListener('keyup', keyUpHandlerRef.current);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps -- FIX_THIS!
       const containerDiv = containerRef.current;
