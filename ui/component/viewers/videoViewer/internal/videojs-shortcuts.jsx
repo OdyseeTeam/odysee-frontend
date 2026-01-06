@@ -10,10 +10,6 @@ const VOLUME_STEP = 0.05;
 const VOLUME_STEP_FINE = 0.01;
 const FAST_SPEED = 2; // This could be a setting?
 
-let holding = false;
-let spacePressed = false;
-let lastSpeed = 1.0;
-
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
   const videoElementParent = document.getElementsByClassName('video-js-parent')[0];
@@ -94,32 +90,6 @@ function togglePlay(containerRef, forcePlay = false) {
   videoNode.paused || forcePlay ? videoNode.play() : videoNode.pause();
 }
 
-function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef, newRate = -1) {
-  const player = playerRef.current;
-  if (!player) return;
-  const isSpeedUp = shouldSpeedUp;
-  let rate;
-
-  if (newRate !== -1) {
-    rate = newRate;
-    lastSpeed = player.playbackRate();
-  } else {
-    rate = player.playbackRate();
-  }
-
-  let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
-  if (rateIndex >= 0) {
-    if (newRate === -1) {
-      rateIndex = isSpeedUp ? Math.min(rateIndex + 1, VIDEO_PLAYBACK_RATES.length - 1) : Math.max(rateIndex - 1, 0);
-    }
-    const nextRate = VIDEO_PLAYBACK_RATES[rateIndex];
-
-    OVERLAY.showPlaybackRateOverlay(player, nextRate, isSpeedUp);
-    player.userActive(true);
-    player.playbackRate(nextRate);
-  }
-}
-
 const VideoJsShorcuts = ({
   playNext,
   playPrevious,
@@ -131,6 +101,36 @@ const VideoJsShorcuts = ({
   toggleVideoTheaterMode: any, // function
   isMobile: boolean,
 }) => {
+  let holding = false;
+  let spacePressed = false;
+  let lastSpeed = 1.0;
+
+  function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef, newRate = -1) {
+    const player = playerRef.current;
+    if (!player) return;
+    const isSpeedUp = shouldSpeedUp;
+    let rate;
+
+    if (newRate !== -1) {
+      rate = newRate;
+      lastSpeed = player.playbackRate();
+    } else {
+      rate = player.playbackRate();
+    }
+
+    let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
+    if (rateIndex >= 0) {
+      if (newRate === -1) {
+        rateIndex = isSpeedUp ? Math.min(rateIndex + 1, VIDEO_PLAYBACK_RATES.length - 1) : Math.max(rateIndex - 1, 0);
+      }
+      const nextRate = VIDEO_PLAYBACK_RATES[rateIndex];
+
+      OVERLAY.showPlaybackRateOverlay(player, nextRate, isSpeedUp);
+      player.userActive(true);
+      player.playbackRate(nextRate);
+    }
+  }
+
   function toggleTheaterMode(playerRef) {
     const player = playerRef.current;
     if (!player) return;
@@ -153,7 +153,15 @@ const VideoJsShorcuts = ({
     const player = playerRef.current;
     const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
     if (!videoNode || !player || isUserTyping()) return;
-    handleSingleKeyActions(e, playerRef);
+
+    if (e.keyCode === KEYCODES.SPACEBAR || e.keyCode === KEYCODES.K) {
+      e.preventDefault();
+      if (holding) {
+        changePlaybackSpeed(true, playerRef, lastSpeed);
+      }
+      spacePressed = false;
+      holding = false;
+    }
   }
 
   function handleShiftKeyActions(e: KeyboardEvent, playerRef) {
@@ -170,24 +178,16 @@ const VideoJsShorcuts = ({
 
     if (e.keyCode === KEYCODES.SPACEBAR || e.keyCode === KEYCODES.K) {
       e.preventDefault();
-      if (e.type === 'keydown') {
-        if (!spacePressed) {
-          togglePlay(containerRef);
-        } else {
-          if (!holding) {
-            holding = true;
-            togglePlay(containerRef, true);
-            changePlaybackSpeed(true, playerRef, FAST_SPEED);
-          }
+      if (!spacePressed) {
+        togglePlay(containerRef);
+      } else {
+        if (!holding) {
+          holding = true;
+          togglePlay(containerRef, true);
+          changePlaybackSpeed(true, playerRef, FAST_SPEED);
         }
-        spacePressed = true;
-      } else if (e.type === 'keyup') {
-        if (holding) {
-          changePlaybackSpeed(true, playerRef, lastSpeed);
-        }
-        spacePressed = false;
-        holding = false;
       }
+      spacePressed = true;
     }
 
     if (e.keyCode === KEYCODES.F) toggleFullscreen(playerRef);
