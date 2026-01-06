@@ -161,11 +161,11 @@ const ClaimPageComponent = (props: Props) => {
     if (claim && isCollection && collectionFirstItemUri) {
       switch (collection?.type) {
         case COL_TYPES.COLLECTION:
-        case COL_TYPES.PLAYLIST:
+        case COL_TYPES.PLAYLIST: {
           urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
           const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
           return <Redirect to={newUrl} />;
-
+        }
         case COL_TYPES.FEATURED_CHANNELS:
           return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
 
