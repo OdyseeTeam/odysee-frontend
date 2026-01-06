@@ -94,8 +94,8 @@ function FileThumbnail(props: Props) {
     } else {
       url = getThumbnailCdnUrl({
         thumbnail,
-        width: isMobile && tileLayout ? THUMBNAIL_WIDTH_POSTER : THUMBNAIL_WIDTH,
-        height: isMobile && tileLayout ? THUMBNAIL_HEIGHT_POSTER : THUMBNAIL_HEIGHT,
+        width: !isMobile && tileLayout ? THUMBNAIL_WIDTH_POSTER : THUMBNAIL_WIDTH,
+        height: !isMobile && tileLayout ? THUMBNAIL_HEIGHT_POSTER : THUMBNAIL_HEIGHT,
         quality: THUMBNAIL_QUALITY,
         isShorts: isShort,
       });
