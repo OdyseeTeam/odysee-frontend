@@ -44,7 +44,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   const { isBackgroundSearch } = options;
   const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
-  let isCustomDurationSet = false;
   let isDurationFilterSupported = false;
 
   function checkQuerySupportsDurationFilter() {
@@ -109,14 +108,12 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     if (isDurationFilterSupported && minDuration && minDuration > 0) {
       const minSeconds = minDuration * 60;
       queryParams.push(`${SEARCH_OPTIONS.MIN_DURATION}=${minSeconds}`);
-      isCustomDurationSet = true;
     }
 
     const maxDuration = options[SEARCH_OPTIONS.MAX_DURATION];
     if (isDurationFilterSupported && maxDuration && maxDuration > 0) {
       const maxSeconds = maxDuration * 60;
       queryParams.push(`${SEARCH_OPTIONS.MAX_DURATION}=${maxSeconds}`);
-      isCustomDurationSet = true;
     }
   }
 
@@ -132,9 +129,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     deboost_same_creator,
     content_aspect_ratio,
     content_aspect_ratio_or_missing,
-    exclude_shorts,
-    // exclude_shorts_aspect_ratio_lte,
-    // exclude_shorts_duration_lte,
   } = options;
 
   const { store } = window;
@@ -181,24 +175,10 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO_OR_MISSING] = content_aspect_ratio_or_missing;
   }
 
-  if (exclude_shorts) {
-    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = exclude_shorts;
-  }
-
-  // if (hideShorts) {
-  //   additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = exclude_shorts;
-  // }
-
-  // if (exclude_shorts_aspect_ratio_lte) {
-  //   additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE] = exclude_shorts_aspect_ratio_lte;
-  // }
-
-  // if (exclude_shorts_duration_lte) {
-  //   additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE] = exclude_shorts_duration_lte;
-  // }
-
-  if (hideShorts && isDurationFilterSupported && !isCustomDurationSet) {
-    additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
+  if (hideShorts) {
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = hideShorts;
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE] = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE] = SETTINGS.SHORTS_DURATION_LTE;
   }
 
   if (additionalOptions) {

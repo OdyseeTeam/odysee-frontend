@@ -3,6 +3,7 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
 import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
 import { lighthouse } from 'redux/actions/search';
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
   showMature: ?boolean,
   tileLayout: boolean,
   orderBy?: ?string,
+  hideShorts?: boolean,
   minDuration?: ?number,
   maxDuration?: ?number,
   maxAspectRatio?: ?string | ?number,
@@ -25,6 +27,7 @@ export function SearchResults(props: Props) {
     showMature,
     tileLayout,
     orderBy,
+    hideShorts,
     minDuration,
     onResults,
     doResolveUris,
@@ -77,7 +80,12 @@ export function SearchResults(props: Props) {
             (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
             (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${maxDuration}` : '') +
             `&size=${SEARCH_PAGE_SIZE}` +
-            (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '')
+            (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '') +
+            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=${'true'}` : '') +
+            (hideShorts
+              ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
+              : '') +
+            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE}=${SETTINGS.SHORTS_DURATION_LTE}` : '')
         )
         .then(({ body: results }) => {
           const urls = results.map(({ name, claimId }) => {
@@ -105,7 +113,18 @@ export function SearchResults(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration, maxDuration, maxAspectRatio]);
+  }, [
+    searchQuery,
+    claimId,
+    page,
+    showMature,
+    doResolveUris,
+    sortBy,
+    minDuration,
+    maxDuration,
+    maxAspectRatio,
+    hideShorts,
+  ]);
 
   if (!searchResults) {
     return null;
