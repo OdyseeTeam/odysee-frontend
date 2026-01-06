@@ -12,7 +12,7 @@
   background-size: cover;
 }
 
-.media__thumb__short{
+.media__thumb__short {
   aspect-ratio: 9 / 16;
 }
 
@@ -125,6 +125,7 @@
 }
 
 .mediaInfo__description {
+  word-break: break-all;
   .claim__tags {
     .tag {
       background-color: rgba(var(--color-header-button-base), 1);
