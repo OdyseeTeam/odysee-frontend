@@ -227,8 +227,10 @@ function App(props: Props) {
 
     // Active uploads warning (show globally so users know why the browser prompts on leave)
     if (uploadCount > 0 && !embedPath) {
+      const pathname = location && location.pathname;
       const onUploadPage =
-        location?.pathname?.startsWith(`/$/${PAGES.UPLOAD}`) || location?.pathname?.startsWith(`/$/${PAGES.UPLOADS}`);
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`));
       if (!onUploadPage) {
         return (
           <Nag

@@ -106,9 +106,6 @@ function getUriFromMatch(match) {
       try {
         return buildURI({ claimName, claimId });
       } catch (error) {}
-      try {
-        return buildURI({ claimName, claimId });
-      } catch (error) {}
     }
 
     if (isCanonicalUriFormat && claimName) {
