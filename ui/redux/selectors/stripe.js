@@ -21,7 +21,7 @@ export const selectArAccountRegisteringError = (state: State) => selectState(sta
 export const selectFullAPIArweaveStatus = (state: State) => selectState(state).arweaveStatus;
 export const selectFullAPIArweaveAccounts = (state: State) => selectState(state).arweaveStatus;
 // find in arweaveStatus[] where active = true
-export const selectAPIArweaveActiveAccounts = (state: State) => {
+export const selectAPIArweaveActiveAccounts = (state: State): ArweaveAccountStatus => {
   const arweaveStatus = selectFullAPIArweaveStatus(state);
   return arweaveStatus ? arweaveStatus.filter((entry) => entry.status === 'active') : [];
 };

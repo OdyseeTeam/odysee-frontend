@@ -3,7 +3,6 @@ import React from 'react';
 import { useOnResize } from 'effects/use-on-resize';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import './style.lazy.scss';
@@ -25,7 +24,7 @@ export default function FeaturedBanner(props: Props) {
     () => sessionStorage.getItem('bannerHidden') === 'true'
   );
   const wrapper = React.useRef(null);
-  const menuRef = React.useRef(null);
+  const menuRef = React.useRef<?HTMLDivElement>(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
   const { push } = useHistory();
 
@@ -53,8 +52,9 @@ export default function FeaturedBanner(props: Props) {
   });
 
   React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      const node = menuRef.current;
+      if (node && event.target instanceof Node && !node.contains(event.target)) {
         setIsMenuOpen(false);
       }
     };

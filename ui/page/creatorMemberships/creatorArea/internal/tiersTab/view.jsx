@@ -77,7 +77,7 @@ function TiersTab(props: Props) {
 
   React.useEffect(() => {
     if (activeChannelClaim) {
-      doGetMembershipPerks({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
+      doGetMembershipPerks({ channel_name: activeChannelClaim.name, channel_claim_id: activeChannelClaim.claim_id });
     }
   }, [activeChannelClaim, doGetMembershipPerks]);
 

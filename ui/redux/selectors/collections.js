@@ -277,14 +277,19 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
         .map((id) => {
           const collection = collectionsById[id];
           return collection
-            ? { ...collection, hasClaim: collection.items?.some((item) => item === url || item === claimId) }
+            ? {
+                ...collection,
+                // $FlowFixMe
+                hasClaim: collection.items?.some((item) => item === url || item === claimId),
+              }
             : null;
         })
         .filter(Boolean);
 
-      const collectionsContainingClaim = Object.entries(collectionsById)
+      const collectionsContainingClaim = (Object.entries(collectionsById): Array<[string, any]>)
         .filter(
           ([id, collection]) =>
+            // $FlowFixMe
             collection.items?.some((item) => item === url || item === claimId) &&
             !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
         )

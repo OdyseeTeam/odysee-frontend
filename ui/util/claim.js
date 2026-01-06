@@ -233,7 +233,7 @@ export const isClaimShort = (claim: ?Claim): boolean => {
   const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
   if (!isShortDuration) return false;
 
-  if (!media.width || !media.height) return false;
+  if (typeof media.width !== 'number' || typeof media.height !== 'number') return false;
 
   const aspectRatio = media.width / media.height;
 

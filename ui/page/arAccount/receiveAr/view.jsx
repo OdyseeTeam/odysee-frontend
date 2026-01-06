@@ -7,6 +7,12 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import './style.scss';
 
+type Props = {
+  cardHeader: any,
+  wallet: any,
+  arWalletStatus: any,
+};
+
 function ReceiveAr(props: Props) {
   const { cardHeader, wallet, arWalletStatus } = props;
 

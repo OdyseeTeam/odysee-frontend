@@ -12,7 +12,6 @@ import {
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
 } from 'redux/selectors/claims';
-import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import {
   selectContentPositionForUri,
   selectPlayingCollectionId,
@@ -105,9 +104,10 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
-  const nextShortUri = currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
-    ? shortsRecommendedUris[currentIndex + 1]
-    : null;
+  const nextShortUri =
+    currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
+      ? shortsRecommendedUris[currentIndex + 1]
+      : null;
   const prevShortUri = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
   const nextShortClaim = nextShortUri ? selectClaimForUri(state, nextShortUri) : null;
   const prevShortClaim = prevShortUri ? selectClaimForUri(state, prevShortUri) : null;
@@ -116,7 +116,6 @@ const select = (state, props) => {
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
-    fileInfo: makeSelectFileInfoForUri(uri)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),

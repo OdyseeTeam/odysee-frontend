@@ -50,7 +50,7 @@ type Props = {
   preorderTag: number,
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
-  balance: ArweaveBalance,
+  balance: WalletBalance,
   exchangeRate: { ar: number },
   costInfo: any,
   fiatRequired: boolean,
@@ -91,7 +91,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const { ar: dollarsPerAr } = exchangeRate;
 
   const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag;
-  const cantAffordRent = rentalTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag;
+  const cantAffordRent = rentalTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag.price;
   const cantAffordPurchase = purchaseTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag;
 
   const { activeArStatus } = useArStatus();

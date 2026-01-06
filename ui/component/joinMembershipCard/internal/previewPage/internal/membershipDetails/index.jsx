@@ -24,9 +24,7 @@ const MembershipDetails = (props: Props) => {
     membersOnly,
     isLivestream,
   } = props;
-  const {
-    activeArStatus,
-  } = useArStatus();
+  const { activeArStatus } = useArStatus();
 
   const selectedMembershipName = membership.name;
   const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.membership_id);
@@ -71,11 +69,9 @@ const MembershipDetails = (props: Props) => {
           </section>
 
           <section className="membership-tier__infos">
-            <span className="membership-tier__infos-description">
-              {membership.description}
-            </span>
+            <span className="membership-tier__infos-description">{membership.description}</span>
             <label>{__('Pledge')}</label>
-            <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span>
+            <span style={{ display: 'flex' }}>${(Number(membership?.prices[0].amount) / 100).toFixed(2)}</span>
 
             <div className="membership-tier__perks">
               <div className="membership-tier__moon" />

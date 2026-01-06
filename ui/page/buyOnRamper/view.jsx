@@ -39,6 +39,7 @@ export default function BuyPage(props: Props) {
   const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
 
   const rgbaToHex = (rgba) => {
+    // $FlowIgnore
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
       a < 1
@@ -51,6 +52,7 @@ export default function BuyPage(props: Props) {
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
     const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+    // $FlowIgnore
     const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
 
     const r = Math.round(rB * (1 - aA) + rA * aA);
@@ -62,7 +64,7 @@ export default function BuyPage(props: Props) {
 
   const containerColor = `${rgbaToHexWithBackground(
     getComputedStyle(root).getPropertyValue('--color-background').trim(),
-    getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim()
+    getComputedStyle(root).getPropertyValue('--color-header-button').trim()
   )}`;
   const primaryColor = rgbaToHex(getComputedStyle(root).getPropertyValue('--color-primary').trim());
   const primaryTextColor = getComputedStyle(root).getPropertyValue('--color-text').trim().slice(1);

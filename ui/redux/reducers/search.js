@@ -24,7 +24,7 @@ const defaultState: SearchState = {
   mentionQuery: '',
   personalRecommendations: { gid: '', uris: [], fetched: false },
 };
- 
+
 export default handleActions(
   {
     [ACTIONS.SEARCH_START]: (state: SearchState): SearchState => ({

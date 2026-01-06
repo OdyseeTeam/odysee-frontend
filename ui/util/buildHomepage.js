@@ -144,8 +144,9 @@ export function GetLinksData(
   showNsfw?: boolean
 ) {
   function getPageSize(originalSize, following) {
-    if (following)
+    if (following) {
       return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
+    }
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 

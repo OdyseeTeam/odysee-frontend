@@ -215,7 +215,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const overrideNativeVhs = !platform.isIOS();
 
   const {
-    location: { pathname, search },
+    location: { search },
   } = useHistory();
 
   // initiate keyboard shortcuts
@@ -567,10 +567,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.muted(false);
 
         vjsPlayer.on('play', () => {
-          vjsPlayer.muted(false);
+          // $FlowIssue
+          vjsPlayer?.muted(false);
         });
         vjsPlayer.on('loadedmetadata', () => {
-          vjsPlayer.muted(false);
+          // $FlowIssue
+          vjsPlayer?.muted(false);
         });
       }
 
@@ -600,10 +602,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             // $FlowIssue
             vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
 
-            if (isShortsParam && vjsPlayer.muted()) {
+            // $FlowIssue
+            if (isShortsParam && vjsPlayer?.muted()) {
               setTimeout(() => {
-                vjsPlayer.muted(false);
-                vjsPlayer.volume(1.0);
+                // $FlowIssue
+                vjsPlayer?.muted(false);
+                // $FlowIssue
+                vjsPlayer?.volume(1.0);
               }, 100);
             }
           })

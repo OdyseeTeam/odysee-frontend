@@ -140,16 +140,16 @@ export function getShortsRecommendationSearchOptions(
   claimIsMature: boolean,
   claimId: string,
   language: ?string,
-  forChannel: ?string
+  forChannel: ?boolean
 ) {
   const options = { size: 50, nsfw: matureEnabled, isBackgroundSearch: false };
 
-    options[SEARCH_OPTIONS.CLAIM_TYPE] = 'stream';
-    options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
-    options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
-    options[SEARCH_OPTIONS.MAX_DURATION] = 3;
-    options[SEARCH_OPTIONS.MAX_ASPECT_RATIO] = 0.999;
-    options[SEARCH_OPTIONS.DEBOOST_SAME_CREATOR] = 0.1;
+  options[SEARCH_OPTIONS.CLAIM_TYPE] = 'stream';
+  options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
+  options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
+  options[SEARCH_OPTIONS.MAX_DURATION] = 3;
+  options[SEARCH_OPTIONS.MAX_ASPECT_RATIO] = 0.999;
+  options[SEARCH_OPTIONS.DEBOOST_SAME_CREATOR] = 0.1;
 
   if (forChannel) {
     options[SEARCH_OPTIONS.CHANNEL_IDS] = [claimId];

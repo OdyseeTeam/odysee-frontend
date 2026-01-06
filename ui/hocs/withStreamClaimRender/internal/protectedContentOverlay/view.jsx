@@ -22,7 +22,7 @@ type Props = {
   myMembership: ?CreatorMembership,
   cheapestPlanPrice: ?CreatorMembership,
   joinEnabled: boolean,
-  passClickPropsToParent?: (props: { href?: string, onClick?: () => void }) => void,
+  passClickPropsToParent?: (props?: { href?: string, onClick?: () => void }) => void,
   doOpenModal: (string, {}) => void,
 };
 

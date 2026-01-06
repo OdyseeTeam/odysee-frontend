@@ -20,6 +20,7 @@ export default function OnRamper(props: Props) {
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;
 
   const rgbaToHex = (rgba) => {
+    // $FlowIgnore
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
       a < 1
@@ -31,7 +32,9 @@ export default function OnRamper(props: Props) {
   };
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
+    // $FlowIgnore
     const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+    // $FlowIgnore
     const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
 
     const r = Math.round(rB * (1 - aA) + rA * aA);
@@ -41,21 +44,21 @@ export default function OnRamper(props: Props) {
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
   };
 
+  const getRootStyle = (varName: string): string => {
+    // $FlowIgnore[incompatible-call] - documentElement cannot be null in real browser runtime
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  };
+
   const containerColor = `${rgbaToHexWithBackground(
-    getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(),
-    getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim()
+    getRootStyle('--color-background'),
+    getRootStyle('--color-header-button')
   )}`;
-  const primaryColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim());
-  const primaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim().slice(1);
-  const secondaryColor = rgbaToHex(
-    getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim()
-  );
-  const secondaryTextColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--color-text')
-    .trim()
-    .slice(1);
-  const cardColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim());
-  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+  const primaryColor = rgbaToHex(getRootStyle('--color-primary'));
+  const primaryTextColor = getRootStyle('--color-text').slice(1);
+  const secondaryColor = rgbaToHex(getRootStyle('--color-background'));
+  const secondaryTextColor = getRootStyle('--color-text').slice(1);
+  const cardColor = rgbaToHex(getRootStyle('--color-background'));
+  const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
 
   const params = {
     apiKey,
@@ -68,8 +71,11 @@ export default function OnRamper(props: Props) {
       ? { onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' }
       : { sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' }),
     ...(mode === 'buy' ? { defaultFiat: 'USD' } : { sell_defaultFiat: 'USD' }),
+    // $FlowIgnore
     ...(mode === 'buy' && { defaultAmount: '30' }),
+    // $FlowIgnore
     ...(mode === 'buy' && {
+      // $FlowIgnore
       networkWallets: `bsc:${depositAddress},base:${depositAddress},ethereum:${depositAddress}`,
     }),
     ...(mode === 'buy'
@@ -130,6 +136,7 @@ export default function OnRamper(props: Props) {
 
     // Sort the keys of each nested object alphabetically
     for (const key in inputObject) {
+      // $FlowIgnore
       inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).sort());
     }
 
@@ -146,6 +153,7 @@ export default function OnRamper(props: Props) {
       resultString += key + '='; // Append the key
       // Append nested key-value pairs, sorted alphabetically
       resultString += Object.entries(sortedObject[key])
+        // $FlowIgnore
         .map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`)
         .join(',');
       resultString += '&'; // Separate key-value pairs with '&'
@@ -193,33 +201,29 @@ export default function OnRamper(props: Props) {
     if (theme) {
       setTimeout(() => {
         const iframe = iframeRef.current;
-        iframe.contentWindow.postMessage(
-          {
-            type: 'change-theme',
-            id: 'change-theme',
-            theme: {
-              containerColor: `#${rgbaToHexWithBackground(
-                getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(),
-                getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim()
-              )}`,
-              primaryColor: `#${rgbaToHex(
-                getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim()
-              )}`,
-              primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
-              secondaryColor: `#${rgbaToHex(
-                getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim()
-              )}`,
-              secondaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
-              cardColor: `#${rgbaToHex(
-                getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim()
-              )}`,
-              primaryBtnTextColor: '#ffffff',
-              borderRadius: '0rem',
-              widgetBorderRadius: '0rem',
+        if (iframe) {
+          iframe.contentWindow.postMessage(
+            {
+              type: 'change-theme',
+              id: 'change-theme',
+              theme: {
+                containerColor: `#${rgbaToHexWithBackground(
+                  getRootStyle('--color-background'),
+                  getRootStyle('--color-header-button')
+                )}`,
+                primaryColor: `#${rgbaToHex(getRootStyle('--color-primary'))}`,
+                primaryTextColor: getRootStyle('--color-text'),
+                secondaryColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
+                secondaryTextColor: getRootStyle('--color-text'),
+                cardColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
+                primaryBtnTextColor: '#ffffff',
+                borderRadius: '0rem',
+                widgetBorderRadius: '0rem',
+              },
             },
-          },
-          '*'
-        );
+            '*'
+          );
+        }
       }, 1000);
     }
   }, [theme]);

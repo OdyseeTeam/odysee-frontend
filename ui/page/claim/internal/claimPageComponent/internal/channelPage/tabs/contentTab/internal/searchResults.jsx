@@ -4,7 +4,6 @@ import ClaimList from 'component/claimList';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
 import * as CS from 'constants/claim_search';
 import { lighthouse } from 'redux/actions/search';
-import { max } from 'moment/moment';
 
 type Props = {
   searchQuery: string,
@@ -14,7 +13,7 @@ type Props = {
   orderBy?: ?string,
   minDuration?: ?number,
   maxDuration?: ?number,
-  maxAspectRatio?: ?string,
+  maxAspectRatio?: ?string | ?number,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };

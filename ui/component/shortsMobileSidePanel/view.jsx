@@ -47,7 +47,7 @@ export default function MobilePanel(props: Props) {
   }, [onClose]);
 
   React.useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape: any = (e) => {
       if (e.key === 'Escape') {
         handleClose();
       }
@@ -55,12 +55,14 @@ export default function MobilePanel(props: Props) {
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
+      // $FlowIssue
+      if (document.body?.style) document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      // $FlowIssue
+      if (document.body?.style) document.body.style.overflow = 'unset';
     };
   }, [isOpen, handleClose]);
 
@@ -75,6 +77,8 @@ export default function MobilePanel(props: Props) {
       setIsClosing(false);
     }
   }, [isOpen]);
+
+  if (!document.body) return null;
 
   return createPortal(
     <div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>

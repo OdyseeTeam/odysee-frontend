@@ -6,6 +6,11 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import './style.scss';
 
+type Props = {
+  cardHeader: () => React$Element<any>,
+  arWalletStatus: any,
+};
+
 function Overview(props: Props) {
   const { cardHeader, arWalletStatus } = props;
   const [transactions, setTransactions] = React.useState([]);

@@ -101,7 +101,7 @@ type Props = {
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (id: string, ?{}) => void,
-  doSetClientSetting: (string, boolean, ?boolean) => void,
+  doSetClientSetting: (string, any, ?boolean) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -372,9 +372,10 @@ function App(props: Props) {
       onConfirm: (closeModal) => {
         closeModal();
 
+        const active = homepageOrder?.active || [];
         const newHomePageOrder = {
           ...homepageOrder,
-          active: homepageOrder?.active ? ['FYP', ...homepageOrder.active] : ['FYP'],
+          active: ['FYP', ...active],
         };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
@@ -382,9 +383,10 @@ function App(props: Props) {
       onCancel: (closeModal) => {
         closeModal();
 
+        const hidden = homepageOrder?.hidden || [];
         const newHomePageOrder = {
           ...homepageOrder,
-          hidden: homepageOrder?.hidden ? ['FYP', ...homepageOrder.hidden] : ['FYP'],
+          hidden: ['FYP', ...hidden],
         };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);

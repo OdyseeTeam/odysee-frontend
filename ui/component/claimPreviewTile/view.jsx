@@ -28,7 +28,7 @@ import { FYP_ID } from 'constants/urlParams';
 import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
 import { isClaimShort } from 'util/claim';
-import { HomepageTitles } from 'util/buildHomepage';
+import type { HomepageTitles } from 'util/buildHomepage';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 type Props = {
