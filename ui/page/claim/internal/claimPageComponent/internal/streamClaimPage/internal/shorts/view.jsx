@@ -149,9 +149,11 @@ export default function ShortsPage(props: Props) {
   }
 
   const setShortViewerWidthFromVideo = React.useCallback(() => {
-    const videoElement = document.querySelector('video');
-    const videoW = videoElement?.videoWidth;
-    const videoH = videoElement?.videoHeight;
+    // $FlowFixMe
+    const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+    if (!(video instanceof HTMLVideoElement)) return;
+    const videoW = video?.videoWidth;
+    const videoH = video?.videoHeight;
     if (!videoW || !videoH) return;
 
     const maxHeight = window.innerHeight * 0.9;
@@ -348,8 +350,9 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     let timeoutId;
     function loop() {
-      const video = document.querySelector('video');
-      if (!video || !video.videoWidth || !video.videoHeight) {
+      // $FlowFixMe
+      const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+      if (!(video instanceof HTMLVideoElement) || !video?.videoWidth || !video?.videoHeight) {
         timeoutId = setTimeout(loop, 300);
         return;
       }
