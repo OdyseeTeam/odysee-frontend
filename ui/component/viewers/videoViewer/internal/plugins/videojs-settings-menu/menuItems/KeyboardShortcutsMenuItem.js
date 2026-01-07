@@ -1,5 +1,6 @@
 import videojs from 'video.js';
 import { VJS_COMP } from 'constants/player';
+import { platform } from 'util/platform';
 
 const SettingMenuItem = videojs.getComponent('SettingMenuItem');
 
@@ -13,6 +14,7 @@ class KeyboardShortcutsMenuItem extends SettingMenuItem {
     });
 
     this.addClass('vjs-setting-keyboard-shortcuts');
+    this.updateVisibility();
   }
 
   createEl() {
@@ -36,6 +38,14 @@ class KeyboardShortcutsMenuItem extends SettingMenuItem {
     const menuButton = this.menu && this.menu.options_ && this.menu.options_.menuButton;
     if (menuButton && typeof menuButton.hideMenu === 'function') {
       menuButton.hideMenu();
+    }
+  }
+
+  updateVisibility() {
+    if (platform.isMobile()) {
+      this.hide();
+    } else {
+      this.show();
     }
   }
 }
