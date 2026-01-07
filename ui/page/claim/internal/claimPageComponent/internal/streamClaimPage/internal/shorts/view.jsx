@@ -365,6 +365,10 @@ export default function ShortsPage(props: Props) {
   }, [uri, setShortViewerWidthFromVideo]);
 
   React.useEffect(() => {
+    setShortViewerWidthFromVideo();
+  }, [sidePanelOpen, setShortViewerWidthFromVideo]);
+
+  React.useEffect(() => {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
       if (isShortFromChannelPage) {
