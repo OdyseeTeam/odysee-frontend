@@ -53,9 +53,8 @@ export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
 export const UPLOAD_PAGE_FILTERING = 'upload_page_filtering';
 export const AUTOPLAY_NEXT_SHORTS = 'autoplay_next_shorts';
-export const SHORTS_ASPECT_RATIO_LIMIT = '1';
-export const SHORTS_ASPECT_RATIO_LTE = '0.7';
-export const SHORTS_DURATION_LTE = '180';
+export const SHORTS_ASPECT_RATIO_LTE = 0.7;
+export const SHORTS_DURATION_LTE = 180;
 export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
 export const FYP_MODAL_SHOWN = 'fyp_modal_shown';
 
