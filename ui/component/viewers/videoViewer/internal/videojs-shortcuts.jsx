@@ -9,6 +9,7 @@ const SEEK_STEP = 10; // time to seek in seconds
 const VOLUME_STEP = 0.05;
 const VOLUME_STEP_FINE = 0.01;
 const FAST_SPEED = 2; // This could be a setting?
+const HOLD_SPEED_DELAY_MS = 300;
 
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
@@ -94,16 +95,20 @@ const VideoJsShorcuts = ({
   playNext,
   playPrevious,
   toggleVideoTheaterMode,
+  toggleKeyboardShortcutsOverlay,
   isMobile,
 }: {
   playNext: any, // function
   playPrevious: any, // function
   toggleVideoTheaterMode: any, // function
+  toggleKeyboardShortcutsOverlay?: () => void,
   isMobile: boolean,
 }) => {
   let holding = false;
   let spacePressed = false;
   let lastSpeed = 1.0;
+  let holdTimeoutId = null;
+  let pendingToggle = false;
 
   function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef, newRate = -1) {
     const player = playerRef.current;
@@ -131,6 +136,30 @@ const VideoJsShorcuts = ({
     }
   }
 
+  function clearHoldTimeout() {
+    if (holdTimeoutId) {
+      clearTimeout(holdTimeoutId);
+      holdTimeoutId = null;
+    }
+  }
+
+  function restorePlaybackRate(playerRef) {
+    const player = playerRef.current;
+    const currentRate = player ? player.playbackRate() : null;
+    const shouldSpeedUp = typeof currentRate === 'number' ? lastSpeed > currentRate : false;
+    changePlaybackSpeed(shouldSpeedUp, playerRef, lastSpeed);
+  }
+
+  function resetHoldState(playerRef) {
+    clearHoldTimeout();
+    if (holding) {
+      restorePlaybackRate(playerRef);
+    }
+    spacePressed = false;
+    holding = false;
+    pendingToggle = false;
+  }
+
   function toggleTheaterMode(playerRef) {
     const player = playerRef.current;
     if (!player) return;
@@ -156,16 +185,27 @@ const VideoJsShorcuts = ({
 
     if (e.keyCode === KEYCODES.SPACEBAR || e.keyCode === KEYCODES.K) {
       e.preventDefault();
+      clearHoldTimeout();
       if (holding) {
-        changePlaybackSpeed(true, playerRef, lastSpeed);
+        restorePlaybackRate(playerRef);
+      } else if (pendingToggle) {
+        togglePlay(containerRef);
       }
       spacePressed = false;
       holding = false;
+      pendingToggle = false;
     }
   }
 
   function handleShiftKeyActions(e: KeyboardEvent, playerRef) {
     if (e.altKey || e.ctrlKey || e.metaKey || !e.shiftKey) return;
+    if (e.keyCode === KEYCODES.SLASH) {
+      e.preventDefault();
+      if (toggleKeyboardShortcutsOverlay) {
+        toggleKeyboardShortcutsOverlay();
+      }
+      return;
+    }
     if (e.keyCode === KEYCODES.PERIOD) changePlaybackSpeed(true, playerRef);
     if (e.keyCode === KEYCODES.COMMA) changePlaybackSpeed(false, playerRef);
     if (e.keyCode === KEYCODES.N) playNext();
@@ -178,16 +218,26 @@ const VideoJsShorcuts = ({
 
     if (e.keyCode === KEYCODES.SPACEBAR || e.keyCode === KEYCODES.K) {
       e.preventDefault();
-      if (!spacePressed) {
-        togglePlay(containerRef);
-      } else {
-        if (!holding) {
-          holding = true;
-          togglePlay(containerRef, true);
-          changePlaybackSpeed(true, playerRef, FAST_SPEED);
-        }
-      }
+      if (spacePressed) return;
+
       spacePressed = true;
+      clearHoldTimeout();
+
+      const videoNode = containerRef && containerRef.current && containerRef.current.querySelector('video, audio');
+      const wasPaused = videoNode ? videoNode.paused : false;
+
+      pendingToggle = !wasPaused;
+      if (wasPaused) {
+        togglePlay(containerRef, true);
+      }
+
+      holdTimeoutId = setTimeout(() => {
+        if (!spacePressed) return;
+        holding = true;
+        pendingToggle = false;
+        togglePlay(containerRef, true);
+        changePlaybackSpeed(true, playerRef, FAST_SPEED);
+      }, HOLD_SPEED_DELAY_MS);
     }
 
     if (e.keyCode === KEYCODES.F) toggleFullscreen(playerRef);
@@ -272,6 +322,12 @@ const VideoJsShorcuts = ({
       handleKeyUp(e, playerRef, containerRef);
     };
   };
+  const createKeyStateResetHandler = function (playerRef: any) {
+    return function curried_func(e: any) {
+      if (e.type === 'visibilitychange' && !document.hidden) return;
+      resetHoldState(playerRef);
+    };
+  };
   const createVideoScrollShortcutsHandler = function (playerRef: any, containerRef: any) {
     return function curried_func(e: any) {
       handleVideoScrollWheel(e, playerRef, containerRef);
@@ -286,6 +342,7 @@ const VideoJsShorcuts = ({
   return {
     createKeyDownShortcutsHandler,
     createKeyUpShortcutsHandler,
+    createKeyStateResetHandler,
     createVideoScrollShortcutsHandler,
     createVolumePanelScrollShortcutsHandler,
   };

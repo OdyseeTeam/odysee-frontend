@@ -22,6 +22,7 @@ export const DEFAULT_INITIAL_FLOATING_POS = { x: window.innerWidth, y: window.in
 export const VJS_COMP = Object.freeze({
   AUTOPLAY_NEXT_BUTTON: 'AutoplayNextButton',
   AUTOPLAY_NEXT_MENU_ITEM: 'AutoPlayNextMenuItem',
+  KEYBOARD_SHORTCUTS_MENU_ITEM: 'KeyboardShortcutsMenuItem',
   LOOP_MENU_ITEM: 'LoopMenuItem',
 });
 

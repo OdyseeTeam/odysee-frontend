@@ -1,0 +1,177 @@
+.video-js {
+  .vjs-shortcuts-overlay {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    bottom: 0;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 30;
+  }
+
+  .vjs-shortcuts-overlay--open {
+    display: flex;
+  }
+
+  .vjs-shortcuts-card {
+    background: rgba(0, 0, 0, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100% - 16px);
+    max-width: 520px;
+    overflow: hidden;
+    padding: 14px 16px;
+    width: min(78vw, 520px);
+  }
+
+  .vjs-shortcuts-header {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .vjs-shortcuts-actions {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .vjs-shortcuts-title {
+    align-self: flex-start;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .vjs-shortcuts-close,
+  .vjs-shortcuts-toggle {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .vjs-shortcuts-body {
+    box-sizing: border-box;
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-body {
+    column-gap: 52px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .vjs-shortcuts-list {
+    box-sizing: border-box;
+    display: grid;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-list--secondary {
+    display: grid;
+  }
+
+  .vjs-shortcuts-list--secondary {
+    display: none;
+  }
+
+  .vjs-shortcuts-item {
+    align-items: center;
+    display: grid;
+    column-gap: 3px;
+    min-width: 0;
+    row-gap: 3px;
+    grid-template-columns: minmax(88px, 116px) 1fr;
+  }
+
+  .vjs-shortcuts-keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .vjs-shortcuts-keys kbd {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 5px;
+  }
+
+  .vjs-shortcuts-action {
+    font-size: 12px;
+    line-height: 1.25;
+    min-width: 0;
+    opacity: 0.85;
+    overflow-wrap: anywhere;
+  }
+
+  .vjs-shortcuts-action--compact {
+    font-size: 11px;
+    line-height: 1.15;
+  }
+
+  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-card {
+    max-width: 720px;
+    width: min(92vw, 720px);
+  }
+
+  @media (max-width: 720px) {
+    .vjs-shortcuts-card {
+      max-height: calc(100% - 16px);
+      padding: 12px 12px;
+      width: calc(100% - 24px);
+    }
+
+    .vjs-shortcuts-overlay--expanded .vjs-shortcuts-body {
+      grid-template-columns: 1fr;
+    }
+
+    .vjs-shortcuts-title {
+      font-size: 14px;
+    }
+
+    .vjs-shortcuts-close,
+    .vjs-shortcuts-toggle {
+      font-size: 11px;
+      padding: 5px 8px;
+    }
+
+    .vjs-shortcuts-item {
+      gap: 4px;
+      grid-template-columns: minmax(88px, 120px) 1fr;
+    }
+
+    .vjs-shortcuts-action {
+      font-size: 11px;
+    }
+  }
+}
