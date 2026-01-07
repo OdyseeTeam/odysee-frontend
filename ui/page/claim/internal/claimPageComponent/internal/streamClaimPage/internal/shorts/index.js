@@ -81,7 +81,12 @@ const selectShortsRecommendedContent = createSelector(
         has_source: true,
       });
 
-      return claimSearchByQuery[searchKey] || [];
+      return claimSearchByQuery[searchKey]
+        ? claimSearchByQuery[searchKey].map((uri) => {
+            const claim = selectClaimForUri(state, uri);
+            return claim?.permanent_url;
+          })
+        : [];
     },
   ],
   (shortsPlaylist, viewMode, relatedUris, channelUris) => {
