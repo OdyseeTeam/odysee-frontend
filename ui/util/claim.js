@@ -1,5 +1,6 @@
 // @flow
 import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -229,19 +230,16 @@ export const isClaimShort = (claim: ?Claim): boolean => {
   const media = claim.value.video || claim.value.audio;
   if (!media) return false;
 
-  const SHORTS_MAX_DURATION = 180;
-  const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
+  const isShortDuration = media.duration && media.duration <= SETTINGS.SHORTS_DURATION_LTE;
   if (!isShortDuration) return false;
 
   if (typeof media.width !== 'number' || typeof media.height !== 'number') return false;
 
   const aspectRatio = media.width / media.height;
 
-  const MAX_VERTICAL_RATIO = 0.9;
+  const isVertical = aspectRatio <= SETTINGS.SHORTS_ASPECT_RATIO_LTE;
 
-  const isVerticalOrNear = aspectRatio <= MAX_VERTICAL_RATIO;
-
-  return isVerticalOrNear;
+  return isVertical;
 };
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: ?Claim) => getClaimMeta(claim)?.reposted;
