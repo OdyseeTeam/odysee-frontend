@@ -26,7 +26,8 @@ body:has(.shorts-page),
 body:has(.main--shorts-page) {
   @media (max-width: $breakpoint-small) {
     .header {
-      transition: background-color var(--resizing-animation-timing), backdrop-filter var(--resizing-animation-timing), -webkit-backdrop-filter var(--resizing-animation-timing);
+      transition: background-color var(--resizing-animation-timing), backdrop-filter var(--resizing-animation-timing),
+        -webkit-backdrop-filter var(--resizing-animation-timing);
     }
   }
 }
@@ -247,13 +248,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (min-width: $breakpoint-large) {
+@media (min-width: $breakpoint-medium) {
   .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
+    right: calc(49.8% - var(--shorts-viewer-width, 28vw) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
+    right: calc(49.8% - var(--shorts-viewer-width, 28vw) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__back-button {
@@ -621,13 +622,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (min-width: $breakpoint-large) {
+@media (min-width: $breakpoint-medium) {
   .shorts-page__info-button {
-    right: calc(49.8% - 28vw / 2 - 60px + 7.5px);
+    right: calc(49.8% - var(--shorts-viewer-width, 28vw) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
-    right: calc(49.8% - 28vw / 2 - 60px);
+    right: calc(49.8% - var(--shorts-viewer-width, 28vw) / 2 - 60px);
     bottom: 8.5vh;
   }
 
@@ -697,7 +698,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     }
 
     @media (min-width: $breakpoint-large) {
-      width: 28vw !important;
+      width: var(--shorts-viewer-width, 28vw) !important;
     }
 
     @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {

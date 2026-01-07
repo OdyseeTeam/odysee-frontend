@@ -49,7 +49,10 @@ export default function Expandable(props: Props) {
   }, []);
 
   // Update the childRect initially & when the window size changes.
-  useOnResize(() => expandableRef(ref.current));
+  const handleResize = React.useCallback(() => {
+    expandableRef(ref.current);
+  }, [expandableRef]);
+  useOnResize(handleResize);
 
   return (
     <ExpandableContext.Provider value={{ setExpanded, disableExpanded }}>

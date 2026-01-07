@@ -24,8 +24,8 @@
       overflow: hidden;
     }
 
-    @media (min-width: 1600px) {
-      width: 28vw !important;
+    @media (min-width: 1150px) {
+      width: var(--shorts-viewer-width, 28) !important;
       overflow: hidden;
     }
 
