@@ -3,6 +3,7 @@ import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
+import './keyboard-shortcuts-overlay.scss';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
@@ -16,6 +17,7 @@ import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
+import { ensureKeyboardShortcutsOverlay } from './keyboard-shortcuts-overlay';
 import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
@@ -78,6 +80,13 @@ export type Player = {
   one: (string, (any) => void) => void,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
+  keyboardShortcutsOverlay?: {
+    open: () => void,
+    close: () => void,
+    toggle: (forceState?: boolean) => void,
+    isOpen: () => boolean,
+  },
+  toggleKeyboardShortcutsOverlay?: (forceState?: boolean) => void,
   readyState: () => number,
   requestFullscreen: () => boolean,
   setInterval: (any, number) => number,
@@ -208,6 +217,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const volumePanelRef = useRef();
 
   const keyDownHandlerRef = useRef();
+  const keyUpHandlerRef = useRef();
+  const keyStateResetHandlerRef = useRef();
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
 
@@ -218,15 +229,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     location: { search },
   } = useHistory();
 
+  const toggleKeyboardShortcutsOverlay = (forceState?: boolean) => {
+    if (playerRef.current && typeof playerRef.current.toggleKeyboardShortcutsOverlay === 'function') {
+      playerRef.current.toggleKeyboardShortcutsOverlay(forceState);
+    }
+  };
+
   // initiate keyboard shortcuts
-  const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
-    keyboardShorcuts({
-      isMobile,
-      isLivestreamClaim,
-      toggleVideoTheaterMode,
-      playNext,
-      playPrevious,
-    });
+  const {
+    createKeyDownShortcutsHandler,
+    createKeyUpShortcutsHandler,
+    createKeyStateResetHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
+    isMobile,
+    isLivestreamClaim,
+    toggleVideoTheaterMode,
+    toggleKeyboardShortcutsOverlay,
+    playNext,
+    playPrevious,
+  });
 
   const [reload, setReload] = useState('initial');
 
@@ -433,6 +456,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
+      ensureKeyboardShortcutsOverlay(vjsPlayer);
 
       initializeEvents();
 
@@ -441,14 +465,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       volumePanelRef.current = playerRef.current?.controlBar?.getChild(VIDEOJS_VOLUME_PANEL_CLASS)?.el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const keyUpHandler = createKeyUpShortcutsHandler(playerRef, containerRef);
+      const keyStateResetHandler = createKeyStateResetHandler(playerRef);
       const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
       const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
       window.addEventListener('keydown', keyDownHandler);
+      window.addEventListener('keyup', keyUpHandler);
+      window.addEventListener('blur', keyStateResetHandler);
+      (document: any).addEventListener('visibilitychange', keyStateResetHandler);
       const containerDiv = containerRef.current;
       containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
       if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
 
       keyDownHandlerRef.current = keyDownHandler;
+      keyUpHandlerRef.current = keyUpHandler;
+      keyStateResetHandlerRef.current = keyStateResetHandler;
       videoScrollHandlerRef.current = videoScrollHandler;
       volumePanelScrollHandlerRef.current = volumePanelHandler;
 
@@ -658,6 +689,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // Cleanup
     return () => {
       window.removeEventListener('keydown', keyDownHandlerRef.current);
+      window.removeEventListener('keyup', keyUpHandlerRef.current);
+      window.removeEventListener('blur', keyStateResetHandlerRef.current);
+      (document: any).removeEventListener('visibilitychange', keyStateResetHandlerRef.current);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps -- FIX_THIS!
       const containerDiv = containerRef.current;
