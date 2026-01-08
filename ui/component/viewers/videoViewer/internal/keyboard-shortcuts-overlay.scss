@@ -33,30 +33,27 @@
 
   .vjs-shortcuts-header {
     align-items: center;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: flex-start;
-    margin-bottom: 8px;
+    column-gap: 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-bottom: 4px;
+    row-gap: 4px;
   }
 
   .vjs-shortcuts-actions {
     align-items: center;
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    gap: 6px;
+    justify-content: flex-end;
+    justify-self: end;
   }
 
   .vjs-shortcuts-title {
-    align-self: flex-start;
     font-size: 16px;
     font-weight: 600;
   }
 
-  .vjs-shortcuts-close,
-  .vjs-shortcuts-toggle {
+  .vjs-shortcuts-close {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
@@ -70,16 +67,12 @@
     box-sizing: border-box;
     display: grid;
     gap: 6px;
-    grid-template-columns: 1fr;
+    column-gap: 32px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
     width: 100%;
-  }
-
-  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-body {
-    column-gap: 52px;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .vjs-shortcuts-list {
@@ -93,12 +86,8 @@
     width: 100%;
   }
 
-  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-list--secondary {
-    display: grid;
-  }
-
   .vjs-shortcuts-list--secondary {
-    display: none;
+    display: grid;
   }
 
   .vjs-shortcuts-item {
@@ -139,11 +128,6 @@
     line-height: 1.15;
   }
 
-  .vjs-shortcuts-overlay--expanded .vjs-shortcuts-card {
-    max-width: 720px;
-    width: min(92vw, 720px);
-  }
-
   @media (max-width: 720px) {
     .vjs-shortcuts-card {
       max-height: calc(100% - 16px);
@@ -151,7 +135,7 @@
       width: calc(100% - 24px);
     }
 
-    .vjs-shortcuts-overlay--expanded .vjs-shortcuts-body {
+    .vjs-shortcuts-body {
       grid-template-columns: 1fr;
     }
 
@@ -159,8 +143,7 @@
       font-size: 14px;
     }
 
-    .vjs-shortcuts-close,
-    .vjs-shortcuts-toggle {
+    .vjs-shortcuts-close {
       font-size: 11px;
       padding: 5px 8px;
     }
@@ -174,4 +157,7 @@
       font-size: 11px;
     }
   }
+}
+.vjs-shortcuts-actions {
+  justify-self: end;
 }

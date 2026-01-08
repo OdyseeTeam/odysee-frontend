@@ -50,7 +50,6 @@ function buildOverlayMarkup() {
       <div class="vjs-shortcuts-header">
         <div class="vjs-shortcuts-title">${__('Keyboard shortcuts')}</div>
         <div class="vjs-shortcuts-actions">
-          <button type="button" class="vjs-shortcuts-toggle"></button>
           <button type="button" class="vjs-shortcuts-close" aria-label="${__('Close')}">${__('Close')}</button>
         </div>
       </div>
@@ -83,23 +82,7 @@ export function ensureKeyboardShortcutsOverlay(player) {
   playerEl.appendChild(overlayEl);
 
   const closeButton = overlayEl.querySelector('.vjs-shortcuts-close');
-  const toggleButton = overlayEl.querySelector('.vjs-shortcuts-toggle');
-
   let isOpen = false;
-  let isExpanded = false;
-
-  const updateToggleLabel = () => {
-    if (toggleButton) {
-      toggleButton.textContent = __(isExpanded ? 'Show fewer' : 'Show all');
-      toggleButton.setAttribute('aria-expanded', String(isExpanded));
-    }
-  };
-
-  const setExpanded = (expanded) => {
-    isExpanded = expanded;
-    overlayEl.classList.toggle('vjs-shortcuts-overlay--expanded', isExpanded);
-    updateToggleLabel();
-  };
 
   const open = () => {
     if (isOpen) return;
@@ -124,14 +107,8 @@ export function ensureKeyboardShortcutsOverlay(player) {
     isOpen ? close() : open();
   };
 
-  updateToggleLabel();
-
   if (closeButton) {
     closeButton.addEventListener('click', () => close());
-  }
-
-  if (toggleButton) {
-    toggleButton.addEventListener('click', () => setExpanded(!isExpanded));
   }
 
   overlayEl.addEventListener('click', (event) => {
@@ -144,7 +121,6 @@ export function ensureKeyboardShortcutsOverlay(player) {
     open,
     close,
     toggle,
-    setExpanded,
     isOpen: () => isOpen,
   };
 

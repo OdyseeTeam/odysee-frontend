@@ -84,7 +84,6 @@ export type Player = {
     open: () => void,
     close: () => void,
     toggle: (forceState?: boolean) => void,
-    setExpanded: (expanded: boolean) => void,
     isOpen: () => boolean,
   },
   toggleKeyboardShortcutsOverlay?: (forceState?: boolean) => void,
