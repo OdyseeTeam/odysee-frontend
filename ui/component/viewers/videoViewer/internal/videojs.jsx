@@ -393,7 +393,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       let vjsPlayer;
       const vjsParent = document.querySelector('.video-js-parent');
 
-      let canUseOldPlayer = window.oldSavedDiv && vjsParent;
+      // Reuse the saved player DOM only when appropriate. Reusing across embed routes
+      // has been observed to cause lockups; keep reuse enabled for popout.
+      const path = (typeof window !== 'undefined' && window.location && window.location.pathname) || '';
+      const isPopoutRoute = path.startsWith('/$/popout');
+      const isEmbedRoute = path.startsWith('/$/embed/');
+      let canUseOldPlayer = window.oldSavedDiv && vjsParent && (!isEmbedRoute || isPopoutRoute);
       const isLivestream = isLivestreamClaim && userClaimId;
 
       // initialize videojs if it hasn't been done yet

@@ -88,11 +88,46 @@ function getCategoryMeta(path) {
   return null;
 }
 
+function buildFarcasterEmbedScripts() {
+  return `<script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>
+<script>
+(function() {
+  function signalReady() {
+    try {
+      var sdk = (window.miniapp && window.miniapp.sdk) || window.sdk || (window.frame && window.frame.sdk);
+      if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+        sdk.actions.ready();
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  var attempts = 0;
+  var maxAttempts = 50;
+  var checkAndSignal = setInterval(function() {
+    attempts++;
+    if (signalReady()) {
+      clearInterval(checkAndSignal);
+    } else if (attempts >= maxAttempts) {
+      clearInterval(checkAndSignal);
+      try {
+        if (window.parent && window.parent.postMessage) {
+          window.parent.postMessage({ type: 'miniapp-ready-timeout' }, '*');
+        }
+      } catch (e) {}
+    }
+  }, 100);
+})();
+</script>`;
+}
+
 //
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path, urlQueryString, baseUrl } = overrideOptions;
+  const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl, isEmbed } = overrideOptions;
   const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
@@ -134,7 +169,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_miniapp',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -151,7 +186,7 @@ function buildOgMetadata(overrideOptions = {}) {
         action: {
           type: 'launch_frame',
           name: SITE_NAME || 'Odysee',
-          url: url,
+          url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
           splashBackgroundColor: '#ffffff',
         },
@@ -162,7 +197,13 @@ function buildOgMetadata(overrideOptions = {}) {
     out += `\n<meta name="fc:frame:image" content="${splashImageUrl}"/>`;
     out += `\n<meta name="fc:frame:button:1" content="Open on Odysee"/>`;
     out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
-    out += `\n<meta name="fc:frame:button:1:target" content="${url}"/>`;
+    out += `\n<meta name="fc:frame:button:1:target" content="${fcActionUrl || url}"/>`;
+
+    // Only load SDK and ready script for actual embed pages
+    if (isEmbed) {
+      out += '\n' + buildFarcasterEmbedScripts();
+    }
+
     return out;
   } catch (e) {
     return head;
@@ -198,8 +239,8 @@ function buildHead() {
   );
 }
 
-function buildBasicOgMetadata() {
-  const head = BEGIN_STR + addFavicon() + buildOgMetadata() + FINAL_STR;
+function buildBasicOgMetadata(overrideOptions = {}) {
+  const head = BEGIN_STR + addFavicon() + buildOgMetadata(overrideOptions) + FINAL_STR;
   return head;
 }
 
@@ -209,7 +250,7 @@ function buildBasicOgMetadata() {
 //
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
-  const { userAgent, baseUrl } = overrideOptions;
+  const { userAgent, baseUrl, isEmbed } = overrideOptions;
   const BASE = baseUrl || URL;
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
@@ -383,57 +424,11 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="fc:frame:button:2" content="Next ▶"/>`;
     head += `<meta name="fc:frame:button:2:action" content="post"/>`;
     head += `<meta name="fc:frame:post_url" content="${BASE}/$/frame"/>`;
-    head += `<script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>`;
 
-    // Ready signal script - runs after SDK loads
-    head += `<script>
-(function() {
-   function signalReady() {
-    try {
-      // Try multiple SDK locations
-       const sdk = (window.miniapp && window.miniapp.sdk) || window.sdk || (window.frame && window.frame.sdk);
-      
-      if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
-        sdk.actions.ready();
-        console.log('MiniApp ready signal sent via SDK');
-      }
-      
-      // Also send postMessage as fallback
-      if (window.parent && window.parent.postMessage) {
-        window.parent.postMessage({ type: 'miniapp-ready' }, '*');
-        console.log('MiniApp ready signal sent via postMessage');
-      }
-      
-      return true;
-    } catch (e) {
-      console.error('MiniApp ready signal failed:', e);
-      return false;
+    // Only load SDK and ready script for actual embed pages
+    if (isEmbed) {
+      head += buildFarcasterEmbedScripts();
     }
-  }
-  
-  // Wait for SDK to be available
-  let attempts = 0;
-  const maxAttempts = 50;
-  
-  const checkAndSignal = setInterval(function() {
-    attempts++;
-    
-    if (signalReady()) {
-      clearInterval(checkAndSignal);
-    } else if (attempts >= maxAttempts) {
-      console.warn('MiniApp ready timeout after', attempts * 100, 'ms');
-      clearInterval(checkAndSignal);
-      
-      // Send timeout signal
-      try {
-        if (window.parent && window.parent.postMessage) {
-          window.parent.postMessage({ type: 'miniapp-ready-timeout' }, '*');
-        }
-      } catch (e) {}
-    }
-  }, 100);
-})();
-</script>`;
   } catch (e) {
     console.error('MiniApp embed meta failed:', e);
   }
@@ -512,8 +507,10 @@ async function getHtml(ctx) {
   const query = ctx.query;
   const requestPath = unscapeHtmlProperty(decodeURIComponent(ctx.path));
 
-  if (requestPath.length === 0) {
-    const ogMetadata = buildBasicOgMetadata();
+  if (requestPath === '/' || requestPath.length === 0) {
+    // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
+    // Use current origin to avoid pointing to production URL in dev.
+    let ogMetadata = buildBasicOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${ctx.origin}/$/embed/home` });
     return insertToHead(html, ogMetadata);
   }
 
@@ -553,6 +550,16 @@ async function getHtml(ctx) {
   }
 
   if (requestPath.includes(embedPath)) {
+    // Special-case: homepage embed (early) only when enabled
+    if (requestPath === '/$/embed/home' || requestPath === '/$/embed/home/') {
+      const ogMetadata = buildOgMetadata({
+        baseUrl: ctx.origin,
+        fcActionUrl: `${ctx.origin}/$/embed/home`,
+        isEmbed: true,
+      });
+      return insertToHead(html, ogMetadata);
+    }
+    // Otherwise, try to resolve an embed claim
     const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, '').replace('/', '#'));
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
@@ -560,6 +567,7 @@ async function getHtml(ctx) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
         userAgent: userAgent,
         baseUrl: ctx.origin,
+        isEmbed: true,
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));

@@ -14,6 +14,10 @@ import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
 
+// Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
+const HOME_INIT_FLAGS_MAX_SIZE = 100;
+const homeInitFlags: Set<string> = new Set();
+
 type Props = {
   uri: string,
   children?: any,
@@ -130,7 +134,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
 
     const collectionId =
-      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
+      (urlParams && (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || urlParams.get('lid'))) ||
       (currentUriPlaying && playingCollectionId) ||
       undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
@@ -223,10 +227,18 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
       // $FlowIgnore
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
-      const isHome = pathname === '/';
+      const isHome = pathname === '/' || pathname === '/$/embed/home';
 
       if (canViewFile) {
-        if (isHome) updateClaim('isHome');
+        if (isHome) {
+          if (!homeInitFlags.has(uri)) {
+            if (homeInitFlags.size >= HOME_INIT_FLAGS_MAX_SIZE) {
+              homeInitFlags.clear();
+            }
+            homeInitFlags.add(uri);
+            updateClaim('isHome');
+          }
+        }
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
@@ -254,7 +266,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
-    }, [pathname, sourceLoaded, canViewFile]);
+    }, [pathname, sourceLoaded, canViewFile, uri]);
+
+    // Ensure non-video embeds (e.g. markdown) fetch their source in embed mode
+    React.useEffect(() => {
+      if (canViewFile && renderMode === 'md' && !streamingUrl) {
+        doFileGetForUri(uri, fileGetOptions);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canViewFile, renderMode, streamingUrl, uri]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {

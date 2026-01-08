@@ -225,6 +225,24 @@ function App(props: Props) {
 
     // Only 1 nag is possible, so show the most important:
 
+    // Active uploads warning (show globally so users know why the browser prompts on leave)
+    if (uploadCount > 0 && !embedPath) {
+      const pathname = location && location.pathname;
+      const onUploadPage =
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`));
+      if (!onUploadPage) {
+        return (
+          <Nag
+            type="helpful"
+            message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
+            actionText={__('View Uploads')}
+            onClick={() => history.push(`/$/${PAGES.UPLOADS}`)}
+          />
+        );
+      }
+    }
+
     if (user === null && !embedPath) {
       return <NagNoUser />;
     }
