@@ -101,7 +101,7 @@ const VideoJsShorcuts = ({
   playNext: any, // function
   playPrevious: any, // function
   toggleVideoTheaterMode: any, // function
-  toggleKeyboardShortcutsOverlay?: () => void,
+  toggleKeyboardShortcutsOverlay?: (forceState?: boolean) => void,
   isMobile: boolean,
 }) => {
   let holding = false;
@@ -240,6 +240,7 @@ const VideoJsShorcuts = ({
       }, HOLD_SPEED_DELAY_MS);
     }
 
+    if (e.keyCode === KEYCODES.ESCAPE && toggleKeyboardShortcutsOverlay) toggleKeyboardShortcutsOverlay(false);
     if (e.keyCode === KEYCODES.F) toggleFullscreen(playerRef);
     if (e.keyCode === KEYCODES.M) toggleMute(playerRef);
     if (e.keyCode === KEYCODES.UP) volumeUp(e, playerRef);

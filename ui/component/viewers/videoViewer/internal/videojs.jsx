@@ -230,9 +230,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     location: { search },
   } = useHistory();
 
-  const toggleKeyboardShortcutsOverlay = () => {
+  const toggleKeyboardShortcutsOverlay = (forceState?: boolean) => {
     if (playerRef.current && typeof playerRef.current.toggleKeyboardShortcutsOverlay === 'function') {
-      playerRef.current.toggleKeyboardShortcutsOverlay();
+      playerRef.current.toggleKeyboardShortcutsOverlay(forceState);
     }
   };
 
