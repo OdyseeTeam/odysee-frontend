@@ -88,10 +88,12 @@ function getCategoryMeta(path) {
   return null;
 }
 
-function buildFarcasterEmbedScripts() {
+function buildFarcasterEmbedScripts(options = {}) {
+  const { requireIframe } = options;
+  const iframeCheck = requireIframe ? '\n  if (window.self === window.top) return;' : '';
   return `<script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>
 <script>
-(function() {
+(function() {${iframeCheck}
   function signalReady() {
     try {
       var sdk = (window.miniapp && window.miniapp.sdk) || window.sdk || (window.frame && window.frame.sdk);
@@ -159,11 +161,12 @@ function buildOgMetadata(overrideOptions = {}) {
       SITE_NAME || SITE_TITLE
     }" href="${URL}/opensearch.xml">`;
   // Add Farcaster Mini App embed meta for generic pages
+  const ogImageUrl = getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`;
   const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
   try {
     const miniApp = {
       version: '1',
-      imageUrl: splashImageUrl,
+      imageUrl: ogImageUrl,
       button: {
         title: 'Open on Odysee',
         action: {
@@ -180,7 +183,7 @@ function buildOgMetadata(overrideOptions = {}) {
     // Frames JSON (v2-style) for clients expecting fc:frame as an object
     const frameJsonGeneric = JSON.stringify({
       version: 'next',
-      imageUrl: splashImageUrl,
+      imageUrl: ogImageUrl,
       button: {
         title: 'Open on Odysee',
         action: {
@@ -194,14 +197,16 @@ function buildOgMetadata(overrideOptions = {}) {
     });
     out += `\n<meta name="fc:frame" content='${frameJsonGeneric}'/>`;
     // Legacy Frames meta (basic link action)
-    out += `\n<meta name="fc:frame:image" content="${splashImageUrl}"/>`;
+    out += `\n<meta name="fc:frame:image" content="${ogImageUrl}"/>`;
     out += `\n<meta name="fc:frame:button:1" content="Open on Odysee"/>`;
     out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
     out += `\n<meta name="fc:frame:button:1:target" content="${fcActionUrl || url}"/>`;
 
-    // Only load SDK and ready script for actual embed pages
+    // Load SDK for embed pages (always) or Farcaster-enabled pages (with iframe check)
     if (isEmbed) {
       out += '\n' + buildFarcasterEmbedScripts();
+    } else if (fcActionUrl) {
+      out += '\n' + buildFarcasterEmbedScripts({ requireIframe: true });
     }
 
     return out;
