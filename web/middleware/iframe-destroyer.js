@@ -6,7 +6,13 @@ async function iframeDestroyerMiddleware(ctx, next) {
   } = ctx;
   const decodedPath = decodeURIComponent(path);
 
-  if (!(decodedPath.startsWith(`/$/${PAGES.EMBED}`) || decodedPath.startsWith(`/$/api/content/v1/get`))) {
+  // Allow iframing for embed pages, API, and homepage (for Farcaster miniapp)
+  const allowIframe =
+    decodedPath === '/' ||
+    decodedPath.startsWith(`/$/${PAGES.EMBED}`) ||
+    decodedPath.startsWith(`/$/api/content/v1/get`);
+
+  if (!allowIframe) {
     ctx.set('X-Frame-Options', 'DENY');
   }
 
