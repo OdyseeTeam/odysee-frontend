@@ -846,10 +846,10 @@
     }
   }
 
-  @media (min-width: $breakpoint-large) {
-    width: 28vw !important;
+  @media (min-width: $breakpoint-medium) {
+    width: var(--shorts-viewer-width, 28vw) !important;
     .content__wrapper {
-      width: 28vw !important;
+      width: var(--shorts-viewer-width, 28vw) !important;
     }
   }
 

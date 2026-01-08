@@ -14,6 +14,7 @@ import * as SETTINGS from 'constants/settings';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
+import { useOnResize } from 'effects/use-on-resize';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 let ORIGINAL_AUTOPLAY_SETTING = null;
@@ -146,6 +147,32 @@ export default function ShortsPage(props: Props) {
   if (ORIGINAL_AUTOPLAY_SETTING === null) {
     ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
   }
+
+  const setShortViewerWidthFromVideo = React.useCallback(() => {
+    // $FlowFixMe
+    const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+    if (!(video instanceof HTMLVideoElement)) return;
+    const videoW = video?.videoWidth;
+    const videoH = video?.videoHeight;
+    if (!videoW || !videoH) return;
+
+    const maxHeight = window.innerHeight * 0.9;
+
+    const scale = maxHeight / videoH;
+    const computedWidthPx = videoW * scale;
+
+    // Convert to vw (viewport width %)
+    const maxWidth = sidePanelOpen ? 30 : 80; // in percentages
+    const widthVW = (computedWidthPx / window.innerWidth) * 100;
+    const clampedVW = Math.min(widthVW, maxWidth); // Avoid overflow
+
+    requestAnimationFrame(() => {
+      // $FlowFixMe
+      document.documentElement?.style?.setProperty('--shorts-viewer-width', `${clampedVW}vw`);
+    });
+  }, [sidePanelOpen]);
+
+  useOnResize(setShortViewerWidthFromVideo);
 
   const isSwipeInsideSidePanel = React.useCallback((clientX, clientY) => {
     const el = document.elementFromPoint(clientX, clientY);
@@ -319,6 +346,27 @@ export default function ShortsPage(props: Props) {
       }
     };
   }, [history, doClearShortsPlaylist, doSetClientSetting]);
+
+  React.useEffect(() => {
+    let timeoutId;
+    function loop() {
+      // $FlowFixMe
+      const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+      if (!(video instanceof HTMLVideoElement) || !video?.videoWidth || !video?.videoHeight) {
+        timeoutId = setTimeout(loop, 300);
+        return;
+      }
+      setShortViewerWidthFromVideo();
+    }
+
+    timeoutId = setTimeout(loop, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [uri, setShortViewerWidthFromVideo]);
+
+  React.useEffect(() => {
+    setShortViewerWidthFromVideo();
+  }, [sidePanelOpen, setShortViewerWidthFromVideo]);
 
   React.useEffect(() => {
     if (!hasInitializedRef.current) {

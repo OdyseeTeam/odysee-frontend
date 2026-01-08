@@ -190,7 +190,7 @@ function resolveSearchOptions(props) {
   }
 
   if (hideShorts || excludeShorts) {
-    // options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
+    // options.duration = `>${SETTINGS.SHORTS_DURATION_LTE}`;
     options.exclude_shorts = true;
   }
 

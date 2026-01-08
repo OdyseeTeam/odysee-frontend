@@ -201,9 +201,9 @@ function ContentTab(props: Props) {
             excludeShortsAspectRatio={excludeShorts}
             {...(shortsOnly
               ? {
-                  duration: `<=${SETTINGS.SHORTS_DURATION_LIMIT}`,
+                  duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
                   contentType: CS.FILE_VIDEO,
-                  contentAspectRatio: `<${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
+                  contentAspectRatio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
                   sectionTitle: 'Shorts',
                 }
               : {})}
@@ -244,8 +244,8 @@ function ContentTab(props: Props) {
                 doResolveUris={doResolveUris}
                 {...(shortsOnly
                   ? {
-                      maxDuration: SETTINGS.SHORTS_DURATION_LIMIT,
-                      maxAspectRatio: 0.9999,
+                      maxDuration: SETTINGS.SHORTS_DURATION_LTE,
+                      maxAspectRatio: SETTINGS.SHORTS_ASPECT_RATIO_LTE,
                     }
                   : {})}
               />

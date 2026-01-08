@@ -9,7 +9,7 @@ import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { isChannelClaim } from 'util/claim';
+import { isChannelClaim, isClaimShort } from 'util/claim';
 import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
@@ -44,7 +44,6 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
-import { isClaimShort } from '../../util/claim';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)

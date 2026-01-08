@@ -27,6 +27,7 @@ import {
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import * as TAG from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
 import { MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
@@ -373,8 +374,8 @@ export const selectIsShortForUri = createCachedSelector(selectClaimForUri, (clai
   if (!claim || !claim.value) return false;
   const video = claim.value.video;
   if (!video) return false;
-  const isShortDuration = video.duration && video.duration <= 180;
-  const isVertical = video.height && video.width && video.height > video.width;
+  const isShortDuration = video.duration && video.duration <= SETTINGS.SHORTS_DURATION_LTE;
+  const isVertical = video.height && video.width && video.width / video.height <= SETTINGS.SHORTS_ASPECT_RATIO_LTE;
   return isShortDuration && isVertical;
 })((state, uri) => String(uri));
 
