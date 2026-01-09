@@ -68,7 +68,9 @@ const ClaimPageComponent = (props: Props) => {
   const isCollection = claim && claim.value_type === 'collection';
   const isEmbed = pathname && pathname.startsWith('/$/embed');
 
-  const { isChannel } = parseURI(uri);
+  // In embed mode with live/latest path, use the resolved URL instead of the channel URL
+  const effectiveUri = isEmbed && isNewestPath && latestClaimUrl ? latestClaimUrl : uri;
+  const { isChannel } = parseURI(effectiveUri);
 
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
@@ -177,12 +179,12 @@ const ClaimPageComponent = (props: Props) => {
   }
 
   if (isChannel) {
-    return <ChannelPage uri={uri} location={location} />;
+    return <ChannelPage uri={effectiveUri} location={location} />;
   }
 
   return (
     <StreamClaimPage
-      uri={uri}
+      uri={effectiveUri}
       collectionId={collectionId}
       linkedCommentId={linkedCommentId}
       threadCommentId={threadCommentId}
