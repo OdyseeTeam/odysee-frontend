@@ -565,6 +565,39 @@ async function getHtml(ctx) {
       });
       return insertToHead(html, ogMetadata);
     }
+
+    // Special-case: playlist embed - redirect to first item with lid parameter
+    const embedPlaylistMatch = requestPath.match(/\/\$\/embed\/playlist\/([a-f0-9]{40})/i);
+    if (embedPlaylistMatch) {
+      const collectionClaimId = embedPlaylistMatch[1];
+      const collectionClaim = await resolveClaimOrRedirect(ctx, collectionClaimId, true);
+
+      if (collectionClaim) {
+        const firstItemClaimId = collectionClaim.value?.claims?.[0];
+        if (firstItemClaimId) {
+          try {
+            const response = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+            if (response && response.items?.at(0) && !response.error) {
+              const firstItemClaim = response.items[0];
+              const firstItemPath = firstItemClaim.canonical_url?.replace('lbry://', '/')?.replace(/#/g, ':');
+              const fcActionUrl = `${ctx.origin}/$/embed${firstItemPath}?lid=${collectionClaimId}`;
+
+              const ogMetadata = await buildClaimOgMetadata(firstItemClaim.canonical_url, firstItemClaim, {
+                userAgent: userAgent,
+                baseUrl: ctx.origin,
+                isEmbed: true,
+                fcActionUrl: fcActionUrl,
+              });
+              const googleVideoMetadata = await buildGoogleVideoMetadata(firstItemClaim.canonical_url, firstItemClaim);
+              return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+            }
+          } catch {}
+        }
+      }
+
+      return insertToHead(html);
+    }
+
     // Otherwise, try to resolve an embed claim
     const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, '').replace('/', '#'));
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
@@ -583,13 +616,35 @@ async function getHtml(ctx) {
   }
 
   if (requestPath.includes(playlistPath)) {
-    const claimId = requestPath.match(/[a-f0-9]{40}/)?.at(0);
-    const claim = await resolveClaimOrRedirect(ctx, claimId, true);
+    const collectionClaimId = requestPath.match(/[a-f0-9]{40}/)?.at(0);
+    const collectionClaim = await resolveClaimOrRedirect(ctx, collectionClaimId, true);
 
-    if (claim) {
-      const ogMetadata = await buildClaimOgMetadata(claim.canonical_url, claim, {
+    if (collectionClaim) {
+      // Get first item in the collection
+      const firstItemClaimId = collectionClaim.value?.claims?.[0];
+      let firstItemClaim = null;
+      let fcActionUrl = null;
+
+      if (firstItemClaimId) {
+        try {
+          const response = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+          if (response && response.items?.at(0) && !response.error) {
+            firstItemClaim = response.items[0];
+            // Build fcActionUrl pointing to the first item's embed with lid parameter
+            const firstItemPath = firstItemClaim.canonical_url?.replace('lbry://', '/')?.replace(/#/g, ':');
+            fcActionUrl = `${ctx.origin}/$/embed${firstItemPath}?lid=${collectionClaimId}`;
+          }
+        } catch {}
+      }
+
+      // Use first item for OG metadata if available, otherwise fall back to collection
+      const metadataClaim = firstItemClaim || collectionClaim;
+      const metadataUri = firstItemClaim?.canonical_url || collectionClaim.canonical_url;
+
+      const ogMetadata = await buildClaimOgMetadata(metadataUri, metadataClaim, {
         userAgent: userAgent,
         baseUrl: ctx.origin,
+        fcActionUrl: fcActionUrl,
       });
       return insertToHead(html, ogMetadata);
     }

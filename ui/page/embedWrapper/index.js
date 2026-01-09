@@ -10,6 +10,8 @@ import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 
 const select = (state, props) => {
   const { search, hash } = state.router.location;
@@ -21,6 +23,13 @@ const select = (state, props) => {
 
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
+
+  // Detect playlist page URLs (e.g., /$/playlist/:collectionId or /$/embed/playlist/:collectionId)
+  let playlistCollectionId = null;
+  const playlistMatch = pathname && pathname.match(/\/\$\/(?:embed\/)?playlist\/([a-f0-9]{40})/i);
+  if (playlistMatch) {
+    playlistCollectionId = playlistMatch[1];
+  }
 
   const claim = selectClaimForUri(state, uri);
   const { canonical_url: canonicalUrl } = claim || {};
@@ -44,14 +53,15 @@ const select = (state, props) => {
   if (latestClaimUrl) uri = latestClaimUrl;
 
   // Detect collections from playlist-style URIs even if claim isn't resolved as a collection
-  let detectedCollectionId = null;
-  if (uri && typeof uri === 'string' && uri.toLowerCase().includes('/playlist')) {
+  let detectedCollectionId = playlistCollectionId;
+  if (!detectedCollectionId && uri && typeof uri === 'string' && uri.toLowerCase().includes('/playlist')) {
     const collectionIdMatch = uri.match(/[#:/]([0-9a-f]{40})/i);
     if (collectionIdMatch) detectedCollectionId = collectionIdMatch[1];
   }
 
   const isCollection = (claim && claim.value_type === 'collection') || Boolean(detectedCollectionId);
   const collectionId = claim && claim.value_type === 'collection' ? claim.claim_id : detectedCollectionId;
+  const collectionFirstItemUri = collectionId ? selectFirstItemUrlForCollection(state, collectionId) : null;
   const renderMode = uri ? makeSelectFileRenderModeForUri(uri)(state) : undefined;
 
   return {
@@ -63,6 +73,7 @@ const select = (state, props) => {
     channelClaimId,
     isCollection,
     collectionId,
+    collectionFirstItemUri,
     renderMode,
     latestClaimUrl,
     isResolvingUri: uri && selectIsUriResolving(state, uri),
@@ -76,6 +87,7 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchLatestClaimForChannel,
+  doFetchItemsInCollection,
 };
 
 export default connect(select, perform)(EmbedWrapperPage);

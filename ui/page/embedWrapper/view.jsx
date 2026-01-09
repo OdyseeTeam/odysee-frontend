@@ -1,14 +1,16 @@
 // @flow
 import * as PAGES from 'constants/pages';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
-import { useHistory } from 'react-router';
+import { useHistory, Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import { lazyImport } from 'util/lazyImport';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import { EmbedContext } from 'contexts/embed';
 import Spinner from 'component/spinner';
 import { buildURI, normalizeURI, parseURI } from 'util/lbryURI';
+import { formatLbryUrlForWeb } from 'util/url';
 const ClaimPage = lazyImport(() => import('page/claim' /* webpackChunkName: "claimPage" */));
 const CollectionPage = lazyImport(() => import('page/collection' /* webpackChunkName: "collection" */));
 const EmbedClaimComponent = lazyImport(() =>
@@ -20,16 +22,25 @@ const EmbedClaimComponent = lazyImport(() =>
 type Props = {
   uri?: string,
   collectionId?: string,
+  collectionFirstItemUri?: string,
   isCollection?: boolean,
   renderMode?: string,
+  doFetchItemsInCollection?: ({ collectionId: string }) => void,
 };
 
 const EmbedWrapperPage = (props: Props) => {
   const [videoEnded, setVideoEnded] = React.useState(false);
-  const { uri: incomingUri, collectionId, isCollection, renderMode } = props;
+  const {
+    uri: incomingUri,
+    collectionId,
+    collectionFirstItemUri,
+    isCollection,
+    renderMode,
+    doFetchItemsInCollection,
+  } = props;
 
   const {
-    location: { search },
+    location: { search, pathname },
     match,
   } = useHistory();
 
@@ -37,6 +48,9 @@ const EmbedWrapperPage = (props: Props) => {
   const featureParam = urlParams.get('feature');
   const latestContentPath = featureParam === PAGES.LATEST;
   const liveContentPath = featureParam === PAGES.LIVE_NOW;
+
+  // Detect if this is a playlist page URL
+  const isPlaylistPath = pathname && pathname.includes('/playlist/');
 
   // For live/latest content, use the URI from selector (which resolves to the actual stream)
   // Otherwise, try to derive from match first
@@ -49,6 +63,29 @@ const EmbedWrapperPage = (props: Props) => {
     if (!uri) uri = incomingUri;
   }
   const embedLightBackground = urlParams.get('embedBackgroundLight');
+
+  // Fetch collection items when we have a collectionId
+  React.useEffect(() => {
+    if (collectionId && doFetchItemsInCollection) {
+      doFetchItemsInCollection({ collectionId });
+    }
+  }, [collectionId, doFetchItemsInCollection]);
+
+  // For playlist URLs in embed mode, redirect to first item with lid parameter
+  if (isPlaylistPath && collectionId && collectionFirstItemUri) {
+    const firstItemPath = formatLbryUrlForWeb(collectionFirstItemUri);
+    const redirectUrl = `/$/embed${firstItemPath}?${COLLECTIONS_CONSTS.COLLECTION_ID}=${collectionId}`;
+    return <Redirect to={redirectUrl} />;
+  }
+
+  // Show loading while waiting for collection first item
+  if (isPlaylistPath && collectionId && !collectionFirstItemUri) {
+    return (
+      <div className="main--empty">
+        <Spinner text={__('Loading playlist...')} />
+      </div>
+    );
+  }
 
   // Determine if this should render like a full page (channels/collections) or minimal (videos/posts)
   const { isChannel } = uri ? parseURI(uri) : { isChannel: false };
@@ -70,7 +107,7 @@ const EmbedWrapperPage = (props: Props) => {
             </div>
           }
         >
-          {collectionId ? (
+          {collectionId && !isPlaylistPath ? (
             <CollectionPage collectionId={collectionId} />
           ) : isPageLike ? (
             <ClaimPage uri={uri} latestContentPath={latestContentPath} liveContentPath={liveContentPath} />
@@ -86,8 +123,10 @@ const EmbedWrapperPage = (props: Props) => {
 EmbedWrapperPage.propTypes = {
   uri: PropTypes.string,
   collectionId: PropTypes.string,
+  collectionFirstItemUri: PropTypes.string,
   isCollection: PropTypes.bool,
   renderMode: PropTypes.string,
+  doFetchItemsInCollection: PropTypes.func,
 };
 
 export default EmbedWrapperPage;
