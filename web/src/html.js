@@ -130,6 +130,7 @@ function buildFarcasterEmbedScripts(options = {}) {
 //
 function buildOgMetadata(overrideOptions = {}) {
   const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl, isEmbed } = overrideOptions;
+  console.log('[DEBUG] buildOgMetadata fcActionUrl:', fcActionUrl);
   const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
@@ -515,7 +516,9 @@ async function getHtml(ctx) {
   if (requestPath === '/' || requestPath.length === 0) {
     // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
     // Use current origin to avoid pointing to production URL in dev.
-    let ogMetadata = buildBasicOgMetadata({ baseUrl: ctx.origin, fcActionUrl: `${ctx.origin}/$/embed/home` });
+    const homeFcActionUrl = `${ctx.origin}/$/embed/home`;
+    console.log('[DEBUG] Homepage fcActionUrl:', homeFcActionUrl, 'ctx.origin:', ctx.origin);
+    let ogMetadata = buildBasicOgMetadata({ baseUrl: ctx.origin, fcActionUrl: homeFcActionUrl });
     return insertToHead(html, ogMetadata);
   }
 
