@@ -33,14 +33,21 @@ const EmbedWrapperPage = (props: Props) => {
     match,
   } = useHistory();
 
-  const matchedPath = buildMatchWithHash(match, window?.location?.hash);
-  let uri = getUriFromMatch(matchedPath);
-  if (!uri) uri = incomingUri;
-
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
   const latestContentPath = featureParam === PAGES.LATEST;
   const liveContentPath = featureParam === PAGES.LIVE_NOW;
+
+  // For live/latest content, use the URI from selector (which resolves to the actual stream)
+  // Otherwise, try to derive from match first
+  let uri;
+  if (liveContentPath || latestContentPath) {
+    uri = incomingUri;
+  } else {
+    const matchedPath = buildMatchWithHash(match, window?.location?.hash);
+    uri = getUriFromMatch(matchedPath);
+    if (!uri) uri = incomingUri;
+  }
   const embedLightBackground = urlParams.get('embedBackgroundLight');
 
   // Determine if this should render like a full page (channels/collections) or minimal (videos/posts)

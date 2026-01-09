@@ -642,29 +642,7 @@ function VideoViewer(props: Props) {
         />
 
         {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (
-          <div
-            style={{
-              position: 'absolute',
-              right: '8px',
-              bottom: '48px', // sit just above the seek bar
-              zIndex: 7,
-              display: 'flex',
-              gap: '8px',
-              pointerEvents: 'auto',
-              background: 'rgba(0, 0, 0, 0.45)',
-              borderRadius: '8px',
-              padding: '6px 8px',
-              alignItems: 'center',
-              backdropFilter: 'blur(1.5px)',
-              // Improve legibility of hover states inside the overlay by
-              // overriding the colors used by file-action hover styles.
-              // This keeps counts/icons high-contrast on dark background.
-              '--color-link': 'var(--color-text)',
-              '--color-fire': 'var(--color-text)',
-              '--color-slime': 'var(--color-text)',
-            }}
-            aria-label={__('Reactions')}
-          >
+          <div className="embed-reactions-overlay" aria-label={__('Reactions')}>
             <FileReactions uri={uri} />
           </div>
         )}
