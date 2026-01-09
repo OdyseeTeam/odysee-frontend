@@ -246,6 +246,7 @@ function buildHead() {
 }
 
 function buildBasicOgMetadata(overrideOptions = {}) {
+  console.log('[DEBUG] buildBasicOgMetadata received:', JSON.stringify(overrideOptions));
   const head = BEGIN_STR + addFavicon() + buildOgMetadata(overrideOptions) + FINAL_STR;
   return head;
 }
