@@ -55,6 +55,7 @@ type Props = {
   openChangelog: ({}) => void,
   setSidebarOpen: (boolean) => void,
   signOut: () => void,
+  hideSidebarToggle?: boolean,
 };
 
 const Header = (props: Props) => {
@@ -116,7 +117,9 @@ const Header = (props: Props) => {
 
   // Sign out if they click the "x" when they are on the password prompt
   const authHeaderAction = syncError && { onClick: signOut };
-  const homeButtonNavigationProps = (isVerifyPage && {}) || (authHeader && authHeaderAction) || { navigate: '/' };
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
+  const homeButtonNavigationProps = (isVerifyPage && {}) ||
+    (authHeader && authHeaderAction) || { navigate: isEmbedPath ? '/$/embed/home' : '/' };
   const sidebarLabel = sidebarOpen
     ? __('Close sidebar - hide channels you are following.')
     : __('Expand sidebar - view channels you are following.');
@@ -244,7 +247,7 @@ const Header = (props: Props) => {
             <div className="header__menu--left">
               <SkipNavigationButton />
 
-              {!authHeader && (
+              {!authHeader && !props.hideSidebarToggle && (
                 <span style={{ position: 'relative' }}>
                   <Button
                     aria-label={sidebarLabel}
@@ -262,7 +265,7 @@ const Header = (props: Props) => {
                 aria-label={__('Home')}
                 className="header__navigationItem--logo"
                 onClick={() => {
-                  if (pathname === '/') {
+                  if (pathname === '/' || pathname === '/$/embed/home') {
                     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
                     doClearClaimSearch();
                   }

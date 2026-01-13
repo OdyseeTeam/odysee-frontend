@@ -109,8 +109,9 @@ function ChannelPage(props: Props) {
   const {
     push,
     goBack,
-    location: { search },
+    location: { search, pathname },
   } = useHistory();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
@@ -262,7 +263,8 @@ function ChannelPage(props: Props) {
   }
 
   function onTabChange(newTabIndex, keepFilters) {
-    const url = formatLbryUrlForWeb(uri);
+    const baseUrl = formatLbryUrlForWeb(uri);
+    const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
     let search = '';
 
     if (!keepFilters) setFilters(undefined);
@@ -328,11 +330,12 @@ function ChannelPage(props: Props) {
 
   React.useEffect(() => {
     if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
-      const url = formatLbryUrlForWeb(uri);
+      const baseUrl = formatLbryUrlForWeb(uri);
+      const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
       const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
       push(`${url}${search}`);
     }
-  }, [hideShorts, currentView, uri, push]);
+  }, [hideShorts, currentView, uri, push, isEmbedPath]);
 
   if (editing) {
     return <ChannelEdit uri={uri} onDone={() => goBack()} />;

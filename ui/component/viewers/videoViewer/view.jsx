@@ -23,6 +23,7 @@ import { useGetAds } from 'effects/use-get-ads';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import FileReactions from 'component/fileReactions';
 import { useHistory } from 'react-router';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
@@ -534,6 +535,8 @@ function VideoViewer(props: Props) {
     playerRef.current.play();
   }
 
+  const [hovered, setHovered] = useState(false);
+
   return (
     <>
       {isEmbedded && (
@@ -547,6 +550,8 @@ function VideoViewer(props: Props) {
           'file-viewer--is-playing': isPlaying,
           'file-viewer--ended-embed': showEmbedEndOverlay,
         })}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
         {showRecommendationOverlay && (
@@ -635,6 +640,12 @@ function VideoViewer(props: Props) {
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
           autoPlayNextShort={autoPlayNextShort}
         />
+
+        {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (
+          <div className="embed-reactions-overlay" aria-label={__('Reactions')}>
+            <FileReactions uri={uri} />
+          </div>
+        )}
       </div>
     </>
   );
