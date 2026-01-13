@@ -327,24 +327,30 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       player.appState = {};
 
-      player.reloadSourceOnError({ errorInterval: 10 });
+      if (typeof player.reloadSourceOnError === 'function') {
+        player.reloadSourceOnError({ errorInterval: 10 });
+      }
 
-      player.mobileUi({
-        fullscreen: {
-          enterOnRotate: false,
-        },
-        touchControls: {
-          seekSeconds: 10,
-        },
-      });
+      if (typeof player.mobileUi === 'function') {
+        player.mobileUi({
+          fullscreen: {
+            enterOnRotate: false,
+          },
+          touchControls: {
+            seekSeconds: 10,
+          },
+        });
+      }
 
-      player.i18n();
-      player.settingsMenu();
-      player.timeMarkerPlugin();
-      player.hlsQualitySelector({ displayCurrentQuality: true });
+      if (typeof player.i18n === 'function') player.i18n();
+      if (typeof player.settingsMenu === 'function') player.settingsMenu();
+      if (typeof player.timeMarkerPlugin === 'function') player.timeMarkerPlugin();
+      if (typeof player.hlsQualitySelector === 'function') {
+        player.hlsQualitySelector({ displayCurrentQuality: true });
+      }
 
       // Add recsys plugin
-      if (shareTelemetry) {
+      if (shareTelemetry && typeof player.recsys === 'function') {
         player.recsys({
           videoId: claimId,
           userId: userId,
@@ -359,13 +365,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       Chromecast.initialize(player);
 
-      player.airPlay();
+      if (typeof player.airPlay === 'function') player.airPlay();
 
-      player.watchdog({
-        timeoutMs: 15000,
-        livestreamsOnly: true,
-        action: () => setReload(Date.now()),
-      });
+      if (typeof player.watchdog === 'function') {
+        player.watchdog({
+          timeoutMs: 15000,
+          livestreamsOnly: true,
+          action: () => setReload(Date.now()),
+        });
+      }
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -403,6 +411,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
+        // Dispose old player if it exists to prevent "already initialised" conflicts
+        if (window.player && typeof window.player.dispose === 'function') {
+          try {
+            window.player.dispose();
+          } catch (e) {
+            console.warn('Failed to dispose old player:', e);
+          }
+          window.player = null;
+          window.oldSavedDiv = null;
+        }
+
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement);
         if (!vjsPlayer) {

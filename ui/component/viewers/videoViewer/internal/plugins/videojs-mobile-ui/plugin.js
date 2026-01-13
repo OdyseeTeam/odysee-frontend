@@ -66,8 +66,19 @@ const onPlayerReady = (player, options) => {
 
   const controlBar = player.getChild('ControlBar');
 
-  // Insert before the ControlBar:
+  // Guard: ControlBar must exist and be in the player's children
+  if (!controlBar) {
+    videojs.log.warn('mobileUi: ControlBar not found, skipping mobile UI setup');
+    return;
+  }
+
   const controlBarIdx = player.children_.indexOf(controlBar);
+  if (controlBarIdx === -1) {
+    videojs.log.warn('mobileUi: ControlBar not in player children, skipping mobile UI setup');
+    return;
+  }
+
+  // Insert before the ControlBar:
   player.addChild('touchOverlay', options.touchControls, controlBarIdx);
 
   // Make the TouchOverlay the new parent of the ControlBar.
