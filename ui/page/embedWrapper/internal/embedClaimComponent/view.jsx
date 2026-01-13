@@ -189,7 +189,7 @@ const EmbeddedVideoClaimComponent = ({ uri, streamClaim }) => (
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
 EmbeddedVideoClaimComponent.propTypes = {
   uri: PropTypes.string.isRequired,
-  streamClaim: PropTypes.func,
+  streamClaim: PropTypes.object,
 };
 
 // Minimal Markdown Embed Viewer: fetch content and render markdown

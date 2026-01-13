@@ -170,7 +170,9 @@ async function getOEmbed(ctx) {
         }
       } catch {}
     }
-    return 'The URL is invalid or the playlist is empty.';
+    ctx.status = 400;
+    ctx.set('Content-Type', 'application/json');
+    return { error: 'The URL is invalid or the playlist is empty.' };
   }
 
   const { claim, error } = await getClaim(claimUrl);
