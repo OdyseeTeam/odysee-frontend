@@ -387,7 +387,7 @@ function ClaimMenuList(props: Props) {
 
     return (
       <>
-        {isAuthenticated && claimInCollection && (
+        {isAuthenticated && claimInCollection && isMyCollection && (
           <>
             <RemoveFromCollectionMenuItem />
             <hr className="menu__separator" />
