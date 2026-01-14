@@ -42,7 +42,7 @@
 .navigation {
   position: fixed;
   left: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   top: var(--header-height);
   width: var(--side-nav-width);
@@ -71,15 +71,6 @@
   .button--secondary {
     background-color: var(--color-odysee) !important;
     color: var(--color-odysee-contrast) !important;
-  }
-
-  @media (min-width: $breakpoint-medium) {
-    overflow-y: hidden;
-    justify-content: space-between;
-
-    &:hover {
-      overflow-y: auto;
-    }
   }
 
   @media (max-width: $breakpoint-medium) {
@@ -116,13 +107,6 @@
 
 .navigation--push {
   transform: translateX(0);
-
-  @media (min-width: $breakpoint-medium) {
-    &:hover {
-      overflow-y: auto;
-      width: calc(var(--side-nav-width) + 6px);
-    }
-  }
 }
 
 .navigation--mac {
