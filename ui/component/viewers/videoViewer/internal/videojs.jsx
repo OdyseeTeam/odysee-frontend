@@ -572,6 +572,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             environment: stripeEnvironment,
           });
 
+          // Guard: player may have been disposed during async operation
+          if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
         } else if (livestreamVideoUrl) {
           vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
@@ -581,6 +584,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.removeClass('livestreamPlayer');
 
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+
+        // Guard: player may have been disposed during async operation
+        if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
@@ -613,8 +620,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       doSetVideoSourceLoaded(uri);
 
+      // Guard: player may have been disposed during async operations
+      if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
       // bugfix thumbnails showing up if new video doesn't have them
-      if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
+      if (typeof vjsPlayer.vttThumbnails?.detach === 'function') {
         vjsPlayer.vttThumbnails.detach();
       }
 
