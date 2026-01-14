@@ -171,6 +171,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
+    // For live livestreams, the streaming URL comes from activeLivestreamForChannel, not streamingUrl
+    const hasStreamSource = streamingUrl || (isLivestreamClaim && isCurrentClaimLive);
+
     function handleClick() {
       streamClaim();
 
@@ -346,7 +349,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Loading State -- return before component render
     if (
       (!playingUri && !streamStarted) ||
-      !streamingUrl ||
+      !hasStreamSource ||
       embeddedLivestreamPendingStart ||
       livestreamUnplayable ||
       (isPlayable && !currentUriPlaying)

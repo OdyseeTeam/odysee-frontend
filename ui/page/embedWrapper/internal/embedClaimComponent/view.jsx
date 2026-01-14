@@ -46,6 +46,7 @@ const EmbedClaimComponent = (props) => {
     doFileGetForUri,
     collectionUrls,
     doFetchItemsInCollection,
+    doFetchChannelIsLiveForId,
   } = props;
 
   const {
@@ -70,12 +71,25 @@ const EmbedClaimComponent = (props) => {
     }
   }, [isCollection, collectionId, doFetchItemsInCollection]);
 
+  // Fetch livestream status for embedded livestreams and channel embeds with feature=livenow
+  React.useEffect(() => {
+    if ((isLivestreamClaim || isChannel) && channelClaimId && doFetchChannelIsLiveForId) {
+      doFetchChannelIsLiveForId(channelClaimId);
+    }
+  }, [isLivestreamClaim, isChannel, channelClaimId, doFetchChannelIsLiveForId]);
+
   if (isChannel) {
-    if (featureParam && latestClaimUrl !== null) {
+    // For feature=livenow, show the latest livestream if available
+    if (featureParam === 'livenow' && latestClaimUrl) {
       return (
-        <div className="main--empty">
-          <Spinner />
-        </div>
+        <EmbeddedVideoClaim uri={latestClaimUrl} embedded>
+          <div className="help--notice help--notice-embed-livestream">
+            <I18nMessage tokens={{ channel_name: channelName, click_here: <ClickHereButton /> }}>
+              %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
+              %click_here% to start chatting.
+            </I18nMessage>
+          </div>
+        </EmbeddedVideoClaim>
       );
     }
 
@@ -106,7 +120,7 @@ const EmbedClaimComponent = (props) => {
           </div>
         )}
 
-        {latestClaimUrl === null && (
+        {latestClaimUrl === null && featureParam === 'livenow' && (
           <div className="help--notice" style={{ marginTop: '20px' }}>
             {__("%channelName% isn't live right now, check back later to watch the stream.", { channelName })}
           </div>
@@ -260,4 +274,5 @@ EmbedClaimComponent.propTypes = {
   doFileGetForUri: PropTypes.func,
   collectionUrls: PropTypes.array,
   doFetchItemsInCollection: PropTypes.func,
+  doFetchChannelIsLiveForId: PropTypes.func,
 };

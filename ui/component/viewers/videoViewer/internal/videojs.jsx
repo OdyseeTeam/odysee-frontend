@@ -402,6 +402,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     Chromecast.updateTitles(title, channelTitle);
   }, [title, channelTitle]);
 
+  // Update livestream source when activeLivestreamForChannel becomes available
+  // This is separate from the main useEffect to avoid player disposal/recreation on embeds
+  useEffect(() => {
+    const isLivestream = isLivestreamClaim && userClaimId;
+    if (!isLivestream || !window.player) return;
+
+    const videoUrl = activeLivestreamForChannel?.videoUrl;
+    if (videoUrl && !window.player.currentSrc()) {
+      window.player.src({ type: 'application/x-mpegurl', src: videoUrl });
+      window.player.load();
+    }
+  }, [activeLivestreamForChannel, isLivestreamClaim, userClaimId]);
+
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
@@ -560,7 +573,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           });
 
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
-        } else {
+        } else if (livestreamVideoUrl) {
           vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
         }
       } else {

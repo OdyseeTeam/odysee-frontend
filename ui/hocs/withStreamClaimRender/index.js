@@ -24,7 +24,12 @@ import {
   selectCanViewFileForUri,
 } from 'redux/selectors/content';
 import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
-import { selectIsActiveLivestreamForUri, selectChannelIsLiveFetchedForUri } from 'redux/selectors/livestream';
+import {
+  selectIsActiveLivestreamForUri,
+  selectIsActiveLivestreamForClaimId,
+  selectActiveLivestreamForChannel,
+  selectChannelIsLiveFetchedForUri,
+} from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
 
@@ -92,7 +97,10 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isCollectionClaim: valueType === 'collection',
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
-    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
+    isCurrentClaimLive:
+      selectIsActiveLivestreamForUri(state, uri) ||
+      selectIsActiveLivestreamForClaimId(state, claimId) ||
+      Boolean(selectActiveLivestreamForChannel(state, channelClaimId)),
     scheduledState: selectScheduledStateForUri(state, uri),
     playingUri: selectPlayingUri(state),
     playingCollectionId: selectPlayingCollectionId(state),
