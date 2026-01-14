@@ -28,6 +28,25 @@ export default class Chromecast {
   }
 
   /**
+   * Clean up chromecast plugin before player disposal.
+   * The silvermine-chromecast plugin has an internal interval that can cause
+   * errors if it fires after the player is disposed.
+   */
+  static cleanup(player: any) {
+    if (!player) return;
+
+    try {
+      // Try to access and dispose the chromecast plugin if it exists
+      const chromecastPlugin = player.chromecast_;
+      if (chromecastPlugin && typeof chromecastPlugin.dispose === 'function') {
+        chromecastPlugin.dispose();
+      }
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+  }
+
+  /**
    * A React-to-vjs interface to pass the new content and channel titles to the
    * chromecast plugin.  Inline functions cannot be used in the `chromecast`
    * property in `videoJsOptions` due to stale closure, since we no longer

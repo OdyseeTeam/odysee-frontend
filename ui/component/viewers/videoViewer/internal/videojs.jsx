@@ -363,7 +363,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       adapter.ready();
 
-      Chromecast.initialize(player);
+      // Initialize Chromecast if plugin is available
+      if (typeof player.chromecast === 'function') {
+        try {
+          Chromecast.initialize(player);
+        } catch (e) {
+          console.warn('Failed to initialize Chromecast:', e);
+        }
+      }
 
       if (typeof player.airPlay === 'function') player.airPlay();
 
@@ -414,6 +421,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // Dispose old player if it exists to prevent "already initialised" conflicts
         if (window.player && typeof window.player.dispose === 'function') {
           try {
+            Chromecast.cleanup(window.player);
+            // Cleanup AirPlay plugin (same @silvermine package as Chromecast)
+            const airPlayPlugin = window.player.airPlay_;
+            if (airPlayPlugin && typeof airPlayPlugin.dispose === 'function') {
+              airPlayPlugin.dispose();
+            }
             window.player.dispose();
           } catch (e) {
             console.warn('Failed to dispose old player:', e);
@@ -433,6 +446,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         doSetVideoSourceLoaded(uri);
       } else {
         vjsPlayer = window.player;
+      }
+
+      // Guard: player must exist before proceeding
+      if (!vjsPlayer) {
+        return;
       }
 
       // hide unused elements on livestream
