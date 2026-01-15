@@ -89,6 +89,7 @@ type Props = {
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
+  fetchDelegatesForMyChannels: () => void,
   homepageFetched: boolean,
   defaultChannelClaim: ?any,
   nagsShown: boolean,
@@ -134,6 +135,7 @@ function App(props: Props) {
     setIncognito,
     fetchModBlockedList,
     fetchModAmIList,
+    fetchDelegatesForMyChannels,
     defaultChannelClaim,
     announcement,
     homepageOrder,
@@ -357,6 +359,7 @@ function App(props: Props) {
     if (hasMyChannels) {
       fetchModBlockedList();
       fetchModAmIList();
+      fetchDelegatesForMyChannels();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMyChannels, hasNoChannels, setIncognito]);
