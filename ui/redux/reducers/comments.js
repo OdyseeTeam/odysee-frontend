@@ -1148,9 +1148,9 @@ export default handleActions(
       const { removedDelegateId, creatorChannelId } = action.data;
       const moderationDelegatesById = Object.assign({}, state.moderationDelegatesById);
 
-      moderationDelegatesById[creatorChannelId] = moderationDelegatesById[creatorChannelId].filter(
-        (delegate) => delegate.channelId !== removedDelegateId
-      );
+      moderationDelegatesById[creatorChannelId] = Array.isArray(moderationDelegatesById[creatorChannelId])
+        ? moderationDelegatesById[creatorChannelId].filter((delegate) => delegate.channelId !== removedDelegateId)
+        : [];
 
       return {
         ...state,
