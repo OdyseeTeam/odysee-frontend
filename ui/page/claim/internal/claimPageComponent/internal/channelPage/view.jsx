@@ -59,7 +59,6 @@ type Props = {
   channelIsMine: boolean,
   isSubscribed: boolean,
   channelIsBlocked: boolean,
-  blackListedData: { [string]: string },
   fetchSubCount: (string) => void,
   subCount: number,
   pending: boolean,
@@ -87,7 +86,6 @@ function ChannelPage(props: Props) {
     coverUrl,
     channelIsMine,
     isSubscribed,
-    blackListedData,
     fetchSubCount,
     subCount,
     pending,
@@ -115,7 +113,9 @@ function ChannelPage(props: Props) {
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
-  const hideAboutTab = !showClaims && !isGlobalMod;
+  const channelIsBlackListed = banState.blacklisted;
+  // Show About tab for blacklisted channels (DMCA message) or channels with content
+  const hideAboutTab = !showClaims && !isGlobalMod && !channelIsBlackListed;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
@@ -217,12 +217,6 @@ function ChannelPage(props: Props) {
     );
   } else {
     collectionEmpty = <section className="main--empty">{__('No Playlists found')}</section>;
-  }
-
-  let channelIsBlackListed = false;
-
-  if (claim && blackListedData) {
-    channelIsBlackListed = blackListedData[claim.claim_id];
   }
 
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
