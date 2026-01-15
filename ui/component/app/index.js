@@ -32,7 +32,11 @@ import {
 } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
-import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
+import {
+  doFetchModBlockedList,
+  doFetchCommentModAmIList,
+  doCommentModListDelegatesForMyChannels,
+} from 'redux/actions/comments';
 import App from './view';
 
 const select = (state) => ({
@@ -68,6 +72,7 @@ const perform = {
   setIncognito: doSetIncognito,
   fetchModBlockedList: doFetchModBlockedList,
   fetchModAmIList: doFetchCommentModAmIList,
+  fetchDelegatesForMyChannels: doCommentModListDelegatesForMyChannels,
   doOpenAnnouncements,
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,

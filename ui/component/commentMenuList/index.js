@@ -1,12 +1,12 @@
 import { connect } from 'react-redux';
 import { doChannelMute } from 'redux/actions/blocked';
-import { doCommentPin, doCommentModAddDelegate } from 'redux/actions/comments';
+import { doCommentPin, doCommentModAddDelegate, doCommentModRemoveDelegate } from 'redux/actions/comments';
 import { doOpenModal, doSetActiveChannel } from 'redux/actions/app';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectModerationDelegatorsById } from 'redux/selectors/comments';
+import { selectModerationDelegatorsById, selectModerationDelegatesById } from 'redux/selectors/comments';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import CommentMenuList from './view';
@@ -25,6 +25,7 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, authorClaim),
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),
+    moderationDelegatesById: selectModerationDelegatesById(state),
     authorCanonicalUri,
     authorId,
   };
@@ -38,6 +39,8 @@ const perform = (dispatch) => ({
   pinComment: (commentId, claimId, remove) => dispatch(doCommentPin(commentId, claimId, remove)),
   commentModAddDelegate: (modChanId, modChanName, creatorChannelClaim) =>
     dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim, true)),
+  commentModRemoveDelegate: (modChanId, modChanName, creatorChannelClaim) =>
+    dispatch(doCommentModRemoveDelegate(modChanId, modChanName, creatorChannelClaim, true)),
   doSetActiveChannel: (authorId) => dispatch(doSetActiveChannel(authorId)),
 });
 
