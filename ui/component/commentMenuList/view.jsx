@@ -292,7 +292,7 @@ function CommentMenuList(props: Props) {
       {activeChannelIsCreator && authorIsModerator && (
         <MenuItem className="comment__menu-option" onSelect={removeModerator}>
           <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.ADD} />
+            <Icon aria-hidden icon={ICONS.REMOVE} />
             {__('Remove as moderator')}
           </div>
           <span className="comment__menu-help">
