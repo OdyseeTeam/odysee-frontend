@@ -57,7 +57,10 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
   return await Lbryio.call('account', 'status', { environment: stripeEnvironment, v2: true }, 'post')
     .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
-      if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
+      // Check if response is new v2 format (AccountStatus with arweave/stripe properties)
+      // vs legacy format (StripeAccountStatus directly)
+      // $FlowFixMe - accountStatusResponse can be either format
+      if (accountStatusResponse?.arweave || accountStatusResponse?.stripe) {
         return accountStatusResponse;
       }
 
