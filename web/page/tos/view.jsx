@@ -315,7 +315,7 @@ const TOSPage = () => {
 
             <p>Designated Agent: Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016</p>
 
-            <p>E-Mail Address: hello@odysee.com</p>
+            <p>E-Mail Address: legal@odysee.com</p>
 
             <p>
               Please see 17 U.S.C. §512(c)(3) for the requirements of a proper notification. Also, please note that if
