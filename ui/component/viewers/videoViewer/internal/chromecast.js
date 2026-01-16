@@ -12,6 +12,25 @@ export default class Chromecast {
    * Actions that need to happen after initializing 'videojs'
    */
   static initialize(player: any) {
+    // --- Wrap player methods to be safe after disposal ---
+    // The silvermine chromecast plugin has an interval that may fire after player disposal
+    // and try to call player.on()/trigger(), causing "Invalid target for null#..." errors
+    const originalOn = player.on.bind(player);
+    player.on = function (...args: any) {
+      if (player.isDisposed()) {
+        return player; // Return player for chaining, but do nothing
+      }
+      return originalOn(...args);
+    };
+
+    const originalTrigger = player.trigger.bind(player);
+    player.trigger = function (...args: any) {
+      if (player.isDisposed()) {
+        return player;
+      }
+      return originalTrigger(...args);
+    };
+
     // --- Start plugin ---
     // player.chromecast();
     // window.odysee.chromecast.createChromecastButton()
@@ -27,6 +46,38 @@ export default class Chromecast {
       document.body.appendChild(script);
     }
     */
+  }
+
+  /**
+   * Clean up chromecast plugin before player disposal.
+   * The silvermine-chromecast plugin has an internal interval that can cause
+   * errors if it fires after the player is disposed.
+   */
+  static cleanup(player: any) {
+    if (!player) return;
+
+    try {
+      // Try to access and dispose the chromecast plugin if it exists
+      const chromecastPlugin = player.chromecast_;
+      if (chromecastPlugin) {
+        // Manually clear the interval that waits for Cast framework
+        // The silvermine plugin stores it on _intervalID
+        if (chromecastPlugin._intervalID) {
+          clearInterval(chromecastPlugin._intervalID);
+          chromecastPlugin._intervalID = null;
+        }
+        // Also check the session manager for any intervals
+        if (chromecastPlugin._sessionManager && chromecastPlugin._sessionManager._intervalID) {
+          clearInterval(chromecastPlugin._sessionManager._intervalID);
+          chromecastPlugin._sessionManager._intervalID = null;
+        }
+        if (typeof chromecastPlugin.dispose === 'function') {
+          chromecastPlugin.dispose();
+        }
+      }
+    } catch (e) {
+      // Ignore cleanup errors
+    }
   }
 
   /**

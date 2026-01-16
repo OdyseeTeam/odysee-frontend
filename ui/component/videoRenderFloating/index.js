@@ -19,12 +19,11 @@ import { withRouter } from 'react-router';
 import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
 import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'redux/selectors/livestream';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { getVideoClaimAspectRatio } from 'util/claim';
+import { getVideoClaimAspectRatio, isClaimShort } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import VideoRenderFloating from './view';
 import { selectShortsSidePanelOpen } from '../../redux/selectors/shorts';
-import { isClaimShort } from '../../util/claim';
 
 const select = (state, props) => {
   const { location } = props;

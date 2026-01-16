@@ -13,7 +13,6 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
 import TabWrapper from './internal/tabWrapper';
-import { FormField } from 'component/common/form';
 import './style.scss';
 import { LocalStorage } from '../../../util/storage';
 import { SETTINGS } from 'constants/icons';
@@ -62,7 +61,7 @@ const CreatorArea = (props: Props) => {
   );
 
   const handleAckArPaymentsInfo = (acked: boolean) => {
-    LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, acked);
+    LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, String(acked));
     setAckArweavePaymentsInfo(acked);
   };
   const channelsToList = React.useMemo(() => {

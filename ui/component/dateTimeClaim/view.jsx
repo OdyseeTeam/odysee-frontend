@@ -26,7 +26,7 @@ function DateTimeClaim(props: Props) {
 
   function resolveDate(tags: ?Array<string>, claimTsList: ClaimTsList): ?Date {
     // Defaults should match selectDateForUri()
-    const forceCreationTimestamp = tags?.includes(VISIBILITY_TAGS.UNLISTED);
+    const forceCreationTimestamp = tags && tags.includes(VISIBILITY_TAGS.UNLISTED);
     const defaultTs = !forceCreationTimestamp ? claimTsList.released || claimTsList.created : claimTsList.created;
     return defaultTs ? new Date(defaultTs * 1000) : undefined;
   }

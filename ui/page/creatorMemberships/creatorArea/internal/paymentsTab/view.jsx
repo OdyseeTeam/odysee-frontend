@@ -8,6 +8,8 @@ interface IProps {
   doMembershipFetchIncomingPayments: () => void;
   txsFetching: boolean;
   channelsToList?: [];
+  transactions: Array<any>;
+  channelsToList?: Array<any>;
 }
 
 const PAGINATE_PARAM = 'page';

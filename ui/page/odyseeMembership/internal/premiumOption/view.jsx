@@ -36,6 +36,7 @@ const PremiumOption = (props: Props) => {
   // TODO use new had premium endpoint
   if (membershipView) {
     const membership = membershipView;
+    // $FlowIgnore - code here isn't currently used, so not trying to figure this out now
     const { Membership, MembershipDetails, Subscription } = membership; // find this
 
     const isCancelled = Subscription.status === 'canceled';

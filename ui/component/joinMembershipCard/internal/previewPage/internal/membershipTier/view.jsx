@@ -16,8 +16,8 @@ type Props = {
   isCanceled: boolean,
   isOwnChannel: boolean,
   userHasCreatorMembership: boolean, // here
-  doOpenCancelationModalForMembership: (string, ?boolean) => void,
-  thisMembership: Membership[],
+  doOpenCancelationModalForMembership: (Membership, ?boolean) => void,
+  thisMembership: Membership,
 };
 
 const MembershipTier = (props: Props) => {
@@ -107,7 +107,9 @@ const MembershipTier = (props: Props) => {
       return (
         <div className={'help'}>
           {__('$%membership_price% per month', {
-            membership_price: (membership?.prices[0].amount / 100).toFixed(membership?.prices[0].amount < 100 ? 2 : 0),
+            membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(
+              Number(membership?.prices[0].amount) < 100 ? 2 : 0
+            ),
           })}
         </div>
       );
@@ -123,7 +125,9 @@ const MembershipTier = (props: Props) => {
         icon={ICONS.MEMBERSHIP}
         button="primary"
         label={__('Join for $%membership_price% per month', {
-          membership_price: (membership?.prices[0].amount / 100).toFixed(membership?.prices[0].amount < 100 ? 2 : 0), // tiers
+          membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(
+            Number(membership?.prices[0].amount) < 100 ? 2 : 0
+          ), // tiers
         })}
         onClick={handleSelect}
         disabled={disabled}

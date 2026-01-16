@@ -58,11 +58,13 @@ export const useArStatus = () => {
     }
     if (
       !arStatus.connecting &&
-      (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance?.authInfo.authType === 'null') &&
-      walletType === 'extension' && !hasArConnection
-    ) {      
+      (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' ||
+        window.wanderInstance?.authInfo.authType === 'null') &&
+      walletType === 'extension' &&
+      !hasArConnection
+    ) {
       const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
-      if (!intentionalDisconnect){
+      if (!intentionalDisconnect) {
         dispatch(doArConnect());
       }
     }

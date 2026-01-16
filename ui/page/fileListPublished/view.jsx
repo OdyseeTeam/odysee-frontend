@@ -138,6 +138,7 @@ function FileListPublished(props: Props) {
   const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
+      // $FlowIgnore
       any_tags: Object.values(SCHEDULED_TAGS),
       channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
@@ -267,7 +268,7 @@ function FileListPublished(props: Props) {
         return comparisonObj.a.localeCompare(comparisonObj.b, undefined, { numeric: true, sensitivity: 'base' });
       }
 
-      function getComparisonObj() {
+      function populateComparisonObj() {
         let timestampComparisonObj = {};
         switch (memoizedSortOption.key) {
           case FILE_LIST.SORT_KEYS.RELEASED_AT:
@@ -276,9 +277,17 @@ function FileListPublished(props: Props) {
 
             timestampComparisonObj = {
               // $FlowFixMe
-              a: firstComparisonItem.value?.release_time || firstComparisonItem.meta.creation_timestamp,
+              a:
+                !firstComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) &&
+                firstComparisonItem.value?.release_time
+                  ? firstComparisonItem.value?.release_time
+                  : firstComparisonItem.meta.creation_timestamp,
               // $FlowFixMe
-              b: secondComparisonItem.value?.release_time || secondComparisonItem.meta.creation_timestamp,
+              b:
+                !secondComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) &&
+                secondComparisonItem.value?.release_time
+                  ? secondComparisonItem.value?.release_time
+                  : secondComparisonItem.meta.creation_timestamp,
             };
 
             Object.assign(comparisonObj, timestampComparisonObj);
@@ -300,7 +309,7 @@ function FileListPublished(props: Props) {
         }
       }
 
-      getComparisonObj();
+      populateComparisonObj();
 
       // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
@@ -373,6 +382,7 @@ function FileListPublished(props: Props) {
     const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
 
     return hasChannels ? (
+      // $FlowIgnore[incompatible-cast]: filterType is never 'All' here, probably.
       <ClaimSearchView key={filterType} csOptions={csOptions[filterType]} layout="list" pagination="infinite" />
     ) : (
       <Yrbl

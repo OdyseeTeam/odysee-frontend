@@ -195,6 +195,7 @@ export default function TextareaWithSuggestions(props: Props) {
 
   const restoreCursorPosition = (cursorIndex) => {
     if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
+      // $FlowIgnore
       queueMicrotask(() => {
         inputRef.current.setSelectionRange(cursorIndex, cursorIndex);
       });
@@ -312,6 +313,7 @@ export default function TextareaWithSuggestions(props: Props) {
       elem.focus();
       restoreCursorPosition(newCursorPos);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restoreCursorPosition excluded, just a helper function
     [messageValue, inputRef, onChange, suggestionValue]
   );
 

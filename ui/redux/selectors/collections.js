@@ -268,23 +268,52 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
 
 export const makeSelectClaimMenuCollectionsForUrl = () =>
   createSelector(
-    [selectLastUsedCollectionIds, selectCollectionsById, (state, url) => url],
-    (lastUsedCollectionIds, collectionsById, url) => {
+    [
+      selectLastUsedCollectionIds,
+      selectCollectionsById,
+      selectBuiltinCollections,
+      selectMyUnpublishedCollections,
+      selectMyEditedCollections,
+      selectMyCollectionClaimIds,
+      (state, url) => url,
+    ],
+    (
+      lastUsedCollectionIds,
+      collectionsById,
+      builtinCollections,
+      unpublishedCollections,
+      editedCollections,
+      myPublishedIds,
+      url
+    ) => {
       // $FlowFixMe
       const claimId = url.match(/[a-f0-9]{40}/)?.[0];
 
+      // Determine which collection IDs belong to the user
+      const builtinIds = Object.keys(builtinCollections || {});
+      const unpublishedIds = Object.keys(unpublishedCollections || {});
+      const editedIds = Object.keys(editedCollections || {});
+      const myCollectionIds = new Set([...builtinIds, ...unpublishedIds, ...editedIds, ...(myPublishedIds || [])]);
+
       const lastUsedCollections = lastUsedCollectionIds
+        .filter((id) => myCollectionIds.has(id)) // Only include my collections
         .map((id) => {
           const collection = collectionsById[id];
           return collection
-            ? { ...collection, hasClaim: collection.items?.some((item) => item === url || item === claimId) }
+            ? {
+                ...collection,
+                // $FlowFixMe
+                hasClaim: collection.items?.some((item) => item === url || item === claimId),
+              }
             : null;
         })
         .filter(Boolean);
 
-      const collectionsContainingClaim = Object.entries(collectionsById)
+      const collectionsContainingClaim = (Object.entries(collectionsById): Array<[string, any]>)
         .filter(
           ([id, collection]) =>
+            myCollectionIds.has(id) && // Only include my collections
+            // $FlowFixMe
             collection.items?.some((item) => item === url || item === claimId) &&
             !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
         )

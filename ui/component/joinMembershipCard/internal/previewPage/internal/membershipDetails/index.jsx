@@ -71,7 +71,7 @@ const MembershipDetails = (props: Props) => {
           <section className="membership-tier__infos">
             <span className="membership-tier__infos-description">{membership.description}</span>
             <label>{__('Pledge')}</label>
-            <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span>
+            <span style={{ display: 'flex' }}>${(Number(membership?.prices[0].amount) / 100).toFixed(2)}</span>
 
             <div className="membership-tier__perks">
               <div className="membership-tier__moon" />

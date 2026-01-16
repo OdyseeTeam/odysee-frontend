@@ -11,7 +11,7 @@ interface IProps {
   uri: string;
   membershipSub: MembershipSub;
   membershipIndex: number;
-  doOpenModal: () => void;
+  doOpenModal: (string, ?Object) => void;
   doOpenCancelationModalForMembership: (MembershipSub) => void;
   tipsEnabled: boolean; // type?
 }
@@ -32,7 +32,7 @@ function MembershipSubscribed(props: IProps) {
   const perks = membershipSub.perks;
   const isActive = membershipSub.subscription.is_active === true;
   const isCanceled = membershipSub.subscription.status === 'canceled';
-  const pending = membershipSub?.payments.some((p) => p.status === 'submitted');
+  const pending = membershipSub?.payments && membershipSub.payments.some((p) => p.status === 'submitted');
   console.log('membershipSub', membershipSub);
   const canRenew =
     membershipSub.subscription.earliest_renewal_at &&

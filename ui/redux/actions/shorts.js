@@ -16,17 +16,6 @@ export function doSetShortsSidePanel(isOpen: boolean) {
   };
 }
 
-export function doCloseShortsSidePanelOnEscape() {
-  return (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
-    const { sidePanelOpen } = state.shorts;
-
-    if (sidePanelOpen) {
-      dispatch(doSetShortsSidePanel(false));
-    }
-  };
-}
-
 export function doSetShortsPlaylist(uris: Array<string>) {
   return {
     type: ACTIONS.SET_SHORTS_PLAYLIST,
@@ -51,7 +40,7 @@ export const doToggleShortsAutoplay = () => ({
   type: ACTIONS.TOGGLE_SHORTS_AUTOPLAY,
 });
 
-export const doSetShortsAutoplay = (enabled) => ({
+export const doSetShortsAutoplay = (enabled: boolean) => ({
   type: ACTIONS.SET_SHORTS_AUTOPLAY,
   data: enabled,
 });

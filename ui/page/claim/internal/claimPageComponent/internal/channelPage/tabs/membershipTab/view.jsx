@@ -24,9 +24,9 @@ const MembershipTab = (props: Props) => {
   } = props;
 
   const activeMemberships =
-    myMembershipSubscriptions &&
-    myMembershipSubscriptions.length > 0 &&
-    myMembershipSubscriptions.filter((ms) => ms.subscription.is_active === true);
+    myMembershipSubscriptions && myMembershipSubscriptions.length > 0
+      ? myMembershipSubscriptions.filter((ms) => ms.subscription.is_active === true)
+      : [];
 
   if (!purchasedChannelMembership) {
     return <JoinMembershipCard uri={uri} />;

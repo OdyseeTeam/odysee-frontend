@@ -341,6 +341,9 @@ function ClaimMenuList(props: Props) {
     };
 
     const ToggleLastUsedCollectionMenuItems = () => {
+      if (!lastUsedCollections || lastUsedCollections.length === 0) {
+        return null;
+      }
       return lastUsedCollections.map((lastUsedCollection) => {
         return (
           <MenuItem
@@ -384,7 +387,7 @@ function ClaimMenuList(props: Props) {
 
     return (
       <>
-        {isAuthenticated && claimInCollection && (
+        {isAuthenticated && claimInCollection && isMyCollection && (
           <>
             <RemoveFromCollectionMenuItem />
             <hr className="menu__separator" />

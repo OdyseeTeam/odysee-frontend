@@ -4,7 +4,7 @@ import Page from 'component/page';
 import MarkdownPreview from 'component/common/markdown-preview';
 
 export default function PageFyp() {
-  const content = `# Recommended Videos - Alpha version available to Odysee Premium users
+  const content = `# Recommended Videos - Beta version available to signed in users without enough watch history
   ## What is this?
   Our content catalog is growing fast. Each day, there are more creators using the platform. This is great news! But it also makes finding things you would like to watch harder. Odysee's recommended videos tries to make it easier.
 
@@ -15,7 +15,7 @@ export default function PageFyp() {
   No. The current algorithm itself has a tendency to favor channels with more viewers. But this is just because we have more evidence for those ones. Otherwise, we aren't making editorial decisions or picking favorites.
 
   ## My results suck, wtf?
-  The more videos you watch, the better it should be. But this system is brand new and it will take a bit of time to tune it. Please have patience. Or, if you want to complain or suggest something, please email: mailto:recommendations@odysee.com
+  The more videos you watch, the better it should be. But this system is brand new and it will take a bit of time to tune it. Please have patience. Or, if you want to complain or suggest something, please email: mailto:help@odysee.com
 
   ## Why don't I have any recommendations?
   Right now, it's a Premium feature. But you also might not be using Odysee enough. It's hard to make recommendations without knowing much about you. Otherwise, if you use uBlock Origin or Brave, make sure they are disabled on Odysee, as they interfere with us learning what you like.`;

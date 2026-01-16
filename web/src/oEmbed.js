@@ -1,4 +1,5 @@
 const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.js');
+const PAGES = require('../../ui/constants/pages');
 
 const {
   generateEmbedIframeData,
@@ -43,7 +44,7 @@ async function getClaim(requestUrl) {
 // Generate
 // ****************************************************************************
 
-function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
+function generateOEmbedData(claim, embedlyReferrer, timestamp, referral, collectionId) {
   const { value, signing_channel: authorClaim } = claim;
 
   const claimTitle = value.title;
@@ -53,9 +54,16 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const autoplay = true;
 
-  const embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, null, autoplay);
-  const videoUrl =
-    embedUrl + (embedlyReferrer ? `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}` : '');
+  let embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, null, autoplay);
+  // Add collection ID (lid) parameter if provided
+  if (collectionId) {
+    embedUrl += (embedUrl.includes('?') ? '&' : '?') + `lid=${collectionId}`;
+  }
+  let videoUrl = embedUrl;
+  if (embedlyReferrer) {
+    videoUrl +=
+      (videoUrl.includes('?') ? '&' : '?') + `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}`;
+  }
 
   const { html } = generateEmbedIframeData(videoUrl);
 
@@ -123,6 +131,49 @@ async function getOEmbed(ctx) {
   const paramsRegex = /[?&](?:\w=)?/g;
   const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
   const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
+
+  // Handle playlist URLs - resolve to first item
+  const playlistPath = `/$/${PAGES.PLAYLIST}/`;
+  if (claimUrl.includes(playlistPath)) {
+    const collectionClaimId = claimUrl.match(/[a-f0-9]{40}/i)?.at(0);
+    if (collectionClaimId) {
+      try {
+        const collectionResponse = await Lbry.claim_search({ claim_ids: [collectionClaimId] });
+        const collectionClaim = collectionResponse?.items?.at(0);
+        const firstItemClaimId = collectionClaim?.value?.claims?.[0];
+
+        if (firstItemClaimId) {
+          const firstItemResponse = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+          const firstItemClaim = firstItemResponse?.items?.at(0);
+
+          if (firstItemClaim) {
+            const queryTimestampParam = getParameterByName('t', decodedQueryUri);
+            const queryReferralParam = getParameterByName('r', decodedQueryUri);
+            // Pass collectionClaimId as lid parameter for playlist context
+            const oEmbedData = generateOEmbedData(
+              firstItemClaim,
+              embedlyReferrer,
+              queryTimestampParam,
+              queryReferralParam,
+              collectionClaimId
+            );
+
+            const formatQuery = getParameterByName('format', requestUrl);
+            if (formatQuery === 'xml') {
+              ctx.set('Content-Type', 'application/xml');
+              return generateXmlData(oEmbedData);
+            }
+
+            ctx.set('Content-Type', 'application/json');
+            return oEmbedData;
+          }
+        }
+      } catch {}
+    }
+    ctx.status = 400;
+    ctx.set('Content-Type', 'application/json');
+    return { error: 'The URL is invalid or the playlist is empty.' };
+  }
 
   const { claim, error } = await getClaim(claimUrl);
 

@@ -7,6 +7,7 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
   selectClaimIsMine,
+  selectIsShortForUri,
 } from 'redux/selectors/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
@@ -17,7 +18,6 @@ import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import formatMediaDuration from 'util/formatMediaDuration';
 import ClaimPreviewTile from './view';
-import { selectIsShortForUri } from '../../redux/selectors/claims';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);

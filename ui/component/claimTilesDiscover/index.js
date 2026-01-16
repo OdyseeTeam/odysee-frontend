@@ -95,6 +95,7 @@ function resolveSearchOptions(props) {
     claimIds,
     duration,
     contentAspectRatio,
+    excludeShorts,
   } = props;
 
   const urlParams = new URLSearchParams(location.search);
@@ -188,10 +189,14 @@ function resolveSearchOptions(props) {
     options.claim_ids = claimIds;
   }
 
-  if (hideShorts) {
-    // options.duration = `>${SETTINGS.SHORTS_DURATION_LIMIT}`;
+  if (hideShorts || excludeShorts) {
+    // options.duration = `>${SETTINGS.SHORTS_DURATION_LTE}`;
     options.exclude_shorts = true;
-  } else {
+  }
+
+  // Preserve existing behavior: when the global "hide shorts" setting is enabled, don't apply
+  // row-specific duration/aspect filters.
+  if (!hideShorts) {
     if (duration) {
       options.duration = duration;
     }

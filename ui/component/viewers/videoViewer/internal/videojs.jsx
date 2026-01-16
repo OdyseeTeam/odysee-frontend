@@ -3,6 +3,7 @@ import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
+import './keyboard-shortcuts-overlay.scss';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
@@ -79,6 +80,13 @@ export type Player = {
   one: (string, (any) => void) => void,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
+  keyboardShortcutsOverlay?: {
+    open: () => void,
+    close: () => void,
+    toggle: (forceState?: boolean) => void,
+    isOpen: () => boolean,
+  },
+  toggleKeyboardShortcutsOverlay?: (forceState?: boolean) => void,
   readyState: () => number,
   requestFullscreen: () => boolean,
   setInterval: (any, number) => number,
@@ -210,6 +218,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const volumePanelRef = useRef();
 
   const keyDownHandlerRef = useRef();
+  const keyUpHandlerRef = useRef();
+  const keyStateResetHandlerRef = useRef();
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
 
@@ -218,15 +228,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const { search } = useLocation();
 
+  const toggleKeyboardShortcutsOverlay = (forceState?: boolean) => {
+    if (playerRef.current && typeof playerRef.current.toggleKeyboardShortcutsOverlay === 'function') {
+      playerRef.current.toggleKeyboardShortcutsOverlay(forceState);
+    }
+  };
+
   // initiate keyboard shortcuts
-  const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
-    keyboardShorcuts({
-      isMobile,
-      isLivestreamClaim,
-      toggleVideoTheaterMode,
-      playNext,
-      playPrevious,
-    });
+  const {
+    createKeyDownShortcutsHandler,
+    createKeyUpShortcutsHandler,
+    createKeyStateResetHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
+    isMobile,
+    isLivestreamClaim,
+    toggleVideoTheaterMode,
+    toggleKeyboardShortcutsOverlay,
+    playNext,
+    playPrevious,
+  });
 
   const [reload, setReload] = useState('initial');
 
@@ -304,16 +326,20 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       player.appState = {};
 
-      player.reloadSourceOnError({ errorInterval: 10 });
+      if (typeof player.reloadSourceOnError === 'function') {
+        player.reloadSourceOnError({ errorInterval: 10 });
+      }
 
-      player.mobileUi({
-        fullscreen: {
-          enterOnRotate: false,
-        },
-        touchControls: {
-          seekSeconds: 10,
-        },
-      });
+      if (typeof player.mobileUi === 'function') {
+        player.mobileUi({
+          fullscreen: {
+            enterOnRotate: false,
+          },
+          touchControls: {
+            seekSeconds: 10,
+          },
+        });
+      }
 
       player.i18n();
 
@@ -342,7 +368,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       */
 
       // Add recsys plugin
-      if (shareTelemetry) {
+      if (shareTelemetry && typeof player.recsys === 'function') {
         player.recsys({
           videoId: claimId,
           userId: userId,
@@ -395,17 +421,48 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   }, [title, channelTitle]);
   */
 
+  // Update livestream source when activeLivestreamForChannel becomes available
+  // This is separate from the main useEffect to avoid player disposal/recreation on embeds
+  useEffect(() => {
+    const isLivestream = isLivestreamClaim && userClaimId;
+    if (!isLivestream || !window.player) return;
+
+    const videoUrl = activeLivestreamForChannel?.videoUrl;
+    if (videoUrl && !window.player.currentSrc()) {
+      window.player.src({ type: 'application/x-mpegurl', src: videoUrl });
+      window.player.load();
+    }
+  }, [activeLivestreamForChannel, isLivestreamClaim, userClaimId]);
+
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
       let vjsPlayer;
       const vjsParent = document.querySelector('.video-js-parent');
 
+      // Reuse the saved player DOM when available
       let canUseOldPlayer = window.oldSavedDiv && vjsParent;
       const isLivestream = isLivestreamClaim && userClaimId;
 
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
+        // Dispose old player if it exists to prevent "already initialised" conflicts
+        if (window.player && typeof window.player.dispose === 'function') {
+          try {
+            Chromecast.cleanup(window.player);
+            // Cleanup AirPlay plugin (same @silvermine package as Chromecast)
+            const airPlayPlugin = window.player.airPlay_;
+            if (airPlayPlugin && typeof airPlayPlugin.dispose === 'function') {
+              airPlayPlugin.dispose();
+            }
+            window.player.dispose();
+          } catch (e) {
+            console.warn('Failed to dispose old player:', e);
+          }
+          window.player = null;
+          window.oldSavedDiv = null;
+        }
+
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement);
         if (!vjsPlayer) {
@@ -417,6 +474,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         doSetVideoSourceLoaded(uri);
       } else {
         vjsPlayer = window.player;
+      }
+
+      // Guard: player must exist before proceeding
+      if (!vjsPlayer) {
+        return;
       }
 
       // hide unused elements on livestream
@@ -464,6 +526,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
+      ensureKeyboardShortcutsOverlay(vjsPlayer);
 
       initializeEvents();
 
@@ -472,14 +535,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       volumePanelRef.current = playerRef.current?.controlBar?.getChild(VIDEOJS_VOLUME_PANEL_CLASS)?.el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const keyUpHandler = createKeyUpShortcutsHandler(playerRef, containerRef);
+      const keyStateResetHandler = createKeyStateResetHandler(playerRef);
       const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
       const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
       window.addEventListener('keydown', keyDownHandler);
+      window.addEventListener('keyup', keyUpHandler);
+      window.addEventListener('blur', keyStateResetHandler);
+      (document: any).addEventListener('visibilitychange', keyStateResetHandler);
       const containerDiv = containerRef.current;
       containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
       if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
 
       keyDownHandlerRef.current = keyDownHandler;
+      keyUpHandlerRef.current = keyUpHandler;
+      keyStateResetHandlerRef.current = keyStateResetHandler;
       videoScrollHandlerRef.current = videoScrollHandler;
       volumePanelScrollHandlerRef.current = volumePanelHandler;
 
@@ -505,8 +575,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             environment: stripeEnvironment,
           });
 
+          // Guard: player may have been disposed during async operation
+          if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
-        } else {
+        } else if (livestreamVideoUrl) {
           vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
         }
       } else {
@@ -514,6 +587,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.removeClass('livestreamPlayer');
 
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+
+        // Guard: player may have been disposed during async operation
+        if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
@@ -562,8 +639,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       doSetVideoSourceLoaded(uri);
 
+      // Guard: player may have been disposed during async operations
+      if (!vjsPlayer || vjsPlayer.isDisposed()) return;
+
       // bugfix thumbnails showing up if new video doesn't have them
-      if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
+      if (typeof vjsPlayer.vttThumbnails?.detach === 'function') {
         vjsPlayer.vttThumbnails.detach();
       }
 
@@ -604,10 +684,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.muted(false);
 
         vjsPlayer.on('play', () => {
-          vjsPlayer.muted(false);
+          // $FlowIssue
+          vjsPlayer?.muted(false);
         });
         vjsPlayer.on('loadedmetadata', () => {
-          vjsPlayer.muted(false);
+          // $FlowIssue
+          vjsPlayer?.muted(false);
         });
       }
 
@@ -633,10 +715,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             // $FlowIssue
             vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
 
-            if (isShortsParam && vjsPlayer.muted()) {
+            // $FlowIssue
+            if (isShortsParam && vjsPlayer?.muted()) {
               setTimeout(() => {
-                vjsPlayer.muted(false);
-                vjsPlayer.volume(1.0);
+                // $FlowIssue
+                vjsPlayer?.muted(false);
+                // $FlowIssue
+                vjsPlayer?.volume(1.0);
               }, 100);
             }
           })
@@ -686,6 +771,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // Cleanup
     return () => {
       window.removeEventListener('keydown', keyDownHandlerRef.current);
+      window.removeEventListener('keyup', keyUpHandlerRef.current);
+      window.removeEventListener('blur', keyStateResetHandlerRef.current);
+      (document: any).removeEventListener('visibilitychange', keyStateResetHandlerRef.current);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps -- FIX_THIS!
       const containerDiv = containerRef.current;

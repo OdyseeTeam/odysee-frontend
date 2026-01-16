@@ -22,8 +22,12 @@ type Props = {
   // -- redux --
   membershipOdyseePerks: MembershipOdyseePerks, // the perks the server knows about, stored in state
   activeChannelClaim: ChannelClaim,
-  doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
-  doMembershipUpdateTier: (params: MembershipUpdateTierParams) => Promise<MembershipDetails>,
+  doMembershipAddTier: (
+    params: MembershipAddTierParams
+  ) => Promise<{ response: MembershipCreateResponse, error: string }>,
+  doMembershipUpdateTier: (
+    params: MembershipUpdateTierParams
+  ) => Promise<{ response: MembershipCreateResponse, error: string }>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
   doMembershipList: (params: MembershipListParams, forceUpdate: ?boolean) => Promise<CreatorMemberships>,
   apiArweaveAddress: string,
@@ -64,7 +68,7 @@ function MembershipEditTier(props: Props) {
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
-    price: membership.prices[0].amount / 100, // currently a single price
+    price: Number(membership.prices[0].amount) / 100, // currently a single price
     perks: isCreatingAMembership ? defaultPerkIds : currentPerkIds,
     frequency: 'monthly',
   });
@@ -131,7 +135,7 @@ function MembershipEditTier(props: Props) {
           payment_address: apiArweaveAddress,
         };
         doMembershipAddTier(params)
-          .then((responseOrError: { response: 'ok', error: string }) => {
+          .then((responseOrError) => {
             const { error } = responseOrError;
             setIsSubmitting(false);
             if (error) {
@@ -143,7 +147,6 @@ function MembershipEditTier(props: Props) {
             const newMembershipObj: CreatorMembership = {
               name: editTierParams.editTierName,
               description: editTierParams.editTierDescription,
-
               has_subscribers: false,
               channel_name: activeChannelClaim.name,
               prices: [{ amount: price, currency: 'AR', address: '' }], // HERE PRICES
@@ -167,7 +170,7 @@ function MembershipEditTier(props: Props) {
           new_members_only_chat_enabled: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
         doMembershipUpdateTier(params)
-          .then((responseOrError: { response: 'ok', error: string }) => {
+          .then((responseOrError) => {
             setIsSubmitting(false);
             const { error } = responseOrError;
             if (error) {
@@ -256,7 +259,7 @@ function MembershipEditTier(props: Props) {
                     type="checkbox"
                     defaultChecked={isSelected}
                     label={__(tierPerk.description)}
-                    name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
+                    name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
                     className="membership_perks"
                     onChange={() =>
                       setSelectedPerkIds((prevPerks) => {
@@ -285,7 +288,7 @@ function MembershipEditTier(props: Props) {
                         type="checkbox"
                         defaultChecked={isPermanent || isSelected}
                         label={__(tierPerk.description)}
-                        name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
+                        name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
                         className="membership_perks"
                         disabled={isPermanent}
                         onChange={() =>

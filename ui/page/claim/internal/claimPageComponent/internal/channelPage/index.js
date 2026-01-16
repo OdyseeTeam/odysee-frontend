@@ -9,7 +9,7 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
-import { selectBlackListedData, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
+import { doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectYoutubeChannels, selectUser } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
@@ -33,7 +33,6 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, claim),
     claim,
     isSubscribed: selectIsSubscribedForUri(state, props.uri),
-    blackListedData: selectBlackListedData(state),
     subCount: selectSubCountForUri(state, props.uri),
     pending: makeSelectClaimIsPending(props.uri)(state),
     youtubeChannels: selectYoutubeChannels(state),

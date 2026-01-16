@@ -31,7 +31,6 @@ type Props = {
   hasChannel?: boolean,
   autoPlayNextShort?: boolean,
   doToggleShortsAutoplay?: () => void,
-  streamClaim?: StreamClaim,
   onCommentsClick?: () => void,
   onInfoButtonClick?: () => void,
   likeCount: number,
@@ -40,13 +39,13 @@ type Props = {
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
   isUnlisted: ?boolean,
-  doOpenModal?: (id: string, props: any) => void,
+  doOpenModal: (id: string, props: any) => void,
   webShareable?: boolean,
   collectionId?: string,
-  setLocalViewMode?: (mode: string) => void,
-  doSetShortsViewMode?: (mode: string) => void,
-  doSetShortsPlaylist?: (playlist: Array<any>) => void,
-  fetchForMode?: (mode: string) => void,
+  setLocalViewMode: (mode: string) => void,
+  doSetShortsViewMode: (mode: string) => void,
+  doSetShortsPlaylist: (playlist: Array<any>) => void,
+  fetchForMode: (mode: string) => void,
   claimId?: string,
   isLivestreamClaim?: boolean,
   doFetchReactions?: (claimId: ?string) => void,
@@ -79,7 +78,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     myReaction,
     doReactionLike,
     doReactionDislike,
-    streamClaim,
     webShareable,
     isUnlisted,
     collectionId,
@@ -97,7 +95,7 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     React.useEffect(() => {
       function fetchReactions() {
-        doFetchReactions(claimId);
+        if (doFetchReactions) doFetchReactions(claimId);
       }
 
       let fetchInterval;
@@ -127,7 +125,7 @@ const SwipeNavigationPortal = React.memo<Props>(
     );
 
     const handlePlayPause = React.useCallback(() => {
-      const videoElement = document.querySelector('.vjs-tech');
+      const videoElement: any = document.querySelector('.vjs-tech');
       if (videoElement) {
         if (videoElement.paused) {
           videoElement.play();
@@ -207,9 +205,6 @@ const SwipeNavigationPortal = React.memo<Props>(
       <div
         onClick={() => {
           handlePlayPause();
-          if (streamClaim) {
-            streamClaim();
-          }
         }}
         ref={overlayRef}
         className={classnames('swipe-navigation-overlay', className, {

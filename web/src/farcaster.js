@@ -12,7 +12,7 @@ const {
 
 function getFarcasterManifest(ctx) {
   const iconUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
-  const homeUrl = URL;
+  const homeUrl = `${URL}/$/embed/home`;
   const splashImageUrl = FARCASTER_SPLASH_IMAGE_URL || iconUrl;
   const splashBackgroundColor = FARCASTER_SPLASH_BACKGROUND_COLOR || '#ffffff';
   const heroImageUrl = FARCASTER_HERO_IMAGE_URL || iconUrl;

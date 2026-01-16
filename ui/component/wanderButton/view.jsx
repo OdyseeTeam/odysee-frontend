@@ -22,12 +22,12 @@ export default function WanderButton(props: Props) {
   const [backups, setBackups] = React.useState(window?.wanderInstance?.backupInfo?.backupsNeeded || 0);
 
   React.useEffect(() => {
-    if(!window?.wanderInstance?.backupInfo) setBackups(0);
+    if (!window?.wanderInstance?.backupInfo) setBackups(0);
     else setBackups(window?.wanderInstance?.backupInfo?.backupsNeeded);
-  },[arweaveStatus])
+  }, [arweaveStatus]);
 
   const handleWalletClick = () => {
-    if(backups > 0) window.wanderInstance.open('backup');
+    if (backups > 0) window.wanderInstance.open('backup');
     else history.push(`/$/${PAGES.WALLET}`);
   };
 

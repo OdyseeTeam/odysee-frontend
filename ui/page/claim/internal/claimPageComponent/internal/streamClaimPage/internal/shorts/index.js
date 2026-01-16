@@ -12,7 +12,6 @@ import {
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
 } from 'redux/selectors/claims';
-import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import {
   selectContentPositionForUri,
   selectPlayingCollectionId,
@@ -27,11 +26,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 
 import ShortsPage from './view';
-import {
-  selectShortsSidePanelOpen,
-  selectShortsPlaylist,
-  selectShortsViewMode,
-} from '../../../../../../../../redux/selectors/shorts';
+import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
 import {
   doSetShortsSidePanel,
   doToggleShortsSidePanel,
@@ -39,7 +34,7 @@ import {
   doSetShortsViewMode,
   doSetShortsAutoplay,
   doClearShortsPlaylist,
-} from '../../../../../../../../redux/actions/shorts';
+} from 'redux/actions/shorts';
 import { doClaimSearch, doResolveUri } from 'redux/actions/claims';
 import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
@@ -58,7 +53,10 @@ const selectShortsRecommendedContent = createSelector(
       const titleEncoded = encodeURIComponent(claim.value.title);
 
       for (const queryKey in searchResults) {
-        if (queryKey.includes(`s=${titleEncoded}`) && queryKey.includes('max_aspect_ratio=0.999')) {
+        if (
+          queryKey.includes(`s=${titleEncoded}`) &&
+          queryKey.includes(`max_aspect_ratio=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`)
+        ) {
           return searchResults[queryKey]?.uris || [];
         }
       }
@@ -73,8 +71,8 @@ const selectShortsRecommendedContent = createSelector(
       const claimSearchByQuery = selectClaimSearchByQuery(state);
       const searchKey = createNormalizedClaimSearchKey({
         channel_ids: [channelId],
-        duration: '<=180',
-        content_aspect_ratio: '<1',
+        duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
+        content_aspect_ratio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
         order_by: ['release_time'],
         page_size: 50,
         page: 1,
@@ -82,7 +80,12 @@ const selectShortsRecommendedContent = createSelector(
         has_source: true,
       });
 
-      return claimSearchByQuery[searchKey] || [];
+      return claimSearchByQuery[searchKey]
+        ? claimSearchByQuery[searchKey].map((uri) => {
+            const claim = selectClaimForUri(state, uri);
+            return claim?.permanent_url;
+          })
+        : [];
     },
   ],
   (shortsPlaylist, viewMode, relatedUris, channelUris) => {
@@ -117,7 +120,6 @@ const select = (state, props) => {
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
-    fileInfo: makeSelectFileInfoForUri(uri)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
@@ -165,8 +167,8 @@ const perform = (dispatch) => ({
     return dispatch(
       doClaimSearch({
         channel_ids: [channelId],
-        duration: '<=180',
-        content_aspect_ratio: '<1',
+        duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
+        content_aspect_ratio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
         order_by: ['release_time'],
         page_size: 50,
         page: 1,

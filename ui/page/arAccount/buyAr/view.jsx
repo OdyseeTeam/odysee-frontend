@@ -10,8 +10,14 @@ import I18nMessage from 'component/i18nMessage';
 
 import './style.scss';
 
+type Props = {
+  cardHeader: any,
+  wallet: any,
+  activeArStatus: any,
+};
+
 function BuyAr(props: Props) {
-  const { cardHeader, wallet, activeArStatus, doToast } = props;
+  const { cardHeader, wallet, activeArStatus } = props;
   const fiatAmountRef = React.useRef(null);
   const paymentOptionRef = React.useRef(null);
   const [fiatAmount, setFiatAmount] = React.useState(10);
@@ -58,6 +64,7 @@ function BuyAr(props: Props) {
     const json = await res.json();
     console.log('res: ', json);
 
+    // $FlowIgnore
     setFiatAmount(fiatAmountRef.current.value);
   };
 
@@ -70,6 +77,7 @@ function BuyAr(props: Props) {
   };
 
   const handleSelectPaymentOption = () => {
+    // $FlowIgnore
     setPaymentOption(paymentOptionRef.current.value);
   };
 
@@ -181,7 +189,11 @@ function BuyAr(props: Props) {
                 <div className="buyAr-card">
                   <h3>{__('You spend')}</h3>
                   <div className="buyAr-input">
-                    <input ref={fiatAmountRef} onChange={onFiatAmountChange} placeholder={`0 ${activeFiat.symbol}`} />
+                    <input
+                      ref={fiatAmountRef}
+                      onChange={onFiatAmountChange}
+                      placeholder={`0 ${activeFiat?.symbol || ''}`}
+                    />
                     <Menu>
                       <MenuButton className="">
                         <FiatOption fiat={activeFiat} />
@@ -189,7 +201,8 @@ function BuyAr(props: Props) {
 
                       <MenuList className="menu__list channel-selector">
                         {fiats &&
-                          fiats.map((fiat: any) => (
+                          fiats.map((fiat) => (
+                            // eslint-disable-next-line react/prop-types
                             <MenuItem key={fiat.symbol} onSelect={() => handleSetActiveFiat(fiat)}>
                               <FiatOption fiat={fiat} />
                             </MenuItem>
@@ -201,13 +214,14 @@ function BuyAr(props: Props) {
                 <div className="buyAr-card">
                   <h3>{__('Pay with')}</h3>
                   <select ref={paymentOptionRef} onChange={handleSelectPaymentOption}>
-                    {paymentOptions.map((option: any) => {
-                      return (
-                        <option key={option.id} value={option.id}>
-                          {option.name}
-                        </option>
-                      );
-                    })}
+                    {paymentOptions &&
+                      paymentOptions.map((option: any) => {
+                        return (
+                          <option key={option.id} value={option.id}>
+                            {option.name}
+                          </option>
+                        );
+                      })}
                   </select>
                 </div>
               </div>
@@ -216,7 +230,9 @@ function BuyAr(props: Props) {
                 label={__('Review Purchase on Transak')}
                 onClick={() =>
                   window.open(
-                    `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat.symbol}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption}`,
+                    `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${
+                      activeFiat?.symbol ?? ''
+                    }&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption ?? ''}`,
                     '_blank',
                     'noopener,noreferrer'
                   )

@@ -21,13 +21,16 @@
     display: flex;
     flex-direction: column !important;
   }
+
   .claim-preview__actions {
     margin-left: -80px !important;
     width: 100%;
   }
+
   .membership-button-wrapper {
     width: 50%;
   }
+
   .button-group {
     width: 50%;
   }
@@ -100,6 +103,7 @@
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -111,6 +115,7 @@
     transform: translateY(0);
     opacity: 1;
   }
+
   to {
     transform: translateY(100%);
     opacity: 0;
@@ -288,6 +293,7 @@
       transform: translateY(20px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;
@@ -299,6 +305,7 @@
       transform: translateY(0);
       opacity: 1;
     }
+
     to {
       transform: translateY(20px);
       opacity: 0;

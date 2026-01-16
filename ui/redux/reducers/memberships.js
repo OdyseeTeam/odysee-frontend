@@ -55,22 +55,22 @@ const defaultState: MembershipsState = {
   membershipPaymentsOutgoingFetching: false,
   membershipPaymentsOutgoingError: '',
   legacyOdyseePremiumById: {},
-  fetchingOdysePremiumIds: [],
+  fetchingOdyseePremiumIds: [],
 };
 
 reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED] = (state, action) => {
   const { channelIds } = action.data;
-  const { fetchingOdysePremiumIds: currentFetching } = state;
+  const { fetchingOdyseePremiumIds: currentFetching } = state;
   const fetchingSet = new Set(currentFetching);
   channelIds.forEach((id) => {
     fetchingSet.add(id);
   });
-  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet) };
+  return { ...state, fetchingOdyseePremiumIds: Array.from(fetchingSet) };
 };
 
 reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
   const { membershipsById } = action.data; // [{ [claimId: string]: 'Premium' | null}]
-  const { fetchingOdysePremiumIds: currentFetching, legacyOdyseePremiumById } = state;
+  const { fetchingOdyseePremiumIds: currentFetching, legacyOdyseePremiumById } = state;
 
   const newLegacyOdyseePremiumById = Object.assign({}, legacyOdyseePremiumById);
   const fetchingSet = new Set(currentFetching);
@@ -81,19 +81,19 @@ reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => 
 
   return {
     ...state,
-    fetchingOdysePremiumIds: Array.from(fetchingSet),
+    fetchingOdyseePremiumIds: Array.from(fetchingSet),
     legacyOdyseePremiumById: newLegacyOdyseePremiumById,
   };
 };
 
 reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE] = (state, action) => {
   const { channelIds } = action.data;
-  const { fetchingOdysePremiumIds: currentFetching } = state;
+  const { fetchingOdyseePremiumIds: currentFetching } = state;
   const fetchingSet = new Set(currentFetching);
   channelIds.forEach((id) => {
     fetchingSet.delete(id);
   });
-  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet) };
+  return { ...state, fetchingOdyseePremiumIds: Array.from(fetchingSet) };
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {

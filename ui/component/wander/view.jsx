@@ -179,51 +179,55 @@ export default function Wander(props: Props) {
     };
 
     const onMessage = (event) => {
-      const data = event.data;
-      if (data && data.id && !data.id.includes('react')) {
-        if (data.type === 'embedded_auth') {
-          if (
-            data.data.authType ||
-            (data.data.authStatus === 'not-authenticated' &&
-              data.data.authType !== 'null' &&
-              data.data.authType !== null)
-          ) {
-            if (data.data.authStatus !== 'loading') {
-              LocalStorage.setItem('WALLET_TYPE', data.data.authType);
-              window.wanderInstance.close();
-              doArSetAuth(data.data);
-              if (data.data.authStatus === 'authenticated') {
-                // Signed in & has backup, clear Interval
-                clearInterval(loginTimerRef.current);
-                loginTimerRef.current = null;
-              }
-            } else if (!loginTimerRef.current) {
-              let s = 0;
-              loginTimerRef.current = setInterval(() => {
-                s++;
-                if (s > 50) {
-                  if (!window.wanderInstance.openReason) window.wanderInstance.open();
-                  s = 0;
+      try {
+        const data = event.data;
+        if (data && data.id && !data.id.includes('react')) {
+          if (data.type === 'embedded_auth') {
+            if (
+              data.data.authType ||
+              (data.data.authStatus === 'not-authenticated' &&
+                data.data.authType !== 'null' &&
+                data.data.authType !== null)
+            ) {
+              if (data.data.authStatus !== 'loading') {
+                LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+                window.wanderInstance.close();
+                doArSetAuth(data.data);
+                if (data.data.authStatus === 'authenticated') {
+                  // Signed in & has backup, clear Interval
+                  clearInterval(loginTimerRef.current);
+                  loginTimerRef.current = null;
                 }
-              }, 1000);
+              } else if (!loginTimerRef.current) {
+                let s = 0;
+                loginTimerRef.current = setInterval(() => {
+                  s++;
+                  if (s > 50) {
+                    if (!window.wanderInstance.openReason) window.wanderInstance.open();
+                    s = 0;
+                  }
+                }, 1000);
+              }
+            } else if (data.data.authStatus === 'not-authenticated') {
+              doArSetAuth(data.data);
             }
-          } else if (data.data.authStatus === 'not-authenticated') {
-            doArSetAuth(data.data);
+          } else if (data.type === 'embedded_request') {
+            if (window.wanderInstance.pendingRequests !== 0) {
+              window.wanderInstance.close();
+              window.wanderInstance.open();
+            } else {
+              window.wanderInstance.close();
+            }
+          } else if (data.type === 'embedded_balance') {
+            doArUpdateBalance();
+          } else if (data.type === 'embedded_close') {
+            doCleanTips();
+          } else if (data.type === 'embedded_backup') {
+            doArUpdateBalance();
           }
-        } else if (data.type === 'embedded_request') {
-          if (window.wanderInstance.pendingRequests !== 0) {
-            window.wanderInstance.close();
-            window.wanderInstance.open();
-          } else {
-            window.wanderInstance.close();
-          }
-        } else if (data.type === 'embedded_balance') {
-          doArUpdateBalance();
-        } else if (data.type === 'embedded_close') {
-          doCleanTips();
-        } else if (data.type === 'embedded_backup') {
-          doArUpdateBalance();
         }
+      } catch (e) {
+        // Ignore errors from wallet SDK message handling
       }
     };
 

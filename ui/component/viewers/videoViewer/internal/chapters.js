@@ -217,7 +217,7 @@ function removeMarkersOnProgressBar() {
   }
 
   if (CHAPTERS__USE_CLIP_PATH) {
-    progressControl.style.removeProperty('clipPath');
+    progressControl.style.removeProperty('clip-path');
   } else {
     const chapterMarkers = progressControl.querySelectorAll('.vjs-chapter-marker');
     for (const marker of chapterMarkers) {

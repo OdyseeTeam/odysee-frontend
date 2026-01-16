@@ -29,13 +29,11 @@ type Props = {
   // --- redux ---
   userId: ?string,
   personalRecommendations: { gid: string, uris: Array<string>, fetched: boolean },
-  userHasOdyseeMembership: ?boolean,
   doFetchPersonalRecommendations: () => void,
 };
 
 export default function RecommendedPersonal(props: Props) {
-  const { header, onLoad, userId, personalRecommendations, userHasOdyseeMembership, doFetchPersonalRecommendations } =
-    props;
+  const { header, onLoad, userId, personalRecommendations, doFetchPersonalRecommendations } = props;
 
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
@@ -100,15 +98,13 @@ export default function RecommendedPersonal(props: Props) {
 
   React.useEffect(() => {
     // -- Fetch FYP
-    if (userHasOdyseeMembership) {
-      doFetchPersonalRecommendations();
-    }
-  }, [userHasOdyseeMembership, doFetchPersonalRecommendations]);
+    doFetchPersonalRecommendations();
+  }, [doFetchPersonalRecommendations]);
 
   // **************************************************************************
   // **************************************************************************
 
-  if (userHasOdyseeMembership === undefined || !personalRecommendations.fetched) {
+  if (!personalRecommendations.fetched) {
     return (
       <>
         {header}
@@ -128,21 +124,6 @@ export default function RecommendedPersonal(props: Props) {
     );
   }
 
-  if (!userHasOdyseeMembership) {
-    return (
-      <div>
-        {header}
-        <div className="empty empty--centered-tight">
-          <I18nMessage
-            tokens={{ learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('learn more')} /> }}
-          >
-            Premium membership required. Become a member, or %learn_more%.
-          </I18nMessage>
-        </div>
-      </div>
-    );
-  }
-
   if (count < 1) {
     return (
       <div>
@@ -151,7 +132,8 @@ export default function RecommendedPersonal(props: Props) {
           <I18nMessage
             tokens={{ learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('Learn More')} /> }}
           >
-            No recommendations available at the moment. %learn_more%
+            No recommendations available at the moment. Typically this means you need to view more content first.
+            %learn_more%
           </I18nMessage>
         </div>
       </div>

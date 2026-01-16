@@ -13,7 +13,7 @@ type Props = {
   doOpenModal: (string, any) => void,
   doArDisconnect: () => void,
   doRegisterArweaveAddressClear: () => void,
-  doRegisterArweaveAddress: (string, boolean) => void,
+  doRegisterArweaveAddress: (string, boolean) => Promise<any>,
   doUpdateArweaveAddressDefault: (number) => void,
   activeApiAddresses: string[],
   defaultApiAddress: string,

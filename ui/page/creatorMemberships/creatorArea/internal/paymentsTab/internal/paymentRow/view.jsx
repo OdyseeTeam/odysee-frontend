@@ -51,7 +51,7 @@ function View(props: IProps) {
           ) : (
             <UriIndicator focusable={false} uri={recipientUri} link>
               <ChannelThumbnail xsmall link uri={recipientUri} />
-              <label>{recipientChannel.name}</label>
+              <label>{recipientChannel?.name}</label>
             </UriIndicator>
           )
         ) : (
@@ -65,7 +65,7 @@ function View(props: IProps) {
           ) : (
             <UriIndicator focusable={false} uri={senderUri} link>
               <ChannelThumbnail xsmall link uri={senderUri} />
-              <label>{senderChannel.name}</label>
+              <label>{senderChannel?.name}</label>
             </UriIndicator>
           )
         ) : (

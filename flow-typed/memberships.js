@@ -1,6 +1,5 @@
 declare type MembershipListParams = {
   id?: string,
-  channel_id?: string,
   channel_claim_id: string,
 };
 
@@ -11,29 +10,29 @@ declare type Perk = {
 }
 // -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
-  membership_id: string,
+  membership_id?: number,
   channel_name: string,
-  channel_claim_id: string,
+  channel_claim_id?: string,
   name: string,
   description: string,
-  perks: Array<Perk>,
-  prices: [{id: number, amount: string, currency: string, address: string }],
+  perks: MembershipOdyseePerks,
+  prices: [{id?: number, amount: number, currency: string, address: string }],
   has_subscribers: boolean,
   enabled: boolean,
 }
 
 declare type MembershipSubscribeParams = {
-  subscriber_channel_claim_id: string,
+  subscriber_channel_claim_id?: string,
   price_id: string,
   source_payment_address: string,
 }
 
 declare type MembershipBuyParams = {
-  membershipId: string, // just for redux state
-  tippedChannelName: string,
-  tippedChannelId: string,
-  subscriberChannelId: string,
-  priceId: number,
+  membershipId?: number, // just for redux state
+  tippedChannelName?: string,
+  tippedChannelId?: string,
+  subscriberChannelId?: string,
+  priceId?: number,
 }
 
 declare type SubscriptionPrice = {
@@ -128,6 +127,9 @@ declare type Membership = {
   enabled: boolean,
   channel_claim_id: string,
   first_payment_due_at: string,
+  created_at: string,
+  payments: MembershipPayment[],
+  description: string,
 }
 
 declare type MembershipUpdateResponse = string;
@@ -280,7 +282,7 @@ declare type StripePriceDetails = {
 };
 
 declare type MembershipAddTierParams = {
-  channel_name: string,
+  channel_name?: string,
   channel_id: string,
   name: string,
   description: string,
@@ -288,7 +290,7 @@ declare type MembershipAddTierParams = {
   amount: number,
   perks: string, // csv
   frequency: string,
-  payment_address_id: string,
+  payment_address: string,
   enable_members_only_chat?: boolean,
 };
 
@@ -296,7 +298,7 @@ declare type MembershipUpdateTierParams = {
   new_name?: string,
   new_description?: string,
   new_amount?: number,
-  membership_id: number,
+  membership_id?: number,
   enable_members_only_chat?: boolean,
 }
 

@@ -125,6 +125,7 @@
 }
 
 .mediaInfo__description {
+  word-break: break-word;
   .claim__tags {
     .tag {
       background-color: rgba(var(--color-header-button-base), 1);

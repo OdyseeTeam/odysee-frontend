@@ -17,6 +17,7 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 // import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
@@ -652,6 +653,7 @@ export function doSignIn() {
     dispatch(doFetchCollectionListMine());
     dispatch(doMembershipMine());
     dispatch(doTipAccountStatus());
+    dispatch(doFetchPersonalRecommendations());
   };
 }
 

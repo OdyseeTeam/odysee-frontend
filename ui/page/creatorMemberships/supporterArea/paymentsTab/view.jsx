@@ -4,7 +4,8 @@ import PaymentRow from './internal/paymentRow';
 
 interface IProps {
   doMembershipFetchOutgoingPayments: () => void;
-  channelsToList?: Array<string>;
+  transactions: Array<any>;
+  channelsToList?: Array<Claim>;
 }
 
 function PaymentsTab(props: IProps) {

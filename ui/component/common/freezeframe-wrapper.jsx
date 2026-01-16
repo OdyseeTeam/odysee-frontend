@@ -11,7 +11,7 @@ type Props = {
 
 const imageDataCache = new Map();
 
-const FreezeframeWrapper = React.memo((props: Props) => {
+const FreezeframeWrapper: React$ComponentType<Props> = React.memo((props: Props) => {
   const { src, className, children } = props;
   const canvasRef = useRef();
   const [ready, setReady] = useState(() => {
@@ -28,6 +28,7 @@ const FreezeframeWrapper = React.memo((props: Props) => {
     const cached = imageDataCache.get(fullSrc);
     if (cached) {
       const canvas = canvasRef.current;
+      if (!canvas) return;
       canvas.width = cached.width;
       canvas.height = cached.height;
       const ctx = canvas.getContext('2d');

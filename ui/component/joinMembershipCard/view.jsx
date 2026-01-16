@@ -25,7 +25,7 @@ type Props = {
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
-  channelClaimId: ?string,
+  channelClaimId: string,
   creatorMemberships: ?CreatorMemberships,
   incognito: boolean,
   unlockableTierIds: Array<number>,
@@ -87,7 +87,7 @@ const JoinMembershipCard = (props: Props) => {
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(
     passedTierIndex || cheapestPlanIndex || membershipIndex
   );
-  const selectedCreatorMembership: CreatorMembership =
+  const selectedCreatorMembership: ?CreatorMembership =
     creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
@@ -190,7 +190,7 @@ const JoinMembershipCard = (props: Props) => {
         })}
         body={
           <>
-            {isOnConfirmationPage && creatorMemberships.length ? (
+            {isOnConfirmationPage && creatorMemberships?.length ? (
               <ConfirmationPage
                 {...pageProps}
                 onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)}

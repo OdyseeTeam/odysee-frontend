@@ -47,7 +47,7 @@ const SupportersTab = (props: Props) => {
   // const supportersList = sl;
 
   const getDateOfLastPayment = (payments) => {
-    const payment = payments.reverse().find(p => p.status === 'submitted' || p.status === 'paid');
+    const payment = payments.reverse().find((p) => p.status === 'submitted' || p.status === 'paid') || {};
     if (payment.status === 'submitted') {
       return payment.initiated_at;
     } else {
@@ -187,7 +187,17 @@ const SupportersTab = (props: Props) => {
                               <td>{supporter.membership_name}</td>
                               <td>${supporter.price / 100} USD / Month</td>
                               <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
-                              <td>{paymentsBySubscriber[supporter.subscriber_channel_claim_id] ? moment(new Date(getDateOfLastPayment(paymentsBySubscriber[supporter.subscriber_channel_claim_id]))).format('LL') : ''}</td>
+                              <td>
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id]
+                                  ? moment(
+                                      new Date(
+                                        getDateOfLastPayment(
+                                          paymentsBySubscriber[supporter.subscriber_channel_claim_id]
+                                        )
+                                      )
+                                    ).format('LL')
+                                  : ''}
+                              </td>
                               <td>
                                 {/* need to put  */}
                                 {paymentsBySubscriber[supporter.subscriber_channel_claim_id] &&

@@ -148,6 +148,7 @@ const WalletFiatAccountHistory = (props: Props) => {
   function getTransactionTx(transaction) {
     return (
       <>
+        {/* $FlowIgnore */}
         {!transaction?.payment_intent_id?.startsWith('pi_') ? (
           <CopyableText
             hideValue

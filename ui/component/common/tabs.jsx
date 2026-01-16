@@ -49,11 +49,12 @@ function Tabs(props: TabsProps) {
   const tabsRef = useRef<Element | void | null>();
 
   // Recalculate "Rect" on window resize
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (tabsRef.current) {
       setTabsRect(tabsRef.current.getBoundingClientRect());
     }
-  });
+  }, []);
+  useOnResize(handleResize);
 
   const tabLabels = props.children[0];
   const tabContent = props.children[1];
@@ -102,11 +103,12 @@ function Tab(props: TabProps) {
   const [rect, setRect] = React.useState();
 
   // Recalculate "Rect" on window resize
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (ref.current) {
       setRect(ref.current.getBoundingClientRect());
     }
-  });
+  }, []);
+  useOnResize(handleResize);
 
   // Each tab measures itself
   const ref = useRef<Element | void | null>();

@@ -283,6 +283,7 @@ export const doArTip = (
       const transactionAmountString = String(transactionAmount);
       if (tipParams.currency === 'AR') {
         try {
+          // $FlowIgnore
           const { transactionId: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
           transactionId = txid;
         } catch (error) {

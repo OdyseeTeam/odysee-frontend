@@ -3,12 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-export type WalletBalance = {
-  ar: string,
-  u: string,
-  usdc: number,
-};
-
 export type ExchangeRates = {
   ar: number,
 };

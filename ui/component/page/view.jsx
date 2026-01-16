@@ -102,6 +102,7 @@ function Page(props: Props) {
           sidebarOpen={sidebarOpen}
           isAbsoluteSideNavHidden={isAbsoluteSideNavHidden}
           setSidebarOpen={openSidebar}
+          hideSidebarToggle={noSideNavigation}
         />
       )}
 

@@ -17,7 +17,7 @@ type Props = {
   nextRecommendedShort: ?string,
   autoPlayNextShort: boolean,
   isAtEnd: boolean,
-  onSwipeNext?: () => void,
+  onSwipeNext: () => void,
   onSwipePrevious?: () => void,
   enableSwipe?: boolean,
 };
@@ -47,7 +47,7 @@ const ShortsVideoPlayer = React.memo<Props>(
       let lastVideoElement = null;
 
       const attachListener = () => {
-        const videoElement = document.querySelector('.vjs-tech');
+        const videoElement: any = document.querySelector('.vjs-tech');
 
         if (!videoElement || videoElement === lastVideoElement) {
           return lastVideoElement !== null;

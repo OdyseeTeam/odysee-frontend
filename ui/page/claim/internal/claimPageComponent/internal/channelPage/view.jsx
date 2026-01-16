@@ -59,7 +59,6 @@ type Props = {
   channelIsMine: boolean,
   isSubscribed: boolean,
   channelIsBlocked: boolean,
-  blackListedData: { [string]: string },
   fetchSubCount: (string) => void,
   subCount: number,
   pending: boolean,
@@ -87,7 +86,6 @@ function ChannelPage(props: Props) {
     coverUrl,
     channelIsMine,
     isSubscribed,
-    blackListedData,
     fetchSubCount,
     subCount,
     pending,
@@ -109,12 +107,15 @@ function ChannelPage(props: Props) {
   const {
     push,
     goBack,
-    location: { search },
+    location: { search, pathname },
   } = useHistory();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
-  const hideAboutTab = !showClaims && !isGlobalMod;
+  const channelIsBlackListed = banState.blacklisted;
+  // Show About tab for blacklisted channels (DMCA message) or channels with content
+  const hideAboutTab = !showClaims && !isGlobalMod && !channelIsBlackListed;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
@@ -218,12 +219,6 @@ function ChannelPage(props: Props) {
     collectionEmpty = <section className="main--empty">{__('No Playlists found')}</section>;
   }
 
-  let channelIsBlackListed = false;
-
-  if (claim && blackListedData) {
-    channelIsBlackListed = blackListedData[claim.claim_id];
-  }
-
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
   // We don't want to use links here because we can't animate the tab change and using links
   // would alter the Tab label's role attribute, which should stay role="tab" to work with keyboards/screen readers.
@@ -262,7 +257,8 @@ function ChannelPage(props: Props) {
   }
 
   function onTabChange(newTabIndex, keepFilters) {
-    const url = formatLbryUrlForWeb(uri);
+    const baseUrl = formatLbryUrlForWeb(uri);
+    const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
     let search = '';
 
     if (!keepFilters) setFilters(undefined);
@@ -328,11 +324,12 @@ function ChannelPage(props: Props) {
 
   React.useEffect(() => {
     if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
-      const url = formatLbryUrlForWeb(uri);
+      const baseUrl = formatLbryUrlForWeb(uri);
+      const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
       const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
       push(`${url}${search}`);
     }
-  }, [hideShorts, currentView, uri, push]);
+  }, [hideShorts, currentView, uri, push, isEmbedPath]);
 
   if (editing) {
     return <ChannelEdit uri={uri} onDone={() => goBack()} />;

@@ -439,7 +439,7 @@ function VideoRenderFloating(props: Props) {
           id="abcd"
           className={classnames({
             [CONTENT_VIEWER_CLASS]: !isShortVideo || disableShortsView,
-            [SHORTS_VIEWER_CLASS]: isShortVideo && !disableShortsView,
+            [SHORTS_VIEWER_CLASS]: isShortVideo && !disableShortsView && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
@@ -553,7 +553,7 @@ type GlobalStylesProps = {
   mainFilePlaying: boolean,
   isLandscapeRotated: boolean,
   isTabletLandscape: boolean,
-  isShortVideo: boolean,
+  isShortVideo?: boolean,
 };
 
 const PlayerGlobalStyles = (props: GlobalStylesProps) => {

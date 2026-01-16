@@ -63,7 +63,8 @@ const JoinMembershipButton = (props: Props) => {
     (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
 
-  const pending = validUserMembershipForChannel?.payments.some((p) => p.status === 'submitted');
+  const pending =
+    validUserMembershipForChannel && validUserMembershipForChannel.payments.some((p) => p.status === 'submitted');
 
   const getDeadline = () => {
     if (fpdaInFuture) {
@@ -142,7 +143,7 @@ const JoinMembershipButton = (props: Props) => {
               fileUri,
               isRenew: true,
               membershipIndex: membershipIndex,
-              membershipId: validUserMembershipForChannel.membership.id,
+              membershipId: validUserMembershipForChannel?.membership?.id,
               passedTierIndex: membershipIndex,
             })
           }

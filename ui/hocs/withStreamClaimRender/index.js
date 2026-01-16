@@ -24,7 +24,12 @@ import {
   selectCanViewFileForUri,
 } from 'redux/selectors/content';
 import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
-import { selectIsActiveLivestreamForUri, selectChannelIsLiveFetchedForUri } from 'redux/selectors/livestream';
+import {
+  selectIsActiveLivestreamForUri,
+  selectIsActiveLivestreamForClaimId,
+  selectActiveLivestreamForChannel,
+  selectChannelIsLiveFetchedForUri,
+} from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
 
@@ -34,6 +39,39 @@ import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 
 import withStreamClaimRender from './view';
+
+// Reduce needless rerenders from object identity changes (e.g. playingUri)
+// Only re-render when the specific fields used by the HOC actually change.
+function areStatePropsEqual(prev, next) {
+  // Fast path for reference equality
+  if (prev === next) return true;
+
+  // Compare the frequently-changing nested object by fields actually used
+  const prevPU = prev.playingUri || {};
+  const nextPU = next.playingUri || {};
+
+  const prevPUUri = prevPU.uri;
+  const nextPUUri = nextPU.uri;
+  if (prevPUUri !== nextPUUri) return false;
+
+  const prevSourceId = prevPU.sourceId;
+  const nextSourceId = nextPU.sourceId;
+  if (prevSourceId !== nextSourceId) return false;
+
+  const prevColId = (prevPU.collection && prevPU.collection.collectionId) || undefined;
+  const nextColId = (nextPU.collection && nextPU.collection.collectionId) || undefined;
+  if (prevColId !== nextColId) return false;
+
+  // For the remaining props, do a shallow equality check.
+  const keys = Object.keys(prev);
+  if (keys.length !== Object.keys(next).length) return false;
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    if (k === 'playingUri') continue; // handled above
+    if (prev[k] !== next[k]) return false;
+  }
+  return true;
+}
 
 const select = (state, props) => {
   const { uri } = props;
@@ -59,7 +97,10 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isCollectionClaim: valueType === 'collection',
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
-    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
+    isCurrentClaimLive:
+      selectIsActiveLivestreamForUri(state, uri) ||
+      selectIsActiveLivestreamForClaimId(state, claimId) ||
+      Boolean(selectActiveLivestreamForChannel(state, channelClaimId)),
     scheduledState: selectScheduledStateForUri(state, uri),
     playingUri: selectPlayingUri(state),
     playingCollectionId: selectPlayingCollectionId(state),
@@ -81,4 +122,5 @@ const perform = {
   doClearPlayingUri,
 };
 
-export default (Component) => withRouter(connect(select, perform)(withStreamClaimRender(Component)));
+export default (Component) =>
+  withRouter(connect(select, perform, null, { areStatePropsEqual })(withStreamClaimRender(Component)));

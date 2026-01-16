@@ -1,5 +1,5 @@
 // @flow
-import React, { lazy } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 
@@ -81,7 +81,6 @@ function HomePage(props: Props) {
     fetchingActiveLivestreams,
     homepageOrder,
     doOpenModal,
-    userHasOdyseeMembership,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
   } = props;
@@ -109,7 +108,7 @@ function HomePage(props: Props) {
       showIndividualTags,
       showNsfw
     );
-    return getSortedRowData(authenticated, userHasOdyseeMembership, homepageOrder, homepageData, rowData);
+    return getSortedRowData(authenticated, homepageOrder, homepageData, rowData);
   }, [
     authenticated,
     followedTags,
@@ -123,7 +122,6 @@ function HomePage(props: Props) {
     showPersonalizedChannels,
     showPersonalizedTags,
     subscribedChannelIds,
-    userHasOdyseeMembership,
   ]);
 
   type Cache = {
@@ -268,7 +266,7 @@ function HomePage(props: Props) {
         })}
       >
         {id === 'FYP' ? (
-          userHasOdyseeMembership && <RecommendedPersonal header={<HeaderArea />} />
+          <RecommendedPersonal header={<HeaderArea />} />
         ) : (
           <>
             <HeaderArea />

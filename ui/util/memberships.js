@@ -67,7 +67,7 @@ export function membershipIsExpired(ends_at: any) {
   return now > endsAt;
 }
 
-export const getRenewByMoment = (membershipSub) => {
+export const getRenewByMoment = (membershipSub: MembershipSub) => {
   const fpda = membershipSub.membership.first_payment_due_at;
   const fpdaMoment = moment(fpda);
   const endsAtMoment = moment(membershipSub.subscription.ends_at);
@@ -87,7 +87,7 @@ export const getRenewByMoment = (membershipSub) => {
   return endsAtMoment;
 };
 
-export const getFormattedRenewBy = (membershipSub) => {
+export const getFormattedRenewBy = (membershipSub: MembershipSub) => {
   const renewByMoment = getRenewByMoment(membershipSub);
   if (renewByMoment === null) {
     return null;

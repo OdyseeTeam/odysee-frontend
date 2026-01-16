@@ -55,7 +55,7 @@ export default function Portals(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [portals, index, width]);
 
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (wrapper.current) {
       let wrapperWidth = wrapper.current.offsetWidth + 12;
       let tileNum = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
@@ -66,7 +66,8 @@ export default function Portals(props: Props) {
       setTileNum(tileNum);
       setTileWidth(wrapperWidth / tileNum);
     }
-  });
+  }, [portals]);
+  useOnResize(handleResize);
 
   const NON_CATEGORY = Object.freeze({
     BANNER: { label: 'Banner' },

@@ -190,6 +190,7 @@
   "This file has been shared with you by other people.": "This file has been shared with you by other people.",
   "Odysee is not responsible for its content, click continue to proceed at your own risk.": "Odysee is not responsible for its content, click continue to proceed at your own risk.",
   "Yes": "Yes",
+  "Yes!": "Yes!",
   "No": "No",
   "These search results are provided by Odysee.": "These search results are provided by Odysee.",
   "Files": "Files",
@@ -2980,6 +2981,12 @@
   "Failed to apply membership tiers. Access to the content may still be restricted.": "Failed to apply membership tiers. Access to the content may still be restricted.",
   "If the issue persists, please reach out to help@odysee.com": "If the issue persists, please reach out to help@odysee.com",
   "Creator only": "Creator only",
+  "Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.": "Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.",
+  "Homepage recommendations available": "Homepage recommendations available",
+  "Remove this user as a moderator of your channel.": "Remove this user as a moderator of your channel.",
+  "Remove this user as a moderator of %channel%.": "Remove this user as a moderator of %channel%.",
+  "Remove as moderator": "Remove as moderator",
+  "Removed %user% from moderators of %myChannel%": "Removed %user% from moderators of %myChannel%",
   
   "--end--": "--end--"
 }
