@@ -191,7 +191,7 @@ export default function FileActions(props: Props) {
                   <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REPOST} />
-                      {claimMeta.reposted > 1
+                      {claimMeta?.reposted > 1
                         ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
                         : __('Repost')}
                     </div>
