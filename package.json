@@ -185,7 +185,7 @@
     "lbry-format": "https://github.com/lbryio/lbry-format.git",
     "lint-staged": "^7.0.2",
     "localforage": "^1.7.1",
-    "lodash-es": "^4.17.14",
+    "lodash-es": "^4.17.23",
     "mammoth": "^1.4.16",
     "mini-css-extract-plugin": "^2.7.5",
     "node-abi": "^2.5.1",
