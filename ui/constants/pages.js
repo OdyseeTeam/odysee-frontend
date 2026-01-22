@@ -115,4 +115,3 @@ exports.CAREERS_SENIOR_ANDROID_DEVELOPER = 'careers/senior_android_developer';
 exports.CAREERS_SENIOR_IOS_DEVELOPER = 'careers/senior_ios_developer';
 exports.ICONS_VIEWER = 'icons_viewer';
 exports.HIDDEN_CONTENT = 'hidden';
-exports.SPINNER = 'spinner';

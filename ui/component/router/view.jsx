@@ -45,7 +45,6 @@ const IconsViewerPage = lazyImport(() => import('page/iconsViewer' /* webpackChu
 
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
-const SpinnerPage = lazyImport(() => import('web/page/spinner' /* webpackChunkName: "spinner" */));
 
 const SignInPage = lazyImport(() => import('page/signIn' /* webpackChunkName: "signIn" */));
 const SignInWalletPasswordPage = lazyImport(() =>
@@ -407,7 +406,6 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CAREERS_SENIOR_IOS_DEVELOPER}`} exact component={SeniorIosDeveloperPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
-        <Route path={`/$/${PAGES.SPINNER}`} exact component={SpinnerPage} />
         <Route path={`/$/${PAGES.ICONS_VIEWER}`} exact component={IconsViewerPage} />
 
         <Route path={`/$/${PAGES.AUTH_VERIFY}`} exact component={SignInVerifyPage} />

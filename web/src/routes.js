@@ -8,6 +8,7 @@ const { getRss } = require('./rss');
 const { getFarcasterManifest } = require('./farcaster');
 const { handleFramePost } = require('./frame');
 const { getTempFile } = require('./tempfile');
+const { getSpinnerHtml } = require('./spinner');
 
 const fetch = require('node-fetch');
 const Router = require('@koa/router');
@@ -78,6 +79,11 @@ router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
 
 router.get(`/$/oembed`, oEmbedMiddleware);
+
+router.get(`/$/spinner`, async (ctx) => {
+  ctx.set('Content-Type', 'text/html');
+  ctx.body = getSpinnerHtml(ctx);
+});
 
 router.post(`/$/frame`, async (ctx) => {
   // Minimal JSON parser to avoid external dependencies
