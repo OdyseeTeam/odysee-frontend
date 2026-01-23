@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri } from 'redux/actions/content';
 import { withRouter } from 'react-router-dom';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -17,14 +18,13 @@ import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelI
 import { doToggleAppDrawer } from 'redux/actions/app';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
-import { getChannelIdFromClaim } from 'util/claim';
+import { getChannelIdFromClaim, isClaimShort } from 'util/claim';
 
 import * as TAGS from 'constants/tags';
 
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import StreamClaimPage from './view';
-import { isClaimShort } from '../../../../../../util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -41,6 +41,8 @@ const select = (state, props) => {
   const filterData = selectFilteredDataForUri(state, uri);
   const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
 
+  const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),
@@ -55,7 +57,7 @@ const select = (state, props) => {
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
     isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
-    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
+    disableShortsView: !!collectionSidebarId || selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
     isClaimFiltered,
     isClaimShort: isClaimShort(claim),
   };
