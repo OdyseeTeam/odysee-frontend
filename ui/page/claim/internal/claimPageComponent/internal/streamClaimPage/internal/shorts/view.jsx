@@ -234,6 +234,13 @@ export default function ShortsPage(props: Props) {
   }, [isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
+    if (linkedCommentId) {
+      handleCommentsClick();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
     if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
     if (currentIndex < 0) return;
     if (!doFileGetForUri) return;
