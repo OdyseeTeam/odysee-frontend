@@ -45,15 +45,18 @@ export const buildSharedStateMiddleware = (
       shared[key] = value;
     });
 
-    if (!isEqual(oldShared, shared)) {
-      // only update if the preference changed from last call in the same session
-      oldShared = shared;
-      dispatch(doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION));
-    }
+    // Skip prefSet for 'local' preferences
+    if (preferenceKey === 'shared') {
+      if (!isEqual(oldShared, shared)) {
+        // only update if the preference changed from last call in the same session
+        oldShared = shared;
+        dispatch(doPreferenceSet(preferenceKey, shared, SHARED_PREFERENCE_VERSION));
+      }
 
-    if (sharedStateCb) {
-      // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
-      sharedStateCb({ dispatch, getState, syncId: timeout });
+      if (sharedStateCb) {
+        // Pass dispatch to the callback to consumers can dispatch actions in response to preference set
+        sharedStateCb({ dispatch, getState, syncId: timeout });
+      }
     }
     clearTimeout(timeout);
     return actionResult;
