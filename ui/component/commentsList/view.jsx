@@ -139,6 +139,9 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
 
+  const urlParams = new URLSearchParams(search);
+  const isShortsParam = urlParams.get('view') === 'shorts';
+
   const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const spinnerRef = React.useRef();
   const commentListRef = React.useRef();
@@ -163,7 +166,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const moreBelow = page < topLevelTotalPages;
   const title = getCommentsListTitle(totalUnfilteredComments);
-  const threadDepthLevel = isMobile ? 3 : 10;
+  const threadDepthLevel = isMobile || isShortsParam ? 3 : 10;
   let threadCommentParent;
   if (threadCommentAncestors) {
     threadCommentAncestors.some((ancestor, index) => {
