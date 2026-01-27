@@ -233,12 +233,19 @@ export default function ShortsPage(props: Props) {
     }
   }, [isMobile, doSetShortsSidePanel]);
 
+  const handledLinkedCommentIdRef = React.useRef(null);
   React.useEffect(() => {
-    if (linkedCommentId) {
-      handleCommentsClick();
+    if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
+      handledLinkedCommentIdRef.current = linkedCommentId;
+      if (isMobile) {
+        setMobileModalOpen(true);
+        setPanelMode('comments');
+      } else {
+        setPanelMode('comments');
+        doSetShortsSidePanel(true);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [linkedCommentId, isMobile, doSetShortsSidePanel]);
 
   React.useEffect(() => {
     if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
