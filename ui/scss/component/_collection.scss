@@ -282,3 +282,7 @@
     }
   }
 }
+
+body:has(.nag) .card-fixed-bottom {
+  bottom: 3rem;
+}
