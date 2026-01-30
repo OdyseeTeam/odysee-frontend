@@ -7,7 +7,7 @@ import { isClaimAllowedForCollection } from 'util/collections';
 
 type Props = {
   uri: string,
-  isShortPage?: boolean,
+  isShortsPage?: boolean,
   // --- internal ---
   claim: ?StreamClaim,
   isSaved: boolean,
@@ -15,7 +15,7 @@ type Props = {
 };
 
 function ClaimCollectionAddButton(props: Props) {
-  const { uri, claim, isSaved, isShortPage, doOpenModal } = props;
+  const { uri, claim, isSaved, isShortsPage, doOpenModal } = props;
 
   if (!isClaimAllowedForCollection(claim)) {
     return null;
@@ -23,7 +23,7 @@ function ClaimCollectionAddButton(props: Props) {
 
   const label = !isSaved ? __('Save') : __('Saved');
 
-  if (isShortPage) {
+  if (isShortsPage) {
     return (
       <>
         <FileActionButton

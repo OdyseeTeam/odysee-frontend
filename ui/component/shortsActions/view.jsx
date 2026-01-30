@@ -190,7 +190,7 @@ const ShortsActions = React.memo<Props>(
           </div>
 
           <div className="shorts-actions__item">
-            <ClaimCollectionAddButton uri={uri} isShortPage />
+            <ClaimCollectionAddButton uri={uri} isShortsPage />
           </div>
 
           <div className="shorts-actions__item">
