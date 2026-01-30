@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
+import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 
 type Props = {
   hasPlaylist: boolean,
@@ -186,6 +187,10 @@ const ShortsActions = React.memo<Props>(
               disabled={!hasPlaylist}
             />
             <p>{__('Comments')}</p>
+          </div>
+
+          <div className="shorts-actions__item">
+            <ClaimCollectionAddButton uri={uri} isShortsPage />
           </div>
 
           <div className="shorts-actions__item">
