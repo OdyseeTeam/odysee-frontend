@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import React from 'react';
+import { useHistory } from 'react-router';
 import classnames from 'classnames';
 import { formatCredits } from 'util/format-credits';
 import MarkdownPreview from 'component/common/markdown-preview';
@@ -28,7 +29,10 @@ export default function FileDescription(props: Props) {
   const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride, isLivestreamClaim } =
     props;
 
-  const [expanded, setExpanded] = React.useState(false);
+  const { location } = useHistory();
+  const isShortsPage = new URLSearchParams(location.search).get('view') === 'shorts';
+
+  const [expanded, setExpanded] = React.useState(isShortsPage);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
 
   const formattedAmount = formatCredits(amount, 2, true);
@@ -57,7 +61,7 @@ export default function FileDescription(props: Props) {
       <div className="card__bottom-actions">
         {!expandOverride && (
           <>
-            {!isLivestreamClaim && (
+            {!isLivestreamClaim && !isShortsPage && (
               <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
             )}
             {isLivestreamClaim && <Button />}
