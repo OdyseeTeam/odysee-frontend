@@ -401,7 +401,7 @@ export default function CreatorSettingsTab(props: Props) {
                       className="form-field--price-amount"
                       type="number"
                       placeholder="0"
-                      value={minUSDTip || (minTip ? 0.01 : undefined)} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
+                      value={minUSDTip || (minTip ? 0.01 : '')} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
                       onChange={(e) => {
                         const newMinUSDTip = parseFloat(e.target.value);
                         setMinUSDTip(newMinUSDTip);
@@ -447,7 +447,7 @@ export default function CreatorSettingsTab(props: Props) {
                       step="any"
                       type="number"
                       placeholder="0"
-                      value={minUSDSuper || (minSuper ? 0.01 : undefined)} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
+                      value={minUSDSuper || (minSuper ? 0.01 : '')} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
                       disabled={!!minTip || !!minUSDTip}
                       onChange={(e) => {
                         const newMinUSDSuper = parseFloat(e.target.value);
