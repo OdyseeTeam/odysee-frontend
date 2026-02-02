@@ -82,6 +82,7 @@ export default function CreatorSettingsTab(props: Props) {
   const focusedField = React.useRef('');
 
   const pushSlowModeMinDebounced = React.useMemo(() => debounce(pushSlowModeMin, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const pushMinTipDebounced = React.useMemo(() => debounce(pushMinTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinSuperDebounced = React.useMemo(() => debounce(pushMinSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinUSDTipDebounced = React.useMemo(() => debounce(pushMinUSDTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinUSDSuperDebounced = React.useMemo(() => debounce(pushMinUSDSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -110,6 +111,8 @@ export default function CreatorSettingsTab(props: Props) {
 
     if (fullSync) {
       setCommentsEnabled(settings.comments_enabled || false);
+      focusedField.current !== FIELD_NAMES.MIN_TIP && setMinTip(settings.min_tip_amount_comment || 0);
+      focusedField.current !== FIELD_NAMES.MIN_SUPER && setMinSuper(settings.min_tip_amount_super_chat || 0);
       focusedField.current !== FIELD_NAMES.MIN_USD_TIP && setMinUSDTip(settings.min_usdc_tip_amount_comment || 0);
       focusedField.current !== FIELD_NAMES.MIN_USD_SUPER &&
         setMinUSDSuper(settings.min_usdc_tip_amount_super_chat || 0);
@@ -160,6 +163,10 @@ export default function CreatorSettingsTab(props: Props) {
 
   function pushSlowModeMin(value: number, activeChannelClaim: ChannelClaim) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
+  }
+
+  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
+    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
   }
 
   function pushMinUSDTip(value: number, activeChannelClaim: ChannelClaim) {
@@ -394,20 +401,25 @@ export default function CreatorSettingsTab(props: Props) {
                       className="form-field--price-amount"
                       type="number"
                       placeholder="0"
-                      value={minUSDTip}
+                      value={minUSDTip || (minTip && 0.01)} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
                       onChange={(e) => {
                         const newMinUSDTip = parseFloat(e.target.value);
                         setMinUSDTip(newMinUSDTip);
                         pushMinUSDTipDebounced(newMinUSDTip || 0, activeChannelClaim);
                         if (newMinUSDTip !== 0) {
-                          if (minSuper !== 0) {
-                            setMinSuper(0);
-                            pushMinSuperDebounced(0, activeChannelClaim);
-                          }
                           if (minUSDSuper !== 0) {
                             setMinUSDSuper(0);
                             pushMinUSDSuperDebounced(0, activeChannelClaim);
                           }
+                        }
+                        // Clear old LBC values if changing the value
+                        if (minTip !== 0) {
+                          setMinTip(0);
+                          pushMinTipDebounced(0, activeChannelClaim);
+                        }
+                        if (minSuper !== 0) {
+                          setMinSuper(0);
+                          pushMinSuperDebounced(0, activeChannelClaim);
                         }
                       }}
                       onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USD_TIP)}
@@ -435,12 +447,21 @@ export default function CreatorSettingsTab(props: Props) {
                       step="any"
                       type="number"
                       placeholder="0"
-                      value={minUSDSuper}
+                      value={minUSDSuper || (minSuper && 0.01)} // Default to 0.01 if LBC limit is used, so user has way to clear it on Odysee
                       disabled={!!minTip || !!minUSDTip}
                       onChange={(e) => {
                         const newMinUSDSuper = parseFloat(e.target.value);
                         setMinUSDSuper(newMinUSDSuper);
                         pushMinUSDSuperDebounced(newMinUSDSuper || 0, activeChannelClaim);
+                        // Clear old LBC values if changing the value
+                        if (minTip !== 0) {
+                          setMinTip(0);
+                          pushMinTipDebounced(0, activeChannelClaim);
+                        }
+                        if (minSuper !== 0) {
+                          setMinSuper(0);
+                          pushMinSuperDebounced(0, activeChannelClaim);
+                        }
                       }}
                       onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USD_SUPER)}
                       onBlur={() => setLastUpdated(Date.now())}
