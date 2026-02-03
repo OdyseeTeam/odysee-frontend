@@ -21,7 +21,6 @@ import VideoRender from 'component/videoClaimRender';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
-import { onFullscreenChange } from 'util/full-screen';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
@@ -288,17 +287,16 @@ function VideoRenderFloating(props: Props) {
       resizedBetweenFloating.current = true;
     }
 
-    function onWindowResize() {
+    const element = document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
+    const resizeObserver = new ResizeObserver(() => {
       if (isFloating) clampToScreenOnResize();
       if (collectionSidebarId || !isFloating) handleResize();
-    }
+    });
 
-    window.addEventListener('resize', onWindowResize);
-    if (!isFloating && !isMobile) onFullscreenChange(window, 'add', handleResize);
+    if (element) resizeObserver.observe(element);
 
     return () => {
-      window.removeEventListener('resize', onWindowResize);
-      if (!isFloating && !isMobile) onFullscreenChange(window, 'remove', handleResize);
+      resizeObserver.disconnect();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
