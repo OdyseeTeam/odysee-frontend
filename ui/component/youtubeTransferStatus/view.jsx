@@ -81,7 +81,7 @@ export default function YoutubeTransferStatus(props: Props) {
         case YOUTUBE_STATUSES.YOUTUBE_SYNC_COMPLETED_TRANSFER:
           return __('Completed transfer');
         case YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED:
-          return __('This channel is not eligible to be synced');
+          return __('This channel not eligible to by synced');
       }
     } else {
       return __('Ready to transfer');
@@ -125,11 +125,9 @@ export default function YoutubeTransferStatus(props: Props) {
               !hasPendingTransfers &&
               !isYoutubeTransferComplete &&
               !isNotElligible &&
-              __('Please check back later. This may take a few hours.')}
+              __('Please check back later, this may take a few hours.')}
 
-            {isYoutubeTransferComplete &&
-              !isNotElligible &&
-              __('Transfer complete. You can view your channel, or choose a new channel to sync.')}
+            {isYoutubeTransferComplete && !isNotElligible && __('View your channel or choose a new channel to sync.')}
             {isNotElligible && (
               <I18nMessage
                 tokens={{
@@ -184,7 +182,7 @@ export default function YoutubeTransferStatus(props: Props) {
                           {!isAutomatedSync && (
                             <div className="help--inline">
                               {__(
-                                'This channel is not automatically syncing right now. If you want to sync more content, reach out to hello@odysee.com to use the self sync tool.'
+                                'This channel is not automatically syncing right now. Reach out to hello@odysee.com to try our self sync tool.'
                               )}
                             </div>
                           )}
@@ -198,7 +196,7 @@ export default function YoutubeTransferStatus(props: Props) {
                       {isNotEligible ? (
                         <div>
                           {__(
-                            '%channelName% is not eligible to be synced. Reach out to hello@odysee.com for access to the self sync tool.',
+                            '%channelName% is not eligible to be synced, reach out to hello@odysee.com for access to the self sync tool.',
                             { channelName }
                           )}
                         </div>
@@ -230,7 +228,7 @@ export default function YoutubeTransferStatus(props: Props) {
                             ) : (
                               <>
                                 {__(
-                                  'Wait for sync to start, or reach out to hello@odysee.com to use the self sync tool'
+                                  'Wait for sync to start or reach out to hello@odysee.com to try our self sync tool'
                                 )}
                                 <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
                               </>
@@ -245,7 +243,7 @@ export default function YoutubeTransferStatus(props: Props) {
                           <div className="help--inline">
                             {' '}
                             {__(
-                              '*Not all content may be processed. There are limitations based on both YouTube and Odysee activity. Click Learn More below to see the latest requirements and limits. If you need to sync more content, reach out to hello@odysee.com for access to the self sync tool.'
+                              '*Not all content may be processed, there are limitations based on both Youtube and Odysee activity. Click Learn More at the bottom to see the latest requirements and limits. We have a self sync tool to process the rest, reach out to hello@odysee.com to get access. '
                             )}{' '}
                           </div>
 
@@ -313,7 +311,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 <div className="card__body">
                   <p>
                     {__(
-                      "Use our desktop sync tool to transfer content from your YouTube channels including inactive or never-synced channels. If you've already synced a channel before, you can still use Self-Sync to upload additional content, including videos outside of our default sync limits (for example, longer videos)."
+                      'Use our desktop sync tool to transfer content from any of your YouTube channels, including inactive or never-synced channels. Even if you have already synced channels, you can still use this tool to sync more content, even those outside of our default sync limits, e.g. longer videos.'
                     )}
                   </p>
 
@@ -345,21 +343,15 @@ export default function YoutubeTransferStatus(props: Props) {
                             }}
                           />
                         </div>
-
                         <p className="help">
-                          {__(
-                            'This token is private. Do not share it. Copy this token and paste it into the sync tool when prompted. Click the token to reveal it.'
-                          )}
+                          {isTokenVisible
+                            ? __(
+                                'This token is private and you should not share it. Copy this token and paste it into the sync tool when prompted. Click the token to hide it.'
+                              )
+                            : __(
+                                'This token is private and you should not share it. Click the copy button to copy your token, or click the token field to reveal it.'
+                              )}
                         </p>
-
-                        <div className="help help--inline">
-                          <strong>{__('How to use it:')}</strong>
-                          <ol className="help-list help-list--detailed">
-                            <li>{__('Copy this token')}</li>
-                            <li>{__('Open the desktop sync tool')}</li>
-                            <li>{__('Paste the token when prompted')}</li>
-                          </ol>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -368,60 +360,24 @@ export default function YoutubeTransferStatus(props: Props) {
                     <p className="help">
                       <strong>{__('Important Notes:')}</strong>
                     </p>
-
-                    <div className="help help--inline">
-                      <strong>{__('1. Channels with many or age-restricted videos')}</strong>
-                      <div className="help--inline">
+                    <ul className="help-list help-list--detailed">
+                      <li>
                         {__(
-                          'If your YouTube channel has many videos or age-gated content, you may need to enable "Use browser cookies" in the sync tool.'
+                          'For channels with many videos, you may need to use the "Use browser cookies" option (right click > preferences from the taskbar). We find that Firefox works the best on Windows. You\'ll want to Download and sign into YouTube on Firefox, and then set this option. This works well for age-gated videos too.  '
                         )}
-                      </div>
-                      <div className="help--inline">
-                        <strong>{__('Recommended setup on Windows:')}</strong>
-                        <ul className="help-list help-list--detailed">
-                          <li>{__('Use Firefox')}</li>
-                          <li>{__('Sign in to YouTube in Firefox')}</li>
-                          <li>
-                            {__(
-                              'In the sync tool: right-click the taskbar icon → Preferences → enable "Use browser cookies"'
-                            )}
-                          </li>
-                        </ul>
-                        <div className="help--inline">
-                          {__('This method works best for large channels and age-restricted videos.')}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="help help--inline">
-                      <strong>{__('2. Retrying failed uploads')}</strong>
-                      <ul className="help-list help-list--detailed">
-                        <li>{__('Quit the sync app')}</li>
-                        <li>{__('Restart the app to retry')}</li>
-                      </ul>
-                    </div>
-
-                    <div className="help help--inline">
-                      <strong>{__('3. New vs existing Odysee channels')}</strong>
-                      <ul className="help-list help-list--detailed">
-                        <li>{__('New users: the sync tool will automatically create a new Odysee channel')}</li>
-                        <li>
-                          {__(
-                            'Existing channels: to sync into an existing Odysee channel, contact hello@odysee.com before syncing'
-                          )}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="help help--inline">
-                      <strong>{__('4. Manual uploads and duplicates')}</strong>
-                      <ul className="help-list help-list--detailed">
-                        <li>{__('Videos will not be automatically de-duplicated')}</li>
-                        <li>
-                          {__('If you have many manual uploads, contact hello@odysee.com before syncing for help')}
-                        </li>
-                      </ul>
-                    </div>
+                      </li>
+                      <li>{__("To retry any failures, you'll need to quit and restart the app at this time.")}</li>
+                      <li>
+                        {__(
+                          'For new users, the sync tool will make a new channel for you. To sync into an existing Odysee channel, please reach out to hello@odysee.com. '
+                        )}
+                      </li>
+                      <li>
+                        {__(
+                          'Existing synced channels that have uploaded content manually while sync was turned off, content will not be de-duplicated. Reach out to hello@odysee.com for help first if you have many manual uploads.'
+                        )}
+                      </li>
+                    </ul>
                   </div>
 
                   <div className="card__actions card__actions--inline">
@@ -434,7 +390,7 @@ export default function YoutubeTransferStatus(props: Props) {
                     <Button
                       button="link"
                       label={__('How to use')}
-                      href="https://help.odysee.tv/category-syncprogram/synctool/"
+                      href="https://help.odysee.tv/category-syncprogram/"
                     />
                   </div>
                 </div>
