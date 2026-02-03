@@ -178,7 +178,7 @@ export default function YoutubeSync(props: Props) {
                           <Button
                             button="link"
                             label={__('how the program works')}
-                            href="https://help.odysee.tv/category-syncprogram/limits/"
+                            href="https://help.odysee.tv/category-syncprogram/whatisyoutubesync/"
                           />
                         ),
                         site_name: SITE_NAME,
