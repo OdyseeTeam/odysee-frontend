@@ -229,13 +229,31 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  const isLoading =
-    (fetchingClaimSearch || !requiresSearch) &&
-    section.type &&
-    section.type !== 'featured' &&
-    !claimSearchResults &&
-    !collectionClaimIds &&
-    !featuredChannels;
+  // Determine if we should show loading state based on section type:
+  // - Sections requiring search: only show loading if actively fetching
+  // - 'playlist' type: only show loading if claim_id exists and data is pending
+  // - 'channels' type: don't show loading (data either exists or doesn't)
+  // - If no claim_id for playlist, or no data source configured, don't show loading
+  const isLoading = (() => {
+    if (!section.type || section.type === 'featured') return false;
+
+    if (requiresSearch) {
+      // Only show loading during active fetch, not when results are empty/missing
+      return fetchingClaimSearch === true;
+    }
+
+    // For 'playlist' type: need claim_id to load anything
+    if (section.type === 'playlist') {
+      return section.claim_id && !collectionClaimIds && !collectionUrls;
+    }
+
+    // For 'channels' type: don't show loading skeleton
+    if (section.type === 'channels') {
+      return false;
+    }
+
+    return false;
+  })();
 
   return (
     <div className="home-section-content">
@@ -393,6 +411,14 @@ function HomeTabSection(props: Props) {
           </div>
         </div>
       )}
+      {!isLoading &&
+        !editMode &&
+        ((requiresSearch && claimSearchResults && claimSearchResults.length === 0) ||
+          (section.type === 'playlist' && !section.claim_id)) && (
+          <div className="section">
+            <div className="empty empty--centered">{__('No Content Found')}</div>
+          </div>
+        )}
       {section.type &&
         (section.claim_id ||
           collectionUrls ||

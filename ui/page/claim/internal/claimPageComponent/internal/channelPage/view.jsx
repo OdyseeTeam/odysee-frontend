@@ -259,44 +259,50 @@ function ChannelPage(props: Props) {
   function onTabChange(newTabIndex, keepFilters) {
     const baseUrl = formatLbryUrlForWeb(uri);
     const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
-    let search = '';
+    let newSearch = '';
 
     if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
         break;
       case 1:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 2:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
         break;
       case 3:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
       case 4:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
       case 5:
         if (!isOdyseeChannel) {
-          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         }
         break;
       case 6:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
         break;
       case 7:
         if (!hideAboutTab) {
-          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
         }
         break;
       case 8:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
-    push(`${url}${search}`);
+
+    // Only push if the URL is actually changing to avoid duplicate history entries
+    const newFullUrl = `${url}${newSearch}`;
+    const currentFullUrl = `${pathname}${search}`;
+    if (newFullUrl !== currentFullUrl) {
+      push(newFullUrl);
+    }
   }
 
   React.useEffect(() => {

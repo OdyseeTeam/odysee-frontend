@@ -247,6 +247,11 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
       disabled={disable}
       onClick={(e) => {
         e.stopPropagation();
+        // Prevent duplicate history entries when navigating to the current page
+        const currentPath = window.location.pathname + window.location.search;
+        if (path === currentPath || path === window.location.pathname) {
+          e.preventDefault();
+        }
         if (onClick) {
           onClick();
         }
