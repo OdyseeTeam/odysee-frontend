@@ -380,7 +380,7 @@ export default function YoutubeTransferStatus(props: Props) {
                     <Button
                       button="link"
                       label={__('How to use')}
-                      href="https://help.odysee.tv/category-syncprogram/"
+                      href="https://help.odysee.tv/category-syncprogram/synctool/"
                     />
                   </div>
                 </div>
