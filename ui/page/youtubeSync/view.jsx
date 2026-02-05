@@ -121,7 +121,7 @@ export default function YoutubeSync(props: Props) {
           <Card
             title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })}
             subtitle={__(
-              `Bring your YouTube videos to %site_name% without manual uploads. We'll guide you through linking your channel and getting started.`,
+              `Don't want to manually upload? Get your YouTube videos in front of the %site_name% audience.`,
               {
                 site_name: IS_WEB ? SITE_NAME : 'Odysee',
               }
@@ -134,7 +134,7 @@ export default function YoutubeSync(props: Props) {
                       {nameError ? (
                         <span className="error__text">{nameError}</span>
                       ) : (
-                        __('Choose your %site_name% channel name', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })
+                        __('Your desired %site_name% channel name', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })
                       )}
                     </label>
                     <div className="form-field__prefix">@</div>
@@ -184,8 +184,7 @@ export default function YoutubeSync(props: Props) {
                         site_name: SITE_NAME,
                       }}
                     >
-                      I want to sync my content to %site_name%. I have read and agree to %terms%, and I understand
-                      %faq%.
+                      I want to sync my content to %site_name%. I have also read and understand %faq%.
                     </I18nMessage>
                   }
                 />
