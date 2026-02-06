@@ -21,7 +21,7 @@ const {
 const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
-const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+const { buildURI, parseURI, normalizeClaimUrl, getCorrectedChannelWebPath } = require('./lbryURI');
 const fs = require('fs');
 const PAGES = require('../../ui/constants/pages');
 const path = require('path');
@@ -663,9 +663,20 @@ async function getHtml(ctx) {
 
   if (!requestPath.includes('$')) {
     let parsedUri, claimUri;
+    let pathToUse = requestPath.slice(1);
+
+    // Check if URL is missing @ prefix (e.g., malformed URLs from Grok/Twitter)
+    const correctedPath = getCorrectedChannelWebPath(pathToUse);
+    if (correctedPath) {
+      // Redirect to the corrected URL with @ prefix, preserving query string
+      // Use encodeURI to handle special characters like parentheses
+      const queryString = ctx.querystring ? `?${ctx.querystring}` : '';
+      ctx.redirect(encodeURI(`/${correctedPath}`) + queryString);
+      return;
+    }
 
     try {
-      parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
+      parsedUri = parseURI(normalizeClaimUrl(pathToUse));
       claimUri = buildURI({ ...parsedUri, startTime: undefined }, true);
     } catch (err) {
       ctx.status = 404;

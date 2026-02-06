@@ -9,6 +9,7 @@ const {
   escapeHtmlProperty,
 } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
+const { getCorrectedChannelWebPath } = require('./lbryURI');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -17,7 +18,14 @@ Lbry.setDaemonConnectionString(PROXY_URL);
 // ****************************************************************************
 
 async function getClaim(requestUrl) {
-  const uri = requestUrl.replace(`${URL}/`, 'lbry://');
+  // Extract the path from the URL and check for missing @ prefix
+  let webPath = requestUrl.replace(`${URL}/`, '');
+  const correctedPath = getCorrectedChannelWebPath(webPath);
+  if (correctedPath) {
+    webPath = correctedPath;
+  }
+
+  const uri = `lbry://${webPath}`;
 
   let claim, error;
   try {
