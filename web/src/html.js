@@ -21,7 +21,8 @@ const {
 const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
-const { buildURI, parseURI, normalizeClaimUrl, getCorrectedChannelWebPath } = require('./lbryURI');
+const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+const { resolveSlashUrl } = require('./resolveSlashUrl');
 const fs = require('fs');
 const PAGES = require('../../ui/constants/pages');
 const path = require('path');
@@ -665,16 +666,6 @@ async function getHtml(ctx) {
     let parsedUri, claimUri;
     let pathToUse = requestPath.slice(1);
 
-    // Check if URL is missing @ prefix (e.g., malformed URLs from Grok/Twitter)
-    const correctedPath = getCorrectedChannelWebPath(pathToUse);
-    if (correctedPath) {
-      // Redirect to the corrected URL with @ prefix, preserving query string
-      // Use encodeURI to handle special characters like parentheses
-      const queryString = ctx.querystring ? `?${ctx.querystring}` : '';
-      ctx.redirect(encodeURI(`/${correctedPath}`) + queryString);
-      return;
-    }
-
     try {
       parsedUri = parseURI(normalizeClaimUrl(pathToUse));
       claimUri = buildURI({ ...parsedUri, startTime: undefined }, true);
@@ -683,7 +674,36 @@ async function getHtml(ctx) {
       return err.message;
     }
 
-    const claim = await resolveClaimOrRedirect(ctx, claimUri);
+    // If the path has "/" without "@", parseURI drops the second segment
+    // (e.g., "Creator/video" → lbry://Creator). Try alternate interpretations first.
+    let claim;
+    const resolved = await resolveSlashUrl(pathToUse);
+
+    if (resolved) {
+      const queryString = ctx.querystring ? `?${ctx.querystring}` : '';
+
+      if (resolved.type === 'channel') {
+        // Malformed channel URL — redirect to the corrected @-prefixed path
+        ctx.redirect(encodeURI(`/@${pathToUse}`) + queryString);
+        return;
+      }
+
+      if (resolved.type === 'claimid') {
+        // name/claimid — redirect to canonical URL so the client-side app works
+        const canonicalPath = resolved.claim.canonical_url?.replace('lbry://', '').replace(/#/g, ':');
+        if (canonicalPath) {
+          ctx.redirect(`/${canonicalPath}` + queryString);
+          return;
+        }
+        claim = resolved.claim;
+        claimUri = resolved.uri;
+      }
+    }
+
+    if (!claim) {
+      claim = await resolveClaimOrRedirect(ctx, claimUri);
+    }
+
     const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {

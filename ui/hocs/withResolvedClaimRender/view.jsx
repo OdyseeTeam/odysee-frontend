@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
 
 import Spinner from 'component/spinner';
 import Button from 'component/button';
@@ -34,47 +33,6 @@ type Props = {
   doOpenModal: (string, {}) => void,
 };
 
-/**
- * Checks if a web URL path might be missing the @ prefix for the channel name.
- * Returns a corrected path with @ if applicable, or null if not applicable.
- * This handles cases like "/channel:id/content:id" which should be "/@channel:id/content:id"
- * (e.g., malformed URLs from Grok/Twitter that omit the @)
- */
-function getCorrectedChannelPath(pathname: string): ?string {
-  try {
-    // Remove leading slash
-    const webPath = pathname.startsWith('/') ? pathname.slice(1) : pathname;
-
-    // Must have a slash with content after it (channel/content pattern)
-    const slashIndex = webPath.indexOf('/');
-    if (slashIndex === -1 || slashIndex === webPath.length - 1) {
-      return null;
-    }
-
-    const firstPart = webPath.substring(0, slashIndex);
-    const secondPart = webPath.substring(slashIndex + 1);
-
-    // First part should not already start with @
-    if (firstPart.startsWith('@')) {
-      return null;
-    }
-
-    // Both parts should have content (non-empty name before any modifiers)
-    // Modifiers in web URLs use : instead of #
-    const firstNameMatch = firstPart.match(/^[^#:$*]+/);
-    const secondNameMatch = secondPart.match(/^[^#:$*]+/);
-
-    if (!firstNameMatch || !firstNameMatch[0] || !secondNameMatch || !secondNameMatch[0]) {
-      return null;
-    }
-
-    // Return the corrected path with @ prefix
-    return `/@${webPath}`;
-  } catch (e) {
-    return null;
-  }
-}
-
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
   const ResolvedClaimRender = (props: Props) => {
     const {
@@ -102,18 +60,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       ...otherProps
     } = props;
 
-    const { replace: historyReplace } = useHistory();
-    const location = useLocation();
     const { streamName, /* channelName, */ isChannel } = parseURI(uri);
-
-    // Check if the browser URL is missing @ prefix and redirect if needed
-    // This handles malformed URLs from Grok/Twitter like "/channel:id/content:id"
-    const correctedPath = getCorrectedChannelPath(location.pathname);
-    React.useEffect(() => {
-      if (correctedPath) {
-        historyReplace(correctedPath + location.search + location.hash);
-      }
-    }, [correctedPath, historyReplace, location.search, location.hash]);
 
     const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
 
@@ -157,11 +104,6 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         resolveClaim();
       }
     }, [resolveRequired, resolveClaim]);
-
-    // If URL needs correction, show loading while redirect happens
-    if (correctedPath) {
-      return <LoadingSpinner text={__('Resolving...')} />;
-    }
 
     if (!hasClaim) {
       if (hasClaim === undefined) {
