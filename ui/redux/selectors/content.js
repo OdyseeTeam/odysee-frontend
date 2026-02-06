@@ -228,9 +228,11 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
       if (['text', 'document', 'script'].includes(mediaType)) {
         return RENDER_MODES.DOCUMENT;
       }
+      // @if TARGET='app'
       if (extension === 'docx') {
         return RENDER_MODES.DOCX;
       }
+      // @endif
 
       // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
       if (['3D-file', 'model'].includes(mediaType)) {
@@ -291,9 +293,11 @@ export const selectFileRenderModeForUri = createSelector(
     if (['text', 'document', 'script'].includes(mediaType)) {
       return RENDER_MODES.DOCUMENT;
     }
+    // @if TARGET='app'
     if (extension === 'docx') {
       return RENDER_MODES.DOCX;
     }
+    // @endif
 
     // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
     if (['3D-file', 'model'].includes(mediaType)) {
