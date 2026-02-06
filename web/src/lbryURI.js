@@ -359,95 +359,6 @@ function normalizeClaimUrl(url) {
   return normalizeURI(url.replace(/:/g, '#'));
 }
 
-/**
- * Checks if a URI might be missing the @ prefix for the channel name.
- * Returns a corrected URI with @ if applicable, or null if not applicable.
- * This handles cases like "channel:id/content:id" which should be "@channel:id/content:id"
- * (e.g., malformed URLs from Grok/Twitter that omit the @)
- */
-function getCorrectedChannelUri(uri) {
-  try {
-    // Check if the URI has a path separator (indicating channel/content pattern)
-    // but doesn't have a channel name (meaning no @ was detected)
-    const parsed = parseURI(uri);
-
-    // If it already has a channelName, the @ is present - no correction needed
-    if (parsed.channelName) {
-      return null;
-    }
-
-    // Check if the raw URI contains a "/" followed by more content (channel/content pattern)
-    // Remove lbry:// protocol for checking
-    const uriWithoutProtocol = uri.replace(/^lbry:\/\//, '');
-    const slashIndex = uriWithoutProtocol.indexOf('/');
-
-    // Must have a slash with content after it (channel/content pattern)
-    if (slashIndex === -1 || slashIndex === uriWithoutProtocol.length - 1) {
-      return null;
-    }
-
-    const firstPart = uriWithoutProtocol.substring(0, slashIndex);
-    const secondPart = uriWithoutProtocol.substring(slashIndex + 1);
-
-    // First part should not already start with @
-    if (firstPart.startsWith('@')) {
-      return null;
-    }
-
-    // Both parts should have content (non-empty after any modifiers are stripped)
-    const firstNameMatch = firstPart.match(/^[^#:$*]+/);
-    const secondNameMatch = secondPart.match(/^[^#:$*]+/);
-
-    if (!firstNameMatch || !firstNameMatch[0] || !secondNameMatch || !secondNameMatch[0]) {
-      return null;
-    }
-
-    // Build the corrected URI with @ prefix
-    return `lbry://@${uriWithoutProtocol}`;
-  } catch (e) {
-    return null;
-  }
-}
-
-/**
- * Checks if a web URL path might be missing the @ prefix for the channel name.
- * Returns a corrected path with @ if applicable, or null if not applicable.
- * This works on raw web paths BEFORE they are parsed into lbry:// URIs.
- *
- * Example: "JustMe:05/content:0" -> "@JustMe:05/content:0"
- */
-function getCorrectedChannelWebPath(webPath) {
-  try {
-    // Must have a slash with content after it (channel/content pattern)
-    const slashIndex = webPath.indexOf('/');
-    if (slashIndex === -1 || slashIndex === webPath.length - 1) {
-      return null;
-    }
-
-    const firstPart = webPath.substring(0, slashIndex);
-    const secondPart = webPath.substring(slashIndex + 1);
-
-    // First part should not already start with @
-    if (firstPart.startsWith('@')) {
-      return null;
-    }
-
-    // Both parts should have content (non-empty name before any modifiers)
-    // Modifiers in web URLs use : instead of #
-    const firstNameMatch = firstPart.match(/^[^#:$*]+/);
-    const secondNameMatch = secondPart.match(/^[^#:$*]+/);
-
-    if (!firstNameMatch || !firstNameMatch[0] || !secondNameMatch || !secondNameMatch[0]) {
-      return null;
-    }
-
-    // Return the corrected path with @ prefix
-    return `@${webPath}`;
-  } catch (e) {
-    return null;
-  }
-}
-
 module.exports = {
   parseURI,
   buildURI,
@@ -459,6 +370,4 @@ module.exports = {
   isURIClaimable,
   splitBySeparator,
   convertToShareLink,
-  getCorrectedChannelUri,
-  getCorrectedChannelWebPath,
 };
