@@ -112,7 +112,6 @@ declare type PerChannelSettings = {
   comments_members_only?: boolean,
   homepage_settings?: any,
   channel_sections?: Sections,
-  upload_templates?: Array<UploadTemplate>,
 };
 
 // todo: relate individual comments to their commentId

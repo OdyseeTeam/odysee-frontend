@@ -84,6 +84,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 5;
   white-space: nowrap;
+  flex-wrap: wrap;
 
   fieldset-section {
     margin: 0;
@@ -99,6 +100,14 @@
     color: var(--color-text);
     min-width: 180px;
   }
+}
+
+.publish-template-save__warning {
+  display: block;
+  width: 100%;
+  font-size: var(--font-xsmall);
+  color: rgba(var(--color-text-base), 0.5);
+  margin-top: var(--spacing-xxs);
 }
 
 // Confirm / Cancel buttons inside the save popover.

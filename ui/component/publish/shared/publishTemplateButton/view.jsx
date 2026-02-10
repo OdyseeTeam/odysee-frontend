@@ -12,6 +12,7 @@ type Props = {
   templates: Array<UploadTemplate>,
   activeChannelClaim: ?ChannelClaim,
   publishFormValues: any,
+  channelSettings: ?PerChannelSettings,
   openModal: (string, ?{}) => void,
   updatePublishForm: (any) => void,
   doUpdateCreatorSettings: (ChannelClaim, any) => void,
@@ -47,6 +48,7 @@ export default function PublishTemplateButton(props: Props) {
     templates,
     activeChannelClaim,
     publishFormValues,
+    channelSettings,
     openModal,
     updatePublishForm,
     doUpdateCreatorSettings,
@@ -68,8 +70,12 @@ export default function PublishTemplateButton(props: Props) {
   function extractTemplateData(): UploadTemplateData {
     const data: any = {};
     TEMPLATE_FIELDS.forEach((field) => {
-      if (publishFormValues[field] !== undefined && publishFormValues[field] !== '') {
-        data[field] = publishFormValues[field];
+      const value = publishFormValues[field];
+      // Keep:
+      // - all defined booleans (including 'false')
+      // - all defined non-empty values
+      if (value !== undefined && (typeof value === 'boolean' || value !== '')) {
+        data[field] = value;
       }
     });
     return data;
@@ -105,7 +111,16 @@ export default function PublishTemplateButton(props: Props) {
 
     const updatedTemplates = [...(templates || []), newTemplate];
 
-    doUpdateCreatorSettings(activeChannelClaim, { upload_templates: updatedTemplates });
+    // Store templates inside homepage_settings to persist them
+    const currentHp = channelSettings?.homepage_settings;
+    const sections = Array.isArray(currentHp) ? currentHp : currentHp?.sections || [];
+    doUpdateCreatorSettings(activeChannelClaim, {
+      homepage_settings: {
+        ...(!Array.isArray(currentHp) && currentHp ? currentHp : {}),
+        sections,
+        upload_templates: updatedTemplates,
+      },
+    });
     doToast({ message: __('Template "%name%" saved', { name: newTemplate.name }) });
     closeSaveInput();
   }
@@ -128,13 +143,20 @@ export default function PublishTemplateButton(props: Props) {
       <Menu>
         <MenuButton className="button button--secondary">
           <Icon icon={ICONS.STACK} />
-          {__('Templates')}
+          {__('Prefill')}
           <Icon icon={ICONS.DOWN} />
         </MenuButton>
         <MenuList className="publish-template-menu__list">
+          <MenuItem className="publish-template-menu__item" onSelect={() => openModal(MODALS.COPY_FROM_UPLOAD)}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.COPY} />
+              {__('Copy from Previous Upload...')}
+            </div>
+          </MenuItem>
+          <hr className="publish-template-menu__separator" />
           {sortedTemplates.length > 0 && (
             <>
-              <div className="publish-template-menu__section-label">{__('Apply Template')}</div>
+              <div className="publish-template-menu__section-label">{__('Saved Templates')}</div>
               {sortedTemplates.map((template) => (
                 <MenuItem
                   key={template.id}
@@ -177,7 +199,11 @@ export default function PublishTemplateButton(props: Props) {
             onChange={(e) => setTemplateName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSaveTemplate();
-              if (e.key === 'Escape') closeSaveInput();
+              if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.preventDefault();
+                closeSaveInput();
+              }
             }}
             autoFocus
           />
@@ -190,9 +216,20 @@ export default function PublishTemplateButton(props: Props) {
           >
             <Icon icon={ICONS.COMPLETE} />
           </button>
-          <button type="button" className="publish-template-save__cancel" onClick={closeSaveInput} title={__('Cancel')}>
+          <button
+            type="button"
+            className="publish-template-save__cancel"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeSaveInput();
+            }}
+            title={__('Cancel')}
+          >
             <Icon icon={ICONS.REMOVE} />
           </button>
+          <span className="publish-template-save__warning">
+            {__('Template data is public. Do not include private information.')}
+          </span>
         </div>
       )}
     </div>

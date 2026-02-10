@@ -11,13 +11,21 @@ import './style.scss';
 type Props = {
   templates: Array<UploadTemplate>,
   activeChannelClaim: ?ChannelClaim,
+  channelSettings: ?PerChannelSettings,
   doUpdateCreatorSettings: (ChannelClaim, any) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
   doHideModal: () => void,
 };
 
 export default function ModalUploadTemplates(props: Props) {
-  const { templates: originalTemplates, activeChannelClaim, doUpdateCreatorSettings, doToast, doHideModal } = props;
+  const {
+    templates: originalTemplates,
+    activeChannelClaim,
+    channelSettings,
+    doUpdateCreatorSettings,
+    doToast,
+    doHideModal,
+  } = props;
 
   const [templates, setTemplates] = React.useState<Array<UploadTemplate>>(originalTemplates || []);
   const [editingId, setEditingId] = React.useState<?string>(null);
@@ -71,7 +79,16 @@ export default function ModalUploadTemplates(props: Props) {
 
   function handleSave() {
     if (!activeChannelClaim) return;
-    doUpdateCreatorSettings(activeChannelClaim, { upload_templates: templates });
+    // Store templates inside homepage_settings to persist them
+    const currentHp = channelSettings?.homepage_settings;
+    const sections = Array.isArray(currentHp) ? currentHp : currentHp?.sections || [];
+    doUpdateCreatorSettings(activeChannelClaim, {
+      homepage_settings: {
+        ...(!Array.isArray(currentHp) && currentHp ? currentHp : {}),
+        sections,
+        upload_templates: templates,
+      },
+    });
     doToast({ message: __('Upload templates updated') });
     doHideModal();
   }
@@ -90,10 +107,12 @@ export default function ModalUploadTemplates(props: Props) {
   }
 
   return (
-    <Modal isOpen type="custom" width="wide">
+    <Modal isOpen type="custom" width="wide" onAborted={doHideModal}>
       <Card
         title={__('Manage Upload Templates')}
-        subtitle={__('Rename or delete your saved upload templates.')}
+        subtitle={__(
+          'Rename or delete your saved upload templates. Note: template data is public and visible to others.'
+        )}
         body={
           <div className="upload-templates-manage">
             {templates.length === 0 ? (

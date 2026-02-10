@@ -213,7 +213,10 @@ export const selectSectionsForChannelId = (state: State, channelId: ClaimId) => 
 
 export const selectUploadTemplatesForChannelId = (state: State, channelId: ClaimId): Array<UploadTemplate> => {
   const channelSettings = selectSettingsForChannelId(state, channelId);
-  return (channelSettings && channelSettings.upload_templates) || [];
+  if (!channelSettings) return [];
+  const hp = channelSettings.homepage_settings;
+  if (!hp || Array.isArray(hp)) return [];
+  return hp.upload_templates || [];
 };
 
 export const selectUploadTemplatesForActiveChannel = (state: State): Array<UploadTemplate> => {

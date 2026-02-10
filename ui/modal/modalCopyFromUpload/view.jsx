@@ -24,6 +24,7 @@ const COPYABLE_FIELDS = [
 const FILTERS = [
   { key: 'all', label: 'All Uploads' },
   { key: 'unlisted', label: 'Unlisted' },
+  { key: 'scheduled', label: 'Scheduled' },
 ];
 
 const MAX_VISIBLE_RESULTS = 100;
@@ -171,7 +172,11 @@ export default function ModalCopyFromUpload(props: Props) {
           </div>
         ) : filteredClaims.length === 0 ? (
           <div className="main--empty">
-            {activeFilter === 'unlisted' ? __('No unlisted uploads found') : __('No uploads found')}
+            {activeFilter === 'unlisted'
+              ? __('No unlisted uploads found')
+              : activeFilter === 'scheduled'
+              ? __('No scheduled uploads found')
+              : __('No uploads found')}
           </div>
         ) : (
           visibleClaims.map((claim) => (
@@ -247,7 +252,7 @@ export default function ModalCopyFromUpload(props: Props) {
   };
 
   return (
-    <Modal isOpen type="custom" width="wide">
+    <Modal isOpen type="custom" width="wide" className="copy-from-upload-modal" onAborted={doHideModal}>
       <Card
         title={selectedClaim ? __('Select Fields to Copy') : __('Copy from Previous Upload')}
         subtitle={

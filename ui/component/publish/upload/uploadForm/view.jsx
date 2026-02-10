@@ -34,7 +34,6 @@ import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import Icon from 'component/common/icon';
 import PublishTemplateButton from 'component/publish/shared/publishTemplateButton';
 
@@ -96,7 +95,6 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   memberRestrictionStatus: MemberRestrictionStatus,
-  openModal: (string, ?{}) => void,
   fetchCreatorSettings: (string) => void,
 };
 
@@ -140,7 +138,6 @@ function UploadForm(props: Props) {
     updatePublishForm,
     uploadThumbnailStatus,
     memberRestrictionStatus,
-    openModal,
     fetchCreatorSettings,
   } = props;
 
@@ -410,14 +407,6 @@ function UploadForm(props: Props) {
           {formTitle}
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
-          )}
-          {!inEditMode && (
-            <Button
-              onClick={() => openModal(MODALS.COPY_FROM_UPLOAD)}
-              icon={ICONS.COPY}
-              button="secondary"
-              label={__('Copy from Previous')}
-            />
           )}
           {!inEditMode && <PublishTemplateButton />}
         </label>

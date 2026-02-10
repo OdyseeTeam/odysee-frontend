@@ -848,6 +848,26 @@ export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all
       return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
     }
 
+    // ── Scheduled filter: use claim_search with scheduled tags + future release_time ──
+    if (filter === 'scheduled') {
+      const csParams: any = {
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        // $FlowIgnore
+        any_tags: Object.values(SCHEDULED_TAGS),
+        claim_type: ['stream'],
+        order_by: ['height'],
+        remove_duplicates: true,
+        release_time: `>${Math.floor(Date.now() / 1000)}`,
+      };
+      if (myChannelIds.length > 0) {
+        csParams.channel_ids = myChannelIds;
+      }
+      const result = await Lbry.claim_search(csParams);
+      const claims = sortClaimsByNewest(extractStreamClaims(result));
+      return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
+    }
+
     // ── All uploads: short / empty query → claim_list ──
     if (term.length < 3) {
       const result = await Lbry.claim_list({
