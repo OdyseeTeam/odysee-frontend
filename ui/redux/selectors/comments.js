@@ -15,6 +15,7 @@ import {
 } from 'redux/selectors/claims';
 import { isClaimNsfw, getChannelFromClaim } from 'util/claim';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
+import { selectActiveChannelId } from 'redux/selectors/app';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
@@ -208,6 +209,17 @@ export const selectMembersOnlyCommentsForChannelId = (state: State, channelId: C
 export const selectSectionsForChannelId = (state: State, channelId: ClaimId) => {
   const channelSettings = selectSettingsForChannelId(state, channelId);
   return channelSettings?.channel_sections;
+};
+
+export const selectUploadTemplatesForChannelId = (state: State, channelId: ClaimId): Array<UploadTemplate> => {
+  const channelSettings = selectSettingsForChannelId(state, channelId);
+  return (channelSettings && channelSettings.upload_templates) || [];
+};
+
+export const selectUploadTemplatesForActiveChannel = (state: State): Array<UploadTemplate> => {
+  const activeChannelId = selectActiveChannelId(state);
+  if (!activeChannelId) return [];
+  return selectUploadTemplatesForChannelId(state, activeChannelId);
 };
 
 /**

@@ -1,6 +1,36 @@
 declare type CommentBody = string;
 declare type CommentId = string;
 
+declare type UploadTemplateData = {
+  title?: string,
+  description?: string,
+  tags?: Array<{ name: string }>,
+  thumbnail?: string,
+  language?: string,
+  languages?: Array<string>,
+  licenseType?: string,
+  licenseUrl?: string,
+  otherLicenseDescription?: string,
+  nsfw?: boolean,
+  paywall?: string,
+  fee?: { amount: number, currency: string },
+  fiatPurchaseFee?: Price,
+  fiatPurchaseEnabled?: boolean,
+  fiatRentalFee?: Price,
+  fiatRentalExpiration?: Duration,
+  fiatRentalEnabled?: boolean,
+  visibility?: string,
+  memberRestrictionOn?: boolean,
+  memberRestrictionTierIds?: Array<number>,
+};
+
+declare type UploadTemplate = {
+  id: string,
+  name: string,
+  createdAt: number,
+  data: UploadTemplateData,
+};
+
 declare type Comment = {|
   comment: CommentBody,
   comment_id: CommentId, // sha256 digest
@@ -82,6 +112,7 @@ declare type PerChannelSettings = {
   comments_members_only?: boolean,
   homepage_settings?: any,
   channel_sections?: Sections,
+  upload_templates?: Array<UploadTemplate>,
 };
 
 // todo: relate individual comments to their commentId

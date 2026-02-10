@@ -34,7 +34,9 @@ import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import Icon from 'component/common/icon';
+import PublishTemplateButton from 'component/publish/shared/publishTemplateButton';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -94,6 +96,8 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   memberRestrictionStatus: MemberRestrictionStatus,
+  openModal: (string, ?{}) => void,
+  fetchCreatorSettings: (string) => void,
 };
 
 function UploadForm(props: Props) {
@@ -136,6 +140,8 @@ function UploadForm(props: Props) {
     updatePublishForm,
     uploadThumbnailStatus,
     memberRestrictionStatus,
+    openModal,
+    fetchCreatorSettings,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -204,6 +210,13 @@ function UploadForm(props: Props) {
       claimInitialRewards();
     }
   }, [hasClaimedInitialRewards, claimInitialRewards]);
+
+  // Fetch creator settings (for upload templates) when active channel changes.
+  useEffect(() => {
+    if (activeChannelId && !inEditMode) {
+      fetchCreatorSettings(activeChannelId);
+    }
+  }, [activeChannelId, inEditMode, fetchCreatorSettings]);
 
   useEffect(() => {
     if (!modal) {
@@ -398,6 +411,15 @@ function UploadForm(props: Props) {
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
           )}
+          {!inEditMode && (
+            <Button
+              onClick={() => openModal(MODALS.COPY_FROM_UPLOAD)}
+              icon={ICONS.COPY}
+              button="secondary"
+              label={__('Copy from Previous')}
+            />
+          )}
+          {!inEditMode && <PublishTemplateButton />}
         </label>
       </h1>
 
