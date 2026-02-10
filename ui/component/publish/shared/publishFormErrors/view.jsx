@@ -8,6 +8,7 @@ import { BITRATE } from 'constants/publish';
 
 type Props = {
   waitForFile: boolean,
+  missingRequiredFile?: boolean,
   // --- redux ---
   title: ?string,
   name: ?string,
@@ -41,6 +42,7 @@ function PublishFormErrors(props: Props) {
     releaseTimeError,
     memberRestrictionStatus,
     waitForFile,
+    missingRequiredFile,
     fileBitrate,
     fileSizeTooBig,
     prevFileSizeTooBig,
@@ -60,6 +62,7 @@ function PublishFormErrors(props: Props) {
   return (
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
+      {missingRequiredFile && <div>{__('Choose a file to upload')}</div>}
       {missingTiers && <div>{__(HELP.NO_TIERS_SELECTED)}</div>}
       {fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig) && <div>{UPLOAD_SIZE_MESSAGE}</div>}
       {fileBitrate > BITRATE.MAX && (
