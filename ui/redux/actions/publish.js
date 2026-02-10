@@ -803,25 +803,52 @@ function sortClaimsByNewest(claims: Array<StreamClaim>): Array<StreamClaim> {
   });
 }
 
-function extractStreamClaimsFromClaimListResult(result: any): Array<StreamClaim> {
+function extractStreamClaims(result: any): Array<StreamClaim> {
   const items = (result && result.items) || [];
-  // claim_list can return mixed claim types; keep only streams here.
   // $FlowFixMe `value_type` narrowing to StreamClaim is not fully modeled in this Flow version.
   return items.filter((item) => item && item.value_type === 'stream');
 }
 
+function clientTitleFilter(claims: Array<StreamClaim>, term: string): Array<StreamClaim> {
+  const lower = term.toLowerCase();
+  return claims.filter((c) => (c?.value?.title || c?.name || '').toLowerCase().includes(lower));
+}
+
 /**
  * Searches the current user's uploads.
- * - For short queries (< 3 chars) it fetches recent uploads via claim_list.
- * - For longer queries it uses Lighthouse per-channel search + resolves results.
+ *
+ * @param searchTerm - Text query
+ * @param filter - Optional visibility filter: 'all' (default) or 'unlisted'
+ *
+ * For 'all': short queries use claim_list; 3+ char queries use Lighthouse.
+ * For 'unlisted': uses claim_search with any_tags for the unlisted tag,
+ *   since Lighthouse does not index unlisted content.
  */
-export const doSearchMyUploads = (searchTerm: string = '') => {
+export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all') => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const term = searchTerm.trim();
     const state = getState();
     const myChannelIds = selectMyChannelClaimIds(state) || [];
 
-    // -- Short / empty query: return recent uploads --
+    // ── Unlisted filter: use claim_search with any_tags ──
+    if (filter === 'unlisted') {
+      const csParams: any = {
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        any_tags: [VISIBILITY_TAGS.UNLISTED],
+        claim_type: ['stream'],
+        order_by: ['release_time'],
+        remove_duplicates: true,
+      };
+      if (myChannelIds.length > 0) {
+        csParams.channel_ids = myChannelIds;
+      }
+      const result = await Lbry.claim_search(csParams);
+      const claims = sortClaimsByNewest(extractStreamClaims(result));
+      return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
+    }
+
+    // ── All uploads: short / empty query → claim_list ──
     if (term.length < 3) {
       const result = await Lbry.claim_list({
         page: 1,
@@ -829,10 +856,10 @@ export const doSearchMyUploads = (searchTerm: string = '') => {
         resolve: true,
         claim_type: ['stream'],
       });
-      return { claims: sortClaimsByNewest(extractStreamClaimsFromClaimListResult(result)) };
+      return { claims: sortClaimsByNewest(extractStreamClaims(result)) };
     }
 
-    // -- No channels: fall back to title-filtered recent uploads --
+    // ── All uploads: no channels → title-filtered recent ──
     if (myChannelIds.length === 0) {
       const result = await Lbry.claim_list({
         page: 1,
@@ -840,21 +867,14 @@ export const doSearchMyUploads = (searchTerm: string = '') => {
         resolve: true,
         claim_type: ['stream'],
       });
-      const lower = term.toLowerCase();
-      const recentClaims: Array<StreamClaim> = sortClaimsByNewest(extractStreamClaimsFromClaimListResult(result));
-      const filteredClaims: Array<StreamClaim> = recentClaims.filter((claim) =>
-        (claim?.value?.title || claim?.name || '').toLowerCase().includes(lower)
-      );
-
-      return {
-        claims: filteredClaims,
-      };
+      return { claims: clientTitleFilter(sortClaimsByNewest(extractStreamClaims(result)), term) };
     }
 
-    // -- Lighthouse search across user's channels --
+    // ── All uploads: Lighthouse search across user's channels ──
     const channelIdsSlice = myChannelIds.slice(0, MAX_CHANNELS_FOR_SEARCH);
-    const queryBase =
-      `from=0&s=${encodeURIComponent(term)}&sort_by=release_time` + `&nsfw=true&size=${SEARCH_PAGE_SIZE_PER_CHANNEL}`;
+    const queryBase = `from=0&s=${encodeURIComponent(
+      term
+    )}&sort_by=release_time&nsfw=true&size=${SEARCH_PAGE_SIZE_PER_CHANNEL}`;
 
     const settled = await Promise.all(
       channelIdsSlice.map((chId) =>
@@ -883,7 +903,6 @@ export const doSearchMyUploads = (searchTerm: string = '') => {
     const uniqueUris = [...new Set(uris)];
     const resolveInfo = uniqueUris.length > 0 ? await dispatch(doResolveUris(uniqueUris, true)) : {};
 
-    // Extract resolved stream claims
     const resolvedClaims: Array<StreamClaim> = [];
     if (resolveInfo && typeof resolveInfo === 'object') {
       Object.values(resolveInfo).forEach((info) => {

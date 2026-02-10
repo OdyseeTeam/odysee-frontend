@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
 import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
@@ -20,10 +21,15 @@ const COPYABLE_FIELDS = [
   { key: 'price', label: 'Price / Paywall' },
 ];
 
+const FILTERS = [
+  { key: 'all', label: 'All Uploads' },
+  { key: 'unlisted', label: 'Unlisted' },
+];
+
 const MAX_VISIBLE_RESULTS = 100;
 
 type Props = {
-  searchUploads: (searchTerm: string) => Promise<{ claims: Array<StreamClaim> }>,
+  searchUploads: (searchTerm: string, filter: string) => Promise<{ claims: Array<StreamClaim> }>,
   doPopulatePublishFormFromClaim: (claim: StreamClaim, fields: Array<string>) => void,
   doHideModal: () => void,
 };
@@ -33,6 +39,7 @@ export default function ModalCopyFromUpload(props: Props) {
 
   const [searchTerm, setSearchTerm] = React.useState('');
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
+  const [activeFilter, setActiveFilter] = React.useState('all');
   const [claims, setClaims] = React.useState<Array<StreamClaim>>([]);
   const [loading, setLoading] = React.useState(true);
   const [loadingFailed, setLoadingFailed] = React.useState(false);
@@ -49,7 +56,6 @@ export default function ModalCopyFromUpload(props: Props) {
   });
 
   const trimmedTerm = debouncedTerm.trim();
-  const serverSearchTerm = trimmedTerm.length >= 3 ? trimmedTerm : '';
 
   // Debounce search input
   React.useEffect(() => {
@@ -64,15 +70,15 @@ export default function ModalCopyFromUpload(props: Props) {
     };
   }, []);
 
-  // Run search whenever debounced term changes
+  // Run search whenever debounced term or filter changes
   const runSearch = React.useCallback(
-    async (term: string) => {
+    async (term: string, filter: string) => {
       const reqId = ++searchRequestRef.current;
       setLoading(true);
       setLoadingFailed(false);
 
       try {
-        const result = await searchUploads(term);
+        const result = await searchUploads(term, filter);
         if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
         setClaims(Array.isArray(result?.claims) ? result.claims : []);
       } catch {
@@ -89,17 +95,17 @@ export default function ModalCopyFromUpload(props: Props) {
   );
 
   React.useEffect(() => {
-    runSearch(serverSearchTerm);
-  }, [serverSearchTerm, runSearch]);
+    runSearch(trimmedTerm, activeFilter);
+  }, [trimmedTerm, activeFilter, runSearch]);
 
-  // Client-side title filter for very short terms (1-2 chars)
+  // Client-side title filter for very short terms (1-2 chars) in 'all' mode
   const filteredClaims = React.useMemo(() => {
-    if (trimmedTerm.length > 0 && trimmedTerm.length < 3) {
+    if (activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3) {
       const lower = trimmedTerm.toLowerCase();
       return claims.filter((c) => (c?.value?.title || c?.name || '').toLowerCase().includes(lower));
     }
     return claims;
-  }, [claims, trimmedTerm]);
+  }, [claims, trimmedTerm, activeFilter]);
 
   const visibleClaims = React.useMemo(() => filteredClaims.slice(0, MAX_VISIBLE_RESULTS), [filteredClaims]);
 
@@ -126,15 +132,31 @@ export default function ModalCopyFromUpload(props: Props) {
   // --- Step 1: Search & Select ---
   const renderSearchStep = () => (
     <div className="copy-from-upload__search-step">
-      <FormField
-        type="text"
-        name="copy_from_upload_search"
-        placeholder={__('Search your uploads by title...')}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        autoFocus
-      />
-      {trimmedTerm.length > 0 && trimmedTerm.length < 3 && (
+      <div className="copy-from-upload__controls">
+        <div className="copy-from-upload__filters">
+          {FILTERS.map((f) => (
+            <Button
+              key={f.key}
+              button="alt"
+              label={__(f.label)}
+              onClick={() => setActiveFilter(f.key)}
+              className={classnames('button-toggle', {
+                'button-toggle--active': activeFilter === f.key,
+              })}
+            />
+          ))}
+        </div>
+        <FormField
+          type="text"
+          name="copy_from_upload_search"
+          className="copy-from-upload__search-input"
+          placeholder={__('Search by title...')}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoFocus
+        />
+      </div>
+      {activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3 && (
         <p className="copy-from-upload__result-hint">{__('Type at least 3 characters to search.')}</p>
       )}
       <div className="copy-from-upload__results">
@@ -145,10 +167,12 @@ export default function ModalCopyFromUpload(props: Props) {
         ) : loadingFailed ? (
           <div className="main--empty">
             <p>{__('Something went wrong. Please try again.')}</p>
-            <Button button="link" label={__('Retry')} onClick={() => runSearch(serverSearchTerm)} />
+            <Button button="link" label={__('Retry')} onClick={() => runSearch(trimmedTerm, activeFilter)} />
           </div>
         ) : filteredClaims.length === 0 ? (
-          <div className="main--empty">{__('No uploads found')}</div>
+          <div className="main--empty">
+            {activeFilter === 'unlisted' ? __('No unlisted uploads found') : __('No uploads found')}
+          </div>
         ) : (
           visibleClaims.map((claim) => (
             <div

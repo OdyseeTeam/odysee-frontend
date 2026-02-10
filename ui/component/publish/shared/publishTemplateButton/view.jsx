@@ -123,78 +123,78 @@ export default function PublishTemplateButton(props: Props) {
 
   if (!activeChannelClaim) return null;
 
-  if (showSaveInput) {
-    return (
-      <div className="publish-template-save">
-        <FormField
-          type="text"
-          name="template_name"
-          placeholder={__('Template name...')}
-          value={templateName}
-          onChange={(e) => setTemplateName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSaveTemplate();
-            if (e.key === 'Escape') closeSaveInput();
-          }}
-          autoFocus
-        />
-        <button
-          type="button"
-          className="publish-template-save__confirm"
-          onClick={handleSaveTemplate}
-          disabled={!templateName.trim()}
-          title={__('Save')}
-        >
-          <Icon icon={ICONS.COMPLETE} />
-        </button>
-        <button type="button" className="publish-template-save__cancel" onClick={closeSaveInput} title={__('Cancel')}>
-          <Icon icon={ICONS.REMOVE} />
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <Menu>
-      <MenuButton className="button button--secondary">
-        <Icon icon={ICONS.STACK} />
-        {__('Templates')}
-        <Icon icon={ICONS.DOWN} />
-      </MenuButton>
-      <MenuList className="publish-template-menu__list">
-        {sortedTemplates.length > 0 && (
-          <>
-            <div className="publish-template-menu__section-label">{__('Apply Template')}</div>
-            {sortedTemplates.map((template) => (
-              <MenuItem
-                key={template.id}
-                className="publish-template-menu__item"
-                onSelect={() => handleApplyTemplate(template)}
-              >
-                <div className="menu__link">
-                  <Icon aria-hidden icon={ICONS.STACK} />
-                  {template.name}
-                </div>
-              </MenuItem>
-            ))}
-            <hr className="publish-template-menu__separator" />
-          </>
-        )}
-        <MenuItem className="publish-template-menu__item" onSelect={() => setShowSaveInput(true)}>
-          <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.ADD} />
-            {__('Save Current as Template')}
-          </div>
-        </MenuItem>
-        {sortedTemplates.length > 0 && (
-          <MenuItem className="publish-template-menu__item" onSelect={handleManageTemplates}>
+    <div className="publish-template-wrapper">
+      <Menu>
+        <MenuButton className="button button--secondary">
+          <Icon icon={ICONS.STACK} />
+          {__('Templates')}
+          <Icon icon={ICONS.DOWN} />
+        </MenuButton>
+        <MenuList className="publish-template-menu__list">
+          {sortedTemplates.length > 0 && (
+            <>
+              <div className="publish-template-menu__section-label">{__('Apply Template')}</div>
+              {sortedTemplates.map((template) => (
+                <MenuItem
+                  key={template.id}
+                  className="publish-template-menu__item"
+                  onSelect={() => handleApplyTemplate(template)}
+                >
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.STACK} />
+                    {template.name}
+                  </div>
+                </MenuItem>
+              ))}
+              <hr className="publish-template-menu__separator" />
+            </>
+          )}
+          <MenuItem className="publish-template-menu__item" onSelect={() => setShowSaveInput(true)}>
             <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.SETTINGS} />
-              {__('Manage Templates')}
+              <Icon aria-hidden icon={ICONS.ADD} />
+              {__('Save Current as Template')}
             </div>
           </MenuItem>
-        )}
-      </MenuList>
-    </Menu>
+          {sortedTemplates.length > 0 && (
+            <MenuItem className="publish-template-menu__item" onSelect={handleManageTemplates}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.SETTINGS} />
+                {__('Manage Templates')}
+              </div>
+            </MenuItem>
+          )}
+        </MenuList>
+      </Menu>
+
+      {showSaveInput && (
+        <div className="publish-template-save">
+          <FormField
+            type="text"
+            name="template_name"
+            placeholder={__('Template name...')}
+            value={templateName}
+            onChange={(e) => setTemplateName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveTemplate();
+              if (e.key === 'Escape') closeSaveInput();
+            }}
+            autoFocus
+          />
+          <button
+            type="button"
+            className="publish-template-save__confirm"
+            onClick={handleSaveTemplate}
+            disabled={!templateName.trim()}
+            title={__('Save')}
+          >
+            <Icon icon={ICONS.COMPLETE} />
+          </button>
+          <button type="button" className="publish-template-save__cancel" onClick={closeSaveInput} title={__('Cancel')}>
+            <Icon icon={ICONS.REMOVE} />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

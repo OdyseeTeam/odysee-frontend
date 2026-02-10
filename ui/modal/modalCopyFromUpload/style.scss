@@ -1,6 +1,35 @@
 .copy-from-upload__search-step {
-  .form-field--SimpleName {
-    margin-bottom: var(--spacing-s);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+}
+
+.copy-from-upload__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.copy-from-upload__filters {
+  display: flex;
+  flex-shrink: 0;
+
+  .button-toggle {
+    &:first-child {
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    &:last-child {
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+  }
+}
+
+.copy-from-upload__search-input {
+  flex: 1;
+
+  fieldset-section {
+    margin: 0;
   }
 }
 
@@ -14,6 +43,13 @@
 .copy-from-upload__result-item {
   cursor: pointer;
   transition: background-color 0.15s;
+
+  // Override the default recommendation wrapper spacing: in a selection list
+  // we use border separators, not margin gaps.
+  .claim-preview__wrapper--recommendation {
+    margin-bottom: 0;
+    padding: var(--spacing-xxs) var(--spacing-xs);
+  }
 
   &:hover {
     background-color: rgba(var(--color-primary-dynamic), 0.1);
@@ -46,6 +82,10 @@
   border-radius: var(--border-radius);
   padding: var(--spacing-xxs);
   background: rgba(var(--color-primary-dynamic), 0.05);
+
+  .claim-preview__wrapper--recommendation {
+    margin-bottom: 0;
+  }
 }
 
 .copy-from-upload__field-list {
@@ -60,7 +100,6 @@
 }
 
 .copy-from-upload__result-hint {
-  margin-top: var(--spacing-xs);
-  color: rgba(var(--color-text-base), 0.75);
+  color: rgba(var(--color-text-base), 0.6);
   font-size: var(--font-small);
 }
