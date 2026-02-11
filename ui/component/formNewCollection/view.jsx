@@ -50,19 +50,11 @@ function FormNewCollection(props: Props) {
     closeForm(name, id);
   }
 
-  function altEnterListener(e: SyntheticKeyboardEvent<*>) {
+  function handleKeyDown(e: SyntheticKeyboardEvent<*>) {
     if (e.keyCode === KEYCODES.ENTER) {
       e.preventDefault();
       buttonref.current.click();
     }
-  }
-
-  function onTextareaFocus() {
-    window.addEventListener('keydown', altEnterListener);
-  }
-
-  function onTextareaBlur() {
-    window.removeEventListener('keydown', altEnterListener);
   }
 
   function handleClearNew() {
@@ -76,8 +68,7 @@ function FormNewCollection(props: Props) {
       name="new_collection"
       label={__('New Playlist Title')}
       placeholder={__(COLLECTIONS_CONSTS.PLACEHOLDER)}
-      onFocus={onTextareaFocus}
-      onBlur={onTextareaBlur}
+      onKeyDown={handleKeyDown}
       inputButton={
         <>
           <Button
