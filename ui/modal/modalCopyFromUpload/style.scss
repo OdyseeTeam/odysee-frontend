@@ -1,5 +1,11 @@
 .copy-from-upload-modal.modal--wide {
-  max-width: 900px;
+  max-width: 980px;
+  width: min(96vw, 980px);
+  --file-list-thumbnail-width: 9rem;
+}
+
+.copy-from-upload-modal .card {
+  max-width: none;
 }
 
 .copy-from-upload__search-step {
@@ -40,6 +46,7 @@
 .copy-from-upload__results {
   max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
 }
@@ -53,6 +60,14 @@
   .claim-preview__wrapper--recommendation {
     margin-bottom: 0;
     padding: var(--spacing-xxs) var(--spacing-xs);
+  }
+
+  .claim-preview {
+    min-width: 0;
+  }
+
+  .claim-preview__text {
+    min-width: 0;
   }
 
   &:hover {
@@ -106,4 +121,49 @@
 .copy-from-upload__result-hint {
   color: rgba(var(--color-text-base), 0.6);
   font-size: var(--font-small);
+}
+
+@media (max-width: $breakpoint-small) {
+  .copy-from-upload-modal.modal--wide {
+    width: 98vw;
+    max-width: 98vw;
+    --file-list-thumbnail-width: 7.2rem;
+  }
+
+  .copy-from-upload__controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-xxs);
+  }
+
+  .copy-from-upload__filters {
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .button-toggle {
+      flex: 0 0 auto;
+    }
+  }
+
+  .copy-from-upload__results {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: $breakpoint-xxsmall) {
+  .copy-from-upload-modal.modal--wide {
+    --file-list-thumbnail-width: 6.4rem;
+  }
+
+  .copy-from-upload__result-item {
+    .claim-preview__wrapper--recommendation {
+      padding: var(--spacing-xxxs) var(--spacing-xxs);
+    }
+  }
 }

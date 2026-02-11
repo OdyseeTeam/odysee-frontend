@@ -157,6 +157,7 @@ export default function ModalCopyFromUpload(props: Props) {
           autoFocus
         />
       </div>
+      <p className="copy-from-upload__result-hint">{__('Recent uploads are shown first by release date.')}</p>
       {activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3 && (
         <p className="copy-from-upload__result-hint">{__('Type at least 3 characters to search.')}</p>
       )}

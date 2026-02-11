@@ -6,6 +6,7 @@ import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import { getUploadTemplatesFromSettings, normalizeHomepageSettings } from 'util/homepage-settings';
 import './style.scss';
 
 type Props = {
@@ -27,9 +28,26 @@ export default function ModalUploadTemplates(props: Props) {
     doHideModal,
   } = props;
 
-  const [templates, setTemplates] = React.useState<Array<UploadTemplate>>(originalTemplates || []);
+  const normalizedHomepageSettings = React.useMemo(
+    () => normalizeHomepageSettings(channelSettings?.homepage_settings),
+    [channelSettings]
+  );
+  const sourceTemplates = React.useMemo(() => {
+    if (originalTemplates && originalTemplates.length > 0) {
+      return originalTemplates;
+    }
+
+    return getUploadTemplatesFromSettings(channelSettings);
+  }, [originalTemplates, channelSettings]);
+
+  const [templates, setTemplates] = React.useState<Array<UploadTemplate>>(sourceTemplates || []);
   const [editingId, setEditingId] = React.useState<?string>(null);
   const [editName, setEditName] = React.useState('');
+
+  React.useEffect(() => {
+    setTemplates(sourceTemplates || []);
+  }, [sourceTemplates]);
+
   const sortedTemplates = React.useMemo(
     () =>
       [...templates].sort((a, b) => {
@@ -79,12 +97,10 @@ export default function ModalUploadTemplates(props: Props) {
 
   function handleSave() {
     if (!activeChannelClaim) return;
-    // Store templates inside homepage_settings to persist them
-    const currentHp = channelSettings?.homepage_settings;
-    const sections = Array.isArray(currentHp) ? currentHp : currentHp?.sections || [];
+    const sections = Array.isArray(normalizedHomepageSettings.sections) ? normalizedHomepageSettings.sections : [];
     doUpdateCreatorSettings(activeChannelClaim, {
       homepage_settings: {
-        ...(!Array.isArray(currentHp) && currentHp ? currentHp : {}),
+        ...normalizedHomepageSettings,
         sections,
         upload_templates: templates,
       },
@@ -94,10 +110,10 @@ export default function ModalUploadTemplates(props: Props) {
   }
 
   const hasChanges = React.useMemo(() => {
-    const orig = originalTemplates || [];
+    const orig = sourceTemplates || [];
     if (templates.length !== orig.length) return true;
     return templates.some((t, i) => t.id !== orig[i].id || t.name !== orig[i].name);
-  }, [templates, originalTemplates]);
+  }, [templates, sourceTemplates]);
 
   function getCreatedAtLabel(template: UploadTemplate) {
     const timestamp = Number(template.createdAt || 0);

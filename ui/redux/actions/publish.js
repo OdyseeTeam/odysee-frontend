@@ -848,7 +848,7 @@ export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all
       return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
     }
 
-    // ── Scheduled filter: use claim_search with scheduled tags + future release_time ──
+    // ── Scheduled filter: use claim_search with scheduled tags ──
     if (filter === 'scheduled') {
       const csParams: any = {
         page: 1,
@@ -856,9 +856,8 @@ export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all
         // $FlowIgnore
         any_tags: Object.values(SCHEDULED_TAGS),
         claim_type: ['stream'],
-        order_by: ['height'],
+        order_by: ['release_time'],
         remove_duplicates: true,
-        release_time: `>${Math.floor(Date.now() / 1000)}`,
       };
       if (myChannelIds.length > 0) {
         csParams.channel_ids = myChannelIds;

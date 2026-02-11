@@ -111,6 +111,7 @@ declare type PerChannelSettings = {
   livestream_chat_members_only?: boolean,
   comments_members_only?: boolean,
   homepage_settings?: any,
+  upload_templates?: Array<UploadTemplate>,
   channel_sections?: Sections,
 };
 

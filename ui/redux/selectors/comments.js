@@ -18,6 +18,7 @@ import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { selectActiveChannelId } from 'redux/selectors/app';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
+import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 
 const selectState = (state: State) => state.comments || {};
 
@@ -213,10 +214,7 @@ export const selectSectionsForChannelId = (state: State, channelId: ClaimId) => 
 
 export const selectUploadTemplatesForChannelId = (state: State, channelId: ClaimId): Array<UploadTemplate> => {
   const channelSettings = selectSettingsForChannelId(state, channelId);
-  if (!channelSettings) return [];
-  const hp = channelSettings.homepage_settings;
-  if (!hp || Array.isArray(hp)) return [];
-  return hp.upload_templates || [];
+  return getUploadTemplatesFromSettings(channelSettings);
 };
 
 export const selectUploadTemplatesForActiveChannel = (state: State): Array<UploadTemplate> => {

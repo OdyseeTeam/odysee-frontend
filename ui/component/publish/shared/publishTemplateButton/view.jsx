@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import { FormField } from 'component/common/form';
 import { v4 as uuid } from 'uuid';
+import { getUploadTemplatesFromSettings, normalizeHomepageSettings } from 'util/homepage-settings';
 import './style.scss';
 
 type Props = {
@@ -57,9 +58,35 @@ export default function PublishTemplateButton(props: Props) {
 
   const [showSaveInput, setShowSaveInput] = React.useState(false);
   const [templateName, setTemplateName] = React.useState('');
+  const normalizedHomepageSettings = React.useMemo(
+    () => normalizeHomepageSettings(channelSettings?.homepage_settings),
+    [channelSettings]
+  );
+  const templatesFromSettings = React.useMemo(() => getUploadTemplatesFromSettings(channelSettings), [channelSettings]);
+  const mergedTemplates = React.useMemo(() => {
+    const seen = new Set();
+    const merged = [];
+
+    [...(templates || []), ...templatesFromSettings].forEach((template) => {
+      if (!template || !template.id || seen.has(template.id)) {
+        return;
+      }
+
+      seen.add(template.id);
+      merged.push(template);
+    });
+
+    return merged;
+  }, [templates, templatesFromSettings]);
+  const [optimisticTemplates, setOptimisticTemplates] = React.useState<Array<UploadTemplate>>(mergedTemplates);
+
+  React.useEffect(() => {
+    setOptimisticTemplates(mergedTemplates);
+  }, [mergedTemplates]);
+
   const sortedTemplates = React.useMemo(
-    () => [...(templates || [])].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0)),
-    [templates]
+    () => [...optimisticTemplates].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0)),
+    [optimisticTemplates]
   );
 
   function closeSaveInput() {
@@ -109,14 +136,13 @@ export default function PublishTemplateButton(props: Props) {
       data: templateData,
     };
 
-    const updatedTemplates = [...(templates || []), newTemplate];
+    const updatedTemplates = [...optimisticTemplates, newTemplate];
+    const sections = Array.isArray(normalizedHomepageSettings.sections) ? normalizedHomepageSettings.sections : [];
 
-    // Store templates inside homepage_settings to persist them
-    const currentHp = channelSettings?.homepage_settings;
-    const sections = Array.isArray(currentHp) ? currentHp : currentHp?.sections || [];
+    setOptimisticTemplates(updatedTemplates);
     doUpdateCreatorSettings(activeChannelClaim, {
       homepage_settings: {
-        ...(!Array.isArray(currentHp) && currentHp ? currentHp : {}),
+        ...normalizedHomepageSettings,
         sections,
         upload_templates: updatedTemplates,
       },
@@ -146,7 +172,7 @@ export default function PublishTemplateButton(props: Props) {
           {__('Prefill')}
           <Icon icon={ICONS.DOWN} />
         </MenuButton>
-        <MenuList className="publish-template-menu__list">
+        <MenuList className="menu__list publish-template-menu__list">
           <MenuItem className="publish-template-menu__item" onSelect={() => openModal(MODALS.COPY_FROM_UPLOAD)}>
             <div className="menu__link">
               <Icon aria-hidden icon={ICONS.COPY} />
@@ -198,7 +224,11 @@ export default function PublishTemplateButton(props: Props) {
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSaveTemplate();
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveTemplate();
+              }
               if (e.key === 'Escape') {
                 e.stopPropagation();
                 e.preventDefault();
@@ -210,7 +240,11 @@ export default function PublishTemplateButton(props: Props) {
           <button
             type="button"
             className="publish-template-save__confirm"
-            onClick={handleSaveTemplate}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSaveTemplate();
+            }}
             disabled={!templateName.trim()}
             title={__('Save')}
           >

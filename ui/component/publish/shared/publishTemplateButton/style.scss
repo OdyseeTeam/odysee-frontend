@@ -1,28 +1,26 @@
 // ==========================================================================
-// PublishTemplateButton — overrides for .page__title context
-//
-// .page__title applies aggressive button/svg/icon overrides (height, float,
-// padding, 2rem icons with 8px padding, white stroke). These are designed
-// for the single-icon <Button> components, but break the MenuButton which
-// contains multiple inline icons. We scope overrides here to keep the
-// global .page__title rules untouched.
+// PublishTemplateButton - overrides for .page__title context
 // ==========================================================================
 
 .publish-template-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   float: right;
+  margin-left: var(--spacing-s);
+  z-index: 10;
 
-  // MenuButton gets .page__title button sizing which is OK (36px, float right).
-  // But its child icons need to be de-escalated from the 2rem/8px-padding
-  // treatment so the stack + chevron + label aren't comically large.
   > [data-reach-menu-button] {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xxs);
-    // Horizontal padding for the dropdown trigger
+    float: none !important;
+    margin-top: 0 !important;
     padding-left: var(--spacing-s);
     padding-right: var(--spacing-xs);
+    font-size: var(--font-body) !important;
+    line-height: 1.2;
+    white-space: nowrap;
 
     .icon {
       width: 1.2rem !important;
@@ -34,17 +32,18 @@
       border-radius: 0 !important;
     }
 
-    font-size: var(--font-body);
-
     &:hover .icon {
       stroke: var(--color-button-secondary-text-hover) !important;
     }
   }
 }
 
-// Reach menu dropdown list
 .publish-template-menu__list {
-  z-index: 5;
+  z-index: 12;
+  width: min(90vw, 28rem);
+  min-width: min(20rem, 90vw);
+  max-width: min(90vw, 28rem);
+  font-size: var(--font-body);
 }
 
 .publish-template-menu__section-label {
@@ -60,6 +59,14 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+    height: auto;
+    min-height: var(--button-height);
+    white-space: normal;
+    word-break: break-word;
+
+    .icon {
+      flex-shrink: 0;
+    }
   }
 }
 
@@ -69,10 +76,9 @@
   border-top: 1px solid var(--color-border);
 }
 
-// Save-as-template popover (absolutely positioned below the button)
 .publish-template-save {
   position: absolute;
-  top: calc(100% + var(--spacing-xxs));
+  top: calc(100% + var(--spacing-xs));
   right: 0;
   display: flex;
   align-items: center;
@@ -82,7 +88,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 5;
+  z-index: 12;
   white-space: nowrap;
   flex-wrap: wrap;
 
@@ -98,7 +104,7 @@
     border-radius: var(--border-radius);
     background: var(--color-background);
     color: var(--color-text);
-    min-width: 180px;
+    min-width: 200px;
   }
 }
 
@@ -110,9 +116,6 @@
   margin-top: var(--spacing-xxs);
 }
 
-// Confirm / Cancel buttons inside the save popover.
-// These need heavy overrides because .page__title button forces
-// height: 36px, float: right, margin-top: -6px, and 2rem white icons.
 .publish-template-save__confirm,
 .publish-template-save__cancel {
   display: inline-flex !important;
@@ -148,5 +151,39 @@
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+  }
+}
+
+@media (max-width: $breakpoint-small) {
+  .publish-template-wrapper {
+    margin-left: var(--spacing-xxs);
+
+    > [data-reach-menu-button] {
+      padding-left: var(--spacing-xs);
+      padding-right: var(--spacing-xxs);
+      gap: var(--spacing-xxxs);
+    }
+  }
+
+  .publish-template-menu__list {
+    width: min(94vw, 24rem);
+    min-width: min(18rem, 94vw);
+    max-width: min(94vw, 24rem);
+  }
+
+  .publish-template-save {
+    width: min(94vw, 23rem);
+    max-width: min(94vw, 23rem);
+    white-space: normal;
+    right: 0;
+
+    fieldset-section {
+      flex: 1 1 100%;
+    }
+
+    input {
+      min-width: 0;
+      width: 100%;
+    }
   }
 }
