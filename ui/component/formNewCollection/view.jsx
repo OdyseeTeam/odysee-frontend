@@ -32,7 +32,7 @@ function FormNewCollection(props: Props) {
   }
 
   function handleAddCollection() {
-    const name = newCollectionName;
+    const name = newCollectionName.trim();
     let id;
 
     doPlaylistAddAndAllowPlaying({
