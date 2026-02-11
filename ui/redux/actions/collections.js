@@ -160,7 +160,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       function failure(error) {
         if (cb) cb();
 
-        const scriptSizeError = error.message.match(/script size ([0-9]+) exceeds limit 8192/);
+        const scriptSizeError = error?.message?.match && error.message.match(/script size ([0-9]+) exceeds limit 8192/);
         let customMessage = null;
         if (scriptSizeError) {
           const maxSize = 8192;
@@ -179,7 +179,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
               ? __('or %extraBytes% characters of text.', { extraBytes })
               : __('or 1 character of text.'));
         }
-        dispatch(doToast({ message: customMessage || error.message, isError: true }));
+        dispatch(doToast({ message: customMessage || error.message || error, isError: true }));
         reject(error);
         throw new Error(error);
       }
