@@ -125,7 +125,10 @@ router.get('*', async (ctx, next) => {
   }
 
   const html = await getHtml(ctx);
-  ctx.body = html;
+  // Only set body if not already redirecting (3xx status)
+  if (ctx.status < 300 || ctx.status >= 400) {
+    ctx.body = html;
+  }
 });
 
 module.exports = router;
