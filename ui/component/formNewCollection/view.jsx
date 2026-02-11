@@ -76,7 +76,7 @@ function FormNewCollection(props: Props) {
             icon={ICONS.COMPLETED}
             title={__('Confirm')}
             className="button-toggle"
-            disabled={newCollectionName.length === 0}
+            disabled={newCollectionName.trim().length === 0}
             onClick={handleAddCollection}
             ref={buttonref}
           />
