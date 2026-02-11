@@ -22,6 +22,7 @@ type Props = {
   nsfw: boolean,
   isNsfwBlocked: boolean,
   livestream?: boolean,
+  hideDescription?: boolean,
   // redux
   channelClaimId?: string,
   title?: string,
@@ -36,6 +37,7 @@ export default function FileTitleSection(props: Props) {
     nsfw,
     isNsfwBlocked,
     livestream = false,
+    hideDescription,
     subCount,
     channelClaimId,
     title,
@@ -106,7 +108,7 @@ export default function FileTitleSection(props: Props) {
         ) : (
           <>
             <ClaimAuthor channelSubCount={subCount} uri={uri} />
-            <FileDescription expandOverride={isMobile && livestream} uri={uri} />
+            {!hideDescription && <FileDescription expandOverride={isMobile && livestream} uri={uri} />}
           </>
         )
       }
