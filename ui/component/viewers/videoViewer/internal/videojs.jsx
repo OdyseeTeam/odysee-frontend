@@ -277,6 +277,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoPlayNextShort,
   });
 
+  const isLivestreamUi = Boolean(isLivestreamClaim && userClaimId);
+
   const videoJsOptions = {
     preload: 'auto',
     playbackRates: VIDEO_PLAYBACK_RATES,
@@ -291,10 +293,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         useDtsForTimestampOffset: true,
       },
     },
-    liveTracker: {
-      trackingThreshold: 0,
-      liveTolerance: 10,
-    },
+    liveTracker: isLivestreamUi
+      ? {
+          trackingThreshold: 0,
+          liveTolerance: 10,
+        }
+      : false,
     inactivityTimeout: 2000,
     muted: startMuted,
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
@@ -310,7 +314,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     techOrder: ['chromecast', 'html5'],
     ...Chromecast.getOptions(),
     suppressNotSupportedError: true,
-    liveui: true,
+    liveui: isLivestreamUi,
   };
 
   // TODO: would be nice to pull this out into functions file
