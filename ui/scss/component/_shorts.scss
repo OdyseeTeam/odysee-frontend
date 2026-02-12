@@ -83,8 +83,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page__side-panel {
   position: fixed;
   top: 0;
-  right: -600px;
-  width: 600px;
+  right: -720px;
+  width: 720px;
   height: 100vh;
   background: var(--color-card-background);
   border-left: 1px solid var(--color-border);
@@ -393,7 +393,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 @media (max-width: 1180px) and (min-width: $breakpoint-small) {
   .shorts-page__side-panel {
-    width: 400px;
+    width: 440px;
+    right: -440px;
     .claim-preview__text {
       flex-direction: column !important;
     }
