@@ -14,12 +14,14 @@
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xxs);
+    height: var(--button-height);
+    border-radius: var(--border-radius);
     float: none !important;
     margin-top: 0 !important;
     padding-left: var(--spacing-s);
     padding-right: var(--spacing-xs);
     font-size: var(--font-body) !important;
-    line-height: 1.2;
+    line-height: 1;
     white-space: nowrap;
 
     .icon {
@@ -44,6 +46,19 @@
   min-width: min(20rem, 90vw);
   max-width: min(90vw, 28rem);
   font-size: var(--font-body);
+
+  [data-reach-menu-item] {
+    border-radius: 0 !important;
+  }
+
+  [data-reach-menu-item][data-selected] {
+    border-radius: 0 !important;
+    background-color: var(--color-navigation-hover);
+  }
+
+  [data-reach-menu-item][data-selected] .menu__link {
+    background: transparent !important;
+  }
 }
 
 .publish-template-menu__section-label {
@@ -63,6 +78,7 @@
     min-height: var(--button-height);
     white-space: normal;
     word-break: break-word;
+    border-radius: 0 !important;
 
     .icon {
       flex-shrink: 0;

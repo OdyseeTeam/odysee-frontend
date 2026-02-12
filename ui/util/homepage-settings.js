@@ -41,15 +41,16 @@ export function getUploadTemplatesFromSettings(channelSettings: ?PerChannelSetti
     return [];
   }
 
+  // Primary source: top-level creator settings.
+  if (Array.isArray(channelSettings.upload_templates)) {
+    return channelSettings.upload_templates;
+  }
+
+  // Backward-compat fallback for previously-saved data.
   const normalizedHomepageSettings = normalizeHomepageSettings(channelSettings.homepage_settings);
 
   if (Array.isArray(normalizedHomepageSettings.upload_templates)) {
     return normalizedHomepageSettings.upload_templates;
-  }
-
-  // Legacy fallback: some responses may expose templates at the root settings object.
-  if (Array.isArray(channelSettings.upload_templates)) {
-    return channelSettings.upload_templates;
   }
 
   return [];

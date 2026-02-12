@@ -6,7 +6,7 @@ import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import { getUploadTemplatesFromSettings, normalizeHomepageSettings } from 'util/homepage-settings';
+import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 import './style.scss';
 
 type Props = {
@@ -28,10 +28,6 @@ export default function ModalUploadTemplates(props: Props) {
     doHideModal,
   } = props;
 
-  const normalizedHomepageSettings = React.useMemo(
-    () => normalizeHomepageSettings(channelSettings?.homepage_settings),
-    [channelSettings]
-  );
   const sourceTemplates = React.useMemo(() => {
     if (originalTemplates && originalTemplates.length > 0) {
       return originalTemplates;
@@ -97,13 +93,8 @@ export default function ModalUploadTemplates(props: Props) {
 
   function handleSave() {
     if (!activeChannelClaim) return;
-    const sections = Array.isArray(normalizedHomepageSettings.sections) ? normalizedHomepageSettings.sections : [];
     doUpdateCreatorSettings(activeChannelClaim, {
-      homepage_settings: {
-        ...normalizedHomepageSettings,
-        sections,
-        upload_templates: templates,
-      },
+      upload_templates: templates,
     });
     doToast({ message: __('Upload templates updated') });
     doHideModal();

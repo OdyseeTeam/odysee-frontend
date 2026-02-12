@@ -1,7 +1,7 @@
 .copy-from-upload-modal.modal--wide {
-  max-width: 980px;
-  width: min(96vw, 980px);
-  --file-list-thumbnail-width: 9rem;
+  max-width: 1120px;
+  width: min(98vw, 1120px);
+  --file-list-thumbnail-width: 7.8rem;
 }
 
 .copy-from-upload-modal .card {
@@ -60,14 +60,26 @@
   .claim-preview__wrapper--recommendation {
     margin-bottom: 0;
     padding: var(--spacing-xxs) var(--spacing-xs);
+    width: 100%;
   }
 
   .claim-preview {
     min-width: 0;
+    width: 100%;
   }
 
   .claim-preview__text {
     min-width: 0;
+  }
+
+  .claim-preview-metadata,
+  .claim-preview-info,
+  .claim-tile__info,
+  .media__subtitle,
+  .claim-preview__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &:hover {
@@ -125,9 +137,9 @@
 
 @media (max-width: $breakpoint-small) {
   .copy-from-upload-modal.modal--wide {
-    width: 98vw;
-    max-width: 98vw;
-    --file-list-thumbnail-width: 7.2rem;
+    width: 99vw;
+    max-width: 99vw;
+    --file-list-thumbnail-width: 6.8rem;
   }
 
   .copy-from-upload__controls {
@@ -158,7 +170,7 @@
 
 @media (max-width: $breakpoint-xxsmall) {
   .copy-from-upload-modal.modal--wide {
-    --file-list-thumbnail-width: 6.4rem;
+    --file-list-thumbnail-width: 5.9rem;
   }
 
   .copy-from-upload__result-item {

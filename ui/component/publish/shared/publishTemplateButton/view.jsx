@@ -6,7 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import { FormField } from 'component/common/form';
 import { v4 as uuid } from 'uuid';
-import { getUploadTemplatesFromSettings, normalizeHomepageSettings } from 'util/homepage-settings';
+import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 import './style.scss';
 
 type Props = {
@@ -58,10 +58,6 @@ export default function PublishTemplateButton(props: Props) {
 
   const [showSaveInput, setShowSaveInput] = React.useState(false);
   const [templateName, setTemplateName] = React.useState('');
-  const normalizedHomepageSettings = React.useMemo(
-    () => normalizeHomepageSettings(channelSettings?.homepage_settings),
-    [channelSettings]
-  );
   const templatesFromSettings = React.useMemo(() => getUploadTemplatesFromSettings(channelSettings), [channelSettings]);
   const mergedTemplates = React.useMemo(() => {
     const seen = new Set();
@@ -137,15 +133,10 @@ export default function PublishTemplateButton(props: Props) {
     };
 
     const updatedTemplates = [...optimisticTemplates, newTemplate];
-    const sections = Array.isArray(normalizedHomepageSettings.sections) ? normalizedHomepageSettings.sections : [];
 
     setOptimisticTemplates(updatedTemplates);
     doUpdateCreatorSettings(activeChannelClaim, {
-      homepage_settings: {
-        ...normalizedHomepageSettings,
-        sections,
-        upload_templates: updatedTemplates,
-      },
+      upload_templates: updatedTemplates,
     });
     doToast({ message: __('Template "%name%" saved', { name: newTemplate.name }) });
     closeSaveInput();
