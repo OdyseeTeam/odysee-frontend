@@ -10,7 +10,7 @@
   margin-left: var(--spacing-s);
   z-index: 10;
 
-  > [data-reach-menu-button] {
+  [data-reach-menu-button] {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xxs);
@@ -24,7 +24,8 @@
     line-height: 1;
     white-space: nowrap;
 
-    .icon {
+    .icon,
+    svg {
       width: 1.2rem !important;
       height: 1.2rem !important;
       padding: 0 !important;
@@ -58,6 +59,10 @@
 
   [data-reach-menu-item][data-selected] .menu__link {
     background: transparent !important;
+  }
+
+  .menu__link:hover {
+    border-radius: 0 !important;
   }
 }
 
@@ -100,10 +105,13 @@
   align-items: center;
   gap: var(--spacing-xxs);
   padding: var(--spacing-xs);
-  background: var(--color-card-background);
+  background-color: var(--color-background) !important;
+  background-image: none !important;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
   z-index: 12;
   white-space: nowrap;
   flex-wrap: wrap;
@@ -174,7 +182,7 @@
   .publish-template-wrapper {
     margin-left: var(--spacing-xxs);
 
-    > [data-reach-menu-button] {
+    [data-reach-menu-button] {
       padding-left: var(--spacing-xs);
       padding-right: var(--spacing-xxs);
       gap: var(--spacing-xxxs);

@@ -194,6 +194,7 @@ export default function ModalCopyFromUpload(props: Props) {
                 type="small"
                 nonClickable
                 hideActions
+                hideMenu
                 properties={false}
               />
             </div>
@@ -229,6 +230,7 @@ export default function ModalCopyFromUpload(props: Props) {
               type="small"
               nonClickable
               hideActions
+              hideMenu
               properties={false}
             />
           </div>

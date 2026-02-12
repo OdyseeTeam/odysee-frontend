@@ -1,6 +1,7 @@
-.copy-from-upload-modal.modal--wide {
-  max-width: 1120px;
-  width: min(98vw, 1120px);
+.modal.copy-from-upload-modal {
+  max-width: 1120px !important;
+  width: min(98vw, 1120px) !important;
+  min-width: min(98vw, 1120px) !important;
   --file-list-thumbnail-width: 7.8rem;
 }
 
@@ -41,6 +42,12 @@
   fieldset-section {
     margin: 0;
   }
+
+  input {
+    height: var(--button-height);
+    min-height: var(--button-height);
+    font-size: var(--font-body);
+  }
 }
 
 .copy-from-upload__results {
@@ -54,6 +61,7 @@
 .copy-from-upload__result-item {
   cursor: pointer;
   transition: background-color 0.15s;
+  overflow: hidden;
 
   // Override the default recommendation wrapper spacing: in a selection list
   // we use border separators, not margin gaps.
@@ -70,6 +78,12 @@
 
   .claim-preview__text {
     min-width: 0;
+  }
+
+  .media__thumb {
+    width: 6.8rem !important;
+    min-width: 6.8rem !important;
+    margin-right: var(--spacing-xs);
   }
 
   .claim-preview-metadata,
@@ -136,9 +150,10 @@
 }
 
 @media (max-width: $breakpoint-small) {
-  .copy-from-upload-modal.modal--wide {
-    width: 99vw;
-    max-width: 99vw;
+  .modal.copy-from-upload-modal {
+    width: 99vw !important;
+    max-width: 99vw !important;
+    min-width: 99vw !important;
     --file-list-thumbnail-width: 6.8rem;
   }
 
@@ -169,13 +184,18 @@
 }
 
 @media (max-width: $breakpoint-xxsmall) {
-  .copy-from-upload-modal.modal--wide {
+  .modal.copy-from-upload-modal {
     --file-list-thumbnail-width: 5.9rem;
   }
 
   .copy-from-upload__result-item {
     .claim-preview__wrapper--recommendation {
       padding: var(--spacing-xxxs) var(--spacing-xxs);
+    }
+
+    .media__thumb {
+      width: 5.9rem !important;
+      min-width: 5.9rem !important;
     }
   }
 }
