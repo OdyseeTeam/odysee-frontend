@@ -10,6 +10,7 @@ import {
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import * as COLLECTIONS from 'constants/collections';
 import {
   selectShowMatureContent,
   selectHomepageData,
@@ -17,6 +18,8 @@ import {
   selectHomepageMeme,
   selectHomepageCustomBanners,
 } from 'redux/selectors/settings';
+import { selectCountForCollectionId, selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 
 import HomePage from './view';
 
@@ -34,10 +37,13 @@ const select = (state) => ({
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
   livestreamViewersById: selectViewersById(state),
   homepageCustomBanners: selectHomepageCustomBanners(state),
+  watchLaterCount: selectCountForCollectionId(state, COLLECTIONS.WATCH_LATER_ID),
+  watchLaterUris: selectUrlsForCollectionId(state, COLLECTIONS.WATCH_LATER_ID),
 });
 
 const perform = (dispatch) => ({
   doFetchAllActiveLivestreamsForQuery: () => dispatch(doFetchAllActiveLivestreamsForQuery()),
+  doFetchItemsInCollection: (params) => dispatch(doFetchItemsInCollection(params)),
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 

@@ -14,6 +14,7 @@ const Lazy = {
 const NON_CATEGORY = Object.freeze({
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
+  WATCH_LATER: { label: 'Watch Later', hideByDefault: true },
   SHORTS: { label: 'Shorts' },
   FYP: { label: 'Recommended' },
 });

@@ -644,6 +644,7 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
+              {showMicroMenu && getLink(WATCH_LATER)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
             <ul className="navigation-links--absolute mobile-only">
