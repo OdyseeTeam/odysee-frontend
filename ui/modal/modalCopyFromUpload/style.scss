@@ -149,7 +149,7 @@
   font-size: var(--font-small);
 }
 
-@media (max-width: $breakpoint-small) {
+@media (max-width: 900px) {
   .modal.copy-from-upload-modal {
     width: 99vw !important;
     max-width: 99vw !important;
@@ -183,7 +183,7 @@
   }
 }
 
-@media (max-width: $breakpoint-xxsmall) {
+@media (max-width: 450px) {
   .modal.copy-from-upload-modal {
     --file-list-thumbnail-width: 5.9rem;
   }
