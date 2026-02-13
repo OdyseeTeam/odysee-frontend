@@ -1,8 +1,8 @@
 .modal.copy-from-upload-modal {
-  max-width: 1120px !important;
-  width: min(98vw, 1120px) !important;
-  min-width: min(98vw, 1120px) !important;
-  --file-list-thumbnail-width: 7.8rem;
+  max-width: 1000px !important;
+  width: min(96vw, 1000px) !important;
+  min-width: min(96vw, 1000px) !important;
+  --file-list-thumbnail-width: 7rem;
 }
 
 .copy-from-upload-modal .card {
@@ -36,18 +36,22 @@
   }
 }
 
-.copy-from-upload__search-input {
+.copy-from-upload__search-field {
   flex: 1;
+  min-width: 0;
 
   fieldset-section {
     margin: 0;
+    width: 100%;
   }
+}
 
-  input {
-    height: var(--button-height);
-    min-height: var(--button-height);
-    font-size: var(--font-body);
-  }
+.copy-from-upload__search-input {
+  width: 100%;
+
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  font-size: var(--font-body);
 }
 
 .copy-from-upload__results {
@@ -81,8 +85,8 @@
   }
 
   .media__thumb {
-    width: 6.8rem !important;
-    min-width: 6.8rem !important;
+    width: var(--file-list-thumbnail-width) !important;
+    min-width: var(--file-list-thumbnail-width) !important;
     margin-right: var(--spacing-xs);
   }
 
@@ -108,6 +112,16 @@
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-border);
   }
+}
+
+.copy-from-upload__result-description {
+  color: rgba(var(--color-text-base), 0.58);
+  font-size: var(--font-small);
+  margin: 0 var(--spacing-xs) var(--spacing-xxs)
+    calc(var(--file-list-thumbnail-width) + var(--spacing-xs) + var(--spacing-s));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .copy-from-upload__field-step {
@@ -154,7 +168,7 @@
     width: 99vw !important;
     max-width: 99vw !important;
     min-width: 99vw !important;
-    --file-list-thumbnail-width: 6.8rem;
+    --file-list-thumbnail-width: 6.2rem;
   }
 
   .copy-from-upload__controls {
@@ -181,21 +195,20 @@
   .copy-from-upload__results {
     max-height: 50vh;
   }
+
+  .copy-from-upload__result-description {
+    margin-left: calc(var(--file-list-thumbnail-width) + var(--spacing-xs) + var(--spacing-xs));
+  }
 }
 
 @media (max-width: 450px) {
   .modal.copy-from-upload-modal {
-    --file-list-thumbnail-width: 5.9rem;
+    --file-list-thumbnail-width: 5.4rem;
   }
 
   .copy-from-upload__result-item {
     .claim-preview__wrapper--recommendation {
       padding: var(--spacing-xxxs) var(--spacing-xxs);
-    }
-
-    .media__thumb {
-      width: 5.9rem !important;
-      min-width: 5.9rem !important;
     }
   }
 }

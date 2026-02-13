@@ -147,15 +147,17 @@ export default function ModalCopyFromUpload(props: Props) {
             />
           ))}
         </div>
-        <FormField
-          type="text"
-          name="copy_from_upload_search"
-          className="copy-from-upload__search-input"
-          placeholder={__('Search by title...')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoFocus
-        />
+        <div className="copy-from-upload__search-field">
+          <FormField
+            type="text"
+            name="copy_from_upload_search"
+            className="copy-from-upload__search-input"
+            placeholder={__('Search by title...')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoFocus
+          />
+        </div>
       </div>
       <p className="copy-from-upload__result-hint">{__('Recent uploads are shown first by release date.')}</p>
       {activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3 && (
@@ -180,25 +182,29 @@ export default function ModalCopyFromUpload(props: Props) {
               : __('No uploads found')}
           </div>
         ) : (
-          visibleClaims.map((claim) => (
-            <div
-              key={claim.claim_id}
-              className="copy-from-upload__result-item"
-              onClick={() => setSelectedClaim(claim)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => handleResultKeyDown(e, claim)}
-            >
-              <ClaimPreview
-                uri={claim.permanent_url || claim.canonical_url}
-                type="small"
-                nonClickable
-                hideActions
-                hideMenu
-                properties={false}
-              />
-            </div>
-          ))
+          visibleClaims.map((claim) => {
+            const description = claim?.value?.description;
+            return (
+              <div
+                key={claim.claim_id}
+                className="copy-from-upload__result-item"
+                onClick={() => setSelectedClaim(claim)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => handleResultKeyDown(e, claim)}
+              >
+                <ClaimPreview
+                  uri={claim.permanent_url || claim.canonical_url}
+                  type="small"
+                  nonClickable
+                  hideActions
+                  hideMenu
+                  properties={false}
+                />
+                {description && <div className="copy-from-upload__result-description">{description}</div>}
+              </div>
+            );
+          })
         )}
       </div>
       {filteredClaims.length > MAX_VISIBLE_RESULTS && (

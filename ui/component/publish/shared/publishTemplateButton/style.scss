@@ -14,15 +14,29 @@
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xxs);
-    height: var(--button-height);
+    height: 36px !important;
+    min-height: 36px !important;
     border-radius: var(--border-radius);
     float: none !important;
     margin-top: 0 !important;
     padding-left: var(--spacing-s);
     padding-right: var(--spacing-xs);
     font-size: var(--font-body) !important;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
+    background-color: var(--color-button-secondary-bg) !important;
+    color: var(--color-button-secondary-text) !important;
+    box-shadow: none !important;
+
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      background-color: var(--color-button-secondary-bg-hover) !important;
+      color: var(--color-button-secondary-text-hover) !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
 
     .icon,
     svg {
@@ -38,27 +52,39 @@
     &:hover .icon {
       stroke: var(--color-button-secondary-text-hover) !important;
     }
+
+    &[aria-expanded='true'] .icon,
+    &[aria-expanded='true'] svg {
+      stroke: var(--color-button-secondary-text-hover) !important;
+    }
   }
 }
 
 .publish-template-menu__list {
   z-index: 12;
-  width: min(90vw, 28rem);
-  min-width: min(20rem, 90vw);
-  max-width: min(90vw, 28rem);
+  width: min(88vw, 23rem);
+  min-width: min(17rem, 88vw);
+  max-width: min(88vw, 23rem);
   font-size: var(--font-body);
 
   [data-reach-menu-item] {
     border-radius: 0 !important;
+    margin: 0 !important;
   }
 
   [data-reach-menu-item][data-selected] {
     border-radius: 0 !important;
     background-color: var(--color-navigation-hover);
+    color: var(--color-primary-contrast) !important;
   }
 
   [data-reach-menu-item][data-selected] .menu__link {
     background: transparent !important;
+    color: var(--color-primary-contrast) !important;
+  }
+
+  [data-reach-menu-item][data-selected] .icon {
+    stroke: var(--color-primary-contrast) !important;
   }
 
   .menu__link:hover {
@@ -183,6 +209,8 @@
     margin-left: var(--spacing-xxs);
 
     [data-reach-menu-button] {
+      height: 34px !important;
+      min-height: 34px !important;
       padding-left: var(--spacing-xs);
       padding-right: var(--spacing-xxs);
       gap: var(--spacing-xxxs);
@@ -190,9 +218,9 @@
   }
 
   .publish-template-menu__list {
-    width: min(94vw, 24rem);
-    min-width: min(18rem, 94vw);
-    max-width: min(94vw, 24rem);
+    width: min(94vw, 20rem);
+    min-width: min(16rem, 94vw);
+    max-width: min(94vw, 20rem);
   }
 
   .publish-template-save {
