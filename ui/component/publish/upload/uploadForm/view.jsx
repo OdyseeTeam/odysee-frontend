@@ -47,6 +47,7 @@ type Props = {
   publish: DoPublishDesktop,
   filePath: string | File,
   fileSizeTooBig: boolean,
+  prevFileSizeTooBig: boolean,
   fileText: string,
   fileBitrate: number,
   bid: ?number,
@@ -111,6 +112,7 @@ function UploadForm(props: Props) {
     enablePublishPreview,
     filePath,
     fileSizeTooBig,
+    prevFileSizeTooBig,
     fileText,
     fileBitrate,
     hasClaimedInitialRewards,
@@ -187,7 +189,7 @@ function UploadForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
-    !fileSizeTooBig &&
+    !(fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig)) &&
     (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     (isOverwritingExistingClaim
       ? false

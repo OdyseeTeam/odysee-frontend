@@ -7,6 +7,7 @@ import {
   selectMemberRestrictionStatus,
   selectPublishFormValue,
   selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
 } from 'redux/selectors/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -40,6 +41,7 @@ const select = (state) => {
     isStillEditing: selectIsStillEditing(state),
     filePath: selectPublishFormValue(state, 'filePath'),
     fileSizeTooBig: selectPublishFormValue(state, 'fileSizeTooBig'),
+    prevFileSizeTooBig: selectPrevFileSizeTooBig(state),
     remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
     memberRestrictionStatus: selectMemberRestrictionStatus(state),

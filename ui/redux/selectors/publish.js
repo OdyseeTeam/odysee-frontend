@@ -9,6 +9,7 @@ import {
   selectClaimsByUri,
   selectCollectionClaimPublishUpdateMetadataForId,
 } from 'redux/selectors/claims';
+import { WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 import {
@@ -107,6 +108,11 @@ export const selectMyClaimForUri = createCachedSelector(
     }
   }
 )((state, caseSensitive = true) => `selectMyClaimForUri-${caseSensitive ? '1' : '0'}`);
+
+export const selectPrevFileSizeTooBig = createSelector(selectMyClaimForUri, (claim) => {
+  const size = claim && claim.value && claim.value.source && claim.value.source.size;
+  return size ? Number(size) > WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824 : false;
+});
 
 export const selectIsResolvingPublishUris = createSelector(
   selectState,

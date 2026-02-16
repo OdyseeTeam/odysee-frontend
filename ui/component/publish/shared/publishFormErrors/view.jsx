@@ -18,6 +18,7 @@ type Props = {
   fileBitrate: number,
   fileSizeTooBig: boolean,
   isStillEditing: boolean,
+  prevFileSizeTooBig: boolean,
   uploadThumbnailStatus: string,
   thumbnail: string,
   thumbnailError: boolean,
@@ -42,6 +43,7 @@ function PublishFormErrors(props: Props) {
     waitForFile,
     fileBitrate,
     fileSizeTooBig,
+    prevFileSizeTooBig,
   } = props;
   // These are extra help
   // If there is an error it will be presented as an inline error as well
@@ -59,9 +61,7 @@ function PublishFormErrors(props: Props) {
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
       {missingTiers && <div>{__(HELP.NO_TIERS_SELECTED)}</div>}
-      {fileSizeTooBig && (
-        <div>{UPLOAD_SIZE_MESSAGE}</div>
-      )}
+      {fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig) && <div>{UPLOAD_SIZE_MESSAGE}</div>}
       {fileBitrate > BITRATE.MAX && (
         <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>
       )}

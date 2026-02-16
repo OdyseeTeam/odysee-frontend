@@ -29,6 +29,7 @@ type Props = {
   fileBitrate: number,
   fileSizeTooBig: boolean,
   isStillEditing: boolean,
+  prevFileSizeTooBig: boolean,
   balance: number,
   duration: number,
   isVid: boolean,
@@ -49,6 +50,7 @@ function PublishFile(props: Props) {
     fileBitrate,
     fileSizeTooBig,
     isStillEditing,
+    prevFileSizeTooBig,
     doUpdateTitle,
     doUpdateFile,
     disabled,
@@ -179,7 +181,7 @@ function PublishFile(props: Props) {
 
   function getUploadMessage() {
     // @if TARGET='web'
-    if (fileSizeTooBig) {
+    if (fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig)) {
       return (
         <p className="help--warning">
           {UPLOAD_SIZE_MESSAGE}{' '}
