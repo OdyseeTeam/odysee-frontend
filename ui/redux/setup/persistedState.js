@@ -29,7 +29,7 @@ const FILTERS = {
     'recsysEntries',
     'uriAccessKeys',
   ]),
-  subscriptions: createFilter('subscriptions', ['subscriptions']),
+  subscriptions: createFilter('subscriptions', ['subscriptions', 'following']),
   settings: createBlacklistFilter('settings', ['loadedLanguages']),
   collections: createFilter('collections', [
     'builtin',
