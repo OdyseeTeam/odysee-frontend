@@ -9,6 +9,7 @@ const { getFarcasterManifest } = require('./farcaster');
 const { handleFramePost } = require('./frame');
 const { getTempFile } = require('./tempfile');
 const { getSpinnerHtml } = require('./spinner');
+const { getLlmsTxt } = require('./llms');
 
 const fetch = require('node-fetch');
 const Router = require('@koa/router');
@@ -83,6 +84,19 @@ router.get(`/$/oembed`, oEmbedMiddleware);
 router.get(`/$/spinner`, async (ctx) => {
   ctx.set('Content-Type', 'text/html');
   ctx.body = getSpinnerHtml(ctx);
+});
+
+router.get(`/$/llms.txt`, async (ctx) => {
+  const llmsTxt = await getLlmsTxt();
+
+  if (!llmsTxt) {
+    ctx.status = 404;
+    ctx.body = 'llms.txt not found';
+    return;
+  }
+
+  ctx.set('Content-Type', 'text/plain; charset=utf-8');
+  ctx.body = llmsTxt;
 });
 
 router.post(`/$/frame`, async (ctx) => {
