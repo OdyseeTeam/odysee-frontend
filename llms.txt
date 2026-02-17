@@ -1,4 +1,4 @@
-﻿# Odysee Platform Technical Reference (`llms.txt`)
+# Odysee Platform Technical Reference (`llms.txt`)
 
 This file is a contributor-focused, source-verified technical map of Odysee web/mobile/TV integrations.
 
