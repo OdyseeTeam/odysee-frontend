@@ -498,6 +498,39 @@ export function doHyperChatList(uri: string) {
   };
 }
 
+// Fetch hyperchats by a known claim-id while storing the result under a given URI key.
+export function doHyperChatListForId(externalClaimId: string, uriKey: string) {
+  return async (dispatch: Dispatch) => {
+    if (!externalClaimId) {
+      console.error('No claimId found for hyperchat list'); // eslint-disable-line
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.COMMENT_SUPER_CHAT_LIST_STARTED,
+    });
+
+    return Comments.super_list({ claim_id: externalClaimId })
+      .then((result: SuperListResponse) => {
+        const { items: comments, total_amount: totalAmount } = result;
+        dispatch({
+          type: ACTIONS.COMMENT_SUPER_CHAT_LIST_COMPLETED,
+          data: {
+            comments,
+            totalAmount,
+            uri: uriKey || externalClaimId,
+          },
+        });
+      })
+      .catch((error) => {
+        dispatch({
+          type: ACTIONS.COMMENT_SUPER_CHAT_LIST_FAILED,
+          data: error,
+        });
+      });
+  };
+}
+
 export function doCommentReactList(commentIds: Array<string>) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();

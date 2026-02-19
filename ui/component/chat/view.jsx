@@ -34,9 +34,10 @@ type Props = {
   setCustomViewMode?: (any) => void,
   uri: string,
   // redux
-  channelId: string,
+  channelId: ?string,
   channelTitle: string,
   claimId?: string,
+  claimIdOverride?: string,
   comments: Array<Comment>,
   doCommentList: (
     uri: string,
@@ -67,6 +68,7 @@ export default function ChatLayout(props: Props) {
     channelId,
     channelTitle,
     claimId,
+    claimIdOverride,
     comments: commentsByChronologicalOrder,
     customViewMode,
     doCommentList,
@@ -528,6 +530,7 @@ export default function ChatLayout(props: Props) {
             bottom
             embed={embed}
             uri={uri}
+            claimIdOverride={claimIdOverride}
             onDoneReplying={restoreScrollPos}
             onSlimInputClose={!scrolledPastRecent && isMobile ? () => setKeyboardOpened(true) : undefined}
             textInjection={textInjection}

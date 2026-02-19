@@ -11,6 +11,7 @@ import { parseURI } from 'util/lbryURI';
 import { SITE_TITLE } from 'config';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
+import { getYtIdFromWooPath, WOO_ROUTE_PATH_PATTERN } from 'util/woo';
 import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
 import Spinner from 'component/spinner';
@@ -45,7 +46,6 @@ const IconsViewerPage = lazyImport(() => import('page/iconsViewer' /* webpackChu
 
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
-const WooPage = lazyImport(() => import('web/page/woo' /* webpackChunkName: "woo" */));
 
 const SignInPage = lazyImport(() => import('page/signIn' /* webpackChunkName: "signIn" */));
 const SignInWalletPasswordPage = lazyImport(() =>
@@ -240,8 +240,10 @@ function AppRouter(props: Props) {
   const isSmallScreen = useIsSmallScreen();
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
+  const wooYtId = React.useMemo(() => getYtIdFromWooPath(pathname), [pathname]);
 
   const ClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} />, [uri]);
+  const WooClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} wooYtId={wooYtId} />, [uri, wooYtId]);
   const ClaimPageLatest = React.useMemo(() => () => <ClaimPage uri={uri} latestContentPath />, [uri]);
   const ClaimPageLivenow = React.useMemo(() => () => <ClaimPage uri={uri} liveContentPath />, [uri]);
 
@@ -372,8 +374,6 @@ function AppRouter(props: Props) {
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
-        {/* Watch On Odysee (YouTube oEmbed) */}
-        <Route path="/woo/:ytId" exact component={WooPage} />
         <Redirect
           from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`}
           to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
@@ -491,6 +491,8 @@ function AppRouter(props: Props) {
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
         <Route path={`/$/${PAGES.LATEST}/:channelName`} exact component={ClaimPageLatest} />
         <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact component={ClaimPageLivenow} />
+        {/* Keep this low-priority so concrete /$ routes (e.g. memberships) win. */}
+        <Route path={WOO_ROUTE_PATH_PATTERN} exact component={WooClaimPageRender} />
 
         {/* When fetching homepage data, display a loading state otherwise it will default to the claimPage component */}
         {/* leave this at the bottom to prevent going above every other /$/ page */}

@@ -11,6 +11,7 @@ type Props = {
   claimId: ?string,
   isLivestreamClaim?: boolean,
   isLivestreamActive: ?boolean,
+  hideHelpLink?: boolean,
   fetchViewCount: (string) => void,
   uri: string,
   viewCount: ?number,
@@ -19,7 +20,16 @@ type Props = {
 };
 
 function FileViewCount(props: Props) {
-  const { claimId, isLivestreamClaim, isLivestreamActive, fetchViewCount, viewCount, activeViewers, lang } = props;
+  const {
+    claimId,
+    isLivestreamClaim,
+    isLivestreamActive,
+    hideHelpLink,
+    fetchViewCount,
+    viewCount,
+    activeViewers,
+    lang,
+  } = props;
 
   const count = isLivestreamClaim ? activeViewers || 0 : viewCount;
   // $FlowIgnore: Number.isInteger covers null case
@@ -58,7 +68,7 @@ function FileViewCount(props: Props) {
       <span className="media__subtitle--centered">
         {isLivestreamClaim && getLivestreamViewCountElem()}
         {!isLivestreamClaim && activeViewers === undefined && getRegularViewCountElem()}
-        {!SIMPLE_SITE && <HelpLink href="https://help.odysee.tv/category-basics/" />}
+        {!hideHelpLink && !SIMPLE_SITE && <HelpLink href="https://help.odysee.tv/category-basics/" />}
       </span>
     </Tooltip>
   );

@@ -22,11 +22,25 @@ type Props = {
   nextRecommendedUri: string,
   isSearching: boolean,
   searchInLanguage: boolean,
-  doFetchRecommendedContent: (string, ?FypParam) => void,
+  doFetchRecommendedContent: (
+    string,
+    ?FypParam,
+    ?{
+      claimId: string,
+      title: string,
+      isMature?: boolean,
+      includeRelatedTo?: boolean,
+    }
+  ) => void,
   claim: ?StreamClaim,
   claimId: string,
   metadata: any,
   location: UrlLocation,
+  recommendationClaimId?: ?string,
+  recommendationTitle?: ?string,
+  titleLabel?: string,
+  className?: string,
+  includeRelatedTo?: boolean,
 };
 
 export default React.memo<Props>(function RecommendedContent(props: Props) {
@@ -39,9 +53,14 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     searchInLanguage,
     claim,
     location,
+    recommendationClaimId,
+    recommendationTitle,
+    titleLabel,
+    className,
+    includeRelatedTo = true,
   } = props;
 
-  const claimId: ?string = claim && claim.claim_id;
+  const claimId: ?string = recommendationClaimId || (claim && claim.claim_id);
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -60,6 +79,18 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const fypId = urlParams.get(FYP_ID);
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
 
+  const recommendationSeed = React.useMemo(() => {
+    if (!recommendationClaimId || !recommendationTitle) {
+      return null;
+    }
+
+    return {
+      claimId: recommendationClaimId,
+      title: recommendationTitle,
+      includeRelatedTo,
+    };
+  }, [recommendationClaimId, recommendationTitle, includeRelatedTo]);
+
   React.useEffect(() => {
     const { search } = location;
     const urlParams = new URLSearchParams(search);
@@ -70,8 +101,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     }
 
     const fypParam = fypId && uuid ? { gid: fypId, uuid } : null;
-    doFetchRecommendedContent(uri, fypParam);
-  }, [uri, doFetchRecommendedContent, fypId, uuid, location]);
+    doFetchRecommendedContent(uri, fypParam, recommendationSeed);
+  }, [uri, doFetchRecommendedContent, fypId, uuid, location, recommendationSeed]);
 
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
@@ -87,8 +118,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   }, [recommendedContentUris, onRecommendationsLoaded, claimId, nextRecommendedUri, viewMode, uuid]);
 
   function handleRecommendationClicked(e, clickedClaim) {
-    if (claim) {
-      onRecommendationClicked(claim.claim_id, clickedClaim.claim_id);
+    if (claimId) {
+      onRecommendationClicked(claimId, clickedClaim.claim_id);
     }
   }
 
@@ -96,8 +127,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     <Card
       isBodyList
       smallTitle={!isMobile && !isSmall}
-      className="file-page__recommended"
-      title={__('Related')}
+      className={classnames('file-page__recommended', className)}
+      title={titleLabel || __('Related')}
       titleActions={
         signingChannel && (
           <div className="recommended-content__bubble">
@@ -170,6 +201,11 @@ function areEqual(prevProps: Props, nextProps: Props) {
     a.uri !== b.uri ||
     a.nextRecommendedUri !== b.nextRecommendedUri ||
     a.isSearching !== b.isSearching ||
+    a.recommendationClaimId !== b.recommendationClaimId ||
+    a.recommendationTitle !== b.recommendationTitle ||
+    a.titleLabel !== b.titleLabel ||
+    a.className !== b.className ||
+    a.includeRelatedTo !== b.includeRelatedTo ||
     (a.recommendedContentUris && !b.recommendedContentUris) ||
     (!a.recommendedContentUris && b.recommendedContentUris) ||
     (a.claim && !b.claim) ||

@@ -12,7 +12,7 @@ import { batchActions } from 'util/batch-actions';
 import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSearchValue } from 'redux/selectors/search';
 import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
-import { getSearchQueryString } from 'util/query-params';
+import { getSearchQueryString, sanitizeSearchTerm } from 'util/query-params';
 import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
 import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
@@ -76,6 +76,9 @@ type SearchOptions = {
   from?: number,
   related_to?: string,
   nsfw?: boolean,
+  free_only?: boolean,
+  user_id?: string | number,
+  uid?: string | number,
   isBackgroundSearch?: boolean,
   language?: string,
   gid?: string, // for fyp only
@@ -88,7 +91,9 @@ let lighthouse = {
   uid: '',
 
   search: (queryString: string) => {
-    if (lighthouse.uid) {
+    const hasUid = /(^|&)uid=/.test(queryString);
+
+    if (lighthouse.uid && !hasUid) {
       return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}${lighthouse.uid}`).then(handleFetchResponse);
     } else {
       return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}`).then(handleFetchResponse);
@@ -96,10 +101,13 @@ let lighthouse = {
   },
 
   searchRecommendations: (queryString: string) => {
-    if (lighthouse.user_id) {
-      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(
-        handleFetchResponse
-      );
+    const hasUserId = /(^|&)user_id=/.test(queryString);
+    const hasUid = /(^|&)uid=/.test(queryString);
+    const userIdParam = !hasUserId ? lighthouse.user_id : '';
+    const uidParam = !hasUid ? lighthouse.uid : '';
+
+    if (userIdParam || uidParam) {
+      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${userIdParam}${uidParam}`).then(handleFetchResponse);
     } else {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}`).then(handleFetchResponse);
     }
@@ -147,7 +155,7 @@ const processLighthouseResults = (results: Array<any>) => {
 
 export const doSearch =
   (rawQuery: string, searchOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
-    const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+    const query = sanitizeSearchTerm(rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' '));
 
     if (!query) {
       dispatch({
@@ -260,17 +268,17 @@ export const doFetchShortsRecommendedContent =
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim && claim.value && claim.claim_id) {
-    let idToUse;
-    if (forChannel) {
-      const channelClaim = claim.signing_channel;
-      idToUse = channelClaim?.claim_id;
-      if (!idToUse) {
-        console.error('No channel ID found for channel shorts mode');
-        return;
+      let idToUse;
+      if (forChannel) {
+        const channelClaim = claim.signing_channel;
+        idToUse = channelClaim?.claim_id;
+        if (!idToUse) {
+          console.error('No channel ID found for channel shorts mode');
+          return;
+        }
+      } else {
+        idToUse = claim.claim_id;
       }
-    } else {
-      idToUse = claim.claim_id;
-    }
       const options: SearchOptions = getShortsRecommendationSearchOptions(
         matureEnabled,
         claimIsMature,
@@ -293,22 +301,39 @@ export const doFetchShortsRecommendedContent =
   };
 
 export const doFetchRecommendedContent =
-  (uri: string, fyp: ?FypParam = null) =>
+  (
+    uri: string,
+    fyp: ?FypParam = null,
+    recommendationSeed: ?{
+      claimId: string,
+      title: string,
+      isMature?: boolean,
+      includeRelatedTo?: boolean,
+    } = null
+  ) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const matureEnabled = selectShowMatureContent(state);
-    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const claimIsMature =
+      recommendationSeed && recommendationSeed.isMature !== undefined
+        ? recommendationSeed.isMature
+        : selectClaimIsNsfwForUri(state, uri);
     const languageSetting = selectLanguage(state);
     const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
     const language = searchInLanguage ? languageSetting : null;
+    const claimId = recommendationSeed?.claimId || claim?.claim_id;
+    const title = recommendationSeed?.title || claim?.value?.title;
+    const includeRelatedTo = recommendationSeed?.includeRelatedTo !== false;
+    const user = selectUser(state);
 
-    if (claim && claim.value && claim.claim_id) {
+    if (claimId) {
       const options: SearchOptions = getRecommendationSearchOptions(
         matureEnabled,
         claimIsMature,
-        claim.claim_id,
-        language
+        claimId,
+        language,
+        includeRelatedTo
       );
 
       if (fyp) {
@@ -316,7 +341,10 @@ export const doFetchRecommendedContent =
         options['uuid'] = fyp.uuid;
       }
 
-      const { title } = claim.value;
+      if (user && user.id) {
+        options['user_id'] = user.id;
+        options['uid'] = user.id;
+      }
 
       if (title && options) {
         dispatch(doSearch(title, options));

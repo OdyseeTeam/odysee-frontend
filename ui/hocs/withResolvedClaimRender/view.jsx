@@ -23,6 +23,7 @@ type Props = {
   claimIsMine: ?boolean,
   isUnlisted: boolean,
   isAuthenticated: boolean,
+  isWooContent?: boolean,
   isGlobalMod: boolean,
   uriAccessKey: ?UriAccessKey,
   geoRestriction: ?GeoRestriction,
@@ -49,6 +50,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       isUnlisted,
       isGlobalMod,
       isAuthenticated,
+      isWooContent,
       uriAccessKey,
       geoRestriction,
       gblAvailable,
@@ -61,11 +63,13 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     } = props;
 
     const { streamName, /* channelName, */ isChannel } = parseURI(uri);
+    const bypassResolve = Boolean(isWooContent);
 
     const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
 
     const resolveRequired =
-      claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated);
+      !bypassResolve &&
+      (claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated));
 
     const isVisibilityRestricted = useIsVisibilityRestricted(
       claim,
@@ -104,6 +108,16 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         resolveClaim();
       }
     }, [resolveRequired, resolveClaim]);
+
+    if (bypassResolve) {
+      return (
+        <React.Suspense fallback={<LoadingSpinner text={__('Loading...')} />}>
+          <ClaimWrapperComponent>
+            <ClaimRenderComponent uri={uri} {...otherProps} />
+          </ClaimWrapperComponent>
+        </React.Suspense>
+      );
+    }
 
     if (!hasClaim) {
       if (hasClaim === undefined) {

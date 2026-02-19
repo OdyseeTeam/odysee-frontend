@@ -18,11 +18,11 @@ let closingSockets = {};
 let retryCount = 0;
 
 const getCommentSocketUrl = (claimId, channelName) => {
-  return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=viewer`;
+  return `${COMMENT_WS_URL}${claimId}&category=${encodeURIComponent(channelName || '')}&sub_category=viewer`;
 };
 
 const getCommentSocketUrlForCommenter = (claimId, channelName) => {
-  return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=commenter`;
+  return `${COMMENT_WS_URL}${claimId}&category=${encodeURIComponent(channelName || '')}&sub_category=commenter`;
 };
 
 export const doSocketConnect = (url, cb, type) => {
@@ -110,7 +110,8 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
 export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch, getState) => {
   const state = getState();
   const creatorId = selectChannelClaimIdForUri(state, uri);
-  const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+  const hasCreatorId = Boolean(creatorId);
+  const isLiveFetchPending = hasCreatorId && !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
 
   const claim = selectClaimForId(state, claimId);
   const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
@@ -165,21 +166,25 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
       if (response.type === 'setting') {
         const state = getState();
         const creatorId = selectChannelClaimIdForUri(state, uri);
-        dispatch({
-          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-          data: { responseData: response.data, creatorId },
-        });
+        if (creatorId) {
+          dispatch({
+            type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+            data: { responseData: response.data, creatorId },
+          });
+        }
       }
 
       if (response.type === 'livestream') {
         // update the live status for the stream
-        dispatch(doFetchChannelIsLiveForId(creatorId));
+        if (creatorId) {
+          dispatch(doFetchChannelIsLiveForId(creatorId));
+        }
       }
     },
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
   );
 
-  if (isLiveFetchPending) {
+  if (isLiveFetchPending && creatorId) {
     // update the live status for the stream
     dispatch(doFetchChannelIsLiveForId(creatorId));
   }

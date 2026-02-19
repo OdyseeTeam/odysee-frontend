@@ -43,6 +43,7 @@ export type Props = {|
   commentsAreExpanded?: boolean,
   threadCommentId: ?string,
   notInDrawer?: boolean,
+  claimIdOverride?: string,
 |};
 
 type StateProps = {|
@@ -67,7 +68,7 @@ type StateProps = {|
   fetchingChannels: boolean,
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
-  scheduledState: ClaimScheduledState,
+  scheduledState: ?ClaimScheduledState,
 |};
 
 type DispatchProps = {|
@@ -95,6 +96,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const {
     allCommentIds,
     uri,
+    claimIdOverride,
     pinnedComments,
     topLevelComments,
     topLevelTotalPages,
@@ -434,7 +436,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
         <>
           {isMobile && !notInDrawer && <CommentActionButtons {...actionButtonsProps} />}
 
-          <CommentCreate uri={uri} />
+          <CommentCreate uri={uri} claimIdOverride={claimIdOverride} />
 
           {threadCommentId && threadComment && (
             <span className="comment__actions comment__thread-links">

@@ -9,6 +9,7 @@ import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
+import { buildWooUriFromYtId, getYtIdFromWooPath } from 'util/woo';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -160,6 +161,7 @@ function App(props: Props) {
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
 
   const { pathname, hash, search } = location;
+  const wooYtId = getYtIdFromWooPath(pathname);
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
@@ -204,18 +206,22 @@ function App(props: Props) {
   }
 
   let uri;
-  try {
-    // here queryString and startTime are "removed" from the buildURI process
-    // to build only the uri itself
-    const { queryString, startTime, ...parsedUri } = parseURI(path);
-    uri = buildURI({ ...parsedUri }, true);
-  } catch (e) {
-    const match = path.match(/[#/:]/);
+  if (wooYtId) {
+    uri = buildWooUriFromYtId(wooYtId);
+  } else {
+    try {
+      // here queryString and startTime are "removed" from the buildURI process
+      // to build only the uri itself
+      const { queryString, startTime, ...parsedUri } = parseURI(path);
+      uri = buildURI({ ...parsedUri }, true);
+    } catch (e) {
+      const match = path.match(/[#/:]/);
 
-    if (!path.startsWith('$/') && match && match.index) {
-      uri = `lbry://${path.slice(0, match.index)}`;
-    } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
-      uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
+      if (!path.startsWith('$/') && match && match.index) {
+        uri = `lbry://${path.slice(0, match.index)}`;
+      } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
+        uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
+      }
     }
   }
 

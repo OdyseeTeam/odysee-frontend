@@ -89,7 +89,7 @@ const recsys: Recsys = {
   onRecsLoaded: function (claimId, uris, uuid = '') {
     if (window && window.store) {
       const state = window.store.getState();
-      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
+      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId) || {};
 
       if (!recsys.entries[claimId]) {
         recsys.createRecsysEntry(claimId, null, uuid || recommendedMeta.uuid);
@@ -123,7 +123,7 @@ const recsys: Recsys = {
   createRecsysEntry: function (claimId, parentUuid, uuid = '') {
     if (window && window.store && claimId) {
       const state = window.store.getState();
-      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
+      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId) || {};
       const user = selectUser(state);
       const userId = user ? user.id : null;
 

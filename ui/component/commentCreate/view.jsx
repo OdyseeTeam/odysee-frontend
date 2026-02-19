@@ -48,6 +48,7 @@ type Props = {
   bottom: boolean,
   hasChannels: boolean,
   claimId?: string,
+  claimIdOverride?: string,
   channelClaimId?: string,
   tipChannelName?: string,
   claimIsMine: boolean,

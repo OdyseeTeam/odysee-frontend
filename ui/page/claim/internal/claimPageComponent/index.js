@@ -27,14 +27,17 @@ import { doFetchCreatorSettings } from 'redux/actions/comments';
 import { selectSettingsForChannelId } from 'redux/selectors/comments';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { PREFERENCE_EMBED } from 'constants/tags';
+import { getWooYtIdFromUri } from 'util/woo';
 
 import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
 
 import ClaimPageComponent from './view';
 
 const select = (state, props) => {
-  const { uri, location, liveContentPath } = props;
+  const { uri, location, liveContentPath, wooYtId } = props;
   const { search } = location;
+  const resolvedWooYtId = wooYtId || getWooYtIdFromUri(uri);
+  const isWooContent = Boolean(resolvedWooYtId);
 
   const urlParams = new URLSearchParams(search);
 
@@ -56,6 +59,8 @@ const select = (state, props) => {
 
   return {
     uri,
+    wooYtId: resolvedWooYtId,
+    isWooContent,
     claim,
     channelClaimId,
     latestClaimUrl,

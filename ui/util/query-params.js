@@ -6,6 +6,12 @@ import { selectClientSetting } from 'redux/selectors/settings';
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
 
+export const sanitizeSearchTerm = (query: string): string =>
+  query
+    .replace(/[^\x00-\x7F]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 export function parseQueryParams(queryString: string) {
   if (queryString === '') return {};
   const parts = queryString
@@ -35,7 +41,8 @@ export function updateQueryParam(uri: string, key: string, value: string) {
 
 export const getSearchQueryString = (query: string, options: any = {}) => {
   const isSurroundedByQuotes = (str) => str[0] === '"' && str[str.length - 1] === '"';
-  const encodedQuery = encodeURIComponent(query);
+  const sanitizedQuery = sanitizeSearchTerm(query);
+  const encodedQuery = encodeURIComponent(sanitizedQuery);
   const queryParams = [
     options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,
     `size=${options.size || DEFAULT_SEARCH_SIZE}`,
@@ -125,6 +132,8 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     language,
     gid,
     uuid,
+    user_id,
+    uid,
     max_aspect_ratio,
     deboost_same_creator,
     content_aspect_ratio,
@@ -157,6 +166,14 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
 
   if (language) {
     additionalOptions[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  if (user_id !== undefined && user_id !== null) {
+    additionalOptions['user_id'] = user_id;
+  }
+
+  if (uid !== undefined && uid !== null) {
+    additionalOptions['uid'] = uid;
   }
 
   if (max_aspect_ratio) {

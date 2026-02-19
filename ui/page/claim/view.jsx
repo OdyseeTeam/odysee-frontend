@@ -4,12 +4,14 @@ import React from 'react';
 import { useLocation } from 'react-router';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
+import { getWooType } from 'util/woo';
 
 import Page from 'component/page';
 import ClaimPageComponent from './internal/claimPageComponent';
 
 type Props = {
   uri: string,
+  wooYtId?: ?string,
   latestContentPath?: boolean,
   liveContentPath?: boolean,
   // -- redux --
@@ -19,11 +21,12 @@ type Props = {
 };
 
 const ClaimPage = (props: Props) => {
-  const { uri, latestContentPath, liveContentPath, isMarkdownPost, isLivestreamClaim, chatDisabled } = props;
+  const { uri, wooYtId, latestContentPath, liveContentPath, isMarkdownPost, isLivestreamClaim, chatDisabled } = props;
 
   const { isChannel } = parseURI(uri);
 
   const { search, pathname } = useLocation();
+  const isWooLive = Boolean(wooYtId && getWooType(new URLSearchParams(search).get('type')) === 'live');
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
 
   const ClaimRenderWrapper = React.useMemo(
@@ -79,12 +82,20 @@ const ClaimPage = (props: Props) => {
           {children}
         </Page>
       );
-      return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageEditingWrapperLocal} Wrapper={Page} />;
+      return (
+        <ClaimPageComponent
+          uri={uri}
+          wooYtId={wooYtId}
+          ClaimRenderWrapper={ChannelPageEditingWrapperLocal}
+          Wrapper={Page}
+        />
+      );
     }
 
     return (
       <ClaimPageComponent
         uri={uri}
+        wooYtId={wooYtId}
         ClaimRenderWrapper={ChannelPageWrapper}
         Wrapper={Page}
         latestContentPath={latestContentPath}
@@ -93,13 +104,14 @@ const ClaimPage = (props: Props) => {
     );
   }
 
-  if (isLivestreamClaim) {
-    return <ClaimPageComponent uri={uri} ClaimRenderWrapper={LivestreamPageWrapper} Wrapper={Page} />;
+  if (isLivestreamClaim || isWooLive) {
+    return <ClaimPageComponent uri={uri} wooYtId={wooYtId} ClaimRenderWrapper={LivestreamPageWrapper} Wrapper={Page} />;
   }
 
   return (
     <ClaimPageComponent
       uri={uri}
+      wooYtId={wooYtId}
       ClaimRenderWrapper={ClaimRenderWrapper}
       Wrapper={Page}
       latestContentPath={latestContentPath}

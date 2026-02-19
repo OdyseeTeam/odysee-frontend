@@ -14,13 +14,15 @@ import {
 } from 'redux/selectors/claims';
 import { selectContentStates } from 'redux/selectors/content';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { getWooYtIdFromUri } from 'util/woo';
 
 import { doResolveUri } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, wooYtId } = props;
+  const isWooContent = Boolean(wooYtId || getWooYtIdFromUri(uri));
 
   const claim = selectClaimForUri(state, uri);
 
@@ -40,6 +42,7 @@ const select = (state, props) => {
     uriAccessKey: selectContentStates(state).uriAccessKeys[uri],
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     gblAvailable: selectGblAvailable(state),
+    isWooContent,
     verifyClaimSignature: Comments.verify_claim_signature,
   };
 };

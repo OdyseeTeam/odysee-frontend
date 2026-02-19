@@ -37,14 +37,15 @@ import { CommentCreate } from './view';
 import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, claimIdOverride } = props;
 
   const claim = selectClaimForUri(state, uri);
   const { claim_id: claimId, name, signing_channel: channel } = claim || {};
+  const effectiveClaimId = claimIdOverride || claimId;
 
   // setup variables for tip API
-  const channelClaimId = getChannelIdFromClaim(claim);
-  const tipChannelName = channel ? channel.name : name;
+  const channelClaimId = claimIdOverride ? undefined : getChannelIdFromClaim(claim);
+  const tipChannelName = claimIdOverride ? undefined : channel ? channel.name : name;
 
   const activeChannelClaim = selectActiveChannelClaim(state);
   const {
@@ -53,7 +54,7 @@ const select = (state, props) => {
     canonical_url: activeChannelUrl,
   } = activeChannelClaim || {};
 
-  const tipData = selectArweaveTipDataForId(state, channelClaimId);
+  const tipData = channelClaimId ? selectArweaveTipDataForId(state, channelClaimId) : undefined;
   const canReceiveTips = tipData?.status === 'active' && tipData?.default;
 
   return {
@@ -61,26 +62,34 @@ const select = (state, props) => {
     activeChannelName,
     activeChannelUrl,
     channelClaimId,
-    chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
-    claimId,
-    claimIsMine: selectClaimIsMine(state, claim),
+    chatCommentsRestrictedToChannelMembers: claimIdOverride
+      ? false
+      : Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
+    claimId: effectiveClaimId,
+    claimIsMine: claimIdOverride ? false : selectClaimIsMine(state, claim),
     hasChannels: selectHasChannels(state),
     isFetchingChannels: selectFetchingMyChannels(state),
     isFetchingCreatorSettings: selectFetchingCreatorSettings(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
-    myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
+    myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, effectiveClaimId),
     preferredCurrency: selectPreferredCurrency(state),
-    channelSettings: state.comments.settingsByChannelId[channelClaimId],
-    supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
+    channelSettings: channelClaimId ? state.comments.settingsByChannelId[channelClaimId] : undefined,
+    supportDisabled: claimIdOverride ? true : makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     tipChannelName,
-    userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
-    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
-    isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
-    areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
+    userHasMembersOnlyChatPerk: channelClaimId
+      ? selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId)
+      : false,
+    commentSettingDisabled: channelClaimId ? selectCommentsDisabledSettingForChannelId(state, channelClaimId) : false,
+    isLivestreamChatMembersOnly: channelClaimId
+      ? Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId))
+      : false,
+    areCommentsMembersOnly: channelClaimId
+      ? Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId))
+      : false,
     hasPremiumPlus: hasLegacyOdyseePremium(state),
-    recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
-    arweaveTippingError: selectArweaveTippingErrorForId(state, channelClaimId),
-    canReceiveTips,
+    recipientArweaveTipInfo: channelClaimId ? selectArweaveTipDataForId(state, channelClaimId) : null,
+    arweaveTippingError: channelClaimId ? selectArweaveTippingErrorForId(state, channelClaimId) : '',
+    canReceiveTips: claimIdOverride ? false : canReceiveTips,
   };
 };
 

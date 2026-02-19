@@ -1,15 +1,328 @@
+.woo__video-stack.card-stack .card:not(:last-of-type) {
+  margin-bottom: var(--spacing-xxs);
+}
+
+.woo__video-stack--short.section.card-stack {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 44rem;
+}
+
+.woo__player-wrapper--short {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.woo__file-render--short {
+  width: min(100%, 27rem);
+  margin: 0 auto;
+}
+
+.woo__file-render--short iframe {
+  border-radius: var(--border-radius);
+  background: #000;
+}
+
+.woo__recommended-wrap {
+  margin-top: 0;
+}
+
+.woo__source-title-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.48rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(var(--color-header-button-base), 0.3);
+  color: var(--color-text-help);
+  font-size: var(--font-size-xsmall);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  max-width: min(100%, 24rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0;
+}
+
+.woo__source-title-link:hover {
+  color: var(--color-text);
+  text-decoration: none;
+  border-color: var(--color-text-help);
+}
+
+.woo__source-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxxs);
+  min-width: 0;
+}
+
+.woo__source-note--title {
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
+.woo__media-actions .card__header--between {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  row-gap: var(--spacing-xxxs);
+  gap: var(--spacing-s);
+}
+
+.woo__media-actions .card__header--between .card__title-section {
+  flex: 1 1 24rem;
+  min-width: 14rem;
+}
+
+.woo__media-actions .card__header--between .card__title-text {
+  min-width: 0;
+}
+
+.woo__media-actions .card__header--between .card__title-text h1,
+.woo__media-actions .card__header--between .card__title-text h2 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.woo__media-actions .card__title-actions-container {
+  align-self: flex-start;
+  margin-left: auto;
+  flex: 0 1 auto;
+  max-width: 100%;
+  justify-content: flex-end;
+  overflow: visible;
+}
+
+.woo__media-actions .card__title-actions {
+  align-self: flex-end;
+  max-width: 100%;
+}
+
+.woo__source-info-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(var(--color-header-button-base), 0.2);
+  color: var(--color-text-help);
+  cursor: pointer;
+}
+
+.woo__source-info-link:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-help);
+}
+
+.woo__meta-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-s);
+  padding-bottom: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.woo__channel-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  min-width: 0;
+  flex-wrap: wrap;
+  padding-bottom: var(--spacing-xxxxs);
+}
+
+.woo__channel-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  max-width: 100%;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-background-alt);
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.woo__channel-button:hover {
+  background: var(--color-background-base);
+  border-color: var(--color-text-help);
+  text-decoration: none;
+}
+
+.woo__channel-button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.woo__meta-actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 0;
+  margin-top: 0;
+}
+
+.woo__share-button {
+  white-space: nowrap;
+}
+
+.woo__view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxxxs);
+  margin-bottom: 0;
+  color: var(--color-text-help);
+  font-size: var(--font-size-small);
+  line-height: 1;
+}
+
+.woo__view-count .icon {
+  margin-top: 0;
+  margin-right: var(--spacing-xxxxs);
+}
+
+.woo__meta-actions .ratio-wrapper {
+  width: auto;
+  margin-right: 0;
+  margin-bottom: -1px;
+}
+
+.woo__meta-actions .ratio-wrapper .ratio-bar {
+  bottom: 0;
+}
+
+.woo__media-actions .comment__list .card__header--between {
+  margin-bottom: 0;
+}
+
+.woo__media-actions .comment__list .card__header--between .card__title-section {
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.woo__media-actions .comment__list {
+  margin-top: var(--spacing-xxs);
+}
+
+.woo__media-actions--live {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, var(--livestream-comments-width));
+  align-items: start;
+  gap: var(--spacing-m);
+}
+
+.woo__media-main {
+  min-width: 0;
+}
+
+.woo__live-chat-panel {
+  min-width: 0;
+  padding-left: var(--spacing-m);
+  border-left: 1px solid var(--color-border);
+}
+
+.woo__media-actions--live .comment__list {
+  margin-top: 0;
+}
+
+.woo__video-id {
+  color: var(--color-text-help);
+  font-size: var(--font-size-small);
+}
+
+.woo__meta-unavailable {
+  margin: 0;
+}
+
+.woo__action-row {
+  margin-top: var(--spacing-m);
+}
+
 .woo__recommended {
+  // Restore title text for WOO rail (base recommended style hides it globally).
+  .card__first-pane .card__header--between .card__title-section {
+    display: flex !important;
+  }
+
+  .card__header--between {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .card__first-pane .card__header--between .card__title-section {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .card__title {
+    font-size: var(--font-body);
+    color: var(--color-text-help);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.25;
+  }
+
+  .card__main-actions {
+    border-top: 0 !important;
+    margin-top: 0;
+    padding-top: var(--spacing-xs);
+  }
+
   // Hide channel avatar in the right-rail list
   .claim-preview__channel-staked {
     display: none !important;
   }
+}
 
-  // Improve text wrapping like standard file pages (avoid cramped rows)
-  .claim-preview__title .truncated-text {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    white-space: normal;
+@media (max-width: 900px) {
+  .woo__video-stack--short.section.card-stack {
+    max-width: 100%;
+  }
+
+  .woo__file-render--short {
+    width: min(100%, 22rem);
+  }
+
+  .woo__media-actions--live {
+    display: block;
+  }
+
+  .woo__live-chat-panel {
+    padding-left: 0;
+    border-left: 0;
+    margin-top: var(--spacing-xs);
+  }
+
+  .woo__media-actions .card__header--between {
+    flex-wrap: wrap;
+    gap: var(--spacing-xxs);
+  }
+
+  .woo__media-actions .card__header--between .card__title-section {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .woo__media-actions .card__title-actions-container {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .woo__source-note--title {
+    justify-content: flex-start;
   }
 }

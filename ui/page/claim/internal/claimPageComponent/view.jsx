@@ -7,6 +7,7 @@ import { Redirect } from 'react-router-dom';
 import Spinner from 'component/spinner';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI } from 'util/lbryURI';
+import { buildWooClaimIdFromYtId, getWooType, parseWooTimestampToSeconds } from 'util/woo';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import PAGES from 'constants/pages';
@@ -17,16 +18,27 @@ const StreamClaimPage = lazyImport(() =>
 );
 const isDev = process.env.NODE_ENV !== 'production';
 
+type WooOEmbed = {
+  title: string,
+  author_name: string,
+  author_url: string,
+  html: string,
+  provider_name: string,
+  thumbnail_url?: string,
+};
+
 type Props = {
   uri: string,
+  wooYtId?: ?string,
+  isWooContent?: boolean,
   latestContentPath?: boolean,
   liveContentPath?: boolean,
   // -- redux --
-  claim: StreamClaim,
+  claim: ?StreamClaim,
   channelClaimId: ?string,
   location: UrlLocation,
-  collectionId: string,
-  collection: Collection,
+  collectionId: ?string,
+  collection: ?Collection,
   collectionFirstItemUri: ?string,
   latestClaimUrl: ?string,
   creatorSettings: { [string]: PerChannelSettings },
@@ -39,6 +51,8 @@ type Props = {
 const ClaimPageComponent = (props: Props) => {
   const {
     uri,
+    wooYtId,
+    isWooContent = false,
     latestContentPath,
     liveContentPath,
     // -- redux --
@@ -60,6 +74,14 @@ const ClaimPageComponent = (props: Props) => {
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
+  const wooType = getWooType(urlParams.get('type'));
+  const wooTimestamp = parseWooTimestampToSeconds(urlParams.get('t'));
+  const wooClaimId = wooYtId ? buildWooClaimIdFromYtId(wooYtId) : undefined;
+  const [wooResolveChecked, setWooResolveChecked] = React.useState(!isWooContent);
+  const [wooResolvedWebPath, setWooResolvedWebPath] = React.useState<?string>(null);
+  const [wooData, setWooData] = React.useState<?WooOEmbed>(null);
+  const [wooDataLoading, setWooDataLoading] = React.useState(Boolean(isWooContent));
+  const [wooDataError, setWooDataError] = React.useState<?string>(null);
 
   const canonicalUrl = claim && claim.canonical_url;
   const claimId = claim && claim.claim_id;
@@ -73,18 +95,96 @@ const ClaimPageComponent = (props: Props) => {
   const { isChannel } = parseURI(effectiveUri);
 
   useEffect(() => {
+    if (!isWooContent || !wooYtId) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    setWooResolveChecked(false);
+    setWooResolvedWebPath(null);
+    setWooData(null);
+    setWooDataError(null);
+    setWooDataLoading(true);
+
+    fetch(`https://api.odysee.com/yt/resolve?video_ids=${encodeURIComponent(wooYtId)}`, { signal: controller.signal })
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled) return;
+
+        const resolved = json?.data?.videos?.[wooYtId];
+        if (resolved) {
+          setWooResolvedWebPath(formatLbryUrlForWeb(`lbry://${resolved}`));
+        }
+
+        setWooResolveChecked(true);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWooResolveChecked(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [isWooContent, wooYtId]);
+
+  useEffect(() => {
+    if (!isWooContent || !wooYtId || !wooResolveChecked || wooResolvedWebPath) return;
+
+    const controller = new AbortController();
+    setWooData(null);
+    setWooDataError(null);
+    setWooDataLoading(true);
+
+    const watchUrl = new URL('https://www.youtube.com/watch');
+    watchUrl.searchParams.set('v', wooYtId);
+    if (wooTimestamp !== null && wooTimestamp !== undefined) {
+      watchUrl.searchParams.set('t', String(wooTimestamp));
+    }
+
+    const oEmbedUrl = new URL('https://www.youtube.com/oembed');
+    oEmbedUrl.searchParams.set('url', watchUrl.toString());
+    oEmbedUrl.searchParams.set('format', 'json');
+
+    fetch(oEmbedUrl.toString(), { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to fetch oEmbed (${res.status})`);
+        return res.json();
+      })
+      .then((json) => {
+        setWooData(json);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setWooDataError(err.message || 'Failed to load');
+        }
+      })
+      .finally(() => setWooDataLoading(false));
+
+    return () => controller.abort();
+  }, [isWooContent, wooResolveChecked, wooResolvedWebPath, wooTimestamp, wooYtId]);
+
+  useEffect(() => {
+    if (isWooContent) return;
+
     if (!latestClaimUrl && liveContentPath && claimId) {
       doFetchChannelIsLiveForId(claimId);
     }
-  }, [claimId, doFetchChannelIsLiveForId, latestClaimUrl, liveContentPath]);
+  }, [claimId, doFetchChannelIsLiveForId, isWooContent, latestClaimUrl, liveContentPath]);
 
   useEffect(() => {
+    if (isWooContent) return;
+
     if (!latestClaimUrl && latestContentPath && canonicalUrl) {
       doFetchLatestClaimForChannel(canonicalUrl);
     }
-  }, [canonicalUrl, doFetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
+  }, [canonicalUrl, doFetchLatestClaimForChannel, isWooContent, latestClaimUrl, latestContentPath]);
 
   useEffect(() => {
+    if (isWooContent) return;
+
     // Preserve /$/embed/... URLs; do not rewrite to canonical when embedded
     if (isEmbed) return;
 
@@ -122,22 +222,40 @@ const ClaimPageComponent = (props: Props) => {
         history.replaceState(history.state, '', replaceUrl);
       }
     }
-  }, [canonicalUrl, pathname, hash, search, isEmbed]);
+  }, [canonicalUrl, pathname, hash, search, isEmbed, isWooContent]);
 
   React.useEffect(() => {
+    if (isWooContent) return;
+
     if (creatorSettings === undefined && channelClaimId) {
       doFetchCreatorSettings(channelClaimId).catch(() => {});
     }
-  }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
+  }, [channelClaimId, creatorSettings, doFetchCreatorSettings, isWooContent]);
 
   React.useEffect(() => {
+    if (isWooContent) return;
+
     if (claim && collectionId) {
       doFetchItemsInCollection({ collectionId });
     }
-  }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
+  }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection, isWooContent]);
+
+  if (isWooContent && !wooResolveChecked) {
+    return (
+      <div className="main--empty">
+        <Spinner delayed />
+      </div>
+    );
+  }
+
+  if (isWooContent && wooResolvedWebPath) {
+    const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
+    const pageHash = hash || '';
+    return <Redirect to={`${wooResolvedWebPath}${params}${pageHash}`} />;
+  }
 
   // Wait for latest claim fetch
-  if (isNewestPath && latestClaimUrl === undefined) {
+  if (!isWooContent && isNewestPath && latestClaimUrl === undefined) {
     return (
       <div className="main--empty">
         <Spinner delayed />
@@ -146,7 +264,7 @@ const ClaimPageComponent = (props: Props) => {
   }
 
   // Skip redirects in embed mode to preserve the embed URL
-  if (!isEmbed) {
+  if (!isEmbed && !isWooContent) {
     if (isNewestPath && latestClaimUrl) {
       const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
       return <Redirect to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
@@ -188,6 +306,14 @@ const ClaimPageComponent = (props: Props) => {
       collectionId={collectionId}
       linkedCommentId={linkedCommentId}
       threadCommentId={threadCommentId}
+      isWooContent={isWooContent}
+      wooYtId={wooYtId}
+      wooClaimId={wooClaimId}
+      wooType={wooType}
+      wooTimestamp={wooTimestamp}
+      wooData={wooData}
+      wooLoading={isWooContent && wooDataLoading}
+      wooError={wooDataError}
     />
   );
 };

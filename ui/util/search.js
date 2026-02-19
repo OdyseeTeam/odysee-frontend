@@ -29,6 +29,9 @@ export function createNormalizedSearchKey(query: string) {
   // Remove FYP additional info:
   normalizedQuery = removeParam(normalizedQuery, '&gid=');
   normalizedQuery = removeParam(normalizedQuery, '&uuid=');
+  // Ignore user-scoping cache params for stable lookup keys:
+  normalizedQuery = removeParam(normalizedQuery, '&user_id=');
+  normalizedQuery = removeParam(normalizedQuery, '&uid=');
 
   return normalizedQuery;
 }
@@ -115,17 +118,20 @@ export function getRecommendationSearchOptions(
   matureEnabled: boolean,
   claimIsMature: boolean,
   claimId: string,
-  language: ?string
+  language: ?string,
+  includeRelatedTo: boolean = true
 ) {
   const options = { size: 20, nsfw: matureEnabled, isBackgroundSearch: true };
+
+  // Recommendations should stay in the free-content lane like the regular rec calls.
+  options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
 
   if (SIMPLE_SITE) {
     options[SEARCH_OPTIONS.CLAIM_TYPE] = SEARCH_OPTIONS.INCLUDE_FILES;
     options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
-    options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
   }
 
-  if (matureEnabled || !claimIsMature) {
+  if (includeRelatedTo && (matureEnabled || !claimIsMature)) {
     options[SEARCH_OPTIONS.RELATED_TO] = claimId;
   }
 
