@@ -407,15 +407,15 @@ function UploadForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title page__title--margin">
+      <h1 className="page__title page__title--margin page__title--upload">
         <Icon icon={ICONS.PUBLISH} />
-        <label>
-          {formTitle}
+        <label>{formTitle}</label>
+        <div className="page__title-actions">
+          {!inEditMode && <PublishTemplateButton />}
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
           )}
-          {!inEditMode && <PublishTemplateButton />}
-        </label>
+        </div>
       </h1>
 
       <Card
