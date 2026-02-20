@@ -1,6 +1,38 @@
 declare type CommentBody = string;
 declare type CommentId = string;
 
+declare type UploadTemplateData = {
+  title?: string,
+  description?: string,
+  tags?: Array<{ name: string }>,
+  thumbnail?: string,
+  language?: string,
+  languages?: Array<string>,
+  licenseType?: string,
+  licenseUrl?: string,
+  otherLicenseDescription?: string,
+  nsfw?: boolean,
+  paywall?: string,
+  fee?: { amount: number, currency: string },
+  fiatPurchaseFee?: Price,
+  fiatPurchaseEnabled?: boolean,
+  fiatRentalFee?: Price,
+  fiatRentalExpiration?: Duration,
+  fiatRentalEnabled?: boolean,
+  visibility?: string,
+  memberRestrictionOn?: boolean,
+  memberRestrictionTierIds?: Array<number>,
+};
+
+declare type UploadTemplate = {
+  id: string,
+  name: string,
+  createdAt: number,
+  lastUsedAt?: number,
+  isPinned?: boolean,
+  data: UploadTemplateData,
+};
+
 declare type Comment = {|
   comment: CommentBody,
   comment_id: CommentId, // sha256 digest
@@ -81,6 +113,7 @@ declare type PerChannelSettings = {
   livestream_chat_members_only?: boolean,
   comments_members_only?: boolean,
   homepage_settings?: any,
+  upload_templates?: Array<UploadTemplate>,
   channel_sections?: Sections,
 };
 
@@ -355,6 +388,8 @@ declare type SettingsResponse = {
   filters_enabled?: boolean,
   livestream_chat_members_only?: boolean,
   comments_members_only?: boolean,
+  homepage_settings?: any,
+  upload_templates?: Array<UploadTemplate>,
 };
 
 declare type UpdateSettingsParams = {
@@ -371,6 +406,8 @@ declare type UpdateSettingsParams = {
   time_since_first_comment?: number,
   livestream_chat_members_only?: boolean,
   comments_members_only?: boolean,
+  homepage_settings?: any,
+  upload_templates?: Array<UploadTemplate>,
 };
 
 declare type BlockWordParams = {

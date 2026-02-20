@@ -23,8 +23,14 @@ function HomeTab(props: Props) {
   const { preferEmbed, claim, editMode, settingsByChannelId, handleViewMore, doUpdateCreatorSettings } = props;
 
   const claimId = claim && claim.claim_id;
-  const homepage_settings =
+  const rawHomepageSettings =
     settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
+
+  // Backward compat: homepage_settings can be an array (old) or object (new { sections, upload_templates }).
+  const homepageSections = React.useMemo(() => {
+    if (!rawHomepageSettings) return null;
+    return Array.isArray(rawHomepageSettings) ? rawHomepageSettings : rawHomepageSettings.sections || null;
+  }, [rawHomepageSettings]);
 
   const homeTemplate = [
     {
@@ -49,14 +55,14 @@ function HomeTab(props: Props) {
 
   React.useEffect(() => {
     if (settingsByChannelId && Object.keys(settingsByChannelId).includes(claim.claim_id)) {
-      if (homepage_settings) {
-        setHome(homepage_settings);
+      if (homepageSections) {
+        setHome(homepageSections);
       } else {
         setHome(homeTemplate);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [homepage_settings, settingsByChannelId]);
+  }, [homepageSections, settingsByChannelId]);
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -111,15 +117,14 @@ function HomeTab(props: Props) {
 
   function handleSaveHomeSection() {
     setHome(home);
-    doUpdateCreatorSettings(claim, { homepage_settings: home });
+    // Preserve any non-section data in homepage_settings (e.g. upload_templates)
+    const existingObj = rawHomepageSettings && !Array.isArray(rawHomepageSettings) ? rawHomepageSettings : {};
+    doUpdateCreatorSettings(claim, { homepage_settings: { ...existingObj, sections: home } });
     setEdit(false);
   }
 
   function handleCancelChanges() {
-    setHome(
-      (settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) ||
-        (settingsByChannelId && homeTemplate)
-    );
+    setHome(homepageSections || (settingsByChannelId && homeTemplate) || []);
     setEdit(false);
   }
 

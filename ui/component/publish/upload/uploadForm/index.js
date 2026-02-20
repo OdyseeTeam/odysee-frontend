@@ -21,6 +21,7 @@ import {
 import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
 import UploadForm from './view';
 
 const select = (state) => {
@@ -63,6 +64,7 @@ const perform = (dispatch) => ({
   resetThumbnailStatus: () => dispatch(doResetThumbnailStatus()),
   checkAvailability: (name) => dispatch(doCheckPublishNameAvailability(name)),
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),
+  fetchCreatorSettings: (channelId) => dispatch(doFetchCreatorSettings(channelId)),
 });
 
 export default connect(select, perform)(UploadForm);

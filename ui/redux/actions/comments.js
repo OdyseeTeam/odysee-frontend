@@ -1935,11 +1935,19 @@ export const doFetchCreatorSettings = (channelId: string) => {
     });
 
     let signedName;
+    const knownChannelName = (creatorChannel && creatorChannel.name) || undefined;
 
-    if (myChannels) {
-      const index = myChannels.findIndex((myChannel) => myChannel.claim_id === channelId);
-      if (index > -1) {
-        signedName = await channelSignName(channelId, myChannels[index].name, true);
+    // Try signing from claims cache first so uploads-page fetch does not depend
+    // on `myChannels` being loaded beforehand.
+    if (knownChannelName) {
+      signedName = await channelSignName(channelId, knownChannelName, true);
+    }
+
+    // Fallback to owned-channel list lookup when needed.
+    if (!signedName && myChannels) {
+      const myChannel = myChannels.find((channel) => channel.claim_id === channelId);
+      if (myChannel && myChannel.name) {
+        signedName = await channelSignName(channelId, myChannel.name, true);
       }
     }
 
@@ -1947,7 +1955,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
 
     return cmd({
       channel_id: channelId,
-      channel_name: (signedName && signedName.name) || creatorChannel?.name,
+      channel_name: (signedName && signedName.name) || knownChannelName,
       signature: (signedName && signedName.signature) || undefined,
       signing_ts: (signedName && signedName.signing_ts) || undefined,
     })
@@ -2000,6 +2008,17 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
       devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
       return;
     }
+
+    // Optimistic local update so UI (e.g. upload-template dropdown) reflects
+    // changes immediately while the server round-trip completes.
+    dispatch({
+      type: ACTIONS.COMMENT_FETCH_SETTINGS_COMPLETED,
+      data: {
+        channelId: channelClaim.claim_id,
+        settings,
+        partialUpdate: true,
+      },
+    });
 
     return Comments.setting_update({
       channel_name: channelClaim.name,
