@@ -520,6 +520,7 @@ export default function ModalCopyFromUpload(props: Props) {
 
   const visibleClaims = React.useMemo(() => filteredClaims.slice(0, MAX_VISIBLE_RESULTS), [filteredClaims]);
   const fieldAvailability = React.useMemo(() => getFieldAvailabilityForClaim(selectedClaim), [selectedClaim]);
+  const showShortSearchHint = activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3;
 
   function toggleField(key: string) {
     setSelectedFields((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -637,8 +638,10 @@ export default function ModalCopyFromUpload(props: Props) {
       <p className="copy-from-upload__result-hint">
         {__('Recent uploads are shown first by release date (up to 100).')}
       </p>
-      {activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3 && (
-        <p className="copy-from-upload__result-hint">{__('Type at least 3 characters to search.')}</p>
+      {showShortSearchHint && (
+        <p className="copy-from-upload__result-hint">
+          {__('Type at least 3 characters for full search results. Short terms filter recent uploads.')}
+        </p>
       )}
       <div className="copy-from-upload__results">
         {loading ? (

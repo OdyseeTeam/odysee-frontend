@@ -195,6 +195,7 @@ export default function PublishTemplateButton(props: Props) {
   const [optimisticTemplatesByChannelId, setOptimisticTemplatesByChannelId] = React.useState<{
     [string]: Array<UploadTemplate>,
   }>({});
+  const previousSettingsByChannelIdRef = React.useRef<{ [string]: ?PerChannelSettings }>(settingsByChannelId || {});
 
   const orderedChannelClaims = React.useMemo((): Array<ChannelClaim> => {
     const seenById = {};
@@ -255,6 +256,38 @@ export default function PublishTemplateButton(props: Props) {
       ensureChannelSettingsLoaded(channelClaim.claim_id);
     });
   }, [orderedChannelClaims, ensureChannelSettingsLoaded]);
+
+  React.useEffect(() => {
+    const optimisticChannelIds = Object.keys(optimisticTemplatesByChannelId);
+    const currentSettingsByChannelId = settingsByChannelId || {};
+    const previousSettingsByChannelId = previousSettingsByChannelIdRef.current || {};
+
+    if (optimisticChannelIds.length === 0) {
+      previousSettingsByChannelIdRef.current = currentSettingsByChannelId;
+      return;
+    }
+
+    setOptimisticTemplatesByChannelId((previousOptimisticTemplates) => {
+      const nextOptimisticTemplates = { ...previousOptimisticTemplates };
+      let removedAny = false;
+
+      optimisticChannelIds.forEach((channelId) => {
+        const currentSettings = currentSettingsByChannelId[channelId];
+        const previousSettings = previousSettingsByChannelId[channelId];
+        const becameAvailable = !previousSettings && Boolean(currentSettings);
+        const changed = Boolean(currentSettings) && currentSettings !== previousSettings;
+
+        if (becameAvailable || changed) {
+          delete nextOptimisticTemplates[channelId];
+          removedAny = true;
+        }
+      });
+
+      return removedAny ? nextOptimisticTemplates : previousOptimisticTemplates;
+    });
+
+    previousSettingsByChannelIdRef.current = currentSettingsByChannelId;
+  }, [settingsByChannelId, optimisticTemplatesByChannelId]);
 
   const allTemplates = React.useMemo((): Array<TemplateEntry> => {
     const entries = [];
