@@ -108,6 +108,26 @@
   .button__content {
     padding: 0 var(--spacing-xs);
     min-height: 1.75rem;
+
+    .icon {
+      animation: none;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  .button__content:hover,
+  .button__content:active {
+    background: transparent;
+    border-radius: inherit;
+    min-height: 1.75rem;
+    padding: 0 var(--spacing-xs);
+
+    .icon {
+      animation: none;
+      stroke: currentcolor;
+      transform: none;
+    }
   }
 
   .button:hover,

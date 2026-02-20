@@ -232,8 +232,8 @@ function fieldWouldChangeValue(fieldKey: string, claim: ?StreamClaim, publishFor
     case 'thumbnail':
       return normalizeStringForCompare(metadata.thumbnailUrl) !== normalizeStringForCompare(formValues.thumbnail);
     case 'languages': {
-      const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null);
-      const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language);
+      const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null).sort();
+      const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language).sort();
       return !areArraysEqualForCompare(sourceLanguages, targetLanguages);
     }
     case 'license': {

@@ -8,6 +8,7 @@ import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
+import { cloneDeep } from 'util/clone';
 import './style.scss';
 
 type TemplateEntry = UploadTemplate & {
@@ -26,22 +27,6 @@ type Props = {
   doHideModal: () => void,
 };
 const TEMPLATE_SEARCH_THRESHOLD = 6;
-
-function cloneTemplateValue(value: any): any {
-  if (Array.isArray(value)) {
-    return value.map((item) => cloneTemplateValue(item));
-  }
-
-  if (value && typeof value === 'object') {
-    const clone = {};
-    Object.keys(value).forEach((key) => {
-      clone[key] = cloneTemplateValue(value[key]);
-    });
-    return clone;
-  }
-
-  return value;
-}
 
 function makeDuplicateTemplateName(name: string, existingTemplates: Array<UploadTemplate>): string {
   const baseName = (name || __('Template')).trim();
@@ -433,26 +418,20 @@ export default function ModalUploadTemplates(props: Props) {
   }
 
   function handleDuplicate(template: TemplateEntry) {
-    let createdName = '';
-    updateTemplatesForChannel(template.channelId, (channelTemplates) => {
-      const duplicateName = makeDuplicateTemplateName(template.name, channelTemplates);
-      createdName = duplicateName;
-      const duplicateTemplate: UploadTemplate = {
-        ...template,
-        id: uuid(),
-        name: duplicateName,
-        createdAt: Date.now(),
-        lastUsedAt: undefined,
-        isPinned: false,
-        data: cloneTemplateValue(template.data || {}),
-      };
+    const channelTemplates = templatesByChannelId[template.channelId] || [];
+    const createdName = makeDuplicateTemplateName(template.name, channelTemplates);
+    const duplicateTemplate: UploadTemplate = {
+      ...template,
+      id: uuid(),
+      name: createdName,
+      createdAt: Date.now(),
+      lastUsedAt: undefined,
+      isPinned: false,
+      data: cloneDeep(template.data || {}),
+    };
 
-      return [duplicateTemplate, ...channelTemplates];
-    });
-
-    if (createdName) {
-      doToast({ message: __('Template "%name%" duplicated', { name: createdName }) });
-    }
+    updateTemplatesForChannel(template.channelId, (existingTemplates) => [duplicateTemplate, ...existingTemplates]);
+    doToast({ message: __('Template "%name%" duplicated', { name: createdName }) });
   }
 
   function handleConfirmRename(template: TemplateEntry) {
