@@ -73,7 +73,7 @@ function FeaturedSection(props: Props) {
           </div>
           <div className="claim-preview-author">
             <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
-            <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
+            <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} showChannelLink={false} />
           </div>
           <div className="claim-preview-description" {...navLinkProps}>
             <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />

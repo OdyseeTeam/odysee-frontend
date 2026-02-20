@@ -14,6 +14,8 @@ import { withRouter } from 'react-router';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { doUpdateCreatorSettings } from 'redux/actions/comments';
+import { selectSettingsForChannelId } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import ContentTab from './view';
 
@@ -40,11 +42,13 @@ const select = (state, props) => {
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     adBlockerFound: selectAdBlockerFound(state),
     shortsOnly: props.shortsOnly || isShorts,
+    channelSettings: claim ? selectSettingsForChannelId(state, claim.claim_id) : undefined,
   };
 };
 
 const perform = {
   doResolveUris,
+  doUpdateCreatorSettings,
 };
 
 export default withRouter(connect(select, perform)(ContentTab));

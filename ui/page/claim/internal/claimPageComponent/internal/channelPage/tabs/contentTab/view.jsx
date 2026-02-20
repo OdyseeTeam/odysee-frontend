@@ -11,14 +11,18 @@ import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
+import { CHANNEL_PAGE } from 'constants/urlParams';
 import { Form, FormField } from 'component/common/form';
 import UpcomingClaims from 'component/upcomingClaims';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
+import PlaylistOrderManager from './internal/playlistOrderManager';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
+import { normalizePlaylistOrder } from 'util/playlist-order';
 import { lazyImport } from 'util/lazyImport';
+import './internal/style.scss';
 
 const HiddenNsfwClaims = lazyImport(() =>
   import('component/hiddenNsfwClaims' /* webpackChunkName: "hiddenNsfwClaims" */)
@@ -46,12 +50,14 @@ type Props = {
   hideShorts: boolean,
   viewHiddenChannels: boolean,
   doResolveUris: (Array<string>, boolean) => void,
-  claimType: string,
+  claimType: string | Array<string>,
   empty?: string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
   shortsOnly?: boolean,
   excludeShorts?: boolean,
   loadedCallback?: (number) => void,
+  channelSettings?: ?PerChannelSettings,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 function ContentTab(props: Props) {
@@ -76,6 +82,8 @@ function ContentTab(props: Props) {
     shortsOnly,
     loadedCallback,
     excludeShorts,
+    channelSettings,
+    doUpdateCreatorSettings,
   } = props;
 
   const {
@@ -87,8 +95,11 @@ function ContentTab(props: Props) {
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState(urlParams.get('search') || '');
   const [isSearching, setIsSearching] = React.useState(false);
+  const [playlistOrderEditing, setPlaylistOrderEditing] = React.useState(false);
+  const [playlistOrderHasUnsavedChanges, setPlaylistOrderHasUnsavedChanges] = React.useState(false);
 
   const orderBy = urlParams.get('order');
+  const activeView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW);
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
@@ -108,6 +119,15 @@ function ContentTab(props: Props) {
       : TYPES_TO_ALLOW_FILTER.includes(claimType));
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
+  const isPlaylistTab =
+    claimType === CS.CLAIM_COLLECTION ||
+    (Array.isArray(claimType) && claimType.includes(CS.CLAIM_COLLECTION)) ||
+    activeView === CHANNEL_PAGE.VIEWS.PLAYLISTS;
+  const hasSavedPlaylistOrder = React.useMemo(
+    () => normalizePlaylistOrder(channelSettings && channelSettings.playlist_order).sections.length > 0,
+    [channelSettings]
+  );
+  const shouldUsePlaylistOrderManager = isPlaylistTab && (playlistOrderEditing || hasSavedPlaylistOrder);
 
   const showScheduledLiveStreams = claimType !== 'collection' && !shortsOnly; // i.e. not on the playlist page.
   const scheduledChanIds = React.useMemo(() => [claimId], [claimId]);
@@ -126,6 +146,33 @@ function ContentTab(props: Props) {
       setSearchQuery('');
     }, [claimId]);
   */
+
+  React.useEffect(() => {
+    setPlaylistOrderEditing(false);
+    setPlaylistOrderHasUnsavedChanges(false);
+  }, [claimId]);
+
+  const closePlaylistEditor = React.useCallback(() => {
+    setPlaylistOrderEditing(false);
+    setPlaylistOrderHasUnsavedChanges(false);
+  }, []);
+
+  const handlePlaylistEditorToggle = React.useCallback(() => {
+    if (playlistOrderEditing) {
+      if (
+        playlistOrderHasUnsavedChanges &&
+        !window.confirm(
+          __('You have unsaved playlist order changes. If you close now, those changes will be lost. Continue?')
+        )
+      ) {
+        return;
+      }
+
+      closePlaylistEditor();
+    } else {
+      setPlaylistOrderEditing(true);
+    }
+  }, [playlistOrderEditing, playlistOrderHasUnsavedChanges, closePlaylistEditor]);
 
   return (
     <Fragment>
@@ -176,7 +223,33 @@ function ContentTab(props: Props) {
           <HiddenNsfwClaims uri={uri} />
         </React.Suspense>
       )}
-      {!fetching && (
+
+      {!fetching && isPlaylistTab && channelIsMine && (
+        <div className="section__actions playlist-order-edit-actions">
+          <Button
+            button={playlistOrderEditing ? 'secondary' : 'primary'}
+            icon={ICONS.EDIT}
+            label={playlistOrderEditing ? __('Close Playlist Editor') : __('Edit Playlist Order')}
+            onClick={handlePlaylistEditorToggle}
+          />
+        </div>
+      )}
+
+      {!fetching && shouldUsePlaylistOrderManager && (
+        <PlaylistOrderManager
+          channelClaim={(claim: any)}
+          channelSettings={channelSettings}
+          tileLayout={tileLayout}
+          viewHiddenChannels={viewHiddenChannels}
+          empty={isSearching || searchQuery.length > 2 ? ' ' : empty}
+          isEditing={playlistOrderEditing}
+          onCloseEditing={closePlaylistEditor}
+          onUnsavedChangesUpdate={setPlaylistOrderHasUnsavedChanges}
+          doUpdateCreatorSettings={doUpdateCreatorSettings}
+        />
+      )}
+
+      {!fetching && !shouldUsePlaylistOrderManager && (
         <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
           <ClaimListDiscover
             ignoreSearchInLanguage

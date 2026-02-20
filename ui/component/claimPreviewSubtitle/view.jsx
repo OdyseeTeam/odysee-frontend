@@ -16,6 +16,7 @@ type Props = {
   uri: string,
   type?: string,
   showAtSign?: boolean,
+  showChannelLink?: boolean,
   // --- redux ---
   claim: ?StreamClaim,
   pending?: boolean,
@@ -28,7 +29,19 @@ type Props = {
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const { pending, uri, claim, type, doBeginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
+  const {
+    pending,
+    uri,
+    claim,
+    type,
+    doBeginPublish,
+    isLivestream,
+    fetchSubCount,
+    subCount,
+    showAtSign,
+    showChannelLink = true,
+    lang,
+  } = props;
 
   const isEmbed = React.useContext(EmbedContext);
 
@@ -53,7 +66,7 @@ function ClaimPreviewSubtitle(props: Props) {
     <div className="media__subtitle">
       {claim ? (
         <React.Fragment>
-          <UriIndicator uri={uri} showAtSign={showAtSign} link external={isEmbed} />
+          <UriIndicator uri={uri} showAtSign={showAtSign} link={showChannelLink} external={isEmbed} />
           {!pending && claim && (
             <>
               {isChannel && type !== 'inline' && (

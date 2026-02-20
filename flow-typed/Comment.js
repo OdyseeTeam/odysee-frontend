@@ -114,6 +114,7 @@ declare type PerChannelSettings = {
   comments_members_only?: boolean,
   homepage_settings?: any,
   upload_templates?: Array<UploadTemplate>,
+  playlist_order?: any,
   channel_sections?: Sections,
 };
 
@@ -390,6 +391,7 @@ declare type SettingsResponse = {
   comments_members_only?: boolean,
   homepage_settings?: any,
   upload_templates?: Array<UploadTemplate>,
+  playlist_order?: any,
 };
 
 declare type UpdateSettingsParams = {
@@ -408,6 +410,7 @@ declare type UpdateSettingsParams = {
   comments_members_only?: boolean,
   homepage_settings?: any,
   upload_templates?: Array<UploadTemplate>,
+  playlist_order?: any,
 };
 
 declare type BlockWordParams = {
