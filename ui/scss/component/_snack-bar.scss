@@ -98,11 +98,26 @@
   color: var(--color-primary-contrast);
   font-size: var(--font-small);
 
-  button:hover,
-  .button__content:hover {
-    .button__label {
-      color: var(--color-primary) !important;
-    }
+  .button {
+    color: inherit;
+    border: 1px solid currentcolor;
+    border-radius: var(--border-radius);
+    background: transparent;
+  }
+
+  .button__content {
+    padding: 0 var(--spacing-xs);
+    min-height: 1.75rem;
+  }
+
+  .button:hover,
+  .button:focus-visible {
+    background: rgba(0, 0, 0, 0.16);
+  }
+
+  .button:hover .button__label,
+  .button:focus-visible .button__label {
+    color: inherit !important;
   }
 }
 

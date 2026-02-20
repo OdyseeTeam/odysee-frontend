@@ -8,6 +8,7 @@ import * as MODALS from 'constants/modal_types';
 import { FormField } from 'component/common/form';
 import { v4 as uuid } from 'uuid';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
+import { cloneDeep } from 'util/clone';
 import './style.scss';
 
 type TemplateEntry = UploadTemplate & {
@@ -104,22 +105,6 @@ function areTemplateDataEqual(a: UploadTemplateData, b: UploadTemplateData): boo
   return JSON.stringify(normalizeTemplateValue(a || {})) === JSON.stringify(normalizeTemplateValue(b || {}));
 }
 
-function cloneTemplateValue(value: any): any {
-  if (Array.isArray(value)) {
-    return value.map((item) => cloneTemplateValue(item));
-  }
-
-  if (value && typeof value === 'object') {
-    const clone = {};
-    Object.keys(value).forEach((key) => {
-      clone[key] = cloneTemplateValue(value[key]);
-    });
-    return clone;
-  }
-
-  return value;
-}
-
 function extractTemplateDataFromPublishForm(publishFormValues: any): UploadTemplateData {
   const data: any = {};
   TEMPLATE_FIELDS.forEach((field) => {
@@ -132,7 +117,7 @@ function extractTemplateDataFromPublishForm(publishFormValues: any): UploadTempl
     // - all defined booleans (including 'false')
     // - all defined non-empty values
     if (value !== undefined && (typeof value === 'boolean' || (value !== '' && !isEmptyArray && !isEmptyObject))) {
-      data[field] = cloneTemplateValue(value);
+      data[field] = cloneDeep(value);
     }
   });
   return data;
@@ -472,7 +457,7 @@ export default function PublishTemplateButton(props: Props) {
 
     const undoData = {};
     Object.keys(template.data).forEach((fieldKey) => {
-      undoData[fieldKey] = cloneTemplateValue(publishFormValues[fieldKey]);
+      undoData[fieldKey] = cloneDeep(publishFormValues[fieldKey]);
     });
 
     const currentDataBeforeApply = extractTemplateDataFromPublishForm(publishFormValues);

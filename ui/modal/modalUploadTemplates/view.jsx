@@ -107,6 +107,29 @@ function formatPrice(price: any): string {
   return '';
 }
 
+function getNormalizedPaywall(paywall: any): string {
+  return typeof paywall === 'string' ? paywall.trim().toLowerCase() : '';
+}
+
+function hasEnabledPriceDetails(templateData: UploadTemplateData): boolean {
+  const data = templateData || {};
+  const normalizedPaywall = getNormalizedPaywall(data.paywall);
+
+  const hasSdkPrice = Number(data?.fee?.amount || 0) > 0;
+  const hasFiatPurchase = Boolean(data.fiatPurchaseEnabled && Number(data?.fiatPurchaseFee?.amount || 0) > 0);
+  const hasFiatRental = Boolean(data.fiatRentalEnabled && Number(data?.fiatRentalFee?.amount || 0) > 0);
+
+  if (normalizedPaywall === 'sdk') return hasSdkPrice;
+  if (normalizedPaywall === 'fiat') return hasFiatPurchase || hasFiatRental;
+
+  // Backward-compatibility for older templates that may not have saved `paywall`.
+  if (!normalizedPaywall) {
+    return hasSdkPrice || hasFiatPurchase || hasFiatRental;
+  }
+
+  return false;
+}
+
 function getTagsLabel(tags: any): string {
   if (!Array.isArray(tags) || tags.length === 0) return '';
   return tags
@@ -139,13 +162,21 @@ function getTemplatePreviewFields(templateData: UploadTemplateData): Array<{ lab
   }
 
   if (data.visibility) fields.push({ label: __('Visibility'), value: String(data.visibility) });
-  if (typeof data.nsfw === 'boolean') fields.push({ label: __('Mature'), value: data.nsfw ? __('Yes') : __('No') });
+  if (data.nsfw === true) fields.push({ label: __('Mature'), value: __('Yes') });
   if (data.licenseType) fields.push({ label: __('License'), value: String(data.licenseType) });
 
-  const feeLabel = formatPrice(data.fee);
-  if (feeLabel) fields.push({ label: __('Price'), value: feeLabel });
+  const normalizedPaywall = getNormalizedPaywall(data.paywall);
+  const shouldShowPriceDetails = hasEnabledPriceDetails(data);
+  if (shouldShowPriceDetails) {
+    const feeLabel = formatPrice(data.fee);
+    if (feeLabel && (normalizedPaywall === 'sdk' || !normalizedPaywall)) {
+      fields.push({ label: __('Price'), value: feeLabel });
+    }
 
-  if (data.paywall) fields.push({ label: __('Paywall'), value: String(data.paywall) });
+    if (normalizedPaywall && normalizedPaywall !== 'free') {
+      fields.push({ label: __('Paywall'), value: String(data.paywall) });
+    }
+  }
 
   if (typeof data.memberRestrictionOn === 'boolean') {
     fields.push({ label: __('Members'), value: data.memberRestrictionOn ? __('Restricted') : __('Off') });

@@ -12,6 +12,7 @@ import * as MODALS from 'constants/modal_types';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
+import { cloneDeep } from 'util/clone';
 import './style.scss';
 
 const COPYABLE_FIELDS = [
@@ -86,22 +87,6 @@ const FIELD_TO_FORM_KEYS = {
     'fiatRentalExpiration',
   ],
 };
-
-function cloneValue(value: any): any {
-  if (Array.isArray(value)) {
-    return value.map((item) => cloneValue(item));
-  }
-
-  if (value && typeof value === 'object') {
-    const clone = {};
-    Object.keys(value).forEach((key) => {
-      clone[key] = cloneValue(value[key]);
-    });
-    return clone;
-  }
-
-  return value;
-}
 
 function hasExistingValueForField(fieldKey: string, publishFormValues: any): boolean {
   const formValues = publishFormValues || {};
@@ -240,8 +225,8 @@ function fieldWouldChangeValue(fieldKey: string, claim: ?StreamClaim, publishFor
     case 'description':
       return normalizeStringForCompare(metadata.description) !== normalizeStringForCompare(formValues.description);
     case 'tags': {
-      const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags);
-      const targetTags = normalizeTagValuesForCompare(formValues.tags);
+      const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags).sort();
+      const targetTags = normalizeTagValuesForCompare(formValues.tags).sort();
       return !areArraysEqualForCompare(sourceTags, targetTags);
     }
     case 'thumbnail':
@@ -308,7 +293,7 @@ function getUndoDataForFields(fields: Array<string>, publishFormValues: any): Up
   fields.forEach((field) => {
     const targetKeys = FIELD_TO_FORM_KEYS[field] || [];
     targetKeys.forEach((targetKey) => {
-      undoData[targetKey] = cloneValue(publishFormValues ? publishFormValues[targetKey] : undefined);
+      undoData[targetKey] = cloneDeep(publishFormValues ? publishFormValues[targetKey] : undefined);
     });
   });
 
