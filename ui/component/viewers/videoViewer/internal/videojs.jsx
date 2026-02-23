@@ -526,7 +526,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
-      ensureKeyboardShortcutsOverlay(vjsPlayer);
 
       initializeEvents();
 
