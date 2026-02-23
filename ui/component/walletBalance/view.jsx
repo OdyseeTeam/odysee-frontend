@@ -13,6 +13,7 @@ import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { useArStatus } from 'effects/use-ar-status';
+import { LocalStorage } from 'util/storage';
 
 type Props = {
   clientSettings: any,
@@ -68,7 +69,7 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
-  const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection } = useArStatus();
+  const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection, addressInUse } = useArStatus();
 
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
@@ -232,41 +233,50 @@ const WalletBalance = (props: Props) => {
               </>
             )
           }
-          subtitle={!hasArConnection ? (
-            <>
-              <div className="wallet-check-row">
-                <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
-                <div>
-                  {!hasConnection && !isSigningIn ? (
-                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
-                  ) : isSigningIn ? (
-                    <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
-                  ) : (
-                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" alt="Success" />
-                  )}
+          subtitle={
+            !hasArConnection ? (
+              <>
+                <div className="wallet-check-row">
+                  <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
+                  <div>
+                    {!hasConnection && !isSigningIn ? (
+                      <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
+                    ) : isSigningIn ? (
+                      <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
+                    ) : (
+                      <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" alt="Success" />
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="wallet-check-row">
-                <div>{__('Wander wallet connection')}</div>
-                <div>
-                  {hasArConnection ? (
-                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
-                  ) : (
-                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
-                  )}
+                <div className="wallet-check-row">
+                  <div>{__('Wander wallet connection')}</div>
+                  <div>
+                    {hasArConnection ? (
+                      <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                    ) : (
+                      <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                    )}
+                  </div>
                 </div>
-              </div>
               </>
-              ) : (
-                <I18nMessage tokens={{
+            ) : (
+              <I18nMessage
+                tokens={{
                   ar: <Symbol inline token="ar" />,
                   usd: <Symbol inline token="usd" />,
-                  price: <img style={{ height: '16px' }} src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />,
-                }}>
-                Your total %ar% balance in %usd%. The displayed %usd% amount is subject to change and reflects the value based on the current exchange rate (%price%).
+                  price: (
+                    <img
+                      style={{ height: '16px' }}
+                      src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp"
+                    />
+                  ),
+                }}
+              >
+                Your total %ar% balance in %usd%. The displayed %usd% amount is subject to change and reflects the value
+                based on the current exchange rate (%price%).
               </I18nMessage>
-              )
+            )
           }
           background
           actions={
@@ -356,6 +366,23 @@ const WalletBalance = (props: Props) => {
                   >
                     {`%text% %status%`}
                   </I18nMessage>
+                </div>
+              ) : !hasArConnection && addressInUse ? (
+                <div>
+                  <p>
+                    {__(
+                      'The currently active Wander wallet is already connected to another Odysee account. Please switch to a different wallet.'
+                    )}
+                  </p>
+                  <a
+                    className="link"
+                    onClick={() => {
+                      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
+                      window.wanderInstance.open();
+                    }}
+                  >
+                    {__('Change login')}
+                  </a>
                 </div>
               ) : !hasArConnection ? (
                 <div>

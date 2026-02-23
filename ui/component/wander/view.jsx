@@ -11,6 +11,7 @@ type Props = {
   theme: string,
   auth: any,
   authenticated: any,
+  addressInUse: boolean,
   doArInit: () => void,
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
@@ -23,6 +24,7 @@ export default function Wander(props: Props) {
     theme,
     auth,
     authenticated,
+    addressInUse,
     doArInit,
     doArSetAuth,
     connecting,
@@ -36,7 +38,8 @@ export default function Wander(props: Props) {
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
-    if (instance) {
+    const arAddressInUse = addressInUse || LocalStorage.getItem('AR_ADDRESS_IN_USE') === 'true';
+    if (instance && !arAddressInUse) {
       if (auth?.authStatus === 'onboarding') instance.open();
       if (auth?.authStatus === 'authenticated') {
         // Connected
@@ -190,6 +193,9 @@ export default function Wander(props: Props) {
             ) {
               if (data.data.authStatus !== 'loading') {
                 LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+                if (data.data.authStatus === 'authenticated') {
+                  LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
+                }
                 window.wanderInstance.close();
                 doArSetAuth(data.data);
                 if (data.data.authStatus === 'authenticated') {

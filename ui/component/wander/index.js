@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { doArInit, doArConnect, doArSetAuth, doArUpdateBalance, doCleanTips } from 'redux/actions/arwallet';
 import { selectArweaveWanderAuth, selectArweaveAddress, selectArweaveConnecting } from 'redux/selectors/arwallet';
+import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
 import { selectTheme } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import Wander from './view';
@@ -11,6 +12,7 @@ const select = (state) => ({
   theme: selectTheme(state),
   auth: selectArweaveWanderAuth(state),
   authenticated: selectUserVerifiedEmail(state),
+  addressInUse: selectArAccountRegisteringError(state) === 'address already exists for another user',
 });
 
 const perform = (dispatch) => ({

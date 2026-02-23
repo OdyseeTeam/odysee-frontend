@@ -607,6 +607,7 @@ function doSignOutAction() {
         await pushNotifications.disconnect(user.id);
       }
     } finally {
+      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
         .then(async () => {
