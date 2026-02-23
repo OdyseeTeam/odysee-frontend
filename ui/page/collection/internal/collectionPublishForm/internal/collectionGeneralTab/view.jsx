@@ -26,6 +26,12 @@ type Props = {
   formParams: any,
   setThumbnailError: (error: ?string) => void,
   updateFormParams: (obj: any) => void,
+  isNewPlaylistPublish?: boolean,
+  playlistSectionOptions?: Array<{ id: string, label: string }>,
+  playlistTargetSectionId?: string,
+  playlistInsertPosition?: 'top' | 'bottom',
+  onPlaylistTargetSectionChange?: (string) => void,
+  onPlaylistInsertPositionChange?: ('top' | 'bottom') => void,
   // -- redux --
   hasClaim: boolean,
   collectionChannelName: ?string,
@@ -36,6 +42,12 @@ function CollectionGeneralTab(props: Props) {
     formParams,
     setThumbnailError,
     updateFormParams,
+    isNewPlaylistPublish,
+    playlistSectionOptions = [],
+    playlistTargetSectionId,
+    playlistInsertPosition = 'top',
+    onPlaylistTargetSectionChange,
+    onPlaylistInsertPositionChange,
     // -- redux --
     hasClaim,
     collectionChannelName,
@@ -115,6 +127,50 @@ function CollectionGeneralTab(props: Props) {
               </span>
             </div>
           </div>
+
+          {isNewPlaylistPublish && (
+            <div className="collection__playlist-placement-wrapper">
+              <h2>{__('Channel Playlist Placement')}</h2>
+              <div className="collection__playlist-placement">
+                <FormField
+                  type="select"
+                  name="collection_playlist_target_section"
+                  value={playlistTargetSectionId || ''}
+                  label={__('Section')}
+                  onChange={(e) => {
+                    const value = e.target && e.target.value;
+                    if (value && onPlaylistTargetSectionChange) {
+                      onPlaylistTargetSectionChange(value);
+                    }
+                  }}
+                >
+                  {playlistSectionOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
+                    </option>
+                  ))}
+                </FormField>
+                <FormField
+                  type="select"
+                  name="collection_playlist_insert_position"
+                  value={playlistInsertPosition}
+                  label={__('Insert')}
+                  onChange={(e) => {
+                    const value = e.target && e.target.value;
+                    if ((value === 'top' || value === 'bottom') && onPlaylistInsertPositionChange) {
+                      onPlaylistInsertPositionChange(value);
+                    }
+                  }}
+                >
+                  <option value="top">{__('Add to top')}</option>
+                  <option value="bottom">{__('Add to bottom')}</option>
+                </FormField>
+              </div>
+              <p className="form-field__help">
+                {__('Choose where this new playlist appears on your channel playlists tab after publishing.')}
+              </p>
+            </div>
+          )}
         </>
       )}
 

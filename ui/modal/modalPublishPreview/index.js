@@ -34,7 +34,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  publish: (filePath, preview) => dispatch(doPublishDesktop(filePath, preview)),
+  publish: (filePath, preview, postPublishOptions) => dispatch(doPublishDesktop(filePath, preview, postPublishOptions)),
   closeModal: () => dispatch(doHideModal()),
   setEnablePublishPreview: (value) => dispatch(doSetClientSetting(SETTINGS.ENABLE_PUBLISH_PREVIEW, value)),
 });

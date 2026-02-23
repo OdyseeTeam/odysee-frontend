@@ -22,6 +22,42 @@
     }
   }
 
+  .collection__playlist-placement-wrapper {
+    .form-field {
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .form-field__help {
+      color: var(--color-help);
+      margin: 0;
+    }
+  }
+
+  .collection__playlist-placement {
+    padding: var(--spacing-s);
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-s);
+
+    .form-field__label {
+      margin-bottom: var(--spacing-xxs);
+    }
+
+    .form-field__help {
+      margin-bottom: 0;
+    }
+
+    .input {
+      background-color: var(--color-background);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   .collection__title {
     fieldset-section {
       padding: var(--spacing-s);

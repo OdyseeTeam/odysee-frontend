@@ -18,6 +18,7 @@ import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
+import { FormField } from 'component/common/form';
 import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
@@ -32,6 +33,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import Spinner from 'component/spinner';
 import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -41,6 +43,46 @@ const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* w
 const PublishPrice = lazyImport(() =>
   import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
 );
+const PLAYLIST_SEARCH_THRESHOLD = 8;
+
+type AutoAddPlaylistOption = {
+  id: string,
+  title: string,
+  isPublished: boolean,
+  itemCount: number,
+  updatedAtMs: number,
+};
+
+function getAutoAddPlaylistTitle(collection: any): string {
+  const valueTitle = collection?.value?.title;
+  const title = collection?.title || valueTitle || collection?.name;
+  return typeof title === 'string' && title.trim() ? title.trim() : __('Untitled playlist');
+}
+
+function getAutoAddPlaylistCount(collection: any): number {
+  if (typeof collection?.itemCount === 'number') return collection.itemCount;
+  if (Array.isArray(collection?.items)) return collection.items.length;
+  if (Array.isArray(collection?.value?.claims)) return collection.value.claims.length;
+  return 0;
+}
+
+function getAutoAddPlaylistUpdatedAt(collection: any): number {
+  const possibleTs = [
+    collection?.updatedAt,
+    collection?.updated_at,
+    collection?.createdAt,
+    collection?.meta?.creation_timestamp,
+    collection?.timestamp,
+  ];
+
+  for (let i = 0; i < possibleTs.length; i++) {
+    const value = Number(possibleTs[i]);
+    if (!Number.isFinite(value) || value <= 0) continue;
+    return value > 2000000000 ? value : value * 1000;
+  }
+
+  return 0;
+}
 
 type Props = {
   disabled: boolean,
@@ -98,6 +140,8 @@ type Props = {
   hasClaimedInitialRewards: boolean,
   memberRestrictionStatus: MemberRestrictionStatus,
   fetchCreatorSettings: (string) => void,
+  myPublishedCollections: { [string]: any },
+  myUnpublishedCollections: { [string]: any },
 };
 
 function UploadForm(props: Props) {
@@ -143,6 +187,8 @@ function UploadForm(props: Props) {
     uploadThumbnailStatus,
     memberRestrictionStatus,
     fetchCreatorSettings,
+    myPublishedCollections,
+    myUnpublishedCollections,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -177,6 +223,57 @@ function UploadForm(props: Props) {
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
+  const autoAddPlaylistOptions = React.useMemo<Array<AutoAddPlaylistOption>>(() => {
+    const seen = new Set();
+    const options = [];
+    const addEntry = (id: string, collection: any, isPublished: boolean) => {
+      if (!id || !collection || COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id) || seen.has(id)) {
+        return;
+      }
+
+      seen.add(id);
+      options.push({
+        id,
+        title: getAutoAddPlaylistTitle(collection),
+        isPublished,
+        itemCount: getAutoAddPlaylistCount(collection),
+        updatedAtMs: getAutoAddPlaylistUpdatedAt(collection),
+      });
+    };
+
+    Object.entries(myPublishedCollections || {}).forEach(([id, collection]) => addEntry(id, collection, true));
+    Object.entries(myUnpublishedCollections || {}).forEach(([id, collection]) => addEntry(id, collection, false));
+
+    return options.sort(
+      (a, b) => b.updatedAtMs - a.updatedAtMs || a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+    );
+  }, [myPublishedCollections, myUnpublishedCollections]);
+  const hasAutoAddPlaylistOptions = autoAddPlaylistOptions.length > 0;
+  const [autoAddPlaylistEnabled, setAutoAddPlaylistEnabled] = React.useState(false);
+  const [autoAddPlaylistSearch, setAutoAddPlaylistSearch] = React.useState('');
+  const [autoAddPlaylistId, setAutoAddPlaylistId] = React.useState('');
+  const [autoAddPlaylistPosition, setAutoAddPlaylistPosition] = React.useState<'top' | 'bottom'>('top');
+  const [autoPublishPlaylistUpdate, setAutoPublishPlaylistUpdate] = React.useState(false);
+  const showAutoAddPlaylistSearch = autoAddPlaylistOptions.length > PLAYLIST_SEARCH_THRESHOLD;
+  const filteredAutoAddPlaylistOptions = React.useMemo<Array<AutoAddPlaylistOption>>(() => {
+    if (!showAutoAddPlaylistSearch) {
+      return autoAddPlaylistOptions;
+    }
+
+    const query = autoAddPlaylistSearch.trim().toLowerCase();
+    if (!query) {
+      return autoAddPlaylistOptions;
+    }
+
+    return autoAddPlaylistOptions.filter((option) => option.title.toLowerCase().includes(query));
+  }, [autoAddPlaylistOptions, autoAddPlaylistSearch, showAutoAddPlaylistSearch]);
+  const autoAddPlaylistSelectionValue = filteredAutoAddPlaylistOptions.length > 0 ? autoAddPlaylistId : '';
+  const autoAddPlaylistSelectionUnavailable = autoAddPlaylistEnabled && !autoAddPlaylistSelectionValue;
+  const selectedAutoAddPlaylist = React.useMemo(
+    () => autoAddPlaylistOptions.find((option) => option.id === autoAddPlaylistSelectionValue),
+    [autoAddPlaylistOptions, autoAddPlaylistSelectionValue]
+  );
+  const shouldShowAutoPublishPlaylistOption = Boolean(selectedAutoAddPlaylist && selectedAutoAddPlaylist.isPublished);
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
     name &&
@@ -219,6 +316,38 @@ function UploadForm(props: Props) {
       fetchCreatorSettings(templateChannelId);
     }
   }, [channelId, activeChannelId, inEditMode, fetchCreatorSettings]);
+
+  useEffect(() => {
+    if (!hasAutoAddPlaylistOptions || inEditMode) {
+      setAutoAddPlaylistEnabled(false);
+      setAutoAddPlaylistId('');
+      return;
+    }
+
+    const optionPool =
+      showAutoAddPlaylistSearch && autoAddPlaylistSearch.trim()
+        ? filteredAutoAddPlaylistOptions
+        : autoAddPlaylistOptions;
+    const hasSelected = optionPool.some((option) => option.id === autoAddPlaylistId);
+    if (!hasSelected) {
+      const fallback = optionPool[0] || autoAddPlaylistOptions[0];
+      setAutoAddPlaylistId(fallback ? fallback.id : '');
+    }
+  }, [
+    autoAddPlaylistId,
+    autoAddPlaylistSearch,
+    autoAddPlaylistOptions,
+    filteredAutoAddPlaylistOptions,
+    hasAutoAddPlaylistOptions,
+    inEditMode,
+    showAutoAddPlaylistSearch,
+  ]);
+
+  useEffect(() => {
+    if (!shouldShowAutoPublishPlaylistOption) {
+      setAutoPublishPlaylistUpdate(false);
+    }
+  }, [shouldShowAutoPublishPlaylistOption]);
 
   useEffect(() => {
     if (!modal) {
@@ -369,11 +498,23 @@ function UploadForm(props: Props) {
     }
 
     if (runPublish) {
+      const postPublishOptions =
+        autoAddPlaylistEnabled && autoAddPlaylistSelectionValue
+          ? {
+              addToPlaylist: {
+                collectionId: autoAddPlaylistSelectionValue,
+                position: autoAddPlaylistPosition,
+                autoPublish: shouldShowAutoPublishPlaylistOption && autoPublishPlaylistUpdate,
+                collectionName: selectedAutoAddPlaylist ? selectedAutoAddPlaylist.title : undefined,
+              },
+            }
+          : undefined;
+
       if (enablePublishPreview) {
         setPreviewing(true);
-        publish(outputFile, true);
+        publish(outputFile, true, postPublishOptions);
       } else {
-        publish(outputFile, false);
+        publish(outputFile, false, postPublishOptions);
       }
     }
   }
@@ -401,6 +542,7 @@ function UploadForm(props: Props) {
     missingRequiredFile ||
     formDisabled ||
     !formValid ||
+    autoAddPlaylistSelectionUnavailable ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
     previewing;
 
@@ -469,6 +611,111 @@ function UploadForm(props: Props) {
           <PublishProtectedContent claim={myClaimForUri} />
 
           <PublishPrice disabled={formDisabled} />
+
+          {hasAutoAddPlaylistOptions && !inEditMode && (
+            <Card
+              background
+              title={__('Add To Playlist (Optional)')}
+              body={
+                <div className="publish-row">
+                  <div className="section__actions section__actions--between">
+                    <Button
+                      button={autoAddPlaylistEnabled ? 'secondary' : 'alt'}
+                      icon={ICONS.PLAYLIST_ADD}
+                      label={autoAddPlaylistEnabled ? __('Will add after upload') : __('Auto add after upload')}
+                      onClick={() => setAutoAddPlaylistEnabled((prev) => !prev)}
+                    />
+                  </div>
+
+                  {autoAddPlaylistEnabled && (
+                    <>
+                      <p className="help">{__('Playlists are sorted by recently updated first.')}</p>
+
+                      {showAutoAddPlaylistSearch && (
+                        <FormField
+                          type="text"
+                          name="publish_auto_add_playlist_search"
+                          value={autoAddPlaylistSearch}
+                          placeholder={__('Search playlists...')}
+                          onChange={(e) => setAutoAddPlaylistSearch(e.target.value || '')}
+                        />
+                      )}
+
+                      <FormField
+                        type="select"
+                        name="publish_auto_add_playlist_id"
+                        label={__('Playlist')}
+                        value={autoAddPlaylistSelectionValue}
+                        onChange={(e) => {
+                          const value = e.target && e.target.value;
+                          if (value) {
+                            setAutoAddPlaylistId(value);
+                          }
+                        }}
+                      >
+                        {filteredAutoAddPlaylistOptions.length === 0 ? (
+                          <option value="">{__('No playlists match your search')}</option>
+                        ) : (
+                          filteredAutoAddPlaylistOptions.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.title}
+                              {option.isPublished ? __(' (Published)') : __(' (Draft)')}
+                              {option.itemCount > 0
+                                ? __(' (%count% items)', {
+                                    count: option.itemCount,
+                                  })
+                                : ''}
+                            </option>
+                          ))
+                        )}
+                      </FormField>
+
+                      {autoAddPlaylistSelectionUnavailable && (
+                        <p className="help">
+                          {__('No playlist matches your search. Clear the search or disable auto add to continue.')}
+                        </p>
+                      )}
+
+                      <FormField
+                        type="select"
+                        name="publish_auto_add_playlist_position"
+                        label={__('Insert')}
+                        value={autoAddPlaylistPosition}
+                        onChange={(e) => {
+                          const value = e.target && e.target.value;
+                          if (value === 'top' || value === 'bottom') {
+                            setAutoAddPlaylistPosition(value);
+                          }
+                        }}
+                      >
+                        <option value="top">{__('Add to top')}</option>
+                        <option value="bottom">{__('Add to bottom')}</option>
+                      </FormField>
+
+                      {shouldShowAutoPublishPlaylistOption && (
+                        <FormField
+                          type="select"
+                          name="publish_auto_add_playlist_publish"
+                          label={__('Publish playlist updates')}
+                          value={autoPublishPlaylistUpdate ? 'yes' : 'no'}
+                          onChange={(e) => setAutoPublishPlaylistUpdate((e.target && e.target.value) === 'yes')}
+                        >
+                          <option value="no">{__("Don't auto-publish updates")}</option>
+                          <option value="yes">{__('Auto-publish this playlist update')}</option>
+                        </FormField>
+                      )}
+
+                      <p className="help">
+                        {__(
+                          'Need more precise ordering than top/bottom? Save first, then fine-tune from the playlist editor.'
+                        )}
+                      </p>
+                    </>
+                  )}
+                </div>
+              }
+            />
+          )}
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}

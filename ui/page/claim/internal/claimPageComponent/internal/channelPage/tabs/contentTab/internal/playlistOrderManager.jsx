@@ -753,20 +753,24 @@ function PlaylistOrderManager(props: Props) {
           />
 
           <div className="playlist-order-editor__section-actions">
-            <Button
-              button="alt"
-              icon={ICONS.UP}
-              title={__('Move section up')}
-              onClick={() => handleMoveSection(section.id, -1)}
-              disabled={sectionIndex === 0}
-            />
-            <Button
-              button="alt"
-              icon={ICONS.DOWN}
-              title={__('Move section down')}
-              onClick={() => handleMoveSection(section.id, 1)}
-              disabled={sectionIndex === draftSections.length - 1}
-            />
+            {!dragMode && (
+              <>
+                <Button
+                  button="alt"
+                  icon={ICONS.UP}
+                  title={__('Move section up')}
+                  onClick={() => handleMoveSection(section.id, -1)}
+                  disabled={sectionIndex === 0}
+                />
+                <Button
+                  button="alt"
+                  icon={ICONS.DOWN}
+                  title={__('Move section down')}
+                  onClick={() => handleMoveSection(section.id, 1)}
+                  disabled={sectionIndex === draftSections.length - 1}
+                />
+              </>
+            )}
             <Button
               button="alt"
               icon={ICONS.DELETE}

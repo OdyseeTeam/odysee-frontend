@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
-import type { DoPublishDesktop } from 'redux/actions/publish';
+import type { DoPublishDesktop, PostPublishPlaylistOptions } from 'redux/actions/publish';
 
 import './style.scss';
 import Button from 'component/button';
@@ -27,6 +27,7 @@ import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 type Props = {
   publishPayload: PublishParams,
   previewResponse: PublishResponse,
+  postPublishOptions?: PostPublishPlaylistOptions,
   // --- internal ---
   type: PublishType,
   liveCreateType: LiveCreateType,
@@ -73,6 +74,7 @@ const ModalPublishPreview = (props: Props) => {
   const {
     publishPayload: payload,
     previewResponse,
+    postPublishOptions,
 
     type,
     liveCreateType,
@@ -133,6 +135,7 @@ const ModalPublishPreview = (props: Props) => {
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
+  const addToPlaylistOption = postPublishOptions && postPublishOptions.addToPlaylist;
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
@@ -323,6 +326,26 @@ const ModalPublishPreview = (props: Props) => {
     }
   }
 
+  function getPlaylistAutoAddValue() {
+    if (!addToPlaylistOption || !addToPlaylistOption.collectionId) {
+      return __('No');
+    }
+
+    const parts = [];
+    parts.push(
+      __('%playlist_name% (%position%)', {
+        playlist_name: addToPlaylistOption.collectionName || __('playlist'),
+        position: addToPlaylistOption.position === 'bottom' ? __('bottom') : __('top'),
+      })
+    );
+
+    if (addToPlaylistOption.autoPublish) {
+      parts.push(__('auto-publish updates'));
+    }
+
+    return parts.join(', ');
+  }
+
   function getTierRestrictionValue() {
     if (hideTierRestrictions()) {
       return null;
@@ -376,7 +399,7 @@ const ModalPublishPreview = (props: Props) => {
 
   function onConfirmed() {
     // Publish for real:
-    publish(getFilePathName(filePath), false);
+    publish(getFilePathName(filePath), false, postPublishOptions);
     // @if TARGET='app'
     closeModal();
     // @endif
@@ -416,6 +439,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Description'), getDescription())}
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
+                    {createRow(__('After upload'), getPlaylistAutoAddValue())}
                     {bid !== MINIMUM_PUBLISH_BID && createRow(__('Deposit'), getDeposit())}
                     {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}

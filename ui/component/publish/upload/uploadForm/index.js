@@ -10,6 +10,7 @@ import {
   selectPrevFileSizeTooBig,
 } from 'redux/selectors/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectMyPublishedCollections, selectMyUnpublishedCollections } from 'redux/selectors/collections';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as SETTINGS from 'constants/settings';
 import { doClaimInitialRewards } from 'redux/actions/rewards';
@@ -53,6 +54,8 @@ const select = (state) => {
     incognito: selectIncognito(state),
     isClaimingInitialRewards: selectIsClaimingInitialRewards(state),
     hasClaimedInitialRewards: selectHasClaimedInitialRewards(state),
+    myPublishedCollections: selectMyPublishedCollections(state),
+    myUnpublishedCollections: selectMyUnpublishedCollections(state),
   };
 };
 
@@ -60,7 +63,7 @@ const perform = (dispatch) => ({
   updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
   clearPublish: () => dispatch(doClearPublish()),
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
-  publish: (filePath, preview) => dispatch(doPublishDesktop(filePath, preview)),
+  publish: (filePath, preview, postPublishOptions) => dispatch(doPublishDesktop(filePath, preview, postPublishOptions)),
   resetThumbnailStatus: () => dispatch(doResetThumbnailStatus()),
   checkAvailability: (name) => dispatch(doCheckPublishNameAvailability(name)),
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),

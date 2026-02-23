@@ -6,14 +6,17 @@ import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
 import { NO_FILE, PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
+import { COL_TYPES } from 'constants/collections';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims, doResolveClaimIds } from 'redux/actions/claims';
 import { lighthouse } from 'redux/actions/search';
 import { selectProtectedContentMembershipsForContentClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
+import { doCollectionEdit, doCollectionPublish } from 'redux/actions/collections';
 import {
   makeSelectClaimForUri,
+  selectHasClaimForId,
   selectMyActiveClaims,
   selectMyClaims,
   selectMyChannelClaims,
@@ -24,12 +27,18 @@ import {
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectDefaultChannelClaim, selectShowMatureContent } from 'redux/selectors/settings';
 import {
+  selectCollectionForId,
+  selectCollectionForIdClaimForUriItem,
+  selectCollectionForIdHasClaimUrl,
+} from 'redux/selectors/collections';
+import {
+  selectCollectionClaimUploadParamsForId,
   selectPublishFormValue,
   selectPublishFormValues,
   selectIsStillEditing,
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
-import { doError } from 'redux/actions/notifications';
+import { doError, doToast } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
@@ -49,6 +58,139 @@ const PUBLISH_PATH_MAP = Object.freeze({
   post: PAGES.POST,
   livestream: PAGES.LIVESTREAM,
 });
+
+export type PostPublishPlaylistOptions = {
+  addToPlaylist?: {
+    collectionId: string,
+    collectionName?: string,
+    position?: 'top' | 'bottom',
+    autoPublish?: boolean,
+  },
+};
+
+function getPendingClaimUri(pendingClaim: any): ?string {
+  if (!pendingClaim) return null;
+
+  const uri = pendingClaim.permanent_url || pendingClaim.canonical_url;
+  if (typeof uri === 'string' && uri) {
+    return uri;
+  }
+
+  const name = pendingClaim.name;
+  const claimId = pendingClaim.claim_id;
+  if (typeof name === 'string' && name && typeof claimId === 'string' && claimId) {
+    return `lbry://${name}#${claimId}`;
+  }
+
+  return null;
+}
+
+function doAutoAddClaimToPlaylist(
+  pendingClaim: StreamClaim,
+  options: {
+    collectionId: string,
+    collectionName?: string,
+    position?: 'top' | 'bottom',
+    autoPublish?: boolean,
+  }
+) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const { collectionId, collectionName, position = 'top', autoPublish = false } = options;
+    if (!collectionId) return;
+
+    const uri = getPendingClaimUri(pendingClaim);
+    if (!uri) {
+      dispatch(
+        doToast({
+          message: __('Upload succeeded, but auto-add to playlist was skipped because no URI was available yet.'),
+          isError: true,
+        })
+      );
+      return;
+    }
+
+    const stateBeforeAdd = getState();
+    const collection = selectCollectionForId(stateBeforeAdd, collectionId);
+    if (!collection) {
+      dispatch(
+        doToast({
+          message: __('Could not add to playlist because it no longer exists.'),
+          isError: true,
+        })
+      );
+      return;
+    }
+
+    await dispatch(doCollectionEdit(collectionId, { uris: [uri], type: COL_TYPES.PLAYLIST }));
+
+    const stateAfterAdd = getState();
+    const wasAdded = selectCollectionForIdHasClaimUrl(stateAfterAdd, collectionId, uri);
+    if (!wasAdded) {
+      dispatch(
+        doToast({
+          message: __('Upload succeeded, but this item could not be added to %playlist_name%.', {
+            playlist_name: collectionName || __('playlist'),
+          }),
+          isError: true,
+        })
+      );
+      return;
+    }
+
+    if (position === 'top') {
+      const updatedCollection = selectCollectionForId(stateAfterAdd, collectionId);
+      const items = (updatedCollection && updatedCollection.items) || [];
+      const resolvedItem = selectCollectionForIdClaimForUriItem(stateAfterAdd, collectionId, uri) || uri;
+      const itemIndex = Array.isArray(items) ? items.findIndex((item) => item === resolvedItem) : -1;
+
+      if (itemIndex > 0) {
+        await dispatch(doCollectionEdit(collectionId, { order: { from: itemIndex, to: 0 }, type: COL_TYPES.PLAYLIST }));
+      }
+    }
+
+    dispatch(
+      doToast({
+        message: __('Added to %playlist_name%', {
+          playlist_name: collectionName || __('playlist'),
+        }),
+      })
+    );
+
+    if (autoPublish) {
+      const stateBeforePublish = getState();
+      const isPublishedCollection = selectHasClaimForId(stateBeforePublish, collectionId);
+      if (!isPublishedCollection) return;
+
+      const collectionParams = selectCollectionClaimUploadParamsForId(stateBeforePublish, collectionId);
+      if (collectionParams) {
+        try {
+          // $FlowFixMe: selector returns create/update compatible params for collections.
+          await dispatch(doCollectionPublish(collectionParams, collectionId));
+          dispatch(
+            doToast({
+              message: __('Playlist updates published automatically.'),
+            })
+          );
+        } catch (error) {
+          dispatch(
+            doToast({
+              message: __('Could not auto-publish playlist updates.'),
+              subMessage: error && error.message ? error.message : undefined,
+              isError: true,
+            })
+          );
+        }
+      } else {
+        dispatch(
+          doToast({
+            message: __('Could not auto-publish playlist updates.'),
+            isError: true,
+          })
+        );
+      }
+    }
+  };
+}
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -72,10 +214,14 @@ function resolveClaimTypeForAnalytics(claim) {
   }
 }
 
-export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
+export const doPublishDesktop = (
+  filePath: ?string | ?File,
+  preview?: boolean,
+  postPublishOptions?: PostPublishPlaylistOptions
+) => {
   return (dispatch: Dispatch, getState: () => State) => {
     const publishPreviewFn = (publishPayload, previewResponse) => {
-      dispatch(doOpenModal(MODALS.PUBLISH_PREVIEW, { publishPayload, previewResponse }));
+      dispatch(doOpenModal(MODALS.PUBLISH_PREVIEW, { publishPayload, previewResponse, postPublishOptions }));
     };
 
     const noFileParam = !filePath || filePath === NO_FILE;
@@ -106,6 +252,15 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
       };
 
       analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
+
+      if (
+        postPublishOptions &&
+        postPublishOptions.addToPlaylist &&
+        pendingClaim &&
+        pendingClaim.value_type === 'stream'
+      ) {
+        dispatch(doAutoAddClaimToPlaylist((pendingClaim: any), postPublishOptions.addToPlaylist));
+      }
 
       const { permanent_url: url } = pendingClaim;
       const actions = [];
@@ -181,6 +336,10 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
 
         if (memberRestrictionStatus.isRestricting) {
           message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
+        }
+
+        if (postPublishOptions && postPublishOptions.addToPlaylist) {
+          message = `${message} ${__('Automatic playlist add was skipped because the publish request timed out.')}`;
         }
       }
 

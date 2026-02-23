@@ -21,6 +21,7 @@ import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
 import withCollectionItems from 'hocs/withCollectionItems';
 import ErrorBubble from 'component/common/error-bubble';
+import { normalizePlaylistOrder, serializePlaylistOrderSections } from 'util/playlist-order';
 import './style.scss';
 
 export const PAGE_TAB_QUERY = `tab`;
@@ -28,6 +29,13 @@ export const PAGE_TAB_QUERY = `tab`;
 const TAB = {
   GENERAL: 0,
   ITEMS: 1,
+};
+
+const PLAYLIST_ORDER_DEFAULT_SECTION_ID = 'playlist-order-default';
+
+type PlaylistSectionOption = {
+  id: string,
+  label: string,
 };
 
 type Props = {
@@ -39,6 +47,8 @@ type Props = {
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
   isClaimPending: boolean,
   activeChannelClaim: ?ChannelClaim,
+  claimsById: { [string]: Claim },
+  settingsByChannelId: { [string]: PerChannelSettings },
   collectionHasEdits: boolean,
   collectionHasUnSavedEdits: boolean,
   hasUnavailableClaims: boolean,
@@ -47,6 +57,8 @@ type Props = {
   doClearEditsForCollectionId: (id: string) => void,
   doOpenModal: (id: string, props: {}) => void,
   doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
+  doFetchCreatorSettings: (channelId: string) => any,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 export const CollectionFormContext = React.createContext<any>();
@@ -61,6 +73,8 @@ const CollectionPublishForm = (props: Props) => {
     collectionParams,
     isClaimPending,
     activeChannelClaim,
+    claimsById,
+    settingsByChannelId,
     collectionHasEdits,
     collectionHasUnSavedEdits,
     hasUnavailableClaims,
@@ -69,6 +83,8 @@ const CollectionPublishForm = (props: Props) => {
     doClearEditsForCollectionId,
     doOpenModal,
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
+    doFetchCreatorSettings,
+    doUpdateCreatorSettings,
   } = props;
 
   const initialParams = React.useRef(collectionParams);
@@ -82,6 +98,7 @@ const CollectionPublishForm = (props: Props) => {
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
+  const isNewPlaylistPublish = publishing && !hasClaim;
 
   const [thumbailError, setThumbnailError] = React.useState();
   const [formParams, setFormParams] = React.useState(collectionParams);
@@ -90,6 +107,42 @@ const CollectionPublishForm = (props: Props) => {
   const [publishPending, setPublishPending] = React.useState(isClaimPending);
 
   const { claims } = formParams;
+  const selectedChannelId = formParams && formParams.channel_id;
+  const selectedChannelClaim = selectedChannelId ? claimsById && claimsById[selectedChannelId] : undefined;
+  const selectedChannelSettings = selectedChannelId
+    ? settingsByChannelId && settingsByChannelId[selectedChannelId]
+    : undefined;
+  const normalizedPlaylistOrder = React.useMemo(
+    () => normalizePlaylistOrder(selectedChannelSettings && selectedChannelSettings.playlist_order),
+    [selectedChannelSettings]
+  );
+  const playlistSectionOptions = React.useMemo((): Array<PlaylistSectionOption> => {
+    const sections = normalizedPlaylistOrder.sections || [];
+    if (!sections.length) {
+      return [
+        {
+          id: PLAYLIST_ORDER_DEFAULT_SECTION_ID,
+          label: __('Main section'),
+        },
+      ];
+    }
+
+    return sections.map((section, index) => {
+      const title = section.title && section.title.trim();
+      return {
+        id: section.id,
+        label:
+          title ||
+          __('Section %number%', {
+            number: index + 1,
+          }),
+      };
+    });
+  }, [normalizedPlaylistOrder]);
+  const [playlistTargetSectionId, setPlaylistTargetSectionId] = React.useState(
+    playlistSectionOptions[0] ? playlistSectionOptions[0].id : PLAYLIST_ORDER_DEFAULT_SECTION_ID
+  );
+  const [playlistInsertPosition, setPlaylistInsertPosition] = React.useState<'top' | 'bottom'>('top');
 
   const hasClaims = claims && claims.length;
   const itemError = publishing && !hasClaims ? __('Cannot publish empty list') : undefined;
@@ -99,6 +152,80 @@ const CollectionPublishForm = (props: Props) => {
     collectionHasUnSavedEdits ||
     JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
   const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
+
+  React.useEffect(() => {
+    if (!isNewPlaylistPublish || !selectedChannelId || selectedChannelSettings) {
+      return;
+    }
+
+    const maybePromise = doFetchCreatorSettings(selectedChannelId);
+    if (maybePromise && typeof maybePromise.catch === 'function') {
+      maybePromise.catch(() => {});
+    }
+  }, [isNewPlaylistPublish, selectedChannelId, selectedChannelSettings, doFetchCreatorSettings]);
+
+  React.useEffect(() => {
+    if (!isNewPlaylistPublish) return;
+
+    const hasSelectedOption = playlistSectionOptions.some((option) => option.id === playlistTargetSectionId);
+    if (!hasSelectedOption) {
+      setPlaylistTargetSectionId(
+        playlistSectionOptions[0] ? playlistSectionOptions[0].id : PLAYLIST_ORDER_DEFAULT_SECTION_ID
+      );
+    }
+  }, [isNewPlaylistPublish, playlistSectionOptions, playlistTargetSectionId]);
+
+  const updateChannelPlaylistOrderWithNewPlaylist = React.useCallback(
+    (newPlaylistId: string) => {
+      if (!isNewPlaylistPublish || !newPlaylistId) return;
+      if (!selectedChannelClaim || selectedChannelClaim.value_type !== 'channel') return;
+
+      const resolvedChannelClaim: ChannelClaim = (selectedChannelClaim: any);
+      const normalizedOrder = normalizePlaylistOrder(selectedChannelSettings && selectedChannelSettings.playlist_order);
+      const sections = normalizedOrder.sections.map((section) => ({
+        id: section.id,
+        title: section.title,
+        itemIds: section.itemIds.filter((id) => id !== newPlaylistId),
+      }));
+
+      const targetSectionId = playlistTargetSectionId || sections[0]?.id || PLAYLIST_ORDER_DEFAULT_SECTION_ID;
+      let targetSectionIndex = sections.findIndex((section) => section.id === targetSectionId);
+
+      if (targetSectionIndex === -1) {
+        sections.push({
+          id: targetSectionId,
+          title: '',
+          itemIds: [],
+        });
+        targetSectionIndex = sections.length - 1;
+      }
+
+      const targetSection = sections[targetSectionIndex];
+      const nextItemIds = targetSection.itemIds.slice();
+      if (playlistInsertPosition === 'bottom') {
+        nextItemIds.push(newPlaylistId);
+      } else {
+        nextItemIds.unshift(newPlaylistId);
+      }
+
+      sections[targetSectionIndex] = {
+        ...targetSection,
+        itemIds: nextItemIds,
+      };
+
+      doUpdateCreatorSettings(resolvedChannelClaim, {
+        playlist_order: serializePlaylistOrderSections(sections),
+      });
+    },
+    [
+      doUpdateCreatorSettings,
+      isNewPlaylistPublish,
+      playlistInsertPosition,
+      playlistTargetSectionId,
+      selectedChannelClaim,
+      selectedChannelSettings,
+    ]
+  );
 
   function updateFormParams(newParams: {}) {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
@@ -111,6 +238,10 @@ const CollectionPublishForm = (props: Props) => {
       setPublishPending(false);
 
       if (pendingClaim) {
+        if (isNewPlaylistPublish && pendingClaim.claim_id) {
+          updateChannelPlaylistOrderWithNewPlaylist(pendingClaim.claim_id);
+        }
+
         const claimId = pendingClaim.claim_id;
         analytics.apiLog.publish(pendingClaim);
         onDoneForId(claimId);
@@ -224,6 +355,12 @@ const CollectionPublishForm = (props: Props) => {
                   formParams={formParams}
                   setThumbnailError={setThumbnailError}
                   updateFormParams={updateFormParams}
+                  isNewPlaylistPublish={isNewPlaylistPublish}
+                  playlistSectionOptions={playlistSectionOptions}
+                  playlistTargetSectionId={playlistTargetSectionId}
+                  playlistInsertPosition={playlistInsertPosition}
+                  onPlaylistTargetSectionChange={setPlaylistTargetSectionId}
+                  onPlaylistInsertPositionChange={setPlaylistInsertPosition}
                 />
               )}
             </TabPanel>
