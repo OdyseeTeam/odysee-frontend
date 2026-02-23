@@ -208,7 +208,13 @@ export default function YoutubeSync(props: Props) {
                     <Button button="link" label={__('Skip')} onClick={() => doToggleInterestedInYoutubeSync()} />
                   )}
 
-                  {hasYoutubeAuthError && <Button button="link" label={__('Skip')} navigate={`/$/${PAGES.REWARDS}`} />}
+                  {hasYoutubeAuthError && (
+                    <Button
+                      button="link"
+                      label={__('Skip')}
+                      navigate={`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`}
+                    />
+                  )}
                 </div>
                 <div className="help--card-actions">
                   <I18nMessage
