@@ -941,6 +941,15 @@ body {
   .checkbox {
     margin-bottom: var(--spacing-m);
   }
+
+  .card--youtube-sync {
+    .nag--error.nag--relative {
+      left: 0;
+      right: 0;
+      bottom: auto;
+      margin-top: var(--spacing-s);
+    }
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
