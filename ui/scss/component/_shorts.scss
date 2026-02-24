@@ -1,12 +1,77 @@
-.shorts-preview {
+.shorts-transition-preview {
+  --shorts-preview-translate-x: calc(-50% - 6px);
   position: fixed;
-  top: -9999px;
-  left: -9999px;
+  top: 0;
+  left: 50%;
+  width: 380px;
+  height: 90vh;
+  margin-top: 60px;
+  z-index: 10002;
+  opacity: 0;
   pointer-events: none;
+  background: #000;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow: hidden;
   border-radius: 10px;
 
+  &--panel-open {
+    --shorts-preview-translate-x: -130%;
+
+    @media (max-width: $breakpoint-small) {
+      --shorts-preview-translate-x: 0;
+    }
+
+    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
+      --shorts-preview-translate-x: -105%;
+    }
+  }
+
+  &--next {
+    opacity: 1;
+    animation: shorts-preview-next 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  &--previous {
+    opacity: 1;
+    animation: shorts-preview-previous 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @media (min-width: $breakpoint-large) {
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
+  }
+
+  @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
+    width: 350px;
+  }
+
   @media (max-width: $breakpoint-small) {
+    --shorts-preview-translate-x: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    margin-top: 0;
     border-radius: 0;
+  }
+}
+
+@keyframes shorts-preview-next {
+  from {
+    transform: translate(var(--shorts-preview-translate-x), 105%);
+  }
+  to {
+    transform: translate(var(--shorts-preview-translate-x), 0);
+  }
+}
+
+@keyframes shorts-preview-previous {
+  from {
+    transform: translate(var(--shorts-preview-translate-x), -105%);
+  }
+  to {
+    transform: translate(var(--shorts-preview-translate-x), 0);
   }
 }
 
@@ -646,7 +711,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts-page,
 .main--shorts-page {
-  .content__cover {
+  .content__cover--shorts {
     width: 380px !important;
     height: 90vh !important;
     max-height: 90vh !important;

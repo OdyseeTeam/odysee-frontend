@@ -75,7 +75,7 @@ const select = (state, props) => {
     autoplayCountdownUri,
     canViewFile: selectCanViewFileForUri(state, uri),
     sidePanelOpen: selectShortsSidePanelOpen(state),
-    isClaimShort: isClaimShort(claim),
+    isClaimShort: typeof playingUri.isShort === 'boolean' ? playingUri.isShort : isClaimShort(claim),
     disableShortsView: !!collectionSidebarId || selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
   };
 };

@@ -1,5 +1,6 @@
 // @flow
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { useIsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
@@ -15,8 +16,14 @@ import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import { useOnResize } from 'effects/use-on-resize';
+import classnames from 'classnames';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
+const REEL_TRANSITION_MS = 320;
+const REEL_NAVIGATION_FALLBACK_MS = 1200;
+
+type ReelDirection = 'next' | 'previous';
+
 let ORIGINAL_AUTOPLAY_SETTING = null;
 
 type Props = {
@@ -122,15 +129,23 @@ export default function ShortsPage(props: Props) {
   const fypId = urlParams.get(FYP_ID);
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
-  const scrollLockRef = React.useRef(false);
+  const wheelLockRef = React.useRef(false);
   const [localViewMode, setLocalViewMode] = React.useState(
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
   const [videoStarted, setVideoStarted] = React.useState(false);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
-  const nextPreviewRef = React.useRef(null);
-  const prevPreviewRef = React.useRef(null);
+  const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [transitionDirection, setTransitionDirection] = React.useState<?ReelDirection>(null);
+  const [transitionThumbnailUrl, setTransitionThumbnailUrl] = React.useState<?string>(null);
+  const transitionQueueRef = React.useRef<Array<ReelDirection>>([]);
+  const transitionTimerRef = React.useRef<?TimeoutID>(null);
+  const transitionFallbackTimerRef = React.useRef<?TimeoutID>(null);
+  const activeTransitionRef = React.useRef<?{ sourceUri: string, targetUri: string, direction: ReelDirection }>(null);
+  const isTransitioningRef = React.useRef(false);
+  const processNextTransitionRef = React.useRef<any>(() => {});
+  const finishTransitionRef = React.useRef<any>(() => {});
 
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
   const isAtStart = currentIndex <= 0;
@@ -383,6 +398,10 @@ export default function ShortsPage(props: Props) {
   }, [sidePanelOpen, setShortViewerWidthFromVideo]);
 
   React.useEffect(() => {
+    hasInitializedRef.current = false;
+  }, [uri]);
+
+  React.useEffect(() => {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
       if (isShortFromChannelPage) {
@@ -438,11 +457,116 @@ export default function ShortsPage(props: Props) {
     hasEnsuredViewParam.current = true;
   }, [search, history]);
 
+  const getShortsUrl = React.useCallback((shortUri: string) => {
+    return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+  }, []);
+
+  const clearTransitionTimers = React.useCallback(() => {
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+    if (transitionFallbackTimerRef.current) {
+      clearTimeout(transitionFallbackTimerRef.current);
+      transitionFallbackTimerRef.current = null;
+    }
+  }, []);
+
+  const finishTransition = React.useCallback(
+    (shouldContinueQueue: boolean = true) => {
+      clearTransitionTimers();
+      activeTransitionRef.current = null;
+      isTransitioningRef.current = false;
+      setIsTransitioning(false);
+      setTransitionDirection(null);
+      setTransitionThumbnailUrl(null);
+
+      if (document.body) {
+        document.body.style.overflow = '';
+      }
+
+      if (shouldContinueQueue) {
+        requestAnimationFrame(() => {
+          processNextTransitionRef.current();
+        });
+      }
+    },
+    [clearTransitionTimers]
+  );
+  finishTransitionRef.current = finishTransition;
+
+  const processNextQueuedTransition = React.useCallback(() => {
+    if (isTransitioningRef.current) return;
+
+    while (transitionQueueRef.current.length > 0) {
+      const direction = transitionQueueRef.current.shift();
+      if (!direction) continue;
+
+      const targetUri = direction === 'next' ? nextRecommendedShort : previousRecommendedShort;
+      if (!targetUri) continue;
+
+      const transitionThumb = direction === 'next' ? nextThumbnail : previousThumbnail;
+      const previewSrc =
+        transitionThumb && !autoplayMedia ? getThumbnailCdnUrl({ thumbnail: transitionThumb, isShorts: true }) : null;
+
+      isTransitioningRef.current = true;
+      activeTransitionRef.current = { sourceUri: uri, targetUri, direction };
+      setIsTransitioning(true);
+      setTransitionDirection(direction);
+      setTransitionThumbnailUrl(previewSrc || null);
+      clearTransitionTimers();
+
+      if (window.player) {
+        window.player.pause();
+      }
+      if (document.body) {
+        document.body.style.overflow = 'hidden';
+      }
+
+      transitionTimerRef.current = setTimeout(() => {
+        const activeTransition = activeTransitionRef.current;
+        if (!activeTransition) return;
+
+        clearPosition(activeTransition.sourceUri);
+        history.replace(getShortsUrl(activeTransition.targetUri));
+
+        if (activeTransition.direction === 'next' && claimId) {
+          const nextClaimId = activeTransition.targetUri.split('#')[1] || activeTransition.targetUri.split('/').pop();
+          onRecommendationClicked(claimId, nextClaimId);
+        }
+
+        transitionFallbackTimerRef.current = setTimeout(() => {
+          transitionQueueRef.current = [];
+          finishTransitionRef.current(false);
+        }, REEL_NAVIGATION_FALLBACK_MS);
+      }, REEL_TRANSITION_MS);
+      break;
+    }
+  }, [
+    nextRecommendedShort,
+    previousRecommendedShort,
+    nextThumbnail,
+    previousThumbnail,
+    autoplayMedia,
+    uri,
+    clearTransitionTimers,
+    clearPosition,
+    history,
+    getShortsUrl,
+    claimId,
+    onRecommendationClicked,
+  ]);
+  processNextTransitionRef.current = processNextQueuedTransition;
+
+  const queueTransition = React.useCallback((direction: ReelDirection) => {
+    transitionQueueRef.current.push(direction);
+    processNextTransitionRef.current();
+  }, []);
+
   const goToNext = React.useCallback(() => {
-    if (!nextRecommendedShort || isAtEnd) {
+    if (!isTransitioningRef.current && (!nextRecommendedShort || isAtEnd)) {
       return;
     }
-    scrollLockRef.current = true;
 
     if (!firstShortPlayedRef.current) {
       firstShortPlayedRef.current = true;
@@ -454,231 +578,55 @@ export default function ShortsPage(props: Props) {
       doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
     }
 
-    if (window.player) window.player.pause();
-
-    if (document.body) document.body.style.overflow = 'hidden';
-
-    const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
-    const overlayEl = document.querySelector('.swipe-navigation-overlay');
-    const previewEl = nextPreviewRef.current;
-
-    if (videoEl) {
-      const isMobile = window.innerWidth <= 768;
-      const videoRect = videoEl.getBoundingClientRect();
-
-      if (previewEl) {
-        const videoCenterX = videoRect.left + videoRect.width / 2;
-        previewEl.style.position = 'fixed';
-        previewEl.style.width = videoRect.width + 'px';
-        previewEl.style.height = videoRect.height + 'px';
-        previewEl.style.left = videoCenterX + 'px';
-        previewEl.style.top = videoRect.bottom + 'px';
-        previewEl.style.zIndex = '2';
-        previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = 'translate(-50%, 0)';
-        if (nextThumbnail && !autoplayMedia) {
-          const thumbUrl = getThumbnailCdnUrl({ thumbnail: nextThumbnail, isShorts: true });
-          previewEl.style.backgroundImage = `url(${String(thumbUrl)})`;
-          previewEl.style.backgroundSize = 'cover';
-          previewEl.style.backgroundPosition = 'center';
-        } else {
-          previewEl.style.backgroundImage = 'none';
-        }
-        void previewEl.offsetHeight;
-        previewEl.style.transition = 'transform 0.3s ease';
-      }
-
-      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      if (overlayEl) overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      void videoEl.offsetHeight;
-
-      requestAnimationFrame(() => {
-        const videoTranslateY = -(videoRect.height + videoRect.top);
-        const previewTranslateY = -videoRect.height;
-        if (isMobile) {
-          videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
-          if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-        } else {
-          const computedStyle = window.getComputedStyle(videoEl);
-          // $FlowFixMe
-          const matrix = new DOMMatrix(computedStyle.transform);
-          const currentXpx = matrix.m41;
-          videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
-          if (overlayEl) {
-            // $FlowFixMe
-            const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
-            overlayEl.style.setProperty(
-              'transform',
-              `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`,
-              'important'
-            );
-          }
-        }
-      });
-    }
-
-    setTimeout(() => {
-      clearPosition(uri);
-      const shortsUrl = nextRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
-      history.replace(shortsUrl);
-
-      const currentClaimId = claimId;
-      if (currentClaimId) {
-        const nextClaimId = nextRecommendedShort.split('#')[1] || nextRecommendedShort.split('/').pop();
-        onRecommendationClicked(currentClaimId, nextClaimId);
-      }
-
-      setTimeout(() => {
-        const newVideoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
-        const newOverlayEl = document.querySelector('.swipe-navigation-overlay');
-
-        if (newVideoEl) {
-          newVideoEl.style.removeProperty('transform');
-          newVideoEl.style.removeProperty('transition');
-        }
-        if (newOverlayEl) {
-          newOverlayEl.style.removeProperty('transform');
-          newOverlayEl.style.removeProperty('transition');
-        }
-        if (previewEl) {
-          previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
-        }
-        scrollLockRef.current = false;
-        if (document.body) document.body.style.overflow = '';
-      }, 100);
-    }, 350);
-  }, [
-    nextRecommendedShort,
-    isAtEnd,
-    uri,
-    clearPosition,
-    history,
-    claimId,
-    onRecommendationClicked,
-    autoPlayNextShort,
-    doSetClientSetting,
-    nextThumbnail,
-    autoplayMedia,
-  ]);
+    queueTransition('next');
+  }, [nextRecommendedShort, isAtEnd, autoPlayNextShort, doSetClientSetting, queueTransition]);
 
   const goToPrevious = React.useCallback(() => {
-    if (!previousRecommendedShort || isAtStart) return;
+    if (!isTransitioningRef.current && (!previousRecommendedShort || isAtStart)) return;
+    queueTransition('previous');
+  }, [previousRecommendedShort, isAtStart, queueTransition]);
 
-    if (window.player) window.player.pause();
-
-    if (document.body) document.body.style.overflow = 'hidden';
-
-    const videoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
-    const overlayEl = document.querySelector('.swipe-navigation-overlay');
-    const previewEl = prevPreviewRef.current;
-
-    if (videoEl) {
-      const isMobile = window.innerWidth <= 768;
-      const videoRect = videoEl.getBoundingClientRect();
-
-      if (previewEl) {
-        const videoCenterX = videoRect.left + videoRect.width / 2;
-        previewEl.style.position = 'fixed';
-        previewEl.style.width = videoRect.width + 'px';
-        previewEl.style.height = videoRect.height + 'px';
-        previewEl.style.left = videoCenterX + 'px';
-        previewEl.style.top = videoRect.top - videoRect.height + 'px';
-        previewEl.style.zIndex = '2';
-        previewEl.style.backgroundColor = '#000';
-        previewEl.style.transform = 'translate(-50%, 0)';
-        if (previousThumbnail && !autoplayMedia) {
-          const thumbUrl = getThumbnailCdnUrl({ thumbnail: previousThumbnail, isShorts: true });
-          previewEl.style.backgroundImage = `url(${String(thumbUrl)})`;
-          previewEl.style.backgroundSize = 'cover';
-          previewEl.style.backgroundPosition = 'center';
-        } else {
-          previewEl.style.backgroundImage = 'none';
-        }
-        void previewEl.offsetHeight;
-        previewEl.style.transition = 'transform 0.3s ease';
-      }
-
-      videoEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      if (overlayEl) overlayEl.style.setProperty('transition', 'transform 0.3s ease', 'important');
-      void videoEl.offsetHeight;
-
-      requestAnimationFrame(() => {
-        const videoTranslateY = window.innerHeight - videoRect.top;
-        const previewTranslateY = videoRect.height;
-        if (isMobile) {
-          videoEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
-          if (overlayEl) overlayEl.style.setProperty('transform', `translateY(${videoTranslateY}px)`, 'important');
-        } else {
-          const computedStyle = window.getComputedStyle(videoEl);
-          // $FlowFixMe
-          const matrix = new DOMMatrix(computedStyle.transform);
-          const currentXpx = matrix.m41;
-          videoEl.style.setProperty('transform', `translate(${currentXpx}px, ${videoTranslateY}px)`, 'important');
-          if (previewEl) previewEl.style.transform = `translate(-50%, ${previewTranslateY}px)`;
-          if (overlayEl) {
-            // $FlowFixMe
-            const overlayMatrix = new DOMMatrix(window.getComputedStyle(overlayEl).transform);
-            overlayEl.style.setProperty(
-              'transform',
-              `translate(${overlayMatrix.m41}px, ${videoTranslateY}px)`,
-              'important'
-            );
-          }
-        }
-      });
+  React.useEffect(() => {
+    const activeTransition = activeTransitionRef.current;
+    if (!activeTransition) return;
+    if (uri !== activeTransition.sourceUri) {
+      finishTransitionRef.current();
     }
+  }, [uri]);
 
-    setTimeout(() => {
-      clearPosition(uri);
-      const shortsUrl = previousRecommendedShort.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
-      history.replace(shortsUrl);
-
-      setTimeout(() => {
-        const newVideoEl = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover');
-        const newOverlayEl = document.querySelector('.swipe-navigation-overlay');
-
-        if (newVideoEl) {
-          newVideoEl.style.removeProperty('transform');
-          newVideoEl.style.removeProperty('transition');
-        }
-        if (newOverlayEl) {
-          newOverlayEl.style.removeProperty('transform');
-          newOverlayEl.style.removeProperty('transition');
-        }
-        if (previewEl) {
-          previewEl.style.cssText = 'position: fixed; top: -9999px; left: -9999px;';
-        }
-        if (document.body) document.body.style.overflow = '';
-      }, 100);
-    }, 350);
-  }, [previousRecommendedShort, isAtStart, uri, clearPosition, history, previousThumbnail, autoplayMedia]);
+  React.useEffect(() => {
+    return () => {
+      transitionQueueRef.current = [];
+      clearTransitionTimers();
+      activeTransitionRef.current = null;
+      isTransitioningRef.current = false;
+      if (document.body) {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [clearTransitionTimers]);
 
   const handleScroll = React.useCallback(
     (e) => {
-      if (mobileModalOpen) return;
-      if (scrollLockRef.current) return;
+      if (mobileModalOpen || wheelLockRef.current) return;
 
       const { clientX, clientY } = e;
-
       if (isSwipeInsideSidePanel(clientX, clientY)) {
-        scrollLockRef.current = false;
         return e.stopPropagation();
       }
-      e.preventDefault();
-      scrollLockRef.current = true;
+      if (Math.abs(e.deltaY) < 8) return;
 
+      e.preventDefault();
+      wheelLockRef.current = true;
       if (e.deltaY > 0) {
         goToNext();
-      } else if (e.deltaY < 0) {
+      } else {
         goToPrevious();
       }
 
       setTimeout(() => {
-        scrollLockRef.current = false;
-      }, 500);
+        wheelLockRef.current = false;
+      }, 120);
     },
     [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
   );
@@ -691,10 +639,15 @@ export default function ShortsPage(props: Props) {
     return () => container.removeEventListener('wheel', handleScroll);
   }, [handleScroll]);
 
+  const transitionPreviewStyle = transitionThumbnailUrl
+    ? {
+        backgroundImage: `url(${String(transitionThumbnailUrl)})`,
+      }
+    : undefined;
+  const transitionPreviewTarget = typeof document !== 'undefined' ? document.body : null;
+
   return (
     <>
-      <div ref={nextPreviewRef} className="shorts-preview shorts-preview--next" />
-      <div ref={prevPreviewRef} className="shorts-preview shorts-preview--prev" />
       {videoStarted && (
         <SwipeNavigationPortal
           onNext={goToNext}
@@ -724,7 +677,22 @@ export default function ShortsPage(props: Props) {
           handleShareClick={handleShareClick}
         />
       )}
-      <div className="shorts-page" ref={shortsContainerRef}>
+      {transitionPreviewTarget &&
+        createPortal(
+          <div
+            className={classnames('shorts-transition-preview', {
+              'shorts-transition-preview--next': isTransitioning && transitionDirection === 'next',
+              'shorts-transition-preview--previous': isTransitioning && transitionDirection === 'previous',
+              'shorts-transition-preview--panel-open': sidePanelOpen,
+            })}
+            style={transitionPreviewStyle}
+          />,
+          transitionPreviewTarget
+        )}
+      <div
+        className={classnames('shorts-page', { 'shorts-page--transitioning': isTransitioning })}
+        ref={shortsContainerRef}
+      >
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
           <div className="shorts-page__main-content">
             <div className="shorts-page__video-section">

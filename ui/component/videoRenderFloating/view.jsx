@@ -131,8 +131,8 @@ function VideoRenderFloating(props: Props) {
   const { state } = location;
   const { overrideFloating } = state || {};
 
-  const urlParams = new URLSearchParams(location.search);
-  const isShortVideo = urlParams.get('view') === 'shorts' || isClaimShort;
+  const isShortVideo = Boolean(isClaimShort && (!disableShortsView || isFloating));
+  const isShortsFloating = isFloating && isShortVideo;
 
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
@@ -146,12 +146,12 @@ function VideoRenderFloating(props: Props) {
 
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
-  const noFloatingPlayer =
-    !overrideFloating && (!isFloating || !floatingPlayerEnabled || (isClaimShort && !disableShortsView));
+  const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled);
 
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);
+  const shortsFloatingWrapperRef = React.useRef();
   const [forceDisable, setForceDisable] = React.useState(false);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
@@ -160,9 +160,13 @@ function VideoRenderFloating(props: Props) {
   // allows displaying overlays like membership/paid/rental for restrictions even when floating
   const showStreamPlaceholder = cancelledAutoPlayCountdown && !canViewFile;
 
+  // Avoid forcing collection query params for floating shorts title navigation.
+  const includeCollectionQueryInTitleNav = Boolean(collectionId && !isShortsFloating);
   const navigateUrl = uri
-    ? formatLbryUrlForWeb(uri) + (collectionId ? generateListSearchUrlParams(collectionId) : '')
+    ? formatLbryUrlForWeb(uri) + (includeCollectionQueryInTitleNav ? generateListSearchUrlParams(collectionId) : '')
     : '';
+  const shortsMetaLabel = channelUrl ? formatLbryChannelName(channelUrl) : '';
+  const channelNavigateUrl = channelUrl ? formatLbryUrlForWeb(channelUrl) : '';
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   // const [isPortraitVideo, setIsPortraitVideo] = React.useState(false);
@@ -322,6 +326,27 @@ function VideoRenderFloating(props: Props) {
   }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
 
   React.useEffect(() => {
+    const wrapperNode = shortsFloatingWrapperRef.current;
+    if (!(wrapperNode instanceof Element) || !isShortsFloating) return;
+
+    const blockDoubleClickFullscreen = (event: Event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Prevent downstream handlers (including VideoJS) from seeing this dblclick.
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+    };
+
+    wrapperNode.addEventListener('dblclick', blockDoubleClickFullscreen, true);
+
+    return () => {
+      wrapperNode.removeEventListener('dblclick', blockDoubleClickFullscreen, true);
+    };
+  }, [isShortsFloating]);
+
+  React.useEffect(() => {
     return () => {
       if (uri) {
         // erase the playerHeight data so it can be re-calculated
@@ -364,7 +389,6 @@ function VideoRenderFloating(props: Props) {
     if (isDraggingVideojsComponent(e)) {
       return false;
     }
-
     // Not really necessary, but reset just in case 'handleStop' didn't fire.
     setWasDragging(false);
   }
@@ -389,7 +413,9 @@ function VideoRenderFloating(props: Props) {
       return false;
     }
 
-    if (wasDragging) setWasDragging(false);
+    // Always clear drag click-shield after drag end.
+    setWasDragging(false);
+
     const { x, y } = ui;
     let newPos = { x, y };
 
@@ -436,9 +462,10 @@ function VideoRenderFloating(props: Props) {
         <div
           id="abcd"
           className={classnames({
-            [CONTENT_VIEWER_CLASS]: !isShortVideo || disableShortsView,
-            [SHORTS_VIEWER_CLASS]: isShortVideo && !disableShortsView && !isFloating,
+            [CONTENT_VIEWER_CLASS]: !isShortVideo,
+            [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
+            'content__viewer--shorts-floating': isShortsFloating,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
@@ -461,7 +488,13 @@ function VideoRenderFloating(props: Props) {
               : {}
           }
         >
-          <div className={classnames('content__wrapper', { 'content__wrapper--floating': isFloating })}>
+          <div
+            className={classnames('content__wrapper', {
+              'content__wrapper--floating': isFloating,
+              'content__wrapper--shorts-floating': isShortsFloating,
+            })}
+            ref={shortsFloatingWrapperRef}
+          >
             {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
 
             {isFloating && (
@@ -498,13 +531,20 @@ function VideoRenderFloating(props: Props) {
 
             {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
             {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
-              <FloatingRender uri={uri} draggable={draggable} />
+              <FloatingRender
+                uri={uri}
+                draggable={draggable}
+                isShortsContext={isShortVideo}
+                isFloatingContext={isFloating}
+                forceRenderStream={isFloating}
+              />
             )}
 
             {isFloating && (
               <div
                 className={classnames('content__info', {
                   draggable: !isMobile,
+                  'content__info--shorts-floating': isShortsFloating,
                   'content-info__playlist': playingCollection,
                 })}
               >
@@ -517,11 +557,29 @@ function VideoRenderFloating(props: Props) {
                       className="content__floating-link"
                     />
                   </div>
-                  <ChannelThumbnail xxsmall uri={channelUrl} />
-                  <UriIndicator link uri={uri} />
+                  {isShortsFloating ? (
+                    channelNavigateUrl ? (
+                      <Button navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
+                        <ChannelThumbnail xxsmall uri={channelUrl} />
+                        {shortsMetaLabel && (
+                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="content__shorts-floating-channel">
+                        <ChannelThumbnail xxsmall uri={channelUrl} />
+                        {shortsMetaLabel && (
+                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <ChannelThumbnail xxsmall uri={channelUrl} />
+                  )}
+                  {!isShortsFloating && <UriIndicator link uri={uri} />}
                 </div>
 
-                {playingCollection && collectionSidebarId !== collectionId && (
+                {!isShortsFloating && playingCollection && collectionSidebarId !== collectionId && (
                   <React.Suspense fallback={null}>
                     <PlaylistCard
                       id={collectionId}
@@ -776,8 +834,25 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   );
 };
 
-const FloatingRender = withStreamClaimRender(({ uri, draggable }: { uri: string, draggable: boolean }) => (
-  <VideoRender className={classnames({ draggable })} uri={uri} />
-));
+const FloatingRender = withStreamClaimRender(
+  ({
+    uri,
+    draggable,
+    isShortsContext,
+    isFloatingContext,
+  }: {
+    uri: string,
+    draggable: boolean,
+    isShortsContext?: boolean,
+    isFloatingContext?: boolean,
+  }) => (
+    <VideoRender
+      className={classnames({ draggable })}
+      uri={uri}
+      isShortsContext={isShortsContext}
+      isFloatingContext={isFloatingContext}
+    />
+  )
+);
 
 export default VideoRenderFloating;

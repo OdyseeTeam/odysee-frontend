@@ -91,7 +91,7 @@ const SwipeNavigationPortal = React.memo<Props>(
     doFetchReactions,
     handleShareClick,
   }: Props) => {
-    const scrollLockRef = React.useRef(false);
+    const wheelLockRef = React.useRef(false);
 
     React.useEffect(() => {
       function fetchReactions() {
@@ -145,9 +145,9 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     const handleWheel = React.useCallback(
       (e) => {
-        if (!isEnabled || scrollLockRef.current) return;
+        if (!isEnabled || wheelLockRef.current) return;
         e.preventDefault();
-        scrollLockRef.current = true;
+        wheelLockRef.current = true;
 
         if (e.deltaY > 0) {
           onNext();
@@ -156,8 +156,8 @@ const SwipeNavigationPortal = React.memo<Props>(
         }
 
         setTimeout(() => {
-          scrollLockRef.current = false;
-        }, 500);
+          wheelLockRef.current = false;
+        }, 120);
       },
       [onNext, onPrevious, isEnabled]
     );
