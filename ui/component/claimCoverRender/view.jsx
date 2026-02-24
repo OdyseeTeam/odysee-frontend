@@ -23,6 +23,7 @@ type Props = {
   enableSwipe?: boolean,
   // -- redux --
   claimThumbnail?: string,
+  isShortClaim: boolean,
   obscurePreview: boolean,
   renderMode: string,
   videoTheaterMode: boolean,
@@ -42,6 +43,7 @@ const ClaimCoverRender = (props: Props) => {
     enableSwipe,
     // -- redux --
     claimThumbnail,
+    isShortClaim,
     obscurePreview,
     renderMode,
     videoTheaterMode,
@@ -59,7 +61,8 @@ const ClaimCoverRender = (props: Props) => {
 
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
-  const thumbnail = useGetPoster(claimThumbnail, isShortsParam);
+  const isShorts = isShortsParam || isShortClaim;
+  const thumbnail = useGetPoster(claimThumbnail, isShorts);
 
   const swipeRef = useSwipeNavigation({
     onSwipeNext,

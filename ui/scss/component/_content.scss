@@ -638,7 +638,7 @@
         video {
           width: 100%;
           height: 100%;
-          object-fit: contain;
+          object-fit: cover;
           border-radius: 10px !important;
         }
       }
@@ -652,7 +652,7 @@
     .vjs-tech {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
     }
 
     .vjs-control-bar {
@@ -847,9 +847,9 @@
   }
 
   @media (min-width: $breakpoint-medium) {
-    width: var(--shorts-viewer-width, 28vw) !important;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     .content__wrapper {
-      width: var(--shorts-viewer-width, 28vw) !important;
+      width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
   }
 
