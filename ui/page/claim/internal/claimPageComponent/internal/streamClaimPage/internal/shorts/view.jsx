@@ -689,6 +689,22 @@ export default function ShortsPage(props: Props) {
           />,
           transitionPreviewTarget
         )}
+      {transitionPreviewTarget &&
+        createPortal(
+          <div
+            className={classnames('shorts-transition-current', {
+              'shorts-transition-current--next': isTransitioning && transitionDirection === 'next',
+              'shorts-transition-current--previous': isTransitioning && transitionDirection === 'previous',
+              'shorts-transition-current--panel-open': sidePanelOpen,
+            })}
+            style={
+              thumbnail
+                ? { backgroundImage: `url(${String(getThumbnailCdnUrl({ thumbnail, isShorts: true }))})` }
+                : undefined
+            }
+          />,
+          transitionPreviewTarget
+        )}
       <div
         className={classnames('shorts-page', { 'shorts-page--transitioning': isTransitioning })}
         ref={shortsContainerRef}

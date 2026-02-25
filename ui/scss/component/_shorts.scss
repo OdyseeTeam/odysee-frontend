@@ -6,7 +6,7 @@
   width: 380px;
   height: 90vh;
   margin-top: 60px;
-  z-index: 10002;
+  z-index: 2;
   opacity: 0;
   pointer-events: none;
   background: #000;
@@ -54,6 +54,84 @@
     height: 100svh;
     margin-top: 0;
     border-radius: 0;
+  }
+}
+
+.shorts-transition-current {
+  --shorts-preview-translate-x: calc(-50% - 6px);
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 380px;
+  height: 90vh;
+  margin-top: 60px;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  background: #000;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow: hidden;
+  border-radius: 10px;
+  transform: translate(var(--shorts-preview-translate-x), 0);
+
+  &--panel-open {
+    --shorts-preview-translate-x: -130%;
+
+    @media (max-width: $breakpoint-small) {
+      --shorts-preview-translate-x: 0;
+    }
+
+    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
+      --shorts-preview-translate-x: -105%;
+    }
+  }
+
+  &--next {
+    opacity: 1;
+    animation: shorts-current-next 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  &--previous {
+    opacity: 1;
+    animation: shorts-current-previous 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @media (min-width: $breakpoint-large) {
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
+  }
+
+  @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
+    width: 350px;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    --shorts-preview-translate-x: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    margin-top: 0;
+    border-radius: 0;
+  }
+}
+
+@keyframes shorts-current-next {
+  from {
+    transform: translate(var(--shorts-preview-translate-x), 0);
+  }
+  to {
+    transform: translate(var(--shorts-preview-translate-x), -105%);
+  }
+}
+
+@keyframes shorts-current-previous {
+  from {
+    transform: translate(var(--shorts-preview-translate-x), 0);
+  }
+  to {
+    transform: translate(var(--shorts-preview-translate-x), 105%);
   }
 }
 
