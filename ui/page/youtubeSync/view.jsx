@@ -24,6 +24,21 @@ const STATUS_TOKEN_PARAM = 'status_token';
 const ERROR_PARAM = 'error';
 const ERROR_MESSAGE_PARAM = 'error_message';
 const NEW_CHANNEL_PARAM = 'new_channel';
+const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
+const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';
+
+function isTruthyQueryValue(value: ?string): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  if (value === '') {
+    return true;
+  }
+
+  const normalizedValue = value.toLowerCase();
+  return normalizedValue !== '0' && normalizedValue !== 'false' && normalizedValue !== 'no';
+}
 
 type Props = {
   youtubeChannels: ?Array<{ transfer_state: string, sync_status: string }>,
@@ -44,6 +59,11 @@ export default function YoutubeSync(props: Props) {
   const hasErrorParam = urlParams.get(ERROR_PARAM) === 'true';
   const errorMessage = urlParams.get(ERROR_MESSAGE_PARAM);
   const newChannelParam = urlParams.get(NEW_CHANNEL_PARAM);
+  const hasAutoOpenSyncPrimaryParam = urlParams.has(AUTO_OPEN_SYNC_PARAM);
+  const autoOpenSyncParam = hasAutoOpenSyncPrimaryParam
+    ? urlParams.get(AUTO_OPEN_SYNC_PARAM)
+    : urlParams.get(AUTO_OPEN_SYNC_PARAM_ALT);
+  const shouldAutoOpenSync = isTruthyQueryValue(autoOpenSyncParam);
   const [channel, setChannel] = React.useState('');
   const [language, setLanguage] = React.useState(getDefaultLanguage());
   const [nameError, setNameError] = React.useState(undefined);
@@ -121,7 +141,7 @@ export default function YoutubeSync(props: Props) {
       <div className="main__channel-creation">
         {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
-            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} />
+            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
           </React.Suspense>
         ) : (
           <Card
