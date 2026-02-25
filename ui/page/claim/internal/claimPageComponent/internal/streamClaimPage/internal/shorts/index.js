@@ -20,7 +20,7 @@ import {
 } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
-import { clearPosition } from 'redux/actions/content';
+import { clearPosition, doClearPlayingUri } from 'redux/actions/content';
 import { selectIsSearching } from 'redux/selectors/search';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
@@ -160,6 +160,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   clearPosition: (uri) => dispatch(clearPosition(uri)),
+  doClearPlayingUri: () => dispatch(doClearPlayingUri()),
   doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
   doFetchShortsRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),

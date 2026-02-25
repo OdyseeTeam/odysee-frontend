@@ -73,6 +73,7 @@ type Props = {
   nextThumbnail?: string,
   previousThumbnail?: string,
   doResolveUri: (uri: string) => void,
+  doClearPlayingUri: () => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -115,6 +116,7 @@ export default function ShortsPage(props: Props) {
     nextThumbnail,
     previousThumbnail,
     doResolveUri,
+    doClearPlayingUri,
   } = props;
 
   const {
@@ -528,6 +530,7 @@ export default function ShortsPage(props: Props) {
         if (!activeTransition) return;
 
         clearPosition(activeTransition.sourceUri);
+        doClearPlayingUri();
         history.replace(getShortsUrl(activeTransition.targetUri));
 
         if (activeTransition.direction === 'next' && claimId) {
@@ -555,6 +558,7 @@ export default function ShortsPage(props: Props) {
     getShortsUrl,
     claimId,
     onRecommendationClicked,
+    doClearPlayingUri,
   ]);
   processNextTransitionRef.current = processNextQueuedTransition;
 
