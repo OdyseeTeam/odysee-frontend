@@ -28,8 +28,12 @@ const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
 const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';
 
 function isTruthyQueryValue(value: ?string): boolean {
-  if (!value) {
+  if (value === null || value === undefined) {
     return false;
+  }
+
+  if (value === '') {
+    return true;
   }
 
   const normalizedValue = value.toLowerCase();
@@ -55,7 +59,10 @@ export default function YoutubeSync(props: Props) {
   const hasErrorParam = urlParams.get(ERROR_PARAM) === 'true';
   const errorMessage = urlParams.get(ERROR_MESSAGE_PARAM);
   const newChannelParam = urlParams.get(NEW_CHANNEL_PARAM);
-  const autoOpenSyncParam = urlParams.get(AUTO_OPEN_SYNC_PARAM) || urlParams.get(AUTO_OPEN_SYNC_PARAM_ALT);
+  const hasAutoOpenSyncPrimaryParam = urlParams.has(AUTO_OPEN_SYNC_PARAM);
+  const autoOpenSyncParam = hasAutoOpenSyncPrimaryParam
+    ? urlParams.get(AUTO_OPEN_SYNC_PARAM)
+    : urlParams.get(AUTO_OPEN_SYNC_PARAM_ALT);
   const shouldAutoOpenSync = isTruthyQueryValue(autoOpenSyncParam);
   const [channel, setChannel] = React.useState('');
   const [language, setLanguage] = React.useState(getDefaultLanguage());

@@ -2,7 +2,9 @@ function getSpinnerHtml(ctx) {
   const themeParam = ctx.query.theme;
   const theme = themeParam === 'light' || themeParam === 'dark' ? themeParam : null;
   const launchParam = typeof ctx.query.launch === 'string' ? ctx.query.launch.trim() : null;
-  const launchUrl = launchParam && launchParam.startsWith('odysee://token/') ? launchParam : null;
+  const tokenMatch = launchParam && launchParam.match(/^odysee:\/\/token\/([A-Za-z0-9_-]{8,512})$/);
+  const launchUrl = tokenMatch ? `odysee://token/${tokenMatch[1]}` : null;
+  const launchHref = launchUrl ? escapeHtmlAttribute(launchUrl) : null;
 
   // If no theme param, we'll use CSS media query to detect browser preference
   const useSystemTheme = !theme;
@@ -178,7 +180,7 @@ function getSpinnerHtml(ctx) {
       launchUrl
         ? `<div id="status" class="spinner-text">Opening Odysee Sync...</div>
     <div class="spinner-help">Allow your browser prompt to open Odysee Sync. You can close this tab after allowing.</div>
-    <a id="open-link" class="spinner-button" href="${launchUrl}">Open Odysee Sync Again</a>`
+    <a id="open-link" class="spinner-button" href="${launchHref}">Open Odysee Sync Again</a>`
         : '<div class="spinner-text">Preparing...</div>'
     }
   </div>
@@ -205,6 +207,15 @@ function getSpinnerHtml(ctx) {
   }
 </body>
 </html>`;
+}
+
+function escapeHtmlAttribute(value) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 module.exports = { getSpinnerHtml };
