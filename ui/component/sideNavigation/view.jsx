@@ -595,7 +595,7 @@ function SideNavigation(props: Props) {
         <Button label={__('Community Guidelines')} href="https://help.odysee.tv/communityguidelines/" target="_blank" />
       </li>
       <li className="navigation-link">
-        <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
+        <Button label={__('Contribute')} navigate={`/$/${PAGES.CONTRIBUTE}`} />
       </li>
       <li className="navigation-link">
         <Button label={__('Terms')} href="https://odysee.com/$/tos" />

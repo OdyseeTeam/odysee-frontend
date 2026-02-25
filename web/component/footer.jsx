@@ -53,7 +53,7 @@ export default function Footer() {
           <Button label={__('Support --[used in footer; general help/support]--')} href="https://help.odysee.tv/" />
         </li>
         <li className="footer__link">
-          <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
+          <Button label={__('Contribute')} navigate={`/$/${PAGES.CONTRIBUTE}`} />
         </li>
         <li className="footer__link">
           <Button label={__('Terms')} href="https://odysee.com/$/tos" />
