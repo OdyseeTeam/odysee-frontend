@@ -41,6 +41,7 @@ import {
 import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import FloatingShortsActions from './internal/floatingShortsActions';
 
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
@@ -87,6 +88,9 @@ type Props = {
   sidePanelOpen: boolean,
   isClaimShort?: boolean,
   disableShortsView?: boolean,
+  shortsPlaylist: Array<string>,
+  autoPlayNextShort: boolean,
+  doSetPlayingUri: (PlayingUri) => void,
 };
 
 function VideoRenderFloating(props: Props) {
@@ -126,6 +130,9 @@ function VideoRenderFloating(props: Props) {
     contentUnlocked,
     isClaimShort,
     disableShortsView,
+    shortsPlaylist,
+    autoPlayNextShort,
+    doSetPlayingUri,
   } = props;
 
   const { state } = location;
@@ -133,6 +140,28 @@ function VideoRenderFloating(props: Props) {
 
   const isShortVideo = Boolean(isClaimShort && (!disableShortsView || isFloating));
   const isShortsFloating = isFloating && isShortVideo;
+
+  const shortsPlaylistRef = React.useRef(shortsPlaylist);
+  if (shortsPlaylist.length > 0) {
+    shortsPlaylistRef.current = shortsPlaylist;
+  }
+  const playlist = shortsPlaylistRef.current;
+  const playlistIndex = uri ? playlist.indexOf(uri) : -1;
+
+  const hasPreviousShort = playlistIndex > 0;
+  const hasNextShort = playlistIndex >= 0 && playlistIndex < playlist.length - 1;
+
+  const goToPreviousShort = React.useCallback(() => {
+    if (hasPreviousShort) {
+      doSetPlayingUri({ uri: playlist[playlistIndex - 1], collection: {}, isShort: true });
+    }
+  }, [hasPreviousShort, playlist, playlistIndex, doSetPlayingUri]);
+
+  const goToNextShort = React.useCallback(() => {
+    if (hasNextShort) {
+      doSetPlayingUri({ uri: playlist[playlistIndex + 1], collection: {}, isShort: true });
+    }
+  }, [hasNextShort, playlist, playlistIndex, doSetPlayingUri]);
 
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
@@ -153,6 +182,7 @@ function VideoRenderFloating(props: Props) {
   const [wasDragging, setWasDragging] = React.useState(false);
   const shortsFloatingWrapperRef = React.useRef();
   const [forceDisable, setForceDisable] = React.useState(false);
+  const [isShortsFloatingPaused, setIsShortsFloatingPaused] = React.useState(false);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
@@ -326,6 +356,94 @@ function VideoRenderFloating(props: Props) {
   }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
 
   React.useEffect(() => {
+    if (!isShortsFloating) {
+      setIsShortsFloatingPaused(false);
+      return;
+    }
+
+    let videoEl = null;
+    const onPlay = () => setIsShortsFloatingPaused(false);
+    const onPause = () => setIsShortsFloatingPaused(true);
+
+    const attach = () => {
+      // $FlowFixMe — querySelector returns HTMLElement but we need HTMLVideoElement
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      if (el && el !== videoEl) {
+        if (videoEl) {
+          videoEl.removeEventListener('play', onPlay);
+          videoEl.removeEventListener('pause', onPause);
+        }
+        videoEl = el;
+        videoEl.addEventListener('play', onPlay);
+        videoEl.addEventListener('pause', onPause);
+        setIsShortsFloatingPaused(videoEl.paused);
+        return true;
+      }
+      return !!videoEl;
+    };
+
+    attach();
+    const interval = setInterval(attach, 200);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      if (videoEl) {
+        videoEl.removeEventListener('play', onPlay);
+        videoEl.removeEventListener('pause', onPause);
+      }
+    };
+  }, [isShortsFloating, uri]);
+
+  React.useEffect(() => {
+    if (!isShortsFloating) return;
+
+    let videoEl = null;
+    let cleanupFn = null;
+
+    const attachListener = () => {
+      // $FlowFixMe
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      if (!el || el === videoEl) return !!videoEl;
+
+      if (cleanupFn) cleanupFn();
+
+      videoEl = el;
+      const handleEnded = () => {
+        if (autoPlayNextShort && hasNextShort) {
+          setTimeout(() => goToNextShort(), 500);
+        } else if (videoEl) {
+          const v = videoEl;
+          setTimeout(() => {
+            v.currentTime = 0;
+            // $FlowFixMe
+            v.play().catch(() => {});
+          }, 100);
+        }
+      };
+
+      videoEl.addEventListener('ended', handleEnded);
+      const currentEl = videoEl;
+      cleanupFn = () => {
+        currentEl.removeEventListener('ended', handleEnded);
+        videoEl = null;
+      };
+      return true;
+    };
+
+    attachListener();
+    const interval = setInterval(attachListener, 200);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      if (cleanupFn) cleanupFn();
+    };
+  }, [isShortsFloating, uri, autoPlayNextShort, hasNextShort, goToNextShort]);
+
+  React.useEffect(() => {
     const wrapperNode = shortsFloatingWrapperRef.current;
     if (!(wrapperNode instanceof Element) || !isShortsFloating) return;
 
@@ -466,6 +584,7 @@ function VideoRenderFloating(props: Props) {
             [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--shorts-floating': isShortsFloating,
+            'shorts-floating--paused': isShortsFloatingPaused,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
@@ -537,6 +656,16 @@ function VideoRenderFloating(props: Props) {
                 isShortsContext={isShortVideo}
                 isFloatingContext={isFloating}
                 forceRenderStream={isFloating}
+              />
+            )}
+
+            {isShortsFloating && (
+              <FloatingShortsActions
+                uri={uri}
+                claimId={claimId}
+                navigateUrl={navigateUrl}
+                onPrevious={hasPreviousShort ? goToPreviousShort : null}
+                onNext={hasNextShort ? goToNextShort : null}
               />
             )}
 

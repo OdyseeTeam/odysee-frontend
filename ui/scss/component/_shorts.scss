@@ -152,7 +152,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   width: 720px;
   height: 100vh;
   background: var(--color-card-background);
-  border-left: 1px solid var(--color-border);
   transition: right 0.3s ease-in-out;
   z-index: 1100 !important;
   display: flex;

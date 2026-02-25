@@ -60,7 +60,8 @@
     border-top-left-radius: var(--border-radius);
   }
 
-  &:hover {
+  &:hover,
+  &:has(.vjs-paused) {
     .video-js--tap-to-unmute {
       max-width: calc(var(--floating-viewer-width) - (var(--spacing-xs) * 3) - 42px);
     }
@@ -382,6 +383,9 @@
   .vjs-control-bar {
     display: flex !important;
     background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.55) 100%);
+    opacity: 0;
+    transition: opacity 200ms ease;
+    z-index: 3;
   }
 
   .vjs-volume-panel,
@@ -395,6 +399,25 @@
     display: none !important;
   }
 
+  .content__floating-close {
+    visibility: visible;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+    top: var(--spacing-xxs);
+    right: var(--spacing-xxs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     width: 11.25rem;
     height: 20rem;
@@ -404,16 +427,31 @@
     border-radius: 0.9rem;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover,
-    &:focus-within {
-      .content__wrapper--shorts-floating {
-        .content__info--shorts-floating {
-          .claim-preview__title {
-            max-width: calc(100% - 2.8rem);
-          }
-        }
-      }
+  .content__floating-close {
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  &:hover,
+  &.shorts-floating--paused {
+    .content__info--shorts-floating {
+      opacity: 1;
+    }
+
+    .vjs-control-bar {
+      opacity: 1 !important;
+    }
+
+    .content__shorts-floating-actions {
+      opacity: 1;
+    }
+
+    .content__shorts-floating-nav {
+      opacity: 1;
+    }
+
+    .content__floating-close {
+      opacity: 1;
     }
   }
 }
@@ -429,7 +467,8 @@
     right: 0;
     top: 0;
     z-index: 2;
-    opacity: 1;
+    opacity: 0;
+    transition: opacity 200ms ease;
     margin-top: 0 !important;
     border: none;
     border-radius: 0;
@@ -439,13 +478,13 @@
 
     .content-info__text {
       padding: var(--spacing-s);
+      padding-right: 3.5rem;
       gap: var(--spacing-xxxs);
     }
 
     .claim-preview__title {
       width: 100%;
       max-width: 100%;
-      transition: max-width 180ms ease;
 
       .button {
         color: white;
@@ -495,8 +534,79 @@
       }
     }
   }
+
+  .content__shorts-floating-nav {
+    position: absolute;
+    right: 0;
+    top: 3.5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xxs);
+    padding: var(--spacing-xxs);
+    opacity: 0;
+    transition: opacity 200ms ease;
+
+    @media (max-width: $breakpoint-small) {
+      display: none;
+    }
+  }
+
+  .content__shorts-floating-actions {
+    position: absolute;
+    right: 0;
+    bottom: 4.5rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xxs);
+    padding: var(--spacing-xxs);
+    opacity: 0;
+    transition: opacity 200ms ease;
+
+    @media (max-width: $breakpoint-small) {
+      display: none;
+    }
+  }
 }
 
+.shorts-floating-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  .button {
+    color: white;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      stroke: white;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  .shorts-floating-action__count {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.5625rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
+  }
+
+  .button-bubble--active {
+    background: var(--color-primary) !important;
+  }
+}
 .content__actions {
   visibility: hidden;
   display: flex;
@@ -519,14 +629,19 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 42px;
-  height: 42px;
-  padding: 10px;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: rgba(var(--color-primary-dynamic), 0.95) !important;
 
   .icon {
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
+    stroke: white;
   }
 
   &:hover {
