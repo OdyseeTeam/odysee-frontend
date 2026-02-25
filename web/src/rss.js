@@ -169,7 +169,7 @@ const generateItunesOwnerElement = (claim) => {
 
 const generateItunesExplicitElement = (claim) => {
   const tags = (claim && claim.value && claim.value.tags) || [];
-  return { 'itunes:explicit': tags.includes('mature') ? 'yes' : 'no' };
+  return { 'itunes:explicit': tags.includes('mature') ? 'true' : 'false' };
 };
 
 const getItunesCategory = (claim) => {
