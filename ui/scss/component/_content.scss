@@ -509,6 +509,10 @@
       font-size: var(--font-xsmall);
       line-height: 1.25;
       margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     .content__shorts-floating-subtitle-link {
@@ -527,6 +531,8 @@
       display: flex;
       align-items: center;
       min-height: 20px;
+      overflow: hidden;
+      max-width: 100%;
 
       .channel-thumbnail {
         display: flex;
