@@ -534,7 +534,8 @@ export default function ShortsPage(props: Props) {
         history.replace(getShortsUrl(activeTransition.targetUri));
 
         if (activeTransition.direction === 'next' && claimId) {
-          const nextClaimId = activeTransition.targetUri.split('#')[1] || activeTransition.targetUri.split('/').pop();
+          const nextClaimId =
+            activeTransition.targetUri.split('#').pop() || activeTransition.targetUri.split('/').pop();
           onRecommendationClicked(claimId, nextClaimId);
         }
 

@@ -120,7 +120,8 @@ const StreamClaimPage = (props: Props) => {
       const newSearch = urlParams.toString();
       history.replace(`${history.location.pathname}${newSearch ? `?${newSearch}` : ''}`);
     }
-  }, [isShortVideo, shortsView, urlParams, search, history]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShortVideo, shortsView, search, history]);
 
   React.useEffect(() => {
     doSetContentHistoryItem(uri);
