@@ -169,7 +169,17 @@ const SwipeNavigationPortal = React.memo<Props>(
     if (!targetContainer) return null;
     return createPortal(
       <div
-        onClick={() => {
+        onClick={(e) => {
+          e.currentTarget.style.pointerEvents = 'none';
+          const el = document.elementFromPoint(e.clientX, e.clientY);
+          e.currentTarget.style.pointerEvents = '';
+          if (el) {
+            const link = el.closest('a, button');
+            if (link && link.closest('.shorts-viewer__content-info, .shorts-page__view-toggle--overlay')) {
+              if (link instanceof HTMLElement) link.click();
+              return;
+            }
+          }
           handlePlayPause();
         }}
         ref={overlayRef}
