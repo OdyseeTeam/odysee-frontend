@@ -195,7 +195,12 @@ function VideoRenderFloating(props: Props) {
   // Avoid forcing collection query params for floating shorts title navigation.
   const includeCollectionQueryInTitleNav = Boolean(collectionId && !isShortsFloating);
   const navigateUrl = uri
-    ? formatLbryUrlForWeb(uri) + (includeCollectionQueryInTitleNav ? generateListSearchUrlParams(collectionId) : '')
+    ? formatLbryUrlForWeb(uri) +
+      (isShortsFloating
+        ? '?view=shorts'
+        : includeCollectionQueryInTitleNav
+        ? generateListSearchUrlParams(collectionId)
+        : '')
     : '';
   const shortsMetaLabel = channelTitle || (channelUrl ? formatLbryChannelName(channelUrl) : '');
   const channelNavigateUrl = channelUrl ? formatLbryUrlForWeb(channelUrl) : '';
@@ -585,7 +590,7 @@ function VideoRenderFloating(props: Props) {
             [CONTENT_VIEWER_CLASS]: !isShortVideo,
             [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
-            'content__viewer--shorts-floating': isShortsFloating,
+            'content__viewer--shorts-floating': isShortsFloating && !isMobile,
             'shorts-floating--paused': isShortsFloatingPaused,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
@@ -675,7 +680,7 @@ function VideoRenderFloating(props: Props) {
               <div
                 className={classnames('content__info', {
                   draggable: !isMobile,
-                  'content__info--shorts-floating': isShortsFloating,
+                  'content__info--shorts-floating': isShortsFloating && !isMobile,
                   'content-info__playlist': playingCollection,
                 })}
               >
