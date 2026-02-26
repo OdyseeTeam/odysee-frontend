@@ -703,15 +703,21 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-.swipe-navigation-overlay {
+.shorts__viewer {
   .shorts-page__view-toggle--overlay {
     position: absolute;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10;
-    display: none;
+    z-index: 4;
+    display: flex;
     gap: 8px;
+    pointer-events: auto;
+
+    @media (min-width: $breakpoint-small) {
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
 
     .button-bubble {
       padding: 8px 16px;
@@ -725,7 +731,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       transition: all 0.2s ease-in-out;
       white-space: nowrap;
 
-      &:hover {
+      &:hover:not(.button-bubble--active) {
         background: var(--color-odysee);
         border-color: rgba(255, 255, 255, 0.3);
       }
@@ -734,26 +740,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
         background: var(--color-primary);
         border-color: var(--color-primary);
         color: white;
-
-        &:hover {
-          background: var(--color-primary-alt);
-          border-color: var(--color-primary-alt);
-        }
+        cursor: default;
       }
     }
   }
 }
 
-@media (max-width: 1050px) {
-  .swipe-navigation-overlay {
-    .shorts-page__view-toggle--overlay {
-      display: flex;
-    }
-  }
-}
-
 @media (max-width: $breakpoint-small) {
-  .swipe-navigation-overlay {
+  .shorts__viewer {
     .shorts-page__view-toggle--overlay {
       display: flex;
       top: 15px;

@@ -5,11 +5,7 @@ import classnames from 'classnames';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
-import ViewModeSelector from './viewModeSelector';
 import MobileActions from '../shortsMobileActions';
-import ViewModeToggle from './viewModeToggle';
-import ChannelThumbnail from 'component/channelThumbnail';
-import { Link } from 'react-router-dom';
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
@@ -23,12 +19,6 @@ type Props = {
   containerSelector?: string,
   isMobile: boolean,
   sidePanelOpen?: boolean,
-  showViewToggle?: boolean,
-  viewMode?: string,
-  channelName?: string,
-  title?: string,
-  channelUri?: string,
-  hasChannel?: boolean,
   autoPlayNextShort?: boolean,
   doToggleShortsAutoplay?: () => void,
   onCommentsClick?: () => void,
@@ -42,10 +32,6 @@ type Props = {
   doOpenModal: (id: string, props: any) => void,
   webShareable?: boolean,
   collectionId?: string,
-  setLocalViewMode: (mode: string) => void,
-  doSetShortsViewMode: (mode: string) => void,
-  doSetShortsPlaylist: (playlist: Array<any>) => void,
-  fetchForMode: (mode: string) => void,
   claimId?: string,
   isLivestreamClaim?: boolean,
   doFetchReactions?: (claimId: ?string) => void,
@@ -63,12 +49,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     containerSelector,
     isMobile,
     sidePanelOpen,
-    showViewToggle = false,
-    viewMode = 'related',
-    channelName,
-    title,
-    channelUri,
-    hasChannel,
     onInfoButtonClick,
     autoPlayNextShort,
     doToggleShortsAutoplay,
@@ -82,10 +62,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     isUnlisted,
     collectionId,
     doOpenModal,
-    setLocalViewMode,
-    doSetShortsViewMode,
-    doSetShortsPlaylist,
-    fetchForMode,
     claimId,
     isLivestreamClaim,
     doFetchReactions,
@@ -113,16 +89,6 @@ const SwipeNavigationPortal = React.memo<Props>(
         }
       };
     }, [claimId, doFetchReactions, isLivestreamClaim]);
-
-    const handleViewModeChange = React.useCallback(
-      (mode) => {
-        setLocalViewMode(mode);
-        doSetShortsViewMode(mode);
-        doSetShortsPlaylist([]);
-        fetchForMode(mode);
-      },
-      [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode, setLocalViewMode]
-    );
 
     const handlePlayPause = React.useCallback(() => {
       const videoElement: any = document.querySelector('.vjs-tech');
@@ -229,36 +195,6 @@ const SwipeNavigationPortal = React.memo<Props>(
           doOpenModal={doOpenModal}
           onShareClick={handleShareClick}
         />
-
-        {channelName && (
-          <>
-            <div className="swipe-navigation-overlay__content-info">
-              <div className="swipe-navigation-overlay__text-info">
-                {channelUri && channelName && (
-                  <Link
-                    to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
-                    className="swipe-navigation-overlay__channel"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
-                    <span className="swipe-navigation-overlay__channel-name">{channelName}</span>
-                  </Link>
-                )}
-              </div>
-              <span className="swipe-navigation-overlay__title">{title}</span>
-            </div>
-          </>
-        )}
-
-        {!isMobile && hasChannel && handleViewModeChange && (
-          <ViewModeSelector viewMode={viewMode} channelName={channelName} onViewModeChange={handleViewModeChange} />
-        )}
-
-        {showViewToggle && handleViewModeChange && (
-          <ViewModeToggle viewMode={viewMode} channelName={channelName} onViewModeChange={handleViewModeChange} />
-        )}
 
         {children}
       </div>,

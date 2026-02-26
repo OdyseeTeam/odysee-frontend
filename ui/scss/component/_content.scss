@@ -866,6 +866,25 @@
   overflow: hidden;
 
   aspect-ratio: 9/16;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 10px;
+
+    @media (min-width: $breakpoint-small) {
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+  }
+
   .content__wrapper {
     width: 100% !important;
     border-radius: 10px;
@@ -907,7 +926,13 @@
     }
 
     .vjs-control-bar {
-      background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+      background: transparent;
+      z-index: 3;
+
+      @media (min-width: $breakpoint-small) {
+        opacity: 0;
+        transition: opacity 200ms ease;
+      }
 
       .vjs-current-time,
       .vjs-duration,
@@ -991,6 +1016,55 @@
         }
       }
     }
+  }
+
+  .shorts-viewer__content-info {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 20px;
+    pointer-events: none;
+    width: 100%;
+
+    @media (min-width: $breakpoint-small) {
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+  }
+
+  .shorts-viewer__channel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .shorts-viewer__channel-name {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .shorts-viewer__title {
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
   .content__floating-close {
@@ -1147,5 +1221,31 @@
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+  }
+}
+
+@media (min-width: $breakpoint-small) {
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .video-js .vjs-control-bar,
+  body:has(.shorts__viewer:hover) .shorts__viewer .video-js .vjs-control-bar,
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .video-js .vjs-control-bar {
+    opacity: 1;
+  }
+
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer:hover) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info {
+    opacity: 1;
+  }
+
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer::after,
+  body:has(.shorts__viewer:hover) .shorts__viewer::after,
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer::after {
+    opacity: 1;
+  }
+
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.shorts__viewer:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-page__view-toggle--overlay {
+    opacity: 1;
   }
 }

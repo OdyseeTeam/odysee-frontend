@@ -17,6 +17,9 @@ import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import { useOnResize } from 'effects/use-on-resize';
 import classnames from 'classnames';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { Link } from 'react-router-dom';
+import ViewModeToggle from 'component/shortsActions/swipeNavigation/viewModeToggle';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 const REEL_TRANSITION_MS = 320;
@@ -53,6 +56,7 @@ type Props = {
   doClearShortsPlaylist: () => void,
   channelId: ?string,
   channelName: ?string,
+  channelDisplayName: ?string,
   doFetchChannelShorts: (channelId: string) => void,
   viewMode: string,
   doSetShortsViewMode: (mode: string) => void,
@@ -98,6 +102,7 @@ export default function ShortsPage(props: Props) {
     sidePanelOpen,
     channelId,
     channelName,
+    channelDisplayName,
     doFetchChannelShorts,
     viewMode: reduxViewMode,
     doSetShortsViewMode,
@@ -208,6 +213,16 @@ export default function ShortsPage(props: Props) {
       }
     },
     [channelId, uri, uuid, fypId, doFetchChannelShorts, doFetchShortsRecommendedContent]
+  );
+
+  const handleViewModeChange = React.useCallback(
+    (mode) => {
+      setLocalViewMode(mode);
+      doSetShortsViewMode(mode);
+      doSetShortsPlaylist([]);
+      fetchForMode(mode);
+    },
+    [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode, setLocalViewMode]
   );
 
   const handleShareClick = React.useCallback(() => {
@@ -661,17 +676,7 @@ export default function ShortsPage(props: Props) {
           isMobile={isMobile}
           className="shorts-swipe-overlay"
           sidePanelOpen={sidePanelOpen}
-          showViewToggle={!!channelId}
-          viewMode={localViewMode}
-          channelName={channelName}
-          setLocalViewMode={setLocalViewMode}
-          doSetShortsViewMode={doSetShortsViewMode}
-          doSetShortsPlaylist={doSetShortsPlaylist}
-          fetchForMode={fetchForMode}
-          title={title}
-          channelUri={channelUri}
           thumbnailUrl={thumbnail}
-          hasChannel={!!channelId}
           hasPlaylist={hasPlaylist}
           uri={uri}
           autoPlayNextShort={autoPlayNextShort}
@@ -710,6 +715,37 @@ export default function ShortsPage(props: Props) {
           />,
           transitionPreviewTarget
         )}
+      {channelName &&
+        typeof document !== 'undefined' &&
+        (() => {
+          const el = document.querySelector('.shorts__viewer');
+          if (!el) return null;
+          return createPortal(
+            <>
+              <div className="shorts-viewer__content-info">
+                {channelUri && (
+                  <Link
+                    to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
+                    className="shorts-viewer__channel"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                    <span className="shorts-viewer__channel-name">{channelDisplayName || channelName}</span>
+                  </Link>
+                )}
+                <span className="shorts-viewer__title">{title}</span>
+              </div>
+              {channelId && (
+                <ViewModeToggle
+                  viewMode={localViewMode}
+                  channelName={channelName}
+                  onViewModeChange={handleViewModeChange}
+                />
+              )}
+            </>,
+            el
+          );
+        })()}
       <div
         className={classnames('shorts-page', { 'shorts-page--transitioning': isTransitioning })}
         ref={shortsContainerRef}

@@ -11,6 +11,7 @@ import {
   selectClaimForUri,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
+  selectTitleForUri,
 } from 'redux/selectors/claims';
 import {
   selectContentPositionForUri,
@@ -140,6 +141,9 @@ const select = (state, props) => {
     currentIndex,
     channelId,
     channelName: claim?.signing_channel?.name,
+    channelDisplayName: channelUri
+      ? selectTitleForUri(state, channelUri) || claim?.signing_channel?.name
+      : claim?.signing_channel?.name,
     isSearchingRecommendations: selectIsSearching(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     viewMode: selectShortsViewMode(state),

@@ -1,3 +1,5 @@
+@import '~scss/init/vars';
+
 .swipe-navigation-overlay {
   position: fixed;
   z-index: 2;
@@ -7,6 +9,10 @@
 
   &--enabled {
     pointer-events: auto;
+
+    @media (min-width: $breakpoint-small) {
+      pointer-events: none;
+    }
   }
 
   &.shorts-swipe-overlay {
@@ -72,91 +78,6 @@
 
   .icon {
     color: #fff;
-  }
-}
-
-.swipe-navigation-overlay__content-info {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  z-index: 10000 !important;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  pointer-events: none;
-  width: 100%;
-  background: linear-gradient(180deg, #111111e7 0%, transparent 100%);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding-left: 20px;
-}
-
-.swipe-navigation-overlay__text-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.swipe-navigation-overlay__title {
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow-wrap: anywhere;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.swipe-navigation-overlay__channel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  pointer-events: auto;
-  cursor: pointer;
-  position: relative;
-  z-index: 10000 !important;
-  width: fit-content;
-}
-
-.swipe-navigation-overlay__channel-name {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-@media (max-width: 768px) {
-  .swipe-navigation-overlay__content-info {
-    top: auto;
-    bottom: 0;
-    left: 5px;
-    right: 70px;
-    padding: 16px 16px 0 16px;
-    background: transparent;
-    width: calc(100% - 75px);
-  }
-
-  .swipe-navigation-overlay__thumbnail {
-    width: 50px;
-    height: 50px;
-  }
-
-  .swipe-navigation-overlay__title {
-    font-size: 14px;
-    -webkit-line-clamp: 2;
-  }
-
-  .swipe-navigation-overlay__channel-name {
-    font-size: 13px;
   }
 }
 

@@ -13,8 +13,6 @@ const select = (state, ownProps) => {
   const { claim_id: claimId } = claim || {};
 
   return {
-    channelName: channel?.name || '',
-    channelUri: channel?.canonical_url || channel?.permanent_url || '',
     hasChannel: !!channel,
     hasPlaylist: false,
     claimId,
