@@ -908,6 +908,25 @@ $control-bar-icon-size: 30px;
       margin-left: var(--spacing-xs);
       margin-right: var(--spacing-xs);
     }
+
+    .vjs-button--play-previous ~ .vjs-button--play-next {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    .vjs-button--play-previous:first-child {
+      margin-left: var(--spacing-xs) !important;
+    }
+
+    .vjs-button--play-next ~ .vjs-volume-panel {
+      display: none !important;
+    }
+
+    .vjs-button--play-next ~ .vjs-remaining-time,
+    .vjs-button--play-next ~ .vjs-duration {
+      flex-shrink: 0 !important;
+      padding-right: var(--spacing-s) !important;
+    }
   }
 
   .vjs-picture-in-picture-control {
