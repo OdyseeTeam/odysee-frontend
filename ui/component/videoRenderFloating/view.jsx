@@ -55,6 +55,7 @@ const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpack
 type Props = {
   claimId: ?string,
   channelUrl: ?string,
+  channelTitle: ?string,
   isFloating: boolean,
   uri: string,
   title: ?string,
@@ -97,6 +98,7 @@ function VideoRenderFloating(props: Props) {
   const {
     claimId,
     channelUrl,
+    channelTitle,
     uri,
     title,
     isFloating,
@@ -195,7 +197,7 @@ function VideoRenderFloating(props: Props) {
   const navigateUrl = uri
     ? formatLbryUrlForWeb(uri) + (includeCollectionQueryInTitleNav ? generateListSearchUrlParams(collectionId) : '')
     : '';
-  const shortsMetaLabel = channelUrl ? formatLbryChannelName(channelUrl) : '';
+  const shortsMetaLabel = channelTitle || (channelUrl ? formatLbryChannelName(channelUrl) : '');
   const channelNavigateUrl = channelUrl ? formatLbryUrlForWeb(channelUrl) : '';
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;

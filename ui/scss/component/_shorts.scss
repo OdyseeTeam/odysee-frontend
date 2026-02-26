@@ -750,7 +750,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   .shorts__viewer {
     .shorts-page__view-toggle--overlay {
       display: flex;
-      top: 15px;
+      top: 60px;
       .button-bubble {
         padding: 6px 12px;
         font-size: var(--font-xsmall);

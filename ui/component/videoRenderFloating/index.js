@@ -59,6 +59,7 @@ const select = (state, props) => {
   return {
     claimId,
     channelUrl,
+    channelTitle: channelUrl ? selectTitleForUri(state, channelUrl) || channelClaim?.name : channelClaim?.name,
     uri,
     playingUri,
     shortsPlaylist,
