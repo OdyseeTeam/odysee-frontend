@@ -1227,25 +1227,29 @@
 @media (min-width: $breakpoint-small) {
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .video-js .vjs-control-bar,
   body:has(.shorts__viewer:hover) .shorts__viewer .video-js .vjs-control-bar,
-  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .video-js .vjs-control-bar {
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .video-js .vjs-control-bar,
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .video-js .vjs-control-bar {
     opacity: 1;
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-viewer__content-info,
   body:has(.shorts__viewer:hover) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info {
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-viewer__content-info {
     opacity: 1;
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer::after,
   body:has(.shorts__viewer:hover) .shorts__viewer::after,
-  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer::after {
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer::after,
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer::after {
     opacity: 1;
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.shorts__viewer:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
-  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-page__view-toggle--overlay {
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-page__view-toggle--overlay {
     opacity: 1;
   }
 }
