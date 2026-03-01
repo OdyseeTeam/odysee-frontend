@@ -33,6 +33,7 @@ const select = (state) => ({
   homepageMeme: selectHomepageMeme(state),
   homepageFetched: selectHomepageFetched(state),
   fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
+  hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),

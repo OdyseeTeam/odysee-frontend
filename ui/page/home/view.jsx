@@ -68,6 +68,7 @@ type Props = {
   currentTheme: string,
   activeLivestreamByCreatorId: LivestreamByCreatorId,
   livestreamViewersById: LivestreamViewersById,
+  hideLivestreams: boolean,
   getActiveLivestreamUrisForIds: (Array<string>) => Array<string>,
   watchLaterRawCount: ?number,
   watchLaterUris: ?Array<string>,
@@ -91,6 +92,7 @@ function HomePage(props: Props) {
     doOpenModal,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
+    hideLivestreams,
     watchLaterRawCount,
     watchLaterUris,
   } = props;
@@ -167,18 +169,23 @@ function HomePage(props: Props) {
         // -- Find livestreams related to the category:
         const rowChannelIds = row.options?.channelIds;
         const rowExcludedChannelIds = row.options?.excludedChannelIds;
+
+        const isFollowing = row.id === 'FOLLOWING';
+        const hideLivestreamsInCategories = hideLivestreams && !isFollowing;
+
         cache[row.id] = {
-          livestreamUris:
-            row.id === 'FOLLOWING'
-              ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv)
-              : rowChannelIds
-              ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv)
-              : null,
+          livestreamUris: hideLivestreamsInCategories
+            ? null
+            : isFollowing
+            ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv)
+            : rowChannelIds
+            ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv)
+            : null,
         };
       });
     }
     return cache;
-  }, [homepageFetched, visibleSortedRowData, subscribedChannelIds, al, lv]);
+  }, [homepageFetched, visibleSortedRowData, subscribedChannelIds, al, lv, hideLivestreams]);
 
   const hasWatchLaterSection = React.useMemo(
     () => sortedRowData.some((row: RowDataItem) => row.id === 'WATCH_LATER'),
