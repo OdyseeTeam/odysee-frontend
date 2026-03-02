@@ -1,6 +1,11 @@
 import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
-import { selectIsStillEditing, selectPublishFormValue, selectMyClaimForUri } from 'redux/selectors/publish';
+import {
+  selectIsStillEditing,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
 import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import PublishFile from './view';
@@ -16,6 +21,7 @@ const select = (state, props) => ({
   duration: selectPublishFormValue(state, 'fileDur'),
   isVid: selectPublishFormValue(state, 'fileVid'),
   myClaimForUri: selectMyClaimForUri(state),
+  prevFileSizeTooBig: selectPrevFileSizeTooBig(state),
   activeChannelClaim: selectActiveChannelClaim(state),
 });
 

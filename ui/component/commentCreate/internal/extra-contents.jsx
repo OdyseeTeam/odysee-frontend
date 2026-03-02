@@ -27,6 +27,9 @@ export const FormChannelSelector = (selectorProps: SelectorProps) => {
 
 type HelpTextProps = {
   deletedComment: boolean,
+  minAmount: number,
+  minTip: number,
+  minSuper: number,
   minUSDAmount: number,
   minUSDSuper: number,
   minUSDTip: number,
@@ -39,14 +42,14 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
     <>
       {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
 
-      {(!!minAmount || !!minUSDAmount) && (        
+      {(!!minAmount || !!minUSDAmount) && (
         <div className="help--notice comment-create__min-amount-notice">
-          <span>{(!!minTip || !!minUSDTip) ? __('Comment minimum: ') : __('HyperChat minimum: ')}</span>
+          <span>{!!minTip || !!minUSDTip ? __('Comment minimum: ') : __('HyperChat minimum: ')}</span>
           {(!!minTip || !!minSuper || !!minUSDTip || !!minUSDSuper) && (
             <>
               <I18nMessage
                 tokens={{
-                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount ? minUSDAmount : '0.01'} />,
+                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount || 0.01} />,
                 }}
               >
                 {`%usd%`}

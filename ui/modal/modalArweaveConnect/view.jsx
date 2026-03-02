@@ -13,7 +13,7 @@ type Props = {
   doOpenModal: (string, any) => void,
   doArDisconnect: () => void,
   doRegisterArweaveAddressClear: () => void,
-  doRegisterArweaveAddress: (string, boolean) => void,
+  doRegisterArweaveAddress: (string, boolean) => Promise<any>,
   doUpdateArweaveAddressDefault: (number) => void,
   activeApiAddresses: string[],
   defaultApiAddress: string,
@@ -53,12 +53,16 @@ export default function ModalAnnouncements(props: Props) {
 
   React.useEffect(() => {
     // automatically register first address if there isn't one
-    if (!hasArweaveEntry) {
+    if (!hasArweaveEntry && walletAddress) {
       doRegisterArweaveAddress(walletAddress, true)
         .then(() => {
           doHideModal();
         })
-        .catch((e) => {});
+        .catch((e) => {
+          if (e?.message === 'address already exists for another user') {
+            doHideModal();
+          }
+        });
     }
   }, [walletAddress, doRegisterArweaveAddress, doHideModal, hasArweaveEntry, apiEntryWithAddress]);
 
@@ -191,9 +195,15 @@ export default function ModalAnnouncements(props: Props) {
   const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress;
   const showMakeDefault =
     !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
-  const showErrorCard = !showConnecting && !!arAccountRegisteringError;
+  const showErrorCard =
+    !showConnecting &&
+    !!arAccountRegisteringError &&
+    arAccountRegisteringError !== 'address already exists for another user';
 
-  if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) {
+  if (
+    (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) ||
+    arAccountRegisteringError === 'address already exists for another user'
+  ) {
     handleCloseModal();
     return null;
   }

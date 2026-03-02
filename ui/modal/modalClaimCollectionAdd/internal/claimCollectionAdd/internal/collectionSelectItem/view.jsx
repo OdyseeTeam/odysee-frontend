@@ -20,11 +20,7 @@ function CollectionSelectItem(props: Props) {
   const id = collection.id;
   const name = getLocalizedNameForCollectionId(id) || collection.name;
 
-  const [checked, setChecked] = React.useState(collectionHasClaim);
-
   function handleChange() {
-    setChecked((prevChecked) => !prevChecked);
-
     doPlaylistAddAndAllowPlaying({ uri, collectionId: id, collectionName: name });
   }
 
@@ -35,7 +31,7 @@ function CollectionSelectItem(props: Props) {
   return (
     <li className="collection-select__item">
       <FormField
-        checked={checked}
+        checked={collectionHasClaim}
         disabled={collectionPending}
         icon={icon}
         type="checkbox"

@@ -9,7 +9,7 @@ import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { isChannelClaim } from 'util/claim';
+import { isChannelClaim, isClaimShort } from 'util/claim';
 import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
@@ -114,6 +114,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   thumbnailFromClaim: string,
   defaultCollectionAction: string,
+  disableShortsView: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -190,6 +191,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doDisablePlayerDrag,
     thumbnailFromClaim,
     defaultCollectionAction,
+    disableShortsView,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -212,6 +214,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
+  const shortClaim = isClaimShort(claim);
 
   const backgroundImage = thumbnailFromClaim
     ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
@@ -272,6 +276,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     Object.keys(searchParams).forEach((key) => {
       navigateSearch.set(key, searchParams[key]);
     });
+  }
+
+  if (shortClaim && !disableShortsView) {
+    navigateSearch.set('view', 'shorts');
   }
 
   const handleNavLinkClick = (e) => {

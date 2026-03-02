@@ -27,6 +27,7 @@ export type HomepageCat = {
   excludedChannelIds?: Array<string>,
   searchLanguages?: Array<string>,
   duration?: string,
+  exclude_shorts?: boolean,
   mixIn?: Array<string>,
   hideByDefault?: boolean,
 };
@@ -42,8 +43,9 @@ function getLimitPerChannel(size, isChannel) {
 export function getAllIds(all: any) {
   const idsSet: Set<string> = new Set();
   (Object.values(all): any).forEach((cat) => {
-    if (cat?.channelIds) {
-      cat.channelIds.forEach((id) => idsSet.add(id));
+    const ids = cat?.channelIds || cat?.ids;
+    if (ids && ids.length) {
+      ids.forEach((id) => idsSet.add(id));
     }
   });
   // $FlowFixMe
@@ -70,8 +72,9 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
   if (cat.claimType) {
     urlParams.set(CS.CLAIM_TYPE, cat.claimType);
   }
-  if (cat.channelIds) {
-    urlParams.set(CS.CHANNEL_IDS_KEY, cat.channelIds.join(','));
+  const channelIds = cat.channelIds;
+  if (channelIds) {
+    urlParams.set(CS.CHANNEL_IDS_KEY, channelIds.join(','));
   }
 
   const isChannelType = cat.claimType && cat.claimType === 'channel';
@@ -110,13 +113,14 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
     hideSort: cat.hideSort,
     options: {
       claimType: cat.claimType || ['stream', 'repost'],
-      channelIds: cat.channelIds,
+      channelIds,
       excludedChannelIds: cat.excludedChannelIds,
       orderBy: orderValue,
       pageSize: cat.pageSize || undefined,
       limitClaimsPerChannel: limitClaims,
       searchLanguages: cat.searchLanguages,
       duration: cat.duration || undefined,
+      excludeShorts: cat.exclude_shorts ? true : undefined,
       releaseTime: `>${Math.floor(
         moment()
           .subtract(cat.daysOfContent || 30, 'days')
@@ -142,7 +146,9 @@ export function GetLinksData(
   showNsfw?: boolean
 ) {
   function getPageSize(originalSize, following) {
-    if(following) return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
+    if (following) {
+      return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
+    }
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 
@@ -170,6 +176,41 @@ export function GetLinksData(
     };
     // $FlowFixMe flow thinks this might not be Array<string>
     rowData.push(RECENT_FROM_FOLLOWING);
+
+    // const SHORTS_SECTION = {
+    //   id: 'SHORTS',
+    //   title: __('Shorts'),
+    //   route: `/$/${PAGES.DISCOVER}?t=shorts`,
+    //   icon: ICONS.VIDEO,
+    //   hideSort: false,
+    //   options: {
+    //     claimType: ['stream'],
+    //     orderBy: CS.ORDER_BY_NEW,
+    //     pageSize: getPageSize(24),
+    //     limitClaimsPerChannel: 1,
+    //     releaseTime: `>${Math.floor(moment().subtract(1, 'months').startOf('week').unix())}`,
+    //     duration: '<=180',
+    //     excludeShorts: false,
+    //     // channelIds: subscribedChannelIds,
+    //   },
+    // };
+    // rowData.push(SHORTS_SECTION);
+  }
+
+  if (isHomepage && authenticated) {
+    const WATCH_LATER_SECTION = {
+      id: 'WATCH_LATER',
+      title: __('Watch Later'),
+      link: `/$/${PAGES.PLAYLIST}/watchlater`,
+      icon: ICONS.TIME,
+      hideSort: false,
+      hideByDefault: true,
+      options: {
+        pageSize: getPageSize(8),
+      },
+    };
+
+    rowData.push(WATCH_LATER_SECTION);
   }
 
   // **************************************************************************
@@ -365,6 +406,21 @@ export function GetLinksData(
     // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
-
   return rowData;
 }
+
+export type HomepageTitles =
+  | 'Recent From Following'
+  | 'Featured'
+  | 'Discover'
+  | 'Pop Culture'
+  | 'Artists'
+  | 'Education'
+  | 'Lifestyle'
+  | 'Gaming'
+  | 'Spooky'
+  | 'Tech'
+  | 'Comedy'
+  | 'Music'
+  | 'Sports'
+  | 'Finance 2.0';

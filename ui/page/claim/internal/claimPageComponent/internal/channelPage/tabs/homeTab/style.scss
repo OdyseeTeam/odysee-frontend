@@ -311,6 +311,9 @@
 
   .claim-preview--tile {
     margin-bottom: var(--spacing-l);
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-s);
+    }
   }
 
   .livestream__channel-link {

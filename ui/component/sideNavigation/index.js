@@ -43,7 +43,6 @@ const selectSidebarCategories = createSelector(
     if (applyHomepageOrderToSidebar) {
       const sortedRowData /* : Array<RowDataItem> */ = getSortedRowData(
         Boolean(email),
-        hasMembership,
         homepageOrder,
         homepageData,
         rowData

@@ -65,15 +65,11 @@ export default function SettingsCreatorPage(props: Props) {
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
   const [mutedWordTags, setMutedWordTags] = React.useState([]);
   const [moderatorUris, setModeratorUris] = React.useState([]);
-  const [minTip, setMinTip] = React.useState(0);
-  const [minSuper, setMinSuper] = React.useState(0);
   const [slowModeMin, setSlowModeMin] = React.useState(0);
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(0);
   const [lastUpdated, setLastUpdated] = React.useState(1);
 
   const pushSlowModeMinDebounced = React.useMemo(() => debounce(pushSlowModeMin, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinTipDebounced = React.useMemo(() => debounce(pushMinTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinSuperDebounced = React.useMemo(() => debounce(pushMinSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // **************************************************************************
   // **************************************************************************
@@ -99,8 +95,6 @@ export default function SettingsCreatorPage(props: Props) {
 
     if (fullSync) {
       setCommentsEnabled(settings.comments_enabled || false);
-      setMinTip(settings.min_tip_amount_comment || 0);
-      setMinSuper(settings.min_tip_amount_super_chat || 0);
       setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
       setCommentsMembersOnly(settings.comments_members_only);
@@ -109,12 +103,6 @@ export default function SettingsCreatorPage(props: Props) {
     } else {
       if (settings.comments_enabled !== undefined) {
         setCommentsEnabled(settings.comments_enabled);
-      }
-      if (settings.min_tip_amount_comment !== undefined) {
-        setMinTip(settings.min_tip_amount_comment);
-      }
-      if (settings.min_tip_amount_super_chat !== undefined) {
-        setMinSuper(settings.min_tip_amount_super_chat);
       }
       if (settings.slow_mode_min_gap !== undefined) {
         setSlowModeMin(settings.slow_mode_min_gap);
@@ -142,14 +130,6 @@ export default function SettingsCreatorPage(props: Props) {
 
   function pushSlowModeMin(value: number, activeChannelClaim: ChannelClaim) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
-  }
-
-  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
-  }
-
-  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_super_chat: value });
   }
 
   function parseModUri(uri) {

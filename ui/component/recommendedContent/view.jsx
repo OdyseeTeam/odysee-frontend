@@ -61,9 +61,17 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
 
   React.useEffect(() => {
+    const { search } = location;
+    const urlParams = new URLSearchParams(search);
+    const isInShortsMode = urlParams.get('view') === 'shorts';
+
+    if (isInShortsMode) {
+      return;
+    }
+
     const fypParam = fypId && uuid ? { gid: fypId, uuid } : null;
     doFetchRecommendedContent(uri, fypParam);
-  }, [uri, doFetchRecommendedContent, fypId, uuid]);
+  }, [uri, doFetchRecommendedContent, fypId, uuid, location]);
 
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.

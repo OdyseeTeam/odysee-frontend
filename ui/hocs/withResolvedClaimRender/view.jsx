@@ -33,19 +33,13 @@ type Props = {
   doOpenModal: (string, {}) => void,
 };
 
-/**
- * HigherOrderComponent to resolve a claim and return the correct states for render, such as loading, failed, restricted, etc
- *
- * @param Component: FunctionalComponentParam
- * @returns {FunctionalComponent}
- */
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
-  const ClaimRenderWrapper = (props: Props) => {
+  const ResolvedClaimRender = (props: Props) => {
     const {
       uri,
       delayed,
       Wrapper = React.Fragment,
-      ClaimRenderWrapper = React.Fragment,
+      ClaimRenderWrapper: ClaimWrapperComponent = React.Fragment,
       // -- redux --
       claim,
       hasClaim,
@@ -260,14 +254,14 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     return (
       <React.Suspense fallback={<LoadingSpinner text={__('Loading...')} />}>
-        <ClaimRenderWrapper>
+        <ClaimWrapperComponent>
           <ClaimRenderComponent uri={uri} {...otherProps} />
-        </ClaimRenderWrapper>
+        </ClaimWrapperComponent>
       </React.Suspense>
     );
   };
 
-  return ClaimRenderWrapper;
+  return ResolvedClaimRender;
 };
 
 // prettier-ignore

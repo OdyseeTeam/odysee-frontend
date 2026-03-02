@@ -1,5 +1,5 @@
 // @flow
-import { SITE_HELP_EMAIL } from 'config';
+import { SITE_HELP_EMAIL, DOMAIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import classnames from 'classnames';
@@ -22,9 +22,13 @@ type Props = {
   videosImported: ?Array<number>, // [currentAmountImported, totalAmountToImport]
   alwaysShow: boolean,
   addNewChannel?: boolean,
+  autoOpenSync?: boolean,
   doResolveUris: (uris: Array<string>) => void,
   experimentalUi: boolean,
 };
+
+const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
+const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';
 
 export default function YoutubeTransferStatus(props: Props) {
   const {
@@ -36,6 +40,7 @@ export default function YoutubeTransferStatus(props: Props) {
     updateUser,
     alwaysShow = false,
     addNewChannel,
+    autoOpenSync = false,
     doResolveUris,
     experimentalUi,
   } = props;
@@ -49,6 +54,19 @@ export default function YoutubeTransferStatus(props: Props) {
   const firstAvailableToken = hasChannels
     ? youtubeChannels.find((channel) => channel.status_token)?.status_token
     : null;
+  const selfSyncDeepLink = firstAvailableToken ? `odysee://token/${firstAvailableToken}` : null;
+  const selfSyncLauncherUrl = selfSyncDeepLink
+    ? `https://${DOMAIN}/$/spinner?launch=${encodeURIComponent(selfSyncDeepLink)}`
+    : null;
+  const showSelfSyncCard = experimentalUi || autoOpenSync;
+  const hasAutoOpenedRef = React.useRef(false);
+
+  function clearAutoOpenParamsFromUrl() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete(AUTO_OPEN_SYNC_PARAM);
+    url.searchParams.delete(AUTO_OPEN_SYNC_PARAM_ALT);
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  }
 
   // State for token visibility
   const [isTokenVisible, setIsTokenVisible] = React.useState(false);
@@ -104,6 +122,20 @@ export default function YoutubeTransferStatus(props: Props) {
     }
   }, [hasPendingTransfers, checkYoutubeTransfer, updateUser]);
 
+  React.useEffect(() => {
+    if (!autoOpenSync || hasAutoOpenedRef.current || !selfSyncLauncherUrl) {
+      return;
+    }
+
+    hasAutoOpenedRef.current = true;
+    clearAutoOpenParamsFromUrl();
+
+    const launcherWindow = window.open(selfSyncLauncherUrl, '_blank');
+    if (!launcherWindow) {
+      window.location.href = selfSyncLauncherUrl;
+    }
+  }, [autoOpenSync, selfSyncLauncherUrl]);
+
   return (
     (alwaysShow || (hasChannels && !isYoutubeTransferComplete)) && (
       <Card
@@ -131,7 +163,13 @@ export default function YoutubeTransferStatus(props: Props) {
             {isNotElligible && (
               <I18nMessage
                 tokens={{
-                  here: <Button button="link" href="https://help.odysee.tv/category-syncprogram/" label={__('here')} />,
+                  here: (
+                    <Button
+                      button="link"
+                      href="https://help.odysee.tv/category-syncprogram/limits/#requirements/"
+                      label={__('here')}
+                    />
+                  ),
                   email: SITE_HELP_EMAIL,
                 }}
               >
@@ -281,11 +319,15 @@ export default function YoutubeTransferStatus(props: Props) {
                 : __('You will be able to claim your channel once it has finished syncing.')}{' '}
               {youtubeImportPending &&
                 __('You will not be able to edit the channel or content until the transfer process completes.')}{' '}
-              <Button button="link" label={__('Learn More')} href="https://help.odysee.tv/category-syncprogram/" />
+              <Button
+                button="link"
+                label={__('Learn More')}
+                href="https://help.odysee.tv/category-syncprogram/category-walkthrough/claimingyourchannel/"
+              />
             </p>
 
-            {/* Self-Sync Alternative - Only show for experimental UI users */}
-            {experimentalUi && (
+            {/* Self-Sync Alternative */}
+            {showSelfSyncCard && (
               <div className="card card--self-sync">
                 <div className="card__header">
                   <h4>
@@ -380,7 +422,7 @@ export default function YoutubeTransferStatus(props: Props) {
                     <Button
                       button="link"
                       label={__('How to use')}
-                      href="https://help.odysee.tv/category-syncprogram/"
+                      href="https://help.odysee.tv/category-syncprogram/synctool/"
                     />
                   </div>
                 </div>

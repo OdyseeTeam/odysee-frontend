@@ -22,6 +22,8 @@ type Props = {
 export default function Portals(props: Props) {
   const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
   const { portals, categories } = homepageData;
+  const mainPortal = portals?.mainPortal;
+  const mainPortals = mainPortal?.portals || [];
 
   const [width, setWidth] = React.useState(0);
   const [tileWidth, setTileWidth] = React.useState(0);
@@ -30,7 +32,7 @@ export default function Portals(props: Props) {
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
   const [hover, setHover] = React.useState(undefined);
-  const rotate = portals?.mainPortal?.portals?.length > tileNum;
+  const rotate = mainPortals.length > tileNum;
 
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
@@ -38,15 +40,15 @@ export default function Portals(props: Props) {
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
 
   React.useEffect(() => {
-    if (rotate && portals && width) {
+    if (rotate && width) {
       const interval = setInterval(() => {
         if (!pause) {
-          setIndex(index + 1 <= portals.mainPortal.portals.length - (tileNum - 1) ? index + 1 : 1);
+          setIndex(index + 1 <= mainPortals.length - (tileNum - 1) ? index + 1 : 1);
         }
       }, 5000 + 1000);
       return () => clearInterval(interval);
     }
-  }, [rotate, portals, tileNum, marginLeft, width, pause, index]);
+  }, [rotate, mainPortals.length, tileNum, marginLeft, width, pause, index]);
 
   React.useEffect(() => {
     if (portals && width) {
@@ -55,18 +57,19 @@ export default function Portals(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [portals, index, width]);
 
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (wrapper.current) {
       let wrapperWidth = wrapper.current.offsetWidth + 12;
       let tileNum = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
-      if (tileNum === 6 && portals.mainPortal.portals.length < 9) {
-        tileNum = portals.mainPortal.portals.length;
+      if (tileNum === 6 && mainPortals.length < 9 && mainPortals.length > 0) {
+        tileNum = mainPortals.length;
       }
       setWidth(wrapperWidth);
       setTileNum(tileNum);
       setTileWidth(wrapperWidth / tileNum);
     }
-  });
+  }, [mainPortals.length]);
+  useOnResize(handleResize);
 
   const NON_CATEGORY = Object.freeze({
     BANNER: { label: 'Banner' },
@@ -112,7 +115,7 @@ export default function Portals(props: Props) {
         orderToSave.hidden = ['PORTALS'];
       }
     } else if (!orderToSave.hidden) {
-      const SECTIONS = { ...NON_CATEGORY, ...categories };
+      const SECTIONS = { ...NON_CATEGORY, ...(categories || {}) };
       orderToSave = { active: [], hidden: [] };
       orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
       orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
@@ -124,7 +127,7 @@ export default function Portals(props: Props) {
     setKill(true);
   }
 
-  return portals && portals.mainPortal ? (
+  return mainPortal ? (
     <div
       id="portals"
       className={classnames('portals-wrapper', { kill: kill })}
@@ -133,15 +136,15 @@ export default function Portals(props: Props) {
           'url(https://thumbnails.odycdn.com/optimize/s:' +
           imageWidth +
           ':0/quality:95/plain/' +
-          portals.mainPortal.background +
+          mainPortal.background +
           ')',
       }}
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
     >
-      <h1>{portals.mainPortal.description}</h1>
+      <h1>{mainPortal.description}</h1>
       <div className="portal-rotator" style={{ marginLeft: marginLeft }} ref={wrapper}>
-        {portals.mainPortal.portals.map((portal, i) => {
+        {mainPortals.map((portal, i) => {
           return (
             <div
               className={classnames('portal-wrapper', { disabled: portal.name === activePortal })}
@@ -171,33 +174,32 @@ export default function Portals(props: Props) {
           );
         })}
       </div>
-      {portals.mainPortal.portals.length > tileNum && (
+      {mainPortals.length > tileNum && (
         <>
           <div
             className="portal-browse left"
-            onClick={() => setIndex(index > 1 ? index - 1 : portals.mainPortal.portals.length - (tileNum - 1))}
+            onClick={() => setIndex(index > 1 ? index - 1 : mainPortals.length - (tileNum - 1))}
           >
             ‹
           </div>
           <div
             className="portal-browse right"
-            onClick={() => setIndex(index + (tileNum - 1) < portals.mainPortal.portals.length ? index + 1 : 1)}
+            onClick={() => setIndex(index + (tileNum - 1) < mainPortals.length ? index + 1 : 1)}
           >
             ›
           </div>
           <div className="portal-active-indicator">
-            {portals &&
-              portals.mainPortal.portals.map((item, i) => {
-                return (
-                  i < portals.mainPortal.portals.length - (tileNum - 1) && (
-                    <div
-                      key={i}
-                      className={i + 1 === index ? 'portal-active-indicator-active' : ''}
-                      onClick={() => setIndex(i + 1)}
-                    />
-                  )
-                );
-              })}
+            {mainPortals.map((item, i) => {
+              return (
+                i < mainPortals.length - (tileNum - 1) && (
+                  <div
+                    key={i}
+                    className={i + 1 === index ? 'portal-active-indicator-active' : ''}
+                    onClick={() => setIndex(i + 1)}
+                  />
+                )
+              );
+            })}
           </div>
         </>
       )}

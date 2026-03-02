@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { isNameValid } from 'util/lbryURI';
 import { INVALID_NAME_ERROR } from 'constants/claim';
@@ -7,6 +8,7 @@ import { BITRATE } from 'constants/publish';
 
 type Props = {
   waitForFile: boolean,
+  missingRequiredFile?: boolean,
   // --- redux ---
   title: ?string,
   name: ?string,
@@ -15,7 +17,9 @@ type Props = {
   editingURI: ?string,
   filePath: ?string | WebFile,
   fileBitrate: number,
+  fileSizeTooBig: boolean,
   isStillEditing: boolean,
+  prevFileSizeTooBig: boolean,
   uploadThumbnailStatus: string,
   thumbnail: string,
   thumbnailError: boolean,
@@ -38,7 +42,10 @@ function PublishFormErrors(props: Props) {
     releaseTimeError,
     memberRestrictionStatus,
     waitForFile,
+    missingRequiredFile,
     fileBitrate,
+    fileSizeTooBig,
+    prevFileSizeTooBig,
   } = props;
   // These are extra help
   // If there is an error it will be presented as an inline error as well
@@ -47,10 +54,17 @@ function PublishFormErrors(props: Props) {
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const missingTiers = memberRestrictionStatus.isApplicable && !memberRestrictionStatus.isSelectionValid;
 
+  const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
+    SITE_NAME,
+    limit: WEB_PUBLISH_SIZE_LIMIT_GB,
+  });
+
   return (
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
+      {missingRequiredFile && <div>{__('Choose a file to upload')}</div>}
       {missingTiers && <div>{__(HELP.NO_TIERS_SELECTED)}</div>}
+      {fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig) && <div>{UPLOAD_SIZE_MESSAGE}</div>}
       {fileBitrate > BITRATE.MAX && (
         <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>
       )}

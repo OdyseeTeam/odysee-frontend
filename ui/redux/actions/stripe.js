@@ -8,6 +8,7 @@ import {
   selectAccountStatusFetching,
 } from 'redux/selectors/stripe';
 import { doToast } from 'redux/actions/notifications';
+import { LocalStorage } from 'util/storage';
 
 import * as ACTIONS from 'constants/action_types';
 import * as STRIPE from 'constants/stripe';
@@ -57,7 +58,10 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
   return await Lbryio.call('account', 'status', { environment: stripeEnvironment, v2: true }, 'post')
     .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
-      if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
+      // Check if response is new v2 format (AccountStatus with arweave/stripe properties)
+      // vs legacy format (StripeAccountStatus directly)
+      // $FlowFixMe - accountStatusResponse can be either format
+      if (accountStatusResponse?.arweave || accountStatusResponse?.stripe) {
         return accountStatusResponse;
       }
 
@@ -274,8 +278,15 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
     console.error(e);
 
     // Re-registering address to current account, different from "address already exists for another user" error
-    if (e.message === "address already exists") {
+    if (e.message === 'address already exists') {
       return;
+    }
+
+    if (e.message === 'address already exists for another user') {
+      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'true');
+      dispatch({ type: ACTIONS.AR_ADDR_REGISTER_ERROR, data: e.message });
+      dispatch({ type: ACTIONS.ARCONNECT_FAILURE, data: { error: e.message } });
+      throw e;
     }
 
     dispatch(
@@ -288,7 +299,8 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
-export const doRegisterArweaveAddressClear = () => (dispatch) => {
+export const doRegisterArweaveAddressClear = () => (dispatch: Dispatch) => {
+  LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
 };
 

@@ -36,6 +36,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
+  moderationDelegatesById: { [?string]: ?Array<Object> },
   authorCanonicalUri: ?string,
   authorId: string,
   // --- perform ---
@@ -47,6 +48,7 @@ type Props = {
   doSetActiveChannel: (string) => void,
   pinComment: (string, string, boolean) => Promise<any>,
   commentModAddDelegate: (string, string, ChannelClaim) => void,
+  commentModRemoveDelegate: (string, string, ChannelClaim) => void,
   setQuickReply: (any) => void,
   handleDismissPin?: () => void,
 };
@@ -66,6 +68,7 @@ function CommentMenuList(props: Props) {
     isPinned,
     playingUri,
     moderationDelegatorsById,
+    moderationDelegatesById,
     authorCanonicalUri,
     isAuthenticated,
     disableEdit,
@@ -81,6 +84,7 @@ function CommentMenuList(props: Props) {
     doSetActiveChannel,
     pinComment,
     commentModAddDelegate,
+    commentModRemoveDelegate,
     setQuickReply,
     handleDismissPin,
   } = props;
@@ -95,6 +99,8 @@ function CommentMenuList(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const contentChannelPermanentUrl = contentChannelClaim && contentChannelClaim.permanent_url;
 
+  const delegates = moderationDelegatesById[contentChannelClaim?.claim_id];
+
   const activeModeratorInfo = activeChannelClaim && moderationDelegatorsById[activeChannelClaim.claim_id];
   const activeChannelIsCreator = activeChannelClaim && activeChannelClaim.permanent_url === contentChannelPermanentUrl;
   const activeChannelIsAdmin = activeChannelClaim && activeModeratorInfo && activeModeratorInfo.global;
@@ -103,6 +109,10 @@ function CommentMenuList(props: Props) {
     contentChannelClaim &&
     activeModeratorInfo &&
     Object.values(activeModeratorInfo.delegators).includes(contentChannelClaim.claim_id);
+  const authorIsModerator =
+    claimIsMine && // only check for own claims
+    Array.isArray(delegates) &&
+    delegates.some((delegate) => delegate.channelId === authorId);
 
   function handleDeleteComment() {
     if (playingUri.source === 'comment') {
@@ -123,6 +133,13 @@ function CommentMenuList(props: Props) {
     if (activeChannelClaim && authorUri) {
       const { channelName, channelClaimId } = parseURI(authorUri);
       if (channelName && channelClaimId) commentModAddDelegate(channelClaimId, channelName, activeChannelClaim);
+    }
+  }
+
+  function removeModerator() {
+    if (activeChannelClaim && authorUri) {
+      const { channelName, channelClaimId } = parseURI(authorUri);
+      if (channelName && channelClaimId) commentModRemoveDelegate(channelClaimId, channelName, activeChannelClaim);
     }
   }
 
@@ -256,17 +273,32 @@ function CommentMenuList(props: Props) {
           {__('Dismiss Pin')}
         </MenuItem>
       )}
-      {/* todo: filter out already active mods (bug with activeModeratorInfo?) */}
-      {activeChannelIsCreator && activeChannelClaim && activeChannelClaim.permanent_url !== authorUri && (
-        <MenuItem className="comment__menu-option" onSelect={assignAsModerator}>
+      {activeChannelIsCreator &&
+        activeChannelClaim &&
+        activeChannelClaim.permanent_url !== authorUri &&
+        !authorIsModerator && (
+          <MenuItem className="comment__menu-option" onSelect={assignAsModerator}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.ADD} />
+              {__('Add as moderator')}
+            </div>
+            <span className="comment__menu-help">
+              {activeChannelClaim
+                ? __('Assign this user to moderate %channel%.', { channel: activeChannelClaim.name })
+                : __('Assign this user to moderate your channel.')}
+            </span>
+          </MenuItem>
+        )}
+      {activeChannelIsCreator && authorIsModerator && (
+        <MenuItem className="comment__menu-option" onSelect={removeModerator}>
           <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.ADD} />
-            {__('Add as moderator')}
+            <Icon aria-hidden icon={ICONS.REMOVE} />
+            {__('Remove as moderator')}
           </div>
           <span className="comment__menu-help">
             {activeChannelClaim
-              ? __('Assign this user to moderate %channel%.', { channel: activeChannelClaim.name })
-              : __('Assign this user to moderate your channel.')}
+              ? __('Remove this user as a moderator of %channel%.', { channel: activeChannelClaim.name })
+              : __('Remove this user as a moderator of your channel.')}
           </span>
         </MenuItem>
       )}

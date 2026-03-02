@@ -31,6 +31,7 @@ const select = (state, props) => ({
   showNsfw: selectShowMatureContent(state),
   hideMembersOnly: resolveHideMembersOnly(selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT), props.hideMembersOnly),
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
+  hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   languageSetting: selectLanguage(state),
   searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
   mutedAndBlockedChannelIds: selectMutedAndBlockedChannelIds(state),

@@ -35,6 +35,7 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import PublishTemplateButton from 'component/publish/shared/publishTemplateButton';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -46,6 +47,8 @@ type Props = {
   tags: Array<Tag>,
   publish: DoPublishDesktop,
   filePath: string | File,
+  fileSizeTooBig: boolean,
+  prevFileSizeTooBig: boolean,
   fileText: string,
   fileBitrate: number,
   bid: ?number,
@@ -64,6 +67,7 @@ type Props = {
     amount: string,
     currency: string,
   },
+  channelId?: string,
   name: ?string,
   nameError: ?string,
   winningBidForClaimUri: number,
@@ -93,6 +97,7 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   memberRestrictionStatus: MemberRestrictionStatus,
+  fetchCreatorSettings: (string) => void,
 };
 
 function UploadForm(props: Props) {
@@ -102,6 +107,7 @@ function UploadForm(props: Props) {
     bid,
     bidError,
     checkAvailability,
+    channelId,
     claimInitialRewards,
     clearPublish,
     description,
@@ -109,6 +115,8 @@ function UploadForm(props: Props) {
     editingURI,
     enablePublishPreview,
     filePath,
+    fileSizeTooBig,
+    prevFileSizeTooBig,
     fileText,
     fileBitrate,
     hasClaimedInitialRewards,
@@ -134,6 +142,7 @@ function UploadForm(props: Props) {
     updatePublishForm,
     uploadThumbnailStatus,
     memberRestrictionStatus,
+    fetchCreatorSettings,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -152,9 +161,9 @@ function UploadForm(props: Props) {
   const [waitForFile, setWaitForFile] = useState(false);
 
   const TAGS_LIMIT = 5;
-  const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
+  const missingRequiredFile = mode === PUBLISH_MODES.FILE && !editingURI && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
-  const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
+  const formDisabled = emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
@@ -185,6 +194,7 @@ function UploadForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
+    !(fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig)) &&
     (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     (isOverwritingExistingClaim
       ? false
@@ -201,6 +211,14 @@ function UploadForm(props: Props) {
       claimInitialRewards();
     }
   }, [hasClaimedInitialRewards, claimInitialRewards]);
+
+  // Fetch creator settings (for upload templates) when selected channel changes.
+  useEffect(() => {
+    const templateChannelId = channelId || activeChannelId;
+    if (templateChannelId && !inEditMode) {
+      fetchCreatorSettings(templateChannelId);
+    }
+  }, [channelId, activeChannelId, inEditMode, fetchCreatorSettings]);
 
   useEffect(() => {
     if (!modal) {
@@ -380,6 +398,7 @@ function UploadForm(props: Props) {
 
   const isFormIncomplete =
     isClaimingInitialRewards ||
+    missingRequiredFile ||
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
@@ -388,14 +407,15 @@ function UploadForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title page__title--margin">
+      <h1 className="page__title page__title--margin page__title--upload">
         <Icon icon={ICONS.PUBLISH} />
-        <label>
-          {formTitle}
+        <label>{formTitle}</label>
+        <div className="page__title-actions">
+          {!inEditMode && <PublishTemplateButton />}
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
           )}
-        </label>
+        </div>
       </h1>
 
       <Card
@@ -497,8 +517,13 @@ function UploadForm(props: Props) {
           <ChannelSelector disabled={isFormIncomplete} isPublishMenu />
         </div>
         <span className="help">
-          {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
+          {!formDisabled && (!formValid || missingRequiredFile) ? (
+            <PublishFormErrors
+              title={title}
+              mode={mode}
+              waitForFile={waitingForFile}
+              missingRequiredFile={missingRequiredFile}
+            />
           ) : (
             <I18nMessage
               tokens={{

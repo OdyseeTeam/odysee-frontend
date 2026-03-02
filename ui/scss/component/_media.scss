@@ -12,6 +12,10 @@
   background-size: cover;
 }
 
+.media__thumb__short {
+  aspect-ratio: 9 / 16;
+}
+
 .media__thumb--small {
   width: calc(var(--file-list-thumbnail-width) / 1.5) !important;
 
@@ -121,6 +125,7 @@
 }
 
 .mediaInfo__description {
+  word-break: break-word;
   .claim__tags {
     .tag {
       background-color: rgba(var(--color-header-button-base), 1);

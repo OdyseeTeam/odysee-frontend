@@ -17,7 +17,7 @@ import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
-import { getPathForPage } from 'util/url';
+import { getPathForPage, htmlDecode } from 'util/url';
 
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
 
@@ -28,6 +28,7 @@ const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkNa
 const CareersITProjectManagerPage = lazyImport(() =>
   import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
 );
+const ContributePage = lazyImport(() => import('web/page/contribute' /* webpackChunkName: "contribute" */));
 const SeniorBackendEngineerPage = lazyImport(() =>
   import('web/page/careers/seniorBackendEngineer' /* webpackChunkName: "seniorBackendEngineer" */)
 );
@@ -162,6 +163,7 @@ type Props = {
     length: number,
     location: { pathname: string },
     push: (string) => void,
+    replace: (string) => void,
     state: {},
     replaceState: ({}, string, string) => void,
     listen: (any) => () => void,
@@ -257,7 +259,7 @@ function AppRouter(props: Props) {
         component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen, wildWestDisabled]);
+  }, [homepageData, isSmallScreen, isMediumScreen, isLargeScreen, wildWestDisabled]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -356,7 +358,15 @@ function AppRouter(props: Props) {
   // in the browser causing a redirect loop
   const decodedUrl = decodeURIComponent(pathname) + search;
   if (decodedUrl !== pathname + search) {
-    return <Redirect to={decodedUrl} />;
+    // Use history.replace instead of <Redirect> to avoid adding extra entries.
+    history.replace(decodedUrl);
+    return null;
+  }
+
+  // Try to support strange cases where url has html encoding
+  const htmlDecodedUrl = htmlDecode(pathname + hash + search);
+  if (htmlDecodedUrl !== pathname + hash + search) {
+    return <Redirect to={htmlDecodedUrl} />;
   }
 
   return (
@@ -391,6 +401,8 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
         <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}`} exact component={ContributePage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}/:id`} exact component={ContributePage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} exact component={SeniorBackendEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SOFTWARE_SECURITY_ENGINEER}`} exact component={SoftwareSecurityEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_ANDROID_DEVELOPER}`} exact component={SeniorAndroidDeveloperPage} />
@@ -472,6 +484,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
+        <Route path={`/$/${PAGES.EMBED}/home`} exact component={HomePage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 

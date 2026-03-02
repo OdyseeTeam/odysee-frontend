@@ -27,6 +27,7 @@ import {
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import * as TAG from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
 import { MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
@@ -369,6 +370,15 @@ export const selectClaimIsMineForUri = (state: State, rawUri: string) => {
   return selectClaimIsMine(state, claimsByUri && claimsByUri[uri]);
 };
 
+export const selectIsShortForUri = createCachedSelector(selectClaimForUri, (claim) => {
+  if (!claim || !claim.value) return false;
+  const video = claim.value.video;
+  if (!video) return false;
+  const isShortDuration = video.duration && video.duration <= SETTINGS.SHORTS_DURATION_LTE;
+  const isVertical = video.height && video.width && video.width / video.height <= SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+  return isShortDuration && isVertical;
+})((state, uri) => String(uri));
+
 export const selectMyPurchases = (state: State) => selectState(state).myPurchases;
 export const selectPurchaseUriSuccess = (state: State) => selectState(state).purchaseUriSuccess;
 export const selectMyPurchasesCount = (state: State) => selectState(state).myPurchasesPageTotalResults;
@@ -543,6 +553,7 @@ export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
+    // $FlowIgnore
     const forceCreationTimestamp = claim?.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED);
     const timestamp =
       claim &&

@@ -14,8 +14,8 @@ import { getFormattedRenewBy } from 'util/memberships';
 
 type Props = {
   membershipSub: MembershipSub,
-  creatorChannelClaim: string,
-  activeChannelClaim: string,
+  creatorChannelClaim: Claim,
+  activeChannelClaim: Claim,
   doMembershipList: (params: MembershipListParams) => void,
   membershipIndex: number,
   creatorChannelUri: string,

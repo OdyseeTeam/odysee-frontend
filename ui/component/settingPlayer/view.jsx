@@ -13,13 +13,22 @@ type Props = {
   autoplayMedia: boolean,
   autoplayNext: boolean,
   isFloating: boolean,
+  disableShortsView: boolean,
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
   clearPlayingUri: () => void,
 };
 
 export default function SettingPlayer(props: Props) {
-  const { floatingPlayer, autoplayMedia, autoplayNext, isFloating, setClientSetting, clearPlayingUri } = props;
+  const {
+    floatingPlayer,
+    autoplayMedia,
+    autoplayNext,
+    isFloating,
+    setClientSetting,
+    clearPlayingUri,
+    disableShortsView,
+  } = props;
 
   return (
     <>
@@ -63,6 +72,15 @@ export default function SettingPlayer(props: Props) {
             <SettingsRow title={__('Default Video Quality')} subtitle={__(HELP.DEFAULT_VIDEO_QUALITY)}>
               <SettingDefaultQuality />
             </SettingsRow>
+
+            <SettingsRow title={__('Disable Shorts View')} subtitle={__(HELP.DISABLE_SHORTS_VIEW)}>
+              <FormField
+                type="checkbox"
+                name="disable shorts view"
+                onChange={() => setClientSetting(SETTINGS.DISABLE_SHORTS_VIEW, !disableShortsView)}
+                checked={disableShortsView}
+              />
+            </SettingsRow>
           </>
         }
       />
@@ -74,6 +92,7 @@ export default function SettingPlayer(props: Props) {
 const HELP = {
   FLOATING_PLAYER: 'Keep content playing in the corner when navigating to a different page.',
   AUTOPLAY_MEDIA: 'Autoplay video and audio files when navigating to a file.',
+  DISABLE_SHORTS_VIEW: 'Vertical content will use the standard view and video player.',
   AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
   DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts. At this time, not all videos have multiple quality options, in which case the original quality will be used.',
 };

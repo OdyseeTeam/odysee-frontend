@@ -44,7 +44,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   const { isBackgroundSearch } = options;
   const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
-  let isCustomDurationSet = false;
   let isDurationFilterSupported = false;
 
   function checkQuerySupportsDurationFilter() {
@@ -109,19 +108,35 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     if (isDurationFilterSupported && minDuration && minDuration > 0) {
       const minSeconds = minDuration * 60;
       queryParams.push(`${SEARCH_OPTIONS.MIN_DURATION}=${minSeconds}`);
-      isCustomDurationSet = true;
     }
 
     const maxDuration = options[SEARCH_OPTIONS.MAX_DURATION];
     if (isDurationFilterSupported && maxDuration && maxDuration > 0) {
       const maxSeconds = maxDuration * 60;
       queryParams.push(`${SEARCH_OPTIONS.MAX_DURATION}=${maxSeconds}`);
-      isCustomDurationSet = true;
     }
   }
 
   const additionalOptions = {};
-  const { related_to, nsfw, free_only, language, gid, uuid } = options;
+  const {
+    related_to,
+    nsfw,
+    free_only,
+    language,
+    gid,
+    uuid,
+    max_aspect_ratio,
+    deboost_same_creator,
+    content_aspect_ratio,
+    content_aspect_ratio_or_missing,
+  } = options;
+
+  const { store } = window;
+  let hideShorts = false;
+  if (store) {
+    const state = store.getState();
+    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  }
 
   if (related_to) {
     additionalOptions[SEARCH_OPTIONS.RELATED_TO] = related_to;
@@ -144,15 +159,26 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     additionalOptions[SEARCH_OPTIONS.LANGUAGE] = language;
   }
 
-  const { store } = window;
-  let hideShorts = false;
-  if (store) {
-    const state = store.getState();
-    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  if (max_aspect_ratio) {
+    additionalOptions[SEARCH_OPTIONS.MAX_ASPECT_RATIO] = max_aspect_ratio;
   }
 
-  if (hideShorts && isDurationFilterSupported && !isCustomDurationSet) {
-    additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
+  if (deboost_same_creator) {
+    additionalOptions[SEARCH_OPTIONS.DEBOOST_SAME_CREATOR] = deboost_same_creator;
+  }
+
+  if (content_aspect_ratio) {
+    additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO] = content_aspect_ratio;
+  }
+
+  if (content_aspect_ratio_or_missing) {
+    additionalOptions[SEARCH_OPTIONS.CONTENT_ASPECT_RATIO_OR_MISSING] = content_aspect_ratio_or_missing;
+  }
+
+  if (hideShorts) {
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = hideShorts;
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE] = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE] = SETTINGS.SHORTS_DURATION_LTE;
   }
 
   if (additionalOptions) {

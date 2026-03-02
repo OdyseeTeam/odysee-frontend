@@ -6,10 +6,17 @@ type Props = {
   height?: number,
   width?: number,
   quality?: number,
+  isShorts?: boolean,
 };
 
 export function getThumbnailCdnUrl(props: Props) {
-  const { thumbnail, height = THUMBNAIL_HEIGHT, width = THUMBNAIL_WIDTH, quality = THUMBNAIL_QUALITY } = props;
+  const {
+    thumbnail,
+    height = THUMBNAIL_HEIGHT,
+    width = THUMBNAIL_WIDTH,
+    quality = THUMBNAIL_QUALITY,
+    isShorts = false,
+  } = props;
 
   if (!THUMBNAIL_CDN_URL || !thumbnail) {
     return thumbnail;
@@ -24,6 +31,9 @@ export function getThumbnailCdnUrl(props: Props) {
   }
 
   if (thumbnail) {
+    if (isShorts) {
+      return `${THUMBNAIL_CDN_URL}s:${900}:${0}/quality:${quality}/plain/${thumbnail}`;
+    }
     return `${THUMBNAIL_CDN_URL}s:${width}:${height}/quality:${quality}/plain/${thumbnail}`;
   }
 }

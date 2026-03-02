@@ -1712,7 +1712,11 @@ export function doCommentModAddDelegate(
       channel_name: creatorChannelClaim.name,
       ...signature,
     })
-      .then(() => {
+      .then((res) => {
+        dispatch({
+          type: ACTIONS.ADD_MODERATOR_COMPLETED,
+          data: { newDelegates: res?.Delegates, creatorChannelId: creatorChannelClaim.claim_id },
+        });
         if (showToast) {
           dispatch(
             doToast({
@@ -1735,7 +1739,8 @@ export function doCommentModAddDelegate(
 export function doCommentModRemoveDelegate(
   modChannelId: string,
   modChannelName: string,
-  creatorChannelClaim: ChannelClaim
+  creatorChannelClaim: ChannelClaim,
+  showToast: boolean = false
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const signature = await ChannelSign.sign(creatorChannelClaim.claim_id, creatorChannelClaim.name, false);
@@ -1750,9 +1755,28 @@ export function doCommentModRemoveDelegate(
       channel_id: creatorChannelClaim.claim_id,
       channel_name: creatorChannelClaim.name,
       ...signature,
-    }).catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-    });
+    })
+      .then(() => {
+        dispatch({
+          type: ACTIONS.REMOVE_MODERATOR_COMPLETED,
+          data: { removedDelegateId: modChannelId, creatorChannelId: creatorChannelClaim.claim_id },
+        });
+        if (showToast) {
+          dispatch(
+            doToast({
+              message: __('Removed %user% from moderators of %myChannel%', {
+                user: modChannelName,
+                myChannel: creatorChannelClaim.name,
+              }),
+              linkText: __('Manage'),
+              linkTarget: `/${PAGES.SETTINGS_CREATOR}`,
+            })
+          );
+        }
+      })
+      .catch((err) => {
+        dispatch(doToast({ message: err.message, isError: true }));
+      });
   };
 }
 
@@ -1784,6 +1808,60 @@ export function doCommentModListDelegates(channelClaim: ChannelClaim) {
       .catch((err) => {
         dispatch(doToast({ message: err.message, isError: true }));
         dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED });
+      });
+  };
+}
+
+export function doCommentModListDelegatesForMyChannels() {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const myChannels = selectMyChannelClaims(state);
+    if (!myChannels) {
+      dispatch({ type: ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_FAILED });
+      return;
+    }
+
+    dispatch({ type: ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_STARTED });
+
+    let channelSignatures = [];
+
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
+      .then((response) => {
+        channelSignatures = response;
+        // $FlowFixMe
+        return Promise.allSettled(
+          channelSignatures
+            .filter((x) => x !== undefined && x !== null)
+            .map((signatureData) =>
+              Comments.moderation_list_delegates({
+                channel_name: signatureData.name,
+                channel_id: signatureData.claim_id,
+                signature: signatureData.signature,
+                signing_ts: signatureData.signing_ts,
+              }).then((value) => ({ signatureData, value }))
+            )
+        )
+          .then((results) => {
+            const delegatesById = {};
+
+            results.forEach((result) => {
+              if (result.status === PROMISE_FULFILLED) {
+                const { signatureData, value } = result.value;
+                delegatesById[signatureData.claim_id] = value.Delegates;
+              }
+            });
+            dispatch({
+              type: ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_COMPLETED,
+              data: delegatesById,
+            });
+          })
+          .catch((err) => {
+            devToast(dispatch, `Fetch delegates for my channels: ${err}`);
+            dispatch({ type: ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_FAILED });
+          });
+      })
+      .catch(() => {
+        dispatch({ type: ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_FAILED });
       });
   };
 }
@@ -1857,11 +1935,19 @@ export const doFetchCreatorSettings = (channelId: string) => {
     });
 
     let signedName;
+    const knownChannelName = (creatorChannel && creatorChannel.name) || undefined;
 
-    if (myChannels) {
-      const index = myChannels.findIndex((myChannel) => myChannel.claim_id === channelId);
-      if (index > -1) {
-        signedName = await channelSignName(channelId, myChannels[index].name, true);
+    // Try signing from claims cache first so uploads-page fetch does not depend
+    // on `myChannels` being loaded beforehand.
+    if (knownChannelName) {
+      signedName = await channelSignName(channelId, knownChannelName, true);
+    }
+
+    // Fallback to owned-channel list lookup when needed.
+    if (!signedName && myChannels) {
+      const myChannel = myChannels.find((channel) => channel.claim_id === channelId);
+      if (myChannel && myChannel.name) {
+        signedName = await channelSignName(channelId, myChannel.name, true);
       }
     }
 
@@ -1869,7 +1955,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
 
     return cmd({
       channel_id: channelId,
-      channel_name: (signedName && signedName.name) || creatorChannel?.name,
+      channel_name: (signedName && signedName.name) || knownChannelName,
       signature: (signedName && signedName.signature) || undefined,
       signing_ts: (signedName && signedName.signing_ts) || undefined,
     })
@@ -1922,6 +2008,17 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
       devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
       return;
     }
+
+    // Optimistic local update so UI (e.g. upload-template dropdown) reflects
+    // changes immediately while the server round-trip completes.
+    dispatch({
+      type: ACTIONS.COMMENT_FETCH_SETTINGS_COMPLETED,
+      data: {
+        channelId: channelClaim.claim_id,
+        settings,
+        partialUpdate: true,
+      },
+    });
 
     return Comments.setting_update({
       channel_name: channelClaim.name,

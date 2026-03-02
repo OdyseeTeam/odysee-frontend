@@ -229,6 +229,7 @@ function DiscoverPage(props: Props) {
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           duration={dynamicRouteProps?.options?.duration}
           csOptionsHook={tagSearchCsOptionsHook}
+          sectionTitle={dynamicRouteProps?.title}
         />
       </ClaimSearchFilterContext.Provider>
     </Page>

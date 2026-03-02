@@ -47,7 +47,7 @@ const SupportersTab = (props: Props) => {
   // const supportersList = sl;
 
   const getDateOfLastPayment = (payments) => {
-    const payment = payments.reverse().find(p => p.status === 'submitted' || p.status === 'paid');
+    const payment = payments.reverse().find((p) => p.status === 'submitted' || p.status === 'paid') || {};
     if (payment.status === 'submitted') {
       return payment.initiated_at;
     } else {
@@ -100,25 +100,24 @@ const SupportersTab = (props: Props) => {
       <div className="membership-table__wrapper">
         {channelsToList &&
           channelsToList.map((listedChannelClaim) => {
-          const supportersForChannel = supportersList ? supportersList
-                .filter(supporter => listedChannelClaim.name === supporter.supported_channel_name)
-                .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
-            : [];
+            const supportersForChannel = supportersList
+              ? supportersList
+                  .filter((supporter) => listedChannelClaim.name === supporter.supported_channel_name)
+                  .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
+              : [];
 
-          const supportersWithChannel = supportersForChannel
-            ? supportersForChannel
-              .filter(supporter => supporter.subscriber_channel_name !== 'anonymous')
-            : [];
+            const supportersWithChannel = supportersForChannel
+              ? supportersForChannel.filter((supporter) => supporter.subscriber_channel_name !== 'anonymous')
+              : [];
 
-          const anonymousSupporters = supportersForChannel
-            ? supportersForChannel
-              .filter(supporter => supporter.subscriber_channel_name === 'anonymous')
-            : [];
+            const anonymousSupporters = supportersForChannel
+              ? supportersForChannel.filter((supporter) => supporter.subscriber_channel_name === 'anonymous')
+              : [];
 
-          const totalAnonSupport = anonymousSupporters.reduce((ac, cur) => {
-            const newac = ac + cur.price;
-            return newac;
-          }, 0);
+            const totalAnonSupport = anonymousSupporters.reduce((ac, cur) => {
+              const newac = ac + cur.price;
+              return newac;
+            }, 0);
 
             return (
               supportersWithChannel &&
@@ -131,7 +130,13 @@ const SupportersTab = (props: Props) => {
                     {(!isViewingSingleChannel || !channelMembershipTiers) &&
                       (listedChannelClaim.value.title || listedChannelClaim.name)}
                   </div>
-                  <div>{anonymousSupporters.length ? `${anonymousSupporters.length} anonymous supporters contributed $${(totalAnonSupport / 100).toFixed(2)}!` : null}</div>
+                  <div>
+                    {anonymousSupporters.length
+                      ? `${anonymousSupporters.length} anonymous supporters contributed $${(
+                          totalAnonSupport / 100
+                        ).toFixed(2)}!`
+                      : null}
+                  </div>
 
                   <div className="membership-table__wrapper">
                     <table className="table">
@@ -182,10 +187,23 @@ const SupportersTab = (props: Props) => {
                               <td>{supporter.membership_name}</td>
                               <td>${supporter.price / 100} USD / Month</td>
                               <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
-                              <td>{paymentsBySubscriber[supporter.subscriber_channel_claim_id] ? moment(new Date(getDateOfLastPayment(paymentsBySubscriber[supporter.subscriber_channel_claim_id]))).format('LL') : ''}</td>
+                              <td>
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id]
+                                  ? moment(
+                                      new Date(
+                                        getDateOfLastPayment(
+                                          paymentsBySubscriber[supporter.subscriber_channel_claim_id]
+                                        )
+                                      )
+                                    ).format('LL')
+                                  : ''}
+                              </td>
                               <td>
                                 {/* need to put  */}
-                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id] && paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(p => p.status === 'paid' || p.status === 'submitted').length}
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id] &&
+                                  paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(
+                                    (p) => p.status === 'paid' || p.status === 'submitted'
+                                  ).length}
                               </td>
                             </tr>
                           );

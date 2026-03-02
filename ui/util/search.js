@@ -4,6 +4,7 @@ import { isNameValid, isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
 import { URL as SITE_URL, URL_LOCAL, URL_DEV, SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import { SEARCH_OPTIONS } from 'constants/search';
+import * as SETTINGS from 'constants/settings';
 import { getSearchQueryString } from 'util/query-params';
 
 export function createNormalizedSearchKey(query: string) {
@@ -128,6 +129,34 @@ export function getRecommendationSearchOptions(
     options[SEARCH_OPTIONS.RELATED_TO] = claimId;
   }
 
+  if (language) {
+    options[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  return options;
+}
+
+export function getShortsRecommendationSearchOptions(
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language: ?string,
+  forChannel: ?boolean
+) {
+  const options = { size: 50, nsfw: matureEnabled, isBackgroundSearch: false };
+
+  options[SEARCH_OPTIONS.CLAIM_TYPE] = 'stream';
+  options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
+  options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
+  options[SEARCH_OPTIONS.MAX_DURATION] = 3;
+  options[SEARCH_OPTIONS.MAX_ASPECT_RATIO] = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+  options[SEARCH_OPTIONS.DEBOOST_SAME_CREATOR] = 0.1;
+
+  if (forChannel) {
+    options[SEARCH_OPTIONS.CHANNEL_IDS] = [claimId];
+  } else if (matureEnabled || !claimIsMature) {
+    options[SEARCH_OPTIONS.RELATED_TO] = claimId;
+  }
   if (language) {
     options[SEARCH_OPTIONS.LANGUAGE] = language;
   }

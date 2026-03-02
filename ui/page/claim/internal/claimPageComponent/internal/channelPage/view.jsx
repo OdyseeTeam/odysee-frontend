@@ -59,7 +59,6 @@ type Props = {
   channelIsMine: boolean,
   isSubscribed: boolean,
   channelIsBlocked: boolean,
-  blackListedData: { [string]: string },
   fetchSubCount: (string) => void,
   subCount: number,
   pending: boolean,
@@ -76,6 +75,7 @@ type Props = {
   banState: any,
   isMature: boolean,
   isGlobalMod: boolean,
+  hideShorts: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -86,7 +86,6 @@ function ChannelPage(props: Props) {
     coverUrl,
     channelIsMine,
     isSubscribed,
-    blackListedData,
     fetchSubCount,
     subCount,
     pending,
@@ -103,16 +102,20 @@ function ChannelPage(props: Props) {
     banState,
     isMature,
     isGlobalMod,
+    hideShorts,
   } = props;
   const {
     push,
     goBack,
-    location: { search },
+    location: { search, pathname },
   } = useHistory();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
-  const hideAboutTab = !showClaims && !isGlobalMod;
+  const channelIsBlackListed = banState.blacklisted;
+  // Show About tab for blacklisted channels (DMCA message) or channels with content
+  const hideAboutTab = !showClaims && !isGlobalMod && !channelIsBlackListed;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
@@ -159,6 +162,7 @@ function ChannelPage(props: Props) {
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
+  const [hasShorts, setHasShorts] = React.useState(true);
 
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
@@ -188,6 +192,10 @@ function ChannelPage(props: Props) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const handleShortsLoaded = React.useCallback((count) => {
+    setHasShorts(count > 0);
+  }, []);
+
   let collectionEmpty;
   if (channelIsMine) {
     collectionEmpty = hasUnpublishedCollections ? (
@@ -211,12 +219,6 @@ function ChannelPage(props: Props) {
     collectionEmpty = <section className="main--empty">{__('No Playlists found')}</section>;
   }
 
-  let channelIsBlackListed = false;
-
-  if (claim && blackListedData) {
-    channelIsBlackListed = blackListedData[claim.claim_id];
-  }
-
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
   // We don't want to use links here because we can't animate the tab change and using links
   // would alter the Tab label's role attribute, which should stay role="tab" to work with keyboards/screen readers.
@@ -228,23 +230,26 @@ function ChannelPage(props: Props) {
     case CHANNEL_PAGE.VIEWS.CONTENT:
       tabIndex = 1;
       break;
-    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
+    case CHANNEL_PAGE.VIEWS.SHORTS:
       tabIndex = 2;
       break;
-    case CHANNEL_PAGE.VIEWS.CHANNELS:
+    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
       tabIndex = 3;
       break;
+    case CHANNEL_PAGE.VIEWS.CHANNELS:
+      tabIndex = 4;
+      break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
-      if (!isOdyseeChannel) tabIndex = 4;
+      if (!isOdyseeChannel) tabIndex = 5;
       break;
     case CHANNEL_PAGE.VIEWS.DISCUSSION:
-      tabIndex = 5;
-      break;
-    case CHANNEL_PAGE.VIEWS.ABOUT:
       tabIndex = 6;
       break;
-    case CHANNEL_PAGE.VIEWS.SETTINGS:
+    case CHANNEL_PAGE.VIEWS.ABOUT:
       tabIndex = 7;
+      break;
+    case CHANNEL_PAGE.VIEWS.SETTINGS:
+      tabIndex = 8;
       break;
     default:
       tabIndex = 0;
@@ -252,42 +257,52 @@ function ChannelPage(props: Props) {
   }
 
   function onTabChange(newTabIndex, keepFilters) {
-    const url = formatLbryUrlForWeb(uri);
-    let search = '';
+    const baseUrl = formatLbryUrlForWeb(uri);
+    const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
+    let newSearch = '';
 
     if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
         break;
       case 1:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 2:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
         break;
       case 3:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
       case 4:
-        if (!isOdyseeChannel) {
-          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
-        }
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
       case 5:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
-        break;
-      case 6:
-        if (!hideAboutTab) {
-          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        if (!isOdyseeChannel) {
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         }
         break;
+      case 6:
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        break;
       case 7:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        if (!hideAboutTab) {
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        }
+        break;
+      case 8:
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
-    push(`${url}${search}`);
+
+    // Only push if the URL is actually changing to avoid duplicate history entries
+    const newFullUrl = `${url}${newSearch}`;
+    const currentFullUrl = `${pathname}${search}`;
+    if (newFullUrl !== currentFullUrl) {
+      push(newFullUrl);
+    }
   }
 
   React.useEffect(() => {
@@ -312,6 +327,15 @@ function ChannelPage(props: Props) {
       doMembershipMine();
     }
   }, [doMembershipMine, myMembershipsFetched]);
+
+  React.useEffect(() => {
+    if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+      const baseUrl = formatLbryUrlForWeb(uri);
+      const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
+      const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+      push(`${url}${search}`);
+    }
+  }, [hideShorts, currentView, uri, push, isEmbedPath]);
 
   if (editing) {
     return <ChannelEdit uri={uri} onDone={() => goBack()} />;
@@ -478,31 +502,39 @@ function ChannelPage(props: Props) {
               <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
                 {__('Content')}
               </Tab>
-              <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
-                {__('Playlists')}
+              <Tab
+                disabled={editing || !showClaims || !hasShorts}
+                className={classnames({ 'tab--hidden': !hasShorts || hideShorts })}
+                aria-selected={tabIndex === 2}
+                onClick={() => onTabChange(2)}
+              >
+                {__('Shorts')}
               </Tab>
               <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
+                {__('Playlists')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 4} disabled={editing || !showClaims} onClick={() => onTabChange(4)}>
                 {__('Channels')}
               </Tab>
               <Tab
                 className="tab--membership"
-                aria-selected={tabIndex === 4}
+                aria-selected={tabIndex === 5}
                 disabled={editing || isOdyseeChannel}
-                onClick={() => onTabChange(4)}
+                onClick={() => onTabChange(5)}
               >
                 {__('Membership')}
               </Tab>
-              <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
+              <Tab aria-selected={tabIndex === 6} disabled={editing} onClick={() => onTabChange(6)}>
                 {__('Community')}
               </Tab>
               <Tab
                 className={classnames({ 'tab--hidden': hideAboutTab })}
-                aria-selected={tabIndex === 6}
-                onClick={() => onTabChange(6)}
+                aria-selected={tabIndex === 7}
+                onClick={() => onTabChange(7)}
               >
                 {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
               </Tab>
-              <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
+              <Tab aria-selected={tabIndex === 8} disabled={editing} onClick={() => onTabChange(8)}>
                 {channelIsMine && __('Settings')}
               </Tab>
             </TabList>
@@ -523,8 +555,23 @@ function ChannelPage(props: Props) {
                   claimType={['stream', 'repost']}
                   empty={<section className="main--empty">{__('No Content Found')}</section>}
                   filters={filters}
+                  excludeShorts
                 />
               )}
+            </TabPanel>
+            <TabPanel>
+              <div style={{ display: currentView === CHANNEL_PAGE.VIEWS.SHORTS ? 'block' : 'none' }}>
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream']}
+                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
+                  filters={filters}
+                  loadedCallback={handleShortsLoaded}
+                  shortsOnly
+                />
+              </div>
             </TabPanel>
             <TabPanel>
               {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (

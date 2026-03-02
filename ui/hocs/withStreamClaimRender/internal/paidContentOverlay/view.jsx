@@ -137,7 +137,7 @@ export default function PaidContentOvelay(props: Props) {
                   currency: fiatSymbol,
                   amount: rentalPrice,
                 })}{' '}
-                (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
+                (<Symbol token="ar" amount={Number(rentalPrice) / exchangeRate?.ar} precision={4} />)
               </div>
               <ButtonPurchase label={__('Purchase or Rent')} />
             </>
@@ -152,7 +152,7 @@ export default function PaidContentOvelay(props: Props) {
                   amount: rentalPrice,
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                 })}{' '}
-                (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
+                (<Symbol token="ar" amount={Number(rentalPrice) / exchangeRate?.ar} precision={4} />)
               </div>
               <ButtonPurchase label={__('Rent')} />
             </>

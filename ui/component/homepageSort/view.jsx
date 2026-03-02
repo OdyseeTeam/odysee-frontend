@@ -14,6 +14,8 @@ const Lazy = {
 const NON_CATEGORY = Object.freeze({
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
+  WATCH_LATER: { label: 'Watch Later', hideByDefault: true },
+  SHORTS: { label: 'Shorts' },
   FYP: { label: 'Recommended' },
 });
 
@@ -40,13 +42,17 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   };
 };
 
-function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembership) {
+function getInitialList(listId, savedOrder, homepageSections) {
   const savedActiveOrder = savedOrder.active || [];
   const savedHiddenOrder = savedOrder.hidden || [];
   const sectionKeys = Object.keys(homepageSections);
 
-  let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
-  let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
+  let activeOrder: Array<string> = savedActiveOrder.filter(
+    (x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS'
+  );
+  let hiddenOrder: Array<string> = savedHiddenOrder.filter(
+    (x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS'
+  );
 
   sectionKeys.forEach((key: string) => {
     if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
@@ -58,10 +64,17 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
           else activeOrder.push(key);
+        } else if (key === 'SHORTS') {
+          let followingIndex = activeOrder.indexOf('FOLLOWING');
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
+          else activeOrder.push(key);
         } else if (key === 'DISCOVERY_CHANNEL' || key === 'EXPLORABLE_CHANNEL') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
           else activeOrder.push(key);
+        } else if (key === 'FYP') {
+          // Default FYP to hidden
+          hiddenOrder = [key, ...hiddenOrder];
         } else {
           activeOrder.push(key);
         }
@@ -70,15 +83,6 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
   });
 
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
-
-  if (!userHasOdyseeMembership) {
-    if (activeOrder.indexOf('FYP') !== -1) {
-      activeOrder.splice(activeOrder.indexOf('FYP'), 1);
-    }
-    if (hiddenOrder.indexOf('FYP') !== -1) {
-      hiddenOrder.splice(hiddenOrder.indexOf('FYP'), 1);
-    }
-  }
 
   return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
 }
@@ -94,20 +98,15 @@ type Props = {
   // --- redux:
   homepageData: any,
   homepageOrder: HomepageOrder,
-  userHasOdyseeMembership: boolean,
 };
 
 export default function HomepageSort(props: Props) {
-  const { onUpdate, homepageData, homepageOrder, userHasOdyseeMembership } = props;
+  const { onUpdate, homepageData, homepageOrder } = props;
   const { categories } = homepageData;
 
   const SECTIONS = { ...NON_CATEGORY, ...categories };
-  const [listActive, setListActive] = useState(() =>
-    getInitialList('ACTIVE', homepageOrder, SECTIONS, userHasOdyseeMembership)
-  );
-  const [listHidden, setListHidden] = useState(() =>
-    getInitialList('HIDDEN', homepageOrder, SECTIONS, userHasOdyseeMembership)
-  );
+  const [listActive, setListActive] = useState(() => getInitialList('ACTIVE', homepageOrder, SECTIONS));
+  const [listHidden, setListHidden] = useState(() => getInitialList('HIDDEN', homepageOrder, SECTIONS));
 
   const BINS = {
     ACTIVE: { id: 'ACTIVE', title: 'Active', list: listActive, setList: setListActive },

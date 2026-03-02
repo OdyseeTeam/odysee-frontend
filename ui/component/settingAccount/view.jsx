@@ -13,13 +13,12 @@ type Props = {
   // --- redux ---
   isAuthenticated: boolean,
   walletEncrypted: boolean,
-  user: User,
   hasChannels: boolean,
   doWalletStatus: () => void,
 };
 
 export default function SettingAccount(props: Props) {
-  const { isAuthenticated, walletEncrypted, user, hasChannels, doWalletStatus } = props;
+  const { isAuthenticated, walletEncrypted, hasChannels, doWalletStatus } = props;
   const [storedPassword, setStoredPassword] = React.useState(false);
 
   // Determine if password is stored.

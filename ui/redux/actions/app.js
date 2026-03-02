@@ -17,6 +17,7 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
@@ -585,6 +586,7 @@ export function doSignIn() {
     dispatch(doFetchCollectionListMine());
     dispatch(doMembershipMine());
     dispatch(doTipAccountStatus());
+    dispatch(doFetchPersonalRecommendations());
   };
 }
 
@@ -605,11 +607,14 @@ function doSignOutAction() {
         await pushNotifications.disconnect(user.id);
       }
     } finally {
+      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
-        .then(() => {
+        .then(async () => {
           // @if TARGET='web'
-          return window.persistor.purge();
+          window.persistor.pause();
+          await window.persistor.flush();
+          await window.persistor.purge();
           // @endif
         })
         .catch((err) => {

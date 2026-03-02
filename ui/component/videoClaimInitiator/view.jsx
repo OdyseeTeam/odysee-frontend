@@ -30,7 +30,11 @@ const VideoClaimInitiator = (props: Props) => {
   );
 
   return (
-    <ClaimCoverRender uri={uri} onClick={streamClaim} passedRef={playerRef}>
+    <ClaimCoverRender
+      uri={uri}
+      onClick={streamClaim}
+      passedRef={playerRef}
+    >
       <Button className="button--icon button--play" onClick={streamClaim} iconSize={30} title={__('Play')} />
       {children}
     </ClaimCoverRender>

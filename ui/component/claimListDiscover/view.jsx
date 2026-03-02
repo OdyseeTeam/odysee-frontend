@@ -20,6 +20,8 @@ import ClaimListHeader from 'component/claimListHeader';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
+import type { HomepageTitles } from 'util/buildHomepage';
+import * as SETTINGS from 'constants/settings';
 
 type Props = {
   uris: Array<string>,
@@ -102,6 +104,7 @@ type Props = {
   loading: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
+  hideShorts: boolean,
   languageSetting: string,
   searchInLanguage: boolean,
   mutedAndBlockedChannelIds: Array<ClaimId>,
@@ -118,6 +121,10 @@ type Props = {
   maxClaimRender?: number,
   useSkeletonScreen?: boolean,
   excludeUris?: Array<string>,
+  isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
+  contentAspectRatio?: string,
+  excludeShortsAspectRatio?: boolean,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -198,6 +205,11 @@ function ClaimListDiscover(props: Props) {
     doFetchThumbnailClaimsForCollectionIds,
     doResolveUris,
     doResolveClaimIds,
+    isShortFromChannelPage,
+    sectionTitle,
+    contentAspectRatio,
+    excludeShortsAspectRatio,
+    hideShorts,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -326,6 +338,7 @@ function ClaimListDiscover(props: Props) {
     not_tags: CsOptHelper.not_tags(notTagInput),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
+    content_aspect_ratio: undefined,
     ...(durationOption ? { duration: durationOption } : {}),
   };
 
@@ -459,6 +472,14 @@ function ClaimListDiscover(props: Props) {
 
   if (csOptionsHook) {
     options = csOptionsHook(options);
+  }
+
+  if (excludeShortsAspectRatio || hideShorts) {
+    options.exclude_shorts = true;
+    options.exclude_shorts_aspect_ratio_lte = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+    options.exclude_shorts_duration_lte = SETTINGS.SHORTS_DURATION_LTE;
+  } else if (contentAspectRatio) {
+    options.content_aspect_ratio = contentAspectRatio;
   }
 
   const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
@@ -820,6 +841,8 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
           />
 
           {claimListLoading && useSkeletonScreen && (
@@ -859,6 +882,8 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
           />
 
           {claimListLoading &&

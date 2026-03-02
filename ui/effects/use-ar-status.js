@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { LocalStorage } from 'util/storage';
 import { selectArweaveWanderAuth, selectArweaveStatus } from 'redux/selectors/arwallet';
+import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
 import { useIsMobile } from 'effects/use-screensize';
 import { doArConnect } from 'redux/actions/arwallet';
 
 export const useArStatus = () => {
   const wanderAuth = useSelector(selectArweaveWanderAuth);
   const arStatus = useSelector(selectArweaveStatus);
+  const reduxAddressInUse = useSelector(selectArAccountRegisteringError) === 'address already exists for another user';
+  const addressInUse = reduxAddressInUse || LocalStorage.getItem('AR_ADDRESS_IN_USE') === 'true';
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
 
@@ -40,10 +43,10 @@ export const useArStatus = () => {
   const activeArStatus = hasArConnection
     ? 'connected'
     : isSigningIn
-      ? 'authenticating'
-      : hasConnection
-        ? 'authenticated'
-        : 'not-authenticated';
+    ? 'authenticating'
+    : hasConnection
+    ? 'authenticated'
+    : 'not-authenticated';
 
   useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
@@ -58,11 +61,13 @@ export const useArStatus = () => {
     }
     if (
       !arStatus.connecting &&
-      (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance?.authInfo.authType === 'null') &&
-      walletType === 'extension' && !hasArConnection
-    ) {      
+      (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' ||
+        window.wanderInstance?.authInfo.authType === 'null') &&
+      walletType === 'extension' &&
+      !hasArConnection
+    ) {
       const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
-      if (!intentionalDisconnect){
+      if (!intentionalDisconnect && !addressInUse) {
         dispatch(doArConnect());
       }
     }
@@ -78,5 +83,6 @@ export const useArStatus = () => {
     hasConnection,
     hasArAddress,
     activeArStatus,
+    addressInUse,
   };
 };

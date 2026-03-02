@@ -9,6 +9,8 @@ import { EmbedContext } from 'contexts/embed';
 
 import useGetPoster from 'effects/use-get-poster';
 import Button from 'component/button';
+import useSwipeNavigation from 'effects/use-swipe-navigation';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   children: any,
@@ -16,11 +18,17 @@ type Props = {
   href?: string,
   transparent?: boolean,
   onClick?: () => void,
+  onSwipeNext?: () => void,
+  onSwipePrevious?: () => void,
+  enableSwipe?: boolean,
   // -- redux --
   claimThumbnail?: string,
+  isShortClaim: boolean,
   obscurePreview: boolean,
   renderMode: string,
   videoTheaterMode: boolean,
+  sidePanelOpen: boolean,
+  autoplayMedia: boolean,
 };
 
 const ClaimCoverRender = (props: Props) => {
@@ -30,28 +38,54 @@ const ClaimCoverRender = (props: Props) => {
     href,
     transparent,
     onClick,
+    onSwipeNext,
+    onSwipePrevious,
+    enableSwipe,
     // -- redux --
     claimThumbnail,
+    isShortClaim,
     obscurePreview,
     renderMode,
     videoTheaterMode,
+    sidePanelOpen,
+    autoplayMedia,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
+  const {
+    location: { search },
+  } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const isShortsParam = urlParams.get('view') === 'shorts';
 
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
-  const thumbnail = useGetPoster(claimThumbnail);
+  const isShorts = isShortsParam || isShortClaim;
+  const thumbnail = useGetPoster(claimThumbnail, isShorts);
+
+  const swipeRef = useSwipeNavigation({
+    onSwipeNext,
+    onSwipePrevious,
+    isEnabled: enableSwipe && isMobile,
+    minSwipeDistance: 50,
+    tapDuration: 200,
+    onTap: enableSwipe ? onClick : undefined,
+  });
 
   const isNavigateLink = href;
   const Wrapper = isNavigateLink ? Button : 'div';
 
   return (
     <Wrapper
-      ref={passedRef}
+      ref={isShortsParam ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
-      style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
+      style={
+        thumbnail && !obscurePreview && !(isShortsParam && autoplayMedia)
+          ? { backgroundImage: `url("${thumbnail}")` }
+          : {}
+      }
       className={classnames('content__cover', {
         'content__cover--embed': isEmbed,
         'content__cover--black-background': !transparent,
@@ -59,6 +93,7 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
+        'content__cover--side-panel-open': sidePanelOpen,
       })}
     >
       {children}

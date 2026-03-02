@@ -61,7 +61,7 @@ function WalletTipAmountSelector(props: Props) {
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
-  const amountInArEstimated = (amount / arExchangeRate?.ar).toFixed(6);
+  const amountInArEstimated = Number((amount / arExchangeRate?.ar).toFixed(6));
 
   const tipAmountsToDisplay = DEFAULT_TIP_AMOUNTS;
 
@@ -175,8 +175,7 @@ function WalletTipAmountSelector(props: Props) {
               className={classnames('button-toggle button-toggle--expandformobile', {
                 'button-toggle--active':
                   convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
-                'button-toggle--disabled':
-                  (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
+                'button-toggle--disabled': activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0),
               })}
               label={defaultAmount}
               icon={activeTab === TAB_USD ? 'USD' : 'LBC'}

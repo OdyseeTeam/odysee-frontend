@@ -40,6 +40,7 @@ export const NUMPAD_DOT = 110;
 export const NUMPAD_SLASH = 111;
 export const NUM_LOCK = 144;
 export const SCROLL_LOCK = 145;
+export const SLASH = 191;
 export const BACKSLASH = 220;
 export const PERIOD = 190;
 export const COMMA = 188;

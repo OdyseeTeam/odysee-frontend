@@ -4,6 +4,13 @@ import Card from 'component/common/card';
 import ButtonToggle from 'component/buttonToggle';
 import './style.scss';
 
+type Props = {
+  cardHeader: () => React$Node,
+  arweaveWallets: any,
+  arWalletStatus: any,
+  activeAddress: string,
+};
+
 function ArWallets(props: Props) {
   const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
 

@@ -56,6 +56,9 @@
         }
       }
     }
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
+    }
   }
 }
 
@@ -278,4 +281,8 @@
       }
     }
   }
+}
+
+body:has(.nag) .card-fixed-bottom {
+  bottom: 3rem;
 }

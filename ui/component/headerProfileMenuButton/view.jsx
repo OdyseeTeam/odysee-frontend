@@ -20,6 +20,7 @@ import Tooltip from 'component/common/tooltip';
 import NotificationHeaderButton from 'component/headerNotificationButton';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
 
 type HeaderMenuButtonProps = {
   currentTheme: string,
@@ -57,10 +58,11 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   const handleClose = () => setAnchorEl(null);
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
-  // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
   const uploadProps = { requiresAuth: !authenticated };
 
   const isMobile = useIsMobile();
+  const { location } = useHistory();
+  const isShortsPage = new URLSearchParams(location.search).get('view') === 'shorts';
 
   const handleClickAway = () => {
     if (!clicked) {
@@ -92,7 +94,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
 
   return (
     <>
-      {open && (
+      {open && !isShortsPage && (
         <Global
           styles={{
             body: {
@@ -131,7 +133,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge allowGifs />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}

@@ -93,6 +93,7 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
+    autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
   };
 };
 

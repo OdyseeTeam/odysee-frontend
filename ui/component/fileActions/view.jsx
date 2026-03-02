@@ -90,8 +90,13 @@ export default function FileActions(props: Props) {
   const channelName = signingChannel && signingChannel.name;
   const fileName = value && value.source && value.source.name;
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-
-  const webShareable = costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode);
+  const isCollectionClaim = claim && claim.value_type === 'collection';
+  const isChannel = claim && claim.value_type === 'channel';
+  const webShareable =
+    (costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode)) ||
+    RENDER_MODES.TEXT_MODES.includes(renderMode) ||
+    isCollectionClaim ||
+    isChannel;
   const urlParams = new URLSearchParams(search);
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
@@ -186,7 +191,7 @@ export default function FileActions(props: Props) {
                   <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REPOST} />
-                      {claimMeta.reposted > 1
+                      {claimMeta?.reposted > 1
                         ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
                         : __('Repost')}
                     </div>

@@ -24,8 +24,8 @@ reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_START] = (state, action) => ({ ...state, 
 reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE] = (state, action) => ({
   ...state,
   accountStatusFetching: false,
-  accountStatus: action.data.stripe,
-  arweaveStatus: action.data.arweave,
+  accountStatus: action.data?.stripe,
+  arweaveStatus: action.data?.arweave,
 });
 
 reducers[ACTIONS.AR_ADDR_DEFAULT_STARTED] = (state) => ({
@@ -46,14 +46,19 @@ reducers[ACTIONS.AR_ADDR_REGISTER_STARTED] = (state, action) => ({
   arAccountRegisteringError: undefined,
 });
 reducers[ACTIONS.AR_ADDR_REGISTER_SUCCESS] = (state, action) => ({
-  ...state, arAccountRegisteringId: undefined });
+  ...state,
+  arAccountRegisteringId: undefined,
+});
 reducers[ACTIONS.AR_ADDR_REGISTER_ERROR] = (state, action) => ({
   ...state,
   arAccountRegisteringId: undefined,
   arAccountRegisteringError: action.data,
 });
 reducers[ACTIONS.AR_ADDR_REGISTER_CLEAR] = (state, action) => ({
-  ...state, arAccountRegisteringId: undefined, arAccountRegisteringError: undefined });
+  ...state,
+  arAccountRegisteringId: undefined,
+  arAccountRegisteringError: undefined,
+});
 
 // Update
 reducers[ACTIONS.AR_ADDR_UPDATE_STARTED] = (state, action) => ({
@@ -95,9 +100,10 @@ reducers[ACTIONS.CHECK_CAN_RECEIVE_FIAT_TIPS_STARTED] = (state, action) => {
   };
 };
 reducers[ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS] = (state, action) => {
-  const { accountCheckResponse, claimId } = action.data;
+  const { accountCheckResponse, claimId } = action.data || {};
 
-  const { stripe, arweave } = accountCheckResponse;
+  // Guard against undefined accountCheckResponse (e.g., when Stripe is disabled)
+  const { stripe, arweave } = accountCheckResponse || {};
 
   const newCanReceiveArweaveTipsById = Object.assign({}, state.canReceiveArweaveTipsById);
   if (arweave && arweave.status === 'active') {

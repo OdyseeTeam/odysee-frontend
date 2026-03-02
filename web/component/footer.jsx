@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import Button from 'component/button';
 import { SIMPLE_SITE } from 'config';
 import * as PAGES from 'constants/pages';
+import { useHistory } from 'react-router';
+import classnames from 'classnames';
 
 export default function Footer() {
   useEffect(() => {
@@ -24,11 +26,18 @@ export default function Footer() {
     checkForOneTrust();
   }, []);
 
+  const {
+    location: { search },
+  } = useHistory();
+  const urlParams = new URLSearchParams(search);
+  const isShorts = urlParams.get('view') === 'shorts';
+
   if (!SIMPLE_SITE) {
     return null;
   }
+
   return (
-    <footer className="footer">
+    <footer className={classnames('footer', { 'footer--shorts': isShorts })}>
       <ul className="navigation__tertiary footer__links">
         <li className="footer__link">
           <Button
@@ -44,7 +53,7 @@ export default function Footer() {
           <Button label={__('Support --[used in footer; general help/support]--')} href="https://help.odysee.tv/" />
         </li>
         <li className="footer__link">
-          <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
+          <Button label={__('Contribute')} navigate={`/$/${PAGES.CONTRIBUTE}`} />
         </li>
         <li className="footer__link">
           <Button label={__('Terms')} href="https://odysee.com/$/tos" />

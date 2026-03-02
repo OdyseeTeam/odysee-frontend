@@ -161,11 +161,6 @@ body {
             }
           }
         }
-        .claim-tile__info {
-          .media__subtitle {
-            margin-bottom: 1px;
-          }
-        }
       }
     }
   }
@@ -276,6 +271,13 @@ body {
     .file-page__recommended {
       margin-top: 0px !important;
     }
+  }
+}
+
+.main--shorts-page {
+  height: 85vh;
+  @media (min-width: $breakpoint-small) {
+    height: fit-content !important;
   }
 }
 
@@ -606,6 +608,9 @@ body {
       height: 6rem;
       border-radius: 50%;
     }
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
+    }
     .channel-thumbnail {
       display: none;
     }
@@ -935,6 +940,15 @@ body {
   fieldset-section,
   .checkbox {
     margin-bottom: var(--spacing-m);
+  }
+
+  .card--youtube-sync {
+    .nag--error.nag--relative {
+      left: 0;
+      right: 0;
+      bottom: auto;
+      margin-top: var(--spacing-s);
+    }
   }
 }
 

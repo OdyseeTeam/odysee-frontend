@@ -280,7 +280,7 @@ export const selectUserHasValidOdyseeMembership = (state: State) =>
 export const selectMyValidMembershipIds = createSelector(selectMyValidMembershipsById, (validMembershipsById) => {
   const validMembershipIds = new Set([]);
 
-  Object.entries(validMembershipsById).forEach(([key, value]) => {
+  (Object.entries(validMembershipsById): Array<[string, any]>).forEach(([key, value]) => {
     value.forEach((value) => {
       validMembershipIds.add(value.membership.id);
     });
@@ -433,12 +433,22 @@ export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChan
 export const selectAllMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
 
+const filterArEnabledMembershipTiers = (tiers: CreatorMemberships) => {
+  if (!tiers) return [];
+  // $FlowIgnore
+  return tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled);
+};
+
 // select enabled, monetized memberships (joinable)
 export const selectArEnabledMembershipTiersForChannelUri = (state: State, uri: string) => {
-  const tiers = selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
+  return selectArEnabledMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
+};
+
+// select enabled, monetized memberships (joinable)
+export const selectArEnabledMembershipTiersForCreatorId = (state: State, channelId: string) => {
+  const tiers = selectMembershipTiersForCreatorId(state, channelId);
   if (!tiers) return null;
-  // $FlowIgnore
-  return tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled); // handle monetization disabled
+  return filterArEnabledMembershipTiers(tiers);
 };
 
 export const selectTierIndexForCreatorIdAndMembershipId = (
@@ -649,22 +659,22 @@ export const selectPriceOfCheapestPlanForClaimId = (state: State, claimId: Claim
 };
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {
-  const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
+  const membershipTiers: CreatorMemberships = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
   return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive content') : [];
 };
 
 export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State, activeChannelClaimId: string) => {
-  const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
+  const membershipTiers: CreatorMemberships = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
   return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive livestreams') : [];
 };
 
 export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, channelId: string) => {
-  const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, channelId);
+  const membershipTiers: CreatorMemberships = selectMembershipTiersForCreatorId(state, channelId);
   return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Members-only chat') : [];
 };
 
 export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
-  selectMembershipTiersForCreatorId,
+  selectArEnabledMembershipTiersForCreatorId,
   (memberships: CreatorMemberships) => {
     if (!memberships) return memberships;
 
@@ -687,7 +697,7 @@ export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
 
 export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
   selectMyValidMembershipsForCreatorId,
-  (myValidMemberships: MembershipTiers) =>
+  (myValidMemberships: CreatorMemberships) =>
     myValidMemberships &&
     myValidMemberships.filter(
       (membership: MembershipTier) =>

@@ -40,6 +40,10 @@
     transition: background-size 0.2s ease-in-out;
   }
 
+  .media__thumb__short {
+    aspect-ratio: 9 / 16;
+  }
+
   .claim-preview__title {
     font-weight: var(--font-weight-bold);
     overflow: hidden;
@@ -95,6 +99,23 @@
       right: 4px !important;
       opacity: 0.6;
     }
+  }
+}
+
+.claim-preview__wrapper--short {
+  .media__thumb {
+    background-size: cover;
+    aspect-ratio: 9 / 16;
+  }
+
+  &:hover {
+    .media__thumb {
+      background-size: cover;
+      aspect-ratio: 9 / 16;
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    width: 48.5% !important;
   }
 }
 
@@ -166,6 +187,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-s);
+
     $width: 100%;
     width: $width;
     @include handleClaimTileGifThumbnail($width);
@@ -566,6 +589,15 @@
         margin-top: 0;
       }
 
+      a.button-following {
+        .button__content {
+          width: 100%;
+        }
+      }
+      button.button-following:last-of-type {
+        max-width: fit-content;
+      }
+
       span {
         font-size: var(--font-xsmall);
         font-weight: var(--font-weight-bold);
@@ -664,6 +696,21 @@
   @media (max-width: $breakpoint-small) {
     .claim-preview__text {
       flex-direction: column;
+
+      .claim-preview-metadata {
+        .claim-tile__info {
+          .media__subtitle {
+            margin-top: 2px;
+            .button--uri-indicator {
+              .button__content {
+                .channel-name {
+                  font-size: var(--font-xxsmall) !important;
+                }
+              }
+            }
+          }
+        }
+      }
       .claim-preview__actions {
         flex-direction: row;
         justify-content: flex-start !important;
@@ -825,7 +872,6 @@
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
-
     .claim-preview-metadata {
       .claim-tile__info {
         .channel-thumbnail {
@@ -1371,6 +1417,17 @@
   align-items: flex-start;
 }
 
+.claim-shorts-grid {
+  @media (max-width: $breakpoint-small) {
+    display: flex;
+    gap: 5px !important;
+    align-items: flex-start !important;
+    :not(:first-child) {
+      margin-top: 1px !important;
+    }
+  }
+}
+
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
@@ -1481,7 +1538,7 @@
   }
 }
 
-.embed__wrapper .claim-preview--tile {
+.embed__wrapper .file-viewer .claim-preview--tile {
   margin-bottom: 0px !important;
   width: unset !important;
   margin: 0px !important;

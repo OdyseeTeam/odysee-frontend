@@ -18,6 +18,7 @@ type Props = {
   amountNeededForTakeover: number,
   prepareEdit: ({}, string) => void,
   updatePublishForm: (UpdatePublishState) => void,
+  onChange?: () => void,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   currentUploads: { [guid: string]: FileUploadItem },
@@ -32,6 +33,7 @@ function PublishName(props: Props) {
     myClaimForUriCaseInsensitive,
     prepareEdit,
     updatePublishForm,
+    onChange,
     activeChannelClaim,
     incognito,
     currentUploads,
@@ -54,6 +56,11 @@ function PublishName(props: Props) {
     if (myClaimForUri) {
       prepareEdit(myClaimForUri, uri);
     }
+  }
+
+  function handleChange(event) {
+    handleNameChange(event);
+    if (onChange) onChange();
   }
 
   function handleNameChange(event) {
@@ -100,7 +107,7 @@ function PublishName(props: Props) {
           value={name}
           error={nameError}
           disabled={isStillEditing}
-          onChange={handleNameChange}
+          onChange={handleChange}
           onBlur={() => setBlurred(true)}
           autoComplete="off"
         />

@@ -127,11 +127,11 @@ a.button--alt {
 }
 
 .button--liquidass {
-  border:1px solid white;
-  background-color:rgba(255,255,255,.1) !important;
-  backdrop-filter:blur(4px);
+  border: 1px solid white;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(4px);
   margin-top: var(--spacing-m);
-  transition: background .6s;
+  transition: background 0.6s;
 
   .button__label {
     color: var(--color-primary-contrast);
@@ -151,7 +151,7 @@ a.button--alt {
   }
 
   &:hover {
-    background-color:rgba(255,255,255,.2) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
     .icon {
       stroke: var(--color-primary-contrast) !important;
     }
@@ -351,7 +351,7 @@ a.button--alt {
     overflow: hidden;
     display: flex;
     align-items: flex-end;
-    font-size: var(--font-xsmall);
+    font-size: var(--font-small);
     color: rgba(var(--color-text-base), 0.6);
 
     .icon {
@@ -1141,7 +1141,7 @@ svg + .button__label {
 
 .button--membership-active {
   background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
-  
+
   .button__content {
     .icon {
       color: white !important;
@@ -1152,7 +1152,7 @@ svg + .button__label {
       color: white;
     }
   }
-  &:hover {    
+  &:hover {
     .icon {
       color: white !important;
       stroke: white !important;

@@ -12,6 +12,8 @@ import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
+import type { HomepageTitles } from 'util/buildHomepage';
 
 const Draggable = React.lazy(() =>
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
@@ -71,6 +73,8 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
+  isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
 };
 
 export default function ClaimList(props: Props) {
@@ -121,9 +125,15 @@ export default function ClaimList(props: Props) {
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
+    isShortFromChannelPage,
+    sectionTitle,
   } = props;
 
   const isMobile = useIsMobile();
+  const { location } = useHistory();
+
+  const queryParams = new URLSearchParams(location.search);
+  const isShorts = queryParams.get('view') === 'shortsTab';
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);
@@ -152,8 +162,8 @@ export default function ClaimList(props: Props) {
   const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
 
   React.useEffect(() => {
-    if (typeof loadedCallback === 'function') loadedCallback(totalLength);
-  }, [totalLength]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (typeof loadedCallback === 'function' && !loading) loadedCallback(totalLength);
+  }, [totalLength, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const noResultMsg = searchInLanguage
     ? __('No results. Contents may be hidden by the Language filter.')
@@ -289,7 +299,7 @@ export default function ClaimList(props: Props) {
 
   return tileLayout && !header ? (
     <>
-      <section ref={listRef} className="claim-grid">
+      <section ref={listRef} className={`claim-grid ${isShorts ? 'claim-shorts-grid' : ''}`}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {
@@ -313,6 +323,8 @@ export default function ClaimList(props: Props) {
                       collectionId={collectionId}
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
+                      isShortFromChannelPage={isShortFromChannelPage}
+                      sectionTitle={sectionTitle}
                     />
                   )}
                 </React.Fragment>

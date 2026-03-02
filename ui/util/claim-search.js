@@ -2,9 +2,7 @@
 import type { Duration } from 'constants/claim_search';
 
 import * as CS from 'constants/claim_search';
-import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
-import { selectClientSetting } from 'redux/selectors/settings';
 
 /**
  * Common logic to generate ClaimSearch option payload.
@@ -59,13 +57,7 @@ export const CsOptHelper = {
 
     switch (duration) {
       case CS.DURATION.ALL:
-        const { store } = window;
-        let hideShorts;
-        if (store) {
-          const state = store.getState();
-          hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
-        }
-        x = durationVal || (hideShorts && `>=${SETTINGS.SHORTS_DURATION_LIMIT}`) || undefined;
+        x = durationVal || undefined;
         break;
       case CS.DURATION.SHORT:
         x = '<=240';

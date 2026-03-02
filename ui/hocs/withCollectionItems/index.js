@@ -1,8 +1,10 @@
 import { connect } from 'react-redux';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import {
   selectHasPrivateCollectionForId,
   selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 
@@ -16,7 +18,10 @@ const select = (state, props) => {
 
   return {
     isPrivate: selectHasPrivateCollectionForId(state, collectionId),
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
+    collectionUrls:
+      collectionId === COLLECTIONS_CONSTS.WATCH_LATER_ID
+        ? selectUrlsForCollectionIdNonDeleted(state, collectionId)
+        : selectUrlsForCollectionId(state, collectionId),
     collectionIds: selectClaimIdsForCollectionId(state, collectionId),
   };
 };

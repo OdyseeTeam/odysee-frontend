@@ -159,9 +159,8 @@ export const generateShareUrl = (
 
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
-  const encodedLbryWebUrl = lbryWebUrl.replace(/@/g, '%40');
 
-  const url = `${domain}/${encodedLbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
+  const url = `${domain}/${lbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
   return url;
 };
 
@@ -199,8 +198,7 @@ export const generateShortShareUrl = async (
 
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
-  const encodedLbryWebUrl = lbryWebUrl.replace(/@/g, '%40');
-  const baseUrl = `${domain}/${encodedLbryWebUrl}`;
+  const baseUrl = `${domain}/${lbryWebUrl}`;
 
   // -- Append params that we want to shorten:
   const urlToShorten = new URL(baseUrl);
@@ -276,3 +274,19 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 
   return embedUrlParams;
 };
+
+// This is NOT a full HTML decoder.
+// It intentionally decodes only a small set of common entities
+// to salvage malformed URLs without breaking query parameters
+// like "&currency".
+export function htmlDecode(str) {
+  if (typeof str !== 'string' || !str.includes('&')) return str;
+  return str.replace(/&quot;/gi, '"')
+        .replace(/&#0*34;/gi, '"')
+        .replace(/&#x27;/gi, "'")
+        .replace(/&#0*39;/gi, "'")
+        .replace(/&apos;/gi, "'")
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&amp;/gi, '&');
+}

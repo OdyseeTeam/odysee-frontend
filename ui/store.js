@@ -14,7 +14,19 @@ import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 
-const history = createBrowserHistory();
+const browserHistory = createBrowserHistory();
+
+// Wrap history.push to prevent duplicate entries
+const originalPush = browserHistory.push.bind(browserHistory);
+browserHistory.push = (path, state) => {
+  const currentPath = browserHistory.location.pathname + browserHistory.location.search;
+  const newPath = typeof path === 'string' ? path : path.pathname + (path.search || '');
+  if (newPath !== currentPath) {
+    originalPush(path, state);
+  }
+};
+
+const history = browserHistory;
 const rootReducer = createRootReducer(history);
 const persistedReducer = persistReducer(persistOptions, rootReducer);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

@@ -10,7 +10,10 @@ const select = (state, props) => {
 
   // this will help play the first valid claim in a list
   // in case the urls have been deleted
-  const firstPlayableItem = collectionUrls?.find((url) => Boolean(selectClaimForUri(state, url)));
+  const firstPlayableItem = collectionUrls?.find((url) => {
+    const claim = selectClaimForUri(state, url);
+    return Boolean(claim && claim.value_type !== 'deleted');
+  });
 
   return {
     uri: firstPlayableItem,
