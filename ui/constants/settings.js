@@ -57,6 +57,8 @@ export const SHORTS_ASPECT_RATIO_LTE = 0.8;
 export const SHORTS_DURATION_LTE = 180;
 export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
 export const FYP_MODAL_SHOWN = 'fyp_modal_shown';
+export const YOUTUBE_GATEWAY_URL = 'youtube_gateway_url';
+export const YOUTUBE_GATEWAY_TOKEN = 'youtube_gateway_token';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',
