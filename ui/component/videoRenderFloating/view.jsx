@@ -598,7 +598,7 @@ function VideoRenderFloating(props: Props) {
             'content__viewer--disable-click': wasDragging,
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             'content__viewer--portrait': isPortraitVideo.current,
-            'shorts__viewer--panel-open': isShortVideo && sidePanelOpen,
+            'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,
           })}
           style={
             !isFloating && fileViewerRect

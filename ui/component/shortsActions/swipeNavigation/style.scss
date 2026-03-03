@@ -48,8 +48,8 @@
       transform: translate(-50%, 0%) !important;
     }
 
-    @media (max-width: 1180px) and (min-width: 786px) {
-      transform: translate(-105%, 0%) !important;
+    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
+      transform: translate(-50%, 0%) !important;
     }
 
     @media (min-width: 1600px) {

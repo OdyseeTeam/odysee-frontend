@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { useIsMobile, useWindowSize } from 'effects/use-screensize';
+import { useIsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
@@ -128,7 +128,6 @@ export default function ShortsPage(props: Props) {
   const shortsContainerRef = React.useRef<any>();
   const fypId = urlParams.get(FYP_ID);
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
-  const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const wheelLockRef = React.useRef(false);
   const [localViewMode, setLocalViewMode] = React.useState(
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
@@ -155,7 +154,7 @@ export default function ShortsPage(props: Props) {
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
-  const isSwipeEnabled = !mobileModalOpen;
+  const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
 
   const setShortViewerWidthFromVideo = React.useCallback(() => {
@@ -220,60 +219,33 @@ export default function ShortsPage(props: Props) {
   }, [doOpenModal, uri, webShareable, collectionId]);
 
   const handleCommentsClick = React.useCallback(() => {
-    if (isMobile) {
-      setMobileModalOpen(true);
-      setPanelMode('comments');
+    if (sidePanelOpen && panelMode === 'comments') {
+      doSetShortsSidePanel(false);
     } else {
-      if (sidePanelOpen && panelMode === 'comments') {
-        doSetShortsSidePanel(false);
-      } else {
-        setPanelMode('comments');
-        doSetShortsSidePanel(true);
-      }
+      setPanelMode('comments');
+      doSetShortsSidePanel(true);
     }
-  }, [isMobile, doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
 
   const handleInfoButtonClick = React.useCallback(() => {
-    if (isMobile) {
-      setMobileModalOpen(true);
-      setPanelMode('info');
+    if (sidePanelOpen && panelMode === 'info') {
+      doSetShortsSidePanel(false);
     } else {
-      if (sidePanelOpen && panelMode === 'info') {
-        doSetShortsSidePanel(false);
-      } else {
-        setPanelMode('info');
-        doSetShortsSidePanel(true);
-      }
+      setPanelMode('info');
+      doSetShortsSidePanel(true);
     }
-  }, [isMobile, doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
 
   const handleClosePanel = React.useCallback(() => {
-    if (isMobile) {
-      setMobileModalOpen(false);
-    } else {
-      doSetShortsSidePanel(false);
-    }
-  }, [isMobile, doSetShortsSidePanel]);
-
-  const windowWidth = useWindowSize();
-
-  React.useEffect(() => {
-    if (sidePanelOpen && windowWidth < 1180) {
-      doSetShortsSidePanel(false);
-    }
-  }, [windowWidth, sidePanelOpen, doSetShortsSidePanel]);
+    doSetShortsSidePanel(false);
+  }, [doSetShortsSidePanel]);
 
   const handledLinkedCommentIdRef = React.useRef(null);
   React.useEffect(() => {
     if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
       handledLinkedCommentIdRef.current = linkedCommentId;
-      if (isMobile) {
-        setMobileModalOpen(true);
-        setPanelMode('comments');
-      } else {
-        setPanelMode('comments');
-        doSetShortsSidePanel(true);
-      }
+      setPanelMode('comments');
+      doSetShortsSidePanel(true);
     }
   }, [linkedCommentId, isMobile, doSetShortsSidePanel]);
 
@@ -607,7 +579,7 @@ export default function ShortsPage(props: Props) {
 
   const handleScroll = React.useCallback(
     (e) => {
-      if (mobileModalOpen || wheelLockRef.current) return;
+      if ((isMobile && sidePanelOpen) || wheelLockRef.current) return;
 
       const { clientX, clientY } = e;
       if (isSwipeInsideSidePanel(clientX, clientY)) {
@@ -627,7 +599,7 @@ export default function ShortsPage(props: Props) {
         wheelLockRef.current = false;
       }, 120);
     },
-    [goToNext, goToPrevious, mobileModalOpen, isSwipeInsideSidePanel]
+    [goToNext, goToPrevious, isMobile, sidePanelOpen, isSwipeInsideSidePanel]
   );
 
   React.useEffect(() => {
@@ -781,8 +753,8 @@ export default function ShortsPage(props: Props) {
 
           {isMobile && (
             <MobilePanel
-              isOpen={mobileModalOpen}
-              onClose={() => setMobileModalOpen(false)}
+              isOpen={sidePanelOpen}
+              onClose={handleClosePanel}
               onInfoClick={handleInfoButtonClick}
               uri={uri}
               accessStatus={accessStatus}
