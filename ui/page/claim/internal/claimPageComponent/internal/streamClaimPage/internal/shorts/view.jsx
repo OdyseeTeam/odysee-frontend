@@ -184,7 +184,9 @@ export default function ShortsPage(props: Props) {
     const computedWidthPx = videoW * scale;
 
     // Convert to vw (viewport width %)
-    const maxWidth = sidePanelOpen ? 30 : 80; // in percentages
+    const maxWidthPx = window.innerWidth - 240;
+    const maxWidthVW = (maxWidthPx / window.innerWidth) * 100;
+    const maxWidth = sidePanelOpen ? 30 : Math.min(maxWidthVW, 80);
     const widthVW = (computedWidthPx / window.innerWidth) * 100;
     const clampedVW = Math.min(widthVW, maxWidth); // Avoid overflow
 

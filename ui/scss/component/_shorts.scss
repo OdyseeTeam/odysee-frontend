@@ -3,7 +3,7 @@
   position: fixed;
   top: 0;
   left: 50%;
-  width: 380px;
+  width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   height: 90vh;
   margin-top: 60px;
   z-index: 2;
@@ -62,7 +62,7 @@
   position: fixed;
   top: 0;
   left: 50%;
-  width: 380px;
+  width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   height: 90vh;
   margin-top: 60px;
   z-index: 2;
@@ -290,7 +290,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page__info-button {
   position: fixed;
   top: 70px;
-  right: calc(50% - 400px / 2 - 60px + 7.5px);
+  right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
   background: rgba(45, 44, 44, 0.895) !important;
   border: none !important;
   border-radius: 50% !important;
@@ -367,7 +367,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts-page__container--panel-open {
   .menu__button {
-    right: calc(50% - 330px / 2 + 270px - 60px);
+    right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
   }
 
   @media (max-width: 1180px) and (min-width: $breakpoint-small) {
@@ -379,11 +379,11 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
   .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(50% - 380px / 2 - 60px + 7.5px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(50% - 380px / 2 - 60px + 7.5px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
   }
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
@@ -407,7 +407,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page__navigation {
   position: fixed;
   top: 0;
-  right: calc(50% - 400px / 2 - 60px);
+  right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -498,11 +498,11 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts-page__container--panel-open {
   .shorts-page__info-button {
-    right: calc(49.5% - 330px / 2 + 270px - 60px + 7.5px);
+    right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px + 7.5px);
   }
 
   .shorts-page__navigation {
-    right: calc(49.5% - 330px / 2 + 270px - 60px);
+    right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
   }
 
   .shorts-page__back-button {
@@ -543,11 +543,11 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 
   .shorts-page__info-button {
-    right: calc(50% - 400px / 2 - 60px + 7.5px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
-    right: calc(50% - 400px / 2 - 60px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
 }
 
@@ -564,11 +564,11 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
   .shorts-page__info-button {
-    right: calc(50% - 380px / 2 - 60px + 7.5px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
   }
 
   .shorts-page__navigation {
-    right: calc(50% - 380px / 2 - 60px);
+    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
 }
 
@@ -771,11 +771,11 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
   .shorts-page__container--panel-open {
     .shorts-page__navigation {
-      right: calc(51.5% - 330px / 2 + 270px - 60px);
+      right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
     }
 
     .shorts-page__info-button {
-      right: calc(51.5% - 330px / 2 + 270px - 60px + 7.5px);
+      right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px + 7.5px);
     }
   }
 }
@@ -783,7 +783,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page,
 .main--shorts-page {
   .content__cover--shorts {
-    width: 380px !important;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     height: 90vh !important;
     max-height: 90vh !important;
     position: fixed;

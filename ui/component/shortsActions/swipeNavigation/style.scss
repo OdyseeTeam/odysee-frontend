@@ -16,7 +16,7 @@
   }
 
   &.shorts-swipe-overlay {
-    width: 380px;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
     height: 82vh;
     top: 60px;
     left: 50%;

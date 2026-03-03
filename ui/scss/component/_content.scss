@@ -855,7 +855,7 @@
 }
 
 .shorts__viewer {
-  width: 380px !important;
+  width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
   height: 90vh !important;
   max-height: 90vh !important;
 
@@ -870,8 +870,6 @@
   border: none;
   border-radius: 10px;
   overflow: hidden;
-
-  aspect-ratio: 9/16;
 
   &::after {
     content: '';
@@ -1174,13 +1172,6 @@
         max-height: 100vh !important;
         max-height: 100svh !important;
       }
-    }
-  }
-
-  @media (min-width: $breakpoint-medium) {
-    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
-    .content__wrapper {
-      width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
   }
 
