@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { createPortal } from 'react-dom';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
@@ -233,8 +232,7 @@ const ShortsActions = React.memo<Props>(
       </div>
     );
 
-    if (!document.body) return content;
-    return createPortal(content, document.body);
+    return content;
   }
 );
 

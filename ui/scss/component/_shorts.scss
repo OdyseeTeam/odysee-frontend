@@ -225,17 +225,17 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts-page__side-panel {
   position: fixed;
-  top: 0;
+  top: var(--header-height);
   right: -720px;
   width: 720px;
-  height: 100vh;
+  height: calc(100vh - var(--header-height));
   background: var(--color-card-background);
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1100 !important;
   display: flex;
   flex-direction: column;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-  padding-top: 50px;
+  padding-top: 10px;
   isolation: isolate !important;
 }
 
