@@ -929,6 +929,11 @@
       object-fit: cover;
     }
 
+    .vjs-poster {
+      background-size: cover;
+      background-position: center;
+    }
+
     .vjs-control-bar {
       background: transparent;
       z-index: 3;

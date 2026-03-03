@@ -26,6 +26,7 @@ type Props = {
   // -- redux --
   claimThumbnail?: string,
   isShortClaim: boolean,
+  isCurrentlyPlaying: boolean,
   obscurePreview: boolean,
   renderMode: string,
   videoTheaterMode: boolean,
@@ -48,6 +49,7 @@ const ClaimCoverRender = (props: Props) => {
     // -- redux --
     claimThumbnail,
     isShortClaim,
+    isCurrentlyPlaying,
     obscurePreview,
     renderMode,
     videoTheaterMode,
@@ -87,8 +89,11 @@ const ClaimCoverRender = (props: Props) => {
       href={href}
       onClick={onClick}
       style={
-        thumbnail && !obscurePreview && !(shouldUseShortsCoverLayout && autoplayMedia)
-          ? { backgroundImage: `url("${thumbnail}")` }
+        thumbnail &&
+        !obscurePreview &&
+        !(isCurrentlyPlaying && shouldUseShortsCoverLayout) &&
+        !(shouldUseShortsCoverLayout && autoplayMedia)
+          ? { backgroundImage: `url("${thumbnail}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
           : {}
       }
       className={classnames('content__cover', {
