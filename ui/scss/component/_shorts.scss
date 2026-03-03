@@ -230,7 +230,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   width: 720px;
   height: 100vh;
   background: var(--color-card-background);
-  transition: right 0.3s ease-in-out;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1100 !important;
   display: flex;
   flex-direction: column;
@@ -285,32 +285,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-m);
-}
-
-.shorts-page__info-button {
-  position: fixed;
-  top: 70px;
-  right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  background: rgba(45, 44, 44, 0.895) !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 45px !important;
-  height: 45px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: white !important;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  z-index: 10001 !important;
-
-  .icon {
-    color: white !important;
-  }
-
-  &:hover {
-    background: var(--color-odysee) !important;
-  }
 }
 
 .shorts-page__back-button {
@@ -378,27 +352,12 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
-  .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
-  .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
   }
 }
 
 @media (min-width: $breakpoint-medium) {
-  .shorts-page__info-button.shorts-page-menu__button {
-    right: calc(49.8% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
-  .shorts-page__info-button:not(.shorts-page-menu__button) {
-    right: calc(49.8% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
   .shorts-page__back-button {
     left: calc(50% - 29.4vw / 2 - 60px);
   }
@@ -413,7 +372,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   align-items: center;
   gap: 8px;
   z-index: 1001;
-  transition: right 0.3s ease-in-out;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   justify-content: flex-end;
   height: 90vh;
   margin-top: 60px;
@@ -424,6 +383,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   border-radius: 50% !important;
   width: 40px !important;
   height: 40px !important;
+  flex-shrink: 0;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -443,6 +403,10 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     opacity: 0.3;
     cursor: not-allowed;
   }
+}
+
+.shorts-page__actions-button--info {
+  margin-bottom: auto;
 }
 
 .shorts-page__actions-button--next,
@@ -472,6 +436,12 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   p {
     font-size: 0.7rem;
   }
+
+  @media (max-height: 750px) {
+    p {
+      display: none;
+    }
+  }
 }
 
 .fire-and-count {
@@ -497,10 +467,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 .shorts-page__container--panel-open {
-  .shorts-page__info-button {
-    right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px + 7.5px);
-  }
-
   .shorts-page__navigation {
     right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
   }
@@ -510,10 +476,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 
   @media (max-width: 1180px) and (min-width: $breakpoint-small) {
-    .shorts-page__info-button {
-      right: calc(50% - 500px / 2 + 270px - 60px + 7.5px);
-    }
-
     .shorts-page__navigation {
       right: calc(50% - 500px / 2 + 270px - 60px);
     }
@@ -542,10 +504,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     }
   }
 
-  .shorts-page__info-button {
-    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
   .shorts-page__navigation {
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
@@ -563,10 +521,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
-  .shorts-page__info-button {
-    right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
   .shorts-page__navigation {
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
@@ -760,10 +714,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 @media (min-width: $breakpoint-medium) {
-  .shorts-page__info-button {
-    right: calc(49.8% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px + 7.5px);
-  }
-
   .shorts-page__navigation {
     right: calc(49.8% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
     bottom: 8.5vh;
@@ -772,10 +722,6 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   .shorts-page__container--panel-open {
     .shorts-page__navigation {
       right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
-    }
-
-    .shorts-page__info-button {
-      right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px + 7.5px);
     }
   }
 }

@@ -758,8 +758,6 @@ export default function ShortsPage(props: Props) {
               <ShortsVideoPlayer
                 uri={uri}
                 isMobile={isMobile}
-                sidePanelOpen={sidePanelOpen}
-                onInfoButtonClick={handleInfoButtonClick}
                 primaryPlayerWrapperClass={PRIMARY_PLAYER_WRAPPER_CLASS}
                 nextRecommendedShort={nextRecommendedShort}
                 autoPlayNextShort={autoPlayNextShort}

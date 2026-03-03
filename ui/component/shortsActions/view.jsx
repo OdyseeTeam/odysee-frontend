@@ -34,6 +34,7 @@ type Props = {
   collectionId?: string,
   isUnlisted: ?boolean,
   handleShareClick: () => void,
+  onInfoClick: () => void,
 };
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -62,6 +63,7 @@ const ShortsActions = React.memo<Props>(
     doToggleShortsAutoplay,
     isUnlisted,
     handleShareClick,
+    onInfoClick,
   }: Props) => {
     React.useEffect(() => {
       function fetchReactions() {
@@ -88,6 +90,14 @@ const ShortsActions = React.memo<Props>(
     return (
       <div className="shorts-page__navigation">
         <>
+          <Button
+            className="shorts-page__actions-button shorts-page__actions-button--info"
+            onClick={onInfoClick}
+            icon={ICONS.INFO}
+            iconSize={20}
+            title={__('Show Details')}
+            disabled={!hasPlaylist}
+          />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--previous"
             onClick={onPrevious}
