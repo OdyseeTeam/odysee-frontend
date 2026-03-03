@@ -40,6 +40,7 @@ type Props = {
   purchaseTag: number,
   rentalTag: string,
   autoplay: boolean,
+  autoplayNextShort: boolean,
   isFetchingPurchases: ?boolean,
   renderMode: string,
   streamingUrl: any,
@@ -95,6 +96,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       purchaseTag,
       rentalTag,
       autoplay,
+      autoplayNextShort,
       isFetchingPurchases,
       renderMode,
       streamingUrl,
@@ -165,7 +167,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const autoplayEnabled =
       !forceDisableAutoplay &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
-      (forceAutoplayParam || urlTimeParam || (isLivestreamClaim ? isCurrentClaimLive : autoplay));
+      (forceAutoplayParam ||
+        urlTimeParam ||
+        (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
+        (isShortsContext && autoplayNextShort));
 
     const autoplayVideo =
       !claimLinkId &&

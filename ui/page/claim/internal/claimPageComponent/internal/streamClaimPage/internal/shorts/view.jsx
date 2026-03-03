@@ -11,7 +11,6 @@ import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useHistory } from 'react-router';
-import * as SETTINGS from 'constants/settings';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
@@ -26,8 +25,6 @@ const REEL_TRANSITION_MS = 320;
 const REEL_NAVIGATION_FALLBACK_MS = 1200;
 
 type ReelDirection = 'next' | 'previous';
-
-let ORIGINAL_AUTOPLAY_SETTING = null;
 
 type Props = {
   uri: string,
@@ -68,8 +65,6 @@ type Props = {
   doSetShortsAutoplay: (enabled: boolean) => void,
   isClaimShort: boolean,
   claimId?: string,
-  autoplayMedia: boolean,
-  doSetClientSetting: (key: string, value: boolean) => void,
   doFileGetForUri: (uri: string) => void,
   webShareable?: boolean,
   collectionId?: string,
@@ -111,9 +106,7 @@ export default function ShortsPage(props: Props) {
     thumbnail,
     autoPlayNextShort,
     doToggleShortsAutoplay,
-    autoplayMedia,
     claimId,
-    doSetClientSetting,
     doFileGetForUri,
     webShareable,
     collectionId,
@@ -160,15 +153,10 @@ export default function ShortsPage(props: Props) {
   const hasInitializedRef = React.useRef(false);
   const entryUrlRef = React.useRef(null);
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
-  const firstShortPlayedRef = React.useRef(false);
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !mobileModalOpen;
   const hasEnsuredViewParam = React.useRef(false);
-
-  if (ORIGINAL_AUTOPLAY_SETTING === null) {
-    ORIGINAL_AUTOPLAY_SETTING = autoplayMedia ?? false;
-  }
 
   const setShortViewerWidthFromVideo = React.useCallback(() => {
     // $FlowFixMe
@@ -363,11 +351,8 @@ export default function ShortsPage(props: Props) {
         (isBackNavigation && isCurrentlyInShortsPlayer && isNavigatingToShortsTab) ||
         (isCurrentlyInShortsPlayer && isNavigatingToShortsTab);
 
-      if (shouldCleanup && ORIGINAL_AUTOPLAY_SETTING !== null) {
+      if (shouldCleanup) {
         doClearShortsPlaylist();
-        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
-        firstShortPlayedRef.current = false;
-        ORIGINAL_AUTOPLAY_SETTING = null;
       }
     });
 
@@ -382,18 +367,14 @@ export default function ShortsPage(props: Props) {
       const isInShortsTab = currentParams.get('view') === 'shortsTab';
       const isHomePage = currentPath === '/' && !currentUrl;
 
-      // restore original autoplay when leaving video shorts player -> channel page
       const shouldCleanupOnUnmount =
         (!isInShortsPlayer && !isInShortsTab) || (!isInShortsPlayer && isInShortsTab) || isHomePage;
 
-      if (shouldCleanupOnUnmount && ORIGINAL_AUTOPLAY_SETTING !== null) {
-        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, ORIGINAL_AUTOPLAY_SETTING);
-        firstShortPlayedRef.current = false;
+      if (shouldCleanupOnUnmount) {
         doClearShortsPlaylist();
-        ORIGINAL_AUTOPLAY_SETTING = null;
       }
     };
-  }, [history, doClearShortsPlaylist, doSetClientSetting]);
+  }, [history, doClearShortsPlaylist]);
 
   React.useEffect(() => {
     let timeoutId;
@@ -525,8 +506,7 @@ export default function ShortsPage(props: Props) {
       if (!targetUri) continue;
 
       const transitionThumb = direction === 'next' ? nextThumbnail : previousThumbnail;
-      const previewSrc =
-        transitionThumb && !autoplayMedia ? getThumbnailCdnUrl({ thumbnail: transitionThumb, isShorts: true }) : null;
+      const previewSrc = transitionThumb ? getThumbnailCdnUrl({ thumbnail: transitionThumb, isShorts: true }) : null;
 
       isTransitioningRef.current = true;
       activeTransitionRef.current = { sourceUri: uri, targetUri, direction };
@@ -568,7 +548,6 @@ export default function ShortsPage(props: Props) {
     previousRecommendedShort,
     nextThumbnail,
     previousThumbnail,
-    autoplayMedia,
     uri,
     clearTransitionTimers,
     clearPosition,
@@ -590,18 +569,8 @@ export default function ShortsPage(props: Props) {
       return;
     }
 
-    if (!firstShortPlayedRef.current) {
-      firstShortPlayedRef.current = true;
-      if (ORIGINAL_AUTOPLAY_SETTING === false && autoPlayNextShort) {
-        doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, true);
-      }
-    }
-    if (ORIGINAL_AUTOPLAY_SETTING === false && !autoPlayNextShort) {
-      doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, autoPlayNextShort);
-    }
-
     queueTransition('next');
-  }, [nextRecommendedShort, isAtEnd, autoPlayNextShort, doSetClientSetting, queueTransition]);
+  }, [nextRecommendedShort, isAtEnd, queueTransition]);
 
   const goToPrevious = React.useCallback(() => {
     if (!isTransitioningRef.current && (!previousRecommendedShort || isAtStart)) return;

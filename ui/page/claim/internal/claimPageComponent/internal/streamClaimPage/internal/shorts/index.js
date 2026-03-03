@@ -37,7 +37,7 @@ import {
   doClearShortsPlaylist,
 } from 'redux/actions/shorts';
 import { doClaimSearch, doResolveUri } from 'redux/actions/claims';
-import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
+import { toggleAutoplayNextShort } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
 import { doOpenModal } from 'redux/actions/app';
 
@@ -152,7 +152,6 @@ const select = (state, props) => {
     thumbnail,
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
     disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
-    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isClaimShort: isClaimShort(claim),
     claimId,
     webShareable: true,
@@ -183,7 +182,6 @@ const perform = (dispatch) => ({
     );
   },
   doFileGetForUri: (uri) => dispatch(doFileGetForUri(uri)),
-  doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
   doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),
