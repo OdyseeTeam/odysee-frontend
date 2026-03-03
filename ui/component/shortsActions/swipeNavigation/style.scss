@@ -157,7 +157,7 @@
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px), (pointer: fine) {
   .shorts-mobile-panel__actions {
     display: none;
   }

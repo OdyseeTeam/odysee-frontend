@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import SwipeNavigationPortal from './view';
 import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
@@ -32,4 +31,4 @@ const perform = {
   doOpenModal,
 };
 
-export default connect(select, perform)(withStreamClaimRender(SwipeNavigationPortal));
+export default connect(select, perform)(SwipeNavigationPortal);

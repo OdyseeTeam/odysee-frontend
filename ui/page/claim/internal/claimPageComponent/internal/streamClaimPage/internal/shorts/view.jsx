@@ -133,7 +133,6 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
-  const [videoStarted, setVideoStarted] = React.useState(false);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [transitionDirection, setTransitionDirection] = React.useState<?ReelDirection>(null);
@@ -297,18 +296,6 @@ export default function ShortsPage(props: Props) {
       if (src) img.src = src;
     }
   }, [nextThumbnail, previousThumbnail]);
-
-  React.useEffect(() => {
-    const checkVideoPlaying = setInterval(() => {
-      const videoEl = document.querySelector('.vjs-tech');
-      if (videoEl instanceof HTMLVideoElement && !videoEl.paused) {
-        setVideoStarted(true);
-        clearInterval(checkVideoPlaying);
-      }
-    }, 100);
-
-    return () => clearInterval(checkVideoPlaying);
-  }, [search, uri]);
 
   React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
@@ -619,25 +606,23 @@ export default function ShortsPage(props: Props) {
 
   return (
     <>
-      {videoStarted && (
-        <SwipeNavigationPortal
-          onNext={goToNext}
-          onPrevious={goToPrevious}
-          isEnabled={isSwipeEnabled && hasPlaylist}
-          isMobile={isMobile}
-          className="shorts-swipe-overlay"
-          sidePanelOpen={sidePanelOpen}
-          thumbnailUrl={thumbnail}
-          hasPlaylist={hasPlaylist}
-          uri={uri}
-          autoPlayNextShort={autoPlayNextShort}
-          doToggleShortsAutoplay={doToggleShortsAutoplay}
-          onInfoButtonClick={handleInfoButtonClick}
-          onCommentsClick={handleCommentsClick}
-          isComments={panelMode === 'comments'}
-          handleShareClick={handleShareClick}
-        />
-      )}
+      <SwipeNavigationPortal
+        onNext={goToNext}
+        onPrevious={goToPrevious}
+        isEnabled={isSwipeEnabled && hasPlaylist}
+        isMobile={isMobile}
+        className="shorts-swipe-overlay"
+        sidePanelOpen={sidePanelOpen}
+        thumbnailUrl={thumbnail}
+        hasPlaylist={hasPlaylist}
+        uri={uri}
+        autoPlayNextShort={autoPlayNextShort}
+        doToggleShortsAutoplay={doToggleShortsAutoplay}
+        onInfoButtonClick={handleInfoButtonClick}
+        onCommentsClick={handleCommentsClick}
+        isComments={panelMode === 'comments'}
+        handleShareClick={handleShareClick}
+      />
       {transitionPreviewTarget &&
         createPortal(
           <div
@@ -716,24 +701,22 @@ export default function ShortsPage(props: Props) {
                 enableSwipe={isSwipeEnabled}
               />
 
-              {!isMobile && (
-                <ShortsActions
-                  hasPlaylist={hasPlaylist}
-                  onNext={goToNext}
-                  onPrevious={goToPrevious}
-                  isLoading={isLoadingContent}
-                  currentIndex={currentIndex}
-                  totalVideos={shortsRecommendedUris?.length || 0}
-                  isAtStart={isAtStart}
-                  isAtEnd={isAtEnd}
-                  autoPlayNextShort={autoPlayNextShort}
-                  doToggleShortsAutoplay={doToggleShortsAutoplay}
-                  uri={uri}
-                  onCommentsClick={handleCommentsClick}
-                  onInfoClick={handleInfoButtonClick}
-                  handleShareClick={handleShareClick}
-                />
-              )}
+              <ShortsActions
+                hasPlaylist={hasPlaylist}
+                onNext={goToNext}
+                onPrevious={goToPrevious}
+                isLoading={isLoadingContent}
+                currentIndex={currentIndex}
+                totalVideos={shortsRecommendedUris?.length || 0}
+                isAtStart={isAtStart}
+                isAtEnd={isAtEnd}
+                autoPlayNextShort={autoPlayNextShort}
+                doToggleShortsAutoplay={doToggleShortsAutoplay}
+                uri={uri}
+                onCommentsClick={handleCommentsClick}
+                onInfoClick={handleInfoButtonClick}
+                handleShareClick={handleShareClick}
+              />
             </div>
           </div>
 

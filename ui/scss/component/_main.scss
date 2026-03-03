@@ -276,6 +276,7 @@ body {
 
 .main--shorts-page {
   height: 85vh;
+  z-index: auto;
   @media (min-width: $breakpoint-small) {
     height: fit-content !important;
   }

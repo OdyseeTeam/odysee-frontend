@@ -99,7 +99,7 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
-        'content__cover--side-panel-open': sidePanelOpen,
+        'content__cover--side-panel-open': sidePanelOpen && !isMobile,
       })}
     >
       {children}

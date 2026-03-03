@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import classnames from 'classnames';
-import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
 import MobileActions from '../shortsMobileActions';
@@ -175,7 +174,10 @@ const SwipeNavigationPortal = React.memo<Props>(
           e.currentTarget.style.pointerEvents = '';
           if (el) {
             const link = el.closest('a, button');
-            if (link && link.closest('.shorts-viewer__content-info, .shorts-page__view-toggle--overlay')) {
+            if (
+              link &&
+              link.closest('.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play')
+            ) {
               if (link instanceof HTMLElement) link.click();
               return;
             }
@@ -213,4 +215,4 @@ const SwipeNavigationPortal = React.memo<Props>(
   }
 );
 
-export default withStreamClaimRender(SwipeNavigationPortal);
+export default SwipeNavigationPortal;
