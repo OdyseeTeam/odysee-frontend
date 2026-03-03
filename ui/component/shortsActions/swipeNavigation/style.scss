@@ -36,7 +36,7 @@
     }
 
     @media (max-width: 1380px) and (min-width: 900px) and (max-height: 860px) {
-      width: 350px !important;
+      width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
   }
 
@@ -48,8 +48,9 @@
       transform: translate(-50%, 0%) !important;
     }
 
-    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
-      transform: translate(-50%, 0%) !important;
+    @media (max-width: 1400px) and (min-width: $breakpoint-small) {
+      left: 20px !important;
+      transform: none !important;
     }
 
     @media (min-width: 1600px) {

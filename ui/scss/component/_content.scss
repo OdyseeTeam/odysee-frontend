@@ -1098,8 +1098,10 @@
       transform: translate(-50%, 0%) !important;
     }
 
-    @media (max-width: 1180px) and (min-width: $breakpoint-small) {
-      transform: translate(-50%, 0%) !important;
+    @media (max-width: 1400px) and (min-width: $breakpoint-small) {
+      left: 20px !important;
+      transform: none !important;
+      transition: none !important;
     }
   }
 

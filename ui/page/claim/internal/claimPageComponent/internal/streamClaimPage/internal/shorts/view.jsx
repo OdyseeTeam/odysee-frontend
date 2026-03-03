@@ -172,7 +172,9 @@ export default function ShortsPage(props: Props) {
     // Convert to vw (viewport width %)
     const maxWidthPx = window.innerWidth - 240;
     const maxWidthVW = (maxWidthPx / window.innerWidth) * 100;
-    const maxWidth = sidePanelOpen ? 30 : Math.min(maxWidthVW, 80);
+    const panelMaxPx = window.innerWidth - 480;
+    const panelMaxVW = (panelMaxPx / window.innerWidth) * 100;
+    const maxWidth = sidePanelOpen ? Math.min(panelMaxVW, 80) : Math.min(maxWidthVW, 80);
     const widthVW = (computedWidthPx / window.innerWidth) * 100;
     const clampedVW = Math.min(widthVW, maxWidth); // Avoid overflow
 
