@@ -1181,7 +1181,7 @@
   }
 
   @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
-    width: 350px !important;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     .content__wrapper {
       width: 100% !important;
     }

@@ -43,7 +43,7 @@
   }
 
   @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
-    width: 350px;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
   @media (max-width: $breakpoint-small) {
@@ -103,7 +103,7 @@
   }
 
   @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
-    width: 350px;
+    width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
   @media (max-width: $breakpoint-small) {
