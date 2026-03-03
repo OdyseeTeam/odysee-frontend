@@ -255,6 +255,12 @@ export default function ShortsPage(props: Props) {
     }
   }, [isMobile, doSetShortsSidePanel]);
 
+  React.useEffect(() => {
+    if (isMobile && sidePanelOpen) {
+      doSetShortsSidePanel(false);
+    }
+  }, [isMobile, sidePanelOpen, doSetShortsSidePanel]);
+
   const handledLinkedCommentIdRef = React.useRef(null);
   React.useEffect(() => {
     if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
