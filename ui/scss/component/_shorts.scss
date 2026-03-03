@@ -736,7 +736,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     left: 50% !important;
     top: 0 !important;
     transform: translate(calc(-50% - 6px), 0%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     border-radius: 10px !important;
     overflow: hidden;

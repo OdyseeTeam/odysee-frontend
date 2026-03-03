@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useWindowSize } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
@@ -255,11 +255,13 @@ export default function ShortsPage(props: Props) {
     }
   }, [isMobile, doSetShortsSidePanel]);
 
+  const windowWidth = useWindowSize();
+
   React.useEffect(() => {
-    if (isMobile && sidePanelOpen) {
+    if (sidePanelOpen && windowWidth < 1180) {
       doSetShortsSidePanel(false);
     }
-  }, [isMobile, sidePanelOpen, doSetShortsSidePanel]);
+  }, [windowWidth, sidePanelOpen, doSetShortsSidePanel]);
 
   const handledLinkedCommentIdRef = React.useRef(null);
   React.useEffect(() => {
