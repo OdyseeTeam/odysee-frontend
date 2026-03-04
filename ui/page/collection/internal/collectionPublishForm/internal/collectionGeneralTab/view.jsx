@@ -11,7 +11,6 @@ import * as TAGS from 'constants/tags';
 import { FormField, FormUrlName } from 'component/common/form';
 import { FormContext } from 'component/common/form-components/form';
 import TagsSelect from 'component/tagsSelect';
-import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
 
@@ -207,44 +206,37 @@ function CollectionGeneralTab(props: Props) {
       <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
         {__('Tags')}
       </h2>
-      <Card
-        background
-        body={
-          <div className="publish-row">
-            <TagsSelect
-              suggestMature={!SIMPLE_SITE}
-              disableAutoFocus
-              hideHeader
-              label={__('Selected Tags')}
-              empty={__('No tags added')}
-              excludedControlTags={[
-                TAGS.DISABLE_COMMENTS_TAG,
-                TAGS.DISABLE_DOWNLOAD_BUTTON_TAG,
-                TAGS.DISABLE_REACTIONS_COMMENTS_TAG,
-                TAGS.DISABLE_SLIMES_COMMENTS_TAG,
-              ]}
-              limitSelect={TAGS_LIMIT}
-              help={__(
-                "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-              )}
-              placeholder={__('gaming, crypto')}
-              onSelect={(newTags) => {
-                const validatedTags = [];
-                newTags.forEach((newTag) => {
-                  if (!tags.some((tag) => tag.name === newTag.name)) {
-                    validatedTags.push(newTag);
-                  }
-                });
-                updateFormParams({ tags: [...tags, ...validatedTags] });
-              }}
-              onRemove={(clickedTag) => {
-                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                updateFormParams({ tags: newTags });
-              }}
-              tagsChosen={tags}
-            />
-          </div>
-        }
+      <TagsSelect
+        suggestMature={!SIMPLE_SITE}
+        disableAutoFocus
+        hideHeader
+        label={__('Selected Tags')}
+        empty={__('No tags added')}
+        excludedControlTags={[
+          TAGS.DISABLE_COMMENTS_TAG,
+          TAGS.DISABLE_DOWNLOAD_BUTTON_TAG,
+          TAGS.DISABLE_REACTIONS_COMMENTS_TAG,
+          TAGS.DISABLE_SLIMES_COMMENTS_TAG,
+        ]}
+        limitSelect={TAGS_LIMIT}
+        help={__(
+          "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+        )}
+        placeholder={__('gaming, crypto')}
+        onSelect={(newTags) => {
+          const validatedTags = [];
+          newTags.forEach((newTag) => {
+            if (!tags.some((tag) => tag.name === newTag.name)) {
+              validatedTags.push(newTag);
+            }
+          });
+          updateFormParams({ tags: [...tags, ...validatedTags] });
+        }}
+        onRemove={(clickedTag) => {
+          const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+          updateFormParams({ tags: newTags });
+        }}
+        tagsChosen={tags}
       />
 
       {publishing && (
