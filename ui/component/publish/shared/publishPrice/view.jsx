@@ -9,7 +9,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
-import usePersistedState from 'effects/use-persisted-state';
 import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
 
@@ -26,7 +25,7 @@ type Props = {
   fiatRentalExpiration: Duration,
   paywall: Paywall,
   fee: Fee,
-  memberRestrictionStatus: MemberRestrictionStatus,
+  memberRestrictionOn: boolean,
   chargesEnabled: ?boolean,
   monetizationStatus: boolean,
   updatePublishForm: (UpdatePublishState) => void,
@@ -47,7 +46,6 @@ function PublishPrice(props: Props) {
     // SDK-LBC
     paywall = PAYWALL.FREE,
     fee,
-    memberRestrictionStatus,
     chargesEnabled,
     monetizationStatus,
     updatePublishForm,
@@ -55,16 +53,17 @@ function PublishPrice(props: Props) {
     doCustomerPurchaseCost,
     disabled,
     visibility,
+    memberRestrictionOn,
   } = props;
 
-  const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
+  const expanded = true;
   const [hadSDKPaywallSelected] = React.useState(paywall === PAYWALL.SDK);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it
-  const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
+  const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionOn;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(Number(value), min), max);
@@ -110,53 +109,38 @@ function PublishPrice(props: Props) {
 
   function getPaywallOptionsRow() {
     return (
-      <div
-        className={classnames('publish-price__row', {
-          'publish-price__row--disabled': restrictedWithoutPrice,
-        })}
-      >
+      <div className="publish-price__row">
         <div className="publish-price__grp-1">
           <fieldset-section>
-            <React.Fragment>
-              <FormField
-                type="radio"
-                name="content_free"
-                label={__('Free')}
-                checked={paywall === PAYWALL.FREE}
-                disabled={disabled}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
-              />
-
-              <FormField
-                type="radio"
-                name="content_fiat"
-                label={`${__('Purchase / Rent')} \u{0024}`}
-                checked={paywall === PAYWALL.FIAT}
-                disabled={disabled || !monetizationStatus}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
-                helper={
-                  !monetizationStatus &&
-                  'In order to use this feature, you must set up a wallet and enable monetization first.'
-                }
-              />
-              {hadSDKPaywallSelected && (
-                <>
-                  <FormField
-                    type="radio"
-                    name="content_sdk"
-                    label={<LbcSymbol prefix={__('Purchase with Credits')} />}
-                    checked={paywall === PAYWALL.SDK}
-                    disabled={disabled}
-                    onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
-                  />
-                  {paywall === PAYWALL.SDK && (
-                    <p className="help--warning" style={{ 'margin-top': '10px' }}>
-                      LBC will be sunset in the future, we recommend using other content pricing methods
-                    </p>
-                  )}
-                </>
-              )}
-            </React.Fragment>
+            <FormField
+              type="checkbox"
+              name="content_paid"
+              label={__('Enable paid content (Purchase / Rent)')}
+              checked={paywall === PAYWALL.FIAT}
+              disabled={disabled || !monetizationStatus || restrictedWithoutPrice}
+              onChange={() => updatePublishForm({ paywall: paywall === PAYWALL.FIAT ? PAYWALL.FREE : PAYWALL.FIAT })}
+              helper={
+                !monetizationStatus &&
+                'In order to use this feature, you must set up a wallet and enable monetization first.'
+              }
+            />
+            {hadSDKPaywallSelected && (
+              <>
+                <FormField
+                  type="radio"
+                  name="content_sdk"
+                  label={<LbcSymbol prefix={__('Purchase with Credits')} />}
+                  checked={paywall === PAYWALL.SDK}
+                  disabled={disabled}
+                  onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
+                />
+                {paywall === PAYWALL.SDK && (
+                  <p className="help--warning" style={{ 'margin-top': '10px' }}>
+                    LBC will be sunset in the future, we recommend using other content pricing methods
+                  </p>
+                )}
+              </>
+            )}
           </fieldset-section>
         </div>
       </div>
@@ -341,13 +325,6 @@ function PublishPrice(props: Props) {
                 {paywall === PAYWALL.SDK && <div className="publish-price__group">{getLbcPurchaseRow()}</div>}
               </div>
             )}
-            <div className="publish-row publish-row--more">
-              <Button
-                label={__(expanded ? 'Hide' : 'Show')}
-                button="link"
-                onClick={() => setExpanded((prev) => !prev)}
-              />
-            </div>
           </>
         }
       />

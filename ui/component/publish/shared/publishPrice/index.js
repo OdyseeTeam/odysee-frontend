@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectMemberRestrictionStatus, selectPublishFormValue } from 'redux/selectors/publish';
+import { selectPublishFormValue } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { doCustomerPurchaseCost, doTipAccountStatus } from 'redux/actions/stripe';
 import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
@@ -14,7 +14,7 @@ const select = (state) => ({
   fiatRentalExpiration: selectPublishFormValue(state, 'fiatRentalExpiration'),
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
-  memberRestrictionStatus: selectMemberRestrictionStatus(state),
+  memberRestrictionOn: selectPublishFormValue(state, 'memberRestrictionOn'),
   visibility: selectPublishFormValue(state, 'visibility'),
   monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state),
 });

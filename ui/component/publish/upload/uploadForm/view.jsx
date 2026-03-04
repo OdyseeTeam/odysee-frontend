@@ -617,7 +617,7 @@ function UploadForm(props: Props) {
                   />
 
                   {autoAddPlaylistEnabled && (
-                    <>
+                    <div className="publish-price__group" style={{ marginTop: 'var(--spacing-s)' }}>
                       <div className="playlist-combobox">
                         <label>{__('Playlist')}</label>
                         <Combobox
@@ -716,7 +716,7 @@ function UploadForm(props: Props) {
                           <option value="yes">{__('Auto-publish this playlist update')}</option>
                         </FormField>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               }
