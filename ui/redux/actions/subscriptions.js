@@ -133,6 +133,7 @@ export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number
       page_size: count,
       no_totals: true,
       order_by: ['release_time'],
+      release_time: `<${Math.floor(Date.now() / MS.MINUTE) * 60}`,
     };
 
     dispatch(doClaimSearch(searchOptions))

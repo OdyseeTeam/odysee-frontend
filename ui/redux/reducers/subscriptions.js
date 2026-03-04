@@ -105,29 +105,22 @@ export default handleActions(
       action: { data: { subscriptions: ?Array<string>, following: ?Array<Subscription> } }
     ) => {
       const { subscriptions, following } = action.data;
-      const incomingSubscriptions = Array.isArray(subscriptions) && subscriptions.length;
-      if (!incomingSubscriptions) {
+      if (!Array.isArray(subscriptions)) {
         return {
           ...state,
         };
       }
-      let newSubscriptions;
+
+      const newSubscriptions = subscriptions.map((uri) => {
+        const { channelName } = parseURI(uri);
+        return {
+          uri,
+          channelName: channelName ? `@${channelName}` : '',
+        };
+      });
+
       let newFollowing;
-
-      if (!subscriptions) {
-        newSubscriptions = state.subscriptions;
-      } else {
-        const parsedSubscriptions = subscriptions.map((uri) => {
-          const { channelName } = parseURI(uri);
-          return {
-            uri,
-            channelName: channelName ? `@${channelName}` : '',
-          };
-        });
-        newSubscriptions = parsedSubscriptions;
-      }
-
-      if (!following) {
+      if (!Array.isArray(following)) {
         newFollowing = newSubscriptions.slice().map(({ uri }) => {
           return {
             uri,

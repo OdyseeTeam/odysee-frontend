@@ -1,6 +1,7 @@
 declare type SyncState = {
   hasSyncedWallet: boolean,
   syncHash: ?string,
+  lastSyncHash: ?string,
   syncData: ?string,
   setSyncErrorMessage: ?string,
   getSyncErrorMessage: ?string,
