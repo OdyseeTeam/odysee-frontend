@@ -169,7 +169,7 @@ function SelectThumbnail(props: Props) {
                     }
                   />
                   {!thumbUploaded && (
-                    <p className="help">
+                    <p className="help" style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}>
                       {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
                         domain: DOMAIN,
                         max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),

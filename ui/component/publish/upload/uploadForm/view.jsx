@@ -614,22 +614,24 @@ function UploadForm(props: Props) {
 
           {hasAutoAddPlaylistOptions && !inEditMode && (
             <Card
+              className="card--add-to-playlist"
               background
               title={__('Add To Playlist (Optional)')}
               body={
                 <div className="publish-row">
-                  <div className="section__actions section__actions--between">
-                    <Button
-                      button={autoAddPlaylistEnabled ? 'secondary' : 'alt'}
-                      icon={ICONS.PLAYLIST_ADD}
-                      label={autoAddPlaylistEnabled ? __('Will add after upload') : __('Auto add after upload')}
-                      onClick={() => setAutoAddPlaylistEnabled((prev) => !prev)}
-                    />
-                  </div>
+                  <FormField
+                    type="checkbox"
+                    name="publish_auto_add_playlist"
+                    label={__('Auto add to Playlist after upload')}
+                    checked={autoAddPlaylistEnabled}
+                    onChange={() => setAutoAddPlaylistEnabled((prev) => !prev)}
+                  />
 
                   {autoAddPlaylistEnabled && (
                     <>
-                      <p className="help">{__('Playlists are sorted by recently updated first.')}</p>
+                      <p className="help" style={{ marginTop: 'var(--spacing-m)' }}>
+                        {__('Playlists are sorted by recently updated first.')}
+                      </p>
 
                       {showAutoAddPlaylistSearch && (
                         <FormField
@@ -705,7 +707,10 @@ function UploadForm(props: Props) {
                         </FormField>
                       )}
 
-                      <p className="help">
+                      <p
+                        className="help"
+                        style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}
+                      >
                         {__(
                           'Need more precise ordering than top/bottom? Save first, then fine-tune from the playlist editor.'
                         )}
@@ -732,9 +737,13 @@ function UploadForm(props: Props) {
                   label={__('Selected Tags')}
                   empty={__('No tags added')}
                   limitSelect={TAGS_LIMIT}
-                  help={__(
-                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                  )}
+                  help={
+                    <span style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}>
+                      {__(
+                        "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                      )}
+                    </span>
+                  }
                   placeholder={__('gaming, crypto')}
                   onSelect={(newTags) => {
                     const validatedTags = [];

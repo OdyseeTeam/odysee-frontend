@@ -1,6 +1,11 @@
 @import '~ui/scss/init/breakpoints';
 
 .collection-publish-form__wrapper {
+  @media (max-width: $breakpoint-small) {
+    .collection-actions {
+      border-bottom: none;
+    }
+  }
   .help {
     color: var(--color-text);
   }

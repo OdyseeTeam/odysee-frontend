@@ -74,6 +74,7 @@
 
 .tabs__list--collection-edit-page {
   position: relative;
+  padding-left: var(--spacing-xs);
   padding-right: var(--spacing-m);
   margin-bottom: var(--spacing-l);
   height: 46px;
@@ -82,6 +83,10 @@
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
+
+    .tab::after {
+      bottom: calc(var(--tab-indicator-size) * -2 + 6px);
+    }
   }
 }
 

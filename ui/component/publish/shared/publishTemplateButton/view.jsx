@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuPopover, MenuItems, MenuItem } from '@reach/menu-button';
+import { positionRight } from '@reach/popover';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
@@ -590,116 +591,120 @@ export default function PublishTemplateButton(props: Props) {
           {__('Prefill')}
           <Icon icon={ICONS.DOWN} />
         </MenuButton>
-        <MenuList className="menu__list publish-template-menu__list">
-          <MenuItem className="publish-template-menu__item" onSelect={() => openModal(MODALS.COPY_FROM_UPLOAD)}>
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.COPY} />
-              {__('Copy from Previous Upload...')}
-            </div>
-          </MenuItem>
-          <hr className="publish-template-menu__separator" />
+        <MenuPopover position={positionRight}>
+          <MenuItems data-reach-menu-list="" className="menu__list publish-template-menu__list">
+            <MenuItem className="publish-template-menu__item" onSelect={() => openModal(MODALS.COPY_FROM_UPLOAD)}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.COPY} />
+                {__('Copy from Previous Upload...')}
+              </div>
+            </MenuItem>
+            <hr className="publish-template-menu__separator" />
 
-          {shouldShowTemplateSearch && (
-            <div
-              className="publish-template-menu__search"
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <Icon icon={ICONS.SEARCH} />
-              <input
-                type="text"
-                name="upload_template_menu_search"
-                value={templateSearchQuery}
-                placeholder={__('Search templates...')}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                onChange={(e) => setTemplateSearchQuery(e.target.value)}
+            {shouldShowTemplateSearch && (
+              <div
+                className="publish-template-menu__search"
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-              />
-            </div>
-          )}
-
-          {filteredTemplates.length > 0 ? (
-            <>
-              {pinnedTemplates.length > 0 && <>{pinnedTemplates.map((template) => renderTemplateMenuItem(template))}</>}
-
-              {recentTemplates.length > 0 && (
-                <>{visibleRecentTemplates.map((template) => renderTemplateMenuItem(template))}</>
-              )}
-
-              {!showAllRecentTemplates && hiddenTemplateCount > 0 && !normalizedTemplateSearch && (
-                <MenuItem className="publish-template-menu__item" onSelect={() => setShowAllTemplates(true)}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.DOWN} />
-                    {__('Show %count% more recent...', { count: hiddenTemplateCount })}
-                  </div>
-                </MenuItem>
-              )}
-
-              {showAllTemplates && !normalizedTemplateSearch && recentTemplates.length > MAX_VISIBLE_TEMPLATES && (
-                <MenuItem className="publish-template-menu__item" onSelect={() => setShowAllTemplates(false)}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.UP} />
-                    {__('Show fewer')}
-                  </div>
-                </MenuItem>
-              )}
-            </>
-          ) : (
-            <div className="publish-template-menu__empty">
-              {normalizedTemplateSearch
-                ? __('No templates match your search.')
-                : __('No templates found across your channels.')}
-            </div>
-          )}
-
-          <hr className="publish-template-menu__separator" />
-
-          <MenuItem
-            className={classnames('publish-template-menu__item', {
-              'publish-template-menu__item--disabled': !hasPublishFormTemplateChanges,
-            })}
-            onSelect={() => hasPublishFormTemplateChanges && openSaveInput()}
-            disabled={!hasPublishFormTemplateChanges}
-          >
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.ADD} />
-              {__('Save Current as Template')}
-            </div>
-          </MenuItem>
-
-          {canUpdateSelectedTemplate && selectedTemplate && (
-            <MenuItem className="publish-template-menu__item" onSelect={handleUpdateSelectedTemplate}>
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.REFRESH} />
-                {__('Update Selected Template')}
+              >
+                <Icon icon={ICONS.SEARCH} />
+                <input
+                  type="text"
+                  name="upload_template_menu_search"
+                  value={templateSearchQuery}
+                  placeholder={__('Search templates...')}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
               </div>
-            </MenuItem>
-          )}
+            )}
 
-          {selectedTemplate && (
+            {filteredTemplates.length > 0 ? (
+              <>
+                {pinnedTemplates.length > 0 && (
+                  <>{pinnedTemplates.map((template) => renderTemplateMenuItem(template))}</>
+                )}
+
+                {recentTemplates.length > 0 && (
+                  <>{visibleRecentTemplates.map((template) => renderTemplateMenuItem(template))}</>
+                )}
+
+                {!showAllRecentTemplates && hiddenTemplateCount > 0 && !normalizedTemplateSearch && (
+                  <MenuItem className="publish-template-menu__item" onSelect={() => setShowAllTemplates(true)}>
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.DOWN} />
+                      {__('Show %count% more recent...', { count: hiddenTemplateCount })}
+                    </div>
+                  </MenuItem>
+                )}
+
+                {showAllTemplates && !normalizedTemplateSearch && recentTemplates.length > MAX_VISIBLE_TEMPLATES && (
+                  <MenuItem className="publish-template-menu__item" onSelect={() => setShowAllTemplates(false)}>
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.UP} />
+                      {__('Show fewer')}
+                    </div>
+                  </MenuItem>
+                )}
+              </>
+            ) : (
+              <div className="publish-template-menu__empty">
+                {normalizedTemplateSearch
+                  ? __('No templates match your search.')
+                  : __('No templates found across your channels.')}
+              </div>
+            )}
+
+            <hr className="publish-template-menu__separator" />
+
             <MenuItem
-              className="publish-template-menu__item"
-              onSelect={() => handleToggleTemplatePin(selectedTemplate)}
+              className={classnames('publish-template-menu__item', {
+                'publish-template-menu__item--disabled': !hasPublishFormTemplateChanges,
+              })}
+              onSelect={() => hasPublishFormTemplateChanges && openSaveInput()}
+              disabled={!hasPublishFormTemplateChanges}
             >
               <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.PIN} />
-                {selectedTemplate.isPinned ? __('Unpin Selected Template') : __('Pin Selected Template')}
+                <Icon aria-hidden icon={ICONS.ADD} />
+                {__('Save Current as Template')}
               </div>
             </MenuItem>
-          )}
 
-          <MenuItem className="publish-template-menu__item" onSelect={handleManageTemplates}>
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.SETTINGS} />
-              {__('Manage Templates')}
-            </div>
-          </MenuItem>
-        </MenuList>
+            {canUpdateSelectedTemplate && selectedTemplate && (
+              <MenuItem className="publish-template-menu__item" onSelect={handleUpdateSelectedTemplate}>
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.REFRESH} />
+                  {__('Update Selected Template')}
+                </div>
+              </MenuItem>
+            )}
+
+            {selectedTemplate && (
+              <MenuItem
+                className="publish-template-menu__item"
+                onSelect={() => handleToggleTemplatePin(selectedTemplate)}
+              >
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.PIN} />
+                  {selectedTemplate.isPinned ? __('Unpin Selected Template') : __('Pin Selected Template')}
+                </div>
+              </MenuItem>
+            )}
+
+            <MenuItem className="publish-template-menu__item" onSelect={handleManageTemplates}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.SETTINGS} />
+                {__('Manage Templates')}
+              </div>
+            </MenuItem>
+          </MenuItems>
+        </MenuPopover>
       </Menu>
 
       {showSaveInput && (

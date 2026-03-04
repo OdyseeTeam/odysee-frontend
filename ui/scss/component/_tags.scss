@@ -49,10 +49,19 @@
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
   }
-  label {
+  > fieldset-section > label {
     font-size: var(--font-body);
     font-weight: var(--font-weight-bold);
     margin-top: var(--spacing-l);
+  }
+
+  .checkbox {
+    margin-top: var(--spacing-s);
+
+    label {
+      font-size: var(--font-base);
+      font-weight: normal;
+    }
   }
 }
 

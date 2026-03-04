@@ -7,8 +7,8 @@
   display: inline-flex;
   align-items: center;
   float: none;
-  margin-left: var(--spacing-xs);
-  z-index: 10;
+  margin-left: auto;
+  z-index: 1;
 }
 
 .page__title label > .button + .publish-template-wrapper {
@@ -25,7 +25,7 @@
   height: 36px !important;
   min-height: 36px !important;
   min-width: 8.75rem;
-  border: 1px solid var(--color-border) !important;
+  border: none !important;
   border-radius: var(--border-radius) !important;
   float: none !important;
   margin-top: 0 !important;
@@ -49,7 +49,7 @@
   &[aria-expanded='true'] {
     background-color: var(--color-header-button) !important;
     color: var(--color-text) !important;
-    box-shadow: 0 0 0 1px var(--color-border) inset !important;
+    box-shadow: none !important;
   }
 
   .button__content {
@@ -71,38 +71,9 @@
 }
 
 .publish-template-menu__list {
-  z-index: 12;
-  width: min(92vw, 22rem);
-  min-width: min(18.25rem, 92vw);
+  width: auto;
   max-width: min(92vw, 22rem);
   font-size: var(--font-body);
-
-  [data-reach-menu-item] {
-    border-radius: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  [data-reach-menu-item][data-selected] {
-    border-radius: 0 !important;
-    background-color: var(--color-button-toggle-bg-active) !important;
-    color: #fff !important;
-  }
-
-  [data-reach-menu-item][data-selected] .menu__link,
-  [data-reach-menu-item][data-selected] * {
-    background: transparent !important;
-    color: #fff !important;
-  }
-
-  [data-reach-menu-item][data-selected] .icon,
-  [data-reach-menu-item][data-selected] svg {
-    stroke: #fff !important;
-  }
-
-  .menu__link:hover {
-    border-radius: 0 !important;
-  }
 }
 
 .publish-template-menu__section-label {
@@ -321,7 +292,7 @@
 
 @media (max-width: 900px) {
   .publish-template-wrapper {
-    margin-left: var(--spacing-xxs);
+    margin-left: auto;
 
     .publish-template-menu-button[data-reach-menu-button] {
       height: 34px !important;
@@ -334,9 +305,7 @@
   }
 
   .publish-template-menu__list {
-    width: min(94vw, 20.5rem);
-    min-width: min(16.5rem, 94vw);
-    max-width: min(94vw, 20.5rem);
+    max-width: min(94vw, 22rem);
   }
 
   .publish-template-save {

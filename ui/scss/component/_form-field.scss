@@ -208,9 +208,11 @@ input-submit {
     font-size: var(--font-base);
     padding-left: calc(var(--height-checkbox) + var(--spacing-s));
     min-height: var(--height-checkbox);
+    line-height: var(--height-checkbox);
 
     &::before {
       background-color: var(--color-header-button);
+      top: 0;
     }
   }
 
@@ -923,6 +925,7 @@ fieldset-section {
   display: none;
 }
 
-label[for='youtube_sync_checkbox'], label[for='sign_in_password'] {
-  margin-top:var(--spacing-s);
+label[for='youtube_sync_checkbox'],
+label[for='sign_in_password'] {
+  margin-top: var(--spacing-s);
 }
