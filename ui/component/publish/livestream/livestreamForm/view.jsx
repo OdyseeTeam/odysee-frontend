@@ -11,6 +11,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import Lbry from 'lbry';
@@ -517,9 +518,24 @@ function LivestreamForm(props: Props) {
                     label={__('Selected Tags')}
                     empty={__('No tags added')}
                     limitSelect={TAGS_LIMIT}
-                    help={__(
-                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                    )}
+                    help={
+                      <span
+                        style={{
+                          fontSize: 'var(--font-xsmall)',
+                          color: 'var(--color-text-subtitle)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 'var(--spacing-xs)',
+                        }}
+                      >
+                        <Icon icon={ICONS.INFO} size={12} />
+                        <span>
+                          {__(
+                            "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                          )}
+                        </span>
+                      </span>
+                    }
                     placeholder={__('gaming, crypto')}
                     onSelect={(newTags) => {
                       const validatedTags = [];

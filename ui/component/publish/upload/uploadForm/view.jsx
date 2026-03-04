@@ -34,6 +34,7 @@ import Spinner from 'component/spinner';
 import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from '@reach/combobox';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -43,8 +44,6 @@ const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* w
 const PublishPrice = lazyImport(() =>
   import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
 );
-const PLAYLIST_SEARCH_THRESHOLD = 8;
-
 type AutoAddPlaylistOption = {
   id: string,
   title: string,
@@ -82,6 +81,12 @@ function getAutoAddPlaylistUpdatedAt(collection: any): number {
   }
 
   return 0;
+}
+
+function getPlaylistOptionLabel(option: AutoAddPlaylistOption): string {
+  const status = option.isPublished ? __(' (Published)') : __(' (Draft)');
+  const count = option.itemCount > 0 ? __(' (%count% items)', { count: option.itemCount }) : '';
+  return option.title + status + count;
 }
 
 type Props = {
@@ -254,20 +259,16 @@ function UploadForm(props: Props) {
   const [autoAddPlaylistId, setAutoAddPlaylistId] = React.useState('');
   const [autoAddPlaylistPosition, setAutoAddPlaylistPosition] = React.useState<'top' | 'bottom'>('top');
   const [autoPublishPlaylistUpdate, setAutoPublishPlaylistUpdate] = React.useState(false);
-  const showAutoAddPlaylistSearch = autoAddPlaylistOptions.length > PLAYLIST_SEARCH_THRESHOLD;
   const filteredAutoAddPlaylistOptions = React.useMemo<Array<AutoAddPlaylistOption>>(() => {
-    if (!showAutoAddPlaylistSearch) {
-      return autoAddPlaylistOptions;
-    }
-
     const query = autoAddPlaylistSearch.trim().toLowerCase();
-    if (!query) {
-      return autoAddPlaylistOptions;
-    }
-
+    if (!query) return autoAddPlaylistOptions;
+    const selected = autoAddPlaylistOptions.find((o) => o.id === autoAddPlaylistId);
+    if (selected && selected.title.toLowerCase() === query) return autoAddPlaylistOptions;
     return autoAddPlaylistOptions.filter((option) => option.title.toLowerCase().includes(query));
-  }, [autoAddPlaylistOptions, autoAddPlaylistSearch, showAutoAddPlaylistSearch]);
-  const autoAddPlaylistSelectionValue = filteredAutoAddPlaylistOptions.length > 0 ? autoAddPlaylistId : '';
+  }, [autoAddPlaylistOptions, autoAddPlaylistSearch, autoAddPlaylistId]);
+  const autoAddPlaylistSelectionValue = autoAddPlaylistOptions.some((o) => o.id === autoAddPlaylistId)
+    ? autoAddPlaylistId
+    : '';
   const autoAddPlaylistSelectionUnavailable = autoAddPlaylistEnabled && !autoAddPlaylistSelectionValue;
   const selectedAutoAddPlaylist = React.useMemo(
     () => autoAddPlaylistOptions.find((option) => option.id === autoAddPlaylistSelectionValue),
@@ -321,27 +322,15 @@ function UploadForm(props: Props) {
     if (!hasAutoAddPlaylistOptions || inEditMode) {
       setAutoAddPlaylistEnabled(false);
       setAutoAddPlaylistId('');
+      setAutoAddPlaylistSearch('');
       return;
     }
 
-    const optionPool =
-      showAutoAddPlaylistSearch && autoAddPlaylistSearch.trim()
-        ? filteredAutoAddPlaylistOptions
-        : autoAddPlaylistOptions;
-    const hasSelected = optionPool.some((option) => option.id === autoAddPlaylistId);
-    if (!hasSelected) {
-      const fallback = optionPool[0] || autoAddPlaylistOptions[0];
-      setAutoAddPlaylistId(fallback ? fallback.id : '');
+    if (autoAddPlaylistId && !autoAddPlaylistOptions.some((option) => option.id === autoAddPlaylistId)) {
+      setAutoAddPlaylistId('');
+      setAutoAddPlaylistSearch('');
     }
-  }, [
-    autoAddPlaylistId,
-    autoAddPlaylistSearch,
-    autoAddPlaylistOptions,
-    filteredAutoAddPlaylistOptions,
-    hasAutoAddPlaylistOptions,
-    inEditMode,
-    showAutoAddPlaylistSearch,
-  ]);
+  }, [autoAddPlaylistId, autoAddPlaylistOptions, hasAutoAddPlaylistOptions, inEditMode]);
 
   useEffect(() => {
     if (!shouldShowAutoPublishPlaylistOption) {
@@ -629,10 +618,47 @@ function UploadForm(props: Props) {
 
                   {autoAddPlaylistEnabled && (
                     <>
+                      <div className="playlist-combobox">
+                        <label>{__('Playlist')}</label>
+                        <Combobox
+                          openOnFocus
+                          onSelect={(val) => {
+                            const selected = autoAddPlaylistOptions.find((o) => getPlaylistOptionLabel(o) === val);
+                            if (selected) {
+                              setAutoAddPlaylistId(selected.id);
+                              setAutoAddPlaylistSearch(selected.title);
+                              setTimeout(() => {
+                                if (document.activeElement) document.activeElement.blur();
+                              });
+                            }
+                          }}
+                        >
+                          <Icon icon={ICONS.SEARCH} size={16} />
+                          <ComboboxInput
+                            selectOnClick
+                            value={autoAddPlaylistSearch}
+                            onChange={(e) => setAutoAddPlaylistSearch(e.target.value)}
+                            placeholder={__('Search playlists...')}
+                          />
+                          <ComboboxPopover portal={false}>
+                            {filteredAutoAddPlaylistOptions.length > 0 ? (
+                              <ComboboxList>
+                                {filteredAutoAddPlaylistOptions.map((option) => (
+                                  <ComboboxOption key={option.id} value={getPlaylistOptionLabel(option)} />
+                                ))}
+                              </ComboboxList>
+                            ) : (
+                              <span style={{ display: 'block', padding: 'var(--spacing-xs) var(--spacing-s)' }}>
+                                {__('No playlists match your search')}
+                              </span>
+                            )}
+                          </ComboboxPopover>
+                        </Combobox>
+                      </div>
+
                       <p
                         className="help"
                         style={{
-                          marginTop: 'var(--spacing-m)',
                           fontSize: 'var(--font-xsmall)',
                           color: 'var(--color-text-subtitle)',
                           display: 'flex',
@@ -643,45 +669,6 @@ function UploadForm(props: Props) {
                         <Icon icon={ICONS.INFO} size={12} />
                         <span>{__('Playlists are sorted by recently updated first.')}</span>
                       </p>
-
-                      {showAutoAddPlaylistSearch && (
-                        <FormField
-                          type="text"
-                          name="publish_auto_add_playlist_search"
-                          value={autoAddPlaylistSearch}
-                          placeholder={__('Search playlists...')}
-                          onChange={(e) => setAutoAddPlaylistSearch(e.target.value || '')}
-                        />
-                      )}
-
-                      <FormField
-                        type="select"
-                        name="publish_auto_add_playlist_id"
-                        label={__('Playlist')}
-                        value={autoAddPlaylistSelectionValue}
-                        onChange={(e) => {
-                          const value = e.target && e.target.value;
-                          if (value) {
-                            setAutoAddPlaylistId(value);
-                          }
-                        }}
-                      >
-                        {filteredAutoAddPlaylistOptions.length === 0 ? (
-                          <option value="">{__('No playlists match your search')}</option>
-                        ) : (
-                          filteredAutoAddPlaylistOptions.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.title}
-                              {option.isPublished ? __(' (Published)') : __(' (Draft)')}
-                              {option.itemCount > 0
-                                ? __(' (%count% items)', {
-                                    count: option.itemCount,
-                                  })
-                                : ''}
-                            </option>
-                          ))
-                        )}
-                      </FormField>
 
                       {autoAddPlaylistSelectionUnavailable && (
                         <p className="help">
@@ -705,19 +692,6 @@ function UploadForm(props: Props) {
                         <option value="bottom">{__('Add to bottom')}</option>
                       </FormField>
 
-                      {shouldShowAutoPublishPlaylistOption && (
-                        <FormField
-                          type="select"
-                          name="publish_auto_add_playlist_publish"
-                          label={__('Publish playlist updates')}
-                          value={autoPublishPlaylistUpdate ? 'yes' : 'no'}
-                          onChange={(e) => setAutoPublishPlaylistUpdate((e.target && e.target.value) === 'yes')}
-                        >
-                          <option value="no">{__("Don't auto-publish updates")}</option>
-                          <option value="yes">{__('Auto-publish this playlist update')}</option>
-                        </FormField>
-                      )}
-
                       <p
                         className="help"
                         style={{
@@ -735,6 +709,19 @@ function UploadForm(props: Props) {
                           )}
                         </span>
                       </p>
+
+                      {shouldShowAutoPublishPlaylistOption && (
+                        <FormField
+                          type="select"
+                          name="publish_auto_add_playlist_publish"
+                          label={__('Publish playlist updates')}
+                          value={autoPublishPlaylistUpdate ? 'yes' : 'no'}
+                          onChange={(e) => setAutoPublishPlaylistUpdate((e.target && e.target.value) === 'yes')}
+                        >
+                          <option value="no">{__("Don't auto-publish updates")}</option>
+                          <option value="yes">{__('Auto-publish this playlist update')}</option>
+                        </FormField>
+                      )}
                     </>
                   )}
                 </div>

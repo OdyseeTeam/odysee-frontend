@@ -259,6 +259,72 @@
 
 .card--add-to-playlist {
   margin-top: var(--spacing-l);
+
+  .playlist-combobox {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    [data-reach-combobox] {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .icon {
+      position: absolute;
+      left: var(--spacing-xs);
+      z-index: 1;
+      color: var(--color-text-subtitle);
+    }
+
+    input[data-reach-combobox-input] {
+      width: 100%;
+      height: var(--height-input);
+      border-radius: var(--border-radius);
+      background: var(--color-background) !important;
+      color: var(--color-text);
+      padding: 0 var(--spacing-s) 0 calc(var(--spacing-s) + 20px);
+      font-size: var(--font-body);
+      border: none;
+
+      &:hover,
+      &:focus {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+
+      &::placeholder {
+        color: var(--color-input-placeholder);
+        opacity: 0.4;
+      }
+    }
+
+    [data-reach-combobox-popover] {
+      position: absolute;
+      z-index: 3;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      font-size: var(--font-body);
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    [data-reach-combobox-option] {
+      padding: var(--spacing-xs) var(--spacing-s);
+      font-size: var(--font-body);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    [data-reach-combobox-option][data-highlighted] {
+      color: var(--color-odysee-contrast);
+      background-color: var(--color-odysee);
+    }
+  }
 }
 
 .card-stack {
