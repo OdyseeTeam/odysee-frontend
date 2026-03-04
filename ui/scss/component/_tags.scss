@@ -64,6 +64,22 @@
   }
 }
 
+.card--control-tags .tags__input-wrapper > fieldset-section:first-of-type {
+  display: none;
+}
+
+.control-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-s) 0;
+
+  .checkbox {
+    flex: 0 1 calc(33.33% - var(--spacing-l));
+    min-width: 270px;
+    margin-top: 0;
+  }
+}
+
 .tag {
   @extend .badge;
   @extend .badge--tag;

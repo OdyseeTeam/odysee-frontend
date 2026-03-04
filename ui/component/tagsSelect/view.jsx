@@ -80,48 +80,71 @@ export default function TagsSelect(props: Props) {
 
   return (
     ((showClose && !hasClosed) || !showClose) && (
-      <Card
-        className="card--tags"
-        title={
-          hideHeader ? null : (
-            <React.Fragment>
-              {title}
-              {showClose && tagsToDisplay.length > 0 && !hasClosed && (
-                <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />
-              )}
-            </React.Fragment>
-          )
-        }
-        actions={
-          <React.Fragment>
-            <TagsSearch
-              label={label}
-              onRemove={handleTagClick}
-              onSelect={onSelect}
-              suggestMature={suggestMature && !hasMatureTag}
-              disableAutoFocus={disableAutoFocus}
-              tagsPassedIn={tagsToDisplay}
-              placeholder={placeholder}
-              limitShow={limitShow}
-              limitSelect={limitSelect}
-              excludedControlTags={excludedControlTags}
-              help={
-                help !== false && (
-                  <span>
-                    {help || __("The tags you follow will change what's trending for you.")}{' '}
-                    <Button
-                      button="link"
-                      label={__('Learn more')}
-                      href="https://help.odysee.tv/category-contentdiscovery/search/"
-                    />
-                    .
-                  </span>
-                )
-              }
-            />
-          </React.Fragment>
-        }
-      />
+      <React.Fragment>
+        <Card
+          background
+          className="card--tags"
+          title={
+            hideHeader ? null : (
+              <React.Fragment>
+                {title}
+                {showClose && tagsToDisplay.length > 0 && !hasClosed && (
+                  <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />
+                )}
+              </React.Fragment>
+            )
+          }
+          body={
+            <div className="publish-row">
+              <TagsSearch
+                label={label}
+                onRemove={handleTagClick}
+                onSelect={onSelect}
+                suggestMature={suggestMature && !hasMatureTag}
+                disableAutoFocus={disableAutoFocus}
+                tagsPassedIn={tagsToDisplay}
+                placeholder={placeholder}
+                limitShow={limitShow}
+                limitSelect={limitSelect}
+                excludedControlTags={excludedControlTags}
+                disableControlTags
+                help={
+                  help !== false && (
+                    <span>
+                      {help || __("The tags you follow will change what's trending for you.")}{' '}
+                      <Button
+                        button="link"
+                        label={__('Learn more')}
+                        href="https://help.odysee.tv/category-contentdiscovery/search/"
+                      />
+                      .
+                    </span>
+                  )
+                }
+              />
+            </div>
+          }
+        />
+        {onSelect && (
+          <Card
+            background
+            className="card--tags card--control-tags"
+            title={__('User interactions')}
+            body={
+              <div className="publish-row">
+                <TagsSearch
+                  onRemove={handleTagClick}
+                  onSelect={onSelect}
+                  tagsPassedIn={tagsToDisplay}
+                  excludedControlTags={excludedControlTags}
+                  hideInputField
+                  hideSuggestions
+                />
+              </div>
+            }
+          />
+        )}
+      </React.Fragment>
     )
   );
 }

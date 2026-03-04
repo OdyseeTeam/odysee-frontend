@@ -290,8 +290,7 @@ export default function TagsSearch(props: Props) {
         </fieldset-section>
         {!disableControlTags &&
           onSelect && ( // onSelect ensures this does not appear on TagFollow
-            <fieldset-section>
-              <label>{__('Control Tags')}</label>
+            <div className="control-tags">
               {FILTERED_CONTROL_TAGS.map((t) => (
                 <FormField
                   key={t}
@@ -303,7 +302,7 @@ export default function TagsSearch(props: Props) {
                   onChange={() => handleUtilityTagCheckbox(t)}
                 />
               ))}
-            </fieldset-section>
+            </div>
           )}
       </Form>
     </React.Fragment>
