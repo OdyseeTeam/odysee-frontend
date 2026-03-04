@@ -129,7 +129,7 @@ export default function TagsSelect(props: Props) {
           <Card
             background
             className="card--tags card--control-tags"
-            title={__('User interactions')}
+            title={__('User Interactions')}
             body={
               <div className="publish-row">
                 <TagsSearch
