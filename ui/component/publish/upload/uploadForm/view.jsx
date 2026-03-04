@@ -597,6 +597,59 @@ function UploadForm(props: Props) {
 
           <PublishVisibility />
 
+          <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+            {__('Tags')}
+          </h2>
+
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={
+                    <span
+                      style={{
+                        fontSize: 'var(--font-xsmall)',
+                        color: 'var(--color-text-subtitle)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 'var(--spacing-xs)',
+                      }}
+                    >
+                      <Icon icon={ICONS.INFO} size={12} />
+                      <span>
+                        {__(
+                          "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                        )}
+                      </span>
+                    </span>
+                  }
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
+          />
+
           <PublishProtectedContent claim={myClaimForUri} />
 
           <PublishPrice disabled={formDisabled} />
@@ -722,59 +775,6 @@ function UploadForm(props: Props) {
               }
             />
           )}
-
-          <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
-            {__('Tags')}
-          </h2>
-
-          <Card
-            background
-            body={
-              <div className="publish-row">
-                <TagsSelect
-                  suggestMature={!SIMPLE_SITE}
-                  disableAutoFocus
-                  hideHeader
-                  label={__('Selected Tags')}
-                  empty={__('No tags added')}
-                  limitSelect={TAGS_LIMIT}
-                  help={
-                    <span
-                      style={{
-                        fontSize: 'var(--font-xsmall)',
-                        color: 'var(--color-text-subtitle)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 'var(--spacing-xs)',
-                      }}
-                    >
-                      <Icon icon={ICONS.INFO} size={12} />
-                      <span>
-                        {__(
-                          "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                        )}
-                      </span>
-                    </span>
-                  }
-                  placeholder={__('gaming, crypto')}
-                  onSelect={(newTags) => {
-                    const validatedTags = [];
-                    newTags.forEach((newTag) => {
-                      if (!tags.some((tag) => tag.name === newTag.name)) {
-                        validatedTags.push(newTag);
-                      }
-                    });
-                    updatePublishForm({ tags: [...tags, ...validatedTags] });
-                  }}
-                  onRemove={(clickedTag) => {
-                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                    updatePublishForm({ tags: newTags });
-                  }}
-                  tagsChosen={tags}
-                />
-              </div>
-            }
-          />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>

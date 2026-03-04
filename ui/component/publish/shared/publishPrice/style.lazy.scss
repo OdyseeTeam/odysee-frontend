@@ -3,6 +3,10 @@
 $DISABLED_OPACITY: 0.2;
 $INDENT: var(--spacing-xl);
 
+.publish-price {
+  margin-bottom: var(--spacing-l);
+}
+
 .publish-price__title {
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);

@@ -418,10 +418,6 @@ function PostForm(props: Props) {
 
           <PublishVisibility />
 
-          <PublishProtectedContent claim={myClaimForUri} />
-
-          <PublishPrice disabled={formDisabled} />
-
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
@@ -473,6 +469,10 @@ function PostForm(props: Props) {
               </div>
             }
           />
+
+          <PublishProtectedContent claim={myClaimForUri} />
+
+          <PublishPrice disabled={formDisabled} />
 
           <PublishAdditionalOptions disabled={formDisabled} />
         </div>

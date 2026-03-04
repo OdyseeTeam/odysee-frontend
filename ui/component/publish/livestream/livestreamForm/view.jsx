@@ -502,10 +502,6 @@ function LivestreamForm(props: Props) {
               livestreamData={livestreamData}
             />
 
-            <PublishProtectedContent claim={myClaimForUri} />
-
-            {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
-
             <Card
               background
               title={__('Tags')}
@@ -555,6 +551,10 @@ function LivestreamForm(props: Props) {
                 </div>
               }
             />
+
+            <PublishProtectedContent claim={myClaimForUri} />
+
+            {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
 
             <PublishAdditionalOptions
               isLivestream
