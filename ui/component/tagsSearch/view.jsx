@@ -284,7 +284,7 @@ export default function TagsSearch(props: Props) {
                   />
                 ))}
               </ul>
-              <div className="form-field__hint mt-m">{help}</div>
+              <p className="form-field__hint mt-m">{help}</p>
             </section>
           )}
         </fieldset-section>

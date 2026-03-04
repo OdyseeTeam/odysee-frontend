@@ -62,6 +62,20 @@
       font-weight: normal;
     }
   }
+
+  .form-field__hint {
+    svg {
+      margin-bottom: 2px;
+    }
+    span {
+      display: flex;
+      align-content: center;
+    }
+    .button__label {
+      margin-left: var(--spacing-xxs);
+      margin-top: 0;
+    }
+  }
 }
 
 .card--control-tags .tags__input-wrapper > fieldset-section:first-of-type {

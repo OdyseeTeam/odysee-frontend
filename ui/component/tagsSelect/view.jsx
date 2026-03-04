@@ -117,7 +117,6 @@ export default function TagsSelect(props: Props) {
                         label={__('Learn more')}
                         href="https://help.odysee.tv/category-contentdiscovery/search/"
                       />
-                      .
                     </span>
                   )
                 }
