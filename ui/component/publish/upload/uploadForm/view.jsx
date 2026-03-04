@@ -670,12 +670,6 @@ function UploadForm(props: Props) {
                         <span>{__('Playlists are sorted by recently updated first.')}</span>
                       </p>
 
-                      {autoAddPlaylistSelectionUnavailable && (
-                        <p className="help">
-                          {__('No playlist matches your search. Clear the search or disable auto add to continue.')}
-                        </p>
-                      )}
-
                       <FormField
                         type="select"
                         name="publish_auto_add_playlist_position"
