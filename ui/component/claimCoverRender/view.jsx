@@ -21,9 +21,12 @@ type Props = {
   onSwipeNext?: () => void,
   onSwipePrevious?: () => void,
   enableSwipe?: boolean,
+  isShortsContext?: boolean,
+  isFloatingContext?: boolean,
   // -- redux --
   claimThumbnail?: string,
   isShortClaim: boolean,
+  isCurrentlyPlaying: boolean,
   obscurePreview: boolean,
   renderMode: string,
   videoTheaterMode: boolean,
@@ -41,9 +44,12 @@ const ClaimCoverRender = (props: Props) => {
     onSwipeNext,
     onSwipePrevious,
     enableSwipe,
+    isShortsContext,
+    isFloatingContext,
     // -- redux --
     claimThumbnail,
     isShortClaim,
+    isCurrentlyPlaying,
     obscurePreview,
     renderMode,
     videoTheaterMode,
@@ -61,7 +67,8 @@ const ClaimCoverRender = (props: Props) => {
 
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
-  const isShorts = isShortsParam || isShortClaim;
+  const isShorts = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam || isShortClaim;
+  const shouldUseShortsCoverLayout = isShorts && !isFloatingContext;
   const thumbnail = useGetPoster(claimThumbnail, isShorts);
 
   const swipeRef = useSwipeNavigation({
@@ -78,22 +85,26 @@ const ClaimCoverRender = (props: Props) => {
 
   return (
     <Wrapper
-      ref={isShortsParam ? swipeRef : passedRef}
+      ref={shouldUseShortsCoverLayout ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
       style={
-        thumbnail && !obscurePreview && !(isShortsParam && autoplayMedia)
-          ? { backgroundImage: `url("${thumbnail}")` }
+        thumbnail &&
+        !obscurePreview &&
+        !(isCurrentlyPlaying && shouldUseShortsCoverLayout) &&
+        !(shouldUseShortsCoverLayout && autoplayMedia)
+          ? { backgroundImage: `url("${thumbnail}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
           : {}
       }
       className={classnames('content__cover', {
+        'content__cover--shorts': shouldUseShortsCoverLayout,
         'content__cover--embed': isEmbed,
         'content__cover--black-background': !transparent,
         'content__cover--disabled': !onClick && !href,
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
-        'content__cover--side-panel-open': sidePanelOpen,
+        'content__cover--side-panel-open': sidePanelOpen && !isMobile,
       })}
     >
       {children}

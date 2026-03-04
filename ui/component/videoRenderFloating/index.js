@@ -13,7 +13,12 @@ import {
 } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doClearQueueList } from 'redux/actions/collections';
-import { doClearPlayingUri, doClearPlayingSource, doSetShowAutoplayCountdownForUri } from 'redux/actions/content';
+import {
+  doClearPlayingUri,
+  doClearPlayingSource,
+  doSetShowAutoplayCountdownForUri,
+  doSetPlayingUri,
+} from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
 import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
@@ -23,7 +28,7 @@ import { getVideoClaimAspectRatio, isClaimShort } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import VideoRenderFloating from './view';
-import { selectShortsSidePanelOpen } from '../../redux/selectors/shorts';
+import { selectShortsSidePanelOpen, selectShortsPlaylist } from '../../redux/selectors/shorts';
 
 const select = (state, props) => {
   const { location } = props;
@@ -49,11 +54,16 @@ const select = (state, props) => {
   const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
   const isInlinePlayer = Boolean(playingUri.source) && !isFloating;
 
+  const shortsPlaylist = selectShortsPlaylist(state);
+
   return {
     claimId,
     channelUrl,
+    channelTitle: channelUrl ? selectTitleForUri(state, channelUrl) || channelClaim?.name : channelClaim?.name,
     uri,
     playingUri,
+    shortsPlaylist,
+    autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
     primaryUri: selectPrimaryUri(state),
     title: selectTitleForUri(state, uri),
     isFloating,
@@ -75,7 +85,7 @@ const select = (state, props) => {
     autoplayCountdownUri,
     canViewFile: selectCanViewFileForUri(state, uri),
     sidePanelOpen: selectShortsSidePanelOpen(state),
-    isClaimShort: isClaimShort(claim),
+    isClaimShort: typeof playingUri.isShort === 'boolean' ? playingUri.isShort : isClaimShort(claim),
     disableShortsView: !!collectionSidebarId || selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
   };
 };
@@ -89,6 +99,7 @@ const perform = {
   doClearQueueList,
   doOpenModal,
   doClearPlayingSource,
+  doSetPlayingUri,
 };
 
 export default withRouter(connect(select, perform)(VideoRenderFloating));

@@ -270,14 +270,13 @@
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 901px) {
   .shorts-mobile-panel {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .shorts-mobile-panel__modal,
   .shorts-mobile-panel__modal--closing,
   .shorts-mobile-panel__action-button {

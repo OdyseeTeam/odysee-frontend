@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import SwipeNavigationPortal from './view';
 import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
@@ -13,8 +12,6 @@ const select = (state, ownProps) => {
   const { claim_id: claimId } = claim || {};
 
   return {
-    channelName: channel?.name || '',
-    channelUri: channel?.canonical_url || channel?.permanent_url || '',
     hasChannel: !!channel,
     hasPlaylist: false,
     claimId,
@@ -34,4 +31,4 @@ const perform = {
   doOpenModal,
 };
 
-export default connect(select, perform)(withStreamClaimRender(SwipeNavigationPortal));
+export default connect(select, perform)(SwipeNavigationPortal);

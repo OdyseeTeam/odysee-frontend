@@ -822,14 +822,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           ref={tapToUnmuteRef}
         />
       )}
-      <Button
-        label={__('Retry')}
-        button="link"
-        icon={ICONS.REFRESH}
-        className="video-js--tap-to-unmute"
-        onClick={() => retryVideoAfterFailure(true)}
-        ref={tapToRetryRef}
-      />
+      {!isShortsParam && (
+        <Button
+          label={__('Retry')}
+          button="link"
+          icon={ICONS.REFRESH}
+          className="video-js--tap-to-unmute"
+          onClick={() => retryVideoAfterFailure(true)}
+          ref={tapToRetryRef}
+        />
+      )}
     </div>
   );
 });

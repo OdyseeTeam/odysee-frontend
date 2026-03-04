@@ -1,5 +1,7 @@
 // @flow
+/* eslint-disable react/prop-types */
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
@@ -7,6 +9,7 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   hasPlaylist: boolean,
@@ -34,6 +37,7 @@ type Props = {
   collectionId?: string,
   isUnlisted: ?boolean,
   handleShareClick: () => void,
+  onInfoClick: () => void,
 };
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -62,6 +66,7 @@ const ShortsActions = React.memo<Props>(
     doToggleShortsAutoplay,
     isUnlisted,
     handleShareClick,
+    onInfoClick,
   }: Props) => {
     React.useEffect(() => {
       function fetchReactions() {
@@ -83,11 +88,20 @@ const ShortsActions = React.memo<Props>(
         }
       };
     }, [claimId, doFetchReactions, isLivestreamClaim]);
+    const isMobile = useIsMobile();
     const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
 
-    return (
-      <div className="shorts-page__navigation">
+    const content = (
+      <div className={classnames('shorts-page__navigation', { 'shorts-page__navigation--mobile-desktop': isMobile })}>
         <>
+          <Button
+            className="shorts-page__actions-button shorts-page__actions-button--info"
+            onClick={onInfoClick}
+            icon={ICONS.INFO}
+            iconSize={20}
+            title={__('Show Details')}
+            disabled={!hasPlaylist}
+          />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--previous"
             onClick={onPrevious}
@@ -220,6 +234,12 @@ const ShortsActions = React.memo<Props>(
         </>
       </div>
     );
+
+    if (isMobile && document.body) {
+      return createPortal(content, document.body);
+    }
+
+    return content;
   }
 );
 

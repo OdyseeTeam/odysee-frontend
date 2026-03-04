@@ -129,10 +129,10 @@ export const selectIsPlayerFloating = (state: State) => {
     return true;
   }
 
-  const { primaryUri: primaryPlayingUri } = playingUri;
-  if (primaryPlayingUri) {
-    const isAlreadyPlaying = selectIsUriCurrentlyPlaying(state, primaryPlayingUri);
-    if (isAlreadyPlaying) return false;
+  // Use current-page primary URI for floating decisions. Using stale playingUri.primaryUri
+  // can incorrectly force non-floating mode after route transitions.
+  if (primaryUri && selectIsUriCurrentlyPlaying(state, primaryUri)) {
+    return false;
   }
 
   if (

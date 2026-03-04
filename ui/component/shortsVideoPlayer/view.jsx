@@ -1,8 +1,6 @@
 // @flow
 import React from 'react';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
-import Button from 'component/button';
-import * as ICONS from 'constants/icons';
 import { useHistory } from 'react-router-dom';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
@@ -11,8 +9,6 @@ type Props = {
   uri: string,
   upcomingUris: Array<string>,
   isMobile: boolean,
-  sidePanelOpen: boolean,
-  onInfoButtonClick: () => void,
   primaryPlayerWrapperClass: string,
   nextRecommendedShort: ?string,
   autoPlayNextShort: boolean,
@@ -26,8 +22,6 @@ const ShortsVideoPlayer = React.memo<Props>(
   ({
     uri,
     isMobile,
-    sidePanelOpen,
-    onInfoButtonClick,
     primaryPlayerWrapperClass,
     nextRecommendedShort,
     autoPlayNextShort,
@@ -115,16 +109,6 @@ const ShortsVideoPlayer = React.memo<Props>(
             />
           )}
         </div>
-
-        {!isMobile && (
-          <Button
-            className="shorts-page__info-button"
-            onClick={onInfoButtonClick}
-            icon={ICONS.INFO}
-            iconSize={20}
-            title={sidePanelOpen ? __('Hide Details') : __('Show Details')}
-          />
-        )}
       </div>
     );
   }

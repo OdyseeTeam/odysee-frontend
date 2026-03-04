@@ -7,7 +7,7 @@ import * as PAGES from 'constants/pages';
 import { COL_TYPES } from 'constants/collections';
 import { push } from 'connected-react-router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
-import { getChannelIdFromClaim, isClaimUnlisted } from 'util/claim';
+import { getChannelIdFromClaim, isClaimUnlisted, isClaimShort } from 'util/claim';
 import { toHex } from 'util/hex';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
@@ -177,11 +177,13 @@ export const doStartFloatingPlayingUri =
     if (!uri) return;
 
     const state = getState();
+    const claim = selectClaimForUri(state, uri);
     const isMature = selectClaimIsNsfwForUri(state, uri);
     const isPlayable = selectIsPlayableForUri(state, uri);
     const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
     const isLive = selectIsActiveLivestreamForUri(state, uri);
     const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
+    const shortData = claim ? { isShort: isClaimShort(claim) } : {};
 
     if (!canStartloatingPlayer) return;
 
@@ -209,15 +211,19 @@ export const doStartFloatingPlayingUri =
 
       dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: itemsToAdd, type: COL_TYPES.PLAYLIST }));
 
-      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection }));
+      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection, ...shortData }));
     }
 
     if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
       // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
-      return dispatch(doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
+      return dispatch(
+        doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection }, ...shortData })
+      );
     }
 
-    return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
+    return dispatch(
+      doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {}, ...shortData })
+    );
   };
 
 export const doPlayNextUri =
