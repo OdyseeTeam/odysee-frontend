@@ -1,7 +1,7 @@
 import Arweave from 'arweave';
 
 const arweave = new Arweave({
-  host: 'ar-io.net',
+  host: 'arweave.net',
   port: 443,
   protocol: 'https',
 });
