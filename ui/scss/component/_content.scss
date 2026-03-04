@@ -883,7 +883,7 @@
     z-index: 1;
     border-radius: 10px;
 
-    @media (min-width: $breakpoint-small) {
+    @media (min-width: 1020px) {
       opacity: 0;
       transition: opacity 200ms ease;
     }
@@ -938,7 +938,7 @@
       background: transparent;
       z-index: 3;
 
-      @media (min-width: $breakpoint-small) {
+      @media (min-width: 1020px) {
         opacity: 0;
         transition: opacity 200ms ease;
       }
@@ -968,7 +968,7 @@
       .vjs-menu-button {
         display: none;
       }
-      @media screen and (max-width: $breakpoint-small) {
+      @media screen and (max-width: 1020px) {
         position: absolute !important;
         bottom: 0;
         left: 0;
@@ -1040,7 +1040,7 @@
     pointer-events: none;
     width: 100%;
 
-    @media (min-width: $breakpoint-small) {
+    @media (min-width: 1020px) {
       opacity: 0;
       transition: opacity 200ms ease;
     }
@@ -1094,18 +1094,18 @@
   &.shorts__viewer--panel-open {
     transform: translate(-130%, 0%) !important;
 
-    @media (max-width: $breakpoint-small) {
-      transform: translate(-50%, 0%) !important;
+    @media (max-width: 1020px) {
+      transform: none !important;
     }
 
-    @media (max-width: 1400px) and (min-width: $breakpoint-small) {
+    @media (max-width: 1400px) and (min-width: 1020px) {
       left: 20px !important;
       transform: none !important;
       transition: none !important;
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
     width: 100vw !important;
     height: 100vh !important;
     height: 100svh !important;
@@ -1182,7 +1182,7 @@
     }
   }
 
-  @media (max-width: 1380px) and (min-width: $breakpoint-small) and (max-height: 860px) {
+  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     .content__wrapper {
       width: 100% !important;
@@ -1190,7 +1190,7 @@
   }
 }
 
-@media (max-width: $breakpoint-small) {
+@media (max-width: 1020px) {
   .shorts-page {
     width: 100vw !important;
     height: 100vh !important;
@@ -1228,7 +1228,7 @@
   }
 }
 
-@media (min-width: $breakpoint-small) {
+@media (min-width: 1020px) {
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .video-js .vjs-control-bar,
   body:has(.shorts__viewer:hover) .shorts__viewer .video-js .vjs-control-bar,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .video-js .vjs-control-bar,

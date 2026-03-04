@@ -565,7 +565,7 @@
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
     .claim-preview__actions {
       margin: 0;
       align-self: flex-start;
@@ -1573,8 +1573,13 @@
     color: rgba(var(--color-text-base) 0.7);
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
+    margin-top: 0px;
     padding-bottom: 0;
+
+    .media__subtitle {
+      margin-top: -2px !important;
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsShortsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
@@ -124,7 +124,7 @@ export default function ShortsPage(props: Props) {
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const history = useHistory();
-  const isMobile = useIsMobile();
+  const isMobile = useIsShortsMobile();
   const shortsContainerRef = React.useRef<any>();
   const fypId = urlParams.get(FYP_ID);
   const [uuid] = React.useState(fypId ? Uuidv4() : '');

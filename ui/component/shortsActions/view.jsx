@@ -9,7 +9,7 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsShortsMobile } from 'effects/use-screensize';
 
 type Props = {
   hasPlaylist: boolean,
@@ -88,7 +88,7 @@ const ShortsActions = React.memo<Props>(
         }
       };
     }, [claimId, doFetchReactions, isLivestreamClaim]);
-    const isMobile = useIsMobile();
+    const isMobile = useIsShortsMobile();
     const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
 
     const content = (
