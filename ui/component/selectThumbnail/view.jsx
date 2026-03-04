@@ -1,4 +1,5 @@
 // @flow
+import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
@@ -7,6 +8,7 @@ import * as React from 'react';
 import { FormField } from 'component/common/form';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
+import Icon from 'component/common/icon';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
 import './style.lazy.scss';
@@ -169,11 +171,23 @@ function SelectThumbnail(props: Props) {
                     }
                   />
                   {!thumbUploaded && (
-                    <p className="help" style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}>
-                      {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
-                        domain: DOMAIN,
-                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                      })}
+                    <p
+                      className="help"
+                      style={{
+                        fontSize: 'var(--font-xsmall)',
+                        color: 'var(--color-text-subtitle)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--spacing-xs)',
+                      }}
+                    >
+                      <Icon icon={ICONS.INFO} size={12} />
+                      <span>
+                        {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
+                          domain: DOMAIN,
+                          max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                        })}
+                      </span>
                     </p>
                   )}
                 </>

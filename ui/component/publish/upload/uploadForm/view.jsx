@@ -629,8 +629,19 @@ function UploadForm(props: Props) {
 
                   {autoAddPlaylistEnabled && (
                     <>
-                      <p className="help" style={{ marginTop: 'var(--spacing-m)' }}>
-                        {__('Playlists are sorted by recently updated first.')}
+                      <p
+                        className="help"
+                        style={{
+                          marginTop: 'var(--spacing-m)',
+                          fontSize: 'var(--font-xsmall)',
+                          color: 'var(--color-text-subtitle)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--spacing-xs)',
+                        }}
+                      >
+                        <Icon icon={ICONS.INFO} size={12} />
+                        <span>{__('Playlists are sorted by recently updated first.')}</span>
                       </p>
 
                       {showAutoAddPlaylistSearch && (
@@ -709,11 +720,20 @@ function UploadForm(props: Props) {
 
                       <p
                         className="help"
-                        style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}
+                        style={{
+                          fontSize: 'var(--font-xsmall)',
+                          color: 'var(--color-text-subtitle)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--spacing-xs)',
+                        }}
                       >
-                        {__(
-                          'Need more precise ordering than top/bottom? Save first, then fine-tune from the playlist editor.'
-                        )}
+                        <Icon icon={ICONS.INFO} size={12} />
+                        <span>
+                          {__(
+                            'Need more precise ordering than top/bottom? Save first, then fine-tune from the playlist editor.'
+                          )}
+                        </span>
                       </p>
                     </>
                   )}
@@ -738,10 +758,21 @@ function UploadForm(props: Props) {
                   empty={__('No tags added')}
                   limitSelect={TAGS_LIMIT}
                   help={
-                    <span style={{ fontSize: 'var(--font-xsmall)', color: 'var(--color-text-subtitle)' }}>
-                      {__(
-                        "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                      )}
+                    <span
+                      style={{
+                        fontSize: 'var(--font-xsmall)',
+                        color: 'var(--color-text-subtitle)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 'var(--spacing-xs)',
+                      }}
+                    >
+                      <Icon icon={ICONS.INFO} size={12} />
+                      <span>
+                        {__(
+                          "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                        )}
+                      </span>
                     </span>
                   }
                   placeholder={__('gaming, crypto')}

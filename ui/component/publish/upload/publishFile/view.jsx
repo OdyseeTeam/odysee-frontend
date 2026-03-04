@@ -241,7 +241,7 @@ function PublishFile(props: Props) {
             gap: 'var(--spacing-xs)',
           }}
         >
-          <Icon icon={ICONS.INFO} />
+          <Icon icon={ICONS.INFO} size={12} />
           <span>
             {__(
               'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
