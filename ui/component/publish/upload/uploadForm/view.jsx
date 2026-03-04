@@ -658,7 +658,7 @@ function UploadForm(props: Props) {
             <Card
               className="card--add-to-playlist"
               background
-              title={__('Add To Playlist (Optional)')}
+              title={__('Add To Playlist')}
               body={
                 <div className="publish-row">
                   <FormField
