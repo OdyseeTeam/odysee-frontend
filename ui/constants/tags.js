@@ -51,13 +51,13 @@ export const SCHEDULED_TAGS = Object.freeze({
 
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [
-  DISABLE_SUPPORT_TAG,
   DISABLE_COMMENTS_TAG,
-  DISABLE_DOWNLOAD_BUTTON_TAG,
-  DISABLE_REACTIONS_VIDEO_TAG,
   DISABLE_REACTIONS_COMMENTS_TAG,
-  DISABLE_SLIMES_VIDEO_TAG,
   DISABLE_SLIMES_COMMENTS_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SUPPORT_TAG,
+  DISABLE_DOWNLOAD_BUTTON_TAG,
 ];
 
 // System tags are special tags that are not available to the user.

@@ -69,14 +69,13 @@
 }
 
 .control-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-s) 0;
+  columns: 270px 3;
+  gap: var(--spacing-l);
 
   .checkbox {
-    flex: 0 1 calc(33.33% - var(--spacing-l));
-    min-width: 270px;
     margin-top: 0;
+    margin-bottom: var(--spacing-s);
+    break-inside: avoid;
   }
 }
 
