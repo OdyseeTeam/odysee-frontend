@@ -114,9 +114,21 @@ export function SearchResults(props: Props) {
 
   // Combine prop-based duration (e.g. shorts) with filter-based duration using intersection
   const effectiveMinDuration =
-    durationMinParam && minDuration ? Math.max(durationMinParam, minDuration) : durationMinParam || minDuration || null;
+    durationMinParam != null && minDuration != null
+      ? Math.max(durationMinParam, minDuration)
+      : durationMinParam != null
+      ? durationMinParam
+      : minDuration != null
+      ? minDuration
+      : null;
   const effectiveMaxDuration =
-    durationMaxParam && maxDuration ? Math.min(durationMaxParam, maxDuration) : durationMaxParam || maxDuration || null;
+    durationMaxParam != null && maxDuration != null
+      ? Math.min(durationMaxParam, maxDuration)
+      : durationMaxParam != null
+      ? durationMaxParam
+      : maxDuration != null
+      ? maxDuration
+      : null;
 
   React.useEffect(() => {
     noMoreResults.current = false;
