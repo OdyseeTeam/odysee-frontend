@@ -185,6 +185,10 @@ function VideoRenderFloating(props: Props) {
   const shortsFloatingWrapperRef = React.useRef();
   const [forceDisable, setForceDisable] = React.useState(false);
   const [isShortsFloatingPaused, setIsShortsFloatingPaused] = React.useState(false);
+  const [fireGlow, setFireGlow] = React.useState(false);
+  const fireGlowTimeout = React.useRef(null);
+  const [slimeEffect, setSlimeEffect] = React.useState(false);
+  const slimeEffectTimeout = React.useRef(null);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
@@ -592,6 +596,8 @@ function VideoRenderFloating(props: Props) {
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--shorts-floating': isShortsFloating && !isMobile,
             'shorts-floating--paused': isShortsFloatingPaused,
+            'shorts-floating--fire-glow': fireGlow,
+            'shorts-floating--slime-effect': slimeEffect,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
@@ -670,10 +676,42 @@ function VideoRenderFloating(props: Props) {
               <FloatingShortsActions
                 uri={uri}
                 claimId={claimId}
+                channelUrl={channelUrl}
                 navigateUrl={navigateUrl}
                 onPrevious={hasPreviousShort ? goToPreviousShort : null}
                 onNext={hasNextShort ? goToNextShort : null}
+                onFireGlow={() => {
+                  setFireGlow(false);
+                  clearTimeout(fireGlowTimeout.current);
+                  requestAnimationFrame(() => {
+                    setFireGlow(true);
+                    fireGlowTimeout.current = setTimeout(() => setFireGlow(false), 2000);
+                  });
+                }}
+                onSlimeEffect={() => {
+                  setSlimeEffect(false);
+                  clearTimeout(slimeEffectTimeout.current);
+                  requestAnimationFrame(() => {
+                    setSlimeEffect(true);
+                    slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                  });
+                }}
               />
+            )}
+
+            {fireGlow && isShortsFloating && (
+              <div className="shorts-floating-flames">
+                {Array.from({ length: 50 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="shorts-floating-flames__particle"
+                    style={{
+                      left: `calc(${(i / 50) * 100}% - 35px)`,
+                      animationDelay: `${Math.random()}s`,
+                    }}
+                  />
+                ))}
+              </div>
             )}
 
             {isFloating && (

@@ -458,6 +458,176 @@
       opacity: 1;
     }
   }
+
+  &.shorts-floating--fire-glow {
+    animation: shortsFireGlow 2s ease-out forwards;
+  }
+
+  .shorts-floating-flames {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -40px;
+    height: calc(60% + 40px);
+    z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+    filter: blur(2px);
+    animation: shortsFlamesContainer 2s ease-out forwards;
+  }
+
+  .shorts-floating-flames__particle {
+    position: absolute;
+    bottom: -20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-image: radial-gradient(rgb(255, 80, 0) 20%, rgba(255, 80, 0, 0) 70%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    animation: shortsFlameRise 1s ease-in infinite;
+  }
+
+  &.shorts-floating--slime-effect {
+    animation: shortsSlimeInset 3s ease-out forwards;
+  }
+
+  &.shorts-floating--slime-effect::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(ellipse, rgba(129, 197, 84, 0.75) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(100, 180, 60, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(110, 190, 70, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(90, 170, 50, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(120, 190, 75, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(95, 175, 55, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(110, 185, 65, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.7) 40%, transparent 70%);
+    background-size: 22px 35px, 16px 50px, 28px 30px, 14px 55px, 20px 40px, 18px 48px, 12px 42px, 24px 32px, 15px 52px,
+      20px 36px, 10px 45px, 26px 28px;
+    background-repeat: no-repeat;
+    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='4' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='25'/%3E%3C/filter%3E%3C/svg%3E#f");
+    animation: shortsSlimeDrip 3s ease-in forwards;
+  }
+}
+
+@keyframes shortsFireButtonGlow {
+  0% {
+    background: rgba(239, 90, 0, 0.8);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes shortsSlimeButtonGlow {
+  0% {
+    background: rgba(129, 197, 84, 0.8);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes shortsFireGlow {
+  0% {
+    box-shadow: 0 0 12px 4px rgba(239, 90, 0, 0.6), 0 0 25px 8px rgba(212, 51, 34, 0.3), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(239, 90, 0, 0.5);
+  }
+  15% {
+    box-shadow: 0 0 10px 4px rgba(212, 51, 34, 0.5), 0 0 20px 8px rgba(239, 90, 0, 0.2), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(212, 51, 34, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 51, 34, 0), 0 0 0 0 rgba(239, 90, 0, 0), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes shortsSlimeInset {
+  0% {
+    box-shadow: inset 0 0 0 0 rgba(129, 197, 84, 0), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  5% {
+    box-shadow: inset 0 8px 20px 4px rgba(129, 197, 84, 0.6), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(129, 197, 84, 0.7);
+  }
+  15% {
+    box-shadow: inset 0 30px 30px 2px rgba(129, 197, 84, 0.45), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(129, 197, 84, 0.5);
+  }
+  35% {
+    box-shadow: inset 0 60px 40px 0 rgba(129, 197, 84, 0.25), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(129, 197, 84, 0.3);
+  }
+  60% {
+    box-shadow: inset 0 100px 50px 0 rgba(129, 197, 84, 0.1), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(129, 197, 84, 0.15);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(129, 197, 84, 0), 0 14px 32px rgba(0, 0, 0, 0.45);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes shortsSlimeDrip {
+  0% {
+    background-position: 10% -15px, 30% -80px, 55% -15px, 75% -120px, 90% -40px, 45% -100px, 5% -140px, 65% -20px,
+      20% -160px, 82% -50px, 40% -130px, 95% -15px;
+    background-size: 20px 20px, 16px 16px, 24px 24px, 14px 14px, 18px 18px, 16px 16px, 12px 12px, 22px 22px, 14px 14px,
+      18px 18px, 10px 10px, 24px 24px;
+    opacity: 1;
+  }
+  40% {
+    background-size: 22px 45px, 16px 60px, 28px 40px, 14px 65px, 20px 50px, 18px 58px, 12px 52px, 24px 42px, 15px 62px,
+      20px 46px, 10px 55px, 26px 38px;
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 12% 550px, 28% 250px, 58% 500px, 72% 180px, 88% 400px, 48% 200px, 7% 150px, 62% 520px,
+      22% 120px, 80% 450px, 38% 180px, 93% 530px;
+    background-size: 22px 70px, 16px 80px, 28px 60px, 14px 90px, 20px 75px, 18px 85px, 12px 78px, 24px 65px, 15px 88px,
+      20px 72px, 10px 82px, 26px 58px;
+    opacity: 0;
+  }
+}
+
+@keyframes shortsFlameRise {
+  from {
+    opacity: 0;
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-200px) scale(0);
+  }
+}
+
+@keyframes shortsFlamesContainer {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .content__wrapper--shorts-floating {
@@ -548,7 +718,7 @@
   .content__shorts-floating-nav {
     position: absolute;
     right: 0;
-    top: 3.5rem;
+    top: 2.8rem;
     z-index: 2;
     display: flex;
     flex-direction: column;
@@ -557,6 +727,12 @@
     padding: var(--spacing-xxs);
     opacity: 0;
     transition: opacity 200ms ease;
+
+    .button {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15) !important;
+      background: rgba(0, 0, 0, 0.4) !important;
+      border-radius: 50% !important;
+    }
 
     @media (max-width: $breakpoint-small) {
       display: none;
@@ -591,6 +767,7 @@
   .button {
     color: white;
     background: rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
     border-radius: 50%;
     width: 2.25rem;
     height: 2.25rem;
@@ -605,6 +782,56 @@
     &:hover {
       background: rgba(0, 0, 0, 0.6);
     }
+
+    &.button--fire-glow-pulse {
+      animation: shortsFireButtonGlow 2s ease-out forwards;
+    }
+
+    &.button--slime-glow-pulse {
+      animation: shortsSlimeButtonGlow 3s ease-out forwards;
+    }
+  }
+
+  &--avatar {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .shorts-floating-action__avatar.channel-thumbnail {
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    margin-right: 0;
+    overflow: hidden;
+  }
+
+  .shorts-floating-action__subscribe {
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+
+    .icon {
+      stroke: white;
+      filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
+    }
+
+    &--active .icon {
+      stroke: white;
+      fill: rgb(226, 73, 94);
+    }
+  }
+
+  &--avatar:hover .shorts-floating-action__subscribe .icon {
+    fill: rgb(226, 73, 94);
   }
 
   .shorts-floating-action__count {
