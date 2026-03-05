@@ -1485,6 +1485,73 @@
   }
 }
 
+.content__cover--shorts {
+  &.content__cover--fire-glow {
+    transition: none !important;
+    animation: shortsFireGlow 2s ease-out forwards;
+  }
+
+  &.content__cover--slime-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    animation: shortsSlimeInset 3s ease-out forwards;
+  }
+
+  .shorts-viewer-flames {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -40px;
+    height: calc(60% + 40px);
+    z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+    filter: blur(2px);
+    animation: shortsFlamesContainer 2s ease-out forwards;
+  }
+
+  .shorts-viewer-flames__particle {
+    position: absolute;
+    bottom: -20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-image: radial-gradient(rgb(255, 80, 0) 20%, rgba(255, 80, 0, 0) 70%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    animation: shortsFlameRise 1s ease-in infinite;
+  }
+
+  .shorts-viewer-slime {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(ellipse, rgba(129, 197, 84, 0.75) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(100, 180, 60, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(110, 190, 70, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(90, 170, 50, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(120, 190, 75, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(95, 175, 55, 0.7) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(110, 185, 65, 0.6) 40%, transparent 70%),
+      radial-gradient(ellipse, rgba(129, 197, 84, 0.7) 40%, transparent 70%);
+    background-size: 22px 35px, 16px 50px, 28px 30px, 14px 55px, 20px 40px, 18px 48px, 12px 42px, 24px 32px, 15px 52px,
+      20px 36px, 10px 45px, 26px 28px;
+    background-repeat: no-repeat;
+    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='4' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='25'/%3E%3C/filter%3E%3C/svg%3E#f");
+    animation: shortsSlimeDrip 3s ease-in forwards;
+  }
+}
+
 @media (max-width: 1020px) {
   .shorts-page {
     width: 100vw !important;

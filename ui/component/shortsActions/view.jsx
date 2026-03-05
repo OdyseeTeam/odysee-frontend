@@ -87,26 +87,28 @@ const ShortsActions = React.memo<Props>(
     const slimeEffectTimeout = React.useRef(null);
 
     React.useEffect(() => {
-      const el = document.querySelector('.shorts__viewer');
+      const el = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover--shorts');
       if (!el) return;
+      const cls = el.classList.contains('shorts__viewer') ? 'shorts__viewer--fire-glow' : 'content__cover--fire-glow';
       if (fireEffect) {
-        el.classList.remove('shorts__viewer--fire-glow');
+        el.classList.remove(cls);
         void el.offsetWidth;
-        el.classList.add('shorts__viewer--fire-glow');
+        el.classList.add(cls);
       } else {
-        el.classList.remove('shorts__viewer--fire-glow');
+        el.classList.remove(cls);
       }
     }, [fireEffect]);
 
     React.useEffect(() => {
-      const el = document.querySelector('.shorts__viewer');
+      const el = document.querySelector('.shorts__viewer') || document.querySelector('.content__cover--shorts');
       if (!el) return;
+      const cls = el.classList.contains('shorts__viewer') ? 'shorts__viewer--slime-glow' : 'content__cover--slime-glow';
       if (slimeEffect) {
-        el.classList.remove('shorts__viewer--slime-glow');
+        el.classList.remove(cls);
         void el.offsetWidth;
-        el.classList.add('shorts__viewer--slime-glow');
+        el.classList.add(cls);
       } else {
-        el.classList.remove('shorts__viewer--slime-glow');
+        el.classList.remove(cls);
       }
     }, [slimeEffect]);
 
@@ -336,9 +338,12 @@ const ShortsActions = React.memo<Props>(
       </div>
     );
 
-    const shortsViewer = typeof document !== 'undefined' ? document.querySelector('.shorts__viewer') : null;
+    const portalTarget =
+      typeof document !== 'undefined'
+        ? document.querySelector('.shorts__viewer') || document.querySelector('.content__cover--shorts')
+        : null;
 
-    const effectOverlays = shortsViewer && (
+    const effectOverlays = portalTarget && (
       <>
         {fireEffect &&
           createPortal(
@@ -354,9 +359,9 @@ const ShortsActions = React.memo<Props>(
                 />
               ))}
             </div>,
-            shortsViewer
+            portalTarget
           )}
-        {slimeEffect && createPortal(<div className="shorts-viewer-slime" />, shortsViewer)}
+        {slimeEffect && createPortal(<div className="shorts-viewer-slime" />, portalTarget)}
       </>
     );
 
