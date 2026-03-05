@@ -16,6 +16,7 @@ type Props = {
   minDuration?: ?number,
   maxDuration?: ?number,
   maxAspectRatio?: ?string | ?number,
+  searchFilterOptions?: {},
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };
@@ -33,6 +34,7 @@ export function SearchResults(props: Props) {
     doResolveUris,
     maxDuration,
     maxAspectRatio,
+    searchFilterOptions,
   } = props;
 
   const SEARCH_PAGE_SIZE = 24;
@@ -41,18 +43,60 @@ export function SearchResults(props: Props) {
   const [isSearchingState, setIsSearchingState] = React.useState(false);
   const isSearching = React.useRef(false);
   const noMoreResults = React.useRef(false);
-  const sortBy =
+  const stringifiedFilterOptions = searchFilterOptions ? JSON.stringify(searchFilterOptions) : '';
+
+  const filterSortBy =
+    searchFilterOptions && searchFilterOptions[SEARCH_OPTIONS.SORT]
+      ? `&sort_by=${searchFilterOptions[SEARCH_OPTIONS.SORT]}`
+      : '';
+  const filterTimeFilter =
+    searchFilterOptions && searchFilterOptions[SEARCH_OPTIONS.TIME_FILTER]
+      ? `&time_filter=${searchFilterOptions[SEARCH_OPTIONS.TIME_FILTER]}`
+      : '';
+  const filterExact = searchFilterOptions && searchFilterOptions[SEARCH_OPTIONS.EXACT];
+
+  const filterMediaTypes = React.useMemo(() => {
+    if (!searchFilterOptions) return '';
+    const allTypes = [
+      SEARCH_OPTIONS.MEDIA_VIDEO,
+      SEARCH_OPTIONS.MEDIA_AUDIO,
+      SEARCH_OPTIONS.MEDIA_IMAGE,
+      SEARCH_OPTIONS.MEDIA_TEXT,
+      SEARCH_OPTIONS.MEDIA_APPLICATION,
+    ];
+    const enabled = allTypes.filter((t) => searchFilterOptions[t]);
+    if (enabled.length === allTypes.length || enabled.length === 0) return '';
+    return `&mediaType=${enabled.join(',')}`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stringifiedFilterOptions]);
+
+  const filterMinDuration =
+    searchFilterOptions && searchFilterOptions[SEARCH_OPTIONS.MIN_DURATION]
+      ? Number(searchFilterOptions[SEARCH_OPTIONS.MIN_DURATION]) * 60
+      : null;
+  const filterMaxDuration =
+    searchFilterOptions && searchFilterOptions[SEARCH_OPTIONS.MAX_DURATION]
+      ? Number(searchFilterOptions[SEARCH_OPTIONS.MAX_DURATION]) * 60
+      : null;
+
+  // Use filter sort if available, otherwise fall back to orderBy prop
+  // prettier-ignore
+  const sortBy = filterSortBy || (
     !orderBy || orderBy === CS.ORDER_BY_NEW
       ? `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`
       : orderBy === CS.ORDER_BY_TOP
-      ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
-      : ``;
+        ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
+        : ``
+  );
+
+  const effectiveMinDuration = filterMinDuration || minDuration;
+  const effectiveMaxDuration = filterMaxDuration || maxDuration;
 
   React.useEffect(() => {
     noMoreResults.current = false;
     setSearchResults(null);
     setPage(1);
-  }, [searchQuery, sortBy]);
+  }, [searchQuery, sortBy, stringifiedFilterOptions]);
 
   React.useEffect(() => {
     if (onResults) {
@@ -70,16 +114,20 @@ export function SearchResults(props: Props) {
       }
 
       setIsSearchingState(true);
+      const queryTerm = filterExact ? `"${searchQuery}"` : searchQuery;
+
       lighthouse
         .search(
           `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
-            `&s=${encodeURIComponent(searchQuery)}` +
+            `&s=${encodeURIComponent(queryTerm)}` +
             `&channel_id=${encodeURIComponent(claimId)}` +
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
-            (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
-            (maxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${maxDuration}` : '') +
+            (effectiveMinDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${effectiveMinDuration}` : '') +
+            (effectiveMaxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${effectiveMaxDuration}` : '') +
             `&size=${SEARCH_PAGE_SIZE}` +
+            filterMediaTypes +
+            filterTimeFilter +
             (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '') +
             (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=${'true'}` : '') +
             (hideShorts
@@ -120,10 +168,14 @@ export function SearchResults(props: Props) {
     showMature,
     doResolveUris,
     sortBy,
-    minDuration,
-    maxDuration,
+    effectiveMinDuration,
+    effectiveMaxDuration,
     maxAspectRatio,
     hideShorts,
+    filterMediaTypes,
+    filterTimeFilter,
+    filterExact,
+    stringifiedFilterOptions,
   ]);
 
   if (!searchResults) {

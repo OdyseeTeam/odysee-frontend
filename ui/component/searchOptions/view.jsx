@@ -48,11 +48,20 @@ type Props = {
   searchInLanguage: boolean,
   toggleSearchExpanded: () => void,
   onSearchOptionsChanged: (string) => void,
+  isChannelSearch?: boolean,
 };
 
 const SearchOptions = (props: Props) => {
-  const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
-    props;
+  const {
+    options,
+    simple,
+    setSearchOption,
+    expanded,
+    searchInLanguage,
+    toggleSearchExpanded,
+    onSearchOptionsChanged,
+    isChannelSearch,
+  } = props;
   const { location } = useHistory();
 
   const stringifiedOptions = JSON.stringify(options);
@@ -80,12 +89,14 @@ const SearchOptions = (props: Props) => {
   }
 
   React.useEffect(() => {
-    // We no longer let the user set the search results count, but the value
-    // will be in local storage for existing users. Override that.
-    if (options[SEARCH_OPTIONS.RESULT_COUNT] !== SEARCH_PAGE_SIZE) {
-      setSearchOption(SEARCH_OPTIONS.RESULT_COUNT, SEARCH_PAGE_SIZE);
+    if (!isChannelSearch) {
+      // We no longer let the user set the search results count, but the value
+      // will be in local storage for existing users. Override that.
+      if (options[SEARCH_OPTIONS.RESULT_COUNT] !== SEARCH_PAGE_SIZE) {
+        setSearchOption(SEARCH_OPTIONS.RESULT_COUNT, SEARCH_PAGE_SIZE);
+      }
+      options[SEARCH_OPTIONS.SORT] = '';
     }
-    options[SEARCH_OPTIONS.SORT] = '';
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
@@ -170,6 +181,26 @@ const SearchOptions = (props: Props) => {
         </div>
       )}
     </>
+  );
+
+  const mediaTypeElem = (
+    <div className="media-types">
+      {Object.entries(TYPES_ADVANCED).map((t) => {
+        const option = t[0];
+        return (
+          <FormField
+            key={option}
+            name={option}
+            type="checkbox"
+            blockWrap={false}
+            // $FlowFixMe https://github.com/facebook/flow/issues/2221
+            label={__(t[1])}
+            checked={options[option]}
+            onChange={() => updateSearchOptions(option, !options[option])}
+          />
+        );
+      })}
+    </div>
   );
 
   const otherOptionsElem = (
@@ -295,8 +326,8 @@ const SearchOptions = (props: Props) => {
       >
         <table className="table table--condensed">
           <tbody>
-            {addRow(__('Type'), typeElem)}
-            {addRow(uploadDateLabel, uploadDateElem)}
+            {isChannelSearch ? addRow(__('Media Type'), mediaTypeElem) : addRow(__('Type'), typeElem)}
+            {addRow(isChannelSearch ? __('Upload Date') : uploadDateLabel, uploadDateElem)}
             {addRow(__('Sort By'), sortByElem)}
             {addRow(__('Duration'), durationElem)}
             {addRow(__('Other Options'), otherOptionsElem)}
