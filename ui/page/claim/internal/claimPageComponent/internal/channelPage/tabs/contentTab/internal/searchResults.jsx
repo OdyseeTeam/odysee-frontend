@@ -84,17 +84,20 @@ export function SearchResults(props: Props) {
   }, [freshness]);
 
   // Map duration filter to lighthouse min_duration/max_duration (in seconds)
+  const SHORT_DURATION_SECONDS = 240; // 4 minutes
+  const LONG_DURATION_SECONDS = 1200; // 20 minutes
+
   const durationMinParam = React.useMemo(() => {
     if (!durationParam || durationParam === CS.DURATION.ALL) return null;
     if (durationParam === CS.DURATION.SHORT) return null;
-    if (durationParam === CS.DURATION.LONG) return 1200;
+    if (durationParam === CS.DURATION.LONG) return LONG_DURATION_SECONDS;
     if (durationParam === CS.DURATION.CUSTOM && customMinMinutes) return customMinMinutes * 60;
     return null;
   }, [durationParam, customMinMinutes]);
 
   const durationMaxParam = React.useMemo(() => {
     if (!durationParam || durationParam === CS.DURATION.ALL) return null;
-    if (durationParam === CS.DURATION.SHORT) return 240;
+    if (durationParam === CS.DURATION.SHORT) return SHORT_DURATION_SECONDS;
     if (durationParam === CS.DURATION.LONG) return null;
     if (durationParam === CS.DURATION.CUSTOM && customMaxMinutes) return customMaxMinutes * 60;
     return null;
