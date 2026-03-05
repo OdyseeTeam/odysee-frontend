@@ -667,7 +667,7 @@ export default function ShortsPage(props: Props) {
                     className="shorts-viewer__channel"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                    <ChannelThumbnail uri={channelUri} xxsmall checkMembership={false} />
                     <span className="shorts-viewer__channel-name">{channelDisplayName || channelName}</span>
                   </Link>
                 )}

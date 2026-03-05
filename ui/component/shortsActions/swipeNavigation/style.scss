@@ -102,36 +102,75 @@
   gap: 2px;
 }
 
-.shorts-mobile-panel__action-button {
-  background: rgba(45, 44, 44, 0.6) !important;
-  border: none !important;
-  border-radius: 50% !important;
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px !important;
-  min-height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: white !important;
+button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
+  background: rgba(45, 44, 44, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   position: relative;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 
   .icon {
-    color: white !important;
+    color: white;
+    stroke: white;
   }
 
   &.button-bubble--active {
-    background: var(--color-primary) !important;
+    background: var(--color-primary);
 
     &:hover {
-      background: var(--color-primary-alt) !important;
+      background: var(--color-primary-alt);
     }
   }
+}
 
-  .button__label {
-    display: none;
+.shorts-mobile-panel__avatar-wrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .channel-thumbnail {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    margin-right: 0;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+}
+
+.shorts-mobile-panel__subscribe-icon {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+
+  .icon {
+    stroke: white;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
+  }
+
+  &--active .icon {
+    stroke: white;
+    fill: rgb(226, 73, 94);
   }
 }
 
@@ -142,6 +181,79 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
   min-width: 30px;
   text-align: center;
+}
+
+.shorts-mobile-flames {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -40px;
+  height: calc(60% + 40px);
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+  filter: blur(2px);
+  animation: shortsFlamesContainer 2s ease-out forwards;
+}
+
+.shorts-mobile-flames__particle {
+  position: absolute;
+  bottom: -20px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-image: radial-gradient(rgb(255, 80, 0) 20%, rgba(255, 80, 0, 0) 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: shortsFlameRise 1s ease-in infinite;
+}
+
+@keyframes mobileSlimeDrip {
+  0% {
+    background-position: 10% -15px, 30% -80px, 55% -15px, 75% -120px, 90% -40px, 45% -100px, 5% -140px, 65% -20px,
+      20% -160px, 82% -50px, 40% -130px, 95% -15px;
+    background-size: 20px 20px, 16px 16px, 24px 24px, 14px 14px, 18px 18px, 16px 16px, 12px 12px, 22px 22px, 14px 14px,
+      18px 18px, 10px 10px, 24px 24px;
+    opacity: 1;
+  }
+  40% {
+    background-size: 22px 45px, 16px 60px, 28px 40px, 14px 65px, 20px 50px, 18px 58px, 12px 52px, 24px 42px, 15px 62px,
+      20px 46px, 10px 55px, 26px 38px;
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 12% 550px, 28% 250px, 58% 500px, 72% 180px, 88% 400px, 48% 200px, 7% 150px, 62% 520px,
+      22% 120px, 80% 450px, 38% 180px, 93% 530px;
+    background-size: 22px 70px, 16px 80px, 28px 60px, 14px 90px, 20px 75px, 18px 85px, 12px 78px, 24px 65px, 15px 88px,
+      20px 72px, 10px 82px, 26px 58px;
+    opacity: 0;
+  }
+}
+
+.shorts-mobile-slime {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  background: radial-gradient(ellipse, rgba(129, 197, 84, 0.75) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(100, 180, 60, 0.7) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(110, 190, 70, 0.7) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(90, 170, 50, 0.65) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(120, 190, 75, 0.7) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.6) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(95, 175, 55, 0.7) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(110, 185, 65, 0.6) 40%, transparent 70%),
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.7) 40%, transparent 70%);
+  background-size: 20px 20px, 16px 16px, 24px 24px, 14px 14px, 18px 18px, 16px 16px, 12px 12px, 22px 22px, 14px 14px,
+    18px 18px, 10px 10px, 24px 24px;
+  background-position: 10% -15px, 30% -80px, 55% -15px, 75% -120px, 90% -40px, 45% -100px, 5% -140px, 65% -20px,
+    20% -160px, 82% -50px, 40% -130px, 95% -15px;
+  background-repeat: no-repeat;
+  filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='4' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='25'/%3E%3C/filter%3E%3C/svg%3E#f");
+  animation: mobileSlimeDrip 3s ease-in forwards;
 }
 
 @media (max-width: 768px) and (orientation: landscape) {

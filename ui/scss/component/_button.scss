@@ -1164,6 +1164,32 @@ svg + .button__label {
   }
 }
 
+@keyframes shortsFireButtonGlow {
+  0% {
+    background: rgba(239, 90, 0, 0.8);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes shortsSlimeButtonGlow {
+  0% {
+    background: rgba(129, 197, 84, 0.8);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.button--fire-glow-pulse {
+  animation: shortsFireButtonGlow 2s ease-out forwards;
+}
+
+.button--slime-glow-pulse {
+  animation: shortsSlimeButtonGlow 3s ease-out forwards;
+}
+
 .button--warning {
   background-color: rgba(244, 44, 44, 0.9) !important;
   .button__content {

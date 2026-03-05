@@ -9,6 +9,8 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
+import ChannelThumbnail from 'component/channelThumbnail';
+import Icon from 'component/common/icon';
 import { useIsShortsMobile } from 'effects/use-screensize';
 
 type Props = {
@@ -38,6 +40,11 @@ type Props = {
   isUnlisted: ?boolean,
   handleShareClick: () => void,
   onInfoClick: () => void,
+  channelUrl: ?string,
+  isSubscribed: boolean,
+  channelPermanentUrl: ?string,
+  doChannelSubscribe: (sub: {}) => void,
+  doChannelUnsubscribe: (sub: {}) => void,
 };
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -67,7 +74,42 @@ const ShortsActions = React.memo<Props>(
     isUnlisted,
     handleShareClick,
     onInfoClick,
+    channelUrl,
+    isSubscribed,
+    channelPermanentUrl,
+    doChannelSubscribe,
+    doChannelUnsubscribe,
   }: Props) => {
+    const [avatarHover, setAvatarHover] = React.useState(false);
+    const [fireEffect, setFireEffect] = React.useState(false);
+    const fireEffectTimeout = React.useRef(null);
+    const [slimeEffect, setSlimeEffect] = React.useState(false);
+    const slimeEffectTimeout = React.useRef(null);
+
+    React.useEffect(() => {
+      const el = document.querySelector('.shorts__viewer');
+      if (!el) return;
+      if (fireEffect) {
+        el.classList.remove('shorts__viewer--fire-glow');
+        void el.offsetWidth;
+        el.classList.add('shorts__viewer--fire-glow');
+      } else {
+        el.classList.remove('shorts__viewer--fire-glow');
+      }
+    }, [fireEffect]);
+
+    React.useEffect(() => {
+      const el = document.querySelector('.shorts__viewer');
+      if (!el) return;
+      if (slimeEffect) {
+        el.classList.remove('shorts__viewer--slime-glow');
+        void el.offsetWidth;
+        el.classList.add('shorts__viewer--slime-glow');
+      } else {
+        el.classList.remove('shorts__viewer--slime-glow');
+      }
+    }, [slimeEffect]);
+
     React.useEffect(() => {
       function fetchReactions() {
         doFetchReactions(claimId);
@@ -136,7 +178,17 @@ const ShortsActions = React.memo<Props>(
           >
             <div className="fire-and-count">
               <Button
-                onClick={() => doReactionLike(uri)}
+                onClick={() => {
+                  if (myReaction !== REACTION_TYPES.LIKE) {
+                    setFireEffect(false);
+                    clearTimeout(fireEffectTimeout.current);
+                    requestAnimationFrame(() => {
+                      setFireEffect(true);
+                      fireEffectTimeout.current = setTimeout(() => setFireEffect(false), 2000);
+                    });
+                  }
+                  doReactionLike(uri);
+                }}
                 icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
                 iconSize={16}
                 title={__('I Like This')}
@@ -186,11 +238,58 @@ const ShortsActions = React.memo<Props>(
                 }
                 iconSize={16}
                 icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
-                onClick={() => doReactionDislike(uri)}
+                onClick={() => {
+                  if (myReaction !== REACTION_TYPES.DISLIKE) {
+                    setSlimeEffect(false);
+                    clearTimeout(slimeEffectTimeout.current);
+                    requestAnimationFrame(() => {
+                      setSlimeEffect(true);
+                      slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                    });
+                  }
+                  doReactionDislike(uri);
+                }}
               />
               {Number.isInteger(dislikeCount) ? <span>{formatNumberWithCommas(dislikeCount, 0)}</span> : Placeholder}
             </div>
           </div>
+          {channelUrl && (
+            <div
+              className="shorts-actions__item"
+              onMouseEnter={() => setAvatarHover(true)}
+              onMouseLeave={() => setAvatarHover(false)}
+              onClick={() => {
+                const sub = { channelName: channelUrl.split('/').pop(), uri: channelPermanentUrl };
+                if (isSubscribed) {
+                  doChannelUnsubscribe(sub);
+                } else {
+                  doChannelSubscribe(sub);
+                }
+              }}
+            >
+              <div className="shorts-floating-action shorts-floating-action--avatar">
+                <ChannelThumbnail uri={channelUrl} hideStakedIndicator className="shorts-floating-action__avatar" />
+                <div
+                  className={classnames('shorts-floating-action__subscribe', {
+                    'shorts-floating-action__subscribe--active': isSubscribed,
+                  })}
+                >
+                  <Icon
+                    icon={
+                      isSubscribed && avatarHover
+                        ? ICONS.UNSUBSCRIBE
+                        : isSubscribed || avatarHover
+                        ? ICONS.SUBSCRIBED
+                        : ICONS.SUBSCRIBE
+                    }
+                    size={10}
+                  />
+                </div>
+              </div>
+              <p>{isSubscribed ? __('Following') : __('Follow')}</p>
+            </div>
+          )}
+
           <div className="shorts-actions__item">
             <Button
               className="shorts-page__actions-button shorts-page__actions-button--comments"
@@ -203,20 +302,22 @@ const ShortsActions = React.memo<Props>(
             <p>{__('Comments')}</p>
           </div>
 
-          <div className="shorts-actions__item">
-            <ClaimCollectionAddButton uri={uri} isShortsPage />
-          </div>
+          <div className="shorts-actions__group">
+            <div className="shorts-actions__item">
+              <ClaimCollectionAddButton uri={uri} isShortsPage />
+            </div>
 
-          <div className="shorts-actions__item">
-            <Button
-              className="shorts-page__actions-button shorts-page__actions-button--share"
-              onClick={handleShareClick}
-              icon={ICONS.SHARE}
-              iconSize={16}
-              title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-              disabled={!hasPlaylist}
-            />
-            <p>{__('Share')}</p>
+            <div className="shorts-actions__item">
+              <Button
+                className="shorts-page__actions-button shorts-page__actions-button--share"
+                onClick={handleShareClick}
+                icon={ICONS.SHARE}
+                iconSize={16}
+                title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+                disabled={!hasPlaylist}
+              />
+              <p>{__('Share')}</p>
+            </div>
           </div>
           <div className="shorts-actions__item">
             <Button
@@ -235,11 +336,45 @@ const ShortsActions = React.memo<Props>(
       </div>
     );
 
+    const shortsViewer = typeof document !== 'undefined' ? document.querySelector('.shorts__viewer') : null;
+
+    const effectOverlays = shortsViewer && (
+      <>
+        {fireEffect &&
+          createPortal(
+            <div className="shorts-viewer-flames">
+              {Array.from({ length: 50 }, (_, i) => (
+                <div
+                  key={i}
+                  className="shorts-viewer-flames__particle"
+                  style={{
+                    left: `calc(${(i / 50) * 100}% - 35px)`,
+                    animationDelay: `${Math.random()}s`,
+                  }}
+                />
+              ))}
+            </div>,
+            shortsViewer
+          )}
+        {slimeEffect && createPortal(<div className="shorts-viewer-slime" />, shortsViewer)}
+      </>
+    );
+
     if (isMobile && document.body) {
-      return createPortal(content, document.body);
+      return (
+        <>
+          {effectOverlays}
+          {createPortal(content, document.body)}
+        </>
+      );
     }
 
-    return content;
+    return (
+      <>
+        {effectOverlays}
+        {content}
+      </>
+    );
   }
 );
 
