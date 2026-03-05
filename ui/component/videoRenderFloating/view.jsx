@@ -206,7 +206,7 @@ function VideoRenderFloating(props: Props) {
         ? generateListSearchUrlParams(collectionId)
         : '')
     : '';
-  const shortsMetaLabel = channelTitle || (channelUrl ? formatLbryChannelName(channelUrl) : '');
+  const shortsMetaLabel = channelTitle || (channelUrl ? formatLbryChannelName(channelUrl) : __('Anonymous'));
   const channelNavigateUrl = channelUrl ? formatLbryUrlForWeb(channelUrl) : '';
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
@@ -734,14 +734,14 @@ function VideoRenderFloating(props: Props) {
                   {isShortsFloating ? (
                     channelNavigateUrl ? (
                       <Button navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
-                        <ChannelThumbnail xxsmall uri={channelUrl} />
+                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
                         {shortsMetaLabel && (
                           <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
                         )}
                       </Button>
                     ) : (
                       <div className="content__shorts-floating-channel">
-                        <ChannelThumbnail xxsmall uri={channelUrl} />
+                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
                         {shortsMetaLabel && (
                           <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
                         )}

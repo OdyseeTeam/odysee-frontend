@@ -270,7 +270,12 @@ const ShortsActions = React.memo<Props>(
               }}
             >
               <div className="shorts-floating-action shorts-floating-action--avatar">
-                <ChannelThumbnail uri={channelUrl} hideStakedIndicator className="shorts-floating-action__avatar" />
+                <ChannelThumbnail
+                  key={channelUrl}
+                  uri={channelUrl}
+                  hideStakedIndicator
+                  className="shorts-floating-action__avatar"
+                />
                 <div
                   className={classnames('shorts-floating-action__subscribe', {
                     'shorts-floating-action__subscribe--active': isSubscribed,

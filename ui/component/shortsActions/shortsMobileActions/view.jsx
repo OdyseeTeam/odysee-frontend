@@ -176,7 +176,7 @@ const MobileActions = ({
             }}
           >
             <div className="shorts-mobile-panel__avatar-wrapper">
-              <ChannelThumbnail uri={channelUrl} hideStakedIndicator />
+              <ChannelThumbnail key={channelUrl} uri={channelUrl} hideStakedIndicator />
               <div
                 className={classnames('shorts-mobile-panel__subscribe-icon', {
                   'shorts-mobile-panel__subscribe-icon--active': isSubscribed,
