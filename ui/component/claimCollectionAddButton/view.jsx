@@ -2,6 +2,7 @@
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
+import Button from 'component/button';
 import FileActionButton from 'component/common/file-action-button';
 import { isClaimAllowedForCollection } from 'util/collections';
 
@@ -26,7 +27,7 @@ function ClaimCollectionAddButton(props: Props) {
   if (isShortsPage) {
     return (
       <>
-        <FileActionButton
+        <Button
           className="shorts-page__actions-button"
           title={__('Add this video to a playlist')}
           icon={!isSaved ? ICONS.PLAYLIST_ADD : ICONS.PLAYLIST_FILLED}
