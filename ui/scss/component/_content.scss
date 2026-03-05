@@ -566,7 +566,7 @@
   .content__shorts-floating-actions {
     position: absolute;
     right: 0;
-    bottom: 4.5rem;
+    bottom: 4.2rem;
     z-index: 2;
     display: flex;
     flex-direction: column;
@@ -611,6 +611,14 @@
     color: rgba(255, 255, 255, 0.85);
     font-size: 0.5625rem;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
+  }
+
+  .button .icon {
+    flex-shrink: 0;
+  }
+
+  .button .button__label {
+    position: absolute;
   }
 
   .button-bubble--active {
