@@ -15,8 +15,6 @@ import { Form, FormField } from 'component/common/form';
 import UpcomingClaims from 'component/upcomingClaims';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
-import SearchOptions from 'component/searchOptions/view';
-import { SEARCH_OPTIONS } from 'constants/search';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
@@ -90,33 +88,25 @@ function ContentTab(props: Props) {
   const [searchQuery, setSearchQuery] = React.useState(urlParams.get('search') || '');
   const [isSearching, setIsSearching] = React.useState(false);
 
-  const defaultChannelSearchOptions = {
-    [SEARCH_OPTIONS.MEDIA_AUDIO]: true,
-    [SEARCH_OPTIONS.MEDIA_VIDEO]: true,
-    [SEARCH_OPTIONS.MEDIA_TEXT]: true,
-    [SEARCH_OPTIONS.MEDIA_IMAGE]: true,
-    [SEARCH_OPTIONS.MEDIA_APPLICATION]: true,
-    [SEARCH_OPTIONS.SORT]: '',
-    [SEARCH_OPTIONS.TIME_FILTER]: '',
-    [SEARCH_OPTIONS.EXACT]: false,
-  };
-  const [searchFilterOptions, setSearchFilterOptions] = React.useState(defaultChannelSearchOptions);
-  const [filterExpanded, setFilterExpanded] = React.useState(false);
-
-  const setSearchOption = React.useCallback((option, value) => {
-    setSearchFilterOptions((prev) => ({ ...prev, [option]: value }));
-  }, []);
-
   const orderBy = urlParams.get('order');
+  const contentType = urlParams.get(CS.CONTENT_KEY);
+  const freshness = urlParams.get(CS.FRESH_KEY);
+  const sortByParam = urlParams.get(CS.SORT_BY_KEY);
+  const durationParam = urlParams.get(CS.DURATION_KEY);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${pathname}`, null);
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
   const [hideMembersOnly, setHideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
+  const isChannelSearch = searchQuery.length > 2;
+
   const claimSearchFilterCtx = {
     contentTypes: CS.CONTENT_TYPES,
     repost: { hideReposts, setHideReposts },
     membersOnly: { hideMembersOnly, setHideMembersOnly },
+    isChannelSearch,
   };
 
   const claimId = claim && claim.claim_id;
@@ -252,37 +242,28 @@ function ContentTab(props: Props) {
               )
             }
             subSection={
-              <>
-                {searchQuery.length > 2 && !shortsOnly && (
-                  <SearchOptions
-                    options={searchFilterOptions}
-                    setSearchOption={setSearchOption}
-                    expanded={filterExpanded}
-                    toggleSearchExpanded={() => setFilterExpanded((prev) => !prev)}
-                    searchInLanguage={false}
-                    simple={false}
-                    isChannelSearch
-                    onSearchOptionsChanged={() => {}}
-                  />
-                )}
-                <SearchResults
-                  searchQuery={searchQuery}
-                  claimId={claimId}
-                  showMature={showMature}
-                  tileLayout={tileLayout}
-                  orderBy={orderBy}
-                  hideShorts={hideShorts}
-                  searchFilterOptions={shortsOnly ? undefined : searchFilterOptions}
-                  onResults={(results) => setIsSearching(results !== null)}
-                  doResolveUris={doResolveUris}
-                  {...(shortsOnly
-                    ? {
-                        maxDuration: SETTINGS.SHORTS_DURATION_LTE,
-                        maxAspectRatio: SETTINGS.SHORTS_ASPECT_RATIO_LTE,
-                      }
-                    : {})}
-                />
-              </>
+              <SearchResults
+                searchQuery={searchQuery}
+                claimId={claimId}
+                showMature={showMature}
+                tileLayout={tileLayout}
+                orderBy={orderBy}
+                hideShorts={hideShorts}
+                contentType={contentType}
+                freshness={freshness}
+                sortByParam={sortByParam}
+                durationParam={durationParam}
+                customMinMinutes={minDurationMinutes}
+                customMaxMinutes={maxDurationMinutes}
+                onResults={(results) => setIsSearching(results !== null)}
+                doResolveUris={doResolveUris}
+                {...(shortsOnly
+                  ? {
+                      maxDuration: SETTINGS.SHORTS_DURATION_LTE,
+                      maxAspectRatio: SETTINGS.SHORTS_ASPECT_RATIO_LTE,
+                    }
+                  : {})}
+              />
             }
             isChannel
             channelIsMine={channelIsMine}
