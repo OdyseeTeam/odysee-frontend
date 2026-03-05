@@ -100,7 +100,7 @@ function ContentTab(props: Props) {
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
   const [hideMembersOnly, setHideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
-  const isChannelSearch = searchQuery.length > 2;
+  const isChannelSearch = searchQuery.trim().length > 2;
 
   const claimSearchFilterCtx = {
     contentTypes: CS.CONTENT_TYPES,

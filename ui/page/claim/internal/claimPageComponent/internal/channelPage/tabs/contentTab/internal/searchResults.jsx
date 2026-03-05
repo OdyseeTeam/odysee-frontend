@@ -109,9 +109,11 @@ export function SearchResults(props: Props) {
       ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
       : ``;
 
-  // Combine prop-based duration (e.g. shorts) with filter-based duration
-  const effectiveMinDuration = durationMinParam || minDuration;
-  const effectiveMaxDuration = durationMaxParam || maxDuration;
+  // Combine prop-based duration (e.g. shorts) with filter-based duration using intersection
+  const effectiveMinDuration =
+    durationMinParam && minDuration ? Math.max(durationMinParam, minDuration) : durationMinParam || minDuration || null;
+  const effectiveMaxDuration =
+    durationMaxParam && maxDuration ? Math.min(durationMaxParam, maxDuration) : durationMaxParam || maxDuration || null;
 
   React.useEffect(() => {
     noMoreResults.current = false;
