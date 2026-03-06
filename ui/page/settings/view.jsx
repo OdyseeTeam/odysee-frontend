@@ -10,7 +10,6 @@ import SettingAppearance from 'component/settingAppearance';
 import SettingContent from 'component/settingContent';
 import SettingPlayer from 'component/settingPlayer';
 import SettingSystem from 'component/settingSystem';
-import SettingYouTubeGateway from 'component/settingYouTubeGateway';
 import SettingUnauthenticated from 'component/settingUnauthenticated';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
@@ -96,7 +95,6 @@ class SettingsPage extends React.PureComponent<Props> {
             <SettingAppearance />
             <SettingAccount />
             <SettingContent />
-            <SettingYouTubeGateway />
             <SettingPlayer />
             <SettingSystem />
           </div>

@@ -10,6 +10,7 @@ const { handleFramePost } = require('./frame');
 const { getTempFile } = require('./tempfile');
 const { getSpinnerHtml } = require('./spinner');
 const { getLlmsTxt } = require('./llms');
+const { createPairSession, getPairSession, registerPairSession } = require('./youtubeProxyPairing');
 
 const fetch = require('node-fetch');
 const Router = require('@koa/router');
@@ -18,6 +19,26 @@ const Router = require('@koa/router');
 global.fetch = fetch;
 
 const router = new Router();
+
+async function parseJsonBody(ctx) {
+  try {
+    const chunks = [];
+    await new Promise((resolve) => {
+      ctx.req.on('data', (c) => chunks.push(c));
+      ctx.req.on('end', resolve);
+    });
+    const raw = Buffer.concat(chunks).toString('utf8');
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function setPairCorsHeaders(ctx) {
+  ctx.set('Access-Control-Allow-Origin', '*');
+  ctx.set('Access-Control-Allow-Headers', 'Content-Type');
+  ctx.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+}
 
 async function getStreamUrl(ctx) {
   const { claimName, claimId } = ctx.params;
@@ -99,23 +120,73 @@ router.get(`/$/llms.txt`, async (ctx) => {
   ctx.body = llmsTxt;
 });
 
+router.options(`/$/api/youtubeProxyPair/v1/create`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  ctx.status = 204;
+});
+
+router.options(`/$/api/youtubeProxyPair/v1/status/:pairId`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  ctx.status = 204;
+});
+
+router.options(`/$/api/youtubeProxyPair/v1/register`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  ctx.status = 204;
+});
+
+router.post(`/$/api/youtubeProxyPair/v1/create`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  const pairSession = createPairSession();
+  ctx.set('Content-Type', 'application/json');
+  ctx.body = {
+    success: true,
+    data: pairSession,
+  };
+});
+
+router.get(`/$/api/youtubeProxyPair/v1/status/:pairId`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  const pairSession = getPairSession(ctx.params.pairId);
+  if (!pairSession) {
+    ctx.status = 404;
+    ctx.body = {
+      success: false,
+      error: 'Pair session not found or expired.',
+    };
+    return;
+  }
+
+  ctx.set('Content-Type', 'application/json');
+  ctx.body = {
+    success: true,
+    data: pairSession,
+  };
+});
+
+router.post(`/$/api/youtubeProxyPair/v1/register`, async (ctx) => {
+  setPairCorsHeaders(ctx);
+  const body = await parseJsonBody(ctx);
+
+  try {
+    const pairSession = registerPairSession(body || {});
+    ctx.set('Content-Type', 'application/json');
+    ctx.body = {
+      success: true,
+      data: pairSession,
+    };
+  } catch (error) {
+    ctx.status = error.status || 400;
+    ctx.body = {
+      success: false,
+      error: error.message || 'Could not register proxy endpoint.',
+    };
+  }
+});
+
 router.post(`/$/frame`, async (ctx) => {
   // Minimal JSON parser to avoid external dependencies
-  try {
-    const chunks = [];
-    await new Promise((resolve) => {
-      ctx.req.on('data', (c) => chunks.push(c));
-      ctx.req.on('end', resolve);
-    });
-    const raw = Buffer.concat(chunks).toString('utf8');
-    try {
-      ctx.request.body = raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      ctx.request.body = {};
-    }
-  } catch (e) {
-    ctx.request.body = {};
-  }
+  ctx.request.body = await parseJsonBody(ctx);
   await handleFramePost(ctx);
 });
 

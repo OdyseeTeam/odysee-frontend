@@ -8,6 +8,7 @@ import Spinner from 'component/spinner';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI } from 'util/lbryURI';
 import { buildWooClaimIdFromYtId, getWooType, parseWooTimestampToSeconds } from 'util/woo';
+import { fetchYouTubeJson } from 'util/youtubeProxy';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import PAGES from 'constants/pages';
@@ -148,11 +149,7 @@ const ClaimPageComponent = (props: Props) => {
     oEmbedUrl.searchParams.set('url', watchUrl.toString());
     oEmbedUrl.searchParams.set('format', 'json');
 
-    fetch(oEmbedUrl.toString(), { signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch oEmbed (${res.status})`);
-        return res.json();
-      })
+    fetchYouTubeJson(oEmbedUrl.toString(), { signal: controller.signal, timeoutMs: 10000 })
       .then((json) => {
         setWooData(json);
       })

@@ -57,5 +57,7 @@ export const PAGE_TITLE = {
   [PAGES.UPLOAD]: 'Upload a File to Odysee',
   [PAGES.WALLET]: 'Odysee',
   [PAGES.YOUTUBE_SYNC]: 'YouTube Sync',
+  [PAGES.YOUTUBE_PROXY_PAIR]: 'Connect Mobile Proxy',
+  [PAGES.YOUTUBE_PROXY_TEST]: 'YouTube Proxy Test',
   [PAGES.YOUTUBE_TOS]: 'YouTube Sync Terms of Service',
 };

@@ -80,6 +80,18 @@
         font-display: swap;
         src: url('/public/font/v1/700i.woff') format('woff');
       }
+
+      #wol-youtube-worker-root {
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0;
+        z-index: -1;
+      }
     </style>
 
     <!-- VARIABLE_HEAD_BEGIN -->
@@ -88,5 +100,6 @@
 
   <body>
     <div id="app"></div>
+    <div id="wol-youtube-worker-root" aria-hidden="true"></div>
   </body>
 </html>

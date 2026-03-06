@@ -142,6 +142,12 @@ const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpac
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
+const YouTubeProxyPairPage = lazyImport(() =>
+  import('page/youtubeProxyPair' /* webpackChunkName: "youtubeProxyPair" */)
+);
+const YouTubeProxyTestPage = lazyImport(() =>
+  import('page/youtubeProxyTest' /* webpackChunkName: "youtubeProxyTest" */)
+);
 const PaymentAccountPage = lazyImport(() => import('page/paymentAccount' /* webpackChunkName: "paymentAccountSync" */));
 const ArAccountPage = lazyImport(() => import('page/arAccount' /* webpackChunkName: "arAccountPage" */));
 
@@ -426,6 +432,8 @@ function AppRouter(props: Props) {
           path={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
           component={ChannelsFollowingDiscoverPage}
         />
+        <Route {...props} exact path={`/$/${PAGES.YOUTUBE_PROXY_PAIR}`} component={YouTubeProxyPairPage} />
+        <Route {...props} exact path={`/$/${PAGES.YOUTUBE_PROXY_TEST}`} component={YouTubeProxyTestPage} />
         <PrivateRoute {...props} exact path={`/$/${PAGES.YOUTUBE_SYNC}`} component={YoutubeSyncPage} />
         <PrivateRoute {...props} exact path={`/$/${PAGES.TAGS_FOLLOWING}`} component={TagsFollowingPage} />
         <PrivateRoute

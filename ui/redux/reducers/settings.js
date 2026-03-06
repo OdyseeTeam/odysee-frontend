@@ -9,12 +9,26 @@ import { UNSYNCED_SETTINGS } from 'config';
 
 const { CLIENT_SYNC_KEYS } = SHARED_PREFERENCES;
 const settingsToIgnore = (UNSYNCED_SETTINGS && UNSYNCED_SETTINGS.trim().split(' ')) || [];
+const LEGACY_YOUTUBE_GATEWAY_KEYS = ['youtube_gateway_url', 'youtube_gateway_token'];
 
 const clientSyncKeys = settingsToIgnore.length
   ? CLIENT_SYNC_KEYS.filter((k) => !settingsToIgnore.includes(k))
   : CLIENT_SYNC_KEYS;
 
 const reducers = {};
+
+function stripLegacyGatewaySettings(values) {
+  if (!values) return values;
+
+  const sanitized = { ...values };
+  LEGACY_YOUTUBE_GATEWAY_KEYS.forEach((legacyKey) => {
+    if (Object.prototype.hasOwnProperty.call(sanitized, legacyKey)) {
+      delete sanitized[legacyKey];
+    }
+  });
+
+  return sanitized;
+}
 
 const defaultState = {
   isNight: false,
@@ -86,8 +100,6 @@ const defaultState = {
     [SETTINGS.DEFAULT_COLLECTION_ACTION]: COLLECTIONS.DEFAULT_ACTION_VIEW,
     [SETTINGS.HIDE_SCHEDULED_LIVESTREAMS]: false,
     [SETTINGS.DEFAULT_VIDEO_QUALITY]: null,
-    [SETTINGS.YOUTUBE_GATEWAY_URL]: null,
-    [SETTINGS.YOUTUBE_GATEWAY_TOKEN]: null,
 
     // OS
     [SETTINGS.AUTO_LAUNCH]: true,
@@ -101,9 +113,14 @@ reducers[ACTIONS.REHYDRATE] = (state, action) => {
   const { clientSettings } = state;
   if (action && action.payload && action.payload.settings) {
     const persistedSettings = action.payload && action.payload.settings;
-    const persistedClientSettings = persistedSettings.clientSettings;
+    const persistedClientSettings = stripLegacyGatewaySettings(persistedSettings.clientSettings);
+    const persistedSharedPreferences = stripLegacyGatewaySettings(persistedSettings.sharedPreferences);
     const newClientSettings = { ...clientSettings, ...persistedClientSettings };
-    return Object.assign({}, state, { ...persistedSettings, clientSettings: newClientSettings });
+    return Object.assign({}, state, {
+      ...persistedSettings,
+      sharedPreferences: persistedSharedPreferences || {},
+      clientSettings: newClientSettings,
+    });
   }
   return Object.assign({}, state, { clientSettings });
 };
@@ -185,9 +202,10 @@ reducers[ACTIONS.SYNC_CLIENT_SETTINGS] = (state) => {
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
   const { clientSettings: currentClientSettings } = state;
   const { settings: sharedPreferences } = action.data;
-  const selectedSettings = sharedPreferences ? getSubsetFromKeysArray(sharedPreferences, clientSyncKeys) : {};
+  const sanitizedSharedPreferences = stripLegacyGatewaySettings(sharedPreferences || {});
+  const selectedSettings = getSubsetFromKeysArray(sanitizedSharedPreferences, clientSyncKeys);
   const mergedClientSettings = { ...currentClientSettings, ...selectedSettings };
-  const newSharedPreferences = sharedPreferences || {};
+  const newSharedPreferences = sanitizedSharedPreferences;
 
   return Object.assign({}, state, {
     sharedPreferences: newSharedPreferences,

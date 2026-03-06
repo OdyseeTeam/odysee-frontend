@@ -1,0 +1,79 @@
+.youtube-proxy-pair-page {
+  min-height: 100%;
+}
+
+.youtube-proxy-pair-page__shell {
+  width: min(100%, 48rem);
+  margin: 4rem auto;
+  padding: 0 1rem 2rem;
+}
+
+.youtube-proxy-pair-page__hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.youtube-proxy-pair-page__kicker {
+  font-size: 0.875rem;
+  color: var(--color-text-help);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.youtube-proxy-pair-page__code {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.youtube-proxy-pair-page__status {
+  max-width: 28rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--border-radius);
+  background: rgba(255, 138, 48, 0.08);
+  border: 1px solid rgba(255, 138, 48, 0.22);
+  color: var(--color-text);
+}
+
+.youtube-proxy-pair-page__status[data-state='fallback'],
+.youtube-proxy-pair-page__status[data-state='invalid'] {
+  background: rgba(255, 102, 102, 0.08);
+  border-color: rgba(255, 102, 102, 0.22);
+}
+
+.youtube-proxy-pair-page__meta {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.youtube-proxy-pair-page__link {
+  word-break: break-word;
+}
+
+.youtube-proxy-pair-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.youtube-proxy-pair-page__notes {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--color-text-help);
+}
+
+@media (max-width: 48rem) {
+  .youtube-proxy-pair-page__shell {
+    margin-top: 2rem;
+  }
+
+  .youtube-proxy-pair-page__code {
+    font-size: 2rem;
+  }
+}
