@@ -126,6 +126,7 @@ export function doCommentList(
               totalPages: total_pages,
               claimId,
               uri,
+              page,
             },
           });
           return result;

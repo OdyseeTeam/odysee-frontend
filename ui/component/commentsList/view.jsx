@@ -208,15 +208,16 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   }, [claimId, resetComments]);
 
   function refreshComments() {
-    // Invalidate existing comments
-    setPage(0);
+    fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
+    setPage(1);
     doPopOutInlinePlayer({ source: 'comment' });
   }
 
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
-      refreshComments();
+      fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, newSort, false);
+      setPage(1);
       doPopOutInlinePlayer({ source: 'comment' });
     }
   }
@@ -559,8 +560,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 type ActionButtonsProps = {
   uri: string,
   totalUnfilteredComments: number,
-  sort: string,
-  changeSort: (string) => void,
+  sort: number,
+  changeSort: (number) => void,
   handleRefresh: () => void,
 };
 
@@ -585,7 +586,20 @@ const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
       )}
 
       <div className="comment__settings">
-        <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={handleRefresh} />
+        <Button
+          button="alt"
+          icon={ICONS.REFRESH}
+          title={__('Refresh')}
+          className="comment__refresh-button"
+          onClick={(e) => {
+            const btn = e.currentTarget;
+            btn.classList.add('comment__refresh-button--spinning');
+            btn.addEventListener('animationend', () => btn.classList.remove('comment__refresh-button--spinning'), {
+              once: true,
+            });
+            handleRefresh();
+          }}
+        />
         <CommentListMenu uri={uri} />
       </div>
     </div>
@@ -593,9 +607,9 @@ const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
 };
 
 type SortButtonProps = {
-  activeSort: string,
-  sortOption: string,
-  changeSort: (string) => void,
+  activeSort: number,
+  sortOption: number,
+  changeSort: (number) => void,
 };
 
 const SortButton = (sortButtonProps: SortButtonProps) => {

@@ -1046,6 +1046,7 @@ svg + .button__label {
 .button-following {
   color: var(--color-text) !important;
   background-color: var(--color-background) !important;
+  transition: width 1s;
   .icon {
     stroke: var(--color-text) !important;
   }

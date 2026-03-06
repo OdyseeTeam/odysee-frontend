@@ -84,6 +84,19 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__refresh-button--spinning .icon {
+  animation: comment-refresh-spin 0.5s ease-in-out;
+}
+
+@keyframes comment-refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .comment__settings {
   display: flex;
   gap: var(--spacing-s);
