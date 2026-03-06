@@ -5,6 +5,7 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { parseURI } from 'util/lbryURI';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
+import useHover from 'effects/use-hover';
 
 import { useIsMobile } from 'effects/use-screensize';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
@@ -50,6 +51,7 @@ export default function SubscribeButton(props: Props) {
   const buttonRef = useRef();
   const prevWidthRef = useRef(null);
   const isMobile = useIsMobile();
+  let isHovering = useHover(buttonRef);
 
   const uiNotificationsEnabled = (user && user.experimental_ui) || ENABLE_UI_NOTIFICATIONS;
 
@@ -94,9 +96,7 @@ export default function SubscribeButton(props: Props) {
   const subscriptionLabel = isSubscribed
     ? __('Following --[button label indicating a channel has been followed]--')
     : __('Follow');
-  const unfollowOverride = false;
-
-  const label = isMobile && shrinkOnMobile ? '' : unfollowOverride || subscriptionLabel;
+  const label = isMobile && shrinkOnMobile ? '' : subscriptionLabel;
   const titlePrefix = isSubscribed ? __('Unfollow this channel') : __('Follow this channel');
 
   if (!preferEmbed && isSubscribed && !permanentUrl && rawChannelName) {
@@ -139,7 +139,7 @@ export default function SubscribeButton(props: Props) {
         ref={buttonRef}
         iconColor="red"
         className={`button-following${isSubscribed ? ' button-following--active' : ''}`}
-        icon={isSubscribed ? ICONS.SUBSCRIBED : ICONS.SUBSCRIBE}
+        icon={isSubscribed && isHovering ? ICONS.UNSUBSCRIBE : isSubscribed ? ICONS.SUBSCRIBED : ICONS.SUBSCRIBE}
         button={'alt'}
         requiresAuth={IS_WEB}
         label={label}
