@@ -49,9 +49,11 @@ export default function SubscribeButton(props: Props) {
   const isEmbed = React.useContext(EmbedContext);
 
   const buttonRef = useRef();
+  const bellRef = useRef();
   const prevWidthRef = useRef(null);
   const isMobile = useIsMobile();
   let isHovering = useHover(buttonRef);
+  const isBellHovering = useHover(bellRef);
 
   const uiNotificationsEnabled = (user && user.experimental_ui) || ENABLE_UI_NOTIFICATIONS;
 
@@ -139,7 +141,13 @@ export default function SubscribeButton(props: Props) {
         ref={buttonRef}
         iconColor="red"
         className={`button-following${isSubscribed ? ' button-following--active' : ''}`}
-        icon={isSubscribed && isHovering ? ICONS.UNSUBSCRIBE : isSubscribed ? ICONS.SUBSCRIBED : ICONS.SUBSCRIBE}
+        icon={
+          isSubscribed && isHovering && !isBellHovering
+            ? ICONS.UNSUBSCRIBE
+            : isSubscribed
+            ? ICONS.SUBSCRIBED
+            : ICONS.SUBSCRIBE
+        }
         button={'alt'}
         requiresAuth={IS_WEB}
         label={label}
@@ -205,6 +213,7 @@ export default function SubscribeButton(props: Props) {
       >
         {isSubscribed && uiNotificationsEnabled && (
           <span
+            ref={bellRef}
             className="button-following__bell"
             role="button"
             tabIndex={0}
