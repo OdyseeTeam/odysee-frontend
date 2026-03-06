@@ -146,19 +146,23 @@ $actions-z-index: 2;
     left: 18px;
   }
   .button-group {
+    .button-following {
+      color: var(--color-text) !important;
+      .icon {
+        stroke: var(--color-text) !important;
+      }
+    }
     .button__content {
       .icon {
         stroke: var(--color-text);
       }
     }
-    .button-following {
-      color: var(--color-text) !important;
-      background-color: var(--color-button-alt-bg) !important;
-      .icon {
-        stroke: var(--color-text) !important;
-      }
-      &:hover {
+    .button-following--active {
+      &:hover:not(:has(.button-following__bell:hover)) {
         color: var(--color-primary) !important;
+        .button-following__bell {
+          color: var(--color-text);
+        }
       }
       @media (max-width: $breakpoint-small) {
         .button__label {
@@ -168,11 +172,8 @@ $actions-z-index: 2;
         }
       }
     }
-    .button-following:last-of-type {
+    .button-following--active:last-of-type {
       margin-left: 2px;
-      &:hover {
-        color: var(--color-text) !important;
-      }
     }
   }
 
@@ -725,6 +726,11 @@ $actions-z-index: 2;
   > .button-group .button {
     padding: 0 var(--spacing-s);
     background-color: rgba(var(--color-background-base), 0.9) !important;
+  }
+
+  .button-following__bell {
+    margin-left: var(--spacing-s);
+    padding-left: var(--spacing-s);
   }
 
   > .button,

@@ -549,11 +549,11 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
-    .button-following {
-      color: var(--color-primary-contrast) !important;
-      background-color: rgba(125, 125, 125, 0.5) !important;
+    .button-following--active {
+      color: var(--color-primary-contrast);
+      background-color: rgba(125, 125, 125, 0.5);
       .icon {
-        stroke: var(--color-primary-contrast) !important;
+        stroke: var(--color-primary-contrast);
       }
     }
     .button {
@@ -589,13 +589,14 @@
         margin-top: 0;
       }
 
-      a.button-following {
+      a.button-following--active {
         .button__content {
           width: 100%;
         }
       }
-      button.button-following:last-of-type {
-        max-width: fit-content;
+
+      .button-following__bell {
+        margin-left: auto;
       }
 
       span {
