@@ -23,6 +23,10 @@ const List<String> secureProxyFallbackHosts = <String>[
   'odysee-proxy.local',
   'odysee.local',
 ];
+const List<String> localProxyFallbackHosts = <String>[
+  'odysee-proxy.local',
+  'odysee.local',
+];
 
 class ProxyRequestConfig {
   final String url;
@@ -40,6 +44,13 @@ class ProxyRequestConfig {
     this.headers,
     this.body,
   });
+}
+
+class UpstreamRequestTarget {
+  final Uri uri;
+  final HttpClientRequest request;
+
+  UpstreamRequestTarget(this.uri, this.request);
 }
 
 class ProxyServerStartResult {
@@ -310,9 +321,9 @@ class YouTubeProxyServer {
     client.userAgent = 'OdyseeYouTubeProxyMobile/0.1';
 
     try {
-      final upstreamRequest = await client
-          .openUrl(proxyRequest.method, targetUri)
-          .timeout(Duration(milliseconds: proxyRequest.timeoutMs));
+      final upstreamTarget = await _openUpstreamRequestTarget(client, proxyRequest, targetUri);
+      final upstreamRequest = upstreamTarget.request;
+      final resolvedTargetUri = upstreamTarget.uri;
       upstreamRequest.followRedirects = true;
       upstreamRequest.maxRedirects = 5;
       _applyUpstreamHeaders(upstreamRequest, proxyRequest.headers);
@@ -357,7 +368,7 @@ class YouTubeProxyServer {
           'ok': isOk,
           'status': upstreamResponse.statusCode,
           'statusText': upstreamResponse.reasonPhrase ?? '',
-          'url': targetUri.toString(),
+          'url': resolvedTargetUri.toString(),
           'headers': upstreamHeaders,
           'responseType': proxyRequest.responseType,
           'data': error == null ? data : null,
@@ -366,7 +377,7 @@ class YouTubeProxyServer {
       );
 
       if (onLog != null) {
-        onLog('${proxyRequest.method} ${targetUri.host}${targetUri.path} -> ${upstreamResponse.statusCode}');
+        onLog('${proxyRequest.method} ${resolvedTargetUri.host}${resolvedTargetUri.path} -> ${upstreamResponse.statusCode}');
       }
     } on TimeoutException {
       await _writeJson(
@@ -402,6 +413,41 @@ class YouTubeProxyServer {
       client.close(force: true);
     }
   }
+}
+
+Future<UpstreamRequestTarget> _openUpstreamRequestTarget(
+  HttpClient client,
+  ProxyRequestConfig proxyRequest,
+  Uri targetUri,
+) async {
+  SocketException lastLookupError;
+  final attemptedHosts = <String>[];
+
+  for (final candidate in _buildUpstreamTargetCandidates(targetUri)) {
+    attemptedHosts.add(candidate.host);
+
+    try {
+      // ignore: close_sinks
+      final request = await client
+          .openUrl(proxyRequest.method, candidate)
+          .timeout(Duration(milliseconds: proxyRequest.timeoutMs));
+      return UpstreamRequestTarget(candidate, request);
+    } on SocketException catch (error) {
+      if (!_isHostLookupFailure(error)) {
+        rethrow;
+      }
+
+      lastLookupError = error;
+    }
+  }
+
+  if (lastLookupError != null) {
+    throw SocketException(
+      'Failed host lookup for ${attemptedHosts.join(', ')} (${lastLookupError.message})',
+    );
+  }
+
+  throw const SocketException('No upstream target could be resolved.');
 }
 
 Future<List<String>> findLanAddresses() async {
@@ -558,6 +604,18 @@ List<String> buildSecureAliasHosts(String bindAddress) {
   return hosts;
 }
 
+List<String> buildLocalAliasHosts() {
+  return List<String>.from(localProxyFallbackHosts);
+}
+
+List<String> buildLocalAliasUrls(int port) {
+  if (port == null || port <= 0) {
+    return <String>[];
+  }
+
+  return buildLocalAliasHosts().map((host) => 'http://$host:$port').toList(growable: false);
+}
+
 List<String> buildSecureAliasUrls(String bindAddress, int securePort) {
   if (securePort == null || securePort <= 0) {
     return <String>[];
@@ -594,6 +652,40 @@ bool _isAllowedTarget(String rawUrl) {
       host.endsWith('.youtube.com') ||
       host == 'youtu.be' ||
       host.endsWith('.youtu.be');
+}
+
+bool _isHostLookupFailure(SocketException error) {
+  return error != null && error.message != null && error.message.contains('Failed host lookup');
+}
+
+List<Uri> _buildUpstreamTargetCandidates(Uri targetUri) {
+  final candidates = <Uri>[targetUri];
+  final host = targetUri.host.toLowerCase();
+  final isInnertubePath = targetUri.path.startsWith('/youtubei/');
+
+  void addCandidate(String nextHost) {
+    if (nextHost == null || nextHost.isEmpty || nextHost == host) {
+      return;
+    }
+
+    final candidate = targetUri.replace(host: nextHost);
+    if (!candidates.any((existing) => existing.toString() == candidate.toString())) {
+      candidates.add(candidate);
+    }
+  }
+
+  if (host == 'www.youtube.com') {
+    addCandidate('youtube.com');
+    addCandidate('m.youtube.com');
+  } else if (host == 'youtube.com') {
+    addCandidate('www.youtube.com');
+  }
+
+  if (isInnertubePath) {
+    addCandidate('youtubei.googleapis.com');
+  }
+
+  return candidates;
 }
 
 Future<ProxyRequestConfig> _parseProxyRequest(HttpRequest request) async {

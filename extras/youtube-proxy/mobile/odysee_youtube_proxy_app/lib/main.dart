@@ -70,6 +70,7 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
   bool _isPairing = false;
   String _statusText = 'Booting proxy...';
   String _pairStatusText = 'Create a 6-digit code on Odysee, then enter it here to register this phone proxy.';
+  String _lastPairingUri = '';
   String _bindAddress = '';
   List<String> _baseUrls = <String>[];
   List<String> _detectedAddresses = <String>[];
@@ -90,6 +91,7 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
     _portController.dispose();
     _pairCodeController.dispose();
     _pairRelayOriginController.dispose();
+    _stopForegroundProxyService();
     _server.stop();
     super.dispose();
   }
@@ -131,6 +133,11 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
         port: result.port,
         securePort: 0,
       );
+      await _startForegroundProxyService(
+        endpoint: result.baseUrls.isNotEmpty ? result.baseUrls.first : null,
+        bindAddress: result.bindAddress,
+        port: result.port,
+      );
 
       setState(() {
         _isRunning = true;
@@ -164,6 +171,7 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
 
     await _server.stop(onLog: _appendLog);
     await _stopNativeAdvertisement();
+    await _stopForegroundProxyService();
 
     setState(() {
       _isBusy = false;
@@ -329,24 +337,40 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
 
     try {
       final uri = Uri.parse(rawUri.trim());
-      if (uri.scheme != 'odyseeproxy' || uri.host != 'pair') {
+      final List<String> pathSegments = uri.pathSegments;
+      final bool isPairHost = uri.host == 'pair';
+      final bool isPairPath = pathSegments.isNotEmpty && pathSegments.first == 'pair';
+      final int pathOffset = isPairHost ? 0 : 1;
+
+      if (uri.scheme != 'odyseeproxy' || (!isPairHost && !isPairPath)) {
         return;
       }
 
-      final pairCode = uri.queryParameters['code'] ?? '';
-      final relayOrigin = uri.queryParameters['relay'] ?? '';
+      final String pairCode = (uri.queryParameters['code'] ??
+              (pathSegments.length > pathOffset ? pathSegments[pathOffset] : ''))
+          .trim();
+      final String relayOrigin = _normalizeRelayOrigin(
+            uri.queryParameters['relay'] ??
+                uri.queryParameters['origin'] ??
+                uri.queryParameters['server'] ??
+                (pathSegments.length > pathOffset + 1 ? pathSegments[pathOffset + 1] : ''),
+          ) ??
+          '';
       final autoSubmit = uri.queryParameters['auto'] == '1';
 
+      _appendLog('Pairing URI received: $rawUri');
+
       setState(() {
+        _lastPairingUri = rawUri;
         if (pairCode.isNotEmpty) {
           _pairCodeController.text = pairCode;
         }
         if (relayOrigin.isNotEmpty) {
           _pairRelayOriginController.text = relayOrigin;
         }
-        _pairStatusText = pairCode.isNotEmpty
-            ? 'Pair code received from QR. Review it below and pair this phone.'
-            : _pairStatusText;
+        _pairStatusText = pairCode.isNotEmpty || relayOrigin.isNotEmpty
+            ? 'Pair data received from link. Review it below and pair this phone.'
+            : 'Opened the app from a pairing link, but the link did not include usable pair data.';
       });
 
       if (autoSubmit && _isRunning && !_isPairing) {
@@ -369,6 +393,36 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
       });
     } catch (error) {
       _appendLog('Bonjour/NSD advertisement unavailable: $error');
+    }
+  }
+
+  Future<void> _startForegroundProxyService({String endpoint, String bindAddress, int port}) async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    try {
+      await _nativeChannel.invokeMethod('startForegroundProxyService', <String, dynamic>{
+        'endpoint': endpoint,
+        'bindAddress': bindAddress,
+        'port': port,
+      });
+      _appendLog('Android foreground service started.');
+    } catch (error) {
+      _appendLog('Could not start Android foreground service: $error');
+    }
+  }
+
+  Future<void> _stopForegroundProxyService() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    try {
+      await _nativeChannel.invokeMethod('stopForegroundProxyService');
+      _appendLog('Android foreground service stopped.');
+    } catch (error) {
+      _appendLog('Could not stop Android foreground service: $error');
     }
   }
 
@@ -552,6 +606,16 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
                         ),
                       ],
                     ),
+                    if (_lastPairingUri.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 10),
+                      Text(
+                        'Last pairing link: $_lastPairingUri',
+                        style: theme.textTheme.body1.copyWith(
+                          color: const Color(0xFF8D96AA),
+                          fontFamily: Platform.isIOS ? 'Courier' : 'monospace',
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -642,6 +706,13 @@ class _ProxyHomePageState extends State<ProxyHomePage> with WidgetsBindingObserv
                       'LAN-only mode binds one private address instead of every network interface. Keep the app open while proxying. iOS will likely suspend the local server in the background.',
                       style: theme.textTheme.body1.copyWith(color: const Color(0xFF8D96AA)),
                     ),
+                    if (Platform.isAndroid) ...<Widget>[
+                      const SizedBox(height: 6),
+                      Text(
+                        'Android runs a foreground notification while the proxy is active so the process is less likely to be suspended in the background.',
+                        style: theme.textTheme.body1.copyWith(color: const Color(0xFF8D96AA)),
+                      ),
+                    ],
                   ],
                 ),
               ),

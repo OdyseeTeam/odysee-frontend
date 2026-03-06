@@ -35,6 +35,11 @@ public class MainActivity extends FlutterActivity {
               final String response = pendingPairingUri;
               pendingPairingUri = null;
               result.success(response);
+            } else if ("startForegroundProxyService".equals(call.method)) {
+              startForegroundProxyService(call, result);
+            } else if ("stopForegroundProxyService".equals(call.method)) {
+              stopForegroundProxyService();
+              result.success(true);
             } else if ("startServiceAdvertisement".equals(call.method)) {
               startServiceAdvertisement(call, result);
             } else if ("stopServiceAdvertisement".equals(call.method)) {
@@ -70,6 +75,31 @@ public class MainActivity extends FlutterActivity {
     if (nativeChannel != null) {
       nativeChannel.invokeMethod("pairingUriUpdated", pendingPairingUri);
     }
+  }
+
+  private void startForegroundProxyService(MethodCall call, MethodChannel.Result result) {
+    final String endpoint = call.argument("endpoint");
+    final String bindAddress = call.argument("bindAddress");
+    final Integer port = call.argument("port");
+
+    Intent intent =
+        ProxyForegroundService.createStartIntent(
+            this,
+            endpoint,
+            bindAddress,
+            port == null ? 0 : port);
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      startForegroundService(intent);
+    } else {
+      startService(intent);
+    }
+
+    result.success(true);
+  }
+
+  private void stopForegroundProxyService() {
+    stopService(ProxyForegroundService.createStopIntent(this));
   }
 
   private void startServiceAdvertisement(MethodCall call, MethodChannel.Result result) {

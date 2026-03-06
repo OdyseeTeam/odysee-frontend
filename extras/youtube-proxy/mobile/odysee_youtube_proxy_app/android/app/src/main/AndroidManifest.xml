@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -40,5 +41,9 @@
                 <data android:scheme="odyseeproxy" android:host="pair" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".ProxyForegroundService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 </manifest>

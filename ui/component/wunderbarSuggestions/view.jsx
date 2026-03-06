@@ -27,6 +27,7 @@ const WEB_PROD_PREFIX = `${URL}/`;
 const SEARCH_PREFIX = `$/${PAGES.SEARCH}q=`;
 const INVALID_URL_ERROR = "Invalid LBRY URL entered. Only A-Z, a-z, 0-9, and '-' allowed.";
 const TAG_SEARCH_PREFIX = 'tag:';
+const YOUTUBE_SEARCH_PREFIX = 'yt:';
 
 const K_KEY_CODE = 75;
 const L_KEY_CODE = 76;
@@ -171,6 +172,9 @@ export default function WunderBarSuggestions(props: Props) {
     if (value.startsWith(TAG_SEARCH_PREFIX)) {
       const tag = value.slice(TAG_SEARCH_PREFIX.length);
       push(`/$/${PAGES.DISCOVER}?t=${tag}`);
+    } else if (value.startsWith(YOUTUBE_SEARCH_PREFIX)) {
+      const ytQuery = value.slice(YOUTUBE_SEARCH_PREFIX.length);
+      push(`/$/${PAGES.SEARCH}?q=${encodeURIComponent(ytQuery)}&source=youtube`);
     } else if (!isLbryUrl) {
       navigateToSearchPage(value);
     } else {
@@ -400,6 +404,9 @@ export default function WunderBarSuggestions(props: Props) {
                         {__('Search tag')}
                         <div className="tag">{term.split(' ').join('')}</div>
                       </Button>
+                    </ComboboxOption>
+                    <ComboboxOption value={`${YOUTUBE_SEARCH_PREFIX}${term}`} className="wunderbar__more-results">
+                      <Button button="link" label={__('Search YouTube')} />
                     </ComboboxOption>
                   </div>
                 )}

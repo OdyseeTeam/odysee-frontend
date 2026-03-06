@@ -7,12 +7,15 @@ import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
+import YouTubeSearchResults from './internal/youtubeResults';
 
 type Props = {
   urlQuery: string,
+  source: string,
   searchOptions: SearchOptions,
   search: (string, SearchOptions) => void,
   isSearching: boolean,
@@ -22,10 +25,12 @@ type Props = {
 };
 
 export default function SearchPage(props: Props) {
-  const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
-  const { push } = useHistory();
+  const { urlQuery, source, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
+  const { push, replace, location } = useHistory();
   const [from, setFrom] = React.useState(0);
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
+  const activeSource = source === 'youtube' ? 'youtube' : 'odysee';
+  const activeTabIndex = activeSource === 'youtube' ? 1 : 0;
 
   const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
   const uriFromQuery = `lbry://${modifiedUrlQuery}`;
@@ -65,11 +70,11 @@ export default function SearchPage(props: Props) {
   const stringifiedSearchOptions = JSON.stringify(searchOptions);
 
   useEffect(() => {
-    if (currentUrlQuery) {
+    if (activeSource === 'odysee' && currentUrlQuery) {
       const searchOptions = JSON.parse(stringifiedSearchOptions);
       search(currentUrlQuery, { ...searchOptions, from: from });
     }
-  }, [search, currentUrlQuery, stringifiedSearchOptions, from]);
+  }, [search, currentUrlQuery, stringifiedSearchOptions, from, activeSource]);
 
   useEffect(() => {
     resetPage();
@@ -86,24 +91,55 @@ export default function SearchPage(props: Props) {
     setFrom(0);
   }
 
+  function updateSearchSource(nextSource: 'odysee' | 'youtube') {
+    const urlParams = new URLSearchParams(location.search);
+    if (nextSource === 'odysee') {
+      urlParams.delete('source');
+    } else {
+      urlParams.set('source', nextSource);
+    }
+
+    replace({
+      pathname: location.pathname,
+      search: urlParams.toString() ? `?${urlParams.toString()}` : '',
+    });
+  }
+
   return (
     <Page className="searchPage-wrapper">
       <section className="search">
-        {urlQuery && isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
-        <ClaimList
-          uris={uris || []}
-          loading={isSearching}
-          useLoadingSpinner
-          onScrollBottom={loadMore}
-          // 'page' is 1-indexed; It's not the same as 'from', but it just
-          // needs to be unique to indicate when a fetch is needed.
-          page={from + 1}
-          pageSize={SEARCH_PAGE_SIZE}
-          header={
-            <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
-          }
-        />
-        <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
+        <Tabs index={activeTabIndex} onChange={(index) => updateSearchSource(index === 1 ? 'youtube' : 'odysee')}>
+          <TabList className="search-page__tabs">
+            <Tab>{__('Odysee')}</Tab>
+            <Tab>{__('YouTube')}</Tab>
+          </TabList>
+
+          <TabPanels>
+            <TabPanel>
+              {urlQuery && isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
+              <ClaimList
+                uris={uris || []}
+                loading={isSearching}
+                useLoadingSpinner
+                onScrollBottom={loadMore}
+                page={from + 1}
+                pageSize={SEARCH_PAGE_SIZE}
+                header={
+                  <SearchOptions
+                    simple={SIMPLE_SITE}
+                    additionalOptions={searchOptions}
+                    onSearchOptionsChanged={resetPage}
+                  />
+                }
+              />
+              <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
+            </TabPanel>
+
+            <TabPanel>
+              <YouTubeSearchResults query={urlQuery || ''} />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </section>
     </Page>
   );

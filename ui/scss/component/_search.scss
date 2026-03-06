@@ -192,6 +192,10 @@
 }
 
 .searchPage-wrapper {
+  .search-page__tabs {
+    margin-bottom: var(--spacing-m);
+  }
+
   .ads__claim-item {
     margin-top: 0;
     margin-bottom: var(--spacing-xxs);
@@ -218,7 +222,119 @@
     color: var(--color-text);
   }
 
+  .youtube-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m);
+  }
+
+  .youtube-search-results__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-s);
+  }
+
+  .youtube-search-results__title {
+    margin: 0;
+  }
+
+  .youtube-search-results__subtitle {
+    color: rgba(var(--color-text-base), 0.7);
+    margin-top: var(--spacing-xxs);
+  }
+
+  .youtube-search-results__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-s);
+  }
+
+  .youtube-search-results__item {
+    display: grid;
+    grid-template-columns: minmax(180px, 280px) 1fr;
+    gap: var(--spacing-s);
+    padding: var(--spacing-s);
+    border: 1px solid rgba(var(--color-border-base), 0.6);
+    border-radius: var(--border-radius);
+    background: rgba(var(--color-background-base), 0.35);
+  }
+
+  .youtube-search-results__media {
+    min-width: 0;
+  }
+
+  .youtube-search-results__thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    background: rgba(var(--color-background-base), 0.9);
+  }
+
+  .youtube-search-results__thumb--empty {
+    opacity: 0.3;
+  }
+
+  .youtube-search-results__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    min-width: 0;
+  }
+
+  .youtube-search-results__meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--spacing-xs);
+    color: rgba(var(--color-text-base), 0.68);
+    font-size: var(--font-s);
+  }
+
+  .youtube-search-results__meta-row > span::after {
+    content: '•';
+    margin-left: var(--spacing-xs);
+    opacity: 0.55;
+  }
+
+  .youtube-search-results__meta-row > span:last-child::after {
+    display: none;
+  }
+
+  .youtube-search-results__type {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .youtube-search-results__item-title {
+    font-size: var(--font-l);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.35;
+  }
+
+  .youtube-search-results__channel {
+    color: rgba(var(--color-text-base), 0.82);
+  }
+
+  .youtube-search-results__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .youtube-search-results__footer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+  }
+
   @media (max-width: $breakpoint-small) {
+    .youtube-search-results__item {
+      grid-template-columns: 1fr;
+    }
+
     .section__actions--no-margin {
       max-width: 100%;
       .search__top-link {

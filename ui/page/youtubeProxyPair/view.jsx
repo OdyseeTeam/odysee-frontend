@@ -33,9 +33,11 @@ function buildPairDeepLink(code: string, relayOrigin: string, autoSubmit: boolea
     return '';
   }
 
-  return `odyseeproxy://pair?code=${encodeURIComponent(normalizedCode)}&relay=${encodeURIComponent(
+  return `odyseeproxy://pair/${encodeURIComponent(normalizedCode)}/${encodeURIComponent(
     normalizedOrigin
-  )}&auto=${autoSubmit ? '1' : '0'}`;
+  )}?code=${encodeURIComponent(normalizedCode)}&relay=${encodeURIComponent(
+    normalizedOrigin
+  )}&origin=${encodeURIComponent(normalizedOrigin)}&auto=${autoSubmit ? '1' : '0'}`;
 }
 
 function launchDeepLink(deepLink: string, userInitiated?: boolean = false) {

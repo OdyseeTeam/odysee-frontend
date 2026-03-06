@@ -25,6 +25,14 @@ import type {
   YouTubeProxyResponseType,
   YouTubeProxyResult,
 } from 'util/youtubeProxy';
+import {
+  buildYouTubeInnertubeContext,
+  buildYouTubeInnertubeHeaders,
+  detectYouTubeInnertubeConfig,
+  getStoredYouTubeInnertubeConfig,
+  setStoredYouTubeInnertubeConfig,
+} from 'util/youtubeInnertube';
+import type { YouTubeInnertubeConfig } from 'util/youtubeInnertube';
 
 import './style.scss';
 
@@ -36,14 +44,6 @@ const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MANUAL_HEADERS = '{\n  "Accept": "application/json"\n}';
 const DEFAULT_PAIR_RELAY_ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
 const PAIR_STATUS_POLL_MS = 2000;
-type InnertubeConfig = {
-  apiKey: string,
-  clientName: string,
-  clientVersion: string,
-  hl: string,
-  gl: string,
-  visitorData: string,
-};
 
 type ProbeDefinition = {
   id?: string,
@@ -83,16 +83,7 @@ type RecentRun = {
   finishedAt: string,
 };
 
-const DEFAULT_INNERTUBE: InnertubeConfig = {
-  apiKey: '',
-  clientName: '1',
-  clientVersion: '',
-  hl: 'en',
-  gl: 'US',
-  visitorData: '',
-};
 const MAX_PREVIEW_CHARS = 50000;
-const INNERTUBE_CONTEXT_NAMES = { '1': 'WEB', '2': 'ANDROID', '3': 'IOS', '5': 'MWEB', '7': 'TVHTML5' };
 
 function buildWatchUrl(videoId: string) {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId.trim() || DEFAULT_VIDEO_ID)}`;
@@ -189,43 +180,6 @@ function buildGetPresets({
   ];
 }
 
-function buildInnertubeHeaders(clientName: string, clientVersion: string, visitorData: string): YouTubeProxyHeaders {
-  const headers: YouTubeProxyHeaders = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    'X-YouTube-Client-Name': clientName || DEFAULT_INNERTUBE.clientName,
-    'X-YouTube-Client-Version': clientVersion,
-  };
-
-  if (visitorData) {
-    headers['X-Goog-Visitor-Id'] = visitorData;
-    headers['X-Youtube-Bootstrap-Logged-In'] = 'false';
-  }
-
-  return headers;
-}
-
-function buildInnertubeContext(
-  clientName: string,
-  clientVersion: string,
-  hl: string,
-  gl: string,
-  visitorData: string
-): { client: { clientName: string, clientVersion: string, hl: string, gl: string, visitorData?: string } } {
-  const client: { clientName: string, clientVersion: string, hl: string, gl: string, visitorData?: string } = {
-    clientName: INNERTUBE_CONTEXT_NAMES[clientName] || 'WEB',
-    clientVersion,
-    hl: hl || DEFAULT_INNERTUBE.hl,
-    gl: gl || DEFAULT_INNERTUBE.gl,
-  };
-
-  if (visitorData) {
-    client.visitorData = visitorData;
-  }
-
-  return { client };
-}
-
 function buildPostPresets({
   query,
   channelId,
@@ -235,19 +189,13 @@ function buildPostPresets({
   query: string,
   channelId: string,
   videoId: string,
-  innertube: InnertubeConfig,
+  innertube: YouTubeInnertubeConfig,
 }): Array<ProbeDefinition> {
   if (!innertube.apiKey.trim() || !innertube.clientVersion.trim()) return [];
 
   const apiKey = innertube.apiKey.trim();
-  const headers = buildInnertubeHeaders(innertube.clientName, innertube.clientVersion, innertube.visitorData);
-  const context = buildInnertubeContext(
-    innertube.clientName,
-    innertube.clientVersion,
-    innertube.hl,
-    innertube.gl,
-    innertube.visitorData
-  );
+  const headers = buildYouTubeInnertubeHeaders(innertube);
+  const context = buildYouTubeInnertubeContext(innertube);
 
   return [
     {
@@ -287,29 +235,6 @@ function buildPostPresets({
       body: { context, videoId: videoId.trim() || DEFAULT_VIDEO_ID, contentCheckOk: true, racyCheckOk: true },
     },
   ];
-}
-
-function extractConfigValue(source: string, key: string): ?string {
-  const match = source.match(new RegExp(`"${key}":("?)([^",}\\]]+)\\1`));
-  return match ? match[2] : null;
-}
-
-function extractInnertubeConfigFromHtml(source: string): {
-  apiKey: ?string,
-  clientName: ?string,
-  clientVersion: ?string,
-  hl: ?string,
-  gl: ?string,
-  visitorData: ?string,
-} {
-  return {
-    apiKey: extractConfigValue(source, 'INNERTUBE_API_KEY'),
-    clientName: extractConfigValue(source, 'INNERTUBE_CLIENT_NAME'),
-    clientVersion: extractConfigValue(source, 'INNERTUBE_CLIENT_VERSION'),
-    hl: extractConfigValue(source, 'INNERTUBE_CONTEXT_HL') || extractConfigValue(source, 'HL'),
-    gl: extractConfigValue(source, 'INNERTUBE_CONTEXT_GL') || extractConfigValue(source, 'GL'),
-    visitorData: extractConfigValue(source, 'VISITOR_DATA') || extractConfigValue(source, 'visitorData'),
-  };
 }
 
 function parseHeadersText(text: string): YouTubeProxyHeaders {
@@ -384,9 +309,11 @@ function buildPairDeepLink(code: string, relayOrigin: string, autoSubmit: boolea
     return '';
   }
 
-  return `odyseeproxy://pair?code=${encodeURIComponent(normalizedCode)}&relay=${encodeURIComponent(
+  return `odyseeproxy://pair/${encodeURIComponent(normalizedCode)}/${encodeURIComponent(
     normalizedOrigin
-  )}&auto=${autoSubmit ? '1' : '0'}`;
+  )}?code=${encodeURIComponent(normalizedCode)}&relay=${encodeURIComponent(
+    normalizedOrigin
+  )}&origin=${encodeURIComponent(normalizedOrigin)}&auto=${autoSubmit ? '1' : '0'}`;
 }
 
 function buildPairLandingUrl(code: string, relayOrigin: string, autoSubmit: boolean = true) {
@@ -433,7 +360,7 @@ export default function YouTubeProxyTestPage() {
   const [videoId, setVideoId] = React.useState(DEFAULT_VIDEO_ID);
   const [playlistId, setPlaylistId] = React.useState('');
   const [timeoutMs, setTimeoutMs] = React.useState(String(DEFAULT_TIMEOUT_MS));
-  const [innertube, setInnertube] = React.useState<InnertubeConfig>(DEFAULT_INNERTUBE);
+  const [innertube, setInnertube] = React.useState<YouTubeInnertubeConfig>(getStoredYouTubeInnertubeConfig());
   const [manualMethod, setManualMethod] = React.useState<YouTubeProxyMethod>('GET');
   const [manualUrl, setManualUrl] = React.useState(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${DEFAULT_CHANNEL_ID}`
@@ -454,9 +381,13 @@ export default function YouTubeProxyTestPage() {
   const pairingDeepLink = pairSession ? buildPairDeepLink(pairSession.code, pairRelayOrigin, true) : '';
   const pairingQrValue = pairSession ? buildPairLandingUrl(pairSession.code, pairRelayOrigin, true) : '';
 
-  function updateInnertube(key: $Keys<InnertubeConfig>, value: string) {
+  function updateInnertube(key: $Keys<YouTubeInnertubeConfig>, value: string) {
     setInnertube((prev) => ({ ...prev, [key]: value }));
   }
+
+  React.useEffect(() => {
+    setStoredYouTubeInnertubeConfig(innertube);
+  }, [innertube]);
 
   const applyPairedEndpoint = React.useCallback((sessionData: PairSession) => {
     const preferredEndpoint = sessionData && sessionData.endpoint;
@@ -575,20 +506,10 @@ export default function YouTubeProxyTestPage() {
     setStatusMessage(__('Detecting Innertube config from the watch page...'));
 
     try {
-      const result = await fetchYouTubeResource({
-        url: buildWatchUrl(videoId),
-        responseType: 'text',
+      const detected = await detectYouTubeInnertubeConfig({
+        videoId,
         timeoutMs: parsedTimeoutMs,
       });
-
-      if (!result.ok || typeof result.data !== 'string') {
-        throw new Error(result.error || __('Failed to fetch the watch page for detection.'));
-      }
-
-      const detected = extractInnertubeConfigFromHtml(result.data);
-      if (!detected.apiKey || !detected.clientVersion) {
-        throw new Error(__('Could not find Innertube API key and client version in the page.'));
-      }
 
       setInnertube((prev) => ({
         ...prev,
@@ -601,7 +522,7 @@ export default function YouTubeProxyTestPage() {
       }));
       setStatusMessage(
         __('Detected Innertube config via %source%. Client %client_name% / %client_version%', {
-          source: result.source,
+          source: proxyMode,
           client_name: detected.clientName || innertube.clientName,
           client_version: detected.clientVersion,
         })
@@ -612,6 +533,16 @@ export default function YouTubeProxyTestPage() {
       setIsDetecting(false);
     }
   }
+
+  React.useEffect(() => {
+    if (isDetecting || innertube.apiKey.trim() || innertube.clientVersion.trim()) {
+      return undefined;
+    }
+
+    detectInnertube();
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function runProbe(probe: ProbeDefinition) {
     const startedAt = new Date().toISOString();

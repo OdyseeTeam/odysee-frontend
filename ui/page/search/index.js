@@ -19,6 +19,7 @@ const select = (state, props) => {
   const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
 
   let urlQuery = urlParams.get('q') || null;
+  const source = urlParams.get('source') || 'odysee';
   if (urlQuery) {
     urlQuery = urlQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
   }
@@ -36,6 +37,7 @@ const select = (state, props) => {
 
   return {
     urlQuery,
+    source,
     searchOptions,
     isSearching: selectIsSearching(state),
     uris: uris,

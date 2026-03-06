@@ -9,6 +9,7 @@ export const YOUTUBE_PROXY_QUERY_PARAM = 'yt_proxy';
 export const YOUTUBE_PROXY_MODE_QUERY_PARAM = 'yt_proxy_mode';
 export const YOUTUBE_PROXY_MODE_STORAGE_KEY = 'odysee.youtubeProxy.mode';
 export const YOUTUBE_PROXY_BASE_URL_STORAGE_KEY = 'odysee.youtubeProxy.baseUrl';
+export const YOUTUBE_PROXY_DEFAULT_PORT = 19191;
 
 const WATCH_ON_ODYSEE_PROXY_REQUEST = 'WATCH_ON_ODYSEE_PROXY_REQUEST';
 const WATCH_ON_ODYSEE_PROXY_RESPONSE = 'WATCH_ON_ODYSEE_PROXY_RESPONSE';
@@ -20,6 +21,7 @@ const BLOCKED_PROXY_HEADER_NAMES = new Set(['cookie', 'authorization', 'proxy-au
 const SUPPORTED_PROXY_METHODS = new Set(['GET', 'HEAD', 'POST']);
 const ALLOWED_YOUTUBE_HOSTS = ['youtube.com', 'youtu.be'];
 const ALLOWED_YOUTUBE_EXACT_HOSTS = new Set(['youtubei.googleapis.com']);
+const DEFAULT_LOCAL_PROXY_HOSTS = ['odysee-proxy.local', 'odysee.local'];
 
 export type YouTubeProxyMode = 'auto' | 'extension' | 'mobile' | 'direct';
 export type YouTubeProxyResponseType = 'json' | 'text';
@@ -65,6 +67,8 @@ type ExtensionProxyPayload = {
   data?: any,
   error?: string,
 };
+
+let mobileProxyDiscoveryPromise: ?Promise<?string>;
 
 function createAbortBundle(timeoutMs: number, externalSignal?: AbortSignal): AbortBundle {
   const controller = new AbortController();
@@ -247,6 +251,70 @@ function normalizeMobileProxyBaseUrl(rawBaseUrl: ?string): ?string {
     return parsed.toString().replace(/\/$/, '');
   } catch {
     return null;
+  }
+}
+
+function createDiscoveryTimeoutSignal(timeoutMs: number): AbortBundle {
+  return createAbortBundle(Math.max(500, Math.min(timeoutMs, 2500)));
+}
+
+export function getYouTubeHttpProxyCandidateUrls(port: number = YOUTUBE_PROXY_DEFAULT_PORT): string[] {
+  return DEFAULT_LOCAL_PROXY_HOSTS.map((host) => `http://${host}:${port}`);
+}
+
+async function probeMobileProxyBaseUrl(baseUrl: string, timeoutMs: number): Promise<?string> {
+  if (typeof fetch !== 'function') {
+    return null;
+  }
+
+  const abortBundle = createDiscoveryTimeoutSignal(timeoutMs);
+
+  try {
+    const response = await fetch(`${baseUrl}/health`, {
+      method: 'GET',
+      credentials: 'omit',
+      cache: 'no-store',
+      signal: abortBundle.signal,
+    });
+    const json: any = await response.json().catch(() => null);
+
+    if (!response.ok || json?.ok !== true || json?.data?.service !== 'odysee-youtube-proxy-mobile') {
+      return null;
+    }
+
+    return baseUrl;
+  } catch {
+    return null;
+  } finally {
+    abortBundle.cleanup();
+  }
+}
+
+export async function discoverYouTubeProxyBaseUrl(timeoutMs: number = DEFAULT_TIMEOUT_MS): Promise<?string> {
+  if (mobileProxyDiscoveryPromise) {
+    return mobileProxyDiscoveryPromise;
+  }
+
+  mobileProxyDiscoveryPromise = (async () => {
+    const candidates = getYouTubeHttpProxyCandidateUrls();
+
+    for (let i = 0; i < candidates.length; i++) {
+      const candidate = candidates[i];
+      const discoveredBaseUrl = await probeMobileProxyBaseUrl(candidate, timeoutMs);
+
+      if (discoveredBaseUrl) {
+        persistBaseUrl(discoveredBaseUrl);
+        return discoveredBaseUrl;
+      }
+    }
+
+    return null;
+  })();
+
+  try {
+    return await mobileProxyDiscoveryPromise;
+  } finally {
+    mobileProxyDiscoveryPromise = null;
   }
 }
 
@@ -600,10 +668,14 @@ export async function fetchYouTubeResource(options: ProxyFetchOptions): Promise<
   }
 
   const mode = getConfiguredYouTubeProxyMode();
-  const baseUrl = getConfiguredYouTubeProxyBaseUrl();
+  let baseUrl = getConfiguredYouTubeProxyBaseUrl();
   const abortBundle = createAbortBundle(timeoutMs, signal);
 
   try {
+    if (!baseUrl && (mode === YOUTUBE_PROXY_MODE_AUTO || mode === YOUTUBE_PROXY_MODE_MOBILE)) {
+      baseUrl = await discoverYouTubeProxyBaseUrl(timeoutMs);
+    }
+
     if (mode === YOUTUBE_PROXY_MODE_EXTENSION) {
       return await fetchViaExtensionBridge({
         targetUrl: url,
