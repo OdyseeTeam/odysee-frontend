@@ -854,6 +854,11 @@
     background: var(--color-primary) !important;
   }
 }
+
+.shorts-actions__item:hover .shorts-floating-action__subscribe .icon {
+  fill: rgb(226, 73, 94);
+}
+
 .content__actions {
   visibility: hidden;
   display: flex;
@@ -1620,7 +1625,11 @@
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.shorts__viewer:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-page__view-toggle--overlay,
-  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-page__view-toggle--overlay {
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.content__cover--shorts:hover) .content__cover--shorts .shorts-page__view-toggle--overlay,
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover)
+    .content__cover--shorts
+    .shorts-page__view-toggle--overlay {
     opacity: 1;
   }
 }

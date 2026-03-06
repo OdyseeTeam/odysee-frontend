@@ -155,6 +155,15 @@ export default function ShortsPage(props: Props) {
   const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
+  const [overlayTarget, setOverlayTarget] = React.useState(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => {
+    const viewer = document.querySelector('.shorts__viewer');
+    const cover = document.querySelector('.content__cover--shorts');
+    const target = viewer || cover || null;
+    setOverlayTarget((prev) => (prev !== target ? target : prev));
+  });
 
   const setShortViewerWidthFromVideo = React.useCallback(() => {
     // $FlowFixMe
@@ -654,12 +663,10 @@ export default function ShortsPage(props: Props) {
           transitionPreviewTarget
         )}
       {channelName &&
-        typeof document !== 'undefined' &&
-        (() => {
-          const el = document.querySelector('.shorts__viewer');
-          if (!el) return null;
-          return createPortal(
-            <>
+        overlayTarget &&
+        createPortal(
+          <>
+            {overlayTarget.classList.contains('shorts__viewer') && (
               <div className="shorts-viewer__content-info">
                 {channelUri && (
                   <Link
@@ -673,17 +680,18 @@ export default function ShortsPage(props: Props) {
                 )}
                 <span className="shorts-viewer__title">{title}</span>
               </div>
-              {channelId && (
-                <ViewModeToggle
-                  viewMode={localViewMode}
-                  channelName={channelName}
-                  onViewModeChange={handleViewModeChange}
-                />
-              )}
-            </>,
-            el
-          );
-        })()}
+            )}
+            {channelId && (
+              <ViewModeToggle
+                viewMode={localViewMode}
+                channelName={channelName}
+                onViewModeChange={handleViewModeChange}
+                isTransitioning={isTransitioning}
+              />
+            )}
+          </>,
+          overlayTarget
+        )}
       <div
         className={classnames('shorts-page', { 'shorts-page--transitioning': isTransitioning })}
         ref={shortsContainerRef}

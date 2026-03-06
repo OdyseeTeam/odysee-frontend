@@ -11,6 +11,7 @@ import {
   selectIsUriUnlisted,
   selectPermanentUrlForUri,
   selectChannelForClaimUri,
+  selectChannelTitleForUri,
 } from 'redux/selectors/claims';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
@@ -41,6 +42,7 @@ const select = (state, props) => {
     channelUrl,
     isSubscribed: channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false,
     channelPermanentUrl: channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined,
+    channelTitle: channelUrl ? selectChannelTitleForUri(state, channelUrl) : undefined,
   };
 };
 

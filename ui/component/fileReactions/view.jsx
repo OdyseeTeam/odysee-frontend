@@ -5,8 +5,8 @@ import classnames from 'classnames';
 import * as REACTION_TYPES from 'constants/reactions';
 import * as ICONS from 'constants/icons';
 import RatioBar from 'component/ratioBar';
-import { formatNumberWithCommas } from 'util/number';
 import FileActionButton from 'component/common/file-action-button';
+import Counter from 'component/counter';
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
@@ -108,7 +108,7 @@ const LikeButton = (props: ButtonProps) => {
               <div className="button__fire-particle6" />
             </>
           )}
-          {Number.isInteger(reactionCount) ? <span>{formatNumberWithCommas(reactionCount, 0)}</span> : Placeholder}
+          {Number.isInteger(reactionCount) ? <Counter value={reactionCount} precision={0} /> : Placeholder}
         </>
       }
       iconSize={18}
@@ -138,7 +138,7 @@ const DislikeButton = (props: ButtonProps) => {
               <div className="button__slime-drop2" />
             </>
           )}
-          {Number.isInteger(reactionCount) ? <span>{formatNumberWithCommas(reactionCount, 0)}</span> : Placeholder}
+          {Number.isInteger(reactionCount) ? <Counter value={reactionCount} precision={0} /> : Placeholder}
         </>
       }
       iconSize={18}
