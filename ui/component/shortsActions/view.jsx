@@ -4,6 +4,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import classnames from 'classnames';
 import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
@@ -45,6 +46,7 @@ type Props = {
   channelPermanentUrl: ?string,
   doChannelSubscribe: (sub: {}) => void,
   doChannelUnsubscribe: (sub: {}) => void,
+  doOpenModal: (id: string, {}) => void,
 };
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -79,6 +81,7 @@ const ShortsActions = React.memo<Props>(
     channelPermanentUrl,
     doChannelSubscribe,
     doChannelUnsubscribe,
+    doOpenModal,
   }: Props) => {
     const [avatarHover, setAvatarHover] = React.useState(false);
     const [fireEffect, setFireEffect] = React.useState(false);
@@ -314,6 +317,22 @@ const ShortsActions = React.memo<Props>(
               <ClaimCollectionAddButton uri={uri} isShortsPage />
             </div>
 
+            {!isUnlisted && (
+              <div className="shorts-actions__item">
+                <Button
+                  className="shorts-page__actions-button"
+                  onClick={() => doOpenModal(MODALS.REPOST, { uri })}
+                  icon={ICONS.REPOST}
+                  iconSize={16}
+                  title={__('Repost this content')}
+                  disabled={!hasPlaylist}
+                  requiresChannel
+                />
+                <p>{__('Repost')}</p>
+              </div>
+            )}
+          </div>
+          <div className="shorts-actions__group shorts-actions__group--bottom">
             <div className="shorts-actions__item">
               <Button
                 className="shorts-page__actions-button shorts-page__actions-button--share"
@@ -325,19 +344,19 @@ const ShortsActions = React.memo<Props>(
               />
               <p>{__('Share')}</p>
             </div>
-          </div>
-          <div className="shorts-actions__item">
-            <Button
-              className={classnames('shorts-page__actions-button button-bubble', {
-                'button-bubble--active': autoPlayNextShort,
-              })}
-              title={__('Autoplay Next')}
-              onClick={doToggleShortsAutoplay}
-              icon={ICONS.AUTOPLAY_NEXT}
-              iconSize={16}
-              disabled={isLoading || !hasPlaylist}
-            />
-            <p>{__('Auto Next')}</p>
+            <div className="shorts-actions__item">
+              <Button
+                className={classnames('shorts-page__actions-button button-bubble', {
+                  'button-bubble--active': autoPlayNextShort,
+                })}
+                title={__('Autoplay Next')}
+                onClick={doToggleShortsAutoplay}
+                icon={ICONS.AUTOPLAY_NEXT}
+                iconSize={16}
+                disabled={isLoading || !hasPlaylist}
+              />
+              <p>{__('Auto Next')}</p>
+            </div>
           </div>
         </>
       </div>

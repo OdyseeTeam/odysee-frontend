@@ -6,6 +6,7 @@ import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import Skeleton from '@mui/material/Skeleton';
 import { formatNumberWithCommas } from 'util/number';
@@ -20,6 +21,7 @@ type Props = {
   onCommentsClick: () => void,
   onShareClick: () => void,
   onInfoButtonClick: () => void,
+  doOpenModal: (id: string, {}) => void,
   autoPlayNextShort: boolean,
   doToggleShortsAutoplay: () => void,
   isUnlisted: ?boolean,
@@ -40,6 +42,7 @@ const MobileActions = ({
   onCommentsClick,
   onShareClick,
   onInfoButtonClick,
+  doOpenModal,
   autoPlayNextShort,
   doToggleShortsAutoplay,
   isUnlisted,
@@ -218,6 +221,20 @@ const MobileActions = ({
           />
           <span className="shorts-mobile-panel__count">{__('Share')}</span>
         </div>
+
+        {!isUnlisted && (
+          <div className="shorts-mobile-panel__action-item">
+            <Button
+              className="shorts-mobile-panel__action-button"
+              onClick={() => doOpenModal(MODALS.REPOST, { uri })}
+              icon={ICONS.REPOST}
+              iconSize={16}
+              title={__('Repost this content')}
+              requiresChannel
+            />
+            <span className="shorts-mobile-panel__count">{__('Repost')}</span>
+          </div>
+        )}
 
         <div className="shorts-mobile-panel__action-item">
           <Button

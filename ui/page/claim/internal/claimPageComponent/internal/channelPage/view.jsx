@@ -565,7 +565,7 @@ function ChannelPage(props: Props) {
                   uri={uri}
                   channelIsBlackListed={channelIsBlackListed}
                   viewHiddenChannels
-                  claimType={['stream']}
+                  claimType={['stream', 'repost']}
                   empty={<section className="main--empty">{__('No Shorts Found')}</section>}
                   filters={filters}
                   loadedCallback={handleShortsLoaded}
