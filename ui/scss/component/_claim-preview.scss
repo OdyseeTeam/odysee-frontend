@@ -536,6 +536,15 @@
 
 // neko rename to header?
 .claim-preview__wrapper--inline {
+  &:hover .claim-preview__title {
+    color: rgba(var(--color-text-base), 0.9);
+  }
+
+  .claim-preview-info > a:hover .claim-preview__title,
+  &:has(> .claim-preview--inline > .button:hover) .claim-preview__title {
+    color: var(--color-primary);
+  }
+
   .channel-thumbnail {
     height: var(--channel-thumbnail-width--small);
     width: var(--channel-thumbnail-width--small);
