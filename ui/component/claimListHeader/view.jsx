@@ -534,6 +534,7 @@ function ClaimListHeader(props: Props) {
                   label={__('Price')}
                   type="select"
                   name="paidcontent"
+                  disabled={filterCtx.isChannelSearch}
                   value={feeAmountParam}
                   onChange={(e) =>
                     handleChange({
@@ -594,9 +595,11 @@ function ClaimListHeader(props: Props) {
                   <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
                 </div>
               )}
-              <div className="claim-search__input-container">
-                {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
-              </div>
+              {!filterCtx.isChannelSearch && (
+                <div className="claim-search__input-container">
+                  {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ function AdditionalFilters(props: Props) {
                 name="hide_reposts"
                 type="checkbox"
                 checked={filterCtx.repost.hideReposts}
-                disabled={contentType === CS.CLAIM_REPOST}
+                disabled={filterCtx.isChannelSearch || contentType === CS.CLAIM_REPOST}
                 onChange={() => filterCtx.repost.setHideReposts((prev) => !prev)}
               />
             </div>
@@ -40,6 +40,7 @@ function AdditionalFilters(props: Props) {
                 name="hide_members_only"
                 type="checkbox"
                 checked={filterCtx.membersOnly.hideMembersOnly}
+                disabled={filterCtx.isChannelSearch}
                 onChange={() => filterCtx.membersOnly.setHideMembersOnly((prev) => !prev)}
               />
             </div>
