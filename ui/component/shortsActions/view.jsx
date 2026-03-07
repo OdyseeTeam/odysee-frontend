@@ -31,6 +31,7 @@ type Props = {
   isLivestreamClaim?: boolean,
   scheduledState: ClaimScheduledState,
   disableSlimes: boolean,
+  disableReactions: boolean,
   doFetchReactions: (claimId: ?string) => void,
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
@@ -61,6 +62,7 @@ const ShortsActions = React.memo<Props>(
     isLivestreamClaim,
     scheduledState,
     disableSlimes,
+    disableReactions,
     doFetchReactions,
     doReactionLike,
     doReactionDislike,
@@ -177,11 +179,12 @@ const ShortsActions = React.memo<Props>(
             disabled={isAtEnd || !hasPlaylist}
           />
           <div
-            className="shorts-page__ratings"
+            className={classnames('shorts-page__ratings', { 'shorts-page__ratings--no-slime': disableSlimes })}
             style={{
+              ...(disableReactions ? { visibility: 'hidden', pointerEvents: 'none' } : {}),
               '--ratings-gradient': (() => {
                 if (!Number.isInteger(likeCount) || !Number.isInteger(dislikeCount)) return 'var(--color-border)';
-                const total = likeCount + dislikeCount;
+                const total = likeCount + (disableSlimes ? 0 : dislikeCount);
                 if (total === 0) return 'var(--color-border)';
                 const likePercent = (likeCount / total) * 100;
                 if (likePercent === 100) return 'var(--color-fire)';
@@ -241,7 +244,7 @@ const ShortsActions = React.memo<Props>(
                 />
               )}
             </div>
-            <div className="slime-and-count">
+            <div className="slime-and-count" style={disableSlimes ? { visibility: 'hidden' } : undefined}>
               <Button
                 requiresAuth
                 authSrc={'filereaction_dislike'}

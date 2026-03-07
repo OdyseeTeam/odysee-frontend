@@ -65,6 +65,7 @@ export default function FileReactions(props: Props) {
     <div
       className={classnames('ratio-wrapper', {
         'ratio-wrapper--disabled': scheduledState === 'scheduled',
+        'ratio-wrapper--no-slime': disableSlimes,
       })}
     >
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />

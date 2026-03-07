@@ -710,6 +710,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       mask-composite: exclude;
       pointer-events: none;
     }
+
+    &--no-slime {
+      &::before {
+        bottom: auto;
+        height: calc(50% + 6px);
+      }
+    }
   }
 
   .shorts-floating-action__avatar.channel-thumbnail {

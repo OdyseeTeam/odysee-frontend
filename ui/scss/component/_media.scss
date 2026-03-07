@@ -267,6 +267,12 @@
     pointer-events: none;
   }
 
+  .ratio-wrapper--no-slime {
+    max-width: unset;
+    min-width: unset;
+    width: auto;
+  }
+
   .icon--DollarSign {
     stroke-width: 1.5;
     transform: scale(0.8);

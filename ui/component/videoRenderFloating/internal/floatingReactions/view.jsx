@@ -9,6 +9,8 @@ type Props = {
   uri: string,
   claimId: ?string,
   myReaction: ?string,
+  disableSlimes: boolean,
+  disableReactions: boolean,
   doFetchReactions: (claimId: string) => void,
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
@@ -18,6 +20,8 @@ const FloatingReactions = ({
   uri,
   claimId,
   myReaction,
+  disableSlimes,
+  disableReactions,
   doFetchReactions,
   doReactionLike,
   doReactionDislike,
@@ -39,6 +43,8 @@ const FloatingReactions = ({
   const effectiveReaction = optimisticReaction !== undefined ? optimisticReaction : myReaction;
   const isFireActive = effectiveReaction === REACTION_TYPES.LIKE;
   const isSlimeActive = effectiveReaction === REACTION_TYPES.DISLIKE;
+
+  if (disableReactions) return null;
 
   return (
     <div className="floating-player__reactions">
@@ -80,39 +86,41 @@ const FloatingReactions = ({
         />
       </div>
 
-      <div className="floating-player__reaction">
-        <Button
-          onClick={() => {
-            setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
-            if (!isSlimeActive) {
-              setSlimeButtonGlow(false);
-              clearTimeout(slimeButtonGlowTimeout.current);
-              requestAnimationFrame(() => {
-                setSlimeButtonGlow(true);
-                slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
-              });
+      {!disableSlimes && (
+        <div className="floating-player__reaction">
+          <Button
+            onClick={() => {
+              setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
+              if (!isSlimeActive) {
+                setSlimeButtonGlow(false);
+                clearTimeout(slimeButtonGlowTimeout.current);
+                requestAnimationFrame(() => {
+                  setSlimeButtonGlow(true);
+                  slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
+                });
+              }
+              doReactionDislike(uri);
+            }}
+            icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+            iconSize={14}
+            requiresAuth
+            authSrc="filereaction_dislike"
+            className={classnames('button--file-action button-dislike', {
+              'button--slime': isSlimeActive,
+              'button--slime-glow-pulse': slimeButtonGlow,
+            })}
+            label={
+              isSlimeActive ? (
+                <>
+                  <div className="button__slime-stain" />
+                  <div className="button__slime-drop1" />
+                  <div className="button__slime-drop2" />
+                </>
+              ) : null
             }
-            doReactionDislike(uri);
-          }}
-          icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
-          iconSize={14}
-          requiresAuth
-          authSrc="filereaction_dislike"
-          className={classnames('button--file-action button-dislike', {
-            'button--slime': isSlimeActive,
-            'button--slime-glow-pulse': slimeButtonGlow,
-          })}
-          label={
-            isSlimeActive ? (
-              <>
-                <div className="button__slime-stain" />
-                <div className="button__slime-drop1" />
-                <div className="button__slime-drop2" />
-              </>
-            ) : null
-          }
-        />
-      </div>
+          />
+        </div>
+      )}
     </div>
   );
 };
