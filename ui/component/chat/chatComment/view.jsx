@@ -5,6 +5,7 @@ import { getStickerUrl } from 'util/comments';
 import { Menu, MenuButton } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
+import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CommentBadge from 'component/common/comment-badge';
@@ -29,6 +30,7 @@ type Props = {
   restoreScrollPos?: () => void,
   handleCommentClick: (any) => void,
   handleDismissPin?: () => void,
+  hidePinLabel?: boolean,
   // --- redux:
   claim: StreamClaim,
   stakedLevel: number,
@@ -52,6 +54,7 @@ export default function ChatComment(props: Props) {
     stakedLevel,
     isMobile,
     handleDismissPin,
+    hidePinLabel,
     restoreScrollPos,
     handleCommentClick,
     odyseeMembership,
@@ -176,7 +179,7 @@ export default function ChatComment(props: Props) {
                 {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
                 {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
 
-                {isPinned && (
+                {isPinned && !hidePinLabel && (
                   <span className="comment__pin">
                     <Icon icon={ICONS.PIN} size={14} />
                     {__('Pinned')}
@@ -298,6 +301,16 @@ export default function ChatComment(props: Props) {
           />
         </Menu>
       </div>
+
+      {handleDismissPin && !isMobile && (
+        <Button
+          title={__('Dismiss')}
+          button="inverse"
+          className="close-button"
+          onClick={handleDismissPin}
+          icon={ICONS.REMOVE}
+        />
+      )}
     </li>
   );
 }

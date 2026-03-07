@@ -29,12 +29,13 @@ $recent-msg-button__height: 2rem;
         background-color: var(--color-background);
         .button__label {
           color: var(--color-text);
-          font-size: var(--font-body);
+          font-size: var(--font-small);
         }
         .credit-amount {
+          font-size: var(--font-small);
           svg {
-            height: var(--font-body);
-            width: var(--font-body);
+            height: var(--font-small);
+            width: var(--font-small);
             margin-right: var(--spacing-xxs);
           }
         }
@@ -141,8 +142,7 @@ $recent-msg-button__height: 2rem;
   @media (min-width: $breakpoint-medium) {
     min-width: var(--livestream-comments-width);
     width: var(--livestream-comments-width);
-    height: calc(100vh - var(--header-height) - var(--spacing-l));
-    min-height: 626px;
+    max-height: calc(100vh - var(--header-height) - var(--spacing-l));
     right: 0;
     top: 0px;
     bottom: 0;
@@ -379,6 +379,11 @@ $recent-msg-button__height: 2rem;
   margin-top: auto;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 
+  .comment__char-count-mde {
+    display: flex;
+    align-items: center;
+  }
+
   .error-bubble {
     margin-top: 0;
     margin-bottom: var(--spacing-s);
@@ -473,7 +478,7 @@ $recent-msg-button__height: 2rem;
           margin-top: var(--spacing-s);
           margin-right: 0;
           opacity: 0.8;
-          &[data-selected] {
+          &.tab--selected {
             opacity: 1;
             background-color: var(--color-background);
           }
@@ -506,7 +511,7 @@ $recent-msg-button__height: 2rem;
 
   .section__actions {
     margin-top: var(--spacing-xs);
-    margin-bottom: 4px;
+    margin-bottom: 0;
     min-height: 50px;
     .comment-create__min-amount-notice {
       margin-top: -2px;
@@ -647,27 +652,6 @@ $recent-msg-button__height: 2rem;
           margin-top: 4px;
         }
       }
-      .comment__pin {
-        flex: unset;
-        width: unset;
-        font-weight: var(--font-weight-bold);
-        margin: var(--spacing-xs);
-        margin-right: 0;
-        margin-left: auto;
-        margin-bottom: 2px;
-        background-color: var(--color-header-button);
-
-        padding-top: 1px;
-        .icon {
-          margin-bottom: -3px;
-        }
-        @media (max-width: $breakpoint-small) {
-          margin: 0;
-          margin-top: var(--spacing-xxs);
-          margin-right: var(--spacing-xxs);
-          margin-bottom: -6px;
-        }
-      }
 
       .date_time {
         display: none;
@@ -675,44 +659,39 @@ $recent-msg-button__height: 2rem;
     }
     .livestream-comment__menu {
       top: 8px !important;
-      right: 6px !important;
-      .menu__button {
-        &[aria-expanded='true'] {
-          .icon {
-            stroke: var(--color-text);
-          }
+      right: 38px !important;
+      .menu__button,
+      .menu__button:not(:focus):not([aria-expanded='true']) {
+        opacity: 1;
+        background: var(--color-header-button);
+      }
+      .menu__button[aria-expanded='true'] {
+        .icon {
+          stroke: var(--color-text);
         }
       }
     }
 
     &:hover {
       background-color: var(--color-background) !important;
-      .livestream-comment__menu {
-        .menu__button {
-          background: var(--color-header-button);
-        }
-      }
     }
   }
 
-  .close-button {
-    margin-left: var(--spacing-s);
+  .livestream__comment > .close-button {
+    position: absolute;
+    top: 8px;
+    right: 4px;
     color: var(--color-text);
+    z-index: 1;
 
     .button__content {
       width: 24px;
       height: 24px;
       padding: var(--spacing-xxxs);
-      background-color: var(--color-background);
-      border-radius: var(--border-radius);
+      background-color: var(--color-header-button);
+      border-radius: 50%;
       .icon {
-        transition: transform 0.2s;
-      }
-      &:hover {
-        .icon {
-          stroke: var(--color-primary);
-          transform: rotate(90deg);
-        }
+        stroke: var(--color-text);
       }
     }
   }
@@ -884,6 +863,7 @@ $recent-msg-button__height: 2rem;
   display: flex;
   margin-left: 0;
   justify-content: center;
+  user-select: none;
   .credit-amount {
     display: flex;
     align-items: center;
@@ -927,14 +907,40 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchat {
   position: relative;
   display: flex;
+  align-items: center;
   margin-right: var(--spacing-xs);
   padding: 2px 2px 2px 2px;
   border-radius: 14px;
+  height: 24px;
   transition: background-color 0.2s;
   background-color: rgba(var(--color-text-base), 0.3);
   &:hover {
     background-color: rgba(var(--color-text-base), 0.4);
     cursor: pointer;
+  }
+  &--pin {
+    align-items: center;
+    justify-content: center;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    flex-shrink: 0;
+    .icon {
+      stroke: var(--color-text);
+    }
+    &:hover,
+    &.active {
+      background-color: var(--color-primary) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+      &:after {
+        border-bottom: 8px solid var(--color-background) !important;
+        left: calc(50% - 8px);
+      }
+    }
   }
   &:after {
     position: absolute;
@@ -956,7 +962,7 @@ $recent-msg-button__height: 2rem;
   .channel-thumbnail {
     flex-shrink: 0;
     margin-right: var(--spacing-xxxs);
-    @include handleChannelGif(1.6rem);
+    @include handleChannelGif(1.3rem);
 
     .comment__badge {
       left: 6.5px;
