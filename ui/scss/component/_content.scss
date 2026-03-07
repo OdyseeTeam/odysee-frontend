@@ -46,6 +46,15 @@
   }
 }
 
+.floating-player__drag-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: calc(var(--floating-player-z-index) - 1);
+}
+
 .content__viewer--floating {
   position: fixed;
   margin-bottom: 0;
@@ -60,6 +69,98 @@
     border-top-left-radius: var(--border-radius);
   }
 
+  .content__floating-close {
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  .video-js .vjs-control-bar {
+    opacity: 0 !important;
+    transition: opacity 200ms ease !important;
+    z-index: 6 !important;
+  }
+
+  .floating-player__reactions {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+  }
+
+  .floating-player__reaction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .button {
+      background: rgba(0, 0, 0, 0.4) !important;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+      border-radius: 50% !important;
+      width: 2.25rem !important;
+      height: 2.25rem !important;
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      position: relative;
+      padding: 0 !important;
+      margin: 0 !important;
+
+      .button__content {
+        padding: 0;
+      }
+
+      .button__label {
+        display: contents;
+      }
+
+      .button__fire-glow {
+        left: 50%;
+        bottom: 50%;
+      }
+
+      .button__fire-particle1,
+      .button__fire-particle4 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter1 !important;
+      }
+      .button__fire-particle2,
+      .button__fire-particle5 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter2 !important;
+      }
+      .button__fire-particle3,
+      .button__fire-particle6 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter3 !important;
+      }
+
+      [class^='button__slime'] {
+        left: 50%;
+        bottom: 50%;
+      }
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        stroke: white;
+      }
+    }
+  }
+
   &:hover,
   &:has(.vjs-paused) {
     .video-js--tap-to-unmute {
@@ -68,7 +169,17 @@
 
     .content__floating-close {
       visibility: visible;
+      opacity: 1;
       z-index: 9999;
+    }
+
+    .floating-player__reactions {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .vjs-control-bar {
+      opacity: 1 !important;
     }
   }
 
@@ -94,6 +205,10 @@
     left: calc(50% - 40px);
     transform: unset !important;
     border: unset;
+
+    .floating-player__reactions {
+      display: none;
+    }
 
     .vjs-current-time {
       display: none !important;
@@ -344,7 +459,8 @@
   }
 
   @media (min-width: $breakpoint-small) {
-    &:hover {
+    &:hover,
+    &:has(.vjs-paused) {
       .content__info:not(.content__info--shorts-floating) {
         margin-top: 0;
       }

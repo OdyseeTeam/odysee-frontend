@@ -191,6 +191,7 @@ reach-portal {
 
 .menu__list--header {
   @extend .menu__list;
+  z-index: 100002 !important;
 
   margin-top: 10px;
 

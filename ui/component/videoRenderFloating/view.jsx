@@ -42,6 +42,7 @@ import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import FloatingShortsActions from './internal/floatingShortsActions';
+import FloatingReactions from './internal/floatingReactions';
 
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
@@ -577,6 +578,7 @@ function VideoRenderFloating(props: Props) {
         />
       ) : null}
 
+      {wasDragging && <div className="floating-player__drag-backdrop" />}
       <Draggable
         onDrag={handleDragMove}
         onStart={handleDragStart}
@@ -698,6 +700,8 @@ function VideoRenderFloating(props: Props) {
                 }}
               />
             )}
+
+            {isFloating && !isShortsFloating && uri && <FloatingReactions uri={uri} claimId={claimId} />}
 
             {fireGlow && isShortsFloating && (
               <div className="shorts-floating-flames">
