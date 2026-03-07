@@ -14,17 +14,18 @@ import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 
-const browserHistory = createBrowserHistory();
-
-// Wrap history.push to prevent duplicate entries
-const originalPush = browserHistory.push.bind(browserHistory);
-browserHistory.push = (path, state) => {
-  const currentPath = browserHistory.location.pathname + browserHistory.location.search;
-  const newPath = typeof path === 'string' ? path : path.pathname + (path.search || '');
-  if (newPath !== currentPath) {
-    originalPush(path, state);
-  }
+let __pushBlocked = false;
+const _nativePush = History.prototype.pushState;
+History.prototype.pushState = function (state, title, url) {
+  if (__pushBlocked) return;
+  __pushBlocked = true;
+  Promise.resolve().then(() => {
+    __pushBlocked = false;
+  });
+  return _nativePush.call(this, state, title, url);
 };
+
+const browserHistory = createBrowserHistory();
 
 const history = browserHistory;
 const rootReducer = createRootReducer(history);
