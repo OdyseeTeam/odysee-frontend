@@ -928,7 +928,7 @@ $recent-msg-button__height: 2rem;
     border-radius: 50% !important;
     flex-shrink: 0;
     .icon {
-      stroke: var(--color-text);
+      stroke: white;
     }
     &:hover,
     &.active {
