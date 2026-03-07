@@ -1,5 +1,7 @@
 import { parseURI } from 'util/lbryURI';
 import visit from 'unist-util-visit';
+import locate from 'remark-parse/lib/locate/url';
+import decode from 'parse-entities';
 
 const protocol = 'lbry://';
 const uriRegex = /(lbry:\/\/)[^\s"]*[^)]/g;
@@ -157,13 +159,90 @@ const transform = (tree) => {
 
 export const formattedLinks = () => transform;
 
+// Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
+// its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
+function tokenizeUrl(eat, value, silent) {
+  const self = this;
+  if (!self.options.gfm) return;
+
+  const protocols = ['http://', 'https://', 'mailto:'];
+  let subvalue = '';
+  let matchedProtocol;
+
+  for (const p of protocols) {
+    if (value.slice(0, p.length).toLowerCase() === p) {
+      subvalue = value.slice(0, p.length);
+      matchedProtocol = p;
+      break;
+    }
+  }
+
+  if (!subvalue) return;
+
+  let index = subvalue.length;
+  const length = value.length;
+  let queue = '';
+  let parenCount = 0;
+
+  while (index < length) {
+    const character = value.charAt(index);
+
+    if (/\s/.test(character) || character === '<') break;
+
+    if (character === ')' || character === ']') {
+      if (parenCount > 0) {
+        parenCount--;
+        queue += character;
+        index++;
+        continue;
+      }
+      break;
+    }
+
+    if ('.,:;"\''.includes(character)) {
+      const next = value.charAt(index + 1);
+      if (!next || /\s/.test(next)) break;
+    }
+
+    if (character === '(' || character === '[') parenCount++;
+
+    queue += character;
+    index++;
+  }
+
+  if (!queue) return;
+
+  subvalue += queue;
+
+  if (matchedProtocol === 'mailto:') {
+    const atPos = queue.indexOf('@');
+    if (atPos === -1 || atPos === queue.length - 1) return;
+  }
+
+  if (silent) return true;
+
+  const exit = self.enterLink();
+  const content = self.tokenizeInline(subvalue, eat.now());
+  exit();
+
+  return eat(subvalue)({
+    type: 'link',
+    title: null,
+    url: decode(subvalue, { nonTerminated: false }),
+    children: content,
+  });
+}
+
+tokenizeUrl.locator = locate;
+tokenizeUrl.notInLink = true;
+
 // Main module
 export function inlineLinks() {
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;
 
-  // Add an inline tokenizer (defined in the following example).
+  tokenizers.url = tokenizeUrl; // replaces built-in to fix paren handling
   tokenizers.uri = tokenizeURI;
   tokenizers.mention = tokenizeMention;
 
