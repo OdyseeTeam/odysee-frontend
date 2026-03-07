@@ -159,17 +159,20 @@ const transform = (tree) => {
 
 export const formattedLinks = () => transform;
 
+const URL_PROTOCOLS = ['http://', 'https://', 'mailto:'];
+const RE_WHITESPACE = /\s/;
+const TRAILING_PUNCTUATION = '.,:;"\'';
+
 // Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
 // its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
 function tokenizeUrl(eat, value, silent) {
   const self = this;
   if (!self.options.gfm) return;
 
-  const protocols = ['http://', 'https://', 'mailto:'];
   let subvalue = '';
   let matchedProtocol;
 
-  for (const p of protocols) {
+  for (const p of URL_PROTOCOLS) {
     if (value.slice(0, p.length).toLowerCase() === p) {
       subvalue = value.slice(0, p.length);
       matchedProtocol = p;
@@ -187,7 +190,7 @@ function tokenizeUrl(eat, value, silent) {
   while (index < length) {
     const character = value.charAt(index);
 
-    if (/\s/.test(character) || character === '<') break;
+    if (RE_WHITESPACE.test(character) || character === '<') break;
 
     if (character === ')' || character === ']') {
       if (parenCount > 0) {
@@ -199,9 +202,9 @@ function tokenizeUrl(eat, value, silent) {
       break;
     }
 
-    if ('.,:;"\''.includes(character)) {
+    if (TRAILING_PUNCTUATION.includes(character)) {
       const next = value.charAt(index + 1);
-      if (!next || /\s/.test(next)) break;
+      if (!next || RE_WHITESPACE.test(next)) break;
     }
 
     if (character === '(' || character === '[') parenCount++;
