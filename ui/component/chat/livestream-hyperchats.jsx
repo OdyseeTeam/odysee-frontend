@@ -7,6 +7,7 @@ import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
+import Icon from 'component/common/icon';
 import React from 'react';
 import Slide from '@mui/material/Slide';
 import { Lbryio } from 'lbryinc';
@@ -19,6 +20,9 @@ type Props = {
   isMobile?: boolean,
   toggleHyperChat: () => void,
   handleHyperchatClick: (comment: any) => void,
+  pinnedComment: ?Comment,
+  pinActive?: boolean,
+  onPinClick?: () => void,
 };
 
 export default function LivestreamHyperchats(props: Props) {
@@ -29,6 +33,9 @@ export default function LivestreamHyperchats(props: Props) {
     toggleHyperChat,
     handleHyperchatClick,
     selectedHyperchat,
+    pinnedComment,
+    pinActive,
+    onPinClick,
   } = props;
 
   const superChatTopTen = React.useMemo(() => {
@@ -54,6 +61,14 @@ export default function LivestreamHyperchats(props: Props) {
         })}
       >
         <div className="livestream-hyperchats">
+          {pinnedComment && onPinClick && (
+            <div
+              className={classnames('livestream-hyperchat livestream-hyperchat--pin', { active: pinActive })}
+              onClick={onPinClick}
+            >
+              <Icon icon={ICONS.PIN} size={16} />
+            </div>
+          )}
           {superChatTopTen.map((hyperChat: Comment) => {
             const { comment_id, channel_url, support_amount, is_fiat } = hyperChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(hyperChat);

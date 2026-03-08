@@ -11,10 +11,16 @@ import {
   selectIsUriUnlisted,
   selectPermanentUrlForUri,
   selectChannelForClaimUri,
+  selectChannelTitleForUri,
 } from 'redux/selectors/claims';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
-import { DISABLE_SLIMES_VIDEO_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
+import {
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+} from 'constants/tags';
 import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
@@ -35,12 +41,16 @@ const select = (state, props) => {
     disableSlimes:
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state),
+    disableReactions:
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state),
     isUnlisted: selectIsUriUnlisted(state, uri),
     webShareable: true,
     collectionId: props.collectionId,
     channelUrl,
     isSubscribed: channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false,
     channelPermanentUrl: channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined,
+    channelTitle: channelUrl ? selectChannelTitleForUri(state, channelUrl) : undefined,
   };
 };
 

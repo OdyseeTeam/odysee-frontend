@@ -1,5 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import React, { useRef, useLayoutEffect } from 'react';
 import { parseURI } from 'util/lbryURI';
@@ -25,11 +26,13 @@ type Props = {
   doChannelSubscribe: (SubscriptionArgs, boolean) => void,
   doChannelUnsubscribe: (SubscriptionArgs, boolean) => void,
   doToast: ({ message: string }) => void,
+  doOpenModal: (id: string, {}) => void,
   shrinkOnMobile: boolean,
   notificationsDisabled: boolean,
   user: ?User,
   uri: string,
   preferEmbed: boolean,
+  channelTitle: ?string,
 };
 
 export default function SubscribeButton(props: Props) {
@@ -39,11 +42,13 @@ export default function SubscribeButton(props: Props) {
     doChannelUnsubscribe,
     isSubscribed,
     doToast,
+    doOpenModal,
     shrinkOnMobile = false,
     notificationsDisabled,
     user,
     uri,
     preferEmbed,
+    channelTitle,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -93,8 +98,6 @@ export default function SubscribeButton(props: Props) {
     }
   }, [isSubscribed]);
 
-  const subscriptionHandler = isSubscribed ? doChannelUnsubscribe : doChannelSubscribe;
-
   const subscriptionLabel = isSubscribed
     ? __('Following --[button label indicating a channel has been followed]--')
     : __('Follow');
@@ -119,14 +122,21 @@ export default function SubscribeButton(props: Props) {
               ? (e) => {
                   e.stopPropagation();
 
-                  subscriptionHandler(
-                    {
-                      channelName: '@' + rawChannelName,
-                      uri: uri,
-                      notificationsDisabled: true,
+                  doOpenModal(MODALS.CONFIRM, {
+                    title: __('Unfollow %channel%?', { channel: channelTitle || '@' + rawChannelName }),
+                    onConfirm: (closeModal) => {
+                      doChannelUnsubscribe(
+                        {
+                          channelName: '@' + rawChannelName,
+                          uri: uri,
+                          notificationsDisabled: true,
+                        },
+                        true
+                      );
+                      closeModal();
                     },
-                    true
-                  );
+                    labelOk: __('Unfollow'),
+                  });
                 }
               : undefined
           }
@@ -199,14 +209,32 @@ export default function SubscribeButton(props: Props) {
                   }
                 }
 
-                subscriptionHandler(
-                  {
-                    channelName: claimName,
-                    uri: permanentUrl,
-                    notificationsDisabled: true,
-                  },
-                  true
-                );
+                if (isSubscribed) {
+                  doOpenModal(MODALS.CONFIRM, {
+                    title: __('Unfollow %channel%?', { channel: channelTitle || claimName }),
+                    onConfirm: (closeModal) => {
+                      doChannelUnsubscribe(
+                        {
+                          channelName: claimName,
+                          uri: permanentUrl,
+                          notificationsDisabled: true,
+                        },
+                        true
+                      );
+                      closeModal();
+                    },
+                    labelOk: __('Unfollow'),
+                  });
+                } else {
+                  doChannelSubscribe(
+                    {
+                      channelName: claimName,
+                      uri: permanentUrl,
+                      notificationsDisabled: true,
+                    },
+                    true
+                  );
+                }
               }
             : undefined
         }

@@ -7,11 +7,16 @@ type Props = {
   viewMode: string,
   channelName: ?string,
   onViewModeChange: (mode: string) => void,
+  isTransitioning?: boolean,
 };
 
-const ViewModeToggle = React.memo<Props>(({ viewMode, channelName, onViewModeChange }: Props) => {
+const ViewModeToggle = React.memo<Props>(({ viewMode, channelName, onViewModeChange, isTransitioning }: Props) => {
   return (
-    <div className="shorts-page__view-toggle--overlay">
+    <div
+      className={classnames('shorts-page__view-toggle--overlay', {
+        'shorts-page__view-toggle--hidden': isTransitioning,
+      })}
+    >
       <Button
         className={classnames('button-bubble', {
           'button-bubble--active': viewMode === 'related',

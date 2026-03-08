@@ -5,14 +5,15 @@ import './style.scss';
 type Props = {
   value: number,
   precision: number,
+  startFrom?: number,
 };
 const DIGITS = Array.from({ length: 10 }, (_, i) => i);
 
 export default function Counter(props: Props) {
-  const { value, precision = 2 } = props;
+  const { value, precision = 2, startFrom } = props;
 
   const [chars, setChars] = React.useState([]);
-  const [displayValue, setDisplayValue] = React.useState(value);
+  const [displayValue, setDisplayValue] = React.useState(startFrom != null ? startFrom : value);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {

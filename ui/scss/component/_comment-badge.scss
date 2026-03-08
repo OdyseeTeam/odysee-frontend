@@ -2,7 +2,7 @@
   padding-right: var(--spacing-xxs);
 
   .icon {
-    margin-bottom: -4px;
+    margin-bottom: -2px;
     height: 1rem;
     width: 1rem;
   }
@@ -12,11 +12,6 @@
 div[role='menuitem'] .channel-selector__item .comment__badge svg,
 .comment__badge svg {
   stroke: unset !important;
-}
-
-// icon is a bit bright and loud
-.icon--PremiumPlus {
-  filter: brightness(0.92);
 }
 
 // increase sidebar brightness

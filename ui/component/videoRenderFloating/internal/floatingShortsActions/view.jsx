@@ -30,6 +30,8 @@ type Props = {
   doChannelUnsubscribe: (sub: {}) => void,
   onFireGlow?: () => void,
   onSlimeEffect?: () => void,
+  disableSlimes: boolean,
+  disableReactions: boolean,
 };
 
 const FloatingShortsActions = ({
@@ -54,6 +56,8 @@ const FloatingShortsActions = ({
   doChannelUnsubscribe,
   onFireGlow,
   onSlimeEffect,
+  disableSlimes,
+  disableReactions,
 }: Props) => {
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
@@ -93,7 +97,10 @@ const FloatingShortsActions = ({
       </div>
 
       <div className="content__shorts-floating-actions">
-        <div className="shorts-floating-action">
+        <div
+          className="shorts-floating-action"
+          style={disableReactions ? { visibility: 'hidden', pointerEvents: 'none' } : undefined}
+        >
           <Button
             onClick={() => {
               setOptimisticReaction(isFireActive ? null : REACTION_TYPES.LIKE);
@@ -135,7 +142,10 @@ const FloatingShortsActions = ({
           )}
         </div>
 
-        <div className="shorts-floating-action">
+        <div
+          className="shorts-floating-action"
+          style={disableReactions || disableSlimes ? { visibility: 'hidden', pointerEvents: 'none' } : undefined}
+        >
           <Button
             onClick={() => {
               setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);

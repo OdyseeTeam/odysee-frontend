@@ -8,8 +8,7 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as REACTION_TYPES from 'constants/reactions';
-import Skeleton from '@mui/material/Skeleton';
-import { formatNumberWithCommas } from 'util/number';
+import Counter from 'component/counter';
 
 type Props = {
   uri: string,
@@ -71,8 +70,6 @@ const MobileActions = ({
   const isFireActive = effectiveReaction === REACTION_TYPES.LIKE;
   const isSlimeActive = effectiveReaction === REACTION_TYPES.DISLIKE;
 
-  const Placeholder = <Skeleton variant="text" animation="wave" className="reaction-count-placeholder" />;
-
   return (
     <>
       {fireEffect &&
@@ -124,9 +121,24 @@ const MobileActions = ({
               'button--fire': isFireActive,
               'button--fire-glow-pulse': fireButtonGlow,
             })}
+            label={
+              <>
+                {isFireActive && (
+                  <>
+                    <div className="button__fire-glow" />
+                    <div className="button__fire-particle1" />
+                    <div className="button__fire-particle2" />
+                    <div className="button__fire-particle3" />
+                    <div className="button__fire-particle4" />
+                    <div className="button__fire-particle5" />
+                    <div className="button__fire-particle6" />
+                  </>
+                )}
+              </>
+            }
           />
           <span className="shorts-mobile-panel__count">
-            {Number.isInteger(likeCount) ? formatNumberWithCommas(likeCount, 0) : Placeholder}
+            <Counter value={Number.isInteger(likeCount) ? likeCount : 0} precision={0} startFrom={0} />
           </span>
         </div>
 
@@ -157,9 +169,20 @@ const MobileActions = ({
               }
               doReactionDislike(uri);
             }}
+            label={
+              <>
+                {isSlimeActive && (
+                  <>
+                    <div className="button__slime-stain" />
+                    <div className="button__slime-drop1" />
+                    <div className="button__slime-drop2" />
+                  </>
+                )}
+              </>
+            }
           />
           <span className="shorts-mobile-panel__count">
-            {Number.isInteger(dislikeCount) ? formatNumberWithCommas(dislikeCount, 0) : Placeholder}
+            <Counter value={Number.isInteger(dislikeCount) ? dislikeCount : 0} precision={0} startFrom={0} />
           </span>
         </div>
 
