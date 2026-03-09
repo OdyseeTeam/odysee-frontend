@@ -142,10 +142,18 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function success(response: CollectionCreateResponse) {
         const collectionClaim = response.outputs[0];
+        const publishStartedAt = Math.floor(Date.now() / 1000);
         if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
-        if (!collectionClaim?.timestamp) collectionClaim.timestamp = Date.now();
+        if (!collectionClaim?.timestamp) collectionClaim.timestamp = publishStartedAt;
 
         dispatch({ type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId });
+        dispatch({
+          type: ACTIONS.COLLECTION_EDIT,
+          data: {
+            collectionKey: COLS.KEYS.UPDATED,
+            collection: { id: collectionClaim.claim_id, updatedAt: publishStartedAt },
+          },
+        });
 
         dispatch(
           batchActions(

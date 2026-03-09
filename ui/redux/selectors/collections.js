@@ -1,5 +1,4 @@
 // @flow
-import moment from 'moment';
 
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
@@ -26,6 +25,14 @@ import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
 const selectState = (state: State) => state.collections || {};
+const TIMESTAMP_MS_THRESHOLD = 1e12;
+
+const toMilliseconds = (timestamp: any): number => {
+  if (!timestamp) return 0;
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value > TIMESTAMP_MS_THRESHOLD ? value : value * 1000;
+};
 
 export const selectSavedCollectionIds = (state: State) => selectState(state).savedIds;
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
@@ -381,17 +388,16 @@ export const selectUpdatedAtForCollectionId = createSelector(
   selectUserCreationDate,
   selectUpdatedCollectionForId,
   (collection, userCreatedAt, updated) => {
-    const collectionUpdatedAt = (updated?.updatedAt || collection?.updatedAt || 0) * 1000;
+    const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collection?.id);
+    const collectionUpdatedAt = toMilliseconds(
+      updated?.updatedAt || collection?.updatedAt || collection?.createdAt || 0
+    );
 
-    const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
-    const collectionUpdatedDate = moment(collectionUpdatedAt).format('MMMM DD YYYY');
+    // Built-in lists don't have chain timestamps.
+    if (!collectionUpdatedAt && isBuiltin) return userCreatedAt || '';
+    if (!collectionUpdatedAt) return '';
 
-    // Collection updated time can't be older than account creation date
-    if (moment(collectionUpdatedDate).diff(moment(userCreationDate)) < 0) {
-      return userCreatedAt;
-    }
-
-    return collectionUpdatedAt || '';
+    return collectionUpdatedAt;
   }
 );
 
@@ -404,7 +410,7 @@ export const selectCreatedAtForCollectionId = (state: State, id: string) => {
     return userCreatedAt;
   }
 
-  if (collection?.createdAt) return collection.createdAt * 1000;
+  if (collection?.createdAt) return toMilliseconds(collection.createdAt);
 
   return null;
 };
