@@ -186,15 +186,26 @@ function tokenizeUrl(eat, value, silent) {
   const length = value.length;
   let queue = '';
   let parenCount = 0;
+  let bracketCount = 0;
 
   while (index < length) {
     const character = value.charAt(index);
 
     if (RE_WHITESPACE.test(character) || character === '<') break;
 
-    if (character === ')' || character === ']') {
+    if (character === ')') {
       if (parenCount > 0) {
         parenCount--;
+        queue += character;
+        index++;
+        continue;
+      }
+      break;
+    }
+
+    if (character === ']') {
+      if (bracketCount > 0) {
+        bracketCount--;
         queue += character;
         index++;
         continue;
@@ -207,7 +218,8 @@ function tokenizeUrl(eat, value, silent) {
       if (!next || RE_WHITESPACE.test(next)) break;
     }
 
-    if (character === '(' || character === '[') parenCount++;
+    if (character === '(') parenCount++;
+    if (character === '[') bracketCount++;
 
     queue += character;
     index++;
@@ -219,7 +231,7 @@ function tokenizeUrl(eat, value, silent) {
 
   if (matchedProtocol === 'mailto:') {
     const atPos = queue.indexOf('@');
-    if (atPos === -1 || atPos === queue.length - 1) return;
+    if (atPos <= 0 || atPos === queue.length - 1) return;
   }
 
   if (silent) return true;
