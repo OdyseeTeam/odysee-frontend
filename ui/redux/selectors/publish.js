@@ -260,6 +260,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
     description: collection.description,
     thumbnail_url: collection.thumbnail?.url,
     claims,
+    tags: collection.tags || [],
   };
 
   if (isPrivate) {
@@ -268,7 +269,6 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
       bid: 0.0001,
       channel_id: activeChannelId,
       name: sanitizeName(collectionTitle),
-      tags: [],
     };
 
     return collectionPublishCreateParams;

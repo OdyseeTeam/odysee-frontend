@@ -189,7 +189,6 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
         }
         dispatch(doToast({ message: customMessage || error.message || error, isError: true }));
         reject(error);
-        throw new Error(error);
       }
 
       // $FlowFixMe
@@ -571,7 +570,7 @@ export const doSortCollectionByKey =
 export const doCollectionEdit =
   (collectionId: string, params: CollectionEditParams) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
-    const collection: Collection = selectCollectionForId(state, collectionId);
+    let collection: Collection = selectCollectionForId(state, collectionId);
 
     if (!collection) {
       return dispatch(doToast({ message: __('Collection does not exist.'), isError: true }));
@@ -591,9 +590,17 @@ export const doCollectionEdit =
       return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
 
-    const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+    let collectionUrls = selectUrlsForCollectionId(state, collectionId);
+    if (!collectionUrls && collection && collection.items && collection.items.length) {
+      await dispatch(doFetchItemsInCollection({ collectionId }));
+      state = getState();
+      collection = selectCollectionForId(state, collectionId);
+      collectionUrls = selectUrlsForCollectionId(state, collectionId);
+    }
 
-    const currentUrls = collectionUrls ? collectionUrls.concat() : [];
+    const fallbackItems =
+      collection && collection.items ? collection.items.filter((item) => typeof item === 'string') : [];
+    const currentUrls = (collectionUrls || fallbackItems).concat();
     const currentUrlsSet = new Set(currentUrls);
     let newItems = currentUrls;
 
@@ -619,8 +626,10 @@ export const doCollectionEdit =
     // Passed an ordering to change: (doesn't need the uris here since
     // the items are already on the list)
     if (order) {
-      const [movedItem] = currentUrls.splice(order.from, 1);
-      currentUrls.splice(order.to, 0, movedItem);
+      const reorderItems = newItems.concat();
+      const [movedItem] = reorderItems.splice(order.from, 1);
+      reorderItems.splice(order.to, 0, movedItem);
+      newItems = reorderItems;
     }
 
     const isQueue = collectionId === COLS.QUEUE_ID;
@@ -642,6 +651,7 @@ export const doCollectionEdit =
             itemCount: newItems.length,
             // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
             ...('description' in params ? { description: params.description } : {}),
+            ...('tags' in params ? { tags: params.tags } : {}),
             ...(title ? { name: title, title } : {}),
             ...(type ? { type } : {}),
             ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
