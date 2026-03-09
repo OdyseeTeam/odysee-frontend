@@ -1,6 +1,5 @@
 import { parseURI } from 'util/lbryURI';
 import visit from 'unist-util-visit';
-import locate from 'remark-parse/lib/locate/url';
 import decode from 'parse-entities';
 
 const protocol = 'lbry://';
@@ -248,7 +247,15 @@ function tokenizeUrl(eat, value, silent) {
   });
 }
 
-tokenizeUrl.locator = locate;
+tokenizeUrl.locator = function locateUrl(value, fromIndex) {
+  if (!this.options.gfm) return -1;
+  let min = -1;
+  for (const p of URL_PROTOCOLS) {
+    const pos = value.indexOf(p, fromIndex);
+    if (pos !== -1 && (pos < min || min === -1)) min = pos;
+  }
+  return min;
+};
 tokenizeUrl.notInLink = true;
 
 // Main module
