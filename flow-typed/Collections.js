@@ -4,6 +4,7 @@ declare type Collection = {
   name: string,
   title?: string,
   description?: string,
+  tags?: Array<any>,
   thumbnail?: {
     url?: string,
   },
@@ -76,6 +77,7 @@ declare type CollectionEditParams = {
   name?: string,
   title?: string,
   description?: string,
+  tags?: Array<any>,
   thumbnail_url?: string,
 };
 
