@@ -406,6 +406,14 @@ function App(props: Props) {
       },
       onCancel: (closeModal) => {
         closeModal();
+
+        const hidden = homepageOrder?.hidden || [];
+        const newHomePageOrder = {
+          ...homepageOrder,
+          hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden],
+        };
+        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
       },
     });
   }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
