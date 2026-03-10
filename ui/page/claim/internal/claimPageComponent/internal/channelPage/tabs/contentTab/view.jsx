@@ -89,15 +89,24 @@ function ContentTab(props: Props) {
   const [isSearching, setIsSearching] = React.useState(false);
 
   const orderBy = urlParams.get('order');
+  const contentType = urlParams.get(CS.CONTENT_KEY);
+  const freshness = urlParams.get(CS.FRESH_KEY);
+  const sortByParam = urlParams.get(CS.SORT_BY_KEY);
+  const durationParam = urlParams.get(CS.DURATION_KEY);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${pathname}`, null);
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
   const [hideMembersOnly, setHideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
+  const isChannelSearch = searchQuery.trim().length > 2;
+
   const claimSearchFilterCtx = {
     contentTypes: CS.CONTENT_TYPES,
     repost: { hideReposts, setHideReposts },
     membersOnly: { hideMembersOnly, setHideMembersOnly },
+    isChannelSearch,
   };
 
   const claimId = claim && claim.claim_id;
@@ -240,6 +249,12 @@ function ContentTab(props: Props) {
                 tileLayout={tileLayout}
                 orderBy={orderBy}
                 hideShorts={hideShorts}
+                contentType={contentType}
+                freshness={freshness}
+                sortByParam={sortByParam}
+                durationParam={durationParam}
+                customMinMinutes={minDurationMinutes}
+                customMaxMinutes={maxDurationMinutes}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
                 {...(shortsOnly
