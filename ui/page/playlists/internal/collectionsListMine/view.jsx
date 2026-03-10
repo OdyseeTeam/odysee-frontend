@@ -65,12 +65,13 @@ export default function CollectionsListMine(props: Props) {
   const publishedList = (Object.keys(publishedCollections || {}): any);
   const editedList = (Object.keys(editedCollections || {}): any);
   const savedList = (Object.keys(savedCollections || {}): any);
+  const dedupeCollectionIds = React.useCallback((ids: Array<string>) => Array.from(new Set(ids)), []);
 
   const collectionsToShow = React.useMemo(() => {
     let collections;
     switch (filterType) {
       case COLS.LIST_TYPE.ALL:
-        collections = unpublishedCollectionsList.concat(publishedList).concat(savedList);
+        collections = dedupeCollectionIds(unpublishedCollectionsList.concat(publishedList).concat(savedList));
         break;
       case COLS.LIST_TYPE.PRIVATE:
         collections = unpublishedCollectionsList;
@@ -89,8 +90,8 @@ export default function CollectionsListMine(props: Props) {
         break;
     }
 
-    return collections;
-  }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList]);
+    return dedupeCollectionIds(collections);
+  }, [dedupeCollectionIds, editedList, filterType, publishedList, savedList, unpublishedCollectionsList]);
 
   const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
   const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
@@ -111,16 +112,9 @@ export default function CollectionsListMine(props: Props) {
     }
 
     // Then the sorting selected setting
-    return result.sort((a, b) => {
-      const collectionA = collectionsById[a];
-      const collectionB = collectionsById[b];
-
-      if (updatedCollections[a]) {
-        Object.assign(collectionA, updatedCollections[a]);
-      }
-      if (updatedCollections[b]) {
-        Object.assign(collectionB, updatedCollections[b]);
-      }
+    return result.slice().sort((a, b) => {
+      const collectionA = { ...collectionsById[a], ...(updatedCollections[a] || {}) };
+      const collectionB = { ...collectionsById[b], ...(updatedCollections[b] || {}) };
 
       let firstComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionA : collectionB;
       let secondComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionB : collectionA;
