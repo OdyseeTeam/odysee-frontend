@@ -88,6 +88,7 @@
   .card__body {
     max-height: 20rem;
     overflow: scroll;
+    overscroll-behavior: contain;
   }
 
   .card__header--between {
@@ -114,6 +115,8 @@
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
     overflow-y: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     display: flex;
     .claim-list {
       max-height: 100%;
@@ -124,6 +127,8 @@
         max-height: 100%;
         overflow-y: scroll !important;
         overflow-x: hidden;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
         &::-webkit-scrollbar {
           background-color: var(--color-border) !important;
         }

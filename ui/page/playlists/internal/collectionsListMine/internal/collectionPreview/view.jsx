@@ -75,8 +75,10 @@ function CollectionPreview(props: Props) {
 
   if (collectionType === 'featuredChannels') return null;
 
-  let test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
-  test = 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
+  const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  const optimizedPreviewThumbnail = previewThumbnail
+    ? `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/${previewThumbnail}`
+    : null;
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
@@ -103,14 +105,17 @@ function CollectionPreview(props: Props) {
   return (
     <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
       <CollectionMenuList collectionId={collectionId} />
-      <div className="background" style={{ backgroundImage: 'url(' + test + ')' }} />
+      <div
+        className="background"
+        style={optimizedPreviewThumbnail ? { backgroundImage: `url(${optimizedPreviewThumbnail})` } : undefined}
+      />
       <div className="content">
         <div className="thumbnail">
           <NavLink {...navLinkProps}>
             <FileThumbnail
               uri={uri || firstCollectionItemUrl}
               secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
-              thumbnail={thumbnail || null}
+              thumbnail={previewThumbnail || null}
             >
               <CollectionPreviewOverlay collectionId={collectionId} />
             </FileThumbnail>
