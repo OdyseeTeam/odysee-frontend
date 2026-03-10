@@ -918,10 +918,6 @@ $control-bar-icon-size: 30px;
       margin-left: var(--spacing-xs) !important;
     }
 
-    .vjs-button--play-next ~ .vjs-volume-panel {
-      display: none !important;
-    }
-
     .vjs-button--play-next ~ .vjs-remaining-time,
     .vjs-button--play-next ~ .vjs-duration {
       flex-shrink: 0 !important;
