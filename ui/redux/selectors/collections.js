@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import {
   selectClaimForUri,
+  selectClaimForClaimId,
   selectClaimsById,
   selectClaimIdsByUri,
   selectMyCollectionClaimIds,
@@ -349,12 +350,14 @@ export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
 };
 
 export const selectFirstItemUrlForCollection = (state: State, id: string) => {
-  const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
-  if (!collectionItemUrls) return collectionItemUrls;
+  const items = selectItemsForCollectionId(state, id);
+  const firstItem = items ? items.find((item) => typeof item === 'string') : null;
+  if (!firstItem) return null;
 
-  return collectionItemUrls.length > 0
-    ? collectionItemUrls.find((collectionItemUrl) => collectionItemUrl !== null)
-    : null;
+  if (isPermanentUrl(firstItem) || isCanonicalUrl(firstItem)) return firstItem;
+
+  const claim = selectClaimForClaimId(state, firstItem);
+  return claim ? claim.permanent_url || claim.canonical_url || null : null;
 };
 
 export const selectCollectionLengthForId = (state: State, id: string) => {

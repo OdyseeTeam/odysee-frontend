@@ -498,9 +498,8 @@ export const doFetchThumbnailClaimsForCollectionIds =
 
     collectionIds.forEach((collectionId) => {
       const collection = selectCollectionForId(state, collectionId);
-      const thumbnailClaims = collection.items.slice(0, 3);
-
       if (collection && collection.items) {
+        const thumbnailClaims = collection.items.slice(0, 3);
         thumbnailClaims.forEach((claimId) => allClaimIds.add(claimId));
       }
     });

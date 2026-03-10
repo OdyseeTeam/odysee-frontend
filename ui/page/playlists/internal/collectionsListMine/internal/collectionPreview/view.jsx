@@ -37,6 +37,7 @@ type Props = {
   channelTitle?: String,
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
+  firstPlayableCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
   collectionCreatedAt: ?number,
   isBuiltin: boolean,
@@ -59,6 +60,7 @@ function CollectionPreview(props: Props) {
     collectionType,
     hasClaim,
     firstCollectionItemUrl,
+    firstPlayableCollectionItemUrl,
     channel,
     channelTitle,
     collectionUpdatedAt,
@@ -85,7 +87,7 @@ function CollectionPreview(props: Props) {
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = formatLbryUrlForWeb(firstCollectionItemUrl) || '/';
+  const firstItemPath = firstPlayableCollectionItemUrl ? formatLbryUrlForWeb(firstPlayableCollectionItemUrl) : '/';
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
   const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
 
@@ -173,7 +175,7 @@ function CollectionPreview(props: Props) {
             </div>
 
             <div className="action">
-              {collectionCount > 0 && !hidePlayAll && (
+              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && (
                 <Button
                   button="alt"
                   icon={ICONS.PLAY}
