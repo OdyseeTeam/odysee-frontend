@@ -1,5 +1,10 @@
 import { connect } from 'react-redux';
-import { selectPublishFormValue, selectIsStillEditing, selectMemberRestrictionStatus } from 'redux/selectors/publish';
+import {
+  selectPublishFormValue,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
 import PublishFormErrors from './view';
 
 const select = (state) => ({
@@ -16,6 +21,7 @@ const select = (state) => ({
   releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
   memberRestrictionStatus: selectMemberRestrictionStatus(state),
   isStillEditing: selectIsStillEditing(state),
+  prevFileSizeTooBig: selectPrevFileSizeTooBig(state),
 });
 
 export default connect(select)(PublishFormErrors);

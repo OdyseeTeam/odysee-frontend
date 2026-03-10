@@ -70,6 +70,9 @@ export function doArInit() {
 }
 
 export function doArConnect() {
+  if (LocalStorage.getItem('AR_ADDRESS_IN_USE') === 'true') {
+    return () => {};
+  }
   LocalStorage.setItem('WANDER_DISCONNECT', 'false');
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
@@ -135,7 +138,10 @@ export function doArConnect() {
 }
 
 export function doArUpdateBalance() {
-  return async (dispatch: Dispatch) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    if (LocalStorage.getItem('AR_ADDRESS_IN_USE') === 'true') {
+      return;
+    }
     dispatch({ type: ARCONNECT_FETCHBALANCE });
     if (window.arweaveWallet) {
       try {

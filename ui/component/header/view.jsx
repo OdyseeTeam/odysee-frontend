@@ -105,6 +105,8 @@ const Header = (props: Props) => {
 
   const urlParams = new URLSearchParams(search);
   const returnPath = urlParams.get('redirect');
+  const isYoutubeAuthErrorPage =
+    iYTSyncPage && (urlParams.get('error') === 'true' || Boolean(urlParams.get('error_message')));
 
   // For pages that allow for "backing out", shows a backout option instead of the Home logo
   const canBackout = Boolean(backout);
@@ -314,6 +316,11 @@ const Header = (props: Props) => {
                       // className="button--header-close"
                       icon={ICONS.REMOVE}
                       onClick={() => {
+                        if (isYoutubeAuthErrorPage) {
+                          push(`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`);
+                          return;
+                        }
+
                         if (!iYTSyncPage && !isPwdResetPage) {
                           clearEmailEntry();
                           clearPasswordEntry();

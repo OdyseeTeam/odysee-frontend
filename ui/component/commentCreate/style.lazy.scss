@@ -5,7 +5,7 @@
   position: relative;
 
   .section {
-    display:flex;
+    display: flex;
     margin-top: var(--spacing-xs);
   }
 
@@ -76,7 +76,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: var(--spacing-s);
+    margin-top: 0;
 
     .comment__char-count-mde {
       margin-left: auto;

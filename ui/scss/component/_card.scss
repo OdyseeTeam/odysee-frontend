@@ -969,8 +969,14 @@
 
 .publish__actions {
   gap: 0 !important;
+  flex-wrap: nowrap;
+  align-items: center !important;
   .button--primary {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
+    margin: 0 !important;
+  }
+  .button--link {
+    margin: 0 0 0 var(--spacing-s) !important;
   }
 }
 

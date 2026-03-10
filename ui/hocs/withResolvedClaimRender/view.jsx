@@ -33,12 +33,6 @@ type Props = {
   doOpenModal: (string, {}) => void,
 };
 
-/**
- * HigherOrderComponent to resolve a claim and return the correct states for render, such as loading, failed, restricted, etc
- *
- * @param Component: FunctionalComponentParam
- * @returns {FunctionalComponent}
- */
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
   const ResolvedClaimRender = (props: Props) => {
     const {

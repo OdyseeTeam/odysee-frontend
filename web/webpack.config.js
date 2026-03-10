@@ -20,8 +20,7 @@ const DIST = { DIR: 'dist', PATH: path.resolve(__dirname, 'dist/') };
 const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
 const WEB_PLATFORM_ROOT = __dirname;
 const isProduction = process.env.NODE_ENV === 'production';
-// const isProduction = true;
-const hasSentryToken = process.env.SENTRY_AUTH_TOKEN !== undefined;
+const hasSentryToken = Boolean(process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_AUTH_TOKEN.trim());
 
 const BUILD_TIME_UTC = Date.now();
 const BUILD_TIME_STR = new Date(BUILD_TIME_UTC).toISOString().replace(/[-:T]/g, '').slice(0, 12);
@@ -177,6 +176,11 @@ if (isProduction && hasSentryToken) {
       ignore: ['node_modules', 'webpack.config.js'],
       configFile: 'sentry.properties',
       release: BUILD_REV,
+      // Don't block production bundle deploy if Sentry release upload fails.
+      // Keep CI/deploy green while surfacing the issue in webpack warnings.
+      errorHandler: (err, _invokeErr, compilation) => {
+        compilation.warnings.push(new Error(`Sentry CLI Plugin (non-fatal): ${err.message}`));
+      },
     })
   );
 }

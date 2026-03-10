@@ -500,6 +500,28 @@ export const selectUrlsForCollectionId = createCachedSelector(
   }
 )((state, url, itemCount) => `${String(url)}:${String(itemCount)}`);
 
+export const selectUrlsForCollectionIdNonDeleted = createCachedSelector(
+  selectUrlsForCollectionId,
+  (state, collectionId) => collectionId,
+  (state) => state,
+  (uris, collectionId, state) => {
+    if (!uris) return uris;
+
+    return uris.filter((uri) => {
+      const claim = selectClaimForUri(state, uri, false);
+
+      // Keep unresolved entries for now to avoid false negatives while claims are still loading.
+      if (claim === undefined) return true;
+
+      return claim !== null && claim.value_type !== 'deleted';
+    });
+  }
+)((state, collectionId) => String(collectionId));
+
+export const selectCountForCollectionIdNonDeleted = createCachedSelector(selectUrlsForCollectionIdNonDeleted, (uris) =>
+  uris ? uris.length : uris
+)((state, collectionId) => String(collectionId));
+
 export const selectCollectionForIdClaimForUriItem = createSelector(
   (state: State, id: string, uri: string) => uri,
   (state: State, id: string, uri: string) => selectClaimForUri(state, uri),

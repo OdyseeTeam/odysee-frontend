@@ -276,6 +276,7 @@ body {
 
 .main--shorts-page {
   height: 85vh;
+  z-index: auto;
   @media (min-width: $breakpoint-small) {
     height: fit-content !important;
   }
@@ -952,6 +953,15 @@ body {
   fieldset-section,
   .checkbox {
     margin-bottom: var(--spacing-m);
+  }
+
+  .card--youtube-sync {
+    .nag--error.nag--relative {
+      left: 0;
+      right: 0;
+      bottom: auto;
+      margin-top: var(--spacing-s);
+    }
   }
 }
 

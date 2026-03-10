@@ -25,6 +25,7 @@ type Props = {
   hideMembersOnlyContent: boolean,
   hideReposts: ?boolean,
   hideShorts: ?boolean,
+  hideLivestreams: ?boolean,
   defaultCollectionAction: string,
   showNsfw: boolean,
   instantPurchaseEnabled: boolean,
@@ -41,6 +42,7 @@ export default function SettingContent(props: Props) {
     hideMembersOnlyContent,
     hideReposts,
     hideShorts,
+    hideLivestreams,
     defaultCollectionAction,
     showNsfw,
     instantPurchaseEnabled,
@@ -89,6 +91,15 @@ export default function SettingContent(props: Props) {
                 name="hide_shorts"
                 checked={hideShorts}
                 onChange={(e) => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)}
+              />
+            </SettingsRow>
+
+            <SettingsRow title={__('Hide livestreams in categories')} subtitle={__(HELP.HIDE_LIVESTREAMS)}>
+              <FormField
+                type="checkbox"
+                name="hide_livestreams"
+                checked={hideLivestreams}
+                onChange={(e) => setClientSetting(SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES, !hideLivestreams)}
               />
             </SettingsRow>
 
@@ -184,6 +195,7 @@ const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
+  HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',

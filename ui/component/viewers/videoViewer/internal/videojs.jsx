@@ -276,6 +276,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoPlayNextShort,
   });
 
+  const isLivestreamUi = Boolean(isLivestreamClaim && userClaimId);
+
   const videoJsOptions = {
     preload: 'auto',
     playbackRates: VIDEO_PLAYBACK_RATES,
@@ -290,10 +292,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         useDtsForTimestampOffset: true,
       },
     },
-    liveTracker: {
-      trackingThreshold: 0,
-      liveTolerance: 10,
-    },
+    liveTracker: isLivestreamUi
+      ? {
+          trackingThreshold: 0,
+          liveTolerance: 10,
+        }
+      : false,
     inactivityTimeout: 2000,
     muted: startMuted,
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
@@ -309,7 +313,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     techOrder: ['html5'],
     bigPlayButton: embedded, // only show big play button if embedded
     suppressNotSupportedError: true,
-    liveui: true,
+    liveui: isLivestreamUi,
   };
 
   // TODO: would be nice to pull this out into functions file
@@ -838,14 +842,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           ref={tapToUnmuteRef}
         />
       )}
-      <Button
-        label={__('Retry')}
-        button="link"
-        icon={ICONS.REFRESH}
-        className="video-js--tap-to-unmute"
-        onClick={() => retryVideoAfterFailure(true)}
-        ref={tapToRetryRef}
-      />
+      {!isShortsParam && (
+        <Button
+          label={__('Retry')}
+          button="link"
+          icon={ICONS.REFRESH}
+          className="video-js--tap-to-unmute"
+          onClick={() => retryVideoAfterFailure(true)}
+          ref={tapToRetryRef}
+        />
+      )}
     </div>
   );
 });

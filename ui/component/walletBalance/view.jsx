@@ -13,6 +13,7 @@ import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { useArStatus } from 'effects/use-ar-status';
+import { LocalStorage } from 'util/storage';
 
 type Props = {
   clientSettings: any,
@@ -68,7 +69,7 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
-  const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection } = useArStatus();
+  const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection, addressInUse } = useArStatus();
 
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
@@ -236,7 +237,7 @@ const WalletBalance = (props: Props) => {
             !hasArConnection ? (
               <>
                 <div className="wallet-check-row">
-                  <div>{__(`Wander login`)}</div>
+                  <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
                   <div>
                     {!hasConnection && !isSigningIn ? (
                       <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
@@ -249,7 +250,7 @@ const WalletBalance = (props: Props) => {
                 </div>
 
                 <div className="wallet-check-row">
-                  <div>{__('Wander connection')}</div>
+                  <div>{__('Wander wallet connection')}</div>
                   <div>
                     {hasArConnection ? (
                       <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
@@ -327,6 +328,23 @@ const WalletBalance = (props: Props) => {
                   >
                     {`%text% %status%`}
                   </I18nMessage>
+                </div>
+              ) : !hasArConnection && addressInUse ? (
+                <div>
+                  <p>
+                    {__(
+                      'The currently active Wander wallet is already connected to another Odysee account. Please switch to a different wallet.'
+                    )}
+                  </p>
+                  <a
+                    className="link"
+                    onClick={() => {
+                      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
+                      window.wanderInstance.open();
+                    }}
+                  >
+                    {__('Change login')}
+                  </a>
                 </div>
               ) : !hasArConnection ? (
                 <div>

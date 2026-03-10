@@ -9,6 +9,7 @@ const {
   escapeHtmlProperty,
 } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
+const { resolveSlashUrl } = require('./resolveSlashUrl');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -17,15 +18,26 @@ Lbry.setDaemonConnectionString(PROXY_URL);
 // ****************************************************************************
 
 async function getClaim(requestUrl) {
-  const uri = requestUrl.replace(`${URL}/`, 'lbry://');
+  const webPath = requestUrl.replace(`${URL}/`, '');
+  const uri = `lbry://${webPath}`;
 
   let claim, error;
-  try {
-    const response = await Lbry.resolve({ urls: [uri] });
-    if (response && response[uri] && !response[uri].error) {
-      claim = response[uri];
-    }
-  } catch {}
+
+  // Try alternate interpretations for ambiguous slash URLs (missing @, name/claimid)
+  const resolved = await resolveSlashUrl(webPath);
+  if (resolved) {
+    claim = resolved.claim;
+  }
+
+  // Fall back to resolving as-is (handles @channel/content, single-segment, etc.)
+  if (!claim) {
+    try {
+      const response = await Lbry.resolve({ urls: [uri] });
+      if (response && response[uri] && !response[uri].error) {
+        claim = response[uri];
+      }
+    } catch {}
+  }
 
   if (!claim) {
     error = 'The URL is invalid or is not associated with any claim.';

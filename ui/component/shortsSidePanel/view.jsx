@@ -49,6 +49,7 @@ const ShortsSidePanel = React.memo<Props>(
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
           ) : (
             <>
+              <FileTitleSection uri={uri} accessStatus={accessStatus} hideDescription />
               {contentUnlocked &&
                 (commentsDisabled ? (
                   <Empty padded text={__('The creator of this content has disabled comments.')} />

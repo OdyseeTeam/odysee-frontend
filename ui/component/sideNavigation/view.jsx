@@ -601,7 +601,7 @@ function SideNavigation(props: Props) {
         />
       </li>
       <li className="navigation-link">
-        <Button label={__('Careers')} onClick={() => window.odysee.functions.history.push('/$/careers')} />
+        <Button label={__('Contribute')} onClick={() => window.odysee.functions.history.push('/$/contribute')} />
       </li>
       <li className="navigation-link">
         <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos')} />
@@ -650,6 +650,7 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
+              {showMicroMenu && getLink(WATCH_LATER)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
             <ul className="navigation-links--absolute mobile-only">

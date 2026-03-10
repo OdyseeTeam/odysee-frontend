@@ -35,6 +35,7 @@ declare type PlayingUri = {
   primaryUri?: string,
   location?: { pathname: ?string, search: ?string },
   commentId?: string,
+  isShort?: boolean,
   collection: PlayingCollection,
   source?: ?string,
   sourceId?: string,

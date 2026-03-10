@@ -191,8 +191,22 @@ reach-portal {
 
 .menu__list--header {
   @extend .menu__list;
+  z-index: 100002 !important;
+  animation: none;
 
   margin-top: 10px;
+
+  .MuiPaper-root {
+    animation: menu-animate-in var(--animation-duration) var(--animation-style);
+    transform-origin: top right;
+    top: calc(var(--header-height) - 12px) !important;
+    transition: none !important;
+    @media (max-width: $breakpoint-small) {
+      top: calc(var(--header-height-mobile) - 10px) !important;
+      right: 0 !important;
+      left: auto !important;
+    }
+  }
 
   .channel-selector {
     margin: 0px;
@@ -200,14 +214,6 @@ reach-portal {
 
     .icon--ChevronDown {
       margin-left: var(--spacing-s);
-    }
-  }
-
-  .MuiPaper-root {
-    top: calc(var(--header-height) - 12px) !important;
-    transition: none !important;
-    @media (max-width: $breakpoint-small) {
-      top: calc(var(--header-height-mobile) - 10px) !important;
     }
   }
 

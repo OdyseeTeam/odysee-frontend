@@ -1,0 +1,243 @@
+.contribute-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.contribute-console-design {
+  font-family: 'Fira Code', 'Fira Mono', 'Consolas', monospace;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-card-background);
+
+  .a43-screen {
+    padding: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.65;
+  }
+
+  .a43-line {
+    margin: 1rem 0 0.3rem;
+  }
+
+  .a43-prompt {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+
+  .a43-caret {
+    color: rgba(var(--color-primary-dynamic), 0.8);
+    font-weight: 700;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .a43-cmd {
+    font-weight: 600;
+  }
+
+  .a43-title {
+    font-size: 1.6rem;
+    font-family: 'Geist', 'DM Sans', 'Segoe UI', sans-serif;
+    line-height: 1.15;
+    margin: 0.4rem 0;
+    font-weight: 700;
+  }
+
+  .a43-text {
+    margin: 0.25rem 0;
+    line-height: 1.55;
+  }
+
+  .a43-quote {
+    color: var(--color-text-subtitle);
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--color-border);
+    margin: 0.35rem 0;
+  }
+
+  .a43-actions {
+    margin: 0.8rem 0 0.4rem;
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .a43-track-list {
+    margin: 0.4rem 0;
+  }
+
+  .a43-track-entry {
+    margin: 0.5rem 0;
+    padding: 0.5rem 0.7rem;
+    background: rgba(var(--color-primary-dynamic), 0.04);
+    border-radius: 0.4rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .a43-dir {
+    color: rgba(var(--color-primary-dynamic), 0.8);
+    font-weight: 600;
+  }
+
+  .a43-desc {
+    color: var(--color-text-subtitle);
+  }
+
+  .a43-items {
+    margin: 0.3rem 0 0;
+    padding-left: 1.5rem;
+    font-size: 0.8rem;
+
+    li {
+      margin: 0.1rem 0;
+      color: var(--color-text-subtitle);
+    }
+  }
+
+  .a43-num {
+    color: rgba(var(--color-primary-dynamic), 0.8);
+    font-weight: 700;
+  }
+
+  .a43-note {
+    margin-top: 0.6rem;
+    color: var(--color-text-subtitle);
+    font-size: 0.8rem;
+    border-left: 2px solid rgba(var(--color-primary-dynamic), 0.3);
+    padding-left: 0.6rem;
+  }
+
+  .a43-repos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+  }
+
+  .a43-repo {
+    display: inline-block;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.4rem;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 0.78rem;
+    transition: background 0.15s;
+
+    &:hover {
+      background: rgba(var(--color-primary-dynamic), 0.08);
+    }
+  }
+
+  .a43-key {
+    color: rgba(var(--color-primary-dynamic), 0.8);
+  }
+
+  .a43-val {
+    color: var(--color-text-subtitle);
+  }
+
+  .a43-divider {
+    margin: 1.5rem 0 1rem;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  .a43-interactive-hint {
+    margin: 0 0 0.6rem;
+    color: var(--color-text-subtitle);
+    font-size: 0.8rem;
+
+    strong {
+      color: rgba(var(--color-primary-dynamic), 0.8);
+      font-weight: 600;
+    }
+  }
+
+  .a43-entry {
+    margin: 0.4rem 0;
+  }
+
+  .a43-output {
+    padding-left: 1.1rem;
+  }
+
+  .a43-out-heading {
+    font-size: 1rem;
+    font-family: 'Geist', 'DM Sans', 'Segoe UI', sans-serif;
+    margin: 0.3rem 0;
+    font-weight: 700;
+  }
+
+  .a43-out-text {
+    margin: 0.1rem 0;
+    white-space: pre-wrap;
+  }
+
+  .a43-out-link {
+    display: block;
+    margin: 0.1rem 0;
+    white-space: pre-wrap;
+    color: rgba(var(--color-primary-dynamic), 0.8);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+  }
+
+  .a43-out-error {
+    margin: 0.1rem 0;
+    color: #e8585d;
+  }
+
+  .a43-out-hint {
+    margin: 0.1rem 0;
+    color: var(--color-text-subtitle);
+    font-size: 0.8rem;
+  }
+
+  .a43-blank {
+    height: 0.4rem;
+  }
+
+  .a43-input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.6rem;
+  }
+
+  .a43-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    caret-color: rgba(var(--color-primary-dynamic), 0.8);
+
+    &::placeholder {
+      color: var(--color-text-subtitle);
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .a43-screen {
+      padding: 1rem;
+      font-size: 0.78rem;
+    }
+
+    .a43-title {
+      font-size: 1.3rem;
+    }
+  }
+}

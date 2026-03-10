@@ -261,7 +261,7 @@ export default handleActions(
     },
 
     [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, disabled } = action.data;
+      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, disabled, page } = action.data;
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
@@ -301,6 +301,11 @@ export default handleActions(
 
           // --- Top-level comments ---
           if (!parentId) {
+            if (page === 1) {
+              topLevelCommentsById[claimId] = [];
+              pinnedCommentsById[claimId] = [];
+              byId[claimId] = [];
+            }
             for (let i = 0; i < comments.length; ++i) {
               const comment = comments[i];
               commonUpdateAction(comment, commentById, commentIds, i);

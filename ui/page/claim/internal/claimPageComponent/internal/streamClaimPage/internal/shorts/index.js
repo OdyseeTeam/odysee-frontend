@@ -11,6 +11,7 @@ import {
   selectClaimForUri,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
+  selectTitleForUri,
 } from 'redux/selectors/claims';
 import {
   selectContentPositionForUri,
@@ -20,7 +21,7 @@ import {
 } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
-import { clearPosition } from 'redux/actions/content';
+import { clearPosition, doClearPlayingUri } from 'redux/actions/content';
 import { selectIsSearching } from 'redux/selectors/search';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
@@ -36,7 +37,7 @@ import {
   doClearShortsPlaylist,
 } from 'redux/actions/shorts';
 import { doClaimSearch, doResolveUri } from 'redux/actions/claims';
-import { toggleAutoplayNextShort, doSetClientSetting } from 'redux/actions/settings';
+import { toggleAutoplayNextShort } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent } from 'redux/actions/search';
 import { doOpenModal } from 'redux/actions/app';
 
@@ -140,6 +141,9 @@ const select = (state, props) => {
     currentIndex,
     channelId,
     channelName: claim?.signing_channel?.name,
+    channelDisplayName: channelUri
+      ? selectTitleForUri(state, channelUri) || claim?.signing_channel?.name
+      : claim?.signing_channel?.name,
     isSearchingRecommendations: selectIsSearching(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     viewMode: selectShortsViewMode(state),
@@ -148,7 +152,6 @@ const select = (state, props) => {
     thumbnail,
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
     disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
-    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isClaimShort: isClaimShort(claim),
     claimId,
     webShareable: true,
@@ -160,6 +163,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   clearPosition: (uri) => dispatch(clearPosition(uri)),
+  doClearPlayingUri: () => dispatch(doClearPlayingUri()),
   doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
   doFetchShortsRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),
@@ -178,7 +182,6 @@ const perform = (dispatch) => ({
     );
   },
   doFileGetForUri: (uri) => dispatch(doFileGetForUri(uri)),
-  doSetClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
   doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),

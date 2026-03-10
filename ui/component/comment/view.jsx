@@ -195,6 +195,14 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   const [page, setPage] = useState(showRepliesOnMount ? 1 : 0);
   const [advancedEditor] = usePersistedState('comment-editor-mode', false);
   const [displayDeadComment, setDisplayDeadComment] = React.useState(forceDisplayDeadComment);
+
+  // Expand replies when linked comment ancestors arrive after mount (e.g. notification navigation)
+  React.useEffect(() => {
+    if (isInLinkedCommentChain) {
+      setShowReplies(true);
+      setPage((prev) => prev || 1);
+    }
+  }, [isInLinkedCommentChain]);
   const likesCount = (othersReacts && othersReacts.like) || 0;
   const dislikesCount = (othersReacts && othersReacts.dislike) || 0;
   const totalLikesAndDislikes = likesCount + dislikesCount;

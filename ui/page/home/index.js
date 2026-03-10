@@ -10,6 +10,7 @@ import {
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import * as COLLECTIONS from 'constants/collections';
 import {
   selectShowMatureContent,
   selectHomepageData,
@@ -17,6 +18,9 @@ import {
   selectHomepageMeme,
   selectHomepageCustomBanners,
 } from 'redux/selectors/settings';
+import { selectCountForCollectionId, selectUrlsForCollectionIdNonDeleted } from 'redux/selectors/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { selectPrefsReady } from 'redux/selectors/sync';
 
 import HomePage from './view';
 
@@ -29,15 +33,20 @@ const select = (state) => ({
   homepageMeme: selectHomepageMeme(state),
   homepageFetched: selectHomepageFetched(state),
   fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
+  hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
   livestreamViewersById: selectViewersById(state),
   homepageCustomBanners: selectHomepageCustomBanners(state),
+  prefsReady: selectPrefsReady(state),
+  watchLaterRawCount: selectCountForCollectionId(state, COLLECTIONS.WATCH_LATER_ID),
+  watchLaterUris: selectUrlsForCollectionIdNonDeleted(state, COLLECTIONS.WATCH_LATER_ID),
 });
 
 const perform = (dispatch) => ({
   doFetchAllActiveLivestreamsForQuery: () => dispatch(doFetchAllActiveLivestreamsForQuery()),
+  doFetchItemsInCollection: (params) => dispatch(doFetchItemsInCollection(params)),
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 

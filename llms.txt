@@ -1,0 +1,1195 @@
+# Odysee Platform Technical Reference (`llms.txt`)
+
+This file is a contributor-focused, source-verified technical map of Odysee web/mobile/TV integrations.
+
+Scope:
+- Main source of truth: `odysee-frontend`.
+- Supporting repos: `odysee-api`, `commentron`, `odysee-roku`, `odysee-ios`.
+- `Odysee Internal APIs` (private/internal repository): included at integration-contract level.
+
+## Verification Snapshot (February 17, 2026)
+
+Validated against these revisions:
+- `odysee-frontend`: current source snapshot.
+- `odysee-api`: branch `fix-lbc-ar`, commit `3d7fbbe`.
+- `commentron`: branch `master`, commit `762c2a1`.
+- `Odysee Internal APIs` (private/internal repository).
+- `odysee-ios`: branch `master`, commit `d812527`.
+- `odysee-roku`: branch `latest-version`, commit `3afa8e5`.
+
+Important:
+- Roku details below are from `odysee-roku/tree/latest-version` (not default branch).
+- Odysee Internal APIs details are integration-oriented and endpoint-family level.
+
+---
+
+## 1. High-Level Architecture
+
+```text
+                        +---------------------------------------+
+                        | Odysee Clients (web/TV/mobile/native) |
+                        | React/Redux web + Roku + iOS patterns |
+                        +-------------------+-------------------+
+                                            |
+                     +----------------------+----------------------+
+                     |                                             |
+                     v                                             v
+        +----------------------------+               +----------------------------+
+        |         odysee-api         |               |       api.odysee.com       |
+        | /api/v1/proxy, /publish,   |               | login, follows, notices,   |
+        | /asynqueries, /status       |               | sync, reactions, membership|
+        +--------------+-------------+               +--------------+-------------+
+                       |                                            |
+                 lbry-sdk daemon                             app/social/account data
+                       |
+                       v
+               LBRY blockchain
+
+                  Client-side service calls (direct from apps):
+  +------------------------------+--------------------------------------------+
+  | comments/chat                | `https://comments.odysee.tv/api/v2`      |
+  |                              | `wss://sockety.odysee.tv/ws/commentron`  |
+  +------------------------------+--------------------------------------------+
+  | search (primary)             | `https://lighthouse.odysee.tv/search`    |
+  | search (alternate)           | `https://recsys.odysee.tv/search`        |
+  | recsys/fyp + telemetry       | `https://recsys.odysee.tv/v1/...`        |
+  +------------------------------+--------------------------------------------+
+  | playback CDN                 | `https://player.odycdn.com`              |
+  | thumbnail CDN                | `https://thumbnails.odycdn.com/optimize` |
+  +------------------------------+--------------------------------------------+
+  | livestream API               | `https://api.odysee.live`                |
+  | watchman telemetry           | `https://watchman.na-backend.odysee.com` |
+  +------------------------------+--------------------------------------------+
+```
+
+---
+
+## 2. Repository Responsibilities
+
+### `odysee-frontend` (primary source of truth)
+- UI, routing, playback behavior, publish flow wiring, comments/chat wiring.
+- Koa web server in `web/index.js` and routes in `web/src/routes.js`.
+- SDK proxy client in `ui/lbry.js`.
+- Internal API client wrapper in `extras/lbryinc/lbryio.js`.
+
+### `odysee-api`
+- Go service that fronts SDK calls and upload pipelines.
+- Exposes `/api/v1/proxy`, `/api/v2/publish` (TUS), `/api/v1/asynqueries`, `/api/v2/status`, `/api/v2/whoami`.
+
+### `commentron` (public)
+- Public comments/moderation/reaction/settings service used by Odysee clients.
+- Exposes JSON-RPC at `/api`, `/api/v1`, `/api/v2`, plus websocket subscribe at `/api/v2/live-chat/subscribe`.
+- Source: `https://github.com/OdyseeTeam/commentron`.
+
+### `odysee-roku` (`latest-version`)
+- TV reference implementation with current device-flow auth, search, playback, chat, sync, and progress reporting patterns.
+
+### `odysee-ios`
+- Native iOS app using the same backend families (SDK proxy + internal APIs + comments).
+- Useful for auth-token lifecycle, sync loop, and deep-link behavior.
+
+### `Odysee Internal APIs` (private/internal repository)
+- Login/account/follow/notification/sync/reaction/membership ecosystems behind `api.odysee.com`.
+- Documented as endpoint families and observed client integration behavior.
+
+---
+
+## 3. Blockchain and Claim Nuances
+
+### Core claim model
+From frontend typed models (`flow-typed/Claim.js`):
+- Claim types:
+  - `stream` (video/audio/image/document/software)
+  - `channel` (identity, starts with `@`)
+  - `collection` (playlist-like claim list)
+- Common fields:
+  - `claim_id` (40 hex chars)
+  - `name`, `normalized_name`
+  - `canonical_url`, `short_url`, `permanent_url`
+  - `meta.effective_amount`, `meta.support_amount`, trending metrics
+  - optional `signing_channel`, `reposted_claim`
+
+### URI syntax
+From `ui/util/lbryURI.js`:
+- Protocol: `lbry://`.
+- Modifiers/separators supported:
+  - claim id: `#` (legacy) and `:` usage in web paths
+  - sequence: `*`
+  - bid position: `$`
+- Invalid-char enforcement via regex.
+- Claim-id max length enforced as `40`.
+
+### Wallet-scoped vs relaxed SDK methods
+From `odysee-api/app/query/const.go`:
+- Relaxed methods include `resolve`, `claim_search`, `get`, `comment_list`, etc.
+- Most wallet-mutating methods require authenticated wallet context.
+
+### Livestream as no-source claim
+Used in frontend and clients:
+- Livestream claims are detected via `has_no_source: true` in `claim_search`.
+
+---
+
+## 4. Endpoint and Service Map
+
+### Core service bases
+- SDK proxy/API: `https://api.na-backend.odysee.com`
+- Internal APIs: `https://api.odysee.com`
+- Comments: `https://comments.odysee.tv/api/v2`
+- Search (primary): `https://lighthouse.odysee.tv/search`
+- Search/recommendation alt: `https://recsys.odysee.tv/search`
+- Recsys telemetry: `https://recsys.odysee.tv/v1/lvv`
+- Recsys FYP: `https://recsys.odysee.tv/v1/u`
+- Livestream API: `https://api.odysee.live`
+  - `POST /livestream/is_live`
+  - `POST /livestream/all`
+  - `GET /replays/list` (signed query)
+  - `GET /streams/kill?app=live&...` (signed query)
+- Player CDN: `https://player.odycdn.com`
+- Thumbnails CDN: `https://thumbnails.odycdn.com/optimize/`
+- Socket server: `wss://sockety.odysee.tv/ws`
+
+---
+
+## 5. Auth and Identity Model
+
+Three token forms appear across clients:
+
+### 1) OAuth Bearer token
+- Header: `Authorization: Bearer <token>`
+- Common in newer flows (odysee-api middleware, Roku device flow, iOS account calls).
+
+### 2) Legacy auth token
+- Header: `X-Lbry-Auth-Token: <token>` for SDK proxy style calls.
+- Query/body `auth_token=<token>` for many internal API routes in web legacy client wrappers.
+
+### 3) Device-flow tokens (TV)
+- Roku uses Keycloak device flow via SSO realm endpoints.
+- Exchanges device code for access + refresh tokens.
+
+`odysee-api` explicitly supports both Bearer and legacy token fallback.
+
+---
+
+## 6. `odysee-frontend` Deep Dive
+
+## 6.1 Runtime and Build
+
+Key scripts (`package.json`):
+- Web dev: `yarn dev:web`
+- Electron dev: `yarn dev:electron`
+- Web compile: `yarn compile:web`
+- Production compile: `yarn compile`
+
+Environment defaults (`.env.defaults`) define service topology and feature flags.
+
+## 6.2 Web server is Koa (not Express)
+
+Current server stack:
+- `web/index.js`: Koa + middleware + static serving.
+- Route definitions: `web/src/routes.js`.
+
+Dynamic/static order:
+- Controlled by `DYNAMIC_ROUTES_FIRST`.
+- If true: dynamic routes first, then static.
+- Else (default): static first, then dynamic.
+
+## 6.3 Koa Route Surface
+
+Key routes from `web/src/routes.js`:
+- `/$/minVersion/v1/get`
+- `/$/api/content/v1/get`
+- `/$/api/content/v2/get`
+- `/$/llms.txt`
+- `/$/download/:claimName/:claimId`
+- `/$/stream/:claimName/:claimId`
+- `/$/activate` -> redirects to `https://sso.odysee.com/auth/realms/Users/device`
+- `/$/rss/:claimName/:claimId`
+- `/$/oembed`
+- `/$/spinner`
+- `/$/frame` (POST)
+- `/.well-known/farcaster.json`
+
+Content APIs (`/$/api/content/v1|get`):
+- Return custom homepage payload only when `CUSTOM_HOMEPAGE=true`.
+
+## 6.4 SDK Proxy Client Behavior (`ui/lbry.js`)
+
+Base behavior:
+- Calls `${PROXY_URL}?m=<method>` (JSON-RPC 2.0).
+
+Caching optimization:
+- For `resolve` and `claim_search`, auth header is stripped when auth-only options are absent.
+- This is triggered via internal `NO_AUTH` flag.
+
+Failure protection:
+- `ApiFailureMgr` tracks repeated failures for listed methods (`claim_search`).
+- If >5 rapid failures (<500ms window), matching call key is dropped for 60s.
+
+Claim-search payload guardrails:
+- `not_channel_ids` and `claim_ids` arrays are capped to 2047 items client-side.
+
+## 6.5 Publishing Flow (v4 async path)
+
+Frontend upload orchestrator:
+- `web/setup/publish-v4.js`
+- `web/setup/publish-v4-tasks.js`
+
+Flow:
+1. `POST /api/v1/asynqueries/uploads/` (or `/urls/`) with `X-Lbry-Auth-Token`
+2. Receive `{status:"upload_token_created", payload:{token, location}}`
+3. Upload data to `location` with Bearer token (TUS or URL-start)
+4. `POST /api/v1/asynqueries/` with JSON-RPC `stream_create` or `stream_update`
+5. Poll `GET /api/v1/asynqueries/{id}`
+   - `204` pending
+   - `200` complete (SDK-style result or error payload)
+   - `404` unknown query id
+
+Upload details:
+- TUS chunk size: `50MB`
+- Uses `Authorization: Bearer <upload_token>`
+
+## 6.6 Comments and Moderation
+
+Comments client (`ui/comments.js`) calls Commentron using:
+- Base: `COMMENT_SERVER_API` (default `https://comments.odysee.tv/api/v2`)
+- Method URL shape: `POST ${COMMENT_SERVER_API}?m=<service.Method>`
+- JSON-RPC body shape:
+  - `{"jsonrpc":"2.0","id":1,"method":"comment.List","params":{...}}`
+  - Method value in body is canonical; `?m=` mirrors method name used by client routing/logging patterns.
+
+Commentron route/version surface (`commentron/server/server.go`):
+- `/api` and `/api/v1`: legacy/v1 comment service (`comment.*`, `server.*`).
+- `/api/v2`: expanded service surface:
+  - `comment.*`, `reaction.*`, `moderation.*`, `setting.*`, `verify.*`, `blockedlist.*`, `appeals.*`, `channel.*`.
+- `/api/v2/live-chat/subscribe`: websocket subscription endpoint (query param `subscription_id`).
+
+Frontend method families in active use:
+- Comments: `comment.List`, `comment.ByID`, `comment.Create`, `comment.Edit`, `comment.Abandon`, `comment.Pin`, `comment.SuperChatList`
+- Reactions: `reaction.List`, `reaction.React`
+- Moderation: `moderation.Block`, `moderation.UnBlock`, `moderation.BlockedList`, `moderation.AddDelegate`, `moderation.RemoveDelegate`, `moderation.ListDelegates`, `moderation.AmI`
+- Settings: `setting.List`, `setting.Get`, `setting.Update`, `setting.BlockWord`, `setting.UnBlockWord`, `setting.ListBlockedWords`
+- Signature verification: `verify.ClaimSignature`
+
+Common auth/signature payload fields (from `commentapi/auth.go`):
+- Standard signed auth: `channel_name`, `channel_id`, `signature`, `signing_ts`
+- Moderator auth: `mod_channel_name`, `mod_channel_id`, optional delegated `creator_channel_name`, `creator_channel_id`, plus signature fields.
+
+High-value argument details (from `commentapi` structs):
+- `comment.List`: `claim_id` or `author_claim_id` is required; supports `parent_id`, `page`, `page_size`, `sort_by`, `top_level`, `hidden`, `is_protected`, optional requestor channel fields.
+- `comment.Create`/`Edit`: signed payload; create supports `parent_id`, `mentioned_channels`, `is_protected`, optional support/payment fields.
+- `reaction.List`: `comment_ids` CSV (validated max 50 IDs/request).
+- `reaction.React`: `comment_ids`, `type` (`like`/`dislike` etc), `clear_types`, `remove`.
+
+Legacy compatibility nuance:
+- v1 JSON codec maps old SDK-style names (`get_claim_comments`, `create_comment`, `abandon_comment`, etc.) to modern dotted methods (`comment.List`, `comment.Create`, `comment.Abandon`).
+
+Comment signing nuance:
+- Frontend signs content with `channel_sign` before creating/editing comments.
+- Signature + timestamp are sent to comment server.
+
+## 6.7 WebSockets (Realtime)
+
+From `ui/redux/actions/websocket.js`:
+- Notifications: `${SOCKETY_SERVER_API}/internal?id=<authToken>`
+- Live comment/viewer stream:
+  - `${SOCKETY_SERVER_API}/commentron?id=<claimId>&category=<channelName>&sub_category=viewer`
+  - commenter mode uses `sub_category=commenter`
+- Expected live event types consumed by frontend: `delta`, `viewers`, `pinned`, `removed`, `setting`, `livestream`
+
+Nuance:
+- Protected-content comment sockets may transform claim-id for URL routing.
+- `viewers` socket messages update `livestream.viewersById` by claim id.
+- `livestream` socket messages trigger a fresh per-channel `is_live` lookup.
+
+## 6.8 Search and Recommendations
+
+Search path (`ui/redux/actions/search.js`):
+- Primary search via Lighthouse endpoint.
+- Recommendation search can use alternate search endpoint.
+- Search backend implementation (Lighthouse/indexing service) is maintained in separate service repositories; client integrations should rely on the HTTP contract below rather than backend internals.
+
+Frontend integration contract (how odysee.com frontend uses Lighthouse):
+- Endpoint:
+  - Primary: `GET ${SEARCH_SERVER_API}?<queryString>`
+  - Related/recommendation mode: `GET ${SEARCH_SERVER_API_ALT}?<queryString>`
+- Query string is built by `getSearchQueryString` (`ui/util/query-params.js`) and always includes:
+  - `s` (search string), `size`, `from`
+- Common optional params added by frontend include:
+  - `claimType`, `mediaType`, `sort_by`, `time_filter`, `min_duration`, `max_duration`
+  - `nsfw`, `free_only`, `language`, `related_to`
+  - `exclude_shorts`, `exclude_shorts_duration_lte`, `exclude_shorts_aspect_ratio_lte`
+  - FYP/recommendation context: `gid`, `uuid`
+- User context can be appended by frontend as `user_id` and `uid` (`setSearchUserId` in `ui/redux/actions/search.js`).
+- Response handling used by frontend:
+  - Expects HTTP 200 JSON array body where items include at least `name` and `claimId` for URI reconstruction.
+  - Reads headers `x-powered-by` and `x-uuid` (see `ui/util/handle-fetch.js`) for recommendation metadata.
+- Hydration step:
+  - Frontend resolves Lighthouse results via SDK-backed calls (`resolve`/`claim_search`) before rendering full claim data.
+
+- FYP endpoints:
+  - `GET /v1/u/{userId}/fyp`
+  - `POST /v1/u/{userId}/fyp/{gid}/mark`
+  - `POST /v1/u/{userId}/fyp/{gid}/c/{claimId}/ignore`
+
+Recommendation telemetry path:
+- `extras/recsys/recsys.js` posts event payloads to `RECSYS_ENDPOINT` (`/v1/lvv`) with auth header.
+
+## 6.9 Livestream Integration
+
+### Transport contract (`ui/livestream.js`)
+- Base URL: `${LIVESTREAM_SERVER_API}` (default `https://api.odysee.live`).
+- Path shape: `${LIVESTREAM_SERVER_API}/{resource}/{action}`.
+- Default method: `POST` with `Content-Type: application/x-www-form-urlencoded`.
+- `GET` mode is also supported for query-driven calls.
+- Object params are JSON-stringified before query/body encoding.
+- Wrapper expects JSON responses containing top-level `data`, and returns `response.data`.
+
+### Live status endpoints used by web client
+From `ui/redux/actions/livestream.js`:
+- `POST /livestream/is_live`
+  - Params: `channel_claim_id`.
+  - Used by `doFetchChannelIsLiveForId`.
+- `POST /livestream/all`
+  - Used by `doFetchAllActiveLivestreamsForQuery`.
+
+Client-side request guards:
+- Prevent duplicate `is_live` requests for the same channel while one is in flight.
+- Prevent duplicate `all` requests for the same serialized query while one is in flight.
+
+### Active livestream reconciliation (API + SDK)
+`doFetchAllActiveLivestreamsForQuery` performs a two-step merge:
+1. Fetch active livestreams from `api.odysee.live` (`/livestream/all`).
+2. Normalize by channel id via `transformNewLivestreamData`.
+3. Resolve/filter against SDK claims using `claim_search` with:
+   - `has_no_source: true`
+   - `claim_type: ["stream"]`
+   - `claim_ids` from active livestream payload
+   - optional `any_languages`
+4. Keep only channels whose active claim survives current query filters.
+
+### Polling and throttling behavior
+- Global active-stream fetch throttle:
+  - `FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS = 5 * 60 * 1000`.
+- Skip logic inside throttle window:
+  - Skip after success (`failCount === 0`).
+  - Skip after repeated failures (`failCount >= 3`).
+- Per-channel status polling (`withLiveStatus`):
+  - Default interval: `45s`
+  - Faster interval: `15s`
+- Polling is skipped when livestream websocket is connected for the claim context.
+
+### Replay listing used by publish/update flows
+Used by:
+- `ui/component/publish/livestream/livestreamForm/view.jsx`
+- `ui/component/publish/upload/publishFile/view.jsx`
+
+Endpoint:
+- `GET /replays/list`
+
+Required signed query params:
+- `channel_claim_id`
+- `channel_name` (URL-encoded)
+- `signature`
+- `signature_ts`
+
+Signing source:
+- `Lbry.channel_sign` over hex-encoded channel name (`toHex(channelName)`).
+
+Frontend filtering/parsing:
+- Accept replay rows where `Status` is `inprogress` or `ready`.
+- Convert `Duration` from nanoseconds to seconds for display.
+
+### Stream reset endpoint
+Used by `killStream` (`ui/util/livestream.js`) and reset UI (`ui/component/claimPreviewReset/view.jsx`):
+- `GET /streams/kill?app=live&channel_claim_id=...&channel_name=...&signature_ts=...&signature=...`
+- Signature generation uses `Lbry.channel_sign` over hex-encoded channel name.
+- Frontend expects JSON with truthy `data`.
+
+### Ingest URLs exposed in setup UI
+From `ui/constants/livestream.js`:
+- `LIVESTREAM_RTMP_URL=rtmp://stream.odysee.com/live`
+- `NEW_LIVESTREAM_RTMP_URL=rtmp://publish.odysee.live/live`
+
+Current setup page uses `LIVESTREAM_RTMP_URL` when presenting stream server/key instructions.
+
+### Live playback binding
+- For no-source claims, `selectStreamingUrlForUri` returns `activeLivestreamForChannel.videoUrl`.
+- Video player uses that URL as HLS source for live playback.
+- For protected livestreams, player calls SDK `get` with:
+  - `uri` = active livestream URI
+  - `base_streaming_url` = active livestream `videoUrl`
+  - `environment`
+  - then uses returned `streaming_url`.
+
+### Response shape expected by frontend
+From `flow-typed/livestream.js`:
+- `LivestreamIsLiveResponse` fields:
+  - `Live`, `Start`, `VideoURL`, `ThumbnailURL`, `ViewerCount`, `ChannelClaimID`
+  - `ActiveClaim` (`ClaimID`, `CanonicalURL`, `ReleaseTime`, `Protected`)
+  - `PastClaims`, `FutureClaims`
+- `ReplayListResponse` fields:
+  - `Status`, `PercentComplete`, `URL`, `ThumbnailURLs`, `Duration`, `Created`
+
+## 6.10 Playback URL Logic
+
+From `web/src/fetchStreamUrl.js`:
+- Preferred: SDK `get` result `streaming_url`.
+- Direct fallback pattern:
+  - `${PLAYER_SERVER}/api/v3/streams/free/{name}/{claim_id}`
+  - when source info exists, include `/{sd_hash_prefix}.{ext}` suffix.
+
+## 6.11 Redux State Shape
+
+Top-level reducers (`ui/reducers.js`):
+- `router`, `app`, `blacklist`, `filtered`, `claims`, `comments`, `content`, `fileInfo`,
+  `livestream`, `notifications`, `publish`, `reactions`, `rewards`, `search`, `settings`,
+  `stats`, `subscriptions`, `tags`, `blocked`, `coinSwap`, `user`, `memberships`,
+  `arwallet`, `wallet`, `sync`, `collections`, `shorts`.
+
+## 6.12 Internal API wrapper in frontend
+
+`extras/lbryinc/lbryio.js` behavior:
+- Base is configurable (default historically `https://api.lbry.com/` in wrapper).
+- Adds `auth_token` to query/body for internal API calls.
+- Handles first-run token generation via `user/new` + install-id semantics.
+
+Operational note:
+- External contributors should re-validate internal endpoint behavior against current client code.
+
+## 6.13 Environment Defaults of Interest
+
+From `.env.defaults`:
+- `LBRY_WEB_API=https://api.na-backend.odysee.com`
+- `LBRY_API_URL=https://api.odysee.com`
+- `COMMENT_SERVER_API=https://comments.odysee.tv/api/v2`
+- `LIVESTREAM_SERVER_API=https://api.odysee.live`
+- `SEARCH_SERVER_API=https://lighthouse.odysee.tv/search`
+- `SEARCH_SERVER_API_ALT=https://recsys.odysee.tv/search`
+- `SOCKETY_SERVER_API=wss://sockety.odysee.tv/ws`
+- `RECSYS_ENDPOINT=https://recsys.odysee.tv/v1/lvv`
+- `RECSYS_FYP_ENDPOINT=https://recsys.odysee.tv/v1/u`
+- `PLAYER_SERVER=https://player.odycdn.com`
+- `THUMBNAIL_CDN_URL=https://thumbnails.odycdn.com/optimize/`
+- `WEB_PUBLISH_SIZE_LIMIT_GB=4`
+- `CHANNEL_CREATION_LIMIT=5`
+- `CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS=4`
+
+---
+
+## 7. `odysee-api` Deep Dive
+
+## 7.1 Route Surface
+
+From `api/routes.go`:
+
+### `/api/v1`
+- `/proxy` (JSON-RPC proxy; publish matcher + generic proxy)
+- `/metric/ui`
+- `/paid/pubkey`
+- `/asynqueries/...` (installed by launcher)
+
+### `/api/v2`
+- `/status`
+- `/whoami`
+- `/publish/` (TUS upload endpoints)
+
+### `/api/v3`
+- `/publish` only if `EnableV3Publish=true`
+
+### Internal/admin
+- `/internal/metrics` (+ optional pprof)
+- `/admin/v1/...`
+
+## 7.2 Runtime Defaults
+
+From `cmd/serve.go` + config:
+- Starts with `EnableV3Publish: false`.
+- Bind default: `:8080` (`LW` env prefix in config).
+
+Server behavior (`server/server.go`):
+- `Server` header set to `api.odysee.com`.
+- Default headers include permissive CORS headers.
+- `WriteTimeout=0`, `IdleTimeout=0`, `ReadHeaderTimeout=10s`.
+
+## 7.3 Auth and Wallet Context
+
+Auth middleware chain supports:
+- OAuth Bearer (`Authorization`)
+- Legacy token (`X-Lbry-Auth-Token`)
+
+Proxy behavior (`app/proxy/proxy.go` + query package):
+- Enforces wallet-required methods.
+- Injects wallet_id for wallet-scoped calls when authenticated.
+- Chooses assigned SDK server or random fallback.
+- Supports cached queries via cache middleware.
+
+## 7.4 SDK Router Behavior
+
+From `app/sdkrouter/sdkrouter.go`:
+- `RPCTimeout = 420s`
+- DB server list reload every `30s`
+- Load polling every `2m`
+- Maintains least-loaded non-private server selection
+
+## 7.5 Publish Paths
+
+### Legacy proxy publish path
+- `publish.Handler` can fetch remote file URLs with retry/timeouts before forwarding SDK publish.
+
+### TUS path (`/api/v2/publish`)
+- Handles POST/HEAD/PATCH/DELETE + `/notify`.
+
+### Async query path (`/api/v1/asynqueries`)
+From `app/asynquery/routes.go` and handlers:
+- `GET /asynqueries/auth/pubkey`
+- `POST /asynqueries/uploads/` or `/urls/`
+- `POST /asynqueries/` create SDK async job
+- `GET /asynqueries/{id}` query status/result
+
+Default upload service URL fallback:
+- `https://uploads-v4.na-backend.odysee.com/v1/`
+
+Status payload constants:
+- `upload_token_created`
+- `query_created`
+
+Status polling HTTP behavior in handler:
+- `204` for pending
+- `200` for complete (including SDK error payload shape)
+- `404` for not found/not owned
+
+## 7.6 Status Endpoints
+
+From `internal/status/status.go`:
+- `/api/v2/status`
+  - resolves fixed test claim (`what#19b9c243...`) against SDK
+  - reports `general_state` and service status
+  - includes assigned server when user context exists
+- `/api/v2/whoami`
+  - echoes detected/remote IP and request headers
+  - excludes `Authorization`, `X-Lbry-Auth-Token`, `Cookie`
+
+---
+
+## 8. Odysee Internal APIs (`api.odysee.com`)
+
+The Odysee Internal APIs repository includes these main endpoint families:
+
+### Identity and user
+- `/user/new`, `/user/me`, `/user/signin`, `/user/signup`, `/user/signout`
+- email/password/profile/locale/country helpers
+
+### Following/subscriptions
+- `/subscription/new`, `/subscription/list`, `/subscription/delete`, `/subscription/sub_count`
+
+### Notifications
+- `/notification/*`
+- `/notification_settings/*`
+
+### Reactions and engagement
+- `/reaction/list`, `/reaction/react`
+- watch/activity endpoints including `/file/view`, `/file/view_count`, `/file/last_positions`
+
+### Sync and linking
+- `/sync/get`, `/sync/set`
+- `/link/user`, `/link/activate`
+
+### Livestream support
+- `/live_stream/new`, `/live_stream/viewers`, `/live_stream/viewers_by_channel`
+
+Runtime note:
+- Web client livestream status/replay/reset flows are primarily driven by `https://api.odysee.live` endpoints documented in section `6.9`.
+
+### Memberships
+- `/membership/*`, `/membership_v2/*`
+
+Guidance:
+- Treat this surface as an internal API contract used by official clients; validate behavior against current clients before shipping.
+
+---
+
+## 9. Roku App Reference (`latest-version`)
+
+Validated from:
+- Repo: `OdyseeTeam/odysee-roku`
+- Branch: `latest-version`
+- Version: `1.6.0` (from manifest)
+
+Architecture: Roku SceneGraph (BrightScript). Single-scene app (`HomeScene`) orchestrating task nodes for all network operations. Centralized HTTP helpers in `http.brs` with retry, redirect-following, and cookie persistence.
+
+## 9.1 Runtime constants and hot-config
+
+`getConstants.brs` fetches `appConstants.json` from GitHub at runtime:
+- Source: `https://raw.githubusercontent.com/OdyseeTeam/odysee-roku/latest-version/appConstants.json`
+- Falls back to hardcoded defaults if any key is missing.
+- This means TV behavior can change with constants updates even without an app binary update.
+
+## 9.2 Complete constants (`appConstants.json`)
+
+| Key | Value | Purpose |
+|---|---|---|
+| `QUERY_API` | `https://api.na-backend.odysee.com` | SDK proxy (claim_search, resolve, get) |
+| `ROOT_API` | `https://api.odysee.com` | Internal API (user, reactions, sync, subscriptions) |
+| `ROOT_SDK` | `https://api.na-backend.odysee.com` | SDK for wallet/sync operations |
+| `ROOT_SSO` | `https://sso.odysee.com` | Keycloak SSO (device flow auth) |
+| `SSO_CLIENT` | `odysee-roku` | OAuth client ID |
+| `SSO_ACT_URL` | `activate.odysee.com` | User-facing activation URL shown on screen |
+| `LIGHTHOUSE_API` | `https://lighthouse.odysee.tv/search` | Primary full-text search |
+| `LIGHTHOUSE_ALT` | `https://recsys.odysee.tv/search` | Alternate search endpoint |
+| `COMMENT_API` | `https://comments.odysee.tv/api/v2` | Comment server (JSON-RPC) |
+| `CHAT_API` | `ws://sockety.odysee.tv/ws` | WebSocket for live chat |
+| `VIDEO_API` | `https://player.odycdn.com` | Video streaming CDN |
+| `WATCHMAN` | `https://watchman.na-backend.odysee.com` | Playback telemetry |
+| `LIVE_API` | `https://api.live.odysee.com/v1/odysee/live` | Legacy livestream status |
+| `NEW_LIVE_API` | `https://api.odysee.live/livestream` | Current livestream API |
+| `LIVE_REPLAY_API` | `https://api.live.odysee.com/v1/replays/odysee` | Livestream replays |
+| `FRONTPAGE_URL` | `https://odysee.com/$/api/content/v2/get?format=roku` | Homepage categories (TV format) |
+| `IMAGE_PROCESSOR` | `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/` | Thumbnail optimization |
+| `CHANNEL_ICON_PROCESSOR` | `https://thumbnails.odycdn.com/optimize/s:100:0/quality:95/plain/` | Channel icon optimization |
+| `ACCESS_HEADERS` | `{User-Agent, origin, referer, ...}` | Default HTTP headers for API calls |
+| `KNOWN_MAX_THREADS` | `{"3930X": 5}` | Device-specific thread limits |
+| `EMERG_DISABLE` | `{"accounts": false}` | Emergency feature kill switches |
+
+## 9.3 Auth flow (device flow + legacy fallback)
+
+From `authTask.brs`. State machine with phases:
+
+| Phase | Description |
+|---|---|
+| 0 | Legacy auth token validation via `ROOT_API/user` |
+| 1 | Initiate SSO device code flow |
+| 1.4 | Post-logout token re-initialization |
+| 1.5 | SSO denial handling |
+| 2 | Poll for device code authorization |
+| 3 | Active token management and refresh |
+| 4 | Forced logout |
+| 10 | User-initiated logout |
+
+SSO endpoints (all under `ROOT_SSO`):
+- Device code request: `/auth/realms/Users/protocol/openid-connect/auth/device`
+- Token exchange/refresh: `/auth/realms/Users/protocol/openid-connect/token`
+- User info validation: `/auth/realms/Users/protocol/openid-connect/userinfo`
+- Token revocation: `/auth/realms/Users/protocol/openid-connect/revoke`
+
+Token storage:
+- Access token + expiration timestamp in `deviceFlowData` registry.
+- Refresh token with separate expiration tracking.
+- Legacy `auth_token` retained as fallback for endpoints not yet migrated to Bearer.
+- `checkRefresh()` compares current Unix time against expiration; auto-refreshes or validates via userinfo.
+
+## 9.4 Content discovery
+
+### Homepage flow
+1. `getChannelIDs.brs` fetches `FRONTPAGE_URL` -> receives category list with channel IDs per category.
+2. Selecting a category triggers `getSinglePage.brs` which:
+   - Optionally merges live content via `liveUtils.brs` (prepended to VOD).
+   - Paginates `claim_search` for category channels.
+   - Parses items with `parseVideo()` from `parseLib.brs`.
+   - Emits `ContentNode` grid (rows of 4 items).
+3. Live content refreshes every 5 minutes in background (`refreshAllLive()`).
+
+### Feed `claim_search` parameters
+From `parseLib.brs` `getVideoPage()`:
+- `claim_type: ["stream"]`, `stream_types: ["video"]`, `has_source: true`
+- `order_by: ["release_time"]` (most categories) or `["trending_group", "trending_mixed"]` (WildWest)
+- `limit_claims_per_channel: 5` (most categories) or no limit (Favorites)
+- `not_channel_ids`: user-blocked + category-excluded channels (max 2048)
+- `release_time: <current_timestamp` (exclude future/scheduled)
+- `fee_amount: "<=0"` (free content only)
+- Favorites category: filters to 6-month window
+- Retry logic: up to 5 retries on failure
+
+Note:
+- The extensive `not_tags` NSFW exclusion list is used in the video search hydrator (`getVideoSearch.brs`), not in the category feed query in `parseLib.brs`.
+
+### `parseVideo()` output fields
+- `Title`, `Creator` (channel title/name), `Channel` (channel claim ID)
+- `ChannelIcon` (thumbnail URL through `CHANNEL_ICON_PROCESSOR`)
+- `videoLength` (formatted MM:SS / HH:MM:SS / DD:HH:MM:SS)
+- `guid` (claim id), `url` (permanent URL), `ReleaseDate` (formatted date)
+- Filters out non-MP4 media types and items missing `value.source`
+
+### Text search
+Two-stage pipeline:
+1. Lighthouse query: `GET LIGHTHOUSE_API?s=<query>&size=48&from=0&claimType=file&nsfw=false&free_only=true`
+2. Hydrate results: `claim_search` with returned claim IDs for full metadata
+
+### Channel search
+Same Lighthouse first-stage but with `claimType=channel`, then:
+- `claim_search` for channel metadata
+- `GET ROOT_API/subscription/sub_count?claim_id=<id1>,<id2>,...` for follower counts (supports both Bearer and auth_token)
+- Formats counts with K/M/B/T suffixes
+
+## 9.5 Resolve and playback
+
+From `resolveLBRYURL.brs`:
+1. `POST QUERY_API/api/v1/proxy?m=get` with claim URI -> extracts `streaming_url`
+2. `POST QUERY_API/api/v1/proxy?m=resolve` with claim URI -> extracts metadata (txid, nout, claim_id, duration)
+3. Optionally records view: `POST ROOT_API/file/view` with outpoint, claim_id, timestamp (Bearer or auth_token auth)
+4. Resolves HTTP redirects via HEAD request to get final URL
+5. URI-encodes path components while preserving protocol scheme
+6. Detects format: `m3u8` -> HLS, else -> MP4
+7. Returns: `{ videourl, videotype, playtype, title, length }`
+
+### Playback features (from `HomeScene.brs`)
+- Dual scrubbing modes: hold-to-scrub (accelerating) and progress bar direct control
+- Scrub amounts scale by content duration:
+  - Short (<5min): 10s/20s/30s steps
+  - Medium (5-30min): 1%/2%/3% per hold level
+  - Long (>30min): 2%/5%/10% per hold level
+- Playback rate: 1.0x to 3.0x
+- Resume position persistence via `historyRegistry` (the code also initializes a separate `resumePoints` section via `m.resumeRegistry`)
+- Safe seek with duration validation and firmware timing stabilization
+
+## 9.6 Livestream handling
+
+From `liveUtils.brs` and live task files:
+- `GET NEW_LIVE_API/all` -> fetches all active livestreams with viewer counts
+- Per-channel: `getLivestream(channelClaimId)` -> checks NEW_LIVE_API for single channel, then hydrates via `claim_search`
+- Batch processing: `getLivestreamsBatch()` resolves multiple live claim IDs by chunking into groups of 50 and issuing one `claim_search` per chunk.
+- `getLiveDataFromCIDS(channelIds)` -> filters active streams to specific channels, sorts by viewer count descending
+- `getLivestreamChannelList(excludedIds)` -> trending live (max 8, with exclusions)
+- Live rows prepended to VOD content in category grids
+- `parseLiveData()` output includes: viewer count (K/M formatted), "started X ago" timestamp, chat category from canonical URL
+
+## 9.7 Sync, preferences, follow/unfollow
+
+### Sync loop (`syncLoop.brs`)
+- Runs periodically with concurrency guard (`syncRunning` flag)
+- Flow:
+  1. Validate access token, fetch user via `ROOT_API/user/me`
+  2. Get SDK hash via `sync_hash` method on `ROOT_SDK`
+  3. Get production hash via `GET ROOT_API/sync/get`
+  4. If hashes differ: `sync_apply` with wallet data payload
+  5. Post updated state: `POST ROOT_API/sync/set` with old/new hashes
+  6. Update component properties (`inSync`, `preferencesChanged`, `walletData`, `oldHash`)
+
+### Preferences (`setpreferencesTask.brs`)
+- Supports `append` and `remove` operations for following/blocked lists
+- Full sync chain:
+  1. `preference_get` from SDK (current state)
+  2. `getBulkPageData()` resolves claim IDs into channel objects (paginated, max 48 per page, up to 2047 total)
+  3. Apply changes to following/blocked arrays
+  4. `preference_set` on SDK
+  5. `sync_apply` on SDK
+  6. `POST ROOT_API/sync/set` to persist
+- Pre-notification for follows: `POST ROOT_API/subscription/new` (with claim_id + channel_name)
+- Pre-notification for unfollows: `POST ROOT_API/subscription/delete`
+
+### Reactions (`setreactionTask.brs`)
+- Actions: `like`, `dislike`, `negate` (removes both)
+- Endpoint: `POST ROOT_API/reaction/react` with Bearer token auth
+- Like also clears dislike; dislike also clears like; negate makes two calls
+
+## 9.8 Telemetry and progress
+
+### Watchman playback reports (`watchman.brs`)
+- `POST WATCHMAN/reports/playback`
+- JSON payload:
+  ```json
+  {
+    "rebuf_count": 0,
+    "rebuf_duration": 0,
+    "url": "stream_url",
+    "device": "stb",
+    "duration": 5000,
+    "protocol": "hls|mp4",
+    "player": "<resolved player id>",
+    "user_id": "user_id",
+    "position": 120,
+    "rel_position": 45
+  }
+  ```
+- `rel_position` = percentage through content (0-100)
+- Success indicated by HTTP 201
+
+### View progress (`viewProgress.brs`)
+- `POST ROOT_API/file/view` with URL-encoded body: `uri`, `claim_id`, `last_timestamp`, optional `outpoint`
+- Auth: Bearer token preferred, auth_token in body as fallback
+
+## 9.9 App state and persistence
+
+From `HomeScene.brs`:
+- Roku registry sections: `authData`, `deviceFlowData`, `preferences`, `searchHistory`, `watchHistory`, plus `resumePoints` (initialized via `m.resumeRegistry`)
+- Deep linking: launch params from Scene interface (`contentId`, `mediaType`) route to content without user interaction
+- Task concurrency: `m.maxThreads` is set to 50, while category/task orchestration is handled through tracked task arrays in `HomeScene`
+- Content prefetch triggers when user approaches grid end
+- WebSocket chat integration for live comments (regex filtering for non-ASCII, markdown image parsing)
+- Control bar adapts for logged-in vs logged-out (hides social features when anonymous)
+
+## 9.10 HTTP patterns (`http.brs`)
+
+All network calls use centralized helpers:
+- `postJSON()` / `getJSON()` / `postURLEncoded()` / `getURLEncoded()`
+- Authenticated variants: `getJSONAuthenticated()` / `getRawTextAuthenticated()` (with custom headers param)
+- Retry: max 5 attempts with exponential backoff (250ms -> 2000ms cap)
+- Redirect: follows 3xx up to 5 hops, handles relative redirect URLs
+- Timeout: 30 seconds on all async operations
+- Cookie persistence: stored to `m.top.cookies` on successful responses
+- TLS: uses system certificate bundle
+- `resolveRedirect()`: single HEAD request with one-hop redirect resolution helper
+- `urlExists()`: HEAD-only check (max 3 retries)
+
+---
+
+## 10. iOS App Reference
+
+Validated from `odysee-ios` (`master` @ `d812527`).
+
+## 10.1 Endpoint usage
+
+From `Odysee/Utils/Lbry.swift` and `Lbryio.swift`:
+- SDK proxy: `https://api.na-backend.odysee.com/api/v1/proxy`
+- Comments: `https://comments.odysee.tv/api/v2`
+- Internal APIs: `https://api.odysee.com`
+- Internal websocket bases are also defined for notifications/chat compatibility.
+
+## 10.2 Typed method sets
+
+From `Odysee/Utils/Methods.swift`:
+- Backend methods include:
+  - `resolve`, `claim_search`, `claim_list`
+  - `channel_sign`
+  - `transaction_list`, `txo_list`
+  - `sync_hash`, `sync_apply`, `preference_get`, `preference_set`
+- Account methods include:
+  - `user/new`, `user/signout`, `sync/get`, `sync/set`
+
+## 10.3 Auth-token lifecycle
+
+From `Models/AuthToken.swift`:
+- Token is loaded from keychain, else generated via `user/new` using installation ID.
+- Stored in keychain keyed by internal API host.
+
+## 10.4 Init flow
+
+From `Controllers/InitViewController.swift`:
+- Ensures installation ID exists.
+- Ensures auth token.
+- Loads exchange rate and categories.
+- Fetches current user and registers install.
+
+## 10.5 Wallet sync loop
+
+From `ViewModels/Wallet.swift`:
+- Pull sync loop every 5 minutes with retry on errors.
+- Uses `sync_hash` / `sync_apply` + `sync/get` / `sync/set`.
+- Maintains shared preferences (`following`, blocked list, default channel).
+
+## 10.6 Dynamic categories and deep-links
+
+- Category source: `https://odysee.com/$/api/content/v2/get` (`ContentSources.swift`).
+- Deep links handled for universal links and `lbry://`-style URIs (`SceneDelegate.swift`).
+
+## 10.7 Livestream chat
+
+From `FileViewController.swift`:
+- Connects websocket to live-chat subscription endpoint.
+- Consumes delta comment events.
+
+---
+
+## 11. TV App Blueprint (Google/Apple/LG/PlayStation)
+
+Use Roku as the primary TV reference implementation. The patterns below are proven in production.
+
+## 11.1 Boot and config
+1. Fetch remote constants/config at startup (Roku fetches from GitHub; you could use any CDN).
+2. Apply hardcoded defaults for every key so the app works offline or if fetch fails.
+3. Required service bases: `QUERY_API` (SDK proxy), `ROOT_API` (internal), `ROOT_SSO` (auth), `VIDEO_API` (CDN), `LIGHTHOUSE_API` (search), `NEW_LIVE_API` (livestream), `COMMENT_API`, `CHAT_API` (WebSocket), `WATCHMAN` (telemetry).
+4. Set appropriate `User-Agent`, `origin`, and `referer` headers (see Roku's `ACCESS_HEADERS`).
+
+## 11.2 Authentication
+1. Implement OAuth 2.0 Device Code Flow against Keycloak SSO:
+   - `POST ROOT_SSO/auth/realms/Users/protocol/openid-connect/auth/device` with `client_id=<your-app-id>`
+   - Display `verification_uri_complete` or `verification_uri` + `user_code` on screen
+   - Poll `POST ROOT_SSO/auth/realms/Users/protocol/openid-connect/token` with `grant_type=urn:ietf:params:oauth:grant-type:device_code`
+   - Store access_token, refresh_token, and expiration timestamps securely
+2. Token refresh: compare current time against expiration, call token endpoint with `grant_type=refresh_token`.
+3. Token validation: `GET ROOT_SSO/auth/realms/Users/protocol/openid-connect/userinfo` with Bearer header.
+4. Logout: `POST ROOT_SSO/auth/realms/Users/protocol/openid-connect/revoke` to revoke tokens.
+5. Legacy fallback: some `ROOT_API` endpoints still accept `auth_token` param; keep this path if needed.
+
+## 11.3 Home/feed and search
+1. Homepage categories: `GET FRONTPAGE_URL` (use `?format=roku` suffix for TV-optimized payload) -> returns category list with channel IDs per category.
+2. Category content: `POST QUERY_API/api/v1/proxy?m=claim_search` with:
+   - `claim_type: ["stream"]`, `stream_types: ["video"]`, `has_source: true`
+   - `channel_ids: [...]` (from category), `not_channel_ids: [...]` (user blocks + exclusions, max 2048)
+   - `order_by: ["release_time"]` (most categories) or `["trending_group", "trending_mixed"]` (trending)
+   - `limit_claims_per_channel: 5`, `page_size: 36`, `fee_amount: "<=0"`
+3. NSFW exclusion tags (`not_tags`) are applied in Roku's search hydration path (`getVideoSearch.brs`), not in the base category feed query.
+4. Merge live content: fetch `GET NEW_LIVE_API/all`, batch-resolve via `claim_search`, prepend to VOD grid.
+5. Text search: `GET LIGHTHOUSE_API?s=<query>&size=48&claimType=file&nsfw=false&free_only=true` -> claim IDs -> hydrate via `claim_search`.
+6. Channel search: same Lighthouse with `claimType=channel`, then `GET ROOT_API/subscription/sub_count?claim_id=<ids>` for follower counts.
+
+## 11.4 Resolve and playback
+1. `POST QUERY_API/api/v1/proxy?m=get` with claim URI -> extract `streaming_url`.
+2. `POST QUERY_API/api/v1/proxy?m=resolve` with claim URI -> extract metadata (title, duration, txid, nout, claim_id).
+3. Follow HTTP redirects on streaming_url to get final URL.
+4. Detect format from final URL: contains `m3u8` -> HLS, otherwise -> MP4.
+5. Record view: `POST ROOT_API/file/view` with `outpoint` (txid:nout), `claim_id`, timestamp.
+6. Resume position: persist last position per claim locally; restore on replay.
+7. Scrubbing: scale seek amounts by content duration (short/medium/long).
+
+## 11.5 Sync and preferences
+1. `POST QUERY_API/api/v1/proxy?m=sync_hash` -> get SDK wallet hash.
+2. `GET ROOT_API/sync/get` -> get production hash.
+3. If hashes differ: `POST QUERY_API/api/v1/proxy?m=sync_apply` with wallet data.
+4. `POST ROOT_API/sync/set` with old_hash + new_hash to persist.
+5. For preference changes (follow/block):
+   - `POST QUERY_API/api/v1/proxy?m=preference_set` with updated following/blocked arrays
+   - `POST QUERY_API/api/v1/proxy?m=sync_apply`
+   - `POST ROOT_API/sync/set`
+   - Pre-notify: `POST ROOT_API/subscription/new` or `/subscription/delete`
+
+## 11.6 Reactions
+- Like: `POST ROOT_API/reaction/react` with `claim_ids`, `type=like`, `clear_types=dislike` + Bearer auth.
+- Dislike: same with `type=dislike`, `clear_types=like`.
+- Remove: two calls to clear both.
+
+## 11.7 Live chat and viewers
+1. Connect WebSocket to `CHAT_API/commentron?id=<claimId>&category=<channelName>&sub_category=viewer`.
+2. Handle message types: `delta` (new comments), `viewers` (count updates), pin/remove/settings/livestream events.
+3. For commenter mode (sending messages): use `sub_category=commenter`.
+
+## 11.8 Telemetry
+1. Watchman: `POST WATCHMAN/reports/playback` with JSON `{rebuf_count, rebuf_duration, url, device, duration, protocol, player, user_id, position, rel_position}`. Expect 201 on success.
+2. View progress: `POST ROOT_API/file/view` with `uri`, `claim_id`, `last_timestamp`, optional `outpoint`.
+3. Recommendation telemetry (optional): `POST RECSYS_ENDPOINT` with playback event data if FYP parity needed.
+
+## 11.9 HTTP best practices (from Roku production patterns)
+- Retry on 5xx/timeouts with exponential backoff (250ms -> 2s cap, max 5 retries).
+- Follow 3xx redirects (max 5 hops).
+- 30-second timeout on all network operations.
+- Persist cookies across requests within a session.
+- Strip auth header for cacheable anonymous requests (resolve, claim_search without wallet).
+
+---
+
+## 12. API Call Patterns
+
+### 12.1 SDK `claim_search`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "claim_search",
+  "params": {
+    "claim_type": ["stream"],
+    "stream_types": ["video"],
+    "has_source": true,
+    "page": 1,
+    "page_size": 20,
+    "order_by": ["release_time"],
+    "no_totals": true
+  },
+  "id": 1
+}
+```
+
+### 12.2 SDK `resolve`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "resolve",
+  "params": {
+    "urls": ["lbry://@channel:claimid/video:claimid"]
+  },
+  "id": 1
+}
+```
+
+### 12.3 Async publish status polling
+
+```http
+GET /api/v1/asynqueries/{query_id}
+```
+
+Interpretation in web client:
+- `204`: pending
+- `200`: done (success or SDK error payload)
+- `404`: missing query
+
+### 12.4 Livestream status (`api.odysee.live`)
+
+```http
+POST /livestream/is_live
+Content-Type: application/x-www-form-urlencoded
+
+channel_claim_id=<channelClaimId>
+```
+
+```http
+POST /livestream/all
+Content-Type: application/x-www-form-urlencoded
+```
+
+Notes:
+- Responses are expected to contain top-level `data`.
+- `all` returns an array of active-status entries; `is_live` returns a single status object.
+
+### 12.5 Livestream replay list (`api.odysee.live`)
+
+```http
+GET /replays/list?channel_claim_id=<id>&channel_name=<urlEncodedName>&signature=<sig>&signature_ts=<ts>
+```
+
+Response parsing in frontend:
+- Expects `json.data` array of replay rows.
+- Uses `Status` to include only `inprogress` / `ready` rows in replay picker.
+
+### 12.6 Livestream kill/reset (`api.odysee.live`)
+
+```http
+GET /streams/kill?app=live&channel_claim_id=<id>&channel_name=<urlEncodedName>&signature_ts=<ts>&signature=<sig>
+```
+
+Response parsing in frontend:
+- Expects truthy `json.data`; otherwise treated as failure.
+
+---
+
+## 13. Reliability and Edge Cases
+
+- Do not send auth header for cacheable anonymous `resolve`/`claim_search` requests unless needed.
+- Keep `claim_ids` / `not_channel_ids` list sizes bounded (2047 guard used in frontend).
+- Treat async publish polling as state machine, not single-shot response.
+- For Roku-like clients, expect constants to change remotely; code defensively.
+- Separate viewer/commenter websocket channels when supporting live comments.
+- Sync pipelines can race with preference updates; serialize sync mutations.
+- Handle `DYNAMIC_ROUTES_FIRST` differences if testing web-server behavior locally.
+
+---
+
+## 14. Security and Disclosure Guidance
+
+- For Odysee Internal APIs, document endpoint-family contracts and avoid including secrets or sensitive schema internals.
+- Treat endpoint families as stable contracts only when confirmed in public client behavior.
+- Never log raw auth tokens in production diagnostics.
+
+---
+
+## 15. Contributor Checklist
+
+Before shipping new integration code:
+1. Validate against current `odysee-frontend` behavior first.
+2. Confirm SDK proxy method auth requirements.
+3. Validate search + resolve + playback chain on real claims.
+4. Validate follow/block sync cycle across restart.
+5. Validate live chat websocket reconnect logic.
+6. Validate progress and playback telemetry submissions.
+7. Ensure auth tokens/secrets are not leaked in logs/docs.
+
+---
+
+## 16. Primary Code References
+
+### `odysee-frontend`
+- `web/index.js`
+- `web/src/routes.js`
+- `web/src/fetchStreamUrl.js`
+- `web/setup/publish-v4.js`
+- `web/setup/publish-v4-tasks.js`
+- `ui/lbry.js`
+- `ui/comments.js`
+- `ui/redux/actions/comments.js`
+- `ui/redux/actions/websocket.js`
+- `ui/redux/actions/livestream.js`
+- `ui/livestream.js`
+- `ui/constants/livestream.js`
+- `ui/util/livestream.js`
+- `ui/hocs/withLiveStatus/view.jsx`
+- `ui/redux/selectors/livestream.js`
+- `ui/redux/selectors/file_info.js`
+- `ui/component/viewers/videoViewer/internal/videojs.jsx`
+- `ui/component/publish/livestream/livestreamForm/view.jsx`
+- `ui/component/publish/upload/publishFile/view.jsx`
+- `ui/reducers.js`
+- `ui/constants/pages.js`
+- `ui/util/lbryURI.js`
+- `flow-typed/livestream.js`
+- `config.js`
+- `.env.defaults`
+
+### `odysee-api`
+- `api/routes.go`
+- `cmd/serve.go`
+- `server/server.go`
+- `app/proxy/proxy.go`
+- `app/query/const.go`
+- `app/query/query.go`
+- `app/auth/middleware.go`
+- `app/sdkrouter/sdkrouter.go`
+- `app/asynquery/routes.go`
+- `app/asynquery/http_handlers.go`
+- `internal/status/status.go`
+- `apps/lbrytv/config/config.go`
+
+### `commentron`
+- `server/server.go`
+- `server/services/v1/comments/service.go`
+- `server/services/v1/rpc/json/server.go`
+- `server/services/v2/moderation/service.go`
+- `server/services/v2/reactions/service.go`
+- `server/services/v2/settings/service.go`
+- `server/services/v2/verify/service.go`
+- `server/websocket/websocket.go`
+- `commentapi/client.go`
+- `commentapi/comment.go`
+- `commentapi/moderation.go`
+- `commentapi/reaction.go`
+- `commentapi/setting.go`
+- `commentapi/auth.go`
+
+### `odysee-roku` (`latest-version`)
+- `appConstants.json` - Runtime constants (all endpoints, headers, feature flags)
+- `MVP-Roku/manifest` - App metadata (v1.6.0, FHD resolution)
+- `MVP-Roku/source/main.brs` - Entry point, globals setup, scene creation
+- `MVP-Roku/components/HomeScene.brs` - Main scene: UI, state, tasks, playback, deep links
+- `MVP-Roku/components/navigationHelpers.brs` - Focus and navigation management
+- `MVP-Roku/components/generic/network/http.brs` - Centralized HTTP helpers (retry, redirect, cookies)
+- `MVP-Roku/components/generic/utility/parseLib.brs` - Claim parsing, feed page construction
+- `MVP-Roku/components/generic/utility/liveUtils.brs` - Livestream fetch, batch resolve, merge
+- `MVP-Roku/components/generic/utility/preferenceLib.brs` - Preference retrieval from SDK
+- `MVP-Roku/components/tasks/getConstants.brs` - Remote constants loader with fallbacks
+- `MVP-Roku/components/tasks/authTask.brs` - Device flow auth state machine
+- `MVP-Roku/components/tasks/getChannelIDs.brs` - Homepage category builder
+- `MVP-Roku/components/tasks/getSinglePage.brs` - Category page assembly with live merge
+- `MVP-Roku/components/tasks/getVideoSearch.brs` - Lighthouse -> claim_search pipeline
+- `MVP-Roku/components/tasks/getChannelSearch.brs` - Channel search + follower counts
+- `MVP-Roku/components/tasks/resolveLBRYURL.brs` - Resolve + get -> streaming URL
+- `MVP-Roku/components/tasks/getCategoryLive.brs` - Per-category live content
+- `MVP-Roku/components/tasks/getAllLiveItems.brs` - All active livestreams
+- `MVP-Roku/components/tasks/getSingleLivestream.brs` - Single channel live check
+- `MVP-Roku/components/tasks/getFollowedChannels.brs` - Followed channel list (recent/all)
+- `MVP-Roku/components/tasks/watchman.brs` - Playback telemetry
+- `MVP-Roku/components/tasks/viewProgress.brs` - View progress reporting
+- `MVP-Roku/components/tasks/device-flow/syncLoop.brs` - Wallet/preference sync
+- `MVP-Roku/components/tasks/device-flow/setpreferencesTask.brs` - Follow/block mutations
+- `MVP-Roku/components/tasks/device-flow/setreactionTask.brs` - Like/dislike/negate
+- `MVP-Roku/components/tasks/device-flow/getpreferencesTask.brs` - Preference retrieval
+- `MVP-Roku/components/tasks/device-flow/getreactionTask.brs` - Reaction state retrieval
+- `AGENTS.md` - Comprehensive contributor guide for the Roku codebase
+
+### `odysee-ios`
+- `Odysee/Utils/Lbry.swift`
+- `Odysee/Utils/Lbryio.swift`
+- `Odysee/Utils/Methods.swift`
+- `Odysee/Models/AuthToken.swift`
+- `Odysee/Controllers/InitViewController.swift`
+- `Odysee/ViewModels/Wallet.swift`
+- `Odysee/Utils/ContentSources.swift`
+- `Odysee/SceneDelegate.swift`
+- `Odysee/Controllers/Content/FileViewController.swift`
+
+---
+
+## 17. Repository URLs
+
+- Frontend: `https://github.com/OdyseeTeam/odysee-frontend`
+- API: `https://github.com/OdyseeTeam/odysee-api`
+- Commentron: `https://github.com/OdyseeTeam/commentron`
+- Roku (`latest-version` branch): `https://github.com/OdyseeTeam/odysee-roku/tree/latest-version`
+- iOS: `https://github.com/OdyseeTeam/odysee-ios`

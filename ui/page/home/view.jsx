@@ -8,9 +8,11 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
+import * as COLLECTIONS from 'constants/collections';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
+import ClaimList from 'component/claimList';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
@@ -55,8 +57,10 @@ type Props = {
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
   homepageCustomBanners: Array<CustomBanners>,
+  prefsReady: boolean,
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
+  doFetchItemsInCollection: (params: { collectionId: string, pageSize?: number }) => Promise<any>,
   fetchingActiveLivestreams: boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
@@ -64,7 +68,10 @@ type Props = {
   currentTheme: string,
   activeLivestreamByCreatorId: LivestreamByCreatorId,
   livestreamViewersById: LivestreamViewersById,
+  hideLivestreams: boolean,
   getActiveLivestreamUrisForIds: (Array<string>) => Array<string>,
+  watchLaterRawCount: ?number,
+  watchLaterUris: ?Array<string>,
 };
 
 function HomePage(props: Props) {
@@ -76,13 +83,18 @@ function HomePage(props: Props) {
     homepageData,
     homepageMeme,
     homepageCustomBanners,
+    prefsReady,
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
+    doFetchItemsInCollection,
     fetchingActiveLivestreams,
     homepageOrder,
     doOpenModal,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
+    hideLivestreams,
+    watchLaterRawCount,
+    watchLaterUris,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
@@ -124,6 +136,20 @@ function HomePage(props: Props) {
     subscribedChannelIds,
   ]);
 
+  const showWatchLaterSectionRef = React.useRef();
+  if (showWatchLaterSectionRef.current === undefined) {
+    if ((watchLaterRawCount || 0) > 0) {
+      showWatchLaterSectionRef.current = true;
+    } else if (prefsReady) {
+      showWatchLaterSectionRef.current = false;
+    }
+  }
+  const showWatchLaterSection = showWatchLaterSectionRef.current === true;
+  const visibleSortedRowData: Array<RowDataItem> = React.useMemo(
+    () => sortedRowData.filter((row: RowDataItem) => row.id !== 'WATCH_LATER' || showWatchLaterSection),
+    [showWatchLaterSection, sortedRowData]
+  );
+
   type Cache = {
     topGrid: number,
     hasBanner: boolean,
@@ -135,7 +161,7 @@ function HomePage(props: Props) {
   const cache: Cache = React.useMemo(() => {
     const cache = { topGrid: -1, hasBanner: true };
     if (homepageFetched) {
-      sortedRowData.forEach((row: RowDataItem, index: number) => {
+      visibleSortedRowData.forEach((row: RowDataItem, index: number) => {
         // -- Find index of first row with a title if not already:
         if (cache.topGrid === -1 && Boolean(row.title) && row.id !== 'UPCOMING') {
           cache.topGrid = index;
@@ -143,18 +169,29 @@ function HomePage(props: Props) {
         // -- Find livestreams related to the category:
         const rowChannelIds = row.options?.channelIds;
         const rowExcludedChannelIds = row.options?.excludedChannelIds;
+
+        const isFollowing = row.id === 'FOLLOWING';
+        const hideLivestreamsInCategories = hideLivestreams && !isFollowing;
+
         cache[row.id] = {
-          livestreamUris:
-            row.id === 'FOLLOWING'
-              ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv)
-              : rowChannelIds
-              ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv)
-              : null,
+          livestreamUris: hideLivestreamsInCategories
+            ? null
+            : isFollowing
+            ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv)
+            : rowChannelIds
+            ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv)
+            : null,
         };
       });
     }
     return cache;
-  }, [homepageFetched, sortedRowData, subscribedChannelIds, al, lv]);
+  }, [homepageFetched, visibleSortedRowData, subscribedChannelIds, al, lv, hideLivestreams]);
+
+  const hasWatchLaterSection = React.useMemo(
+    () => sortedRowData.some((row: RowDataItem) => row.id === 'WATCH_LATER'),
+    [sortedRowData]
+  );
+  const hasFetchedWatchLaterItemsRef = React.useRef(false);
 
   type SectionHeaderProps = {
     title: string,
@@ -226,20 +263,32 @@ function HomePage(props: Props) {
       return title === 'Recent From Following' ? 'Following' : title;
     }
 
-    const claimTiles = (
-      <ClaimTilesDiscover
-        {...options}
-        showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
-        hideMembersOnly={id !== 'FOLLOWING'}
-        hasSource
-        prefixUris={cache[id].livestreamUris}
-        pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        forceShowReposts={id !== 'FOLLOWING'}
-        loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
-        fetchViewCount
-        sectionTitle={title}
-      />
-    );
+    const claimTiles =
+      id === 'WATCH_LATER' ? (
+        watchLaterUris === undefined ? (
+          tilePlaceholder
+        ) : (
+          <ClaimList
+            uris={watchLaterUris}
+            tileLayout
+            maxClaimRender={options.pageSize || 8}
+            showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+          />
+        )
+      ) : (
+        <ClaimTilesDiscover
+          {...options}
+          showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+          hideMembersOnly={id !== 'FOLLOWING'}
+          hasSource
+          prefixUris={cache[id].livestreamUris}
+          pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
+          forceShowReposts={id !== 'FOLLOWING'}
+          loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
+          fetchViewCount
+          sectionTitle={title}
+        />
+      );
 
     const HeaderArea = () => {
       return (
@@ -249,7 +298,7 @@ function HomePage(props: Props) {
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
               {(index === cache.topGrid ||
-                (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
+                (index && index - 1 === cache.topGrid && visibleSortedRowData[cache.topGrid].id === 'UPCOMING')) && (
                 <CustomizeHomepage />
               )}
             </div>
@@ -296,9 +345,16 @@ function HomePage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
+  React.useEffect(() => {
+    if (authenticated && hasWatchLaterSection && !hasFetchedWatchLaterItemsRef.current) {
+      hasFetchedWatchLaterItemsRef.current = true;
+      doFetchItemsInCollection({ collectionId: COLLECTIONS.WATCH_LATER_ID });
+    }
+  }, [authenticated, doFetchItemsInCollection, hasWatchLaterSection]);
+
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      {sortedRowData.length === 0 && authenticated && homepageFetched && (
+      {visibleSortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
           <Yrbl
             alwaysShow
@@ -323,7 +379,7 @@ function HomePage(props: Props) {
         )}
 
       {homepageFetched &&
-        sortedRowData.map(
+        visibleSortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
             const bannerForPosition =

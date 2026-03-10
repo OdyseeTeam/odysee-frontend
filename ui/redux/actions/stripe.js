@@ -8,6 +8,7 @@ import {
   selectAccountStatusFetching,
 } from 'redux/selectors/stripe';
 import { doToast } from 'redux/actions/notifications';
+import { LocalStorage } from 'util/storage';
 
 import * as ACTIONS from 'constants/action_types';
 import * as STRIPE from 'constants/stripe';
@@ -281,6 +282,13 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
       return;
     }
 
+    if (e.message === 'address already exists for another user') {
+      LocalStorage.setItem('AR_ADDRESS_IN_USE', 'true');
+      dispatch({ type: ACTIONS.AR_ADDR_REGISTER_ERROR, data: e.message });
+      dispatch({ type: ACTIONS.ARCONNECT_FAILURE, data: { error: e.message } });
+      throw e;
+    }
+
     dispatch(
       doOpenModal(MODALS.ERROR, {
         error: e.message || e,
@@ -292,6 +300,7 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
 };
 
 export const doRegisterArweaveAddressClear = () => (dispatch: Dispatch) => {
+  LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
 };
 

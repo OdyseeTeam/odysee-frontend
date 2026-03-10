@@ -9,16 +9,26 @@ import {
   selectScheduledStateForUri,
   makeSelectTagInClaimOrChannelForUri,
   selectIsUriUnlisted,
+  selectPermanentUrlForUri,
+  selectChannelForClaimUri,
+  selectChannelTitleForUri,
 } from 'redux/selectors/claims';
-import { DISABLE_SLIMES_VIDEO_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
+import {
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+} from 'constants/tags';
 import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
-
   const { claim_id: claimId } = claim || {};
+  const channelUrl = uri ? selectChannelForClaimUri(state, uri, true) : undefined;
 
   return {
     myReaction: selectMyReactionForUri(state, uri),
@@ -31,9 +41,16 @@ const select = (state, props) => {
     disableSlimes:
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state),
+    disableReactions:
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state),
     isUnlisted: selectIsUriUnlisted(state, uri),
     webShareable: true,
     collectionId: props.collectionId,
+    channelUrl,
+    isSubscribed: channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false,
+    channelPermanentUrl: channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined,
+    channelTitle: channelUrl ? selectChannelTitleForUri(state, channelUrl) : undefined,
   };
 };
 
@@ -42,6 +59,8 @@ const perform = {
   doReactionLike,
   doReactionDislike,
   doOpenModal,
+  doChannelSubscribe,
+  doChannelUnsubscribe,
 };
 
 export default connect(select, perform)(ShortsActions);

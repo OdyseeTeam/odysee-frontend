@@ -29,6 +29,7 @@ type Props = {
   doResolveUri: (string) => void,
   tileLayout: boolean,
   discoverDataNew: ?Array<string>,
+  hideLivestreams: boolean,
 };
 
 function DiscoverPage(props: Props) {
@@ -40,6 +41,7 @@ function DiscoverPage(props: Props) {
     tileLayout,
     dynamicRouteProps,
     discoverDataNew,
+    hideLivestreams,
   } = props;
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
@@ -92,7 +94,7 @@ function DiscoverPage(props: Props) {
   }
 
   function getSubSection() {
-    const includeLivestreams = !tagsQuery;
+    const includeLivestreams = !tagsQuery && !hideLivestreams;
     if (includeLivestreams && (isWildWest || (channelIds && channelIds.length > 0))) {
       return (
         <LivestreamSection

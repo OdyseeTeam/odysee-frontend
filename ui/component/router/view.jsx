@@ -28,6 +28,7 @@ const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkNa
 const CareersITProjectManagerPage = lazyImport(() =>
   import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
 );
+const ContributePage = lazyImport(() => import('web/page/contribute' /* webpackChunkName: "contribute" */));
 const SeniorBackendEngineerPage = lazyImport(() =>
   import('web/page/careers/seniorBackendEngineer' /* webpackChunkName: "seniorBackendEngineer" */)
 );
@@ -400,6 +401,8 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
         <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}`} exact component={ContributePage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}/:id`} exact component={ContributePage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} exact component={SeniorBackendEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SOFTWARE_SECURITY_ENGINEER}`} exact component={SoftwareSecurityEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_ANDROID_DEVELOPER}`} exact component={SeniorAndroidDeveloperPage} />

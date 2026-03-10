@@ -78,7 +78,7 @@
     justify-content: space-between;
 
     &:hover {
-      overflow-y: auto;
+      overflow-y: scroll;
     }
   }
 
@@ -117,11 +117,8 @@
 .navigation--push {
   transform: translateX(0);
 
-  @media (min-width: $breakpoint-medium) {
-    &:hover {
-      overflow-y: auto;
-      width: calc(var(--side-nav-width) + 6px);
-    }
+  &:not(.navigation--micro) {
+    overflow-y: scroll;
   }
 }
 

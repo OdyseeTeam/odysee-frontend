@@ -8,7 +8,8 @@ import { NO_FILE, PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
-import { doCheckPendingClaims } from 'redux/actions/claims';
+import { doCheckPendingClaims, doResolveClaimIds } from 'redux/actions/claims';
+import { lighthouse } from 'redux/actions/search';
 import { selectProtectedContentMembershipsForContentClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
@@ -16,11 +17,12 @@ import {
   selectMyActiveClaims,
   selectMyClaims,
   selectMyChannelClaims,
+  selectMyChannelClaimIds,
   selectReflectingById,
   makeSelectMetadataItemForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectDefaultChannelClaim } from 'redux/selectors/settings';
+import { selectDefaultChannelClaim, selectShowMatureContent } from 'redux/selectors/settings';
 import {
   selectPublishFormValue,
   selectPublishFormValues,
@@ -793,6 +795,360 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
     dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Copy from Previous Upload — search helper
+// ---------------------------------------------------------------------------
+
+const RECENT_PAGE_SIZE = 100;
+const SEARCH_PAGE_SIZE_PER_CHANNEL = 24;
+
+function sortClaimsByNewest(claims: Array<StreamClaim>): Array<StreamClaim> {
+  return [...claims].sort((a, b) => {
+    const aTime = Number(a?.value?.release_time || a?.meta?.creation_timestamp || 0);
+    const bTime = Number(b?.value?.release_time || b?.meta?.creation_timestamp || 0);
+    return bTime - aTime;
+  });
+}
+
+function extractStreamClaims(result: any): Array<StreamClaim> {
+  const items = (result && result.items) || [];
+  // $FlowFixMe `value_type` narrowing to StreamClaim is not fully modeled in this Flow version.
+  return items.filter((item) => item && item.value_type === 'stream');
+}
+
+function clientTitleFilter(claims: Array<StreamClaim>, term: string): Array<StreamClaim> {
+  const lower = term.toLowerCase();
+  return claims.filter((c) => (c?.value?.title || c?.name || '').toLowerCase().includes(lower));
+}
+
+function getLighthouseClaimId(item: any): ?string {
+  if (!item || typeof item !== 'object') return null;
+
+  const rawClaimId = item.claimId || item.claim_id || item.claimID || item.claimid || item.id;
+
+  if (!rawClaimId) return null;
+
+  const claimId = String(rawClaimId).trim();
+  return claimId || null;
+}
+
+async function hydrateClaimsInStore(dispatch: Dispatch, claims: Array<StreamClaim>): Promise<Array<StreamClaim>> {
+  if (!Array.isArray(claims) || claims.length === 0) return [];
+
+  const claimIds = [...new Set(claims.map((claim) => claim?.claim_id).filter(Boolean))];
+  if (claimIds.length === 0) return claims;
+
+  try {
+    const resolveInfo = await dispatch(doResolveClaimIds(claimIds, true));
+    if (!resolveInfo || typeof resolveInfo !== 'object') return claims;
+
+    const resolvedById: { [string]: StreamClaim } = {};
+    const resolveValues: Array<any> = Object.values(resolveInfo);
+    resolveValues.forEach((info) => {
+      const stream: ?StreamClaim = info && typeof info === 'object' ? info.stream : null;
+      if (stream && stream.claim_id && stream.value_type === 'stream') {
+        resolvedById[stream.claim_id] = stream;
+      }
+    });
+
+    return claims.map((claim) => resolvedById[claim.claim_id] || claim);
+  } catch {
+    // Keep the existing result set if hydration fails; modal search should not hard-fail here.
+    return claims;
+  }
+}
+
+/**
+ * Searches the current user's uploads.
+ *
+ * @param searchTerm - Text query
+ * @param filter - Optional visibility filter: 'all' (default) or 'unlisted'
+ *
+ * For 'all': short queries use claim_list; 3+ char queries use Lighthouse.
+ * For 'unlisted': uses claim_search with any_tags for the unlisted tag,
+ *   since Lighthouse does not index unlisted content.
+ */
+export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all') => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const term = searchTerm.trim();
+    const state = getState();
+    const showMature = selectShowMatureContent(state);
+    const myChannelIds = selectMyChannelClaimIds(state) || [];
+
+    // ── Unlisted filter: use claim_search with any_tags ──
+    if (filter === 'unlisted') {
+      const csParams: any = {
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        any_tags: [VISIBILITY_TAGS.UNLISTED],
+        claim_type: ['stream'],
+        order_by: ['release_time'],
+        remove_duplicates: true,
+      };
+      if (myChannelIds.length > 0) {
+        csParams.channel_ids = myChannelIds;
+      }
+      const result = await Lbry.claim_search(csParams);
+      const claims = await hydrateClaimsInStore(dispatch, sortClaimsByNewest(extractStreamClaims(result)));
+      return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
+    }
+
+    // ── Scheduled filter: use claim_search with scheduled tags ──
+    if (filter === 'scheduled') {
+      const csParams: any = {
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        // $FlowIgnore
+        any_tags: Object.values(SCHEDULED_TAGS),
+        claim_type: ['stream'],
+        order_by: ['release_time'],
+        remove_duplicates: true,
+      };
+      if (myChannelIds.length > 0) {
+        csParams.channel_ids = myChannelIds;
+      }
+      const result = await Lbry.claim_search(csParams);
+      const claims = await hydrateClaimsInStore(dispatch, sortClaimsByNewest(extractStreamClaims(result)));
+      return { claims: term.length > 0 ? clientTitleFilter(claims, term) : claims };
+    }
+
+    // ── All uploads: short / empty query → claim_list ──
+    if (term.length < 3) {
+      const result = await Lbry.claim_list({
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        resolve: true,
+        claim_type: ['stream'],
+      });
+      const claims = await hydrateClaimsInStore(dispatch, sortClaimsByNewest(extractStreamClaims(result)));
+      return { claims };
+    }
+
+    // ── All uploads: no channels → title-filtered recent ──
+    if (myChannelIds.length === 0) {
+      const result = await Lbry.claim_list({
+        page: 1,
+        page_size: RECENT_PAGE_SIZE,
+        resolve: true,
+        claim_type: ['stream'],
+      });
+      const claims = clientTitleFilter(sortClaimsByNewest(extractStreamClaims(result)), term);
+      const hydratedClaims = await hydrateClaimsInStore(dispatch, claims);
+      return { claims: hydratedClaims };
+    }
+
+    // ── All uploads: Lighthouse search across user's channels ──
+    const channelIdsCsv = myChannelIds.join(',');
+    const queryBase = `from=0&s=${encodeURIComponent(term)}&sort_by=release_time&nsfw=${
+      showMature ? 'true' : 'false'
+    }&size=${SEARCH_PAGE_SIZE_PER_CHANNEL}`;
+
+    const response = await lighthouse.search(`${queryBase}&channel_id=${encodeURIComponent(channelIdsCsv)}`);
+    const claimIds = [];
+    if (Array.isArray(response?.body)) {
+      response.body.forEach((item) => {
+        const claimId = getLighthouseClaimId(item);
+        if (claimId) claimIds.push(claimId);
+      });
+    }
+
+    const uniqueClaimIds = [...new Set(claimIds)];
+    const resolveInfo = uniqueClaimIds.length > 0 ? await dispatch(doResolveClaimIds(uniqueClaimIds, true)) : {};
+
+    const resolvedClaims: Array<StreamClaim> = [];
+    if (resolveInfo && typeof resolveInfo === 'object') {
+      const resolveValues: Array<any> = Object.values(resolveInfo);
+      resolveValues.forEach((info) => {
+        const stream: ?StreamClaim = info && typeof info === 'object' ? info.stream : null;
+        if (stream && stream.claim_id && stream.value_type === 'stream') resolvedClaims.push(stream);
+      });
+    }
+
+    return { claims: sortClaimsByNewest(resolvedClaims) };
+  };
+};
+
+/**
+ * Populates the publish form with metadata from a previously published claim.
+ * Unlike doPrepareEdit, this does NOT set editingURI/claimToEdit/name/claim_id,
+ * so the form stays in "new upload" mode.
+ *
+ * @param claim - The source claim to copy from
+ * @param fields - Array of field group keys to copy (e.g. ['title', 'description', 'tags', ...])
+ */
+export const doPopulatePublishFormFromClaim = (claim: StreamClaim, fields: Array<string>) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    if (!claim) return;
+
+    const { value = {} } = claim;
+    const {
+      description,
+      fee = { amount: 0, currency: 'LBC' },
+      languages,
+      license,
+      license_url: licenseUrl,
+      thumbnail,
+      title,
+      tags: claimTags,
+    } = value;
+
+    let state = getState();
+
+    const publishData: UpdatePublishState = {};
+    const fieldSet = new Set(fields);
+    const tags = claimTags || [];
+    const normalizedFee = {
+      amount: Number(fee.amount) || 0,
+      currency: fee.currency || 'LBC',
+    };
+
+    // -- Title
+    if (fieldSet.has('title')) {
+      publishData.title = title || '';
+    }
+
+    // -- Description
+    if (fieldSet.has('description')) {
+      publishData.description = description || '';
+    }
+
+    // -- Tags (filter out internal/system tags)
+    if (fieldSet.has('tags')) {
+      const filteredTags = tags.filter(
+        (tag) =>
+          tag !== VISIBILITY_TAGS.UNLISTED &&
+          tag !== VISIBILITY_TAGS.PRIVATE &&
+          tag !== SCHEDULED_TAGS.HIDE &&
+          tag !== SCHEDULED_TAGS.SHOW &&
+          tag !== MEMBERS_ONLY_CONTENT_TAG
+      );
+      publishData.tags = filteredTags.map((tag) => ({ name: tag }));
+      // Keep explicit to avoid stale NSFW state from previous form values.
+      publishData.nsfw = isClaimNsfw(claim);
+    }
+
+    // -- Thumbnail
+    if (fieldSet.has('thumbnail')) {
+      const thumbnailUrl = thumbnail?.url || '';
+      publishData.thumbnail = thumbnailUrl;
+      publishData.uploadThumbnailStatus = thumbnailUrl ? THUMBNAIL_STATUSES.MANUAL : THUMBNAIL_STATUSES.READY;
+    }
+
+    // -- Language
+    if (fieldSet.has('languages')) {
+      const normalizedLanguages = languages || [];
+      publishData.languages = normalizedLanguages;
+      publishData.language = normalizedLanguages[0] || '';
+    }
+
+    // -- License
+    if (fieldSet.has('license')) {
+      publishData.licenseType = NONE;
+      publishData.licenseUrl = '';
+      publishData.otherLicenseDescription = '';
+
+      if (license) {
+        const isStandardLicense = CC_LICENSES.some(({ value }) => value === license);
+
+        if (isStandardLicense) {
+          publishData.licenseType = license;
+        } else if (license === NONE || license === PUBLIC_DOMAIN) {
+          publishData.licenseType = license;
+        } else if (!licenseUrl) {
+          publishData.licenseType = COPYRIGHT;
+          publishData.otherLicenseDescription = license;
+        } else {
+          publishData.licenseType = OTHER;
+          publishData.otherLicenseDescription = license;
+        }
+
+        if (licenseUrl) {
+          publishData.licenseUrl = licenseUrl;
+        }
+      }
+    }
+
+    // -- Visibility
+    if (fieldSet.has('visibility')) {
+      if (tags.includes(VISIBILITY_TAGS.UNLISTED)) {
+        publishData.visibility = 'unlisted';
+      } else if (tags.includes(VISIBILITY_TAGS.PRIVATE)) {
+        publishData.visibility = 'private';
+      } else {
+        publishData.visibility = 'public';
+      }
+      // Don't copy scheduled visibility; scheduling is per-upload.
+
+      // Reset first to avoid stale restrictions from previous form values.
+      publishData.memberRestrictionOn = false;
+      publishData.memberRestrictionTierIds = [];
+    }
+
+    // -- Price / Paywall
+    if (fieldSet.has('price')) {
+      publishData.paywall = PAYWALL.FREE;
+      publishData.fiatPurchaseEnabled = false;
+      publishData.fiatRentalEnabled = false;
+
+      const rental = parseRentalTag(tags);
+      const purchasePrice = parsePurchaseTag(tags);
+
+      if (rental || purchasePrice) {
+        publishData.paywall = PAYWALL.FIAT;
+      } else if (normalizedFee.amount > 0) {
+        publishData.paywall = PAYWALL.SDK;
+        publishData.fee = normalizedFee;
+      } else {
+        publishData.paywall = PAYWALL.FREE;
+      }
+
+      if (rental) {
+        publishData.fiatRentalEnabled = true;
+        publishData.fiatRentalFee = {
+          amount: rental.price,
+          currency: 'USD',
+        };
+        publishData.fiatRentalExpiration = {
+          value: rental.expirationTimeInSeconds / TO_SECONDS['days'],
+          unit: 'days',
+        };
+      }
+
+      if (purchasePrice) {
+        publishData.fiatPurchaseEnabled = true;
+        publishData.fiatPurchaseFee = {
+          amount: purchasePrice,
+          currency: 'USD',
+        };
+      }
+    }
+
+    // -- Membership restrictions
+    if (fieldSet.has('visibility') && tags.includes(MEMBERS_ONLY_CONTENT_TAG)) {
+      const sourceChannelId = claim.signing_channel?.claim_id || null;
+      const targetChannelId = state.publish.channelId;
+
+      // Membership IDs are channel-specific. Copy only when source/destination channels match.
+      if (sourceChannelId && sourceChannelId === targetChannelId) {
+        let protectedMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claim.claim_id);
+
+        if (protectedMembershipIds === undefined) {
+          await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
+          state = getState();
+          protectedMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claim.claim_id);
+        }
+
+        if (protectedMembershipIds && protectedMembershipIds.length > 0) {
+          publishData.memberRestrictionOn = true;
+          publishData.memberRestrictionTierIds = protectedMembershipIds;
+        }
+      }
+    }
+
+    dispatch(doUpdatePublishForm(publishData));
   };
 };
 

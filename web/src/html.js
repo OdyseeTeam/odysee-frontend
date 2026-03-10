@@ -22,6 +22,7 @@ const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
 const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+const { resolveSlashUrl } = require('./resolveSlashUrl');
 const fs = require('fs');
 const PAGES = require('../../ui/constants/pages');
 const path = require('path');
@@ -663,16 +664,46 @@ async function getHtml(ctx) {
 
   if (!requestPath.includes('$')) {
     let parsedUri, claimUri;
+    let pathToUse = requestPath.slice(1);
 
     try {
-      parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
+      parsedUri = parseURI(normalizeClaimUrl(pathToUse));
       claimUri = buildURI({ ...parsedUri, startTime: undefined }, true);
     } catch (err) {
       ctx.status = 404;
       return err.message;
     }
 
-    const claim = await resolveClaimOrRedirect(ctx, claimUri);
+    // If the path has "/" without "@", parseURI drops the second segment
+    // (e.g., "Creator/video" → lbry://Creator). Try alternate interpretations first.
+    let claim;
+    const resolved = await resolveSlashUrl(pathToUse);
+
+    if (resolved) {
+      const queryString = ctx.querystring ? `?${ctx.querystring}` : '';
+
+      if (resolved.type === 'channel') {
+        // Malformed channel URL — redirect to the corrected @-prefixed path
+        ctx.redirect(encodeURI(`/@${pathToUse}`) + queryString);
+        return;
+      }
+
+      if (resolved.type === 'claimid') {
+        // name/claimid — redirect to canonical URL so the client-side app works
+        const canonicalPath = resolved.claim.canonical_url?.replace('lbry://', '').replace(/#/g, ':');
+        if (canonicalPath) {
+          ctx.redirect(`/${canonicalPath}` + queryString);
+          return;
+        }
+        claim = resolved.claim;
+        claimUri = resolved.uri;
+      }
+    }
+
+    if (!claim) {
+      claim = await resolveClaimOrRedirect(ctx, claimUri);
+    }
+
     const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {

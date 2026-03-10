@@ -9,13 +9,16 @@ type Props = {
   className?: string,
   embedded?: boolean,
   streamClaim: () => void,
+  isShortsContext?: boolean,
+  isFloatingContext?: boolean,
   // -- redux --
   streamingUrl: string,
   contentType: string,
 };
 
 const VideoRender = (props: Props) => {
-  const { uri, className, streamingUrl, contentType, embedded, streamClaim } = props;
+  const { uri, className, streamingUrl, contentType, embedded, streamClaim, isShortsContext, isFloatingContext } =
+    props;
 
   const {
     location: { search },
@@ -23,12 +26,14 @@ const VideoRender = (props: Props) => {
 
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
+  const isShortsMode = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam;
+  const applyShortsVideoRenderLayout = isShortsMode && !isFloatingContext;
 
   return (
     <div
       className={classnames(
         {
-          'file-render': !isShortsParam,
+          'file-render': !applyShortsVideoRenderLayout,
           'file-render--video': true,
           'file-render--embed': embedded,
         },

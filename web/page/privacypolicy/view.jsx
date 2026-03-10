@@ -381,7 +381,7 @@ const PrivacyPolicyPage = () => {
             </p>
 
             <blockquote>
-              <p>Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016 hello@odysee.com</p>
+              <p>Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016 legal@odysee.com</p>
             </blockquote>
 
             <small>Last edited on 2025-02-13</small>

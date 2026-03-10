@@ -197,6 +197,22 @@ export function GetLinksData(
     // rowData.push(SHORTS_SECTION);
   }
 
+  if (isHomepage && authenticated) {
+    const WATCH_LATER_SECTION = {
+      id: 'WATCH_LATER',
+      title: __('Watch Later'),
+      link: `/$/${PAGES.PLAYLIST}/watchlater`,
+      icon: ICONS.TIME,
+      hideSort: false,
+      hideByDefault: true,
+      options: {
+        pageSize: getPageSize(8),
+      },
+    };
+
+    rowData.push(WATCH_LATER_SECTION);
+  }
+
   // **************************************************************************
   // @if CUSTOM_HOMEPAGE='false'
 

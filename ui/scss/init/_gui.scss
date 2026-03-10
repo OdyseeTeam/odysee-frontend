@@ -1032,6 +1032,43 @@ video {
   }
 }
 
+.page__title--upload {
+  align-items: center;
+  gap: var(--spacing-s);
+  flex-wrap: wrap;
+
+  label {
+    min-width: 0;
+  }
+
+  .page__title-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-xxs);
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .page__title-actions > .button {
+    margin-top: 0;
+    float: none;
+  }
+}
+
+@media (max-width: $breakpoint-small) {
+  .page__title--upload {
+    gap: var(--spacing-xs);
+
+    .page__title-actions {
+      width: 100%;
+      margin-left: 0;
+      justify-content: flex-start;
+      gap: var(--spacing-xs);
+    }
+  }
+}
+
 .page__title--margin {
   margin-bottom: var(--spacing-m);
 }

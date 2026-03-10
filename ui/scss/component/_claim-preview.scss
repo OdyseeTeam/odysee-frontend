@@ -536,6 +536,15 @@
 
 // neko rename to header?
 .claim-preview__wrapper--inline {
+  &:hover .claim-preview__title {
+    color: rgba(var(--color-text-base), 0.9);
+  }
+
+  .claim-preview-info > a:hover .claim-preview__title,
+  &:has(> .claim-preview--inline > .button:hover) .claim-preview__title {
+    color: var(--color-primary);
+  }
+
   .channel-thumbnail {
     height: var(--channel-thumbnail-width--small);
     width: var(--channel-thumbnail-width--small);
@@ -549,11 +558,11 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
-    .button-following {
-      color: var(--color-primary-contrast) !important;
-      background-color: rgba(125, 125, 125, 0.5) !important;
+    .button-following--active {
+      color: var(--color-primary-contrast);
+      background-color: rgba(125, 125, 125, 0.5);
       .icon {
-        stroke: var(--color-primary-contrast) !important;
+        stroke: var(--color-primary-contrast);
       }
     }
     .button {
@@ -565,7 +574,7 @@
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
     .claim-preview__actions {
       margin: 0;
       margin-top: var(--spacing-xs) !important;
@@ -590,13 +599,14 @@
         margin-top: 0;
       }
 
-      a.button-following {
+      a.button-following--active {
         .button__content {
           width: 100%;
         }
       }
-      button.button-following:last-of-type {
-        max-width: fit-content;
+
+      .button-following__bell {
+        margin-left: auto;
       }
 
       span {
@@ -1574,8 +1584,13 @@
     color: rgba(var(--color-text-base) 0.7);
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
+    margin-top: 0px;
     padding-bottom: 0;
+
+    .media__subtitle {
+      margin-top: -2px !important;
+    }
   }
 }
 

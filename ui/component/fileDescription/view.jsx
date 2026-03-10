@@ -20,15 +20,26 @@ type Props = {
   isEmpty: boolean,
   claimIsMine: boolean,
   pendingAmount: number,
+  isShort: boolean,
   doOpenModal: (id: string, {}) => void,
   isLivestreamClaim: boolean,
 };
 
 export default function FileDescription(props: Props) {
-  const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride, isLivestreamClaim } =
-    props;
+  const {
+    uri,
+    description,
+    amount,
+    hasSupport,
+    isEmpty,
+    isShort,
+    doOpenModal,
+    claimIsMine,
+    expandOverride,
+    isLivestreamClaim,
+  } = props;
 
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = React.useState(isShort);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
 
   const formattedAmount = formatCredits(amount, 2, true);
@@ -57,7 +68,7 @@ export default function FileDescription(props: Props) {
       <div className="card__bottom-actions">
         {!expandOverride && (
           <>
-            {!isLivestreamClaim && (
+            {!isLivestreamClaim && !isShort && (
               <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
             )}
             {isLivestreamClaim && <Button />}

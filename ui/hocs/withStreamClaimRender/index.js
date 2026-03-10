@@ -92,6 +92,7 @@ const select = (state, props) => {
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
     autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
+    autoplayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, uri),

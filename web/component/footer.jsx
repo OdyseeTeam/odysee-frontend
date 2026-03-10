@@ -58,7 +58,7 @@ export default function Footer() {
           />
         </li>
         <li className="footer__link">
-          <Button label={__('Careers')} onClick={() => window.odysee.functions.history.push('/$/careers')} />
+          <Button label={__('Contribute')} onClick={() => window.odysee.functions.history.push('/$/contribute')} />
         </li>
         <li className="footer__link">
           <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos')} />

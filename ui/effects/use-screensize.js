@@ -85,6 +85,10 @@ export function useIsLandscapeScreen() {
   return landscape;
 }
 
+export function useIsShortsMobile() {
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1021);
+}
+
 export function useIsSmallScreen() {
   return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
 }
