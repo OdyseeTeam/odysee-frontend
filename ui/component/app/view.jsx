@@ -103,6 +103,7 @@ type Props = {
   doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (id: string, ?{}) => void,
   doSetClientSetting: (string, any, ?boolean) => void,
+  doToast: ({ message: string }) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -147,6 +148,7 @@ function App(props: Props) {
     doSetAssignedLbrynetServer,
     doOpenModal,
     doSetClientSetting,
+    doToast,
   } = props;
 
   const isMobile = useIsMobile();
@@ -400,12 +402,13 @@ function App(props: Props) {
         };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        doToast({ message: __('Homepage recommendations enabled.') });
       },
       onCancel: (closeModal) => {
         closeModal();
       },
     });
-  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal]);
+  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
 
   useEffect(() => {
     // $FlowFixMe
