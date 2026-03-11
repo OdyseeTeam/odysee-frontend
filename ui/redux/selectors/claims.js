@@ -42,11 +42,9 @@ const selectState = (state: State) => state.claims || {};
 export const selectById = (state: State) => selectState(state).byId || {};
 export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || {};
 
-export const selectClaimsById = (state: State) => {
-  const byId = selectById(state);
-  const pendingById = selectPendingClaimsById(state);
-  return Object.assign({}, byId, pendingById);
-};
+export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) =>
+  Object.assign({}, byId, pendingById)
+);
 
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;

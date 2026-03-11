@@ -103,7 +103,7 @@ function CollectionHeaderActions(props: Props) {
                       </div>
                     </Tooltip>
                   )}
-                  {publishError && (
+                  {collectionHasEdits && publishError && (
                     <Tooltip title={__('Last publish failed. Open menu to retry.')} arrow={false} enterDelay={100}>
                       <div className="pending-change">
                         <Icon icon={ICONS.WARNING} />

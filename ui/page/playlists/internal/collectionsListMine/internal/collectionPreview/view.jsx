@@ -153,7 +153,7 @@ function CollectionPreview(props: Props) {
                     </div>
                   </Tooltip>
                 )}
-                {publishError && (
+                {collectionHasEdits && publishError && (
                   <Tooltip
                     title={__('Last publish failed. Open playlist and retry publish.')}
                     arrow={false}

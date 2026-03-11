@@ -33,6 +33,7 @@ export function claimToStoredCollection(claim: CollectionClaim) {
     itemCount: claimIds ? claimIds.length : 0,
     description: claim.value.description,
     thumbnail: claim.value.thumbnail,
+    tags: claim.value.tags || [],
     createdAt: claim.meta?.creation_timestamp || claim.timestamp,
     updatedAt: claim.timestamp || claim.meta?.creation_timestamp,
     type: resolveCollectionType(claim.value.tags),

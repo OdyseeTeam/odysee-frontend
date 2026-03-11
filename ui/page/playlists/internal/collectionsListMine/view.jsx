@@ -71,7 +71,7 @@ export default function CollectionsListMine(props: Props) {
     let collections;
     switch (filterType) {
       case COLS.LIST_TYPE.ALL:
-        collections = dedupeCollectionIds(unpublishedCollectionsList.concat(publishedList).concat(savedList));
+        collections = unpublishedCollectionsList.concat(publishedList).concat(savedList);
         break;
       case COLS.LIST_TYPE.PRIVATE:
         collections = unpublishedCollectionsList;

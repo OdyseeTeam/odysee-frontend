@@ -79,14 +79,14 @@ const ClaimCollectionAdd = (props: Props) => {
             <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
           ))}
           {unpublishedCollections
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .filter((collection) => matchName(collection.name))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
             ))}
           {publishedCollections
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .filter((collection) => matchName(collection.name))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
             ))}

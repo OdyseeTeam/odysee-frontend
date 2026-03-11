@@ -14,6 +14,7 @@ type Props = {
   doOpenModal: (string, {}) => void,
   collectionName?: string,
   collectionId: string,
+  claimId?: ?string,
   doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   isBuiltin: boolean,
   publishedNotEdited: boolean,
@@ -30,6 +31,7 @@ function CollectionMenuList(props: Props) {
   const {
     inline = false,
     collectionId,
+    claimId,
     collectionName,
     doOpenModal,
     doEnableCollectionShuffle,
@@ -98,16 +100,18 @@ function CollectionMenuList(props: Props) {
                     {__('Edit')}
                   </div>
                 </MenuItem>
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
-                >
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.PUBLISH} />
-                    {autoPublish ? __('Disable Auto-publish') : __('Enable Auto-publish')}
-                  </div>
-                </MenuItem>
-                {collectionHasEdits && publishError && (
+                {claimId && (
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
+                  >
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.PUBLISH} />
+                      {autoPublish ? __('Disable Auto-publish') : __('Enable Auto-publish')}
+                    </div>
+                  </MenuItem>
+                )}
+                {claimId && collectionHasEdits && publishError && (
                   <MenuItem className="comment__menu-option" onSelect={() => doRetryCollectionPublish(collectionId)}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REFRESH} />

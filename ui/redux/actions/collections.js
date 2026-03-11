@@ -225,7 +225,14 @@ const doAutoPublishCollectionIfNeeded =
     const hasEdits = selectCollectionHasEditsForId(state, collectionId);
     const hasUnsavedEdits = selectCollectionHasUnsavedEditsForId(state, collectionId);
 
-    if (!isAutoPublishEnabled || isPrivate || !isMine || isPending || isPublishing || (!hasEdits && !hasUnsavedEdits)) {
+    if (
+      (!triggerNow && !isAutoPublishEnabled) ||
+      isPrivate ||
+      !isMine ||
+      isPending ||
+      isPublishing ||
+      (!hasEdits && !hasUnsavedEdits)
+    ) {
       return Promise.resolve();
     }
 

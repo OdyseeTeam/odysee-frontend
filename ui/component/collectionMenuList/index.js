@@ -9,6 +9,7 @@ import {
   selectCollectionHasEditsForId,
   selectCollectionPublishErrorForId,
 } from 'redux/selectors/collections';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { doEnableCollectionShuffle } from 'redux/actions/content';
 import { doSetCollectionAutoPublish, doRetryCollectionPublish } from 'redux/actions/collections';
@@ -19,6 +20,7 @@ const select = (state, props) => {
 
   return {
     collectionName: selectCollectionTitleForId(state, collectionId),
+    claimId: (selectClaimForClaimId(state, collectionId) || {}).claim_id,
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     publishedNotEdited: selectPublishedCollectionNotEditedForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),

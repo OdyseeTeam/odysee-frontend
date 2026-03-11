@@ -12,7 +12,7 @@ import {
   selectCountForCollectionId,
   selectAreCollectionItemsFetchingForId,
   selectFirstItemUrlForCollection,
-  selectUrlsForCollectionId,
+  selectFirstPlayableUrlForCollectionId,
   selectUpdatedAtForCollectionId,
   selectCreatedAtForCollectionId,
   selectIsCollectionBuiltInForId,
@@ -23,7 +23,6 @@ import {
   selectCollectionIsPublishingForId,
   selectCollectionPublishErrorForId,
 } from 'redux/selectors/collections';
-import { selectCanPlaybackFileForUri } from 'redux/selectors/content';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
 
@@ -43,9 +42,7 @@ const select = (state, props) => {
     }
   }
   const firstCollectionItemUrl = selectFirstItemUrlForCollection(state, collectionId);
-  const firstPlayableCollectionItemUrl = selectUrlsForCollectionId(state, collectionId)?.find((url) =>
-    selectCanPlaybackFileForUri(state, url)
-  );
+  const firstPlayableCollectionItemUrl = selectFirstPlayableUrlForCollectionId(state, collectionId);
 
   return {
     collectionId,
