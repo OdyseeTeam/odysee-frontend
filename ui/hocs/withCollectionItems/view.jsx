@@ -10,6 +10,7 @@ type Props = {
   isPrivate: ?boolean,
   collectionUrls: ?Array<string>,
   collectionIds: ?Array<string>,
+  collectionHasItemsResolved: boolean,
   doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
   doFetchItemsInCollection: (params: { collectionId: string }) => void,
 };
@@ -28,6 +29,7 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
       isPrivate,
       collectionUrls,
       collectionIds,
+      collectionHasItemsResolved,
       doResolveClaimId,
       doFetchItemsInCollection,
     } = props;
@@ -41,8 +43,10 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
     }, [collectionId, doResolveClaimId, isPrivate]);
 
     React.useEffect(() => {
-      doFetchItemsInCollection({ collectionId });
-    }, [collectionId, doFetchItemsInCollection]);
+      if (!collectionHasItemsResolved) {
+        doFetchItemsInCollection({ collectionId });
+      }
+    }, [collectionHasItemsResolved, collectionId, doFetchItemsInCollection]);
 
     if (collectionItems === undefined) {
       return (

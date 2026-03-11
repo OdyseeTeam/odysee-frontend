@@ -28,12 +28,18 @@ type Props = {
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
   claimIsPending: boolean,
+  autoPublish: boolean,
+  isPublishing: boolean,
+  publishError?: ?string,
+  collectionHasEdits: boolean,
   // collectionSavedForId: boolean,
   // collectionEmpty: boolean,
   // collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
   // doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   doToggleCollectionSavedForId: (id: string) => void,
+  doSetCollectionAutoPublish: (collectionId: string, enabled: boolean) => void,
+  doRetryCollectionPublish: (collectionId: string) => void,
   // doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void,
 };
 
@@ -45,6 +51,10 @@ function CollectionHeaderActions(props: Props) {
     collectionId,
     isBuiltin,
     claimIsPending,
+    autoPublish,
+    isPublishing,
+    publishError,
+    collectionHasEdits,
     showEdit,
     // isHeader,
     setShowEdit,
@@ -54,6 +64,8 @@ function CollectionHeaderActions(props: Props) {
     doOpenModal,
     // doEnableCollectionShuffle,
     doToggleCollectionSavedForId,
+    doSetCollectionAutoPublish,
+    doRetryCollectionPublish,
     // doSortCollectionByKey,
   } = props;
 
@@ -81,6 +93,20 @@ function CollectionHeaderActions(props: Props) {
                     >
                       <div className="pending-change">
                         <Spinner />
+                      </div>
+                    </Tooltip>
+                  )}
+                  {isPublishing && (
+                    <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
+                      <div className="pending-change">
+                        <Spinner />
+                      </div>
+                    </Tooltip>
+                  )}
+                  {publishError && (
+                    <Tooltip title={__('Last publish failed. Open menu to retry.')} arrow={false} enterDelay={100}>
+                      <div className="pending-change">
+                        <Icon icon={ICONS.WARNING} />
                       </div>
                     </Tooltip>
                   )}
@@ -114,6 +140,25 @@ function CollectionHeaderActions(props: Props) {
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.EDIT} />
                     {__('Edit')}
+                  </div>
+                </MenuItem>
+              )}
+              {isMyCollection && !isBuiltin && claimId && (
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
+                >
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.PUBLISH} />
+                    {autoPublish ? __('Disable Auto-publish') : __('Enable Auto-publish')}
+                  </div>
+                </MenuItem>
+              )}
+              {isMyCollection && !isBuiltin && claimId && collectionHasEdits && publishError && (
+                <MenuItem className="comment__menu-option" onSelect={() => doRetryCollectionPublish(collectionId)}>
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.REFRESH} />
+                    {__('Retry Publish Now')}
                   </div>
                 </MenuItem>
               )}

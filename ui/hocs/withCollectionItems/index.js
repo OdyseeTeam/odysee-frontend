@@ -6,6 +6,7 @@ import {
   selectUrlsForCollectionId,
   selectUrlsForCollectionIdNonDeleted,
   selectClaimIdsForCollectionId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
 
 import { doResolveClaimId } from 'redux/actions/claims';
@@ -23,6 +24,7 @@ const select = (state, props) => {
         ? selectUrlsForCollectionIdNonDeleted(state, collectionId)
         : selectUrlsForCollectionId(state, collectionId),
     collectionIds: selectClaimIdsForCollectionId(state, collectionId),
+    collectionHasItemsResolved: selectCollectionHasItemsResolvedForId(state, collectionId),
   };
 };
 

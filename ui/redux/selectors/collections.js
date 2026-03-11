@@ -7,6 +7,7 @@ import { COLLECTION_PAGE } from 'constants/urlParams';
 import {
   selectClaimForUri,
   selectClaimForClaimId,
+  selectClaimIsPendingForId,
   selectClaimsById,
   selectClaimIdsByUri,
   selectMyCollectionClaimIds,
@@ -48,6 +49,15 @@ export const selectIsFetchingMyCollections = (state: State) => selectState(state
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
 export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
   selectState(state).thumbnailClaimsFetchingCollectionIds;
+export const selectCollectionAutoPublishMap = (state: State) => selectState(state).autoPublishById || {};
+export const selectCollectionPublishingMap = (state: State) => selectState(state).publishingById || {};
+export const selectCollectionPublishErrorMap = (state: State) => selectState(state).publishErrorById || {};
+export const selectCollectionAutoPublishForId = (state: State, id: string) =>
+  Boolean(selectCollectionAutoPublishMap(state)[id]);
+export const selectCollectionIsPublishingForId = (state: State, id: string) =>
+  Boolean(selectCollectionPublishingMap(state)[id]);
+export const selectCollectionPublishErrorForId = (state: State, id: string) =>
+  selectCollectionPublishErrorMap(state)[id];
 
 export const selectAreThumbnailClaimsFetchingForCollectionIds = (state: State, ids: string) =>
   selectThumbnailClaimsFetchingCollectionIds(state).includes(ids);
@@ -232,12 +242,13 @@ export const selectCollectionForId = createSelector(
   (state, id) => id,
   selectCollectionsById,
   selectResolvedCollectionsById,
-  (id, collectionsById, resolved) => {
+  (state) => (state.router && state.router.location && state.router.location.search) || '',
+  (id, collectionsById, resolved, search) => {
     if (!id) return id;
 
     const collection = collectionsById[id];
 
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(search);
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
     if (isOnPublicView) return resolved[id] || collection;
@@ -429,7 +440,8 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
   if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
 
   if (selectCollectionHasEditsForId(state, id) || selectCollectionHasUnsavedEditsForId(state, id)) {
-    const urlParams = new URLSearchParams(window.location.search);
+    const search = (state.router && state.router.location && state.router.location.search) || '';
+    const urlParams = new URLSearchParams(search);
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
     if (!isOnPublicView) return true;
   }
@@ -440,6 +452,27 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
 // Is private === only private (doesn't include public with private edits)
 export const selectIsCollectionPrivateForId = (state: State, id: string) =>
   Boolean(selectUnpublishedCollectionForId(state, id) || COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id));
+
+export const selectCollectionSyncStatusForId = (state: State, id: string) => {
+  if (!id) return 'unknown';
+
+  const isPublishing = selectCollectionIsPublishingForId(state, id);
+  if (isPublishing) return 'publishing';
+
+  const isPending = selectClaimIsPendingForId(state, id);
+  if (isPending) return 'pending_confirmation';
+
+  const publishError = selectCollectionPublishErrorForId(state, id);
+  if (publishError) return 'publish_failed';
+
+  const hasEdits = selectCollectionHasEditsForId(state, id) || selectCollectionHasUnsavedEditsForId(state, id);
+  if (hasEdits) return 'local_changes';
+
+  if (selectIsCollectionPrivateForId(state, id)) return 'private_local';
+  if (selectIsMyCollectionPublishedForId(state, id)) return 'public_synced';
+
+  return 'unknown';
+};
 
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,

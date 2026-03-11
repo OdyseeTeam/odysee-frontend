@@ -46,6 +46,8 @@ type Props = {
   thumbnailFromClaim: string,
   thumbnailFromSecondaryClaim: string,
   collectionHasEdits: boolean,
+  isPublishing: boolean,
+  publishError?: ?string,
 };
 
 function CollectionPreview(props: Props) {
@@ -71,6 +73,8 @@ function CollectionPreview(props: Props) {
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
     collectionHasEdits,
+    isPublishing,
+    publishError,
   } = props;
 
   const { push } = useHistory();
@@ -140,6 +144,22 @@ function CollectionPreview(props: Props) {
                     <div className="pending-change">
                       <Spinner />
                     </div>
+                  </Tooltip>
+                )}
+                {isPublishing && (
+                  <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
+                    <div className="pending-change">
+                      <Spinner />
+                    </div>
+                  </Tooltip>
+                )}
+                {publishError && (
+                  <Tooltip
+                    title={__('Last publish failed. Open playlist and retry publish.')}
+                    arrow={false}
+                    enterDelay={100}
+                  >
+                    <Icon icon={ICONS.WARNING} />
                   </Tooltip>
                 )}
               </h2>

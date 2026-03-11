@@ -20,6 +20,8 @@ import {
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
   selectCollectionHasEditsForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
 } from 'redux/selectors/collections';
 import { selectCanPlaybackFileForUri } from 'redux/selectors/content';
 import { getChannelFromClaim } from 'util/claim';
@@ -68,6 +70,8 @@ const select = (state, props) => {
     thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
     thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    isPublishing: selectCollectionIsPublishingForId(state, collectionId),
+    publishError: selectCollectionPublishErrorForId(state, collectionId),
   };
 };
 

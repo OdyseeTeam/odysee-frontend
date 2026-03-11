@@ -19,6 +19,7 @@ import {
   selectResolvingUris,
   selectFailedToResolveUris,
   selectFailedToResolveIds,
+  selectClaimIsPendingForId,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -32,7 +33,13 @@ import {
   selectCollectionKeyForId,
   selectCollectionForIdClaimForUriItem,
   selectAreThumbnailClaimsFetchingForCollectionIds,
+  selectCollectionAutoPublishForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionHasEditsForId,
+  selectCollectionHasUnsavedEditsForId,
+  selectCollectionIsMine,
 } from 'redux/selectors/collections';
+import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
 import { getThumbnailFromClaim } from 'util/claim';
@@ -40,6 +47,8 @@ import { creditsToString } from 'util/format-credits';
 import { doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
+const AUTO_PUBLISH_DEBOUNCE_MS = 15000;
+const collectionAutoPublishTimers: { [string]: TimeoutID } = {};
 
 export const doFetchCollectionListMine =
   (options: CollectionListOptions = { resolve: true, page: 1, page_size: 50 }) =>
@@ -137,6 +146,8 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       delete fullParams.description;
     }
 
+    dispatch({ type: ACTIONS.COLLECTION_PUBLISH_START, data: { collectionId } });
+
     return new Promise((resolve, reject) => {
       const publishFn = isPrivate ? Lbry.collection_create : Lbry.collection_update;
 
@@ -154,6 +165,10 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
             collection: { id: collectionClaim.claim_id, updatedAt: publishStartedAt },
           },
         });
+        dispatch({
+          type: ACTIONS.COLLECTION_PUBLISH_SUCCESS,
+          data: { collectionId, publishedCollectionId: collectionClaim.claim_id },
+        });
 
         dispatch(
           batchActions(
@@ -167,6 +182,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function failure(error) {
         if (cb) cb();
+        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_FAIL, data: { collectionId, error: error?.message || error } });
 
         const scriptSizeError = error?.message?.match && error.message.match(/script size ([0-9]+) exceeds limit 8192/);
         let customMessage = null;
@@ -196,6 +212,60 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     });
   };
 }
+
+const doAutoPublishCollectionIfNeeded =
+  (collectionId: string, triggerNow?: boolean = false) =>
+  (dispatch: Dispatch, getState: GetState): Promise<void> => {
+    const state = getState();
+    const isAutoPublishEnabled = selectCollectionAutoPublishForId(state, collectionId);
+    const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
+    const isMine = selectCollectionIsMine(state, collectionId);
+    const isPending = selectClaimIsPendingForId(state, collectionId);
+    const isPublishing = selectCollectionIsPublishingForId(state, collectionId);
+    const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+    const hasUnsavedEdits = selectCollectionHasUnsavedEditsForId(state, collectionId);
+
+    if (!isAutoPublishEnabled || isPrivate || !isMine || isPending || isPublishing || (!hasEdits && !hasUnsavedEdits)) {
+      return Promise.resolve();
+    }
+
+    const collectionUploadParams = selectCollectionClaimUploadParamsForId(state, collectionId);
+    const hasItems = collectionUploadParams?.claims && collectionUploadParams.claims.length > 0;
+    if (!hasItems) return Promise.resolve();
+
+    const runPublish = () =>
+      // $FlowFixMe (selector already shapes params)
+      dispatch(doCollectionPublish(collectionUploadParams, collectionId)).catch(() => Promise.resolve());
+
+    if (triggerNow) return runPublish();
+
+    if (collectionAutoPublishTimers[collectionId]) {
+      clearTimeout(collectionAutoPublishTimers[collectionId]);
+    }
+
+    collectionAutoPublishTimers[collectionId] = setTimeout(() => {
+      delete collectionAutoPublishTimers[collectionId];
+      dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
+    }, AUTO_PUBLISH_DEBOUNCE_MS);
+
+    return Promise.resolve();
+  };
+
+export const doSetCollectionAutoPublish = (collectionId: string, enabled: boolean) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_AUTOPUBLISH_SET, data: { collectionId, enabled } });
+  dispatch(
+    doToast({
+      message: enabled
+        ? __('Auto-publish enabled. New playlist edits will publish in the background.')
+        : __('Auto-publish disabled. You can still publish manually.'),
+    })
+  );
+
+  if (enabled) dispatch(doAutoPublishCollectionIfNeeded(collectionId));
+};
+
+export const doRetryCollectionPublish = (collectionId: string) => (dispatch: Dispatch) =>
+  dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
 
 export const doLocalCollectionCreate =
   (params: CollectionLocalCreateParams, cb?: (id: any) => void) => (dispatch: Dispatch, getState: GetState) => {
@@ -657,6 +727,9 @@ export const doCollectionEdit =
           },
         },
       });
+      if (!isQueue && !isPreview) {
+        dispatch(doAutoPublishCollectionIfNeeded(collectionId));
+      }
       success();
     });
   };

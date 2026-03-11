@@ -35,6 +35,9 @@ declare type CollectionState = {
   queue: Collection,
   isFetchingMyCollections: ?boolean,
   thumbnailClaimsFetchingCollectionIds: Array<string>,
+  autoPublishById: { [id: string]: boolean },
+  publishingById: { [id: string]: boolean },
+  publishErrorById: { [id: string]: string },
 };
 
 declare type CollectionGroup = {
