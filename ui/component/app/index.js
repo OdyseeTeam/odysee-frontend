@@ -1,4 +1,3 @@
-import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import {
@@ -81,4 +80,4 @@ const perform = {
   doSetClientSetting,
 };
 
-export default hot(connect(select, perform)(App));
+export default connect(select, perform)(App);
