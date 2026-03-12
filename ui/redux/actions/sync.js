@@ -97,7 +97,7 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
 
         return dispatch({
           type: ACTIONS.SET_SYNC_COMPLETED,
-          data: { syncHash: response.hash },
+          data: { syncHash: response.hash, lastSyncHash: newHash || response.hash },
         });
       })
       .catch((error) => {
@@ -106,6 +106,13 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
           data: { error },
         });
       });
+  };
+}
+
+export function doUpdateLastSyncHash(hash: ?string) {
+  return {
+    type: ACTIONS.LAST_SYNC_HASH_UPDATED,
+    data: hash,
   };
 }
 
@@ -197,7 +204,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
 
     const data = {};
 
-    Lbry.wallet_status()
+    return Lbry.wallet_status()
       .then((status) => {
         if (status.is_locked) {
           return Lbry.wallet_unlock({ password });
@@ -213,7 +220,10 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         data.unlockFailed = true;
         throw new Error();
       })
-      .then((hash?: string) => Lbryio.call('sync', 'get', { hash }, 'post'))
+      .then((hash?: string) => {
+        data.lastSyncHash = hash;
+        return Lbryio.call('sync', 'get', { hash }, 'post');
+      })
       .then((response: any) => {
         const syncHash = response.hash;
         data.syncHash = syncHash;
@@ -233,10 +243,14 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         }
 
         const { hash: walletHash, data: walletData } = response;
+        data.lastSyncHash = walletHash;
 
         if (walletHash !== data.syncHash) {
           // different local hash, need to synchronise
-          dispatch(doSetSync(data.syncHash, walletHash, walletData));
+          return dispatch(doSetSync(data.syncHash, walletHash, walletData)).then(() => {
+            dispatch({ type: ACTIONS.GET_SYNC_COMPLETED, data });
+            handleCallback(null, data.changed);
+          });
         }
 
         dispatch({ type: ACTIONS.GET_SYNC_COMPLETED, data });
@@ -282,6 +296,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
             data: {
               hasSyncedWallet: false,
               syncHash: null,
+              lastSyncHash: data.lastSyncHash,
               // If there was some unknown error, bail
               fatalError: !noWalletError,
             },
@@ -295,7 +310,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
           //   call sync_apply to get data to sync
           //   first time sync. use any string for old hash
           if (noWalletError) {
-            Lbry.sync_apply({ password })
+            return Lbry.sync_apply({ password })
               .then(({ hash: walletHash, data: syncApplyData }) => {
                 dispatch(doSetSync('', walletHash, syncApplyData));
                 handleCallback(false, true);
@@ -315,15 +330,18 @@ export function doSyncApply(syncHash: string, syncData: any, password: string) {
       type: ACTIONS.SYNC_APPLY_STARTED,
     });
 
-    Lbry.sync_apply({ password, data: syncData })
+    return Lbry.sync_apply({ password, data: syncData })
       .then(({ hash: walletHash, data: walletData }) => {
         dispatch({
           type: ACTIONS.SYNC_APPLY_COMPLETED,
+          data: {
+            lastSyncHash: walletHash,
+          },
         });
 
         if (walletHash !== syncHash) {
           // different local hash, need to synchronise
-          dispatch(doSetSync(syncHash, walletHash, walletData));
+          return dispatch(doSetSync(syncHash, walletHash, walletData));
         }
       })
       .catch(() => {
@@ -349,6 +367,7 @@ export function doCheckSync() {
           const data = {
             hasSyncedWallet: true,
             syncHash: response.hash,
+            lastSyncHash: hash,
             syncData: response.data,
             hashChanged: response.changed,
           };
@@ -358,7 +377,7 @@ export function doCheckSync() {
           // user doesn't have a synced wallet
           dispatch({
             type: ACTIONS.GET_SYNC_COMPLETED,
-            data: { hasSyncedWallet: false, syncHash: null },
+            data: { hasSyncedWallet: false, syncHash: null, lastSyncHash: hash },
           });
         });
     });
@@ -395,6 +414,8 @@ export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string
         if (syncApplyResponse.hash !== data.oldHash) {
           return dispatch(doSetSync(data.oldHash, syncApplyResponse.hash, syncApplyResponse.data));
         }
+
+        return undefined;
       })
       .catch(console.error); // eslint-disable-line
   };
@@ -436,6 +457,7 @@ type SharedData = {
 
 function extractUserState(rawObj: SharedData) {
   if (rawObj && rawObj.version === '0.1' && rawObj.value) {
+    const hasOwn = (key) => Object.prototype.hasOwnProperty.call(rawObj.value, key);
     const {
       subscriptions,
       following,
@@ -454,20 +476,20 @@ function extractUserState(rawObj: SharedData) {
     } = rawObj.value;
 
     return {
-      ...(subscriptions ? { subscriptions } : {}),
-      ...(following ? { following } : {}),
-      ...(tags ? { tags } : {}),
-      ...(blocked ? { blocked } : {}),
-      ...(coin_swap_codes ? { coin_swap_codes } : {}),
-      ...(settings ? { settings } : {}),
-      ...(app_welcome_version ? { app_welcome_version } : {}),
-      ...(sharing_3P ? { sharing_3P } : {}),
-      ...(unpublishedCollections ? { unpublishedCollections } : {}),
-      ...(editedCollections ? { editedCollections } : {}),
-      ...(updatedCollections ? { updatedCollections } : {}),
-      ...(builtinCollections ? { builtinCollections } : {}),
-      ...(savedCollectionIds ? { savedCollectionIds } : {}),
-      ...(lastViewedAnnouncement ? { lastViewedAnnouncement } : {}),
+      ...(hasOwn('subscriptions') ? { subscriptions } : {}),
+      ...(hasOwn('following') ? { following } : {}),
+      ...(hasOwn('tags') ? { tags } : {}),
+      ...(hasOwn('blocked') ? { blocked } : {}),
+      ...(hasOwn('coin_swap_codes') ? { coin_swap_codes } : {}),
+      ...(hasOwn('settings') ? { settings } : {}),
+      ...(hasOwn('app_welcome_version') ? { app_welcome_version } : {}),
+      ...(hasOwn('sharing_3P') ? { sharing_3P } : {}),
+      ...(hasOwn('unpublishedCollections') ? { unpublishedCollections } : {}),
+      ...(hasOwn('editedCollections') ? { editedCollections } : {}),
+      ...(hasOwn('updatedCollections') ? { updatedCollections } : {}),
+      ...(hasOwn('builtinCollections') ? { builtinCollections } : {}),
+      ...(hasOwn('savedCollectionIds') ? { savedCollectionIds } : {}),
+      ...(hasOwn('lastViewedAnnouncement') ? { lastViewedAnnouncement } : {}),
     };
   }
 
@@ -528,11 +550,18 @@ export function doPreferenceSet(key: string, value: any, version: string, succes
       value: JSON.stringify(preference),
     };
 
-    Lbry.preference_set(options)
-      .then(() => {
+    return Lbry.preference_set(options)
+      .then(async () => {
+        try {
+          const syncHash = await Lbry.sync_hash();
+          dispatch(doUpdateLastSyncHash(syncHash));
+        } catch {}
+
         if (success) {
           success(preference);
         }
+
+        return preference;
       })
       .catch((err) => {
         dispatch({
