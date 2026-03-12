@@ -79,6 +79,7 @@ type Props = {
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   doSetVideoSourceLoaded: (uri: string) => void,
   autoPlayNextShort: boolean,
+  isFloating: boolean,
 };
 
 function VideoViewer(props: Props) {
@@ -129,6 +130,7 @@ function VideoViewer(props: Props) {
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
     autoPlayNextShort,
+    isFloating,
   } = props;
 
   const videoEnded = React.useRef(false);
@@ -440,6 +442,7 @@ function VideoViewer(props: Props) {
           onToggleAutoplayNext={() => setLocalAutoplayNext((e) => !e)}
           videoTheaterMode={videoTheaterMode}
           isMarkdownOrComment={isMarkdownOrComment}
+          isFloating={isFloating}
         />
 
         {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (

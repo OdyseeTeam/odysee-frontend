@@ -62,6 +62,7 @@ type Props = {
   onToggleAutoplayNext: () => void,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
+  isFloating: boolean,
 };
 
 function VideoJsInner(props: Props) {
@@ -103,6 +104,7 @@ function VideoJsInner(props: Props) {
     onToggleAutoplayNext,
     videoTheaterMode,
     isMarkdownOrComment,
+    isFloating,
   } = props;
 
   const isMobile = useIsMobile();
@@ -169,7 +171,13 @@ function VideoJsInner(props: Props) {
 
     // Call onPlayerReady with a compatible API object
     const playerApi = {
-      currentTime: () => state.currentTime,
+      currentTime: (val) => {
+        if (val !== undefined) {
+          media.currentTime = val;
+          return val;
+        }
+        return media.currentTime;
+      },
       muted: (val) => {
         if (val !== undefined) {
           if (val !== state.muted) state.toggleMuted();
@@ -191,13 +199,21 @@ function VideoJsInner(props: Props) {
         }
         return state.playbackRate;
       },
-      on: () => {},
-      off: () => {},
-      one: () => {},
+      on: (event, fn) => media.addEventListener(event, fn),
+      off: (event, fn) => media.removeEventListener(event, fn),
+      one: (event, fn) => media.addEventListener(event, fn, { once: true }),
+      pause: () => media.pause(),
+      play: () => media.play(),
       controlBar: { addChild: () => {}, getChild: () => null, removeChild: () => {} },
     };
 
+    window.player = playerApi;
+    window.dispatchEvent(new CustomEvent('playerReady'));
     onPlayerReady(playerApi, media);
+    if (window.pendingSeekTime != null) {
+      media.currentTime = window.pendingSeekTime;
+      delete window.pendingSeekTime;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media]);
 
@@ -307,6 +323,8 @@ function VideoJsInner(props: Props) {
         defaultQuality={defaultQuality}
         originalVideoHeight={claimValues?.video?.height}
         title={title}
+        description={claimValues?.description}
+        isFloating={isFloating}
       >
         {resolvedSource && (
           <Video

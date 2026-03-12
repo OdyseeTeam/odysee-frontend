@@ -21,6 +21,7 @@ import { icons } from 'component/common/icon-custom';
 import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
+import parseChapters from 'util/parse-chapters';
 
 const OdyseePlay = icons[ICONS.PLAY];
 const OdyseeReplay = icons[ICONS.REPLAY];
@@ -88,7 +89,7 @@ function useQualityLevels() {
       }
     }, 500);
 
-    let onParsed, onSwitched;
+    let onParsed, onSwitched, onFragChanged;
 
     function setup(h) {
       clearInterval(interval);
@@ -107,9 +108,15 @@ function useQualityLevels() {
         const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
         setActiveHeight(playing >= 0 && h.levels[playing] ? h.levels[playing].height : 0);
       };
+      const onFragChanged = (_, data) => {
+        if (data && data.frag && data.frag.level >= 0 && h.levels[data.frag.level]) {
+          setActiveHeight(h.levels[data.frag.level].height);
+        }
+      };
       if (h.on) {
         h.on('hlsManifestParsed', onParsed);
         h.on('hlsLevelSwitched', onSwitched);
+        h.on('hlsFragChanged', onFragChanged);
       }
     }
 
@@ -118,6 +125,7 @@ function useQualityLevels() {
       if (hls && hls.off) {
         if (onParsed) hls.off('hlsManifestParsed', onParsed);
         if (onSwitched) hls.off('hlsLevelSwitched', onSwitched);
+        if (onFragChanged) hls.off('hlsFragChanged', onFragChanged);
       }
     };
   }, [media]);
@@ -389,6 +397,56 @@ function ClickToPlay() {
   return <div className="odysee-click-to-play" onClick={handleClick} />;
 }
 
+function chapterFormatFn(chapters) {
+  return (seconds) => {
+    for (let i = chapters.length - 1; i >= 0; i--) {
+      if (seconds >= chapters[i].time) return chapters[i].label;
+    }
+    return '';
+  };
+}
+
+function ChapterMarkers({ chapters }: { chapters: Array<any> }) {
+  const duration = Player.usePlayer((s) => s.duration) || 0;
+
+  if (!chapters || chapters.length < 2 || !duration) return null;
+
+  return (
+    <div className="odysee-chapter-markers">
+      {chapters.slice(1).map((ch, i) => (
+        <div key={i} className="odysee-chapter-marker" style={{ left: `${(ch.time / duration) * 100}%` }} />
+      ))}
+    </div>
+  );
+}
+
+function ChapterPill({ chapters }: { chapters: Array<any> }) {
+  const currentTime = Player.usePlayer((s) => s.currentTime) || 0;
+
+  if (!chapters || chapters.length === 0) return null;
+
+  let activeChapter = null;
+  for (let i = chapters.length - 1; i >= 0; i--) {
+    if (currentTime >= chapters[i].time) {
+      activeChapter = chapters[i];
+      break;
+    }
+  }
+
+  if (!activeChapter) return null;
+
+  return (
+    <div className="media-surface odysee-controls odysee-chapter-pill">
+      <Btn
+        className="media-button--icon odysee-chapter-pill__btn"
+        onClick={() => window.dispatchEvent(new CustomEvent('toggleChaptersCard'))}
+      >
+        <span className="odysee-chapter-pill__label">{activeChapter.label}</span>
+      </Btn>
+    </div>
+  );
+}
+
 function FullscreenLabel() {
   return Player.usePlayer((s) => Boolean(s.fullscreen)) ? __('Exit Fullscreen (f)') : __('Fullscreen (f)');
 }
@@ -409,6 +467,8 @@ type Props = {
   defaultQuality?: ?string,
   originalVideoHeight?: ?number,
   title?: ?string,
+  description?: ?string,
+  isFloating?: boolean,
 };
 
 export default function OdyseeSkin(props: Props) {
@@ -428,12 +488,15 @@ export default function OdyseeSkin(props: Props) {
     defaultQuality,
     originalVideoHeight,
     title,
+    description,
+    isFloating,
     ...rest
   } = props;
 
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const quality = useQualityLevels();
+  const chapters = React.useMemo(() => parseChapters(description), [description]);
 
   return (
     <Player.Container
@@ -459,10 +522,18 @@ export default function OdyseeSkin(props: Props) {
             <Slider.Track className="media-slider__track odysee-slider__track">
               <Slider.Fill className="media-slider__fill odysee-slider__fill" />
               <Slider.Buffer className="media-slider__buffer odysee-slider__buffer" />
+              {chapters.length > 0 && <ChapterMarkers chapters={chapters} />}
             </Slider.Track>
             <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
             <Slider.Preview className="odysee-slider-preview">
               <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+              {chapters.length > 0 && (
+                <Slider.Value
+                  type="pointer"
+                  format={chapterFormatFn(chapters)}
+                  className="odysee-slider-preview__chapter"
+                />
+              )}
               <Slider.Value type="pointer" className="odysee-slider-preview__time" />
             </Slider.Preview>
           </TimeSlider.Root>
@@ -470,135 +541,137 @@ export default function OdyseeSkin(props: Props) {
       )}
 
       <Controls.Root className="media-controls odysee-controls-row">
-        {/* Left bubble — playback controls */}
-        <div className="media-surface odysee-controls odysee-controls--left">
-          {/* Play Previous */}
-          {!isMarkdownOrComment && canPlayPrevious && onPlayPrevious && (
+        <div className="odysee-controls-group--left">
+          {/* Left bubble — playback controls */}
+          <div className="media-surface odysee-controls odysee-controls--left">
+            {/* Play Previous */}
+            {!isMarkdownOrComment && canPlayPrevious && onPlayPrevious && (
+              <Tooltip.Root side="top">
+                <Tooltip.Trigger
+                  render={
+                    <button type="button" className="media-button media-button--icon" onClick={onPlayPrevious}>
+                      <OdyseePlayPrevious className="media-icon" size={18} color="currentColor" />
+                    </button>
+                  }
+                />
+                <Tooltip.Popup className="media-tooltip">{__('Play Previous (SHIFT+P)')}</Tooltip.Popup>
+              </Tooltip.Root>
+            )}
+
+            {/* Play/Pause */}
             <Tooltip.Root side="top">
               <Tooltip.Trigger
                 render={
-                  <button type="button" className="media-button media-button--icon" onClick={onPlayPrevious}>
-                    <OdyseePlayPrevious className="media-icon" size={18} color="currentColor" />
-                  </button>
+                  <PlayButton
+                    render={(p) => (
+                      <Btn {...p} className="media-button--icon media-button--play">
+                        <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
+                        <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
+                        <svg
+                          className="media-icon media-icon--pause"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 18 18"
+                        >
+                          <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
+                          <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
+                        </svg>
+                      </Btn>
+                    )}
+                  />
                 }
               />
-              <Tooltip.Popup className="media-tooltip">{__('Play Previous (SHIFT+P)')}</Tooltip.Popup>
+              <Tooltip.Popup className="media-tooltip">
+                <PlayLabel />
+              </Tooltip.Popup>
             </Tooltip.Root>
-          )}
 
-          {/* Play/Pause */}
-          <Tooltip.Root side="top">
-            <Tooltip.Trigger
-              render={
-                <PlayButton
-                  render={(p) => (
-                    <Btn {...p} className="media-button--icon media-button--play">
-                      <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
-                      <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
-                      <svg
-                        className="media-icon media-icon--pause"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 18 18"
-                      >
-                        <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
-                        <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
-                      </svg>
-                    </Btn>
-                  )}
+            {/* Play Next */}
+            {!isMarkdownOrComment && canPlayNext && onPlayNext && (
+              <Tooltip.Root side="top">
+                <Tooltip.Trigger
+                  render={
+                    <button type="button" className="media-button media-button--icon" onClick={onPlayNext}>
+                      <OdyseePlayPrevious
+                        className="media-icon"
+                        size={18}
+                        color="currentColor"
+                        style={{ transform: 'scaleX(-1)' }}
+                      />
+                    </button>
+                  }
                 />
-              }
-            />
-            <Tooltip.Popup className="media-tooltip">
-              <PlayLabel />
-            </Tooltip.Popup>
-          </Tooltip.Root>
+                <Tooltip.Popup className="media-tooltip">{__('Play Next (SHIFT+N)')}</Tooltip.Popup>
+              </Tooltip.Root>
+            )}
 
-          {/* Play Next */}
-          {!isMarkdownOrComment && canPlayNext && onPlayNext && (
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <button type="button" className="media-button media-button--icon" onClick={onPlayNext}>
-                    <OdyseePlayPrevious
-                      className="media-icon"
-                      size={18}
-                      color="currentColor"
-                      style={{ transform: 'scaleX(-1)' }}
-                    />
-                  </button>
-                }
+            {/* Volume */}
+            <div className="media-volume-group">
+              <MuteButton
+                render={(p) => (
+                  <Btn {...p} className="media-button--icon media-button--mute">
+                    <OdyseeVolumeMuted className="media-icon media-icon--volume-off" size={18} color="currentColor" />
+                    <svg
+                      className="media-icon media-icon--volume-low"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={18}
+                      height={18}
+                      fill="none"
+                      aria-hidden="true"
+                      viewBox="0 0 18 18"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                      />
+                    </svg>
+                    <svg
+                      className="media-icon media-icon--volume-high"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={18}
+                      height={18}
+                      fill="none"
+                      aria-hidden="true"
+                      viewBox="0 0 18 18"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                      />
+                    </svg>
+                  </Btn>
+                )}
               />
-              <Tooltip.Popup className="media-tooltip">{__('Play Next (SHIFT+N)')}</Tooltip.Popup>
-            </Tooltip.Root>
-          )}
-
-          {/* Volume */}
-          <Popover.Root openOnHover delay={200} closeDelay={100} side="top">
-            <Popover.Trigger
-              render={
-                <MuteButton
-                  render={(p) => (
-                    <Btn {...p} className="media-button--icon media-button--mute">
-                      <OdyseeVolumeMuted className="media-icon media-icon--volume-off" size={18} color="currentColor" />
-                      <svg
-                        className="media-icon media-icon--volume-low"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 18 18"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
-                        />
-                      </svg>
-                      <svg
-                        className="media-icon media-icon--volume-high"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 18 18"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
-                        />
-                        <path
-                          fill="currentColor"
-                          d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
-                        />
-                      </svg>
-                    </Btn>
-                  )}
-                />
-              }
-            />
-            <Popover.Popup className="media-popover media-popover--volume">
-              <VolumeSlider.Root className="media-slider" orientation="vertical" thumbAlignment="edge">
+              <VolumeSlider.Root
+                className="media-slider media-volume-slider"
+                orientation="horizontal"
+                thumbAlignment="edge"
+              >
                 <Slider.Track className="media-slider__track">
                   <Slider.Fill className="media-slider__fill" />
                 </Slider.Track>
                 <Slider.Thumb className="media-slider__thumb" />
               </VolumeSlider.Root>
-            </Popover.Popup>
-          </Popover.Root>
+            </div>
 
-          {/* Time Display */}
-          {!isLivestream && (
-            <Time.Group className="media-time">
-              <Time.Value type="current" className="media-time__value" />
-              <Time.Separator className="media-time__separator" />
-              <Time.Value type="duration" className="media-time__value" />
-            </Time.Group>
-          )}
+            {/* Time Display */}
+            {!isLivestream && (
+              <Time.Group className="media-time">
+                <Time.Value type="current" className="media-time__value" />
+                <Time.Separator className="media-time__separator" />
+                <Time.Value type="duration" className="media-time__value" />
+              </Time.Group>
+            )}
+          </div>
+
+          {chapters.length > 0 && !isFloating && <ChapterPill chapters={chapters} />}
         </div>
 
         {/* Right bubble — secondary controls */}
@@ -670,7 +743,9 @@ export default function OdyseeSkin(props: Props) {
                   aria-label={__('Settings')}
                 >
                   <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
-                  {quality.isHD && <span className="media-hd-badge">HD</span>}
+                  {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                    <span className="media-hd-badge">HD</span>
+                  )}
                 </button>
               }
             />
@@ -694,22 +769,11 @@ export default function OdyseeSkin(props: Props) {
               <Tooltip.Trigger
                 render={
                   <button type="button" className="media-button media-button--icon" onClick={onToggleTheaterMode}>
-                    <svg
-                      className="media-icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width={18}
-                      height={18}
-                      fill="none"
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x={2} y={7} width={20} height={15} rx={2} ry={2} />
-                      <polyline points="17 2 12 7 7 2" />
-                    </svg>
+                    <span
+                      className={`media-icon media-icon--theater ${
+                        videoTheaterMode ? 'media-icon--theater-active' : ''
+                      }`}
+                    />
                   </button>
                 }
               />

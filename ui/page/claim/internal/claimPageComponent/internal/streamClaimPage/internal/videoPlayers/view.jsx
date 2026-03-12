@@ -16,6 +16,7 @@ import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
+const ChaptersCard = lazyImport(() => import('component/chaptersCard' /* webpackChunkName: "chaptersCard" */));
 
 export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
@@ -119,6 +120,7 @@ export default function VideoPlayersPage(props: Props) {
         </div>
 
         {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <ChaptersCard uri={uri} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
@@ -135,6 +137,7 @@ export default function VideoPlayersPage(props: Props) {
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
             {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+            {isSmallScreen && <ChaptersCard uri={uri} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
@@ -181,6 +184,7 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
   return (
     <div className="card-stack--spacing-m">
       {!isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+      <ChaptersCard uri={uri} />
       <RecommendedContent uri={uri} />
     </div>
   );
