@@ -780,7 +780,7 @@ a {
     [data-reach-tab-panels]
   ):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(
     .MuiPaper-root
-  ):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
+  ):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay):not(.media-slider__thumb) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;

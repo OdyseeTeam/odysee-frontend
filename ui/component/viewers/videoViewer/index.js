@@ -28,7 +28,7 @@ import {
   doSetContentHistoryItem,
   doSetShowAutoplayCountdownForUri,
 } from 'redux/actions/content';
-import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
+import { selectContentPositionForUri, selectPlayingUri, selectIsPlayerFloating } from 'redux/selectors/content';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
@@ -94,6 +94,7 @@ const select = (state, props) => {
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    isFloating: selectIsPlayerFloating(state),
   };
 };
 
