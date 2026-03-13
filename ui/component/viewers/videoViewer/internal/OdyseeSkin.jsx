@@ -7,7 +7,6 @@ import {
   BufferingIndicator,
   CaptionsButton,
   Controls,
-  FullscreenButton,
   MuteButton,
   PlayButton,
   Popover,
@@ -538,10 +537,6 @@ function LiveButton() {
   );
 }
 
-function FullscreenLabel() {
-  return Player.usePlayer((s) => Boolean(s.fullscreen)) ? __('Exit Fullscreen (f)') : __('Fullscreen (f)');
-}
-
 type Props = {
   children?: any,
   className?: string,
@@ -597,7 +592,8 @@ export default function OdyseeSkin(props: Props) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
-  const [shortsFullscreen, setShortsFullscreen] = useState(false);
+  const fsEnterIconRef = React.useRef<?any>(null);
+  const fsExitIconRef = React.useRef<?any>(null);
   const quality = useQualityLevels();
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
@@ -609,13 +605,19 @@ export default function OdyseeSkin(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    const handleFsChange = () => {
+    const syncFsIcons = () => {
       const shortsContainer = document.querySelector('.shorts-page__container');
       // $FlowFixMe
-      setShortsFullscreen(document.fullscreenElement === shortsContainer);
+      const fsEl = document.fullscreenElement;
+      const isFs =
+        (!!window.__videoFullscreenContainer && fsEl === window.__videoFullscreenContainer) ||
+        (!!shortsContainer && fsEl === shortsContainer);
+      if (fsEnterIconRef.current) fsEnterIconRef.current.style.display = isFs ? 'none' : '';
+      if (fsExitIconRef.current) fsExitIconRef.current.style.display = isFs ? '' : 'none';
     };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+    syncFsIcons();
+    document.addEventListener('fullscreenchange', syncFsIcons);
+    return () => document.removeEventListener('fullscreenchange', syncFsIcons);
   }, []);
 
   const toggleShortsFullscreen = useCallback(() => {
@@ -929,65 +931,67 @@ export default function OdyseeSkin(props: Props) {
           <Tooltip.Root side="top">
             <Tooltip.Trigger
               render={
-                <FullscreenButton
-                  render={(p) => {
-                    const { onClick: libOnClick, ...btnProps } = p;
-                    const handleClick = (e) => {
-                      const shortsContainer = document.querySelector('.shorts-page__container');
-                      if (shortsContainer) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        toggleShortsFullscreen();
-                      } else if (libOnClick) {
-                        libOnClick(e);
+                <Btn
+                  type="button"
+                  className="media-button--icon media-button--fullscreen"
+                  aria-label="Fullscreen"
+                  onClick={(e) => {
+                    const shortsContainer = document.querySelector('.shorts-page__container');
+                    if (shortsContainer) {
+                      toggleShortsFullscreen();
+                    } else if (window.__videoFullscreenContainer) {
+                      // $FlowFixMe
+                      if (document.fullscreenElement) {
+                        if (window.exitPlayerFullscreen) window.exitPlayerFullscreen();
+                      } else {
+                        if (window.enterPlayerFullscreen) window.enterPlayerFullscreen();
                       }
-                    };
-                    return (
-                      <Btn
-                        {...btnProps}
-                        onClick={handleClick}
-                        className="media-button--icon media-button--fullscreen"
-                        data-fullscreen={shortsFullscreen || undefined}
-                      >
-                        <svg
-                          className="media-icon media-icon--fullscreen-enter"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={18}
-                          height={18}
-                          fill="none"
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                        </svg>
-                        <svg
-                          className="media-icon media-icon--fullscreen-exit"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={18}
-                          height={18}
-                          fill="none"
-                          aria-hidden="true"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
-                        </svg>
-                      </Btn>
-                    );
+                    } else {
+                      const container = e.currentTarget.closest('.odysee-skin');
+                      // $FlowFixMe
+                      if (document.fullscreenElement) document.exitFullscreen();
+                      // $FlowFixMe
+                      else if (container) container.requestFullscreen();
+                    }
                   }}
-                />
+                >
+                  <svg
+                    ref={fsEnterIconRef}
+                    className="media-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={18}
+                    height={18}
+                    fill="none"
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                  </svg>
+                  <svg
+                    ref={fsExitIconRef}
+                    className="media-icon"
+                    style={{ display: 'none' }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={18}
+                    height={18}
+                    fill="none"
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
+                  </svg>
+                </Btn>
               }
             />
-            <Tooltip.Popup className="media-tooltip">
-              {shortsFullscreen ? __('Exit Fullscreen (f)') : <FullscreenLabel />}
-            </Tooltip.Popup>
+            <Tooltip.Popup className="media-tooltip">{__('Fullscreen (f)')}</Tooltip.Popup>
           </Tooltip.Root>
         </div>
       </Controls.Root>
