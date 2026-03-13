@@ -161,6 +161,7 @@ function SettingsMenuContent({
   onShowShortcuts,
   onCloseMenu,
   quality,
+  isFloating,
 }) {
   const { levels, currentLevel, currentLabel, selectQuality } = quality;
   const [view, setView] = useState('main');
@@ -176,6 +177,7 @@ function SettingsMenuContent({
     [media]
   );
 
+  const isShorts = !!document.querySelector('.shorts-page__container');
   const [looped, setLooped] = useState(false);
   const handleToggleLoop = useCallback(() => {
     if (media) {
@@ -321,7 +323,11 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
         </button>
       )}
-      <button type="button" className="media-settings-menu__item" onClick={onToggleFloatingPlayer}>
+      <button
+        type="button"
+        className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
+        onClick={isFloating ? undefined : onToggleFloatingPlayer}
+      >
         <svg
           className="media-settings-menu__icon"
           width={16}
@@ -363,7 +369,7 @@ function SettingsMenuContent({
           <span className="media-settings-toggle__knob" />
         </span>
       </button>
-      {!isMarkdownOrComment && onToggleAutoplayNext && (
+      {!isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
@@ -372,13 +378,15 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
-        <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
-        <span className="media-settings-menu__label">{__('Loop')}</span>
-        <span className={`media-settings-toggle ${looped ? 'media-settings-toggle--on' : ''}`}>
-          <span className="media-settings-toggle__knob" />
-        </span>
-      </button>
+      {!isShorts && (
+        <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
+          <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
+          <span className="media-settings-menu__label">{__('Loop')}</span>
+          <span className={`media-settings-toggle ${looped ? 'media-settings-toggle--on' : ''}`}>
+            <span className="media-settings-toggle__knob" />
+          </span>
+        </button>
+      )}
       <button type="button" className="media-settings-menu__item" onClick={() => setView('speed')}>
         <svg
           className="media-settings-menu__icon"
@@ -589,6 +597,7 @@ export default function OdyseeSkin(props: Props) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
+  const [shortsFullscreen, setShortsFullscreen] = useState(false);
   const quality = useQualityLevels();
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
@@ -597,6 +606,27 @@ export default function OdyseeSkin(props: Props) {
     const handler = () => setShowShortcuts((v) => !v);
     window.addEventListener('toggleShortcuts', handler);
     return () => window.removeEventListener('toggleShortcuts', handler);
+  }, []);
+
+  React.useEffect(() => {
+    const handleFsChange = () => {
+      const shortsContainer = document.querySelector('.shorts-page__container');
+      // $FlowFixMe
+      setShortsFullscreen(document.fullscreenElement === shortsContainer);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleShortsFullscreen = useCallback(() => {
+    // $FlowFixMe
+    if (document.fullscreenElement) {
+      // $FlowFixMe
+      window.exitShortsFullscreen?.();
+    } else {
+      // $FlowFixMe
+      window.enterShortsFullscreen?.();
+    }
   }, []);
 
   return (
@@ -872,6 +902,7 @@ export default function OdyseeSkin(props: Props) {
                 onShowShortcuts={() => setShowShortcuts(true)}
                 onCloseMenu={() => setSettingsOpen(false)}
                 quality={quality}
+                isFloating={isFloating}
               />
             </Popover.Popup>
           </Popover.Root>
@@ -901,45 +932,63 @@ export default function OdyseeSkin(props: Props) {
             <Tooltip.Trigger
               render={
                 <FullscreenButton
-                  render={(p) => (
-                    <Btn {...p} className="media-button--icon media-button--fullscreen">
-                      <svg
-                        className="media-icon media-icon--fullscreen-enter"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                  render={(p) => {
+                    const { onClick: libOnClick, ...btnProps } = p;
+                    const handleClick = (e) => {
+                      const shortsContainer = document.querySelector('.shorts-page__container');
+                      if (shortsContainer) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleShortsFullscreen();
+                      } else if (libOnClick) {
+                        libOnClick(e);
+                      }
+                    };
+                    return (
+                      <Btn
+                        {...btnProps}
+                        onClick={handleClick}
+                        className="media-button--icon media-button--fullscreen"
+                        data-fullscreen={shortsFullscreen || undefined}
                       >
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
-                      </svg>
-                      <svg
-                        className="media-icon media-icon--fullscreen-exit"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
-                      </svg>
-                    </Btn>
-                  )}
+                        <svg
+                          className="media-icon media-icon--fullscreen-enter"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                        </svg>
+                        <svg
+                          className="media-icon media-icon--fullscreen-exit"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
+                        </svg>
+                      </Btn>
+                    );
+                  }}
                 />
               }
             />
             <Tooltip.Popup className="media-tooltip">
-              <FullscreenLabel />
+              {shortsFullscreen ? __('Exit Fullscreen (f)') : <FullscreenLabel />}
             </Tooltip.Popup>
           </Tooltip.Root>
         </div>
