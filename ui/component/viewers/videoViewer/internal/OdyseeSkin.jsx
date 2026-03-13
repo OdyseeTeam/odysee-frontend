@@ -153,6 +153,10 @@ function SettingsMenuContent({
   isLivestream,
   onToggleAutoplayNext,
   autoplayNext,
+  floatingPlayer,
+  onToggleFloatingPlayer,
+  autoplayMedia,
+  onToggleAutoplayMedia,
   title,
   onShowShortcuts,
   onCloseMenu,
@@ -317,20 +321,62 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
         </button>
       )}
+      <button type="button" className="media-settings-menu__item" onClick={onToggleFloatingPlayer}>
+        <svg
+          className="media-settings-menu__icon"
+          width={16}
+          height={16}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="2" y="3" width="20" height="14" rx="2" />
+          <rect x="7.5" y="6.5" width="9" height="7" rx="1" fill="currentColor" stroke="none" />
+        </svg>
+        <span className="media-settings-menu__label">{__('Floating Player')}</span>
+        <span className={`media-settings-toggle ${floatingPlayer ? 'media-settings-toggle--on' : ''}`}>
+          <span className="media-settings-toggle__knob" />
+        </span>
+      </button>
+      <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayMedia}>
+        <svg
+          className="media-settings-menu__icon"
+          width={16}
+          height={16}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+        </svg>
+        <span className="media-settings-menu__label">{__('Autoplay')}</span>
+        <span className={`media-settings-toggle ${autoplayMedia ? 'media-settings-toggle--on' : ''}`}>
+          <span className="media-settings-toggle__knob" />
+        </span>
+      </button>
       {!isMarkdownOrComment && onToggleAutoplayNext && (
         <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
-          <span className={`media-settings-menu__toggle ${autoplayNext ? 'media-settings-menu__toggle--on' : ''}`}>
-            {autoplayNext ? __('On') : __('Off')}
+          <span className={`media-settings-toggle ${autoplayNext ? 'media-settings-toggle--on' : ''}`}>
+            <span className="media-settings-toggle__knob" />
           </span>
         </button>
       )}
       <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
         <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
         <span className="media-settings-menu__label">{__('Loop')}</span>
-        <span className={`media-settings-menu__toggle ${looped ? 'media-settings-menu__toggle--on' : ''}`}>
-          {looped ? __('On') : __('Off')}
+        <span className={`media-settings-toggle ${looped ? 'media-settings-toggle--on' : ''}`}>
+          <span className="media-settings-toggle__knob" />
         </span>
       </button>
       <button type="button" className="media-settings-menu__item" onClick={() => setView('speed')}>
@@ -447,6 +493,43 @@ function ChapterPill({ chapters }: { chapters: Array<any> }) {
   );
 }
 
+function LiveButton() {
+  const media = Player.useMedia();
+  const currentTime = Player.usePlayer((s) => s.currentTime) || 0;
+  const [atEdge, setAtEdge] = useState(true);
+
+  useEffect(() => {
+    if (!media) return;
+    const check = () => {
+      if (media.seekable && media.seekable.length > 0) {
+        const end = media.seekable.end(media.seekable.length - 1);
+        setAtEdge(end - media.currentTime < 5);
+      }
+    };
+    check();
+    media.addEventListener('timeupdate', check);
+    return () => media.removeEventListener('timeupdate', check);
+  }, [media, currentTime]);
+
+  const seekToLive = useCallback(() => {
+    if (!media) return;
+    if (media.seekable && media.seekable.length > 0) {
+      media.currentTime = media.seekable.end(media.seekable.length - 1);
+    }
+  }, [media]);
+
+  return (
+    <button
+      type="button"
+      className={`odysee-live-button ${atEdge ? 'odysee-live-button--at-edge' : ''}`}
+      onClick={seekToLive}
+    >
+      <span className="odysee-live-button__dot" />
+      {__('LIVE')}
+    </button>
+  );
+}
+
 function FullscreenLabel() {
   return Player.usePlayer((s) => Boolean(s.fullscreen)) ? __('Exit Fullscreen (f)') : __('Fullscreen (f)');
 }
@@ -460,11 +543,16 @@ type Props = {
   videoTheaterMode?: boolean,
   onToggleAutoplayNext?: () => void,
   autoplayNext?: boolean,
+  floatingPlayer?: boolean,
+  onToggleFloatingPlayer?: () => void,
+  autoplayMedia?: boolean,
+  onToggleAutoplayMedia?: () => void,
   onPlayNext?: () => void,
   onPlayPrevious?: () => void,
   canPlayNext?: boolean,
   canPlayPrevious?: boolean,
   defaultQuality?: ?string,
+  originalVideoWidth?: ?number,
   originalVideoHeight?: ?number,
   title?: ?string,
   description?: ?string,
@@ -481,11 +569,16 @@ export default function OdyseeSkin(props: Props) {
     videoTheaterMode,
     onToggleAutoplayNext,
     autoplayNext,
+    floatingPlayer,
+    onToggleFloatingPlayer,
+    autoplayMedia,
+    onToggleAutoplayMedia,
     onPlayNext,
     onPlayPrevious,
     canPlayNext,
     canPlayPrevious,
     defaultQuality,
+    originalVideoWidth,
     originalVideoHeight,
     title,
     description,
@@ -495,8 +588,16 @@ export default function OdyseeSkin(props: Props) {
 
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showRemaining, setShowRemaining] = useState(false);
   const quality = useQualityLevels();
   const chapters = React.useMemo(() => parseChapters(description), [description]);
+  const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
+
+  React.useEffect(() => {
+    const handler = () => setShowShortcuts((v) => !v);
+    window.addEventListener('toggleShortcuts', handler);
+    return () => window.removeEventListener('toggleShortcuts', handler);
+  }, []);
 
   return (
     <Player.Container
@@ -526,7 +627,13 @@ export default function OdyseeSkin(props: Props) {
             </Slider.Track>
             <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
             <Slider.Preview className="odysee-slider-preview">
-              <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+              {!isVerticalVideo ? (
+                <div className="odysee-slider-preview__thumbnail-frame">
+                  <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+                </div>
+              ) : (
+                <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+              )}
               {chapters.length > 0 && (
                 <Slider.Value
                   type="pointer"
@@ -661,10 +768,12 @@ export default function OdyseeSkin(props: Props) {
               </VolumeSlider.Root>
             </div>
 
-            {/* Time Display */}
-            {!isLivestream && (
-              <Time.Group className="media-time">
-                <Time.Value type="current" className="media-time__value" />
+            {/* Time Display / Live Indicator */}
+            {isLivestream ? (
+              <LiveButton />
+            ) : (
+              <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
+                <Time.Value type={showRemaining ? 'remaining' : 'current'} className="media-time__value" />
                 <Time.Separator className="media-time__separator" />
                 <Time.Value type="duration" className="media-time__value" />
               </Time.Group>
@@ -755,6 +864,10 @@ export default function OdyseeSkin(props: Props) {
                 isLivestream={Boolean(isLivestream)}
                 onToggleAutoplayNext={onToggleAutoplayNext}
                 autoplayNext={autoplayNext}
+                floatingPlayer={floatingPlayer}
+                onToggleFloatingPlayer={onToggleFloatingPlayer}
+                autoplayMedia={autoplayMedia}
+                onToggleAutoplayMedia={onToggleAutoplayMedia}
                 title={title}
                 onShowShortcuts={() => setShowShortcuts(true)}
                 onCloseMenu={() => setSettingsOpen(false)}

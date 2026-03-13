@@ -60,6 +60,10 @@ type Props = {
   canPlayPrevious: boolean,
   autoplayNext: boolean,
   onToggleAutoplayNext: () => void,
+  floatingPlayer: boolean,
+  onToggleFloatingPlayer: () => void,
+  autoplayMedia: boolean,
+  onToggleAutoplayMedia: () => void,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
   isFloating: boolean,
@@ -102,6 +106,10 @@ function VideoJsInner(props: Props) {
     canPlayPrevious,
     autoplayNext,
     onToggleAutoplayNext,
+    floatingPlayer,
+    onToggleFloatingPlayer,
+    autoplayMedia,
+    onToggleAutoplayMedia,
     videoTheaterMode,
     isMarkdownOrComment,
     isFloating,
@@ -316,11 +324,16 @@ function VideoJsInner(props: Props) {
         videoTheaterMode={videoTheaterMode}
         onToggleAutoplayNext={onToggleAutoplayNext}
         autoplayNext={autoplayNext}
+        floatingPlayer={floatingPlayer}
+        onToggleFloatingPlayer={onToggleFloatingPlayer}
+        autoplayMedia={autoplayMedia}
+        onToggleAutoplayMedia={onToggleAutoplayMedia}
         onPlayNext={playNext}
         onPlayPrevious={playPrevious}
         canPlayNext={canPlayNext}
         canPlayPrevious={canPlayPrevious}
         defaultQuality={defaultQuality}
+        originalVideoWidth={claimValues?.video?.width}
         originalVideoHeight={claimValues?.video?.height}
         title={title}
         description={claimValues?.description}

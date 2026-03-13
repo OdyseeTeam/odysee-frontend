@@ -135,6 +135,30 @@ $control-bar-height-mobile: 44px;
   opacity: 1 !important;
 }
 
+.odysee-slider-preview__thumbnail-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  border: 1px solid white;
+  border-radius: var(--border-radius);
+  aspect-ratio: 16 / 9;
+  min-width: fit-content;
+  min-height: fit-content;
+
+  .odysee-slider-preview__thumbnail {
+    border: none;
+    background-color: transparent;
+    border-radius: 0;
+  }
+
+  &:has(.odysee-slider-preview__thumbnail:empty),
+  &:has(.odysee-slider-preview__thumbnail img:not([src])),
+  &:has(.odysee-slider-preview__thumbnail img[src='']) {
+    display: none;
+  }
+}
+
 .odysee-slider-preview__thumbnail {
   border: 1px solid white;
   border-radius: var(--border-radius);
@@ -246,9 +270,56 @@ $control-bar-height-mobile: 44px;
 .odysee-controls--left .media-time {
   flex: 0 0 auto;
   container: none;
+  gap: 3px;
+  cursor: pointer;
+  border-radius: 9999px;
+  height: 34px;
+  padding: 0 8px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: oklch(from currentColor l c h / 0.1);
+  }
 
   .media-time__value:first-child {
     display: block !important;
+  }
+}
+
+.odysee-live-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0 8px;
+  height: 34px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: oklch(from currentColor l c h / 0.1);
+  }
+
+  .odysee-live-button__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: background-color 0.3s ease;
+  }
+
+  &--at-edge {
+    color: var(--color-live, #e73838);
+
+    .odysee-live-button__dot {
+      background-color: var(--color-live, #e73838);
+    }
   }
 }
 
@@ -463,6 +534,36 @@ $control-bar-height-mobile: 44px;
     &--on {
       background: var(--color-primary);
       color: var(--color-primary-contrast);
+    }
+  }
+}
+
+.media-settings-toggle {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  margin-left: auto;
+
+  &--on {
+    background-color: var(--color-primary);
+  }
+
+  &__knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s ease;
+
+    .media-settings-toggle--on & {
+      transform: translateX(12px);
     }
   }
 }
