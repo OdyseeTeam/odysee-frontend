@@ -64,6 +64,15 @@ export default function useKeyboardShortcuts({
     }
 
     function toggleFullscreen() {
+      if (window.enterShortsFullscreen && document.querySelector('.shorts-page__container')) {
+        // $FlowFixMe
+        if (document.fullscreenElement) {
+          window.exitShortsFullscreen();
+        } else {
+          window.enterShortsFullscreen();
+        }
+        return;
+      }
       const s = getState();
       if (s.fullscreen) {
         s.exitFullscreen();

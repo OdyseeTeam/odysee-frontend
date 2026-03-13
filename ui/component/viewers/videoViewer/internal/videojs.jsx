@@ -278,6 +278,12 @@ function VideoJsInner(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
 
+  useEffect(() => {
+    if (!media) return;
+    const isShorts = !!document.querySelector('.shorts-page__container');
+    if (isShorts) media.loop = true;
+  }, [media]);
+
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
   useEffect(() => {
     if (!media) return;
@@ -293,6 +299,80 @@ function VideoJsInner(props: Props) {
     media.textTracks.addEventListener('addtrack', enableTracks);
     return () => media.textTracks.removeEventListener('addtrack', enableTracks);
   }, [media]);
+
+  useEffect(() => {
+    // $FlowFixMe
+    let hoverForwarder: any = null;
+
+    const restorePlayer = () => {
+      // $FlowFixMe
+      const player: any = document.querySelector('.shorts__viewer');
+      if (!player || !player._originalParent) return;
+      const shortsContainer = document.querySelector('.shorts-page__container');
+      if (hoverForwarder && shortsContainer) {
+        shortsContainer.removeEventListener('pointermove', hoverForwarder);
+        hoverForwarder = null;
+      }
+      if (player._originalNextSibling && player._originalNextSibling.parentElement === player._originalParent) {
+        player._originalParent.insertBefore(player, player._originalNextSibling);
+      } else {
+        player._originalParent.appendChild(player);
+      }
+      if (player._savedStyle !== undefined) {
+        player.style.cssText = player._savedStyle;
+        delete player._savedStyle;
+      }
+      delete player._originalParent;
+      delete player._originalNextSibling;
+    };
+
+    // $FlowFixMe
+    window.enterShortsFullscreen = () => {
+      const shortsContainer = document.querySelector('.shorts-page__container');
+      // $FlowFixMe
+      const player: any = document.querySelector('.shorts__viewer');
+      if (!shortsContainer || !player) return;
+      player._originalParent = player.parentElement;
+      player._originalNextSibling = player.nextSibling;
+      player._savedStyle = player.style.cssText;
+      const videoSection = shortsContainer.querySelector('.shorts-page__video-section');
+      if (videoSection) videoSection.insertBefore(player, videoSection.firstChild);
+      // $FlowFixMe
+      shortsContainer.requestFullscreen();
+    };
+
+    // $FlowFixMe
+    window.exitShortsFullscreen = () => {
+      // $FlowFixMe
+      document.exitFullscreen();
+    };
+
+    const handleFullscreenChange = () => {
+      const shortsContainer = document.querySelector('.shorts-page__container');
+      if (!shortsContainer) return;
+
+      // $FlowFixMe
+      if (document.fullscreenElement === shortsContainer) {
+        hoverForwarder = (e) => {
+          if (e.target && e.target.closest && e.target.closest('.media-default-skin')) return;
+          const skin = shortsContainer.querySelector('.media-default-skin');
+          if (skin) skin.dispatchEvent(new PointerEvent('pointermove', { bubbles: true }));
+        };
+        // $FlowFixMe
+        shortsContainer.addEventListener('pointermove', hoverForwarder);
+      } else {
+        restorePlayer();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      delete window.enterShortsFullscreen;
+      delete window.exitShortsFullscreen;
+      restorePlayer();
+    };
+  }, []);
 
   // Disable context menu for protected content
   useEffect(() => {

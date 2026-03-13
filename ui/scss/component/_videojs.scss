@@ -460,6 +460,11 @@ $control-bar-height-mobile: 44px;
     &:hover {
       background-color: rgba(115, 133, 159, 0.3);
     }
+
+    &--disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
   }
 
   &__icon {
