@@ -128,6 +128,7 @@ export default function useKeyboardShortcuts({
         if (e.keyCode === KEYCODES.COMMA) changePlaybackSpeed(false);
         if (e.keyCode === KEYCODES.N) playNext();
         if (e.keyCode === KEYCODES.P) playPrevious();
+        if (e.keyCode === KEYCODES.SLASH) window.dispatchEvent(new CustomEvent('toggleShortcuts'));
         return;
       }
 

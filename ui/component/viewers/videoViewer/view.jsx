@@ -80,6 +80,10 @@ type Props = {
   doSetVideoSourceLoaded: (uri: string) => void,
   autoPlayNextShort: boolean,
   isFloating: boolean,
+  floatingPlayer: boolean,
+  setFloatingPlayer: (boolean) => void,
+  autoplayMedia: boolean,
+  setAutoplayMedia: (boolean) => void,
 };
 
 function VideoViewer(props: Props) {
@@ -107,6 +111,10 @@ function VideoViewer(props: Props) {
     clearPosition,
     toggleVideoTheaterMode,
     toggleAutoplayNext,
+    floatingPlayer,
+    setFloatingPlayer,
+    autoplayMedia,
+    setAutoplayMedia,
     setVideoPlaybackRate,
     homepageData,
     authenticated,
@@ -163,6 +171,8 @@ function VideoViewer(props: Props) {
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
+  const [localFloatingPlayer, setLocalFloatingPlayer] = useState(floatingPlayer);
+  const [localAutoplayMedia, setLocalAutoplayMedia] = useState(autoplayMedia);
 
   const embedContext = useContext(EmbedContext);
   const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
@@ -198,6 +208,30 @@ function VideoViewer(props: Props) {
     toggleAutoplayNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localAutoplayNext]);
+
+  const isFirstFloatingRender = React.useRef(true);
+  useEffect(() => {
+    if (isFirstFloatingRender.current) {
+      isFirstFloatingRender.current = false;
+      return;
+    }
+    setFloatingPlayer(localFloatingPlayer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localFloatingPlayer]);
+
+  const isFirstAutoplayMediaRender = React.useRef(true);
+  useEffect(() => {
+    if (isFirstAutoplayMediaRender.current) {
+      isFirstAutoplayMediaRender.current = false;
+      return;
+    }
+    setAutoplayMedia(localAutoplayMedia);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localAutoplayMedia]);
+
+  const handleToggleAutoplayNext = useCallback(() => setLocalAutoplayNext((v) => !v), []);
+  const handleToggleFloatingPlayer = useCallback(() => setLocalFloatingPlayer((v) => !v), []);
+  const handleToggleAutoplayMedia = useCallback(() => setLocalAutoplayMedia((v) => !v), []);
 
   useInterval(
     () => {
@@ -438,8 +472,12 @@ function VideoViewer(props: Props) {
           autoPlayNextShort={autoPlayNextShort}
           canPlayNext={canPlayNext}
           canPlayPrevious={canPlayPrevious}
-          autoplayNext={autoplayNext}
-          onToggleAutoplayNext={() => setLocalAutoplayNext((e) => !e)}
+          autoplayNext={localAutoplayNext}
+          onToggleAutoplayNext={handleToggleAutoplayNext}
+          floatingPlayer={localFloatingPlayer}
+          onToggleFloatingPlayer={handleToggleFloatingPlayer}
+          autoplayMedia={localAutoplayMedia}
+          onToggleAutoplayMedia={handleToggleAutoplayMedia}
           videoTheaterMode={videoTheaterMode}
           isMarkdownOrComment={isMarkdownOrComment}
           isFloating={isFloating}
