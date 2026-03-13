@@ -647,35 +647,33 @@ export default function OdyseeSkin(props: Props) {
       />
 
       {/* Progress Bar — above the control bar */}
-      {!isLivestream && (
-        <div className="odysee-progress-bar">
-          <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
-            <Slider.Track className="media-slider__track odysee-slider__track">
-              <Slider.Fill className="media-slider__fill odysee-slider__fill" />
-              <Slider.Buffer className="media-slider__buffer odysee-slider__buffer" />
-              {chapters.length > 0 && <ChapterMarkers chapters={chapters} />}
-            </Slider.Track>
-            <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
-            <Slider.Preview className="odysee-slider-preview">
-              {!isVerticalVideo ? (
-                <div className="odysee-slider-preview__thumbnail-frame">
-                  <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
-                </div>
-              ) : (
+      <div className="odysee-progress-bar">
+        <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
+          <Slider.Track className="media-slider__track odysee-slider__track">
+            <Slider.Fill className="media-slider__fill odysee-slider__fill" />
+            <Slider.Buffer className="media-slider__buffer odysee-slider__buffer" />
+            {chapters.length > 0 && <ChapterMarkers chapters={chapters} />}
+          </Slider.Track>
+          <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
+          <Slider.Preview className="odysee-slider-preview">
+            {!isVerticalVideo ? (
+              <div className="odysee-slider-preview__thumbnail-frame">
                 <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
-              )}
-              {chapters.length > 0 && (
-                <Slider.Value
-                  type="pointer"
-                  format={chapterFormatFn(chapters)}
-                  className="odysee-slider-preview__chapter"
-                />
-              )}
-              <Slider.Value type="pointer" className="odysee-slider-preview__time" />
-            </Slider.Preview>
-          </TimeSlider.Root>
-        </div>
-      )}
+              </div>
+            ) : (
+              <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+            )}
+            {chapters.length > 0 && (
+              <Slider.Value
+                type="pointer"
+                format={chapterFormatFn(chapters)}
+                className="odysee-slider-preview__chapter"
+              />
+            )}
+            <Slider.Value type="pointer" className="odysee-slider-preview__time" />
+          </Slider.Preview>
+        </TimeSlider.Root>
+      </div>
 
       <Controls.Root className="media-controls odysee-controls-row">
         <div className="odysee-controls-group--left">
