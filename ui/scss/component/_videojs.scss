@@ -747,3 +747,268 @@ $control-bar-height-mobile: 44px;
     margin-right: 8px;
   }
 }
+
+.video-fullscreen-container {
+  display: none;
+}
+
+.video-fullscreen-container:fullscreen {
+  display: flex;
+  background: #000;
+  justify-content: center;
+  align-items: center;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  inset: 0 !important;
+
+  .video-fullscreen-container__player-section {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .content__viewer,
+  .content__viewer .content__wrapper,
+  .content__viewer .file-render,
+  .content__viewer .file-viewer,
+  .content__viewer .video-js-parent,
+  .content__viewer .odysee-skin,
+  .content__viewer media-container {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    position: relative !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    aspect-ratio: unset !important;
+    overflow: hidden !important;
+  }
+
+  .content__viewer video {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+  }
+
+  .content__viewer .file-render--video::after {
+    display: none !important;
+  }
+
+  .video-fullscreen__actions {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.075rem;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    background-color: oklch(0 0 0 / 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .video-fullscreen__action-btn {
+    background-color: transparent !important;
+    backdrop-filter: none;
+    box-shadow: none !important;
+    border-radius: 9999px !important;
+    width: 2.125rem !important;
+    height: 2.125rem !important;
+    min-width: 2.125rem;
+    min-height: 2.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background-color: oklch(1 0 0 / 0.2) !important;
+    }
+
+    .button__content {
+      padding: 0;
+    }
+  }
+
+  .video-fullscreen__reactions-no-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .ratio-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.075rem;
+    }
+
+    .ratio-bar-container {
+      display: none;
+    }
+
+    .counter-inline,
+    .reaction-count-placeholder {
+      display: none !important;
+    }
+
+    .button--file-action {
+      background-color: transparent !important;
+      backdrop-filter: none;
+      box-shadow: none !important;
+      border-radius: 9999px !important;
+      width: 2.125rem !important;
+      height: 2.125rem !important;
+      min-width: 2.125rem;
+      min-height: 2.125rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+      position: relative;
+      padding: 0 !important;
+      margin: 0 !important;
+      color: white;
+      transition: background-color 150ms ease;
+
+      &:hover {
+        background-color: oklch(1 0 0 / 0.2) !important;
+      }
+
+      .button__content {
+        padding: 0;
+        gap: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .button__label {
+        display: contents;
+      }
+
+      .button__fire-glow {
+        left: 50%;
+        bottom: 50%;
+      }
+
+      .button__fire-particle1,
+      .button__fire-particle4 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter1 !important;
+      }
+      .button__fire-particle2,
+      .button__fire-particle5 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter2 !important;
+      }
+      .button__fire-particle3,
+      .button__fire-particle6 {
+        left: 50%;
+        right: auto;
+        animation-name: particleUpCenter3 !important;
+      }
+
+      [class^='button__slime'] {
+        left: 50%;
+        bottom: 50%;
+      }
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        stroke: white;
+        filter: drop-shadow(0 1px 0 oklch(0 0 0 / 0.25));
+      }
+    }
+  }
+
+  &:has(.media-controls[data-visible]),
+  &:has([data-paused]) {
+    .video-fullscreen__actions {
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 100ms ease-out, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  .video-fullscreen__side-panel {
+    position: fixed;
+    top: 0;
+    right: -720px;
+    width: 720px;
+    height: 100%;
+    background: var(--color-background);
+    z-index: 200;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+  }
+
+  .video-fullscreen__side-panel--open {
+    right: 0;
+  }
+
+  .video-fullscreen__close-button-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 16px;
+  }
+
+  .video-fullscreen__close-button {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+
+    &:hover {
+      background: rgba(128, 128, 128, 0.2);
+    }
+  }
+
+  .video-fullscreen__side-panel-content {
+    padding: 0 24px 24px;
+  }
+
+  &.video-fullscreen-container--panel-open {
+    .video-fullscreen-container__player-section {
+      margin-right: 720px;
+    }
+
+    .video-fullscreen__actions {
+      right: 744px;
+    }
+  }
+}
