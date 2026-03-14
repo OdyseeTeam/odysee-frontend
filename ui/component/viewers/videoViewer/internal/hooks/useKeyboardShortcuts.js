@@ -64,20 +64,14 @@ export default function useKeyboardShortcuts({
     }
 
     function toggleFullscreen() {
-      if (window.enterShortsFullscreen && document.querySelector('.shorts-page__container')) {
+      const target = document.querySelector('.player-fullscreen-target');
+      // $FlowFixMe
+      if (document.fullscreenElement) {
         // $FlowFixMe
-        if (document.fullscreenElement) {
-          window.exitShortsFullscreen();
-        } else {
-          window.enterShortsFullscreen();
-        }
-        return;
-      }
-      const s = getState();
-      if (s.fullscreen) {
-        s.exitFullscreen();
-      } else {
-        s.requestFullscreen();
+        document.exitFullscreen();
+      } else if (target) {
+        // $FlowFixMe
+        target.requestFullscreen();
       }
     }
 

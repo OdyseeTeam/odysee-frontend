@@ -176,7 +176,9 @@ function SettingsMenuContent({
     [media]
   );
 
-  const isShorts = !!document.querySelector('.shorts-page__container');
+  const isShorts =
+    !!document.querySelector('.shorts-page__container') ||
+    !!document.querySelector('.content__viewer--shorts-floating');
   const [looped, setLooped] = useState(false);
   const handleToggleLoop = useCallback(() => {
     if (media) {
@@ -607,28 +609,16 @@ export default function OdyseeSkin(props: Props) {
   React.useEffect(() => {
     const syncFsIcons = () => {
       const shortsContainer = document.querySelector('.shorts-page__container');
+      const fsTarget = document.querySelector('.player-fullscreen-target');
       // $FlowFixMe
       const fsEl = document.fullscreenElement;
-      const isFs =
-        (!!window.__videoFullscreenContainer && fsEl === window.__videoFullscreenContainer) ||
-        (!!shortsContainer && fsEl === shortsContainer);
+      const isFs = (!!fsTarget && fsEl === fsTarget) || (!!shortsContainer && fsEl === shortsContainer);
       if (fsEnterIconRef.current) fsEnterIconRef.current.style.display = isFs ? 'none' : '';
       if (fsExitIconRef.current) fsExitIconRef.current.style.display = isFs ? '' : 'none';
     };
     syncFsIcons();
     document.addEventListener('fullscreenchange', syncFsIcons);
     return () => document.removeEventListener('fullscreenchange', syncFsIcons);
-  }, []);
-
-  const toggleShortsFullscreen = useCallback(() => {
-    // $FlowFixMe
-    if (document.fullscreenElement) {
-      // $FlowFixMe
-      window.exitShortsFullscreen?.();
-    } else {
-      // $FlowFixMe
-      window.enterShortsFullscreen?.();
-    }
   }, []);
 
   return (
@@ -935,23 +925,17 @@ export default function OdyseeSkin(props: Props) {
                   type="button"
                   className="media-button--icon media-button--fullscreen"
                   aria-label="Fullscreen"
-                  onClick={(e) => {
-                    const shortsContainer = document.querySelector('.shorts-page__container');
-                    if (shortsContainer) {
-                      toggleShortsFullscreen();
-                    } else if (window.__videoFullscreenContainer) {
+                  onPointerDown={(e) => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    const target = e.currentTarget.closest('.player-fullscreen-target');
+                    // $FlowFixMe
+                    if (document.fullscreenElement) {
                       // $FlowFixMe
-                      if (document.fullscreenElement) {
-                        if (window.exitPlayerFullscreen) window.exitPlayerFullscreen();
-                      } else {
-                        if (window.enterPlayerFullscreen) window.enterPlayerFullscreen();
-                      }
-                    } else {
-                      const container = e.currentTarget.closest('.odysee-skin');
+                      document.exitFullscreen();
+                    } else if (target) {
                       // $FlowFixMe
-                      if (document.fullscreenElement) document.exitFullscreen();
-                      // $FlowFixMe
-                      else if (container) container.requestFullscreen();
+                      target.requestFullscreen();
                     }
                   }}
                 >

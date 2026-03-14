@@ -41,6 +41,7 @@ import {
 import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import VideoFullscreenActions from 'component/videoFullscreenActions';
 import FloatingShortsActions from './internal/floatingShortsActions';
 import FloatingReactions from './internal/floatingReactions';
 
@@ -75,7 +76,7 @@ type Props = {
   playingCollection: Collection,
   hasClaimInQueue: boolean,
   mainPlayerDimensions: { height: number, width: number },
-  location: { search: string, state?: { overrideFloating?: boolean } },
+  location: { search: string, pathname: string, state?: { overrideFloating?: boolean } },
   contentUnlocked: boolean,
   isAutoplayCountdown: ?boolean,
   autoplayCountdownUri: ?string,
@@ -93,6 +94,7 @@ type Props = {
   shortsPlaylist: Array<string>,
   autoPlayNextShort: boolean,
   doSetPlayingUri: (PlayingUri) => void,
+  doToggleShortsAutoplay: () => void,
 };
 
 function VideoRenderFloating(props: Props) {
@@ -136,6 +138,7 @@ function VideoRenderFloating(props: Props) {
     shortsPlaylist,
     autoPlayNextShort,
     doSetPlayingUri,
+    doToggleShortsAutoplay,
   } = props;
 
   const { state } = location;
@@ -192,6 +195,7 @@ function VideoRenderFloating(props: Props) {
   const slimeEffectTimeout = React.useRef(null);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
+  const fullscreenTargetRef = React.useRef(null);
   const noPlayerHeight = fileViewerRect?.height === 0;
   const draggable = !isMobile && isFloating;
   // allows displaying overlays like membership/paid/rental for restrictions even when floating
@@ -341,8 +345,17 @@ function VideoRenderFloating(props: Props) {
 
     if (element) resizeObserver.observe(element);
 
+    const onFullscreenChange = () => {
+      // $FlowFixMe
+      if (!document.fullscreenElement && isFloating) {
+        restoreToRelativePosition();
+      }
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
     return () => {
       resizeObserver.disconnect();
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -353,6 +366,53 @@ function VideoRenderFloating(props: Props) {
     relativePosRef.current = calculateRelativePos(position.x, position.y);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on mount
   }, []);
+
+  React.useEffect(() => {
+    window.__playerFullscreenTarget = fullscreenTargetRef.current;
+    return () => {
+      delete window.__playerFullscreenTarget;
+    };
+  }, []);
+
+  // $FlowFixMe
+  React.useEffect(() => {
+    const body = document.body;
+    if (!body) return;
+    const origAppend = body.appendChild.bind(body);
+    const origRemove = body.removeChild.bind(body);
+
+    // $FlowFixMe
+    body.appendChild = function (node) {
+      // $FlowFixMe
+      if (node && node.nodeName === 'REACH-PORTAL' && document.fullscreenElement) {
+        // $FlowFixMe
+        return document.fullscreenElement.appendChild(node);
+      }
+      return origAppend(node);
+    };
+
+    // $FlowFixMe
+    body.removeChild = function (node) {
+      if (node && node.nodeName === 'REACH-PORTAL' && node.parentNode && node.parentNode !== body) {
+        return node.parentNode.removeChild(node);
+      }
+      return origRemove(node);
+    };
+
+    return () => {
+      delete body.appendChild;
+      delete body.removeChild;
+    };
+  }, []);
+
+  const prevPathnameRef = React.useRef(location.pathname);
+  React.useLayoutEffect(() => {
+    if (prevPathnameRef.current !== location.pathname) {
+      // $FlowFixMe
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      prevPathnameRef.current = location.pathname;
+    }
+  }, [location.pathname]);
 
   React.useEffect(() => {
     if (isFloating && isComment) {
@@ -592,7 +652,8 @@ function VideoRenderFloating(props: Props) {
       >
         <div
           id="abcd"
-          className={classnames({
+          ref={fullscreenTargetRef}
+          className={classnames('player-fullscreen-target', {
             [CONTENT_VIEWER_CLASS]: !isShortVideo,
             [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
@@ -771,6 +832,20 @@ function VideoRenderFloating(props: Props) {
               </div>
             )}
           </div>
+
+          {uri && (
+            <VideoFullscreenActions
+              uri={uri}
+              isShort={isShortVideo}
+              onNext={hasNextShort ? goToNextShort : undefined}
+              onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
+              isAtStart={!hasPreviousShort}
+              isAtEnd={!hasNextShort}
+              hasPlaylist={playlist.length > 0}
+              autoPlayNextShort={autoPlayNextShort}
+              doToggleShortsAutoplay={doToggleShortsAutoplay}
+            />
+          )}
         </div>
       </Draggable>
     </VideoRenderFloatingContext.Provider>
