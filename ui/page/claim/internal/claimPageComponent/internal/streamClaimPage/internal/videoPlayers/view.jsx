@@ -12,7 +12,6 @@ import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import VideoFullscreenActions from 'component/videoFullscreenActions';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -68,55 +67,6 @@ export default function VideoPlayersPage(props: Props) {
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
-
-  const [fullscreenPanelMode, setFullscreenPanelMode] = React.useState(null);
-  const fullscreenContainerRef = React.useRef(null);
-
-  React.useEffect(() => {
-    window.__videoFullscreenContainer = fullscreenContainerRef.current;
-    return () => {
-      delete window.__videoFullscreenContainer;
-    };
-  }, []);
-
-  const handleTogglePanel = React.useCallback((mode) => {
-    setFullscreenPanelMode((prev) => (prev === mode ? null : mode));
-  }, []);
-
-  const handleClosePanel = React.useCallback(() => {
-    setFullscreenPanelMode(null);
-  }, []);
-
-  React.useEffect(() => {
-    const container = fullscreenContainerRef.current;
-    const onFsChange = () => {
-      // $FlowFixMe
-      const fsEl = document.fullscreenElement;
-      if (!fsEl || fsEl !== container) {
-        setFullscreenPanelMode(null);
-      }
-
-      if (fsEl !== container && container) {
-        // $FlowFixMe
-        const viewer: any = document.querySelector('.content__viewer');
-        if (viewer && viewer._originalParent) {
-          if (viewer._originalNextSibling && viewer._originalNextSibling.parentElement === viewer._originalParent) {
-            viewer._originalParent.insertBefore(viewer, viewer._originalNextSibling);
-          } else {
-            viewer._originalParent.appendChild(viewer);
-          }
-          if (viewer._savedStyle !== undefined) {
-            viewer.style.cssText = viewer._savedStyle;
-            delete viewer._savedStyle;
-          }
-          delete viewer._originalParent;
-          delete viewer._originalNextSibling;
-        }
-      }
-    };
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, []);
 
   const initialPlayingCol = React.useRef(playingCollectionId);
 
@@ -179,24 +129,6 @@ export default function VideoPlayersPage(props: Props) {
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   return (
     <>
-      <div
-        ref={fullscreenContainerRef}
-        className={`video-fullscreen-container${fullscreenPanelMode ? ' video-fullscreen-container--panel-open' : ''}`}
-      >
-        <div className="video-fullscreen-container__player-section" />
-        <VideoFullscreenActions
-          uri={uri}
-          accessStatus={accessStatus}
-          contentUnlocked={contentUnlocked}
-          commentsDisabled={commentsDisabled}
-          linkedCommentId={linkedCommentId}
-          threadCommentId={threadCommentId}
-          panelMode={fullscreenPanelMode}
-          onTogglePanel={handleTogglePanel}
-          onClosePanel={handleClosePanel}
-        />
-      </div>
-
       <div className="section card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           <VideoClaimInitiator uri={uri} />

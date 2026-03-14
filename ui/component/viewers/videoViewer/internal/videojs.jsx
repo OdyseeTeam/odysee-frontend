@@ -302,135 +302,21 @@ function VideoJsInner(props: Props) {
 
   useEffect(() => {
     // $FlowFixMe
-    let hoverForwarder: any = null;
-    // $FlowFixMe
     let videoHoverForwarder: any = null;
-    const restorePlayer = () => {
-      // $FlowFixMe
-      const player: any = document.querySelector('.shorts__viewer');
-      if (!player || !player._originalParent) return;
-      const shortsContainer = document.querySelector('.shorts-page__container');
-      if (hoverForwarder && shortsContainer) {
-        shortsContainer.removeEventListener('pointermove', hoverForwarder);
-        hoverForwarder = null;
-      }
-      if (player._originalNextSibling && player._originalNextSibling.parentElement === player._originalParent) {
-        player._originalParent.insertBefore(player, player._originalNextSibling);
-      } else {
-        player._originalParent.appendChild(player);
-      }
-      if (player._savedStyle !== undefined) {
-        player.style.cssText = player._savedStyle;
-        delete player._savedStyle;
-      }
-      delete player._originalParent;
-      delete player._originalNextSibling;
-    };
-
-    const restoreVideoPlayer = () => {
-      // $FlowFixMe
-      const viewer: any = document.querySelector('.content__viewer');
-      if (!viewer || !viewer._originalParent) return;
-      const container = window.__videoFullscreenContainer;
-      if (videoHoverForwarder && container) {
-        container.removeEventListener('pointermove', videoHoverForwarder);
-        videoHoverForwarder = null;
-      }
-      if (viewer._originalNextSibling && viewer._originalNextSibling.parentElement === viewer._originalParent) {
-        viewer._originalParent.insertBefore(viewer, viewer._originalNextSibling);
-      } else {
-        viewer._originalParent.appendChild(viewer);
-      }
-      if (viewer._savedStyle !== undefined) {
-        viewer.style.cssText = viewer._savedStyle;
-        delete viewer._savedStyle;
-      }
-      delete viewer._originalParent;
-      delete viewer._originalNextSibling;
-    };
-
-    // $FlowFixMe
-    window.enterShortsFullscreen = () => {
-      const shortsContainer = document.querySelector('.shorts-page__container');
-      // $FlowFixMe
-      const player: any = document.querySelector('.shorts__viewer');
-      if (!shortsContainer || !player) return;
-      player._originalParent = player.parentElement;
-      player._originalNextSibling = player.nextSibling;
-      player._savedStyle = player.style.cssText;
-      const videoSection = shortsContainer.querySelector('.shorts-page__video-section');
-      if (videoSection) videoSection.insertBefore(player, videoSection.firstChild);
-      // $FlowFixMe
-      shortsContainer.requestFullscreen();
-    };
-
-    // $FlowFixMe
-    window.exitShortsFullscreen = () => {
-      // $FlowFixMe
-      document.exitFullscreen();
-    };
-
-    // $FlowFixMe
-    window.enterPlayerFullscreen = () => {
-      const container = window.__videoFullscreenContainer;
-      // $FlowFixMe
-      const viewer: any = document.querySelector('.content__viewer');
-      if (!container || !viewer) return;
-      viewer._originalParent = viewer.parentElement;
-      viewer._originalNextSibling = viewer.nextSibling;
-      viewer._savedStyle = viewer.style.cssText;
-      viewer.style.cssText = '';
-      const playerSection = container.querySelector('.video-fullscreen-container__player-section');
-      if (playerSection) playerSection.appendChild(viewer);
-      // $FlowFixMe
-      container.requestFullscreen().catch(() => {
-        if (viewer._originalParent) {
-          if (viewer._originalNextSibling && viewer._originalNextSibling.parentElement === viewer._originalParent) {
-            viewer._originalParent.insertBefore(viewer, viewer._originalNextSibling);
-          } else {
-            viewer._originalParent.appendChild(viewer);
-          }
-          if (viewer._savedStyle !== undefined) viewer.style.cssText = viewer._savedStyle;
-          delete viewer._originalParent;
-          delete viewer._originalNextSibling;
-          delete viewer._savedStyle;
-        }
-      });
-    };
-
-    // $FlowFixMe
-    window.exitPlayerFullscreen = () => {
-      // $FlowFixMe
-      if (document.fullscreenElement) document.exitFullscreen();
-    };
-
     const handleFullscreenChange = () => {
-      const shortsContainer = document.querySelector('.shorts-page__container');
-      const videoContainer = window.__videoFullscreenContainer;
+      const fsTarget = document.querySelector('.player-fullscreen-target');
 
       // $FlowFixMe
-      if (shortsContainer && document.fullscreenElement === shortsContainer) {
-        hoverForwarder = (e) => {
+      if (fsTarget && document.fullscreenElement === fsTarget) {
+        videoHoverForwarder = (e) => {
           if (e.target && e.target.closest && e.target.closest('.media-default-skin')) return;
-          const skin = shortsContainer.querySelector('.media-default-skin');
+          const skin = fsTarget.querySelector('.media-default-skin');
           if (skin) skin.dispatchEvent(new PointerEvent('pointermove', { bubbles: true }));
         };
         // $FlowFixMe
-        shortsContainer.addEventListener('pointermove', hoverForwarder);
-      } else if (shortsContainer) {
-        restorePlayer();
-      }
-
-      // $FlowFixMe
-      if (videoContainer && document.fullscreenElement === videoContainer) {
-        videoHoverForwarder = (e) => {
-          if (e.target && e.target.closest && e.target.closest('.media-default-skin')) return;
-          const skin = videoContainer.querySelector('.media-default-skin');
-          if (skin) skin.dispatchEvent(new PointerEvent('pointermove', { bubbles: true }));
-        };
-        videoContainer.addEventListener('pointermove', videoHoverForwarder);
-      } else if (videoHoverForwarder && videoContainer) {
-        videoContainer.removeEventListener('pointermove', videoHoverForwarder);
+        fsTarget.addEventListener('pointermove', videoHoverForwarder);
+      } else if (videoHoverForwarder && fsTarget) {
+        fsTarget.removeEventListener('pointermove', videoHoverForwarder);
         videoHoverForwarder = null;
       }
     };
@@ -438,12 +324,6 @@ function VideoJsInner(props: Props) {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      delete window.enterShortsFullscreen;
-      delete window.exitShortsFullscreen;
-      delete window.enterPlayerFullscreen;
-      delete window.exitPlayerFullscreen;
-      restorePlayer();
-      restoreVideoPlayer();
     };
   }, []);
 
