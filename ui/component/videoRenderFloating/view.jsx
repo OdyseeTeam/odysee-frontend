@@ -1061,7 +1061,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
             (!forceDefaults || isLandscapeRotated) && (!isMobile || isMobilePlayer)
               ? `${heightResult} !important`
               : undefined,
-          ...maxHeight,
+          ...(isTabletLandscape ? { maxHeight: 'none !important' } : maxHeight),
         },
 
         '.content__autoplay-countdown': {
