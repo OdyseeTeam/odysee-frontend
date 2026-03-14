@@ -71,7 +71,7 @@
 
   .content__floating-close {
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 300ms ease-out 500ms;
   }
 
   .video-js .vjs-control-bar {
@@ -88,94 +88,88 @@
     z-index: 5;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0.075rem;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    background-color: oklch(0 0 0 / 0.3);
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 300ms ease-out 500ms;
     pointer-events: none;
   }
 
-  .floating-player__reaction {
+  .floating-player__reaction-btn {
+    background-color: transparent !important;
+    backdrop-filter: none;
+    box-shadow: none !important;
+    border-radius: 9999px !important;
+    width: 2.125rem !important;
+    height: 2.125rem !important;
+    min-width: 2.125rem;
+    min-height: 2.125rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 2px;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
 
-    .button {
-      background: rgba(0, 0, 0, 0.4) !important;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-      border-radius: 50% !important;
-      width: 2.25rem !important;
-      height: 2.25rem !important;
-      min-width: 2.25rem;
-      min-height: 2.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: visible;
-      position: relative;
-      padding: 0 !important;
-      margin: 0 !important;
+    transition: background-color 150ms ease;
 
-      .button__content {
-        padding: 0;
-      }
+    &:hover {
+      background-color: oklch(1 0 0 / 0.2) !important;
+    }
 
-      .button__label {
-        display: contents;
-      }
+    .button__content {
+      padding: 0;
+    }
 
-      .button__fire-glow {
-        left: 50%;
-        bottom: 50%;
-      }
+    .button__label {
+      display: contents;
+    }
 
-      .button__fire-particle1,
-      .button__fire-particle4 {
-        left: 50%;
-        right: auto;
-        animation-name: particleUpCenter1 !important;
-      }
-      .button__fire-particle2,
-      .button__fire-particle5 {
-        left: 50%;
-        right: auto;
-        animation-name: particleUpCenter2 !important;
-      }
-      .button__fire-particle3,
-      .button__fire-particle6 {
-        left: 50%;
-        right: auto;
-        animation-name: particleUpCenter3 !important;
-      }
+    .button__fire-glow {
+      left: 50%;
+      bottom: 50%;
+    }
 
-      [class^='button__slime'] {
-        left: 50%;
-        bottom: 50%;
-      }
+    .button__fire-particle1,
+    .button__fire-particle4 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter1 !important;
+    }
+    .button__fire-particle2,
+    .button__fire-particle5 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter2 !important;
+    }
+    .button__fire-particle3,
+    .button__fire-particle6 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter3 !important;
+    }
 
-      .icon {
-        width: 16px;
-        height: 16px;
-        stroke: white;
-      }
+    [class^='button__slime'] {
+      left: 50%;
+      bottom: 50%;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      filter: drop-shadow(0 1px 0 oklch(0 0 0 / 0.25));
     }
   }
 
   &:hover,
-  &:has(.vjs-paused) {
+  &:has(.vjs-paused),
+  &:has([data-paused]) {
     .video-js--tap-to-unmute {
       max-width: calc(var(--floating-viewer-width) - (var(--spacing-xs) * 3) - 42px);
-    }
-
-    .content__floating-close {
-      visibility: visible;
-      opacity: 1;
-      z-index: 9999;
-    }
-
-    .floating-player__reactions {
-      opacity: 1;
-      pointer-events: auto;
     }
 
     .vjs-control-bar {
@@ -183,10 +177,29 @@
     }
   }
 
+  &:hover,
+  &:has(.media-controls[data-visible]),
+  &:has(.vjs-paused),
+  &:has([data-paused]) {
+    .content__floating-close {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 9999;
+      transition: opacity 150ms ease-out;
+    }
+
+    .floating-player__reactions {
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 150ms ease-out;
+    }
+  }
+
   @media (hover: none) and (pointer: coarse) {
     border-top-right-radius: 0 !important;
     .content__floating-close {
-      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
       z-index: 9999;
       padding: 4px;
       width: 32px;
@@ -224,7 +237,8 @@
       height: 100%;
 
       .content__floating-close {
-        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
         display: inline;
         position: fixed;
         top: 12px;
@@ -511,7 +525,8 @@
   .vjs-menu-button,
   .vjs-quality-selector,
   .vjs-button--theater-mode,
-  .vjs-fullscreen-control {
+  .vjs-fullscreen-control,
+  .media-button:has(.media-icon--theater) {
     display: none !important;
   }
 
@@ -520,7 +535,6 @@
   }
 
   .content__floating-close {
-    visibility: visible;
     width: 2.25rem;
     height: 2.25rem;
     padding: 0;
@@ -553,7 +567,9 @@
   }
 
   &:hover,
-  &.shorts-floating--paused {
+  &.shorts-floating--paused,
+  &:has([data-paused]),
+  &:has(.vjs-paused) {
     .content__info--shorts-floating {
       opacity: 1;
     }
@@ -993,7 +1009,6 @@
 }
 
 .content__floating-close {
-  visibility: hidden;
   position: absolute;
   top: 8px;
   right: 8px;
@@ -1005,6 +1020,8 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(var(--color-primary-dynamic), 0.95) !important;
+  opacity: 0;
+  pointer-events: none;
 
   .icon {
     width: 16px;
@@ -1229,6 +1246,18 @@
   border-radius: 10px;
   overflow: hidden;
 
+  .media-overlay {
+    background-image: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+  }
+
+  &:has(.media-overlay)::after {
+    display: none;
+  }
+
+  .media-button:has(.media-icon--theater) {
+    display: none !important;
+  }
+
   &::after {
     content: '';
     position: absolute;
@@ -1243,7 +1272,7 @@
 
     @media (min-width: 1020px) {
       opacity: 0;
-      transition: opacity 200ms ease;
+      transition: opacity 300ms ease-out 500ms;
     }
   }
 
@@ -1387,20 +1416,20 @@
 
   .shorts-viewer__content-info {
     position: absolute;
-    bottom: 50px;
+    bottom: 60px;
     left: 0;
     z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    padding: 12px 86px 12px 20px;
+    padding: 12px 86px 12px 10px;
     pointer-events: none;
     width: 100%;
 
     @media (min-width: 1020px) {
       opacity: 0;
-      transition: opacity 200ms ease;
+      transition: opacity 300ms ease-out 500ms;
     }
   }
 
@@ -1725,27 +1754,33 @@
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer:hover) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer .shorts-viewer__content-info,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-viewer__content-info {
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer [data-paused]) .shorts__viewer .shorts-viewer__content-info {
     opacity: 1;
+    transition: opacity 100ms ease-out;
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer::after,
-  body:has(.shorts__viewer:hover) .shorts__viewer::after,
+  body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer::after,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer::after,
-  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer::after {
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer::after,
+  body:has(.shorts__viewer [data-paused]) .shorts__viewer::after {
     opacity: 1;
+    transition: opacity 100ms ease-out;
   }
 
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
-  body:has(.shorts__viewer:hover) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-page__view-toggle--overlay,
+  body:has(.shorts__viewer [data-paused]) .shorts__viewer .shorts-page__view-toggle--overlay,
   body:has(.content__cover--shorts:hover) .content__cover--shorts .shorts-page__view-toggle--overlay,
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover)
     .content__cover--shorts
     .shorts-page__view-toggle--overlay {
     opacity: 1;
+    transition: opacity 100ms ease-out;
   }
 }

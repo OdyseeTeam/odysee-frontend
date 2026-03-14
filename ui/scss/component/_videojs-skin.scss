@@ -1,0 +1,801 @@
+/* ==========================================================================
+   Icon State Visibility for Video Skins
+
+   Data-attribute-driven visibility rules for multi-state icon buttons.
+   Uses :is() with both element selectors (for HTML custom element wrappers)
+   and class selectors (for React rendered SVG elements).
+   ========================================================================== */
+
+/* --- All icons hidden by default --- */
+
+.media-default-skin .media-button--play .media-icon--restart,
+.media-default-skin .media-button--play .media-icon--play,
+.media-default-skin .media-button--play .media-icon--pause,
+.media-default-skin .media-button--mute .media-icon--volume-off,
+.media-default-skin .media-button--mute .media-icon--volume-low,
+.media-default-skin .media-button--mute .media-icon--volume-high,
+.media-default-skin .media-button--fullscreen .media-icon--fullscreen-enter,
+.media-default-skin .media-button--fullscreen .media-icon--fullscreen-exit,
+.media-default-skin .media-button--captions .media-icon--captions-off,
+.media-default-skin .media-button--captions .media-icon--captions-on {
+  display: none;
+  opacity: 0;
+}
+
+/* --- Active icon per state --- */
+
+/* Play: ended → restart */
+.media-default-skin .media-button--play[data-ended] .media-icon--restart,
+.media-default-skin .media-button--play:not([data-ended])[data-paused] .media-icon--play,
+.media-default-skin .media-button--play:not([data-paused]):not([data-ended]) .media-icon--pause,
+.media-default-skin .media-button--mute[data-muted] .media-icon--volume-off,
+.media-default-skin .media-button--mute:not([data-muted])[data-volume-level='low'] .media-icon--volume-low,
+.media-default-skin .media-button--mute:not([data-muted]):not([data-volume-level='low']) .media-icon--volume-high,
+.media-default-skin .media-button--fullscreen:not([data-fullscreen]) .media-icon--fullscreen-enter,
+.media-default-skin .media-button--fullscreen[data-fullscreen] .media-icon--fullscreen-exit,
+.media-default-skin .media-button--captions:not([data-active]) .media-icon--captions-off,
+.media-default-skin .media-button--captions[data-active] .media-icon--captions-on {
+  display: block;
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Tooltip Label State Visibility for Video Skins
+
+   Data-attribute-driven visibility rules for multi-state tooltip labels.
+   Uses adjacent sibling selectors to match button state → tooltip content.
+   ========================================================================== */
+
+/* --- All multi-state labels hidden by default --- */
+
+.media-tooltip-label {
+  display: none;
+}
+
+/* --- Active label per state --- */
+
+/* Play: ended → replay */
+.media-button--play[data-ended] + .media-tooltip .media-tooltip-label--replay,
+/* Play: paused (not ended) → play */
+  .media-button--play:not([data-ended])[data-paused] + .media-tooltip
+  .media-tooltip-label--play,
+/* Play: playing (not paused, not ended) → pause */
+  .media-button--play:not([data-paused]):not([data-ended]) + .media-tooltip
+  .media-tooltip-label--pause,
+/* Fullscreen: not fullscreen → enter */
+  .media-button--fullscreen:not([data-fullscreen]) + .media-tooltip
+  .media-tooltip-label--enter-fullscreen,
+/* Fullscreen: fullscreen → exit */
+  .media-button--fullscreen[data-fullscreen] + .media-tooltip
+  .media-tooltip-label--exit-fullscreen,
+/* Captions: not active → enable */
+  .media-button--captions:not([data-active]) + .media-tooltip
+  .media-tooltip-label--enable-captions,
+/* Captions: active → disable */
+  .media-button--captions[data-active] + .media-tooltip
+  .media-tooltip-label--disable-captions,
+/* PiP: not in pip → enter */
+  .media-button--pip:not([data-pip]) + .media-tooltip
+  .media-tooltip-label--enter-pip,
+/* PiP: in pip → exit */
+  .media-button--pip[data-pip] + .media-tooltip
+  .media-tooltip-label--exit-pip {
+  display: block;
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+.media-default-skin *,
+.media-default-skin *::before,
+.media-default-skin *::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+.media-default-skin img,
+.media-default-skin video,
+.media-default-skin svg {
+  display: block;
+  max-width: 100%;
+}
+.media-default-skin button {
+  font: inherit;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .media-default-skin {
+    interpolate-size: allow-keywords;
+  }
+}
+
+/* ==========================================================================
+   Root Container
+   ========================================================================== */
+
+.media-default-skin {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  height: 100%;
+  width: 100%;
+  container: media-root / inline-size;
+  border-radius: var(--media-border-radius, 2rem);
+  font-family: Inter Variable, Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: normal;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+
+  &:fullscreen {
+    border-radius: 0;
+
+    video {
+      object-fit: contain !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   Surface (shared glass effect for tooltips, popovers, controls)
+   ========================================================================== */
+
+.media-default-skin .media-surface {
+  background-color: var(--media-surface-background-color);
+  backdrop-filter: var(--media-surface-backdrop-filter);
+  box-shadow: inset 0 0 0 1px var(--media-surface-inner-border-color), 0 1px 3px 0 var(--media-surface-shadow-color),
+    0 1px 2px -1px var(--media-surface-shadow-color);
+
+  /* Inner border ring */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    box-shadow: 0 0 0 1px var(--media-surface-outer-border-color);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: oklch(from var(--media-surface-background-color) l c h / 0.7);
+  }
+
+  @media (prefers-contrast: more) {
+    background-color: oklch(from var(--media-surface-background-color) l c h / 0.9);
+  }
+}
+
+/* ==========================================================================
+   Media Element
+   ========================================================================== */
+
+.media-default-skin ::slotted(video),
+.media-default-skin video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--media-border-radius, 2rem);
+}
+
+/* ==========================================================================
+   Poster Image
+   ========================================================================== */
+
+.media-default-skin > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  transition: opacity 0.25s;
+  pointer-events: none;
+
+  &:not([data-visible]) {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Overlay / Scrim
+   ========================================================================== */
+
+.media-default-skin .media-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background-image: linear-gradient(to top, oklch(0 0 0 / 0.5), oklch(0 0 0 / 0.3), oklch(0 0 0 / 0));
+  backdrop-filter: blur(0) saturate(1.2) brightness(0.9);
+  opacity: 0;
+  transition-property: opacity, backdrop-filter;
+  transition-duration: 300ms;
+  transition-delay: 500ms;
+  transition-timing-function: ease-out;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 100ms;
+  }
+}
+
+.media-default-skin .media-controls[data-visible] ~ .media-overlay,
+.media-default-skin .media-error[data-open] ~ .media-overlay {
+  opacity: 1;
+  transition-duration: 150ms;
+  transition-delay: 0ms;
+}
+
+.media-default-skin .media-error[data-open] ~ .media-overlay {
+  backdrop-filter: blur(8px) saturate(1.2) brightness(0.9);
+}
+
+/* ==========================================================================
+   Buffering Indicator
+   ========================================================================== */
+
+.media-default-skin .media-buffering-indicator {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: oklch(1 0 0);
+  pointer-events: none;
+
+  &[data-visible] {
+    display: flex;
+  }
+
+  .media-surface {
+    padding: 0.25rem;
+    border-radius: 100%;
+  }
+}
+
+/* ==========================================================================
+   Error Dialog
+   ========================================================================== */
+
+.media-default-skin .media-error {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-default-skin .media-error__dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 18rem;
+  padding: 0.75rem;
+  border-radius: 1.75rem;
+  color: oklch(1 0 0);
+  font-size: 0.875rem;
+  transition-property: opacity, transform;
+  transition-duration: 500ms;
+  transition-delay: 100ms;
+  transition-timing-function: linear(
+    0,
+    0.034 1.5%,
+    0.763 9.7%,
+    1.066 13.9%,
+    1.198 19.9%,
+    1.184 21.8%,
+    0.963 37.5%,
+    0.997 50.9%,
+    1
+  );
+
+  /* Simple, fast transition for reduced motion users */
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 100ms;
+    transition-delay: 0ms;
+    transition-timing-function: ease-out;
+  }
+}
+
+.media-default-skin .media-error[data-starting-style] .media-error__dialog,
+.media-default-skin .media-error[data-ending-style] .media-error__dialog {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.media-default-skin .media-error__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.5rem 0.375rem;
+}
+
+.media-default-skin .media-error__title {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.media-default-skin .media-error__description {
+  opacity: 0.7;
+}
+
+.media-default-skin .media-error__actions {
+  display: flex;
+  gap: 0.5rem;
+
+  & > * {
+    flex: 1;
+  }
+}
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.media-default-skin .media-controls {
+  container: media-controls / inline-size;
+  display: flex;
+  align-items: center;
+  gap: 0.075rem;
+  padding: 0.175rem;
+  border-radius: 9999px;
+  --media-controls-current-shadow-color: oklch(from currentColor 0 0 0 / clamp(0, calc((l - 0.5) * 0.5), 0.25));
+  --media-controls-current-shadow-color-subtle: oklch(
+    from var(--media-controls-current-shadow-color) l c h / calc(alpha * 0.4)
+  );
+  text-shadow: 0 0 1px var(--media-controls-current-shadow-color);
+
+  @container media-root (width > 40rem) {
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+}
+
+/* ==========================================================================
+   Time Display
+   ========================================================================== */
+
+.media-default-skin .media-time {
+  container: media-time / inline-size;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.75rem;
+  padding-inline: 0.5rem;
+
+  & .media-time__value:first-child {
+    display: none;
+
+    @container media-time (width > 18rem) {
+      display: block;
+    }
+  }
+}
+
+.media-default-skin .media-time__value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+/* Base button */
+.media-default-skin .media-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.5rem 1rem;
+  background: oklch(1 0 0);
+  border: none;
+  border-radius: 9999px;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  color: oklch(0 0 0);
+  font-weight: 500;
+  text-align: center;
+  transition-property: background-color, color, outline-offset, transform;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline-color: oklch(62.3% 0.214 259.815);
+    outline-offset: 2px;
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+    filter: grayscale(1);
+    cursor: not-allowed;
+  }
+
+  &[data-availability='unavailable'] {
+    display: none;
+  }
+}
+
+/* Icon button variant */
+.media-default-skin .media-button--icon {
+  display: grid;
+  width: 2.125rem;
+  padding: 0;
+  aspect-ratio: 1;
+  background: transparent;
+  color: inherit;
+  text-shadow: inherit;
+
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded='true'] {
+    background-color: oklch(from currentColor l c h / 0.1);
+    text-decoration: none;
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  & .media-icon {
+    filter: drop-shadow(0 1px 0 var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25)));
+  }
+}
+
+/* Seek button */
+.media-default-skin .media-button--seek {
+  & .media-icon__label {
+    position: absolute;
+    right: -1px;
+    bottom: -3px;
+    font-size: 0.75em;
+    font-weight: 480;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:has(.media-icon--flipped) .media-icon__label {
+    right: unset;
+    left: -1px;
+  }
+
+  @container media-controls (width < 28rem) {
+    display: none;
+  }
+}
+
+/* Playback rate button */
+.media-default-skin .media-button--playback-rate {
+  padding: 0;
+
+  &::after {
+    content: attr(data-rate) '\00D7';
+    width: 4ch;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ==========================================================================
+   Icons
+   ========================================================================== */
+
+.media-default-skin .media-icon__container {
+  position: relative;
+}
+.media-default-skin .media-icon {
+  display: block;
+  flex-shrink: 0;
+  grid-area: 1 / 1;
+  width: 18px;
+  height: 18px;
+  transition-behavior: allow-discrete;
+  transition-property: display, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+.media-default-skin .media-icon--flipped {
+  scale: -1 1;
+}
+
+/* ==========================================================================
+   Slider
+   ========================================================================== */
+
+.media-default-skin .media-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  border-radius: 9999px;
+  outline: none;
+
+  &[data-orientation='horizontal'] {
+    min-width: 5rem;
+    width: 100%;
+    height: 1.25rem;
+  }
+
+  &[data-orientation='vertical'] {
+    width: 1.25rem;
+    height: 5rem;
+  }
+}
+
+/* Track */
+.media-default-skin .media-slider__track {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: inherit;
+  user-select: none;
+
+  &[data-orientation='horizontal'] {
+    width: 100%;
+    height: 0.25rem;
+  }
+
+  &[data-orientation='vertical'] {
+    width: 0.25rem;
+    height: 100%;
+  }
+}
+
+/* Thumb */
+.media-default-skin .media-slider__thumb {
+  z-index: 10;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 0.625rem;
+  height: 0.625rem;
+  background-color: currentColor;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px var(--media-controls-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
+    0 1px 3px 0 oklch(0 0 0 / 0.15), 0 1px 2px -1px oklch(0 0 0 / 0.15);
+  opacity: 0;
+  transition-property: opacity, height, width, outline-offset;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  user-select: none;
+  outline: 4px solid transparent;
+  outline-offset: -4px;
+
+  &[data-orientation='horizontal'] {
+    top: 50%;
+    left: var(--media-slider-fill);
+  }
+
+  &[data-orientation='vertical'] {
+    left: 50%;
+    top: calc(100% - var(--media-slider-fill));
+  }
+
+  &:hover,
+  &:focus {
+    outline-color: oklch(from currentColor l c h / 0.25);
+    outline-offset: 0;
+  }
+}
+
+.media-default-skin .media-slider:active .media-slider__thumb,
+.media-default-skin .media-slider__thumb--persistent {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.media-default-skin .media-slider:hover .media-slider__thumb,
+.media-default-skin .media-slider__thumb:focus-visible,
+.media-default-skin .media-slider__thumb--persistent {
+  opacity: 1;
+}
+
+/* Shared track fills */
+.media-default-skin .media-slider__buffer,
+.media-default-skin .media-slider__fill {
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.media-default-skin .media-slider__buffer[data-orientation='horizontal'],
+.media-default-skin .media-slider__fill[data-orientation='horizontal'] {
+  inset-block: 0;
+  left: 0;
+}
+
+.media-default-skin .media-slider__buffer[data-orientation='vertical'],
+.media-default-skin .media-slider__fill[data-orientation='vertical'] {
+  inset-inline: 0;
+  bottom: 0;
+}
+
+/* Buffer */
+.media-default-skin .media-slider__buffer {
+  background-color: oklch(from currentColor l c h / 0.2);
+  transition-duration: 0.25s;
+  transition-timing-function: ease-out;
+
+  &[data-orientation='horizontal'] {
+    width: var(--media-slider-buffer);
+    transition-property: width;
+  }
+
+  &[data-orientation='vertical'] {
+    height: var(--media-slider-buffer);
+    transition-property: height;
+  }
+}
+
+/* Fill */
+.media-default-skin .media-slider__fill {
+  background-color: currentColor;
+
+  &[data-orientation='horizontal'] {
+    width: var(--media-slider-fill);
+  }
+
+  &[data-orientation='vertical'] {
+    height: var(--media-slider-fill);
+  }
+}
+
+/* Time display within slider */
+.media-default-skin .media-slider__time-display {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Popups & Tooltips
+   ========================================================================== */
+
+.media-default-skin .media-popover,
+.media-default-skin .media-tooltip {
+  margin: 0;
+  border: 0;
+  color: inherit;
+  overflow: visible;
+  transition-property: transform, scale, opacity, filter;
+  transition-duration: 200ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0);
+    filter: blur(8px);
+  }
+
+  &[data-instant] {
+    transition-duration: 0ms;
+  }
+
+  &[data-side='top'] {
+    transform-origin: bottom;
+  }
+  &[data-side='bottom'] {
+    transform-origin: top;
+  }
+  &[data-side='left'] {
+    transform-origin: right;
+  }
+  &[data-side='right'] {
+    transform-origin: left;
+  }
+}
+
+.media-default-skin .media-popover {
+  --media-popover-side-offset: 0.5rem;
+}
+.media-default-skin .media-popover--volume {
+  padding: 0.625rem 0.25rem;
+  border-radius: 9999px;
+}
+
+.media-default-skin .media-tooltip {
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  --media-tooltip-side-offset: 0.5rem;
+}
+
+/* ==========================================================================
+   Native Caption Track
+   ========================================================================== */
+
+.media-default-skin {
+  --media-caption-track-delay: 600ms;
+  --media-caption-track-y: -0.5rem;
+
+  &:has(.media-controls[data-visible]) {
+    --media-caption-track-delay: 25ms;
+    --media-caption-track-y: -3.5rem;
+  }
+}
+
+.media-default-skin video::-webkit-media-text-track-container {
+  /* NOTE: The delay must account for the controls delay/duration */
+  transition: transform 150ms ease-out;
+  transition-delay: var(--media-caption-track-delay);
+  transform: translateY(var(--media-caption-track-y)) scale(0.98);
+  z-index: 1;
+  font-family: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-default-skin video::-webkit-media-text-track-container {
+    transition-duration: 50ms;
+  }
+}
+
+/* ==========================================================================
+   Root
+   ========================================================================== */
+
+.media-default-skin--video {
+  background: oklch(0 0 0);
+  --media-border-color: oklch(0 0 0 / 0.1);
+  --media-surface-background-color: oklch(0 0 0 / 0.3);
+  --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
+  --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
+  --media-surface-shadow-color: oklch(0 0 0 / 0.15);
+  --media-surface-backdrop-filter: blur(64px) brightness(0.9) saturate(1.5);
+
+  @media (prefers-color-scheme: dark) {
+    --media-border-color: oklch(1 0 0 / 0.1);
+  }
+
+  /* Inner border ring */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px var(--media-border-color);
+    pointer-events: none;
+  }
+}
+
+/* ==========================================================================
+   Controls (hide/show behavior)
+   ========================================================================== */
+
+.media-default-skin--video .media-controls {
+  position: absolute;
+  bottom: 0.75rem;
+  inset-inline: 0.75rem;
+  z-index: 10;
+  will-change: scale, transform, filter, opacity;
+  transition-property: scale, transform, filter, opacity;
+  transition-duration: 100ms;
+  transition-delay: 0ms;
+  transition-timing-function: ease-out;
+  transform-origin: bottom;
+  color: oklch(1 0 0);
+
+  &:not([data-visible]) {
+    opacity: 0;
+    scale: 0.9;
+    filter: blur(8px);
+    transition-duration: 300ms;
+    transition-delay: 500ms;
+    pointer-events: none;
+
+    @media (prefers-reduced-motion: reduce) {
+      scale: 1;
+      filter: blur(0);
+      transition-duration: 100ms;
+    }
+  }
+}
+
+/* ==========================================================================
+   Sliders
+   ========================================================================== */
+
+.media-default-skin--video .media-slider__track {
+  background-color: oklch(1 0 0 / 0.2);
+  box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
+}

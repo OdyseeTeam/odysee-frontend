@@ -48,6 +48,8 @@ export function Modal(props: ModalProps) {
   return (
     <ReactModal
       {...modalProps}
+      // $FlowFixMe
+      parentSelector={() => document.fullscreenElement || document.body}
       onRequestClose={!disableOutsideClick ? onAborted || onConfirmed : false}
       className={classnames('modal', className, {
         'modal--card-internal': type === 'card',

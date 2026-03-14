@@ -159,7 +159,8 @@ export default function ShortsPage(props: Props) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
-    const viewer = document.querySelector('.shorts__viewer');
+    const viewer =
+      document.querySelector('.shorts__viewer .content__wrapper') || document.querySelector('.shorts__viewer');
     const cover = document.querySelector('.content__cover--shorts');
     const target = viewer || cover || null;
     setOverlayTarget((prev) => (prev !== target ? target : prev));
@@ -666,7 +667,7 @@ export default function ShortsPage(props: Props) {
         overlayTarget &&
         createPortal(
           <>
-            {overlayTarget.classList.contains('shorts__viewer') && (
+            {overlayTarget.closest('.shorts__viewer') && (
               <div className="shorts-viewer__content-info">
                 {channelUri && (
                   <Link

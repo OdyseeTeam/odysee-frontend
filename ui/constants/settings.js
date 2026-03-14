@@ -49,6 +49,7 @@ export const SUPPORT_OPTION = 'support_option';
 export const TILE_LAYOUT = 'tile_layout';
 export const VIDEO_THEATER_MODE = 'video_theater_mode';
 export const VIDEO_PLAYBACK_RATE = 'video_playback_rate';
+export const CHAPTERS_CARD_VISIBLE = 'chapters_card_visible';
 export const PREFERRED_CURRENCY = 'preferred_currency';
 export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';

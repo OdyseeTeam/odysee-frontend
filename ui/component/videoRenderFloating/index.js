@@ -26,6 +26,7 @@ import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'red
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getVideoClaimAspectRatio, isClaimShort } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
+import { doToggleShortsAutoplay } from 'redux/actions/shorts';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import VideoRenderFloating from './view';
 import { selectShortsSidePanelOpen, selectShortsPlaylist } from '../../redux/selectors/shorts';
@@ -100,6 +101,7 @@ const perform = {
   doOpenModal,
   doClearPlayingSource,
   doSetPlayingUri,
+  doToggleShortsAutoplay,
 };
 
 export default withRouter(connect(select, perform)(VideoRenderFloating));
