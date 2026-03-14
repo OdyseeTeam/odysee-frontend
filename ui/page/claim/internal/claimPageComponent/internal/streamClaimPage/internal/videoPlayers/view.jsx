@@ -2,16 +2,13 @@
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
-import * as ICONS from 'constants/icons';
-import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -55,7 +52,6 @@ export default function VideoPlayersPage(props: Props) {
     videoTheaterMode,
     commentsDisabled,
     audioVideoDuration,
-    commentsListTitle,
     isUriPlaying,
     location,
     position,
@@ -126,7 +122,47 @@ export default function VideoPlayersPage(props: Props) {
     );
   }
 
+  const isMobilePortrait = isMobile && !isLandscapeRotated;
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
+
+  if (isMobilePortrait) {
+    const infoContent = (
+      <section className="file-page__media-actions">
+        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <ChaptersCard uri={uri} />}
+        <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+      </section>
+    );
+
+    const commentsContent =
+      contentUnlocked && !commentsDisabled ? (
+        <React.Suspense fallback={null}>
+          <CommentsList {...commentsListProps} notInDrawer />
+        </React.Suspense>
+      ) : (
+        <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
+      );
+
+    const relatedContent = <RightSideContent {...rightSideProps} />;
+
+    return (
+      <>
+        <div className="section card-stack file-page__video">
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            <VideoClaimInitiator uri={uri} />
+          </div>
+
+          <MobileTabView
+            infoContent={infoContent}
+            commentsContent={commentsContent}
+            relatedContent={relatedContent}
+            initialTab={linkedCommentId ? 1 : 0}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="section card-stack file-page__video">
@@ -144,16 +180,6 @@ export default function VideoPlayersPage(props: Props) {
             {contentUnlocked &&
               (commentsDisabled ? (
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
-              ) : isMobile && !isLandscapeRotated ? (
-                <React.Fragment>
-                  <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
-                    <React.Suspense fallback={null}>
-                      <CommentsList {...commentsListProps} />
-                    </React.Suspense>
-                  </SwipeableDrawer>
-
-                  <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
-                </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
                   <CommentsList {...commentsListProps} notInDrawer />

@@ -752,6 +752,10 @@ $control-bar-height-mobile: 44px;
   display: none;
 }
 
+.player-fullscreen-target .video-fullscreen__side-panel {
+  display: none;
+}
+
 .player-fullscreen-target:fullscreen {
   display: flex;
   background: #000;
@@ -1129,6 +1133,97 @@ $control-bar-height-mobile: 44px;
 
     .video-fullscreen__actions {
       right: calc(var(--livestream-comments-width) + 24px);
+    }
+  }
+
+  // -- Mobile fullscreen overrides --
+  @media (max-width: $breakpoint-small) {
+    .video-fullscreen__actions {
+      top: auto;
+      bottom: 68px;
+      right: 8px;
+      transform: none;
+      flex-direction: row;
+    }
+
+    .video-fullscreen__reactions-no-count {
+      flex-direction: row;
+
+      .ratio-wrapper {
+        flex-direction: row;
+      }
+    }
+
+    .video-fullscreen__side-panel--mobile {
+      top: auto;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 56.25vw);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      border-radius: 12px 12px 0 0;
+
+      &.video-fullscreen__side-panel--open {
+        transform: translateY(0);
+      }
+
+      &.video-fullscreen__side-panel--chat {
+        height: calc(100vh - 56.25vw);
+        width: 100%;
+        right: 0;
+
+        &.video-fullscreen__side-panel--open {
+          right: 0;
+          transform: translateY(0);
+        }
+      }
+    }
+
+    .video-fullscreen__puller {
+      width: 32px;
+      height: 4px;
+      background: var(--color-text);
+      opacity: 0.3;
+      border-radius: 2px;
+      margin: 8px auto;
+      display: block;
+    }
+
+    .video-fullscreen__sheet-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 8px;
+      touch-action: none;
+      flex-shrink: 0;
+
+      .video-fullscreen__close-button {
+        align-self: flex-end;
+        margin-right: 8px;
+      }
+    }
+
+    &:has(.video-fullscreen__side-panel--mobile) {
+      .content__wrapper {
+        align-self: flex-start;
+        width: 100% !important;
+        height: 100vh !important;
+        flex: none !important;
+        transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+
+    &:has(.video-fullscreen__side-panel--mobile.video-fullscreen__side-panel--open) {
+      .content__wrapper {
+        margin-right: 0 !important;
+        height: 56.25vw !important;
+      }
+
+      .video-fullscreen__actions {
+        right: 8px !important;
+      }
     }
   }
 

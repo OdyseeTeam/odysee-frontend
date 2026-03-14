@@ -11,7 +11,7 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
-import { doOpenModal } from 'redux/actions/app';
+import { doOpenModal, doCloseAppDrawer } from 'redux/actions/app';
 import VideoFullscreenActions from './view';
 
 const select = (state, props) => {
@@ -40,6 +40,7 @@ const select = (state, props) => {
 
 const perform = {
   doOpenModal,
+  doCloseAppDrawer,
 };
 
 export default withRouter(connect(select, perform)(VideoFullscreenActions));

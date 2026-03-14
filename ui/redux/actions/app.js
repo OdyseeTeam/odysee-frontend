@@ -812,6 +812,12 @@ export function doSetGdprConsentList(rawList: string = '') {
   };
 }
 
+export function doCloseAppDrawer() {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.DRAWER_CLOSED });
+  };
+}
+
 export function doToggleAppDrawer(type: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
