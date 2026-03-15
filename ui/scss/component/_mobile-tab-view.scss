@@ -36,7 +36,9 @@
   right: 0;
   height: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--color-header-background);
+  background: color-mix(in srgb, var(--color-header-background) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: space-around;
