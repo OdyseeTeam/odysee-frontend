@@ -142,7 +142,7 @@ export default function VideoFullscreenActions(props: Props) {
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const drawerOpenRef = React.useRef((index: number) => {}); // eslint-disable-line no-unused-vars
 
-  if (!isShort && !isLivestreamClaim) {
+  if (!isShort && !isLivestreamClaim && isMobile) {
     const infoContent = (
       <div className="file-page" style={{ padding: '0 var(--spacing-xs)' }}>
         <div className="card-stack">
@@ -237,15 +237,27 @@ export default function VideoFullscreenActions(props: Props) {
               <FileReactions uri={uri} />
             </div>
 
-            <Button
-              className={`video-fullscreen__action-btn ${
-                panelMode === 'chat' ? 'video-fullscreen__action-btn--active' : ''
-              }`}
-              onClick={() => handleTogglePanel('chat')}
-              icon={ICONS.CHAT}
-              iconSize={18}
-              title={__('Chat')}
-            />
+            {isLivestreamClaim ? (
+              <Button
+                className={`video-fullscreen__action-btn ${
+                  panelMode === 'chat' ? 'video-fullscreen__action-btn--active' : ''
+                }`}
+                onClick={() => handleTogglePanel('chat')}
+                icon={ICONS.CHAT}
+                iconSize={18}
+                title={__('Chat')}
+              />
+            ) : (
+              <Button
+                className={`video-fullscreen__action-btn ${
+                  panelMode === 'comments' ? 'video-fullscreen__action-btn--active' : ''
+                }`}
+                onClick={() => handleTogglePanel('comments')}
+                icon={ICONS.COMMENTS_LIST}
+                iconSize={18}
+                title={__('Comments')}
+              />
+            )}
           </>
         )}
       </div>
