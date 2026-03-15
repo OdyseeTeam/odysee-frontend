@@ -118,7 +118,6 @@ export default function MobileTabView(props: Props) {
   }, [initialTab, useDrawer, goToTab]);
 
   React.useEffect(() => {
-    if (useDrawer) return;
     const track = trackRef.current;
     if (!track) return;
 
