@@ -3,6 +3,7 @@
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import Player from './player';
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay';
+import SeekIndicator from './components/SeekIndicator';
 import {
   BufferingIndicator,
   CaptionsButton,
@@ -667,82 +668,15 @@ export default function OdyseeSkin(props: Props) {
         </TimeSlider.Root>
       </div>
 
-      <Controls.Root className="media-controls odysee-controls-row">
-        <div className="odysee-controls-group--left">
-          {/* Left bubble — playback controls */}
-          <div className="media-surface odysee-controls odysee-controls--left">
-            {/* Play Previous */}
-            {!isMarkdownOrComment && canPlayPrevious && onPlayPrevious && (
-              <Tooltip.Root side="top">
-                <Tooltip.Trigger
-                  render={
-                    <button type="button" className="media-button media-button--icon" onClick={onPlayPrevious}>
-                      <OdyseePlayPrevious className="media-icon" size={18} color="currentColor" />
-                    </button>
-                  }
-                />
-                <Tooltip.Popup className="media-tooltip">{__('Play Previous (SHIFT+P)')}</Tooltip.Popup>
-              </Tooltip.Root>
-            )}
-
-            {/* Play/Pause */}
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <PlayButton
-                    render={(p) => (
-                      <Btn {...p} className="media-button--icon media-button--play">
-                        <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
-                        <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
-                        <svg
-                          className="media-icon media-icon--pause"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={18}
-                          height={18}
-                          fill="none"
-                          aria-hidden="true"
-                          viewBox="0 0 18 18"
-                        >
-                          <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
-                          <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
-                        </svg>
-                      </Btn>
-                    )}
-                  />
-                }
-              />
-              <Tooltip.Popup className="media-tooltip">
-                <PlayLabel />
-              </Tooltip.Popup>
-            </Tooltip.Root>
-
-            {/* Play Next */}
-            {!isMarkdownOrComment && canPlayNext && onPlayNext && (
-              <Tooltip.Root side="top">
-                <Tooltip.Trigger
-                  render={
-                    <button type="button" className="media-button media-button--icon" onClick={onPlayNext}>
-                      <OdyseePlayPrevious
-                        className="media-icon"
-                        size={18}
-                        color="currentColor"
-                        style={{ transform: 'scaleX(-1)' }}
-                      />
-                    </button>
-                  }
-                />
-                <Tooltip.Popup className="media-tooltip">{__('Play Next (SHIFT+N)')}</Tooltip.Popup>
-              </Tooltip.Root>
-            )}
-
-            {/* Volume */}
-            <div className="media-volume-group">
-              <MuteButton
+      <Controls.Root className={`media-controls ${IS_MOBILE ? 'odysee-mobile-controls' : 'odysee-controls-row'}`}>
+        {IS_MOBILE ? (
+          <>
+            <div className="media-surface odysee-mobile-controls__top">
+              <CaptionsButton
                 render={(p) => (
-                  <Btn {...p} className="media-button--icon media-button--mute">
-                    <OdyseeVolumeMuted className="media-icon media-icon--volume-off" size={18} color="currentColor" />
+                  <Btn {...p} className="media-button--icon media-button--captions">
                     <svg
-                      className="media-icon media-icon--volume-low"
+                      className="media-icon media-icon--captions-off"
                       xmlns="http://www.w3.org/2000/svg"
                       width={18}
                       height={18}
@@ -750,13 +684,23 @@ export default function OdyseeSkin(props: Props) {
                       aria-hidden="true"
                       viewBox="0 0 18 18"
                     >
-                      <path
-                        fill="currentColor"
-                        d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                      <rect
+                        width={16.5}
+                        height={12.5}
+                        x={0.75}
+                        y={2.75}
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                        rx={3}
                       />
+                      <rect width={3} height={1.5} x={3} y={8.5} fill="currentColor" rx={0.75} />
+                      <rect width={2} height={1.5} x={13} y={8.5} fill="currentColor" rx={0.75} />
+                      <rect width={4} height={1.5} x={11} y={11.5} fill="currentColor" rx={0.75} />
+                      <rect width={5} height={1.5} x={7} y={8.5} fill="currentColor" rx={0.75} />
+                      <rect width={7} height={1.5} x={3} y={11.5} fill="currentColor" rx={0.75} />
                     </svg>
                     <svg
-                      className="media-icon media-icon--volume-high"
+                      className="media-icon media-icon--captions-on"
                       xmlns="http://www.w3.org/2000/svg"
                       width={18}
                       height={18}
@@ -766,168 +710,70 @@ export default function OdyseeSkin(props: Props) {
                     >
                       <path
                         fill="currentColor"
-                        d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                        d="M15 2a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM3.75 11.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm8 0a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5zm-8-3a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5zm4 0a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5zm6 0a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5z"
                       />
                     </svg>
                   </Btn>
                 )}
               />
-              <VolumeSlider.Root
-                className="media-slider media-volume-slider"
-                orientation="horizontal"
-                thumbAlignment="edge"
-              >
-                <Slider.Track className="media-slider__track">
-                  <Slider.Fill className="media-slider__fill" />
-                </Slider.Track>
-                <Slider.Thumb className="media-slider__thumb" />
-              </VolumeSlider.Root>
+
+              <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                <Popover.Trigger
+                  render={
+                    <button
+                      type="button"
+                      className={`media-button media-button--icon media-button--settings ${
+                        settingsOpen ? 'media-button--settings-open' : ''
+                      }`}
+                      aria-label={__('Settings')}
+                    >
+                      <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                      {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                        <span className="media-hd-badge">HD</span>
+                      )}
+                    </button>
+                  }
+                />
+                <Popover.Popup className="media-popover media-popover--settings">
+                  <SettingsMenuContent
+                    isMarkdownOrComment={isMarkdownOrComment}
+                    isLivestream={Boolean(isLivestream)}
+                    onToggleAutoplayNext={onToggleAutoplayNext}
+                    autoplayNext={autoplayNext}
+                    floatingPlayer={floatingPlayer}
+                    onToggleFloatingPlayer={onToggleFloatingPlayer}
+                    autoplayMedia={autoplayMedia}
+                    onToggleAutoplayMedia={onToggleAutoplayMedia}
+                    title={title}
+                    onShowShortcuts={() => setShowShortcuts(true)}
+                    onCloseMenu={() => setSettingsOpen(false)}
+                    quality={quality}
+                    isFloating={isFloating}
+                  />
+                </Popover.Popup>
+              </Popover.Root>
             </div>
 
-            {/* Time Display / Live Indicator */}
-            {isLivestream ? (
-              <LiveButton />
-            ) : (
-              <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
-                <Time.Value type={showRemaining ? 'remaining' : 'current'} className="media-time__value" />
-                <Time.Separator className="media-time__separator" />
-                <Time.Value type="duration" className="media-time__value" />
-              </Time.Group>
-            )}
-          </div>
+            <div className="odysee-mobile-controls__bottom">
+              <div className="media-surface odysee-mobile-controls__time">
+                {isLivestream ? (
+                  <LiveButton />
+                ) : (
+                  <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
+                    <Time.Value type={showRemaining ? 'remaining' : 'current'} className="media-time__value" />
+                    <Time.Separator className="media-time__separator" />
+                    <Time.Value type="duration" className="media-time__value" />
+                  </Time.Group>
+                )}
+              </div>
 
-          {chapters.length > 0 && !isFloating && <ChapterPill chapters={chapters} />}
-        </div>
-
-        {/* Right bubble — secondary controls */}
-        <div className="media-surface odysee-controls odysee-controls--right">
-          {/* Captions */}
-          <Tooltip.Root side="top">
-            <Tooltip.Trigger
-              render={
-                <CaptionsButton
-                  render={(p) => (
-                    <Btn {...p} className="media-button--icon media-button--captions">
-                      <svg
-                        className="media-icon media-icon--captions-off"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 18 18"
-                      >
-                        <rect
-                          width={16.5}
-                          height={12.5}
-                          x={0.75}
-                          y={2.75}
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                          rx={3}
-                        />
-                        <rect width={3} height={1.5} x={3} y={8.5} fill="currentColor" rx={0.75} />
-                        <rect width={2} height={1.5} x={13} y={8.5} fill="currentColor" rx={0.75} />
-                        <rect width={4} height={1.5} x={11} y={11.5} fill="currentColor" rx={0.75} />
-                        <rect width={5} height={1.5} x={7} y={8.5} fill="currentColor" rx={0.75} />
-                        <rect width={7} height={1.5} x={3} y={11.5} fill="currentColor" rx={0.75} />
-                      </svg>
-                      <svg
-                        className="media-icon media-icon--captions-on"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width={18}
-                        height={18}
-                        fill="none"
-                        aria-hidden="true"
-                        viewBox="0 0 18 18"
-                      >
-                        <path
-                          fill="currentColor"
-                          d="M15 2a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM3.75 11.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm8 0a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5zm-8-3a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5zm4 0a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5zm6 0a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5z"
-                        />
-                      </svg>
-                    </Btn>
-                  )}
-                />
-              }
-            />
-            <Tooltip.Popup className="media-tooltip">
-              <CaptionsLabel />
-            </Tooltip.Popup>
-          </Tooltip.Root>
-
-          {/* Settings */}
-          <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
-            <Popover.Trigger
-              render={
-                <button
-                  type="button"
-                  className={`media-button media-button--icon media-button--settings ${
-                    settingsOpen ? 'media-button--settings-open' : ''
-                  }`}
-                  aria-label={__('Settings')}
-                >
-                  <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
-                  {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
-                    <span className="media-hd-badge">HD</span>
-                  )}
-                </button>
-              }
-            />
-            <Popover.Popup className="media-popover media-popover--settings">
-              <SettingsMenuContent
-                isMarkdownOrComment={isMarkdownOrComment}
-                isLivestream={Boolean(isLivestream)}
-                onToggleAutoplayNext={onToggleAutoplayNext}
-                autoplayNext={autoplayNext}
-                floatingPlayer={floatingPlayer}
-                onToggleFloatingPlayer={onToggleFloatingPlayer}
-                autoplayMedia={autoplayMedia}
-                onToggleAutoplayMedia={onToggleAutoplayMedia}
-                title={title}
-                onShowShortcuts={() => setShowShortcuts(true)}
-                onCloseMenu={() => setSettingsOpen(false)}
-                quality={quality}
-                isFloating={isFloating}
-              />
-            </Popover.Popup>
-          </Popover.Root>
-
-          {/* Theater Mode */}
-          {!isMarkdownOrComment && onToggleTheaterMode && (
-            <Tooltip.Root side="top">
-              <Tooltip.Trigger
-                render={
-                  <button type="button" className="media-button media-button--icon" onClick={onToggleTheaterMode}>
-                    <span
-                      className={`media-icon media-icon--theater ${
-                        videoTheaterMode ? 'media-icon--theater-active' : ''
-                      }`}
-                    />
-                  </button>
-                }
-              />
-              <Tooltip.Popup className="media-tooltip">
-                {videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)')}
-              </Tooltip.Popup>
-            </Tooltip.Root>
-          )}
-
-          {/* Fullscreen */}
-          <Tooltip.Root side="top">
-            <Tooltip.Trigger
-              render={
+              <div className="media-surface odysee-mobile-controls__fs">
                 <Btn
                   type="button"
                   className="media-button--icon media-button--fullscreen"
                   aria-label="Fullscreen"
-                  onPointerDown={(e) => {
-                    if (e.button !== 0) return;
-                    e.preventDefault();
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const target = e.currentTarget.closest('.player-fullscreen-target');
                     // $FlowFixMe
                     if (document.fullscreenElement) {
@@ -973,14 +819,321 @@ export default function OdyseeSkin(props: Props) {
                     <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
                   </svg>
                 </Btn>
-              }
-            />
-            <Tooltip.Popup className="media-tooltip">{__('Fullscreen (f)')}</Tooltip.Popup>
-          </Tooltip.Root>
-        </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="odysee-controls-group--left">
+              <div className="media-surface odysee-controls odysee-controls--left">
+                {!isMarkdownOrComment && canPlayPrevious && onPlayPrevious && (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <button type="button" className="media-button media-button--icon" onClick={onPlayPrevious}>
+                          <OdyseePlayPrevious className="media-icon" size={18} color="currentColor" />
+                        </button>
+                      }
+                    />
+                    <Tooltip.Popup className="media-tooltip">{__('Play Previous (SHIFT+P)')}</Tooltip.Popup>
+                  </Tooltip.Root>
+                )}
+
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <PlayButton
+                        render={(p) => (
+                          <Btn {...p} className="media-button--icon media-button--play">
+                            <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
+                            <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
+                            <svg
+                              className="media-icon media-icon--pause"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width={18}
+                              height={18}
+                              fill="none"
+                              aria-hidden="true"
+                              viewBox="0 0 18 18"
+                            >
+                              <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
+                              <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
+                            </svg>
+                          </Btn>
+                        )}
+                      />
+                    }
+                  />
+                  <Tooltip.Popup className="media-tooltip">
+                    <PlayLabel />
+                  </Tooltip.Popup>
+                </Tooltip.Root>
+
+                {!isMarkdownOrComment && canPlayNext && onPlayNext && (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <button type="button" className="media-button media-button--icon" onClick={onPlayNext}>
+                          <OdyseePlayPrevious
+                            className="media-icon"
+                            size={18}
+                            color="currentColor"
+                            style={{ transform: 'scaleX(-1)' }}
+                          />
+                        </button>
+                      }
+                    />
+                    <Tooltip.Popup className="media-tooltip">{__('Play Next (SHIFT+N)')}</Tooltip.Popup>
+                  </Tooltip.Root>
+                )}
+
+                <div className="media-volume-group">
+                  <MuteButton
+                    render={(p) => (
+                      <Btn {...p} className="media-button--icon media-button--mute">
+                        <OdyseeVolumeMuted
+                          className="media-icon media-icon--volume-off"
+                          size={18}
+                          color="currentColor"
+                        />
+                        <svg
+                          className="media-icon media-icon--volume-low"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 18 18"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                          />
+                        </svg>
+                        <svg
+                          className="media-icon media-icon--volume-high"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 18 18"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                          />
+                          <path
+                            fill="currentColor"
+                            d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                          />
+                        </svg>
+                      </Btn>
+                    )}
+                  />
+                  <VolumeSlider.Root
+                    className="media-slider media-volume-slider"
+                    orientation="horizontal"
+                    thumbAlignment="edge"
+                  >
+                    <Slider.Track className="media-slider__track">
+                      <Slider.Fill className="media-slider__fill" />
+                    </Slider.Track>
+                    <Slider.Thumb className="media-slider__thumb" />
+                  </VolumeSlider.Root>
+                </div>
+
+                {isLivestream ? (
+                  <LiveButton />
+                ) : (
+                  <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
+                    <Time.Value type={showRemaining ? 'remaining' : 'current'} className="media-time__value" />
+                    <Time.Separator className="media-time__separator" />
+                    <Time.Value type="duration" className="media-time__value" />
+                  </Time.Group>
+                )}
+              </div>
+
+              {chapters.length > 0 && !isFloating && <ChapterPill chapters={chapters} />}
+            </div>
+
+            <div className="media-surface odysee-controls odysee-controls--right">
+              <Tooltip.Root side="top">
+                <Tooltip.Trigger
+                  render={
+                    <CaptionsButton
+                      render={(p) => (
+                        <Btn {...p} className="media-button--icon media-button--captions">
+                          <svg
+                            className="media-icon media-icon--captions-off"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={18}
+                            height={18}
+                            fill="none"
+                            aria-hidden="true"
+                            viewBox="0 0 18 18"
+                          >
+                            <rect
+                              width={16.5}
+                              height={12.5}
+                              x={0.75}
+                              y={2.75}
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                              rx={3}
+                            />
+                            <rect width={3} height={1.5} x={3} y={8.5} fill="currentColor" rx={0.75} />
+                            <rect width={2} height={1.5} x={13} y={8.5} fill="currentColor" rx={0.75} />
+                            <rect width={4} height={1.5} x={11} y={11.5} fill="currentColor" rx={0.75} />
+                            <rect width={5} height={1.5} x={7} y={8.5} fill="currentColor" rx={0.75} />
+                            <rect width={7} height={1.5} x={3} y={11.5} fill="currentColor" rx={0.75} />
+                          </svg>
+                          <svg
+                            className="media-icon media-icon--captions-on"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={18}
+                            height={18}
+                            fill="none"
+                            aria-hidden="true"
+                            viewBox="0 0 18 18"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M15 2a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM3.75 11.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm8 0a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5zm-8-3a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5zm4 0a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5zm6 0a.75.75 0 0 0 0 1.5h.5a.75.75 0 0 0 0-1.5z"
+                            />
+                          </svg>
+                        </Btn>
+                      )}
+                    />
+                  }
+                />
+                <Tooltip.Popup className="media-tooltip">
+                  <CaptionsLabel />
+                </Tooltip.Popup>
+              </Tooltip.Root>
+
+              <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                <Popover.Trigger
+                  render={
+                    <button
+                      type="button"
+                      className={`media-button media-button--icon media-button--settings ${
+                        settingsOpen ? 'media-button--settings-open' : ''
+                      }`}
+                      aria-label={__('Settings')}
+                    >
+                      <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                      {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                        <span className="media-hd-badge">HD</span>
+                      )}
+                    </button>
+                  }
+                />
+                <Popover.Popup className="media-popover media-popover--settings">
+                  <SettingsMenuContent
+                    isMarkdownOrComment={isMarkdownOrComment}
+                    isLivestream={Boolean(isLivestream)}
+                    onToggleAutoplayNext={onToggleAutoplayNext}
+                    autoplayNext={autoplayNext}
+                    floatingPlayer={floatingPlayer}
+                    onToggleFloatingPlayer={onToggleFloatingPlayer}
+                    autoplayMedia={autoplayMedia}
+                    onToggleAutoplayMedia={onToggleAutoplayMedia}
+                    title={title}
+                    onShowShortcuts={() => setShowShortcuts(true)}
+                    onCloseMenu={() => setSettingsOpen(false)}
+                    quality={quality}
+                    isFloating={isFloating}
+                  />
+                </Popover.Popup>
+              </Popover.Root>
+
+              {!isMarkdownOrComment && onToggleTheaterMode && (
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <button type="button" className="media-button media-button--icon" onClick={onToggleTheaterMode}>
+                        <span
+                          className={`media-icon media-icon--theater ${
+                            videoTheaterMode ? 'media-icon--theater-active' : ''
+                          }`}
+                        />
+                      </button>
+                    }
+                  />
+                  <Tooltip.Popup className="media-tooltip">
+                    {videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)')}
+                  </Tooltip.Popup>
+                </Tooltip.Root>
+              )}
+
+              <Tooltip.Root side="top">
+                <Tooltip.Trigger
+                  render={
+                    <Btn
+                      type="button"
+                      className="media-button--icon media-button--fullscreen"
+                      aria-label="Fullscreen"
+                      onPointerDown={(e) => {
+                        if (e.button !== 0) return;
+                        e.preventDefault();
+                        const target = e.currentTarget.closest('.player-fullscreen-target');
+                        // $FlowFixMe
+                        if (document.fullscreenElement) {
+                          // $FlowFixMe
+                          document.exitFullscreen();
+                        } else if (target) {
+                          // $FlowFixMe
+                          target.requestFullscreen();
+                        }
+                      }}
+                    >
+                      <svg
+                        ref={fsEnterIconRef}
+                        className="media-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width={18}
+                        height={18}
+                        fill="none"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                      </svg>
+                      <svg
+                        ref={fsExitIconRef}
+                        className="media-icon"
+                        style={{ display: 'none' }}
+                        xmlns="http://www.w3.org/2000/svg"
+                        width={18}
+                        height={18}
+                        fill="none"
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M4 14h6v6m10-10h-6V4M14 10l7-7M3 21l7-7" />
+                      </svg>
+                    </Btn>
+                  }
+                />
+                <Tooltip.Popup className="media-tooltip">{__('Fullscreen (f)')}</Tooltip.Popup>
+              </Tooltip.Root>
+            </div>
+          </>
+        )}
       </Controls.Root>
 
       <div className="media-overlay" />
+
+      <SeekIndicator />
 
       {showShortcuts && <KeyboardShortcutsOverlay onClose={() => setShowShortcuts(false)} />}
     </Player.Container>

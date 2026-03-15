@@ -392,7 +392,14 @@ function VideoJsInner(props: Props) {
           </Video>
         )}
 
-        {isMobile && <MobileTouchOverlay />}
+        {isMobile && (
+          <MobileTouchOverlay
+            onPlayNext={playNext}
+            onPlayPrevious={playPrevious}
+            canPlayNext={canPlayNext}
+            canPlayPrevious={canPlayPrevious}
+          />
+        )}
       </OdyseeSkin>
 
       {tapToUnmuteVisible && (

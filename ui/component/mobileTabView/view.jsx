@@ -19,7 +19,7 @@ const TAB_DEFS = [
 ];
 
 const BAR_HEIGHT = 56;
-const DRAWER_TRANSITION = 'transform 0.3s ease';
+const DRAWER_TRANSITION = 'transform 0.2s ease';
 
 let sharedActiveTab = 0;
 
@@ -41,11 +41,11 @@ export default function MobileTabView(props: Props) {
   }, [activeTab]);
 
   React.useEffect(() => {
-    if (useDrawer) return;
-
     const onFsChange = () => {
       // $FlowFixMe
-      if (!document.fullscreenElement) {
+      if (document.fullscreenElement) {
+        if (useDrawer) setDrawerOpen(false);
+      } else if (!useDrawer) {
         const el = scrollRef.current;
         if (el) {
           // $FlowFixMe
@@ -77,7 +77,7 @@ export default function MobileTabView(props: Props) {
   React.useEffect(() => {
     if (initialTab !== 0 && !didInitialScroll.current) {
       didInitialScroll.current = true;
-      const delay = useDrawer ? 350 : 0;
+      const delay = useDrawer ? 220 : 0;
       setTimeout(() => {
         const el = scrollRef.current;
         if (el) {
@@ -126,7 +126,7 @@ export default function MobileTabView(props: Props) {
           // $FlowFixMe
           el.scrollTo({ left: index * el.offsetWidth, behavior: 'auto' });
         }
-      }, 350);
+      }, 220);
     } else {
       const el = scrollRef.current;
       if (el) {

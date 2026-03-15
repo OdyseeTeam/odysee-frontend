@@ -791,6 +791,24 @@
   }
 }
 
+.media-default-skin--video .media-controls.odysee-mobile-controls {
+  bottom: 0;
+  inset-inline: 0;
+  will-change: opacity;
+  transition-property: opacity;
+  transition-duration: 100ms;
+  transition-delay: 0ms;
+  transform-origin: center;
+
+  &:not([data-visible]) {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+    transition-delay: 0ms;
+    transition-duration: 100ms;
+  }
+}
+
 /* ==========================================================================
    Sliders
    ========================================================================== */

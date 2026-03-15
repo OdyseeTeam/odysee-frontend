@@ -13,7 +13,6 @@
   @media (max-width: $breakpoint-small) {
     overflow-y: scroll;
     height: 100%;
-    border-top: 1px solid var(--color-border);
 
     .card__main-actions {
       margin-top: 0px !important;

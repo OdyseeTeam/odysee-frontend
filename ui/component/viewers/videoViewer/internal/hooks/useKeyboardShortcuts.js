@@ -5,7 +5,6 @@ import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import isUserTyping from 'util/detect-typing';
 import Player from '../player';
 
-const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10;
 const VOLUME_STEP = 0.05;
 const VOLUME_STEP_FINE = 0.01;
@@ -167,10 +166,22 @@ export default function useKeyboardShortcuts({
         const s = getState();
         if (s.fullscreen) s.exitFullscreen();
       }
-      if (e.keyCode === KEYCODES.L) seekVideo(SEEK_STEP);
-      if (e.keyCode === KEYCODES.J) seekVideo(-SEEK_STEP);
-      if (e.keyCode === KEYCODES.RIGHT) seekVideo(SEEK_STEP_5);
-      if (e.keyCode === KEYCODES.LEFT) seekVideo(-SEEK_STEP_5);
+      if (e.keyCode === KEYCODES.L) {
+        seekVideo(SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: SEEK_STEP } }));
+      }
+      if (e.keyCode === KEYCODES.J) {
+        seekVideo(-SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: -SEEK_STEP } }));
+      }
+      if (e.keyCode === KEYCODES.RIGHT) {
+        seekVideo(SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: SEEK_STEP } }));
+      }
+      if (e.keyCode === KEYCODES.LEFT) {
+        seekVideo(-SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: -SEEK_STEP } }));
+      }
       if (e.keyCode === KEYCODES.ZERO) seekVideo(0, true);
       if (e.keyCode === KEYCODES.ONE) seekVideo(10 / 100, true);
       if (e.keyCode === KEYCODES.TWO) seekVideo(20 / 100, true);
