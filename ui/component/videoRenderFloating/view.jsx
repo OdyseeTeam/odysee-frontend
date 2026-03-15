@@ -22,6 +22,7 @@ import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
+import { useHistory } from 'react-router';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 import { isURIEqual } from 'util/lbryURI';
@@ -53,6 +54,77 @@ const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpack
 
 // ****************************************************************************
 // ****************************************************************************
+
+function MiniPlayerPlayButton() {
+  const [state, setState] = React.useState('paused');
+
+  React.useEffect(() => {
+    // $FlowFixMe
+    const video: ?HTMLVideoElement = document.querySelector('.content__viewer--floating video');
+    if (!video) return;
+    const sync = () => {
+      if (video.ended) setState('ended');
+      else if (video.paused) setState('paused');
+      else setState('playing');
+    };
+    sync();
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    video.addEventListener('ended', sync);
+    return () => {
+      video.removeEventListener('play', sync);
+      video.removeEventListener('pause', sync);
+      video.removeEventListener('ended', sync);
+    };
+  }, []);
+
+  return (
+    <button
+      type="button"
+      className="content__floating-play"
+      onClick={(e) => {
+        e.stopPropagation();
+        // $FlowFixMe
+        const video: ?HTMLVideoElement = document.querySelector('.content__viewer--floating video');
+        if (video) {
+          if (video.ended) {
+            video.currentTime = 0;
+            video.play();
+          } else if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        }
+      }}
+    >
+      {state === 'ended' ? (
+        <svg
+          width={14}
+          height={14}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="1 4 1 10 7 10" />
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+        </svg>
+      ) : state === 'paused' ? (
+        <svg width={14} height={14} viewBox="0 0 18 18" fill="currentColor">
+          <path d="M4 2.5v13l11-6.5z" />
+        </svg>
+      ) : (
+        <svg width={14} height={14} viewBox="0 0 18 18" fill="currentColor">
+          <rect x={3} y={3} width={4} height={12} rx={1} />
+          <rect x={11} y={3} width={4} height={12} rx={1} />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 type Props = {
   claimId: ?string,
@@ -169,6 +241,7 @@ function VideoRenderFloating(props: Props) {
     }
   }, [hasNextShort, playlist, playlistIndex, doSetPlayingUri]);
 
+  const history = useHistory();
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
@@ -718,6 +791,8 @@ function VideoRenderFloating(props: Props) {
               />
             )}
 
+            {isFloating && isMobile && !isShortsFloating && <MiniPlayerPlayButton />}
+
             {autoplayCountdownUri && !showStreamPlaceholder && (
               <div className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}>
                 <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
@@ -732,6 +807,15 @@ function VideoRenderFloating(props: Props) {
                 isShortsContext={isShortVideo}
                 isFloatingContext={isFloating}
                 forceRenderStream={isFloating}
+              />
+            )}
+
+            {isFloating && isMobile && !isShortsFloating && navigateUrl && (
+              <div
+                role="button"
+                tabIndex={0}
+                style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
+                onClick={() => history.push(navigateUrl)}
               />
             )}
 

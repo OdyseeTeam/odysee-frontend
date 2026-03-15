@@ -212,7 +212,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    height: 50px;
+    height: 52px;
     width: 80px;
     top: 3px;
     left: calc(50% - 40px);
@@ -221,11 +221,6 @@
 
     .floating-player__reactions {
       display: none;
-    }
-
-    .vjs-current-time {
-      display: none !important;
-      opacity: 0;
     }
 
     .file-viewer__overlay {
@@ -256,106 +251,78 @@
         }
       }
 
+      .content__floating-play {
+        position: fixed;
+        top: 12px;
+        left: calc(50% - 80px);
+        height: 32px;
+        width: 32px;
+        background-color: rgba(var(--color-primary-static), 0.6);
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text);
+        z-index: 1;
+        padding: 0;
+      }
+
       .autoplay-countdown {
         display: none;
       }
-
-      .vjs-play-control {
-        transform: unset !important;
-        display: inline-block !important;
-        position: fixed !important;
-        top: 12px !important;
-        left: calc(50% - 80px) !important;
-        height: 32px !important;
-        width: 32px !important;
-        background-color: rgba(var(--color-primary-static), 0.6) !important;
-        border-radius: 50% !important;
-        opacity: 1 !important;
-        pointer-events: unset !important;
-        padding: 15px !important;
-
-        .vjs-icon-placeholder {
-          &::before {
-            font-size: 2.2em !important;
-            line-height: 32px !important;
-            background-size: 60%;
-            pointer-events: none;
-          }
-        }
-
-        span {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          z-index: 100;
-          &::before {
-            line-height: 32px !important;
-          }
-        }
-        .vjs-control-text {
-          display: none !important;
-        }
-      }
     }
 
-    .vjs-control-bar {
-      // display: inline-block !important;
-      // opacity: 1 !important;
+    .media-controls,
+    .odysee-click-to-play,
+    .media-overlay,
+    .odysee-touch-overlay {
       display: none !important;
-
-      .vjs-progress-control.vjs-control {
-        top: 40px;
-        margin: unset !important;
-        width: 100%;
-        max-width: 100%;
-        .vjs-slider {
-          margin: 0 !important;
-          div,
-          span {
-            height: 3px !important;
-          }
-        }
-      }
-
-      &::before {
-        background: unset !important;
-      }
     }
 
-    .vjs-control {
-      display: none;
-    }
+    .odysee-progress-bar {
+      position: absolute;
+      bottom: 0 !important;
+      top: auto !important;
+      left: 0 !important;
+      right: 0 !important;
+      inset-inline: 0 !important;
+      height: 2px !important;
+      z-index: 1;
+      opacity: 1 !important;
+      pointer-events: none;
+      transition: none !important;
 
-    .vjs-play-control.vjs-playing {
-      .vjs-icon-placeholder::before {
-        content: '' !important;
+      .odysee-time-slider {
+        cursor: default !important;
+        height: 2px !important;
+        min-height: 0 !important;
+        padding: 0 !important;
       }
-    }
 
-    .vjs-play-control.vjs-paused {
-      .vjs-icon-placeholder::before {
-        content: '' !important;
+      .odysee-slider__track,
+      .odysee-slider__fill,
+      .odysee-slider__buffer {
+        height: 2px !important;
+        border-radius: 0 !important;
       }
-    }
 
-    .vjs-play-control.vjs-ended {
-      .vjs-icon-placeholder::before {
-        content: '' !important;
+      .media-slider__thumb {
+        display: none !important;
+      }
+
+      .odysee-slider-preview {
+        display: none !important;
       }
     }
 
     .content__info {
       margin-top: -50px;
-      background: red;
       opacity: 0;
       .button--uri-indicator {
         display: none;
       }
-    }
-
-    .vjs-time-control {
-      display: none !important;
     }
   }
 }
