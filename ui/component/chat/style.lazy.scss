@@ -54,7 +54,7 @@ $recent-msg-button__height: 2rem;
       margin-right: var(--spacing-xxs);
       background-color: var(--color-background);
       padding: 8px;
-      border-radius: 50%;
+      border-radius: 50% !important;
       opacity: 1;
 
       &:hover {
@@ -347,8 +347,6 @@ $recent-msg-button__height: 2rem;
   overflow-x: visible;
 
   width: 100%;
-  padding: 0 var(--spacing-xs) !important;
-  padding-top: var(--spacing-s);
 }
 
 .livestream-comments__scroll-to-recent {
@@ -569,53 +567,10 @@ $recent-msg-button__height: 2rem;
 
 .livestream-hyperchats__wrapper--mobile {
   @extend .livestream-hyperchats__wrapper;
-
-  z-index: 9999999;
-  width: 100%;
-  background-color: transparent;
-  padding: 0px !important;
-  margin-top: 0 !important;
-  padding-left: var(--spacing-xs) !important;
-  left: 0 !important;
-  right: 0 !important;
-  border-right: unset;
-  border-bottom: none;
-  scrollbar-width: 0px;
 }
 
 .livestream-comments__top-actions--mobile {
-  display: grid;
-  border-bottom: 1px solid var(--color-header-button);
-
-  > div:not(:first-child) {
-    margin-top: var(--spacing-xxs);
-  }
-
-  .livestream-hyperchats {
-    padding: var(--spacing-xxs) 0;
-  }
-
-  .livestream__top-gradient {
-    width: calc(100% + 2px);
-    height: 44px;
-    max-height: 100%;
-    position: absolute;
-    top: -1px;
-    margin-left: -8px;
-
-    &:after {
-      position: absolute;
-      bottom: 0;
-      opacity: 1;
-      content: '';
-      height: 100%;
-      left: 0;
-      right: 0;
-      width: 100%;
-      z-index: 1;
-      background: linear-gradient(180deg, var(--mui-background) 80%, transparent 100%);
-    }
-  }
+  border-bottom: none;
 }
 
 .livestream-pinned__wrapper {
@@ -659,11 +614,13 @@ $recent-msg-button__height: 2rem;
     }
     .livestream-comment__menu {
       top: 8px !important;
-      right: 38px !important;
+      right: 44px !important;
       .menu__button,
       .menu__button:not(:focus):not([aria-expanded='true']) {
         opacity: 1;
         background: var(--color-header-button);
+        border-radius: 50% !important;
+        padding: 2px;
       }
       .menu__button[aria-expanded='true'] {
         .icon {
@@ -680,7 +637,7 @@ $recent-msg-button__height: 2rem;
   .livestream__comment > .close-button {
     position: absolute;
     top: 8px;
-    right: 4px;
+    right: 10px;
     color: var(--color-text);
     z-index: 1;
 
@@ -696,9 +653,7 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xs);
-  }
+  padding: 0 var(--spacing-xs);
 }
 
 .livestream__comment {
@@ -791,71 +746,6 @@ $recent-msg-button__height: 2rem;
     flex: 1;
     white-space: nowrap;
     margin-bottom: -5px;
-  }
-}
-
-.livestream-pinned__wrapper--mobile {
-  @extend .livestream-pinned__wrapper;
-  z-index: 1300;
-  min-width: 100%;
-  max-width: 100%;
-  padding: 0;
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-xs);
-  background-color: var(--color-background);
-
-  .livestream__comment {
-    overflow: hidden;
-
-    .livestream-comment__body {
-      margin: 0px;
-      width: 100%;
-      max-height: 120px;
-      overflow-y: scroll;
-
-      &::-webkit-scrollbar {
-        width: 0 !important;
-      }
-    }
-
-    .livestream-comment__meta-information {
-      .comment__author {
-        width: 100px;
-        flex-grow: 1;
-      }
-      .comment__pin {
-        margin-top: 0;
-        min-width: 22px;
-        max-width: 22px;
-        min-height: 22px;
-        max-height: 22px;
-        border-radius: 50%;
-        svg {
-          margin-bottom: unset;
-          margin-top: 1px;
-        }
-      }
-    }
-  }
-
-  .livestream__comment {
-    .livestream-comment__menu {
-      position: absolute;
-      top: 34px !important;
-      right: 10px !important;
-      // display: none;
-      z-index: 1;
-      button {
-        border-radius: 50%;
-        padding: 1px;
-      }
-    }
-  }
-
-  .close-button {
-    position: absolute;
-    top: 2px;
-    right: 2px;
   }
 }
 
@@ -1121,7 +1011,7 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestreamHyperchat__amount--large {
-  min-width: 2.5rem;
+  min-width: auto;
 }
 
 .livestream__comment--minimal {

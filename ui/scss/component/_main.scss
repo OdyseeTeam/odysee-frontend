@@ -414,8 +414,7 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s);
-    padding-top: 0;
+    padding: 0;
 
     .card {
       margin: 0;

@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
+type TabDef = { icon: string, label: string };
+
 type Props = {
   infoContent: React.Node,
   commentsContent: React.Node,
@@ -10,9 +12,10 @@ type Props = {
   initialTab?: number,
   useDrawer?: boolean,
   drawerOpenRef?: { current: (index: number) => void },
+  tabDefs?: Array<TabDef>,
 };
 
-const TAB_DEFS = [
+const DEFAULT_TAB_DEFS: Array<TabDef> = [
   { icon: ICONS.INFO, label: 'Info' },
   { icon: ICONS.COMMENTS_LIST, label: 'Comments' },
   { icon: ICONS.DISCOVER, label: 'Related' },
@@ -24,7 +27,15 @@ const DRAWER_TRANSITION = 'transform 0.2s ease';
 let sharedActiveTab = 0;
 
 export default function MobileTabView(props: Props) {
-  const { infoContent, commentsContent, relatedContent, initialTab = 0, useDrawer = false, drawerOpenRef } = props;
+  const {
+    infoContent,
+    commentsContent,
+    relatedContent,
+    initialTab = 0,
+    useDrawer = false,
+    drawerOpenRef,
+    tabDefs = DEFAULT_TAB_DEFS,
+  } = props;
 
   const scrollRef = React.useRef<?HTMLDivElement>(null);
   const containerRef = React.useRef<?HTMLDivElement>(null);
@@ -200,7 +211,7 @@ export default function MobileTabView(props: Props) {
 
   const tabBar = (
     <nav className="mobile-tab-view__bar">
-      {TAB_DEFS.map((tab, i) => (
+      {tabDefs.map((tab, i) => (
         <button
           key={tab.label}
           className={`mobile-tab-view__tab ${i === activeTab ? 'mobile-tab-view__tab--active' : ''}`}

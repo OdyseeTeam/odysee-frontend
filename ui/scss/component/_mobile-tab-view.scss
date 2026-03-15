@@ -23,6 +23,10 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px) + var(--spacing-m));
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .mobile-tab-view__bar {
@@ -77,6 +81,26 @@
 
   .card__first-pane {
     padding-top: 0;
+  }
+}
+
+.mobile-tab-view__panel:has(.chat__wrapper) {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.mobile-tab-view__panel .chat__wrapper {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .livestream-comments__wrapper {
+    flex: 1;
+    min-height: 0;
+    height: 0;
   }
 }
 
