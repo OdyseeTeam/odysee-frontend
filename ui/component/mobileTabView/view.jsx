@@ -21,8 +21,8 @@ const DEFAULT_TAB_DEFS: Array<TabDef> = [
   { icon: ICONS.DISCOVER, label: 'Related' },
 ];
 
-const BAR_HEIGHT = 56;
 const DRAWER_TRANSITION = 'transform 0.2s ease';
+const SWIPE_THRESHOLD = 50;
 
 let sharedActiveTab = 0;
 
@@ -37,7 +37,7 @@ export default function MobileTabView(props: Props) {
     tabDefs = DEFAULT_TAB_DEFS,
   } = props;
 
-  const scrollRef = React.useRef<?HTMLDivElement>(null);
+  const trackRef = React.useRef<?HTMLDivElement>(null);
   const containerRef = React.useRef<?HTMLDivElement>(null);
   const sheetRef = React.useRef<?HTMLDivElement>(null);
   const [activeTab, setActiveTab] = React.useState(initialTab);
@@ -47,9 +47,33 @@ export default function MobileTabView(props: Props) {
   const touchStartY = React.useRef(0);
   const isDragging = React.useRef(false);
 
+  const swipeStartX = React.useRef(0);
+  const swipeStartY = React.useRef(0);
+  const swipeDeltaX = React.useRef(0);
+  const swipeDirection = React.useRef<'none' | 'horizontal' | 'vertical'>('none');
+  const activeTabRef = React.useRef(activeTab);
+
   React.useEffect(() => {
     sharedActiveTab = activeTab;
+    activeTabRef.current = activeTab;
   }, [activeTab]);
+
+  function getPanelWidth() {
+    const track = trackRef.current;
+    if (!track || !track.parentElement) return 0;
+    // $FlowFixMe
+    return track.parentElement.offsetWidth;
+  }
+
+  const goToTab = React.useCallback((index: number, animate: boolean = true) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const w = getPanelWidth();
+    if (w === 0) return;
+    track.style.transition = animate ? 'transform 0.25s ease-out' : 'none';
+    track.style.transform = `translateX(${-index * w}px)`;
+    setActiveTab(index);
+  }, []);
 
   React.useEffect(() => {
     const onFsChange = () => {
@@ -57,17 +81,13 @@ export default function MobileTabView(props: Props) {
       if (document.fullscreenElement) {
         if (useDrawer) setDrawerOpen(false);
       } else if (!useDrawer) {
-        const el = scrollRef.current;
-        if (el) {
-          // $FlowFixMe
-          el.scrollTo({ left: sharedActiveTab * el.offsetWidth, behavior: 'auto' });
-        }
+        goToTab(sharedActiveTab, false);
       }
     };
 
     document.addEventListener('fullscreenchange', onFsChange);
     return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, [useDrawer]);
+  }, [useDrawer, goToTab]);
 
   React.useEffect(() => {
     if (useDrawer) return;
@@ -76,50 +96,81 @@ export default function MobileTabView(props: Props) {
       const el = containerRef.current;
       if (el) {
         const top = el.getBoundingClientRect().top;
-        setPanelHeight(window.innerHeight - top - BAR_HEIGHT);
+        setPanelHeight(window.innerHeight - top);
       }
     }
 
     measure();
+    const t = setTimeout(measure, 500);
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', measure);
+    };
   }, [useDrawer]);
 
   React.useEffect(() => {
     if (initialTab !== 0 && !didInitialScroll.current) {
       didInitialScroll.current = true;
       const delay = useDrawer ? 220 : 0;
-      setTimeout(() => {
-        const el = scrollRef.current;
-        if (el) {
-          // $FlowFixMe
-          el.scrollTo({ left: initialTab * el.offsetWidth, behavior: 'auto' });
-        }
-      }, delay);
+      setTimeout(() => goToTab(initialTab, false), delay);
     }
-  }, [initialTab, useDrawer]);
+  }, [initialTab, useDrawer, goToTab]);
 
   React.useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
+    if (useDrawer) return;
+    const track = trackRef.current;
+    if (!track) return;
 
-    let ticking = false;
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          const w = el.offsetWidth;
-          if (w > 0) {
-            setActiveTab(Math.round(el.scrollLeft / w));
-          }
-          ticking = false;
-        });
+    const onTouchStart = (e: TouchEvent) => {
+      swipeStartX.current = e.touches[0].clientX;
+      swipeStartY.current = e.touches[0].clientY;
+      swipeDeltaX.current = 0;
+      swipeDirection.current = 'none';
+      track.style.transition = 'none';
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = e.touches[0].clientX - swipeStartX.current;
+      const dy = e.touches[0].clientY - swipeStartY.current;
+
+      if (swipeDirection.current === 'none') {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+          swipeDirection.current = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+        }
+      }
+
+      if (swipeDirection.current === 'horizontal') {
+        e.preventDefault();
+        swipeDeltaX.current = dx;
+        const w = getPanelWidth();
+        const base = -activeTabRef.current * w;
+        track.style.transform = `translateX(${base + dx}px)`;
       }
     };
 
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
+    const onTouchEnd = () => {
+      if (swipeDirection.current !== 'horizontal') return;
+
+      const maxTab = tabDefs.length - 1;
+      let newTab = activeTabRef.current;
+      if (swipeDeltaX.current < -SWIPE_THRESHOLD && newTab < maxTab) {
+        newTab++;
+      } else if (swipeDeltaX.current > SWIPE_THRESHOLD && newTab > 0) {
+        newTab--;
+      }
+      goToTab(newTab, true);
+    };
+
+    track.addEventListener('touchstart', onTouchStart, { passive: true });
+    track.addEventListener('touchmove', onTouchMove, { passive: false });
+    track.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      track.removeEventListener('touchstart', onTouchStart);
+      track.removeEventListener('touchmove', onTouchMove);
+      track.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [useDrawer, tabDefs.length, goToTab]);
 
   function openToTab(index: number) {
     if (drawerOpen && index === activeTab) {
@@ -131,19 +182,9 @@ export default function MobileTabView(props: Props) {
 
     if (!drawerOpen) {
       setDrawerOpen(true);
-      setTimeout(() => {
-        const el = scrollRef.current;
-        if (el) {
-          // $FlowFixMe
-          el.scrollTo({ left: index * el.offsetWidth, behavior: 'auto' });
-        }
-      }, 220);
+      setTimeout(() => goToTab(index, false), 220);
     } else {
-      const el = scrollRef.current;
-      if (el) {
-        // $FlowFixMe
-        el.scrollTo({ left: index * el.offsetWidth, behavior: 'smooth' });
-      }
+      goToTab(index, true);
     }
   }
 
@@ -157,15 +198,11 @@ export default function MobileTabView(props: Props) {
     if (useDrawer) {
       openToTab(index);
     } else {
-      const el = scrollRef.current;
-      if (el) {
-        // $FlowFixMe
-        el.scrollTo({ left: index * el.offsetWidth, behavior: 'smooth' });
-      }
+      goToTab(index, true);
     }
   }
 
-  const handleTouchStart = React.useCallback((e: TouchEvent) => {
+  const handleDrawerTouchStart = React.useCallback((e: TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     isDragging.current = true;
     if (sheetRef.current) {
@@ -173,7 +210,7 @@ export default function MobileTabView(props: Props) {
     }
   }, []);
 
-  const handleTouchMove = React.useCallback((e: TouchEvent) => {
+  const handleDrawerTouchMove = React.useCallback((e: TouchEvent) => {
     if (!isDragging.current || !sheetRef.current) return;
     const deltaY = e.touches[0].clientY - touchStartY.current;
     if (deltaY > 0) {
@@ -181,7 +218,7 @@ export default function MobileTabView(props: Props) {
     }
   }, []);
 
-  const handleTouchEnd = React.useCallback((e: TouchEvent) => {
+  const handleDrawerTouchEnd = React.useCallback((e: TouchEvent) => {
     if (!isDragging.current || !sheetRef.current) return;
     isDragging.current = false;
     const deltaY = e.changedTouches[0].clientY - touchStartY.current;
@@ -197,15 +234,17 @@ export default function MobileTabView(props: Props) {
   }, []);
 
   const panels = [infoContent, commentsContent, relatedContent];
-  const panelStyle = !useDrawer && panelHeight > 0 ? { height: panelHeight } : undefined;
+  const containerStyle = !useDrawer && panelHeight > 0 ? { height: panelHeight } : undefined;
 
   const scrollContainer = (
-    <div className="mobile-tab-view__scroll-container" ref={scrollRef}>
-      {panels.map((content, i) => (
-        <div className="mobile-tab-view__panel" key={i} style={panelStyle}>
-          {content}
-        </div>
-      ))}
+    <div className="mobile-tab-view__scroll-container" style={containerStyle}>
+      <div className="mobile-tab-view__track" ref={trackRef}>
+        {panels.map((content, i) => (
+          <div className="mobile-tab-view__panel" key={i}>
+            {content}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -231,9 +270,9 @@ export default function MobileTabView(props: Props) {
         <div ref={sheetRef} className={`mobile-tab-view__sheet ${drawerOpen ? 'mobile-tab-view__sheet--open' : ''}`}>
           <div
             className="mobile-tab-view__sheet-header"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={handleDrawerTouchStart}
+            onTouchMove={handleDrawerTouchMove}
+            onTouchEnd={handleDrawerTouchEnd}
           >
             <span className="mobile-tab-view__puller" />
           </div>

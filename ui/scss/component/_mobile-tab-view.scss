@@ -5,27 +5,27 @@
 }
 
 .mobile-tab-view__scroll-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+}
 
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.mobile-tab-view__track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
 }
 
 .mobile-tab-view__panel {
   flex: 0 0 100%;
-  scroll-snap-align: start;
+  height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px) + var(--spacing-m));
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  .card__first-pane {
+    padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -86,7 +86,7 @@
 
 .mobile-tab-view__panel:has(.chat__wrapper) {
   overflow: hidden;
-  padding-bottom: 0;
+  padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
 }
 
 .mobile-tab-view__panel .chat__wrapper {
@@ -133,6 +133,10 @@
     flex: 1;
     min-height: 0;
     width: 100%;
+  }
+
+  .mobile-tab-view__track {
+    height: 100%;
   }
 
   .mobile-tab-view__panel {
