@@ -28,6 +28,7 @@ import { getStripeEnvironment } from 'util/stripe';
 import { TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
+import { BeforeUnload } from 'util/beforeUnload';
 
 const stripeEnvironment = getStripeEnvironment();
 
@@ -655,13 +656,13 @@ export function CommentCreate(props: Props) {
     const handleBack = (event) => {
       if (charCount > 0) {
         event.preventDefault();
-        event.returnValue = 'true';
+        event.returnValue = '';
       }
     };
 
-    window.addEventListener('beforeunload', handleBack);
+    BeforeUnload.register(handleBack, 'Creating comment');
     return () => {
-      window.removeEventListener('beforeunload', handleBack);
+      BeforeUnload.unregister(handleBack, 'Creating comment');
     };
   }, [charCount]);
 
@@ -826,7 +827,7 @@ export function CommentCreate(props: Props) {
 
       <Prompt
         when={charCount > 0}
-        message={'You have not submitted your comment yet, are you sure you want to leave?'}
+        message={__('You have not submitted your comment yet, are you sure you want to leave?')}
       />
 
       <Form

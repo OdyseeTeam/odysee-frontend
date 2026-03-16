@@ -50,6 +50,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 import { lazyImport } from 'util/lazyImport';
+import { BeforeUnload } from 'util/beforeUnload';
 
 const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
@@ -236,21 +237,29 @@ function CommentView(props: Props & StateProps & DispatchProps) {
         }
       };
 
-      const handleRefresh = (event) => {
-        event.preventDefault();
-        event.returnValue = 'true';
-      };
-
       window.addEventListener('keydown', handleEscape);
-      window.addEventListener('beforeunload', handleRefresh);
 
       // removes the listener so it doesn't cause problems elsewhere in the app
       return () => {
         window.removeEventListener('keydown', handleEscape);
-        window.removeEventListener('beforeunload', handleRefresh);
       };
     }
-  }, [author, authorUri, editedMessage, isEditing, setEditing]);
+  }, [editedMessage, isEditing, setEditing]);
+
+  useEffect(() => {
+    // For Refresh
+    const handleRefresh = (event) => {
+      if (isEditing) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    BeforeUnload.register(handleRefresh, 'Editing message');
+    return () => {
+      BeforeUnload.unregister(handleRefresh, 'Editing message');
+    };
+  }, [isEditing]);
 
   useEffect(() => {
     if (uri && page > 0) {
@@ -448,7 +457,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
               <Form onSubmit={handleSubmit}>
                 <Prompt
                   when={isEditing}
-                  message={'You are still editing this message, are you sure you want to leave?'}
+                  message={__('You are still editing this message, are you sure you want to leave?')}
                 />
                 <FormField
                   className="comment__edit-input"
