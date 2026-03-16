@@ -40,6 +40,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
+import { Prompt } from 'react-router-dom';
 import CommentMenuList from 'component/commentMenuList';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
@@ -235,11 +236,18 @@ function CommentView(props: Props & StateProps & DispatchProps) {
         }
       };
 
+      const handleRefresh = (event) => {
+        event.preventDefault();
+        event.returnValue = 'true';
+      };
+
       window.addEventListener('keydown', handleEscape);
+      window.addEventListener('beforeunload', handleRefresh);
 
       // removes the listener so it doesn't cause problems elsewhere in the app
       return () => {
         window.removeEventListener('keydown', handleEscape);
+        window.removeEventListener('beforeunload', handleRefresh);
       };
     }
   }, [author, authorUri, editedMessage, isEditing, setEditing]);
@@ -438,6 +446,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
           <div>
             {isEditing ? (
               <Form onSubmit={handleSubmit}>
+                <Prompt
+                  when={isEditing}
+                  message={'You are still editing this message, are you sure you want to leave?'}
+                />
                 <FormField
                   className="comment__edit-input"
                   type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}

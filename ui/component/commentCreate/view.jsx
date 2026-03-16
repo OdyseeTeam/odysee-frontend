@@ -7,6 +7,7 @@ import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
 import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
+import { Prompt } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as PAGES from 'constants/pages';
@@ -649,6 +650,21 @@ export function CommentCreate(props: Props) {
   // Effects
   // **************************************************************************
 
+  React.useEffect(() => {
+    // For refreshing
+    const handleBack = (event) => {
+      if (charCount > 0) {
+        event.preventDefault();
+        event.returnValue = 'true';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBack);
+    return () => {
+      window.removeEventListener('beforeunload', handleBack);
+    };
+  }, [charCount]);
+
   // Fetch channel constraints if not already.
   React.useEffect(() => {
     if (!channelSettings && channelClaimId) {
@@ -807,6 +823,11 @@ export function CommentCreate(props: Props) {
           action={<Button button="primary" label={__('Join')} onClick={handleJoinMembersOnlyChat} />}
         />
       )}
+
+      <Prompt
+        when={charCount > 0}
+        message={'You have not submitted your comment yet, are you sure you want to leave?'}
+      />
 
       <Form
         onSubmit={() => {}}
