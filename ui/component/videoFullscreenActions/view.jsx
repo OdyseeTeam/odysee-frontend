@@ -169,9 +169,9 @@ export default function VideoFullscreenActions(props: Props) {
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const drawerOpenRef = React.useRef((index: number) => {}); // eslint-disable-line no-unused-vars
 
-  if (!isShort && !isLivestreamClaim && isMobile) {
+  if (!isShort && isMobile) {
     const infoContent = (
-      <div className="file-page" style={{ padding: '0 var(--spacing-xs)' }}>
+      <div className="file-page">
         <div className="card-stack">
           <section className="file-page__media-actions">
             <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
@@ -180,16 +180,19 @@ export default function VideoFullscreenActions(props: Props) {
       </div>
     );
 
-    const commentsContent =
-      contentUnlocked && !commentsDisabled ? (
-        <div style={{ paddingTop: 'var(--spacing-xs)' }}>
-          <React.Suspense fallback={null}>
-            <CommentsList {...commentsListProps} notInDrawer />
-          </React.Suspense>
-        </div>
-      ) : (
-        <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
-      );
+    const commentsContent = isLivestreamClaim ? (
+      <React.Suspense fallback={null}>
+        <ChatLayout uri={uri} />
+      </React.Suspense>
+    ) : contentUnlocked && !commentsDisabled ? (
+      <div style={{ paddingTop: 'var(--spacing-xs)' }}>
+        <React.Suspense fallback={null}>
+          <CommentsList {...commentsListProps} notInDrawer />
+        </React.Suspense>
+      </div>
+    ) : (
+      <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
+    );
 
     const chaptersContent = hasChapters ? (
       <ChaptersCard uri={uri} description={description} visible setVisible={() => {}} />
@@ -197,17 +200,18 @@ export default function VideoFullscreenActions(props: Props) {
 
     const playlistContent = playingCollectionId ? <PlaylistCard id={playingCollectionId} uri={uri} /> : undefined;
 
-    const relatedContent = (
-      <div style={{ padding: '0 var(--spacing-xs)' }}>
-        <RecommendedContent uri={uri} />
-      </div>
+    const relatedContent = <RecommendedContent uri={uri} />;
+
+    const tabDefs = [{ icon: ICONS.INFO, label: 'Info' }];
+    if (hasChapters) tabDefs.push({ icon: ICONS.VIEW_LIST, label: 'Chapters' });
+    if (playingCollectionId) tabDefs.push({ icon: ICONS.PLAYLIST, label: 'Playlist' });
+    tabDefs.push(
+      { icon: isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST, label: isLivestreamClaim ? 'Chat' : 'Comments' },
+      { icon: ICONS.DISCOVER, label: 'Related' }
     );
 
-    let tabIdx = 1;
-    if (hasChapters) tabIdx++;
-    if (playingCollectionId) tabIdx++;
-    const commentsIdx = tabIdx++;
-    const relatedIdx = tabIdx++;
+    const commentsIdx = tabDefs.length - 2;
+    const relatedIdx = tabDefs.length - 1;
 
     return (
       <div className="video-fullscreen__actions-wrapper">
@@ -227,9 +231,9 @@ export default function VideoFullscreenActions(props: Props) {
           <Button
             className="video-fullscreen__action-btn"
             onClick={() => drawerOpenRef.current(commentsIdx)}
-            icon={ICONS.COMMENTS_LIST}
+            icon={isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST}
             iconSize={18}
-            title={__('Comments')}
+            title={isLivestreamClaim ? __('Chat') : __('Comments')}
           />
 
           <Button
@@ -244,6 +248,7 @@ export default function VideoFullscreenActions(props: Props) {
         <MobileTabView
           useDrawer
           drawerOpenRef={drawerOpenRef}
+          tabDefs={tabDefs}
           infoContent={infoContent}
           chaptersContent={chaptersContent}
           playlistContent={playlistContent}
@@ -309,15 +314,17 @@ export default function VideoFullscreenActions(props: Props) {
                   iconSize={18}
                   title={__('Comments')}
                 />
-                <Button
-                  className={`video-fullscreen__action-btn ${
-                    panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
-                  }`}
-                  onClick={() => handleTogglePanel('related')}
-                  icon={ICONS.DISCOVER}
-                  iconSize={18}
-                  title={__('Related')}
-                />
+                {isMobile && (
+                  <Button
+                    className={`video-fullscreen__action-btn ${
+                      panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
+                    }`}
+                    onClick={() => handleTogglePanel('related')}
+                    icon={ICONS.DISCOVER}
+                    iconSize={18}
+                    title={__('Related')}
+                  />
+                )}
               </>
             )}
           </>

@@ -325,7 +325,20 @@ function VideoRenderFloating(props: Props) {
     }
 
     // $FlowFixMe
-    setFileViewerRect({ ...objectRect, windowOffset: window.pageYOffset });
+    setFileViewerRect((prev) => {
+      const offset = window.pageYOffset;
+      if (
+        prev &&
+        prev.width === rect.width &&
+        prev.height === rect.height &&
+        prev.top === rect.top &&
+        prev.left === rect.left &&
+        prev.windowOffset === offset
+      ) {
+        return prev;
+      }
+      return { ...objectRect, windowOffset: offset };
+    });
 
     // force re-calculate when sourceId changes (playing a new claimLink on the same page)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -924,6 +937,7 @@ function VideoRenderFloating(props: Props) {
             <VideoFullscreenActions
               uri={uri}
               isShort={isShortVideo}
+              isLivestreamClaim={isCurrentClaimLive}
               onNext={hasNextShort ? goToNextShort : undefined}
               onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
               isAtStart={!hasPreviousShort}

@@ -20,8 +20,13 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  padding: var(--spacing-xxs);
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  &:has(.chat__wrapper) {
+    padding: 0;
   }
 
   .card__first-pane {
@@ -104,6 +109,11 @@
       flex: 1;
       min-height: 0;
       height: 0;
+    }
+
+    .livestream__comments--mobile {
+      padding-left: var(--spacing-xxs);
+      padding-right: var(--spacing-xxs);
     }
   }
 

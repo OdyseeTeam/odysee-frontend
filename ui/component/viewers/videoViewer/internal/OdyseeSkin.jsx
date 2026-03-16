@@ -32,6 +32,7 @@ const OdyseePlayPrevious = icons[ICONS.PLAY_PREVIOUS];
 const OdyseeVolumeMuted = icons[ICONS.VOLUME_MUTED];
 const OdyseeInfo = icons[ICONS.INFO];
 const OdyseeCommentsList = icons[ICONS.COMMENTS_LIST];
+const OdyseeChat = icons[ICONS.CHAT];
 const OdyseeDiscover = icons[ICONS.DISCOVER];
 const OdyseePlaylist = icons[ICONS.PLAYLIST];
 const OdyseeAutoplayNext = icons[ICONS.AUTOPLAY_NEXT];
@@ -792,7 +793,11 @@ export default function OdyseeSkin(props: Props) {
                       window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'comments' } }))
                     }
                   >
-                    <OdyseeCommentsList size={18} color="currentColor" />
+                    {isLivestream ? (
+                      <OdyseeChat size={18} color="currentColor" />
+                    ) : (
+                      <OdyseeCommentsList size={18} color="currentColor" />
+                    )}
                   </button>
                   <button
                     type="button"
@@ -1170,7 +1175,11 @@ export default function OdyseeSkin(props: Props) {
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger
                     render={
-                      <button type="button" className="media-button media-button--icon" onClick={onToggleTheaterMode}>
+                      <button
+                        type="button"
+                        className="media-button media-button--icon media-button--theater"
+                        onClick={onToggleTheaterMode}
+                      >
                         <span
                           className={`media-icon media-icon--theater ${
                             videoTheaterMode ? 'media-icon--theater-active' : ''

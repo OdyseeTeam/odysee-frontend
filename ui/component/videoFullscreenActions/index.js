@@ -6,7 +6,6 @@ import {
   selectClaimForUri,
   makeSelectTagInClaimOrChannelForUri,
   selectProtectedContentTagForUri,
-  selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
@@ -37,7 +36,6 @@ const select = (state, props) => {
       commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
-    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     description,
     playingCollectionId: selectPlayingCollectionId(state),
   };

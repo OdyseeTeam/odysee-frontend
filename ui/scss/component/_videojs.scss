@@ -257,6 +257,16 @@ $control-bar-height-mobile: 44px;
   }
 }
 
+.media-button--theater {
+  @media (max-width: $breakpoint-small) {
+    display: none !important;
+  }
+
+  :fullscreen & {
+    display: none !important;
+  }
+}
+
 .odysee-controls--left,
 .odysee-controls--right {
   display: flex;
@@ -1073,7 +1083,7 @@ $control-bar-height-mobile: 44px;
     background-color: oklch(0.25 0 0 / 0.45);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 50ms ease-out, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .video-fullscreen__action-btn {
@@ -1206,8 +1216,8 @@ $control-bar-height-mobile: 44px;
 
   &:has(.media-controls[data-visible]),
   &:has([data-paused]),
-  &:has(.media-controls:not([data-mobile-hidden])),
-  &:has(.media-button--settings-open) {
+  &:has(.media-button--settings-open),
+  &:has(.media-controls:not([data-mobile-hidden])) {
     .video-fullscreen__actions {
       opacity: 1;
       pointer-events: auto;
@@ -1215,7 +1225,9 @@ $control-bar-height-mobile: 44px;
     }
   }
 
-  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-button--settings-open)) {
+  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-controls[data-visible])):not(
+      :has(.media-button--settings-open)
+    ) {
     .video-fullscreen__actions {
       opacity: 0;
       pointer-events: none;
