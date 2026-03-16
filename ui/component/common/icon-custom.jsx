@@ -3531,31 +3531,20 @@ export const icons = {
       </svg>
     );
   },
-  [ICONS.VIEW_LIST]: (props: IconProps) => {
-    const { color = 'currentColor' } = props;
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="19"
-        height="16"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        stroke={color}
-        fill={color}
-      >
-        <g>
-          <rect x="1" y="1" width="17" height="14" rx="2" ry="2" fill="none" />
-          <rect x="3" y="3" width="13" height="2" />
-          <rect x="3" y="7" width="13" height="2" />
-          <rect x="3" y="11" width="13" height="2" />
-        </g>
-      </svg>
-    );
-  },
+  [ICONS.VIEW_LIST]: buildIcon(
+    <>
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </>
+  ),
   [ICONS.COMMENTS_LIST]: (props: IconProps) => {
-    const { color = 'currentColor' } = props;
+    const { size = 20, color = 'currentColor' } = props;
     return (
-      <svg width="18" height="16" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           fillRule="evenodd"
           clipRule="evenodd"

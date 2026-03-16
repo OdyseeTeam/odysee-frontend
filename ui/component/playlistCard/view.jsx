@@ -9,7 +9,6 @@ import CollectionItemsList from 'component/collectionItemsList';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
-import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
@@ -19,8 +18,6 @@ import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
 import ShuffleButton from './internal/shuffleButton';
 import LoopButton from './internal/loopButton';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
@@ -41,7 +38,6 @@ type Props = {
   playingItemIndex: ?number,
   collectionLength: number,
   disableClickNavigation?: boolean,
-  useDrawer?: boolean,
   collectionEmpty: boolean,
   hasCollectionById: boolean,
   isFloating?: boolean,
@@ -58,10 +54,7 @@ type Props = {
 };
 
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
-    props;
-
-  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
+  const { hasCollectionById, playingItemIndex, collectionLength } = props;
   const [showEdit, setShowEdit] = React.useState(false);
 
   if (!hasCollectionById) return null;
@@ -69,35 +62,6 @@ export default function PlaylistCard(props: Props) {
   const currentIndexLabel = ` - ${Number.isInteger(playingItemIndex) ? playingItemIndex + 1 : 0}/${collectionLength} `;
   const playlistCardProps = { showEdit, setShowEdit, currentIndexLabel, ...props };
 
-  if (useDrawer) {
-    return (
-      <>
-        <DrawerExpandButton
-          fixed
-          icon={ICONS.PLAYLIST_PLAYBACK}
-          label={
-            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
-          }
-          type={DRAWERS.PLAYLIST}
-        />
-
-        <SwipeableDrawer
-          startOpen={!collectionEmpty}
-          type={DRAWERS.PLAYLIST}
-          title={
-            // returns the card title element
-            <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />
-          }
-          hasSubtitle
-        >
-          {/* returns the card body element */}
-          <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" bodyOnly />
-        </SwipeableDrawer>
-      </>
-    );
-  }
-
-  // returns the full card element
   return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
 }
 
@@ -153,8 +117,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const lengthRef = React.useRef(collectionLength);
   const activeItemIndexRef = React.useRef(playingItemIndex);
 
-  const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
-  const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
+  const [floatingBodyOpen] = usePersistedState('playlist-card-open', true);
+  const [bodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
@@ -481,8 +445,6 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               />
             )
           }
-          // Disabled due to it blocking the clicking of the scrollbar
-          // backgroundImage={backgroundImage}
         />
       </div>
     </>

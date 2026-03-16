@@ -482,7 +482,10 @@ function VideoRenderFloating(props: Props) {
   React.useLayoutEffect(() => {
     if (prevPathnameRef.current !== location.pathname) {
       // $FlowFixMe
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      if (document.fullscreenElement && !document.fullscreenElement.classList.contains('player-fullscreen-target')) {
+        // $FlowFixMe
+        document.exitFullscreen().catch(() => {});
+      }
       prevPathnameRef.current = location.pathname;
     }
   }, [location.pathname]);

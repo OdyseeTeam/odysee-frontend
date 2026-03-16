@@ -109,7 +109,9 @@ export default function ChaptersCard(props: Props) {
       title={
         <span className="chapters-card__title">
           {__('Chapters')}
-          <span className="chapters-card__count">{chapters.length}</span>
+          <span className="chapters-card__count">
+            {activeIndex >= 0 ? activeIndex + 1 : 0}/{chapters.length}
+          </span>
         </span>
       }
       titleActions={<Button className="button-toggle" icon={ICONS.REMOVE} onClick={() => setVisible(false)} />}

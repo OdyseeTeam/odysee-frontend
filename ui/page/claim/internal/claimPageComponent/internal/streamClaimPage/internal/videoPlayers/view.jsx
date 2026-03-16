@@ -10,6 +10,7 @@ import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
+import parseChapters from 'util/parse-chapters';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
@@ -36,6 +37,7 @@ type Props = {
   videoTheaterMode: boolean,
   contentUnlocked: boolean,
   isAutoplayCountdownForUri: ?boolean,
+  description: ?string,
   clearPosition: (uri: string) => void,
 };
 
@@ -57,6 +59,7 @@ export default function VideoPlayersPage(props: Props) {
     position,
     contentUnlocked,
     isAutoplayCountdownForUri,
+    description,
     clearPosition,
   } = props;
 
@@ -102,6 +105,9 @@ export default function VideoPlayersPage(props: Props) {
     }
   }, [clearPosition, fileInfo, uri, videoPlayedEnoughToResetPosition]);
 
+  const chapters = React.useMemo(() => parseChapters(description), [description]);
+  const hasChapters = chapters.length > 0;
+
   if (isMature) {
     return (
       <>
@@ -115,7 +121,7 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
         {isSmallScreen && <ChaptersCard uri={uri} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
@@ -128,8 +134,6 @@ export default function VideoPlayersPage(props: Props) {
   if (isMobilePortrait) {
     const infoContent = (
       <section className="file-page__media-actions">
-        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
-        {isSmallScreen && <ChaptersCard uri={uri} />}
         <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
       </section>
     );
@@ -143,6 +147,18 @@ export default function VideoPlayersPage(props: Props) {
         <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
       );
 
+    const chaptersContent = hasChapters ? (
+      <React.Suspense fallback={null}>
+        <ChaptersCard uri={uri} visible setVisible={() => {}} />
+      </React.Suspense>
+    ) : undefined;
+
+    const playlistContent = collectionId ? (
+      <React.Suspense fallback={null}>
+        <PlaylistCard id={collectionId} uri={uri} />
+      </React.Suspense>
+    ) : undefined;
+
     const relatedContent = <RightSideContent {...rightSideProps} />;
 
     return (
@@ -154,6 +170,8 @@ export default function VideoPlayersPage(props: Props) {
 
           <MobileTabView
             infoContent={infoContent}
+            chaptersContent={chaptersContent}
+            playlistContent={playlistContent}
             commentsContent={commentsContent}
             relatedContent={relatedContent}
             initialTab={linkedCommentId ? 1 : 0}
@@ -172,7 +190,7 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
             {isSmallScreen && <ChaptersCard uri={uri} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
@@ -209,8 +227,8 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
 
   return (
     <div className="card-stack--spacing-m">
-      {!isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
-      <ChaptersCard uri={uri} />
+      {!isSmallScreen && !isMobile && <PlaylistCard id={collectionId} uri={uri} />}
+      {!isMobile && <ChaptersCard uri={uri} />}
       <RecommendedContent uri={uri} />
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectPlayingCollectionId } from 'redux/selectors/content';
 import { doOpenModal, doCloseAppDrawer } from 'redux/actions/app';
 import VideoFullscreenActions from './view';
 
@@ -27,6 +28,8 @@ const select = (state, props) => {
   const contentUnlocked = claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId);
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
 
+  const description = claim?.value?.description;
+
   return {
     accessStatus: !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked',
     contentUnlocked,
@@ -35,6 +38,8 @@ const select = (state, props) => {
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
+    description,
+    playingCollectionId: selectPlayingCollectionId(state),
   };
 };
 

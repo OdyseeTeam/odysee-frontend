@@ -68,11 +68,22 @@ $control-bar-height-mobile: 44px;
   transition: opacity 0.1s ease;
 }
 
-.odysee-skin:has(.media-controls:not(.odysee-mobile-controls):not([data-visible])) .odysee-progress-bar,
-.odysee-skin:has(.media-controls:not(.odysee-mobile-controls):not([data-visible])) .media-popover--settings {
+.odysee-skin:has(.media-controls:not(.odysee-mobile-controls):not([data-visible])):not(
+    :has(.media-button--settings-open)
+  )
+  .odysee-progress-bar,
+.odysee-skin:has(.media-controls:not(.odysee-mobile-controls):not([data-visible])):not(
+    :has(.media-button--settings-open)
+  )
+  .media-popover--settings {
   opacity: 0;
   pointer-events: none;
   transition-delay: 0.5s;
+}
+
+.odysee-skin:has(.media-button--settings-open) .media-controls {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .odysee-skin:has(.media-controls[data-mobile-hidden]) .odysee-progress-bar,
@@ -615,7 +626,7 @@ $control-bar-height-mobile: 44px;
   border-radius: 50%;
   border: none;
   padding: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: oklch(0.25 0 0 / 0.45);
   color: white;
   display: flex;
   align-items: center;
@@ -635,7 +646,7 @@ $control-bar-height-mobile: 44px;
   height: 42px;
   border-radius: 50%;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
+  background: oklch(0.25 0 0 / 0.45);
   color: white;
   display: flex;
   align-items: center;
@@ -1195,7 +1206,8 @@ $control-bar-height-mobile: 44px;
 
   &:has(.media-controls[data-visible]),
   &:has([data-paused]),
-  &:has(.media-controls:not([data-mobile-hidden])) {
+  &:has(.media-controls:not([data-mobile-hidden])),
+  &:has(.media-button--settings-open) {
     .video-fullscreen__actions {
       opacity: 1;
       pointer-events: auto;
@@ -1203,7 +1215,7 @@ $control-bar-height-mobile: 44px;
     }
   }
 
-  &:has(.media-controls[data-mobile-hidden]) {
+  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-button--settings-open)) {
     .video-fullscreen__actions {
       opacity: 0;
       pointer-events: none;
@@ -1362,6 +1374,10 @@ $control-bar-height-mobile: 44px;
       right: 8px;
       transform: none;
       flex-direction: row;
+
+      .video-fullscreen__action-btn {
+        display: none;
+      }
     }
 
     .video-fullscreen__reactions-no-count {

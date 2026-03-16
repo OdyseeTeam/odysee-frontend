@@ -27,6 +27,10 @@ const OdyseePlay = icons[ICONS.PLAY];
 const OdyseeReplay = icons[ICONS.REPLAY];
 const OdyseePlayPrevious = icons[ICONS.PLAY_PREVIOUS];
 const OdyseeVolumeMuted = icons[ICONS.VOLUME_MUTED];
+const OdyseeInfo = icons[ICONS.INFO];
+const OdyseeCommentsList = icons[ICONS.COMMENTS_LIST];
+const OdyseeDiscover = icons[ICONS.DISCOVER];
+const OdyseePlaylist = icons[ICONS.PLAYLIST];
 const OdyseeAutoplayNext = icons[ICONS.AUTOPLAY_NEXT];
 const OdyseeSettings = icons[ICONS.SETTINGS];
 const OdyseeRepeat = icons[ICONS.REPEAT];
@@ -595,6 +599,7 @@ export default function OdyseeSkin(props: Props) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const fsEnterIconRef = React.useRef<?any>(null);
   const fsExitIconRef = React.useRef<?any>(null);
   const quality = useQualityLevels();
@@ -614,6 +619,7 @@ export default function OdyseeSkin(props: Props) {
       // $FlowFixMe
       const fsEl = document.fullscreenElement;
       const isFs = (!!fsTarget && fsEl === fsTarget) || (!!shortsContainer && fsEl === shortsContainer);
+      setIsFullscreen(isFs);
       if (fsEnterIconRef.current) fsEnterIconRef.current.style.display = isFs ? 'none' : '';
       if (fsExitIconRef.current) fsExitIconRef.current.style.display = isFs ? '' : 'none';
     };
@@ -717,6 +723,77 @@ export default function OdyseeSkin(props: Props) {
                 )}
               />
 
+              {isFullscreen && (
+                <>
+                  <button
+                    type="button"
+                    className="media-button media-button--icon"
+                    onClick={() =>
+                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'info' } }))
+                    }
+                  >
+                    <OdyseeInfo size={18} color="currentColor" />
+                  </button>
+                  {chapters.length > 0 && (
+                    <button
+                      type="button"
+                      className="media-button media-button--icon"
+                      onClick={() =>
+                        window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'chapters' } }))
+                      }
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width={18}
+                        height={18}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                      </svg>
+                    </button>
+                  )}
+                  {(canPlayNext || canPlayPrevious) && (
+                    <button
+                      type="button"
+                      className="media-button media-button--icon"
+                      onClick={() =>
+                        window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'playlist' } }))
+                      }
+                    >
+                      <OdyseePlaylist size={18} color="currentColor" />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="media-button media-button--icon"
+                    onClick={() =>
+                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'comments' } }))
+                    }
+                  >
+                    <OdyseeCommentsList size={18} color="currentColor" />
+                  </button>
+                  <button
+                    type="button"
+                    className="media-button media-button--icon"
+                    onClick={() =>
+                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'related' } }))
+                    }
+                  >
+                    <OdyseeDiscover size={18} color="currentColor" />
+                  </button>
+                </>
+              )}
+
               <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
                 <Popover.Trigger
                   render={
@@ -756,6 +833,31 @@ export default function OdyseeSkin(props: Props) {
 
             <div className="odysee-mobile-controls__bottom">
               <div className="media-surface odysee-mobile-controls__time">
+                <MuteButton
+                  render={(p) => (
+                    <Btn {...p} className="media-button--icon media-button--mute">
+                      <OdyseeVolumeMuted className="media-icon media-icon--volume-off" size={18} color="currentColor" />
+                      <svg
+                        className="media-icon media-icon--volume-high"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width={18}
+                        height={18}
+                        fill="none"
+                        aria-hidden="true"
+                        viewBox="0 0 18 18"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                        />
+                      </svg>
+                    </Btn>
+                  )}
+                />
                 {isLivestream ? (
                   <LiveButton />
                 ) : (

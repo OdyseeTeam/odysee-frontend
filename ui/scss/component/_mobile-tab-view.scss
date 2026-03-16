@@ -106,6 +106,30 @@
   }
 }
 
+.mobile-tab-view__panel .playlist__wrapper {
+  .card__body .claim-list .ul--no-style {
+    padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.mobile-tab-view__panel .chapters-card {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+
+  .card__title-actions-container {
+    display: none;
+  }
+
+  .card__header--slim {
+    padding: var(--spacing-xxs);
+  }
+
+  .chapters-card__list {
+    border-radius: 0;
+  }
+}
+
 // -- Drawer mode (fullscreen) --
 
 .mobile-tab-view--drawer {

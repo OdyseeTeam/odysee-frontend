@@ -53,6 +53,10 @@ export default function MobileTouchOverlay(props: Props) {
   const scheduleAutoHide = useCallback(() => {
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
+      if (document.querySelector('.media-button--settings-open')) {
+        scheduleAutoHide();
+        return;
+      }
       setShowControls(false);
     }, AUTO_HIDE_DELAY);
   }, []);

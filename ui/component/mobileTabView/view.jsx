@@ -7,6 +7,8 @@ type TabDef = { icon: string, label: string };
 
 type Props = {
   infoContent: React.Node,
+  chaptersContent?: React.Node,
+  playlistContent?: React.Node,
   commentsContent: React.Node,
   relatedContent: React.Node,
   initialTab?: number,
@@ -14,12 +16,6 @@ type Props = {
   drawerOpenRef?: { current: (index: number) => void },
   tabDefs?: Array<TabDef>,
 };
-
-const DEFAULT_TAB_DEFS: Array<TabDef> = [
-  { icon: ICONS.INFO, label: 'Info' },
-  { icon: ICONS.COMMENTS_LIST, label: 'Comments' },
-  { icon: ICONS.DISCOVER, label: 'Related' },
-];
 
 const DRAWER_TRANSITION = 'transform 0.2s ease';
 const SWIPE_THRESHOLD = 50;
@@ -29,12 +25,14 @@ let sharedActiveTab = 0;
 export default function MobileTabView(props: Props) {
   const {
     infoContent,
+    chaptersContent,
+    playlistContent,
     commentsContent,
     relatedContent,
     initialTab = 0,
     useDrawer = false,
     drawerOpenRef,
-    tabDefs = DEFAULT_TAB_DEFS,
+    tabDefs: tabDefsProp,
   } = props;
 
   const trackRef = React.useRef<?HTMLDivElement>(null);
@@ -108,6 +106,23 @@ export default function MobileTabView(props: Props) {
       window.removeEventListener('resize', measure);
     };
   }, [useDrawer]);
+
+  const panels = React.useMemo(() => {
+    const p = [infoContent];
+    if (chaptersContent) p.push(chaptersContent);
+    if (playlistContent) p.push(playlistContent);
+    p.push(commentsContent, relatedContent);
+    return p;
+  }, [infoContent, chaptersContent, playlistContent, commentsContent, relatedContent]);
+
+  const tabDefs = React.useMemo(() => {
+    if (tabDefsProp) return tabDefsProp;
+    const t = [{ icon: ICONS.INFO, label: 'Info' }];
+    if (chaptersContent) t.push({ icon: ICONS.VIEW_LIST, label: 'Chapters' });
+    if (playlistContent) t.push({ icon: ICONS.PLAYLIST, label: 'Playlist' });
+    t.push({ icon: ICONS.COMMENTS_LIST, label: 'Comments' }, { icon: ICONS.DISCOVER, label: 'Related' });
+    return t;
+  }, [tabDefsProp, chaptersContent, playlistContent]);
 
   React.useEffect(() => {
     if (initialTab !== 0 && !didInitialScroll.current) {
@@ -232,7 +247,6 @@ export default function MobileTabView(props: Props) {
     }
   }, []);
 
-  const panels = [infoContent, commentsContent, relatedContent];
   const containerStyle = !useDrawer && panelHeight > 0 ? { height: panelHeight } : undefined;
 
   const scrollContainer = (
