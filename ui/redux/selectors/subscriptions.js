@@ -172,7 +172,7 @@ export const makeSelectNotificationsDisabled = (uri) =>
 
       if (channelUri) {
         const followedChannel = followedChannels.find((sub) => isURIEqual(sub.uri, channelUri));
-        return Boolean(followedChannel ? followedChannel.notificationsDisabled : true);
+        return Boolean(followedChannel ? followedChannel.notificationsDisabled : false);
       }
 
       // If we couldn't get a channel uri from the claim uri, the uri passed in might be a channel already
@@ -185,9 +185,9 @@ export const makeSelectNotificationsDisabled = (uri) =>
         const uri = claim.permanent_url;
         const followedChannel = followedChannels.find((sub) => isURIEqual(sub.uri, uri));
 
-        return Boolean(followedChannel ? followedChannel.notificationsDisabled : true);
+        return Boolean(followedChannel ? followedChannel.notificationsDisabled : false);
       }
 
-      return true;
+      return false;
     }
   );

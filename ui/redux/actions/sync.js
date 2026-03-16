@@ -585,11 +585,8 @@ export function doPreferenceSet(key: string, value: any, version: string, succes
     try {
       await Lbry.preference_set(options);
 
-      let syncHash;
-      try {
-        syncHash = await Lbry.sync_hash();
-        dispatch(doUpdateLastSyncHash(syncHash));
-      } catch {}
+      const syncHash = await Lbry.sync_hash();
+      dispatch(doUpdateLastSyncHash(syncHash));
 
       if (key === 'shared') {
         try {

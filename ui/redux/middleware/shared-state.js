@@ -118,9 +118,12 @@ export const buildSharedStateMiddleware =
           }
 
           if (shouldPopulatePreferences) {
-            const populated = await Promise.resolve(dispatch(doGetAndPopulatePreferences()))
-              .then(() => true)
-              .catch(() => false);
+            let populated = false;
+            try {
+              populated = Boolean(await dispatch(doGetAndPopulatePreferences()));
+            } catch (error) {
+              reportPreSyncError(dispatch, error);
+            }
 
             if (populated && currentSyncHash !== undefined) {
               dispatch(doUpdateLastSyncHash(currentSyncHash));
