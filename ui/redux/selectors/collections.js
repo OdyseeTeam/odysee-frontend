@@ -153,9 +153,13 @@ export const selectResolvedCollectionForId = (state: State, id: string) => selec
 export const selectUnpublishedCollectionForId = (state: State, id: string) => selectMyUnpublishedCollections(state)[id];
 
 export const selectCollectionIsMine = (state: State, id: string) => {
-  const isPrivate = selectHasPrivateCollectionForId(state, id);
-  if (isPrivate) return true;
+  // Check if it's a locally-created (unpublished) collection
+  const unpublished = selectUnpublishedCollectionForId(state, id);
+  if (unpublished) return true;
 
+  if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
+
+  // Check if it's a published collection owned by the user
   const publicIds = selectMyCollectionClaimIds(state);
   if (publicIds && publicIds.includes(id)) return true;
 

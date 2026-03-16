@@ -692,6 +692,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       window.player.userActive(true);
 
+      // Restore fullscreen if it was active before the source change (playlist advancement)
+      if (window.wasFullscreen && canUseOldPlayer) {
+        window.wasFullscreen = false;
+        try {
+          if (!vjsPlayer.isFullscreen()) {
+            vjsPlayer.requestFullscreen();
+          }
+        } catch (e) {
+          // Fullscreen request may fail if not triggered by user gesture in some browsers
+        }
+      }
+
       if (promise !== undefined) {
         promise
           .then((_) => {
@@ -789,6 +801,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (videoDiv) videoDiv.style.top = '0px';
 
         window.player.controlBar.el().classList.add('vjs-transitioning-video');
+
+        // Preserve fullscreen state across playlist item transitions
+        window.wasFullscreen = window.player.isFullscreen();
 
         window.oldSavedDiv = window.player.el();
 
