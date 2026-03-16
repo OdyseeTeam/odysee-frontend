@@ -1166,7 +1166,7 @@ export default function OdyseeSkin(props: Props) {
                 </Popover.Popup>
               </Popover.Root>
 
-              {!isMarkdownOrComment && !embedded && onToggleTheaterMode && (
+              {!isMarkdownOrComment && !embedded && !isFloating && onToggleTheaterMode && (
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger
                     render={

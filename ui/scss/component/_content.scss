@@ -175,6 +175,21 @@
     .vjs-control-bar {
       opacity: 1 !important;
     }
+
+    .media-controls:not([data-visible]) {
+      opacity: 1;
+      scale: 1;
+      filter: none;
+      pointer-events: auto;
+      transition-delay: 0ms;
+      transition-duration: 150ms;
+    }
+
+    .odysee-progress-bar {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transition-delay: 0ms !important;
+    }
   }
 
   &:hover,

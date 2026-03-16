@@ -48,6 +48,7 @@ export default function MobileTouchOverlay(props: Props) {
     } else {
       controls.setAttribute('data-mobile-hidden', '');
     }
+    return () => controls.removeAttribute('data-mobile-hidden');
   }, [showControls, getControlsEl]);
 
   const scheduleAutoHide = useCallback(() => {

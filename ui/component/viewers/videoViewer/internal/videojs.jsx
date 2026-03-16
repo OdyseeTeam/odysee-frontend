@@ -394,7 +394,7 @@ function VideoJsInner(props: Props) {
           </Video>
         )}
 
-        {isMobile && !embedded && (
+        {IS_MOBILE && !embedded && (
           <MobileTouchOverlay
             onPlayNext={playNext}
             onPlayPrevious={playPrevious}
