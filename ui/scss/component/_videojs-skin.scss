@@ -206,7 +206,6 @@
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  background-image: linear-gradient(to top, oklch(0 0 0 / 0.5), oklch(0 0 0 / 0.3), oklch(0 0 0 / 0));
   backdrop-filter: blur(0) saturate(1.2) brightness(0.9);
   opacity: 0;
   transition-property: opacity, backdrop-filter;

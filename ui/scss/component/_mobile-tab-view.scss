@@ -68,65 +68,67 @@
   font-weight: var(--font-weight-bold);
 }
 
-.mobile-tab-view__panel .file-page__recommended {
-  margin-top: 0;
-  padding-top: 0;
-
-  .card__header--between {
-    position: sticky;
-    top: 0;
-    z-index: 7;
-    background: var(--color-header-background);
-    padding-top: var(--spacing-xs);
-    padding-bottom: var(--spacing-xs);
-  }
-
-  .card__first-pane {
+@media (max-width: $breakpoint-small) {
+  .mobile-tab-view__panel .file-page__recommended {
+    margin-top: 0;
     padding-top: 0;
+
+    .card__header--between {
+      position: sticky;
+      top: 0;
+      z-index: 7;
+      background: var(--color-header-background);
+      padding-top: var(--spacing-xs);
+      padding-bottom: var(--spacing-xs);
+    }
+
+    .card__first-pane {
+      padding-top: 0;
+    }
   }
-}
 
-.mobile-tab-view__panel:has(.chat__wrapper) {
-  overflow: hidden;
-  padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
-}
-
-.mobile-tab-view__panel .chat__wrapper {
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-
-  .livestream-comments__wrapper {
-    flex: 1;
-    min-height: 0;
-    height: 0;
-  }
-}
-
-.mobile-tab-view__panel .playlist__wrapper {
-  .card__body .claim-list .ul--no-style {
+  .mobile-tab-view__panel:has(.chat__wrapper) {
+    overflow: hidden;
     padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
   }
-}
 
-.mobile-tab-view__panel .chapters-card {
-  background: none;
-  padding: 0;
-  border-radius: 0;
-
-  .card__title-actions-container {
-    display: none;
-  }
-
-  .card__header--slim {
-    padding: var(--spacing-xxs);
-  }
-
-  .chapters-card__list {
+  .mobile-tab-view__panel .chat__wrapper {
+    margin: 0;
+    border: none;
     border-radius: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .livestream-comments__wrapper {
+      flex: 1;
+      min-height: 0;
+      height: 0;
+    }
+  }
+
+  .mobile-tab-view__panel .playlist__wrapper {
+    .card__body .claim-list .ul--no-style {
+      padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  .mobile-tab-view__panel .chapters-card {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+
+    .card__title-actions-container {
+      display: none;
+    }
+
+    .card__header--slim {
+      padding: var(--spacing-xxs);
+    }
+
+    .chapters-card__list {
+      border-radius: 0;
+    }
   }
 }
 
