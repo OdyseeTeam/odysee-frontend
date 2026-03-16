@@ -25,7 +25,7 @@ type Props = {
 };
 
 const TruncatedText = (props: Props) => {
-  const { text, lines, showTooltip, style } = props;
+  const { text, lines, showTooltip = true, style } = props;
   const tooltip = showTooltip ? text : '';
 
   // const RE_EMOJI = /:\+1:|:-1:|:[\w-]+:/g;
@@ -57,10 +57,6 @@ const TruncatedText = (props: Props) => {
       {text}
     </span>
   );
-};
-
-TruncatedText.defaultProps = {
-  showTooltip: true,
 };
 
 export default TruncatedText;

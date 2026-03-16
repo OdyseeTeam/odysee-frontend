@@ -371,6 +371,8 @@ function VideoJsInner(props: Props) {
         title={title}
         description={claimValues?.description}
         isFloating={isFloating}
+        embedded={embedded}
+        uri={uri}
       >
         {resolvedSource && (
           <Video
@@ -392,7 +394,7 @@ function VideoJsInner(props: Props) {
           </Video>
         )}
 
-        {isMobile && (
+        {isMobile && !embedded && (
           <MobileTouchOverlay
             onPlayNext={playNext}
             onPlayPrevious={playPrevious}

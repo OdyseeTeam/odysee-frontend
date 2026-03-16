@@ -22,6 +22,9 @@ import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
 import parseChapters from 'util/parse-chapters';
+import Logo from 'component/logo';
+import { URL } from 'config';
+import { formatLbryUrlForWeb } from 'util/url';
 
 const OdyseePlay = icons[ICONS.PLAY];
 const OdyseeReplay = icons[ICONS.REPLAY];
@@ -166,6 +169,7 @@ function SettingsMenuContent({
   onCloseMenu,
   quality,
   isFloating,
+  embedded,
 }) {
   const { levels, currentLevel, currentLabel, selectQuality } = quality;
   const [view, setView] = useState('main');
@@ -304,7 +308,7 @@ function SettingsMenuContent({
 
   return (
     <div key="main" className="media-settings-menu">
-      {!IS_MOBILE && (
+      {!IS_MOBILE && !embedded && (
         <button type="button" className="media-settings-menu__item" onClick={handleShowShortcuts}>
           <svg
             className="media-settings-menu__icon"
@@ -329,53 +333,57 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
         </button>
       )}
-      <button
-        type="button"
-        className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
-        onClick={isFloating ? undefined : onToggleFloatingPlayer}
-      >
-        <svg
-          className="media-settings-menu__icon"
-          width={16}
-          height={16}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+      {!embedded && (
+        <button
+          type="button"
+          className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
+          onClick={isFloating ? undefined : onToggleFloatingPlayer}
         >
-          <rect x="2" y="3" width="20" height="14" rx="2" />
-          <rect x="7.5" y="6.5" width="9" height="7" rx="1" fill="currentColor" stroke="none" />
-        </svg>
-        <span className="media-settings-menu__label">{__('Floating Player')}</span>
-        <span className={`media-settings-toggle ${floatingPlayer ? 'media-settings-toggle--on' : ''}`}>
-          <span className="media-settings-toggle__knob" />
-        </span>
-      </button>
-      <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayMedia}>
-        <svg
-          className="media-settings-menu__icon"
-          width={16}
-          height={16}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
-        </svg>
-        <span className="media-settings-menu__label">{__('Autoplay')}</span>
-        <span className={`media-settings-toggle ${autoplayMedia ? 'media-settings-toggle--on' : ''}`}>
-          <span className="media-settings-toggle__knob" />
-        </span>
-      </button>
-      {!isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
+          <svg
+            className="media-settings-menu__icon"
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <rect x="7.5" y="6.5" width="9" height="7" rx="1" fill="currentColor" stroke="none" />
+          </svg>
+          <span className="media-settings-menu__label">{__('Floating Player')}</span>
+          <span className={`media-settings-toggle ${floatingPlayer ? 'media-settings-toggle--on' : ''}`}>
+            <span className="media-settings-toggle__knob" />
+          </span>
+        </button>
+      )}
+      {!embedded && (
+        <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayMedia}>
+          <svg
+            className="media-settings-menu__icon"
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+          </svg>
+          <span className="media-settings-menu__label">{__('Autoplay')}</span>
+          <span className={`media-settings-toggle ${autoplayMedia ? 'media-settings-toggle--on' : ''}`}>
+            <span className="media-settings-toggle__knob" />
+          </span>
+        </button>
+      )}
+      {!embedded && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
@@ -384,7 +392,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!isShorts && (
+      {!embedded && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
           <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
           <span className="media-settings-menu__label">{__('Loop')}</span>
@@ -567,6 +575,8 @@ type Props = {
   title?: ?string,
   description?: ?string,
   isFloating?: boolean,
+  embedded?: boolean,
+  uri?: string,
 };
 
 export default function OdyseeSkin(props: Props) {
@@ -593,6 +603,8 @@ export default function OdyseeSkin(props: Props) {
     title,
     description,
     isFloating,
+    embedded,
+    uri,
     ...rest
   } = props;
 
@@ -826,6 +838,7 @@ export default function OdyseeSkin(props: Props) {
                     onCloseMenu={() => setSettingsOpen(false)}
                     quality={quality}
                     isFloating={isFloating}
+                    embedded={embedded}
                   />
                 </Popover.Popup>
               </Popover.Root>
@@ -876,14 +889,16 @@ export default function OdyseeSkin(props: Props) {
                   aria-label="Fullscreen"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const target = e.currentTarget.closest('.player-fullscreen-target');
                     // $FlowFixMe
                     if (document.fullscreenElement) {
                       // $FlowFixMe
                       document.exitFullscreen();
-                    } else if (target) {
+                    } else {
+                      const target = embedded
+                        ? e.currentTarget.closest('.video-js-parent')
+                        : e.currentTarget.closest('.player-fullscreen-target');
                       // $FlowFixMe
-                      target.requestFullscreen();
+                      if (target) target.requestFullscreen();
                     }
                   }}
                 >
@@ -1146,11 +1161,12 @@ export default function OdyseeSkin(props: Props) {
                     onCloseMenu={() => setSettingsOpen(false)}
                     quality={quality}
                     isFloating={isFloating}
+                    embedded={embedded}
                   />
                 </Popover.Popup>
               </Popover.Root>
 
-              {!isMarkdownOrComment && onToggleTheaterMode && (
+              {!isMarkdownOrComment && !embedded && onToggleTheaterMode && (
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger
                     render={
@@ -1179,14 +1195,16 @@ export default function OdyseeSkin(props: Props) {
                       onPointerDown={(e) => {
                         if (e.button !== 0) return;
                         e.preventDefault();
-                        const target = e.currentTarget.closest('.player-fullscreen-target');
                         // $FlowFixMe
                         if (document.fullscreenElement) {
                           // $FlowFixMe
                           document.exitFullscreen();
-                        } else if (target) {
+                        } else {
+                          const target = embedded
+                            ? e.currentTarget.closest('.video-js-parent')
+                            : e.currentTarget.closest('.player-fullscreen-target');
                           // $FlowFixMe
-                          target.requestFullscreen();
+                          if (target) target.requestFullscreen();
                         }
                       }}
                     >
@@ -1233,7 +1251,23 @@ export default function OdyseeSkin(props: Props) {
         )}
       </Controls.Root>
 
-      <div className="media-overlay" />
+      {!embedded && <div className="media-overlay" />}
+
+      {embedded && (
+        <div className="odysee-embed-header">
+          <a
+            className="odysee-embed-header__title"
+            href={uri ? URL + formatLbryUrlForWeb(uri) : URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {title}
+          </a>
+          <a className="odysee-embed-header__logo" href={URL} target="_blank" rel="noopener noreferrer">
+            <Logo type="embed" />
+          </a>
+        </div>
+      )}
 
       <SeekIndicator />
 

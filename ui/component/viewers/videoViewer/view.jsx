@@ -9,7 +9,6 @@ import { EmbedContext } from 'contexts/embed';
 import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
-import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import { useGetAds } from 'effects/use-get-ads';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
@@ -391,12 +390,6 @@ function VideoViewer(props: Props) {
 
   return (
     <>
-      {isEmbedded && (
-        <div className={classnames({ 'file-viewer__embedded-header-hide': isPlaying })}>
-          <FileViewerEmbeddedTitle uri={uri} />
-        </div>
-      )}
-
       <div
         className={classnames('file-viewer', {
           'file-viewer--is-playing': isPlaying,

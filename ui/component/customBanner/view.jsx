@@ -5,7 +5,7 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { LocalStorage } from 'util/storage';
 
-const CustomBanner = ({ image, label, description, tag, button, background, isSecondary }) => {
+const CustomBanner = ({ image, label, description, tag, button, background, isSecondary = false }) => {
   // Generate a unique key for the banner based on its content (e.g., the tag)
   const bannerKey = `banner-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
@@ -19,7 +19,7 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
   // State to control the visibility of the context menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-   // Function to close the banner
+  // Function to close the banner
   const menuRef = useRef(null);
 
   const handleCloseBanner = () => {
@@ -81,7 +81,7 @@ Object.keys(localStorage).forEach((key) => {
           <div className="banner-description">{description}</div>
           {tag && <div className="banner-tag">{tag}</div>}
           <a className="banner-button" href={button.link} target="_blank" rel="noopener noreferrer">
-          {button.text}
+            {button.text}
           </a>
         </div>
         <img className="banner-background" src={background.url} alt={background.alt} />
@@ -107,10 +107,6 @@ CustomBanner.propTypes = {
     alt: PropTypes.string.isRequired,
   }).isRequired,
   isSecondary: PropTypes.bool,
-};
-
-CustomBanner.defaultProps = {
-  isSecondary: false,
 };
 
 export default CustomBanner;
