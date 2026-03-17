@@ -23,7 +23,7 @@ export default function useKeyboardShortcuts({
   isMobile: boolean,
   isLivestreamClaim: boolean,
   toggleVideoTheaterMode: () => void,
-  playNext: () => void,
+  playNext: (options?: { manual?: boolean }) => void,
   playPrevious: () => void,
 }) {
   const store = Player.usePlayer();
@@ -128,7 +128,7 @@ export default function useKeyboardShortcuts({
       if (e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
         if (e.keyCode === KEYCODES.PERIOD) changePlaybackSpeed(true);
         if (e.keyCode === KEYCODES.COMMA) changePlaybackSpeed(false);
-        if (e.keyCode === KEYCODES.N) playNext();
+        if (e.keyCode === KEYCODES.N) playNext({ manual: true });
         if (e.keyCode === KEYCODES.P) playPrevious();
         if (e.keyCode === KEYCODES.SLASH) window.dispatchEvent(new CustomEvent('toggleShortcuts'));
         return;

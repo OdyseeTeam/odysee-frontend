@@ -14,7 +14,7 @@ import RecommendedContent from 'component/recommendedContent';
 import ChaptersCard from 'component/chaptersCard';
 import PlaylistCard from 'component/playlistCard';
 import parseChapters from 'util/parse-chapters';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsLandscapeScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList'));
 const ChatLayout = lazyImport(() => import('component/chat'));
@@ -65,6 +65,7 @@ export default function VideoFullscreenActions(props: Props) {
   } = props;
 
   const isMobileSize = useIsMobile();
+  const isLandscape = useIsLandscapeScreen();
   const wasMobileRef = React.useRef(isMobileSize);
   // $FlowFixMe
   const [isFs, setIsFs] = React.useState(!!document.fullscreenElement);
@@ -87,8 +88,12 @@ export default function VideoFullscreenActions(props: Props) {
   const touchStartY = React.useRef(0);
   const isDragging = React.useRef(false);
 
+  const panelModeRef = React.useRef(panelMode);
+  panelModeRef.current = panelMode;
   const handleTogglePanel = React.useCallback((mode) => {
-    setPanelMode((prev) => (prev === mode ? null : mode));
+    const next = panelModeRef.current === mode ? null : mode;
+    setPanelMode(next);
+    window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: next } }));
   }, []);
 
   const handleClosePanel = React.useCallback(() => {
@@ -97,6 +102,7 @@ export default function VideoFullscreenActions(props: Props) {
       sidePanelRef.current.style.transform = '';
     }
     setPanelMode(null);
+    window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: null } }));
   }, []);
 
   const sidePanelRef = React.useRef(null);
@@ -149,25 +155,27 @@ export default function VideoFullscreenActions(props: Props) {
   React.useEffect(() => {
     const onPanel = (e: any) => {
       const { mode } = e.detail;
-      if (drawerOpenRef.current) {
+      if (!isLandscape && drawerOpenRef.current) {
         const tabs = ['info'];
         if (hasChapters) tabs.push('chapters');
         if (playingCollectionId) tabs.push('playlist');
         tabs.push('comments', 'related');
         const idx = tabs.indexOf(mode);
-        if (idx >= 0) drawerOpenRef.current(idx);
+        if (idx >= 0) {
+          drawerOpenRef.current(idx);
+        }
       } else {
         handleTogglePanel(mode);
       }
     };
     window.addEventListener('fullscreen-panel', onPanel);
     return () => window.removeEventListener('fullscreen-panel', onPanel);
-  }, [handleTogglePanel, hasChapters, playingCollectionId]);
+  }, [handleTogglePanel, hasChapters, playingCollectionId, isLandscape]);
 
   React.useEffect(() => {
     const panel = sidePanelRef.current;
     if (!panel) return;
-    const onClick = (e) => {
+    const onClick = (e: any) => {
       // $FlowFixMe
       if (e.target.closest('a') && document.fullscreenElement) {
         // $FlowFixMe
@@ -183,7 +191,60 @@ export default function VideoFullscreenActions(props: Props) {
   }, [doOpenModal, uri]);
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
-  const drawerOpenRef = React.useRef((index: number) => {}); // eslint-disable-line no-unused-vars
+  const drawerOpenRef = React.useRef((index: number, instant?: boolean) => {}); // eslint-disable-line no-unused-vars
+
+  const tabModes = React.useMemo(() => {
+    const modes = ['info'];
+    if (hasChapters) modes.push('chapters');
+    if (hasPlaylist) modes.push('playlist');
+    modes.push(isLivestreamClaim ? 'chat' : 'comments', 'related');
+    return modes;
+  }, [hasChapters, hasPlaylist, isLivestreamClaim]);
+
+  const handleDrawerTabChange = React.useCallback(
+    (index) => {
+      const mode = tabModes[index] || null;
+      setPanelMode(mode);
+      window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode } }));
+    },
+    [tabModes]
+  );
+
+  const handleDrawerClose = React.useCallback(() => {
+    setPanelMode(null);
+    window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: null } }));
+  }, []);
+
+  const prevLandscapeRef = React.useRef(isLandscape);
+  React.useEffect(() => {
+    if (prevLandscapeRef.current === isLandscape) return;
+    prevLandscapeRef.current = isLandscape;
+
+    const fsTarget = document.querySelector('.player-fullscreen-target');
+    if (fsTarget) fsTarget.classList.add('player-fullscreen-target--no-transition');
+
+    if (!isLandscape && panelMode) {
+      const idx = tabModes.indexOf(panelMode);
+      if (idx >= 0) {
+        setTimeout(() => {
+          drawerOpenRef.current(idx, true);
+          setTimeout(() => {
+            if (fsTarget) fsTarget.classList.remove('player-fullscreen-target--no-transition');
+          }, 50);
+        }, 100);
+      } else if (fsTarget) {
+        setTimeout(() => fsTarget.classList.remove('player-fullscreen-target--no-transition'), 150);
+      }
+    } else if (isLandscape && panelMode) {
+      setPanelMode(panelMode);
+      window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: panelMode } }));
+      setTimeout(() => {
+        if (fsTarget) fsTarget.classList.remove('player-fullscreen-target--no-transition');
+      }, 150);
+    } else if (fsTarget) {
+      setTimeout(() => fsTarget.classList.remove('player-fullscreen-target--no-transition'), 150);
+    }
+  }, [isLandscape, panelMode, tabModes]);
 
   if (!isShort && isMobile) {
     const infoContent = (
@@ -201,7 +262,7 @@ export default function VideoFullscreenActions(props: Props) {
         <ChatLayout uri={uri} />
       </React.Suspense>
     ) : contentUnlocked && !commentsDisabled ? (
-      <div style={{ paddingTop: 'var(--spacing-xs)' }}>
+      <div>
         <React.Suspense fallback={null}>
           <CommentsList {...commentsListProps} notInDrawer />
         </React.Suspense>
@@ -230,11 +291,15 @@ export default function VideoFullscreenActions(props: Props) {
     const relatedIdx = tabDefs.length - 1;
 
     return (
-      <div className="video-fullscreen__actions-wrapper">
+      <div
+        className={`video-fullscreen__actions-wrapper ${
+          isLandscape ? 'video-fullscreen__actions-wrapper--landscape' : ''
+        }`}
+      >
         <div className="video-fullscreen__actions">
           <Button
             className="video-fullscreen__action-btn"
-            onClick={() => drawerOpenRef.current(0)}
+            onClick={() => (isLandscape ? handleTogglePanel('info') : drawerOpenRef.current(0))}
             icon={ICONS.INFO}
             iconSize={18}
             title={__('Show Details')}
@@ -246,7 +311,11 @@ export default function VideoFullscreenActions(props: Props) {
 
           <Button
             className="video-fullscreen__action-btn"
-            onClick={() => drawerOpenRef.current(commentsIdx)}
+            onClick={() =>
+              isLandscape
+                ? handleTogglePanel(isLivestreamClaim ? 'chat' : 'comments')
+                : drawerOpenRef.current(commentsIdx)
+            }
             icon={isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST}
             iconSize={18}
             title={isLivestreamClaim ? __('Chat') : __('Comments')}
@@ -254,24 +323,47 @@ export default function VideoFullscreenActions(props: Props) {
 
           <Button
             className="video-fullscreen__action-btn"
-            onClick={() => drawerOpenRef.current(relatedIdx)}
+            onClick={() => (isLandscape ? handleTogglePanel('related') : drawerOpenRef.current(relatedIdx))}
             icon={ICONS.DISCOVER}
             iconSize={18}
             title={__('Related')}
           />
         </div>
 
-        <MobileTabView
-          useDrawer
-          drawerOpenRef={drawerOpenRef}
-          tabDefs={tabDefs}
-          infoContent={infoContent}
-          chaptersContent={chaptersContent}
-          playlistContent={playlistContent}
-          commentsContent={commentsContent}
-          relatedContent={relatedContent}
-          initialTab={linkedCommentId ? 1 : 0}
-        />
+        {isLandscape ? (
+          // $FlowFixMe
+          <div
+            ref={sidePanelRef}
+            className={`video-fullscreen__side-panel ${panelMode ? 'video-fullscreen__side-panel--open' : ''}`}
+          >
+            {panelMode && (
+              <MobileTabView
+                tabDefs={tabDefs}
+                infoContent={infoContent}
+                chaptersContent={chaptersContent}
+                playlistContent={playlistContent}
+                commentsContent={commentsContent}
+                relatedContent={relatedContent}
+                initialTab={tabModes.indexOf(panelMode)}
+                onTabChange={handleDrawerTabChange}
+              />
+            )}
+          </div>
+        ) : (
+          <MobileTabView
+            useDrawer
+            drawerOpenRef={drawerOpenRef}
+            tabDefs={tabDefs}
+            infoContent={infoContent}
+            chaptersContent={chaptersContent}
+            playlistContent={playlistContent}
+            commentsContent={commentsContent}
+            relatedContent={relatedContent}
+            initialTab={linkedCommentId ? 1 : 0}
+            onTabChange={handleDrawerTabChange}
+            onDrawerClose={handleDrawerClose}
+          />
+        )}
       </div>
     );
   }

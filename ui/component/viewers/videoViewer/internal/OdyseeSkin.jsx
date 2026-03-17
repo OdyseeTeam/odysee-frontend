@@ -308,7 +308,7 @@ function SettingsMenuContent({
 
   return (
     <div key="main" className="media-settings-menu">
-      {!isMobileDevice && !embedded && (
+      {!isMobileDevice && !embedded && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleShowShortcuts}>
           <svg
             className="media-settings-menu__icon"
@@ -565,7 +565,7 @@ type Props = {
   onToggleFloatingPlayer?: () => void,
   autoplayMedia?: boolean,
   onToggleAutoplayMedia?: () => void,
-  onPlayNext?: () => void,
+  onPlayNext?: (options?: { manual?: boolean }) => void,
   onPlayPrevious?: () => void,
   canPlayNext?: boolean,
   canPlayPrevious?: boolean,
@@ -610,6 +610,9 @@ export default function OdyseeSkin(props: Props) {
 
   const isMobileDevice = platform.isMobile();
   const isMobileSize = useIsMobile();
+  const isShorts =
+    !!document.querySelector('.shorts-page__container') ||
+    !!document.querySelector('.content__viewer--shorts-floating');
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
@@ -619,6 +622,13 @@ export default function OdyseeSkin(props: Props) {
   const quality = useQualityLevels();
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
+  const [activePanel, setActivePanel] = useState(null);
+
+  React.useEffect(() => {
+    const handler = (e) => setActivePanel(e.detail.mode);
+    window.addEventListener('fullscreen-panel-change', handler);
+    return () => window.removeEventListener('fullscreen-panel-change', handler);
+  }, []);
 
   React.useEffect(() => {
     const handler = () => setShowShortcuts((v) => !v);
@@ -745,7 +755,9 @@ export default function OdyseeSkin(props: Props) {
                 <>
                   <button
                     type="button"
-                    className="media-button media-button--icon"
+                    className={`media-button media-button--icon ${
+                      activePanel === 'info' ? 'media-button--active' : ''
+                    }`}
                     onClick={() =>
                       window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'info' } }))
                     }
@@ -755,7 +767,9 @@ export default function OdyseeSkin(props: Props) {
                   {chapters.length > 0 && (
                     <button
                       type="button"
-                      className="media-button media-button--icon"
+                      className={`media-button media-button--icon ${
+                        activePanel === 'chapters' ? 'media-button--active' : ''
+                      }`}
                       onClick={() =>
                         window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'chapters' } }))
                       }
@@ -782,7 +796,9 @@ export default function OdyseeSkin(props: Props) {
                   )}
                   <button
                     type="button"
-                    className="media-button media-button--icon"
+                    className={`media-button media-button--icon ${
+                      activePanel === 'comments' || activePanel === 'chat' ? 'media-button--active' : ''
+                    }`}
                     onClick={() =>
                       window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'comments' } }))
                     }
@@ -795,7 +811,9 @@ export default function OdyseeSkin(props: Props) {
                   </button>
                   <button
                     type="button"
-                    className="media-button media-button--icon"
+                    className={`media-button media-button--icon ${
+                      activePanel === 'related' ? 'media-button--active' : ''
+                    }`}
                     onClick={() =>
                       window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'related' } }))
                     }
@@ -989,7 +1007,11 @@ export default function OdyseeSkin(props: Props) {
                   <Tooltip.Root side="top">
                     <Tooltip.Trigger
                       render={
-                        <button type="button" className="media-button media-button--icon" onClick={onPlayNext}>
+                        <button
+                          type="button"
+                          className="media-button media-button--icon"
+                          onClick={() => onPlayNext({ manual: true })}
+                        >
                           <OdyseePlayPrevious
                             className="media-icon"
                             size={18}
@@ -1047,16 +1069,18 @@ export default function OdyseeSkin(props: Props) {
                       </Btn>
                     )}
                   />
-                  <VolumeSlider.Root
-                    className="media-slider media-volume-slider"
-                    orientation="horizontal"
-                    thumbAlignment="edge"
-                  >
-                    <Slider.Track className="media-slider__track">
-                      <Slider.Fill className="media-slider__fill" />
-                    </Slider.Track>
-                    <Slider.Thumb className="media-slider__thumb" />
-                  </VolumeSlider.Root>
+                  {!isShorts && (
+                    <VolumeSlider.Root
+                      className="media-slider media-volume-slider"
+                      orientation="horizontal"
+                      thumbAlignment="edge"
+                    >
+                      <Slider.Track className="media-slider__track">
+                        <Slider.Fill className="media-slider__fill" />
+                      </Slider.Track>
+                      <Slider.Thumb className="media-slider__thumb" />
+                    </VolumeSlider.Root>
+                  )}
                 </div>
 
                 {isLivestream ? (

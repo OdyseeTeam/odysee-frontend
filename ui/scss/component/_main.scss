@@ -260,6 +260,10 @@ body {
     .file-page__secondary-content {
       margin: 0;
       padding: 0;
+
+      @media (max-width: $breakpoint-small) and (orientation: landscape) {
+        padding: var(--spacing-xxs);
+      }
     }
 
     .card {
@@ -269,6 +273,10 @@ body {
 
     .file-page__recommended {
       margin-top: 0px !important;
+
+      @media (orientation: landscape) {
+        padding: var(--spacing-xxs);
+      }
     }
   }
 }

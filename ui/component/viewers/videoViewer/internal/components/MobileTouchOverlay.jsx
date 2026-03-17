@@ -14,7 +14,7 @@ const ReplayIcon = icons[ICONS.REPLAY];
 const PrevIcon = icons[ICONS.PLAY_PREVIOUS];
 
 type Props = {
-  onPlayNext?: () => void,
+  onPlayNext?: (options?: { manual?: boolean }) => void,
   onPlayPrevious?: () => void,
   canPlayNext?: boolean,
   canPlayPrevious?: boolean,
@@ -169,7 +169,7 @@ export default function MobileTouchOverlay(props: Props) {
   const handleNext = useCallback(
     (e) => {
       e.stopPropagation();
-      if (canPlayNext && onPlayNext) onPlayNext();
+      if (canPlayNext && onPlayNext) onPlayNext({ manual: true });
     },
     [canPlayNext, onPlayNext]
   );

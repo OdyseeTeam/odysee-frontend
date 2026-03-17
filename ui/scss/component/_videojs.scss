@@ -423,6 +423,10 @@ $control-bar-height-mobile: 44px;
   color: white;
 }
 
+.media-button--active {
+  background-color: var(--color-primary) !important;
+}
+
 .media-button--settings {
   position: relative;
 
@@ -995,6 +999,15 @@ $control-bar-height-mobile: 44px;
   display: none;
 }
 
+.player-fullscreen-target--no-transition {
+  .video-fullscreen__side-panel,
+  .video-fullscreen__actions,
+  .content__wrapper,
+  .mobile-tab-view__sheet {
+    transition: none !important;
+  }
+}
+
 .player-fullscreen-target:fullscreen {
   display: flex;
   background: #000;
@@ -1124,6 +1137,10 @@ $control-bar-height-mobile: 44px;
       background-color: var(--color-primary) !important;
     }
 
+    &--active {
+      background-color: var(--color-primary) !important;
+    }
+
     .button__content {
       padding: 0;
     }
@@ -1223,18 +1240,10 @@ $control-bar-height-mobile: 44px;
     }
   }
 
-  &:has(.media-controls[data-visible]),
-  &:has([data-paused]),
-  &:has(.media-button--settings-open) {
-    .video-fullscreen__actions {
-      opacity: 1;
-      pointer-events: auto;
-      transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-
   @media (pointer: coarse) {
-    &:has(.media-controls:not([data-mobile-hidden])) {
+    &:has(.media-controls:not([data-mobile-hidden])),
+    &:has([data-paused]),
+    &:has(.media-button--settings-open) {
       .video-fullscreen__actions {
         opacity: 1;
         pointer-events: auto;
@@ -1243,7 +1252,19 @@ $control-bar-height-mobile: 44px;
     }
   }
 
-  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-controls[data-visible])):not(
+  @media (pointer: fine) {
+    &:has(.media-controls[data-visible]),
+    &:has([data-paused]),
+    &:has(.media-button--settings-open) {
+      .video-fullscreen__actions {
+        opacity: 1;
+        pointer-events: auto;
+        transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+  }
+
+  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-controls[data-visible])):not(:has([data-paused])):not(
       :has(.media-button--settings-open)
     ) {
     .video-fullscreen__actions {
@@ -1442,6 +1463,46 @@ $control-bar-height-mobile: 44px;
           right: 0;
           transform: translateY(0);
         }
+      }
+    }
+
+    .video-fullscreen__actions-wrapper--landscape {
+      .video-fullscreen__side-panel {
+        width: 50%;
+        right: -50%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        &.video-fullscreen__side-panel--open {
+          right: 0;
+        }
+
+        .mobile-tab-view {
+          flex: 1;
+          min-height: 0;
+        }
+
+        .mobile-tab-view__bar {
+          position: relative;
+        }
+
+        .mobile-tab-view__scroll-container {
+          flex: 1;
+          min-height: 0;
+        }
+      }
+    }
+
+    &:has(
+        .video-fullscreen__actions-wrapper--landscape
+          .video-fullscreen__side-panel--open:not(.video-fullscreen__side-panel--chat)
+      ) {
+      .content__wrapper {
+        margin-right: 50% !important;
+      }
+      .video-fullscreen__actions {
+        right: calc(50% + 8px) !important;
       }
     }
 

@@ -263,25 +263,22 @@ function VideoViewer(props: Props) {
     []
   );
 
-  const handlePlayNextUri = React.useCallback(() => {
-    if (playNextUri && isSameClaimUri(playNextUri, uri) && playerRef.current) {
-      const player: any = playerRef.current;
-      player.currentTime(0);
-      player.play();
-      return;
-    }
-
-    if (shouldPlayRecommended) {
-      if (IS_IOS) {
-        // $FlowIgnore
+  const handlePlayNextUri = React.useCallback(
+    (options?: { manual?: boolean }) => {
+      const manual = options && options.manual;
+      if (shouldPlayRecommended) {
+        if (manual || IS_IOS) {
+          // $FlowIgnore
+          doPlayNextUri({ uri: playNextUri });
+        } else {
+          doSetShowAutoplayCountdownForUri({ uri, show: true });
+        }
+      } else if (playNextUri) {
         doPlayNextUri({ uri: playNextUri });
-      } else {
-        doSetShowAutoplayCountdownForUri({ uri, show: true });
       }
-    } else if (playNextUri) {
-      doPlayNextUri({ uri: playNextUri });
-    }
-  }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
+    },
+    [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]
+  );
 
   const handlePlayPreviousUri = React.useCallback(() => {
     if (videoNode && videoNode.currentTime > 5) {
