@@ -19,10 +19,18 @@ $recent-msg-button__height: 2rem;
     background-color: var(--color-header-button);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     justify-content: space-between;
+
+    @media (max-width: $breakpoint-small) {
+      border-radius: 0;
+    }
     flex-wrap: wrap;
 
     .chat__toggle-mode {
       margin: var(--spacing-xs);
+
+      @media (max-width: $breakpoint-small) {
+        margin: var(--spacing-xxs);
+      }
       .button-toggle {
         height: unset;
         padding: var(--spacing-xxxs) var(--spacing-s);
@@ -55,6 +63,10 @@ $recent-msg-button__height: 2rem;
       background-color: var(--color-background);
       padding: 8px;
       border-radius: 50% !important;
+
+      @media (max-width: $breakpoint-small) {
+        margin-top: var(--spacing-xxs);
+      }
       opacity: 1;
 
       &:hover {
@@ -377,6 +389,10 @@ $recent-msg-button__height: 2rem;
   margin-top: auto;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 
+  @media (max-width: $breakpoint-small) {
+    border-radius: 0;
+  }
+
   .comment__char-count-mde {
     display: flex;
     align-items: center;
@@ -520,8 +536,8 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     padding: 0px;
-    margin-left: calc(var(--spacing-xxs) * -1);
-    width: calc(100% + (var(--spacing-xxs) * 2));
+    margin-left: 0;
+    width: 100%;
 
     span,
     select,
@@ -559,6 +575,10 @@ $recent-msg-button__height: 2rem;
   overflow: hidden;
   padding-top: 1px;
   padding-bottom: var(--spacing-xs) !important;
+
+  @media (max-width: $breakpoint-small) {
+    padding-left: var(--spacing-xxs);
+  }
   &::-webkit-scrollbar {
     width: 0px;
     height: 4px;
@@ -580,6 +600,10 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   background-color: var(--color-header-button);
   padding-bottom: var(--spacing-xxs) !important;
+
+  @media (max-width: $breakpoint-small) {
+    padding: 0 var(--spacing-xxs);
+  }
 
   .livestream__comment {
     width: 100%;
@@ -677,6 +701,12 @@ $recent-msg-button__height: 2rem;
 
   .livestream-comment__text {
     color: var(--color-text);
+    @media (max-width: $breakpoint-small) {
+      font-size: var(--font-xsmall);
+      .markdown-preview {
+        font-size: var(--font-xsmall);
+      }
+    }
     .empty__wrap {
       justify-content: left;
     }
@@ -819,6 +849,7 @@ $recent-msg-button__height: 2rem;
     flex-shrink: 0;
     .icon {
       stroke: white;
+      margin-left: 2px;
     }
     &:hover,
     &.active {

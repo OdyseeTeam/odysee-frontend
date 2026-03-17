@@ -99,6 +99,10 @@
     .card__first-pane {
       padding-top: 0;
     }
+
+    .media__thumb {
+      width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
+    }
   }
 
   .mobile-tab-view__panel:has(.chat__wrapper) {
@@ -194,6 +198,26 @@
 
   .mobile-tab-view__panel:first-child {
     padding-top: var(--spacing-xs);
+  }
+
+  .mobile-tab-view__panel:has(.chat__wrapper) {
+    overflow: hidden;
+    padding-bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-tab-view__panel .chat__wrapper {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .livestream-comments__wrapper {
+      flex: 1;
+      min-height: 0;
+      height: 0;
+    }
   }
 
   .mobile-tab-view__panel .file-page__recommended {

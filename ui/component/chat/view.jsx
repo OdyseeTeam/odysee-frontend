@@ -91,10 +91,11 @@ export default function ChatLayout(props: Props) {
   const isMobile = useIsMobile() && !isPopoutWindow;
   const isLimitedPopout = useIsMobile() && isPopoutWindow;
 
-  const webElement = document.querySelector('.livestream__comments');
-  const mobileElement = document.querySelector('.livestream__comments--mobile');
-  const discussionElement = isMobile ? mobileElement : webElement;
-  const allCommentsElem = document.querySelectorAll('.livestream__comment');
+  const [discussionElement, setDiscussionElement] = React.useState(null);
+  const discussionRef = React.useCallback((node) => {
+    if (node) setDiscussionElement(node);
+  }, []);
+  const allCommentsElem = discussionElement && discussionElement.querySelectorAll('.livestream__comment');
   const lastCommentElem = allCommentsElem && allCommentsElem[allCommentsElem.length - 1];
 
   const [viewMode, setViewMode] = React.useState(VIEW_MODES.CHAT);
@@ -103,7 +104,7 @@ export default function ChatLayout(props: Props) {
   const [resolvingSuperChats] = React.useState(false);
   const [openedPopoutWindow, setPopoutWindow] = React.useState(undefined);
   const [chatHidden, setChatHidden] = React.useState(false);
-  const [didInitialScroll, setDidInitialScroll] = React.useState(false);
+
   const [minScrollHeight, setMinScrollHeight] = React.useState(0);
   const [keyboardOpened, setKeyboardOpened] = React.useState(false);
   const [superchatsAmount, setSuperchatsAmount] = React.useState(false);
@@ -160,7 +161,7 @@ export default function ChatLayout(props: Props) {
       if (isMobile) {
         const pos = lastCommentElem && discussionElement.scrollTop - lastCommentElem.getBoundingClientRect().height;
 
-        if (!minScrollHeight || minScrollHeight !== pos) {
+        if (pos && (!minScrollHeight || minScrollHeight !== pos)) {
           setMinScrollHeight(pos);
         }
       }
@@ -210,13 +211,6 @@ export default function ChatLayout(props: Props) {
       doHyperChatList(uri);
     }
   }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);
-
-  React.useEffect(() => {
-    if (isMobile && !didInitialScroll) {
-      restoreScrollPos();
-      setDidInitialScroll(true);
-    }
-  }, [didInitialScroll, isMobile, restoreScrollPos, viewMode]);
 
   React.useEffect(() => {
     if (discussionElement && !openedPopoutWindow) setChatElement(discussionElement);
@@ -450,6 +444,7 @@ export default function ChatLayout(props: Props) {
           viewMode={viewMode}
           comments={commentsToDisplay}
           isMobile={isMobile}
+          discussionRef={discussionRef}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
           isCompact={isCompact}
