@@ -31,10 +31,19 @@ export default function useDragDrop() {
     let dragCount = 0;
     let draggingElement = false;
 
+    // Check if the event target is a text input (textarea/input) that handles its own drops
+    const isTextInputTarget = (event) => {
+      const tag = event.target && event.target.tagName;
+      return tag === 'TEXTAREA' || tag === 'INPUT';
+    };
+
     // Handle file drop
     const handleDropEvent = (event) => {
       // Ignore non file types ( html elements / text )
       if (!draggingElement) {
+        // Let text inputs (comment box, etc.) handle their own image drops
+        if (isTextInputTarget(event)) return;
+
         event.stopPropagation();
         event.preventDefault();
         // Get files
@@ -56,6 +65,9 @@ export default function useDragDrop() {
 
     // Drag events
     const handleDragEvent = (event) => {
+      // Let text inputs handle their own drag events
+      if (isTextInputTarget(event)) return;
+
       event.stopPropagation();
       event.preventDefault();
       // Prevent multiple drop areas

@@ -36,7 +36,7 @@ import {
 } from 'redux/selectors/collections';
 import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { doToast } from 'redux/actions/notifications';
-import { doPurchaseUri } from 'redux/actions/file';
+import { doPurchaseUri, doFileGetForUri } from 'redux/actions/file';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
@@ -298,7 +298,7 @@ export function doPlaylistAddAndAllowPlaying({
   createNew?: boolean,
   createCb?: (id: string) => void,
 }) {
-  return (dispatch: Dispatch, getState: () => any) => {
+  return async (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
     const remove = Boolean(id && uri && selectCollectionForIdHasClaimUrl(state, id, uri));
 
@@ -350,13 +350,20 @@ export function doPlaylistAddAndAllowPlaying({
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
 
     const startPlaying = async () => {
-      // Use fresh state at click-time, not stale closure state from toast-creation (#2699)
+      // Use fresh state at click-time, not stale closure state from toast-creation
       const freshState = getState();
+      const freshIsUriPlaying = uri && selectIsUriCurrentlyPlaying(freshState, uri);
       const freshFirstItemUri = collectionId && selectFirstItemUrlForCollection(freshState, collectionId);
       const uriToStartPlaying = freshFirstItemUri || uri;
 
-      if (uriToStartPlaying) {
-        await dispatch(doResolveUri(uriToStartPlaying, true));
+      if (freshIsUriPlaying) {
+        // Video is already playing — just associate the playlist collection context
+        dispatch(doChangePlayingUri({ collection: { collectionId } }));
+      } else if (uriToStartPlaying) {
+        // Force resolve (not cached) to ensure claim metadata is complete for playability check
+        await dispatch(doResolveUri(uriToStartPlaying, false));
+        // Fetch the streaming URL so the player has a source to play
+        dispatch(doFileGetForUri(uriToStartPlaying));
         dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
       }
     };
@@ -377,8 +384,10 @@ export function doPlaylistAddAndAllowPlaying({
         if (playingUrl) {
           // adds the queue collection id to the playingUri data so it can be used and updated by other components
           if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
-        } else if (selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)) {
-          // Only auto-start playback when autoplay is enabled
+        } else if (uri && selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)) {
+          // Ensure claim is fully resolved so isPlayable check passes
+          await dispatch(doResolveUri(uri, false));
+          dispatch(doFileGetForUri(uri));
           dispatch(doStartFloatingPlayingUri({ uri, ...paramsToAdd }));
         }
       }
