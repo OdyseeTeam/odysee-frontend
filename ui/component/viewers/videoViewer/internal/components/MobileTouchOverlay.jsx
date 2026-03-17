@@ -91,8 +91,6 @@ export default function MobileTouchOverlay(props: Props) {
     };
   }, []);
 
-  const stopBubble = useCallback((e) => e.stopPropagation(), []);
-
   const handleTap = useCallback(
     (e) => {
       e.stopPropagation();
@@ -175,14 +173,7 @@ export default function MobileTouchOverlay(props: Props) {
   );
 
   return (
-    <div
-      className="odysee-touch-overlay"
-      ref={overlayRef}
-      onClick={handleTap}
-      onPointerDown={stopBubble}
-      onPointerUp={stopBubble}
-      onPointerMove={stopBubble}
-    >
+    <div className="odysee-touch-overlay" ref={overlayRef} onClick={handleTap}>
       {showControls && (
         <div className="odysee-mobile-center-controls">
           <button

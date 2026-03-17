@@ -25,6 +25,11 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName
 import { useHistory } from 'react-router';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
+import {
+  fullscreenElement as getFullscreenElement,
+  exitFullscreen,
+  onFullscreenChange as onFsChange,
+} from 'util/full-screen';
 import { isURIEqual } from 'util/lbryURI';
 import AutoplayCountdown from './internal/autoplayCountdown';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
@@ -435,17 +440,16 @@ function VideoRenderFloating(props: Props) {
 
     if (element) resizeObserver.observe(element);
 
-    const onFullscreenChange = () => {
-      // $FlowFixMe
-      if (!document.fullscreenElement && isFloating) {
+    const onFullscreenCb = () => {
+      if (!getFullscreenElement() && isFloating) {
         restoreToRelativePosition();
       }
     };
-    document.addEventListener('fullscreenchange', onFullscreenChange);
+    onFsChange(document, 'add', onFullscreenCb);
 
     return () => {
       resizeObserver.disconnect();
-      document.removeEventListener('fullscreenchange', onFullscreenChange);
+      onFsChange(document, 'remove', onFullscreenCb);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -473,10 +477,10 @@ function VideoRenderFloating(props: Props) {
 
     // $FlowFixMe
     body.appendChild = function (node) {
-      // $FlowFixMe
-      if (node && node.nodeName === 'REACH-PORTAL' && document.fullscreenElement) {
+      const fsEl = getFullscreenElement();
+      if (node && node.nodeName === 'REACH-PORTAL' && fsEl) {
         // $FlowFixMe
-        return document.fullscreenElement.appendChild(node);
+        return fsEl.appendChild(node);
       }
       return origAppend(node);
     };
@@ -498,10 +502,9 @@ function VideoRenderFloating(props: Props) {
   const prevPathnameRef = React.useRef(location.pathname);
   React.useLayoutEffect(() => {
     if (prevPathnameRef.current !== location.pathname) {
-      // $FlowFixMe
-      if (document.fullscreenElement && !document.fullscreenElement.classList.contains('player-fullscreen-target')) {
-        // $FlowFixMe
-        document.exitFullscreen().catch(() => {});
+      const fsEl = getFullscreenElement();
+      if (fsEl && !fsEl.classList.contains('player-fullscreen-target')) {
+        exitFullscreen();
       }
       prevPathnameRef.current = location.pathname;
     }

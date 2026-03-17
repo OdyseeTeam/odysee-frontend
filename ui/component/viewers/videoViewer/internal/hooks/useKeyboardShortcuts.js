@@ -3,6 +3,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import * as KEYCODES from 'constants/keycodes';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import isUserTyping from 'util/detect-typing';
+import { fullscreenElement as getFullscreenElement, requestFullscreen, exitFullscreen } from 'util/full-screen';
 import Player from '../player';
 
 const SEEK_STEP = 10;
@@ -64,13 +65,10 @@ export default function useKeyboardShortcuts({
 
     function toggleFullscreen() {
       const target = document.querySelector('.player-fullscreen-target');
-      // $FlowFixMe
-      if (document.fullscreenElement) {
-        // $FlowFixMe
-        document.exitFullscreen();
+      if (getFullscreenElement()) {
+        exitFullscreen();
       } else if (target) {
-        // $FlowFixMe
-        target.requestFullscreen();
+        requestFullscreen(target);
       }
     }
 

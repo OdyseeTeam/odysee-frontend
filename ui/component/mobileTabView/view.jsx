@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
 
 type TabDef = { icon: string, label: string };
 
@@ -82,8 +83,7 @@ export default function MobileTabView(props: Props) {
 
   React.useEffect(() => {
     const onFsChange = () => {
-      // $FlowFixMe
-      if (document.fullscreenElement) {
+      if (getFullscreenElement()) {
         if (useDrawer) setDrawerOpen(false);
         else {
           preFsHeight.current = panelHeight;
@@ -108,8 +108,8 @@ export default function MobileTabView(props: Props) {
       }
     };
 
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
+    onFullscreenChange(document, 'add', onFsChange);
+    return () => onFullscreenChange(document, 'remove', onFsChange);
   }, [useDrawer, goToTab, panelHeight]);
 
   React.useEffect(() => {

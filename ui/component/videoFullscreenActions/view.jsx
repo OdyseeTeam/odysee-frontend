@@ -15,6 +15,7 @@ import ChaptersCard from 'component/chaptersCard';
 import PlaylistCard from 'component/playlistCard';
 import parseChapters from 'util/parse-chapters';
 import { useIsMobile, useIsLandscapeScreen } from 'effects/use-screensize';
+import { fullscreenElement as getFullscreenElement, exitFullscreen, onFullscreenChange } from 'util/full-screen';
 
 const CommentsList = lazyImport(() => import('component/commentsList'));
 const ChatLayout = lazyImport(() => import('component/chat'));
@@ -67,18 +68,16 @@ export default function VideoFullscreenActions(props: Props) {
   const isMobileSize = useIsMobile();
   const isLandscape = useIsLandscapeScreen();
   const wasMobileRef = React.useRef(isMobileSize);
-  // $FlowFixMe
-  const [isFs, setIsFs] = React.useState(!!document.fullscreenElement);
+  const [isFs, setIsFs] = React.useState(!!getFullscreenElement());
 
   React.useEffect(() => {
     if (!isFs) wasMobileRef.current = isMobileSize;
   }, [isMobileSize, isFs]);
 
   React.useEffect(() => {
-    // $FlowFixMe
-    const onFsChange = () => setIsFs(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
+    const onFsChange = () => setIsFs(!!getFullscreenElement());
+    onFullscreenChange(document, 'add', onFsChange);
+    return () => onFullscreenChange(document, 'remove', onFsChange);
   }, []);
 
   const isMobile = isFs ? wasMobileRef.current : isMobileSize;
@@ -142,14 +141,13 @@ export default function VideoFullscreenActions(props: Props) {
 
   React.useEffect(() => {
     const onFsChange = () => {
-      // $FlowFixMe
-      if (!document.fullscreenElement) {
+      if (!getFullscreenElement()) {
         handleClosePanel();
         doCloseAppDrawer();
       }
     };
-    document.addEventListener('fullscreenchange', onFsChange);
-    return () => document.removeEventListener('fullscreenchange', onFsChange);
+    onFullscreenChange(document, 'add', onFsChange);
+    return () => onFullscreenChange(document, 'remove', onFsChange);
   }, [handleClosePanel, doCloseAppDrawer]);
 
   React.useEffect(() => {
@@ -176,10 +174,8 @@ export default function VideoFullscreenActions(props: Props) {
     const panel = sidePanelRef.current;
     if (!panel) return;
     const onClick = (e: any) => {
-      // $FlowFixMe
-      if (e.target.closest('a') && document.fullscreenElement) {
-        // $FlowFixMe
-        document.exitFullscreen().catch(() => {});
+      if (e.target.closest('a') && getFullscreenElement()) {
+        exitFullscreen();
       }
     };
     panel.addEventListener('click', onClick);

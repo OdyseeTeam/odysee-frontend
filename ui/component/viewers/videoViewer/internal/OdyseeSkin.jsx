@@ -22,6 +22,12 @@ import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
+import {
+  fullscreenElement as getFullscreenElement,
+  requestFullscreen,
+  exitFullscreen,
+  onFullscreenChange,
+} from 'util/full-screen';
 import parseChapters from 'util/parse-chapters';
 import Logo from 'component/logo';
 import { URL } from 'config';
@@ -636,20 +642,37 @@ export default function OdyseeSkin(props: Props) {
     return () => window.removeEventListener('toggleShortcuts', handler);
   }, []);
 
+  React.useLayoutEffect(() => {
+    if (!settingsOpen || !isFloating) return;
+    const fix = () => {
+      const popup = document.querySelector('.media-popover--settings[popover]');
+      const trigger = document.querySelector('.content__viewer--floating .media-button--settings');
+      if (!popup || !trigger) return;
+      const tr = trigger.getBoundingClientRect();
+      const ph = popup.offsetHeight;
+      const pw = popup.offsetWidth;
+      popup.style.setProperty('bottom', 'auto', 'important');
+      popup.style.setProperty('top', `${tr.top - ph - 4}px`, 'important');
+      popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
+      popup.style.setProperty('place-self', 'normal', 'important');
+      popup.style.setProperty('margin-inline-start', '0', 'important');
+    };
+    requestAnimationFrame(fix);
+  }, [settingsOpen, isFloating]);
+
   React.useEffect(() => {
     const syncFsIcons = () => {
       const shortsContainer = document.querySelector('.shorts-page__container');
       const fsTarget = document.querySelector('.player-fullscreen-target');
-      // $FlowFixMe
-      const fsEl = document.fullscreenElement;
+      const fsEl = getFullscreenElement();
       const isFs = (!!fsTarget && fsEl === fsTarget) || (!!shortsContainer && fsEl === shortsContainer);
       setIsFullscreen(isFs);
       if (fsEnterIconRef.current) fsEnterIconRef.current.style.display = isFs ? 'none' : '';
       if (fsExitIconRef.current) fsExitIconRef.current.style.display = isFs ? '' : 'none';
     };
     syncFsIcons();
-    document.addEventListener('fullscreenchange', syncFsIcons);
-    return () => document.removeEventListener('fullscreenchange', syncFsIcons);
+    onFullscreenChange(document, 'add', syncFsIcons);
+    return () => onFullscreenChange(document, 'remove', syncFsIcons);
   }, [isFullscreen]);
 
   return (
@@ -906,16 +929,13 @@ export default function OdyseeSkin(props: Props) {
                   aria-label="Fullscreen"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // $FlowFixMe
-                    if (document.fullscreenElement) {
-                      // $FlowFixMe
-                      document.exitFullscreen();
+                    if (getFullscreenElement()) {
+                      exitFullscreen();
                     } else {
                       const target = embedded
                         ? e.currentTarget.closest('.video-js-parent')
                         : e.currentTarget.closest('.player-fullscreen-target');
-                      // $FlowFixMe
-                      if (target) target.requestFullscreen();
+                      if (target) requestFullscreen(target);
                     }
                   }}
                 >
@@ -1219,19 +1239,14 @@ export default function OdyseeSkin(props: Props) {
                       type="button"
                       className="media-button--icon media-button--fullscreen"
                       aria-label="Fullscreen"
-                      onPointerDown={(e) => {
-                        if (e.button !== 0) return;
-                        e.preventDefault();
-                        // $FlowFixMe
-                        if (document.fullscreenElement) {
-                          // $FlowFixMe
-                          document.exitFullscreen();
+                      onClick={(e) => {
+                        if (getFullscreenElement()) {
+                          exitFullscreen();
                         } else {
-                          const target = embedded
-                            ? e.currentTarget.closest('.video-js-parent')
-                            : e.currentTarget.closest('.player-fullscreen-target');
-                          // $FlowFixMe
-                          if (target) target.requestFullscreen();
+                          const target = e.currentTarget.closest(
+                            embedded ? '.video-js-parent' : '.player-fullscreen-target'
+                          );
+                          if (target) requestFullscreen(target);
                         }
                       }}
                     >

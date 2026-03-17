@@ -13,7 +13,8 @@ const select = (state, props) => {
 
   return {
     description: metadata && metadata.description,
-    visible: selectClientSetting(state, SETTINGS.CHAPTERS_CARD_VISIBLE) || false,
+    visible:
+      props.visible !== undefined ? props.visible : selectClientSetting(state, SETTINGS.CHAPTERS_CARD_VISIBLE) || false,
   };
 };
 

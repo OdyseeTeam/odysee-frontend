@@ -7,6 +7,7 @@ import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
 import useResolvedSource from './hooks/useResolvedSource';
 import useRecsys from './hooks/useRecsys';
+import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
 import useEventTracking from './hooks/useEventTracking';
 import useWatchdog from './hooks/useWatchdog';
 import useMediaSession from './hooks/useMediaSession';
@@ -306,8 +307,7 @@ function VideoJsInner(props: Props) {
     const handleFullscreenChange = () => {
       const fsTarget = document.querySelector('.player-fullscreen-target');
 
-      // $FlowFixMe
-      if (fsTarget && document.fullscreenElement === fsTarget) {
+      if (fsTarget && getFullscreenElement() === fsTarget) {
         videoHoverForwarder = (e) => {
           if (e.target && e.target.closest && e.target.closest('.media-default-skin')) return;
           const skin = fsTarget.querySelector('.media-default-skin');
@@ -321,9 +321,9 @@ function VideoJsInner(props: Props) {
       }
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    onFullscreenChange(document, 'add', handleFullscreenChange);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      onFullscreenChange(document, 'remove', handleFullscreenChange);
     };
   }, []);
 
