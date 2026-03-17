@@ -248,7 +248,8 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
 
         if (walletHash !== data.syncHash) {
           // different local hash, need to synchronise
-          return dispatch(doSetSync(data.syncHash, walletHash, walletData)).then(() => {
+          return dispatch(doSetSync(data.syncHash, walletHash, walletData)).then((setSyncResult) => {
+            data.syncHash = setSyncResult?.data?.syncHash || walletHash;
             dispatch({ type: ACTIONS.GET_SYNC_COMPLETED, data });
             handleCallback(null, data.changed);
           });
