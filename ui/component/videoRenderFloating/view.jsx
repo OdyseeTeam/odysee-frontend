@@ -319,6 +319,10 @@ function VideoRenderFloating(props: Props) {
     // since it could be a portrait -> landscape rotation switch, or if it was a mobile - desktop
     // switch, so use the ref to compare the initial state
     const resizedEnoughForMobileSwitch = isMobile !== initialMobileState.current;
+    if (mainFilePlaying && !isFloating) {
+      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
+      if (viewer) viewer.style.height = `${rect.height}px`;
+    }
     if (videoAspectRatio && (!initialPlayerHeight.current || isMobile || resizedEnoughForMobileSwitch)) {
       const heightForRect = getPossiblePlayerHeight(videoAspectRatio * rect.width, isMobile);
       initialPlayerHeight.current = heightForRect;
@@ -740,7 +744,7 @@ function VideoRenderFloating(props: Props) {
         disabled={noFloatingPlayer || forceDisable}
       >
         <div
-          id="abcd"
+          id="mediaPlayer"
           ref={fullscreenTargetRef}
           className={classnames('player-fullscreen-target', {
             [CONTENT_VIEWER_CLASS]: !isShortVideo,
@@ -942,7 +946,7 @@ function VideoRenderFloating(props: Props) {
               onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
               isAtStart={!hasPreviousShort}
               isAtEnd={!hasNextShort}
-              hasPlaylist={playlist.length > 0}
+              hasPlaylist={!!playingCollection && collectionSidebarId !== collectionId}
               autoPlayNextShort={autoPlayNextShort}
               doToggleShortsAutoplay={doToggleShortsAutoplay}
             />

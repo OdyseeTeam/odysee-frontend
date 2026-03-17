@@ -45,6 +45,9 @@ export default function MobileTabView(props: Props) {
   const touchStartY = React.useRef(0);
   const isDragging = React.useRef(false);
 
+  const preFsHeight = React.useRef(0);
+  const preFsWidth = React.useRef(0);
+  const skipMeasure = React.useRef(false);
   const swipeStartX = React.useRef(0);
   const swipeStartY = React.useRef(0);
   const swipeDeltaX = React.useRef(0);
@@ -78,23 +81,50 @@ export default function MobileTabView(props: Props) {
       // $FlowFixMe
       if (document.fullscreenElement) {
         if (useDrawer) setDrawerOpen(false);
+        else {
+          preFsHeight.current = panelHeight;
+          preFsWidth.current = getPanelWidth();
+        }
       } else if (!useDrawer) {
-        goToTab(sharedActiveTab, false);
+        if (preFsHeight.current > 0) {
+          setPanelHeight(preFsHeight.current);
+          skipMeasure.current = true;
+          setTimeout(() => {
+            skipMeasure.current = false;
+          }, 500);
+        }
+        const track = trackRef.current;
+        if (track && preFsWidth.current > 0) {
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${-sharedActiveTab * preFsWidth.current}px)`;
+          setActiveTab(sharedActiveTab);
+        } else {
+          goToTab(sharedActiveTab, false);
+        }
       }
     };
 
     document.addEventListener('fullscreenchange', onFsChange);
     return () => document.removeEventListener('fullscreenchange', onFsChange);
-  }, [useDrawer, goToTab]);
+  }, [useDrawer, goToTab, panelHeight]);
 
   React.useEffect(() => {
     if (useDrawer) return;
 
     function measure() {
+      if (skipMeasure.current) return;
       const el = containerRef.current;
       if (el) {
         const top = el.getBoundingClientRect().top;
         setPanelHeight(window.innerHeight - top);
+      }
+      const track = trackRef.current;
+      if (track) {
+        const w = getPanelWidth();
+        if (w > 0) {
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${-activeTabRef.current * w}px)`;
+        }
       }
     }
 

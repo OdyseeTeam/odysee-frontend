@@ -21,6 +21,7 @@ import { icons } from 'component/common/icon-custom';
 import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
+import { useIsMobile } from 'effects/use-screensize';
 import parseChapters from 'util/parse-chapters';
 import Logo from 'component/logo';
 import { URL } from 'config';
@@ -34,13 +35,10 @@ const OdyseeInfo = icons[ICONS.INFO];
 const OdyseeCommentsList = icons[ICONS.COMMENTS_LIST];
 const OdyseeChat = icons[ICONS.CHAT];
 const OdyseeDiscover = icons[ICONS.DISCOVER];
-const OdyseePlaylist = icons[ICONS.PLAYLIST];
 const OdyseeAutoplayNext = icons[ICONS.AUTOPLAY_NEXT];
 const OdyseeSettings = icons[ICONS.SETTINGS];
 const OdyseeRepeat = icons[ICONS.REPEAT];
 const OdyseeCamera = icons[ICONS.CAMERA];
-
-const IS_MOBILE = platform.isMobile();
 
 const Btn = forwardRef(function Btn({ className, ...props }, ref) {
   return <button ref={ref} type="button" className={`media-button ${className || ''}`} {...props} />;
@@ -172,6 +170,7 @@ function SettingsMenuContent({
   isFloating,
   embedded,
 }) {
+  const isMobileDevice = platform.isMobile();
   const { levels, currentLevel, currentLabel, selectQuality } = quality;
   const [view, setView] = useState('main');
   const media = Player.useMedia();
@@ -309,7 +308,7 @@ function SettingsMenuContent({
 
   return (
     <div key="main" className="media-settings-menu">
-      {!IS_MOBILE && !embedded && (
+      {!isMobileDevice && !embedded && (
         <button type="button" className="media-settings-menu__item" onClick={handleShowShortcuts}>
           <svg
             className="media-settings-menu__icon"
@@ -328,7 +327,7 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Keyboard shortcuts')}</span>
         </button>
       )}
-      {!IS_MOBILE && (
+      {!isMobileDevice && (
         <button type="button" className="media-settings-menu__item" onClick={handleSnapshot}>
           <OdyseeCamera className="media-settings-menu__icon" size={16} color="currentColor" />
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
@@ -609,6 +608,8 @@ export default function OdyseeSkin(props: Props) {
     ...rest
   } = props;
 
+  const isMobileDevice = platform.isMobile();
+  const isMobileSize = useIsMobile();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
@@ -639,7 +640,7 @@ export default function OdyseeSkin(props: Props) {
     syncFsIcons();
     document.addEventListener('fullscreenchange', syncFsIcons);
     return () => document.removeEventListener('fullscreenchange', syncFsIcons);
-  }, []);
+  }, [isFullscreen]);
 
   return (
     <Player.Container
@@ -687,8 +688,12 @@ export default function OdyseeSkin(props: Props) {
         </TimeSlider.Root>
       </div>
 
-      <Controls.Root className={`media-controls ${IS_MOBILE ? 'odysee-mobile-controls' : 'odysee-controls-row'}`}>
-        {IS_MOBILE ? (
+      <Controls.Root
+        className={`media-controls ${
+          isMobileDevice || (isMobileSize && isFullscreen) ? 'odysee-mobile-controls' : 'odysee-controls-row'
+        }`}
+      >
+        {isMobileDevice || (isMobileSize && isFullscreen) ? (
           <>
             <div className="media-surface odysee-mobile-controls__top">
               <CaptionsButton
@@ -773,17 +778,6 @@ export default function OdyseeSkin(props: Props) {
                         <line x1="3" y1="12" x2="3.01" y2="12" />
                         <line x1="3" y1="18" x2="3.01" y2="18" />
                       </svg>
-                    </button>
-                  )}
-                  {(canPlayNext || canPlayPrevious) && (
-                    <button
-                      type="button"
-                      className="media-button media-button--icon"
-                      onClick={() =>
-                        window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'playlist' } }))
-                      }
-                    >
-                      <OdyseePlaylist size={18} color="currentColor" />
                     </button>
                   )}
                   <button

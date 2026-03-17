@@ -25,6 +25,10 @@
     display: none;
   }
 
+  .comment__list {
+    overflow: visible;
+  }
+
   &:has(.chat__wrapper) {
     padding: 0;
   }
@@ -75,15 +79,20 @@
 
 @media (max-width: $breakpoint-small) {
   .mobile-tab-view__panel .file-page__recommended {
-    margin-top: 0;
+    margin-top: calc(var(--spacing-xxs) * -1) !important;
     padding-top: 0;
 
     .card__header--between {
       position: sticky;
-      top: 0;
+      top: calc(var(--spacing-xxs) * -1);
       z-index: 7;
       background: var(--color-header-background);
       padding-top: var(--spacing-xs);
+      // margin-top: calc(var(--spacing-xxs) * -4) !important;
+      margin-left: calc(var(--spacing-xxs) * -1);
+      margin-right: calc(var(--spacing-xxs) * -1);
+      padding-left: var(--spacing-xxs);
+      padding-right: var(--spacing-xxs);
       padding-bottom: var(--spacing-xs);
     }
 

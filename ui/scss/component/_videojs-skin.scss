@@ -800,11 +800,21 @@
   transform-origin: center;
 
   &:not([data-visible]) {
-    opacity: 1;
     scale: 1;
     filter: none;
     transition-delay: 0ms;
     transition-duration: 100ms;
+
+    @media (pointer: coarse) {
+      opacity: 1;
+    }
+
+    @media (pointer: fine) {
+      opacity: 0;
+      transition-duration: 300ms;
+      transition-delay: 500ms;
+      pointer-events: none;
+    }
   }
 }
 

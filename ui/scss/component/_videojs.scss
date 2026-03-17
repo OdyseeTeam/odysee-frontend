@@ -64,7 +64,7 @@ $control-bar-height-mobile: 44px;
   position: absolute;
   bottom: calc(var(--spacing-xs) + var(--media-controls-bar-height, 40px));
   inset-inline: var(--spacing-xs);
-  z-index: 10;
+  z-index: 11;
   transition: opacity 0.1s ease;
 }
 
@@ -79,6 +79,15 @@ $control-bar-height-mobile: 44px;
   opacity: 0;
   pointer-events: none;
   transition-delay: 0.5s;
+}
+
+@media (pointer: fine) {
+  .odysee-skin:has(.media-controls.odysee-mobile-controls:not([data-visible])):not(:has(.media-button--settings-open))
+    .odysee-progress-bar {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0.5s;
+  }
 }
 
 .odysee-skin:has(.media-button--settings-open) .media-controls {
@@ -1216,12 +1225,21 @@ $control-bar-height-mobile: 44px;
 
   &:has(.media-controls[data-visible]),
   &:has([data-paused]),
-  &:has(.media-button--settings-open),
-  &:has(.media-controls:not([data-mobile-hidden])) {
+  &:has(.media-button--settings-open) {
     .video-fullscreen__actions {
       opacity: 1;
       pointer-events: auto;
       transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  @media (pointer: coarse) {
+    &:has(.media-controls:not([data-mobile-hidden])) {
+      .video-fullscreen__actions {
+        opacity: 1;
+        pointer-events: auto;
+        transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     }
   }
 

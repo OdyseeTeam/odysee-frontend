@@ -59,7 +59,6 @@ $thumbnailWidthSmall: 2rem;
     margin-bottom: var(--spacing-s);
   }
   @media (max-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xxs);
     .card__main-actions {
       padding-top: 0;
     }

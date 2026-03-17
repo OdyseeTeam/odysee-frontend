@@ -64,7 +64,23 @@ export default function VideoFullscreenActions(props: Props) {
     doToggleShortsAutoplay,
   } = props;
 
-  const isMobile = useIsMobile();
+  const isMobileSize = useIsMobile();
+  const wasMobileRef = React.useRef(isMobileSize);
+  // $FlowFixMe
+  const [isFs, setIsFs] = React.useState(!!document.fullscreenElement);
+
+  React.useEffect(() => {
+    if (!isFs) wasMobileRef.current = isMobileSize;
+  }, [isMobileSize, isFs]);
+
+  React.useEffect(() => {
+    // $FlowFixMe
+    const onFsChange = () => setIsFs(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const isMobile = isFs ? wasMobileRef.current : isMobileSize;
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
   const [panelMode, setPanelMode] = React.useState(null);
@@ -198,13 +214,13 @@ export default function VideoFullscreenActions(props: Props) {
       <ChaptersCard uri={uri} description={description} visible setVisible={() => {}} />
     ) : undefined;
 
-    const playlistContent = playingCollectionId ? <PlaylistCard id={playingCollectionId} uri={uri} /> : undefined;
+    const playlistContent = hasPlaylist ? <PlaylistCard id={playingCollectionId} uri={uri} /> : undefined;
 
     const relatedContent = <RecommendedContent uri={uri} />;
 
     const tabDefs = [{ icon: ICONS.INFO, label: 'Info' }];
     if (hasChapters) tabDefs.push({ icon: ICONS.VIEW_LIST, label: 'Chapters' });
-    if (playingCollectionId) tabDefs.push({ icon: ICONS.PLAYLIST, label: 'Playlist' });
+    if (hasPlaylist) tabDefs.push({ icon: ICONS.PLAYLIST, label: 'Playlist' });
     tabDefs.push(
       { icon: isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST, label: isLivestreamClaim ? 'Chat' : 'Comments' },
       { icon: ICONS.DISCOVER, label: 'Related' }
