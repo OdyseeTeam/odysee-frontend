@@ -2043,6 +2043,12 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+.claim-list__loading-more {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-s);
+}
+
 .playlist-preview__wrapper {
   @extend .claim-preview__wrapper;
   @extend .claim-preview__wrapper--row;

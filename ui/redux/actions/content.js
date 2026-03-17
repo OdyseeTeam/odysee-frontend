@@ -345,21 +345,19 @@ export function doPlaylistAddAndAllowPlaying({
     const collectionPlayingId = selectPlayingCollectionId(state);
     const playingUri = selectPlayingUri(state);
     const isUriPlaying = uri && selectIsUriCurrentlyPlaying(state, uri);
-    const firstItemUri = collectionId && selectFirstItemUrlForCollection(state, collectionId);
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
 
     const startPlaying = async () => {
-      if (isUriPlaying) {
-        dispatch(doChangePlayingUri({ collection: { collectionId } }));
-      } else {
-        const uriToStartPlaying = firstItemUri || uri;
+      // Use fresh state at click-time, not stale closure state from toast-creation (#2699)
+      const freshState = getState();
+      const freshFirstItemUri = collectionId && selectFirstItemUrlForCollection(freshState, collectionId);
+      const uriToStartPlaying = freshFirstItemUri || uri;
 
-        if (uriToStartPlaying) {
-          await dispatch(doResolveUri(uriToStartPlaying, true));
-          dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
-        }
+      if (uriToStartPlaying) {
+        await dispatch(doResolveUri(uriToStartPlaying, true));
+        dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
       }
     };
 
@@ -379,8 +377,8 @@ export function doPlaylistAddAndAllowPlaying({
         if (playingUrl) {
           // adds the queue collection id to the playingUri data so it can be used and updated by other components
           if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
-        } else {
-          // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
+        } else if (selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)) {
+          // Only auto-start playback when autoplay is enabled
           dispatch(doStartFloatingPlayingUri({ uri, ...paramsToAdd }));
         }
       }

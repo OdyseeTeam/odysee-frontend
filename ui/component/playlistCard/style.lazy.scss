@@ -6,6 +6,7 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  overscroll-behavior: contain;
 
   padding: 1px;
   background-color: rgba(var(--color-header-button-base), 0.4);
@@ -83,12 +84,6 @@
       padding: 0;
     }
     */
-  }
-
-  .card__body {
-    max-height: 20rem;
-    overflow: scroll;
-    overscroll-behavior: contain;
   }
 
   .card__header--between {
