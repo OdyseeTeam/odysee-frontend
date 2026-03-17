@@ -249,7 +249,11 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         if (walletHash !== data.syncHash) {
           // different local hash, need to synchronise
           return dispatch(doSetSync(data.syncHash, walletHash, walletData)).then((setSyncResult) => {
-            data.syncHash = setSyncResult?.data?.syncHash || walletHash;
+            if (setSyncResult?.type !== ACTIONS.SET_SYNC_COMPLETED || !setSyncResult?.data?.syncHash) {
+              throw setSyncResult?.data?.error || new Error('sync/set failed');
+            }
+
+            data.syncHash = setSyncResult.data.syncHash;
             dispatch({ type: ACTIONS.GET_SYNC_COMPLETED, data });
             handleCallback(null, data.changed);
           });
