@@ -3,7 +3,6 @@
  */
 
 import * as ACTIONS from 'constants/action_types';
-import { doSyncLoop } from 'redux/actions/sync';
 import { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 
 export const triggerSharedStateActions = [
@@ -65,12 +64,4 @@ const sharedStateFilters = {
   lastViewedAnnouncement: { source: 'content', property: 'lastViewedAnnouncement' },
 };
 
-const sharedStateCb = ({ dispatch, getState, syncId }) => {
-  dispatch(doSyncLoop(false, syncId));
-};
-
-export const sharedStateMiddleware = buildSharedStateMiddleware(
-  triggerSharedStateActions,
-  sharedStateFilters,
-  sharedStateCb
-);
+export const sharedStateMiddleware = buildSharedStateMiddleware(triggerSharedStateActions, sharedStateFilters);

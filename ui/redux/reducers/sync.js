@@ -6,6 +6,7 @@ const reducers = {};
 const defaultState: SyncState = {
   hasSyncedWallet: false,
   syncHash: null,
+  lastSyncHash: null,
   syncData: null,
   setSyncErrorMessage: null,
   getSyncErrorMessage: null,
@@ -50,6 +51,7 @@ reducers[ACTIONS.SET_SYNC_LOCK] = (state: SyncState, action: any) =>
 reducers[ACTIONS.GET_SYNC_COMPLETED] = (state: SyncState, action: any) =>
   Object.assign({}, state, {
     syncHash: action.data.syncHash,
+    lastSyncHash: action.data.lastSyncHash !== undefined ? action.data.lastSyncHash : state.lastSyncHash,
     syncData: action.data.syncData,
     hasSyncedWallet: action.data.hasSyncedWallet,
     getSyncIsPending: false,
@@ -81,6 +83,12 @@ reducers[ACTIONS.SET_SYNC_COMPLETED] = (state: SyncState, action: any) =>
     setSyncErrorMessage: null,
     hasSyncedWallet: true, // sync was successful, so the user has a synced wallet at this point
     syncHash: action.data.syncHash,
+    lastSyncHash: action.data.lastSyncHash !== undefined ? action.data.lastSyncHash : action.data.syncHash,
+  });
+
+reducers[ACTIONS.LAST_SYNC_HASH_UPDATED] = (state: SyncState, action: any) =>
+  Object.assign({}, state, {
+    lastSyncHash: action.data,
   });
 
 reducers[ACTIONS.SYNC_APPLY_STARTED] = (state: SyncState) =>
@@ -90,10 +98,11 @@ reducers[ACTIONS.SYNC_APPLY_STARTED] = (state: SyncState) =>
     syncApplyErrorMessage: '',
   });
 
-reducers[ACTIONS.SYNC_APPLY_COMPLETED] = (state: SyncState) =>
+reducers[ACTIONS.SYNC_APPLY_COMPLETED] = (state: SyncState, action: any) =>
   Object.assign({}, state, {
     syncApplyIsPending: false,
     syncApplyErrorMessage: '',
+    lastSyncHash: action?.data?.lastSyncHash !== undefined ? action.data.lastSyncHash : state.lastSyncHash,
   });
 
 reducers[ACTIONS.SYNC_APPLY_FAILED] = (state: SyncState, action: any) =>
