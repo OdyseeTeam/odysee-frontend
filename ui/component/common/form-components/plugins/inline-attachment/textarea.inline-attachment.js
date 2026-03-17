@@ -77,7 +77,7 @@
     options = options || {};
 
     var editor = new textareaEditor(el);
-    var inlineattach = new inlineAttachment(options, editor);
+    var inlineattach = new window.inlineAttachment(options, editor);
 
     el.addEventListener(
       'paste',
@@ -97,5 +97,5 @@
     });
   };
 
-  inlineAttachment.editors.textarea = textareaEditor;
+  window.inlineAttachment.editors.textarea = textareaEditor;
 })();
