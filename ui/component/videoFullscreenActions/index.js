@@ -11,7 +11,9 @@ import { getChannelIdFromClaim } from 'util/claim';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectPlayingCollectionId } from 'redux/selectors/content';
+import { selectMyReactionForUri } from 'redux/selectors/reactions';
 import { doOpenModal, doCloseAppDrawer } from 'redux/actions/app';
+import { doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 import VideoFullscreenActions from './view';
 
 const select = (state, props) => {
@@ -38,12 +40,15 @@ const select = (state, props) => {
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     description,
     playingCollectionId: selectPlayingCollectionId(state),
+    myReaction: selectMyReactionForUri(state, uri),
   };
 };
 
 const perform = {
   doOpenModal,
   doCloseAppDrawer,
+  doReactionLike,
+  doReactionDislike,
 };
 
 export default withRouter(connect(select, perform)(VideoFullscreenActions));

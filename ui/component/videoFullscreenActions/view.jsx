@@ -2,7 +2,6 @@
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import FileTitleSection from 'component/fileTitleSection';
-import FileReactions from 'component/fileReactions';
 import Empty from 'component/common/empty';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
@@ -14,6 +13,7 @@ import RecommendedContent from 'component/recommendedContent';
 import ChaptersCard from 'component/chaptersCard';
 import PlaylistCard from 'component/playlistCard';
 import parseChapters from 'util/parse-chapters';
+import * as REACTION_TYPES from 'constants/reactions';
 import { useIsMobile, useIsLandscapeScreen } from 'effects/use-screensize';
 import { fullscreenElement as getFullscreenElement, exitFullscreen, onFullscreenChange } from 'util/full-screen';
 
@@ -40,6 +40,9 @@ type Props = {
   playingCollectionId: ?string,
   autoPlayNextShort?: boolean,
   doToggleShortsAutoplay?: () => void,
+  myReaction: ?string,
+  doReactionLike: (uri: string) => void,
+  doReactionDislike: (uri: string) => void,
 };
 
 export default function VideoFullscreenActions(props: Props) {
@@ -63,6 +66,9 @@ export default function VideoFullscreenActions(props: Props) {
     playingCollectionId,
     autoPlayNextShort,
     doToggleShortsAutoplay,
+    myReaction,
+    doReactionLike,
+    doReactionDislike,
   } = props;
 
   const isMobileSize = useIsMobile();
@@ -81,30 +87,83 @@ export default function VideoFullscreenActions(props: Props) {
   }, []);
 
   const isMobile = isFs ? wasMobileRef.current : isMobileSize;
+  const useSidePanel = isLandscape || !isMobileSize;
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
   const [panelMode, setPanelMode] = React.useState(null);
   const touchStartY = React.useRef(0);
+  const touchStartX = React.useRef(0);
   const isDragging = React.useRef(false);
 
   const panelModeRef = React.useRef(panelMode);
   panelModeRef.current = panelMode;
   const handleTogglePanel = React.useCallback((mode) => {
     const next = panelModeRef.current === mode ? null : mode;
+    if (next && sidePanelRef.current) {
+      sidePanelRef.current.style.transition = '';
+      sidePanelRef.current.style.transform = '';
+    }
     setPanelMode(next);
     window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: next } }));
   }, []);
 
   const handleClosePanel = React.useCallback(() => {
-    if (sidePanelRef.current) {
-      sidePanelRef.current.style.transition = '';
-      sidePanelRef.current.style.transform = '';
-    }
     setPanelMode(null);
     window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: null } }));
   }, []);
 
   const sidePanelRef = React.useRef(null);
+
+  const adjustVideoForSwipe = React.useCallback((deltaX) => {
+    const fsTarget = document.querySelector('.player-fullscreen-target');
+    if (!fsTarget) return;
+    const contentWrapper = fsTarget.querySelector('.content__wrapper');
+    const actions = fsTarget.querySelector('.video-fullscreen__actions');
+    if (deltaX === null) {
+      if (contentWrapper) {
+        contentWrapper.style.removeProperty('margin-right');
+        contentWrapper.style.removeProperty('transition');
+      }
+      if (actions) {
+        actions.style.removeProperty('right');
+        actions.style.removeProperty('transition');
+      }
+      return;
+    }
+    if (deltaX === 'dismiss') {
+      if (contentWrapper) {
+        contentWrapper.style.removeProperty('transition');
+        contentWrapper.style.setProperty('margin-right', '0px', 'important');
+      }
+      if (actions) {
+        actions.style.removeProperty('transition');
+        actions.style.setProperty('right', '8px', 'important');
+      }
+      setTimeout(() => {
+        if (contentWrapper) {
+          contentWrapper.style.removeProperty('margin-right');
+          contentWrapper.style.removeProperty('transition');
+        }
+        if (actions) {
+          actions.style.removeProperty('right');
+          actions.style.removeProperty('transition');
+        }
+      }, 350);
+      return;
+    }
+    const panel = sidePanelRef.current;
+    if (!panel) return;
+    const panelWidth = panel.offsetWidth;
+    const visibleWidth = Math.max(0, panelWidth - deltaX);
+    if (contentWrapper) {
+      contentWrapper.style.setProperty('transition', 'none', 'important');
+      contentWrapper.style.setProperty('margin-right', visibleWidth + 'px', 'important');
+    }
+    if (actions) {
+      actions.style.setProperty('transition', 'none', 'important');
+      actions.style.setProperty('right', visibleWidth + 8 + 'px', 'important');
+    }
+  }, []);
 
   const handleTouchStart = React.useCallback((e) => {
     touchStartY.current = e.touches[0].clientY;
@@ -139,6 +198,45 @@ export default function VideoFullscreenActions(props: Props) {
     [handleClosePanel]
   );
 
+  const handleSideTouchStart = React.useCallback((e) => {
+    touchStartX.current = e.touches[0].clientX;
+    isDragging.current = true;
+    if (sidePanelRef.current) {
+      sidePanelRef.current.style.transition = 'none';
+    }
+  }, []);
+
+  const handleSideTouchMove = React.useCallback(
+    (e) => {
+      if (!isDragging.current || !sidePanelRef.current) return;
+      const deltaX = e.touches[0].clientX - touchStartX.current;
+      if (deltaX > 0) {
+        sidePanelRef.current.style.transform = `translateX(${deltaX}px)`;
+        adjustVideoForSwipe(deltaX);
+      }
+    },
+    [adjustVideoForSwipe]
+  );
+
+  const handleSideTouchEnd = React.useCallback(
+    (e) => {
+      if (!isDragging.current || !sidePanelRef.current) return;
+      isDragging.current = false;
+      const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+      const panelWidth = sidePanelRef.current.offsetWidth;
+      sidePanelRef.current.style.transition = '';
+      if (deltaX > panelWidth * 0.3) {
+        adjustVideoForSwipe('dismiss');
+        sidePanelRef.current.style.transform = '';
+        handleClosePanel();
+      } else {
+        adjustVideoForSwipe(null);
+        sidePanelRef.current.style.transform = '';
+      }
+    },
+    [handleClosePanel, adjustVideoForSwipe]
+  );
+
   React.useEffect(() => {
     const onFsChange = () => {
       if (!getFullscreenElement()) {
@@ -153,7 +251,7 @@ export default function VideoFullscreenActions(props: Props) {
   React.useEffect(() => {
     const onPanel = (e: any) => {
       const { mode } = e.detail;
-      if (!isLandscape && drawerOpenRef.current) {
+      if (!useSidePanel && drawerOpenRef.current) {
         const tabs = ['info'];
         if (hasChapters) tabs.push('chapters');
         if (playingCollectionId) tabs.push('playlist');
@@ -168,7 +266,7 @@ export default function VideoFullscreenActions(props: Props) {
     };
     window.addEventListener('fullscreen-panel', onPanel);
     return () => window.removeEventListener('fullscreen-panel', onPanel);
-  }, [handleTogglePanel, hasChapters, playingCollectionId, isLandscape]);
+  }, [handleTogglePanel, hasChapters, playingCollectionId, useSidePanel]);
 
   React.useEffect(() => {
     const panel = sidePanelRef.current;
@@ -211,15 +309,15 @@ export default function VideoFullscreenActions(props: Props) {
     window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: null } }));
   }, []);
 
-  const prevLandscapeRef = React.useRef(isLandscape);
+  const prevSidePanelRef = React.useRef(useSidePanel);
   React.useEffect(() => {
-    if (prevLandscapeRef.current === isLandscape) return;
-    prevLandscapeRef.current = isLandscape;
+    if (prevSidePanelRef.current === useSidePanel) return;
+    prevSidePanelRef.current = useSidePanel;
 
     const fsTarget = document.querySelector('.player-fullscreen-target');
     if (fsTarget) fsTarget.classList.add('player-fullscreen-target--no-transition');
 
-    if (!isLandscape && panelMode) {
+    if (!useSidePanel && panelMode) {
       const idx = tabModes.indexOf(panelMode);
       if (idx >= 0) {
         setTimeout(() => {
@@ -231,7 +329,7 @@ export default function VideoFullscreenActions(props: Props) {
       } else if (fsTarget) {
         setTimeout(() => fsTarget.classList.remove('player-fullscreen-target--no-transition'), 150);
       }
-    } else if (isLandscape && panelMode) {
+    } else if (useSidePanel && panelMode) {
       setPanelMode(panelMode);
       window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: panelMode } }));
       setTimeout(() => {
@@ -240,7 +338,7 @@ export default function VideoFullscreenActions(props: Props) {
     } else if (fsTarget) {
       setTimeout(() => fsTarget.classList.remove('player-fullscreen-target--no-transition'), 150);
     }
-  }, [isLandscape, panelMode, tabModes]);
+  }, [useSidePanel, panelMode, tabModes]);
 
   if (!isShort && isMobile) {
     const infoContent = (
@@ -289,26 +387,63 @@ export default function VideoFullscreenActions(props: Props) {
     return (
       <div
         className={`video-fullscreen__actions-wrapper ${
-          isLandscape ? 'video-fullscreen__actions-wrapper--landscape' : ''
+          useSidePanel ? 'video-fullscreen__actions-wrapper--landscape' : ''
         }`}
       >
         <div className="video-fullscreen__actions">
           <Button
             className="video-fullscreen__action-btn"
-            onClick={() => (isLandscape ? handleTogglePanel('info') : drawerOpenRef.current(0))}
+            onClick={() => (useSidePanel ? handleTogglePanel('info') : drawerOpenRef.current(0))}
             icon={ICONS.INFO}
             iconSize={18}
             title={__('Show Details')}
           />
 
-          <div className="video-fullscreen__reactions-no-count">
-            <FileReactions uri={uri} />
-          </div>
+          <Button
+            className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+              myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
+            }`}
+            onClick={() => doReactionLike(uri)}
+            icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+            iconSize={18}
+            title={__('Like')}
+            label={
+              myReaction === REACTION_TYPES.LIKE ? (
+                <>
+                  <div className="button__fire-glow" />
+                  <div className="button__fire-particle1" />
+                  <div className="button__fire-particle2" />
+                  <div className="button__fire-particle3" />
+                  <div className="button__fire-particle4" />
+                  <div className="button__fire-particle5" />
+                  <div className="button__fire-particle6" />
+                </>
+              ) : undefined
+            }
+          />
+          <Button
+            className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+              myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
+            }`}
+            onClick={() => doReactionDislike(uri)}
+            icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+            iconSize={18}
+            title={__('Dislike')}
+            label={
+              myReaction === REACTION_TYPES.DISLIKE ? (
+                <>
+                  <div className="button__slime-stain" />
+                  <div className="button__slime-drop1" />
+                  <div className="button__slime-drop2" />
+                </>
+              ) : undefined
+            }
+          />
 
           <Button
             className="video-fullscreen__action-btn"
             onClick={() =>
-              isLandscape
+              useSidePanel
                 ? handleTogglePanel(isLivestreamClaim ? 'chat' : 'comments')
                 : drawerOpenRef.current(commentsIdx)
             }
@@ -319,31 +454,44 @@ export default function VideoFullscreenActions(props: Props) {
 
           <Button
             className="video-fullscreen__action-btn"
-            onClick={() => (isLandscape ? handleTogglePanel('related') : drawerOpenRef.current(relatedIdx))}
+            onClick={() => (useSidePanel ? handleTogglePanel('related') : drawerOpenRef.current(relatedIdx))}
             icon={ICONS.DISCOVER}
             iconSize={18}
             title={__('Related')}
           />
         </div>
 
-        {isLandscape ? (
+        {useSidePanel ? (
           // $FlowFixMe
           <div
             ref={sidePanelRef}
             className={`video-fullscreen__side-panel ${panelMode ? 'video-fullscreen__side-panel--open' : ''}`}
           >
-            {panelMode && (
-              <MobileTabView
-                tabDefs={tabDefs}
-                infoContent={infoContent}
-                chaptersContent={chaptersContent}
-                playlistContent={playlistContent}
-                commentsContent={commentsContent}
-                relatedContent={relatedContent}
-                initialTab={tabModes.indexOf(panelMode)}
-                onTabChange={handleDrawerTabChange}
-              />
-            )}
+            <div
+              className="video-fullscreen__side-handle"
+              onTouchStart={handleSideTouchStart}
+              onTouchMove={handleSideTouchMove}
+              onTouchEnd={handleSideTouchEnd}
+            >
+              <span className="video-fullscreen__puller video-fullscreen__puller--vertical" />
+            </div>
+            <div className="video-fullscreen__side-panel-inner">
+              {panelMode && (
+                <MobileTabView
+                  tabDefs={tabDefs}
+                  infoContent={infoContent}
+                  chaptersContent={chaptersContent}
+                  playlistContent={playlistContent}
+                  commentsContent={commentsContent}
+                  relatedContent={relatedContent}
+                  initialTab={tabModes.indexOf(panelMode)}
+                  onTabChange={handleDrawerTabChange}
+                  onSwipeDismiss={handleClosePanel}
+                  swipeDismissRef={sidePanelRef}
+                  onSwipeProgress={adjustVideoForSwipe}
+                />
+              )}
+            </div>
           </div>
         ) : (
           <MobileTabView
@@ -393,9 +541,46 @@ export default function VideoFullscreenActions(props: Props) {
               title={__('Show Details')}
             />
 
-            <div className="video-fullscreen__reactions-no-count">
-              <FileReactions uri={uri} />
-            </div>
+            <Button
+              className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+                myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
+              }`}
+              onClick={() => doReactionLike(uri)}
+              icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+              iconSize={18}
+              title={__('Like')}
+              label={
+                myReaction === REACTION_TYPES.LIKE ? (
+                  <>
+                    <div className="button__fire-glow" />
+                    <div className="button__fire-particle1" />
+                    <div className="button__fire-particle2" />
+                    <div className="button__fire-particle3" />
+                    <div className="button__fire-particle4" />
+                    <div className="button__fire-particle5" />
+                    <div className="button__fire-particle6" />
+                  </>
+                ) : undefined
+              }
+            />
+            <Button
+              className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+                myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
+              }`}
+              onClick={() => doReactionDislike(uri)}
+              icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+              iconSize={18}
+              title={__('Dislike')}
+              label={
+                myReaction === REACTION_TYPES.DISLIKE ? (
+                  <>
+                    <div className="button__slime-stain" />
+                    <div className="button__slime-drop1" />
+                    <div className="button__slime-drop2" />
+                  </>
+                ) : undefined
+              }
+            />
 
             {isLivestreamClaim ? (
               <Button

@@ -43,12 +43,19 @@ export default function MobileTouchOverlay(props: Props) {
   useEffect(() => {
     const controls = getControlsEl();
     if (!controls) return;
+    const fsTarget = controls.closest('.player-fullscreen-target');
+    const actions = fsTarget ? fsTarget.querySelector('.video-fullscreen__actions') : null;
     if (showControls) {
       controls.removeAttribute('data-mobile-hidden');
+      if (actions) actions.removeAttribute('data-mobile-hidden');
     } else {
       controls.setAttribute('data-mobile-hidden', '');
+      if (actions) actions.setAttribute('data-mobile-hidden', '');
     }
-    return () => controls.removeAttribute('data-mobile-hidden');
+    return () => {
+      controls.removeAttribute('data-mobile-hidden');
+      if (actions) actions.removeAttribute('data-mobile-hidden');
+    };
   }, [showControls, getControlsEl]);
 
   const scheduleAutoHide = useCallback(() => {

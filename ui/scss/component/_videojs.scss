@@ -423,7 +423,8 @@ $control-bar-height-mobile: 44px;
   color: white;
 }
 
-.media-button--active {
+.media-button--active,
+.media-button--active:hover {
   background-color: var(--color-primary) !important;
 }
 
@@ -1133,16 +1134,57 @@ $control-bar-height-mobile: 44px;
       background-color: oklch(1 0 0 / 0.2) !important;
     }
 
-    &--active {
-      background-color: var(--color-primary) !important;
-    }
-
-    &--active {
+    &--active,
+    &--active:hover {
       background-color: var(--color-primary) !important;
     }
 
     .button__content {
       padding: 0;
+      gap: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button__label {
+      display: contents;
+    }
+
+    .button__fire-glow {
+      left: 50%;
+      bottom: 50%;
+    }
+
+    .button__fire-particle1,
+    .button__fire-particle4 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter1 !important;
+    }
+    .button__fire-particle2,
+    .button__fire-particle5 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter2 !important;
+    }
+    .button__fire-particle3,
+    .button__fire-particle6 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter3 !important;
+    }
+
+    [class^='button__slime'] {
+      left: 50%;
+      bottom: 50%;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      filter: drop-shadow(0 1px 0 oklch(0 0 0 / 0.25));
     }
   }
 
@@ -1244,7 +1286,7 @@ $control-bar-height-mobile: 44px;
     &:has(.media-controls:not([data-mobile-hidden])),
     &:has([data-paused]),
     &:has(.media-button--settings-open) {
-      .video-fullscreen__actions {
+      .video-fullscreen__actions:not([data-mobile-hidden]) {
         opacity: 1;
         pointer-events: auto;
         transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1256,7 +1298,7 @@ $control-bar-height-mobile: 44px;
     &:has(.media-controls[data-visible]),
     &:has([data-paused]),
     &:has(.media-button--settings-open) {
-      .video-fullscreen__actions {
+      .video-fullscreen__actions:not([data-mobile-hidden]) {
         opacity: 1;
         pointer-events: auto;
         transition: opacity 100ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1264,14 +1306,10 @@ $control-bar-height-mobile: 44px;
     }
   }
 
-  &:has(.media-controls[data-mobile-hidden]):not(:has(.media-controls[data-visible])):not(:has([data-paused])):not(
-      :has(.media-button--settings-open)
-    ) {
-    .video-fullscreen__actions {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 50ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  .video-fullscreen__actions[data-mobile-hidden] {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 50ms ease-out 0ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   .video-fullscreen__side-panel {
@@ -1426,16 +1464,8 @@ $control-bar-height-mobile: 44px;
       transform: none;
       flex-direction: row;
 
-      .video-fullscreen__action-btn {
+      .video-fullscreen__action-btn:not(.video-fullscreen__action-btn--reaction) {
         display: none;
-      }
-    }
-
-    .video-fullscreen__reactions-no-count {
-      flex-direction: row;
-
-      .ratio-wrapper {
-        flex-direction: row;
       }
     }
 
@@ -1491,6 +1521,37 @@ $control-bar-height-mobile: 44px;
           flex: 1;
           min-height: 0;
         }
+      }
+
+      .video-fullscreen__side-panel {
+        flex-direction: row;
+      }
+
+      .video-fullscreen__side-handle {
+        width: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: none;
+        cursor: grab;
+        flex-shrink: 0;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .video-fullscreen__side-panel-inner {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      .video-fullscreen__puller--vertical {
+        width: 4px;
+        height: 32px;
+        background: var(--color-text);
+        opacity: 0.3;
+        border-radius: 2px;
       }
     }
 

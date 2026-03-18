@@ -18,6 +18,9 @@ type Props = {
   tabDefs?: Array<TabDef>,
   onTabChange?: (index: number) => void,
   onDrawerClose?: () => void,
+  onSwipeDismiss?: () => void,
+  swipeDismissRef?: { current: ?HTMLDivElement },
+  onSwipeProgress?: (deltaX: number | null | 'dismiss') => void,
 };
 
 const DRAWER_TRANSITION = 'transform 0.2s ease';
@@ -38,6 +41,9 @@ export default function MobileTabView(props: Props) {
     tabDefs: tabDefsProp,
     onTabChange,
     onDrawerClose,
+    onSwipeDismiss,
+    swipeDismissRef,
+    onSwipeProgress,
   } = props;
 
   const trackRef = React.useRef<?HTMLDivElement>(null);
@@ -57,6 +63,7 @@ export default function MobileTabView(props: Props) {
   const swipeStartY = React.useRef(0);
   const swipeDeltaX = React.useRef(0);
   const swipeDirection = React.useRef<'none' | 'horizontal' | 'vertical'>('none');
+  const canDismiss = React.useRef(false);
   const activeTabRef = React.useRef(activeTab);
 
   React.useEffect(() => {
@@ -176,6 +183,19 @@ export default function MobileTabView(props: Props) {
       swipeDeltaX.current = 0;
       swipeDirection.current = 'none';
       track.style.transition = 'none';
+      canDismiss.current = false;
+      if (onSwipeDismiss) {
+        let atTop = true;
+        let el: ?Element = e.target instanceof Element ? e.target : null;
+        while (el) {
+          if (el.scrollTop > 0 && el.scrollHeight > el.clientHeight) {
+            atTop = false;
+            break;
+          }
+          el = el.parentElement;
+        }
+        canDismiss.current = atTop;
+      }
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -191,9 +211,15 @@ export default function MobileTabView(props: Props) {
       if (swipeDirection.current === 'horizontal') {
         e.preventDefault();
         swipeDeltaX.current = dx;
-        const w = getPanelWidth();
-        const base = -activeTabRef.current * w;
-        track.style.transform = `translateX(${base + dx}px)`;
+        if (activeTabRef.current === 0 && canDismiss.current && dx > 0 && swipeDismissRef && swipeDismissRef.current) {
+          swipeDismissRef.current.style.transition = 'none';
+          swipeDismissRef.current.style.transform = `translateX(${dx}px)`;
+          if (onSwipeProgress) onSwipeProgress(dx);
+        } else {
+          const w = getPanelWidth();
+          const base = -activeTabRef.current * w;
+          track.style.transform = `translateX(${base + dx}px)`;
+        }
       }
     };
 
@@ -206,6 +232,26 @@ export default function MobileTabView(props: Props) {
         newTab++;
       } else if (swipeDeltaX.current > SWIPE_THRESHOLD && newTab > 0) {
         newTab--;
+      } else if (swipeDeltaX.current > SWIPE_THRESHOLD && canDismiss.current && onSwipeDismiss) {
+        if (onSwipeProgress) onSwipeProgress('dismiss');
+        if (swipeDismissRef && swipeDismissRef.current) {
+          const panel = swipeDismissRef.current;
+          panel.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+          panel.style.transform = 'translateX(100%)';
+        }
+        onSwipeDismiss();
+        return;
+      }
+      if (
+        activeTabRef.current === 0 &&
+        canDismiss.current &&
+        swipeDeltaX.current > 0 &&
+        swipeDismissRef &&
+        swipeDismissRef.current
+      ) {
+        swipeDismissRef.current.style.transition = '';
+        swipeDismissRef.current.style.transform = '';
+        if (onSwipeProgress) onSwipeProgress(null);
       }
       goToTab(newTab, true);
       if (onTabChange && newTab !== activeTabRef.current) onTabChange(newTab);
@@ -219,7 +265,7 @@ export default function MobileTabView(props: Props) {
       track.removeEventListener('touchmove', onTouchMove);
       track.removeEventListener('touchend', onTouchEnd);
     };
-  }, [useDrawer, tabDefs.length, goToTab, onTabChange]);
+  }, [useDrawer, tabDefs.length, goToTab, onTabChange, onSwipeDismiss, swipeDismissRef, onSwipeProgress]);
 
   function openToTab(index: number, instant?: boolean) {
     if (!instant && drawerOpen && index === activeTab) {
@@ -276,13 +322,26 @@ export default function MobileTabView(props: Props) {
     }
   }, []);
 
-  const handleDrawerTouchMove = React.useCallback((e: TouchEvent) => {
-    if (!isDragging.current || !sheetRef.current) return;
-    const deltaY = e.touches[0].clientY - touchStartY.current;
-    if (deltaY > 0) {
-      sheetRef.current.style.transform = `translateY(${deltaY}px)`;
-    }
+  const getContentWrapper = React.useCallback(() => {
+    const fs = document.querySelector('.player-fullscreen-target');
+    return fs && fs.querySelector('.content__wrapper');
   }, []);
+
+  const handleDrawerTouchMove = React.useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging.current || !sheetRef.current) return;
+      const deltaY = e.touches[0].clientY - touchStartY.current;
+      if (deltaY > 0) {
+        sheetRef.current.style.transform = `translateY(${deltaY}px)`;
+        const cw = getContentWrapper();
+        if (cw) {
+          cw.style.setProperty('transition', 'none', 'important');
+          cw.style.setProperty('height', `calc(56.25vw + ${deltaY}px)`, 'important');
+        }
+      }
+    },
+    [getContentWrapper]
+  );
 
   const handleDrawerTouchEnd = React.useCallback(
     (e: TouchEvent) => {
@@ -295,13 +354,113 @@ export default function MobileTabView(props: Props) {
       sheetRef.current.style.transition = DRAWER_TRANSITION;
       // $FlowFixMe
       sheetRef.current.style.transform = '';
+      const cw = getContentWrapper();
       if (deltaY > panelH * 0.3) {
+        if (cw) {
+          cw.style.removeProperty('transition');
+          cw.style.setProperty('height', '100vh', 'important');
+          setTimeout(() => {
+            cw.style.removeProperty('height');
+            cw.style.removeProperty('transition');
+          }, 350);
+        }
         setDrawerOpen(false);
         if (onDrawerClose) onDrawerClose();
+      } else {
+        if (cw) {
+          cw.style.removeProperty('transition');
+          cw.style.removeProperty('height');
+        }
       }
     },
-    [onDrawerClose]
+    [onDrawerClose, getContentWrapper]
   );
+
+  const drawerSwipeDir = React.useRef<'none' | 'horizontal' | 'vertical'>('none');
+  const drawerSwipeActive = React.useRef(false);
+  const drawerSwipeStartY = React.useRef(0);
+  const drawerSwipeStartX = React.useRef(0);
+
+  React.useEffect(() => {
+    if (!useDrawer) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    const onStart = (e: TouchEvent) => {
+      drawerSwipeDir.current = 'none';
+      drawerSwipeActive.current = false;
+      drawerSwipeStartY.current = e.touches[0].clientY;
+      drawerSwipeStartX.current = e.touches[0].clientX;
+      let atTop = true;
+      let el: ?Element = e.target instanceof Element ? e.target : null;
+      while (el) {
+        if (el.scrollTop > 0 && el.scrollHeight > el.clientHeight) {
+          atTop = false;
+          break;
+        }
+        el = el.parentElement;
+      }
+      drawerSwipeActive.current = atTop;
+    };
+
+    const onMove = (e: TouchEvent) => {
+      const sheet = sheetRef.current;
+      if (!drawerSwipeActive.current || !sheet) return;
+      const dy = e.touches[0].clientY - drawerSwipeStartY.current;
+      const dx = e.touches[0].clientX - drawerSwipeStartX.current;
+      if (drawerSwipeDir.current === 'none') {
+        if (Math.abs(dy) > 8 || Math.abs(dx) > 8) {
+          drawerSwipeDir.current = Math.abs(dy) > Math.abs(dx) ? 'vertical' : 'horizontal';
+        }
+      }
+      if (drawerSwipeDir.current === 'vertical' && dy > 0) {
+        e.preventDefault();
+        sheet.style.transition = 'none';
+        sheet.style.transform = `translateY(${dy}px)`;
+        const cw = getContentWrapper();
+        if (cw) {
+          cw.style.setProperty('transition', 'none', 'important');
+          cw.style.setProperty('height', `calc(56.25vw + ${dy}px)`, 'important');
+        }
+      }
+    };
+
+    const onEnd = (e: TouchEvent) => {
+      const sheet = sheetRef.current;
+      if (!drawerSwipeActive.current || drawerSwipeDir.current !== 'vertical' || !sheet) return;
+      const dy = e.changedTouches[0].clientY - drawerSwipeStartY.current;
+      if (dy <= 0) return;
+      const cw = getContentWrapper();
+      sheet.style.transition = DRAWER_TRANSITION;
+      sheet.style.transform = '';
+      if (dy > sheet.offsetHeight * 0.3) {
+        if (cw) {
+          cw.style.removeProperty('transition');
+          cw.style.setProperty('height', '100vh', 'important');
+          setTimeout(() => {
+            cw.style.removeProperty('height');
+            cw.style.removeProperty('transition');
+          }, 350);
+        }
+        setDrawerOpen(false);
+        if (onDrawerClose) onDrawerClose();
+      } else {
+        if (cw) {
+          cw.style.removeProperty('transition');
+          cw.style.removeProperty('height');
+        }
+      }
+    };
+
+    track.addEventListener('touchstart', onStart, { passive: true });
+    track.addEventListener('touchmove', onMove, { passive: false });
+    track.addEventListener('touchend', onEnd, { passive: true });
+    return () => {
+      track.removeEventListener('touchstart', onStart);
+      track.removeEventListener('touchmove', onMove);
+      track.removeEventListener('touchend', onEnd);
+    };
+  }, [useDrawer, onDrawerClose, getContentWrapper]);
 
   const containerStyle = !useDrawer && panelHeight > 0 ? { height: panelHeight } : undefined;
 
