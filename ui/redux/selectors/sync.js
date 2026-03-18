@@ -2,6 +2,7 @@ const selectState = (state) => state.sync || {};
 
 export const selectHasSyncedWallet = (state) => selectState(state).hasSyncedWallet;
 export const selectSyncHash = (state) => selectState(state).syncHash;
+export const selectLastSyncHash = (state) => selectState(state).lastSyncHash;
 export const selectSyncData = (state) => selectState(state).syncData;
 export const selectSetSyncErrorMessage = (state) => selectState(state).setSyncErrorMessage;
 export const selectGetSyncErrorMessage = (state) => selectState(state).getSyncErrorMessage;
