@@ -615,6 +615,9 @@ type Props = {
   isFloating?: boolean,
   embedded?: boolean,
   uri?: string,
+  castAvailable?: boolean,
+  isCasting?: boolean,
+  onCastToggle?: () => void,
 };
 
 export default function OdyseeSkin(props: Props) {
@@ -643,6 +646,9 @@ export default function OdyseeSkin(props: Props) {
     isFloating,
     embedded,
     uri,
+    castAvailable,
+    isCasting,
+    onCastToggle,
     ...rest
   } = props;
 
@@ -954,6 +960,29 @@ export default function OdyseeSkin(props: Props) {
                 )}
               </div>
 
+              {castAvailable && onCastToggle && (
+                <Btn
+                  className={`media-button--icon media-button--cast ${isCasting ? 'media-button--cast-active' : ''}`}
+                  aria-label={isCasting ? 'Stop casting' : 'Cast'}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCastToggle();
+                  }}
+                >
+                  <svg
+                    className="media-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={18}
+                    height={18}
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M1 18v3h3c0-1.66-1.34-3-3-3m0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7m0-4v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2" />
+                  </svg>
+                </Btn>
+              )}
+
               <div className="media-surface odysee-mobile-controls__fs">
                 <Btn
                   type="button"
@@ -1240,6 +1269,35 @@ export default function OdyseeSkin(props: Props) {
                   />
                 </Popover.Popup>
               </Popover.Root>
+
+              {castAvailable && onCastToggle && (
+                <Tooltip.Root side="top">
+                  <Tooltip.Trigger
+                    render={
+                      <Btn
+                        className={`media-button--icon media-button--cast ${
+                          isCasting ? 'media-button--cast-active' : ''
+                        }`}
+                        aria-label={isCasting ? 'Stop casting' : 'Cast'}
+                        onClick={onCastToggle}
+                      >
+                        <svg
+                          className="media-icon"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path d="M1 18v3h3c0-1.66-1.34-3-3-3m0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7m0-4v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2" />
+                        </svg>
+                      </Btn>
+                    }
+                  />
+                  <Tooltip.Popup className="media-tooltip">{isCasting ? __('Stop Casting') : __('Cast')}</Tooltip.Popup>
+                </Tooltip.Root>
+              )}
 
               {!isMarkdownOrComment && !embedded && !isFloating && onToggleTheaterMode && (
                 <Tooltip.Root side="top">

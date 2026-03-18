@@ -440,6 +440,10 @@ $control-bar-height-mobile: 44px;
   }
 }
 
+.media-button--cast-active {
+  color: var(--color-primary);
+}
+
 .media-hd-badge {
   position: absolute;
   top: 3px;

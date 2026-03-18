@@ -18,6 +18,7 @@ import useWatchdog from './hooks/useWatchdog';
 import useMediaSession from './hooks/useMediaSession';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import useAnalytics from './hooks/useAnalytics';
+import useChromecast from './hooks/useChromecast';
 import MobileTouchOverlay from './components/MobileTouchOverlay';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
@@ -173,6 +174,26 @@ function VideoJsInner(props: Props) {
     playPrevious,
   });
   useAnalytics();
+  const { castAvailable, isCasting, startCast, stopCast } = useChromecast();
+
+  const castSrc = resolvedSource?.src;
+  const onCastToggle = useCallback(() => {
+    if (isCasting) {
+      stopCast();
+      if (media) media.play();
+    } else {
+      if (castSrc) {
+        startCast(castSrc, title, channelTitle);
+        if (media) media.pause();
+      }
+    }
+  }, [isCasting, stopCast, startCast, media, castSrc, title, channelTitle]);
+
+  useEffect(() => {
+    if (!isCasting && media && media.paused) {
+      media.play();
+    }
+  }, [isCasting, media]);
 
   // Initial setup when media element becomes available
   useEffect(() => {
@@ -398,6 +419,9 @@ function VideoJsInner(props: Props) {
         isFloating={isFloating}
         embedded={embedded}
         uri={uri}
+        castAvailable={castAvailable}
+        isCasting={isCasting}
+        onCastToggle={onCastToggle}
       >
         {resolvedSource && (
           <Video
