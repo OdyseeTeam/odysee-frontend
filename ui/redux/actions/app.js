@@ -18,6 +18,7 @@ import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { doFetchCollectionListMine } from 'redux/actions/collections';
 import { doFetchPersonalRecommendations } from 'redux/actions/search';
+import { doFetchViewHistory } from 'redux/actions/content';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
@@ -60,6 +61,7 @@ import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { selectContentPositionForUri } from 'redux/selectors/content';
 import { doTipAccountStatus } from './stripe';
 
 const { lbrySettings: config, version: appVersion } = p;
@@ -521,7 +523,9 @@ export function doAnalyticsViewForUri(uri: string) {
       return Promise.resolve();
     }
 
-    return analytics.apiLog.view(uri, outpoint, claimId);
+    const position = selectContentPositionForUri(state, uri);
+
+    return analytics.apiLog.view(uri, outpoint, claimId, position);
   };
 }
 
@@ -587,6 +591,7 @@ export function doSignIn() {
     dispatch(doMembershipMine());
     dispatch(doTipAccountStatus());
     dispatch(doFetchPersonalRecommendations());
+    dispatch(doFetchViewHistory());
   };
 }
 

@@ -48,7 +48,7 @@ export const apiLog: ApiLog = {
     gApiLogOn = enable;
   },
 
-  view: (uri, outpoint, claimId) => {
+  view: (uri, outpoint, claimId, lastTimestamp, onComplete) => {
     return new Promise((resolve, reject) => {
       if (gApiLogOn && (isProduction || devInternalApis)) {
         const params: {
@@ -56,11 +56,16 @@ export const apiLog: ApiLog = {
           outpoint: string,
           claim_id: string,
           time_to_start?: number,
+          last_timestamp?: number,
         } = {
           uri,
           outpoint,
           claim_id: claimId,
         };
+
+        if (lastTimestamp != null && lastTimestamp > 0) {
+          params.last_timestamp = Math.floor(lastTimestamp);
+        }
 
         resolve(Lbryio.call('file', 'view', params));
       } else {
