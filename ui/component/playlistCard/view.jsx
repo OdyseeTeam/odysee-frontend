@@ -280,6 +280,27 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     }
   }, [activeListItemRef, bodyOpen, bodyRef, collectionLength, isFloating, isMobile, playingItemIndex]);
 
+  // Prevent scroll events from propagating to the page behind the playlist (#2699)
+  const wrapperRef = React.useRef();
+  React.useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !bodyRef) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = bodyRef;
+      const atTop = scrollTop <= 0 && e.deltaY < 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
+
+      if (atTop || atBottom || scrollHeight <= clientHeight) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+
+    wrapper.addEventListener('wheel', handleWheel, { passive: false });
+    return () => wrapper.removeEventListener('wheel', handleWheel);
+  }, [bodyRef]);
+
   return (
     <>
       <Global
@@ -308,157 +329,162 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }}
       />
 
-      <Card
-        {...cardProps}
-        smallTitle
-        slimHeader={!isFloating}
-        gridHeader={!titleOnly}
-        singlePane
-        headerActions={
-          !bodyOpen || bodyOnly ? undefined : (
-            <div className="playlist-card-actions">
-              <section>
-                <LoopButton id={id} />
-                <ShuffleButton url={playingItemUrl} id={id} />
-              </section>
+      <div ref={wrapperRef}>
+        <Card
+          {...cardProps}
+          smallTitle
+          slimHeader={!isFloating}
+          gridHeader={!titleOnly}
+          singlePane
+          headerActions={
+            !bodyOpen || bodyOnly ? undefined : (
+              <div className="playlist-card-actions">
+                <section>
+                  <LoopButton id={id} />
+                  <ShuffleButton url={playingItemUrl} id={id} />
+                </section>
 
-              <section>
-                <Button
-                  requiresAuth
-                  title={__('Copy')}
-                  className="button-toggle"
-                  icon={ICONS.COPY}
-                  onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: id })}
-                />
+                <section>
+                  <Button
+                    requiresAuth
+                    title={__('Copy')}
+                    className="button-toggle"
+                    icon={ICONS.COPY}
+                    onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: id })}
+                  />
 
-                {isMyCollection
-                  ? !collectionEmpty && (
-                      <Button
-                        title={__('Arrange')}
-                        className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                        icon={ICONS.ARRANGE}
-                        onClick={() => setShowEdit(!showEdit)}
-                      />
-                    )
-                  : id && (
-                      <Button
-                        requiresAuth
-                        title={__('Save')}
-                        className="button-toggle"
-                        icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
-                        onClick={() => doToggleCollectionSavedForId(id)}
-                      />
-                    )}
-              </section>
-            </div>
-          )
-        }
-        title={
-          bodyOnly ? undefined : (
-            <NavLink
-              to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
-              className={classnames('playlist__title', { 'align-end': isFloating })}
-            >
-              {isFloating ? (
-                <>
-                  <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
-                  <div className="playlist__title-text">
-                    <span className="text-ellipsis">
-                      {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-                  <div className="playlist__title-text">
-                    <div className="playlist__title-text-list">
-                      <span className="text-ellipsis">{usedCollectionName}</span>
+                  {isMyCollection
+                    ? !collectionEmpty && (
+                        <Button
+                          title={__('Arrange')}
+                          className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                          icon={ICONS.ARRANGE}
+                          onClick={() => setShowEdit(!showEdit)}
+                        />
+                      )
+                    : id && (
+                        <Button
+                          requiresAuth
+                          title={__('Save')}
+                          className="button-toggle"
+                          icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                          onClick={() => doToggleCollectionSavedForId(id)}
+                        />
+                      )}
+                </section>
+              </div>
+            )
+          }
+          title={
+            bodyOnly ? undefined : (
+              <NavLink
+                to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
+                className={classnames('playlist__title', { 'align-end': isFloating })}
+              >
+                {isFloating ? (
+                  <>
+                    <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
+                    <div className="playlist__title-text">
+                      <span className="text-ellipsis">
+                        {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
+                      </span>
                     </div>
-                    {bodyOnly ? undefined : (
-                      <>
-                        <div className="sub">
-                          {isPrivateCollection ? (
-                            <I18nMessage
-                              tokens={{
-                                lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} />,
-                              }}
-                            >
-                              Private %lock_icon%
-                            </I18nMessage>
-                          ) : (
-                            <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
-                          )}
+                  </>
+                ) : (
+                  <>
+                    <Icon
+                      icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST}
+                      className="icon--margin-right"
+                    />
+                    <div className="playlist__title-text">
+                      <div className="playlist__title-text-list">
+                        <span className="text-ellipsis">{usedCollectionName}</span>
+                      </div>
+                      {bodyOnly ? undefined : (
+                        <>
+                          <div className="sub">
+                            {isPrivateCollection ? (
+                              <I18nMessage
+                                tokens={{
+                                  lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} />,
+                                }}
+                              >
+                                Private %lock_icon%
+                              </I18nMessage>
+                            ) : (
+                              <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                            )}
 
-                          {currentIndexLabel}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
+                            {currentIndexLabel}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
 
-              {hasEdits && (
-                <Icon
-                  title={__('Pending edits')}
-                  icon={ICONS.PUBLISH}
-                  color="red"
-                  style={{ marginLeft: 'var(--spacing-xxs)' }}
-                />
-              )}
-            </NavLink>
-          )
-        }
-        titleActions={
-          bodyOnly || titleOnly ? undefined : (
-            <>
-              {!bodyOnly && (
+                {hasEdits && (
+                  <Icon
+                    title={__('Pending edits')}
+                    icon={ICONS.PUBLISH}
+                    color="red"
+                    style={{ marginLeft: 'var(--spacing-xxs)' }}
+                  />
+                )}
+              </NavLink>
+            )
+          }
+          titleActions={
+            bodyOnly || titleOnly ? undefined : (
+              <>
+                {!bodyOnly && (
+                  <Button
+                    className={classnames('button-toggle', { 'button-toggle--active': !bodyOpen })}
+                    icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
+                    onClick={() => {
+                      if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
+                      setBodyOpen(!bodyOpen);
+                    }}
+                  />
+                )}
+
                 <Button
-                  className={classnames('button-toggle', { 'button-toggle--active': !bodyOpen })}
-                  icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
-                  onClick={() => {
-                    if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
-                    setBodyOpen(!bodyOpen);
-                  }}
+                  title={__('Close Playlist')}
+                  className="button-toggle"
+                  icon={ICONS.REMOVE}
+                  onClick={closePlaylist}
                 />
-              )}
-
-              <Button
-                title={__('Close Playlist')}
-                className="button-toggle"
-                icon={ICONS.REMOVE}
-                onClick={closePlaylist}
+              </>
+            )
+          }
+          body={
+            !bodyOpen || titleOnly ? undefined : (
+              <CollectionItemsList
+                collectionId={id}
+                type="small"
+                activeUri={playingItemUrl}
+                empty={__('Playlist is Empty')}
+                showEdit={showEdit}
+                smallThumbnail
+                showIndexes
+                playItemsOnClick={playingCurrentPlaylist}
+                disableClickNavigation={disableClickNavigation}
+                doDisablePlayerDrag={doDisablePlayerDrag}
+                setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
+                setListRef={(node) => setBodyRef(node)}
+                scrolledPastActive={scrolledPastActive}
+                restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
+                setHasActive={(hasActive) => {
+                  listHasActive.current = hasActive;
+                  setHasActive(hasActive);
+                }}
               />
-            </>
-          )
-        }
-        body={
-          !bodyOpen || titleOnly ? undefined : (
-            <CollectionItemsList
-              collectionId={id}
-              type="small"
-              activeUri={playingItemUrl}
-              empty={__('Playlist is Empty')}
-              showEdit={showEdit}
-              smallThumbnail
-              showIndexes
-              playItemsOnClick={playingCurrentPlaylist}
-              disableClickNavigation={disableClickNavigation}
-              doDisablePlayerDrag={doDisablePlayerDrag}
-              setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
-              setListRef={(node) => setBodyRef(node)}
-              scrolledPastActive={scrolledPastActive}
-              restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
-              setHasActive={(hasActive) => {
-                listHasActive.current = hasActive;
-                setHasActive(hasActive);
-              }}
-            />
-          )
-        }
-        // Disabled due to it blocking the clicking of the scrollbar
-        // backgroundImage={backgroundImage}
-      />
+            )
+          }
+          // Disabled due to it blocking the clicking of the scrollbar
+          // backgroundImage={backgroundImage}
+        />
+      </div>
     </>
   );
 };

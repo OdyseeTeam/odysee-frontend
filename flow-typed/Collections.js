@@ -4,6 +4,7 @@ declare type Collection = {
   name: string,
   title?: string,
   description?: string,
+  tags?: Array<any>,
   thumbnail?: {
     url?: string,
   },
@@ -34,6 +35,9 @@ declare type CollectionState = {
   queue: Collection,
   isFetchingMyCollections: ?boolean,
   thumbnailClaimsFetchingCollectionIds: Array<string>,
+  autoPublishById: { [id: string]: boolean },
+  publishingById: { [id: string]: boolean },
+  publishErrorById: { [id: string]: string },
 };
 
 declare type CollectionGroup = {
@@ -76,6 +80,7 @@ declare type CollectionEditParams = {
   name?: string,
   title?: string,
   description?: string,
+  tags?: Array<any>,
   thumbnail_url?: string,
 };
 

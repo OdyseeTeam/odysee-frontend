@@ -3,6 +3,7 @@ import 'easymde/dist/easymde.min.css';
 
 import './plugins/inline-attachment/inline-attachment';
 import './plugins/inline-attachment/codemirror-4.inline-attachment';
+import './plugins/inline-attachment/textarea.inline-attachment';
 import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constants/cdn_urls';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
 import { openEditorMenu } from 'util/context-menu';
@@ -75,6 +76,7 @@ export class FormField extends React.PureComponent<Props, State> {
   static defaultProps = { labelOnLeft: false, blockWrap: true };
 
   input: { current: ElementRef<any> };
+  textareaInlineAttachmentAttached: ?boolean;
 
   constructor(props: Props) {
     super(props);
@@ -91,6 +93,31 @@ export class FormField extends React.PureComponent<Props, State> {
 
     if (input && autoFocus) input.focus();
     if (slimInput && showSelectors && showSelectors.open && input) input.blur();
+
+    this.maybeAttachTextareaInlineAttachment();
+  }
+
+  componentDidUpdate() {
+    this.maybeAttachTextareaInlineAttachment();
+  }
+
+  maybeAttachTextareaInlineAttachment() {
+    const { type } = this.props;
+    const input = this.input.current;
+
+    if (type === 'textarea' && input && !this.textareaInlineAttachmentAttached) {
+      this.textareaInlineAttachmentAttached = true;
+
+      window.inlineAttachment.editors.textarea.attach(input, {
+        uploadUrl: IMG_CDN_PUBLISH_URL,
+        uploadFieldName: UPLOAD_CONFIG.BLOB_KEY,
+        extraParams: { [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL },
+        filenameTag: '{filename}',
+        urlText: '![image]({filename})',
+        jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
+        errorText: '![image]("failed to upload file")',
+      });
+    }
   }
 
   render() {

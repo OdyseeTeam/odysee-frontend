@@ -20,6 +20,7 @@ export const triggerSharedStateActions = [
   ACTIONS.COLLECTION_NEW,
   ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS,
   ACTIONS.COLLECTION_TOGGLE_SAVE,
+  ACTIONS.COLLECTION_AUTOPUBLISH_SET,
   ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT,
 ];
 
@@ -61,6 +62,7 @@ const sharedStateFilters = {
   updatedCollections: { source: 'collections', property: 'updated' },
   savedCollectionIds: { source: 'collections', property: 'savedIds' },
   unpublishedCollections: { source: 'collections', property: 'unpublished' },
+  autoPublishById: { source: 'collections', property: 'autoPublishById' },
   lastViewedAnnouncement: { source: 'content', property: 'lastViewedAnnouncement' },
 };
 
