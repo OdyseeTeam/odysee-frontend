@@ -96,7 +96,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       purchaseTag,
       rentalTag,
       autoplay,
-      autoplayNextShort,
+      autoplayNextShort, // eslint-disable-line no-unused-vars
       isFetchingPurchases,
       renderMode,
       streamingUrl,
@@ -164,13 +164,19 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
+    const shortsAutoPlayOverride = Boolean(window.__shortsAutoPlayNext);
+    if (shortsAutoPlayOverride) {
+      delete window.__shortsAutoPlayNext;
+      alreadyPlaying.current = false;
+    }
+
     const autoplayEnabled =
       !forceDisableAutoplay &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
       (forceAutoplayParam ||
         urlTimeParam ||
         (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
-        (isShortsContext && autoplayNextShort));
+        shortsAutoPlayOverride);
 
     const autoplayVideo =
       !claimLinkId &&
@@ -263,7 +269,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
-            if (autoplay) updateClaim('a & d & !claimLinkId video');
+            if (autoplay || shortsAutoPlayOverride) updateClaim('a & d & !claimLinkId video');
           } else {
             // Non video claims
             updateClaim('a & d & !claimLinkId nonVideo');

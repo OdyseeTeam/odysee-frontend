@@ -7,7 +7,7 @@ import * as ICONS from 'constants/icons';
 const DOUBLE_TAP_THRESHOLD_MS = 300;
 const SEEK_AMOUNT = 10;
 const AUTO_HIDE_DELAY = 4000;
-const PLAY_HIDE_DELAY = 400;
+const PLAY_HIDE_DELAY = 150;
 
 const PlayIcon = icons[ICONS.PLAY];
 const ReplayIcon = icons[ICONS.REPLAY];
@@ -32,6 +32,7 @@ export default function MobileTouchOverlay(props: Props) {
   const overlayRef = useRef(null);
   const quickHideRef = useRef(false);
   const mountedRef = useRef(false);
+  const settingsOpenOnTouchRef = useRef(false);
   const [showControls, setShowControls] = useState(false);
 
   const getControlsEl = useCallback(() => {
@@ -41,6 +42,13 @@ export default function MobileTouchOverlay(props: Props) {
   }, []);
 
   useEffect(() => {
+    const docEl = document.documentElement;
+    if (showControls) {
+      if (docEl) docEl.removeAttribute('data-shorts-playing');
+    } else {
+      if (docEl) docEl.setAttribute('data-shorts-playing', '');
+    }
+
     const controls = getControlsEl();
     if (!controls) return;
     const fsTarget = controls.closest('.player-fullscreen-target');
@@ -55,6 +63,7 @@ export default function MobileTouchOverlay(props: Props) {
     return () => {
       controls.removeAttribute('data-mobile-hidden');
       if (actions) actions.removeAttribute('data-mobile-hidden');
+      if (docEl) docEl.removeAttribute('data-shorts-playing');
     };
   }, [showControls, getControlsEl]);
 
@@ -98,6 +107,14 @@ export default function MobileTouchOverlay(props: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    const onPointerDown = () => {
+      settingsOpenOnTouchRef.current = Boolean(document.querySelector('.media-button--settings-open'));
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, []);
+
   const handleTap = useCallback(
     (e) => {
       e.stopPropagation();
@@ -132,6 +149,10 @@ export default function MobileTouchOverlay(props: Props) {
         if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
         tapTimerRef.current = setTimeout(() => {
           tapTimerRef.current = null;
+          if (settingsOpenOnTouchRef.current) {
+            settingsOpenOnTouchRef.current = false;
+            return;
+          }
           if (showControls) {
             const s = store.state;
             if (s.paused) {

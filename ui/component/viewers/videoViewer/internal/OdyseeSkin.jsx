@@ -1,6 +1,6 @@
 // @flow
 /* eslint-disable react/prop-types */
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import Player from './player';
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay';
 import SeekIndicator from './components/SeekIndicator';
@@ -459,16 +459,48 @@ function SettingsMenuContent({
 
 function ClickToPlay() {
   const media = Player.useMedia();
+  const settingsWasOpenRef = useRef(false);
+  const clickTimerRef = useRef(null);
+
+  useEffect(() => {
+    const onPointerDown = () => {
+      settingsWasOpenRef.current = Boolean(document.querySelector('.media-button--settings-open'));
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    };
+  }, []);
+
   const handleClick = useCallback(() => {
     if (!media) return;
-    if (media.paused) {
-      media.play();
-    } else {
-      media.pause();
+    if (settingsWasOpenRef.current) {
+      settingsWasOpenRef.current = false;
+      return;
     }
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      if (media.paused) {
+        media.play();
+      } else {
+        media.pause();
+      }
+    }, 200);
   }, [media]);
 
-  return <div className="odysee-click-to-play" onClick={handleClick} />;
+  const handleDblClick = useCallback(() => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+  }, []);
+
+  return <div className="odysee-click-to-play" onClick={handleClick} onDoubleClick={handleDblClick} />;
 }
 
 function chapterFormatFn(chapters) {

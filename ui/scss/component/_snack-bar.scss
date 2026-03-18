@@ -37,8 +37,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    bottom: var(--spacing-xxs);
-    right: var(--spacing-xxs);
+    display: none;
   }
 }
 

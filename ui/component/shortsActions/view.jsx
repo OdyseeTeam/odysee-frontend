@@ -12,6 +12,7 @@ import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import { useIsShortsMobile } from 'effects/use-screensize';
+import { platform } from 'util/platform';
 
 type Props = {
   hasPlaylist: boolean,
@@ -145,6 +146,10 @@ const ShortsActions = React.memo<Props>(
       };
     }, [claimId, doFetchReactions, isLivestreamClaim]);
     const isMobile = useIsShortsMobile();
+    const isMobileDevice = platform.isMobile();
+
+    if (isMobileDevice) return null;
+
     const content = (
       <div className={classnames('shorts-page__navigation', { 'shorts-page__navigation--mobile-desktop': isMobile })}>
         <>

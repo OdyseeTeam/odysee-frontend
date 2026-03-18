@@ -1408,10 +1408,11 @@
     padding: 12px 86px 12px 10px;
     pointer-events: none;
     width: 100%;
+    transition: opacity 100ms ease-out;
 
     @media (min-width: 1020px) {
       opacity: 0;
-      transition: opacity 300ms ease-out 500ms;
+      transition: opacity 100ms ease-out;
     }
   }
 
@@ -1516,10 +1517,9 @@
         justify-content: center;
         video {
           width: 100vw !important;
-          height: 90vh !important;
-          height: 90svh !important;
-          max-height: 90vh !important;
-          max-height: 90svh !important;
+          height: 100% !important;
+          max-height: 100vh !important;
+          max-height: 100svh !important;
           max-width: 100vw !important;
           border-radius: 0px !important;
           object-fit: contain !important;
@@ -1535,15 +1535,12 @@
       border-radius: 0;
 
       .vjs-tech {
-        height: 90vh !important;
-        height: 90svh !important;
-        max-height: 90vh !important;
-        max-height: 90svh !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        max-height: 100svh !important;
         width: 100vw !important;
         object-fit: contain !important;
         object-position: center !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
       }
 
       .vjs-touch-overlay {
@@ -1735,15 +1732,6 @@
     opacity: 1;
   }
 
-  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-viewer__content-info,
-  body:has(.shorts__viewer [data-paused]) .shorts__viewer .shorts-viewer__content-info {
-    opacity: 1;
-    transition: opacity 100ms ease-out;
-  }
-
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer::after,
   body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer::after,
   body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer::after,
@@ -1762,6 +1750,15 @@
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover)
     .content__cover--shorts
     .shorts-page__view-toggle--overlay {
+    opacity: 1;
+    transition: opacity 100ms ease-out;
+  }
+
+  body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .video-js.vjs-paused) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer .video-js:not(.vjs-has-started)) .shorts__viewer .shorts-viewer__content-info,
+  body:has(.shorts__viewer [data-paused]) .shorts__viewer .shorts-viewer__content-info {
     opacity: 1;
     transition: opacity 100ms ease-out;
   }

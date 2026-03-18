@@ -294,6 +294,12 @@ function VideoViewer(props: Props) {
 
     if (adUrl) return setAdUrl(null);
 
+    const isShorts = !!document.querySelector('.shorts-page__container');
+    if (isShorts) {
+      clearPosition(uri);
+      return;
+    }
+
     if (embedContext) {
       embedContext.setVideoEnded(true);
     } else {

@@ -939,8 +939,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     display: flex;
     gap: 8px;
     pointer-events: auto;
-    transition: opacity 300ms ease-out 500ms;
-    animation: toggle-fade-in 300ms ease;
+    transition: opacity 100ms ease-out;
 
     &.shorts-page__view-toggle--hidden {
       opacity: 0 !important;
@@ -978,7 +977,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   .shorts-page__view-toggle--overlay {
     @media (min-width: 1020px) {
       opacity: 0;
-      transition: opacity 300ms ease-out 500ms;
+      transition: opacity 100ms ease-out;
     }
   }
 }

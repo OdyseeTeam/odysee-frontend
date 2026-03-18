@@ -7,7 +7,12 @@ import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
 import useResolvedSource from './hooks/useResolvedSource';
 import useRecsys from './hooks/useRecsys';
-import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
+import {
+  fullscreenElement as getFullscreenElement,
+  requestFullscreen,
+  exitFullscreen,
+  onFullscreenChange,
+} from 'util/full-screen';
 import useEventTracking from './hooks/useEventTracking';
 import useWatchdog from './hooks/useWatchdog';
 import useMediaSession from './hooks/useMediaSession';
@@ -258,32 +263,32 @@ function VideoJsInner(props: Props) {
   useEffect(() => {
     if (!media || !resolvedSource) return;
 
+    const docEl = document.documentElement;
     const attemptPlay = () => {
       const playPromise = media.play();
       if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          if (error.name === 'NotAllowedError') {
-            if (IS_IOS) {
-              media.muted = true;
-              const mutedPromise = media.play();
-              if (mutedPromise !== undefined) {
-                mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
+        playPromise
+          .then(() => {
+            if (docEl) docEl.removeAttribute('data-shorts-transitioning');
+          })
+          .catch((error) => {
+            if (docEl) docEl.removeAttribute('data-shorts-transitioning');
+            if (error.name === 'NotAllowedError') {
+              if (IS_IOS) {
+                media.muted = true;
+                const mutedPromise = media.play();
+                if (mutedPromise !== undefined) {
+                  mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
+                }
               }
             }
-          }
-        });
+          });
       }
     };
 
     attemptPlay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
-
-  useEffect(() => {
-    if (!media) return;
-    const isShorts = !!document.querySelector('.shorts-page__container');
-    if (isShorts) media.loop = true;
-  }, [media]);
 
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
   useEffect(() => {
@@ -325,6 +330,26 @@ function VideoJsInner(props: Props) {
     return () => {
       onFullscreenChange(document, 'remove', handleFullscreenChange);
     };
+  }, []);
+
+  useEffect(() => {
+    if (IS_MOBILE) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleDblClick = (e: MouseEvent) => {
+      if (e.target instanceof Element && e.target.closest('.media-controls, .vjs-control-bar')) return;
+      const fsEl = getFullscreenElement();
+      if (fsEl) {
+        exitFullscreen();
+      } else {
+        const target = container.closest('.player-fullscreen-target');
+        if (target) requestFullscreen(target);
+      }
+    };
+
+    container.addEventListener('dblclick', handleDblClick);
+    return () => container.removeEventListener('dblclick', handleDblClick);
   }, []);
 
   // Disable context menu for protected content
