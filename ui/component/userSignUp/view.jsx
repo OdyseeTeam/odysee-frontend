@@ -4,6 +4,7 @@ import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import classnames from 'classnames';
 import { useHistory } from 'react-router';
+import Button from 'component/button';
 import UserEmailNew from 'component/userEmailNew';
 import UserEmailVerify from 'component/userEmailVerify';
 import UserFirstChannel from 'component/userFirstChannel';
@@ -16,7 +17,7 @@ import REWARDS from 'rewards';
 import UserVerify from 'component/userVerify';
 import Spinner from 'component/spinner';
 import useFetched from 'effects/use-fetched';
-import Confetti from 'react-confetti';
+
 import usePrevious from 'effects/use-previous';
 import { lazyImport } from 'util/lazyImport';
 import { SHOW_TAGS_INTRO } from 'config';
@@ -112,6 +113,7 @@ function UserSignUp(props: Props) {
   const showEmailVerification = (emailToVerify && !hasVerifiedEmail) || (!hasVerifiedEmail && passwordSet);
   const showUserVerification =
     balance === 0 && hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
+  const [youtubeTransferSeen, setYoutubeTransferSeen] = React.useState(false);
   const showChannelCreation =
     hasVerifiedEmail &&
     ((balance !== undefined &&
@@ -119,9 +121,12 @@ function UserSignUp(props: Props) {
       balance > DEFAULT_BID_FOR_FIRST_CHANNEL &&
       channelCount === 0 &&
       !hasYoutubeChannels) ||
-      interestedInYoutubeSync);
-  const showYoutubeTransfer = hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete;
-  const showFollowIntro = step === 'channels' || (hasVerifiedEmail && !followingAcknowledged);
+      (interestedInYoutubeSync && !youtubeTransferSeen));
+  const showYoutubeTransfer =
+    hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete && !youtubeTransferSeen;
+  const youtubeSyncPendingLoad = interestedInYoutubeSync && hasVerifiedEmail && !hasYoutubeChannels;
+  const showFollowIntro =
+    step === 'channels' || (hasVerifiedEmail && !followingAcknowledged && !youtubeSyncPendingLoad);
   const showTagsIntro = SHOW_TAGS_INTRO && (step === 'tags' || (hasVerifiedEmail && !tagsAcknowledged));
   const canHijackSignInFlowWithSpinner = hasVerifiedEmail && !showFollowIntro && !showTagsIntro && !rewardsAcknowledged;
   const showSpinnerForSync = syncingWallet && !hasSynced && balance === undefined;
@@ -227,8 +232,14 @@ function UserSignUp(props: Props) {
     showYoutubeTransfer && (
       <div>
         <React.Suspense fallback={null}>
-          <YoutubeTransferStatus /> <Confetti recycle={false} style={{ position: 'fixed' }} />
+          <YoutubeTransferStatus />
         </React.Suspense>
+        <div
+          className="section__actions"
+          style={{ marginTop: 'var(--spacing-m)', maxWidth: '600px', margin: 'var(--spacing-m) auto 0' }}
+        >
+          <Button button="primary" label={__('Continue')} onClick={() => setYoutubeTransferSeen(true)} />
+        </div>
       </div>
     ),
     showLoadingSpinner && (

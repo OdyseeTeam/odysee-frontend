@@ -1,9 +1,56 @@
-.sync-state {
+// Main card constraint
+.card--yt-sync {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Channel list container
+.yt-sync__channels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+}
+
+// Individual channel block
+.yt-sync__channel-block {
+  padding: var(--spacing-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-card-background-highlighted);
+
   .claim__menu-button {
     right: 9px;
   }
+
+  .claim-preview__wrapper {
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
 }
 
+// Channel info for non-resolved channels
+.yt-sync__channel-info {
+  padding: var(--spacing-xs) 0;
+}
+
+.yt-sync__channel-name {
+  font-size: var(--font-body);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-s);
+}
+
+// Self sync download prompt for non-VIP channels
+.yt-sync__self-sync-prompt {
+  p {
+    margin-bottom: var(--spacing-s);
+    color: var(--color-text-subtitle);
+    font-size: var(--font-small);
+  }
+}
+
+// Progress steps
 .progress__item {
   display: flex;
   align-items: center;
@@ -22,13 +69,6 @@
   stroke: var(--color-primary);
 }
 
-// Section actions above list
-.section__actions--above-list {
-  margin-bottom: var(--spacing-s);
-  padding-bottom: var(--spacing-s);
-  border-bottom: 1px solid var(--color-border);
-}
-
 // Self-sync card styling
 .card--self-sync {
   margin-top: var(--spacing-m);
@@ -45,17 +85,6 @@
       color: var(--color-text);
       font-size: var(--font-base);
       font-weight: 600;
-
-      .header-link {
-        font-size: var(--font-base);
-        font-weight: 600;
-        text-decoration: none;
-        color: var(--color-primary);
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
     }
   }
 
@@ -99,9 +128,7 @@
     gap: var(--spacing-s);
     align-items: center;
     flex-wrap: wrap;
-    margin-top: var(--spacing-s);
-    padding-top: var(--spacing-s);
-    border-top: 1px solid var(--color-border);
+    margin-bottom: var(--spacing-s);
   }
 }
 
@@ -114,25 +141,31 @@
   border-radius: var(--border-radius);
 
   .token-section__header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
     margin-bottom: var(--spacing-s);
     color: var(--color-text);
-    font-size: var(--font-base);
+    font-size: var(--font-small);
     font-weight: 600;
+
+    .help {
+      font-weight: 400;
+      font-size: var(--font-xsmall);
+    }
   }
 }
 
 .token-display {
-  margin-bottom: var(--spacing-s);
-
   .token-display__value {
     display: flex;
     align-items: stretch;
     gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-s);
+    margin-bottom: var(--spacing-xs);
 
     .token-code {
       background: var(--color-input-bg);
-      padding: var(--spacing-s);
+      padding: var(--spacing-xs) var(--spacing-s);
       border-radius: var(--border-radius);
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: var(--font-small);
@@ -140,7 +173,7 @@
       flex: 1;
       color: var(--color-text);
       border: 1px solid var(--color-border);
-      min-height: 2.5rem;
+      min-height: 2.2rem;
       display: flex;
       align-items: center;
       font-weight: 400;
@@ -169,9 +202,9 @@
 
     .button {
       flex-shrink: 0;
-      min-width: 2.5rem;
-      height: 2.5rem;
-      width: 2.5rem;
+      min-width: 2.2rem;
+      height: 2.2rem;
+      width: 2.2rem;
       padding: 0;
       margin: 0;
       display: flex;
@@ -179,28 +212,19 @@
       justify-content: center;
       border-radius: var(--border-radius);
 
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
       .icon {
         stroke-width: 2.5;
-        width: 1.1rem;
-        height: 1.1rem;
+        width: 1rem;
+        height: 1rem;
       }
     }
   }
 
   .help {
     margin: 0;
-    font-size: var(--font-small);
+    font-size: var(--font-xsmall);
     color: var(--color-text-subtitle);
-    line-height: 1.5;
+    line-height: 1.4;
     font-style: italic;
-  }
-
-  .token-display__open-link {
-    margin-top: var(--spacing-xs);
   }
 }

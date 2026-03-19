@@ -237,28 +237,20 @@ export default function YoutubeSync(props: Props) {
                   )}
                 </div>
                 <div className="help--card-actions">
-                  <I18nMessage
-                    tokens={{
-                      learn_more: (
-                        <Button
-                          button="link"
-                          label={__('Learn more')}
-                          href="https://help.odysee.tv/category-syncprogram/"
-                        />
-                      ),
-                      community_guidelines: (
-                        <Button
-                          button="link"
-                          label={__('Community Guidelines')}
-                          href="https://help.odysee.tv/communityguidelines/"
-                        />
-                      ),
-                    }}
-                  >
-                    Enrollment in the Odysee Sync Program is based on a manual assessment which requires a channel to
-                    have at least 50,000 monthly views on YouTube, and to be in compliance with Odysee's
-                    %community_guidelines%. %learn_more%.
-                  </I18nMessage>
+                  <p>
+                    {__(
+                      'Automated syncing by Odysee is available for channels with 50,000+ monthly views on YouTube. All other channels can use the Odysee Self Sync Tool to transfer their content.'
+                    )}
+                  </p>
+                  <p>
+                    <Button button="link" label={__('Download the Self Sync Tool')} href="https://sync.odysee.tv/" />
+                    {' • '}
+                    <Button
+                      button="link"
+                      label={__('Learn more')}
+                      href="https://help.odysee.tv/category-syncprogram/"
+                    />
+                  </p>
                 </div>
               </Form>
             }
