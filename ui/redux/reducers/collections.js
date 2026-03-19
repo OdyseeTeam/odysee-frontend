@@ -39,6 +39,7 @@ const defaultState: CollectionState = {
   resolvedIds: undefined,
   thumbnailClaimsFetchingCollectionIds: [],
   autoPublishById: {},
+  autoPublishScheduledAtById: {},
   publishingById: {},
   publishErrorById: {},
 };
@@ -121,10 +122,13 @@ const collectionsReducer = handleActions(
       const { collectionId } = action.data;
       const newPublishErrorById = Object.assign({}, state.publishErrorById);
       if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      delete newAutoPublishScheduledAtById[collectionId];
       return {
         ...state,
         publishingById: { ...state.publishingById, [collectionId]: true },
         publishErrorById: newPublishErrorById,
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
       };
     },
     [ACTIONS.COLLECTION_PUBLISH_SUCCESS]: (state, action) => {
@@ -158,9 +162,25 @@ const collectionsReducer = handleActions(
     },
     [ACTIONS.COLLECTION_AUTOPUBLISH_SET]: (state, action) => {
       const { collectionId, enabled } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      if (!enabled) delete newAutoPublishScheduledAtById[collectionId];
       return {
         ...state,
         autoPublishById: { ...state.autoPublishById, [collectionId]: enabled },
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
+      };
+    },
+    [ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED]: (state, action) => {
+      const { collectionId, scheduledAt } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      if (scheduledAt) {
+        newAutoPublishScheduledAtById[collectionId] = scheduledAt;
+      } else {
+        delete newAutoPublishScheduledAtById[collectionId];
+      }
+      return {
+        ...state,
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
       };
     },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {

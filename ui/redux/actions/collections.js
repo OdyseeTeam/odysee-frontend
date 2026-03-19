@@ -250,8 +250,14 @@ const doAutoPublishCollectionIfNeeded =
       clearTimeout(collectionAutoPublishTimers[collectionId]);
     }
 
+    dispatch({
+      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+      data: { collectionId, scheduledAt: Date.now() + AUTO_PUBLISH_DEBOUNCE_MS },
+    });
+
     collectionAutoPublishTimers[collectionId] = setTimeout(() => {
       delete collectionAutoPublishTimers[collectionId];
+      dispatch({ type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED, data: { collectionId, scheduledAt: null } });
       dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
     }, AUTO_PUBLISH_DEBOUNCE_MS);
 
