@@ -387,6 +387,9 @@ export default function ShortsPage(props: Props) {
   }, [history, doClearShortsPlaylist]);
 
   React.useEffect(() => {
+    const docEl = document.documentElement;
+    if (docEl) docEl.style.removeProperty('--shorts-viewer-width');
+
     let timeoutId;
     function loop() {
       // $FlowFixMe
