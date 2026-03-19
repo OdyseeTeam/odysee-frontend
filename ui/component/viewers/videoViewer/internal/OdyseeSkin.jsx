@@ -972,13 +972,19 @@ export default function OdyseeSkin(props: Props) {
                   <svg
                     className="media-icon"
                     xmlns="http://www.w3.org/2000/svg"
-                    width={18}
-                    height={18}
+                    width={19}
+                    height={19}
+                    fill="none"
+                    stroke="#fff"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     viewBox="0 0 24 24"
-                    fill="currentColor"
                     aria-hidden="true"
                   >
-                    <path d="M1 18v3h3c0-1.66-1.34-3-3-3m0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7m0-4v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2" />
+                    <path d="M2 8v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+                    <path d="M2 16a5 5 0 0 1 5 5M2 12a9 9 0 0 1 9 9" />
+                    <circle cx={2} cy={20} r={1.5} fill="#fff" stroke="none" />
                   </svg>
                 </Btn>
               )}
@@ -1284,13 +1290,19 @@ export default function OdyseeSkin(props: Props) {
                         <svg
                           className="media-icon"
                           xmlns="http://www.w3.org/2000/svg"
-                          width={18}
-                          height={18}
+                          width={19}
+                          height={19}
+                          fill="none"
+                          stroke="#fff"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                           viewBox="0 0 24 24"
-                          fill="currentColor"
                           aria-hidden="true"
                         >
-                          <path d="M1 18v3h3c0-1.66-1.34-3-3-3m0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7m0-4v2a9 9 0 0 1 9 9h2c0-6.08-4.93-11-11-11m20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2" />
+                          <path d="M2 8v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+                          <path d="M2 16a5 5 0 0 1 5 5M2 12a9 9 0 0 1 9 9" />
+                          <circle cx={2} cy={20} r={1.5} fill="#fff" stroke="none" />
                         </svg>
                       </Btn>
                     }

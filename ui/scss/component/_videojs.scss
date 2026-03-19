@@ -14,10 +14,24 @@ $control-bar-height-mobile: 44px;
 }
 
 .odysee-skin {
+  $__surface-bg: oklch(0 0 0 / 0.4);
+  $__overlay-bg: oklch(0.25 0 0 / 0.45);
+  $__hover-bg: oklch(from currentColor l c h / 0.1);
+
+  --player-surface-bg: #{$__surface-bg};
+  --player-overlay-bg: #{$__overlay-bg};
+  --player-hover-bg: #{$__hover-bg};
   --media-border-radius: var(--border-radius);
   --media-border-color: transparent;
   --media-surface-inner-border-color: transparent;
   --media-surface-outer-border-color: transparent;
+  --media-surface-background-color: var(--player-surface-bg);
+
+  @at-root .video-fullscreen__actions {
+    --player-surface-bg: #{$__surface-bg};
+    --player-overlay-bg: #{$__overlay-bg};
+    --player-hover-bg: #{$__hover-bg};
+  }
 
   video {
     width: 100%;
@@ -28,7 +42,7 @@ $control-bar-height-mobile: 44px;
 
 .odysee-skin:has(.odysee-mobile-controls) {
   --media-border-radius: 0;
-  --media-surface-background-color: oklch(0.25 0 0 / 0.45);
+  --media-surface-background-color: var(--player-overlay-bg);
 
   .media-overlay {
     display: none;
@@ -324,7 +338,7 @@ $control-bar-height-mobile: 44px;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: oklch(from currentColor l c h / 0.1);
+    background-color: var(--player-hover-bg);
   }
 
   .media-time__value:first-child {
@@ -349,7 +363,7 @@ $control-bar-height-mobile: 44px;
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: oklch(from currentColor l c h / 0.1);
+    background-color: var(--player-hover-bg);
   }
 
   .odysee-live-button__dot {
@@ -654,7 +668,7 @@ $control-bar-height-mobile: 44px;
   border-radius: 50%;
   border: none;
   padding: 0;
-  background: oklch(0.25 0 0 / 0.45);
+  background: var(--player-overlay-bg);
   color: white;
   display: flex;
   align-items: center;
@@ -674,7 +688,7 @@ $control-bar-height-mobile: 44px;
   height: 42px;
   border-radius: 50%;
   border: none;
-  background: oklch(0.25 0 0 / 0.45);
+  background: var(--player-overlay-bg);
   color: white;
   display: flex;
   align-items: center;
@@ -1003,7 +1017,7 @@ $control-bar-height-mobile: 44px;
   }
 
   &:hover {
-    background-color: oklch(from currentColor l c h / 0.1);
+    background-color: var(--player-hover-bg);
   }
 
   .media-volume-slider {
@@ -1145,7 +1159,7 @@ $control-bar-height-mobile: 44px;
     gap: 0.075rem;
     padding: 0.25rem;
     border-radius: 9999px;
-    background-color: oklch(0.25 0 0 / 0.45);
+    background-color: var(--player-surface-bg);
     opacity: 0;
     pointer-events: none;
     transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);

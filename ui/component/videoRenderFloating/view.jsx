@@ -535,7 +535,7 @@ function VideoRenderFloating(props: Props) {
 
     const attach = () => {
       // $FlowFixMe — querySelector returns HTMLElement but we need HTMLVideoElement
-      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating video');
       if (el && el !== videoEl) {
         if (videoEl) {
           videoEl.removeEventListener('play', onPlay);
@@ -572,7 +572,7 @@ function VideoRenderFloating(props: Props) {
 
     const attachListener = () => {
       // $FlowFixMe
-      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating video');
       if (!el || el === videoEl) return !!videoEl;
 
       if (cleanupFn) cleanupFn();
@@ -659,31 +659,11 @@ function VideoRenderFloating(props: Props) {
   // RENDER
   // ****************************************************************************
 
-  function isDraggingVideojsComponent(e) {
-    const className = e?.target?.className;
-    return (
-      typeof className === 'string' &&
-      (className.includes('vjs-volume-control') ||
-        className.includes('vjs-volume-level') ||
-        className.includes('vjs-time-marker') ||
-        className.includes('vjs-mouse-display') ||
-        className.includes('vjs-icon-placeholder'))
-    );
-  }
-
   function handleDragStart(e) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-    // Not really necessary, but reset just in case 'handleStop' didn't fire.
     setWasDragging(false);
   }
 
   function handleDragMove(e, ui) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-
     const { x, y } = position;
     const newX = ui.x;
     const newY = ui.y;
@@ -695,10 +675,6 @@ function VideoRenderFloating(props: Props) {
   }
 
   function handleDragStop(e, ui) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-
     // Always clear drag click-shield after drag end.
     setWasDragging(false);
 
@@ -1036,8 +1012,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
       }
 
       const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
-      const videoNode = document.querySelector('.vjs-tech');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const videoNode = document.querySelector('.video-js-parent video');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
 
       if (rootEl && viewer) {
         const scrollTop = window.pageYOffset || rootEl.scrollTop;
@@ -1064,7 +1040,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
 
       window.removeEventListener('scroll', handleScroll);
@@ -1082,7 +1058,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
   React.useEffect(() => {
     if (videoGreaterThanLandscape && isMobilePlayer) {
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
       if (videoNode) {
         const top = appDrawerOpen ? amountNeededToCenter : 0;
         videoNode.style.top = `${top}px`;
@@ -1092,18 +1068,18 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     if (isMobile && isFloating) {
       const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
       if (viewer) viewer.removeAttribute('style');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
       if (videoNode) videoNode.removeAttribute('style');
     }
   }, [amountNeededToCenter, appDrawerOpen, isFloating, isMobile, isMobilePlayer, videoGreaterThanLandscape]);
 
   React.useEffect(() => {
     if (isTabletLandscape) {
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
       if (videoNode) videoNode.removeAttribute('style');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
     }
   }, [isTabletLandscape]);
@@ -1138,30 +1114,19 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
           video: maxHeight,
         },
         '.content__wrapper': transparentBackground,
-        '.video-js': {
+        '.video-js-parent': {
           ...transparentBackground,
 
-          '.vjs-touch-overlay': {
+          '.odysee-touch-overlay': {
             maxHeight: isTabletLandscape ? 'var(--desktop-portrait-player-max-height) !important' : undefined,
           },
-        },
 
-        '.vjs-fullscreen': {
           video: {
-            top: 'unset !important',
-            height: '100% !important',
+            opacity: '1',
+            height: '100%',
+            position: 'absolute',
+            top: isFloating ? '0px !important' : undefined,
           },
-          '.vjs-touch-overlay': {
-            height: '100% !important',
-            maxHeight: 'unset !important',
-          },
-        },
-
-        '.vjs-tech': {
-          opacity: '1',
-          height: '100%',
-          position: 'absolute',
-          top: isFloating ? '0px !important' : undefined,
         },
 
         [`.${CONTENT_VIEWER_CLASS}`]: {

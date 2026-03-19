@@ -38,7 +38,6 @@
 .embed__wrapper--light-background {
   @extend .embed__wrapper;
 
-  .vjs-poster,
   video {
     background-color: var(--color-white);
   }

@@ -339,19 +339,10 @@
   position: fixed;
   max-height: none;
   border-radius: var(--border-radius);
-  .video-js.vjs-layout-small {
-    .vjs-volume-control {
-      display: block !important;
-    }
-  }
-  .vjs-button--autoplay-next {
-    display: none;
-  }
 }
 
 .claim-link {
-  .file-render--embed,
-  .vjs-tech {
+  .file-render--embed {
     position: relative !important;
   }
 }
@@ -403,11 +394,6 @@
   }
   video {
     cursor: pointer;
-  }
-  .video-js.vjs-user-inactive.vjs-playing {
-    video {
-      cursor: none;
-    }
   }
   &.file-viewer--download {
     cursor: pointer;
@@ -675,363 +661,9 @@
 // Video
 // ****************************************************************************
 
-// DRY: we'll soon move vjs items to videojs.scss, so just duplicate these for now.
-$control-bar-height: 48px;
-$control-bar-height-mobile: 44px;
-$control-bar-font-size: 0.9rem;
-$control-bar-popup-font-size: 0.8rem;
-$control-bar-icon-size: 30px;
-
 .video-js-parent {
   height: 100%;
   width: 100%;
-}
-
-.vjs-big-play-button {
-  display: none;
-}
-
-.video-js {
-  height: 100%;
-  width: 100%;
-
-  .vjs-modal-dialog .vjs-modal-dialog-content {
-    position: relative;
-    padding-top: 5rem;
-    // Make sure no videojs message interferes with overlaying buttons
-    pointer-events: none;
-  }
-
-  // control-bar: time
-  .vjs-control-bar {
-    .vjs-volume-panel {
-      .vjs-volume-horizontal {
-        margin-top: 5.5px !important;
-        height: $control-bar-height !important;
-        @media (max-width: $breakpoint-small) {
-          height: $control-bar-height-mobile !important;
-        }
-      }
-      &:hover {
-        .vjs-volume-horizontal {
-          margin-top: 5.5px !important;
-          height: $control-bar-height !important;
-          @media (max-width: $breakpoint-small) {
-            height: $control-bar-height-mobile !important;
-          }
-        }
-      }
-    }
-
-    .vjs-time-control {
-      margin-left: var(--spacing-xs);
-      line-height: $control-bar-height;
-      font-size: $control-bar-font-size;
-      display: flex;
-      @media (max-width: $breakpoint-small) {
-        line-height: $control-bar-height-mobile !important;
-      }
-    }
-
-    .vjs-current-time {
-      padding-right: 0;
-      @media (max-width: $breakpoint-small) {
-        margin-right: 0.2rem;
-      }
-    }
-
-    .vjs-time-divider {
-      min-width: unset;
-      padding: 0;
-      z-index: 0; // solves the grayed-out divider
-    }
-
-    .vjs-duration {
-      padding-left: 0;
-      margin-left: var(--spacing-xs);
-      @media (max-width: $breakpoint-small) {
-        margin-left: var(--spacing-xs) !important;
-      }
-    }
-  }
-
-  // control-bar: menu, button and icon
-  .vjs-control-bar {
-    .vjs-menu-button {
-      font-size: $control-bar-font-size;
-      line-height: $control-bar-height;
-    }
-
-    .vjs-icon-placeholder {
-      line-height: $control-bar-height;
-    }
-
-    .vjs-icon-placeholder::before {
-      font-size: $control-bar-icon-size;
-      line-height: $control-bar-height;
-      @media (max-width: $breakpoint-small) {
-        line-height: $control-bar-height-mobile !important;
-      }
-    }
-
-    .vjs-quality-selector {
-      margin-left: var(--spacing-xs);
-      .vjs-icon-placeholder {
-        font-size: $control-bar-font-size;
-        span {
-          display: block;
-          margin-top: -3px;
-          span {
-            display: block;
-            margin-left: 24%;
-            margin-right: 24%;
-            font-size: 0.6rem;
-            background: var(--color-primary);
-            font-weight: var(--font-weight-bold);
-            border-radius: 4px;
-            margin-top: -1px;
-            padding-top: 0;
-            line-height: 13px;
-            white-space: nowrap;
-          }
-        }
-      }
-      @media (max-width: $breakpoint-small) {
-        width: 3.3rem;
-        .vjs-icon-placeholder {
-          span {
-            span {
-              margin-left: 20%;
-              margin-right: 20%;
-            }
-          }
-        }
-      }
-    }
-
-    .vjs-play-control,
-    .vjs-fullscreen-control {
-      .vjs-icon-placeholder {
-        // Compensate: these icons in Font VideoJs are smaller than their peers.
-        &:before {
-          font-size: calc(#{$control-bar-icon-size} * 1.1);
-        }
-      }
-    }
-
-    div.vjs-playback-rate {
-      margin-right: calc(var(--spacing-xs) * -1);
-      .vjs-playback-rate-value {
-        font-size: $control-bar-font-size;
-        line-height: $control-bar-height;
-      }
-
-      .vjs-menu {
-        width: 10em; // Extend the width to prevent a potential scrollbar from blocking the text.
-        left: -3em; // Center the popup on top of the button that invoked it.
-      }
-
-      @media (max-width: $breakpoint-small) {
-        margin-right: calc(var(--spacing-xs) * -1) !important;
-        width: 3rem;
-        .vjs-playback-rate-value {
-          line-height: $control-bar-height-mobile;
-        }
-      }
-    }
-
-    div.vjs-chapters-button {
-      right: calc(var(--spacing-xs) * -1);
-      .vjs-menu {
-        min-width: 12em;
-        max-width: 19em;
-        left: -3em;
-      }
-
-      li {
-        text-align: left;
-        padding: var(--spacing-xxxs) var(--spacing-s);
-      }
-      @media (max-width: $breakpoint-small) {
-        width: 3em;
-        right: 0;
-      }
-    }
-    button.vjs-chapters-button {
-      display: block;
-      margin-top: -0px;
-    }
-
-    .vjs-snapshot-button {
-      margin-right: 8px;
-      svg {
-        height: 19px;
-        margin-top: 3px;
-        fill: transparent;
-        stroke-width: 50px;
-        stroke: white;
-        opacity: 0.9;
-      }
-    }
-  }
-
-  .vjs-control-bar {
-    .vjs-button--play-previous:first-child,
-    .vjs-play-control:first-child {
-      margin-left: var(--spacing-s);
-      @media (max-width: $breakpoint-small) {
-        margin-left: 0;
-      }
-    }
-
-    .vjs-fullscreen-control {
-      margin-right: var(--spacing-s);
-      @media (max-width: $breakpoint-small) {
-        width: 2.5rem;
-        margin-right: 0;
-      }
-    }
-
-    .vjs-button--play-previous,
-    .vjs-button--play-next,
-    .vjs-mute-control {
-      .vjs-icon-placeholder::before {
-        font-size: 26px !important;
-        font-size: $control-bar-icon-size;
-      }
-      @media (max-width: $breakpoint-small) {
-        width: 2.25rem;
-      }
-    }
-
-    .vjs-button--play-next {
-      margin-left: var(--spacing-xs);
-      margin-right: var(--spacing-xs);
-    }
-
-    .vjs-button--play-previous ~ .vjs-button--play-next {
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-    }
-
-    .vjs-button--play-previous:first-child {
-      margin-left: var(--spacing-xs) !important;
-    }
-
-    .vjs-button--play-next ~ .vjs-remaining-time,
-    .vjs-button--play-next ~ .vjs-duration {
-      flex-shrink: 0 !important;
-      padding-right: var(--spacing-s) !important;
-    }
-  }
-
-  .vjs-picture-in-picture-control {
-    display: none;
-  }
-}
-
-// ****************************************************************************
-// Video::Overlays
-// ****************************************************************************
-
-.video-js {
-  .vjs-overlay-playrate,
-  .vjs-overlay-seeked {
-    background-color: rgba(0, 0, 0, 0.5);
-    font-size: var(--font-large);
-    width: auto;
-    padding: 10px 30px;
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-
-    animation: fadeOutAnimation ease-in 0.6s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes fadeOutAnimation {
-    0% {
-      opacity: 1;
-      visibility: visible;
-    }
-    100% {
-      opacity: 0;
-      visibility: hidden;
-    }
-  }
-}
-
-// ****************************************************************************
-// Video - Mobile UI
-// ****************************************************************************
-
-.video-js.vjs-mobile-ui {
-  .vjs-control-bar {
-    background-color: transparent;
-  }
-
-  .vjs-touch-overlay:not(.show-play-toggle) {
-    .vjs-control-bar {
-      // Sync the controlBar's visibility with the overlay's
-      display: none;
-    }
-  }
-
-  .vjs-touch-overlay {
-    &.show-play-toggle,
-    &.skip {
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    max-height: var(--mobile-player-max-height);
-  }
-}
-
-// ****************************************************************************
-// Layout and control visibility
-// ****************************************************************************
-
-.video-js.vjs-fullscreen,
-.video-js:not(.vjs-fullscreen) {
-  // --- Unhide desired components per layout ---
-  &.vjs-layout-x-small {
-    .vjs-playback-rate {
-      display: flex !important;
-    }
-  }
-
-  // Note: the '!important' above and below this line was added a quick hack
-  // to negate a change in vjs without having to increase specificity here.
-  // It won't be needed in an upcoming version of vjs, as they have updated
-  // their side https://github.com/videojs/video.js/pull/7098#issuecomment-908438543
-
-  &.vjs-layout-small {
-    .vjs-current-time,
-    .vjs-time-divider,
-    .vjs-duration,
-    .vjs-playback-rate {
-      display: flex !important;
-    }
-  }
-
-  // --- Hide unwanted ---
-  .vjs-remaining-time {
-    display: none;
-  }
-}
-
-.video-js.vjs-fullscreen {
-  video {
-    max-height: none !important;
-  }
-
-  .vjs-button--theater-mode {
-    display: none;
-  }
 }
 
 // ****************************************************************************
@@ -1062,57 +694,7 @@ $control-bar-icon-size: 30px;
   }
 }
 
-// ****************************************************************************
-// ****************************************************************************
-
-.video-js:hover {
-  .vjs-big-play-button {
-    background-color: var(--color-primary);
-  }
-}
-
-.file-render {
-  .vjs-big-play-button {
-    @extend .button--icon;
-    @extend .button--play;
-    border: none;
-    z-index: 2;
-
-    .vjs-icon-placeholder {
-      display: none;
-    }
-  }
-
-  .vjs-menu-item-text,
-  .vjs-icon-placeholder {
-    text-transform: capitalize;
-  }
-}
-
-// ****************************************************************************
-// ****************************************************************************
-
 .file-render--embed {
-  // on embeds, do not inject our colors until interaction
-  .video-js:hover {
-    .vjs-big-play-button {
-      background-color: var(--color-primary);
-    }
-  }
-
-  .vjs-paused {
-    .vjs-big-play-button {
-      display: block;
-      background-color: rgba(0, 0, 0, 0.6);
-    }
-  }
-
-  .vjs-ended {
-    .vjs-big-play-button {
-      display: none;
-    }
-  }
-
   .video-js--tap-to-unmute {
     margin-top: var(--spacing-xl);
     margin-left: var(--spacing-s);
@@ -1131,97 +713,12 @@ $control-bar-icon-size: 30px;
     }
   }
 
-  .vjs-control-bar {
-    .vjs-control:not(.vjs-progress-control):not(.vjs-button--autoplay-next):not(.vjs-volume-horizontal) {
-      width: 3em;
-    }
-    .vjs-button {
-      margin-left: 2px !important;
-      margin-right: 2px !important;
-    }
-    .vjs-snapshot-button,
-    .vjs-button--theater-mode {
-      display: none;
-    }
-    .vjs-quality-selector {
-      text-align: center;
-      .vjs-icon-placeholder {
-        text-align: center;
-        span {
-          span {
-            margin-left: 4%;
-            margin-right: 4%;
-          }
-        }
-      }
-    }
-    .vjs-playback-rate {
-      margin-right: -6px !important;
-    }
-    .vjs-volume-panel {
-      .vjs-volume-horizontal {
-        margin-top: 3px !important;
-        margin-left: 0 !important;
-        // height: $control-bar-height !important;
-        @media (max-width: $breakpoint-small) {
-          // height: $control-bar-height-mobile !important;
-        }
-      }
-      &:hover {
-        .vjs-volume-horizontal {
-          margin-top: 3px !important;
-          // height: $control-bar-height !important;
-          @media (max-width: $breakpoint-small) {
-            // height: $control-bar-height-mobile !important;
-          }
-        }
-      }
-    }
-  }
-
   &.file-render--video {
     aspect-ratio: 16 / 9;
-  }
-
-  .vjs-control-bar {
-    .vjs-progress-control.vjs-control {
-      margin: 1px var(--spacing-s) 7px !important;
-      width: calc(100% - var(--spacing-s) * 2) !important;
-    }
-    .vjs-paused {
-      margin-left: 3px !important;
-    }
-    .vjs-playing {
-      margin-left: 6px !important;
-      margin-right: -1px !important;
-    }
-    .vjs-fullscreen-control {
-      margin-right: 7px !important;
-    }
-    .vjs-volume-horizontal {
-      margin-left: 1em !important;
-    }
-    .vjs-volume-panel-horizontal.vjs-hover {
-      width: 10em !important;
-    }
-  }
-
-  .vjs-menu {
-    left: -3em !important;
-    width: 8.7em !important;
-
-    &.vjs-setting-menu {
-      left: unset !important;
-      width: unset !important;
-    }
   }
 }
 
 .file-viewer--ended-embed {
-  .vjs-control-bar {
-    position: absolute;
-    z-index: 3;
-  }
   .file-viewer__overlay-actions {
     a:first-of-type {
       margin-right: var(--spacing-s);
@@ -1366,9 +863,6 @@ $control-bar-icon-size: 30px;
   @media (max-width: $breakpoint-small) {
     padding: 4% 18%;
     padding-bottom: 90px;
-    .vjs-icon-placeholder {
-      z-index: 1000;
-    }
   }
 
   .recommendation-overlay-grid {
@@ -1504,12 +998,6 @@ $control-bar-icon-size: 30px;
   .recommendation-overlay-wrapper {
     padding: 52% 4% 52% 4%;
   }
-}
-
-.vjs-control-bar {
-  z-index: 2;
-  display: flex !important;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 @keyframes blendin {

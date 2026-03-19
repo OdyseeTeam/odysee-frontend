@@ -359,7 +359,7 @@ function VideoJsInner(props: Props) {
     if (!container) return;
 
     const handleDblClick = (e: MouseEvent) => {
-      if (e.target instanceof Element && e.target.closest('.media-controls, .vjs-control-bar')) return;
+      if (e.target instanceof Element && e.target.closest('.media-controls')) return;
       const fsEl = getFullscreenElement();
       if (fsEl) {
         exitFullscreen();
