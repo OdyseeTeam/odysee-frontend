@@ -23,6 +23,7 @@ function CollectionPublishButton(props: Props) {
   const { push } = useHistory();
 
   if (collectionLength === 0) return null;
+  if (autoPublish && !collectionHasEdits && !isPublishing && !publishError) return null;
 
   const label = isPublishing
     ? __('Publishing...')

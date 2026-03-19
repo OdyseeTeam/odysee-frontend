@@ -36,6 +36,7 @@ declare type CollectionState = {
   isFetchingMyCollections: ?boolean,
   thumbnailClaimsFetchingCollectionIds: Array<string>,
   autoPublishById: { [id: string]: boolean },
+  autoPublishScheduledAtById: { [id: string]: number },
   publishingById: { [id: string]: boolean },
   publishErrorById: { [id: string]: string },
 };

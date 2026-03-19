@@ -21,6 +21,7 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
 import Spinner from 'component/spinner';
+import AutoPublishCountdown from './internal/autoPublishCountdown';
 
 type Props = {
   uri: string,
@@ -48,6 +49,8 @@ type Props = {
   collectionHasEdits: boolean,
   isPublishing: boolean,
   publishError?: ?string,
+  autoPublish: boolean,
+  autoPublishScheduledAt: ?number,
 };
 
 function CollectionPreview(props: Props) {
@@ -75,6 +78,8 @@ function CollectionPreview(props: Props) {
     collectionHasEdits,
     isPublishing,
     publishError,
+    autoPublish,
+    autoPublishScheduledAt,
   } = props;
 
   const { push } = useHistory();
@@ -178,6 +183,23 @@ function CollectionPreview(props: Props) {
             <div className="meta">
               <CollectionItemCount collectionId={collectionId} />
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
+
+              {autoPublish && (
+                <div className="auto-publish-badge">
+                  <Icon icon={ICONS.PUBLISH} />
+                  <span>
+                    {isPublishing ? (
+                      __('Publishing...')
+                    ) : autoPublishScheduledAt ? (
+                      <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                    ) : collectionHasEdits ? (
+                      __('Publish pending')
+                    ) : (
+                      __('Auto-publish')
+                    )}
+                  </span>
+                </div>
+              )}
 
               <div className="create-at">
                 {collectionCreatedAt && (

@@ -20,6 +20,8 @@ import {
   selectFailedToResolveUris,
   selectFailedToResolveIds,
   selectClaimIsPendingForId,
+  selectClaimIdsByUri,
+  selectClaimsById,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -114,7 +116,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       title: options.title,
       thumbnail_url: options.thumbnail_url,
       // $FlowFixMe
-      tags: options.tags ? options.tags.map((tag) => tag.name) : [],
+      tags: options.tags ? options.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [],
       languages: options.languages || [],
       description: options.description,
     };
@@ -144,6 +146,21 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
     if (fullParams.description && typeof fullParams.description !== 'string') {
       delete fullParams.description;
+    }
+
+    // Filter out abandoned/deleted claims that the SDK can't resolve
+    if (fullParams.claims) {
+      const byUri = selectClaimIdsByUri(state);
+      const byId = selectClaimsById(state);
+      fullParams.claims = fullParams.claims.filter((ref) => {
+        if (!ref) return false;
+        // Could be a URL or a claim ID
+        const claimId = byUri[ref];
+        if (claimId === null) return false; // resolved as abandoned
+        if (claimId !== undefined) return true; // resolved and exists
+        // Not in byUri — treat as claim ID
+        return byId[ref] !== null; // null = abandoned, undefined = not fetched (keep)
+      });
     }
 
     dispatch({ type: ACTIONS.COLLECTION_PUBLISH_START, data: { collectionId } });
@@ -250,8 +267,14 @@ const doAutoPublishCollectionIfNeeded =
       clearTimeout(collectionAutoPublishTimers[collectionId]);
     }
 
+    dispatch({
+      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+      data: { collectionId, scheduledAt: Date.now() + AUTO_PUBLISH_DEBOUNCE_MS },
+    });
+
     collectionAutoPublishTimers[collectionId] = setTimeout(() => {
       delete collectionAutoPublishTimers[collectionId];
+      dispatch({ type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED, data: { collectionId, scheduledAt: null } });
       dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
     }, AUTO_PUBLISH_DEBOUNCE_MS);
 

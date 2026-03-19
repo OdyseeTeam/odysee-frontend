@@ -1,7 +1,13 @@
 import { connect } from 'react-redux';
 
 import { selectClaimIsPendingForId, selectClaimForId } from 'redux/selectors/claims';
-import { selectCountForCollectionId, selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import {
+  selectCountForCollectionId,
+  selectCollectionHasEditsForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
+  selectCollectionIsPublishingForId,
+} from 'redux/selectors/collections';
 import { doCollectionEdit } from 'redux/actions/collections';
 
 import CollectionHeader from './view';
@@ -18,6 +24,9 @@ const select = (state, props) => {
     collectionCount: selectCountForCollectionId(state, collectionId),
     claimIsPending: selectClaimIsPendingForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    autoPublish: selectCollectionAutoPublishForId(state, collectionId),
+    autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId),
+    isPublishing: selectCollectionIsPublishingForId(state, collectionId),
   };
 };
 

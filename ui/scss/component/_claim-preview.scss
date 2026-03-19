@@ -2234,6 +2234,17 @@ $claim-preview-progress-bar-height: 5px;
             }
           }
 
+          .auto-publish-badge {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            color: var(--color-primary);
+            .icon {
+              height: var(--font-base) !important;
+              margin-right: var(--spacing-xxs);
+            }
+          }
+
           .create-at {
             display: flex;
             flex-grow: 1;

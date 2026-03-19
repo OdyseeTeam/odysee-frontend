@@ -57,6 +57,10 @@ export const selectCollectionPublishingMap = (state: State) => selectState(state
 export const selectCollectionPublishErrorMap = (state: State) => selectState(state).publishErrorById || {};
 export const selectCollectionAutoPublishForId = (state: State, id: string) =>
   Boolean(selectCollectionAutoPublishMap(state)[id]);
+export const selectCollectionAutoPublishScheduledAtMap = (state: State) =>
+  selectState(state).autoPublishScheduledAtById || {};
+export const selectCollectionAutoPublishScheduledAtForId = (state: State, id: string) =>
+  selectCollectionAutoPublishScheduledAtMap(state)[id] || null;
 export const selectCollectionIsPublishingForId = (state: State, id: string) =>
   Boolean(selectCollectionPublishingMap(state)[id]);
 export const selectCollectionPublishErrorForId = (state: State, id: string) =>

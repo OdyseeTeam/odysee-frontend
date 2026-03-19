@@ -39,6 +39,7 @@ const FILTERS = {
     'updated',
     'pending',
     'lastUsedCollectionIds',
+    'autoPublishById',
   ]),
 };
 
