@@ -1055,7 +1055,25 @@ $control-bar-height-mobile: 44px;
   }
 }
 
+.fullscreen-transitioning {
+  .player-fullscreen-target,
+  .shorts__viewer,
+  .content__viewer,
+  .content__wrapper {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.player-fullscreen-target::backdrop {
+  animation: none !important;
+  transition: none !important;
+  background: #000 !important;
+}
+
 .player-fullscreen-target:fullscreen {
+  animation: none !important;
+  transition: none !important;
   display: flex;
   background: #000;
   justify-content: center;

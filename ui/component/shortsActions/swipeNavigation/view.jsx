@@ -191,7 +191,9 @@ const SwipeNavigationPortal = React.memo<Props>(
             const link = el.closest('a, button');
             if (
               link &&
-              link.closest('.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play')
+              link.closest(
+                '.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play, .shorts-page__navigation'
+              )
             ) {
               if (link instanceof HTMLElement) link.click();
               return;

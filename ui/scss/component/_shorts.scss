@@ -240,7 +240,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   display: flex;
   flex-direction: column;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-  padding-top: 10px;
+  padding-top: 0;
   isolation: isolate !important;
 }
 
@@ -260,8 +260,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 10px;
-  padding: 10px 20px;
+  margin-top: 0;
+  padding: 5px 20px;
 }
 
 .shorts-page__close-button {
@@ -347,6 +347,10 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page__container--panel-open {
   .menu__button {
     right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
+  }
+
+  .shorts-page__navigation:not(.shorts-page__navigation--mobile-desktop) {
+    display: none;
   }
 
   @media (max-width: 1180px) and (min-width: 1020px) {
@@ -780,6 +784,10 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     overflow: visible;
     width: fit-content;
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 110px);
+
+    @media (max-width: 1020px) {
+      right: 10px;
+    }
   }
 
   .shorts-page__actions-button--info {

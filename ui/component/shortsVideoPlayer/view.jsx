@@ -16,6 +16,7 @@ type Props = {
   onSwipeNext: () => void,
   onSwipePrevious?: () => void,
   enableSwipe?: boolean,
+  panelOpen?: boolean,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
@@ -29,6 +30,7 @@ const ShortsVideoPlayer = React.memo<Props>(
     onSwipeNext,
     onSwipePrevious,
     enableSwipe,
+    panelOpen,
   }: Props) => {
     const {
       location: { search },
@@ -36,32 +38,28 @@ const ShortsVideoPlayer = React.memo<Props>(
     const urlParams = new URLSearchParams(search);
     const isShortVideo = urlParams.get('view') === 'shorts';
 
-    const autoPlayRef = React.useRef({ autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext });
-    autoPlayRef.current = { autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext };
-
-    React.useEffect(() => {
-      const videoElement: any = document.querySelector('video');
-      if (videoElement) {
-        videoElement.loop = !(autoPlayNextShort && nextRecommendedShort && !isAtEnd);
-      }
-    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd]);
+    const autoPlayRef = React.useRef({ autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen });
+    autoPlayRef.current = { autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen };
 
     React.useEffect(() => {
       let videoEl = null;
       let pollId = null;
 
+      const shouldAutoAdvance = () => {
+        const { autoPlayNextShort: ap, nextRecommendedShort: next, isAtEnd: end, panelOpen: po } = autoPlayRef.current;
+        return ap && next && !end && !po;
+      };
+
       const handleEnded = () => {
-        const {
-          autoPlayNextShort: ap,
-          nextRecommendedShort: next,
-          isAtEnd: end,
-          onSwipeNext: swipe,
-        } = autoPlayRef.current;
-        if (ap && next && !end) {
+        if (shouldAutoAdvance()) {
+          const { onSwipeNext: swipe } = autoPlayRef.current;
           window.__shortsAutoPlayNext = true;
           const docEl = document.documentElement;
           if (docEl) docEl.setAttribute('data-shorts-transitioning', '');
           swipe();
+        } else if (videoEl) {
+          videoEl.currentTime = 0;
+          videoEl.play();
         }
       };
 

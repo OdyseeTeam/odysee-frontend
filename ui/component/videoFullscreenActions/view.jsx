@@ -544,19 +544,21 @@ export default function VideoFullscreenActions(props: Props) {
     <div className={`video-fullscreen__actions-wrapper ${isShort ? 'video-fullscreen__actions-wrapper--shorts' : ''}`}>
       <div className={`video-fullscreen__actions ${isShort ? 'video-fullscreen__actions--shorts' : ''}`}>
         {isShort ? (
-          <ShortsActions
-            uri={uri}
-            hasPlaylist={hasPlaylist || false}
-            onNext={onNext || (() => {})}
-            onPrevious={onPrevious || (() => {})}
-            isAtStart={isAtStart}
-            isAtEnd={isAtEnd}
-            autoPlayNextShort={autoPlayNextShort || false}
-            doToggleShortsAutoplay={doToggleShortsAutoplay || (() => {})}
-            onCommentsClick={() => handleTogglePanel('comments')}
-            onInfoClick={() => handleTogglePanel('info')}
-            handleShareClick={handleShareClick}
-          />
+          isFs && (
+            <ShortsActions
+              uri={uri}
+              hasPlaylist={hasPlaylist || false}
+              onNext={onNext || (() => {})}
+              onPrevious={onPrevious || (() => {})}
+              isAtStart={isAtStart}
+              isAtEnd={isAtEnd}
+              autoPlayNextShort={autoPlayNextShort || false}
+              doToggleShortsAutoplay={doToggleShortsAutoplay || (() => {})}
+              onCommentsClick={() => handleTogglePanel('comments')}
+              onInfoClick={() => handleTogglePanel('info')}
+              handleShareClick={handleShareClick}
+            />
+          )
         ) : (
           <>
             <Button

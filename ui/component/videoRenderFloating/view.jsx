@@ -470,6 +470,22 @@ function VideoRenderFloating(props: Props) {
     };
   }, []);
 
+  React.useEffect(() => {
+    const handler = () => {
+      const docEl = document.documentElement;
+      if (docEl) {
+        docEl.classList.add('fullscreen-transitioning');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            docEl.classList.remove('fullscreen-transitioning');
+          });
+        });
+      }
+    };
+    onFsChange(document, 'add', handler);
+    return () => onFsChange(document, 'remove', handler);
+  }, []);
+
   // $FlowFixMe
   React.useEffect(() => {
     const body = document.body;

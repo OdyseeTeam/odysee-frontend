@@ -169,6 +169,8 @@ export default function ShortsPage(props: Props) {
   const hasEnsuredViewParam = React.useRef(false);
   const [overlayTarget, setOverlayTarget] = React.useState(null);
   const [isFullscreen, setIsFullscreen] = React.useState(!!getFullscreenElement());
+  const isFullscreenRef = React.useRef(isFullscreen);
+  isFullscreenRef.current = isFullscreen;
 
   React.useEffect(() => {
     const onChange = () => setIsFullscreen(!!getFullscreenElement());
@@ -251,6 +253,7 @@ export default function ShortsPage(props: Props) {
   const handleCommentsClick = React.useCallback(() => {
     if (isMobile) {
       if (drawerOpenRef.current) drawerOpenRef.current(1);
+      doSetShortsSidePanel(true);
     } else if (sidePanelOpen && panelMode === 'comments') {
       doSetShortsSidePanel(false);
     } else {
@@ -262,6 +265,7 @@ export default function ShortsPage(props: Props) {
   const handleInfoButtonClick = React.useCallback(() => {
     if (isMobile) {
       if (drawerOpenRef.current) drawerOpenRef.current(0);
+      doSetShortsSidePanel(true);
     } else if (sidePanelOpen && panelMode === 'info') {
       doSetShortsSidePanel(false);
     } else {
@@ -744,24 +748,27 @@ export default function ShortsPage(props: Props) {
                 onSwipeNext={goToNext}
                 onSwipePrevious={goToPrevious}
                 enableSwipe={isSwipeEnabled}
+                panelOpen={sidePanelOpen}
               />
 
-              <ShortsActions
-                hasPlaylist={hasPlaylist}
-                onNext={goToNext}
-                onPrevious={goToPrevious}
-                isLoading={isLoadingContent}
-                currentIndex={currentIndex}
-                totalVideos={shortsRecommendedUris?.length || 0}
-                isAtStart={isAtStart}
-                isAtEnd={isAtEnd}
-                autoPlayNextShort={autoPlayNextShort}
-                doToggleShortsAutoplay={doToggleShortsAutoplay}
-                uri={uri}
-                onCommentsClick={handleCommentsClick}
-                onInfoClick={handleInfoButtonClick}
-                handleShareClick={handleShareClick}
-              />
+              {!sidePanelOpen && (
+                <ShortsActions
+                  hasPlaylist={hasPlaylist}
+                  onNext={goToNext}
+                  onPrevious={goToPrevious}
+                  isLoading={isLoadingContent}
+                  currentIndex={currentIndex}
+                  totalVideos={shortsRecommendedUris?.length || 0}
+                  isAtStart={isAtStart}
+                  isAtEnd={isAtEnd}
+                  autoPlayNextShort={autoPlayNextShort}
+                  doToggleShortsAutoplay={doToggleShortsAutoplay}
+                  uri={uri}
+                  onCommentsClick={handleCommentsClick}
+                  onInfoClick={handleInfoButtonClick}
+                  handleShareClick={handleShareClick}
+                />
+              )}
             </div>
           </div>
 
