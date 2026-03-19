@@ -3,7 +3,7 @@
   https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
 */
 
-import platform from 'ui/util/platform';
+import { platform } from 'ui/util/platform';
 
 const IOS_FS_CLASS = 'ios-fullscreen';
 let iosFsElement = null;
