@@ -51,6 +51,7 @@ type Props = {
   doClearQueueList: () => void,
   doToggleCollectionSavedForId: (id: string) => void,
   thumbnailFromClaim: string,
+  onClose?: () => void,
 };
 
 export default function PlaylistCard(props: Props) {
@@ -103,6 +104,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doToggleCollectionSavedForId,
     collectionSavedForId,
     thumbnailFromClaim,
+    onClose,
     ...cardProps
   } = props;
 
@@ -413,10 +415,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 )}
 
                 <Button
-                  title={__('Close Playlist')}
+                  title={onClose ? __('Close') : __('Close Playlist')}
                   className="button-toggle"
                   icon={ICONS.REMOVE}
-                  onClick={closePlaylist}
+                  onClick={onClose || closePlaylist}
                 />
               </>
             )

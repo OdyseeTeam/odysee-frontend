@@ -442,7 +442,9 @@ function VideoRenderFloating(props: Props) {
 
     const onFullscreenCb = () => {
       if (!getFullscreenElement() && isFloating) {
-        restoreToRelativePosition();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(restoreToRelativePosition);
+        });
       }
     };
     onFsChange(document, 'add', onFullscreenCb);
@@ -925,7 +927,7 @@ function VideoRenderFloating(props: Props) {
               onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
               isAtStart={!hasPreviousShort}
               isAtEnd={!hasNextShort}
-              hasPlaylist={!!playingCollection && collectionSidebarId !== collectionId}
+              hasPlaylist={!!playingCollection}
               autoPlayNextShort={autoPlayNextShort}
               doToggleShortsAutoplay={doToggleShortsAutoplay}
             />

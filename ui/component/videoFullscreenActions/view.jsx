@@ -91,6 +91,10 @@ export default function VideoFullscreenActions(props: Props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
   const [panelMode, setPanelMode] = React.useState(null);
+  const [fireGlow, setFireGlow] = React.useState(false);
+  const fireGlowTimeout = React.useRef(null);
+  const [slimeGlow, setSlimeGlow] = React.useState(false);
+  const slimeGlowTimeout = React.useRef(null);
   const touchStartY = React.useRef(0);
   const touchStartX = React.useRef(0);
   const isDragging = React.useRef(false);
@@ -280,6 +284,24 @@ export default function VideoFullscreenActions(props: Props) {
     return () => panel.removeEventListener('click', onClick);
   }, []);
 
+  const triggerFireGlow = React.useCallback(() => {
+    setFireGlow(false);
+    clearTimeout(fireGlowTimeout.current);
+    requestAnimationFrame(() => {
+      setFireGlow(true);
+      fireGlowTimeout.current = setTimeout(() => setFireGlow(false), 2000);
+    });
+  }, []);
+
+  const triggerSlimeGlow = React.useCallback(() => {
+    setSlimeGlow(false);
+    clearTimeout(slimeGlowTimeout.current);
+    requestAnimationFrame(() => {
+      setSlimeGlow(true);
+      slimeGlowTimeout.current = setTimeout(() => setSlimeGlow(false), 3000);
+    });
+  }, []);
+
   const handleShareClick = React.useCallback(() => {
     doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable: true });
   }, [doOpenModal, uri]);
@@ -402,8 +424,11 @@ export default function VideoFullscreenActions(props: Props) {
           <Button
             className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
               myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
-            }`}
-            onClick={() => doReactionLike(uri)}
+            } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
+            onClick={() => {
+              if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
+              doReactionLike(uri);
+            }}
             icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
             iconSize={18}
             title={__('Like')}
@@ -424,8 +449,11 @@ export default function VideoFullscreenActions(props: Props) {
           <Button
             className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
               myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
-            }`}
-            onClick={() => doReactionDislike(uri)}
+            } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
+            onClick={() => {
+              if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
+              doReactionDislike(uri);
+            }}
             icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
             iconSize={18}
             title={__('Dislike')}
@@ -532,20 +560,13 @@ export default function VideoFullscreenActions(props: Props) {
         ) : (
           <>
             <Button
-              className={`video-fullscreen__action-btn ${
-                panelMode === 'info' ? 'video-fullscreen__action-btn--active' : ''
-              }`}
-              onClick={() => handleTogglePanel('info')}
-              icon={ICONS.INFO}
-              iconSize={18}
-              title={__('Show Details')}
-            />
-
-            <Button
               className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
                 myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
-              }`}
-              onClick={() => doReactionLike(uri)}
+              } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
+              onClick={() => {
+                if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
+                doReactionLike(uri);
+              }}
               icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
               iconSize={18}
               title={__('Like')}
@@ -566,8 +587,11 @@ export default function VideoFullscreenActions(props: Props) {
             <Button
               className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
                 myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
-              }`}
-              onClick={() => doReactionDislike(uri)}
+              } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
+              onClick={() => {
+                if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
+                doReactionDislike(uri);
+              }}
               icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
               iconSize={18}
               title={__('Dislike')}
@@ -581,6 +605,40 @@ export default function VideoFullscreenActions(props: Props) {
                 ) : undefined
               }
             />
+
+            <Button
+              className={`video-fullscreen__action-btn ${
+                panelMode === 'info' ? 'video-fullscreen__action-btn--active' : ''
+              }`}
+              onClick={() => handleTogglePanel('info')}
+              icon={ICONS.INFO}
+              iconSize={18}
+              title={__('Show Details')}
+            />
+
+            {hasChapters && (
+              <Button
+                className={`video-fullscreen__action-btn ${
+                  panelMode === 'chapters' ? 'video-fullscreen__action-btn--active' : ''
+                }`}
+                onClick={() => handleTogglePanel('chapters')}
+                icon={ICONS.VIEW_LIST}
+                iconSize={18}
+                title={__('Chapters')}
+              />
+            )}
+
+            {hasPlaylist && (
+              <Button
+                className={`video-fullscreen__action-btn ${
+                  panelMode === 'playlist' ? 'video-fullscreen__action-btn--active' : ''
+                }`}
+                onClick={() => handleTogglePanel('playlist')}
+                icon={ICONS.PLAYLIST}
+                iconSize={18}
+                title={__('Playlist')}
+              />
+            )}
 
             {isLivestreamClaim ? (
               <Button
@@ -603,17 +661,15 @@ export default function VideoFullscreenActions(props: Props) {
                   iconSize={18}
                   title={__('Comments')}
                 />
-                {isMobile && (
-                  <Button
-                    className={`video-fullscreen__action-btn ${
-                      panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
-                    }`}
-                    onClick={() => handleTogglePanel('related')}
-                    icon={ICONS.DISCOVER}
-                    iconSize={18}
-                    title={__('Related')}
-                  />
-                )}
+                <Button
+                  className={`video-fullscreen__action-btn ${
+                    panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
+                  }`}
+                  onClick={() => handleTogglePanel('related')}
+                  icon={ICONS.DISCOVER}
+                  iconSize={18}
+                  title={__('Related')}
+                />
               </>
             )}
           </>
@@ -625,6 +681,8 @@ export default function VideoFullscreenActions(props: Props) {
         ref={sidePanelRef}
         className={`video-fullscreen__side-panel ${panelMode ? 'video-fullscreen__side-panel--open' : ''} ${
           panelMode === 'chat' ? 'video-fullscreen__side-panel--chat' : ''
+        } ${panelMode === 'playlist' ? 'video-fullscreen__side-panel--playlist' : ''} ${
+          panelMode === 'chapters' ? 'video-fullscreen__side-panel--chapters' : ''
         } ${isMobile ? 'video-fullscreen__side-panel--mobile' : ''}`}
       >
         {isMobile && (
@@ -657,7 +715,7 @@ export default function VideoFullscreenActions(props: Props) {
         )}
 
         <div className="video-fullscreen__side-panel-content">
-          {panelMode === 'info' && <FileTitleSection uri={uri} accessStatus={accessStatus} />}
+          {panelMode === 'info' && <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />}
           {panelMode === 'chat' && (
             <>
               <button className="video-fullscreen__chat-close-button" onClick={handleClosePanel} title={__('Close')}>
@@ -670,7 +728,6 @@ export default function VideoFullscreenActions(props: Props) {
           )}
           {panelMode === 'comments' && (
             <>
-              <FileTitleSection uri={uri} accessStatus={accessStatus} hideDescription />
               {contentUnlocked &&
                 (commentsDisabled ? (
                   <Empty padded text={__('The creator of this content has disabled comments.')} />
@@ -687,7 +744,10 @@ export default function VideoFullscreenActions(props: Props) {
             </>
           )}
           {panelMode === 'chapters' && hasChapters && (
-            <ChaptersCard uri={uri} description={description} visible setVisible={() => {}} />
+            <ChaptersCard uri={uri} description={description} visible setVisible={handleClosePanel} />
+          )}
+          {panelMode === 'playlist' && hasPlaylist && (
+            <PlaylistCard id={playingCollectionId} uri={uri} onClose={handleClosePanel} />
           )}
           {panelMode === 'related' && <RecommendedContent uri={uri} />}
         </div>

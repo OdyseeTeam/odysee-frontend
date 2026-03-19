@@ -81,6 +81,14 @@ function handleSnapshotFn(media, title) {
   canvas.remove();
 }
 
+const COMMON_HEIGHTS = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320];
+function snapHeight(h) {
+  for (const c of COMMON_HEIGHTS) {
+    if (h <= c) return c;
+  }
+  return h;
+}
+
 function useQualityLevels() {
   const media = Player.useMedia();
   const [levels, setLevels] = useState([]);
@@ -153,7 +161,11 @@ function useQualityLevels() {
   );
 
   const currentLabel =
-    currentLevel === -1 ? __('Auto') : levels[currentLevel] ? `${levels[currentLevel].height}p` : __('Auto');
+    currentLevel === -1
+      ? __('Auto')
+      : levels[currentLevel]
+      ? `${snapHeight(levels[currentLevel].height)}p`
+      : __('Auto');
 
   const isHD = activeHeight >= 720;
 
@@ -246,7 +258,7 @@ function SettingsMenuContent({
                 setView('main');
               }}
             >
-              {level.height}p
+              {snapHeight(level.height)}p
             </button>
           ))}
         {!isLivestream && (
