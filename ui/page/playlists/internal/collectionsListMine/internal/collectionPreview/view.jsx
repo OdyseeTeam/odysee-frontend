@@ -164,7 +164,9 @@ function CollectionPreview(props: Props) {
                     arrow={false}
                     enterDelay={100}
                   >
-                    <Icon icon={ICONS.WARNING} />
+                    <span>
+                      <Icon icon={ICONS.WARNING} />
+                    </span>
                   </Tooltip>
                 )}
               </h2>
