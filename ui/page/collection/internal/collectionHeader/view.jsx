@@ -18,6 +18,7 @@ import DateTime from 'component/dateTime';
 import ClaimAuthor from 'component/claimAuthor';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
+import AutoPublishCountdown from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/autoPublishCountdown';
 
 import './style.scss';
 
@@ -33,6 +34,10 @@ type Props = {
   uri: string,
   collection: Collection,
   claimIsPending: boolean,
+  collectionHasEdits: boolean,
+  autoPublish: boolean,
+  autoPublishScheduledAt: ?number,
+  isPublishing: boolean,
   doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void,
 };
 
@@ -48,6 +53,10 @@ const CollectionHeader = (props: Props) => {
     // -- redux --
     uri,
     claimIsPending,
+    collectionHasEdits,
+    autoPublish,
+    autoPublishScheduledAt,
+    isPublishing,
     // doCollectionEdit,
   } = props;
 
@@ -140,6 +149,31 @@ const CollectionHeader = (props: Props) => {
                     }
                   >
                     <CollectionPrivateIcon />
+                  </div>
+                )}
+                {autoPublish && (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
+                  >
+                    <div className="auto-publish-badge">
+                      <Icon icon={ICONS.PUBLISH} />
+                      <span>
+                        {isPublishing ? (
+                          __('Publishing...')
+                        ) : autoPublishScheduledAt ? (
+                          <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                        ) : collectionHasEdits ? (
+                          __('Publish pending')
+                        ) : (
+                          __('Auto-publish')
+                        )}
+                      </span>
+                    </div>
                   </div>
                 )}
                 {isNotADefaultList && (

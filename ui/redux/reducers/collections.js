@@ -257,7 +257,7 @@ const collectionsReducer = handleActions(
         unpublished: unpublishedCollections || state.unpublished,
         builtin: builtinCollections || state.builtin,
         savedIds: savedCollectionIds || state.savedIds,
-        autoPublishById: autoPublishById || state.autoPublishById,
+        autoPublishById: { ...state.autoPublishById, ...(autoPublishById || {}) },
       };
     },
 

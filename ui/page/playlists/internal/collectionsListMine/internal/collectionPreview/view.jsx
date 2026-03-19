@@ -192,6 +192,8 @@ function CollectionPreview(props: Props) {
                       __('Publishing...')
                     ) : autoPublishScheduledAt ? (
                       <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                    ) : collectionHasEdits ? (
+                      __('Publish pending')
                     ) : (
                       __('Auto-publish')
                     )}
