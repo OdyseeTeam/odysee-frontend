@@ -1867,7 +1867,10 @@ $control-bar-height-mobile: 44px;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
+  width: 100dvw !important;
+  height: 100dvh !important;
   z-index: 10000 !important;
+  background: #000 !important;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
+  box-sizing: border-box !important;
 }
