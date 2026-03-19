@@ -119,8 +119,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const lengthRef = React.useRef(collectionLength);
   const activeItemIndexRef = React.useRef(playingItemIndex);
 
-  const [floatingBodyOpen] = usePersistedState('playlist-card-open', true);
-  const [bodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
+  const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
+  const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
