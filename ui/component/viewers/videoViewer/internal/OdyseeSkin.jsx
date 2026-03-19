@@ -693,10 +693,14 @@ export default function OdyseeSkin(props: Props) {
   }, []);
 
   React.useLayoutEffect(() => {
-    if (!settingsOpen || !isFloating) return;
+    if (!settingsOpen) return;
+    const isSafari = platform.isSafari();
+    if (!isFloating && !isSafari) return;
     const fix = () => {
       const popup = document.querySelector('.media-popover--settings[popover]');
-      const trigger = document.querySelector('.content__viewer--floating .media-button--settings');
+      const trigger = isFloating
+        ? document.querySelector('.content__viewer--floating .media-button--settings')
+        : document.querySelector('.media-button--settings');
       if (!popup || !trigger) return;
       const tr = trigger.getBoundingClientRect();
       const ph = popup.offsetHeight;
