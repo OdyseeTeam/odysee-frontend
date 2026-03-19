@@ -1172,7 +1172,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-.shorts-page__container:fullscreen {
+.shorts-page__container:fullscreen,
+.shorts-page__container.ios-fullscreen {
   background: #000;
   display: flex;
   justify-content: center;

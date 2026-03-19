@@ -285,7 +285,8 @@ $control-bar-height-mobile: 44px;
     display: none !important;
   }
 
-  :fullscreen & {
+  :fullscreen &,
+  .ios-fullscreen & {
     display: none !important;
   }
 }
@@ -1071,7 +1072,8 @@ $control-bar-height-mobile: 44px;
   background: #000 !important;
 }
 
-.player-fullscreen-target:fullscreen {
+.player-fullscreen-target:fullscreen,
+.player-fullscreen-target.ios-fullscreen {
   animation: none !important;
   transition: none !important;
   display: flex;
@@ -1859,4 +1861,13 @@ $control-bar-height-mobile: 44px;
       }
     }
   }
+}
+
+.ios-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 10000 !important;
 }
