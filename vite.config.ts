@@ -395,6 +395,16 @@ export default defineConfig({
     sourcemap: isProduction ? true : 'inline',
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
+      output: {
+        // Prevent 'buffer' from being split into its own chunk.
+        // Rolldown rc.10 has a CJS interop bug where the __commonJS helper
+        // is emitted after the code that calls it when buffer is isolated.
+        manualChunks(id) {
+          if (id.includes('node_modules/buffer/')) {
+            return 'vendor';
+          }
+        },
+      },
     },
   },
 
