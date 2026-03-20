@@ -354,6 +354,8 @@ function VideoRenderFloating(props: Props) {
   }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId, mainPlayerDimensions]);
 
   const restoreToRelativePosition = React.useCallback(() => {
+    if (getFullscreenElement()) return;
+
     const SCROLL_BAR_PX = 12; // root: --body-scrollbar-width
     const screenW = getScreenWidth() - SCROLL_BAR_PX;
     const screenH = getScreenHeight();
