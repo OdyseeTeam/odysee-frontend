@@ -143,6 +143,14 @@ router.get('*', async (ctx, next) => {
       ctx.set('Cache-Control', 'no-store');
       return;
     }
+    // Don't serve HTML for missing static files — return 404 so the browser
+    // doesn't register HTML as a service worker or parse it as JSON.
+    if (requestedUrl === '/sw.js' || requestedUrl.endsWith('.json') || requestedUrl.endsWith('.map')) {
+      ctx.status = 404;
+      ctx.body = 'Resource not found';
+      ctx.set('Cache-Control', 'no-store');
+      return;
+    }
   }
 
   const html = await getHtml(ctx);

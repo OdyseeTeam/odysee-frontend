@@ -224,7 +224,7 @@ function addPWA() {
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
       window.addEventListener('load', function() {
-        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}
+        if("serviceWorker" in navigator){navigator.serviceWorker.register("/public/sw.js")}
       });
     </script>`;
   return head;
