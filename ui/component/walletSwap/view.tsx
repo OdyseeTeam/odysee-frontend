@@ -523,7 +523,6 @@ function WalletSwap(props: Props) {
     );
   }
 
-
   function getActionElement() {
     switch (action) {
       case ACTION_MAIN:

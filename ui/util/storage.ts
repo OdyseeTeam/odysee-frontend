@@ -63,16 +63,16 @@ function storageFactory(getStorage: () => Storage, name: string) {
   function clear(): void {
     try {
       getStorage().clear();
-    } catch (e) {
-      log(e, 'clear');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
   }
 
   function getItem(name: string): string | null | undefined {
     try {
       return getStorage().getItem(name);
-    } catch (e) {
-      log(e, 'getItem');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
 
     return null;
@@ -81,37 +81,33 @@ function storageFactory(getStorage: () => Storage, name: string) {
   function key(index: number): string | null | undefined {
     try {
       return getStorage().key(index);
-    } catch (e) {
-      log(e, 'key');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
   }
 
   function removeItem(name: string): void {
     try {
       getStorage().removeItem(name);
-    } catch (e) {
-      log(e, 'removeItem');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
   }
 
   function setItem(name: string, value: string): void {
     try {
       getStorage().setItem(name, value);
-    } catch (e) {
-      log(e, 'setItem');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
   }
 
   function length(): number | null | undefined {
     try {
       return getStorage().length;
-    } catch (e) {
-      log(e, 'length');
+    } catch (_) {
+      // storage access may fail in restricted environments
     }
-  }
-
-  function log(e: Error, func: string) {
-    // analytics.log(e, { fingerprint: [`${name}-${func}`] }, `${name}`);
   }
 
   return {

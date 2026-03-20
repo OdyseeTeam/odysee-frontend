@@ -53,22 +53,59 @@ function buildEnvDefines(): Record<string, string> {
   return defines;
 }
 
-// Plugin to handle @if TARGET='web' / @if TARGET='app' preprocessor directives
+// Plugin to handle @if preprocessor directives:
+// - @if TARGET='web' / @if TARGET='app'
+// - @if process.env.VAR='value' (evaluated against actual env vars)
 function preprocessPlugin(): Plugin {
+  // Collect process.env conditions that should be stripped (value doesn't match)
+  const envConditionPattern = /\/\/\s*@if\s+process\.env\.(\w+)(?:='([^']*)'|!='([^']*)')[\s\S]*?\/\/\s*@endif/g;
+
   return {
     name: 'preprocess-target',
     enforce: 'pre',
     transform(code, id) {
       if (!id.match(/\.(tsx?|jsx?)$/)) return null;
       if (id.includes('node_modules')) return null;
-      if (!code.includes('@if TARGET') && !code.includes('// @endif')) return null;
+      if (!code.includes('@if')) return null;
 
       let result = code;
       // Remove app-only blocks: // @if TARGET='app' ... // @endif
       result = result.replace(/\/\/\s*@if\s+TARGET='app'[\s\S]*?\/\/\s*@endif/g, '');
       // Remove the @if TARGET='web' and @endif markers but keep the content
       result = result.replace(/\/\/\s*@if\s+TARGET='web'\s*\n?/g, '');
+
+      // Handle process.env conditions
+      result = result.replace(envConditionPattern, (match, envVar, eqVal, neqVal) => {
+        const actual = process.env[envVar] || '';
+        if (eqVal !== undefined) {
+          // @if process.env.X='val' — keep content only if env matches
+          return actual === eqVal ? match.replace(/\/\/\s*@if[^\n]*\n?/, '').replace(/\/\/\s*@endif\s*\n?/, '') : '';
+        }
+        if (neqVal !== undefined) {
+          // @if process.env.X!='val' — keep content only if env doesn't match
+          return actual !== neqVal ? match.replace(/\/\/\s*@if[^\n]*\n?/, '').replace(/\/\/\s*@endif\s*\n?/, '') : '';
+        }
+        return match;
+      });
+
+      // Handle bare @if process.env.VAR (truthy check)
+      result = result.replace(
+        /\/\/\s*@if\s+process\.env\.(\w+)\s*\n?([\s\S]*?)\/\/\s*@endif/g,
+        (_match, envVar, content) => {
+          return process.env[envVar] ? content : '';
+        }
+      );
+
+      // Clean up remaining @endif markers
       result = result.replace(/\/\/\s*@endif\s*\n?/g, '');
+
+      // Handle JSX-style comments: {/* @if process.env.VAR */}...{/* @endif */}
+      result = result.replace(
+        /\{\/\*\s*@if\s+process\.env\.(\w+)\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
+        (_match, envVar, content) => {
+          return process.env[envVar] ? content : '';
+        }
+      );
 
       if (result !== code) {
         return { code: result, map: null };

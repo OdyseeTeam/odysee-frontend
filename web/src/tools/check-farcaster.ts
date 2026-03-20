@@ -90,6 +90,16 @@ function extractMeta(body, name) {
   return null;
 }
 
+const htmlDecode = (s) =>
+  s
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+
 async function checkEmbed(pageUrl) {
   const res = await fetchUrl(pageUrl);
   const is200 = ok(res.status === 200, `Page HTTP 200 (${pageUrl})`);
@@ -98,16 +108,6 @@ async function checkEmbed(pageUrl) {
   let parsed;
 
   try {
-    const htmlDecode = (s) =>
-      s
-        .replace(/&quot;/g, '"')
-        .replace(/&amp;/g, '&')
-        .replace(/&#x27;/g, "'")
-        .replace(/&#39;/g, "'")
-        .replace(/&apos;/g, "'")
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>');
-
     const decoded = mini ? htmlDecode(mini) : null;
     parsed = decoded && JSON.parse(decoded);
     ok(true, 'fc:miniapp content is valid JSON');

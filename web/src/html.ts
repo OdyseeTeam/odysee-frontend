@@ -258,6 +258,22 @@ function buildBasicOgMetadata(overrideOptions = {}) {
 // Metadata used for urls that need claim information
 // Also has option to override defaults
 //
+const getOgType = (streamType, liveStream) => {
+  if (liveStream) return 'video.other';
+
+  switch (streamType) {
+    // https://ogp.me/?fbclid=IwAR0Dr3Rb3tw1W5wjFtuRMZfwewM2vlrSnNp-_ZKlvCzo5nKuX2TuTqt0kU8#types
+    case 'video':
+      return 'video.other';
+
+    case 'audio':
+      return 'music.song';
+
+    default:
+      return 'website';
+  }
+};
+
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { userAgent, baseUrl, isEmbed } = overrideOptions;
@@ -299,22 +315,6 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   if (userAgent && userAgent.includes('Discordbot')) {
     claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf('https://'));
   }
-
-  const getOgType = (streamType, liveStream) => {
-    if (liveStream) return 'video.other';
-
-    switch (streamType) {
-      // https://ogp.me/?fbclid=IwAR0Dr3Rb3tw1W5wjFtuRMZfwewM2vlrSnNp-_ZKlvCzo5nKuX2TuTqt0kU8#types
-      case 'video':
-        return 'video.other';
-
-      case 'audio':
-        return 'music.song';
-
-      default:
-        return 'website';
-    }
-  };
 
   // Allow for overriding default claim based og metadata
   const title = overrideOptions.title || claimTitle;

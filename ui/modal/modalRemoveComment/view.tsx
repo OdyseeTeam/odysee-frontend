@@ -25,14 +25,7 @@ type Props = {
 function getCommentPreview(comment: Comment | null | undefined) {
   return comment ? (
     <div className="section comment-preview non-clickable">
-      <CommentView
-        comment={comment}
-        threadLevel={-1}
-        isTopLevel
-        hideActions
-        hideContextMenu
-        forceDisplayDeadComment
-      />
+      <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
     </div>
   ) : null;
 }

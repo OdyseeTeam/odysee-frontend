@@ -194,7 +194,7 @@ export const watchman: Watchman = {
   },
 };
 
-function sendPromMetric(name: string, value?: number, player: string) {
+function sendPromMetric(name: string, value: number | undefined, player: string) {
   if (gWatchmanAnalyticsEnabled) {
     let url = new URL(SDK_API_PATH + '/metric/ui');
     const params = {

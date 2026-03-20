@@ -4,23 +4,28 @@ import * as CS from 'constants/claim_search';
 import { SEARCH_OPTIONS } from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import { getSearchQueryString } from 'util/query-params';
-export function createNormalizedSearchKey(query: string) {
-  const removeParam = (query: string, param: string) => {
-    // TODO: find a standard way to do this.
-    if (query.includes(param)) {
-      const a = query.indexOf(param);
-      const b = query.indexOf('&', a + param.length);
 
-      if (b > a) {
-        query = query.substring(0, a) + query.substring(b);
-      } else {
-        query = query.substring(0, a);
-      }
+const addLbryIfNot = (term: string) => {
+  return term.startsWith('lbry://') ? term : `lbry://${term}`;
+};
+
+function removeParam(query: string, param: string) {
+  // TODO: find a standard way to do this.
+  if (query.includes(param)) {
+    const a = query.indexOf(param);
+    const b = query.indexOf('&', a + param.length);
+
+    if (b > a) {
+      query = query.substring(0, a) + query.substring(b);
+    } else {
+      query = query.substring(0, a);
     }
+  }
 
-    return query;
-  };
+  return query;
+}
 
+export function createNormalizedSearchKey(query: string) {
   let normalizedQuery = query;
   // Ignore the "page" (`from`) because we don't care what the last page searched was, we want everything:
   normalizedQuery = removeParam(normalizedQuery, '&from=');
@@ -47,10 +52,6 @@ export function getUriForSearchTerm(term: string) {
   const wasCopiedFromWeb = includesLbryTvDev || includesLbryTvLocal || includesLbryTvProd || includesOdysee;
   const isLbryUrl = term.startsWith('lbry://') && term !== 'lbry://';
   const error = '';
-
-  const addLbryIfNot = (term) => {
-    return term.startsWith('lbry://') ? term : `lbry://${term}`;
-  };
 
   if (wasCopiedFromWeb) {
     let prefix = WEB_PROD_PREFIX;

@@ -10,38 +10,87 @@ type Props = {
   balance: number;
   arweaveAccount: any;
 };
+const rgbaToHex = (rgba) => {
+  // $FlowIgnore
+  const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
+  return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
+    a < 1
+      ? Math.round(a * 255)
+          .toString(16)
+          .padStart(2, '0')
+      : ''
+  }`;
+};
+
+const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
+  // $FlowIgnore
+  const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+  // $FlowIgnore
+  const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
+  const r = Math.round(rB * (1 - aA) + rA * aA);
+  const g = Math.round(gB * (1 - aA) + gA * aA);
+  const b = Math.round(bB * (1 - aA) + bA * aA);
+  return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
+};
+
+const getRootStyle = (varName: string): string => {
+  // $FlowIgnore[incompatible-call] - documentElement cannot be null in real browser runtime
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+};
+
+function buildParamString(params: any) {
+  const paramString = Object.keys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join('&');
+  return paramString || '';
+}
+
+// alphabetize function from onramper docs, modified for safety
+function arrangeStringAlphabetically(inputString: string): string {
+  const inputObject: Record<string, Record<string, string>> = {};
+
+  if (!inputString) {
+    return '';
+  }
+
+  inputString.split('&').forEach((pair) => {
+    const [key, value] = pair.split('=');
+    const nestedPairs = value.split(',');
+    inputObject[key] = {};
+
+    nestedPairs.forEach((nestedPair) => {
+      const [nestedKey, nestedValue] = nestedPair.split(':');
+      inputObject[key][nestedKey] = nestedValue;
+    });
+  });
+
+  for (const key in inputObject) {
+    inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).toSorted());
+  }
+
+  const sortedKeys = Object.keys(inputObject).toSorted();
+  const sortedObject: Record<string, Record<string, string>> = {};
+  sortedKeys.forEach((key) => {
+    sortedObject[key] = inputObject[key];
+  });
+
+  let resultString = '';
+  for (const key in sortedObject) {
+    resultString += key + '=';
+    resultString += Object.entries(sortedObject[key])
+      .map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`)
+      .join(',');
+    resultString += '&';
+  }
+
+  resultString = resultString.slice(0, -1);
+  return resultString;
+}
+
 export default function OnRamper(props: Props) {
   const { cardHeader, arWalletStatus, theme, mode, arweaveAccount } = props;
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;
-
-  const rgbaToHex = (rgba) => {
-    // $FlowIgnore
-    const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
-      a < 1
-        ? Math.round(a * 255)
-            .toString(16)
-            .padStart(2, '0')
-        : ''
-    }`;
-  };
-
-  const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
-    // $FlowIgnore
-    const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
-    // $FlowIgnore
-    const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-    const r = Math.round(rB * (1 - aA) + rA * aA);
-    const g = Math.round(gB * (1 - aA) + gA * aA);
-    const b = Math.round(bB * (1 - aA) + bA * aA);
-    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
-  };
-
-  const getRootStyle = (varName: string): string => {
-    // $FlowIgnore[incompatible-call] - documentElement cannot be null in real browser runtime
-    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-  };
 
   const containerColor = `${rgbaToHexWithBackground(getRootStyle('--color-background'), getRootStyle('--color-header-button'))}`;
   const primaryColor = rgbaToHex(getRootStyle('--color-primary'));
@@ -105,7 +154,7 @@ export default function OnRamper(props: Props) {
     wgBorderRadius: '0',
   };
 
-  const getSignContentSubsetFromParams: (params: any) => string = (params) => {
+  const getSignContentSubsetFromParams = (params: any): string => {
     const subsetParams = {};
     const subsetKeys = Object.keys(params).filter(
       (key) => key === 'networkWallets' || key === 'wallets' || key === 'walletAddressTags'
@@ -115,67 +164,6 @@ export default function OnRamper(props: Props) {
     });
     return buildParamString(subsetParams);
   };
-
-  const buildParamString = (params) => {
-    const paramString = Object.keys(params)
-      .map((key) => `${key}=${params[key]}`)
-      .join('&');
-    return paramString || '';
-  };
-
-  // alphabetize function from onramper docs, modified for safety
-  function arrangeStringAlphabetically(inputString: string): string {
-    // Parse the input string into an object
-    const inputObject: Record<string, Record<string, string>> = {};
-
-    if (!inputString) {
-      return '';
-    }
-
-    inputString.split('&').forEach((pair) => {
-      // Split each pair into key and value
-      const [key, value] = pair.split('=');
-      // Split the value into nested key-value pairs
-      const nestedPairs = value.split(',');
-      inputObject[key] = {}; // Initialize the nested object for the key
-
-      nestedPairs.forEach((nestedPair) => {
-        // Split each nested pair into nested key and value
-        const [nestedKey, nestedValue] = nestedPair.split(':');
-        // Assign the nested key-value pair to the nested object
-        inputObject[key][nestedKey] = nestedValue;
-      });
-    });
-
-    // Sort the keys of each nested object alphabetically
-    for (const key in inputObject) {
-      // $FlowIgnore
-      inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).toSorted());
-    }
-
-    // Sort the keys of the top-level object alphabetically
-    const sortedKeys = Object.keys(inputObject).toSorted();
-    const sortedObject: Record<string, Record<string, string>> = {};
-    sortedKeys.forEach((key) => {
-      sortedObject[key] = inputObject[key];
-    });
-    // Reconstruct the string from the sorted object
-    let resultString = '';
-
-    for (const key in sortedObject) {
-      resultString += key + '='; // Append the key
-
-      // Append nested key-value pairs, sorted alphabetically
-      resultString += Object.entries(sortedObject[key]) // $FlowIgnore
-        .map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`)
-        .join(',');
-      resultString += '&'; // Separate key-value pairs with '&'
-    }
-
-    resultString = resultString.slice(0, -1); // Remove the trailing '&'
-
-    return resultString;
-  }
 
   let signContent = '';
 

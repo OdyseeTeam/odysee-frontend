@@ -28,9 +28,9 @@ export function updateQueryParam(uri: string, key: string, value: string) {
     return uri + separator + key + '=' + value;
   }
 }
-export const getSearchQueryString = (query: string, options: any = {}) => {
-  const isSurroundedByQuotes = (str) => str[0] === '"' && str[str.length - 1] === '"';
+const isSurroundedByQuotes = (str: string) => str[0] === '"' && str[str.length - 1] === '"';
 
+export const getSearchQueryString = (query: string, options: any = {}) => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [
     options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,

@@ -157,6 +157,44 @@ function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
   }
 }
 
+function injectPinUrls(uris: any, order: any, pins: any, resolvedPinUris: any) {
+  // TODO/BEWARE if you are editing this function.
+  //
+  // This function probably does not handle all clients correctly. It's mixing
+  // mutable and immutable changes, AND there are both clients that take the
+  // return value and ones that don't.
+  //
+  // It needs to sync up with ClaimTilesDiscover, or wait until the
+  // consolidation task.
+  if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+    return uris;
+  }
+
+  if (resolvedPinUris) {
+    if (uris.length < resolvedPinUris.length) {
+      return uris.concat(resolvedPinUris);
+    }
+
+    resolvedPinUris.forEach((pin) => {
+      if (uris.includes(pin)) {
+        uris.splice(uris.indexOf(pin), 1);
+      }
+    });
+    uris.splice(2, 0, ...resolvedPinUris);
+    return uris;
+  }
+
+  return uris;
+}
+
+function filterExcludedUris(uris: any, excludeUris: any) {
+  if (uris && excludeUris && excludeUris.length) {
+    return uris.filter((uri: any) => !excludeUris.includes(uri));
+  }
+
+  return uris;
+}
+
 function ClaimListDiscover(props: Props) {
   const {
     doClaimSearch,
@@ -703,46 +741,6 @@ function ClaimListDiscover(props: Props) {
     }
 
     return order_by;
-  }
-
-  function injectPinUrls(uris, order, pins, resolvedPinUris) {
-    // TODO/BEWARE if you are editing this function.
-    //
-    // This function probably does not handle all clients correctly. It's mixing
-    // mutable and immutable changes, AND there are both clients that take the
-    // return value and ones that don't.
-    //
-    // It needs to sync up with ClaimTilesDiscover, or wait until the
-    // consolidation task.
-    if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
-      return uris;
-    }
-
-    if (resolvedPinUris) {
-      if (uris.length < resolvedPinUris.length) {
-        return uris.concat(resolvedPinUris);
-      }
-
-      resolvedPinUris.forEach((pin) => {
-        if (uris.includes(pin)) {
-          // remove the pin from the resolved/searched uris
-          uris.splice(uris.indexOf(pin), 1);
-        }
-      });
-      // add the pins on uris starting from the 2nd index
-      uris.splice(2, 0, ...resolvedPinUris);
-      return uris;
-    }
-
-    return uris;
-  }
-
-  function filterExcludedUris(uris, excludeUris) {
-    if (uris && excludeUris && excludeUris.length) {
-      return uris.filter((uri) => !excludeUris.includes(uri));
-    }
-
-    return uris;
   }
 
   // **************************************************************************

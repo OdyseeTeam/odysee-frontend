@@ -19,6 +19,64 @@ type Props = {
   transactionType: 'tips' | 'rentals-purchases';
 };
 
+function createColumn(value: any) {
+  return <td>{value}</td>;
+}
+
+function getReceivingChannelName(transaction) {
+  return (
+    <Button
+      navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+      label={transaction.channel_name}
+      button="link"
+    />
+  );
+}
+
+function getIsAnon(transaction) {
+  return transaction.private_tip ? __('Yes') : __('No');
+}
+
+function getTransactionTx(transaction) {
+  return (
+    <>
+      {transaction?.currency === 'AR' ? (
+        <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.payment_intent_id} />
+      ) : null}
+    </>
+  );
+}
+
+function getDate(transaction) {
+  return moment(transaction.created_at).format('LLL');
+}
+
+function getTransactionType(transaction) {
+  return toCapitalCase(transaction.type);
+}
+
+function getClaimLink(transaction) {
+  return (
+    <Button
+      navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
+      label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+      button="link"
+      target="_blank"
+    />
+  );
+}
+
+function getTipAmount(transaction) {
+  const symbol = transaction.currency !== 'AR' ? STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol : '$';
+  const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
+  return (
+    <>
+      {symbol}
+      {transaction.tipped_amount / 100} {currency}
+    </>
+  );
+}
+
 const WalletFiatPaymentHistory = (props: Props) => {
   const {
     page = 1,
@@ -29,89 +87,20 @@ const WalletFiatPaymentHistory = (props: Props) => {
     doGetCustomerStatus,
     transactionType,
   } = props;
-  const transactionsRaw = paymentHistory ? paymentHistory.filter(typeFilterCb) : [];
+  const transactionsRaw = paymentHistory
+    ? paymentHistory.filter((s: StripeTransaction) => {
+        switch (transactionType) {
+          case 'tips':
+            return s.type === 'tip';
+          case 'rentals-purchases':
+            return s.type === 'rental' || s.type === 'purchase';
+          default:
+            return false;
+        }
+      })
+    : [];
   const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(transactionsRaw.length / pageSize);
-
-  // **************************************************************************
-  // **************************************************************************
-  function typeFilterCb(s: StripeTransaction) {
-    switch (transactionType) {
-      case 'tips':
-        return s.type === 'tip';
-
-      case 'rentals-purchases':
-        return s.type === 'rental' || s.type === 'purchase';
-
-      default:
-        return false;
-    }
-  }
-
-  function createColumn(value: any) {
-    return <td>{value}</td>;
-  }
-
-  function getDate(transaction) {
-    return moment(transaction.created_at).format('LLL');
-  }
-
-  function getReceivingChannelName(transaction) {
-    return (
-      <Button
-        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
-        label={transaction.channel_name}
-        button="link"
-      />
-    );
-  }
-
-  function getTransactionType(transaction) {
-    return toCapitalCase(transaction.type);
-  }
-
-  function getClaimLink(transaction) {
-    return (
-      <Button
-        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
-        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
-        button="link"
-        target="_blank"
-      />
-    );
-  }
-
-  function getTipAmount(transaction) {
-    const symbol = transaction.currency !== 'AR' ? STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol : '$';
-    const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
-    return (
-      <>
-        {symbol}
-        {transaction.tipped_amount / 100} {currency}
-      </>
-    );
-  }
-
-  function getIsAnon(transaction) {
-    return transaction.private_tip ? __('Yes') : __('No');
-  }
-
-  function getTransactionTx(transaction) {
-    return (
-      <>
-        {transaction?.currency === 'AR' ? (
-          <CopyableText
-            hideValue
-            linkTo={`https://viewblock.io/arweave/tx/`}
-            copyable={transaction.payment_intent_id}
-          />
-        ) : null}
-      </>
-    );
-  }
-
-  // **************************************************************************
-  // **************************************************************************
   React.useEffect(() => {
     if (fetchDataOnMount) {
       doCustomerListPaymentHistory();

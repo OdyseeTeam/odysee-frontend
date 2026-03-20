@@ -381,6 +381,18 @@ function validateJson(json: any, okStatus: string, validator: (payload: any) => 
 // ****************************************************************************
 // Util: error handling
 // ****************************************************************************
+function finalizeError(message: string, cause: any): Error {
+  // $FlowIgnore (outdated definition for Error)
+  return new Error(
+    message,
+    cause
+      ? {
+          cause,
+        }
+      : {}
+  );
+}
+
 function v4Error(flop: Error | string, cause: {}): Error {
   if (typeof flop === 'string') {
     return finalizeError(flop, cause);
@@ -391,18 +403,6 @@ function v4Error(flop: Error | string, cause: {}): Error {
     const message = flop.message === 'Failed to fetch' ? 'Network error. Please try again.' : flop.message;
     // Done
     return finalizeError(message, mergedCause);
-  }
-
-  function finalizeError(message: string, cause: any): Error {
-    // $FlowIgnore (outdated definition for Error)
-    return new Error(
-      message,
-      cause
-        ? {
-            cause,
-          }
-        : {}
-    );
   }
 }
 

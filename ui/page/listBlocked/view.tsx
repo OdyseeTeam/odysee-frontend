@@ -66,6 +66,12 @@ type Props = {
   doResolveUris: (uris: Array<string>) => void;
 };
 
+function isSourceListLarger(source, local) {
+  // Comparing the length of stringified is not perfect, but what are the
+  // chances of having different lists with the exact same length?
+  return source && (!local || local.length < source.length);
+}
+
 function ListBlocked(props: Props) {
   const {
     mutedUris,
@@ -234,12 +240,6 @@ function ListBlocked(props: Props) {
       case VIEW.MODERATOR:
         return null;
     }
-  }
-
-  function isSourceListLarger(source, local) {
-    // Comparing the length of stringified is not perfect, but what are the
-    // chances of having different lists with the exact same length?
-    return source && (!local || local.length < source.length);
   }
 
   function getViewElem(view, label, icon) {

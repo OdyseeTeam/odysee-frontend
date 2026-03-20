@@ -32,8 +32,8 @@ export function doOpenFileInShell(path: string) {
 }
 export function doDeleteFile(
   outpoint: string,
-  deleteFromComputer?: boolean,
-  abandonClaim?: boolean,
+  deleteFromComputer: boolean | undefined,
+  abandonClaim: boolean | undefined,
   cb: any,
   claim: Claim
 ) {
@@ -57,8 +57,8 @@ export function doDeleteFile(
 }
 export function doDeleteFileAndMaybeGoBack(
   uri: string,
-  deleteFromComputer?: boolean,
-  abandonClaim?: boolean,
+  deleteFromComputer: boolean | undefined,
+  abandonClaim: boolean | undefined,
   doGoBack: (arg0: any) => void,
   claim: Claim
 ) {
@@ -131,7 +131,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
     Lbry.get({
       uri,
       environment: stripeEnvironment,
-      ...(accessKey || {}),
+      ...accessKey,
     })
       .then((streamInfo: GetResponse) => {
         const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';

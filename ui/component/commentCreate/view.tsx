@@ -74,7 +74,7 @@ type Props = {
   onCancelReplying?: () => void;
   onDoneReplying?: () => void;
   // redux
-  doCommentCreate: (uri: string, isLivestream?: boolean, params: CommentSubmitParams) => Promise<any>;
+  doCommentCreate: (uri: string, isLivestream: boolean | undefined, params: CommentSubmitParams) => Promise<any>;
   doFetchCreatorSettings: (channelId: string) => Promise<any>;
   doToast: (arg0: { message: string }) => void;
   doCommentById: (commentId: string, toastIfNotFound: boolean) => Promise<any>;

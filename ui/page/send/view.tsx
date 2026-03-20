@@ -5,6 +5,10 @@ import WalletSend from 'component/walletSend';
 import { URL as SITE_URL, URL_LOCAL, URL_DEV } from 'config';
 import { parseURI, isNameValid, isURIValid, normalizeURI } from 'util/lbryURI';
 type Props = {};
+const addLbryIfNot = (term) => {
+  return term.startsWith('lbry://') ? term : `lbry://${term}`;
+};
+
 export default function SendPage(props: Props) {
   const [isAddress, setIsAddress] = React.useState(true);
   const [contentUri, setContentUri] = React.useState('');
@@ -30,10 +34,6 @@ export default function SendPage(props: Props) {
     const wasCopiedFromWeb = includesLbryTvDev || includesLbryTvLocal || includesLbryTvProd || includesOdysee;
     const isLbryUrl = value.startsWith('lbry://') && value !== 'lbry://';
     const error = '';
-
-    const addLbryIfNot = (term) => {
-      return term.startsWith('lbry://') ? term : `lbry://${term}`;
-    };
 
     if (wasCopiedFromWeb) {
       let prefix = WEB_PROD_PREFIX;

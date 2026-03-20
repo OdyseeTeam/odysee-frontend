@@ -641,7 +641,7 @@ export const selectMyClaimsWithoutChannels = createSelector(selectMyClaims, (myC
 );
 export const selectMyClaimUrisWithoutChannels = createSelector(selectMyClaimsWithoutChannels, (myClaims) => {
   return myClaims
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       if (a.height < 1) {
         return -1;
       } else if (b.height < 1) {
@@ -770,7 +770,7 @@ export const selectNameForClaimId = (state: State, claimId: ClaimId) =>
 export const selectChannelForClaimUri = createCachedSelector(
   (state, uri, includePrefix) => includePrefix,
   selectClaimForUri,
-  (includePrefix?: boolean, claim: Claim) => {
+  (includePrefix: boolean | undefined, claim: Claim) => {
     if (!claim || !claim.signing_channel || !claim.is_channel_signature_valid) {
       return null;
     }

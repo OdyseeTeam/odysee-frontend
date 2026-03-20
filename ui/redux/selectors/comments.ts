@@ -63,14 +63,14 @@ export const selectPinnedCommentsForUri = createCachedSelector(
 export const selectModerationBlockList = createSelector(
   (state) => selectState(state).moderationBlockList,
   (moderationBlockList) => {
-    return moderationBlockList ? moderationBlockList.reverse() : [];
+    return moderationBlockList ? moderationBlockList.toReversed() : [];
   }
 );
 export const selectAdminBlockList = createSelector(selectState, (state) =>
-  state.adminBlockList ? state.adminBlockList.reverse() : []
+  state.adminBlockList ? state.adminBlockList.toReversed() : []
 );
 export const selectModeratorBlockList = createSelector(selectState, (state) =>
-  state.moderatorBlockList ? state.moderatorBlockList.reverse() : []
+  state.moderatorBlockList ? state.moderatorBlockList.toReversed() : []
 );
 export const selectPersonalTimeoutMap = (state: State) => selectState(state).personalTimeoutMap;
 export const selectAdminTimeoutMap = (state: State) => selectState(state).adminTimeoutMap;
@@ -266,7 +266,7 @@ export const selectRepliesForParentId = createCachedSelector(
  * @param claimId The claim that `comments` reside in.
  * @param filterInputs Values returned by filterCommentsDepOnList.
  */
-const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs: any) => {
+const filterComments = (comments: Array<Comment>, claimId: string | undefined, filterInputs: any) => {
   const filterProps = filterInputs.reduce((acc, cur, i) => {
     acc[filterCommentsPropKeys[i]] = cur;
     return acc;
@@ -381,7 +381,7 @@ export const selectCommentsListTitleForUri = (state: State, uri: string) => {
 // Personal list
 export const makeSelectChannelIsBlocked = (uri: string) =>
   createSelector(selectModerationBlockList, (blockedChannelUris) => {
-    if (!blockedChannelUris || !blockedChannelUris) {
+    if (!blockedChannelUris) {
       return false;
     }
 

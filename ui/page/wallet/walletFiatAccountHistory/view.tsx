@@ -17,6 +17,57 @@ type Props = {
   doListAccountTransactions: () => void;
 };
 
+function createColumn(value: any) {
+  return <td>{value}</td>;
+}
+
+function getReceivingChannelName(transaction) {
+  return (
+    <Button
+      navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+      label={transaction.channel_name}
+      button="link"
+    />
+  );
+}
+
+function getSendingChannelName(transaction) {
+  return (
+    <>
+      {transaction.tipper_channel_name ? (
+        <Button
+          navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+          label={transaction.tipper_channel_name}
+          button="link"
+        />
+      ) : (
+        __('Anonymous')
+      )}
+    </>
+  );
+}
+
+function getProcessingFee(transaction, currencySymbol) {
+  const symbol = currencySymbol || '$';
+  return (
+    <>
+      {symbol}
+      {(transaction.transaction_fee + transaction.application_fee) / 100}
+    </>
+  );
+}
+
+function getTransactionTx(transaction) {
+  return (
+    <>
+      {/* $FlowIgnore */}
+      {!transaction?.payment_intent_id?.startsWith('pi_') ? (
+        <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.payment_intent_id} />
+      ) : null}
+    </>
+  );
+}
+
 const WalletFiatAccountHistory = (props: Props) => {
   const {
     page = 1,
@@ -45,38 +96,8 @@ const WalletFiatAccountHistory = (props: Props) => {
     }
   }
 
-  function createColumn(value: any) {
-    return <td>{value}</td>;
-  }
-
   function getDate(transaction) {
     return moment(transaction.created_at).format('LLL');
-  }
-
-  function getReceivingChannelName(transaction) {
-    return (
-      <Button
-        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
-        label={transaction.channel_name}
-        button="link"
-      />
-    );
-  }
-
-  function getSendingChannelName(transaction) {
-    return (
-      <>
-        {transaction.tipper_channel_name ? (
-          <Button
-            navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
-            label={transaction.tipper_channel_name}
-            button="link"
-          />
-        ) : (
-          __('Anonymous')
-        )}
-      </>
-    );
   }
 
   function getTransactionType(transaction) {
@@ -116,16 +137,6 @@ const WalletFiatAccountHistory = (props: Props) => {
     );
   }
 
-  function getProcessingFee(transaction, currencySymbol) {
-    const symbol = currencySymbol || '$';
-    return (
-      <>
-        {symbol}
-        {(transaction.transaction_fee + transaction.application_fee) / 100}
-      </>
-    );
-  }
-
   function getReceivedAmount(transaction, currencySymbol) {
     const symbol = currencySymbol || '$';
     const rate = transaction.locked_rate;
@@ -143,21 +154,6 @@ const WalletFiatAccountHistory = (props: Props) => {
       <>
         {currencySymbol}
         {transaction.received_amount / 100}
-      </>
-    );
-  }
-
-  function getTransactionTx(transaction) {
-    return (
-      <>
-        {/* $FlowIgnore */}
-        {!transaction?.payment_intent_id?.startsWith('pi_') ? (
-          <CopyableText
-            hideValue
-            linkTo={`https://viewblock.io/arweave/tx/`}
-            copyable={transaction.payment_intent_id}
-          />
-        ) : null}
       </>
     );
   }
