@@ -38,7 +38,8 @@ export const fullscreenElement = () => {
 
 export const requestFullscreen = (elem) => {
   if (platform.isIPhone()) {
-    elem.classList.add(IOS_FS_CLASS);
+    const docEl = document.documentElement;
+    if (docEl) docEl.classList.add(IOS_FS_CLASS);
     iosFsElement = elem;
     document.dispatchEvent(new Event('fullscreenchange'));
     elem.dispatchEvent(new Event('fullscreenchange'));
@@ -51,7 +52,8 @@ export const requestFullscreen = (elem) => {
 
 export const exitFullscreen = () => {
   if (platform.isIPhone() && iosFsElement) {
-    iosFsElement.classList.remove(IOS_FS_CLASS);
+    const docEl = document.documentElement;
+    if (docEl) docEl.classList.remove(IOS_FS_CLASS);
     iosFsElement = null;
     document.dispatchEvent(new Event('fullscreenchange'));
     return;

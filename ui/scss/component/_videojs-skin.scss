@@ -128,7 +128,7 @@
   -moz-osx-font-smoothing: auto;
 
   &:fullscreen,
-  &.ios-fullscreen {
+  html.ios-fullscreen & {
     border-radius: 0;
 
     video {

@@ -89,6 +89,12 @@ export default function MobileTabView(props: Props) {
   }, []);
 
   React.useEffect(() => {
+    if (!useDrawer && initialTab !== activeTabRef.current) {
+      goToTab(initialTab, true);
+    }
+  }, [initialTab, useDrawer, goToTab]);
+
+  React.useEffect(() => {
     const onFsChange = () => {
       if (getFullscreenElement()) {
         if (useDrawer) setDrawerOpen(false);

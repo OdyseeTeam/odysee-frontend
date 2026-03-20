@@ -243,7 +243,7 @@
 
 @media (max-width: $breakpoint-small) {
   .player-fullscreen-target:fullscreen,
-  .player-fullscreen-target.ios-fullscreen {
+  html.ios-fullscreen .player-fullscreen-target {
     &:has(.mobile-tab-view--drawer) {
       .content__wrapper {
         align-self: flex-start;

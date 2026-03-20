@@ -31,6 +31,7 @@ $control-bar-height-mobile: 44px;
     --player-surface-bg: #{$__surface-bg};
     --player-overlay-bg: #{$__overlay-bg};
     --player-hover-bg: #{$__hover-bg};
+    --media-surface-background-color: var(--player-surface-bg);
   }
 
   video {
@@ -286,7 +287,7 @@ $control-bar-height-mobile: 44px;
   }
 
   :fullscreen &,
-  .ios-fullscreen & {
+  html.ios-fullscreen & {
     display: none !important;
   }
 }
@@ -1073,7 +1074,7 @@ $control-bar-height-mobile: 44px;
 }
 
 .player-fullscreen-target:fullscreen,
-.player-fullscreen-target.ios-fullscreen {
+html.ios-fullscreen .player-fullscreen-target {
   animation: none !important;
   transition: none !important;
   display: flex;
@@ -1179,7 +1180,7 @@ $control-bar-height-mobile: 44px;
     gap: 0.075rem;
     padding: 0.25rem;
     border-radius: 9999px;
-    background-color: var(--player-surface-bg);
+    background-color: var(--player-overlay-bg);
     opacity: 0;
     pointer-events: none;
     transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1863,14 +1864,12 @@ $control-bar-height-mobile: 44px;
   }
 }
 
-.ios-fullscreen {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100dvw !important;
-  height: 100dvh !important;
+html.ios-fullscreen .player-fullscreen-target {
+  max-height: none !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
   z-index: 10000 !important;
-  background: #000 !important;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
   box-sizing: border-box !important;
 }
