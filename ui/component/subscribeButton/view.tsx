@@ -78,7 +78,6 @@ export default function SubscribeButton(props: Props) {
       prevWidthRef.current = null;
 
       if (prevWidth !== newWidth) {
-        // $FlowFixMe - WAAPI
         const anim = btn.animate(
           [
             {
@@ -176,7 +175,6 @@ export default function SubscribeButton(props: Props) {
                 }
 
                 if (!isSubscribed && buttonRef.current) {
-                  // $FlowFixMe - WAAPI
                   buttonRef.current.animate(
                     [
                       {

@@ -93,7 +93,6 @@ class CardVerify extends React.Component {
     })();
 
     this.loadPromise.promise.then(this.onScriptLoaded).catch(this.onScriptError);
-    // $FlowFixMe
     document.body.appendChild(script);
   }
 

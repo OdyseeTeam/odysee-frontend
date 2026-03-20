@@ -135,9 +135,9 @@ export default function OwnComments(props: Props) {
         return false;
       }
 
-      const rect = spinnerRef.current.getBoundingClientRect(); // $FlowFixMe
+      const rect = spinnerRef.current.getBoundingClientRect();
 
-      const windowH = window.innerHeight || document.documentElement.clientHeight; // $FlowFixMe
+      const windowH = window.innerHeight || document.documentElement.clientHeight;
 
       const windowW = window.innerWidth || document.documentElement.clientWidth;
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);

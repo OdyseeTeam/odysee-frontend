@@ -218,12 +218,10 @@ export const doMembershipBuy =
           },
         ]; // here
 
-        // $FlowIgnore
         const { transactionId: txid, error } = await sendWinstons(payeeAddress, cryptoAmount, tags);
 
         if (error) {
           // TODO pass error to redux
-          // $FlowIgnore
           throw new Error(error?.message || error);
         }
 

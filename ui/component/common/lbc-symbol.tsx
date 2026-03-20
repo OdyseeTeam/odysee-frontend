@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import classnames from 'classnames';
@@ -7,8 +6,8 @@ type Props = {
   withText?: boolean;
   isTitle?: boolean;
   size?: number;
-  prefix?: string | number | Node;
-  postfix?: string | number | Node;
+  prefix?: string | number | React.ReactNode;
+  postfix?: string | number | React.ReactNode;
 };
 
 const LbcSymbol = (props: Props) => {

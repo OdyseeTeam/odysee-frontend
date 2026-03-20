@@ -20,15 +20,12 @@ export function getGeoRestrictionForClaim(
 
     // --- livestreams
     if (isStreamPlaceholderClaim(claim) && geoBlockLists.livestreams) {
-      // $FlowIgnore: null key is fine
       geoConfig = geoBlockLists.livestreams[channelId] || geoBlockLists.livestreams[claimId];
     } else // --- videos (actually, everything else)
     if (geoBlockLists.videos) {
       if (isChannelClaim(claim)) {
-        // $FlowIgnore: null key is fine
         geoConfig = geoBlockLists.videos[channelId];
       } else {
-        // $FlowIgnore: null key is fine
         geoConfig = geoBlockLists.videos[claimId] || geoBlockLists.videos[channelId];
       }
     }

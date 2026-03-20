@@ -31,7 +31,6 @@ function FileViewerEmbeddedEnded(props: Props) {
       };
   const promptKeys = Object.keys(prompts);
   const promptKey = promptKeys[Math.floor(Math.random() * promptKeys.length)];
-  // $FlowFixMe
   const prompt = prompts[promptKey];
 
   const odyseeLink = (() => {

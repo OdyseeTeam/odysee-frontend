@@ -164,7 +164,6 @@ export default function ShortsPage(props: Props) {
     setOverlayTarget((prev) => (prev !== target ? target : prev));
   });
   const setShortViewerWidthFromVideo = React.useCallback(() => {
-    // $FlowFixMe
     const video = document.querySelector('.shorts__viewer')?.querySelector('video');
     if (!(video instanceof HTMLVideoElement)) return;
     const videoW = video?.videoWidth;
@@ -183,7 +182,6 @@ export default function ShortsPage(props: Props) {
     const clampedVW = Math.min(widthVW, maxWidth); // Avoid overflow
 
     requestAnimationFrame(() => {
-      // $FlowFixMe
       document.documentElement?.style?.setProperty('--shorts-viewer-width', `${clampedVW}vw`);
     });
   }, [sidePanelOpen]);
@@ -350,7 +348,6 @@ export default function ShortsPage(props: Props) {
     let timeoutId;
 
     function loop() {
-      // $FlowFixMe
       const video = document.querySelector('.shorts__viewer')?.querySelector('video');
 
       if (!(video instanceof HTMLVideoElement) || !video?.videoWidth || !video?.videoHeight) {

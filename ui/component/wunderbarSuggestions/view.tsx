@@ -326,7 +326,7 @@ export default function WunderBarSuggestions(props: Props) {
         if (
           claimsByUri[uri] &&
           subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
-          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) || // $FlowIgnore
+          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) ||
             claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))
         ) {
           subscriptionResults.push(claimsByUri[uri].permanent_url);

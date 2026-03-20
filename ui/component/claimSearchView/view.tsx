@@ -20,7 +20,6 @@
  *
  *  [CsOptHelper] can be used to generate common options.
  */
-import type { Node } from 'react';
 import React from 'react';
 import './style.scss';
 import ClaimList from 'component/claimList';
@@ -33,7 +32,7 @@ import debounce from 'util/debounce';
 export type Props = {
   csOptions: ClaimSearchOptions;
   pagination?: 'infinite' | 'paged';
-  header?: string | Node;
+  header?: string | React.ReactNode;
   layout?: 'tile' | 'list';
 };
 type StateProps = {

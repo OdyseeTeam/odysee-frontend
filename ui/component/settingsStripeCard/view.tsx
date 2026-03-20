@@ -113,7 +113,6 @@ const SettingsStripeCard = (props: Props) => {
       setCardNameValue('');
     }
   }, [cardDetails, setIsBusy]);
-  // $FlowFixMe
   const returnToValue = new URLSearchParams(location.search).get('returnTo');
   let shouldShowBackToMembershipButton = returnToValue === 'premium';
 

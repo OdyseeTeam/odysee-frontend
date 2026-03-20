@@ -9,7 +9,7 @@ type Props = {
 
 const TextareaSuggestionsOption = (props: Props) => {
   const { label, isEmote, optionProps } = props;
-  const emoteFound = // $FlowIgnore
+  const emoteFound =
     isEmote && (EMOTES.find(({ name }) => name === label) || TWEMOTEARRAY.find(({ name }) => name === label));
   const emoteValue = emoteFound
     ? {

@@ -30,7 +30,6 @@ class UserVerify extends React.PureComponent<Props> {
 
   componentDidMount() {
     if (this.props.is_reward_approved) {
-      // $FlowIgnore
       this.setState({
         shouldRedirect: true,
       });

@@ -1,12 +1,11 @@
 import { v4 as uuid } from 'uuid';
-import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
 import React from 'react';
 import Button from 'component/button';
 type Props = {
-  message: string | Node;
-  action?: Node;
+  message: string | React.ReactNode;
+  action?: React.ReactNode;
   closeTitle?: string;
   actionText?: string;
   href?: string;

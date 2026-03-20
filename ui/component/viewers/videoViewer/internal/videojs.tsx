@@ -758,13 +758,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
                       tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
                     })
                     .catch((error) => {
-                      // $FlowFixMe
                       vjsPlayer?.addClass('vjs-paused');
-                      // $FlowFixMe
                       vjsPlayer?.addClass('vjs-has-started');
-                      // $FlowFixMe
                       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
-                      // $FlowFixMe
                       document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
                     });
                 }
@@ -785,7 +781,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       (document as any).removeEventListener('visibilitychange', keyStateResetHandlerRef.current);
       // eslint-disable-next-line react-hooks/exhaustive-deps -- FIX_THIS!
       const containerDiv = containerRef.current;
-      // $FlowFixMe
       containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
 
       if (volumePanelRef.current) {

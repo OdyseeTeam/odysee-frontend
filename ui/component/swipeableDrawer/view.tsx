@@ -60,7 +60,6 @@ export default function SwipeableDrawer(props: Props) {
       if (backdrop) {
         const isDraggingAboveVideo = touchPosY < playerHeight + HEADER_HEIGHT_MOBILE;
         let backdropTop = contentHeight;
-        // $FlowFixMe
         let backdropHeight = document.documentElement.getBoundingClientRect().height - backdropTop;
         let opacity = ((touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight) * -1 + 1;
 
@@ -84,7 +83,6 @@ export default function SwipeableDrawer(props: Props) {
     if (root) {
       const middleOfVideo = HEADER_HEIGHT_MOBILE + playerHeight / 2;
       const drawerMovedFullscreen = touchPos.current < middleOfVideo;
-      // $FlowFixMe
       const restOfPage = document.documentElement.clientHeight - playerHeight - HEADER_HEIGHT_MOBILE;
       const draggedBeforeCloseLimit = touchPos.current - playerHeight - HEADER_HEIGHT_MOBILE < restOfPage * 0.2;
       const backdrop = backdropRef.current;
@@ -92,7 +90,6 @@ export default function SwipeableDrawer(props: Props) {
       if (draggedBeforeCloseLimit) {
         const minDrawerHeight = contentHeight;
         const positionToStop = drawerMovedFullscreen ? HEADER_HEIGHT_MOBILE : minDrawerHeight;
-        // $FlowFixMe
         document.documentElement?.style?.setProperty('--content-height', String(positionToStop));
 
         if (paperRef.current) {
@@ -119,11 +116,9 @@ export default function SwipeableDrawer(props: Props) {
         const videoParent = playerElement && playerElement.querySelector('.video-js');
         const isLivestream = videoParent && videoParent.classList.contains('livestreamPlayer');
         const videoNode = videoParent && videoParent.querySelector('.vjs-tech');
-        // $FlowFixMe
         const isPlaying = videoNode && !videoNode.paused;
 
         if (videoNode && !isLivestream && isPlaying && drawerMovedFullscreen) {
-          // $FlowFixMe
           videoNode.pause();
           pausedByDrawer.current = true;
         } else {
@@ -148,7 +143,6 @@ export default function SwipeableDrawer(props: Props) {
     const videoNode = videoParent && videoParent.querySelector('.vjs-tech');
 
     if (videoNode && pausedByDrawer.current) {
-      // $FlowFixMe
       videoNode.play();
       pausedByDrawer.current = false;
     }
@@ -204,7 +198,6 @@ export default function SwipeableDrawer(props: Props) {
             'style',
             `transform: translateY(${landscapePlayerHeight}px); height: calc(100% - ${landscapePlayerHeight}px);`
           );
-          // $FlowFixMe
           document.documentElement?.style?.setProperty('--content-height', String(landscapePlayerHeight));
         }
 

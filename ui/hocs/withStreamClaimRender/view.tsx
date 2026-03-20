@@ -225,7 +225,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       cut = cut.substring(0, cut.indexOf(':'));
       const isExternaleEmbed = pathname.includes('/$/embed');
       const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
-      // $FlowIgnore
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
       const isHome = pathname === '/' || pathname === '/$/embed/home';
       const hasDifferentUriAlreadyPlaying = Boolean(playingUri?.uri && !currentUriPlaying);

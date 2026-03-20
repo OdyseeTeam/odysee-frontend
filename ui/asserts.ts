@@ -13,7 +13,6 @@ export function assert(condition: any, msg: string = 'Assertion failed', data: a
 
 function doAssert(condition: any, msg: string, data: any) {
   if (!condition && !window.app.pause_asserts) {
-    // $FlowIgnore - flow's constructor for Error is incorrect.
     const error = new Error(
       msg,
       data

@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import * as React from 'react';
 import classnames from 'classnames';
 import { YRBL_HAPPY_IMG_URL, YRBL_SAD_IMG_URL } from 'config';
@@ -7,7 +6,7 @@ type Props = {
   subtitle?: string | React.ReactNode;
   type: string;
   className?: string;
-  actions?: Node;
+  actions?: React.ReactNode;
   alwaysShow?: boolean;
 };
 const yrblTypes = {

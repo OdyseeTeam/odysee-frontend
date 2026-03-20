@@ -85,7 +85,7 @@ const MobileActions = ({
                 />
               )
             )}
-          </div>, // $FlowFixMe
+          </div>,
           document.body
         )}
 

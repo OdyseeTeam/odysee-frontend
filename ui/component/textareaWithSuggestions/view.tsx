@@ -177,7 +177,6 @@ export default function TextareaWithSuggestions(props: Props) {
           let emoteLabel;
 
           if (isEmote) {
-            // $FlowFixMe
             emoteLabel = `:${option.replace(/:/g, '')}:`;
           }
 
@@ -195,7 +194,6 @@ export default function TextareaWithSuggestions(props: Props) {
 
   const restoreCursorPosition = (cursorIndex) => {
     if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
-      // $FlowIgnore
       queueMicrotask(() => {
         inputRef.current.setSelectionRange(cursorIndex, cursorIndex);
       });
@@ -262,7 +260,6 @@ export default function TextareaWithSuggestions(props: Props) {
       const token = isEmote ? ':' : '@';
       const tokenIndex = currentSuggestionValue.indexOf(token);
       if (inputRef && inputRef.current) inputRef.current.setAttribute('typing-term', '');
-      // $FlowFixMe
       setSuggestionValue({
         beforeTerm: currentSuggestionValue.substring(0, tokenIndex),
         // in case of a space or newline
@@ -290,18 +287,13 @@ export default function TextareaWithSuggestions(props: Props) {
       }
 
       const elem = inputRef && inputRef.current;
-      // $FlowFixMe
       const newCursorPos =
         suggestionValue &&
         suggestionValue.beforeTerm &&
         suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
-      // $FlowFixMe
       const contentBegin = messageValue.substring(0, suggestionValue.index);
-      // $FlowFixMe
       const replaceValue = suggestionValue.beforeTerm + selectedValue;
-      // $FlowFixMe
       const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
-      // $FlowFixMe
       const contentEnd = endTo.startsWith(' ') ? endTo : ' ' + endTo;
       const newValue = contentBegin + replaceValue + contentEnd;
       onChange({

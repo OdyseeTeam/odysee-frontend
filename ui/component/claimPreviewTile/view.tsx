@@ -115,7 +115,6 @@ function ClaimPreviewTile(props: Props) {
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
   const isAbandoned = !isResolvingUri && !claim;
-  // $FlowFixMe: claims not typed right
   const showCollectionContext = isClaimAllowedForCollection(claim);
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);

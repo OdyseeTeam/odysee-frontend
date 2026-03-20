@@ -140,7 +140,6 @@ export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number
         const values = Object.values(results || {});
         dispatch({
           type: ACTIONS.FETCH_LAST_ACTIVE_SUBS_DONE,
-          // $FlowFixMe https://github.com/facebook/flow/issues/2221
           data: values.map((v) => getChannelFromClaim(v.stream)),
         });
       })

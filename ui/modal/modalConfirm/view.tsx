@@ -1,5 +1,4 @@
 import React from 'react';
-import type { Node } from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Spinner from 'component/spinner';
@@ -8,8 +7,8 @@ import BusyIndicator from 'component/common/busy-indicator';
 import { FormField } from 'component/common/form';
 type Props = {
   title: string;
-  subtitle?: string | Node;
-  body?: string | Node;
+  subtitle?: string | React.ReactNode;
+  body?: string | React.ReactNode;
   labelOk?: string;
   labelCancel?: string;
   hideCancel?: boolean;

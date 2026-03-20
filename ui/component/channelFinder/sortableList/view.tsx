@@ -52,9 +52,7 @@ export default function SortableList(props: Props) {
             const dp = draggableProvided.draggableProps;
 
             if (draggedItemRef.current && dp.style && dp.style.left && dp.style.top) {
-              // $FlowFixMe (`.offsetLeft` is wrong; should be `.current.offsetLeft`. But Firefox breaks without wrong code).
               dp.style.left = draggedItemRef.offsetLeft;
-              // $FlowIgnore (already confirmed 'style' is not null and not NotDraggingStyle)
               dp.style.top = dp.style.top - document.getElementsByClassName('modal')[0].offsetTop;
             }
           }

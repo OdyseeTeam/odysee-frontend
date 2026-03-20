@@ -66,7 +66,6 @@ export default function ModalFeaturedChannelsSort(props: Props) {
 
   function getEntry(id: string) {
     const entry = entries.find((x) => x.id === id);
-    // $FlowIgnore - this component only handles featured_channels, so 'title' is valid.
     return entry?.value?.title || id;
   }
 

@@ -500,7 +500,6 @@ export function doAnalyticsBuffer(uri: string, bufferData: any) {
     const fileSize = isLivestream ? 0 : source.size; // size in bytes
 
     const fileSizeInBits = isLivestream ? '0' : fileSize * 8;
-    // $FlowFixMe please
     const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(fileSizeInBits / fileDurationInSeconds);
     const userId = user && user.id.toString();
 
@@ -554,7 +553,6 @@ export function doSignIn() {
 function clearBeforeUnloadListeners() {
   const beforeUnloads = Object.values(window.beforeUnloadMap || {});
   beforeUnloads.forEach((x) => {
-    // $FlowIgnore mixed bug
     window.removeEventListener('beforeunload', x.cb);
   });
 }
@@ -580,7 +578,7 @@ function doSignOutAction() {
         })
         .catch((err) => {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
-        }) // $FlowFixMe
+        })
         .finally(() => location.reload());
     }
   };
@@ -593,7 +591,6 @@ export function doSignOut() {
     if (pendingActions.length > 0) {
       dispatch(
         doOpenModal(MODALS.SIGN_OUT, {
-          // $FlowIgnore mixed bug
           pendingActions: pendingActions.map((x) => x.msg),
           onConfirm: () => {
             clearBeforeUnloadListeners();
@@ -623,7 +620,6 @@ export function doToggle3PAnalytics(allowParam: any, doNotDispatch: any) {
     const state = getState();
     const allowState = selectAllowAnalytics(state);
     const allow = allowParam !== undefined && allowParam !== null ? allowParam : allowState;
-    // $FlowFixMe please
     analytics.toggleThirdParty(allow);
 
     if (!doNotDispatch) {

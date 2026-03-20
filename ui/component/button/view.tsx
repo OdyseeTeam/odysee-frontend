@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React, { forwardRef, useRef } from 'react';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
@@ -15,7 +14,7 @@ type Props = {
   icon: string | null | undefined;
   iconRight: string | null | undefined;
   disabled: boolean | null | undefined;
-  children: Node | null | undefined;
+  children: React.ReactNode | null | undefined;
   navigate: string | null | undefined;
   navigateTarget?: string;
   className: string | null | undefined;

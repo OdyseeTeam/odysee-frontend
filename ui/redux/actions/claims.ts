@@ -181,7 +181,6 @@ export function doResolveUris(
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
 
-              // $FlowFixMe
               costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
             }
 
@@ -313,7 +312,6 @@ export function doFetchClaimListMine(
       claimTypes = claimTypes.filter((t) => filterBy.includes(t));
     }
 
-    // $FlowFixMe
     Lbry.claim_list({
       page: page,
       page_size: pageSize,
@@ -363,7 +361,6 @@ export function doFetchClaimListMine(
 
           const channelId = getChannelIdFromClaim(item);
           if (channelId) channelClaimIds.add(channelId);
-          // $FlowFixMe
           costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
         });
 
@@ -857,7 +854,6 @@ export function doClaimSearch(
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           const isProtected = isClaimProtected(stream);
           if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
-          // $FlowFixMe
           costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
         }
 
@@ -953,13 +949,10 @@ export function doClaimSearch(
       const next = async (data: ClaimSearchResponse) => {
         allClaims = allClaims.concat(data.items);
         const moreData = data.items.length === options.page_size;
-        // $FlowIgnore
         options.page++;
 
-        // $FlowIgnore
         if (options.page > 3 || !moreData) {
           // Flow doesn't understand that page_size is an optional property with a guaranteed default value.
-          // $FlowFixMe
           return success({
             items: allClaims,
             page: options.page,
@@ -1112,7 +1105,6 @@ export const doCheckPendingClaims =
               delete pendingById[claim.claim_id];
             }
 
-            // $FlowIgnore
             if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
               membershipCheckClaimIds.push(claim.claim_id);
             }

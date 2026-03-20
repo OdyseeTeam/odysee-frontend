@@ -102,7 +102,6 @@ const LbryFirst: LbryFirstTypes = {
     }
 
     // Flow thinks this could be empty, but it will always return a promise
-    // $FlowFixMe
     return LbryFirst.connectPromise;
   },
 };

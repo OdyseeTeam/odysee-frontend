@@ -1,12 +1,11 @@
 import React from 'react';
 import MUITooltip from '@mui/material/Tooltip';
-import type { Node } from 'react';
 type Props = {
   arrow?: boolean;
-  children: Node;
+  children: React.ReactNode;
   disableInteractive?: boolean;
   enterDelay?: number;
-  title?: string | Node;
+  title?: string | React.ReactNode;
   className?: string;
   followCursor?: boolean;
   placement?: string;

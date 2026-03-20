@@ -8,7 +8,6 @@ export default function LbcMessage(props: Props) {
   const { children } = props;
   if (!children) return null;
   let amount;
-  // $FlowIgnore
   const tokenizedMessage = children?.replace(
     /(\d?\.?\d?-?\d?\.?-?\d+?)\s(LBC|LBRY Credits?)/g,
     (originalString, lbcAmount, thirdArg) => {

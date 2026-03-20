@@ -394,7 +394,6 @@ export function doFetchMyCommentedChannels(claimId: string | null | undefined) {
           });
         }
       });
-      // $FlowFixMe
       return Promise.allSettled(params.map((p) => Comments.comment_list(p)))
         .then((response) => {
           for (let i = 0; i < response.length; ++i) {
@@ -586,16 +585,13 @@ function doFetchAllReactionsForId(commentIds: Array<string>, channelClaims: Arra
         if (sigData !== undefined && sigData !== null) {
           params.push({
             comment_ids: commentIdsCsv,
-            // $FlowFixMe: null 'channelClaims' already handled at the top
             channel_name: channelClaims[i].name,
-            // $FlowFixMe: null 'channelClaims' already handled at the top
             channel_id: channelClaims[i].claim_id,
             signature: sigData.signature,
             signing_ts: sigData.signing_ts,
           });
         }
       });
-      // $FlowFixMe
       return Promise.allSettled(params.map((p) => Comments.reaction_list(p))).then((response) => {
         const results = [];
         response.forEach((res, i) => {
@@ -872,7 +868,6 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
-    // $FlowFixMe
     const mentionMatches = [...comment.matchAll(MENTION_REGEX)];
 
     if (mentionMatches.length > 0) {
@@ -899,7 +894,6 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
           .then((response) => {
             Object.values(response).map((claim) => {
               if (claim) {
-                // $FlowFixMe
                 mentionedChannels.push({
                   channel_name: claim.name,
                   channel_id: claim.claim_id,
@@ -1389,19 +1383,14 @@ function doCommentModToggleBlock(
     return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name, true)))
       .then((response) => {
         channelSignatures = response;
-        // $FlowFixMe
         return Promise.allSettled(
           channelSignatures
             .filter((x) => x !== undefined && x !== null)
             .map((signatureData) =>
               commentAction({
-                // $FlowFixMe
                 mod_channel_id: signatureData.claim_id,
-                // $FlowFixMe
                 mod_channel_name: signatureData.name,
-                // $FlowFixMe
                 signature: signatureData.signature,
-                // $FlowFixMe
                 signing_ts: signatureData.signing_ts,
                 creator_channel_id: creatorUri ? creatorId : undefined,
                 creator_channel_name: creatorUri ? creatorName : undefined,
@@ -1419,7 +1408,6 @@ function doCommentModToggleBlock(
               if (res.status === 'rejected') {
                 // TODO: This should be error codes
                 if (res.reason.message !== 'validation is disallowed for non controlling channels') {
-                  // $FlowFixMe
                   failures.push(channelSignatures[index].name + ': ' + res.reason.message);
                 }
               }
@@ -1645,7 +1633,6 @@ export function doFetchModBlockedList() {
     return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
       .then((response) => {
         channelSignatures = response;
-        // $FlowFixMe
         return Promise.allSettled(
           channelSignatures
             .filter((x) => x !== undefined && x !== null)
@@ -1820,9 +1807,7 @@ export const doUpdateBlockListForPublishedChannel = (channelClaim: ChannelClaim)
           return Comments.moderation_block({
             mod_channel_id: channelClaim.claim_id,
             mod_channel_name: channelClaim.name,
-            // $FlowFixMe
             signature: channelSignature.signature,
-            // $FlowFixMe
             signing_ts: channelSignature.signing_ts,
             blocked_channel_id: channelClaimId,
             blocked_channel_name: channelName,
@@ -1999,7 +1984,6 @@ export function doCommentModListDelegatesForMyChannels() {
     return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
       .then((response) => {
         channelSignatures = response;
-        // $FlowFixMe
         return Promise.allSettled(
           channelSignatures
             .filter((x) => x !== undefined && x !== null)
@@ -2061,7 +2045,6 @@ export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
     return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
       .then((response) => {
         channelSignatures = response;
-        // $FlowFixMe
         return Promise.allSettled(
           channelSignatures
             .filter((x) => x !== undefined && x !== null)

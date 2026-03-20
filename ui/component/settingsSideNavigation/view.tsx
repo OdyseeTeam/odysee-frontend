@@ -1,7 +1,6 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import { SETTINGS_GRP } from 'constants/settings';
-import type { Node } from 'react';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import classnames from 'classnames';
@@ -17,7 +16,7 @@ type SideNavLink = {
   section?: string;
   onClick?: () => any;
   icon: string;
-  extra?: Node;
+  extra?: React.ReactNode;
 };
 const SIDE_LINKS: Array<SideNavLink> = [
   {
@@ -118,7 +117,7 @@ export default function SettingsSideNavigation() {
                     label={__(linkProps.title)}
                     title={__(linkProps.title)}
                     icon={linkProps.icon}
-                    className={classnames('navigation-link', {})} // $FlowFixMe
+                    className={classnames('navigation-link', {})}
                     onClick={getOnClickHandler(linkProps.section)}
                   />
                   {linkProps.extra}
@@ -140,7 +139,6 @@ export default function SettingsSideNavigation() {
             <div>
               <ul className="navigation-links--absolute">
                 {SIDE_LINKS.map((linkProps) => {
-                  // $FlowFixMe
                   const { link, route, ...passedProps } = linkProps;
                   return (
                     <li key={linkProps.title}>

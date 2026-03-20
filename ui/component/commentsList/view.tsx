@@ -338,9 +338,9 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
     function shouldFetchNextPage(page, topLevelTotalPages, yPrefetchPx = 1000) {
       if (!spinnerRef || !spinnerRef.current) return false;
-      const rect = spinnerRef.current.getBoundingClientRect(); // $FlowFixMe
+      const rect = spinnerRef.current.getBoundingClientRect();
 
-      const windowH = window.innerHeight || document.documentElement.clientHeight; // $FlowFixMe
+      const windowH = window.innerHeight || document.documentElement.clientHeight;
 
       const windowW = window.innerWidth || document.documentElement.clientWidth;
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);

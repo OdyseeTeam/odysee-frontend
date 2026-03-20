@@ -80,7 +80,7 @@ export const selectMonthlyIncomeForChannelId = createSelector(
 );
 // -- Active Membership = auto_renew is enabled
 export const selectMyActiveMembershipsById = createSelector(
-  selectMembershipMineData, // $FlowIgnore
+  selectMembershipMineData,
   (myMembershipsByCreatorId): MembershipMineDataByCreatorId => {
     if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
     const activeMembershipsById = {};
@@ -93,7 +93,6 @@ export const selectMyActiveMembershipsById = createSelector(
           // TODO: implmenent autorenew; this is always false
           activeMembershipsById[creatorChannelId] = new Set(activeMembershipsById[creatorChannelId]);
           activeMembershipsById[creatorChannelId].add(membership);
-          // $FlowFixMe
           activeMembershipsById[creatorChannelId] = Array.from(activeMembershipsById[creatorChannelId]);
         }
       }
@@ -172,7 +171,6 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
       if (membership.subscription.is_active === true) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
-        // $FlowFixMe
         validMembershipsById[creatorChannelId] = Array.from(validMembershipsById[creatorChannelId]);
       }
     }
@@ -253,7 +251,6 @@ export const selectMyValidMembershipIds = createSelector(selectMyValidMembership
       validMembershipIds.add(value.membership.id);
     });
   });
-  // $FlowFixMe
   return validMembershipIds.size ? Array.from(validMembershipIds) : null;
 });
 // -- Canceled Membership = status is 'canceled'
@@ -268,7 +265,6 @@ export const selectMyCanceledMembershipsById = createSelector(selectMembershipMi
       if (membership.subscription.status === 'canceled') {
         canceledMembershipsById[creatorChannelId] = new Set(canceledMembershipsById[creatorChannelId]);
         canceledMembershipsById[creatorChannelId].add(membership);
-        // $FlowFixMe
         canceledMembershipsById[creatorChannelId] = Array.from(canceledMembershipsById[creatorChannelId]);
       }
     }
@@ -379,7 +375,6 @@ export const selectAllMembershipTiersForChannelUri = (state: State, uri: string)
 
 const filterArEnabledMembershipTiers = (tiers: CreatorMemberships) => {
   if (!tiers) return [];
-  // $FlowIgnore
   return tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled);
 };
 

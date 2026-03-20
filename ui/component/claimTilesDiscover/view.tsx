@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React, { useRef } from 'react';
 import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
@@ -18,7 +17,6 @@ function urisEqual(prev: Array<string> | null | undefined, next: Array<string> |
     return prev === next;
   }
 
-  // $FlowFixMe - already checked for null above.
   return prev.length === next.length && prev.every((value, index) => value === next[index]);
 }
 
@@ -35,7 +33,7 @@ type Props = {
   uris: Array<string>;
   injectedItem?: ListInjectedItem;
   showNoSourceClaims?: boolean;
-  renderProperties?: (arg0: Claim) => Node | null | undefined;
+  renderProperties?: (arg0: Claim) => React.ReactNode | null | undefined;
   fetchViewCount?: boolean;
   // claim search options are below
   tags: Array<string>;
@@ -284,7 +282,6 @@ export default React.memo<Props>(ClaimTilesDiscover, areEqual); // *************
 
 function trace(key, value) {
   // @if process.env.DEBUG_TILE_RENDER
-  // $FlowFixMe "cannot coerce certain types".
   console.log(`[claimTilesDiscover] ${key}: ${value}`); // eslint-disable-line no-console
   // @endif
 }

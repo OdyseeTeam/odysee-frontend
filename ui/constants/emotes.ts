@@ -921,7 +921,6 @@ function buildTwemoteNameArray(objectArray) {
   let res = [];
 
   for (let entry of objectArray) {
-    // $FlowIgnore
     res.push(entry.name);
   }
 

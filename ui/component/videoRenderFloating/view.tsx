@@ -250,7 +250,6 @@ function VideoRenderFloating(props: Props) {
       left: rect.left,
       width: rect.width,
       height: rect.height,
-      // $FlowFixMe
       x: rect.x,
     };
     isPortraitVideo.current = rect.height > rect.width;
@@ -264,7 +263,6 @@ function VideoRenderFloating(props: Props) {
       initialPlayerHeight.current = heightForRect;
     }
 
-    // $FlowFixMe
     setFileViewerRect({ ...objectRect, windowOffset: window.pageYOffset }); // force re-calculate when sourceId changes (playing a new claimLink on the same page)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId, mainPlayerDimensions]);
@@ -384,7 +382,6 @@ function VideoRenderFloating(props: Props) {
     const onPause = () => setIsShortsFloatingPaused(true);
 
     const attach = () => {
-      // $FlowFixMe — querySelector returns HTMLElement but we need HTMLVideoElement
       const el: HTMLVideoElement | null | undefined = document.querySelector(
         '.content__viewer--shorts-floating .vjs-tech'
       );
@@ -424,7 +421,6 @@ function VideoRenderFloating(props: Props) {
     let cleanupFn = null;
 
     const attachListener = () => {
-      // $FlowFixMe
       const el: HTMLVideoElement | null | undefined = document.querySelector(
         '.content__viewer--shorts-floating .vjs-tech'
       );
@@ -439,7 +435,6 @@ function VideoRenderFloating(props: Props) {
           const v = videoEl;
           setTimeout(() => {
             v.currentTime = 0;
-            // $FlowFixMe
             v.play().catch(() => {});
           }, 100);
         }

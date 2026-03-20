@@ -73,7 +73,7 @@ function SelectAsset(props: Props) {
   const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
   const imgRef = React.useRef(null);
   const previewCanvasRef = React.useRef(null);
-  const isAnimated = // $FlowIgnore
+  const isAnimated =
     (fileSelected && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) || false;
   const [cropInit, setCropInit] = React.useState(false);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);

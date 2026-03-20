@@ -315,7 +315,6 @@ export function buildURI(
   const secondaryClaimId = secondaryClaimName && streamClaimId;
   return (
     (includeProto ? protoDefault : '') + // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
-    // $FlowFixMe
     primaryClaimName +
     (primaryClaimId ? `#${primaryClaimId}` : '') +
     (primaryClaimSequence ? `:${primaryClaimSequence}` : '') +

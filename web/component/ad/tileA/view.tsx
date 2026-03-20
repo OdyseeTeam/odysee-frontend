@@ -33,13 +33,11 @@ const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props:
   const primaryIframeRef = React.useRef(false);
   const [useFallback, setUseFallback] = React.useState(false);
   React.useEffect(() => {
-    // $FlowIgnore
     if (location && location?.pathname && location.pathname?.includes('@') && window.innerWidth > 1600) {
       setUseFallback(true);
     }
 
     const handleResize = () => {
-      // $FlowIgnore
       if (location && location?.pathname && location.pathname?.includes('@') && window.innerWidth > 1600) {
         setUseFallback(true);
       } else setUseFallback(false);
@@ -52,12 +50,10 @@ const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props:
         try {
           script = document.createElement('script');
           script.src = AD_CONFIG.url;
-          // $FlowIgnore
           document.body.appendChild(script);
         } catch (e) {}
 
         return () => {
-          // $FlowIgnore
           if (script) document.body.removeChild(script);
         };
       }

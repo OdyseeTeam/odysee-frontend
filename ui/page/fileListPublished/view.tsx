@@ -133,7 +133,6 @@ function FileListPublished(props: Props) {
   const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
-      // $FlowIgnore
       any_tags: Object.values(SCHEDULED_TAGS),
       channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
@@ -231,7 +230,6 @@ function FileListPublished(props: Props) {
     // Filter by channel
     if (!isAllSelected && activeChannel) {
       result = result.filter((claim) => {
-        // $FlowFixMe
         return claim.signing_channel?.claim_id === activeChannel.claim_id;
       });
     }
@@ -240,7 +238,6 @@ function FileListPublished(props: Props) {
     if (searchText) {
       result = result.filter((claim) => {
         const contentClaim = claim.reposted_claim ? claim.reposted_claim : claim;
-        // $FlowFixMe
         return contentClaim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
       });
     }
@@ -262,7 +259,6 @@ function FileListPublished(props: Props) {
         };
         Object.assign(comparisonObj, nameComparisonObj);
         // Only name (string) has a different return than when sorting numbers
-        // $FlowFixMe
         return comparisonObj.a.localeCompare(comparisonObj.b, undefined, {
           numeric: true,
           sensitivity: 'base',
@@ -277,13 +273,11 @@ function FileListPublished(props: Props) {
             firstComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
             secondComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
             timestampComparisonObj = {
-              // $FlowFixMe
               a:
                 !firstComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) &&
                 firstComparisonItem.value?.release_time
                   ? firstComparisonItem.value?.release_time
                   : firstComparisonItem.meta.creation_timestamp,
-              // $FlowFixMe
               b:
                 !secondComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) &&
                 secondComparisonItem.value?.release_time
@@ -307,12 +301,10 @@ function FileListPublished(props: Props) {
 
       populateComparisonObj();
 
-      // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
         return 1;
       }
 
-      // $FlowFixMe
       if ((comparisonObj.a || 0) < (comparisonObj.b || 0)) {
         return -1;
       }
@@ -376,7 +368,7 @@ function FileListPublished(props: Props) {
 
   function getClaimSearchResultsJsx() {
     const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
-    return hasChannels ? ( // $FlowIgnore[incompatible-cast]: filterType is never 'All' here, probably.
+    return hasChannels ? (
       <ClaimSearchView key={filterType} csOptions={csOptions[filterType]} layout="list" pagination="infinite" />
     ) : (
       <Yrbl
@@ -418,8 +410,8 @@ function FileListPublished(props: Props) {
       fetchClaimListMine(
         params.page,
         params.page_size,
-        true, // $FlowFixMe
-        Object.values(FILE_LIST.FILE_TYPE) // $FlowFixMe
+        true,
+        Object.values(FILE_LIST.FILE_TYPE)
           .find((fileType) => fileType.key === filterType)
           .cmd.split(','),
         true,

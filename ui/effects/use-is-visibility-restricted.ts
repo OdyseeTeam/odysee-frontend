@@ -36,9 +36,7 @@ export default function useIsVisibilityRestricted(
 
     if (searchParams && searchParams.get('signature') && searchParams.get('signature_ts')) {
       accessKey = {
-        // $FlowIgnore (already filtered null)
         signature: searchParams.get('signature'),
-        // $FlowIgnore (already filtered null)
         signature_ts: searchParams.get('signature_ts'),
       };
     }

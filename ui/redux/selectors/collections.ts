@@ -152,11 +152,9 @@ export const selectMyPublishedCollections = createSelector(
     const myPublishedCollections = Object.assign({}, myCollections);
     // now add in edited:
     Object.entries(edited).forEach(([id, item]) => {
-      // $FlowFixMe
       if (!updated[id]) {
         myPublishedCollections[id] = item;
       } else {
-        // $FlowFixMe
         myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: item.updatedAt };
       }
     });
@@ -241,10 +239,8 @@ export const selectClaimSavedForUrl = createSelector(
   selectMyEditedCollections,
   (url, bLists, myRLists, uLists, eLists) => {
     const collections = [bLists, uLists, eLists, myRLists];
-    // $FlowFixMe
     const claimId = url.match(/[a-f0-9]{40}/)?.[0];
     return collections.some((list) =>
-      // $FlowFixMe
       Object.values(list).some(({ items }) => items?.some((item) => item === url || item === claimId))
     );
   }
@@ -275,7 +271,6 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
       myPublishedIds,
       url
     ) => {
-      // $FlowFixMe
       const claimId = url.match(/[a-f0-9]{40}/)?.[0];
       // Determine which collection IDs belong to the user
       const builtinIds = Object.keys(builtinCollections || {});
@@ -289,7 +284,6 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
           return collection
             ? {
                 ...collection,
-                // $FlowFixMe
                 hasClaim: collection.items?.some((item) => item === url || item === claimId),
               }
             : null;
@@ -299,7 +293,6 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
         .filter(
           ([id, collection]) =>
             myCollectionIds.has(id) && // Only include my collections
-            // $FlowFixMe
             collection.items?.some((item) => item === url || item === claimId) &&
             !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
         )

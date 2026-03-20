@@ -119,14 +119,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
     const collection = selectCollectionForId(state, collectionId);
     const createdAtTimestamp = collection.createdAt;
-    // $FlowFixMe
     const params: GenericPublishCreateParams = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
       blocking: true,
       title: options.title,
       thumbnail_url: options.thumbnail_url,
-      // $FlowFixMe
       tags: options.tags ? options.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [],
       languages: options.languages || [],
       description: options.description,
@@ -265,7 +263,6 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
         reject(error);
       }
 
-      // $FlowFixMe
       return publishFn(fullParams).then(success, failure);
     });
   };
@@ -299,7 +296,6 @@ const doAutoPublishCollectionIfNeeded =
     if (!hasItems) return Promise.resolve();
 
     const runPublish = () =>
-      // $FlowFixMe (selector already shapes params)
       dispatch(doCollectionPublish(collectionUploadParams, collectionId)).catch(() => Promise.resolve());
 
     if (triggerNow) return runPublish();
@@ -450,7 +446,6 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
 const mergeBatches = (arrayOfResults: Array<any>) => {
   let resultItems = [];
   arrayOfResults.forEach((result: any) => {
-    // $FlowFixMe
     const claims = result.items || Object.values(result).map((item) => item.stream || item);
     resultItems = resultItems.concat(claims);
   });
@@ -696,7 +691,6 @@ export const doSortCollectionByKey =
     // Save unresolved uris
     const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
     const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
-    // $FlowIgnore
     const sortedClaims = resolvedClaims.toSorted((a, b) => {
       if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
         const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;

@@ -21,7 +21,6 @@ type Props = {
 function NameHelpText(props: Props) {
   const { uri, myClaimForUri, myClaimForUriCaseInsensitive, currentUploads, onEditMyClaim, isStillEditing } = props;
   const currentUploadNames: Array<string> = React.useMemo(() => {
-    // $FlowFixMe - unable to resolve mixed
     return Object.values(currentUploads).map((x) => (x.params && !x.params.preview ? x.params.name : ''));
   }, [currentUploads]);
   let nameHelpText;

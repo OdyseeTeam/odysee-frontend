@@ -14,7 +14,6 @@ function getMessageElem(info: string | Error) {
 function getDataElem(info: string | Error) {
   let cause;
 
-  // $FlowFixMe
   if (info instanceof Error && info.cause) {
     if (info.cause instanceof Error) {
       cause = info.cause.toString();

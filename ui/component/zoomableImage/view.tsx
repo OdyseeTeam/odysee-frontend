@@ -8,7 +8,6 @@ function ZoomableImage(props: Props) {
   const { openModal, ...imgProps } = props;
 
   const onClick = () => {
-    // $FlowFixMe
     openModal(MODALS.VIEW_IMAGE, {
       src: imgProps.src,
       title: imgProps.title || imgProps.alt,

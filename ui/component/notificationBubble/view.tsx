@@ -19,10 +19,8 @@ export default function NotificationBubble(props: Props) {
 
   if (favicon) {
     if (unseenCount > 0) {
-      // $FlowIgnore
       favicon.href = FAVICON_NOTIFICATION;
     } else {
-      // $FlowIgnore
       favicon.href = FAVICON;
     }
   }

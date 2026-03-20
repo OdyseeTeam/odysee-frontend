@@ -1,5 +1,4 @@
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
 import * as TAGS from 'constants/tags';
 import React from 'react';
@@ -80,14 +79,14 @@ type Props = {
   excludedChannelIds?: Array<string>;
   claimIds?: Array<string>;
   subscribedChannels: Array<Subscription>;
-  header?: Node;
-  headerLabel?: string | Node;
-  hiddenNsfwMessage?: Node;
+  header?: React.ReactNode;
+  headerLabel?: string | React.ReactNode;
+  hiddenNsfwMessage?: React.ReactNode;
   injectedItem?: ListInjectedItem;
-  meta?: Node;
-  subSection?: Node;
+  meta?: React.ReactNode;
+  subSection?: React.ReactNode;
   // Additional section below [Header|Meta]
-  renderProperties?: (arg0: Claim) => Node;
+  renderProperties?: (arg0: Claim) => React.ReactNode;
   csOptionsHook?: (options: any) => any;
   // Final client-side tweak of Claim Search options.
   history: {
@@ -294,7 +293,6 @@ function ClaimListDiscover(props: Props) {
         }
 
         const uri = claim.canonical_url || claim.permanent_url;
-        // $FlowFixMe
         resolvedPinUris.push(uri);
       });
     }
@@ -601,7 +599,7 @@ function ClaimListDiscover(props: Props) {
           (!loading &&
             !claimSearchResultLastPageReached &&
             claimSearchResult &&
-            claimSearchResult.length && // $FlowIgnore: page is always defined in this component
+            claimSearchResult.length &&
             claimSearchResult.length < dynamicPageSize * options.page &&
             claimSearchResult.length % dynamicPageSize === 0));
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
@@ -639,9 +637,8 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     if (!hasPins) return;
 
-    // $FlowFixMe
     if (pins.claimIds) {
-      doResolveClaimIds(pins.claimIds); // $FlowFixMe
+      doResolveClaimIds(pins.claimIds);
     } else if (pins.urls) {
       doResolveUris(pins.urls, true);
     }

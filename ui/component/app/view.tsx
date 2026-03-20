@@ -397,7 +397,6 @@ function App(props: Props) {
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedReferrerParam, referredRewardAvailable]);
   useEffect(() => {
-    // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
   useEffect(() => {
@@ -419,8 +418,8 @@ function App(props: Props) {
   useEffect(() => {
     if (
       isFypModalShown ||
-      !prefsReady || // $FlowIgnore
-      homepageOrder.active?.includes('FYP') || // $FlowIgnore
+      !prefsReady ||
+      homepageOrder.active?.includes('FYP') ||
       homepageOrder.hidden?.includes('FYP') ||
       !personalRecommendations.uris.length
     ) {
@@ -454,7 +453,6 @@ function App(props: Props) {
     });
   }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
   useEffect(() => {
-    // $FlowFixMe
     document.documentElement.setAttribute('lang', language);
   }, [language]);
   useEffect(() => {
@@ -521,15 +519,11 @@ function App(props: Props) {
     const secondScript = document.createElement('script');
     // OneTrust asks to add this
     secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
-    // $FlowFixMe
     document.head.appendChild(script);
-    // $FlowFixMe
     document.head.appendChild(secondScript);
     return () => {
       try {
-        // $FlowFixMe
         document.head.removeChild(script);
-        // $FlowFixMe
         document.head.removeChild(secondScript);
       } catch (err) {
         // eslint-disable-next-line no-console

@@ -240,7 +240,6 @@ export function doSetWalletSyncPreference(pref: any) {
 }
 export function doPushSettingsToPrefs() {
   return (dispatch: Dispatch) => {
-    // $FlowFixMe please
     return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.SYNC_CLIENT_SETTINGS,
@@ -337,7 +336,6 @@ function populateCategoryTitles(categories) {
   if (categories) {
     window.CATEGORY_PAGE_TITLE = {};
     Object.values(categories).forEach((x) => {
-      // $FlowIgnore mixed bug
       window.CATEGORY_PAGE_TITLE[x.name] = x.label;
     });
   }
@@ -353,7 +351,6 @@ export function doLoadBuiltInHomepageData() {
     // As a compromise between the above needs vs. wanting a smaller ui.js,
     // we'll just bake in the English version.
     // @if process.env.CUSTOM_HOMEPAGE='true'
-    // $FlowIgnore
     const enHp = require('homepages/odysee-en');
 
     if (enHp) {

@@ -79,7 +79,6 @@ class TimeMarker extends Component {
         }
 
         if (i < seconds.length) {
-          // $FlowIgnore
           const newStr = `${videojs.formatTime(time, duration)}  ${values[i].label}`;
           timeTooltip.write(newStr);
         }

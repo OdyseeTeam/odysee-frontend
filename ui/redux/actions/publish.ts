@@ -579,7 +579,6 @@ export const doUploadThumbnail =
         fileName = 'thumbnail.png';
         fileType = 'image/png';
         const data = new FormData();
-        // $FlowFixMe
         data.append('file-input', {
           uri: 'file://' + filePath,
           type: fileType,
@@ -622,7 +621,6 @@ export const doUploadThumbnail =
           new File([thumbnail], fileName, {
             type: fileType,
           }));
-      // $FlowFixMe
       data.append('file-input', file);
       data.append('upload', 'Upload');
       return doUpload(data);
@@ -665,7 +663,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const liveCreateType: LiveCreateType | null | undefined = isLivestreamClaim ? 'edit_placeholder' : undefined;
     const liveEditType: LiveEditType | null | undefined = isLivestreamClaim ? 'update_only' : undefined; // Reverted #2801
 
-    // $FlowFixMe (TODO: Lots of undefined states)
     const publishData: UpdatePublishState = {
       type,
       ...(liveCreateType
@@ -711,7 +708,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         publishData.licenseType = OTHER;
       }
 
-      // $FlowFixMe (I think this field shouldn't be populated if `license` doesn't exist.
       publishData.otherLicenseDescription = license;
     } else {
       publishData.licenseType = license;
@@ -843,7 +839,6 @@ function sortClaimsByNewest(claims: Array<StreamClaim>): Array<StreamClaim> {
 
 function extractStreamClaims(result: any): Array<StreamClaim> {
   const items = (result && result.items) || [];
-  // $FlowFixMe `value_type` narrowing to StreamClaim is not fully modeled in this Flow version.
   return items.filter((item) => item && item.value_type === 'stream');
 }
 
@@ -928,7 +923,6 @@ export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all
       const csParams: any = {
         page: 1,
         page_size: RECENT_PAGE_SIZE,
-        // $FlowIgnore
         any_tags: Object.values(SCHEDULED_TAGS),
         claim_type: ['stream'],
         order_by: ['release_time'],
@@ -1236,7 +1230,6 @@ export const doPublish =
         const payloadSnapshot = { ...publishPayload }; // Lbry alters the payload, so make copy for previewFn
 
         return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
-          // $FlowIgnore
           return previewFn(payloadSnapshot, previewResponse);
         }, fail);
       } else {
@@ -1263,7 +1256,6 @@ export const doPublish =
 // Calls file_list until any reflecting files are done
 export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
-  // $FlowFixMe: checkingReflector does not exist!
   const { checkingReflector } = state.claims;
   let reflectorCheckInterval;
 

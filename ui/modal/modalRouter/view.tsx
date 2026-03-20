@@ -206,7 +206,6 @@ function ModalRouter(props: Props) {
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
   const modalUrlParams = modalUrlId && urlParams.get(URL.MODAL_PARAMS);
-  // $FlowFixMe
   const modalUrlParamsObj = modalUrlParams && JSON.parse(decodeURIComponent(modalUrlParams));
   const modalUrlOpen = React.useRef(modalUrlId && modal?.id === modalUrlId);
   React.useEffect(() => {
@@ -214,7 +213,6 @@ function ModalRouter(props: Props) {
 
     if (!modalUrlOpen.current) {
       // -- Open the modal from the URL
-      // $FlowFixMe
       doOpenModal(modalUrlId, modalUrlParamsObj);
       modalUrlOpen.current = true;
     } else {

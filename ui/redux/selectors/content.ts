@@ -92,7 +92,6 @@ export const selectIsPlayerFloating = (state: State) => {
   const { pathname: playingPathName, search: playingSearch } = playingLocation || {};
   const { pathname, search } = state.router.location;
   const urlParams = new URLSearchParams(search);
-  // $FlowFixMe
   const playingUrlParams = new URLSearchParams(playingSearch);
   const viewParam = urlParams.get('view');
   const playingLocationTab = playingUrlParams.get('view');

@@ -360,13 +360,11 @@ export function doPlaylistAddAndAllowPlaying({
         const playingUri = selectPlayingUri(state);
         const { collectionId: playingCollectionId } = playingUri.collection || {};
         const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
-        // $FlowFixMe
         const playingCollectionUrls = selectUrlsForCollectionId(state, playingCollectionId);
         const itemsToAdd = playingCollectionUrls || [playingUrl];
         const hasPlayingUriInQueue = Boolean(
           playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
         );
-        // $FlowFixMe
         const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
         dispatch(
           doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
@@ -430,7 +428,6 @@ export function doPlaylistAddAndAllowPlaying({
       const hasPlayingUriInQueue = Boolean(
         playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
       );
-      // $FlowFixMe
       const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
 
       if (!hasClaimInQueue) {
@@ -466,7 +463,6 @@ export function doPlaylistAddAndAllowPlaying({
       }
 
       const handleEdit = () =>
-        // $FlowFixMe
         dispatch(
           push({
             pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`,
@@ -480,7 +476,7 @@ export function doPlaylistAddAndAllowPlaying({
         doToast({
           message:
             __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
-              playlist_name: collectionName, // $FlowIgnore
+              playlist_name: collectionName,
             }) + (collectionUrls?.length ? ` (${remove ? collectionUrls.length - 1 : collectionUrls.length + 1})` : ''),
           actionText: isPlayingCollection || hasItemPlaying || remove ? __('Edit Playlist') : __('Start Playing'),
           action: isPlayingCollection || hasItemPlaying || remove ? handleEdit : startPlaying,
@@ -517,7 +513,6 @@ export function doPlayUri(
     };
 
     function beginGetFile() {
-      // $FlowFixMe: handle undefined cost gracefully
       dispatch(doPurchaseUriWrapper(uri, cost, cb));
     }
 
@@ -542,7 +537,7 @@ export function doPlayUri(
       if (
         !isMine &&
         !fileInfo &&
-        !claimWasPurchased && // $FlowFixMe please
+        !claimWasPurchased &&
         (!instantPurchaseMax || !instantPurchaseEnabled || cost > instantPurchaseMax)
       ) {
         if (!hideFailModal)

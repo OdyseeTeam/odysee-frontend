@@ -32,7 +32,6 @@ function SendUsdc(props: any) {
 
   function handleSetMaxAmount() {
     if (inputAmountRef && inputAmountRef.current) {
-      // $FlowIgnore
       inputAmountRef.current.value = String(balance.toFixed(8) || 0);
     }
 

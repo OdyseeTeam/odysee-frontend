@@ -20,7 +20,6 @@ const defaultState: SyncState = {
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state: SyncState) => {
-  // $FlowFixMe - 'syncReady' doesn't exist. A bug?
   const { syncReady } = state;
 
   if (!syncReady) {

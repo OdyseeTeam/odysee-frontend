@@ -44,7 +44,6 @@ const ModalFileSelection = (props: Props) => {
   }
 
   const handleFileChange = (file?: WebFile) => {
-    // $FlowFixMe
     setSelectedFile(file);
   };
 

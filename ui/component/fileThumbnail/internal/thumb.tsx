@@ -1,11 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
-import type { Node } from 'react';
 import useLazyLoading from 'effects/use-lazy-loading';
 type Props = {
   thumb: string | null | undefined;
   fallback: string | null | undefined;
-  children?: Node;
+  children?: React.ReactNode;
   className?: string;
   small?: boolean;
   forceReload?: boolean;

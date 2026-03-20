@@ -103,7 +103,6 @@ const CollectionPublishForm = (props: Props) => {
       }
     };
 
-    // $FlowFixMe
     doCollectionPublish(params, collectionId)
       .then(successCb)
       .catch(() => setPublishPending(false));
@@ -116,7 +115,6 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams(trimmedParams);
 
     if (editing) {
-      // $FlowFixMe
       doCollectionEdit(collectionId, trimmedParams);
       return onDoneForId(collectionId);
     }
@@ -163,7 +161,6 @@ const CollectionPublishForm = (props: Props) => {
   // Reset the form to original collection state if the edits are cleared
   React.useEffect(() => {
     if (collectionParams && collectionResetPending.current) {
-      // $FlowFixMe
       setFormParams(collectionParams);
       initialParams.current = collectionParams;
       collectionResetPending.current = false;

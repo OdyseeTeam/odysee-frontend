@@ -257,7 +257,6 @@ function VideoViewer(props: Props) {
       if (IS_IOS) {
         // Safari doesn't like it when there is an async action between click
         // and `player.play()`. Chrome allows it. Skip the countdown for now.
-        // $FlowIgnore: shouldPlayRecommended guarantees non-null playNextUri
         doPlayNextUri({
           uri: playNextUri,
         });
@@ -323,7 +322,6 @@ function VideoViewer(props: Props) {
 
     if (IS_IOS && !autoplayNext) {
       // show play button on ios if video is paused with no autoplay on
-      // $FlowFixMe
       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
   }, [adUrl, canPlayNext, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
@@ -541,9 +539,7 @@ function VideoViewer(props: Props) {
   // cause the child to render and might cause even more problems.
   // Live with it until we break apart into proper abstraction
   function replay() {
-    // $FlowIgnore
     playerRef.current.currentTime(0);
-    // $FlowIgnore
     playerRef.current.play();
   }
 

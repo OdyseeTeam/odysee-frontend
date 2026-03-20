@@ -133,7 +133,7 @@ const ModalPublishPreview = (props: Props) => {
     };
   }, [rtPayload, rtStore]);
   const livestream =
-    (uri && isLivestreamClaim) || //   $FlowFixMe
+    (uri && isLivestreamClaim) ||
     (previewResponse?.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
   // leave the confirm modal up if we're not going straight to upload/reflecting
   const formattedTitle = truncateWithEllipsis(title, 128);

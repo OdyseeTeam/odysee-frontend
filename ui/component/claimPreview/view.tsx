@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React, { useEffect, forwardRef } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { isEmpty } from 'util/object';
@@ -84,9 +83,9 @@ type Props = {
   geoRestriction: GeoRestriction | null | undefined;
   hasVisitedUri: boolean;
   blockedUris: Array<string>;
-  actions: boolean | Node | string | number;
-  properties: boolean | Node | string | number | ((arg0: Claim) => Node);
-  empty?: Node;
+  actions: boolean | React.ReactNode | string | number;
+  properties: boolean | React.ReactNode | string | number | ((arg0: Claim) => React.ReactNode);
+  empty?: React.ReactNode;
   onClick?: (e: any, claim?: Claim | null, index?: number) => any;
   streamingUrl: string | null | undefined;
   getFile: (arg0: string) => void;
@@ -97,7 +96,7 @@ type Props = {
   includeSupportAction?: boolean;
   hideActions?: boolean;
   hideJoin?: boolean;
-  renderActions?: (arg0: Claim) => Node | null | undefined;
+  renderActions?: (arg0: Claim) => React.ReactNode | null | undefined;
   wrapperElement?: string;
   hideRepostLabel?: boolean;
   repostUrl?: string;
@@ -246,7 +245,6 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
       </div>
     ); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [channelSubCount]);
-  // $FlowFixMe: claims not typed right
   const showCollectionContext = isClaimAllowedForCollection(claim);
   const isChannelUri = isChannelClaim(claim, uri);
   const signingChannel = claim && claim.signing_channel;

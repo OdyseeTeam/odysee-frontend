@@ -23,7 +23,6 @@ export default handleActions(
 
       // prevent duplicates in the sidebar
       if (!newSubscriptions.some((sub) => isURIEqual(sub.uri, newSubscription.uri))) {
-        //   $FlowFixMe
         newSubscriptions.unshift(newSubscription);
       }
 

@@ -308,7 +308,6 @@ function ClaimMenuList(props: Props) {
 
   function handleReportContent() {
     const claimId = contentClaim?.claim_id;
-    // $FlowFixMe
     push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
 
@@ -406,7 +405,6 @@ function ClaimMenuList(props: Props) {
       );
     };
 
-    // $FlowFixMe: claims not typed right
     const canAdd = isClaimAllowedForCollection(contentClaim);
     return (
       <>

@@ -27,10 +27,8 @@ class FileExporter extends React.PureComponent<Props> {
     });
     element.href = URL.createObjectURL(file);
     element.download = defaultFileName || 'file.txt';
-    // $FlowFixMe
     document.body.appendChild(element);
     element.click();
-    // $FlowFixMe
     document.body.removeChild(element);
   }
 

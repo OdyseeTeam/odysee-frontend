@@ -163,7 +163,6 @@ export function getClaimScheduledState(claim: Claim | null | undefined): ClaimSc
   const tags = getClaimTags(claim);
 
   if (tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE))) {
-    // $FlowFixMe
     const releaseTime = claim?.value?.release_time;
 
     if (releaseTime) {
@@ -182,7 +181,6 @@ export function getClaimTitle(claim: Claim | null | undefined) {
 }
 export function getClaimVideoInfo(claim: Claim | null | undefined) {
   const metadata = getClaimMetadata(claim);
-  // $FlowFixMe
   return metadata && metadata.video;
 }
 export function getVideoClaimAspectRatio(claim: Claim | null | undefined) {

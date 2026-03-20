@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
@@ -36,7 +35,7 @@ type Props = {
   doShowSnackBar: (arg0: string) => void;
 };
 type State = {
-  details: string | Node;
+  details: string | React.ReactNode;
   message: string;
   launchedModal: boolean;
   error: boolean;

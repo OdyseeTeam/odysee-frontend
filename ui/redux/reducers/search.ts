@@ -5,7 +5,6 @@ import { createNormalizedSearchKey } from 'util/search';
 import { LIGHTHOUSE_DEFAULT_TYPES } from 'config';
 const defaultSearchTypes = LIGHTHOUSE_DEFAULT_TYPES && LIGHTHOUSE_DEFAULT_TYPES.split(',');
 const defaultState: SearchState = {
-  // $FlowFixMe
   options: {
     [SEARCH_OPTIONS.RESULT_COUNT]: SEARCH_PAGE_SIZE,
     [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,

@@ -298,7 +298,6 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         const badPasswordError =
           syncAttemptError && syncAttemptError.data && syncAttemptError.data.name === BAD_PASSWORD_ERROR_NAME;
         const tooBigDataError = Boolean(
-          // $FlowIgnore
           syncAttemptError?.message?.match(
             /rpc call sync_apply\(\) on.*?status code: 413. could not decode body to rpc response: invalid character/
           )

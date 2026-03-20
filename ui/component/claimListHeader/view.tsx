@@ -4,7 +4,6 @@ import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
 import * as PAGES from 'constants/pages';
-import type { Node } from 'react';
 import classnames from 'classnames';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
@@ -32,12 +31,12 @@ type Props = {
   hideFilters: boolean;
   hideLayoutButton: boolean;
   hasMatureTags: boolean;
-  hiddenNsfwMessage?: Node;
+  hiddenNsfwMessage?: React.ReactNode;
   channelIds?: Array<string>;
   tileLayout: boolean;
   scrollAnchor?: string;
   contentType: string;
-  meta?: Node;
+  meta?: React.ReactNode;
   setPage: (arg0: number) => void;
   // --- redux ---
   doSetClientSetting: (arg0: string, arg1: boolean, arg2: boolean | null | undefined) => void;
@@ -157,7 +156,6 @@ function ClaimListHeader(props: Props) {
   function buildUrl(delta) {
     const newUrlParams = new URLSearchParams(location.search);
     CS.KEYS.forEach((k) => {
-      // $FlowFixMe get() can return null
       if (urlParams.get(k) !== null) newUrlParams.set(k, urlParams.get(k));
     });
 
@@ -542,7 +540,6 @@ function ClaimListHeader(props: Props) {
                   >
                     {Object.entries(CS.SORT_BY).map(([key, value]) => {
                       return (
-                        // $FlowFixMe https://github.com/facebook/flow/issues/2221
                         <option key={value.key} value={value.key}>
                           {/* $FlowFixMe */}
                           {__(value.str)}

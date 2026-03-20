@@ -26,7 +26,6 @@ type Props = {
 
 function FeaturedSection(props: Props) {
   const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
-  // $FlowFixMe: claims not typed right
   const showCollectionContext = isClaimAllowedForCollection(claim);
   React.useEffect(() => {
     if (!uri && claimId) {

@@ -74,7 +74,6 @@ function HomeTab(props: Props) {
     } else if (e.change) {
       if (e.change.field && e.change.field !== 'order_by') {
         if (e.change.field === 'type') {
-          // $FlowIgnore
           newHome[index] = {
             type: e.change.value,
             file_type:
@@ -84,14 +83,11 @@ function HomeTab(props: Props) {
             rows: e.change.value === 'content' || e.change.value === 'reposts' ? 2 : 1,
           };
         } else if (e.change.field === 'file_type') {
-          // $FlowIgnore
           newHome[index][e.change.field] = e.change.value.split(',');
         } else {
-          // $FlowIgnore
           newHome[index][e.change.field] = e.change.value;
         }
       } else {
-        // $FlowIgnore
         newHome[index][e.change.field] = [e.change.value];
       }
     }

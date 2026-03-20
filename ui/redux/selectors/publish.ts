@@ -256,7 +256,6 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   }
 
   const collectionClaimMetadata = selectCollectionClaimPublishUpdateMetadataForId(state, collectionId);
-  // $FlowFixMe please
   const collectionClaimUploadParams: CollectionPublishCreateParams & CollectionPublishUpdateParams = {
     channel_id: activeChannelId,
     ...collectionClaimMetadata,
@@ -265,7 +264,6 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   const hasUnSavedEdits = selectCollectionHasUnsavedEditsForId(state, collectionId);
 
   if (hasEdits || hasUnSavedEdits) {
-    // $FlowFixMe please
     Object.assign(collectionClaimUploadParams, privateCollectionParams);
   }
 

@@ -228,7 +228,6 @@ export function CommentCreate(props: Props) {
   }, []);
   const handleSelectSticker = React.useCallback(
     (sticker: any) => {
-      // $FlowFixMe
       setSelectedSticker(sticker);
       setReviewingStickerComment(true);
       setTipAmount(sticker.price || 0);
@@ -752,7 +751,6 @@ export function CommentCreate(props: Props) {
       const inputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input;
 
       if (inputRef && inputRef.current === document.activeElement) {
-        // $FlowFixMe
         const isTyping = Boolean(e.target.attributes['typing-term']);
 
         if (((isLivestream && !isTyping) || e.ctrlKey || e.metaKey) && e.keyCode === KEYCODES.ENTER) {
@@ -787,7 +785,6 @@ export function CommentCreate(props: Props) {
             ? commentValue + textInjection + ' '
             : commentValue + ' ' + textInjection + ' '
       );
-      // $FlowFixMe
       return formFieldRef?.current?.input?.current?.focus();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [textInjection]);

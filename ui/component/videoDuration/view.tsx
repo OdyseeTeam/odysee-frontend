@@ -11,7 +11,6 @@ function VideoDuration(props: Props) {
   let duration;
 
   if (media && media.duration) {
-    // $FlowFixMe
     duration = formatMediaDuration(media.duration);
   }
 

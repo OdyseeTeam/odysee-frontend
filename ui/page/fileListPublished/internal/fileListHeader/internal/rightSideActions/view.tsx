@@ -94,7 +94,6 @@ const RightSideActions = () => {
               }
             >
               {Object.entries(FILE_LIST.SORT_ORDER).map(([key, value]) => (
-                // $FlowFixMe
                 <option key={value} value={value}>
                   {__(FILE_LIST.SORT_VALUES[sortOption.key].orders[value])}
                 </option>

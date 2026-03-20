@@ -58,7 +58,6 @@ const Lbry = {
       }, fileName);
       return res === fileName ? 'unknown' : res;
     } else if (contentType) {
-      // $FlowFixMe
       return /^[^/]+/.exec(contentType)[0];
     }
 
@@ -149,7 +148,6 @@ const Lbry = {
     }
 
     // Flow thinks this could be empty, but it will always reuturn a promise
-    // $FlowFixMe
     return Lbry.connectPromise;
   },
   publish: (params = {}) =>

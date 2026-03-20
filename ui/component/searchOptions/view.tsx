@@ -123,7 +123,7 @@ const SearchOptions = (props: Props) => {
             return (
               <Button
                 key={option}
-                button="alt" // $FlowFixMe https://github.com/facebook/flow/issues/2221
+                button="alt"
                 label={__(t[1])}
                 className={classnames(`button-toggle`, {
                   'button-toggle--active': options[SEARCH_OPTIONS.CLAIM_TYPE] === option,
@@ -152,7 +152,7 @@ const SearchOptions = (props: Props) => {
                 name={option}
                 type="checkbox"
                 blockWrap={false}
-                disabled={options[SEARCH_OPTIONS.CLAIM_TYPE] !== SEARCH_OPTIONS.INCLUDE_FILES} // $FlowFixMe https://github.com/facebook/flow/issues/2221
+                disabled={options[SEARCH_OPTIONS.CLAIM_TYPE] !== SEARCH_OPTIONS.INCLUDE_FILES}
                 label={__(t[1])}
                 checked={!isFilteringByChannel && options[option]}
                 onChange={() => updateSearchOptions(option, !options[option])}

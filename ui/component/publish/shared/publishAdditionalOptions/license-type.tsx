@@ -18,7 +18,6 @@ class LicenseType extends React.PureComponent<Props> {
 
   handleLicenseOnChange(event: React.SyntheticEvent<any>) {
     const { handleLicenseChange } = this.props;
-    // $FlowFixMe
     const { options, selectedIndex } = event.target;
     const selectedOption = options[selectedIndex];
     const licenseType = selectedOption.value;

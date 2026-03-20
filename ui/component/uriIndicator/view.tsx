@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
@@ -21,7 +20,7 @@ type Props = {
   showAtSign?: boolean;
   className?: string;
   showMemberBadge?: boolean;
-  children: Node | null | undefined;
+  children: React.ReactNode | null | undefined;
   // to allow for other elements to be nested within the UriIndicator (commit: 1e82586f).
   // --- redux ---
   claim: Claim | null | undefined;

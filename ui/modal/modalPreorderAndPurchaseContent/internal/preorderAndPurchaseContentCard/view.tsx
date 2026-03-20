@@ -143,7 +143,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     }
 
     setWaitingForBackend(true);
-    // $FlowFixMe
     doPurchaseClaimForUri({
       uri,
       transactionType,

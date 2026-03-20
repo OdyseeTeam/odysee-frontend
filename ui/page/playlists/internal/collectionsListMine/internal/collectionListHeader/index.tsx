@@ -52,7 +52,7 @@ export default function CollectionsListMine(props: Props) {
                 <Button
                   label={__(String(value))}
                   key={String(value)}
-                  button="alt" // $FlowFixMe
+                  button="alt"
                   onClick={() => handleFilterTypeChange(String(value))}
                   className={classnames('button-toggle', {
                     'button-toggle--active': filterType === value,
@@ -93,7 +93,6 @@ export default function CollectionsListMine(props: Props) {
                 }
               >
                 {Object.entries(COLS.SORT_ORDER).map(([key, value]) => (
-                  // $FlowFixMe
                   <option key={value} value={value}>
                     {__(COLS.SORT_VALUES[sortOption.key].orders[value])}
                   </option>

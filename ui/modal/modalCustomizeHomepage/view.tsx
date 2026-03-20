@@ -39,9 +39,7 @@ export default function ModalCustomizeHomepage(props: Props) {
       if (orderToSave.active && orderToSave.hidden) {
         if (homepageOrder.active) {
           homepageOrder.active.forEach((x) => {
-            // $FlowIgnore: null case handled.
             if (!orderToSave.active.includes(x) && !orderToSave.hidden.includes(x)) {
-              // $FlowIgnore: null case handled.
               orderToSave.active.push(x);
             }
           });
@@ -49,9 +47,7 @@ export default function ModalCustomizeHomepage(props: Props) {
 
         if (homepageOrder.hidden) {
           homepageOrder.hidden.forEach((x) => {
-            // $FlowIgnore: null case handled.
             if (!orderToSave.active.includes(x) && !orderToSave.hidden.includes(x)) {
-              // $FlowIgnore: null case handled.
               orderToSave.hidden.push(x);
             }
           });

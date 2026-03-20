@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React from 'react';
 import parseDuration from 'parse-duration';
 import { FormField } from 'component/common/form';
@@ -9,7 +8,7 @@ const TOOLTIP = 'Units:\n • s:  seconds\n • m:  minutes \n • h:  hours\n �
 const ONE_HUNDRED_YEARS_IN_SECONDS = 3154000000;
 type Props = {
   name: string;
-  label?: string | Node;
+  label?: string | React.ReactNode;
   placeholder?: string | number;
   disabled?: boolean;
   value: string | number;

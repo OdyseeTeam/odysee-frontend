@@ -48,7 +48,6 @@ export function getAllIds(all: any) {
       ids.forEach((id) => idsSet.add(id));
     }
   });
-  // $FlowFixMe
   return Array.from(idsSet);
 }
 export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
@@ -161,7 +160,6 @@ export function GetLinksData(
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 
-  // $FlowFixMe
   let rowData: Array<RowDataItem> = [];
   const individualTagDataItems: Array<RowDataItem> = [];
 
@@ -183,7 +181,6 @@ export function GetLinksData(
         channelIds: subscribedChannelIds,
       },
     };
-    // $FlowFixMe flow thinks this might not be Array<string>
     rowData.push(RECENT_FROM_FOLLOWING); // const SHORTS_SECTION = {
     //   id: 'SHORTS',
     //   title: __('Shorts'),
@@ -405,7 +402,6 @@ export function GetLinksData(
   for (let i = 0; i < entries.length; ++i) {
     const key = entries[i][0];
     const val = entries[i][1];
-    // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
 

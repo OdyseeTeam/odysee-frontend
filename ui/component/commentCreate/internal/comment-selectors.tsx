@@ -67,10 +67,9 @@ type EmojisProps = {
 
 function scrollToCategory(category, reference, isMobile) {
   const offset = isMobile ? 48 : 58;
-  // $FlowIgnore
   let categoryAnchor = reference.current.querySelector('#' + category.replace(/\s|&/g, ''));
   reference &&
-    categoryAnchor && // $FlowIgnore
+    categoryAnchor &&
     reference.current.scrollTo({
       top: categoryAnchor.offsetTop - offset,
       behavior: 'smooth',

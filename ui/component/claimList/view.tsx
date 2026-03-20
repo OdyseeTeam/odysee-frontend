@@ -1,5 +1,4 @@
 import { MAIN_CLASS } from 'constants/classnames';
-import type { Node } from 'react';
 import React, { useEffect } from 'react';
 import classnames from 'classnames';
 import ClaimPreview from 'component/claimPreview';
@@ -29,8 +28,8 @@ const LOAD_MORE_COUNT = 50;
 type Props = {
   uris: Array<string>;
   prefixUris?: Array<string>;
-  header: Node | boolean;
-  headerAltControls: Node;
+  header: React.ReactNode | boolean;
+  headerAltControls: React.ReactNode;
   loading: boolean;
   useLoadingSpinner?: boolean;
   // use built-in spinner when 'loading' is true. Else, roll your own at client-side.
@@ -45,11 +44,11 @@ type Props = {
   persistedStorageKey?: string;
   showHiddenByUser: boolean;
   showUnresolvedClaims?: boolean;
-  renderActions?: (arg0: Claim) => Node | null | undefined;
-  renderProperties?: (arg0: Claim) => Node | null | undefined;
+  renderActions?: (arg0: Claim) => React.ReactNode | null | undefined;
+  renderProperties?: (arg0: Claim) => React.ReactNode | null | undefined;
   includeSupportAction?: boolean;
   injectedItem?: ListInjectedItem;
-  timedOutMessage?: Node;
+  timedOutMessage?: React.ReactNode;
   tileLayout?: boolean;
   searchInLanguage: boolean;
   hideMenu?: boolean;
@@ -431,7 +430,6 @@ export default function ClaimList(props: Props) {
                       const isDraggingFromFloatingPlayer = draggableSnapshot.isDragging && doDisablePlayerDrag;
                       const isDraggingFromMobile = draggableSnapshot.isDragging && isMobile;
                       const topForDrawer = Number(
-                        // $FlowFixMe
                         document.documentElement?.style?.getPropertyValue('--content-height') || 0
                       );
                       const playerInfo = isDraggingFromFloatingPlayer && document.querySelector('.content__info');
@@ -446,13 +444,11 @@ export default function ClaimList(props: Props) {
                       // prettier-ignore
                       const style = { ...draggableProvided.draggableProps.style,
                 transform,
-                top: isDraggingFromFloatingPlayer // $FlowIgnore
-                ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop) : isDraggingFromMobile // $FlowIgnore
-                ? draggableProvided.draggableProps.style.top - topForDrawer // $FlowIgnore
+                top: isDraggingFromFloatingPlayer
+                ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop) : isDraggingFromMobile
+                ? draggableProvided.draggableProps.style.top - topForDrawer
                 : draggableProvided.draggableProps.style.top,
-                // $FlowIgnore
                 left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
-                // $FlowIgnore
                 right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right
               };
                       const isActive = activeUri && uri === activeUri;

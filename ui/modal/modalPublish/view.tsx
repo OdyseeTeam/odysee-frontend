@@ -18,7 +18,6 @@ type Props = {
 class ModalPublishSuccess extends React.PureComponent<Props> {
   render() {
     const { closeModal, navigate, uri, isEdit, filePath, lbryFirstError, claim } = this.props;
-    //   $FlowFixMe
     const livestream = claim && claim.value && claim.value_type === 'stream' && !claim.value.source;
     let contentLabel;
 

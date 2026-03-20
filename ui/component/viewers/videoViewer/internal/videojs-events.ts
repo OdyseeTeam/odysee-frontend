@@ -125,7 +125,6 @@ const VideoJsEvents = ({
     const playerPoweredBy = isLivestreamClaim ? 'lvs' : playerServerRef.current;
     data.playPoweredBy = playerPoweredBy;
     data.isLivestream = isLivestreamClaim;
-    // $FlowFixMe
     data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
     doAnalyticsBuffer(uri, data);
   }
@@ -172,7 +171,6 @@ const VideoJsEvents = ({
         userId,
         uri,
         this, // pass the player
-        // $FlowFixMe
         this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH,
         isLivestreamClaim
       );
@@ -343,7 +341,6 @@ const VideoJsEvents = ({
         width: THUMBNAIL_WIDTH_POSTER,
         height: THUMBNAIL_HEIGHT_POSTER,
       });
-      // $FlowFixMe
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: claimValues.title,
         artist: channelTitle,
@@ -355,11 +352,9 @@ const VideoJsEvents = ({
             ]
           : undefined,
       });
-      // $FlowFixMe
       navigator.mediaSession.setActionHandler('seekbackward', function () {
         player.currentTime(Math.max(0, player.currentTime() - 10));
       });
-      // $FlowFixMe
       navigator.mediaSession.setActionHandler('seekforward', function () {
         player.currentTime(Math.max(0, player.currentTime() + 10));
       });

@@ -113,7 +113,6 @@ export const selectSocketConnectionForId = (state: State, claimId: string) =>
   claimId && selectSocketConnectionById(state)[claimId];
 export const selectSocketConnectedForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
-  // $FlowFixMe
   return !!selectSocketConnectionForId(state, claimId)?.connected;
 };
 export const selectIsLivePollingForUri = (state: State, uri: string) => {
@@ -158,7 +157,6 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
 
     const activeLivestreamValues = Object.values(activeLivestreams);
     return activeLivestreamValues.some(
-      // $FlowFixMe
       (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.uri === uri
     );
   }
@@ -169,7 +167,6 @@ export const selectIsActiveLivestreamForClaimId = (state: State, claimId: string
   if (!activeLivestreams) return false;
   const activeLivestreamValues = Object.values(activeLivestreams);
   return activeLivestreamValues.some(
-    // $FlowFixMe
     (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.claimId === claimId
   );
 };
@@ -188,10 +185,8 @@ export const selectChannelIsLiveFetchedForUri = (state: State, uri: string) => {
 export const selectActiveStreamUriForClaimUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
   if (!channelId) return channelId;
-  // $FlowFixMe
   const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
   if (!activeLivestream) return activeLivestream;
-  // $FlowFixMe
   return activeLivestream.uri;
 };
 export const selectClaimIsActiveChannelLivestreamForUri = (state: State, uri: string) => {
@@ -204,7 +199,6 @@ export const selectClaimIsActiveChannelLivestreamForUri = (state: State, uri: st
 };
 export const selectLatestLiveUriForChannel = (state: State, channelId: string) => {
   const activeCreatorLivestream = selectActiveLivestreamForChannel(state, channelId);
-  // $FlowFixMe
   if (activeCreatorLivestream) return activeCreatorLivestream.uri;
   const futureCreatorLivestreams = selectFutureLivestreamsForCreatorId(state, channelId);
   const pastCreatorLivestreams = selectPastLivestreamsForCreatorId(state, channelId);

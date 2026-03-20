@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import classnames from 'classnames';
@@ -17,7 +16,7 @@ type Props = {
   isSubscribed: boolean;
   small: boolean;
   claim: Claim;
-  properties?: (arg0: Claim) => Node | null | undefined;
+  properties?: (arg0: Claim) => React.ReactNode | null | undefined;
   iconOnly: boolean;
   hasEdits: Collection;
   xsmall?: boolean;
@@ -48,7 +47,6 @@ export default function PreviewOverlayProperties(props: Props) {
     isLivestreamScheduled,
   } = props;
   const isCollection = claim && claim.value_type === 'collection';
-  // $FlowFixMe
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;
   const isStream = claim && claim.value_type === 'stream';
   const size = small ? COL.ICON_SIZE : undefined;

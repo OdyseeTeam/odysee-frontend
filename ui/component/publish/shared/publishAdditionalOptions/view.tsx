@@ -70,7 +70,7 @@ function PublishAdditionalOptions(props: Props) {
                       label={__('Language')}
                       type="select"
                       name="content_language"
-                      value={language} // $FlowFixMe @see FIX_LANGUAGE_STATE
+                      value={language}
                       onChange={(event) =>
                         updatePublishForm({
                           languages: [event.target.value],

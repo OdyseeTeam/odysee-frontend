@@ -19,20 +19,16 @@ export default function useResolvePins(props: Props) {
     if (resolvedPinUris === undefined && pins && !isResolving && !hasResolvedPinUris) {
       if (pins.claimIds) {
         setIsResolving(true);
-        // $FlowIgnore (null checked)
         doResolveClaimIds(pins.claimIds)
           .then((result) => {
             const uris = [];
 
             if (result) {
               Object.values(result).forEach((r) => {
-                // $FlowIgnore (flow mixed bug)
                 const claim = r && r.stream;
 
-                // $FlowIgnore (flow mixed bug)
                 if (claim && pins.claimIds?.includes(claim.claim_id)) {
                   if (claim.canonical_url) {
-                    // $FlowIgnore (flow mixed bug)
                     uris.push(claim.canonical_url);
                   }
                 }
@@ -44,7 +40,6 @@ export default function useResolvePins(props: Props) {
           .finally(() => setIsResolving(false));
       } else if (pins.urls) {
         setIsResolving(true);
-        // $FlowIgnore (null checked)
         doResolveUris(pins.urls, true).finally(() => {
           setIsResolving(false);
           setResolvedPinUris(pins.urls);

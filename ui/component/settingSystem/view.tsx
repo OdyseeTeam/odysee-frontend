@@ -243,7 +243,6 @@ export default function SettingSystem(props: Props) {
                 placeholder={__('A Folder containing FFmpeg')}
                 currentPath={ffmpegPath || daemonSettings.ffmpeg_path}
                 onFileChosen={(newDirectory: WebFile) => {
-                  // $FlowFixMe
                   setDaemonSetting('ffmpeg_path', newDirectory.path);
                   findFFmpeg();
                 }}

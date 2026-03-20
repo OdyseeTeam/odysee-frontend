@@ -23,7 +23,6 @@ function ModalAutoGenerateThumbnail(props: Props) {
   function uploadImage() {
     const generateImg = (quality: number) => {
       const imageBuffer = captureSnapshot(quality);
-      // $FlowFixMe
       const file = new File([imageBuffer], 'thumbnail.jpeg', {
         type: 'image/jpeg',
       });

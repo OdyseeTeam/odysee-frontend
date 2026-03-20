@@ -122,9 +122,7 @@ function reformatTagKeys(options?: SentryEventOptions) {
       const key = keys[i];
 
       if (!key.startsWith('_')) {
-        // $FlowIgnore - key is from the same object.
         options.tags[`_${key}`] = options.tags[key];
-        // $FlowIgnore - key is from the same object.
         delete options.tags[key];
       }
     }

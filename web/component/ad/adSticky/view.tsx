@@ -30,7 +30,6 @@ const AdSticky = memo(function AdSticky(props: Props) {
     nagsShown,
     adBlockerFound,
   } = props;
-  // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
@@ -44,14 +43,12 @@ const AdSticky = memo(function AdSticky(props: Props) {
     if (provider === 'revcontent') {
       mutationList.forEach(function (mutation) {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          // $FlowIgnore
           if (mutation.target && mutation.target.classList && mutation.target.classList.contains('hidden-rc-sticky')) {
             setIsHidden(true);
           }
         }
       });
     } else if (provider === 'rumble') {
-      // $FlowIgnore
       stickyContainer.current?.firstElementChild
         ?.querySelectorAll('iframe:not(:first-child)')
         .forEach((iframe) => iframe.remove());
@@ -60,16 +57,13 @@ const AdSticky = memo(function AdSticky(props: Props) {
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
-      // $FlowIgnore
       pathname.startsWith(`/$/${x?.name}`)
     );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
   function closeRmbl() {
-    // $FlowIgnore
     document.body.querySelectorAll('script[src*="warp/"]')?.forEach((script, index) => index > 0 && script.remove());
-    // $FlowIgnore
     const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
     if (iframes) iframes.forEach((iframe) => iframe.remove());
     setIsHidden(true);
@@ -81,7 +75,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
     if (loads >= 2) {
       setIsHidden(false);
       setLoads(0);
-    } // $FlowIgnore
+    }
   }, [location.href]);
   // eslint-disable-line react-hooks/exhaustive-deps -- no idea
   useEffect(() => {
@@ -108,7 +102,6 @@ const AdSticky = memo(function AdSticky(props: Props) {
           scriptId.innerHTML = 'let rcStickyWidgetId = ' + AD_CONFIG.id + ';';
 
           try {
-            // $FlowIgnore
             document.body.appendChild(scriptId);
           } catch (e) {}
         }
@@ -123,7 +116,6 @@ const AdSticky = memo(function AdSticky(props: Props) {
         if (!stickyAllCheck) {
           script = document.createElement('script');
           script.src = AD_CONFIG.url;
-          // $FlowIgnore
           document.body.appendChild(script);
         }
 
@@ -140,16 +132,12 @@ const AdSticky = memo(function AdSticky(props: Props) {
 
           scriptSticky.addEventListener('load', () => setIsActive(true));
 
-          // $FlowIgnore
           document.body.appendChild(scriptSticky);
         }
 
         return () => {
-          // $FlowIgnore
           if (script) document.body.removeChild(script);
-          // $FlowIgnore
           if (scriptId) document.body.removeChild(scriptId);
-          // $FlowIgnore
           if (scriptSticky) document.body.removeChild(scriptSticky);
         };
       } catch (e) {}

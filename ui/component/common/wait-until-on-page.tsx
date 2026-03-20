@@ -28,9 +28,7 @@ export default function WaitUntilOnPage(props: Props) {
 
       if (element) {
         const bounding = element.getBoundingClientRect();
-        // $FlowFixMe
         const windowH = window.innerHeight || document.documentElement.clientHeight;
-        // $FlowFixMe
         const windowW = window.innerWidth || document.documentElement.clientWidth;
         const isApproachingViewport = yOffset && bounding.top < windowH + scaleToDevicePixelRatio(yOffset);
         const isInViewport = // also covers "element is larger than viewport".

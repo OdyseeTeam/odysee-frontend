@@ -11,7 +11,6 @@ type Props = {
   arweaveAccount: any;
 };
 const rgbaToHex = (rgba) => {
-  // $FlowIgnore
   const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
   return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
     a < 1
@@ -23,9 +22,7 @@ const rgbaToHex = (rgba) => {
 };
 
 const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
-  // $FlowIgnore
   const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
-  // $FlowIgnore
   const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
   const r = Math.round(rB * (1 - aA) + rA * aA);
   const g = Math.round(gB * (1 - aA) + gA * aA);
@@ -34,7 +31,6 @@ const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
 };
 
 const getRootStyle = (varName: string): string => {
-  // $FlowIgnore[incompatible-call] - documentElement cannot be null in real browser runtime
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 };
 
@@ -125,13 +121,10 @@ export default function OnRamper(props: Props) {
       : {
           sell_defaultFiat: 'USD',
         }),
-    // $FlowIgnore
     ...(mode === 'buy' && {
       defaultAmount: '30',
     }),
-    // $FlowIgnore
     ...(mode === 'buy' && {
-      // $FlowIgnore
       networkWallets: `bsc:${depositAddress},base:${depositAddress},ethereum:${depositAddress}`,
     }),
     ...(mode === 'buy'

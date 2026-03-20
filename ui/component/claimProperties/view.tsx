@@ -16,7 +16,6 @@ export default function ClaimProperties(props: Props) {
   const { uri, isSubscribed, small = false, claim, iconOnly } = props;
   const isCollection = claim && claim.value_type === 'collection';
   const size = small ? COL.ICON_SIZE : undefined;
-  // $FlowFixMe
   return (
     <div
       className={classnames('claim-preview__overlay-properties', {
@@ -26,10 +25,9 @@ export default function ClaimProperties(props: Props) {
       {
         <>
           <ClaimType uri={uri} small />
-          {/*   // $FlowFixMe */}
-          {isCollection && claim && claim.value.claims && !iconOnly && <div>{claim.value.claims.length}</div>}
+          {/* {isCollection && claim && claim.value.claims && !iconOnly && <div>{claim.value.claims.length}</div>}
           {isSubscribed && <Icon size={size} tooltip icon={ICONS.SUBSCRIBE} />}
-          <FilePrice hideFree uri={uri} />
+          <FilePrice hideFree uri={uri} /> */}
         </>
       }
     </div>

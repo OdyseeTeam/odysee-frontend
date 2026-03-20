@@ -43,7 +43,6 @@ const Chromecast = {
       const script = document.createElement('script');
       script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
       script.id = CHROMECAST_API_SCRIPT_ID;
-      // $FlowFixMe
       document.body.appendChild(script);
     }
   },

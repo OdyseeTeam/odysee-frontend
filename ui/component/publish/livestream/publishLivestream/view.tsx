@@ -263,7 +263,6 @@ function PublishLivestream(props: Props) {
                               .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
                               .map((item, i) => {
                                 const useStr = item.data.fileDuration && isNaN(item.data.fileDuration);
-                                // $FlowIgnore (confirmed a number)
                                 const durationMinutes = !useStr ? Math.floor(item.data.fileDuration / 60) : null;
                                 const durationElem = useStr
                                   ? item.data.fileDuration

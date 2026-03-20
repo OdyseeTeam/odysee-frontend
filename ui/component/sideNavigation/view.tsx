@@ -1,6 +1,4 @@
-import { $Diff } from 'utility-types';
 import React from 'react';
-import type { Node } from 'react';
 import type { HomepageCat } from 'util/buildHomepage';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
@@ -26,7 +24,7 @@ type SideNavLink = {
   link?: string;
   route?: string;
   onClick?: () => any;
-  extra?: Node;
+  extra?: React.ReactNode;
   hideForUnauth?: boolean;
   noI18n?: boolean;
 };
@@ -129,13 +127,7 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 // prettier-ignore
-type SidebarCat = $Diff<HomepageCat, {
-  id?: string;
-  pinnedUrls?: Array<string>;
-  pinnedClaimIds?: Array<string>;
-  hideSort?: boolean;
-  hideByDefault?: boolean;
-}>;
+type SidebarCat = Omit<HomepageCat, 'id' | 'pinnedUrls' | 'pinnedClaimIds' | 'hideSort' | 'hideByDefault'>;
 type Props = {
   uploadCount: number;
   sidebarOpen: boolean;
@@ -429,10 +421,8 @@ function SideNavigation(props: Props) {
   // **************************************************************************
   // **************************************************************************
   React.useEffect(() => {
-    // $FlowFixMe
     document.body.style.overflowY = showOverlay ? 'hidden' : '';
     return () => {
-      // $FlowFixMe
       document.body.style.overflowY = '';
     };
   }, [showOverlay]);

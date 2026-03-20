@@ -199,7 +199,6 @@ export function resolvePublishPayload(
   publishPayload.tags = Array.from(tagSet);
 
   if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
-    // $FlowFixMe please
     publishPayload.locations = myClaimForUriEditing.value.locations;
   }
 
@@ -217,7 +216,6 @@ export function resolvePublishPayload(
       type !== 'livestream' ||
       (type === 'livestream' && liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay')
     ) {
-      // $FlowFixMe please
       publishPayload.file_path = filePath;
     }
   }

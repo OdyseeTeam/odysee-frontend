@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import type { ShareUrlProps, ShareUrl } from './thunk';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -121,7 +120,7 @@ function SocialShare(props: SocialShareStateProps) {
   const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
   const [shareUrl, setShareUrl] = React.useState<ShareUrl | null | undefined>();
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
-  const claimLinkElements: Array<Node> = getClaimLinkElements();
+  const claimLinkElements: Array<React.ReactNode> = getClaimLinkElements();
   // Tweet params
   let tweetIntentParams = {
     url: shareUrl?.url || '',
@@ -130,7 +129,6 @@ function SocialShare(props: SocialShareStateProps) {
   };
 
   if (TWITTER_ACCOUNT) {
-    // $FlowFixMe
     tweetIntentParams.via = TWITTER_ACCOUNT;
   }
 
@@ -147,7 +145,7 @@ function SocialShare(props: SocialShareStateProps) {
   }
 
   function getClaimLinkElements() {
-    const elements: Array<Node> = [];
+    const elements: Array<React.ReactNode> = [];
 
     if (
       Boolean(isStream) &&

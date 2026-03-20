@@ -82,7 +82,6 @@ export function doArConnect() {
 
     if (window.arweaveWallet) {
       try {
-        // $FlowIgnore
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
         window.wanderInstance.close();
 
@@ -209,7 +208,6 @@ export function doArDisconnect() {
 
     if (window.arweaveWallet) {
       try {
-        // $FlowIgnore
         await global.window?.arweaveWallet?.disconnect();
         dispatch({
           type: ARCONNECT_DISCONNECT,
@@ -363,7 +361,6 @@ export const doArTip = (
 
       if (tipParams.currency === 'AR') {
         try {
-          // $FlowIgnore
           const { transactionId: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
           transactionId = txid;
         } catch (error) {

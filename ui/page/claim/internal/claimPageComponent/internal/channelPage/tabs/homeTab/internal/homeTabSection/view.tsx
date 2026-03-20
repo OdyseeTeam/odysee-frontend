@@ -90,7 +90,6 @@ function HomeTabSection(props: Props) {
       doClaimSearch(searchOptions, searchSettings).then((res) => {
         if (section.type === 'playlists' && res) {
           const streams = Object.values(res);
-          // $FlowIgnore flow bug
           const claimIds = streams.map((s) => s?.stream?.claim_id);
           doFetchThumbnailClaimsForCollectionIds({
             collectionIds: claimIds,

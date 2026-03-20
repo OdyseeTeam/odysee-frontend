@@ -21,7 +21,6 @@ function calcRootMargin(value) {
 function loadImgFromDataset(target, backgroundFallback, setSrcLoadedFn) {
   // lazy-loaded <img>:
   if (target.dataset.src) {
-    // $FlowFixMe
     target.src = target.dataset.src;
 
     target.addEventListener('load', () => setSrcLoadedFn(true));
@@ -88,7 +87,6 @@ export default function useLazyLoading(
         threshold: [threshold],
       }
     );
-    // $FlowFixMe
     lazyLoadingObserver.observe(elementRef.current); // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
   }, deps);
   return srcLoaded;

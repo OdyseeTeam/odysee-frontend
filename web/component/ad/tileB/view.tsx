@@ -27,7 +27,6 @@ function AdTileB(props: Props) {
           script.src = AD_CONFIG[provider].url;
           script.type = 'text/javascript';
           script.defer = true;
-          // $FlowIgnore
           document.body.appendChild(script);
           setInterval(() => {
             setIsActive(true);
@@ -35,7 +34,6 @@ function AdTileB(props: Props) {
         } catch (e) {}
 
         return () => {
-          // $FlowIgnore
           if (script) document.body.removeChild(script);
         };
       }

@@ -203,7 +203,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
   let newMyCollectionClaimIds =
     state.myCollectionClaimIds && new Set(state.myCollectionClaimIds) && new Set(state.myCollectionClaimIds);
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
-    // $FlowFixMe
     const { claimsInChannel, stream, channel: channelFromResolve, collection } = resolveResponse;
     const channel = channelFromResolve || (stream && stream.signing_channel);
     const repostSrcChannel = stream && stream.reposted_claim ? stream.reposted_claim.signing_channel : null;
@@ -227,7 +226,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
 
       if (stream.value_type === 'collection') {
         if (!newResolvedCollectionsById[stream.claim_id]) {
-          // $FlowFixMe
           newResolvedCollectionsById[stream.claim_id] = claimToStoredCollection(stream);
         }
       }
@@ -286,7 +284,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       newResolvingUrls.delete(collection.permanent_url);
       newFailedToResolveUrls.delete(collection.canonical_url);
       newFailedToResolveUrls.delete(collection.permanent_url);
-      // $FlowFixMe
       newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection);
 
       if (selectClaimIsMine(state, collection)) {
@@ -440,7 +437,6 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
       myClaimIds.add(claimId);
 
       if (valueType === 'collection' && (!newMyCollectionClaimIds || !newMyCollectionClaimIds.has(claimId))) {
-        // $FlowFixMe
         newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
         if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
         newMyCollectionClaimIds.add(claimId);
@@ -494,7 +490,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
   if (!claims.length) {
-    // $FlowFixMe
     newMyChannelClaimsById = null;
   } else {
     newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
@@ -506,7 +501,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
       updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUrl, claimId);
       channelClaimCounts[canonicalUrl] = claimsInChannel;
       channelClaimCounts[permanentUrl] = claimsInChannel;
-      // $FlowFixMe
       newMyChannelClaimsById[claimId] = claim;
 
       if (confirmations < 1) {
@@ -627,7 +621,6 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
   let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
   const newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
-  // $FlowFixMe
   pendingClaims.forEach((claim: Claim) => {
     let newClaim;
     const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
@@ -652,11 +645,9 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
     pendingById[claimId] = newClaim;
 
     if (valueType === 'channel') {
-      // $FlowFixMe
       const channelClaim: ChannelClaim = claim;
       newMyChannelClaimsById[claimId] = channelClaim;
     } else if (valueType === 'collection') {
-      // $FlowFixMe
       newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
       if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
       newMyCollectionClaimIds.add(claimId);

@@ -59,7 +59,6 @@ function onPlayerReady(player: Player, options: Options) {
 
 function snapshotButton(options: Options) {
   // needed for canvas to work with cors
-  // $FlowFixMe
   this.el().childNodes[0].setAttribute('crossorigin', 'anonymous');
   const IS_MOBILE = videojs.browser.IS_ANDROID || videojs.browser.IS_IOS;
 

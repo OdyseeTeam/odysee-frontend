@@ -55,7 +55,6 @@ export default function FeaturedChannelsEdit(props: Props) {
     }
 
     // ² - 'missingData' covered the null cases
-    // $FlowIgnore ²
     const entries = sections.entries.slice();
 
     if (isEditing) {

@@ -48,13 +48,11 @@ const select = (state, props) => {
     claimId: claim && claim.claim_id,
     claimIsMine: selectClaimIsMine(state, claim),
     fetchingChannels: selectFetchingMyChannels(state),
-    // $FlowFixMe
     isAChannelMember: selectUserHasValidMembershipForCreatorId(state, channelId),
     isFetchingComments: selectIsFetchingComments(state),
     isFetchingReacts: selectIsFetchingReacts(state),
     isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
-    // $FlowFixMe
     commentsEnabledSetting: selectCommentsEnabledSettingForChannelId(state, channelId),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),

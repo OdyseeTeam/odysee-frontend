@@ -72,7 +72,6 @@ function WalletTipAmountSelector(props: Props) {
   function shouldDisableAmountSelector(amount: number) {
     const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
     // if it's LBC but the balance isn't enough, or fiat conditions met
-    // $FlowFixMe
     return (
       isARCondition ||
       shouldDisableARSelectors ||

@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
@@ -9,7 +8,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 type Props = {
   includeWalletLink: boolean;
   type?: string;
-  actions?: Node;
+  actions?: React.ReactNode;
 };
 export default function YrblWalletEmpty(props: Props) {
   const { includeWalletLink = false, type = 'sad' } = props;

@@ -53,7 +53,6 @@ class FileSelector extends React.PureComponent<Props> {
         const path = result && result.filePaths[0];
 
         if (path) {
-          // $FlowFixMe
           this.props.onFileChosen({
             path,
           });

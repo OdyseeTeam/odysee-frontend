@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from 'config';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
@@ -15,7 +14,7 @@ type Props = {
   uri?: string;
   thumbnail: string | null | undefined;
   // externally sourced image
-  children?: Node;
+  children?: React.ReactNode;
   allowGifs: boolean;
   claim: StreamClaim | null | undefined;
   className?: string;

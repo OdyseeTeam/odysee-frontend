@@ -119,7 +119,6 @@ export const selectCardDetails = (state: State) => {
 };
 export const selectCanReceiveFiatTipsForUri = (state: State, uri: string) => {
   const byId = selectCanReceiveFiatTipsById(state);
-  // $FlowFixMe
   const channelId = selectChannelClaimIdForUri(state, uri);
   return channelId && byId[channelId];
 };

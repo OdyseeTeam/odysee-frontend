@@ -121,7 +121,6 @@ export default function CollectionsListMine(props: Props) {
         };
         Object.assign(comparisonObj, nameComparisonObj);
         // Only name (string) has a different return than when sorting numbers
-        // $FlowFixMe
         return comparisonObj.a.localeCompare(comparisonObj.b);
       }
 
@@ -152,12 +151,10 @@ export default function CollectionsListMine(props: Props) {
 
       getComparisonObj();
 
-      // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
         return 1;
       }
 
-      // $FlowFixMe
       if ((comparisonObj.a || 0) < (comparisonObj.b || 0)) {
         return -1;
       }
@@ -219,7 +216,7 @@ export default function CollectionsListMine(props: Props) {
         <CollectionListHeader
           filterType={filterType}
           isTruncated={totalLength > filteredCollectionsLength}
-          setFilterType={setFilterType} // $FlowFixMe
+          setFilterType={setFilterType}
           sortOption={sortOption}
           setSortOption={setSortOption}
         />

@@ -19,8 +19,8 @@ export default function WebUploadList(props: Props) {
           <section>
             {/* $FlowFixMe */}
             {Object.values(currentUploads).map((uploadItem) => (
-              <WebUploadItem // $FlowFixMe
-                key={`upload${uploadItem.params.name}`} // $FlowFixMe
+              <WebUploadItem
+                key={`upload${uploadItem.params.name}`}
                 uploadItem={uploadItem}
                 doPublishResume={doPublishResume}
                 doUpdateUploadRemove={doUpdateUploadRemove}

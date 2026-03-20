@@ -66,7 +66,6 @@ export default function WebUploadItem(props: Props) {
         } else {
           if (uploader) {
             if (resumable) {
-              // $FlowFixMe - couldn't resolve to TusUploader manually.
               uploader.abort(true); // TUS
             } else {
               uploader.abort(); // XHR

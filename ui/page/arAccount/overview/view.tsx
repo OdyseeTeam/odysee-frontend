@@ -160,7 +160,6 @@ function Overview(props: Props) {
   }
 
   const handleSendClick = () => {
-    // $FlowIgnore
     const recipientAddress = inputReceivingAddressRef.current?.value?.trim();
     const amountAr = Number(inputAmountRef?.current?.value);
     if (!recipientAddress || !amountAr) return;

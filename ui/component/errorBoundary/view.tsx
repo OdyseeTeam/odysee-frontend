@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
@@ -8,7 +7,7 @@ import I18nMessage from 'component/i18nMessage';
 // import Native from 'native';
 // import Lbry from 'lbry';
 type Props = {
-  children: Node;
+  children: React.ReactNode;
   history: {
     replace: (arg0: string) => void;
   };

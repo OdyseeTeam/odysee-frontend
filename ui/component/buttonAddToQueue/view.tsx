@@ -49,7 +49,6 @@ function ButtonAddToQueue(props: Props) {
     });
     const itemsToAdd = playingCollectionUrls || [playingUrl];
     doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
-      // $FlowIgnore: already not using 'itemsToAdd' when 'playingUrl' is null.
       uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
       remove: hasClaimInQueue,
       type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,

@@ -19,7 +19,6 @@ type Props = {
 function FileViewCount(props: Props) {
   const { claimId, isLivestreamClaim, isLivestreamActive, fetchViewCount, viewCount, activeViewers, lang } = props;
   const count = isLivestreamClaim ? activeViewers || 0 : viewCount;
-  // $FlowIgnore: Number.isInteger covers null case
   const countCompact = Number.isInteger(count) ? toCompactNotation(count, lang, 10000) : null;
   const countFullResolution = Number(count).toLocaleString();
   const Placeholder = <Skeleton variant="text" animation="wave" className="file-view-count-placeholder" />;

@@ -9,7 +9,6 @@ import React from 'react';
 import Wallpaper from 'component/wallpaper';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
 import SideNavigation from 'component/sideNavigation';
-import type { Node } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 const Footer = lazyImport(
   () =>
@@ -28,7 +27,7 @@ type Props = {
     title: string;
     simpleTitle: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   };
-  children: Node | Array<Node>;
+  children: React.ReactNode | Array<React.ReactNode>;
   className: string | null | undefined;
   filePage: boolean;
   fullWidthPage: boolean;

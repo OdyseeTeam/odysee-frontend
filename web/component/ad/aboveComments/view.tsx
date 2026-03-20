@@ -32,14 +32,12 @@ function AdAboveComments(props: Props) {
           if (!checkExisting) {
             script = document.createElement('script');
             script.src = adConfig.url;
-            // $FlowIgnore
             document.body.appendChild(script);
           } else {
             setIsActive(true);
           }
 
           return () => {
-            // $FlowIgnore
             if (script) document.body.removeChild(script);
           };
         } catch (e) {}

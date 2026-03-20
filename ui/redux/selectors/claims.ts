@@ -72,7 +72,6 @@ export const selectLatestClaimForUri = createSelector(
     if (!latestClaim) return latestClaim;
     const latestClaims = Object.values(latestClaim);
     if (!latestClaims.length) return null;
-    // $FlowFixMe
     return latestClaims[0].stream;
   }
 );
@@ -420,7 +419,6 @@ export const selectGenericClaimPublishUpdateMetadataForId = (state: State, claim
   const tags = selectMetadataItemForClaimIdAndKey(state, claimId, 'tags');
   const genericUploadMetadata: GenericPublishCreateParams & GenericPublishUpdateParams = {
     claim_id: claim.claim_id,
-    // $FlowFixMe
     name: getNameFromClaim(claim),
     channel_id: getChannelIdFromClaim(claim) || null,
     title: selectMetadataItemForClaimIdAndKey(state, claimId, 'title'),
@@ -446,7 +444,6 @@ export const selectCollectionClaimPublishUpdateMetadataForId = (state: State, cl
   if (!claimMetadata) return claimMetadata;
   const collectionClaimIds = selectClaimForClaimId(state, claimId).value?.claims;
   if (!collectionClaimIds) return collectionClaimIds;
-  // $FlowFixMe
   const collectionPublishUpdateMetadata: CollectionPublishUpdateParams = {
     ...claimMetadata,
     claims: collectionClaimIds,
@@ -486,7 +483,6 @@ export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
-    // $FlowIgnore
     const forceCreationTimestamp = claim?.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED);
     const timestamp =
       claim &&
@@ -616,22 +612,19 @@ export const selectMyRepostClaims = createSelector(selectMyClaims, (myClaims) =>
   myClaims.filter((claim) => claim && claim.value_type === 'repost')
 );
 export const selectMyUnlistedClaims = createSelector(selectMyClaims, (myClaims) =>
-  // $FlowFixMe
   myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED))
 );
 export const selectMyPaidClaims = createSelector(selectMyClaims, (myClaims) =>
-  // $FlowFixMe
   myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.PURCHASE_TAG, TAG.RENTAL_TAG))
 );
 export const selectMyPaidClaimsLegacy = createSelector(selectMyClaims, (myClaims) =>
-  // $FlowFixMe
   myClaims.filter((claim) => claim && claim.value?.fee)
 );
 export const selectMyScheduledClaims = createSelector(selectMyClaims, (myClaims) =>
   myClaims.filter((claim) => {
     return (
       claim &&
-      claim.value?.release_time > Math.floor(Date.now() / 1000) && // $FlowFixMe
+      claim.value?.release_time > Math.floor(Date.now() / 1000) &&
       claim.value?.tags?.some((tag) => Object.values(TAG.SCHEDULED_TAGS).includes(tag))
     );
   })
@@ -928,7 +921,6 @@ export const makeSelectSupportsForUri = (uri: string) =>
       const { claim_id: claimId } = claim;
       let total = 0;
       Object.values(byOutpoint).forEach((support) => {
-        // $FlowFixMe
         const { claim_id, amount } = support;
         total = claim_id === claimId && amount ? total + parseFloat(amount) : total;
       });
@@ -1012,7 +1004,6 @@ export const selectIsMyChannelCountOverLimit = createSelector(
   ) => {
     if (myClaimIds) {
       if (ytChannels && ytChannels.length > 0) {
-        // $FlowFixMe - null 'ytChannels' already excluded
         const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
         return ids.length > CHANNEL_CREATION_LIMIT;
       }

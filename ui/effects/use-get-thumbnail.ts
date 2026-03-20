@@ -7,9 +7,7 @@ export default function useGetThumbnail(
   shouldHide: boolean
 ) {
   let thumbnailToUse;
-  // $FlowFixMe
   const isImage = claim && claim.value && claim.value.stream_type === 'image';
-  // $FlowFixMe
   const isFree = claim && claim.value && (!claim.value.fee || Number(claim.value.fee.amount) <= 0);
   const thumbnailInClaim = claim && claim.value && claim.value.thumbnail && claim.value.thumbnail.url;
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;

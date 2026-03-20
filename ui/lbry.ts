@@ -63,7 +63,6 @@ const Lbry: LbryTypes = {
       }, fileName);
       return res === fileName ? 'unknown' : res;
     } else if (contentType) {
-      // $FlowFixMe
       return /^[^/]+/.exec(contentType)[0];
     }
 

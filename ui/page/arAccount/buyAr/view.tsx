@@ -75,7 +75,6 @@ function BuyAr(props: Props) {
     );
     const json = await res.json();
     console.log('res: ', json);
-    // $FlowIgnore
     setFiatAmount(fiatAmountRef.current.value);
   };
 
@@ -88,7 +87,6 @@ function BuyAr(props: Props) {
   };
 
   const handleSelectPaymentOption = () => {
-    // $FlowIgnore
     setPaymentOption(paymentOptionRef.current.value);
   };
 

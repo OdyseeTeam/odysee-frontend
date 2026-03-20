@@ -50,7 +50,6 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
         alreadyDetectedByAdd = true;
       }
 
-      // $FlowIgnore
       script.parentNode?.removeChild(script);
     }
   });

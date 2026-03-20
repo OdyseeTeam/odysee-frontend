@@ -9,7 +9,6 @@ type Props = {
 };
 export default function Expandable(props: Props) {
   const { children } = props;
-  // $FlowIgnore
   const { props: childProps } = children;
   const containsImage = childProps && childProps.content && childProps.content.includes('![');
   const ref = React.useRef();

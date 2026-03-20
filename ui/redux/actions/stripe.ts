@@ -78,7 +78,6 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
 
       // Check if response is new v2 format (AccountStatus with arweave/stripe properties)
       // vs legacy format (StripeAccountStatus directly)
-      // $FlowFixMe - accountStatusResponse can be either format
       if (accountStatusResponse?.arweave || accountStatusResponse?.stripe) {
         return accountStatusResponse;
       }
@@ -367,7 +366,6 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     };
 
     if (makeDefault) {
-      // $FlowIgnore
       params.default = true;
     }
 

@@ -13,7 +13,6 @@ export const defaultCollectionState: Collection = {
 };
 export function getClaimIdsInCollectionClaim(claim: CollectionClaim | null | undefined) {
   if (!claim) return claim;
-  // $FlowFixMe
   return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
 }
 export function claimToStoredCollection(claim: CollectionClaim) {
@@ -89,7 +88,6 @@ export function resolveAuxParams(collectionType: string | null | undefined, coll
       break;
 
     default:
-      // $FlowIgnore
       console.error(`resolveAuxParams: unhandled type: ${collectionType}`); // eslint-disable-line no-console
 
       break;

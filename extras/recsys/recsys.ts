@@ -103,7 +103,6 @@ const recsys: Recsys = {
       // or change the `recClaimIds` definition. Leaving as is for now since
       // any changes could affect existing recsys data set.
       // -----------
-      // $FlowFixMe:
       recsys.entries[claimId]['recClaimIds'] = claimIds;
     }
 
@@ -124,7 +123,6 @@ const recsys: Recsys = {
       const user = selectUser(state);
       const userId = user ? user.id : null;
       // Make a stub entry that will be filled out on page load
-      // $FlowIgnore: not everything is defined since this is a stub
       recsys.entries[claimId] = {
         uuid: uuid || recommendedMeta.uuid,
         claimId: claimId,
@@ -136,13 +134,10 @@ const recsys: Recsys = {
       };
 
       if (parentUuid) {
-        // $FlowFixMe: 'uid' should be a number, not null.
         recsys.entries[claimId].uid = userId || null;
         recsys.entries[claimId].parentUuid = parentUuid;
       } else {
-        // $FlowFixMe: 'uid' should be a number, not null.
         recsys.entries[claimId].uid = userId;
-        // $FlowFixMe: 'recsysId' should be a number, not null.
         recsys.entries[claimId].recsysId = null;
         recsys.entries[claimId].recClaimIds = [];
       }
