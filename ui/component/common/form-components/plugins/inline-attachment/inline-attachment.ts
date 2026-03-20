@@ -219,8 +219,7 @@
    * @return {XMLHttpRequest} request object which sends the file
    */
   inlineAttachment.prototype.uploadFile = function (file) {
-    var me = this,
-      formData = new FormData(),
+    var formData = new FormData(),
       xhr = new XMLHttpRequest(),
       settings = this.settings,
       extension = settings.defaultExtension || settings.defualtExtension;

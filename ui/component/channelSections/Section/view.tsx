@@ -21,18 +21,20 @@ type Props = {
   doOpenModal: (id: string, arg1: {} | null | undefined) => void;
   doDeleteChannelSection: (channelId: string, sectionId: string) => void;
 };
+
+const ContextMenuItem = (props: { label: string; icon: string; onSelect: any }) => (
+  <MenuItem className="menu__link" onSelect={props.onSelect}>
+    <Icon aria-hidden icon={props.icon} />
+    {__(props.label)}
+  </MenuItem>
+);
+
 export default function Section(props: Props) {
   const { id, title, uris, channelId, isChannelMine, doOpenModal, doDeleteChannelSection } = props;
   const { push, location } = useHistory();
 
   // **************************************************************************
   // **************************************************************************
-  const ContextMenuItem = (props: { label: string; icon: string; onSelect: any }) => (
-    <MenuItem className="menu__link" onSelect={props.onSelect}>
-      <Icon aria-hidden icon={props.icon} />
-      {__(props.label)}
-    </MenuItem>
-  );
 
   const ContextMenu = (props: {}) => (
     <Menu>

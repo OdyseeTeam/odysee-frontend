@@ -278,7 +278,7 @@ function MembershipEditTier(props: Props) {
                     type="checkbox"
                     defaultChecked={isSelected}
                     label={__(tierPerk.description)}
-                    name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
+                    name={'perk_' + tierPerk.id + ' membership_' + (membership.membership_id ?? '')}
                     className="membership_perks"
                     onChange={() =>
                       setSelectedPerkIds((prevPerks) => {
@@ -307,7 +307,7 @@ function MembershipEditTier(props: Props) {
                         type="checkbox"
                         defaultChecked={isPermanent || isSelected}
                         label={__(tierPerk.description)}
-                        name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
+                        name={'perk_' + tierPerk.id + ' membership_' + (membership.membership_id ?? '')}
                         className="membership_perks"
                         disabled={isPermanent}
                         onChange={() =>

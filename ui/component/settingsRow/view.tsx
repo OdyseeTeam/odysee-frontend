@@ -45,7 +45,7 @@ export default function SettingsRow(props: Props) {
           'non-clickable': disabled,
         })}
       >
-        {children && children}
+        {children}
       </div>
     </div>
   );

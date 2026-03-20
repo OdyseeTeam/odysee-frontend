@@ -42,7 +42,7 @@ export function secondsToDhms(seconds: number) {
   }
 
   if (sDisplay) {
-    if (!dDisplay && !dDisplay && !mDisplay) {
+    if (!dDisplay && !hDisplay && !mDisplay) {
       returnText = sDisplay;
     }
   }
