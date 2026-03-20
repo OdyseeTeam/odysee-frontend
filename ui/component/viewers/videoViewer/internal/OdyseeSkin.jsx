@@ -569,26 +569,42 @@ function LiveButton() {
   const media = Player.useMedia();
   const currentTime = Player.usePlayer((s) => s.currentTime) || 0;
   const [atEdge, setAtEdge] = useState(true);
+  const atEdgeRef = useRef(true);
+
+  const getLiveSyncPosition = useCallback(() => {
+    if (!media) return null;
+    const hls = media._hls;
+    if (hls && hls.liveSyncPosition != null) return hls.liveSyncPosition;
+    if (media.seekable && media.seekable.length > 0) {
+      return media.seekable.end(media.seekable.length - 1) - 4;
+    }
+    return null;
+  }, [media]);
 
   useEffect(() => {
     if (!media) return;
     const check = () => {
-      if (media.seekable && media.seekable.length > 0) {
-        const end = media.seekable.end(media.seekable.length - 1);
-        setAtEdge(end - media.currentTime < 5);
+      const syncPos = getLiveSyncPosition();
+      if (syncPos != null) {
+        const behind = syncPos - media.currentTime;
+        const next = atEdgeRef.current ? behind < 10 : behind < 5;
+        if (next !== atEdgeRef.current) {
+          atEdgeRef.current = next;
+          setAtEdge(next);
+        }
       }
     };
     check();
     media.addEventListener('timeupdate', check);
     return () => media.removeEventListener('timeupdate', check);
-  }, [media, currentTime]);
+  }, [media, currentTime, getLiveSyncPosition]);
 
   const seekToLive = useCallback(() => {
-    if (!media) return;
-    if (media.seekable && media.seekable.length > 0) {
-      media.currentTime = media.seekable.end(media.seekable.length - 1);
+    const syncPos = getLiveSyncPosition();
+    if (syncPos != null && media) {
+      media.currentTime = syncPos;
     }
-  }, [media]);
+  }, [media, getLiveSyncPosition]);
 
   return (
     <button

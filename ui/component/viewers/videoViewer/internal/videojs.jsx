@@ -272,6 +272,13 @@ function VideoJsInner(props: Props) {
       backBufferLength: 30,
       capLevelToPlayerSize: true,
       capLevelOnFPSDrop: true,
+      ...(isLivestreamClaim
+        ? {
+            liveSyncDuration: 4,
+            liveMaxLatencyDuration: 10,
+            liveDurationInfinity: true,
+          }
+        : undefined),
     });
     hls.attachMedia(media);
     hls.loadSource(src);

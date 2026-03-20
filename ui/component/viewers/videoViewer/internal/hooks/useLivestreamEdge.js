@@ -2,7 +2,8 @@
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 
-const LIVE_EDGE_THRESHOLD = 15;
+const LIVE_SYNC_DURATION = 4;
+const LIVE_EDGE_THRESHOLD = LIVE_SYNC_DURATION + 10;
 
 export default function useLivestreamEdge(isLivestream: boolean) {
   const media = Player.useMedia();
@@ -13,17 +14,28 @@ export default function useLivestreamEdge(isLivestream: boolean) {
 
     seekingRef.current = true;
 
+    const getLiveSyncPosition = () => {
+      const hls = media._hls;
+      if (hls && hls.liveSyncPosition != null) {
+        return hls.liveSyncPosition;
+      }
+      if (media.seekable && media.seekable.length > 0) {
+        return media.seekable.end(media.seekable.length - 1) - LIVE_SYNC_DURATION;
+      }
+      return null;
+    };
+
     const seekToLiveEdge = () => {
-      if (media.duration && isFinite(media.duration)) {
-        media.currentTime = media.duration;
-      } else if (media.seekable && media.seekable.length > 0) {
-        media.currentTime = media.seekable.end(media.seekable.length - 1);
+      const syncPos = getLiveSyncPosition();
+      if (syncPos != null) {
+        media.currentTime = syncPos;
       }
     };
 
     const isAtLiveEdge = () => {
-      if (!media.duration || !isFinite(media.duration)) return true;
-      return media.duration - media.currentTime < LIVE_EDGE_THRESHOLD;
+      const syncPos = getLiveSyncPosition();
+      if (syncPos == null) return true;
+      return syncPos - media.currentTime < LIVE_EDGE_THRESHOLD;
     };
 
     const onTimeUpdate = () => {
