@@ -7,8 +7,8 @@ import SnackBar from 'component/snackBar';
 import SplashScreen from 'component/splash';
 import * as ACTIONS from 'constants/action_types';
 import moment from 'moment';
-// @endif
 import { ipcRenderer, remote, shell } from 'electron';
+// @endif
 import * as MODALS from 'constants/modal_types';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';

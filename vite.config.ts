@@ -266,7 +266,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        silenceDeprecations: ['legacy-js-api', 'import'],
+        silenceDeprecations: ['legacy-js-api', 'import', 'global-builtin'],
         loadPaths: [path.resolve(__dirname, 'ui/scss'), ...resolvePnpmNodeModules()],
       },
     },

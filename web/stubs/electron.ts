@@ -1,43 +1,55 @@
-const callable = () => {
-  throw new Error('Need to fix this stub');
-};
+// Web stubs for electron — provides no-op implementations for web builds
 
 import { DEFAULT_LANGUAGE } from 'config';
 
+const noop = () => {};
+
 export const remote = {
   dialog: {
-    showOpenDialog: callable,
+    showOpenDialog: noop,
   },
-  getCurrentWindow: callable,
+  getCurrentWindow: () => ({
+    inspectElement: noop,
+  }),
   app: {
-    getAppPath: callable,
-    getLocale: () => {
-      return DEFAULT_LANGUAGE;
-    },
+    getAppPath: () => '',
+    getLocale: () => DEFAULT_LANGUAGE,
+    getPath: () => '',
   },
   BrowserWindow: {
-    getFocusedWindow: callable,
+    getFocusedWindow: noop,
   },
   Menu: {
-    getApplicationMenu: callable,
-    buildFromTemplate: () => {
-      return {
-        popup: () => {},
-      };
-    },
+    getApplicationMenu: noop,
+    buildFromTemplate: () => ({
+      popup: noop,
+    }),
   },
-  require: callable,
+  require: noop,
 };
+
 export const clipboard = {
   readText: () => '',
-  writeText: (text) => {
-    var dummy = document.createElement('textarea');
-    document.body.appendChild(dummy);
-    dummy.value = text;
-    dummy.select();
-    document.execCommand('copy');
-    document.body.removeChild(dummy);
+  writeText: (text: string) => {
+    navigator.clipboard?.writeText(text);
   },
 };
-export const ipcRenderer = {};
+
+export const ipcRenderer = {
+  on: noop,
+  send: noop,
+  removeListener: noop,
+};
+
+export const shell = {
+  openExternal: noop,
+  openPath: noop,
+  showItemInFolder: noop,
+};
+
+export const webFrame = {
+  getZoomFactor: () => 1.0,
+  setZoomFactor: noop,
+};
+
 export const isDev = false;

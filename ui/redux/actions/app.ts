@@ -800,11 +800,7 @@ export function doSetChronoLocale(language: string) {
     if (lang === 'en' || (lang && lang.startsWith('en-'))) {
       moment.locale('en');
     } else {
-      // $FlowIgnore: allow non-literal string; errors will be handled.
-      import(
-        `moment/locale/${lang}`
-        /* webpackChunkName: "locale-[request]" */
-      )
+      import(/* @vite-ignore */ `moment/locale/${lang}`)
         .then(() => moment.locale(lang))
         .catch((err) => {
           assert(false, 'Failed to load locale:', err);

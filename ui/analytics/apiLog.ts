@@ -1,22 +1,7 @@
+import { Lbryio } from 'lbryinc';
+
 const isProduction = process.env.NODE_ENV === 'production';
 const devInternalApis = process.env.LBRY_API_URL && process.env.LBRY_API_URL.includes('dev');
-const Lbryio = {
-  importPromise: undefined,
-  loadModule: () => {
-    if (!Lbryio.importPromise) {
-      Lbryio.importPromise = import('lbryinc').then((module) => module.Lbryio).catch((err) => console.log(err)); // eslint-disable-line no-console
-    }
-  },
-  call: (resource, action, params = {}, method = 'post') => {
-    if (!Lbryio.importPromise) {
-      Lbryio.loadModule();
-    }
-
-    return Lbryio.importPromise // $FlowIgnore (null promise will call loadModule)
-      .then((Lbryio) => Lbryio.call(resource, action, params, method))
-      .catch((err) => assert(false, `"${resource}/${action}" failed`, err));
-  },
-};
 type LogPublishParams = {
   uri: string;
   claim_id: string;
