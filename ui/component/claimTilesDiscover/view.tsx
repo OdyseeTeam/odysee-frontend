@@ -267,14 +267,14 @@ function ClaimTilesDiscover(props: Props) {
             }
           })
         : Array.from({ length: pageSize }, (_, i) => (
-              <ClaimPreviewTile
-                sectionTitle={sectionTitle}
-                showNoSourceClaims={hasNoSource || showNoSourceClaims}
-                key={i}
-                placeholder
-                pulse
-              />
-            ))}
+            <ClaimPreviewTile
+              sectionTitle={sectionTitle}
+              showNoSourceClaims={hasNoSource || showNoSourceClaims}
+              key={i}
+              placeholder
+              pulse
+            />
+          ))}
     </ul>
   );
 }

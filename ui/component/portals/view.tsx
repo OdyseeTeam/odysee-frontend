@@ -18,6 +18,31 @@ type Props = {
   // --- perform ---
   doSetClientSetting: (key: string, value: any, push: boolean) => void;
 };
+function getInitialList(listId, savedOrder, homepageSections) {
+  const savedActiveOrder = savedOrder.active || [];
+  const savedHiddenOrder = savedOrder.hidden || [];
+  const sectionKeys = Object.keys(homepageSections);
+  let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
+  let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
+  sectionKeys.forEach((key: string) => {
+    if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
+      if (homepageSections[key].hideByDefault) {
+        hiddenOrder.push(key);
+      } else {
+        if (key === 'BANNER') {
+          activeOrder.unshift(key);
+        } else if (key === 'PORTALS') {
+          // Skip
+        } else {
+          activeOrder.push(key);
+        }
+      }
+    }
+  });
+  activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
+  return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
+}
+
 export default function Portals(props: Props) {
   const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
   const { portals, categories } = homepageData;
@@ -78,31 +103,6 @@ export default function Portals(props: Props) {
       label: 'Recommended',
     },
   });
-
-  function getInitialList(listId, savedOrder, homepageSections) {
-    const savedActiveOrder = savedOrder.active || [];
-    const savedHiddenOrder = savedOrder.hidden || [];
-    const sectionKeys = Object.keys(homepageSections);
-    let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
-    let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
-    sectionKeys.forEach((key: string) => {
-      if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
-        if (homepageSections[key].hideByDefault) {
-          hiddenOrder.push(key);
-        } else {
-          if (key === 'BANNER') {
-            activeOrder.unshift(key);
-          } else if (key === 'PORTALS') {
-            // Skip
-          } else {
-            activeOrder.push(key);
-          }
-        }
-      }
-    });
-    activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
-    return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
-  }
 
   function removePortals() {
     let orderToSave = homepageOrder;

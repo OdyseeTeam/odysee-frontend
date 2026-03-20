@@ -15,6 +15,11 @@ type Props = {
   channels: Array<ChannelClaim> | null | undefined;
 };
 
+function lookupUrlByClaimName(name, channels) {
+  const claim = channels.find((channel) => channel.name === name);
+  return claim && claim.canonical_url ? claim.canonical_url.replace('lbry://', '') : name;
+}
+
 function InviteNew(props: Props) {
   const { inviteNew, errorMessage, isPending, referralCode = '', channels } = props;
   // Email
@@ -61,11 +66,6 @@ function InviteNew(props: Props) {
       handleReferralChange(topChannel.name);
     }
   }, [topChannel, handleReferralChange]);
-
-  function lookupUrlByClaimName(name, channels) {
-    const claim = channels.find((channel) => channel.name === name);
-    return claim && claim.canonical_url ? claim.canonical_url.replace('lbry://', '') : name;
-  }
 
   return (
     <div className={'columns'}>

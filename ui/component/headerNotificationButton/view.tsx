@@ -30,6 +30,20 @@ type Props = {
   doSeeAllNotifications: () => void;
   doGetMembershipSupportersList: () => void;
 };
+const creatorIcon = (channelUrl, channelThumbnail) => (
+  <UriIndicator
+    uri={channelUrl}
+    link
+    showAtSign
+    channelInfo={{
+      uri: channelUrl,
+      name: '',
+    }}
+  >
+    <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
+  </UriIndicator>
+);
+
 export default function NotificationHeaderButton(props: Props) {
   const {
     notifications,
@@ -86,20 +100,6 @@ export default function NotificationHeaderButton(props: Props) {
       setClicked(false);
     }
   };
-
-  const creatorIcon = (channelUrl, channelThumbnail) => (
-    <UriIndicator
-      uri={channelUrl}
-      link
-      showAtSign
-      channelInfo={{
-        uri: channelUrl,
-        name: '',
-      }}
-    >
-      <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
-    </UriIndicator>
-  );
 
   function handleMenuClick() {
     push(`/$/${PAGES.NOTIFICATIONS}`);

@@ -11,8 +11,7 @@ export const LEVEL_2_STAKED_AMOUNT = 1;
 export const LEVEL_3_STAKED_AMOUNT = 50;
 export const LEVEL_4_STAKED_AMOUNT = 250;
 export const LEVEL_5_STAKED_AMOUNT = 1000;
-export const INVALID_NAME_ERROR =
-  __('names cannot contain spaces or reserved symbols') + ' (?$#@;:/\\="<>%{}|^~[]`)';
+export const INVALID_NAME_ERROR = __('names cannot contain spaces or reserved symbols') + ' (?$#@;:/\\="<>%{}|^~[]`)';
 export const FORCE_CONTENT_TYPE_PLAYER = [
   'video/quicktime',
   'application/x-ext-mkv',

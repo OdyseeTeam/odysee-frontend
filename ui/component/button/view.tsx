@@ -45,9 +45,7 @@ type Props = {
 };
 // check if the link is for odysee.com
 function isAnOdyseeLink(urlString) {
-  return (
-    urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
-  );
+  return urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1);
 }
 
 // use forwardRef to allow consumers to pass refs to the button content if they want to

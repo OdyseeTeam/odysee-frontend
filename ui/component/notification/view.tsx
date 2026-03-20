@@ -46,6 +46,20 @@ type Props = {
   doReadNotifications: (ids: Array<number>) => void;
   doGetMembershipSupportersList: () => void;
 };
+const creatorIcon = (channelUrl, channelThumbnail) => (
+  <UriIndicator
+    uri={channelUrl}
+    link
+    showAtSign
+    channelInfo={{
+      uri: channelUrl,
+      name: '',
+    }}
+  >
+    <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
+  </UriIndicator>
+);
+
 export default function Notification(props: Props) {
   const {
     menuButton = false,
@@ -65,20 +79,6 @@ export default function Notification(props: Props) {
     notification_rule === RULE.CREATOR_COMMENT;
   const notificationTarget = getNotificationTarget(notification);
   const notificationLink = getNotificationLink(notification, notificationTarget);
-
-  const creatorIcon = (channelUrl, channelThumbnail) => (
-    <UriIndicator
-      uri={channelUrl}
-      link
-      showAtSign
-      channelInfo={{
-        uri: channelUrl,
-        name: '',
-      }}
-    >
-      <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
-    </UriIndicator>
-  );
 
   let channelUrl, icon, notificationAction;
 

@@ -880,13 +880,13 @@ function ClaimListDiscover(props: Props) {
           {claimListLoading &&
             useSkeletonScreen &&
             Array.from({ length: dynamicPageSize }, (_, i) => (
-                <ClaimPreview
-                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
-                  key={i}
-                  placeholder="loading"
-                  type={type}
-                />
-              ))}
+              <ClaimPreview
+                showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                key={i}
+                placeholder="loading"
+                type={type}
+              />
+            ))}
         </div>
       )}
     </React.Fragment>

@@ -19,6 +19,32 @@ type Props = {
   thisMembership: Membership;
 };
 
+function getHasPayment(membership) {
+  if (!membership) {
+    return false;
+  }
+
+  const payments = membership.payments;
+  const numPayments = payments.length;
+
+  if (!numPayments) {
+    return false;
+  }
+
+  const lastPayment = payments[numPayments - 1];
+
+  if (lastPayment.status === 'pending') {
+    return false;
+  }
+
+  if (lastPayment.status === 'submitted' || lastPayment.status === 'paid') {
+    return true;
+  }
+
+  console.log('unknown payment state; returning false');
+  return false;
+}
+
 const MembershipTier = (props: Props) => {
   const {
     membership,
@@ -53,32 +79,6 @@ const MembershipTier = (props: Props) => {
     Membership lapsed, payments[2] status submitted
     Membership active, payments[2] status paid
    */
-  function getHasPayment(membership) {
-    if (!membership) {
-      return false;
-    }
-
-    const payments = membership.payments;
-    const numPayments = payments.length;
-
-    if (!numPayments) {
-      return false;
-    }
-
-    const lastPayment = payments[numPayments - 1];
-
-    if (lastPayment.status === 'pending') {
-      return false;
-    }
-
-    if (lastPayment.status === 'submitted' || lastPayment.status === 'paid') {
-      return true;
-    }
-
-    console.log('unknown payment state; returning false');
-    return false;
-  }
-
   const hasPayment = getHasPayment(thisMembership);
 
   const getMembershipAction = () => {

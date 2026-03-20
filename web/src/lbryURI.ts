@@ -6,9 +6,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 // see https://spec.lbry.com/#urls
-// eslint-disable-next-line no-control-regex
 const regexInvalidURI =
-  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u; // eslint-disable-line no-control-regex
 // const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -67,8 +66,7 @@ function parseURI(url, requireProto = false) {
     secondaryModSeparator,
     secondaryModValue,
   ] = rest;
-  // eslint-disable-next-line no-control-regex
-  const primaryModValue = rawPrimaryModValue && rawPrimaryModValue.replace(/[^\x00-\x7F]/g, '');
+  const primaryModValue = rawPrimaryModValue && rawPrimaryModValue.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   const searchParams = new URLSearchParams(qs || '');
   const startTime = searchParams.get('t');
 

@@ -36,6 +36,32 @@ type Props = {
   visibility: Visibility;
 };
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(Number(value), min), max);
+}
+
+function getTncRow() {
+  return (
+    <div className="publish-price__row">
+      <div className="publish-price__grp-1 publish-price__tnc">
+        <I18nMessage
+          tokens={{
+            paid_content_terms_and_conditions: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/category-monetization/"
+                label={__('paid-content terms and conditions')}
+              />
+            ),
+          }}
+        >
+          By continuing, you accept the %paid_content_terms_and_conditions%.
+        </I18nMessage>
+      </div>
+    </div>
+  );
+}
+
 function PublishPrice(props: Props) {
   const {
     // Purchase
@@ -64,10 +90,6 @@ function PublishPrice(props: Props) {
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
   // If it's only restricted, the price can be added externally, and they won't be able to change it
   const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
-
-  function clamp(value, min, max) {
-    return Math.min(Math.max(Number(value), min), max);
-  }
 
   function sanitizeFee(name) {
     const feeLookup = {
@@ -171,28 +193,6 @@ function PublishPrice(props: Props) {
               )}
             </React.Fragment>
           </fieldset-section>
-        </div>
-      </div>
-    );
-  }
-
-  function getTncRow() {
-    return (
-      <div className="publish-price__row">
-        <div className="publish-price__grp-1 publish-price__tnc">
-          <I18nMessage
-            tokens={{
-              paid_content_terms_and_conditions: (
-                <Button
-                  button="link"
-                  href="https://help.odysee.tv/category-monetization/"
-                  label={__('paid-content terms and conditions')}
-                />
-              ),
-            }}
-          >
-            By continuing, you accept the %paid_content_terms_and_conditions%.
-          </I18nMessage>
         </div>
       </div>
     );

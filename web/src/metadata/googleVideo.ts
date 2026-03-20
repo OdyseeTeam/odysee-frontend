@@ -134,9 +134,7 @@ async function buildGoogleVideoMetadata(uri, claim) {
     return '';
   }
 
-  return (
-    '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n</script>\n'
-  );
+  return '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n</script>\n';
 }
 
 module.exports = {

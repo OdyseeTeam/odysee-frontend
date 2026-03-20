@@ -37,6 +37,18 @@ type Props = {
   doToast: (arg0: { message: string; isError?: boolean }) => void;
 };
 
+const normalizeUrlForProtocol = (url) => {
+  if (url && url.startsWith('https://')) {
+    return url;
+  } else {
+    if (url && url.startsWith('http://')) {
+      return url;
+    } else if (url) {
+      return `https://${url}`;
+    } else return __('Click Check for Replays to update...');
+  }
+};
+
 function PublishLivestream(props: Props) {
   const {
     uri,
@@ -77,17 +89,6 @@ function PublishLivestream(props: Props) {
   const showReplaySelector = liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder';
 
   // assert(inEditMode ? liveCreateType === 'edit_placeholder' : true, liveCreateType);
-  const normalizeUrlForProtocol = (url) => {
-    if (url && url.startsWith('https://')) {
-      return url;
-    } else {
-      if (url && url.startsWith('http://')) {
-        return url;
-      } else if (url) {
-        return `https://${url}`;
-      } else return __('Click Check for Replays to update...');
-    }
-  };
 
   // update remoteUrl when replay selected
   useEffect(() => {

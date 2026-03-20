@@ -21,6 +21,10 @@ type Props = {
   isComment?: boolean;
 };
 
+function isMe(claim, title) {
+  return claim && title && claim.replace('#', ':') === title;
+}
+
 function MarkdownLink(props: Props) {
   const {
     children,
@@ -88,10 +92,6 @@ function MarkdownLink(props: Props) {
         lbryUrlFromLink = possibleLbryUrl;
       }
     }
-  }
-
-  function isMe(claim, title) {
-    return claim && title && claim.replace('#', ':') === title;
   }
 
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).

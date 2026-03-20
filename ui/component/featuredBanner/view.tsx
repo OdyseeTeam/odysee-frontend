@@ -9,6 +9,23 @@ type Props = {
   homepageData: any;
   authenticated: boolean;
 };
+function getUriTo(uri) {
+  if (uri.includes('odysee.com')) {
+    uri = uri.substring(uri.indexOf('odysee.com') + 10);
+  }
+
+  let search;
+
+  if (uri.includes('?lid=')) {
+    search = uri.substring(uri.indexOf('?lid='));
+  }
+
+  return {
+    pathname: uri,
+    search: search || undefined,
+  };
+}
+
 export default function FeaturedBanner(props: Props) {
   const { homepageData, authenticated } = props;
   const { featured } = homepageData;
@@ -64,7 +81,6 @@ export default function FeaturedBanner(props: Props) {
       document.removeEventListener('click', handleClickOutside);
     };
   }, [isMenuOpen]);
-
 
   function handleAnchor(e, uri) {
     if (uri.charAt(0) !== '#') {
