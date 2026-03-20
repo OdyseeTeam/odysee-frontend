@@ -38,6 +38,10 @@ const defaultState: CollectionState = {
   },
   resolvedIds: undefined,
   thumbnailClaimsFetchingCollectionIds: [],
+  autoPublishById: {},
+  autoPublishScheduledAtById: {},
+  publishingById: {},
+  publishErrorById: {},
 };
 
 const collectionsReducer = handleActions(
@@ -99,12 +103,84 @@ const collectionsReducer = handleActions(
       if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
       if (newUnsavedChangesList[collectionId]) delete newUnsavedChangesList[collectionId];
 
+      const newPublishingById = Object.assign({}, state.publishingById);
+      const newPublishErrorById = Object.assign({}, state.publishErrorById);
+      if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
+      if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
+
       return {
         ...state,
         edited: newEditList,
         unpublished: newUnpublishedList,
         updated: newUpdatedList,
         unsavedChanges: newUnsavedChangesList,
+        publishingById: newPublishingById,
+        publishErrorById: newPublishErrorById,
+      };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_START]: (state, action) => {
+      const { collectionId } = action.data;
+      const newPublishErrorById = Object.assign({}, state.publishErrorById);
+      if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      delete newAutoPublishScheduledAtById[collectionId];
+      return {
+        ...state,
+        publishingById: { ...state.publishingById, [collectionId]: true },
+        publishErrorById: newPublishErrorById,
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
+      };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_SUCCESS]: (state, action) => {
+      const { collectionId, publishedCollectionId } = action.data;
+      const newPublishingById = { ...state.publishingById };
+      const newPublishErrorById = { ...state.publishErrorById };
+
+      delete newPublishingById[collectionId];
+      delete newPublishErrorById[collectionId];
+
+      if (publishedCollectionId && publishedCollectionId !== collectionId) {
+        delete newPublishingById[publishedCollectionId];
+        delete newPublishErrorById[publishedCollectionId];
+      }
+
+      return {
+        ...state,
+        publishingById: newPublishingById,
+        publishErrorById: newPublishErrorById,
+      };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_FAIL]: (state, action) => {
+      const { collectionId, error } = action.data;
+      const newPublishingById = Object.assign({}, state.publishingById);
+      if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
+      return {
+        ...state,
+        publishingById: newPublishingById,
+        publishErrorById: { ...state.publishErrorById, [collectionId]: String(error || 'Publish failed') },
+      };
+    },
+    [ACTIONS.COLLECTION_AUTOPUBLISH_SET]: (state, action) => {
+      const { collectionId, enabled } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      if (!enabled) delete newAutoPublishScheduledAtById[collectionId];
+      return {
+        ...state,
+        autoPublishById: { ...state.autoPublishById, [collectionId]: enabled },
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
+      };
+    },
+    [ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED]: (state, action) => {
+      const { collectionId, scheduledAt } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      if (scheduledAt) {
+        newAutoPublishScheduledAtById[collectionId] = scheduledAt;
+      } else {
+        delete newAutoPublishScheduledAtById[collectionId];
+      }
+      return {
+        ...state,
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
       };
     },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
@@ -165,8 +241,14 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-      const { builtinCollections, savedCollectionIds, unpublishedCollections, editedCollections, updatedCollections } =
-        action.data;
+      const {
+        builtinCollections,
+        savedCollectionIds,
+        unpublishedCollections,
+        editedCollections,
+        updatedCollections,
+        autoPublishById,
+      } = action.data;
 
       return {
         ...state,
@@ -175,6 +257,7 @@ const collectionsReducer = handleActions(
         unpublished: unpublishedCollections || state.unpublished,
         builtin: builtinCollections || state.builtin,
         savedIds: savedCollectionIds || state.savedIds,
+        autoPublishById: { ...state.autoPublishById, ...(autoPublishById || {}) },
       };
     },
 

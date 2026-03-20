@@ -1,5 +1,4 @@
 // @flow
-import moment from 'moment';
 
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
@@ -7,6 +6,8 @@ import { createSelector } from 'reselect';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import {
   selectClaimForUri,
+  selectClaimForClaimId,
+  selectClaimIsPendingForId,
   selectClaimsById,
   selectClaimIdsByUri,
   selectMyCollectionClaimIds,
@@ -21,11 +22,22 @@ import {
   selectIsCollectionPlayingForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
+  selectCanPlaybackFileForUri,
 } from 'redux/selectors/content';
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
 const selectState = (state: State) => state.collections || {};
+const selectRouterSearchString = (state: State) =>
+  (state.router && state.router.location && state.router.location.search) || '';
+const TIMESTAMP_MS_THRESHOLD = 1e12;
+
+const toMilliseconds = (timestamp: any): number => {
+  if (!timestamp) return 0;
+  const value = Number(timestamp);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value > TIMESTAMP_MS_THRESHOLD ? value : value * 1000;
+};
 
 export const selectSavedCollectionIds = (state: State) => selectState(state).savedIds;
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
@@ -40,12 +52,33 @@ export const selectIsFetchingMyCollections = (state: State) => selectState(state
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
 export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
   selectState(state).thumbnailClaimsFetchingCollectionIds;
+export const selectCollectionAutoPublishMap = (state: State) => selectState(state).autoPublishById || {};
+export const selectCollectionPublishingMap = (state: State) => selectState(state).publishingById || {};
+export const selectCollectionPublishErrorMap = (state: State) => selectState(state).publishErrorById || {};
+export const selectCollectionAutoPublishForId = (state: State, id: string) =>
+  Boolean(selectCollectionAutoPublishMap(state)[id]);
+export const selectCollectionAutoPublishScheduledAtMap = (state: State) =>
+  selectState(state).autoPublishScheduledAtById || {};
+export const selectCollectionAutoPublishScheduledAtForId = (state: State, id: string) =>
+  selectCollectionAutoPublishScheduledAtMap(state)[id] || null;
+export const selectCollectionIsPublishingForId = (state: State, id: string) =>
+  Boolean(selectCollectionPublishingMap(state)[id]);
+export const selectCollectionPublishErrorForId = (state: State, id: string) =>
+  selectCollectionPublishErrorMap(state)[id];
 
 export const selectAreThumbnailClaimsFetchingForCollectionIds = (state: State, ids: string) =>
   selectThumbnailClaimsFetchingCollectionIds(state).includes(ids);
 
-export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
-  new Set(selectCollectionIdsWithItemsResolved(state)).has(id);
+const selectCollectionIdsWithItemsResolvedSet = createSelector(
+  selectCollectionIdsWithItemsResolved,
+  (resolvedIds) => new Set(resolvedIds || [])
+);
+
+export const selectCollectionHasItemsResolvedForId = createCachedSelector(
+  selectCollectionIdsWithItemsResolvedSet,
+  (state: State, id: string) => id,
+  (resolvedIdsSet, id) => resolvedIdsSet.has(id)
+)((state: State, id: string) => String(id));
 
 export const selectUnpublishedCollectionsList = createSelector(
   selectMyUnpublishedCollections,
@@ -124,9 +157,13 @@ export const selectResolvedCollectionForId = (state: State, id: string) => selec
 export const selectUnpublishedCollectionForId = (state: State, id: string) => selectMyUnpublishedCollections(state)[id];
 
 export const selectCollectionIsMine = (state: State, id: string) => {
-  const isPrivate = selectHasPrivateCollectionForId(state, id);
-  if (isPrivate) return true;
+  // Check if it's a locally-created (unpublished) collection
+  const unpublished = selectUnpublishedCollectionForId(state, id);
+  if (unpublished) return true;
 
+  if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
+
+  // Check if it's a published collection owned by the user
   const publicIds = selectMyCollectionClaimIds(state);
   if (publicIds && publicIds.includes(id)) return true;
 
@@ -224,12 +261,13 @@ export const selectCollectionForId = createSelector(
   (state, id) => id,
   selectCollectionsById,
   selectResolvedCollectionsById,
-  (id, collectionsById, resolved) => {
+  selectRouterSearchString,
+  (id, collectionsById, resolved, search) => {
     if (!id) return id;
 
     const collection = collectionsById[id];
 
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(search);
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
     if (isOnPublicView) return resolved[id] || collection;
@@ -342,12 +380,14 @@ export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
 };
 
 export const selectFirstItemUrlForCollection = (state: State, id: string) => {
-  const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
-  if (!collectionItemUrls) return collectionItemUrls;
+  const items = selectItemsForCollectionId(state, id);
+  const firstItem = items && items[0];
+  if (!firstItem) return null;
 
-  return collectionItemUrls.length > 0
-    ? collectionItemUrls.find((collectionItemUrl) => collectionItemUrl !== null)
-    : null;
+  if (isPermanentUrl(firstItem) || isCanonicalUrl(firstItem)) return firstItem;
+
+  const claim = selectClaimForClaimId(state, firstItem);
+  return claim ? claim.permanent_url || claim.canonical_url || null : null;
 };
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
@@ -381,33 +421,29 @@ export const selectUpdatedAtForCollectionId = createSelector(
   selectUserCreationDate,
   selectUpdatedCollectionForId,
   (collection, userCreatedAt, updated) => {
-    const collectionUpdatedAt = (updated?.updatedAt || collection?.updatedAt || 0) * 1000;
+    const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collection?.id);
+    const collectionUpdatedAt = toMilliseconds(
+      updated?.updatedAt || collection?.updatedAt || collection?.createdAt || 0
+    );
 
-    const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
-    const collectionUpdatedDate = moment(collectionUpdatedAt).format('MMMM DD YYYY');
+    // Built-in lists don't have chain timestamps.
+    if (!collectionUpdatedAt && isBuiltin) return toMilliseconds(userCreatedAt);
+    if (!collectionUpdatedAt) return 0;
 
-    // Collection updated time can't be older than account creation date
-    if (moment(collectionUpdatedDate).diff(moment(userCreationDate)) < 0) {
-      return userCreatedAt;
-    }
-
-    return collectionUpdatedAt || '';
+    return collectionUpdatedAt;
   }
 );
 
-export const selectCreatedAtForCollectionId = (state: State, id: string) => {
-  const collection = selectCollectionForId(state, id);
-  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id);
-
-  if (isBuiltin) {
-    const userCreatedAt = selectUserCreationDate(state);
-    return userCreatedAt;
+export const selectCreatedAtForCollectionId = createSelector(
+  selectCollectionForId,
+  (state: State, id: string) => id,
+  selectUserCreationDate,
+  (collection, id, userCreatedAt) => {
+    const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id);
+    if (isBuiltin) return toMilliseconds(userCreatedAt);
+    return toMilliseconds(collection?.createdAt || 0);
   }
-
-  if (collection?.createdAt) return collection.createdAt * 1000;
-
-  return null;
-};
+);
 
 export const selectCountForCollectionId = (state: State, id: string) =>
   getItemCountForCollection(selectCollectionForId(state, id));
@@ -420,7 +456,7 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
   if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
 
   if (selectCollectionHasEditsForId(state, id) || selectCollectionHasUnsavedEditsForId(state, id)) {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(selectRouterSearchString(state));
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
     if (!isOnPublicView) return true;
   }
@@ -431,6 +467,37 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
 // Is private === only private (doesn't include public with private edits)
 export const selectIsCollectionPrivateForId = (state: State, id: string) =>
   Boolean(selectUnpublishedCollectionForId(state, id) || COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id));
+
+export const SYNC_STATUS = {
+  UNKNOWN: 'unknown',
+  PUBLISHING: 'publishing',
+  PENDING_CONFIRMATION: 'pending_confirmation',
+  PUBLISH_FAILED: 'publish_failed',
+  LOCAL_CHANGES: 'local_changes',
+  PRIVATE_LOCAL: 'private_local',
+  PUBLIC_SYNCED: 'public_synced',
+};
+
+export const selectCollectionSyncStatusForId = (state: State, id: string) => {
+  if (!id) return SYNC_STATUS.UNKNOWN;
+
+  const isPublishing = selectCollectionIsPublishingForId(state, id);
+  if (isPublishing) return SYNC_STATUS.PUBLISHING;
+
+  const isPending = selectClaimIsPendingForId(state, id);
+  if (isPending) return SYNC_STATUS.PENDING_CONFIRMATION;
+
+  const publishError = selectCollectionPublishErrorForId(state, id);
+  if (publishError) return SYNC_STATUS.PUBLISH_FAILED;
+
+  const hasEdits = selectCollectionHasEditsForId(state, id) || selectCollectionHasUnsavedEditsForId(state, id);
+  if (hasEdits) return SYNC_STATUS.LOCAL_CHANGES;
+
+  if (selectIsCollectionPrivateForId(state, id)) return SYNC_STATUS.PRIVATE_LOCAL;
+  if (selectIsMyCollectionPublishedForId(state, id)) return SYNC_STATUS.PUBLIC_SYNCED;
+
+  return SYNC_STATUS.UNKNOWN;
+};
 
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,
@@ -499,6 +566,12 @@ export const selectUrlsForCollectionId = createCachedSelector(
     return Array.from(uris);
   }
 )((state, url, itemCount) => `${String(url)}:${String(itemCount)}`);
+
+export const selectFirstPlayableUrlForCollectionId = createCachedSelector(
+  selectUrlsForCollectionId,
+  (state) => state,
+  (uris, state) => (uris ? uris.find((uri) => selectCanPlaybackFileForUri(state, uri)) : undefined)
+)((state, collectionId) => String(collectionId));
 
 export const selectUrlsForCollectionIdNonDeleted = createCachedSelector(
   selectUrlsForCollectionId,

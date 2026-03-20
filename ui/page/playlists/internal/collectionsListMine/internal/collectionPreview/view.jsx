@@ -21,6 +21,7 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
 import Spinner from 'component/spinner';
+import AutoPublishCountdown from './internal/autoPublishCountdown';
 
 type Props = {
   uri: string,
@@ -37,6 +38,7 @@ type Props = {
   channelTitle?: String,
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
+  firstPlayableCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
   collectionCreatedAt: ?number,
   isBuiltin: boolean,
@@ -45,6 +47,10 @@ type Props = {
   thumbnailFromClaim: string,
   thumbnailFromSecondaryClaim: string,
   collectionHasEdits: boolean,
+  isPublishing: boolean,
+  publishError?: ?string,
+  autoPublish: boolean,
+  autoPublishScheduledAt: ?number,
 };
 
 function CollectionPreview(props: Props) {
@@ -59,6 +65,7 @@ function CollectionPreview(props: Props) {
     collectionType,
     hasClaim,
     firstCollectionItemUrl,
+    firstPlayableCollectionItemUrl,
     channel,
     channelTitle,
     collectionUpdatedAt,
@@ -69,21 +76,27 @@ function CollectionPreview(props: Props) {
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
     collectionHasEdits,
+    isPublishing,
+    publishError,
+    autoPublish,
+    autoPublishScheduledAt,
   } = props;
 
   const { push } = useHistory();
 
   if (collectionType === 'featuredChannels') return null;
 
-  let test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
-  test = 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
+  const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  const optimizedPreviewThumbnail = previewThumbnail
+    ? `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/${previewThumbnail}`
+    : null;
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = formatLbryUrlForWeb(firstCollectionItemUrl) || '/';
+  const firstItemPath = firstPlayableCollectionItemUrl ? formatLbryUrlForWeb(firstPlayableCollectionItemUrl) : '/';
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
   const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
 
@@ -103,14 +116,17 @@ function CollectionPreview(props: Props) {
   return (
     <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
       <CollectionMenuList collectionId={collectionId} />
-      <div className="background" style={{ backgroundImage: 'url(' + test + ')' }} />
+      <div
+        className="background"
+        style={optimizedPreviewThumbnail ? { backgroundImage: `url(${optimizedPreviewThumbnail})` } : undefined}
+      />
       <div className="content">
         <div className="thumbnail">
           <NavLink {...navLinkProps}>
             <FileThumbnail
               uri={uri || firstCollectionItemUrl}
               secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
-              thumbnail={thumbnail || null}
+              thumbnail={previewThumbnail || null}
             >
               <CollectionPreviewOverlay collectionId={collectionId} />
             </FileThumbnail>
@@ -135,6 +151,24 @@ function CollectionPreview(props: Props) {
                     </div>
                   </Tooltip>
                 )}
+                {isPublishing && (
+                  <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
+                    <div className="pending-change">
+                      <Spinner />
+                    </div>
+                  </Tooltip>
+                )}
+                {collectionHasEdits && publishError && (
+                  <Tooltip
+                    title={__('Last publish failed. Open playlist and retry publish.')}
+                    arrow={false}
+                    enterDelay={100}
+                  >
+                    <span>
+                      <Icon icon={ICONS.WARNING} />
+                    </span>
+                  </Tooltip>
+                )}
               </h2>
             </NavLink>
           </div>
@@ -152,6 +186,23 @@ function CollectionPreview(props: Props) {
               <CollectionItemCount collectionId={collectionId} />
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
 
+              {autoPublish && (
+                <div className="auto-publish-badge">
+                  <Icon icon={ICONS.PUBLISH} />
+                  <span>
+                    {isPublishing ? (
+                      __('Publishing...')
+                    ) : autoPublishScheduledAt ? (
+                      <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                    ) : collectionHasEdits ? (
+                      __('Publish pending')
+                    ) : (
+                      __('Auto-publish')
+                    )}
+                  </span>
+                </div>
+              )}
+
               <div className="create-at">
                 {collectionCreatedAt && (
                   <>
@@ -168,7 +219,7 @@ function CollectionPreview(props: Props) {
             </div>
 
             <div className="action">
-              {collectionCount > 0 && !hidePlayAll && (
+              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && (
                 <Button
                   button="alt"
                   icon={ICONS.PLAY}

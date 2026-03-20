@@ -49,6 +49,16 @@ type Props = {
 
 const UNALLOWED_TAGS = ['lbry-first'];
 
+function getTagNames(tags: $ReadOnlyArray<?Tag>): Array<string> {
+  return tags.reduce((names, tag) => {
+    if (tag && typeof tag.name === 'string' && tag.name) {
+      names.push(tag.name);
+    }
+
+    return names;
+  }, []);
+}
+
 /*
  We display tagsPassedIn
  onClick gets the tag when a tag is clicked
@@ -89,9 +99,12 @@ export default function TagsSearch(props: Props) {
 
   // Make sure there are no duplicates, then trim
   // suggestedTags = (followedTags - tagsPassedIn) + unfollowedTags
-  const followedTagsSet = new Set(followedTags.map((tag) => tag.name));
-  const selectedTagsSet = new Set(tagsPassedIn.map((tag) => tag.name));
-  const unfollowedTagsSet = new Set(unfollowedTags.map((tag) => tag.name));
+  const followedTagNames = getTagNames(followedTags);
+  const selectedTagNames = getTagNames(tagsPassedIn);
+  const unfollowedTagNames = getTagNames(unfollowedTags);
+  const followedTagsSet = new Set(followedTagNames);
+  const selectedTagsSet = new Set(selectedTagNames);
+  const unfollowedTagsSet = new Set(unfollowedTagNames);
   const remainingFollowedTagsSet = setDifference(followedTagsSet, selectedTagsSet);
   const remainingUnfollowedTagsSet = setDifference(unfollowedTagsSet, selectedTagsSet);
   const suggestedTagsSet = setUnion(remainingFollowedTagsSet, remainingUnfollowedTagsSet);
@@ -184,11 +197,11 @@ export default function TagsSearch(props: Props) {
       onSelect(arrOfObjectTags);
     } else {
       newTagsArr.forEach((tag) => {
-        if (!unfollowedTags.some(({ name }) => name === tag)) {
+        if (!unfollowedTagNames.includes(tag)) {
           doAddTag(tag);
         }
 
-        if (!followedTags.some(({ name }) => name === tag)) {
+        if (!followedTagNames.includes(tag)) {
           doToggleTagFollowDesktop(tag);
         }
       });
@@ -199,13 +212,13 @@ export default function TagsSearch(props: Props) {
     if (onSelect) {
       onSelect([{ name: tag }]);
     } else {
-      const wasFollowing = followedTags.map((t) => t.name).includes(tag);
+      const wasFollowing = followedTagNames.includes(tag);
       doToggleTagFollowDesktop(tag);
       analytics.event.tagFollow(tag, !wasFollowing);
     }
   }
   function handleUtilityTagCheckbox(tag: string) {
-    const selectedTag = tagsPassedIn.find((te) => te.name === tag);
+    const selectedTag = tagsPassedIn.find((te) => te && te.name === tag);
     if (selectedTag) {
       onRemove(selectedTag);
     } else if (onSelect) {
@@ -299,7 +312,7 @@ export default function TagsSearch(props: Props) {
                   type="checkbox"
                   blockWrap={false}
                   label={controlTagLabels[t]}
-                  checked={tagsPassedIn.some((te) => te.name === t)}
+                  checked={selectedTagsSet.has(t)}
                   onChange={() => handleUtilityTagCheckbox(t)}
                 />
               ))}

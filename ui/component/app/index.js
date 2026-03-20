@@ -30,6 +30,7 @@ import {
   doFetchLanguage,
   doSetClientSetting,
 } from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
 import {
@@ -79,6 +80,7 @@ const perform = {
   doSetAssignedLbrynetServer,
   doOpenModal,
   doSetClientSetting,
+  doToast,
 };
 
 export default hot(connect(select, perform)(App));

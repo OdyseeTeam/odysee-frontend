@@ -105,6 +105,7 @@ type Props = {
   doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (id: string, ?{}) => void,
   doSetClientSetting: (string, any, ?boolean) => void,
+  doToast: ({ message: string }) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -150,6 +151,7 @@ function App(props: Props) {
     doSetAssignedLbrynetServer,
     doOpenModal,
     doSetClientSetting,
+    doToast,
   } = props;
 
   const isMobile = useIsMobile();
@@ -392,7 +394,7 @@ function App(props: Props) {
         'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
       ),
       labelOk: __('Yes!'),
-      labelCancel: __('Customize'),
+      labelCancel: __('Later'),
       onConfirm: (closeModal) => {
         closeModal();
 
@@ -403,6 +405,7 @@ function App(props: Props) {
         };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        doToast({ message: __('Homepage recommendations enabled.') });
       },
       onCancel: (closeModal) => {
         closeModal();
@@ -410,15 +413,13 @@ function App(props: Props) {
         const hidden = homepageOrder?.hidden || [];
         const newHomePageOrder = {
           ...homepageOrder,
-          hidden: ['FYP', ...hidden],
+          hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden],
         };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
-
-        doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE);
       },
     });
-  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal]);
+  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
 
   useEffect(() => {
     // $FlowFixMe

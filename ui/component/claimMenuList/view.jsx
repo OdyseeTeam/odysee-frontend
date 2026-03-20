@@ -302,7 +302,7 @@ function ClaimMenuList(props: Props) {
           onSelect={() => handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)}
         >
           <div className="menu__link">
-            <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
+            <Icon aria-hidden icon={ICONS.TIME} />
             {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
           </div>
         </MenuItem>
@@ -316,7 +316,7 @@ function ClaimMenuList(props: Props) {
           onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
         >
           <div className="menu__link">
-            <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
+            <Icon aria-hidden icon={ICONS.STAR} />
             {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
           </div>
         </MenuItem>
@@ -352,10 +352,10 @@ function ClaimMenuList(props: Props) {
             onSelect={() => handleAdd(lastUsedCollection.hasClaim, lastUsedCollection.name, lastUsedCollection.id)}
           >
             <div className="menu__link">
-              {!lastUsedCollection.hasClaim && <Icon aria-hidden icon={ICONS.ADD} />}
-              {lastUsedCollection.hasClaim && <Icon aria-hidden icon={ICONS.DELETE} />}
-              {!lastUsedCollection.hasClaim && __('Add to %collection%', { collection: lastUsedCollection.name })}
-              {lastUsedCollection.hasClaim && __('In %collection%', { collection: lastUsedCollection.name })}
+              <Icon aria-hidden icon={lastUsedCollection.hasClaim ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD} />
+              {lastUsedCollection.hasClaim
+                ? __('In %collection%', { collection: lastUsedCollection.name })
+                : __('Add to %collection%', { collection: lastUsedCollection.name })}
             </div>
           </MenuItem>
         );

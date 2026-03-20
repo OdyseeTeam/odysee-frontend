@@ -90,7 +90,7 @@ function FileThumbnail(props: Props) {
 
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
 
-  if (!gettingThumbnail && thumbnailUrl !== undefined) {
+  if (!gettingThumbnail) {
     return (
       <Thumb
         small={small}

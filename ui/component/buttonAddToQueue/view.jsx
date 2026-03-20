@@ -11,6 +11,7 @@ type Props = {
   focusable: boolean,
   menuItem?: boolean,
   // -- redux --
+  autoplayMedia: boolean,
   hasClaimInQueue: boolean,
   hasPlayingUriInQueue: boolean,
   playingUri: PlayingUri,
@@ -20,6 +21,8 @@ type Props = {
   doCollectionEdit: (id: string, CollectionEditParams) => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doSetPlayingUri: (props: any) => void,
+  doResolveUri: (uri: string, returnCachedClaims?: boolean) => Promise<any>,
+  doFileGetForUri: (uri: string) => void,
 };
 
 function ButtonAddToQueue(props: Props) {
@@ -27,6 +30,7 @@ function ButtonAddToQueue(props: Props) {
     uri,
     focusable = true,
     menuItem,
+    autoplayMedia,
     hasClaimInQueue,
     hasPlayingUriInQueue,
     playingUri,
@@ -36,9 +40,11 @@ function ButtonAddToQueue(props: Props) {
     doCollectionEdit,
     doStartFloatingPlayingUri,
     doSetPlayingUri,
+    doResolveUri,
+    doFileGetForUri,
   } = props;
 
-  function handleQueue(e) {
+  async function handleQueue(e) {
     if (e) e.preventDefault();
 
     doToast({ message: hasClaimInQueue ? __('Item removed from Queue') : __('Item added to Queue') });
@@ -60,9 +66,11 @@ function ButtonAddToQueue(props: Props) {
 
       if (playingUrl) {
         // adds the queue collection id to the playingUri data so it can be used and updated by other components
-        if (!hasPlayingUriInQueue) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
-      } else {
-        // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
+        if (!hasPlayingUriInQueue && autoplayMedia) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
+      } else if (autoplayMedia) {
+        // Resolve claim fully, fetch streaming URL, then start floating player
+        await doResolveUri(uri, false);
+        doFileGetForUri(uri);
         doStartFloatingPlayingUri({ uri, ...paramsToAdd });
       }
     }

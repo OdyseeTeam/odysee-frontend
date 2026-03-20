@@ -12,6 +12,7 @@ import {
   selectCountForCollectionId,
   selectAreCollectionItemsFetchingForId,
   selectFirstItemUrlForCollection,
+  selectFirstPlayableUrlForCollectionId,
   selectUpdatedAtForCollectionId,
   selectCreatedAtForCollectionId,
   selectIsCollectionBuiltInForId,
@@ -19,6 +20,10 @@ import {
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
   selectCollectionHasEditsForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -39,6 +44,7 @@ const select = (state, props) => {
     }
   }
   const firstCollectionItemUrl = selectFirstItemUrlForCollection(state, collectionId);
+  const firstPlayableCollectionItemUrl = selectFirstPlayableUrlForCollectionId(state, collectionId);
 
   return {
     collectionId,
@@ -54,6 +60,7 @@ const select = (state, props) => {
     channelTitle,
     hasClaim: Boolean(claim),
     firstCollectionItemUrl,
+    firstPlayableCollectionItemUrl,
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
@@ -62,6 +69,10 @@ const select = (state, props) => {
     thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
     thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    isPublishing: selectCollectionIsPublishingForId(state, collectionId),
+    publishError: selectCollectionPublishErrorForId(state, collectionId),
+    autoPublish: selectCollectionAutoPublishForId(state, collectionId),
+    autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId),
   };
 };
 

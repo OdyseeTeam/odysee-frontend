@@ -31,6 +31,7 @@ import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { isClaimUnlisted } from 'util/claim';
+import { parseURI } from 'util/lbryURI';
 import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
@@ -38,6 +39,19 @@ import { useIsMobile } from 'effects/use-screensize';
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
+
+function isSameClaimUri(firstUri: ?string, secondUri: ?string): boolean {
+  if (!firstUri || !secondUri) return false;
+  if (firstUri === secondUri) return true;
+
+  try {
+    const firstClaimId = parseURI(firstUri).streamClaimId;
+    const secondClaimId = parseURI(secondUri).streamClaimId;
+    return Boolean(firstClaimId && secondClaimId && firstClaimId === secondClaimId);
+  } catch (e) {
+    return false;
+  }
+}
 
 type Props = {
   uri: string,
@@ -259,6 +273,13 @@ function VideoViewer(props: Props) {
   }, [isEmbedded, videoPlaybackRate]);
 
   const handlePlayNextUri = React.useCallback(() => {
+    if (playNextUri && isSameClaimUri(playNextUri, uri) && playerRef.current) {
+      const player: any = playerRef.current;
+      player.currentTime(0);
+      player.play();
+      return;
+    }
+
     if (shouldPlayRecommended) {
       if (IS_IOS) {
         // Safari doesn't like it when there is an async action between click
