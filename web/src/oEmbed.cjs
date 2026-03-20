@@ -1,6 +1,6 @@
 const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.cjs');
 
-const PAGES = require('../../ui/constants/pages');
+const PAGES = require('../../ui/constants/pages.cjs');
 
 const {
   generateEmbedIframeData,
@@ -8,11 +8,11 @@ const {
   getParameterByName,
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
-} = require('../../ui/util/web');
+} = require('../../ui/util/web.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
-const { resolveSlashUrl } = require('./resolveSlashUrl');
+const { resolveSlashUrl } = require('./resolveSlashUrl.cjs');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 

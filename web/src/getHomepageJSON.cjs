@@ -26,7 +26,12 @@ const loadAnnouncements = (homepageKeys) => {
 if (!memo.homepageData) {
   if (process.env.CUSTOM_HOMEPAGE === 'true') {
     try {
-      memo.homepageData = require('../../custom/homepages/v2');
+      // Try .cjs first (required since root package.json has "type": "module")
+      try {
+        memo.homepageData = require('../../custom/homepages/v2/index.cjs');
+      } catch {
+        memo.homepageData = require('../../custom/homepages/v2');
+      }
       memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
     } catch (err) {
       console.log('getHomepageJSON:', err); // eslint-disable-line no-console

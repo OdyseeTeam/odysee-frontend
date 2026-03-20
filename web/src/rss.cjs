@@ -1,4 +1,4 @@
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.cjs');
 
@@ -6,7 +6,7 @@ const Rss = require('rss');
 
 const moment = require('moment');
 
-const { generateContentUrl } = require('./fetchStreamUrl');
+const { generateContentUrl } = require('./fetchStreamUrl.cjs');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 const NUM_ENTRIES = 500;

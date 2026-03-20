@@ -2,9 +2,9 @@ const Mime = require('mime-types');
 
 const { PLAYER_SERVER } = require('../../config.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
-const { buildURI } = require('./lbryURI');
+const { buildURI } = require('./lbryURI.cjs');
 
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({

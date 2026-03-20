@@ -1,5 +1,5 @@
 {
-  "watch": ["index.js", "src/", "middleware/"],
-  "ext": "js,json",
+  "watch": ["index.cjs", "src/", "middleware/"],
+  "ext": "cjs,json",
   "ignore": ["dist/**", "*.ts"]
 }

@@ -1,4 +1,4 @@
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
 /**
  * Resolves ambiguous URLs that have "/" without "@".

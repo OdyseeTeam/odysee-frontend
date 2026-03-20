@@ -1,4 +1,4 @@
-const PAGES = require('../../ui/constants/pages');
+const PAGES = require('../../ui/constants/pages.cjs');
 
 async function iframeDestroyerMiddleware(ctx, next) {
   const {

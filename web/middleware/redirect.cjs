@@ -1,4 +1,4 @@
-const PAGES = require('../../ui/constants/pages');
+const PAGES = require('../../ui/constants/pages.cjs');
 
 // const config = require('../../config');
 function formatInAppUrl(path) {

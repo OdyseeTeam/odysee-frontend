@@ -4,10 +4,10 @@
   "description": "Odysee web server (SSR/Koa)",
   "license": "MIT",
   "type": "commonjs",
-  "main": "./index.js",
+  "main": "./index.cjs",
   "scripts": {
-    "dev:server": "nodemon --inspect index.js",
-    "check:farcaster": "node ./src/tools/check-farcaster.js"
+    "dev:server": "nodemon --inspect index.cjs",
+    "check:farcaster": "node ./src/tools/check-farcaster.cjs"
   },
   "dependencies": {
     "@koa/router": "^8.0.2",

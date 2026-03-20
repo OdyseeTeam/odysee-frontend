@@ -8,15 +8,15 @@ const serve = require('koa-static');
 
 const logger = require('koa-logger');
 
-const router = require('./src/routes');
+const router = require('./src/routes.cjs');
 
-const appStringsMiddleWare = require('./middleware/app-strings');
+const appStringsMiddleWare = require('./middleware/app-strings.cjs');
 
-const redirectMiddleware = require('./middleware/redirect');
+const redirectMiddleware = require('./middleware/redirect.cjs');
 
-const cacheControlMiddleware = require('./middleware/cache-control');
+const cacheControlMiddleware = require('./middleware/cache-control.cjs');
 
-const iframeDestroyerMiddleware = require('./middleware/iframe-destroyer');
+const iframeDestroyerMiddleware = require('./middleware/iframe-destroyer.cjs');
 
 const app = new Koa();
 const DIST_ROOT = path.resolve(__dirname, 'dist');

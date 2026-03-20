@@ -18,27 +18,27 @@ const {
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
-} = require('../../ui/util/web');
+} = require('../../ui/util/web.cjs');
 
-const { fetchStreamUrl } = require('./fetchStreamUrl');
+const { fetchStreamUrl } = require('./fetchStreamUrl.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
-const { getHomepageJsonV1 } = require('./getHomepageJSON');
+const { getHomepageJsonV1 } = require('./getHomepageJSON.cjs');
 
-const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI.cjs');
 
-const { resolveSlashUrl } = require('./resolveSlashUrl');
+const { resolveSlashUrl } = require('./resolveSlashUrl.cjs');
 
 const fs = require('fs');
 
-const PAGES = require('../../ui/constants/pages');
+const PAGES = require('../../ui/constants/pages.cjs');
 
 const path = require('path');
 
 const removeMd = require('remove-markdown');
 
-const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
+const { buildGoogleVideoMetadata } = require('./metadata/googleVideo.cjs');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';

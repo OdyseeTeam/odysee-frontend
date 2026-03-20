@@ -1,8 +1,8 @@
 const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry.cjs');
 
-const { getThumbnailCardCdnUrl } = require('../../ui/util/web');
+const { getThumbnailCardCdnUrl } = require('../../ui/util/web.cjs');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
