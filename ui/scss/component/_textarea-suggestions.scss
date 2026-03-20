@@ -139,7 +139,7 @@
 
 .MuiDrawer-root {
   .comment-create__min-amount-notice {
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
     margin-left: var(--spacing-xxxs);
@@ -271,6 +271,12 @@
 
 .MuiAutocomplete-loading {
   color: var(--color-text) !important;
+}
+
+.MuiDrawer-paperAnchorBottom {
+  @media (max-width: $breakpoint-small) {
+    bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
 
 .MuiPaper-root {

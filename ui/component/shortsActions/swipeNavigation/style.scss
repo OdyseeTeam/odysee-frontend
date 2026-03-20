@@ -84,14 +84,15 @@
 
 .shorts-mobile-panel__actions {
   position: fixed;
-  bottom: 0;
-  right: 10px;
+  bottom: 2px;
+  right: 2px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 10001;
   pointer-events: auto;
   padding: 10px 0 0 0;
+  transition: opacity 300ms ease-out;
 }
 
 .shorts-mobile-panel__action-item {
@@ -105,7 +106,7 @@
 }
 
 button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
-  background: rgba(45, 44, 44, 0.6);
+  background: oklch(0.25 0 0 / 0.45);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -119,7 +120,7 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   position: relative;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  box-shadow: none;
   overflow: visible;
 
   .button__label {
@@ -143,11 +144,7 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   }
 
   &.button-bubble--active {
-    background: var(--color-primary);
-
-    &:hover {
-      background: var(--color-primary-alt);
-    }
+    background: var(--color-primary) !important;
   }
 }
 
@@ -291,6 +288,22 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
 @media (min-width: 1021px), (pointer: fine) {
   .shorts-mobile-panel__actions {
     display: none;
+  }
+}
+
+html[data-shorts-playing] {
+  .shorts-viewer__content-info,
+  .shorts-page__view-toggle--overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition-delay: 0ms !important;
+    transition-duration: 50ms !important;
+  }
+}
+
+html[data-shorts-transitioning] {
+  .content__cover {
+    visibility: hidden !important;
   }
 }
 

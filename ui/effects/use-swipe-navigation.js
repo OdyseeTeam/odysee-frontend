@@ -1,5 +1,5 @@
 // @flow
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 type SwipeNavigationOptions = {
   onSwipeNext?: () => void,
@@ -13,14 +13,15 @@ type SwipeNavigationOptions = {
 export default function useSwipeNavigation(options: SwipeNavigationOptions) {
   const { onSwipeNext, onSwipePrevious, isEnabled = true, minSwipeDistance = 50, tapDuration = 200, onTap } = options;
 
-  const elementRef = useRef<any>(null);
+  const [element, setElement] = useState<?HTMLElement>(null);
+  const elementRef = useCallback((node: ?HTMLElement) => setElement(node), []);
   const touchStartRef = useRef(null);
   const touchEndRef = useRef(null);
   const isScrollingRef = useRef(false);
   const isTapRef = useRef(false);
 
   const handleTouchStart = useCallback(
-    (e) => {
+    (e: TouchEvent) => {
       if (!isEnabled) return;
       touchStartRef.current = {
         y: e.targetTouches[0].clientY,
@@ -35,7 +36,7 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
   );
 
   const handleTouchMove = useCallback(
-    (e) => {
+    (e: TouchEvent) => {
       if (!isEnabled || !touchStartRef.current) return;
       const touchStart = touchStartRef.current; // lint
       const currentY = e.targetTouches[0].clientY;
@@ -46,6 +47,9 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
       if (diffY > 20) {
         isScrollingRef.current = true;
         isTapRef.current = false;
+        if (diffY > diffX) {
+          e.preventDefault();
+        }
       }
       if (diffX > diffY) {
         isTapRef.current = false;
@@ -56,7 +60,7 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
   );
 
   const handleTouchEnd = useCallback(
-    (e) => {
+    (e: TouchEvent) => {
       if (!isEnabled || !touchStartRef.current) return;
       const touchStart = touchStartRef.current; // lint
       const touchDurationValue = Date.now() - touchStart.time;
@@ -93,19 +97,19 @@ export default function useSwipeNavigation(options: SwipeNavigationOptions) {
   );
 
   useEffect(() => {
-    const element = elementRef.current;
-    if (!element || !isEnabled) return;
+    const el = element;
+    if (!el || !isEnabled) return;
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: true });
-    element.addEventListener('touchmove', handleTouchMove, { passive: true });
-    element.addEventListener('touchend', handleTouchEnd, { passive: false });
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    el.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isEnabled, handleTouchStart, handleTouchMove, handleTouchEnd]);
+  }, [element, isEnabled, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   return elementRef;
 }

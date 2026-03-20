@@ -8,8 +8,12 @@ import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
 import ShortsActions from 'component/shortsActions';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
-import MobilePanel from 'component/shortsMobileSidePanel';
+import MobileTabView from 'component/mobileTabView';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
+import { lazyImport } from 'util/lazyImport';
+import * as ICONS from 'constants/icons';
+import FileTitleSection from 'component/fileTitleSection';
+import Empty from 'component/common/empty';
 import { useHistory } from 'react-router';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
@@ -19,6 +23,9 @@ import classnames from 'classnames';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Link } from 'react-router-dom';
 import ViewModeToggle from 'component/shortsActions/swipeNavigation/viewModeToggle';
+import { fullscreenElement as getFullscreenElement } from 'util/full-screen';
+
+const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 const REEL_TRANSITION_MS = 320;
@@ -73,6 +80,8 @@ type Props = {
   previousThumbnail?: string,
   doResolveUri: (uri: string) => void,
   doClearPlayingUri: () => void,
+  doSetPlayingUri: (options: any) => void,
+  doSetPrimaryUri: (uri: string) => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -87,7 +96,7 @@ export default function ShortsPage(props: Props) {
     linkedCommentId,
     threadCommentId,
     commentsDisabled,
-    commentsListTitle,
+    // commentsListTitle,
     contentUnlocked,
     clearPosition,
     doSetShortsSidePanel,
@@ -115,6 +124,8 @@ export default function ShortsPage(props: Props) {
     previousThumbnail,
     doResolveUri,
     doClearPlayingUri,
+    doSetPlayingUri,
+    doSetPrimaryUri,
   } = props;
 
   const {
@@ -133,6 +144,7 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
+  const drawerOpenRef = React.useRef<any>(null);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [transitionDirection, setTransitionDirection] = React.useState<?ReelDirection>(null);
@@ -156,10 +168,20 @@ export default function ShortsPage(props: Props) {
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
   const [overlayTarget, setOverlayTarget] = React.useState(null);
+  const [isFullscreen, setIsFullscreen] = React.useState(!!getFullscreenElement());
+  const isFullscreenRef = React.useRef(isFullscreen);
+  isFullscreenRef.current = isFullscreen;
+
+  React.useEffect(() => {
+    const onChange = () => setIsFullscreen(!!getFullscreenElement());
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
-    const viewer = document.querySelector('.shorts__viewer');
+    const viewer =
+      document.querySelector('.shorts__viewer .content__wrapper') || document.querySelector('.shorts__viewer');
     const cover = document.querySelector('.content__cover--shorts');
     const target = viewer || cover || null;
     setOverlayTarget((prev) => (prev !== target ? target : prev));
@@ -229,22 +251,28 @@ export default function ShortsPage(props: Props) {
   }, [doOpenModal, uri, webShareable, collectionId]);
 
   const handleCommentsClick = React.useCallback(() => {
-    if (sidePanelOpen && panelMode === 'comments') {
+    if (isMobile) {
+      if (drawerOpenRef.current) drawerOpenRef.current(1);
+      doSetShortsSidePanel(true);
+    } else if (sidePanelOpen && panelMode === 'comments') {
       doSetShortsSidePanel(false);
     } else {
       setPanelMode('comments');
       doSetShortsSidePanel(true);
     }
-  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [doSetShortsSidePanel, sidePanelOpen, panelMode, isMobile]);
 
   const handleInfoButtonClick = React.useCallback(() => {
-    if (sidePanelOpen && panelMode === 'info') {
+    if (isMobile) {
+      if (drawerOpenRef.current) drawerOpenRef.current(0);
+      doSetShortsSidePanel(true);
+    } else if (sidePanelOpen && panelMode === 'info') {
       doSetShortsSidePanel(false);
     } else {
       setPanelMode('info');
       doSetShortsSidePanel(true);
     }
-  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [doSetShortsSidePanel, sidePanelOpen, panelMode, isMobile]);
 
   const handleClosePanel = React.useCallback(() => {
     doSetShortsSidePanel(false);
@@ -254,8 +282,12 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
       handledLinkedCommentIdRef.current = linkedCommentId;
-      setPanelMode('comments');
-      doSetShortsSidePanel(true);
+      if (isMobile) {
+        if (drawerOpenRef.current) drawerOpenRef.current(1);
+      } else {
+        setPanelMode('comments');
+        doSetShortsSidePanel(true);
+      }
     }
   }, [linkedCommentId, isMobile, doSetShortsSidePanel]);
 
@@ -355,6 +387,9 @@ export default function ShortsPage(props: Props) {
   }, [history, doClearShortsPlaylist]);
 
   React.useEffect(() => {
+    const docEl = document.documentElement;
+    if (docEl) docEl.style.removeProperty('--shorts-viewer-width');
+
     let timeoutId;
     function loop() {
       // $FlowFixMe
@@ -505,7 +540,12 @@ export default function ShortsPage(props: Props) {
         if (!activeTransition) return;
 
         clearPosition(activeTransition.sourceUri);
-        doClearPlayingUri();
+        if (getFullscreenElement()) {
+          doSetPrimaryUri(activeTransition.targetUri);
+          doSetPlayingUri({ uri: activeTransition.targetUri, collection: {}, isShort: true });
+        } else {
+          doClearPlayingUri();
+        }
         history.replace(getShortsUrl(activeTransition.targetUri));
 
         if (activeTransition.direction === 'next' && claimId) {
@@ -534,6 +574,8 @@ export default function ShortsPage(props: Props) {
     claimId,
     onRecommendationClicked,
     doClearPlayingUri,
+    doSetPlayingUri,
+    doSetPrimaryUri,
   ]);
   processNextTransitionRef.current = processNextQueuedTransition;
 
@@ -666,7 +708,7 @@ export default function ShortsPage(props: Props) {
         overlayTarget &&
         createPortal(
           <>
-            {overlayTarget.classList.contains('shorts__viewer') && (
+            {overlayTarget.closest('.shorts__viewer') && (
               <div className="shorts-viewer__content-info">
                 {channelUri && (
                   <Link
@@ -709,24 +751,27 @@ export default function ShortsPage(props: Props) {
                 onSwipeNext={goToNext}
                 onSwipePrevious={goToPrevious}
                 enableSwipe={isSwipeEnabled}
+                panelOpen={sidePanelOpen}
               />
 
-              <ShortsActions
-                hasPlaylist={hasPlaylist}
-                onNext={goToNext}
-                onPrevious={goToPrevious}
-                isLoading={isLoadingContent}
-                currentIndex={currentIndex}
-                totalVideos={shortsRecommendedUris?.length || 0}
-                isAtStart={isAtStart}
-                isAtEnd={isAtEnd}
-                autoPlayNextShort={autoPlayNextShort}
-                doToggleShortsAutoplay={doToggleShortsAutoplay}
-                uri={uri}
-                onCommentsClick={handleCommentsClick}
-                onInfoClick={handleInfoButtonClick}
-                handleShareClick={handleShareClick}
-              />
+              {!sidePanelOpen && (
+                <ShortsActions
+                  hasPlaylist={hasPlaylist}
+                  onNext={goToNext}
+                  onPrevious={goToPrevious}
+                  isLoading={isLoadingContent}
+                  currentIndex={currentIndex}
+                  totalVideos={shortsRecommendedUris?.length || 0}
+                  isAtStart={isAtStart}
+                  isAtEnd={isAtEnd}
+                  autoPlayNextShort={autoPlayNextShort}
+                  doToggleShortsAutoplay={doToggleShortsAutoplay}
+                  uri={uri}
+                  onCommentsClick={handleCommentsClick}
+                  onInfoClick={handleInfoButtonClick}
+                  handleShareClick={handleShareClick}
+                />
+              )}
             </div>
           </div>
 
@@ -744,21 +789,52 @@ export default function ShortsPage(props: Props) {
             />
           )}
 
-          {isMobile && (
-            <MobilePanel
-              isOpen={sidePanelOpen}
-              onClose={handleClosePanel}
-              onInfoClick={handleInfoButtonClick}
-              uri={uri}
-              accessStatus={accessStatus}
-              contentUnlocked={contentUnlocked}
-              commentsDisabled={commentsDisabled}
-              commentsListTitle={commentsListTitle}
-              linkedCommentId={linkedCommentId}
-              threadCommentId={threadCommentId}
-              isComments={panelMode === 'comments'}
-            />
-          )}
+          {isMobile &&
+            (() => {
+              const portalTarget = isFullscreen
+                ? document.querySelector('.player-fullscreen-target') || document.body
+                : document.body;
+              return portalTarget
+                ? createPortal(
+                    <MobileTabView
+                      useDrawer
+                      drawerOpenRef={drawerOpenRef}
+                      tabDefs={[
+                        { icon: ICONS.INFO, label: __('Details') },
+                        { icon: ICONS.COMMENTS_LIST, label: __('Comments') },
+                      ]}
+                      infoContent={
+                        <div className="file-page">
+                          <div className="card-stack">
+                            <section className="file-page__media-actions">
+                              <FileTitleSection uri={uri} accessStatus={accessStatus} />
+                            </section>
+                          </div>
+                        </div>
+                      }
+                      commentsContent={
+                        contentUnlocked ? (
+                          commentsDisabled ? (
+                            <Empty padded text={__('The creator of this content has disabled comments.')} />
+                          ) : (
+                            <React.Suspense fallback={null}>
+                              <CommentsList
+                                uri={uri}
+                                linkedCommentId={linkedCommentId}
+                                threadCommentId={threadCommentId}
+                                notInDrawer
+                              />
+                            </React.Suspense>
+                          )
+                        ) : null
+                      }
+                      relatedContent={null}
+                      onDrawerClose={handleClosePanel}
+                    />,
+                    portalTarget
+                  )
+                : null;
+            })()}
         </div>
       </div>
     </>

@@ -13,6 +13,7 @@ import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
+import { isCastSessionActive } from 'component/viewers/videoViewer/internal/hooks/useChromecast';
 
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
@@ -96,7 +97,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       purchaseTag,
       rentalTag,
       autoplay,
-      autoplayNextShort,
+      autoplayNextShort, // eslint-disable-line no-unused-vars
       isFetchingPurchases,
       renderMode,
       streamingUrl,
@@ -164,16 +165,23 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
+    const shortsAutoPlayOverride = Boolean(window.__shortsAutoPlayNext);
+    if (shortsAutoPlayOverride) {
+      delete window.__shortsAutoPlayNext;
+      alreadyPlaying.current = false;
+    }
+
     const autoplayEnabled =
       !forceDisableAutoplay &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
       (forceAutoplayParam ||
         urlTimeParam ||
         (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
-        (isShortsContext && autoplayNextShort));
+        shortsAutoPlayOverride);
 
     const autoplayVideo =
       !claimLinkId &&
+      !isCastSessionActive() &&
       (autoplayEnabled || playingCollectionId) &&
       (!alreadyPlaying.current || currentUriPlaying) &&
       isPlayable;
@@ -263,7 +271,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
-            if (autoplay) updateClaim('a & d & !claimLinkId video');
+            if (autoplay || shortsAutoPlayOverride) updateClaim('a & d & !claimLinkId video');
           } else {
             // Non video claims
             updateClaim('a & d & !claimLinkId nonVideo');

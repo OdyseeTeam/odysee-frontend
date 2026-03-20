@@ -203,8 +203,8 @@ function buildOgMetadata(overrideOptions = {}) {
     out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
     out += `\n<meta name="fc:frame:button:1:target" content="${fcActionUrl || url}"/>`;
 
-    // Load SDK for embed pages (always) or Farcaster-enabled pages (with iframe check)
     if (isEmbed) {
+      out += '\n<meta name="darkreader-lock">';
       out += '\n' + buildFarcasterEmbedScripts();
     } else if (fcActionUrl) {
       out += '\n' + buildFarcasterEmbedScripts({ requireIframe: true });
@@ -431,8 +431,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="fc:frame:button:2:action" content="post"/>`;
     head += `<meta name="fc:frame:post_url" content="${BASE}/$/frame"/>`;
 
-    // Only load SDK and ready script for actual embed pages
     if (isEmbed) {
+      head += '<meta name="darkreader-lock">';
       head += buildFarcasterEmbedScripts();
     }
   } catch (e) {

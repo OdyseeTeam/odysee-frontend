@@ -28,7 +28,7 @@ import {
   doSetContentHistoryItem,
   doSetShowAutoplayCountdownForUri,
 } from 'redux/actions/content';
-import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
+import { selectContentPositionForUri, selectPlayingUri, selectIsPlayerFloating } from 'redux/selectors/content';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
@@ -75,6 +75,8 @@ const select = (state, props) => {
     isMarkdownOrComment,
     autoplayIfEmbedded: Boolean(autoplay),
     autoplayNext: !isMarkdownOrComment && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
+    floatingPlayer: selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
+    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     volume: selectVolume(state),
     muted: selectMute(state),
     videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
@@ -94,6 +96,7 @@ const select = (state, props) => {
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    isFloating: selectIsPlayerFloating(state),
   };
 };
 
@@ -105,6 +108,8 @@ const perform = (dispatch) => ({
   doAnalyticsBuffer: (uri, bufferData) => dispatch(doAnalyticsBuffer(uri, bufferData)),
   toggleVideoTheaterMode: () => dispatch(toggleVideoTheaterMode()),
   toggleAutoplayNext: () => dispatch(toggleAutoplayNext()),
+  setFloatingPlayer: (val) => dispatch(doSetClientSetting(SETTINGS.FLOATING_PLAYER, val)),
+  setAutoplayMedia: (val) => dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, val)),
   setVideoPlaybackRate: (rate) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate)),
   doPlayNextUri: (params) => dispatch(doPlayNextUri(params)),
   doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),

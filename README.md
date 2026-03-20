@@ -26,7 +26,7 @@ Go to the website to interact on this frontend.
 ### Prerequisites
 
 - [Git](https://git-scm.com/downloads)
-- [Node.js](https://nodejs.org/en/download/) (v18.14.2 required)
+- [Node.js](https://nodejs.org/en/download/) (24.x LTS required, includes npm 11.x)
 - [Yarn](https://yarnpkg.com/en/docs/install)
 
 1. Clone (or [fork](https://help.github.com/articles/fork-a-repo/)) this repository: `git clone https://github.com/OdyseeTeam/odysee-frontend`
@@ -65,7 +65,7 @@ Go to the website to interact on this frontend.
   <summary>Deploy the web app</summary>
 
 1. Create a server with a domain name and a reverse proxy https to port 1337.
-2. Install `pm2`, `node` v18.14.2, `yarn`.
+2. Install `pm2`, `node` 24.x LTS, and `yarn`.
 3. Clone this repo.
 4. Make any customizations as above.
 5. Run `yarn` to install.

@@ -22,7 +22,13 @@
 }
 
 .footer--shorts {
+  display: none !important;
+}
+
+@media (max-width: $breakpoint-small) and (orientation: portrait) {
+  main.main--file-page ~ .footer {
     display: none !important;
+  }
 }
 
 .footer__links {

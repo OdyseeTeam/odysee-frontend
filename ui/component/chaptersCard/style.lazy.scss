@@ -1,0 +1,129 @@
+@import '~ui/scss/init/breakpoints';
+
+.chapters-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
+  padding: 1px;
+  background-color: rgba(var(--color-header-button-base), 0.4);
+  border-radius: var(--border-radius);
+
+  @media (min-width: $breakpoint-medium) {
+    width: 32rem;
+  }
+
+  .file-page__secondary-content & {
+    margin-left: var(--spacing-l);
+  }
+
+  .card__header--slim {
+    padding: var(--spacing-xxs);
+  }
+
+  .card__header--between {
+    display: flex;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--spacing-s);
+
+    .card__title-section {
+      display: unset !important;
+      padding: unset;
+      max-width: 80%;
+    }
+
+    .card__title-actions-container {
+      flex-shrink: 0;
+    }
+  }
+
+  .button.button-toggle {
+    background-color: var(--color-background);
+    &:hover {
+      background-color: var(--color-primary) !important;
+    }
+  }
+}
+
+.chapters-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+}
+
+.chapters-card__count {
+  font-size: var(--font-xsmall);
+  background-color: rgba(var(--color-header-button-base), 0.4);
+  padding: 2px 6px;
+  border-radius: var(--border-radius);
+}
+
+.chapters-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 20rem;
+  overflow-y: auto;
+  background-color: rgba(var(--color-header-background-base), 0.9);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  &::-webkit-scrollbar {
+    background-color: var(--color-border) !important;
+  }
+}
+
+.chapters-card__item {
+  transition: background-color 0.15s;
+
+  &--active {
+    background-color: rgba(var(--color-header-button-base), 0.4);
+
+    .chapters-card__timestamp > span {
+      background-color: var(--color-primary);
+      color: var(--color-background);
+      border-radius: var(--border-radius);
+      padding: 1px 4px;
+      margin-left: -4px;
+    }
+  }
+}
+
+.chapters-card__button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  width: 100%;
+  padding: var(--spacing-xxs) var(--spacing-s);
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--font-small);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgba(var(--color-header-button-base), 0.4);
+    }
+  }
+}
+
+.chapters-card__timestamp {
+  flex-shrink: 0;
+  font-family: monospace;
+  font-size: var(--font-xsmall);
+  color: var(--color-primary);
+  min-width: 3.5rem;
+}
+
+.chapters-card__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -53,6 +53,7 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
+    description: claim?.value?.description,
   };
 };
 
