@@ -282,7 +282,7 @@ export default defineConfig({
   build: {
     outDir: 'web/dist/public',
     sourcemap: isProduction ? true : 'inline',
-    rollupOptions: {
+    rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
     },
   },
