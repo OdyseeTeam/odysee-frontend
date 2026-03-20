@@ -5,7 +5,7 @@
 export default function debouce(func, wait, immediate) {
   let timeout;
   return function () {
-    const context = this;
+    const context = this; // eslint-disable-line no-this-alias
     const args = arguments;
 
     const later = () => {

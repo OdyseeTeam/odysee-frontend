@@ -63,6 +63,20 @@ type Props = {
   handleDismissPin?: () => void;
 };
 
+function reduceUriToChannelName(uri: string | null | undefined, fallback: string | null | undefined) {
+  try {
+    if (!uri && fallback) {
+      let fallbackUri = fallback.substring('lbry://'.length);
+      fallbackUri = fallbackUri.substring(0, fallbackUri.indexOf('#') + 4);
+      uri = fallbackUri;
+    }
+
+    return uri && uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
+  } catch {
+    return uri;
+  }
+}
+
 function CommentMenuList(props: Props) {
   const {
     uri,
@@ -209,20 +223,6 @@ function CommentMenuList(props: Props) {
         message: __('Link copied.'),
       })
     );
-  }
-
-  function reduceUriToChannelName(uri: string | null | undefined, fallback: string | null | undefined) {
-    try {
-      if (!uri && fallback) {
-        let fallbackUri = fallback.substring('lbry://'.length);
-        fallbackUri = fallbackUri.substring(0, fallbackUri.indexOf('#') + 4);
-        uri = fallbackUri;
-      }
-
-      return uri && uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
-    } catch {
-      return uri;
-    }
   }
 
   return (

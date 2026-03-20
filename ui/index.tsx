@@ -114,9 +114,10 @@ doAuthTokenRefresh();
 // We keep a local variable for authToken because `ipcRenderer.send` does not
 // contain a response, so there is no way to know when it's been set
 let authToken;
-Lbryio.setOverride('setAuthToken', (authToken) => {
-  setAuthToken(authToken);
-  return authToken;
+Lbryio.setOverride('setAuthToken', (token) => {
+  authToken = token;
+  setAuthToken(token);
+  return token;
 });
 Lbryio.setOverride(
   'getAuthToken',

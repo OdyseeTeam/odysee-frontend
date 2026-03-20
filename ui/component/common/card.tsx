@@ -190,6 +190,16 @@ type TitleProps = {
   accessStatus?: string;
 };
 
+function transformer(children) {
+  for (let child in children?.props?.children) {
+    if (typeof children?.props?.children[child] === 'string') {
+      return children?.props?.children[child];
+    }
+  }
+
+  return children;
+}
+
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children, accessStatus } = props;
 
@@ -231,15 +241,6 @@ const TitleWrapper = (props: TitleProps) => {
     return children;
   }
   */
-  function transformer(children) {
-    for (let child in children?.props?.children) {
-      if (typeof children?.props?.children[child] === 'string') {
-        return children?.props?.children[child];
-      }
-    }
-
-    return children;
-  }
 
   return isPageTitle ? (
     <h1 className="card__title">

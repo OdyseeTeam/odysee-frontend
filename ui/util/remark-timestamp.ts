@@ -126,7 +126,7 @@ tokenizeTimestamp.notInList = false; // Flag doesn't work? It'll always tokenize
 tokenizeTimestamp.notInLink = true;
 tokenizeTimestamp.notInBlock = false;
 export function inlineTimestamp() {
-  // oxlint-ignore-next-line no-this-in-exported-function
+  // oxlint-disable-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;

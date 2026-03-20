@@ -326,6 +326,7 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (di
 export const doUpdateTitle = (title: string, skipNameAutoFill: boolean) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const { name, claimToEdit } = state.publish;
+  // eslint-disable-next-line no-control-regex
   const regexInvalidURI =
     /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
   const publishFormValue = {

@@ -29,7 +29,6 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
   let head = document.getElementsByTagName('head')[0];
   let script = document.createElement('script');
   let done = false;
-  let windowElement;
 
   if (!is_connected()) {
     callback(false);
@@ -46,7 +45,7 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
     if (!done) {
       done = true;
 
-      if (windowElement?.adsbygoogle === 'undefined') {
+      if ((window as any)?.adsbygoogle === 'undefined') {
         callback(true);
         alreadyDetectedByAdd = true;
       }

@@ -7,24 +7,24 @@ type Props = {
   description?: string;
   text?: string;
 };
+const hubMessage = (text, href) => {
+  return (
+    <I18nMessage
+      tokens={{
+        help_hub: (
+          <a rel="noopener noreferrer" href={href} target="_blank">
+            {__('Help Hub')}
+          </a>
+        ),
+      }}
+    >
+      {text}
+    </I18nMessage>
+  );
+};
+
 export default function HelpHub(props: Props) {
   const { href, image, text } = props;
-
-  const hubMessage = (text, href) => {
-    return (
-      <I18nMessage
-        tokens={{
-          help_hub: (
-            <a rel="noopener noreferrer" href={href} target="_blank">
-              {__('Help Hub')}
-            </a>
-          ),
-        }}
-      >
-        {text}
-      </I18nMessage>
-    );
-  };
 
   return (
     <div className="help-hub__wrapper">

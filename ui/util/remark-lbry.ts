@@ -168,8 +168,7 @@ const TRAILING_PUNCTUATION = '.,:;"\'';
 // Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
 // its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
 function tokenizeUrl(eat, value, silent) {
-  const self = this;
-  if (!self.options.gfm) return;
+  if (!this.options.gfm) return;
   let subvalue = '';
   let matchedProtocol;
 
@@ -234,8 +233,8 @@ function tokenizeUrl(eat, value, silent) {
   }
 
   if (silent) return true;
-  const exit = self.enterLink();
-  const content = self.tokenizeInline(subvalue, eat.now());
+  const exit = this.enterLink();
+  const content = this.tokenizeInline(subvalue, eat.now());
   exit();
   return eat(subvalue)({
     type: 'link',
@@ -262,7 +261,7 @@ tokenizeUrl.locator = function locateUrl(value, fromIndex) {
 tokenizeUrl.notInLink = true;
 // Main module
 export function inlineLinks() {
-  // oxlint-ignore-next-line no-this-in-exported-function
+  // oxlint-disable-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;

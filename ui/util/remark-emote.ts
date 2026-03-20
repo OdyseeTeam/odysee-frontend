@@ -84,7 +84,7 @@ function tokenizeEmote(eat, value, silent) {
 
 tokenizeEmote.locator = locateEmote;
 export function inlineEmote() {
-  // oxlint-ignore-next-line no-this-in-exported-function
+  // oxlint-disable-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;

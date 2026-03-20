@@ -13,6 +13,10 @@ type Props = {
   tags: Array<string> | null | undefined;
 };
 
+function isDatePassed(date: Date | null | undefined) {
+  return date && date.getTime() < Date.now();
+}
+
 function DateTimeClaim(props: Props) {
   const { claimTsList, clock24h, disableFromNowFormat, format, tags } = props;
   const date: Date | null | undefined = resolveDate(tags, claimTsList);
@@ -24,10 +28,6 @@ function DateTimeClaim(props: Props) {
     const forceCreationTimestamp = tags && tags.includes(VISIBILITY_TAGS.UNLISTED);
     const defaultTs = !forceCreationTimestamp ? claimTsList.released || claimTsList.created : claimTsList.created;
     return defaultTs ? new Date(defaultTs * 1000) : undefined;
-  }
-
-  function isDatePassed(date: Date | null | undefined) {
-    return date && date.getTime() < Date.now();
   }
 
   function getDateElem() {
