@@ -57,8 +57,77 @@ function buildEnvDefines(): Record<string, string> {
 // - @if TARGET='web' / @if TARGET='app'
 // - @if process.env.VAR='value' (evaluated against actual env vars)
 function preprocessPlugin(): Plugin {
-  // Collect process.env conditions that should be stripped (value doesn't match)
-  const envConditionPattern = /\/\/\s*@if\s+process\.env\.(\w+)(?:='([^']*)'|!='([^']*)')[\s\S]*?\/\/\s*@endif/g;
+  // Process nested @if/@endif blocks by finding matching pairs with depth tracking
+  function processIfBlocks(code: string): string {
+    const IF_RE = /\/\/\s*@if\s+/;
+    const lines = code.split('\n');
+    const blocks: Array<{ start: number; end: number; condition: string }> = [];
+    const stack: Array<{ line: number; condition: string }> = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
+      if (IF_RE.test(trimmed) && trimmed.startsWith('//')) {
+        stack.push({ line: i, condition: trimmed });
+      } else if (/\/\/\s*@endif/.test(trimmed)) {
+        // Also handle inline @endif like `} // @endif`
+        if (stack.length > 0) {
+          const open = stack.pop()!;
+          blocks.push({ start: open.line, end: i, condition: open.condition });
+        }
+      }
+    }
+
+    // Process blocks from innermost to outermost (reverse order by start position to avoid index shifts)
+    blocks.sort((a, b) => b.start - a.start);
+
+    for (const block of blocks) {
+      const { start, end, condition } = block;
+      let keep: boolean | null = null;
+
+      // TARGET conditions
+      const targetMatch = condition.match(/@if\s+TARGET='(\w+)'/);
+      if (targetMatch) {
+        const target = targetMatch[1];
+        keep = target === 'web'; // web build keeps web blocks, removes app blocks
+      }
+
+      // process.env conditions: @if process.env.X='val' or @if process.env.X!='val'
+      const envEqMatch = condition.match(/@if\s+process\.env\.(\w+)='([^']*)'/);
+      const envNeqMatch = condition.match(/@if\s+process\.env\.(\w+)!='([^']*)'/);
+      const envBareMatch = condition.match(/@if\s+process\.env\.(\w+)\s*$/);
+
+      if (envEqMatch) {
+        const actual = process.env[envEqMatch[1]] || '';
+        keep = actual === envEqMatch[2];
+      } else if (envNeqMatch) {
+        const actual = process.env[envNeqMatch[1]] || '';
+        keep = actual !== envNeqMatch[2];
+      } else if (envBareMatch) {
+        keep = !!process.env[envBareMatch[1]];
+      }
+
+      if (keep === null) continue; // Unknown condition, leave as-is
+
+      if (keep) {
+        // Keep content, remove @if and @endif markers
+        // Handle inline @endif (e.g., `} // @endif`)
+        lines[end] = lines[end].replace(/\/\/\s*@endif\s*$/, '').trimEnd();
+        if (lines[end].trim() === '') lines[end] = '';
+        lines[start] = ''; // Remove @if line
+      } else {
+        // Remove entire block including @if and @endif lines
+        for (let i = start; i <= end; i++) {
+          lines[i] = '';
+        }
+      }
+    }
+
+    return lines.filter((l, i) => {
+      // Remove completely empty lines that were preprocessor artifacts
+      // but keep intentional empty lines (check if line was blanked by us)
+      return true; // Keep all lines, empty ones are fine
+    }).join('\n');
+  }
 
   return {
     name: 'preprocess-target',
@@ -68,36 +137,7 @@ function preprocessPlugin(): Plugin {
       if (id.includes('node_modules')) return null;
       if (!code.includes('@if')) return null;
 
-      let result = code;
-      // Remove app-only blocks: // @if TARGET='app' ... // @endif
-      result = result.replace(/\/\/\s*@if\s+TARGET='app'[\s\S]*?\/\/\s*@endif/g, '');
-      // Remove the @if TARGET='web' and @endif markers but keep the content
-      result = result.replace(/\/\/\s*@if\s+TARGET='web'\s*\n?/g, '');
-
-      // Handle process.env conditions
-      result = result.replace(envConditionPattern, (match, envVar, eqVal, neqVal) => {
-        const actual = process.env[envVar] || '';
-        if (eqVal !== undefined) {
-          // @if process.env.X='val' — keep content only if env matches
-          return actual === eqVal ? match.replace(/\/\/\s*@if[^\n]*\n?/, '').replace(/\/\/\s*@endif\s*\n?/, '') : '';
-        }
-        if (neqVal !== undefined) {
-          // @if process.env.X!='val' — keep content only if env doesn't match
-          return actual !== neqVal ? match.replace(/\/\/\s*@if[^\n]*\n?/, '').replace(/\/\/\s*@endif\s*\n?/, '') : '';
-        }
-        return match;
-      });
-
-      // Handle bare @if process.env.VAR (truthy check)
-      result = result.replace(
-        /\/\/\s*@if\s+process\.env\.(\w+)\s*\n?([\s\S]*?)\/\/\s*@endif/g,
-        (_match, envVar, content) => {
-          return process.env[envVar] ? content : '';
-        }
-      );
-
-      // Clean up remaining @endif markers
-      result = result.replace(/\/\/\s*@endif\s*\n?/g, '');
+      let result = processIfBlocks(code);
 
       // Handle JSX-style comments: {/* @if process.env.VAR */}...{/* @endif */}
       result = result.replace(
@@ -126,6 +166,14 @@ function providePlugin(): Plugin {
       const imports: string[] = [];
       if (code.includes('Buffer') && !code.includes("from 'buffer'") && !code.includes('import { Buffer')) {
         imports.push("import { Buffer } from 'buffer';");
+      }
+      if (
+        code.includes('__(') &&
+        !code.includes("from 'i18n'") &&
+        !code.includes('import { __ }') &&
+        !id.includes('/i18n.')
+      ) {
+        imports.push("import { __ } from 'i18n';");
       }
 
       if (imports.length > 0) {
