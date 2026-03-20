@@ -136,8 +136,8 @@ router.get('*', async (ctx, next) => {
       return;
     }
   } else {
-    // Static-first (prod): if a /public/*.js wasn't found by static, avoid claim collision
-    if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
+    // Static-first (prod): if a /public/ asset wasn't found by static, avoid claim collision
+    if (requestedUrl.startsWith('/public/') && (requestedUrl.endsWith('.js') || requestedUrl.endsWith('.css') || requestedUrl.startsWith('/public/assets/'))) {
       ctx.status = 404;
       ctx.body = 'Resource not found';
       ctx.set('Cache-Control', 'no-store');

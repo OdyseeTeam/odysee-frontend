@@ -26,9 +26,9 @@ async function redirectMiddleware(ctx, next) {
   const {
     request: { url },
   } = ctx;
-  const HASHED_JS_REGEX = /^\/public\/.*[a-fA-F0-9]{12}\.js$/i;
+  const HASHED_ASSET_REGEX = /^\/public\/(assets\/.*|.*[a-fA-F0-9]{8,}\.(js|css))$/i;
 
-  if (STATIC_ASSET_PATHS.includes(url) || HASHED_JS_REGEX.test(url)) {
+  if (STATIC_ASSET_PATHS.includes(url) || HASHED_ASSET_REGEX.test(url)) {
     ctx.set('Cache-Control', `public, max-age=${SIX_MONTHS_IN_SECONDS}`);
   }
 

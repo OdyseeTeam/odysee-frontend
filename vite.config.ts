@@ -270,9 +270,48 @@ function uiModuleResolverPlugin(): Plugin {
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Post-build plugin: injects Vite-built asset tags into the SSR template (index-web.html)
+// so the Koa web server can serve pages with the correct JS/CSS references.
+function ssrTemplatePlugin(): Plugin {
+  return {
+    name: 'ssr-template-inject',
+    writeBundle: {
+      sequential: true,
+      handler(options) {
+        const outDir = options.dir || path.resolve(__dirname, 'web/dist/public');
+        const builtHtml = path.join(outDir, 'index.html');
+        const templateHtml = path.join(outDir, 'index-web.html');
+
+        if (!fs.existsSync(builtHtml) || !fs.existsSync(templateHtml)) return;
+
+        const built = fs.readFileSync(builtHtml, 'utf8');
+        const template = fs.readFileSync(templateHtml, 'utf8');
+
+        // Extract all <script>, <link rel="modulepreload">, and <link rel="stylesheet"> tags from built HTML
+        const assetTags: string[] = [];
+        const scriptRe = /<script\b[^>]*src="[^"]*"[^>]*><\/script>/g;
+        const modulepreloadRe = /<link\s+rel="modulepreload"[^>]*>/g;
+        const stylesheetRe = /<link\s+rel="stylesheet"[^>]*>/g;
+
+        let m;
+        while ((m = scriptRe.exec(built)) !== null) assetTags.push(m[0]);
+        while ((m = modulepreloadRe.exec(built)) !== null) assetTags.push(m[0]);
+        while ((m = stylesheetRe.exec(built)) !== null) assetTags.push(m[0]);
+
+        if (assetTags.length === 0) return;
+
+        // Insert asset tags before </head> in the SSR template
+        const injected = template.replace('</head>', `    ${assetTags.join('\n    ')}\n  </head>`);
+        fs.writeFileSync(templateHtml, injected, 'utf8');
+      },
+    },
+  };
+}
+
 export default defineConfig({
   root: __dirname,
   publicDir: 'static',
+  base: isProduction ? '/public/' : '/',
 
   define: {
     ...buildEnvDefines(),
@@ -341,7 +380,7 @@ export default defineConfig({
     },
   },
 
-  plugins: [uiModuleResolverPlugin(), preprocessPlugin(), providePlugin(), react()],
+  plugins: [uiModuleResolverPlugin(), preprocessPlugin(), providePlugin(), react(), ssrTemplatePlugin()],
 
   server: {
     port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),

@@ -48,17 +48,15 @@ const DOUBLE_TAB = '    ';
 // ****************************************************************************
 // Helpers
 // ****************************************************************************
-function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
+function insertToHead(fullHtml, htmlToInsert) {
   const beginIndex = fullHtml.indexOf(BEGIN_STR);
   const finalIndex = fullHtml.indexOf(FINAL_STR);
 
   if (beginIndex > -1 && finalIndex > -1 && finalIndex > beginIndex) {
-    const uiScript = buildRev ? `<script src="/public/ui-${buildRev}.js" defer></script>` : '';
     return (
       `${fullHtml.slice(0, beginIndex)}` +
       `${htmlToInsert || buildOgMetadata()}\n` +
       `${DOUBLE_TAB}` +
-      `${uiScript}` +
       `${fullHtml.slice(finalIndex + FINAL_STR.length)}`
     );
   }
@@ -522,7 +520,7 @@ let html;
 
 async function getHtml(ctx) {
   if (!html) {
-    html = fs.readFileSync(path.join(__dirname, '/../dist/index.html'), 'utf8');
+    html = fs.readFileSync(path.join(__dirname, '/../dist/public/index-web.html'), 'utf8');
   }
 
   const query = ctx.query;
