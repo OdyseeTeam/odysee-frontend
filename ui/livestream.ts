@@ -1,5 +1,4 @@
 import { LIVESTREAM_SERVER_API } from 'config';
-import querystring from 'querystring';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
   enabled: Boolean(LIVESTREAM_SERVER_API),
@@ -47,7 +46,7 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
       params[key] = JSON.stringify(value);
     }
   });
-  const qs = querystring.stringify(params);
+  const qs = new URLSearchParams(params).toString();
   let url = `${Livestream.url}/${resource}/${action}?${qs}`;
   let options = {
     method: 'GET',
