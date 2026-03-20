@@ -135,6 +135,12 @@
       object-fit: contain !important;
     }
   }
+
+  html.ios-fullscreen & .media-controls {
+    @media (orientation: portrait) {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
 }
 
 /* ==========================================================================

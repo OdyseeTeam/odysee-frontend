@@ -260,6 +260,14 @@
       }
     }
   }
+
+  @media (orientation: portrait) {
+    html.ios-fullscreen
+      .player-fullscreen-target:has(.mobile-tab-view--drawer):not(:has(.mobile-tab-view__sheet--open))
+      .content__wrapper {
+      height: var(--ios-fs-height, 100dvh) !important;
+    }
+  }
 }
 
 .mobile-tab-view__sheet-header {
