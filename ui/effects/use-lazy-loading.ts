@@ -35,7 +35,7 @@ export default function useLazyLoading(
       // $FlowFixMe
       target.src = target.dataset.src;
 
-      target.onload = () => setSrcLoadedFn(true);
+      target.addEventListener('load', () => setSrcLoadedFn(true));
 
       // We don't handle onerror() here and simply let srcLoaded hanging for
       // flexibility since we have various clients of this hook.
@@ -49,9 +49,9 @@ export default function useLazyLoading(
       if (backgroundFallback) {
         const tmpImage = new Image();
 
-        tmpImage.onerror = () => {
+        tmpImage.addEventListener('error', () => {
           target.style.backgroundImage = `url(${backgroundFallback})`;
-        };
+        });
 
         tmpImage.src = target.dataset.backgroundImage;
       }

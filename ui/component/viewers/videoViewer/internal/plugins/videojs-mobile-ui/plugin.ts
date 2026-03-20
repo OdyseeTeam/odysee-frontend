@@ -123,7 +123,7 @@ const onPlayerReady = (player, options) => {
       window.addEventListener('orientationchange', rotationHandler);
     } else {
       // addEventListener('orientationchange') is not a user interaction on Android
-      screen.orientation.onchange = rotationHandler;
+      screen.orientation.addEventListener('change', rotationHandler);
     }
   }
 

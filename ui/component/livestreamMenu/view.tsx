@@ -80,7 +80,7 @@ const LivestreamMenu = (props: Props) => {
         }
       };
 
-      popoutWindow.onunload = handleUnload;
+      popoutWindow.addEventListener('unload', handleUnload);
       if (window.focus) popoutWindow.focus();
       setPopoutWindow(popoutWindow);
     }

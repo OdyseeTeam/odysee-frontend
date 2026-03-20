@@ -56,7 +56,7 @@ const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props)
       } catch (e) {}
 
       setReady(true);
-    };
+    });
 
     img.src = fullSrc;
   }, [fullSrc]);

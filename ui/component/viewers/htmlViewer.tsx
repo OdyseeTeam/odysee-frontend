@@ -24,12 +24,12 @@ class HtmlViewer extends React.PureComponent<Props, State> {
       this.iframe.current.style.width = `${scrollWidth}px`;
     };
 
-    this.iframe.current.onload = () => {
+    this.iframe.current.addEventListener('load', () => {
       this.setState({
         loading: false,
       });
       resize();
-    };
+    });
 
     this.iframe.current.resize = () => resize();
   }
