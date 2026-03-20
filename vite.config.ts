@@ -325,7 +325,7 @@ export default defineConfig({
   },
 
   resolve: {
-    conditions: ['browser', 'development'],
+    conditions: ['browser', ...(isProduction ? ['production'] : ['development'])],
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
     alias: {
       // Explicit aliases for things that aren't in ui/
@@ -396,6 +396,7 @@ export default defineConfig({
   build: {
     outDir: 'web/dist/public',
     sourcemap: isProduction ? true : 'inline',
+    minify: isProduction,
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
     },
