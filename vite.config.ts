@@ -133,7 +133,7 @@ function preprocessPlugin(): Plugin {
     name: 'preprocess-target',
     enforce: 'pre',
     transform(code, id) {
-      if (!id.match(/\.(tsx?|jsx?)$/)) return null;
+      if (!id.match(/\.(tsx?|jsx?)($|\?)/)) return null;
       if (id.includes('node_modules')) return null;
       if (!code.includes('@if')) return null;
 

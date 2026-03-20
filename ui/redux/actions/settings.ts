@@ -351,19 +351,20 @@ export function doLoadBuiltInHomepageData() {
     // As a compromise between the above needs vs. wanting a smaller ui.js,
     // we'll just bake in the English version.
     // @if process.env.CUSTOM_HOMEPAGE='true'
-    const enHp = require('homepages/odysee-en');
+    import('homepages/odysee-en').then((mod) => {
+      const enHp = mod.default || mod;
+      if (enHp) {
+        window.homepages = {};
+        const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
 
-    if (enHp) {
-      window.homepages = {};
-      const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
-
-      keys.forEach((hp) => (window.homepages[hp] = undefined));
-      window.homepages['en'] = enHp;
-      populateCategoryTitles(window.homepages?.en?.categories);
-      dispatch({
-        type: ACTIONS.FETCH_HOMEPAGES_DONE,
-      });
-    } // @endif
+        keys.forEach((hp) => (window.homepages[hp] = undefined));
+        window.homepages['en'] = enHp;
+        populateCategoryTitles(window.homepages?.en?.categories);
+        dispatch({
+          type: ACTIONS.FETCH_HOMEPAGES_DONE,
+        });
+      }
+    }); // @endif
   };
 }
 export function doOpenAnnouncements() {
