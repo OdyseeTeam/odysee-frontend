@@ -311,7 +311,18 @@ function VideoJsInner(props: Props) {
       }
     };
 
-    attemptPlay();
+    const hls = media._hls;
+    if (hls) {
+      const onReady = () => {
+        hls.off(Hls.Events.MANIFEST_PARSED, onReady);
+        media.removeEventListener('canplay', onReady);
+        attemptPlay();
+      };
+      hls.on(Hls.Events.MANIFEST_PARSED, onReady);
+      media.addEventListener('canplay', onReady, { once: true });
+    } else {
+      attemptPlay();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
 
