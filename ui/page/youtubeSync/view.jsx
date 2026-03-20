@@ -142,12 +142,12 @@ export default function YoutubeSync(props: Props) {
     <Wrapper>
       <div className="main__channel-creation">
         {showYoutubeTransferStatus ? (
-          <>
-            <React.Suspense fallback={null}>
+          <React.Suspense fallback={null}>
+            <>
               <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
-            </React.Suspense>
-            {transferFooter}
-          </>
+              {transferFooter}
+            </>
+          </React.Suspense>
         ) : (
           <Card
             className="card--youtube-sync"
@@ -248,13 +248,26 @@ export default function YoutubeSync(props: Props) {
                     )}
                   </p>
                   <p>
-                    <Button button="link" label={__('Download the Self Sync Tool')} href="https://sync.odysee.tv/" />
-                    {' • '}
-                    <Button
-                      button="link"
-                      label={__('Learn more')}
-                      href="https://help.odysee.tv/category-syncprogram/"
-                    />
+                    <I18nMessage
+                      tokens={{
+                        download_sync_tool: (
+                          <Button
+                            button="link"
+                            label={__('Download the Self Sync Tool')}
+                            href="https://sync.odysee.tv/"
+                          />
+                        ),
+                        learn_more: (
+                          <Button
+                            button="link"
+                            label={__('Learn more')}
+                            href="https://help.odysee.tv/category-syncprogram/"
+                          />
+                        ),
+                      }}
+                    >
+                      %download_sync_tool% • %learn_more%
+                    </I18nMessage>
                   </p>
                 </div>
               </Form>
