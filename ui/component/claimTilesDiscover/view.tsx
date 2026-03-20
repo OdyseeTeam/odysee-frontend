@@ -80,6 +80,30 @@ type Props = {
   isShorts?: boolean;
 };
 
+/**
+ * Injects pinned URLs into `uris` in-place.
+ * i.e. don't use immutable functions like concat().
+ */
+function injectPinUrls(uris, pins, resolvedPinUris) {
+  if (!pins || !uris) {
+    return;
+  }
+
+  if (resolvedPinUris) {
+    resolvedPinUris.forEach((pin) => {
+      if (uris.includes(pin)) {
+        // remove the duplicate pin; we'll put it back at 2nd slot later.
+        uris.splice(uris.indexOf(pin), 1);
+      } else {
+        // remove to make space for the pin (maintain total count).
+        uris.pop();
+      }
+    });
+    // add the pins on uris starting from the 2nd index
+    uris.splice(2, 0, ...resolvedPinUris);
+  }
+}
+
 function ClaimTilesDiscover(props: Props) {
   const {
     doClaimSearch,
@@ -138,30 +162,6 @@ function ClaimTilesDiscover(props: Props) {
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
-
-  /**
-   * Injects pinned URLs into `uris` in-place.
-   * i.e. don't use immutable functions like concat().
-   */
-  function injectPinUrls(uris, pins, resolvedPinUris) {
-    if (!pins || !uris) {
-      return;
-    }
-
-    if (resolvedPinUris) {
-      resolvedPinUris.forEach((pin) => {
-        if (uris.includes(pin)) {
-          // remove the duplicate pin; we'll put it back at 2nd slot later.
-          uris.splice(uris.indexOf(pin), 1);
-        } else {
-          // remove to make space for the pin (maintain total count).
-          uris.pop();
-        }
-      });
-      // add the pins on uris starting from the 2nd index
-      uris.splice(2, 0, ...resolvedPinUris);
-    }
-  }
 
   const getInjectedItem = (index) => {
     if (injectedItem && injectedItem.node) {

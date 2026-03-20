@@ -262,6 +262,7 @@ tokenizeUrl.locator = function locateUrl(value, fromIndex) {
 tokenizeUrl.notInLink = true;
 // Main module
 export function inlineLinks() {
+  // oxlint-ignore-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;

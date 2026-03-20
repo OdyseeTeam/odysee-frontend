@@ -130,6 +130,33 @@ type Props = {
   excludeShortsAspectRatio?: boolean;
 };
 
+// Returns true if the change in 'options' indicate that we are simply scrolling
+// down to a new page; false otherwise.
+function isJustScrollingToNewPage(prevOptions, options) {
+  if (!prevOptions) {
+    // It's a new search, or we just popped back from a different view.
+    return false;
+  }
+
+  // Compare every field except for 'page' and 'release_time'.
+  // There might be better ways to achieve this.
+  let tmpPrevOptions = { ...prevOptions };
+  tmpPrevOptions.page = -1;
+  tmpPrevOptions.release_time = '';
+  let tmpOptions = { ...options };
+  tmpOptions.page = -1;
+  tmpOptions.release_time = '';
+  return JSON.stringify(tmpOptions) === JSON.stringify(tmpPrevOptions);
+}
+
+function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
+  if (hideRepostOverride === undefined || hideRepostOverride === null) {
+    return hideRepostSetting;
+  } else {
+    return hideRepostOverride;
+  }
+}
+
 function ClaimListDiscover(props: Props) {
   const {
     doClaimSearch,
@@ -623,25 +650,6 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // Helpers
   // **************************************************************************
-  // Returns true if the change in 'options' indicate that we are simply scrolling
-  // down to a new page; false otherwise.
-  function isJustScrollingToNewPage(prevOptions, options) {
-    if (!prevOptions) {
-      // It's a new search, or we just popped back from a different view.
-      return false;
-    }
-
-    // Compare every field except for 'page' and 'release_time'.
-    // There might be better ways to achieve this.
-    let tmpPrevOptions = { ...prevOptions };
-    tmpPrevOptions.page = -1;
-    tmpPrevOptions.release_time = '';
-    let tmpOptions = { ...options };
-    tmpOptions.page = -1;
-    tmpOptions.release_time = '';
-    return JSON.stringify(tmpOptions) === JSON.stringify(tmpPrevOptions);
-  }
-
   function getParamFromTags(t) {
     if (t === CS.TAGS_ALL || t === CS.TAGS_FOLLOWED) {
       return t;
@@ -659,14 +667,6 @@ function ClaimListDiscover(props: Props) {
       if (claimSearchResult && !claimSearchResultLastPageReached) {
         setPage(page + 1);
       }
-    }
-  }
-
-  function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
-    if (hideRepostOverride === undefined || hideRepostOverride === null) {
-      return hideRepostSetting;
-    } else {
-      return hideRepostOverride;
     }
   }
 

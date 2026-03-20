@@ -395,61 +395,7 @@ export default function LivestreamSetupPage(props: Props) {
 
                   <Card background title="Instructions" body={helpText} />
 
-                  {/* Debug Stuff */}
-                  {streamKey && false && activeChannelClaim && (
-                    <div
-                      style={{
-                        marginTop: 'var(--spacing-l)',
-                      }}
-                    >
-                      <h3>Debug Info</h3>
-
-                      {/* Channel ID */}
-                      <FormField
-                        name={'channelId'}
-                        label={'Channel ID'}
-                        type={'text'}
-                        defaultValue={activeChannelClaim.claim_id}
-                        readOnly
-                      />
-
-                      {/* Signature */}
-                      <FormField
-                        name={'signature'}
-                        label={'Signature'}
-                        type={'text'}
-                        defaultValue={sigData.signature}
-                        readOnly
-                      />
-
-                      {/* Signature TS */}
-                      <FormField
-                        name={'signaturets'}
-                        label={'Signature Timestamp'}
-                        type={'text'}
-                        defaultValue={sigData.signing_ts}
-                        readOnly
-                      />
-
-                      {/* Hex Data */}
-                      <FormField
-                        name={'datahex'}
-                        label={'Hex Data'}
-                        type={'text'}
-                        defaultValue={toHex(activeChannelClaim.name)}
-                        readOnly
-                      />
-
-                      {/* Channel Public Key */}
-                      <FormField
-                        name={'channelpublickey'}
-                        label={'Public Key'}
-                        type={'text'}
-                        defaultValue={activeChannelClaim.value.public_key}
-                        readOnly
-                      />
-                    </div>
-                  )}
+                  {/* Debug Stuff - disabled */}
                 </>
               )}
             </div>

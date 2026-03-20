@@ -125,7 +125,7 @@ export default function ChatComment(props: Props) {
       )}
 
       <div className="livestream-comment__body">
-        {false && supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
+        {/* supportAmount thumbnail disabled */}
         {!isCompact || isPinned ? (
           <>
             <ChannelThumbnail uri={authorUri} xsmall />

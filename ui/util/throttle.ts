@@ -29,7 +29,7 @@ export default function throttle(func, wait, options = {}) {
     const now = getNow();
     if (!previous && options.leading === false) previous = now;
     const remaining = wait - (now - previous);
-    context = this;
+    context = this; // eslint-disable-line no-this-alias
     args = funcArgs;
 
     if (remaining <= 0 || remaining > wait) {

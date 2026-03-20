@@ -5,11 +5,11 @@ let gChannelTitle = '';
  * to chromecast.
  */
 
-export default class Chromecast {
+const Chromecast = {
   /**
    * Actions that need to happen after initializing 'videojs'
    */
-  static initialize(player: any) {
+  initialize(player: any) {
     // --- Wrap player methods to be safe after disposal ---
     // The silvermine chromecast plugin has an interval that may fire after player disposal
     // and try to call player.on()/trigger(), causing "Invalid target for null#..." errors
@@ -46,14 +46,14 @@ export default class Chromecast {
       // $FlowFixMe
       document.body.appendChild(script);
     }
-  }
+  },
 
   /**
    * Clean up chromecast plugin before player disposal.
    * The silvermine-chromecast plugin has an internal interval that can cause
    * errors if it fires after the player is disposed.
    */
-  static cleanup(player: any) {
+  cleanup(player: any) {
     if (!player) return;
 
     try {
@@ -81,7 +81,7 @@ export default class Chromecast {
     } catch (e) {
       // Ignore cleanup errors
     }
-  }
+  },
 
   /**
    * A React-to-vjs interface to pass the new content and channel titles to the
@@ -95,16 +95,16 @@ export default class Chromecast {
    * @param title
    * @param channelTitle
    */
-  static updateTitles(title: string | null | undefined, channelTitle: string | null | undefined) {
+  updateTitles(title: string | null | undefined, channelTitle: string | null | undefined) {
     gTitle = title;
     gChannelTitle = channelTitle;
-  }
+  },
 
   /**
    * Returns the required 'chromecast' options to be appended to the videojs
    * options object.
    */
-  static getOptions() {
+  getOptions() {
     return {
       chromecast: {
         requestTitleFn: (src: string | null | undefined) => gTitle || '',
@@ -112,5 +112,7 @@ export default class Chromecast {
         receiverAppID: 'FD107797',
       },
     };
-  }
-}
+  },
+};
+
+export default Chromecast;

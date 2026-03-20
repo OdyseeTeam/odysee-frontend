@@ -70,7 +70,7 @@ function NameHelpText(props: Props) {
     nameHelpText = <div className="error__text">{__('You already have a claim with this name.')}</div>;
   }
 
-  return <React.Fragment>{nameHelpText && nameHelpText}</React.Fragment>;
+  return <React.Fragment>{nameHelpText}</React.Fragment>;
 }
 
 export default NameHelpText;

@@ -34,15 +34,14 @@ class CodeViewer extends React.PureComponent<Props> {
   }
 
   componentDidMount() {
-    const me = this;
-    const { theme, contentType } = me.props;
+    const { theme, contentType } = this.props;
     // Init CodeMirror
     import(
       /* webpackChunkName: "codemirror" */
       'codemirror/lib/codemirror'
     ).then((CodeMirror) => {
       const CM = CodeMirror.default || CodeMirror;
-      me.codeMirror = CM.fromTextArea(me.textarea, {
+      this.codeMirror = CM.fromTextArea(this.textarea, {
         // Auto detect syntax with file contentType
         mode: contentType,
         // Adaptive theme
@@ -57,7 +56,7 @@ class CodeViewer extends React.PureComponent<Props> {
         lineWrapping: true,
       });
       // Add events
-      me.codeMirror.on('contextmenu', openSnippetMenu);
+      this.codeMirror.on('contextmenu', openSnippetMenu);
     });
   }
 

@@ -977,7 +977,7 @@ export const doPurchaseClaimForUri =
               : {
                   anonymous: true,
                 }),
-            currency: 'AR' || preferredCurrency || 'USD',
+            currency: 'AR',
             environment: stripeEnvironment,
             source_claim_id: claim.claim_id,
             target_claim_id: claim.claim_id,
@@ -1014,7 +1014,7 @@ export const doPurchaseClaimForUri =
               : {
                   anonymous: true,
                 }),
-            currency: 'AR' || preferredCurrency || 'AR',
+            currency: 'AR',
             environment: stripeEnvironment,
             source_claim_id: claim.claim_id,
             target_claim_id: claim.claim_id,

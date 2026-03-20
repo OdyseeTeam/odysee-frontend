@@ -1230,23 +1230,23 @@ type ChannelSignCache = Record<
   >
 >;
 
-class ChannelSign {
-  static _CACHE_DURATION_MINUTES = 30;
-  static _cache: ChannelSignCache = {};
+const ChannelSign = {
+  _CACHE_DURATION_MINUTES: 30,
+  _cache: {} as ChannelSignCache,
 
-  static _isCacheValid(channelId: ChannelId, data: string) {
+  _isCacheValid(channelId: ChannelId, data: string) {
     const cached = ChannelSign._cache[channelId] && ChannelSign._cache[channelId][data];
     return cached && Date.now() - cached.timestamp < ChannelSign._CACHE_DURATION_MINUTES * 60 * 1000;
-  }
+  },
 
-  static async _sign(channelClaimId: ChannelId, data: string) {
+  async _sign(channelClaimId: ChannelId, data: string) {
     return await Lbry.channel_sign({
       channel_id: channelClaimId,
       hexdata: toHex(data),
     });
-  }
+  },
 
-  static async sign(channelClaimId: ChannelId, data: string, useCache: boolean) {
+  async sign(channelClaimId: ChannelId, data: string, useCache: boolean) {
     let signedObject: ChannelSignResponse | null | undefined;
 
     try {
@@ -1273,8 +1273,8 @@ class ChannelSign {
     } catch (err) {}
 
     return signedObject;
-  }
-} // ****************************************************************************
+  },
+}; // ****************************************************************************
 // ****************************************************************************
 
 /**

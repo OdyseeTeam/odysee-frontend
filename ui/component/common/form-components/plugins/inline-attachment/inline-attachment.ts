@@ -266,17 +266,17 @@
       }
     }
 
-    xhr.addEventListener('load', function () {
+    xhr.addEventListener('load', () => {
       // If HTTP status is OK or Created
       if (xhr.status === 200 || xhr.status === 201) {
-        me.onFileUploadResponse(xhr);
+        this.onFileUploadResponse(xhr);
       } else {
-        me.onFileUploadError(xhr);
+        this.onFileUploadError(xhr);
       }
     });
 
     xhr.addEventListener('error', () => {
-      me.onFileUploadError(xhr);
+      this.onFileUploadError(xhr);
     });
 
     if (settings.beforeFileUpload(xhr) !== false) {

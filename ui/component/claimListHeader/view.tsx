@@ -494,41 +494,6 @@ function ClaimListHeader(props: Props) {
               )}
 
               {/* LANGUAGE FIELD - hidden for now */}
-              {false && !claimType && (
-                <div
-                  className={classnames('claim-search__input-container', {
-                    'claim-search__input-container--selected': shouldHighlight,
-                  })}
-                >
-                  <FormField
-                    className={classnames('claim-search__dropdown', {
-                      'claim-search__dropdown--selected': shouldHighlight,
-                    })}
-                    type="select"
-                    name="claimType"
-                    label={__('Language')}
-                    value={languageValue || CS.LANGUAGES_ALL}
-                    onChange={(e) =>
-                      handleChange({
-                        key: CS.LANGUAGE_KEY,
-                        value: e.target.value,
-                      })
-                    }
-                  >
-                    <option key={CS.LANGUAGES_ALL} value={CS.LANGUAGES_ALL}>
-                      {__('Any')}
-                      {/* i18fixme */}
-                    </option>
-                    {Object.entries(SEARCHABLE_LANGUAGES).map(([code, label]) => {
-                      return (
-                        <option key={code} value={code}>
-                          {String(label)}
-                        </option>
-                      );
-                    })}
-                  </FormField>
-                </div>
-              )}
 
               {/* PAID FIELD */}
               <div className={'claim-search__input-container'}>
