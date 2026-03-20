@@ -51,7 +51,7 @@ const MembershipDetails = (props: Props) => {
   return (
     <>
       {unlockableTierIds && (
-        <div className={'access-status' + ' ' + (membershipIsUnlockable ? 'green' : 'red')}>
+        <div className={'access-status ' + (membershipIsUnlockable ? 'green' : 'red')}>
           <p>{accessText}</p>
         </div>
       )}

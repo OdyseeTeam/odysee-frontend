@@ -334,7 +334,7 @@ export default function ClaimList(props: Props) {
 
               return (
                 <React.Fragment key={uri}>
-                  {inj && inj}
+                  {inj}
                   {(index < tileUris.length - uriBuffer.current.length ||
                     (pageSize && index < pageSize - uriBuffer.current.length) ||
                     (pageSize && tileUris.length % pageSize !== 0)) && (

@@ -43,6 +43,13 @@ type Props = {
   user: User | null | undefined;
   doHideModal: () => void;
 };
+// check if the link is for odysee.com
+function isAnOdyseeLink(urlString) {
+  return (
+    urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
+  );
+}
+
 // use forwardRef to allow consumers to pass refs to the button content if they want to
 // flow requires forwardRef have default type arguments passed to it
 const Button = forwardRef<any>((props: Props, ref: any) => {
@@ -158,17 +165,10 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         </div>
       )}
 
-      {children && children}
+      {children}
       {iconRight && <Icon icon={iconRight} iconColor={iconColor} size={iconSize || size} />}
     </span>
   );
-
-  // check if the link is for odysee.com
-  function isAnOdyseeLink(urlString) {
-    return (
-      urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
-    );
-  }
 
   // if it's an internal link we won't open a new tab
   const isAnInternalLink = (href || navigate) && (isAnOdyseeLink(href) || isAnOdyseeLink(navigate));

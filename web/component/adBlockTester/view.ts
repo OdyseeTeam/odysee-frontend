@@ -42,10 +42,9 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
   script.setAttribute('charset', 'utf-8');
   let alreadyDetectedByAdd = false;
 
-  script.onload = () => {
+  script.addEventListener('load', () => {
     if (!done) {
       done = true;
-      script.onload = null;
 
       if (windowElement?.adsbygoogle === 'undefined') {
         callback(true);
@@ -55,11 +54,11 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
       // $FlowIgnore
       script.parentNode?.removeChild(script);
     }
-  };
+  });
 
-  script.onerror = function () {
+  script.addEventListener('error', function () {
     callback(true);
-  };
+  });
 
   if (alreadyDetectedByAdd) {
     return;
@@ -69,7 +68,7 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
   const request = new XMLHttpRequest();
   request.open('GET', reqURL, true);
 
-  request.onreadystatechange = () => {
+  request.addEventListener('readystatechange', () => {
     if (request.status === 0 || (request.status >= 200 && request.status < 400)) {
       if (
         request.responseText.toLowerCase().indexOf('ublock') > -1 ||
@@ -87,7 +86,7 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
     if (!callbacked) {
       callback(request.responseURL !== reqURL);
     }
-  };
+  });
 
   request.send();
   head.insertBefore(script, head.firstChild);

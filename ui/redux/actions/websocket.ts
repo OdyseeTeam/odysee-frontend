@@ -34,22 +34,22 @@ export const doSocketConnect = (url, cb, type) => {
     setTimeout(() => {
       sockets[url] = new WebSocket(url);
 
-      sockets[url].onopen = (e) => {
+      sockets[url].addEventListener('open', (e) => {
         retryCount = 0;
         console.log(`Connected to ${type} WS`); // eslint-disable-line
-      };
+      });
 
-      sockets[url].onmessage = (e) => {
+      sockets[url].addEventListener('message', (e) => {
         const data = JSON.parse(e.data);
         cb(data);
-      };
+      });
 
-      sockets[url].onerror = (e) => {
+      sockets[url].addEventListener('error', (e) => {
         console.log(`${type} websocket onerror`, e); // eslint-disable-line
         // onerror and onclose will both fire, so nothing is needed here
-      };
+      });
 
-      sockets[url].onclose = () => {
+      sockets[url].addEventListener('close', () => {
         console.log(`Disconnected from ${type} WS`); // eslint-disable-line
 
         if (!closingSockets[url]) {
@@ -58,7 +58,7 @@ export const doSocketConnect = (url, cb, type) => {
         } else {
           closingSockets[url] = null;
         }
-      };
+      });
     }, timeToWait);
   }
 

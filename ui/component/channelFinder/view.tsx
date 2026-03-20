@@ -29,6 +29,21 @@ type Props = {
   doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>;
   doSetMentionSearchResults: (query: string, uris: Array<string>) => void;
 };
+
+const CenteredSpinner = (props: {}) => (
+  <div className="main--empty">
+    <Spinner />
+  </div>
+);
+
+function handleKeyPress(e) {
+  // We have to use 'e.key' instead of 'e.keyCode' in this event.
+  // if (e.key === 'Enter' && addTagRef && addTagRef.current && addTagRef.current.click) {
+  //   e.preventDefault();
+  //   addTagRef.current.click();
+  // }
+}
+
 export default function ChannelFinder(props: Props) {
   const {
     label,
@@ -60,11 +75,6 @@ export default function ChannelFinder(props: Props) {
 
   // **************************************************************************
   // **************************************************************************
-  const CenteredSpinner = (props: {}) => (
-    <div className="main--empty">
-      <Spinner />
-    </div>
-  );
 
   const LighthouseResults = (props: {}) => (
     <>
@@ -138,14 +148,6 @@ export default function ChannelFinder(props: Props) {
   function getLhTerm(term) {
     // This should be moved into `useLighthouse`
     return searchTerm && searchTerm.length >= LIGHTHOUSE_MIN_CHARACTERS ? searchTerm : '';
-  }
-
-  function handleKeyPress(e) {
-    // We have to use 'e.key' instead of 'e.keyCode' in this event.
-    // if (e.key === 'Enter' && addTagRef && addTagRef.current && addTagRef.current.click) {
-    //   e.preventDefault();
-    //   addTagRef.current.click();
-    // }
   }
 
   function handleSuggestionClicked(uri: string) {

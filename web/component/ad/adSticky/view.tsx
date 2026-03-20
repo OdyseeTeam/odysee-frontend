@@ -138,7 +138,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
           scriptSticky = document.createElement('script');
           scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
 
-          scriptSticky.onload = () => setIsActive(true);
+          scriptSticky.addEventListener('load', () => setIsActive(true));
 
           // $FlowIgnore
           document.body.appendChild(scriptSticky);

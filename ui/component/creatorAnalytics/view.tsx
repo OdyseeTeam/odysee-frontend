@@ -139,7 +139,7 @@ export default function CreatorAnalytics(props: Props) {
               subtitle={
                 <div className="card__data-subtitle">
                   <span>
-                    {0 > -1 && '+'}{' '}
+                    {stats.ChannelSubChange > 0 && '+'}{' '}
                     {__('%follower_count_weekly_change% this week', {
                       follower_count_weekly_change: stats.ChannelSubChange || 0,
                     })}

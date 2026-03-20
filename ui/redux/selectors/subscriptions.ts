@@ -33,7 +33,7 @@ export const selectSubscriptionIds = createSelector(selectSubscriptions, (subscr
   }
 });
 export const selectLastActiveSubscriptions = (state) => selectState(state).lastActiveSubscriptions;
-export const selectFollowing = createSelector(selectState, (state) => state.following && state.following);
+export const selectFollowing = createSelector(selectState, (state) => state.following);
 // Fetching list of users subscriptions
 export const selectIsFetchingSubscriptions = (state) => selectState(state).loading;
 // The current view mode on the subscriptions page

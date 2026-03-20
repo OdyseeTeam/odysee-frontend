@@ -318,7 +318,7 @@ function SideNavigation(props: Props) {
           })}
           activeClass="navigation-link--active"
         />
-        {extra && extra}
+        {extra}
       </li>
     );
   }

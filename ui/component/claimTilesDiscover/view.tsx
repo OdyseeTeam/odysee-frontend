@@ -243,7 +243,7 @@ function ClaimTilesDiscover(props: Props) {
 
               return (
                 <React.Fragment key={uri}>
-                  {inj && inj}
+                  {inj}
                   {(i < finalUris.length - uriBuffer.current.length || i < pageSize - uriBuffer.current.length) && (
                     <ClaimPreviewTile
                       sectionTitle={sectionTitle}

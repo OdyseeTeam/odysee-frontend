@@ -177,11 +177,11 @@ function ChannelPage(props: Props) {
     if (coverUrl) {
       image.src = coverUrl;
 
-      image.onload = function () {
+      image.addEventListener('load', function () {
         if (image.naturalWidth / image.naturalHeight < 2.2) {
           setLegacyHeader(true);
         }
-      };
+      });
     }
   }, [coverUrl]);
   const [scrollPast, setScrollPast] = React.useState(0);

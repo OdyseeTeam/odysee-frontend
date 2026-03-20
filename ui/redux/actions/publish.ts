@@ -408,7 +408,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
         const video = document.createElement('video');
         video.preload = 'metadata';
 
-        video.onloadedmetadata = () => {
+        video.addEventListener('loadedmetadata', () => {
           dispatch({
             type: ACTIONS.UPDATE_PUBLISH_FORM,
             data: {
@@ -417,9 +417,9 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
             },
           });
           window.URL.revokeObjectURL(video.src);
-        };
+        });
 
-        video.onerror = () => {
+        video.addEventListener('error', () => {
           dispatch({
             type: ACTIONS.UPDATE_PUBLISH_FORM,
             data: {
@@ -427,7 +427,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
               fileBitrate: 0,
             },
           });
-        };
+        });
 
         video.src = window.URL.createObjectURL(file);
       } else {

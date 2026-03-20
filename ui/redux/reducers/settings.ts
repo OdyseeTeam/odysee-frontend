@@ -14,7 +14,7 @@ const reducers = {};
 const defaultState = {
   isNight: false,
   findingFFmpeg: false,
-  loadedLanguages: [...Object.keys(window.i18n_messages), 'en'] || ['en'],
+  loadedLanguages: window.i18n_messages ? [...Object.keys(window.i18n_messages), 'en'] : ['en'],
   customWalletServers: [],
   sharedPreferences: {},
   daemonSettings: {},

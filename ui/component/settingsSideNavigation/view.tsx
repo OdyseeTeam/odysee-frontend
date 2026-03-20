@@ -121,7 +121,7 @@ export default function SettingsSideNavigation() {
                     className={classnames('navigation-link', {})} // $FlowFixMe
                     onClick={getOnClickHandler(linkProps.section)}
                   />
-                  {linkProps.extra && linkProps.extra}
+                  {linkProps.extra}
                 </li>
               );
             })}
@@ -152,7 +152,7 @@ export default function SettingsSideNavigation() {
                         className={classnames('navigation-link', {})}
                         onClick={getOnClickHandler(linkProps.section)}
                       />
-                      {linkProps.extra && linkProps.extra}
+                      {linkProps.extra}
                     </li>
                   );
                 })}

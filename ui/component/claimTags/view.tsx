@@ -18,7 +18,7 @@ export default function ClaimTags(props: Props) {
     tagsToDisplay.push('mature');
   }
 
-  for (var i = 0; tagsToDisplay.length < numberOfTags - 2; i++) {
+  for (let i = 0; tagsToDisplay.length < numberOfTags - 2; i++) {
     const tag = followedTags[i];
 
     if (!tag) {
@@ -32,7 +32,7 @@ export default function ClaimTags(props: Props) {
 
   const sortedTags = tags.toSorted((a, b) => a.localeCompare(b));
 
-  for (var i = 0; i < sortedTags.length; i++) {
+  for (let i = 0; i < sortedTags.length; i++) {
     const tag = sortedTags[i];
 
     if (!tag || tagsToDisplay.length === numberOfTags) {

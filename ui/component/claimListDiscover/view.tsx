@@ -228,8 +228,7 @@ function ClaimListDiscover(props: Props) {
           return true;
         }
 
-        const uri = claim.canonical_url || claim.canonical_url;
-        // looks wrong ---^----------------------^
+        const uri = claim.canonical_url || claim.permanent_url;
         // $FlowFixMe
         resolvedPinUris.push(uri);
       });
@@ -803,7 +802,7 @@ function ClaimListDiscover(props: Props) {
     loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
   return (
     <React.Fragment>
-      {headerLabel && headerLabel}
+      {headerLabel}
       {tileLayout ? (
         <div>
           {!repostedClaimId && showHeader && (
