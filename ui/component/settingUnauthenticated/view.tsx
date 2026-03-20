@@ -1,0 +1,41 @@
+/**
+ * Settings that we allow for unauthenticated users.
+ */
+import React from "react";
+import Card from "component/common/card";
+import { FormField } from "component/common/form";
+import HomepageSelector from "component/homepageSelector";
+import SettingLanguage from "component/settingLanguage";
+import SettingsRow from "component/settingsRow";
+import ThemeSelector from "component/themeSelector";
+type Props = {
+  searchInLanguage: boolean;
+  homepageKeys: Array<string>;
+  setSearchInLanguage: (arg0: boolean) => void;
+};
+export default function SettingUnauthenticated(props: Props) {
+  const {
+    searchInLanguage,
+    homepageKeys,
+    setSearchInLanguage
+  } = props;
+  return <Card isBodyList body={<>
+          <SettingsRow title={__('Language')} subtitle={__(HELP_LANGUAGE)}>
+            <SettingLanguage />
+          </SettingsRow>
+
+          <SettingsRow title={__('Search only in the selected language by default')}>
+            <FormField name="search-in-language" type="checkbox" checked={searchInLanguage} onChange={() => setSearchInLanguage(!searchInLanguage)} />
+          </SettingsRow>
+
+          {homepageKeys.length > 1 && <SettingsRow title={__('Homepage')} subtitle={__('Tailor your experience.')}>
+              <HomepageSelector />
+            </SettingsRow>}
+
+          <SettingsRow title={__('Theme')}>
+            <ThemeSelector />
+          </SettingsRow>
+        </>} />;
+} // prettier-ignore
+
+const HELP_LANGUAGE = 'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.';

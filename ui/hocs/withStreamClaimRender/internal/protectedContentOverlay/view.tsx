@@ -1,0 +1,90 @@
+import React from "react";
+import * as ICONS from "constants/icons";
+import * as MODALS from "constants/modal_types";
+import { formatLbryUrlForWeb, getModalUrlParam } from "util/url";
+import { AppContext } from "component/app/view";
+import { EmbedContext } from "contexts/embed";
+import Icon from "component/common/icon";
+import Button from "component/button";
+type Props = {
+  fileUri?: string;
+  channelName: string | null | undefined;
+  claimIsMine: boolean;
+  isProtected: boolean;
+  uri: string;
+  scheduledState: ClaimScheduledState;
+  userIsAMember: boolean;
+  myMembership: CreatorMembership | null | undefined;
+  cheapestPlanPrice: CreatorMembership | null | undefined;
+  joinEnabled: boolean;
+  passClickPropsToParent?: (props?: {
+    href?: string;
+    onClick?: () => void;
+  }) => void;
+  doOpenModal: (arg0: string, arg1: {}) => void;
+};
+
+const ProtectedContentOverlay = (props: Props) => {
+  const {
+    channelName,
+    claimIsMine,
+    uri,
+    isProtected,
+    myMembership,
+    scheduledState,
+    userIsAMember,
+    cheapestPlanPrice,
+    joinEnabled,
+    passClickPropsToParent,
+    doOpenModal
+  } = props;
+  const appFileUri = React.useContext(AppContext)?.uri;
+  const fileUri = props.fileUri || appFileUri;
+  const isEmbed = React.useContext(EmbedContext);
+  const membershipFetching = myMembership === undefined;
+  const clickProps = React.useMemo(() => {
+    if (!joinEnabled) return;
+    return isEmbed ? {
+      href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, {
+        uri,
+        fileUri
+      })}`
+    } : {
+      onClick: () => doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+        uri,
+        fileUri
+      })
+    };
+  }, [doOpenModal, fileUri, isEmbed, uri, joinEnabled]);
+  React.useEffect(() => {
+    if (passClickPropsToParent) {
+      passClickPropsToParent(clickProps);
+    }
+  }, [clickProps, passClickPropsToParent]);
+  if (membershipFetching || !isProtected || userIsAMember || claimIsMine) return null;
+
+  if (scheduledState === 'scheduled') {
+    return null;
+  }
+
+  // know if membership is disabled.. no address..
+  return <div className="protected-content-overlay">
+      <Icon icon={ICONS.LOCK} />
+      {!joinEnabled && <>
+          <span>{__('Only @%channel_name% members can view this content.', {
+          channel_name: channelName
+        })}</span>
+          <span>{__('New members are not currently accepted.')}</span>
+        </>}
+      {joinEnabled && <>
+          <span>{__('Only @%channel_name% members can view this content.', {
+          channel_name: channelName
+        })}</span>
+          <Button button="primary" icon={ICONS.MEMBERSHIP} label={cheapestPlanPrice ? __(isEmbed ? 'Join on Odysee now for $%membership_price% per month!' : 'Join for $%membership_price% per month', {
+        membership_price: cheapestPlanPrice
+      }) : __('Membership options')} title={__('Become a member')} {...clickProps} />
+        </>}
+    </div>;
+};
+
+export default ProtectedContentOverlay;

@@ -1,0 +1,43 @@
+import React from "react";
+import PostEditor from "component/postEditor";
+import Card from "component/common/card";
+import { FormField } from "component/common/form";
+import PublishName from "component/publish/shared/publishName";
+import classnames from "classnames";
+type Props = {
+  uri: string | null | undefined;
+  fileMimeType: string | null | undefined;
+  disabled: boolean;
+  setPrevFileText: (arg0: string) => void;
+  // --- redux ---
+  title: string | null | undefined;
+  balance: number;
+  doUpdateTitle: (arg0: string, arg1: boolean) => void;
+};
+
+function PublishPost(props: Props) {
+  const {
+    uri,
+    title,
+    balance,
+    fileMimeType,
+    doUpdateTitle,
+    disabled,
+    setPrevFileText
+  } = props;
+  const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+
+  function handleTitleChange(event) {
+    doUpdateTitle(event.target.value, urlChangedManually);
+  }
+
+  return <Card className={classnames({
+    'card--disabled': disabled || balance === 0
+  })} actions={<React.Fragment>
+          <FormField type="text" name="content_title" label={__('Title')} placeholder={__('Descriptive titles work best')} disabled={disabled} value={title} onChange={handleTitleChange} className="fieldset-group" max="200" autoFocus autoComplete="off" />
+          <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
+          <PostEditor label={__('Post --[noun, markdown post tab button]--')} uri={uri} disabled={disabled} fileMimeType={fileMimeType} setPrevFileText={setPrevFileText} />
+        </React.Fragment>} />;
+}
+
+export default PublishPost;

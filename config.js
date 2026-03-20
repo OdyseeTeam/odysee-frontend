@@ -1,5 +1,5 @@
-// On Web, this will find .env.defaults and optional .env in web/
-// On Desktop App, this will find .env.defaults and optional .env in root dir
+// Server-side config (CJS) - used by web/index.ts, web/src/*.ts, electron/*.ts
+// Client-side code uses config.ts (ESM) via Vite alias
 require('dotenv-defaults').config({ silent: false });
 
 const config = {
@@ -8,13 +8,13 @@ const config = {
   WEBPACK_WEB_PORT: process.env.WEBPACK_WEB_PORT,
   WEBPACK_ELECTRON_PORT: process.env.WEBPACK_ELECTRON_PORT,
   WEB_SERVER_PORT: process.env.WEB_SERVER_PORT,
-  LBRY_WEB_API: process.env.LBRY_WEB_API, // api.na-backend.odysee.com',
-  LBRY_WEB_API_NO_CF: process.env.LBRY_WEB_API_NO_CF, // naked-api.na-backend.odysee.com', bypasses CF timeout (90 seconds) for longer running calls
+  LBRY_WEB_API: process.env.LBRY_WEB_API,
+  LBRY_WEB_API_NO_CF: process.env.LBRY_WEB_API_NO_CF,
   LBRY_WEB_PUBLISH_API: process.env.LBRY_WEB_PUBLISH_API,
   LBRY_WEB_PUBLISH_API_V2: process.env.LBRY_WEB_PUBLISH_API_V2,
   LBRY_WEB_PUBLISH_API_V3: process.env.LBRY_WEB_PUBLISH_API_V3,
   LBRY_WEB_PUBLISH_API_V4: process.env.LBRY_WEB_PUBLISH_API_V4,
-  LBRY_API_URL: process.env.LBRY_API_URL, // api.odysee.com',
+  LBRY_API_URL: process.env.LBRY_API_URL,
   LBRY_WEB_BUFFER_API: process.env.LBRY_WEB_BUFFER_API,
   SEARCH_SERVER_API: process.env.SEARCH_SERVER_API,
   SEARCH_SERVER_API_ALT: process.env.SEARCH_SERVER_API_ALT,
@@ -44,20 +44,16 @@ const config = {
   SITE_NAME: process.env.SITE_NAME,
   SITE_DESCRIPTION: process.env.SITE_DESCRIPTION,
   SITE_HELP_EMAIL: process.env.SITE_HELP_EMAIL,
-  // SOCIAL MEDIA
   TWITTER_ACCOUNT: process.env.TWITTER_ACCOUNT,
-  // LOGO
   LOGO_TITLE: process.env.LOGO_TITLE,
   LOGO: process.env.LOGO,
   LOGO_WHITE_TEXT: process.env.LOGO_WHITE_TEXT,
   LOGO_DARK_TEXT: process.env.LOGO_DARK_TEXT,
   AVATAR_DEFAULT: process.env.AVATAR_DEFAULT,
   MISSING_THUMB_DEFAULT: process.env.MISSING_THUMB_DEFAULT,
-  // OG
   OG_TITLE_SUFFIX: process.env.OG_TITLE_SUFFIX,
   OG_HOMEPAGE_TITLE: process.env.OG_HOMEPAGE_TITLE,
   OG_IMAGE_URL: process.env.OG_IMAGE_URL,
-  // MASCOT
   YRBL_HAPPY_IMG_URL: process.env.YRBL_HAPPY_IMG_URL,
   YRBL_SAD_IMG_URL: process.env.YRBL_SAD_IMG_URL,
   LOGIN_IMG_URL: process.env.LOGIN_IMG_URL,
@@ -65,8 +61,6 @@ const config = {
   DEFAULT_LANGUAGE: process.env.DEFAULT_LANGUAGE,
   AUTO_FOLLOW_CHANNELS: process.env.AUTO_FOLLOW_CHANNELS,
   UNSYNCED_SETTINGS: process.env.UNSYNCED_SETTINGS,
-
-  // Farcaster Mini Apps / Frames
   FARCASTER_ACCOUNT_ASSOC_HEADER: process.env.FARCASTER_ACCOUNT_ASSOC_HEADER,
   FARCASTER_ACCOUNT_ASSOC_PAYLOAD: process.env.FARCASTER_ACCOUNT_ASSOC_PAYLOAD,
   FARCASTER_ACCOUNT_ASSOC_SIGNATURE: process.env.FARCASTER_ACCOUNT_ASSOC_SIGNATURE,
@@ -74,8 +68,6 @@ const config = {
   FARCASTER_SPLASH_IMAGE_URL: process.env.FARCASTER_SPLASH_IMAGE_URL,
   FARCASTER_SPLASH_BACKGROUND_COLOR: process.env.FARCASTER_SPLASH_BACKGROUND_COLOR,
   FARCASTER_HERO_IMAGE_URL: process.env.FARCASTER_HERO_IMAGE_URL,
-
-  // ENABLE FEATURES
   ENABLE_COMMENT_REACTIONS: process.env.ENABLE_COMMENT_REACTIONS === 'true',
   ENABLE_FILE_REACTIONS: process.env.ENABLE_FILE_REACTIONS === 'true',
   ENABLE_CREATOR_REACTIONS: process.env.ENABLE_CREATOR_REACTIONS === 'true',
@@ -98,8 +90,6 @@ const config = {
   ENABLE_STRIPE: process.env.ENABLE_STRIPE,
   ENABLE_ARCONNECT: process.env.ENABLE_ARCONNECT,
   ENABLE_STABLECOIN: process.env.ENABLE_STABLECOIN,
-
-  // FIREBASE SDK
   FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
@@ -108,21 +98,16 @@ const config = {
   FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID,
   FIREBASE_VAPID_KEY: process.env.FIREBASE_VAPID_KEY,
-
   AD_KEYWORD_BLOCKLIST: process.env.AD_KEYWORD_BLOCKLIST,
   AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION: process.env.AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION,
-
-  // FROM COMMAND LINE
   COMMIT_ID: process.env.COMMIT_ID,
   NODE_ENV: process.env.NODE_ENV,
-  // Dev/staged feature gating
   DYNAMIC_ROUTES_FIRST: process.env.DYNAMIC_ROUTES_FIRST === 'true',
 };
 
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;
 config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
 config.PROXY_URL_NO_CF = `${config.LBRY_WEB_API_NO_CF}/api/v1/proxy`;
-
 config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
 config.FAVICON = `/public/favicon_128.png`;

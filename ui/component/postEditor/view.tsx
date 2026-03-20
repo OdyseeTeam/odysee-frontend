@@ -1,0 +1,95 @@
+import React, { useEffect } from "react";
+import { FormField } from "component/common/form";
+import debounce from "util/debounce";
+type Props = {
+  uri: string | null | undefined;
+  label: string | null | undefined;
+  disabled: boolean | null | undefined;
+  filePath: string | WebFile;
+  fileText: string | null | undefined;
+  fileMimeType: string | null | undefined;
+  streamingUrl: string | null | undefined;
+  isStillEditing: boolean;
+  fetchStreamingUrl: (arg0: string) => void;
+  setPrevFileText: (arg0: string) => void;
+  updatePublishForm: (arg0: UpdatePublishState) => void; // setCurrentFileType: (string) => void,
+
+};
+
+function PostEditor(props: Props) {
+  const {
+    uri,
+    label,
+    disabled,
+    filePath,
+    fileText,
+    streamingUrl,
+    fileMimeType,
+    isStillEditing,
+    setPrevFileText,
+    fetchStreamingUrl,
+    updatePublishForm // setCurrentFileType,
+
+  } = props;
+  const editing = isStillEditing && uri;
+  const [ready, setReady] = React.useState(!editing);
+  const [loading, setLoading] = React.useState(false);
+  const updateFileText = React.useCallback(debounce(value => {
+    updatePublishForm({
+      fileText: value
+    });
+  }, 750), []);
+  useEffect(() => {
+    if (editing && uri) {
+      fetchStreamingUrl(uri);
+    }
+  }, [uri, editing, fetchStreamingUrl]);
+  // Ready to edit content
+  useEffect(() => {
+    if (!ready && !loading && fileText && streamingUrl) {
+      setReady(true);
+    }
+  }, [ready, loading, fileText, streamingUrl]);
+  useEffect(() => {
+    if (fileText && loading) {
+      setLoading(false);
+    } else if (!fileText && loading) {
+      setLoading(true);
+    }
+  }, [fileText, loading, setLoading]);
+  useEffect(() => {
+    function readFileStream(url) {
+      return fetch(url).then(res => res.text());
+    }
+
+    async function updateEditorText(url) {
+      try {
+        const text = await readFileStream(url);
+
+        if (text) {
+          // Store original content
+          setPrevFileText(text);
+          // Update text editor form
+          updatePublishForm({
+            fileText: text
+          });
+        }
+      } catch (error) {
+        console.error(error); // eslint-disable-line
+      }
+    }
+
+    if (editing) {
+      // Editing same file (previously published)
+      // User can use a different file to replace the content
+      if (!ready && !filePath && !fileText && streamingUrl && fileMimeType === 'text/markdown') {
+        // setCurrentFileType(fileMimeType);
+        updateEditorText(streamingUrl);
+      }
+    }
+  }, [ready, editing, fileText, filePath, fileMimeType, streamingUrl, setPrevFileText, updatePublishForm // setCurrentFileType,
+  ]);
+  return <FormField type={'markdown'} name="content_post" label={label} placeholder={__('My content for this post...')} value={ready ? fileText : __('Loading...')} disabled={!ready || disabled} onChange={updateFileText} />;
+}
+
+export default PostEditor;

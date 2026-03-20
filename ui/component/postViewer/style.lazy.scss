@@ -1,5 +1,5 @@
-@import '~ui/scss/init/breakpoints';
-@import '~ui/scss/init/mixins';
+@import 'init/breakpoints';
+@import 'init/mixins';
 
 .post {
   $card-bg: var(--color-card-background);

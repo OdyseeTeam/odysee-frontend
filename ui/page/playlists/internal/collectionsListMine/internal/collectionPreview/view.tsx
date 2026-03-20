@@ -1,0 +1,195 @@
+import React from "react";
+import { NavLink, useHistory } from "react-router-dom";
+import CollectionItemCount from "./internal/collectionItemCount";
+import CollectionPrivateIcon from "component/common/collection-private-icon";
+import CollectionPublicIcon from "./internal/collection-public-icon";
+import CollectionMenuList from "component/collectionMenuList";
+import { COL_TYPES } from "constants/collections";
+import * as PAGES from "constants/pages";
+import * as ICONS from "constants/icons";
+import * as COLLECTIONS_CONSTS from "constants/collections";
+import FileThumbnail from "component/fileThumbnail";
+import ChannelThumbnail from "component/channelThumbnail";
+import UriIndicator from "component/uriIndicator";
+import DateTime from "component/dateTime";
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from "util/url";
+import { getLocalizedNameForCollectionId } from "util/collections";
+import CollectionPreviewOverlay from "component/collectionPreviewOverlay";
+import Button from "component/button";
+import ClaimPreviewLoading from "component/common/claim-preview-loading";
+import Icon from "component/common/icon";
+import Tooltip from "component/common/tooltip";
+import Spinner from "component/spinner";
+import AutoPublishCountdown from "./internal/autoPublishCountdown";
+type Props = {
+  uri: string;
+  collectionId: string;
+  // -- redux --
+  collectionCount: number;
+  collectionName: string;
+  collectionType: string | null | undefined;
+  claimIsPending: boolean;
+  isFetchingItems: boolean;
+  isResolvingCollection: boolean;
+  title?: string;
+  channel: any | null | undefined;
+  channelTitle?: String;
+  hasClaim: boolean;
+  firstCollectionItemUrl: string | null | undefined;
+  firstPlayableCollectionItemUrl: string | null | undefined;
+  collectionUpdatedAt: number;
+  collectionCreatedAt: number | null | undefined;
+  isBuiltin: boolean;
+  thumbnail: string | null | undefined;
+  isEmpty: boolean;
+  thumbnailFromClaim: string;
+  thumbnailFromSecondaryClaim: string;
+  collectionHasEdits: boolean;
+  isPublishing: boolean;
+  publishError?: string | null | undefined;
+  autoPublish: boolean;
+  autoPublishScheduledAt: number | null | undefined;
+};
+
+function CollectionPreview(props: Props) {
+  const {
+    uri,
+    collectionId,
+    collectionCount,
+    collectionName,
+    claimIsPending,
+    isFetchingItems,
+    isResolvingCollection,
+    collectionType,
+    hasClaim,
+    firstCollectionItemUrl,
+    firstPlayableCollectionItemUrl,
+    channel,
+    channelTitle,
+    collectionUpdatedAt,
+    collectionCreatedAt,
+    isBuiltin,
+    thumbnail,
+    isEmpty,
+    thumbnailFromClaim,
+    thumbnailFromSecondaryClaim,
+    collectionHasEdits,
+    isPublishing,
+    publishError,
+    autoPublish,
+    autoPublishScheduledAt
+  } = props;
+  const {
+    push
+  } = useHistory();
+  if (collectionType === 'featuredChannels') return null;
+  const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  const optimizedPreviewThumbnail = previewThumbnail ? `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/${previewThumbnail}` : null;
+
+  if (isFetchingItems || isResolvingCollection) {
+    return <ClaimPreviewLoading />;
+  }
+
+  const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
+  const firstItemPath = firstPlayableCollectionItemUrl ? formatLbryUrlForWeb(firstPlayableCollectionItemUrl) : '/';
+  const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
+  const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
+
+  function handleClick(e) {
+    if (navigateUrl) {
+      push(navigateUrl);
+    }
+  }
+
+  const navLinkProps = {
+    to: navigateUrl,
+    onClick: e => e.stopPropagation()
+  };
+  if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID && isEmpty) return null;
+  return <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
+      <CollectionMenuList collectionId={collectionId} />
+      <div className="background" style={optimizedPreviewThumbnail ? {
+      backgroundImage: `url(${optimizedPreviewThumbnail})`
+    } : undefined} />
+      <div className="content">
+        <div className="thumbnail">
+          <NavLink {...navLinkProps}>
+            <FileThumbnail uri={uri || firstCollectionItemUrl} secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null} thumbnail={previewThumbnail || null}>
+              <CollectionPreviewOverlay collectionId={collectionId} />
+            </FileThumbnail>
+          </NavLink>
+        </div>
+
+        <div className="text">
+          <div className="title">
+            <NavLink {...navLinkProps}>
+              <h2>
+                {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
+                {usedCollectionName}
+                {collectionHasEdits && <Icon icon={ICONS.PUBLISH} />}
+                {claimIsPending && <Tooltip title={__('Your publish is being confirmed and will be live soon')} arrow={false} enterDelay={100}>
+                    <div className="pending-change">
+                      <Spinner />
+                    </div>
+                  </Tooltip>}
+                {isPublishing && <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
+                    <div className="pending-change">
+                      <Spinner />
+                    </div>
+                  </Tooltip>}
+                {collectionHasEdits && publishError && <Tooltip title={__('Last publish failed. Open playlist and retry publish.')} arrow={false} enterDelay={100}>
+                    <span>
+                      <Icon icon={ICONS.WARNING} />
+                    </span>
+                  </Tooltip>}
+              </h2>
+            </NavLink>
+          </div>
+          {hasClaim && <div className="channel">
+              <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
+                <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
+                <label>{channelTitle}</label>
+              </UriIndicator>
+            </div>}
+
+          <div className="info">
+            <div className="meta">
+              <CollectionItemCount collectionId={collectionId} />
+              {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
+
+              {autoPublish && <div className="auto-publish-badge">
+                  <Icon icon={ICONS.PUBLISH} />
+                  <span>
+                    {isPublishing ? __('Publishing...') : autoPublishScheduledAt ? <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} /> : collectionHasEdits ? __('Publish pending') : __('Auto-publish')}
+                  </span>
+                </div>}
+
+              <div className="create-at">
+                {collectionCreatedAt && <>
+                    <Icon icon={ICONS.TIME} />
+                    <DateTime timeAgo date={collectionCreatedAt} />
+                  </>}
+              </div>
+
+              <div className="update-at">
+                <Icon icon={ICONS.EDIT} />
+                <DateTime timeAgo date={collectionUpdatedAt} />
+              </div>
+            </div>
+
+            <div className="action">
+              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && <Button button="alt" icon={ICONS.PLAY} onClick={() => push({
+              pathname: firstItemPath,
+              search: generateListSearchUrlParams(collectionId),
+              state: {
+                forceAutoplay: true
+              }
+            })} />}
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>;
+}
+
+export default CollectionPreview;

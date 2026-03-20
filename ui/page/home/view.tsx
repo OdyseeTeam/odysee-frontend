@@ -1,0 +1,289 @@
+import React from "react";
+import classnames from "classnames";
+import { lazyImport } from "util/lazyImport";
+import { getSortedRowData } from "./helper";
+import { ENABLE_NO_SOURCE_CLAIMS } from "config";
+import * as ICONS from "constants/icons";
+import * as MODALS from "constants/modal_types";
+import * as PAGES from "constants/pages";
+import * as COLLECTIONS from "constants/collections";
+import Page from "component/page";
+import Button from "component/button";
+import ClaimTilesDiscover from "component/claimTilesDiscover";
+import ClaimList from "component/claimList";
+import ClaimPreviewTile from "component/claimPreviewTile";
+import Icon from "component/common/icon";
+import WaitUntilOnPage from "component/common/wait-until-on-page";
+import RecommendedPersonal from "component/recommendedPersonal";
+import Yrbl from "component/yrbl";
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from "effects/use-screensize";
+import { GetLinksData } from "util/buildHomepage";
+import { filterActiveLivestreamUris } from "util/livestream";
+import UpcomingClaims from "component/upcomingClaims";
+import Meme from "web/component/meme";
+import { useHistory } from "react-router-dom";
+const FeaturedBanner = lazyImport(() => import('component/featuredBanner'
+/* webpackChunkName: "featuredBanner" */
+));
+const CustomBanner = lazyImport(() => import('component/customBanner'
+/* webpackChunkName: "customBanner" */
+));
+type HomepageOrder = {
+  active: Array<string> | null | undefined;
+  hidden: Array<string> | null | undefined;
+};
+type CustomBanners = {
+  image: {
+    url: string;
+    alt: string;
+  };
+  label: string;
+  description: string;
+  tag: string;
+  button: {
+    text: string;
+    link: string;
+  };
+  background: {
+    url: string;
+    alt: string;
+  };
+  position: number;
+};
+type Props = {
+  authenticated: boolean;
+  followedTags: Array<Tag>;
+  subscribedChannelIds: Array<ClaimId>;
+  showNsfw: boolean;
+  homepageData: any;
+  homepageMeme: {
+    text: string;
+    url: string;
+  } | null | undefined;
+  homepageCustomBanners: Array<CustomBanners>;
+  prefsReady: boolean;
+  homepageFetched: boolean;
+  doFetchAllActiveLivestreamsForQuery: () => void;
+  doFetchItemsInCollection: (params: {
+    collectionId: string;
+    pageSize?: number;
+  }) => Promise<any>;
+  fetchingActiveLivestreams: boolean;
+  homepageOrder: HomepageOrder;
+  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
+  userHasOdyseeMembership: boolean | null | undefined;
+  currentTheme: string;
+  activeLivestreamByCreatorId: LivestreamByCreatorId;
+  livestreamViewersById: LivestreamViewersById;
+  hideLivestreams: boolean;
+  getActiveLivestreamUrisForIds: (arg0: Array<string>) => Array<string>;
+  watchLaterRawCount: number | null | undefined;
+  watchLaterUris: Array<string> | null | undefined;
+};
+
+function HomePage(props: Props) {
+  const {
+    followedTags,
+    subscribedChannelIds,
+    authenticated,
+    showNsfw,
+    homepageData,
+    homepageMeme,
+    homepageCustomBanners,
+    prefsReady,
+    homepageFetched,
+    doFetchAllActiveLivestreamsForQuery,
+    doFetchItemsInCollection,
+    fetchingActiveLivestreams,
+    homepageOrder,
+    doOpenModal,
+    activeLivestreamByCreatorId: al,
+    // yup, unreadable name, but we are just relaying here.
+    livestreamViewersById: lv,
+    hideLivestreams,
+    watchLaterRawCount,
+    watchLaterUris
+  } = props;
+  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
+  const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
+  const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
+  const isSmallScreen = useIsSmallScreen();
+  const isMediumScreen = useIsMediumScreen();
+  const isLargeScreen = useIsLargeScreen();
+  const {
+    push
+  } = useHistory();
+  const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
+    const rowData: Array<RowDataItem> = GetLinksData(homepageData, isSmallScreen, isMediumScreen, isLargeScreen, true, authenticated, showPersonalizedChannels, showPersonalizedTags, subscribedChannelIds, followedTags, showIndividualTags, showNsfw);
+    return getSortedRowData(authenticated, homepageOrder, homepageData, rowData);
+  }, [authenticated, followedTags, homepageData, homepageOrder, isSmallScreen, isMediumScreen, isLargeScreen, showIndividualTags, showNsfw, showPersonalizedChannels, showPersonalizedTags, subscribedChannelIds]);
+  const showWatchLaterSectionRef = React.useRef();
+
+  if (showWatchLaterSectionRef.current === undefined) {
+    if ((watchLaterRawCount || 0) > 0) {
+      showWatchLaterSectionRef.current = true;
+    } else if (prefsReady) {
+      showWatchLaterSectionRef.current = false;
+    }
+  }
+
+  const showWatchLaterSection = showWatchLaterSectionRef.current === true;
+  const visibleSortedRowData: Array<RowDataItem> = React.useMemo(() => sortedRowData.filter((row: RowDataItem) => row.id !== 'WATCH_LATER' || showWatchLaterSection), [showWatchLaterSection, sortedRowData]);
+  type Cache = {
+    topGrid: number;
+    hasBanner: boolean;
+    [homepageId: string]: {
+      livestreamUris: Array<string> | null | undefined;
+    };
+  };
+  const cache: Cache = React.useMemo(() => {
+    const cache = {
+      topGrid: -1,
+      hasBanner: true
+    };
+
+    if (homepageFetched) {
+      visibleSortedRowData.forEach((row: RowDataItem, index: number) => {
+        // -- Find index of first row with a title if not already:
+        if (cache.topGrid === -1 && Boolean(row.title) && row.id !== 'UPCOMING') {
+          cache.topGrid = index;
+        }
+
+        // -- Find livestreams related to the category:
+        const rowChannelIds = row.options?.channelIds;
+        const rowExcludedChannelIds = row.options?.excludedChannelIds;
+        const isFollowing = row.id === 'FOLLOWING';
+        const hideLivestreamsInCategories = hideLivestreams && !isFollowing;
+        cache[row.id] = {
+          livestreamUris: hideLivestreamsInCategories ? null : isFollowing ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv) : rowChannelIds ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv) : null
+        };
+      });
+    }
+
+    return cache;
+  }, [homepageFetched, visibleSortedRowData, subscribedChannelIds, al, lv, hideLivestreams]);
+  const hasWatchLaterSection = React.useMemo(() => sortedRowData.some((row: RowDataItem) => row.id === 'WATCH_LATER'), [sortedRowData]);
+  const hasFetchedWatchLaterItemsRef = React.useRef(false);
+  type SectionHeaderProps = {
+    title: string;
+    navigate?: string;
+    icon?: string;
+    help?: string;
+  };
+
+  const SectionHeader = ({
+    title,
+    navigate = '/',
+    icon = '',
+    help
+  }: SectionHeaderProps) => {
+    return <h1 className="claim-grid__header">
+        <Button navigate={navigate} button="link">
+          <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
+          <span className="claim-grid__title">{title}</span>
+          {help}
+        </Button>
+      </h1>;
+  };
+
+  const CustomizeHomepage = () => {
+    return <Button button="link" iconRight={ICONS.SETTINGS} onClick={() => authenticated ? doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE) : signupDriver()} title={__('Sort and customize your homepage')} label={__('Customize --[Short label for "Customize Homepage"]--')} />;
+  };
+
+  function signupDriver() {
+    push(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+  }
+
+  function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
+    if (id === 'BANNER') {
+      if (index === undefined) {
+        return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
+      } else return null;
+    } else if (id === 'PORTALS') {
+      return null;
+    } else if (id === 'UPCOMING') {
+      return <React.Fragment key={id}>
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
+          {cache.topGrid === -1 && <CustomizeHomepage />}
+          <UpcomingClaims name="homepage_following" channelIds={subscribedChannelIds} tileLayout liveUris={cache[id].livestreamUris} loading={fetchingActiveLivestreams} showHideSetting={false} />
+        </React.Fragment>;
+    }
+
+    const tilePlaceholder = <ul className="claim-grid">
+        {new Array(options.pageSize || 8).fill(1).map((x, i) => <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />)}
+      </ul>;
+
+    function resolveTitleOverride(title: string) {
+      return title === 'Recent From Following' ? 'Following' : title;
+    }
+
+    const claimTiles = id === 'WATCH_LATER' ? watchLaterUris === undefined ? tilePlaceholder : <ClaimList uris={watchLaterUris} tileLayout maxClaimRender={options.pageSize || 8} showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} /> : <ClaimTilesDiscover {...options} showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} hideMembersOnly={id !== 'FOLLOWING'} hasSource prefixUris={cache[id].livestreamUris} pins={{
+      urls: pinUrls,
+      claimIds: pinnedClaimIds
+    }} forceShowReposts={id !== 'FOLLOWING'} loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false} fetchViewCount sectionTitle={title} />;
+
+    const HeaderArea = () => {
+      return <>
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
+          {title && typeof title === 'string' && <div className="homePage-wrapper__section-title">
+              <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
+              {(index === cache.topGrid || index && index - 1 === cache.topGrid && visibleSortedRowData[cache.topGrid].id === 'UPCOMING') && <CustomizeHomepage />}
+            </div>}
+        </>;
+    };
+
+    return <div key={id} className={classnames('claim-grid__wrapper', {
+      'hide-ribbon': link !== `/$/${PAGES.CHANNELS_FOLLOWING}`
+    })}>
+        {id === 'FYP' ? <RecommendedPersonal header={<HeaderArea />} /> : <>
+            <HeaderArea />
+            {index === 0 && <>{claimTiles}</>}
+            {index !== 0 && <WaitUntilOnPage name={title} placeholder={tilePlaceholder} yOffset={800}>
+                {claimTiles}
+              </WaitUntilOnPage>}
+            {(route || link) && <Button className="claim-grid__title--secondary" button="link" navigate={route || link} iconRight={ICONS.ARROW_RIGHT} label={__('View More')} />}
+          </>}
+      </div>;
+  }
+
+  React.useEffect(() => {
+    doFetchAllActiveLivestreamsForQuery(); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+  }, []);
+  React.useEffect(() => {
+    if (authenticated && hasWatchLaterSection && !hasFetchedWatchLaterItemsRef.current) {
+      hasFetchedWatchLaterItemsRef.current = true;
+      doFetchItemsInCollection({
+        collectionId: COLLECTIONS.WATCH_LATER_ID
+      });
+    }
+  }, [authenticated, doFetchItemsInCollection, hasWatchLaterSection]);
+  return <Page className="homePage-wrapper" fullWidthPage>
+      {visibleSortedRowData.length === 0 && authenticated && homepageFetched && <div className="empty--centered">
+          <Yrbl alwaysShow title={__('Clean as a whistle! --[title for empty homepage]--')} actions={<CustomizeHomepage />} />
+        </div>}
+
+      {cache.hasBanner && getRowElements('BANNER', undefined, undefined, undefined, undefined, undefined, {}, undefined, undefined, undefined)}
+
+      {homepageFetched && visibleSortedRowData.map(({
+      id,
+      title,
+      route,
+      link,
+      icon,
+      help,
+      pinnedUrls: pinUrls,
+      pinnedClaimIds,
+      options = {}
+    }, index) => {
+      // Check if there is a banner that should appear in this position
+      const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find(banner => banner.position === index);
+      return <React.Fragment key={id}>
+                {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+                {bannerForPosition && <CustomBanner key={`custom-banner-${bannerForPosition.position}`} {...bannerForPosition} isSecondary={bannerForPosition === homepageCustomBanners[1]} // Pass isSecondary only for the second banner
+        />}
+              </React.Fragment>;
+    })}
+    </Page>;
+}
+
+export default HomePage;
