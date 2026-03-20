@@ -65,22 +65,6 @@ export default function FeaturedBanner(props: Props) {
     };
   }, [isMenuOpen]);
 
-  function getUriTo(uri) {
-    if (uri.includes('odysee.com')) {
-      uri = uri.substring(uri.indexOf('odysee.com') + 10);
-    }
-
-    let search;
-
-    if (uri.includes('?lid=')) {
-      search = uri.substring(uri.indexOf('?lid='));
-    }
-
-    return {
-      pathname: uri,
-      search: search || undefined,
-    };
-  }
 
   function handleAnchor(e, uri) {
     if (uri.charAt(0) !== '#') {
