@@ -44,6 +44,27 @@ type Props = {
   onSearchOptionsChanged: (arg0: string) => void;
 };
 
+function addRow(label: string, value: any) {
+  return (
+    <tr>
+      <td>
+        <legend className="search__legend">{label}</legend>
+      </td>
+      <td>{value}</td>
+    </tr>
+  );
+}
+
+const OBJ_TO_OPTION_ELEM = (obj) => {
+  return Object.entries(obj).map((x) => {
+    return (
+      <option key={x[0]} value={x[0]}>
+        {__(String(x[1]))}
+      </option>
+    );
+  });
+};
+
 const SearchOptions = (props: Props) => {
   const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
     props;
@@ -87,27 +108,6 @@ const SearchOptions = (props: Props) => {
       onSearchOptionsChanged(option);
     }
   }
-
-  function addRow(label: string, value: any) {
-    return (
-      <tr>
-        <td>
-          <legend className="search__legend">{label}</legend>
-        </td>
-        <td>{value}</td>
-      </tr>
-    );
-  }
-
-  const OBJ_TO_OPTION_ELEM = (obj) => {
-    return Object.entries(obj).map((x) => {
-      return (
-        <option key={x[0]} value={x[0]}>
-          {__(String(x[1]))}
-        </option>
-      );
-    });
-  };
 
   const typeElem = (
     <>

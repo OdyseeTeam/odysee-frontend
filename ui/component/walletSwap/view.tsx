@@ -63,6 +63,58 @@ type Props = {
   queryCoinSwapStatus: (arg0: string) => void;
 };
 
+function formatCoinAmountString(amount) {
+  return amount === 0
+    ? '---'
+    : amount.toLocaleString(undefined, {
+        minimumFractionDigits: 8,
+      });
+}
+
+function currencyToCoin(currency) {
+  const MAP = {
+    DAI: 'dai',
+    USDC: 'usdc',
+    BTC: 'bitcoin',
+    ETH: 'ethereum',
+    LTC: 'litecoin',
+    BCH: 'bitcoincash',
+  };
+  return MAP[currency] || 'bitcoin';
+}
+
+function getCoinLabel(coin) {
+  const COIN_LABEL = {
+    dai: 'Dai',
+    usdc: 'USD Coin',
+    bitcoin: 'Bitcoin',
+    ethereum: 'Ethereum',
+    litecoin: 'Litecoin',
+    bitcoincash: 'Bitcoin Cash',
+  };
+  return COIN_LABEL[coin] || coin;
+}
+
+const translateError = (err) => {
+  // TODO: https://github.com/lbryio/lbry.go/issues/87
+  // Translate error codes instead of strings when it is available.
+  if (err === 'users are currently limited to 4 transactions per month') {
+    return __('Users are currently limited to 4 completed swaps per month or 5 pending swaps.');
+  }
+
+  return err;
+};
+
+const explorerUrl = (coin, txid) => {
+  // It's unclear whether we can link to sites like blockchain.com.
+  // Don't do it for now.
+  return '';
+};
+
+function getGap() {
+  return <div className="confirm__value" />; // better way?
+}
+
 function WalletSwap(props: Props) {
   const {
     receiveAddress,
@@ -90,14 +142,6 @@ function WalletSwap(props: Props) {
   const [coin, setCoin] = React.useState('bitcoin');
   const [lastStatusQuery, setLastStatusQuery] = React.useState();
   const { goBack } = useHistory();
-
-  function formatCoinAmountString(amount) {
-    return amount === 0
-      ? '---'
-      : amount.toLocaleString(undefined, {
-          minimumFractionDigits: 8,
-        });
-  }
 
   function returnToMainAction() {
     setIsSwapping(false);
@@ -306,18 +350,6 @@ function WalletSwap(props: Props) {
     return '';
   }
 
-  function currencyToCoin(currency) {
-    const MAP = {
-      DAI: 'dai',
-      USDC: 'usdc',
-      BTC: 'bitcoin',
-      ETH: 'ethereum',
-      LTC: 'litecoin',
-      BCH: 'bitcoincash',
-    };
-    return MAP[currency] || 'bitcoin';
-  }
-
   function getSentAmountStr(swapInfo) {
     if (swapInfo && swapInfo.status) {
       const currency = swapInfo.status.receiptCurrency;
@@ -326,18 +358,6 @@ function WalletSwap(props: Props) {
     }
 
     return '';
-  }
-
-  function getCoinLabel(coin) {
-    const COIN_LABEL = {
-      dai: 'Dai',
-      usdc: 'USD Coin',
-      bitcoin: 'Bitcoin',
-      ethereum: 'Ethereum',
-      litecoin: 'Litecoin',
-      bitcoincash: 'Bitcoin Cash',
-    };
-    return COIN_LABEL[coin] || coin;
   }
 
   function getLbcAmountStrForSwap(swap) {
@@ -379,16 +399,6 @@ function WalletSwap(props: Props) {
         addCoinSwap({ ...newSwap });
       })
       .catch((err) => {
-        const translateError = (err) => {
-          // TODO: https://github.com/lbryio/lbry.go/issues/87
-          // Translate error codes instead of strings when it is available.
-          if (err === 'users are currently limited to 4 transactions per month') {
-            return __('Users are currently limited to 4 completed swaps per month or 5 pending swaps.');
-          }
-
-          return err;
-        };
-
         setNag({
           msg: err === INTERNAL_APIS_DOWN ? NAG_SWAP_CALL_FAILED : translateError(err.message),
           type: 'error',
@@ -467,12 +477,6 @@ function WalletSwap(props: Props) {
       return '';
     }
 
-    const explorerUrl = (coin, txid) => {
-      // It's unclear whether we can link to sites like blockchain.com.
-      // Don't do it for now.
-      return '';
-    };
-
     if (isSend) {
       const sendTxId = swap.status.receiptTxid;
       const url = explorerUrl(swap.status.receiptCurrency, sendTxId);
@@ -519,9 +523,6 @@ function WalletSwap(props: Props) {
     );
   }
 
-  function getGap() {
-    return <div className="confirm__value" />; // better way?
-  }
 
   function getActionElement() {
     switch (action) {

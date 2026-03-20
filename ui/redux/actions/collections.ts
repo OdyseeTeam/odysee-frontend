@@ -447,6 +447,16 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   });
 };
 
+const mergeBatches = (arrayOfResults: Array<any>) => {
+  let resultItems = [];
+  arrayOfResults.forEach((result: any) => {
+    // $FlowFixMe
+    const claims = result.items || Object.values(result).map((item) => item.stream || item);
+    resultItems = resultItems.concat(claims);
+  });
+  return resultItems;
+};
+
 const doFetchCollectionItems =
   (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch, getState: GetState) => {
     const sortResults = (resultItems: Array<Claim>) => {

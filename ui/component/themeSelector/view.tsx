@@ -27,6 +27,18 @@ type Props = {
   setClientSetting: (arg0: string, arg1: SetDaemonSettingArg) => void;
   setDarkTime: (arg0: string, arg1: {}) => void;
 };
+function formatHour(time: string, clock24h: boolean) {
+  if (clock24h) {
+    return `${time}:00`;
+  }
+
+  const now = new Date(0, 0, 0, Number(time));
+  return now.toLocaleTimeString('en-US', {
+    hour12: true,
+    hour: '2-digit',
+  });
+}
+
 export default function ThemeSelector(props: Props) {
   const { currentTheme, themes, automaticDarkModeEnabled, darkModeTimes, clock24h, setClientSetting, setDarkTime } =
     props;
@@ -49,18 +61,6 @@ export default function ThemeSelector(props: Props) {
 
   function onChangeTime(event: React.SyntheticEvent<any>, options: OptionTimes) {
     setDarkTime(event.target.value, options);
-  }
-
-  function formatHour(time: string, clock24h: boolean) {
-    if (clock24h) {
-      return `${time}:00`;
-    }
-
-    const now = new Date(0, 0, 0, Number(time));
-    return now.toLocaleTimeString('en-US', {
-      hour12: true,
-      hour: '2-digit',
-    });
   }
 
   return (

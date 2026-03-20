@@ -73,6 +73,26 @@ function immPrefixArrayInObject(obj, key, valueToInsert) {
 } // ****************************************************************************
 // ****************************************************************************
 
+const commonUpdateAction = (comment, commentById, commentIds, index) => {
+  // map the comment_ids to the new comments
+  commentById[comment.comment_id] = comment;
+  commentIds[index] = comment.comment_id;
+};
+
+function deleteReacts(reactObj, commentIdsToRemove) {
+  if (commentIdsToRemove && commentIdsToRemove.length > 0) {
+    let reactionKeys = Object.keys(reactObj);
+    reactionKeys.forEach((rk) => {
+      const colonIndex = rk.indexOf(':');
+      const commentId = colonIndex === -1 ? rk : rk.substring(0, colonIndex);
+
+      if (commentIdsToRemove.includes(commentId)) {
+        delete reactObj[rk];
+      }
+    });
+  }
+}
+
 export default handleActions(
   {
     [ACTIONS.COMMENT_CREATE_STARTED]: (state: CommentsState, action: any): CommentsState => ({
@@ -262,12 +282,6 @@ export default handleActions(
           topLevelTotalPagesById[claimId] = totalPages;
         }
 
-        const commonUpdateAction = (comment, commentById, commentIds, index) => {
-          // map the comment_ids to the new comments
-          commentById[comment.comment_id] = comment;
-          commentIds[index] = comment.comment_id;
-        };
-
         if (comments) {
           // we use an Array to preserve order of listing
           // in reality this doesn't matter and we can just
@@ -334,6 +348,7 @@ export default handleActions(
       const repliesByParentId = Object.assign({}, state.repliesByParentId);
       const fetchedCommentAncestors = Object.assign({}, state.fetchedCommentAncestors);
 
+      // eslint-disable-next-line unicorn/consistent-function-scoping
       const updateStore = (comment, commentById, byId, repliesByParentId, topLevelCommentsById) => {
         commentById[comment.comment_id] = comment;
         immPrefixArrayInObject(byId, claimId, comment.comment_id);
@@ -407,20 +422,6 @@ export default handleActions(
       const pinnedCommentsById = Object.assign({}, state.pinnedCommentsById);
       const myReacts = Object.assign({}, state.myReactsByCommentId);
       const othersReacts = Object.assign({}, state.othersReactsByCommentId);
-
-      function deleteReacts(reactObj, commentIdsToRemove) {
-        if (commentIdsToRemove && commentIdsToRemove.length > 0) {
-          let reactionKeys = Object.keys(reactObj);
-          reactionKeys.forEach((rk) => {
-            const colonIndex = rk.indexOf(':');
-            const commentId = colonIndex === -1 ? rk : rk.substring(0, colonIndex);
-
-            if (commentIdsToRemove.includes(commentId)) {
-              delete reactObj[rk];
-            }
-          });
-        }
-      }
 
       deleteReacts(myReacts, byId[claimId]);
       deleteReacts(othersReacts, byId[claimId]);

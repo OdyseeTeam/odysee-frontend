@@ -107,6 +107,22 @@ function includeTimestamp(claim: StreamClaim, commentId: string | null | undefin
   );
 }
 
+function getClaimPreview(claim: StreamClaim) {
+  return claim ? (
+    <div className="section">
+      <ClaimPreview uri={claim.permanent_url} hideMenu hideActions nonClickable type="small" />
+    </div>
+  ) : null;
+}
+
+function getCommentPreviews(comment: Comment | null | undefined) {
+  return comment ? (
+    <div className="section non-clickable">
+      <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu />
+    </div>
+  ) : null;
+}
+
 export default function ReportContent(props: Props) {
   const {
     activeChannelClaim,
@@ -773,22 +789,6 @@ export default function ReportContent(props: Props) {
           </>
         );
     }
-  }
-
-  function getClaimPreview(claim: StreamClaim) {
-    return claim ? (
-      <div className="section">
-        <ClaimPreview uri={claim.permanent_url} hideMenu hideActions nonClickable type="small" />
-      </div>
-    ) : null;
-  }
-
-  function getCommentPreviews(comment: Comment | null | undefined) {
-    return comment ? (
-      <div className="section non-clickable">
-        <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu />
-      </div>
-    ) : null;
   }
 
   // **************************************************************************

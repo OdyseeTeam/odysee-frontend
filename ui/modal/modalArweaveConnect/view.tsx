@@ -27,6 +27,16 @@ type Props = {
   isConnecting: boolean;
   fullArweaveStatusArray: Array<any>;
 };
+const ConnectingCard = () => {
+  return (
+    <Card
+      className="announcement"
+      title={__('Connecting Wallet')}
+      body={<div className="section">{__('Connecting...')}</div>}
+    />
+  );
+};
+
 export default function ModalAnnouncements(props: Props) {
   const {
     doHideModal,
@@ -187,16 +197,6 @@ export default function ModalAnnouncements(props: Props) {
     } else {
       doHideModal();
     }
-  };
-
-  const ConnectingCard = () => {
-    return (
-      <Card
-        className="announcement"
-        title={__('Connecting Wallet')}
-        body={<div className="section">{__('Connecting...')}</div>}
-      />
-    );
   };
 
   const showConnecting = (isConnecting || isArAccountRegistering) && !apiEntryWithAddress;

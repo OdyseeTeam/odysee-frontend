@@ -10,6 +10,7 @@
 (function () {
   'use strict';
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
   var codeMirrorEditor = function (instance) {
     if (!instance.getWrapperElement) {
       throw 'Invalid CodeMirror object given';

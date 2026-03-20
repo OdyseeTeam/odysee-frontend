@@ -22,6 +22,21 @@ type Props = {
   ) => void;
 };
 
+function getCommentPreview(comment: Comment | null | undefined) {
+  return comment ? (
+    <div className="section comment-preview non-clickable">
+      <CommentView
+        comment={comment}
+        threadLevel={-1}
+        isTopLevel
+        hideActions
+        hideContextMenu
+        forceDisplayDeadComment
+      />
+    </div>
+  ) : null;
+}
+
 function ModalRemoveComment(props: Props) {
   const {
     commentId,
@@ -34,21 +49,6 @@ function ModalRemoveComment(props: Props) {
     doHideModal,
     doCommentAbandon,
   } = props;
-
-  function getCommentPreview(comment: Comment | null | undefined) {
-    return comment ? (
-      <div className="section comment-preview non-clickable">
-        <CommentView
-          comment={comment}
-          threadLevel={-1}
-          isTopLevel
-          hideActions
-          hideContextMenu
-          forceDisplayDeadComment
-        />
-      </div>
-    ) : null;
-  }
 
   return (
     <Modal isOpen contentLabel={__('Confirm Comment Deletion')} type="card" onAborted={doHideModal}>

@@ -8,6 +8,49 @@ import React, { useEffect } from 'react';
  * @param {Array<>} [deps=[]] - The dependencies this lazy-load is reliant on.
  */
 
+function calcRootMargin(value) {
+  const devicePixelRatio = window.devicePixelRatio || 1.0;
+
+  if (devicePixelRatio < 1.0) {
+    return Math.ceil(value / devicePixelRatio);
+  }
+
+  return Math.ceil(value * devicePixelRatio);
+}
+
+function loadImgFromDataset(target, backgroundFallback, setSrcLoadedFn) {
+  // lazy-loaded <img>:
+  if (target.dataset.src) {
+    // $FlowFixMe
+    target.src = target.dataset.src;
+
+    target.addEventListener('load', () => setSrcLoadedFn(true));
+
+    // We don't handle onerror() here and simply let srcLoaded hanging for
+    // flexibility since we have various clients of this hook.
+    // If the client needs to do something special when error'd, they can add
+    // an onerror() to elementRef on their side.
+    return;
+  }
+
+  // lazy-loaded `background-image`:
+  if (target.dataset.backgroundImage) {
+    if (backgroundFallback) {
+      const tmpImage = new Image();
+
+      tmpImage.addEventListener('error', () => {
+        target.style.backgroundImage = `url(${backgroundFallback})`;
+      });
+
+      tmpImage.src = target.dataset.backgroundImage;
+    }
+
+    target.style.backgroundImage = `url(${target.dataset.backgroundImage})`;
+  } else {
+    target.style.backgroundImage = `url(${backgroundFallback})`;
+  }
+}
+
 export default function useLazyLoading(
   elementRef: {
     current: ElementRef<any> | null | undefined;
@@ -18,49 +61,6 @@ export default function useLazyLoading(
 ) {
   const [srcLoaded, setSrcLoaded] = React.useState(false);
   const threshold = 0.01;
-
-  function calcRootMargin(value) {
-    const devicePixelRatio = window.devicePixelRatio || 1.0;
-
-    if (devicePixelRatio < 1.0) {
-      return Math.ceil(value / devicePixelRatio);
-    }
-
-    return Math.ceil(value * devicePixelRatio);
-  }
-
-  function loadImgFromDataset(target, backgroundFallback, setSrcLoadedFn) {
-    // lazy-loaded <img>:
-    if (target.dataset.src) {
-      // $FlowFixMe
-      target.src = target.dataset.src;
-
-      target.addEventListener('load', () => setSrcLoadedFn(true));
-
-      // We don't handle onerror() here and simply let srcLoaded hanging for
-      // flexibility since we have various clients of this hook.
-      // If the client needs to do something special when error'd, they can add
-      // an onerror() to elementRef on their side.
-      return;
-    }
-
-    // lazy-loaded `background-image`:
-    if (target.dataset.backgroundImage) {
-      if (backgroundFallback) {
-        const tmpImage = new Image();
-
-        tmpImage.addEventListener('error', () => {
-          target.style.backgroundImage = `url(${backgroundFallback})`;
-        });
-
-        tmpImage.src = target.dataset.backgroundImage;
-      }
-
-      target.style.backgroundImage = `url(${target.dataset.backgroundImage})`;
-    } else {
-      target.style.backgroundImage = `url(${backgroundFallback})`;
-    }
-  }
 
   useEffect(() => {
     if (!elementRef.current) {

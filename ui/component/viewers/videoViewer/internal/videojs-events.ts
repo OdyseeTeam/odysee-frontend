@@ -11,6 +11,75 @@ const TAP = {
   RETRY: 'RETRY',
 };
 
+const appendCacheBuster = (src) => {
+  try {
+    const url = new URL(src, window.location.href);
+    url.searchParams.set('cb', Date.now().toString());
+    return url.toString();
+  } catch (error) {
+    return src; // Fallback to original src if URL construction fails
+  }
+};
+
+const setButtonVisibility = (theRef, newState) => {
+  // Use the DOM to control the state of the button to prevent re-renders.
+  if (theRef.current) {
+    const curState = theRef.current.style.visibility === 'visible';
+
+    if (newState !== curState) {
+      theRef.current.style.visibility = newState ? 'visible' : 'hidden';
+    }
+  }
+};
+
+function removeControlBar() {
+  setTimeout(function () {
+    window.player.controlBar.el().classList.remove('vjs-transitioning-video');
+    window.player.controlBar.show();
+  }, 1000 * 2); // wait 2 seconds to hide control bar
+}
+
+function determineVideoFps() {
+  const videoNode = document.querySelector('video');
+  if (!videoNode) return;
+  let last_media_time, last_frame_num, fps;
+  let fps_rounder = [];
+  let frame_not_seeked = true;
+
+  function get_fps_average() {
+    return fps_rounder.reduce((a, b) => a + b, 0) / fps_rounder.length;
+  }
+
+  function ticker(useless, metadata) {
+    const media_time_diff = Math.abs(metadata.mediaTime - last_media_time);
+    const frame_num_diff = Math.abs(metadata.presentedFrames - last_frame_num);
+    const diff = media_time_diff / frame_num_diff;
+
+    if (diff && diff < 1 && frame_not_seeked && fps_rounder.length < 50 && videoNode.playbackRate === 1) {
+      fps_rounder.push(diff);
+      fps = Math.round(1 / get_fps_average());
+    }
+
+    frame_not_seeked = true;
+    last_media_time = metadata.mediaTime;
+    last_frame_num = metadata.presentedFrames;
+
+    // after collecting 10 pieces of data, declare the videofps and end the loop
+    if (fps_rounder.length < 10) {
+      window.videoFps = fps;
+      // $FlowIssue
+      videoNode.requestVideoFrameCallback(ticker);
+    }
+  }
+
+  // $FlowIssue
+  videoNode.requestVideoFrameCallback(ticker);
+  videoNode.addEventListener('seeked', function () {
+    fps_rounder.pop();
+    frame_not_seeked = false;
+  });
+}
+
 const VideoJsEvents = ({
   tapToUnmuteRef,
   tapToRetryRef,
@@ -206,16 +275,6 @@ const VideoJsEvents = ({
       const backoffDelays = [250, 1000, 5000, 15000];
       const timeoutDelay = backoffDelays[attempt - 1] || backoffDelays[backoffDelays.length - 1];
       setTimeout(() => {
-        const appendCacheBuster = (src) => {
-          try {
-            const url = new URL(src, window.location.href);
-            url.searchParams.set('cb', Date.now().toString());
-            return url.toString();
-          } catch (error) {
-            return src; // Fallback to original src if URL construction fails
-          }
-        };
-
         let newSrcObject;
 
         if (player.claimSrcVhs) {
@@ -253,16 +312,6 @@ const VideoJsEvents = ({
     // this style. I didn't know how to avoid renders back then.
     // But the button should probably be implemented on the videojs side (as a
     // plugin), and not one level up in React.
-    const setButtonVisibility = (theRef, newState) => {
-      // Use the DOM to control the state of the button to prevent re-renders.
-      if (theRef.current) {
-        const curState = theRef.current.style.visibility === 'visible';
-
-        if (newState !== curState) {
-          theRef.current.style.visibility = newState ? 'visible' : 'hidden';
-        }
-      }
-    };
 
     switch (tapButton) {
       case TAP.NONE:
@@ -315,54 +364,6 @@ const VideoJsEvents = ({
         player.currentTime(Math.max(0, player.currentTime() + 10));
       });
     }
-  }
-
-  function removeControlBar() {
-    setTimeout(function () {
-      window.player.controlBar.el().classList.remove('vjs-transitioning-video');
-      window.player.controlBar.show();
-    }, 1000 * 2); // wait 2 seconds to hide control bar
-  }
-
-  function determineVideoFps() {
-    const videoNode = document.querySelector('video');
-    if (!videoNode) return;
-    let last_media_time, last_frame_num, fps;
-    let fps_rounder = [];
-    let frame_not_seeked = true;
-
-    function get_fps_average() {
-      return fps_rounder.reduce((a, b) => a + b, 0) / fps_rounder.length;
-    }
-
-    function ticker(useless, metadata) {
-      const media_time_diff = Math.abs(metadata.mediaTime - last_media_time);
-      const frame_num_diff = Math.abs(metadata.presentedFrames - last_frame_num);
-      const diff = media_time_diff / frame_num_diff;
-
-      if (diff && diff < 1 && frame_not_seeked && fps_rounder.length < 50 && videoNode.playbackRate === 1) {
-        fps_rounder.push(diff);
-        fps = Math.round(1 / get_fps_average());
-      }
-
-      frame_not_seeked = true;
-      last_media_time = metadata.mediaTime;
-      last_frame_num = metadata.presentedFrames;
-
-      // after collecting 10 pieces of data, declare the videofps and end the loop
-      if (fps_rounder.length < 10) {
-        window.videoFps = fps;
-        // $FlowIssue
-        videoNode.requestVideoFrameCallback(ticker);
-      }
-    }
-
-    // $FlowIssue
-    videoNode.requestVideoFrameCallback(ticker);
-    videoNode.addEventListener('seeked', function () {
-      fps_rounder.pop();
-      frame_not_seeked = false;
-    });
   }
 
   function resetRecoveryAttempts() {

@@ -46,6 +46,10 @@ type Props = {
   isRepostPage?: boolean;
 };
 
+const addLbryIfNot = (term) => {
+  return term.startsWith('lbry://') ? term : `lbry://${term}`;
+};
+
 function RepostCreate(props: Props) {
   const {
     doToast,
@@ -111,10 +115,6 @@ function RepostCreate(props: Props) {
     const wasCopiedFromWeb = includesLbryTvDev || includesLbryTvLocal || includesLbryTvProd || includesOdysee;
     const isLbryUrl = value.startsWith('lbry://') && value !== 'lbry://';
     const error = '';
-
-    const addLbryIfNot = (term) => {
-      return term.startsWith('lbry://') ? term : `lbry://${term}`;
-    };
 
     if (wasCopiedFromWeb) {
       let prefix = WEB_PROD_PREFIX;

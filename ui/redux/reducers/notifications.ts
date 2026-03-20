@@ -1,5 +1,36 @@
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
+const deleteIds = (list, ids) => {
+  return list.filter((n) => !ids.includes(n.id));
+};
+
+const markIdsAsRead = (list, ids) => {
+  return (
+    list &&
+    list.map((n) => {
+      if (ids.includes(n.id)) {
+        return { ...n, is_read: true };
+      } else {
+        return { ...n };
+      }
+    })
+  );
+};
+
+const markIdsAsSeen = (list, ids) => {
+  return list.map((n) => {
+    if (ids.includes(n.id)) {
+      return { ...n, is_seen: true };
+    }
+
+    return n;
+  });
+};
+
+const deleteId = (list, id) => {
+  return list.filter((n) => n.id !== id);
+};
+
 const defaultState: NotificationState = {
   notifications: [],
   notificationsFiltered: [],
@@ -44,10 +75,6 @@ export default handleActions(
       const { deletedNotificationIds } = state;
       const { filterRule, newNotifications } = action.data;
 
-      const deleteIds = (list, ids) => {
-        return list.filter((n) => !ids.includes(n.id));
-      };
-
       if (filterRule) {
         return {
           ...state,
@@ -73,19 +100,6 @@ export default handleActions(
       const { notifications, notificationsFiltered } = state;
       const { notificationIds } = action.data;
 
-      const markIdsAsRead = (list, ids) => {
-        return (
-          list &&
-          list.map((n) => {
-            if (ids.includes(n.id)) {
-              return { ...n, is_read: true };
-            } else {
-              return { ...n };
-            }
-          })
-        );
-      };
-
       return {
         ...state,
         notifications: markIdsAsRead(notifications, notificationIds),
@@ -99,16 +113,6 @@ export default handleActions(
       const { notifications, notificationsFiltered } = state;
       const { notificationIds } = action.data;
 
-      const markIdsAsSeen = (list, ids) => {
-        return list.map((n) => {
-          if (ids.includes(n.id)) {
-            return { ...n, is_seen: true };
-          }
-
-          return n;
-        });
-      };
-
       return {
         ...state,
         notifications: markIdsAsSeen(notifications, notificationIds),
@@ -118,10 +122,6 @@ export default handleActions(
     [ACTIONS.NOTIFICATION_DELETE_COMPLETED]: (state, action) => {
       const { notifications, notificationsFiltered, deletedNotificationIds } = state;
       const { notificationId } = action.data;
-
-      const deleteId = (list, id) => {
-        return list.filter((n) => n.id !== id);
-      };
 
       return {
         ...state,

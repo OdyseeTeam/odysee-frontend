@@ -29,6 +29,12 @@ type Props = {
   doSetShowAutoplayCountdownForUri: (params: { uri: string | null | undefined; show: boolean }) => void;
 };
 
+function isAnyInputFocused() {
+  const activeElement = document.activeElement;
+  const inputTypes = ['input', 'select', 'textarea'];
+  return activeElement && inputTypes.includes(activeElement.tagName.toLowerCase());
+}
+
 function AutoplayCountdown(props: Props) {
   const {
     uri,
@@ -71,12 +77,6 @@ function AutoplayCountdown(props: Props) {
     },
     [doPlayNextUri, handleStopCountdown]
   );
-
-  function isAnyInputFocused() {
-    const activeElement = document.activeElement;
-    const inputTypes = ['input', 'select', 'textarea'];
-    return activeElement && inputTypes.includes(activeElement.tagName.toLowerCase());
-  }
 
   function shouldPauseAutoplay() {
     // TODO: use ref instead querySelector

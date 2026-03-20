@@ -65,6 +65,23 @@ type Props = {
   scheduledShow: boolean;
 };
 
+function createRow(label: string, value: any, hide?: boolean) {
+  return hide ? null : (
+    <tr>
+      <td>{label}</td>
+      <td>{value}</td>
+    </tr>
+  );
+}
+
+function truncateWithEllipsis(str, maxChars) {
+  if (str && str.length > maxChars) {
+    return str.slice(0, maxChars).trim() + '...';
+  }
+
+  return str;
+}
+
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
@@ -133,23 +150,6 @@ const ModalPublishPreview = (props: Props) => {
 
   // **************************************************************************
   // **************************************************************************
-  function createRow(label: string, value: any, hide?: boolean) {
-    return hide ? null : (
-      <tr>
-        <td>{label}</td>
-        <td>{value}</td>
-      </tr>
-    );
-  }
-
-  function truncateWithEllipsis(str, maxChars) {
-    if (str && str.length > maxChars) {
-      return str.slice(0, maxChars).trim() + '...';
-    }
-
-    return str;
-  }
-
   function getFilePathName(filePath: undefined | WebFile) {
     if (!filePath) {
       return NO_FILE;

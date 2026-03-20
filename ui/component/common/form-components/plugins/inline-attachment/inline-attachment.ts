@@ -11,6 +11,7 @@
 (function (document, window) {
   'use strict';
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
   var inlineAttachment = function (options, instance) {
     this.settings = inlineAttachment.util.merge(options, inlineAttachment.defaults);
     this.editor = instance;

@@ -56,6 +56,10 @@ type Props = {
     timeoutSec: number | null | undefined
   ) => void;
 };
+function getCommenterPreview(uri) {
+  return <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />;
+}
+
 export default function ModalBlockChannel(props: Props) {
   const {
     commenterUri,
@@ -162,10 +166,6 @@ export default function ModalBlockChannel(props: Props) {
         onResolve={(valueInSeconds) => setTimeoutSec(valueInSeconds)}
       />
     );
-  }
-
-  function getCommenterPreview(uri) {
-    return <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />;
   }
 
   function getActiveChannelElem() {

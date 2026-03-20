@@ -28,6 +28,7 @@
     );
   }
 
+  // eslint-disable-next-line unicorn/consistent-function-scoping
   var textareaEditor = function (el) {
     this.el = el;
   };

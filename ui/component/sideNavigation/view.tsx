@@ -163,6 +163,27 @@ type Props = {
   doBeginPublish: (arg0: PublishType) => void;
 };
 
+function getCategoryLink(props: SidebarCat) {
+  const { id, title, route, link, icon } = props;
+
+  if (id === 'UPCOMING') {
+    return null;
+  }
+
+  return (
+    <li key={route || link || title}>
+      <Button
+        icon={icon}
+        navigate={route || link}
+        label={__(title)}
+        title={__(title)}
+        className="navigation-link"
+        activeClass="navigation-link--active"
+      />
+    </li>
+  );
+}
+
 function SideNavigation(props: Props) {
   const {
     sidebarOpen,
@@ -319,27 +340,6 @@ function SideNavigation(props: Props) {
           activeClass="navigation-link--active"
         />
         {extra}
-      </li>
-    );
-  }
-
-  function getCategoryLink(props: SidebarCat) {
-    const { id, title, route, link, icon } = props;
-
-    if (id === 'UPCOMING') {
-      return null;
-    }
-
-    return (
-      <li key={route || link || title}>
-        <Button
-          icon={icon}
-          navigate={route || link}
-          label={__(title)}
-          title={__(title)}
-          className="navigation-link"
-          activeClass="navigation-link--active"
-        />
       </li>
     );
   }

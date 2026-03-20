@@ -30,6 +30,9 @@ type Props = {
   arExchangeRate: any;
 };
 
+const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
+  Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
+
 function WalletTipAmountSelector(props: Props) {
   const {
     uri,
@@ -54,9 +57,6 @@ function WalletTipAmountSelector(props: Props) {
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
-
-  const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
-    Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
 
   const amountInArEstimated = Number((amount / arExchangeRate?.ar).toFixed(6));
   const tipAmountsToDisplay = DEFAULT_TIP_AMOUNTS;

@@ -108,6 +108,18 @@ type Props = {
   doSetPlayingUri: (arg0: PlayingUri) => void;
 };
 
+function isDraggingVideojsComponent(e) {
+  const className = e?.target?.className;
+  return (
+    typeof className === 'string' &&
+    (className.includes('vjs-volume-control') ||
+      className.includes('vjs-volume-level') ||
+      className.includes('vjs-time-marker') ||
+      className.includes('vjs-mouse-display') ||
+      className.includes('vjs-icon-placeholder'))
+  );
+}
+
 function VideoRenderFloating(props: Props) {
   const {
     claimId,
@@ -495,18 +507,6 @@ function VideoRenderFloating(props: Props) {
   // ****************************************************************************
   // RENDER
   // ****************************************************************************
-  function isDraggingVideojsComponent(e) {
-    const className = e?.target?.className;
-    return (
-      typeof className === 'string' &&
-      (className.includes('vjs-volume-control') ||
-        className.includes('vjs-volume-level') ||
-        className.includes('vjs-time-marker') ||
-        className.includes('vjs-mouse-display') ||
-        className.includes('vjs-icon-placeholder'))
-    );
-  }
-
   function handleDragStart(e) {
     if (isDraggingVideojsComponent(e)) {
       return false;
