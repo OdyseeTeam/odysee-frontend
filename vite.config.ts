@@ -160,8 +160,10 @@ function providePlugin(): Plugin {
   return {
     name: 'provide-globals',
     transform(code, id) {
-      if (id.includes('node_modules')) return null;
-      if (!id.match(/\.(tsx?|jsx?)$/)) return null;
+      // Normalize backslashes for Windows compatibility
+      const nid = id.replace(/\\/g, '/');
+      if (nid.includes('node_modules')) return null;
+      if (!nid.match(/\.(tsx?|jsx?)$/)) return null;
 
       const imports: string[] = [];
       if (code.includes('Buffer') && !code.includes("from 'buffer'") && !code.includes('import { Buffer')) {
@@ -171,7 +173,7 @@ function providePlugin(): Plugin {
         code.includes('__(') &&
         !code.includes("from 'i18n'") &&
         !code.includes('import { __ }') &&
-        !id.includes('/i18n.')
+        !nid.includes('/i18n.')
       ) {
         imports.push("import { __ } from 'i18n';");
       }
@@ -179,7 +181,7 @@ function providePlugin(): Plugin {
         /\bassert\(/.test(code) &&
         !code.includes("from 'asserts'") &&
         !code.includes("from 'ui/asserts'") &&
-        !id.includes('/asserts.')
+        !nid.includes('/asserts.')
       ) {
         imports.push("import { assert } from 'asserts';");
       }
