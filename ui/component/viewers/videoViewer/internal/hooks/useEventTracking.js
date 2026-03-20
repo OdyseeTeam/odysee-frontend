@@ -51,11 +51,19 @@ export default function useEventTracking(
           }
 
           const playerShim = {
-            // $FlowFixMe
             currentSource: () => ({
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
             }),
+            get currentTime() {
+              return media.currentTime;
+            },
+            get duration() {
+              return media.duration;
+            },
+            get seeking() {
+              return media.seeking;
+            },
           };
           analytics.video.videoStartEvent(
             claimId,
@@ -69,11 +77,19 @@ export default function useEventTracking(
           );
         } else {
           const playerShim = {
-            // $FlowFixMe
             currentSource: () => ({
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
             }),
+            get currentTime() {
+              return media.currentTime;
+            },
+            get duration() {
+              return media.duration;
+            },
+            get seeking() {
+              return media.seeking;
+            },
           };
           analytics.video.videoStartEvent(
             claimId,

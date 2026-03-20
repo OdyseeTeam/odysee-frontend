@@ -15,6 +15,8 @@ import {
 } from 'util/full-screen';
 import useEventTracking from './hooks/useEventTracking';
 import useWatchdog from './hooks/useWatchdog';
+import useErrorRecovery from './hooks/useErrorRecovery';
+import useLivestreamEdge from './hooks/useLivestreamEdge';
 import useMediaSession from './hooks/useMediaSession';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import useAnalytics from './hooks/useAnalytics';
@@ -164,6 +166,8 @@ function VideoJsInner(props: Props) {
     useCallback(() => setReload(Date.now()), []),
     15000
   );
+  useErrorRecovery(resolvedSource?.src, setReload, setTapToRetryVisible);
+  useLivestreamEdge(Boolean(isLivestream));
   useMediaSession(claimValues, channelTitle);
   useKeyboardShortcuts({
     containerRef,
