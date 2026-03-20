@@ -39,7 +39,7 @@ export function doDismissError() {
     type: ACTIONS.DISMISS_ERROR,
   };
 }
-export function doNotificationList(types?: Array<string> | null | undefined, resolve: boolean = true) {
+export function doNotificationList(types?: Array<string> | null, resolve: boolean = true) {
   return async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.NOTIFICATION_LIST_STARTED,

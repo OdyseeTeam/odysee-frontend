@@ -10,7 +10,7 @@ type Props = {
   navigate: (arg0: string) => void;
   uri: string;
   isEdit: boolean;
-  filePath: (string | null | undefined) | (File | null | undefined);
+  filePath: undefined;
   lbryFirstError: string | null | undefined;
   claim: Claim;
 };

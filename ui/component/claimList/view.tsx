@@ -59,7 +59,7 @@ type Props = {
   collectionId?: string;
   fypId?: string;
   showNoSourceClaims?: boolean;
-  onClick?: (e: any, claim?: Claim | null | undefined, index?: number) => void;
+  onClick?: (e: any, claim?: Claim | null, index?: number) => void;
   noEmpty?: boolean;
   maxClaimRender?: number;
   loadedCallback?: (arg0: number) => void;

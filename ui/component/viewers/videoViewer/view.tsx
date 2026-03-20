@@ -451,11 +451,11 @@ function VideoViewer(props: Props) {
           fingerprint = ['videojs-media-segment-append--audio'];
         }
 
-        const options = (fingerprint
-            ? {
-                fingerprint,
-              }
-            : {});
+        const options = fingerprint
+          ? {
+              fingerprint,
+            }
+          : {};
         analytics.log(`[${mediaError.code}] ${mediaError.message}`, options, ERR_GRP.VIDEOJS);
       } // @endif
     };

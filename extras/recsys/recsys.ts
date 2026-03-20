@@ -220,7 +220,7 @@ const recsys: Recsys = {
     const autoPlayNext = state && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
 
     // Check if played through (4 = onEnded) and handle multiple events at end
-    if (recsys.entries[claimId] && !recsys.entries[claimId]['autoplay'] === true) {
+    if (recsys.entries[claimId] && !recsys.entries[claimId]['autoplay']) {
       if (autoPlayNext && event.event === 4) {
         recsys.entries[claimId]['autoplay'] = true;
       } else {

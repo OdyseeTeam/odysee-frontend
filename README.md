@@ -1,4 +1,4 @@
-# Odysee Frontend 
+# Odysee Frontend
 
 The code that runs [odysee.com](https://odysee.com).
 
@@ -46,19 +46,18 @@ Go to the website to interact on this frontend.
   <summary>Customize the web app</summary>
 
 - In root directory, duplicate the `.env.default` file as `.env` and make customizations there.
-    ```
-    cp .env.defaults .env
-    nano .env
-    ```
+  ```
+  cp .env.defaults .env
+  nano .env
+  ```
 - To specify your own OG-IMAGE:
-    - Either place a png named `v2-og.png` in the `/custom` folder or specify the `OG_IMAGE_URL` in .env file.
+  - Either place a png named `v2-og.png` in the `/custom` folder or specify the `OG_IMAGE_URL` in .env file.
 - To specify your own channels to be followed on first run:
-    - `AUTO_FOLLOW_URLS=lbry://@chan#123...a lbry://@chan2#456...a`
+  - `AUTO_FOLLOW_URLS=lbry://@chan#123...a lbry://@chan2#456...a`
 - To customize the homepage content:
-    1. Add `CUSTOM_HOMEPAGE=true` to the .env file.
-    2. Copy `/custom/homepage.example.js` to `/custom/homepage.js` and make desired changes to `homepage.js`.
-- Finally, run `NODE_ENV=production yarn compile:web` to rebuild.
-    - _Note: You do not need to edit the `.env` file in the `/web` folder - that is copied during compilation._
+  1. Add `CUSTOM_HOMEPAGE=true` to the .env file.
+  2. Copy `/custom/homepage.example.js` to `/custom/homepage.js` and make desired changes to `homepage.js`.
+- Finally, run `NODE_ENV=production yarn compile:web` to rebuild. - _Note: You do not need to edit the `.env` file in the `/web` folder - that is copied during compilation._
 </details>
 
 <details>

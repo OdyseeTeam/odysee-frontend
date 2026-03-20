@@ -71,10 +71,7 @@ function resolveClaimTypeForAnalytics(claim) {
   }
 }
 
-export const doPublishDesktop = (
-  filePath: (string | null | undefined) | (File | null | undefined),
-  preview?: boolean
-) => {
+export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
   return (dispatch: Dispatch, getState: () => State) => {
     const publishPreviewFn = (publishPayload, previewResponse) => {
       dispatch(
@@ -293,11 +290,11 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
     dispatch(doClearPublish());
     dispatch({
       type: ACTIONS.UPDATE_PUBLISH_FORM,
-      data: (name
-          ? {
-              name,
-            }
-          : {}),
+      data: name
+        ? {
+            name,
+          }
+        : {},
     });
 
     if (customPath) {

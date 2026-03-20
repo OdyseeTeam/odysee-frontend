@@ -1,6 +1,4 @@
-const {
-  lbryProxy: Lbry
-} = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry');
 
 /**
  * Resolves ambiguous URLs that have "/" without "@".
@@ -35,14 +33,14 @@ async function resolveSlashUrl(webPath) {
     try {
       const fixedUri = `lbry://${webPath.substring(0, slashIdx)}#${secondPart}`;
       const response = await Lbry.resolve({
-        urls: [fixedUri]
+        urls: [fixedUri],
       });
 
       if (response && response[fixedUri] && !response[fixedUri].error) {
         return {
           claim: response[fixedUri],
           uri: fixedUri,
-          type: 'claimid'
+          type: 'claimid',
         };
       }
     } catch {}
@@ -52,14 +50,14 @@ async function resolveSlashUrl(webPath) {
   try {
     const withAtUri = `lbry://@${webPath}`;
     const response = await Lbry.resolve({
-      urls: [withAtUri]
+      urls: [withAtUri],
     });
 
     if (response && response[withAtUri] && !response[withAtUri].error) {
       return {
         claim: response[withAtUri],
         uri: withAtUri,
-        type: 'channel'
+        type: 'channel',
       };
     }
   } catch {}
@@ -69,14 +67,14 @@ async function resolveSlashUrl(webPath) {
     try {
       const fixedUri = `lbry://${webPath.substring(0, slashIdx)}#${secondPart}`;
       const response = await Lbry.resolve({
-        urls: [fixedUri]
+        urls: [fixedUri],
       });
 
       if (response && response[fixedUri] && !response[fixedUri].error) {
         return {
           claim: response[fixedUri],
           uri: fixedUri,
-          type: 'claimid'
+          type: 'claimid',
         };
       }
     } catch {}
@@ -86,5 +84,5 @@ async function resolveSlashUrl(webPath) {
 }
 
 module.exports = {
-  resolveSlashUrl
+  resolveSlashUrl,
 };

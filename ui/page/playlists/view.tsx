@@ -31,7 +31,7 @@ const PlaylistsPage = (props: Props) => {
   }, [isFetchingCollections, doFetchCollectionListMine]);
 
   if (!hasCollections) {
-    if (isFetchingCollections !== false) {
+    if (isFetchingCollections) {
       // Fetching collection_list
       return (
         <Wrapper>

@@ -253,7 +253,7 @@ function HomeTabSection(props: Props) {
 
     if (requiresSearch) {
       // Only show loading during active fetch, not when results are empty/missing
-      return fetchingClaimSearch === true;
+      return fetchingClaimSearch;
     }
 
     // For 'playlist' type: need claim_id to load anything

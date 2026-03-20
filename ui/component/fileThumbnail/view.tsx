@@ -62,7 +62,7 @@ function FileThumbnail(props: Props) {
           small={small}
           src={url}
           className={classnames('media__thumb', className, {
-            'media__thumb--resolving': hasResolvedClaim === false,
+            'media__thumb--resolving': !hasResolvedClaim,
             'media__thumb--small': small,
           })}
         >
@@ -108,7 +108,7 @@ function FileThumbnail(props: Props) {
   return (
     <div
       className={classnames('media__thumb', className, {
-        'media__thumb--resolving': hasResolvedClaim === false,
+        'media__thumb--resolving': !hasResolvedClaim,
         'media__thumb--small': small, // 'media__thumb__short': isShort, This didn't seem to be necessary. Caused issues due to using short format thumbnail to shorts with no thumbnail, in non short views
       })}
     >

@@ -45,7 +45,7 @@ type Props = {
 };
 // use forwardRef to allow consumers to pass refs to the button content if they want to
 // flow requires forwardRef have default type arguments passed to it
-const Button = forwardRef<any, {}>((props: Props, ref: any) => {
+const Button = forwardRef<any>((props: Props, ref: any) => {
   const {
     type = 'button',
     onClick: onClickProp,

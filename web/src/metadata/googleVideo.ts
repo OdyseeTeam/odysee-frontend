@@ -3,25 +3,13 @@ const moment = require('moment');
 const removeMd = require('remove-markdown');
 
 // TODO: fix relative path for server
-const {
-  generateContentUrl
-} = require('../fetchStreamUrl');
+const { generateContentUrl } = require('../fetchStreamUrl');
 
-const {
-  parseURI
-} = require('../lbryURI');
+const { parseURI } = require('../lbryURI');
 
-const {
-  OG_IMAGE_URL,
-  SITE_NAME,
-  URL
-} = require('../../../config.js');
+const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
 
-const {
-  generateEmbedUrlEncoded,
-  getThumbnailCardCdnUrl,
-  escapeHtmlProperty
-} = require('../../../ui/util/web');
+const { generateEmbedUrlEncoded, getThumbnailCardCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
 
 // ****************************************************************************
 // Utils
@@ -44,7 +32,7 @@ function truncateDescription(description, maxChars = 200) {
 // ****************************************************************************
 // ****************************************************************************
 const Generate = {
-  author: claim => {
+  author: (claim) => {
     const channelName = claim?.signing_channel?.value?.title || claim?.signing_channel?.name;
     const channelUrl = claim?.signing_channel && lbryToOdyseeUrl(claim.signing_channel);
 
@@ -52,14 +40,14 @@ const Generate = {
       return {
         '@type': 'Person',
         name: channelName,
-        url: channelUrl
+        url: channelUrl,
       };
     }
   },
-  height: claim => {
+  height: (claim) => {
     return claim?.value?.video?.height;
   },
-  keywords: claim => {
+  keywords: (claim) => {
     const tags = claim?.value?.tags;
 
     if (tags) {
@@ -68,53 +56,52 @@ const Generate = {
       return tags.slice(0, 10).join(',');
     }
   },
-  potentialAction: claim => {
+  potentialAction: (claim) => {
     // https://developers.google.com/search/docs/advanced/structured-data/video?hl=en#seek
     if ((claim?.value?.video || claim?.value?.audio) && claim.canonical_url) {
       return {
         '@type': 'SeekToAction',
         target: `${lbryToOdyseeUrl(claim)}?t={seek_to_second_number}`,
-        'startOffset-input': 'required name=seek_to_second_number'
+        'startOffset-input': 'required name=seek_to_second_number',
       };
     }
   },
-  thumbnail: url => {
+  thumbnail: (url) => {
     // We don't have 'width' and 'height' from the claim :(
     return {
       '@type': 'ImageObject',
-      url
+      url,
     };
   },
-  width: claim => {
+  width: (claim) => {
     return claim?.value?.video?.width;
-  }
+  },
 };
 
 // ****************************************************************************
 // buildGoogleVideoMetadata
 // ****************************************************************************
 async function buildGoogleVideoMetadata(uri, claim) {
-  const {
-    claimName
-  } = parseURI(uri);
-  const {
-    meta,
-    value
-  } = claim;
+  const { claimName } = parseURI(uri);
+  const { meta, value } = claim;
   const media = value && value.video;
   const source = value && value.source;
   let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const mediaType = source && source.media_type;
   const mediaDuration = media && media.duration;
-  const claimTitle = escapeHtmlProperty(value && value.title || claimName);
-  const releaseTime = value && value.release_time || meta && meta.creation_timestamp || 0;
-  const claimDescription = value && value.description && value.description.length > 0 ? escapeHtmlProperty(truncateDescription(value.description)) : `View ${claimTitle} on ${SITE_NAME}`;
+  const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
+  const releaseTime = (value && value.release_time) || (meta && meta.creation_timestamp) || 0;
+  const claimDescription =
+    value && value.description && value.description.length > 0
+      ? escapeHtmlProperty(truncateDescription(value.description))
+      : `View ${claimTitle} on ${SITE_NAME}`;
 
   if (!mediaType || !mediaType.startsWith('video/')) {
     return '';
   }
 
-  const claimThumbnail = escapeHtmlProperty(thumbnail) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
+  const claimThumbnail =
+    escapeHtmlProperty(thumbnail) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
   const claimStreamUrl = generateContentUrl(claim);
   // https://developers.google.com/search/docs/data-types/video
   const googleVideoMetadata = {
@@ -136,16 +123,22 @@ async function buildGoogleVideoMetadata(uri, claim) {
     keywords: Generate.keywords(claim),
     width: Generate.width(claim),
     height: Generate.height(claim),
-    potentialAction: Generate.potentialAction(claim)
+    potentialAction: Generate.potentialAction(claim),
   };
 
-  if (!googleVideoMetadata.description.replace(/\s/g, '').length || googleVideoMetadata.thumbnailUrl.startsWith('data:image') || !googleVideoMetadata.thumbnailUrl.startsWith('http')) {
+  if (
+    !googleVideoMetadata.description.replace(/\s/g, '').length ||
+    googleVideoMetadata.thumbnailUrl.startsWith('data:image') ||
+    !googleVideoMetadata.thumbnailUrl.startsWith('http')
+  ) {
     return '';
   }
 
-  return '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n' + '</script>\n';
+  return (
+    '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n' + '</script>\n'
+  );
 }
 
 module.exports = {
-  buildGoogleVideoMetadata
+  buildGoogleVideoMetadata,
 };

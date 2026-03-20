@@ -38,7 +38,7 @@ const ClaimCollectionAdd = (props: Props) => {
   const unpublishedCollections = Object.values(unpublished) as any as Array<Collection>;
   const publishedCollections = published ? (Object.values(published) as any as Array<Collection>) : [];
 
-  if (fetchingMine !== false) {
+  if (fetchingMine) {
     return (
       <Card
         title={__('Save to...')}

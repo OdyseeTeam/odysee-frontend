@@ -265,6 +265,8 @@ export default defineConfig({
       'no-shadow': 'off',
       'no-unused-expressions': 'off',
     },
+    // tsgo type checking available via: pnpm typecheck
+    // Enable typeAware + typeCheck here once strict types are added
     ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed'],
   },
 });

@@ -39,7 +39,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
   componentDidUpdate() {
     const { props } = this;
 
-    if (props.walletUnlockSucceded === true) {
+    if (props.walletUnlockSucceded) {
       setSavedPassword(this.state.password, this.state.rememberPassword);
       props.closeModal();
     }
@@ -79,7 +79,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
         <Form className="section" onSubmit={() => unlockWallet(password)}>
           <FormField
             autoFocus
-            error={walletUnlockSucceded === false ? 'Incorrect Password' : false}
+            error={!walletUnlockSucceded ? 'Incorrect Password' : false}
             label={__('Wallet Password')}
             type="password"
             name="wallet-password"

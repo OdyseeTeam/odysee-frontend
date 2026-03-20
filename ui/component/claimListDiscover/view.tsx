@@ -764,13 +764,13 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringForEffect);
-      const searchSettings = (fetchViewCount
-          ? {
-              fetch: {
-                viewCount: true,
-              },
-            }
-          : {});
+      const searchSettings = fetchViewCount
+        ? {
+            fetch: {
+              viewCount: true,
+            },
+          }
+        : {};
       doClaimSearch(searchOptions, searchSettings);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);

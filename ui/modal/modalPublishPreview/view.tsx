@@ -150,7 +150,7 @@ const ModalPublishPreview = (props: Props) => {
     return str;
   }
 
-  function getFilePathName(filePath: (string | null | undefined) | WebFile) {
+  function getFilePathName(filePath: undefined | WebFile) {
     if (!filePath) {
       return NO_FILE;
     }

@@ -2,8 +2,8 @@
 
 Issue Number:
 
-<!-- Tip: 
- - Add keywords to directly close the Issue when the PR is merged. 
+<!-- Tip:
+ - Add keywords to directly close the Issue when the PR is merged.
  - Skip the keyword if the Issue contains multiple items.
  - https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
 -->

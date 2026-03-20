@@ -26,7 +26,7 @@ const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
   const { type, uri, tileLayout, adBlockerFound, shouldShowAds } = props;
   const provider = 'rumble'; // 'revcontent' | 'rumble'
 
-  if (!shouldShowAds && adBlockerFound !== true) {
+  if (!shouldShowAds && !adBlockerFound) {
     return null;
   } else if (adBlockerFound && type !== 'tileA') {
     return null;

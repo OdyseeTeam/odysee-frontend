@@ -44,7 +44,7 @@ type Props = {
   doNavigateToPreviousShort: (previousUri: string) => void;
   doToggleShortsSidePanel: () => void;
   doSetShortsSidePanel: (isOpen: boolean) => void;
-  doFetchShortsRecommendedContent: (uri: string, fypParam?: FypParam | null | undefined) => void;
+  doFetchShortsRecommendedContent: (uri: string, fypParam?: FypParam | null) => void;
   doSetShortsPlaylist: (uris: Array<string>) => void;
   doClearShortsPlaylist: () => void;
   channelId: string | null | undefined;

@@ -41,7 +41,7 @@ export default function Tag(props: Props) {
       disabled={disabled}
       title={title}
       className={classnames('tag', {
-        'tag--disabled': disabled === true,
+        'tag--disabled': disabled,
         'tag--large': type === 'large',
         'tag--remove': type === 'remove',
         // tag--add only adjusts the color, which causes issues with mature tag color clashing

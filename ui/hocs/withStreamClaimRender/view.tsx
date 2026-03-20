@@ -58,7 +58,7 @@ type Props = {
   channelLiveFetched: boolean;
   sourceLoaded: boolean;
   doCheckIfPurchasedClaimId: (claimId: string) => void;
-  doFileGetForUri: (uri: string, opt?: FileGetOptions | null | undefined) => void;
+  doFileGetForUri: (uri: string, opt?: FileGetOptions | null) => void;
   doMembershipMine: () => void;
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void;
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;

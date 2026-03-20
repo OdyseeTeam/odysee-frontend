@@ -128,7 +128,7 @@ const onPlayerReady = (player, options) => {
   }
 
   player.on('ended', (_) => {
-    if (locked === true) {
+    if (locked) {
       screen.orientation.unlock();
       locked = false;
     }

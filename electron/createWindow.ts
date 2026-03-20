@@ -1,13 +1,13 @@
-import { WEBPACK_ELECTRON_PORT } from "config";
-import { app, BrowserWindow, dialog, shell, screen, nativeImage } from "electron";
-import isDev from "electron-is-dev";
-import windowStateKeeper from "electron-window-state";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
-import { SUPPORTED_SUB_LANGUAGE_CODES, SUB_LANG_CODE_LEN } from "constants/supported_sub_languages";
-import SUPPORTED_BROWSER_LANGUAGES from "constants/supported_browser_languages";
-import { TO_TRAY_WHEN_CLOSED } from "constants/settings";
-import setupBarMenu from "./menu/setupBarMenu";
-import * as PAGES from "constants/pages";
+import { WEBPACK_ELECTRON_PORT } from 'config';
+import { app, BrowserWindow, dialog, shell, screen, nativeImage } from 'electron';
+import isDev from 'electron-is-dev';
+import windowStateKeeper from 'electron-window-state';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import { SUPPORTED_SUB_LANGUAGE_CODES, SUB_LANG_CODE_LEN } from 'constants/supported_sub_languages';
+import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
+import { TO_TRAY_WHEN_CLOSED } from 'constants/settings';
+import setupBarMenu from './menu/setupBarMenu';
+import * as PAGES from 'constants/pages';
 
 function GetAppLangCode() {
   // https://www.electronjs.org/docs/api/locales
@@ -24,16 +24,13 @@ function GetAppLangCode() {
   return SUPPORTED_BROWSER_LANGUAGES[langCode];
 }
 
-export default (appState => {
+export default (appState) => {
   // Get primary display dimensions from Electron.
-  const {
-    width,
-    height
-  } = screen.getPrimaryDisplay().workAreaSize;
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   // Load the previous state with fallback to defaults.
   const windowState = windowStateKeeper({
     defaultWidth: width,
-    defaultHeight: height
+    defaultHeight: height,
   });
   const startMinimized = (process.argv || []).includes('--hidden');
   const windowConfiguration = {
@@ -55,8 +52,8 @@ export default (appState => {
       // Disable renderer process's webSecurity on development to enable CORS.
       webSecurity: !isDev,
       plugins: true,
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   };
   const lbryProto = 'lbry://';
   const lbryProtoQ = 'lbry://?';
@@ -96,7 +93,6 @@ export default (appState => {
     } else {
       deepLinkingURI = '';
     } // else is it a claim
-
   } else if (deepLinkingURI.includes(lbryProto)) {
     deepLinkingURI = deepLinkingURI.replace(lbryProto, '#');
   } else {
@@ -105,7 +101,7 @@ export default (appState => {
 
   setupBarMenu();
   window.loadURL(rendererURL + deepLinkingURI);
-  window.on('close', event => {
+  window.on('close', (event) => {
     if (appState.isQuitting) {
       return;
     }
@@ -123,8 +119,10 @@ export default (appState => {
       }
     }
 
-    const getToTrayWhenClosedSetting = window.webContents.executeJavaScript(`localStorage.getItem('${TO_TRAY_WHEN_CLOSED}')`);
-    getToTrayWhenClosedSetting.then(toTrayWhenClosedSetting => {
+    const getToTrayWhenClosedSetting = window.webContents.executeJavaScript(
+      `localStorage.getItem('${TO_TRAY_WHEN_CLOSED}')`
+    );
+    getToTrayWhenClosedSetting.then((toTrayWhenClosedSetting) => {
       const closeApp = toTrayWhenClosedSetting === 'false';
 
       if (closeApp) {
@@ -136,16 +134,20 @@ export default (appState => {
     window.webContents.send('window-is-focused', null);
   });
   window.on('unresponsive', () => {
-    dialog.showMessageBox(window, {
-      type: 'warning',
-      buttons: ['Wait', 'Quit'],
-      title: 'LBRY Unresponsive',
-      defaultId: 1,
-      message: 'LBRY is not responding. Would you like to quit?',
-      cancelId: 0
-    }, buttonIndex => {
-      if (buttonIndex === 1) app.quit();
-    });
+    dialog.showMessageBox(
+      window,
+      {
+        type: 'warning',
+        buttons: ['Wait', 'Quit'],
+        title: 'LBRY Unresponsive',
+        defaultId: 1,
+        message: 'LBRY is not responding. Would you like to quit?',
+        cancelId: 0,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 1) app.quit();
+      }
+    );
   });
   window.once('ready-to-show', () => {
     startMinimized ? window.hide() : window.show();
@@ -157,8 +159,11 @@ export default (appState => {
   window.webContents.on('did-finish-load', () => {
     window.webContents.session.setUserAgent(`LBRY/${app.getVersion()}`);
     // restore the user's previous language - we have to do this from here because only electron process can access app.getLocale()
-    window.webContents.executeJavaScript("localStorage.getItem('language')").then(storedLanguage => {
-      const language = storedLanguage && storedLanguage !== 'undefined' && storedLanguage !== 'null' ? storedLanguage : GetAppLangCode();
+    window.webContents.executeJavaScript("localStorage.getItem('language')").then((storedLanguage) => {
+      const language =
+        storedLanguage && storedLanguage !== 'undefined' && storedLanguage !== 'null'
+          ? storedLanguage
+          : GetAppLangCode();
 
       if (language !== 'en' && SUPPORTED_LANGUAGES[language]) {
         window.webContents.send('language-set', language);
@@ -205,4 +210,4 @@ export default (appState => {
     window.webContents.send('update-target-url', dispUrl);
   });
   return window;
-});
+};

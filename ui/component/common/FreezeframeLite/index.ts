@@ -22,9 +22,9 @@ class FreezeframeLite {
   items = [];
   $images = [];
   eventListeners = Object.values(events).reduce((acc, item) => {
-      acc[item] = [];
-      return acc;
-    }, {});
+    acc[item] = [];
+    return acc;
+  }, {});
 
   constructor(node) {
     this.options = { ...defaultOptions };

@@ -39,9 +39,10 @@ import { getStripeEnvironment } from 'util/stripe';
 import { useHistory } from 'react-router';
 const stripeEnvironment = getStripeEnvironment();
 
-require('@silvermine/videojs-chromecast')(videojs);
-
-require('@silvermine/videojs-airplay')(videojs);
+import chromecast from '@silvermine/videojs-chromecast';
+import airplay from '@silvermine/videojs-airplay';
+chromecast(videojs);
+airplay(videojs);
 
 export type Player = {
   // -- custom --

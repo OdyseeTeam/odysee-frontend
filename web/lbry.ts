@@ -13,18 +13,18 @@ const Lbry = {
   alternateConnectionString: '',
   methodsUsingAlternateConnectionString: [],
   apiRequestHeaders: {
-    'Content-Type': 'application/json-rpc'
+    'Content-Type': 'application/json-rpc',
   },
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
-  setDaemonConnectionString: value => {
+  setDaemonConnectionString: (value) => {
     Lbry.daemonConnectionString = value;
   },
   setApiHeader: (key, value) => {
     Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, {
-      [key]: value
+      [key]: value,
     });
   },
-  unsetApiHeader: key => {
+  unsetApiHeader: (key) => {
     Object.keys(Lbry.apiRequestHeaders).includes(key) && delete Lbry.apiRequestHeaders['key'];
   },
   // Allow overriding Lbry methods
@@ -36,7 +36,17 @@ const Lbry = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg|webp)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
+      const formats = [
+        [/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+        [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+        [/\.(jpeg|jpg|png|gif|svg|webp)$/i, 'image'],
+        [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'],
+        [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'],
+        [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'],
+        [/\.(stl|obj|fbx|gcode)$/i, '3D-file'],
+        [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
+        [/\.(lbry)$/i, 'application'],
+      ];
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
           case true:
@@ -62,25 +72,25 @@ const Lbry = {
   stop: () => daemonCallWithResult('stop', {}),
   version: () => daemonCallWithResult('version', {}),
   // Claim fetching and manipulation
-  resolve: params => daemonCallWithResult('resolve', params),
-  get: params => daemonCallWithResult('get', params),
-  claim_search: params => daemonCallWithResult('claim_search', params),
-  claim_list: params => daemonCallWithResult('claim_list', params),
-  channel_create: params => daemonCallWithResult('channel_create', params),
-  channel_update: params => daemonCallWithResult('channel_update', params),
-  channel_import: params => daemonCallWithResult('channel_import', params),
-  channel_list: params => daemonCallWithResult('channel_list', params),
-  stream_abandon: params => daemonCallWithResult('stream_abandon', params),
-  stream_list: params => daemonCallWithResult('stream_list', params),
-  channel_abandon: params => daemonCallWithResult('channel_abandon', params),
-  channel_sign: params => daemonCallWithResult('channel_sign', params),
-  support_create: params => daemonCallWithResult('support_create', params),
-  support_list: params => daemonCallWithResult('support_list', params),
-  stream_repost: params => daemonCallWithResult('stream_repost', params),
-  collection_resolve: params => daemonCallWithResult('collection_resolve', params),
-  collection_list: params => daemonCallWithResult('collection_list', params),
-  collection_create: params => daemonCallWithResult('collection_create', params),
-  collection_update: params => daemonCallWithResult('collection_update', params),
+  resolve: (params) => daemonCallWithResult('resolve', params),
+  get: (params) => daemonCallWithResult('get', params),
+  claim_search: (params) => daemonCallWithResult('claim_search', params),
+  claim_list: (params) => daemonCallWithResult('claim_list', params),
+  channel_create: (params) => daemonCallWithResult('channel_create', params),
+  channel_update: (params) => daemonCallWithResult('channel_update', params),
+  channel_import: (params) => daemonCallWithResult('channel_import', params),
+  channel_list: (params) => daemonCallWithResult('channel_list', params),
+  stream_abandon: (params) => daemonCallWithResult('stream_abandon', params),
+  stream_list: (params) => daemonCallWithResult('stream_list', params),
+  channel_abandon: (params) => daemonCallWithResult('channel_abandon', params),
+  channel_sign: (params) => daemonCallWithResult('channel_sign', params),
+  support_create: (params) => daemonCallWithResult('support_create', params),
+  support_list: (params) => daemonCallWithResult('support_list', params),
+  stream_repost: (params) => daemonCallWithResult('stream_repost', params),
+  collection_resolve: (params) => daemonCallWithResult('collection_resolve', params),
+  collection_list: (params) => daemonCallWithResult('collection_list', params),
+  collection_create: (params) => daemonCallWithResult('collection_create', params),
+  collection_update: (params) => daemonCallWithResult('collection_update', params),
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
   file_delete: (params = {}) => daemonCallWithResult('file_delete', params),
@@ -123,13 +133,15 @@ const Lbry = {
         // Check every half second to see if the daemon is accepting connections
         function checkDaemonStarted() {
           tryNum += 1;
-          Lbry.status().then(resolve).catch(() => {
-            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-            } else {
-              reject(new Error('Unable to connect to LBRY'));
-            }
-          });
+          Lbry.status()
+            .then(resolve)
+            .catch(() => {
+              if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+                setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+              } else {
+                reject(new Error('Unable to connect to LBRY'));
+              }
+            });
         }
 
         checkDaemonStarted();
@@ -140,13 +152,14 @@ const Lbry = {
     // $FlowFixMe
     return Lbry.connectPromise;
   },
-  publish: (params = {}) => new Promise((resolve, reject) => {
-    if (Lbry.overrides.publish) {
-      Lbry.overrides.publish(params).then(resolve, reject);
-    } else {
-      apiCall('publish', params, resolve, reject);
-    }
-  })
+  publish: (params = {}) =>
+    new Promise((resolve, reject) => {
+      if (Lbry.overrides.publish) {
+        Lbry.overrides.publish(params).then(resolve, reject);
+      } else {
+        apiCall('publish', params, resolve, reject);
+      }
+    }),
 };
 
 function checkAndParse(response) {
@@ -154,7 +167,7 @@ function checkAndParse(response) {
     return response.json();
   }
 
-  return response.json().then(json => {
+  return response.json().then((json) => {
     let error;
 
     if (json.error) {
@@ -177,26 +190,36 @@ function apiCall(method, params, resolve, reject) {
       jsonrpc: '2.0',
       method,
       params,
-      id: counter
-    })
+      id: counter,
+    }),
   };
-  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method) ? Lbry.alternateConnectionString : Lbry.daemonConnectionString;
-  return fetch(connectionString + '?m=' + method, options).then(checkAndParse).then(response => {
-    const error = response.error || response.result && response.result.error;
+  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+    ? Lbry.alternateConnectionString
+    : Lbry.daemonConnectionString;
+  return fetch(connectionString + '?m=' + method, options)
+    .then(checkAndParse)
+    .then((response) => {
+      const error = response.error || (response.result && response.result.error);
 
-    if (error) {
-      return reject(error);
-    }
+      if (error) {
+        return reject(error);
+      }
 
-    return resolve(response.result);
-  }).catch(reject);
+      return resolve(response.result);
+    })
+    .catch(reject);
 }
 
 function daemonCallWithResult(name, params = {}) {
   return new Promise((resolve, reject) => {
-    apiCall(name, params, result => {
-      resolve(result);
-    }, reject);
+    apiCall(
+      name,
+      params,
+      (result) => {
+        resolve(result);
+      },
+      reject
+    );
   });
 }
 
@@ -208,13 +231,13 @@ const lbryProxy = new Proxy(Lbry, {
       return target[name];
     }
 
-    return (params = {}) => new Promise((resolve, reject) => {
-      apiCall(name, params, resolve, reject);
-    });
-  }
-
+    return (params = {}) =>
+      new Promise((resolve, reject) => {
+        apiCall(name, params, resolve, reject);
+      });
+  },
 });
 module.exports = {
   lbryProxy,
-  apiCall
+  apiCall,
 };

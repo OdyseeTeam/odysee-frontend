@@ -8,7 +8,7 @@ function formatInAppUrl(path) {
 
   if (appPageMatches && appPageMatches.length) {
     // Definitely an app page (or it's formatted like one)
-    const [,, page, queryString] = appPageMatches;
+    const [, , page, queryString] = appPageMatches;
 
     if (Object.values(PAGES).includes(page)) {
       let actualUrl = '/$/' + page;

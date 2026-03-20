@@ -8,5 +8,5 @@ async function getTempFile(ctx) {
 }
 
 module.exports = {
-  getTempFile
+  getTempFile,
 };

@@ -121,11 +121,13 @@ export function filterActiveLivestreamUris(
     }
   }
 
-  const sorted: Array<LivestreamActiveClaim> = filtered.toSorted((a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
-    const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
-    if (viewCountA < viewCountB) return 1;
-    if (viewCountA > viewCountB) return -1;
-    return 0;
-  });
+  const sorted: Array<LivestreamActiveClaim> = filtered.toSorted(
+    (a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
+      const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
+      if (viewCountA < viewCountB) return 1;
+      if (viewCountA > viewCountB) return -1;
+      return 0;
+    }
+  );
   return sorted.map<string>((activeLivestream: LivestreamActiveClaim) => activeLivestream.uri);
 }

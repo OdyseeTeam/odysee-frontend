@@ -1,17 +1,12 @@
-const {
-  CUSTOM_HOMEPAGE
-} = require('../../config');
+const { CUSTOM_HOMEPAGE } = require('../../config');
 
-const {
-  getHomepageJsonV1,
-  getHomepageJsonV2
-} = require('./getHomepageJSON');
+const { getHomepageJsonV1, getHomepageJsonV2 } = require('./getHomepageJSON');
 
 async function getHomepage(ctx, version) {
   if (!CUSTOM_HOMEPAGE) {
     ctx.status = 404;
     ctx.body = {
-      message: 'Not Found'
+      message: 'Not Found',
     };
     return;
   }
@@ -25,16 +20,16 @@ async function getHomepage(ctx, version) {
     ctx.set('Access-Control-Allow-Origin', '*');
     ctx.body = {
       status: 'success',
-      data: content
+      data: content,
     };
   } catch (err) {
     ctx.status = err.statusCode || err.status || 500;
     ctx.body = {
-      message: err.message
+      message: err.message,
     };
   }
 }
 
 module.exports = {
-  getHomepage
+  getHomepage,
 };

@@ -67,7 +67,7 @@ This application is primarily written in JavaScript, utilizing [React](https://r
 application state.
 
 The project comes with diverse tools for simplifying the development process and for providing
-better code quality. It's recommended to make use of them thoroughly during ongoing development. 
+better code quality. It's recommended to make use of them thoroughly during ongoing development.
 
 We follow the well-known [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/) for defining
 our styling rules and code best practices.
@@ -140,12 +140,12 @@ There are a few tools integrated to the project that will ease the process of de
 - After deciding what to work on, a potential contributor can
   [fork](https://help.github.com/articles/fork-a-repo/) this repository, make his or her changes,
   and submit a
-  [pull request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/). 
+  [pull request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/).
   - A contributor wanting to reserve an issue in advance can leave a comment saying that he or she is
-  working on it. Contributors should respect other people's efforts to complete issues in a timely
-  manner and, therefore, not begin working on anything reserved (or updated) within the last 3 days.
-  If someone has been officially assigned an issue via GitHub's assignment system, it is also not
-  available. Contributors are encouraged to ask if they have any questions about issue availability.
+    working on it. Contributors should respect other people's efforts to complete issues in a timely
+    manner and, therefore, not begin working on anything reserved (or updated) within the last 3 days.
+    If someone has been officially assigned an issue via GitHub's assignment system, it is also not
+    available. Contributors are encouraged to ask if they have any questions about issue availability.
 - Once the pull request is visible in the Odysee repo, a Odysee team member will review it and make sure
   it is up to our standards. At this point, the contributor may have to change his or her code based
   on our suggestions and comments.

@@ -3,9 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function appStringsMiddleware(ctx, next) {
-  const {
-    path: requestPath
-  } = ctx;
+  const { path: requestPath } = ctx;
 
   if (/^\/app-strings\/.+\.json$/.test(requestPath)) {
     ctx.set('Access-Control-Allow-Origin', '*');

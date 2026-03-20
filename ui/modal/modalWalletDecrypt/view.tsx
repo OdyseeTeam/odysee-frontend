@@ -20,7 +20,7 @@ class ModalWalletDecrypt extends React.PureComponent<Props, State> {
   componentDidUpdate() {
     const { props, state } = this;
 
-    if (state.submitted && props.walletDecryptSucceded === true) {
+    if (state.submitted && props.walletDecryptSucceded) {
       deleteAuthToken();
       props.closeModal();
       props.updateWalletStatus();

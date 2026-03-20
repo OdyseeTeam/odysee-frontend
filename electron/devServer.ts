@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
-const {
-  WEBPACK_ELECTRON_PORT
-} = require('../config');
+const { WEBPACK_ELECTRON_PORT } = require('../config');
 
 const chalk = require('chalk');
 
@@ -14,34 +12,36 @@ const middleware = require('webpack-dev-middleware');
 const express = require('express');
 
 const app = express();
-console.log(chalk.magenta(`Compiling ${chalk.underline('main')} and ${chalk.underline('render')}, this will take a while.`));
+console.log(
+  chalk.magenta(`Compiling ${chalk.underline('main')} and ${chalk.underline('render')}, this will take a while.`)
+);
 
 let [mainConfig, renderConfig] = require('../webpack.electron.config.js');
 
 renderConfig = merge(renderConfig, {
   entry: {
-    ui: ['webpack-hot-middleware/client']
+    ui: ['webpack-hot-middleware/client'],
   },
   plugins: [new webpack.HotModuleReplacementPlugin()],
   resolve: {
     alias: {
-      'react-dom': '@hot-loader/react-dom'
+      'react-dom': '@hot-loader/react-dom',
     },
-    symlinks: false
-  }
+    symlinks: false,
+  },
 });
 const mainCompiler = webpack(mainConfig);
 const mainInstance = middleware(mainCompiler, {
   logLevel: 'warn',
-  writeToDisk: filename => {
+  writeToDisk: (filename) => {
     // console.log(`Writing '${filename}'.`);
     return true;
-  }
+  },
 });
 const renderCompiler = webpack(renderConfig);
 const renderInstance = middleware(renderCompiler, {
   logLevel: 'warn',
-  publicPath: '/'
+  publicPath: '/',
 });
 app.use(require('webpack-hot-middleware')(renderCompiler));
 app.use(renderInstance);
@@ -59,7 +59,7 @@ mainInstance.waitUntilValid(() => {
   const proc = require('child_process');
 
   const child = proc.spawn(electron, ['./dist/electron/webpack/main.js']);
-  child.stdout.on('data', data => {
+  child.stdout.on('data', (data) => {
     console.log(data.toString());
   });
   process.on('SIGINT', function () {

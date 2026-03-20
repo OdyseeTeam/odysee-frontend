@@ -1,15 +1,13 @@
-import fs from "fs";
-import path from "path";
-import { unpackDirectory } from "lbry-format";
+import fs from 'fs';
+import path from 'path';
+import { unpackDirectory } from 'lbry-format';
 
 async function unpackByOutpoint(lbry, outpoint) {
-  const {
-    items: claimFiles
-  } = await lbry.file_list({
+  const { items: claimFiles } = await lbry.file_list({
     outpoint,
     full_status: true,
     page: 1,
-    page_size: 1
+    page_size: 1,
   });
 
   if (claimFiles && claimFiles.length) {
@@ -19,7 +17,7 @@ async function unpackByOutpoint(lbry, outpoint) {
 
     if (!fs.existsSync(unpackPath)) {
       await unpackDirectory(unpackPath, {
-        fileName: packFilePath
+        fileName: packFilePath,
       });
     }
 

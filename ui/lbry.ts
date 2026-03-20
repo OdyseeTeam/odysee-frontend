@@ -4,7 +4,7 @@ import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
 import { PROXY_URL_NO_CF } from 'config';
 
-require('proxy-polyfill');
+import 'proxy-polyfill';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 const ERR_LOG_METHOD_WHITELIST = ['support_create'];

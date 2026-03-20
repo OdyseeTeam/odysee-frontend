@@ -1,29 +1,23 @@
 const Mime = require('mime-types');
 
-const {
-  PLAYER_SERVER
-} = require('../../config.js');
+const { PLAYER_SERVER } = require('../../config.js');
 
-const {
-  lbryProxy: Lbry
-} = require('../lbry');
+const { lbryProxy: Lbry } = require('../lbry');
 
-const {
-  buildURI
-} = require('./lbryURI');
+const { buildURI } = require('./lbryURI');
 
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({
     claimName,
-    claimId
+    claimId,
   });
   return await Lbry.get({
-    uri
-  }).then(({
-    streaming_url
-  }) => streaming_url).catch(error => {
-    return '';
-  });
+    uri,
+  })
+    .then(({ streaming_url }) => streaming_url)
+    .catch((error) => {
+      return '';
+    });
 }
 
 /**
@@ -34,7 +28,7 @@ async function fetchStreamUrl(claimName, claimId) {
  * @param claim
  */
 function generateContentUrl(claim) {
-  const streamUrl = claim => {
+  const streamUrl = (claim) => {
     // Hardcoded version of fetchStreamUrl().
     return `${PLAYER_SERVER}/api/v3/streams/free/${claim.name}/${claim.claim_id}`;
   };
@@ -52,5 +46,5 @@ function generateContentUrl(claim) {
 
 module.exports = {
   fetchStreamUrl,
-  generateContentUrl
+  generateContentUrl,
 };

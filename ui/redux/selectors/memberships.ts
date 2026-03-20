@@ -248,7 +248,7 @@ export const selectUserHasValidOdyseeMembership = (state: State) =>
 // deprecated
 export const selectMyValidMembershipIds = createSelector(selectMyValidMembershipsById, (validMembershipsById) => {
   const validMembershipIds = new Set([]);
-  (Object.entries(validMembershipsById) as Array<[string, any]>).forEach(([key, value]) => {
+  Object.entries(validMembershipsById).forEach(([key, value]) => {
     value.forEach((value) => {
       validMembershipIds.add(value.membership.id);
     });
@@ -532,7 +532,7 @@ export const selectPendingUnlockedRestrictionsForUri = (state: State, uri: strin
   const contentRestrictedFromUser = claimId && selectIsProtectedContentLockedFromUserForId(state, claimId);
   // false means no restrictions, undefined === fetching, true === restricted
   // so here, pending means it still doesn't have the "false" to call it unlocked
-  const pendingUnlockedRestrictions = contentRestrictedFromUser !== false;
+  const pendingUnlockedRestrictions = contentRestrictedFromUser;
   return pendingUnlockedRestrictions;
 };
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(

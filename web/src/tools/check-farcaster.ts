@@ -7,14 +7,16 @@ const http = require('http');
 function fetchUrl(url) {
   return new Promise((resolve, reject) => {
     const lib = url.startsWith('https') ? https : http;
-    const req = lib.get(url, res => {
+    const req = lib.get(url, (res) => {
       let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({
-        status: res.statusCode,
-        headers: res.headers,
-        body: data
-      }));
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () =>
+        resolve({
+          status: res.statusCode,
+          headers: res.headers,
+          body: data,
+        })
+      );
     });
     req.on('error', reject);
     req.end();
@@ -43,20 +45,26 @@ async function checkManifest(base) {
   } catch (e) {
     ok(false, 'Manifest JSON valid');
     return {
-      passed: false
+      passed: false,
     };
   }
 
   const frame = json.frame;
   const hasFrame = ok(!!frame, 'Manifest contains frame object');
-  const hasReqFields = ok(!!(frame && frame.version && frame.name && frame.iconUrl && frame.homeUrl), 'Frame has required fields (version,name,iconUrl,homeUrl)');
+  const hasReqFields = ok(
+    !!(frame && frame.version && frame.name && frame.iconUrl && frame.homeUrl),
+    'Frame has required fields (version,name,iconUrl,homeUrl)'
+  );
   let assocOk = true;
 
   if (json.accountAssociation) {
     try {
       const payloadStr = Buffer.from(json.accountAssociation.payload, 'base64').toString('utf8');
       const payload = JSON.parse(payloadStr);
-      assocOk = ok(payload.domain && (base.includes(payload.domain) || payload.domain === base.replace(/^https?:\/\//, '')), 'AccountAssociation payload.domain matches domain');
+      assocOk = ok(
+        payload.domain && (base.includes(payload.domain) || payload.domain === base.replace(/^https?:\/\//, '')),
+        'AccountAssociation payload.domain matches domain'
+      );
     } catch (e) {
       assocOk = ok(false, 'AccountAssociation payload parsing');
     }
@@ -65,7 +73,7 @@ async function checkManifest(base) {
   }
 
   return {
-    passed: is200 && hasFrame && hasReqFields && assocOk
+    passed: is200 && hasFrame && hasReqFields && assocOk,
   };
 }
 
@@ -90,7 +98,15 @@ async function checkEmbed(pageUrl) {
   let parsed;
 
   try {
-    const htmlDecode = s => s.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&#39;/g, "'").replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    const htmlDecode = (s) =>
+      s
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
+        .replace(/&#x27;/g, "'")
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
 
     const decoded = mini ? htmlDecode(mini) : null;
     parsed = decoded && JSON.parse(decoded);
@@ -141,7 +157,7 @@ async function checkEmbed(pageUrl) {
   }
 
   return {
-    passed: is200 && hasMini && !!parsed && imgOk && actionOk
+    passed: is200 && hasMini && !!parsed && imgOk && actionOk,
   };
 }
 
@@ -166,7 +182,7 @@ async function main() {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err);
   process.exit(1);
 });

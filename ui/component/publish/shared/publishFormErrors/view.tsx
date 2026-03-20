@@ -13,7 +13,7 @@ type Props = {
   bid: string | null | undefined;
   bidError: string | null | undefined;
   editingURI: string | null | undefined;
-  filePath: (string | null | undefined) | WebFile;
+  filePath: undefined | WebFile;
   fileBitrate: number;
   fileSizeTooBig: boolean;
   isStillEditing: boolean;

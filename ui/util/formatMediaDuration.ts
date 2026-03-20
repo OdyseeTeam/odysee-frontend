@@ -17,7 +17,7 @@ export default function formatMediaDuration(duration: number = 0) {
   }
 } // TODO: need a better file location:
 
-export function getChannelSubCountStr(count: number | null | undefined, formattedCount?: string | null | undefined) {
+export function getChannelSubCountStr(count: number | null | undefined, formattedCount?: string | null) {
   if (count === null || count === undefined) {
     return null;
   } else {

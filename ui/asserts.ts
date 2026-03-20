@@ -14,11 +14,14 @@ export function assert(condition: any, msg: string = 'Assertion failed', data: a
 function doAssert(condition: any, msg: string, data: any) {
   if (!condition && !window.app.pause_asserts) {
     // $FlowIgnore - flow's constructor for Error is incorrect.
-    const error = new Error(msg, (data
+    const error = new Error(
+      msg,
+      data
         ? {
             cause: data,
           }
-        : {}));
+        : {}
+    );
     setTimeout(() => {
       // setTimeout is used here so that assert() will also work in reducers,
       // which aren't supposed to be dispatching events.

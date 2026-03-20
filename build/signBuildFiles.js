@@ -12,7 +12,7 @@ let versionToSign;
 // Why can't I do this with 'fs'? :/
 function deleteFolderRecursive(path) {
   if (fs.existsSync(path)) {
-    fs.readdirSync(path).forEach(function(file, index) {
+    fs.readdirSync(path).forEach(function (file, index) {
       var curPath = path + '/' + file;
       if (fs.lstatSync(curPath).isDirectory()) {
         // recurse
@@ -57,7 +57,7 @@ function signFile() {
   const fileName = `LBRY_${versionToSign}_sigs.asc`;
 
   const pathForSignedFile = path.resolve(__dirname, `../dist/${fileName}`);
-  exec(`keybase pgp sign -i ${fileToSign} -c -o ${pathForSignedFile}`, err => {
+  exec(`keybase pgp sign -i ${fileToSign} -c -o ${pathForSignedFile}`, (err) => {
     if (err) {
       console.log('Error signing file with keybase');
     }
@@ -69,7 +69,7 @@ function signFile() {
 function hashFiles() {
   console.log('Hashing assets downloaded from github...');
 
-  fs.readdir(downloadPath, function(err, items) {
+  fs.readdir(downloadPath, function (err, items) {
     if (err) {
       console.log('Error signing files in ', downloadPath);
     }
@@ -133,7 +133,7 @@ function downloadAssets() {
       });
     })
     .then(({ data }) => {
-      const releaseToDownload = data.filter(releaseData => releaseData.tag_name === versionToSign)[0];
+      const releaseToDownload = data.filter((releaseData) => releaseData.tag_name === versionToSign)[0];
       const assets = releaseToDownload.assets;
       fileCountToDownload = assets.length;
       assets
@@ -143,7 +143,7 @@ function downloadAssets() {
           downloadFile(fileName, download_url);
         });
     })
-    .catch(error => console.log('Error downloading releases ', error));
+    .catch((error) => console.log('Error downloading releases ', error));
 }
 
 const rl = readline.createInterface({
@@ -151,7 +151,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-rl.question('Version to sign: ', function(version) {
+rl.question('Version to sign: ', function (version) {
   const tag = version.startsWith('v') ? version : `v${version}`;
   versionToSign = tag;
   downloadAssets();

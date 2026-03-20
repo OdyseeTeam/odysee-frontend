@@ -87,7 +87,7 @@ type Props = {
   actions: boolean | Node | string | number;
   properties: boolean | Node | string | number | ((arg0: Claim) => Node);
   empty?: Node;
-  onClick?: (e: any, claim?: Claim | null | undefined, index?: number) => any;
+  onClick?: (e: any, claim?: Claim | null, index?: number) => any;
   streamingUrl: string | null | undefined;
   getFile: (arg0: string) => void;
   customShouldHide?: (arg0: Claim) => boolean;
@@ -131,7 +131,7 @@ type Props = {
   defaultCollectionAction: string;
   disableShortsView: boolean;
 };
-const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
+const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   const {
     // core
     uri,

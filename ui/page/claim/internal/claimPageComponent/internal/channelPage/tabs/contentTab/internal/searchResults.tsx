@@ -14,7 +14,7 @@ type Props = {
   hideShorts?: boolean;
   minDuration?: number | null | undefined;
   maxDuration?: number | null | undefined;
-  maxAspectRatio?: (string | null | undefined) | (number | null | undefined);
+  maxAspectRatio?: undefined;
   contentType?: string | null | undefined;
   freshness?: string | null | undefined;
   durationParam?: string | null | undefined;

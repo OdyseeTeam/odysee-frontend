@@ -7,7 +7,7 @@ const {
   FARCASTER_ICON_URL,
   FARCASTER_SPLASH_IMAGE_URL,
   FARCASTER_SPLASH_BACKGROUND_COLOR,
-  FARCASTER_HERO_IMAGE_URL
+  FARCASTER_HERO_IMAGE_URL,
 } = require('../../config.js');
 
 function getFarcasterManifest(ctx) {
@@ -26,15 +26,15 @@ function getFarcasterManifest(ctx) {
       imageUrl: heroImageUrl,
       buttonTitle: 'Open App',
       splashImageUrl,
-      splashBackgroundColor
-    }
+      splashBackgroundColor,
+    },
   };
 
   if (FARCASTER_ACCOUNT_ASSOC_HEADER && FARCASTER_ACCOUNT_ASSOC_PAYLOAD && FARCASTER_ACCOUNT_ASSOC_SIGNATURE) {
     manifest.accountAssociation = {
       header: FARCASTER_ACCOUNT_ASSOC_HEADER,
       payload: FARCASTER_ACCOUNT_ASSOC_PAYLOAD,
-      signature: FARCASTER_ACCOUNT_ASSOC_SIGNATURE
+      signature: FARCASTER_ACCOUNT_ASSOC_SIGNATURE,
     };
   }
 
@@ -42,5 +42,5 @@ function getFarcasterManifest(ctx) {
 }
 
 module.exports = {
-  getFarcasterManifest
+  getFarcasterManifest,
 };

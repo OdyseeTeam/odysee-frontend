@@ -33,12 +33,15 @@ const withCreditCard = (Component: FunctionalComponentParam) => {
 
     if (!hasSavedCard) {
       const handleOpenAddCardModal = () =>
-        doOpenModal(MODALS.ADD_CARD, (modal
+        doOpenModal(
+          MODALS.ADD_CARD,
+          modal
             ? {
                 previousModal: modal.id,
                 previousProps: { ...modal.modalProps, ...modalState },
               }
-            : {}));
+            : {}
+        );
 
       return (
         <Button

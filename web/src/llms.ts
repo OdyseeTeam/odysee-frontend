@@ -13,5 +13,5 @@ async function getLlmsTxt() {
 }
 
 module.exports = {
-  getLlmsTxt
+  getLlmsTxt,
 };

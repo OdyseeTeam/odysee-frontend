@@ -103,11 +103,7 @@ export function doDeleteFileAndMaybeGoBack(
     dispatch(batchActions(...actions));
   };
 }
-export const doFileGetForUri = (
-  uri: string,
-  opt?: FileGetOptions | null | undefined,
-  onSuccess?: (arg0: GetResponse) => any
-) => {
+export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSuccess?: (arg0: GetResponse) => any) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state: State = getState();
     const alreadyFetching = selectOutpointFetchingForUri(state, uri);

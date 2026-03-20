@@ -41,14 +41,18 @@ if (config.DYNAMIC_ROUTES_FIRST) {
   // Route dynamic pages first so we can inject proper meta (/, embeds, etc)
   app.use(router.routes());
   // Then fall through to static assets (e.g. /public/*)
-  app.use(serve(DIST_ROOT, {
-    maxage: 3600000
-  }));
+  app.use(
+    serve(DIST_ROOT, {
+      maxage: 3600000,
+    })
+  );
 } else {
   // Default: serve static first (production-safe), then dynamic routes
-  app.use(serve(DIST_ROOT, {
-    maxage: 3600000
-  }));
+  app.use(
+    serve(DIST_ROOT, {
+      maxage: 3600000,
+    })
+  );
   app.use(router.routes());
 }
 

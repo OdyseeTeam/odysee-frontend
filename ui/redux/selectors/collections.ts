@@ -295,7 +295,7 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
             : null;
         })
         .filter(Boolean);
-      const collectionsContainingClaim = (Object.entries(collectionsById) as Array<[string, any]>)
+      const collectionsContainingClaim = Object.entries(collectionsById)
         .filter(
           ([id, collection]) =>
             myCollectionIds.has(id) && // Only include my collections

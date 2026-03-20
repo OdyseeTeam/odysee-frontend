@@ -2,22 +2,22 @@
 
 /* eslint space-before-function-paren:0 */
 // Module imports
-import "@babel/polyfill";
-import SemVer from "semver";
-import https from "https";
-import { app, dialog, ipcMain, session, shell } from "electron";
-import { autoUpdater } from "electron-updater";
-import Lbry from "lbry";
-import LbryFirstInstance from "./LbryFirstInstance";
-import Daemon from "./Daemon";
-import isDev from "electron-is-dev";
-import createTray from "./createTray";
-import createWindow from "./createWindow";
-import pjson from "../package.json";
-import startSandbox from "./startSandbox";
-import installDevtools from "./installDevtools";
-import fs from "fs";
-import path from "path";
+import '@babel/polyfill';
+import SemVer from 'semver';
+import https from 'https';
+import { app, dialog, ipcMain, session, shell } from 'electron';
+import { autoUpdater } from 'electron-updater';
+import Lbry from 'lbry';
+import LbryFirstInstance from './LbryFirstInstance';
+import Daemon from './Daemon';
+import isDev from 'electron-is-dev';
+import createTray from './createTray';
+import createWindow from './createWindow';
+import pjson from '../package.json';
+import startSandbox from './startSandbox';
+import installDevtools from './installDevtools';
+import fs from 'fs';
+import path from 'path';
 const filePath = path.join(process.resourcesPath, 'static', 'upgradeDisabled');
 let upgradeDisabled;
 
@@ -66,12 +66,14 @@ if (isDev) {
 
 const startDaemon = async () => {
   let isDaemonRunning = false;
-  await Lbry.status().then(() => {
-    isDaemonRunning = true;
-    console.log('SDK already running');
-  }).catch(() => {
-    console.log('Starting SDK');
-  });
+  await Lbry.status()
+    .then(() => {
+      isDaemonRunning = true;
+      console.log('SDK already running');
+    })
+    .catch(() => {
+      console.log('Starting SDK');
+    });
 
   if (!isDaemonRunning) {
     daemon = new Daemon();
@@ -80,7 +82,12 @@ const startDaemon = async () => {
         daemon = null;
 
         if (!appState.isQuitting) {
-          dialog.showErrorBox('Daemon has Exited', 'The daemon may have encountered an unexpected error, or another daemon instance is already running. \n\n' + 'For more information please visit: \n' + 'https://lbry.com/faq/startup-troubleshooting');
+          dialog.showErrorBox(
+            'Daemon has Exited',
+            'The daemon may have encountered an unexpected error, or another daemon instance is already running. \n\n' +
+              'For more information please visit: \n' +
+              'https://lbry.com/faq/startup-troubleshooting'
+          );
         }
 
         app.quit();
@@ -103,13 +110,17 @@ const startLbryFirst = async () => {
 
   try {
     lbryFirst = new LbryFirstInstance();
-    lbryFirst.on('exit', e => {
+    lbryFirst.on('exit', (e) => {
       if (!isDev) {
         lbryFirst = null;
         isLbryFirstRunning = false;
 
         if (!appState.isQuitting) {
-          dialog.showErrorBox('LbryFirst has Exited', 'The lbryFirst may have encountered an unexpected error, or another lbryFirst instance is already running. \n\n', e);
+          dialog.showErrorBox(
+            'LbryFirst has Exited',
+            'The lbryFirst may have encountered an unexpected error, or another lbryFirst instance is already running. \n\n',
+            e
+          );
         }
 
         app.quit();
@@ -202,7 +213,7 @@ if (!gotSingleInstanceLock) {
 
       callback({
         cancel: false,
-        requestHeaders: details.requestHeaders
+        requestHeaders: details.requestHeaders,
       });
     });
   });
@@ -213,20 +224,28 @@ app.on('activate', () => {
     rendererWindow.show();
   }
 });
-app.on('will-quit', event => {
-  if (process.platform === 'win32' && autoUpdateDownloaded && !appState.autoUpdateAccepted && !showingAutoUpdateCloseAlert) {
+app.on('will-quit', (event) => {
+  if (
+    process.platform === 'win32' &&
+    autoUpdateDownloaded &&
+    !appState.autoUpdateAccepted &&
+    !showingAutoUpdateCloseAlert
+  ) {
     // We're on Win and have an update downloaded, but the user declined it (or closed
     // the app without accepting it). Now the user is closing the app, so the new update
     // will install. On Mac this is silent, but on Windows they get a confusing permission
     // escalation dialog, so we show Windows users a warning dialog first.
     showingAutoUpdateCloseAlert = true;
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'LBRY Will Upgrade',
-      message: 'LBRY has a pending upgrade. Please select "Yes" to install it on the prompt shown after this one.'
-    }, () => {
-      app.quit();
-    });
+    dialog.showMessageBox(
+      {
+        type: 'info',
+        title: 'LBRY Will Upgrade',
+        message: 'LBRY has a pending upgrade. Please select "Yes" to install it on the prompt shown after this one.',
+      },
+      () => {
+        app.quit();
+      }
+    );
     event.preventDefault();
     return;
   }
@@ -293,8 +312,8 @@ ipcMain.on('version-info-requested', () => {
   const localVersion = pjson.version;
   let result = '';
 
-  const onSuccess = res => {
-    res.on('data', data => {
+  const onSuccess = (res) => {
+    res.on('data', (data) => {
       result += data;
     });
     res.on('end', () => {
@@ -322,34 +341,37 @@ ipcMain.on('version-info-requested', () => {
             rendererWindow.webContents.send('version-info-received', {
               remoteVersion,
               localVersion,
-              upgradeAvailable
+              upgradeAvailable,
             });
           }
         }
       } else if (rendererWindow) {
         rendererWindow.webContents.send('version-info-received', {
-          localVersion
+          localVersion,
         });
       }
     });
   };
 
   const requestLatestRelease = (alreadyRedirected = false) => {
-    const req = https.get({
-      hostname: 'api.github.com',
-      path: '/repos/lbryio/lbry-desktop/releases/latest',
-      headers: {
-        'user-agent': `LBRY/${localVersion}`
+    const req = https.get(
+      {
+        hostname: 'api.github.com',
+        path: '/repos/lbryio/lbry-desktop/releases/latest',
+        headers: {
+          'user-agent': `LBRY/${localVersion}`,
+        },
+      },
+      (res) => {
+        if (res.statusCode === 301 || res.statusCode === 302) {
+          requestLatestRelease(res.headers.location, true);
+        } else {
+          onSuccess(res);
+        }
       }
-    }, res => {
-      if (res.statusCode === 301 || res.statusCode === 302) {
-        requestLatestRelease(res.headers.location, true);
-      } else {
-        onSuccess(res);
-      }
-    });
+    );
     if (alreadyRedirected) return;
-    req.on('error', err => {
+    req.on('error', (err) => {
       console.log('Failed to get current version from GitHub. Error:', err);
 
       if (rendererWindow) {
@@ -360,7 +382,7 @@ ipcMain.on('version-info-requested', () => {
 
   if (upgradeDisabled && rendererWindow) {
     rendererWindow.webContents.send('version-info-received', {
-      localVersion
+      localVersion,
     });
     return;
   }
@@ -375,7 +397,7 @@ ipcMain.on('launch-lbry-first', async () => {
     console.log(e);
   }
 });
-process.on('uncaughtException', error => {
+process.on('uncaughtException', (error) => {
   console.log(error);
   dialog.showErrorBox('Error Encountered', `Caught error: ${error}`);
   appState.isQuitting = true;

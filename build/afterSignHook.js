@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 var electron_notarize = require('electron-notarize');
 
-module.exports = async function() {
+module.exports = async function () {
   if (process.env.RUNNER_OS !== 'macOS') {
     return;
   }

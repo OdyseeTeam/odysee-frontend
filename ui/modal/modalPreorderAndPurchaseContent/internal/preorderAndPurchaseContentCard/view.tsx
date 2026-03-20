@@ -158,7 +158,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   }, [claimId, doCheckIfPurchasedClaimId, fiatRequired, isAuthenticated, isFetchingPurchases, isUrlParamModal]);
   React.useEffect(() => {
     // -- close modal when already purchased --
-    if (isUrlParamModal && claimId && !pendingPurchase && (!fiatRequired || isFetchingPurchases === false)) {
+    if (isUrlParamModal && claimId && !pendingPurchase && (!fiatRequired || !isFetchingPurchases)) {
       doHideModal();
     }
   }, [claimId, doHideModal, fiatRequired, isFetchingPurchases, isUrlParamModal, pendingPurchase]);

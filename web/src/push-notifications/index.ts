@@ -2,13 +2,13 @@
  * This module is responsible for managing browser push notification
  * subscriptions via the firebase SDK.
  */
-import { Lbryio } from "lbryinc";
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, deleteToken } from "firebase/messaging";
-import { firebaseConfig, vapidKey } from "$web/src/firebase-config";
-import { addRegistration, removeRegistration, hasRegistration } from "$web/src/push-notifications/fcm-management";
-import { browserData } from "$web/src/ua";
-import { isPushSupported } from "$web/src/push-notifications/push-supported";
+import { Lbryio } from 'lbryinc';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
+import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
+import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
+import { browserData } from '$web/src/ua';
+import { isPushSupported } from '$web/src/push-notifications/push-supported';
 let messaging = null;
 let pushSystem = null;
 
@@ -25,23 +25,24 @@ let pushSystem = null;
       subscribed,
       reconnect,
       disconnect,
-      validate
+      validate,
     };
   }
 })(); // Proxy will forward to push system if it's supported.
 
-
-export default new Proxy({}, {
-  get(target, prop) {
-    if (pushSystem) {
-      return pushSystem[prop];
-    } else {
-      if (prop === 'supported') return false;
-      throw new Error('Push notifications are not supported in this browser environment.');
-    }
+export default new Proxy(
+  {},
+  {
+    get(target, prop) {
+      if (pushSystem) {
+        return pushSystem[prop];
+      } else {
+        if (prop === 'supported') return false;
+        throw new Error('Push notifications are not supported in this browser environment.');
+      }
+    },
   }
-
-});
+);
 
 const subscriptionMetaData = () => {
   const isMobile = window.navigator.userAgentData?.mobile || false;
@@ -49,7 +50,7 @@ const subscriptionMetaData = () => {
   const osName = browserData.os?.name || 'unknown';
   return {
     type: `web-${isMobile ? 'mobile' : 'desktop'}`,
-    name: `${browserName}-${osName}`
+    name: `${browserName}-${osName}`,
   };
 };
 
@@ -58,7 +59,7 @@ const getFcmToken = async (): Promise<string | void> => {
   if (!swRegistration) return;
   return getToken(messaging, {
     serviceWorkerRegistration: swRegistration,
-    vapidKey
+    vapidKey,
   });
 };
 
@@ -68,7 +69,7 @@ const subscribe = async (userId: number, permanent: boolean = true): Promise<boo
     if (!fcmToken) return false;
     await Lbryio.call('cfm', 'add', {
       token: fcmToken,
-      ...subscriptionMetaData()
+      ...subscriptionMetaData(),
     });
     if (permanent) addRegistration(userId);
     return true;
@@ -83,7 +84,7 @@ const unsubscribe = async (userId: number, permanent: boolean = true): Promise<b
     if (!fcmToken) return false;
     await deleteToken(messaging);
     await Lbryio.call('cfm', 'remove', {
-      token: fcmToken
+      token: fcmToken,
     });
     if (permanent) removeRegistration(userId);
     return true;
@@ -116,7 +117,7 @@ const validate = async (userId: number) => {
     const serverTokens = await Lbryio.call('cfm', 'list');
     const fcmToken = await getFcmToken();
     if (!fcmToken) return;
-    const exists = serverTokens.find(item => item.value === fcmToken);
+    const exists = serverTokens.find((item) => item.value === fcmToken);
 
     if (!exists) {
       await subscribe(userId, false);

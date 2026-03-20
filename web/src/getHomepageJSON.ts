@@ -2,14 +2,14 @@ const path = require('path');
 
 const memo = {};
 const FORMAT = {
-  ROKU: 'roku'
+  ROKU: 'roku',
 };
 
-const loadAnnouncements = homepageKeys => {
+const loadAnnouncements = (homepageKeys) => {
   const fs = require('fs');
 
   const announcements = {};
-  homepageKeys.forEach(key => {
+  homepageKeys.forEach((key) => {
     const file = path.join(__dirname, `../dist/announcement/${key.toLowerCase()}.md`);
     let announcement;
 
@@ -44,7 +44,7 @@ const getHomepageJsonV1 = () => {
 
   const v1 = {};
   const homepageKeys = Object.keys(memo.homepageData);
-  homepageKeys.forEach(hp => {
+  homepageKeys.forEach((hp) => {
     v1[hp] = memo.homepageData[hp].categories;
   });
   return v1;
@@ -78,7 +78,7 @@ const getHomepageJsonV2 = (format, lang) => {
 
   const v2 = {};
   const homepageKeys = Object.keys(memo.homepageData);
-  homepageKeys.forEach(hp => {
+  homepageKeys.forEach((hp) => {
     if (!lang || lang === hp) {
       v2[hp] = {
         categories: reformatV2Categories(memo.homepageData[hp].categories, format),
@@ -91,7 +91,7 @@ const getHomepageJsonV2 = (format, lang) => {
         discover: memo.homepageData[hp].discover,
         discoverNew: memo.homepageData[hp]?.discoverNew,
         customBanners: memo.homepageData[hp]?.customBanners,
-        announcement: memo.announcements[hp]
+        announcement: memo.announcements[hp],
       };
     } else {
       v2[hp] = null;
@@ -102,5 +102,5 @@ const getHomepageJsonV2 = (format, lang) => {
 
 module.exports = {
   getHomepageJsonV1,
-  getHomepageJsonV2
+  getHomepageJsonV2,
 };

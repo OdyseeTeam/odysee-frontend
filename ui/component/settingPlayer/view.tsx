@@ -31,7 +31,7 @@ export default function SettingPlayer(props: Props) {
             <SettingsRow title={__('Floating video player')} subtitle={__(HELP.FLOATING_PLAYER)}>
               <FormField type="checkbox" name="floating_player" onChange={() => {
           setClientSetting(SETTINGS.FLOATING_PLAYER, !floatingPlayer);
-          if (isFloating && !floatingPlayer === false) clearPlayingUri();
+          if (isFloating && !( !floatingPlayer)) clearPlayingUri();
         }} checked={floatingPlayer} />
             </SettingsRow>
 

@@ -6,7 +6,7 @@ const decompress = require('decompress');
 const os = require('os');
 const del = require('del');
 
-const downloadLBRYFirst = targetPlatform =>
+const downloadLBRYFirst = (targetPlatform) =>
   new Promise((resolve, reject) => {
     const lbryFirstURLTemplate = packageJSON.lbrySettings.LBRYFirstUrlTemplate;
     const lbryFirstVersion = packageJSON.lbrySettings.LBRYFirstVersion;
@@ -25,7 +25,9 @@ const downloadLBRYFirst = targetPlatform =>
     const lbryFirstFilePath = path.join(lbryFirstDir, lbryFirstFileName);
     const lbryFirstVersionPath = path.join(__dirname, 'lbryFirst.ver');
     const tmpZipPath = path.join(__dirname, '..', 'dist', 'lbryFirst.zip');
-    const lbryFirstURL = lbryFirstURLTemplate.replace(/LBRYFIRSTVER/g, lbryFirstVersion).replace(/OSNAME/g, lbryFirstPlatform);
+    const lbryFirstURL = lbryFirstURLTemplate
+      .replace(/LBRYFIRSTVER/g, lbryFirstVersion)
+      .replace(/OSNAME/g, lbryFirstPlatform);
     console.log('URL:', lbryFirstURL);
 
     // If a lbryFirst and lbryFirst.ver exists, check to see if it matches the current lbryFirst version
@@ -48,9 +50,9 @@ const downloadLBRYFirst = targetPlatform =>
           'Content-Type': 'application/zip',
         },
       })
-        .then(response => response.buffer())
+        .then((response) => response.buffer())
         .then(
-          result =>
+          (result) =>
             new Promise((newResolve, newReject) => {
               const distPath = path.join(__dirname, '..', 'dist');
               const hasDistFolder = fs.existsSync(distPath);
@@ -59,7 +61,7 @@ const downloadLBRYFirst = targetPlatform =>
                 fs.mkdirSync(distPath);
               }
 
-              fs.writeFile(tmpZipPath, result, error => {
+              fs.writeFile(tmpZipPath, result, (error) => {
                 if (error) return newReject(error);
                 return newResolve();
               });
@@ -69,7 +71,7 @@ const downloadLBRYFirst = targetPlatform =>
         .then()
         .then(() =>
           decompress(tmpZipPath, lbryFirstDir, {
-            filter: file => path.basename(file.path) === lbryFirstFileName,
+            filter: (file) => path.basename(file.path) === lbryFirstFileName,
           })
         )
         .then(() => {
@@ -81,7 +83,7 @@ const downloadLBRYFirst = targetPlatform =>
           fs.writeFileSync(lbryFirstVersionPath, lbryFirstVersion, 'utf8');
           resolve('Done');
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(`\x1b[31merror\x1b[0m LbryFirst download failed due to: \x1b[35m${error}\x1b[0m`);
           reject(error);
         });

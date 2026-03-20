@@ -122,7 +122,7 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
             // Make sure there isn't another active modal (like INCOMPATIBLE_DAEMON)
             this.updateStatusCallback(sdkStatus, walletStatus, true);
 
-            if (launchedModal === false && !modal) {
+            if (!launchedModal && !modal) {
               this.setState(
                 {
                   launchedModal: true,
@@ -140,7 +140,7 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
           }
 
           this.updateStatusCallback(sdkStatus, walletStatus);
-        } else if (this.state.waitingForWallet > MAX_WALLET_WAIT && launchedModal === false && !modal) {
+        } else if (this.state.waitingForWallet > MAX_WALLET_WAIT && !launchedModal && !modal) {
           clearWalletServers();
           doShowSnackBar(
             __(

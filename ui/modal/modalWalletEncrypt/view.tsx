@@ -40,10 +40,10 @@ class ModalWalletEncrypt extends React.PureComponent<Props, State> {
     const { props, state } = this;
 
     if (state.submitted) {
-      if (props.walletEncryptSucceded === true) {
+      if (props.walletEncryptSucceded) {
         props.closeModal();
         props.updateWalletStatus();
-      } else if (props.walletEncryptSucceded === false) {
+      } else if (!props.walletEncryptSucceded) {
         // See https://github.com/lbryio/lbry/issues/1307
         this.setState({
           failMessage: 'Unable to encrypt wallet.',
@@ -93,14 +93,14 @@ class ModalWalletEncrypt extends React.PureComponent<Props, State> {
       invalidEntries = true;
     }
 
-    if (state.understandConfirmed === false) {
+    if (!state.understandConfirmed) {
       this.setState({
         understandError: true,
       });
       invalidEntries = true;
     }
 
-    if (invalidEntries === true) {
+    if (invalidEntries) {
       return;
     }
 
@@ -133,7 +133,7 @@ class ModalWalletEncrypt extends React.PureComponent<Props, State> {
           <fieldset-section>
             <FormField
               autoFocus
-              error={passwordMismatch === true ? 'Passwords do not match' : false}
+              error={passwordMismatch ? 'Passwords do not match' : false}
               label={__('Password')}
               placeholder={__('Shh...')}
               type="password"
@@ -143,7 +143,7 @@ class ModalWalletEncrypt extends React.PureComponent<Props, State> {
           </fieldset-section>
           <fieldset-section>
             <FormField
-              error={passwordMismatch === true ? 'Passwords do not match' : false}
+              error={passwordMismatch ? 'Passwords do not match' : false}
               label={__('Confirm Password')}
               placeholder={__('Your eyes only')}
               type="password"
@@ -169,7 +169,7 @@ class ModalWalletEncrypt extends React.PureComponent<Props, State> {
           <FormField
             inputButton={<Submit label={failMessage ? __('Encrypting Wallet') : __('Encrypt wallet')} />}
             error={
-              understandError === true
+              understandError
                 ? __('You must enter "%acknowledgement_text%"', {
                     acknowledgement_text: acknowledgementText,
                   })

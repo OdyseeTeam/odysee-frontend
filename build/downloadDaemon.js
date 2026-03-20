@@ -6,7 +6,7 @@ const decompress = require('decompress');
 const os = require('os');
 const del = require('del');
 
-const downloadDaemon = targetPlatform =>
+const downloadDaemon = (targetPlatform) =>
   new Promise((resolve, reject) => {
     const daemonURLTemplate = packageJSON.lbrySettings.lbrynetDaemonUrlTemplate;
     const daemonVersion = packageJSON.lbrySettings.lbrynetDaemonVersion;
@@ -46,9 +46,9 @@ const downloadDaemon = targetPlatform =>
           'Content-Type': 'application/zip',
         },
       })
-        .then(response => response.buffer())
+        .then((response) => response.buffer())
         .then(
-          result =>
+          (result) =>
             new Promise((newResolve, newReject) => {
               const distPath = path.join(__dirname, '..', 'dist');
               const hasDistFolder = fs.existsSync(distPath);
@@ -57,7 +57,7 @@ const downloadDaemon = targetPlatform =>
                 fs.mkdirSync(distPath);
               }
 
-              fs.writeFile(tmpZipPath, result, error => {
+              fs.writeFile(tmpZipPath, result, (error) => {
                 if (error) return newReject(error);
                 return newResolve();
               });
@@ -67,7 +67,7 @@ const downloadDaemon = targetPlatform =>
         .then()
         .then(() =>
           decompress(tmpZipPath, daemonDir, {
-            filter: file => path.basename(file.path) === daemonFileName,
+            filter: (file) => path.basename(file.path) === daemonFileName,
           })
         )
         .then(() => {
@@ -79,7 +79,7 @@ const downloadDaemon = targetPlatform =>
           fs.writeFileSync(daemonVersionPath, daemonVersion, 'utf8');
           resolve('Done');
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(`\x1b[31merror\x1b[0m Daemon download failed due to: \x1b[35m${error}\x1b[0m`);
           reject(error);
         });

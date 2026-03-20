@@ -31,22 +31,32 @@ function getSpinnerHtml(ctx) {
       left: 0;
       right: 0;
       bottom: 0;
-      ${useSystemTheme ? `
+      ${
+        useSystemTheme
+          ? `
       background-color: #0b0b0d;
-      ` : theme === 'dark' ? `
+      `
+          : theme === 'dark'
+            ? `
       background-color: #0b0b0d;
-      ` : `
+      `
+            : `
       background-color: #f7f7f7;
-      `}
+      `
+      }
     }
 
-    ${useSystemTheme ? `
+    ${
+      useSystemTheme
+        ? `
     @media (prefers-color-scheme: light) {
       body {
         background-color: #f7f7f7;
       }
     }
-    ` : ''}
+    `
+        : ''
+    }
 
     .spinner-container {
       width: min(32rem, calc(100vw - 2rem));
@@ -164,11 +174,17 @@ function getSpinnerHtml(ctx) {
         </svg>
       </div>
     </div>
-    ${launchUrl ? `<div id="status" class="spinner-text">Opening Odysee Sync...</div>
+    ${
+      launchUrl
+        ? `<div id="status" class="spinner-text">Opening Odysee Sync...</div>
     <div class="spinner-help">Allow your browser prompt to open Odysee Sync. You can close this tab after allowing.</div>
-    <a id="open-link" class="spinner-button" href="${launchHref}">Open Odysee Sync Again</a>` : '<div class="spinner-text">Preparing...</div>'}
+    <a id="open-link" class="spinner-button" href="${launchHref}">Open Odysee Sync Again</a>`
+        : '<div class="spinner-text">Preparing...</div>'
+    }
   </div>
-  ${launchUrl ? `<script>
+  ${
+    launchUrl
+      ? `<script>
     (function () {
       const launchUrl = ${JSON.stringify(launchUrl)};
       const status = document.getElementById('status');
@@ -184,15 +200,22 @@ function getSpinnerHtml(ctx) {
 
       launch();
     })();
-  </script>` : ''}
+  </script>`
+      : ''
+  }
 </body>
 </html>`;
 }
 
 function escapeHtmlAttribute(value) {
-  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 module.exports = {
-  getSpinnerHtml
+  getSpinnerHtml,
 };

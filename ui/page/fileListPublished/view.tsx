@@ -455,7 +455,7 @@ function FileListPublished(props: Props) {
     let timeout;
     setIsLoadingLong(false);
 
-    if (fetching === true) {
+    if (fetching) {
       timeout = setTimeout(() => setIsLoadingLong(true), 7500);
     }
 
@@ -499,7 +499,7 @@ function FileListPublished(props: Props) {
       </div>
       {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && (
         <React.Fragment>
-          {!fetching && hasClaims === false ? (
+          {!fetching && !hasClaims ? (
             <section className="main--empty">
               <Yrbl
                 title={filterType === FILE_LIST.FILE_TYPE.REPOSTS ? __('No Reposts') : __('No uploads')}
