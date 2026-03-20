@@ -515,6 +515,21 @@ function ClickToPlay() {
   return <div className="odysee-click-to-play" onClick={handleClick} onDoubleClick={handleDblClick} />;
 }
 
+function useLiveTimeFormat() {
+  const duration = Player.usePlayer((s) => s.duration) || 0;
+  return useCallback(
+    (value) => {
+      const diff = Math.round(value - duration);
+      if (diff >= 0) return '0:00';
+      const abs = Math.abs(diff);
+      const m = Math.floor(abs / 60);
+      const s = abs % 60;
+      return `-${m}:${s < 10 ? '0' : ''}${s}`;
+    },
+    [duration]
+  );
+}
+
 function chapterFormatFn(chapters) {
   return (seconds) => {
     for (let i = chapters.length - 1; i >= 0; i--) {
@@ -693,6 +708,7 @@ export default function OdyseeSkin(props: Props) {
   const fsExitIconRef = React.useRef<?any>(null);
   const quality = useQualityLevels();
   const chapters = React.useMemo(() => parseChapters(description), [description]);
+  const liveTimeFormat = useLiveTimeFormat();
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
   const [activePanel, setActivePanel] = useState(null);
 
@@ -788,7 +804,11 @@ export default function OdyseeSkin(props: Props) {
                 className="odysee-slider-preview__chapter"
               />
             )}
-            <Slider.Value type="pointer" className="odysee-slider-preview__time" />
+            <Slider.Value
+              type="pointer"
+              className="odysee-slider-preview__time"
+              format={isLivestream ? liveTimeFormat : undefined}
+            />
           </Slider.Preview>
         </TimeSlider.Root>
       </div>
