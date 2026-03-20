@@ -1,5 +1,6 @@
 import localForage from 'localforage';
-import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import autoMergeLevel2Module from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+const autoMergeLevel2 = (autoMergeLevel2Module as any).default || autoMergeLevel2Module;
 import createCompressorModule from 'redux-persist-transform-compress';
 const createCompressor = (createCompressorModule as any).default || createCompressorModule;
 import { createFilter, createBlacklistFilter } from 'redux-persist-transform-filter';

@@ -345,7 +345,7 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-redux', 'redux', 'reselect'],
+    include: ['react', 'react-dom', 'react-redux', 'redux', 'reselect', '@emotion/styled', '@emotion/react'],
   },
 
   lint: {
