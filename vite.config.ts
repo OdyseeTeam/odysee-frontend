@@ -283,9 +283,7 @@ export default defineConfig({
   },
 
   resolve: {
-    // Prefer 'module' over 'import' so @emotion's real ESM files are used
-    // instead of the broken .cjs.mjs wrappers in their exports map.
-    conditions: ['module', 'browser', 'development'],
+    conditions: ['browser', 'development'],
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
     alias: {
       // Explicit aliases for things that aren't in ui/
@@ -363,18 +361,16 @@ export default defineConfig({
       'reselect',
       '@emotion/styled',
       '@emotion/react',
-      'react-is',
+      '@mui/material',
+      '@mui/system',
       'prop-types',
-      'hoist-non-react-statics',
       'react-router',
       'react-router-dom',
       'connected-react-router',
-      'base64-js',
       'react-top-loading-bar',
       'classnames',
       'moment',
       'uuid',
-      'ua-parser-js',
       'localforage',
       'redux-thunk',
       'redux-persist',
