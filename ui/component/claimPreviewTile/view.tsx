@@ -230,7 +230,25 @@ function ClaimPreviewTile(props: Props) {
         'claim-preview__wrapper--short': isShort && sectionTitle === 'Shorts',
       })}
     >
-      <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
+      {/* Use div instead of NavLink to avoid invalid <a> nesting with hover action buttons */}
+      <div
+        role="link"
+        tabIndex={-1}
+        aria-hidden
+        onClick={(e) => {
+          if (onClickHandledByParent) {
+            e.preventDefault();
+          } else {
+            e.stopPropagation();
+            if (isEmbed) {
+              window.open(navigateUrl, '_blank');
+            } else {
+              pageHistory.push(navigateUrl);
+            }
+          }
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         <FileThumbnail
           isShort={isShort}
           thumbnail={thumbnailUrl}
@@ -266,7 +284,7 @@ function ClaimPreviewTile(props: Props) {
           )}
           {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
         </FileThumbnail>
-      </NavLink>
+      </div>
 
       {/* TODO: change this after ClaimPreview/ClaimPreviewTile refactor
       onlyThumb used for the preview tile functionality, without the bottom part (channel, menu, etc) */}

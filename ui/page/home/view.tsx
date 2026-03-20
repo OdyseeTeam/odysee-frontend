@@ -250,13 +250,13 @@ function HomePage(props: Props) {
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
       if (index === undefined) {
-        return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
+        return <FeaturedBanner homepageData={homepageData} authenticated={authenticated} />;
       } else return null;
     } else if (id === 'PORTALS') {
       return null;
     } else if (id === 'UPCOMING') {
       return (
-        <React.Fragment key={id}>
+        <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
           {cache.topGrid === -1 && <CustomizeHomepage />}
           <UpcomingClaims
@@ -267,7 +267,7 @@ function HomePage(props: Props) {
             loading={fetchingActiveLivestreams}
             showHideSetting={false}
           />
-        </React.Fragment>
+        </>
       );
     }
 
@@ -328,7 +328,6 @@ function HomePage(props: Props) {
 
     return (
       <div
-        key={id}
         className={classnames('claim-grid__wrapper', {
           'hide-ribbon': link !== `/$/${PAGES.CHANNELS_FOLLOWING}`,
         })}
