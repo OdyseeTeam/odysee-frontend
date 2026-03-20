@@ -324,10 +324,8 @@ export default defineConfig({
       '@emotion/react': path.resolve(__dirname, 'node_modules/@emotion/react/dist/emotion-react.esm.js'),
 
       // Force @mui/system to use ESM (root files are CJS, esm/ dir has proper ESM)
-      ...(() => {
-        const muiSystemDir = path.dirname(require.resolve('@mui/system/package.json'));
-        return { '@mui/system': path.join(muiSystemDir, 'esm') };
-      })(),
+      // Resolve via @mui/material's sibling since pnpm doesn't hoist @mui/system
+      '@mui/system': path.join(path.dirname(require.resolve('@mui/material/package.json')), '..', 'system', 'esm'),
 
       // Build optimization
       'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
