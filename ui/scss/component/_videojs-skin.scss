@@ -795,6 +795,14 @@
       transition-duration: 100ms;
     }
   }
+
+  &:has(.media-popover) {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+    pointer-events: auto;
+    transition-delay: 0ms;
+  }
 }
 
 .media-default-skin--video .media-controls.odysee-mobile-controls {
