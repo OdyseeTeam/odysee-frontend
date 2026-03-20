@@ -56,4 +56,41 @@ if (config.DYNAMIC_ROUTES_FIRST) {
   app.use(router.routes());
 }
 
-app.listen(config.WEB_SERVER_PORT, () => `Server up at localhost:${config.WEB_SERVER_PORT}`);
+const PORT = config.WEB_SERVER_PORT || 1337;
+
+function killPort(port) {
+  try {
+    const { execSync } = require('child_process');
+    const result = execSync(`lsof -ti tcp:${port} 2>/dev/null`).toString().trim();
+    if (result) {
+      const pids = result.split('\n').filter(Boolean);
+      for (const pid of pids) {
+        if (Number(pid) !== process.pid) {
+          try { process.kill(Number(pid), 'SIGKILL'); } catch {}
+        }
+      }
+      console.log(`Killed stale process(es) on port ${port}: ${pids.join(', ')}`);
+    }
+  } catch {
+    // No process on port, or lsof not available — that's fine
+  }
+}
+
+killPort(PORT);
+
+const server = app.listen(PORT, () => {
+  console.log(`Server up at localhost:${PORT}`);
+});
+
+function shutdown(signal) {
+  console.log(`\n${signal} received, shutting down...`);
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+  // Force exit if close takes too long
+  setTimeout(() => process.exit(1), 3000);
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
