@@ -11,19 +11,19 @@
   overflow: hidden;
 }
 
-.missing-wallet-warning{
-  display:flex;
+.missing-wallet-warning {
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap:var(--spacing-s);
+  gap: var(--spacing-s);
   border: 1px solid var(--color-text-error);
   border-radius: var(--border-radius);
-  padding:var(--spacing-s);
-  margin-bottom:var(--spacing-m);
-  background: rgba(218,4,4,.1);
+  padding: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
+  background: rgba(218, 4, 4, 0.1);
 
-  a{
+  a {
     color: var(--color-primary);
   }
 }

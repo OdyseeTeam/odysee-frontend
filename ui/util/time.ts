@@ -1,16 +1,19 @@
-import moment from "moment";
+import moment from 'moment';
 export function secondsToHms(seconds: number) {
   seconds = Math.floor(seconds);
   var hours = Math.floor(seconds / 3600);
   var minutes = Math.floor(seconds / 60) % 60;
   var seconds = seconds % 60;
-  return [hours, minutes, seconds].map(v => v < 10 ? '0' + v : v).filter((v, i) => v !== '00' || i > 0).join(':');
+  return [hours, minutes, seconds]
+    .map((v) => (v < 10 ? '0' + v : v))
+    .filter((v, i) => v !== '00' || i > 0)
+    .join(':');
 }
 export function secondsToDhms(seconds: number) {
   seconds = Number(seconds);
   const d = Math.floor(seconds / (3600 * 24));
-  const h = Math.floor(seconds % (3600 * 24) / 3600);
-  const m = Math.floor(seconds % 3600 / 60);
+  const h = Math.floor((seconds % (3600 * 24)) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
   const dDisplay = d > 0 ? d + (d === 1 ? ' day' : ' days') : '';
   const hDisplay = h > 0 ? h + (h === 1 ? ' hour' : ' hours') : '';
@@ -48,8 +51,8 @@ export function secondsToDhms(seconds: number) {
 }
 export function hmsToSeconds(str: string) {
   let timeParts = str.split(':'),
-      seconds = 0,
-      multiplier = 1;
+    seconds = 0,
+    multiplier = 1;
 
   if (timeParts.length > 0) {
     while (timeParts.length > 0) {
@@ -70,20 +73,25 @@ export function hmsToSeconds(str: string) {
 }
 // Only intended use of future dates is for claims, in case of scheduled
 // publishes or livestreams, used in util/formatAriaLabel
-export function getTimeAgoStr(date: any, showFutureDate?: boolean, genericSecondsString?: boolean, zeroDurationStr: string = 'Just now') {
+export function getTimeAgoStr(
+  date: any,
+  showFutureDate?: boolean,
+  genericSecondsString?: boolean,
+  zeroDurationStr: string = 'Just now'
+) {
   const suffixList = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
   let duration = 0;
   let suffix = '';
   let str = '';
-  suffixList.some(s => {
+  suffixList.some((s) => {
     // moment() is very liberal with it's rounding.
     // Always round down dates for better youtube parity.
     duration = Math.floor(moment().diff(date, s));
     suffix = s;
-    return duration > 0 || showFutureDate && duration * -1 > 0;
+    return duration > 0 || (showFutureDate && duration * -1 > 0);
   });
   // Strip off the ending 's' for the singular suffix
-  if (duration === 1 || duration === -1 && showFutureDate) suffix = suffix.replace(/s$/g, '');
+  if (duration === 1 || (duration === -1 && showFutureDate)) suffix = suffix.replace(/s$/g, '');
 
   // negative duration === it's a future date from now
   if (duration < 0 && showFutureDate) {
@@ -96,7 +104,7 @@ export function getTimeAgoStr(date: any, showFutureDate?: boolean, genericSecond
   }
 
   return __(str, {
-    duration
+    duration,
   });
 }
 export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);

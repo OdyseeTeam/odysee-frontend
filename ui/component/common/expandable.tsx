@@ -1,20 +1,16 @@
-import React from "react";
-import classnames from "classnames";
-import Button from "component/button";
-import { ExpandableContext } from "contexts/expandable";
-import { useOnResize } from "effects/use-on-resize";
+import React from 'react';
+import classnames from 'classnames';
+import Button from 'component/button';
+import { ExpandableContext } from 'contexts/expandable';
+import { useOnResize } from 'effects/use-on-resize';
 const COLLAPSED_HEIGHT = 220;
 type Props = {
   children: React.ReactNode | Array<React.ReactNode>;
 };
 export default function Expandable(props: Props) {
-  const {
-    children
-  } = props;
+  const { children } = props;
   // $FlowIgnore
-  const {
-    props: childProps
-  } = children;
+  const { props: childProps } = children;
   const containsImage = childProps && childProps.content && childProps.content.includes('![');
   const ref = React.useRef();
   const [expanded, setExpanded] = React.useState(false);
@@ -35,7 +31,7 @@ export default function Expandable(props: Props) {
       setRect(childElem.getBoundingClientRect());
     }
   }, [children]);
-  const expandableRef = React.useCallback(node => {
+  const expandableRef = React.useCallback((node) => {
     if (node) {
       const childElem = node.children[0];
       setRect(childElem.getBoundingClientRect());
@@ -47,17 +43,31 @@ export default function Expandable(props: Props) {
     expandableRef(ref.current);
   }, [expandableRef]);
   useOnResize(handleResize);
-  return <ExpandableContext.Provider value={{
-    setExpanded,
-    disableExpanded
-  }}>
-      <div className={classnames('expandable', {
-      'expandable--open': expanded,
-      'expandable--closed-fade': !expanded && (childOverflows || containsImage)
-    })} ref={expandableRef}>
+  return (
+    <ExpandableContext.Provider
+      value={{
+        setExpanded,
+        disableExpanded,
+      }}
+    >
+      <div
+        className={classnames('expandable', {
+          'expandable--open': expanded,
+          'expandable--closed-fade': !expanded && (childOverflows || containsImage),
+        })}
+        ref={expandableRef}
+      >
         {children}
       </div>
 
-      {(childOverflows || containsImage) && !disabled && <Button button="link" className="expandable__button" label={expanded ? __('Less') : __('More')} onClick={handleClick} />}
-    </ExpandableContext.Provider>;
+      {(childOverflows || containsImage) && !disabled && (
+        <Button
+          button="link"
+          className="expandable__button"
+          label={expanded ? __('Less') : __('More')}
+          onClick={handleClick}
+        />
+      )}
+    </ExpandableContext.Provider>
+  );
 }

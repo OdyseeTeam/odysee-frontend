@@ -1,15 +1,15 @@
-import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from "@reach/combobox";
+import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from '@reach/combobox';
 // import '@reach/combobox/styles.css'; --> 'scss/third-party.scss'
-import { matchSorter } from "match-sorter";
-import React from "react";
-import classnames from "classnames";
-import Button from "component/button";
-import ClaimList from "component/claimList";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import Paginate from "component/common/paginate";
-import Yrbl from "component/yrbl";
-import useThrottle from "effects/use-throttle";
+import { matchSorter } from 'match-sorter';
+import React from 'react';
+import classnames from 'classnames';
+import Button from 'component/button';
+import ClaimList from 'component/claimList';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import Paginate from 'component/common/paginate';
+import Yrbl from 'component/yrbl';
+import useThrottle from 'effects/use-throttle';
 const PAGE_SIZE = 10;
 
 function reduceUriToChannelName(uri: string) {
@@ -35,14 +35,7 @@ type Props = {
   className: string | null | undefined;
 };
 export default function BlockList(props: Props) {
-  const {
-    uris: list,
-    help,
-    titleEmptyList,
-    subtitleEmptyList,
-    getActionButtons,
-    className
-  } = props;
+  const { uris: list, help, titleEmptyList, subtitleEmptyList, getActionButtons, className } = props;
   // Keep a local list to allow for undoing actions in this component
   const [localList, setLocalList] = React.useState(undefined);
   const stringifiedList = JSON.stringify(list);
@@ -64,7 +57,7 @@ export default function BlockList(props: Props) {
   // **************************************************************************
   function getRenderActions() {
     if (getActionButtons) {
-      return claim => <div className="section__actions">{getActionButtons(claim.permanent_url)}</div>;
+      return (claim) => <div className="section__actions">{getActionButtons(claim.permanent_url)}</div>;
     }
 
     return undefined;
@@ -100,25 +93,50 @@ export default function BlockList(props: Props) {
   }
 
   if (!hasLocalList) {
-    return <div className="main--empty">
-        <Yrbl title={titleEmptyList} subtitle={subtitleEmptyList} actions={<div className="section__actions">
+    return (
+      <div className="main--empty">
+        <Yrbl
+          title={titleEmptyList}
+          subtitle={subtitleEmptyList}
+          actions={
+            <div className="section__actions">
               <Button button="primary" label={__('Go Home')} navigate="/" />
-            </div>} />
-      </div>;
+            </div>
+          }
+        />
+      </div>
+    );
   }
 
-  return <>
+  return (
+    <>
       <div className="help--notice">{help}</div>
-      <div className="section" style={{
-      zIndex: '4'
-    }}>
-        <SearchList list={localList} placeholder={__('e.g. odysee')} formatter={formatSearchSuggestion} onResultsUpdated={filterSearchResults} />
+      <div
+        className="section"
+        style={{
+          zIndex: '4',
+        }}
+      >
+        <SearchList
+          list={localList}
+          placeholder={__('e.g. odysee')}
+          formatter={formatSearchSuggestion}
+          onResultsUpdated={filterSearchResults}
+        />
       </div>
       <div className={classnames('section block-list', className)}>
-        <ClaimList uris={searchList || paginatedLocalList} showUnresolvedClaims showHiddenByUser hideMenu hideJoin renderActions={getRenderActions()} />
+        <ClaimList
+          uris={searchList || paginatedLocalList}
+          showUnresolvedClaims
+          showHiddenByUser
+          hideMenu
+          hideJoin
+          renderActions={getRenderActions()}
+        />
       </div>
-      {!isShowingSearchResults && <Paginate totalPages={totalPages} disableHistory onPageChange={p => setPage(p)} />}
-    </>;
+      {!isShowingSearchResults && <Paginate totalPages={totalPages} disableHistory onPageChange={(p) => setPage(p)} />}
+    </>
+  );
 } // ****************************************************************************
 // SearchList
 // ****************************************************************************
@@ -131,18 +149,13 @@ type LsbProps = {
 };
 
 function SearchList(props: LsbProps) {
-  const {
-    list,
-    placeholder,
-    formatter,
-    onResultsUpdated
-  } = props;
+  const { list, placeholder, formatter, onResultsUpdated } = props;
   const [term, setTerm] = React.useState('');
   const results = useAuthorMatch(term, list);
 
-  const handleChange = event => setTerm(event.target.value);
+  const handleChange = (event) => setTerm(event.target.value);
 
-  const handleSelect = e => setTerm(e);
+  const handleSelect = (e) => setTerm(e);
 
   React.useEffect(() => {
     if (onResultsUpdated) {
@@ -150,29 +163,49 @@ function SearchList(props: LsbProps) {
     }
   }, [results]);
   // eslint-disable-line react-hooks/exhaustive-deps
-  return <div className="wunderbar__wrapper">
+  return (
+    <div className="wunderbar__wrapper">
       <label>{__('Search blocked channel name')}</label>
       <Combobox className="wunderbar" onSelect={handleSelect}>
         <Icon icon={ICONS.SEARCH} />
         <ComboboxInput selectOnClick className="wunderbar__input" onChange={handleChange} placeholder={placeholder} />
-        {results && <ComboboxPopover className="wunderbar__suggestions" portal={false}>
-            {results.length > 0 ? <ComboboxList>
-                {results.slice(0, 10).map((result, index) => <ComboboxOption className="wunderbar__more-results" key={index} value={formatter ? formatter(result) : result} />)}
-              </ComboboxList> : <span style={{
-          display: 'block',
-          margin: 8
-        }}>{__('No results')}</span>}
-          </ComboboxPopover>}
+        {results && (
+          <ComboboxPopover className="wunderbar__suggestions" portal={false}>
+            {results.length > 0 ? (
+              <ComboboxList>
+                {results.slice(0, 10).map((result, index) => (
+                  <ComboboxOption
+                    className="wunderbar__more-results"
+                    key={index}
+                    value={formatter ? formatter(result) : result}
+                  />
+                ))}
+              </ComboboxList>
+            ) : (
+              <span
+                style={{
+                  display: 'block',
+                  margin: 8,
+                }}
+              >
+                {__('No results')}
+              </span>
+            )}
+          </ComboboxPopover>
+        )}
       </Combobox>
-    </div>;
+    </div>
+  );
 }
 
 function useAuthorMatch(term, list) {
   const throttledTerm = useThrottle(term, 200);
   return React.useMemo(() => {
-    return !throttledTerm || throttledTerm.trim() === '' ? null : matchSorter(list, throttledTerm, {
-      keys: [item => reduceUriToChannelName(item)],
-      threshold: matchSorter.rankings.CONTAINS
-    });
+    return !throttledTerm || throttledTerm.trim() === ''
+      ? null
+      : matchSorter(list, throttledTerm, {
+          keys: [(item) => reduceUriToChannelName(item)],
+          threshold: matchSorter.rankings.CONTAINS,
+        });
   }, [throttledTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 }

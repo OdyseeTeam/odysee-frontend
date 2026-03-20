@@ -1,10 +1,10 @@
-import * as CS from "constants/claim_search";
-import { connect } from "react-redux";
-import { doResolveUri } from "redux/actions/claims";
-import { selectClaimForUri } from "redux/selectors/claims";
-import * as SETTINGS from "constants/settings";
-import { selectClientSetting, selectHomepageDiscoverNew } from "redux/selectors/settings";
-import DiscoverPage from "./view";
+import * as CS from 'constants/claim_search';
+import { connect } from 'react-redux';
+import { doResolveUri } from 'redux/actions/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting, selectHomepageDiscoverNew } from 'redux/selectors/settings';
+import DiscoverPage from './view';
 
 const select = (state, props) => {
   const urlParams = new URLSearchParams(props.location.search);
@@ -16,11 +16,11 @@ const select = (state, props) => {
     repostedClaim: repostedUri ? selectClaimForUri(state, repostedUri, false) : null,
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     discoverDataNew: discoverDataNew,
-    hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES)
+    hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES),
   };
 };
 
 const perform = {
-  doResolveUri
+  doResolveUri,
 };
 export default connect(select, perform)(DiscoverPage);

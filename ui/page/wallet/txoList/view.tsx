@@ -1,18 +1,18 @@
-import * as ICONS from "constants/icons";
-import React, { useEffect } from "react";
-import { withRouter } from "react-router";
-import * as TXO from "constants/txo_list";
-import TransactionListTable from "../transactionListTable";
-import Paginate from "component/common/paginate";
-import { FormField } from "component/common/form-components/form-field";
-import Button from "component/button";
-import Card from "component/common/card";
-import { toCapitalCase } from "util/string";
-import classnames from "classnames";
-import HelpLink from "component/common/help-link";
-import FileExporter from "component/common/file-exporter";
-import WalletFiatPaymentHistory from "../walletFiatPaymentHistory";
-import WalletFiatAccountHistory from "../walletFiatAccountHistory";
+import * as ICONS from 'constants/icons';
+import React, { useEffect } from 'react';
+import { withRouter } from 'react-router';
+import * as TXO from 'constants/txo_list';
+import TransactionListTable from '../transactionListTable';
+import Paginate from 'component/common/paginate';
+import { FormField } from 'component/common/form-components/form-field';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import { toCapitalCase } from 'util/string';
+import classnames from 'classnames';
+import HelpLink from 'component/common/help-link';
+import FileExporter from 'component/common/file-exporter';
+import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
+import WalletFiatAccountHistory from '../walletFiatAccountHistory';
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
@@ -57,7 +57,7 @@ function TxoList(props: Props) {
     isFetchingTransactions,
     transactionsFile,
     doCustomerListPaymentHistory,
-    doListAccountTransactions
+    doListAccountTransactions,
   } = props;
   // calculate account transactions section
   React.useEffect(() => {
@@ -86,9 +86,10 @@ function TxoList(props: Props) {
     currency,
     fiatType,
     tab,
-    transactionType
+    transactionType,
   };
-  const hideStatus = type === TXO.SENT || currentUrlParams.type === TXO.RECEIVED && currentUrlParams.subtype !== TXO.TIP;
+  const hideStatus =
+    type === TXO.SENT || (currentUrlParams.type === TXO.RECEIVED && currentUrlParams.subtype !== TXO.TIP);
   // this is for sdk params
   const params = {};
 
@@ -259,103 +260,151 @@ function TxoList(props: Props) {
       updateTxoPageParams(params);
     }
   }, [paramsString, updateTxoPageParams]);
-  return <Card title={<></>} isBodyList body={currency === 'credits' ? <div>
-            {
-      /* LBC transactions section */
-    }
+  return (
+    <Card
+      title={<></>}
+      isBodyList
+      body={
+        currency === 'credits' ? (
+          <div>
+            {/* LBC transactions section */}
             <div className="card__body-actions">
               <div className="card__actions card__actions--between">
                 <div className="card__actions--inline">
                   <div>
-                    {
-              /* LBC transaction type dropdown */
-            }
-                    <FormField type="select" name="type" label={<>
+                    {/* LBC transaction type dropdown */}
+                    <FormField
+                      type="select"
+                      name="type"
+                      label={
+                        <>
                           {__('Type')}
                           <HelpLink href="https://help.odysee.tv/category-legacy/transactionhistory/" />
-                        </>} value={type || 'all'} onChange={e => handleChange({
-              changedParameterKey: TXO.TYPE,
-              value: e.target.value,
-              tab
-            })}>
-                      {Object.values(TXO.DROPDOWN_TYPES).map(v => {
-                const stringV = String(v);
-                return <option key={stringV} value={stringV}>
+                        </>
+                      }
+                      value={type || 'all'}
+                      onChange={(e) =>
+                        handleChange({
+                          changedParameterKey: TXO.TYPE,
+                          value: e.target.value,
+                          tab,
+                        })
+                      }
+                    >
+                      {Object.values(TXO.DROPDOWN_TYPES).map((v) => {
+                        const stringV = String(v);
+                        return (
+                          <option key={stringV} value={stringV}>
                             {stringV && __(toCapitalCase(stringV))}
-                          </option>;
-              })}
+                          </option>
+                        );
+                      })}
                     </FormField>
                   </div>
-                  {(type === TXO.SENT || type === TXO.RECEIVED) && <div>
-                      <FormField type="select" name="subtype" label={__('Payment Type')} value={subtype || 'all'} onChange={e => handleChange({
-              changedParameterKey: TXO.SUB_TYPE,
-              value: e.target.value,
-              tab
-            })}>
-                        {Object.values(TXO.DROPDOWN_SUBTYPES).map(v => {
-                const stringV = String(v);
-                return <option key={stringV} value={stringV}>
+                  {(type === TXO.SENT || type === TXO.RECEIVED) && (
+                    <div>
+                      <FormField
+                        type="select"
+                        name="subtype"
+                        label={__('Payment Type')}
+                        value={subtype || 'all'}
+                        onChange={(e) =>
+                          handleChange({
+                            changedParameterKey: TXO.SUB_TYPE,
+                            value: e.target.value,
+                            tab,
+                          })
+                        }
+                      >
+                        {Object.values(TXO.DROPDOWN_SUBTYPES).map((v) => {
+                          const stringV = String(v);
+                          return (
+                            <option key={stringV} value={stringV}>
                               {stringV && __(toCapitalCase(stringV))}
-                            </option>;
-              })}
+                            </option>
+                          );
+                        })}
                       </FormField>
-                    </div>}
-                  {!hideStatus && <div>
+                    </div>
+                  )}
+                  {!hideStatus && (
+                    <div>
                       <fieldset-section>
                         <label>{__('Status')}</label>
                         <div className={'txo__radios'}>
-                          {
-                  /* active transactions button */
-                }
-                          <Button button="alt" onClick={e => handleChange({
-                  changedParameterKey: TXO.ACTIVE,
-                  value: 'active'
-                })} className={classnames(`button-toggle`, {
-                  'button-toggle--active': active === TXO.ACTIVE
-                })} label={__('Active')} />
-                          {
-                  /* historical transactions button */
-                }
-                          <Button button="alt" onClick={e => handleChange({
-                  changedParameterKey: TXO.ACTIVE,
-                  value: 'spent'
-                })} className={classnames(`button-toggle`, {
-                  'button-toggle--active': active === 'spent'
-                })} label={__('Historical')} />
-                          {
-                  /* all transactions button */
-                }
-                          <Button button="alt" onClick={e => handleChange({
-                  changedParameterKey: TXO.ACTIVE,
-                  value: 'all'
-                })} className={classnames(`button-toggle`, {
-                  'button-toggle--active': active === 'all'
-                })} label={__('All')} />
+                          {/* active transactions button */}
+                          <Button
+                            button="alt"
+                            onClick={(e) =>
+                              handleChange({
+                                changedParameterKey: TXO.ACTIVE,
+                                value: 'active',
+                              })
+                            }
+                            className={classnames(`button-toggle`, {
+                              'button-toggle--active': active === TXO.ACTIVE,
+                            })}
+                            label={__('Active')}
+                          />
+                          {/* historical transactions button */}
+                          <Button
+                            button="alt"
+                            onClick={(e) =>
+                              handleChange({
+                                changedParameterKey: TXO.ACTIVE,
+                                value: 'spent',
+                              })
+                            }
+                            className={classnames(`button-toggle`, {
+                              'button-toggle--active': active === 'spent',
+                            })}
+                            label={__('Historical')}
+                          />
+                          {/* all transactions button */}
+                          <Button
+                            button="alt"
+                            onClick={(e) =>
+                              handleChange({
+                                changedParameterKey: TXO.ACTIVE,
+                                value: 'all',
+                              })
+                            }
+                            className={classnames(`button-toggle`, {
+                              'button-toggle--active': active === 'all',
+                            })}
+                            label={__('All')}
+                          />
                         </div>
                       </fieldset-section>
-                    </div>}
+                    </div>
+                  )}
                 </div>
-                {
-          /* export and refresh buttons */
-        }
+                {/* export and refresh buttons */}
                 <div className="card__actions--inline">
-                  {!isFetchingTransactions && transactionsFile === null && <label>{<span className="error__text">{__('Failed to process fetched data.')}</span>}</label>}
+                  {!isFetchingTransactions && transactionsFile === null && (
+                    <label>{<span className="error__text">{__('Failed to process fetched data.')}</span>}</label>
+                  )}
                   <div className="txo__export">
-                    <FileExporter data={transactionsFile} label={__('Export')} tooltip={__('Fetch transaction data for export')} defaultFileName={'transactions-history.csv'} onFetch={() => fetchTransactions()} progressMsg={isFetchingTransactions ? __('Fetching data') : ''} />
+                    <FileExporter
+                      data={transactionsFile}
+                      label={__('Export')}
+                      tooltip={__('Fetch transaction data for export')}
+                      defaultFileName={'transactions-history.csv'}
+                      onFetch={() => fetchTransactions()}
+                      progressMsg={isFetchingTransactions ? __('Fetching data') : ''}
+                    />
                   </div>
                   <Button button="alt" icon={ICONS.REFRESH} label={__('Refresh')} onClick={() => fetchTxoPage()} />
                 </div>
               </div>
             </div>
-            {
-      /* listing of the lbc transactions */
-    }
+            {/* listing of the lbc transactions */}
             <TransactionListTable txos={txoPage} />
             <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} />
-          </div> : <div>
-            {
-      /* FIAT SECTION ( toggle buttons and transactions) */
-    }
+          </div>
+        ) : (
+          <div>
+            {/* FIAT SECTION ( toggle buttons and transactions) */}
             <div className="section card-stack">
               <div className="card__body-actions">
                 <div className="card__actions">
@@ -363,36 +412,52 @@ function TxoList(props: Props) {
                     <fieldset-section>
                       <label>{__('Type')}</label>
                       <div className={'txo__radios'}>
-                        {
-                  /* incoming transactions button */
-                }
-                        <Button button="alt" onClick={e => handleChange({
-                  changedParameterKey: QUERY_NAME_FIAT_TYPE,
-                  value: 'incoming'
-                })} className={classnames(`button-toggle`, {
-                  'button-toggle--active': fiatType === 'incoming'
-                })} label={__('Incoming')} />
-                        {
-                  /* incoming transactions button */
-                }
-                        <Button button="alt" onClick={e => handleChange({
-                  changedParameterKey: QUERY_NAME_FIAT_TYPE,
-                  value: 'outgoing'
-                })} className={classnames(`button-toggle`, {
-                  'button-toggle--active': fiatType === 'outgoing'
-                })} label={__('Outgoing')} />
+                        {/* incoming transactions button */}
+                        <Button
+                          button="alt"
+                          onClick={(e) =>
+                            handleChange({
+                              changedParameterKey: QUERY_NAME_FIAT_TYPE,
+                              value: 'incoming',
+                            })
+                          }
+                          className={classnames(`button-toggle`, {
+                            'button-toggle--active': fiatType === 'incoming',
+                          })}
+                          label={__('Incoming')}
+                        />
+                        {/* incoming transactions button */}
+                        <Button
+                          button="alt"
+                          onClick={(e) =>
+                            handleChange({
+                              changedParameterKey: QUERY_NAME_FIAT_TYPE,
+                              value: 'outgoing',
+                            })
+                          }
+                          className={classnames(`button-toggle`, {
+                            'button-toggle--active': fiatType === 'outgoing',
+                          })}
+                          label={__('Outgoing')}
+                        />
                       </div>
                     </fieldset-section>
                   </div>
                 </div>
               </div>
-              {
-        /* listing of the transactions */
-      }
-              {fiatType === 'incoming' && <WalletFiatAccountHistory transactionType={transactionType} page={page} pageSize={pageSize} />}
-              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactionType={transactionType} page={page} pageSize={pageSize} />}
+              {/* listing of the transactions */}
+              {fiatType === 'incoming' && (
+                <WalletFiatAccountHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+              )}
+              {fiatType === 'outgoing' && (
+                <WalletFiatPaymentHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+              )}
             </div>
-          </div>} />;
+          </div>
+        )
+      }
+    />
+  );
 }
 
 export default withRouter(TxoList);

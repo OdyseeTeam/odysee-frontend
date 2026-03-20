@@ -1,12 +1,8 @@
-import { WebGLRenderer } from "three-full/sources/renderers/WebGLRenderer";
+import { WebGLRenderer } from 'three-full/sources/renderers/WebGLRenderer';
 
-const ThreeRenderer = ({
-  antialias,
-  shadowMap,
-  gammaCorrection
-}) => {
+const ThreeRenderer = ({ antialias, shadowMap, gammaCorrection }) => {
   const renderer = new WebGLRenderer({
-    antialias
+    antialias,
   });
   // Renderer configuration
   renderer.setPixelRatio(window.devicePixelRatio);

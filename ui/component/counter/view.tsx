@@ -1,19 +1,18 @@
-import React from "react";
-import "./style.scss";
+import React from 'react';
+import './style.scss';
 type Props = {
   value: number;
   precision: number;
   startFrom?: number;
 };
-const DIGITS = Array.from({
-  length: 10
-}, (_, i) => i);
+const DIGITS = Array.from(
+  {
+    length: 10,
+  },
+  (_, i) => i
+);
 export default function Counter(props: Props) {
-  const {
-    value,
-    precision = 2,
-    startFrom
-  } = props;
+  const { value, precision = 2, startFrom } = props;
   const [chars, setChars] = React.useState([]);
   const [displayValue, setDisplayValue] = React.useState(startFrom != null ? startFrom : value);
   React.useEffect(() => {
@@ -26,21 +25,37 @@ export default function Counter(props: Props) {
     const str = Number(displayValue).toFixed(precision);
     setChars(str.split(''));
   }, [displayValue, precision]);
-  return <div className="counter-inline">
-      <div className="counter-wrapper" style={{
-      lineHeight: 1
-    }}>
-        {chars.map((c, i) => /\d/.test(c) ? <div className="number-wrapper" key={i}>
-              <div className="digit-stack" style={{
-          transform: `translateY(-${+c * 10}%)`
-        }}>
-                {DIGITS.map(d => <div className="digit" key={d}>
+  return (
+    <div className="counter-inline">
+      <div
+        className="counter-wrapper"
+        style={{
+          lineHeight: 1,
+        }}
+      >
+        {chars.map((c, i) =>
+          /\d/.test(c) ? (
+            <div className="number-wrapper" key={i}>
+              <div
+                className="digit-stack"
+                style={{
+                  transform: `translateY(-${+c * 10}%)`,
+                }}
+              >
+                {DIGITS.map((d) => (
+                  <div className="digit" key={d}>
                     {d}
-                  </div>)}
+                  </div>
+                ))}
               </div>
-            </div> : <span key={i} className="number-placeholder">
+            </div>
+          ) : (
+            <span key={i} className="number-placeholder">
               {c}
-            </span>)}
+            </span>
+          )
+        )}
       </div>
-    </div>;
+    </div>
+  );
 }

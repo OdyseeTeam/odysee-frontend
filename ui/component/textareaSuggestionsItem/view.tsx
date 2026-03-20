@@ -1,7 +1,7 @@
-import ChannelThumbnail from "component/channelThumbnail";
-import React from "react";
-import MembershipBadge from "component/membershipBadge";
-import twemoji from "twemoji";
+import ChannelThumbnail from 'component/channelThumbnail';
+import React from 'react';
+import MembershipBadge from 'component/membershipBadge';
+import twemoji from 'twemoji';
 type Props = {
   claimLabel?: string;
   claimTitle?: string;
@@ -11,46 +11,44 @@ type Props = {
   odyseeMembership: string | null | undefined;
 };
 export default function TextareaSuggestionsItem(props: Props) {
-  const {
-    claimLabel,
-    claimTitle,
-    emote,
-    uri,
-    odyseeMembership,
-    ...autocompleteProps
-  } = props;
+  const { claimLabel, claimTitle, emote, uri, odyseeMembership, ...autocompleteProps } = props;
 
-  const Twemoji = ({
-    emoji
-  }) => <span dangerouslySetInnerHTML={{
-    __html: twemoji.parse(emoji, {
-      folder: 'svg',
-      ext: '.svg'
-    })
-  }} />;
+  const Twemoji = ({ emoji }) => (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: twemoji.parse(emoji, {
+          folder: 'svg',
+          ext: '.svg',
+        }),
+      }}
+    />
+  );
 
   if (emote) {
-    const {
-      name: value,
-      url,
-      unicode
-    } = emote;
-    return <div {...autocompleteProps}>
-        {unicode ? <div className="emote">
+    const { name: value, url, unicode } = emote;
+    return (
+      <div {...autocompleteProps}>
+        {unicode ? (
+          <div className="emote">
             <Twemoji emoji={unicode} />
-          </div> : <img className="emote" src={url} />}
+          </div>
+        ) : (
+          <img className="emote" src={url} />
+        )}
 
         <div className="textarea-suggestion__label">
           <span className="textarea-suggestion__title textarea-suggestion__value textarea-suggestion__value--emote">
             {value}
           </span>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   if (claimLabel) {
     const value = claimLabel;
-    return <div {...autocompleteProps}>
+    return (
+      <div {...autocompleteProps}>
         <ChannelThumbnail xsmall uri={uri} />
 
         <div className="textarea-suggestion__label">
@@ -60,7 +58,8 @@ export default function TextareaSuggestionsItem(props: Props) {
             {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
           </span>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   return null;

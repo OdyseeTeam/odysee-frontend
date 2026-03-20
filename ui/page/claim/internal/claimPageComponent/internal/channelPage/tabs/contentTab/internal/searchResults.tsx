@@ -1,9 +1,9 @@
-import React from "react";
-import ClaimList from "component/claimList";
-import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from "constants/search";
-import * as CS from "constants/claim_search";
-import * as SETTINGS from "constants/settings";
-import { lighthouse } from "redux/actions/search";
+import React from 'react';
+import ClaimList from 'component/claimList';
+import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
+import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
+import { lighthouse } from 'redux/actions/search';
 type Props = {
   searchQuery: string;
   claimId: string | null | undefined;
@@ -41,7 +41,7 @@ export function SearchResults(props: Props) {
     sortByParam,
     durationParam,
     customMinMinutes,
-    customMaxMinutes
+    customMaxMinutes,
   } = props;
   const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
@@ -59,7 +59,7 @@ export function SearchResults(props: Props) {
       [CS.FILE_IMAGE]: SEARCH_OPTIONS.MEDIA_IMAGE,
       [CS.FILE_DOCUMENT]: SEARCH_OPTIONS.MEDIA_TEXT,
       [CS.FILE_BINARY]: SEARCH_OPTIONS.MEDIA_APPLICATION,
-      [CS.FILE_MODEL]: SEARCH_OPTIONS.MEDIA_APPLICATION
+      [CS.FILE_MODEL]: SEARCH_OPTIONS.MEDIA_APPLICATION,
     };
     const mapped = typeMap[contentType];
     return mapped ? `&mediaType=${mapped}` : '';
@@ -71,7 +71,7 @@ export function SearchResults(props: Props) {
       [CS.FRESH_DAY]: 'today',
       [CS.FRESH_WEEK]: 'thisweek',
       [CS.FRESH_MONTH]: 'thismonth',
-      [CS.FRESH_YEAR]: 'thisyear'
+      [CS.FRESH_YEAR]: 'thisyear',
     };
     const mapped = freshnessMap[freshness];
     return mapped ? `&time_filter=${mapped}` : '';
@@ -97,10 +97,29 @@ export function SearchResults(props: Props) {
   }, [durationParam, customMaxMinutes]);
   // Build sort_by param: handle ascending (oldest first = ^release_time)
   const isOldestFirst = sortByParam === CS.SORT_BY.OLDEST.key;
-  const sortBy = !orderBy || orderBy === CS.ORDER_BY_NEW ? `&sort_by=${isOldestFirst ? '^' : ''}${CS.ORDER_BY_NEW_VALUE[0]}` : orderBy === CS.ORDER_BY_TOP ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}` : ``;
+  const sortBy =
+    !orderBy || orderBy === CS.ORDER_BY_NEW
+      ? `&sort_by=${isOldestFirst ? '^' : ''}${CS.ORDER_BY_NEW_VALUE[0]}`
+      : orderBy === CS.ORDER_BY_TOP
+        ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
+        : ``;
   // Combine prop-based duration (e.g. shorts) with filter-based duration using intersection
-  const effectiveMinDuration = durationMinParam != null && minDuration != null ? Math.max(durationMinParam, minDuration) : durationMinParam != null ? durationMinParam : minDuration != null ? minDuration : null;
-  const effectiveMaxDuration = durationMaxParam != null && maxDuration != null ? Math.min(durationMaxParam, maxDuration) : durationMaxParam != null ? durationMaxParam : maxDuration != null ? maxDuration : null;
+  const effectiveMinDuration =
+    durationMinParam != null && minDuration != null
+      ? Math.max(durationMinParam, minDuration)
+      : durationMinParam != null
+        ? durationMinParam
+        : minDuration != null
+          ? minDuration
+          : null;
+  const effectiveMaxDuration =
+    durationMaxParam != null && maxDuration != null
+      ? Math.min(durationMaxParam, maxDuration)
+      : durationMaxParam != null
+        ? durationMaxParam
+        : maxDuration != null
+          ? maxDuration
+          : null;
   React.useEffect(() => {
     noMoreResults.current = false;
     setSearchResults(null);
@@ -120,37 +139,76 @@ export function SearchResults(props: Props) {
       }
 
       setIsSearchingState(true);
-      lighthouse.search(`from=${SEARCH_PAGE_SIZE * (page - 1)}` + `&s=${encodeURIComponent(searchQuery)}` + `&channel_id=${encodeURIComponent(claimId)}` + sortBy + `&nsfw=${showMature ? 'true' : 'false'}` + (effectiveMinDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${effectiveMinDuration}` : '') + (effectiveMaxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${effectiveMaxDuration}` : '') + `&size=${SEARCH_PAGE_SIZE}` + mediaTypeParam + timeFilterParam + (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '') + (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=${'true'}` : '') + (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}` : '') + (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE}=${SETTINGS.SHORTS_DURATION_LTE}` : '')).then(({
-        body: results
-      }) => {
-        const urls = results.map(({
-          name,
-          claimId
-        }) => {
-          return `lbry://${name}#${claimId}`;
+      lighthouse
+        .search(
+          `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
+            `&s=${encodeURIComponent(searchQuery)}` +
+            `&channel_id=${encodeURIComponent(claimId)}` +
+            sortBy +
+            `&nsfw=${showMature ? 'true' : 'false'}` +
+            (effectiveMinDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${effectiveMinDuration}` : '') +
+            (effectiveMaxDuration ? `&${SEARCH_OPTIONS.MAX_DURATION}=${effectiveMaxDuration}` : '') +
+            `&size=${SEARCH_PAGE_SIZE}` +
+            mediaTypeParam +
+            timeFilterParam +
+            (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '') +
+            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=${'true'}` : '') +
+            (hideShorts
+              ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
+              : '') +
+            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE}=${SETTINGS.SHORTS_DURATION_LTE}` : '')
+        )
+        .then(({ body: results }) => {
+          const urls = results.map(({ name, claimId }) => {
+            return `lbry://${name}#${claimId}`;
+          });
+          // Batch-resolve the urls before calling 'setSearchResults', as the
+          // latter will immediately cause the tiles to resolve, ending up
+          // calling doResolveUri one by one before the batched one.
+          doResolveUris(urls, true);
+          // De-dup (LH will return some duplicates) and concat results
+          setSearchResults((prev) => (page === 1 ? urls : Array.from(new Set((prev || []).concat(urls)))));
+          noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
+        })
+        .catch(() => {
+          setPage(1);
+          setSearchResults(null);
+          noMoreResults.current = false;
+        })
+        .finally(() => {
+          isSearching.current = false;
+          setIsSearchingState(false);
         });
-        // Batch-resolve the urls before calling 'setSearchResults', as the
-        // latter will immediately cause the tiles to resolve, ending up
-        // calling doResolveUri one by one before the batched one.
-        doResolveUris(urls, true);
-        // De-dup (LH will return some duplicates) and concat results
-        setSearchResults(prev => page === 1 ? urls : Array.from(new Set((prev || []).concat(urls))));
-        noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
-      }).catch(() => {
-        setPage(1);
-        setSearchResults(null);
-        noMoreResults.current = false;
-      }).finally(() => {
-        isSearching.current = false;
-        setIsSearchingState(false);
-      });
     }, DEBOUNCE_WAIT_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, effectiveMinDuration, effectiveMaxDuration, maxAspectRatio, hideShorts, mediaTypeParam, timeFilterParam]);
+  }, [
+    searchQuery,
+    claimId,
+    page,
+    showMature,
+    doResolveUris,
+    sortBy,
+    effectiveMinDuration,
+    effectiveMaxDuration,
+    maxAspectRatio,
+    hideShorts,
+    mediaTypeParam,
+    timeFilterParam,
+  ]);
 
   if (!searchResults) {
     return null;
   }
 
-  return <ClaimList uris={searchResults} loading={isSearchingState} onScrollBottom={() => setPage(prev => noMoreResults.current ? prev : isSearching.current ? prev : prev + 1)} page={page} pageSize={SEARCH_PAGE_SIZE} tileLayout={tileLayout} useLoadingSpinner={isSearchingState} />;
+  return (
+    <ClaimList
+      uris={searchResults}
+      loading={isSearchingState}
+      onScrollBottom={() => setPage((prev) => (noMoreResults.current ? prev : isSearching.current ? prev : prev + 1))}
+      page={page}
+      pageSize={SEARCH_PAGE_SIZE}
+      tileLayout={tileLayout}
+      useLoadingSpinner={isSearchingState}
+    />
+  );
 }

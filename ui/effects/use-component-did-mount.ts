@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 export type EffectCallback = () => void | (() => void);
 export default function useComponentDidMount(effectOnMount: EffectCallback) {
   assert(typeof effectOnMount === 'function');

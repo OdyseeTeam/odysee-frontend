@@ -1,6 +1,6 @@
-import React from "react";
-import VideoClaimInitiator from "component/videoClaimInitiator";
-import { useHistory } from "react-router-dom";
+import React from 'react';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
+import { useHistory } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 type Props = {
   uri: string;
@@ -14,91 +14,100 @@ type Props = {
   onSwipePrevious?: () => void;
   enableSwipe?: boolean;
 };
-const ShortsVideoPlayer = React.memo<Props>(({
-  uri,
-  isMobile,
-  primaryPlayerWrapperClass,
-  nextRecommendedShort,
-  autoPlayNextShort,
-  isAtEnd,
-  onSwipeNext,
-  onSwipePrevious,
-  enableSwipe
-}: Props) => {
-  const {
-    location: {
-      search
-    }
-  } = useHistory();
-  const urlParams = new URLSearchParams(search);
-  const isShortVideo = urlParams.get('view') === 'shorts';
-  React.useEffect(() => {
-    let cleanupFn = null;
-    let lastVideoElement = null;
+const ShortsVideoPlayer = React.memo<Props>(
+  ({
+    uri,
+    isMobile,
+    primaryPlayerWrapperClass,
+    nextRecommendedShort,
+    autoPlayNextShort,
+    isAtEnd,
+    onSwipeNext,
+    onSwipePrevious,
+    enableSwipe,
+  }: Props) => {
+    const {
+      location: { search },
+    } = useHistory();
+    const urlParams = new URLSearchParams(search);
+    const isShortVideo = urlParams.get('view') === 'shorts';
+    React.useEffect(() => {
+      let cleanupFn = null;
+      let lastVideoElement = null;
 
-    const attachListener = () => {
-      const videoElement: any = document.querySelector('.vjs-tech');
+      const attachListener = () => {
+        const videoElement: any = document.querySelector('.vjs-tech');
 
-      if (!videoElement || videoElement === lastVideoElement) {
-        return lastVideoElement !== null;
-      }
-
-      if (cleanupFn) {
-        cleanupFn();
-        cleanupFn = null;
-      }
-
-      const handleEnded = () => {
-        if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
-          setTimeout(() => {
-            onSwipeNext();
-          }, 500);
-        } else {
-          setTimeout(() => {
-            videoElement.currentTime = 0;
-            videoElement.play().catch(error => {
-              // eslint-disable-next-line no-console
-              console.error(error);
-            });
-          }, 100);
+        if (!videoElement || videoElement === lastVideoElement) {
+          return lastVideoElement !== null;
         }
+
+        if (cleanupFn) {
+          cleanupFn();
+          cleanupFn = null;
+        }
+
+        const handleEnded = () => {
+          if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
+            setTimeout(() => {
+              onSwipeNext();
+            }, 500);
+          } else {
+            setTimeout(() => {
+              videoElement.currentTime = 0;
+              videoElement.play().catch((error) => {
+                // eslint-disable-next-line no-console
+                console.error(error);
+              });
+            }, 100);
+          }
+        };
+
+        videoElement.addEventListener('ended', handleEnded);
+        lastVideoElement = videoElement;
+
+        cleanupFn = () => {
+          videoElement.removeEventListener('ended', handleEnded);
+          lastVideoElement = null;
+        };
+
+        return true;
       };
 
-      videoElement.addEventListener('ended', handleEnded);
-      lastVideoElement = videoElement;
+      attachListener();
+      const interval = setInterval(() => {
+        attachListener();
+      }, 100);
 
-      cleanupFn = () => {
-        videoElement.removeEventListener('ended', handleEnded);
-        lastVideoElement = null;
+      const handlePlaying = () => {
+        attachListener();
       };
 
-      return true;
-    };
-
-    attachListener();
-    const interval = setInterval(() => {
-      attachListener();
-    }, 100);
-
-    const handlePlaying = () => {
-      attachListener();
-    };
-
-    document.addEventListener('playing', handlePlaying, true);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-    }, 10000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-      document.removeEventListener('playing', handlePlaying, true);
-      if (cleanupFn) cleanupFn();
-    };
-  }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, uri]);
-  return <div className="shorts-page__video-section">
+      document.addEventListener('playing', handlePlaying, true);
+      const timeout = setTimeout(() => {
+        clearInterval(interval);
+      }, 10000);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+        document.removeEventListener('playing', handlePlaying, true);
+        if (cleanupFn) cleanupFn();
+      };
+    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, uri]);
+    return (
+      <div className="shorts-page__video-section">
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
-          {isShortVideo && <VideoClaimInitiator uri={uri} onSwipeNext={onSwipeNext} onSwipePrevious={onSwipePrevious} enableSwipe={enableSwipe} />}
+          {isShortVideo && (
+            <VideoClaimInitiator
+              uri={uri}
+              onSwipeNext={onSwipeNext}
+              onSwipePrevious={onSwipePrevious}
+              enableSwipe={enableSwipe}
+            />
+          )}
         </div>
-      </div>;
-});
+      </div>
+    );
+  }
+);
 export default ShortsVideoPlayer;

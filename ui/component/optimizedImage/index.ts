@@ -1,2 +1,2 @@
-import OptimizedImage from "./view";
+import OptimizedImage from './view';
 export default OptimizedImage;

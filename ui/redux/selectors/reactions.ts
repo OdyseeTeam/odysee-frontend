@@ -1,10 +1,10 @@
-import * as REACTION_TYPES from "constants/reactions";
-import { selectClaimForUri } from "redux/selectors/claims";
+import * as REACTION_TYPES from 'constants/reactions';
+import { selectClaimForUri } from 'redux/selectors/claims';
 
-const selectState = state => state.reactions || {};
+const selectState = (state) => state.reactions || {};
 
-export const selectReactionsById = state => selectState(state).reactionsById;
-export const selectFetchingReactions = state => selectState(state).fetchingReactions;
+export const selectReactionsById = (state) => selectState(state).reactionsById;
+export const selectFetchingReactions = (state) => selectState(state).fetchingReactions;
 export const selectReactionsForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const reactionsById = selectReactionsById(state);

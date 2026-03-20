@@ -1,11 +1,11 @@
-import { connect } from "react-redux";
-import HomepageSort from "./view";
-import * as SETTINGS from "constants/settings";
-import { selectClientSetting, selectHomepageData } from "redux/selectors/settings";
+import { connect } from 'react-redux';
+import HomepageSort from './view';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 
-const select = state => ({
+const select = (state) => ({
   homepageData: selectHomepageData(state) || {},
-  homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER)
+  homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
 });
 
 export default connect(select)(HomepageSort);

@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react";
-import pushNotifications from "$web/src/push-notifications";
-import { BrowserNotificationErrorModal } from "$web/component/browserNotificationHints";
+import React, { useEffect, useState, useMemo } from 'react';
+import pushNotifications from '$web/src/push-notifications';
+import { BrowserNotificationErrorModal } from '$web/component/browserNotificationHints';
 // @todo: Once we are on Redux 7 we should have proper hooks we can use here for store access.
-import { store } from "$ui/store";
-import { selectUser } from "redux/selectors/user";
-import analytics from "analytics";
-import { GA_DIMENSIONS } from "analytics/events";
-export default (() => {
+import { store } from '$ui/store';
+import { selectUser } from 'redux/selectors/user';
+import analytics from 'analytics';
+import { GA_DIMENSIONS } from 'analytics/events';
+export default () => {
   const [pushPermission, setPushPermission] = useState(window.Notification?.permission);
   const [subscribed, setSubscribed] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -48,12 +48,12 @@ export default (() => {
     } catch {
       setEncounteredError(true);
       analytics.event.report('browser_notification', {
-        [GA_DIMENSIONS.ACTION]: 'subscribe_failed'
+        [GA_DIMENSIONS.ACTION]: 'subscribe_failed',
       });
     }
 
     analytics.event.report('browser_notification', {
-      [GA_DIMENSIONS.ACTION]: 'subscribed'
+      [GA_DIMENSIONS.ACTION]: 'subscribed',
     });
   };
 
@@ -63,7 +63,7 @@ export default (() => {
     if (await pushNotifications.unsubscribe(user.id)) {
       setSubscribed(false);
       analytics.event.report('browser_notification', {
-        [GA_DIMENSIONS.ACTION]: 'unsubscribed'
+        [GA_DIMENSIONS.ACTION]: 'unsubscribed',
       });
     }
   };
@@ -87,6 +87,6 @@ export default (() => {
     pushPermission,
     pushToggle,
     pushRequest,
-    pushErrorModal
+    pushErrorModal,
   };
-});
+};

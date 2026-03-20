@@ -1,21 +1,24 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import * as MODALS from "constants/modal_types";
-import classnames from "classnames";
-import useDragDrop from "effects/use-drag-drop";
-import { getTree } from "util/web-file-system";
-import { withRouter } from "react-router";
-import Icon from "component/common/icon";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import classnames from 'classnames';
+import useDragDrop from 'effects/use-drag-drop';
+import { getTree } from 'util/web-file-system';
+import { withRouter } from 'react-router';
+import Icon from 'component/common/icon';
 type Props = {
   modal: {
     id: string;
     modalProps: {};
   };
   filePath: string | WebFile;
-  openModal: (id: string, arg1: {
-    files: Array<WebFile>;
-  }) => void;
+  openModal: (
+    id: string,
+    arg1: {
+      files: Array<WebFile>;
+    }
+  ) => void;
   doUpdateFile: (file: WebFile, clearName?: boolean) => void;
   // React router
   history: {
@@ -36,16 +39,8 @@ const NAVIGATE_TIME_OUT = 400;
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 function FileDrop(props: Props) {
-  const {
-    modal,
-    history,
-    openModal,
-    doUpdateFile
-  } = props;
-  const {
-    drag,
-    dropData
-  } = useDragDrop();
+  const { modal, history, openModal, doUpdateFile } = props;
+  const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
   const [error, setError] = React.useState(false);
   const [target, setTarget] = React.useState<WebFile | null | undefined>(null);
@@ -54,7 +49,7 @@ function FileDrop(props: Props) {
   const navigationTimer = React.useRef(null);
 
   // Gets respective icon given a mimetype
-  const getFileIcon = type => {
+  const getFileIcon = (type) => {
     // Not all files have a type
     if (!type) return ICONS.FILE;
     // Detect common types
@@ -86,10 +81,13 @@ function FileDrop(props: Props) {
     }, HIDE_TIME_OUT);
   }, [navigateToPublish]);
   // Handle file selection
-  const handleFileSelected = React.useCallback(selectedFile => {
-    doUpdateFile(selectedFile);
-    hideDropArea();
-  }, [doUpdateFile, hideDropArea]);
+  const handleFileSelected = React.useCallback(
+    (selectedFile) => {
+      doUpdateFile(selectedFile);
+      hideDropArea();
+    },
+    [doUpdateFile, hideDropArea]
+  );
   // Clear timers when unmounted
   React.useEffect(() => {
     return () => {
@@ -111,7 +109,7 @@ function FileDrop(props: Props) {
   }, []);
   // Clear selected file after modal closed
   React.useEffect(() => {
-    if (target && !files || !files.length) {
+    if ((target && !files) || !files.length) {
       // Small delay for a better transition
       targetTimer.current = setTimeout(() => {
         setTarget(null);
@@ -126,13 +124,15 @@ function FileDrop(props: Props) {
     const dropAreaBottom = windowHeight * DROP_AREA_HEIGHT_PCT;
 
     if (dropData && dropData.y <= dropAreaBottom && !files.length && (!modal || modal.id !== MODALS.FILE_SELECTION)) {
-      getTree(dropData.dataTransfer).then(entries => {
-        if (entries && entries.length) {
-          setFiles(entries);
-        }
-      }).catch(error => {
-        setError(error || true);
-      });
+      getTree(dropData.dataTransfer)
+        .then((entries) => {
+          if (entries && entries.length) {
+            setFiles(entries);
+          }
+        })
+        .catch((error) => {
+          setError(error || true);
+        });
     }
   }, [dropData, files, modal]);
   // File(s) or directory dropped
@@ -141,7 +141,7 @@ function FileDrop(props: Props) {
       // Handle multiple files selection
       if (files.length > 1) {
         openModal(MODALS.FILE_SELECTION, {
-          files: files
+          files: files,
         });
         setFiles([]);
       } else if (files.length === 1) {
@@ -154,13 +154,15 @@ function FileDrop(props: Props) {
   // Show icon based on file type
   const icon = target ? getFileIcon(target.type) : ICONS.PUBLISH;
   // Show drop area when files are dragged over or processing dropped file
-  const show = files.length === 1 || !target && drag && (!modal || modal.id !== MODALS.FILE_SELECTION);
-  return <div aria-hidden={!show} className={classnames('file-drop', show && 'file-drop--show')}>
+  const show = files.length === 1 || (!target && drag && (!modal || modal.id !== MODALS.FILE_SELECTION));
+  return (
+    <div aria-hidden={!show} className={classnames('file-drop', show && 'file-drop--show')}>
       <div className={classnames('card', 'file-drop__area')}>
         <Icon size={64} icon={icon} className={'main-icon'} />
         <p>{target ? target.name : __(`Drop here to publish!`)} </p>
       </div>
-    </div>;
+    </div>
+  );
 }
 
 export default withRouter(FileDrop);

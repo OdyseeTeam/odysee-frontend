@@ -1,20 +1,39 @@
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import * as SETTINGS from "constants/settings";
-import { selectClaimForUri, selectIsFetchingPurchases, selectPreorderTagForUri, selectPurchaseTagForUri, selectRentalTagForUri, selectIsStreamPlaceholderForUri, selectPendingFiatPaymentForUri, selectSdkFeePendingForUri, selectScheduledStateForUri // selectClaimWasPurchasedForUri,
-// selectIsFiatPaidForUri,
-} from "redux/selectors/claims";
-import { selectStreamingUrlForUri } from "redux/selectors/file_info";
-import { makeSelectFileRenderModeForUri, selectPlayingUri, selectPlayingCollectionId, selectCanViewFileForUri } from "redux/selectors/content";
-import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from "redux/selectors/memberships";
-import { selectIsActiveLivestreamForUri, selectIsActiveLivestreamForClaimId, selectActiveLivestreamForChannel, selectChannelIsLiveFetchedForUri } from "redux/selectors/livestream";
-import { selectClientSetting } from "redux/selectors/settings";
-import { selectVideoSourceLoadedForUri } from "redux/selectors/app";
-import { doStartFloatingPlayingUri, doClearPlayingUri } from "redux/actions/content";
-import { doFileGetForUri } from "redux/actions/file";
-import { doCheckIfPurchasedClaimId } from "redux/actions/stripe";
-import { doMembershipMine, doMembershipList } from "redux/actions/memberships";
-import withStreamClaimRender from "./view";
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import * as SETTINGS from 'constants/settings';
+import {
+  selectClaimForUri,
+  selectIsFetchingPurchases,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+  selectIsStreamPlaceholderForUri,
+  selectPendingFiatPaymentForUri,
+  selectSdkFeePendingForUri,
+  selectScheduledStateForUri, // selectClaimWasPurchasedForUri,
+  // selectIsFiatPaidForUri,
+} from 'redux/selectors/claims';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import {
+  makeSelectFileRenderModeForUri,
+  selectPlayingUri,
+  selectPlayingCollectionId,
+  selectCanViewFileForUri,
+} from 'redux/selectors/content';
+import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
+import {
+  selectIsActiveLivestreamForUri,
+  selectIsActiveLivestreamForClaimId,
+  selectActiveLivestreamForChannel,
+  selectChannelIsLiveFetchedForUri,
+} from 'redux/selectors/livestream';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
+import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
+import { doFileGetForUri } from 'redux/actions/file';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
+import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
+import withStreamClaimRender from './view';
 
 // Reduce needless rerenders from object identity changes (e.g. playingUri)
 // Only re-render when the specific fields used by the HOC actually change.
@@ -30,8 +49,8 @@ function areStatePropsEqual(prev, next) {
   const prevSourceId = prevPU.sourceId;
   const nextSourceId = nextPU.sourceId;
   if (prevSourceId !== nextSourceId) return false;
-  const prevColId = prevPU.collection && prevPU.collection.collectionId || undefined;
-  const nextColId = nextPU.collection && nextPU.collection.collectionId || undefined;
+  const prevColId = (prevPU.collection && prevPU.collection.collectionId) || undefined;
+  const nextColId = (nextPU.collection && nextPU.collection.collectionId) || undefined;
   if (prevColId !== nextColId) return false;
   // For the remaining props, do a shallow equality check.
   const keys = Object.keys(prev);
@@ -48,19 +67,10 @@ function areStatePropsEqual(prev, next) {
 }
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const claim = selectClaimForUri(state, uri);
-  const {
-    claim_id: claimId,
-    signing_channel: channelClaim,
-    value_type: valueType
-  } = claim || {};
-  const {
-    name: channelName,
-    claim_id: channelClaimId
-  } = channelClaim || {};
+  const { claim_id: claimId, signing_channel: channelClaim, value_type: valueType } = claim || {};
+  const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
   // let sdkPaid = selectClaimWasPurchasedForUri(state, props.uri);
   // let fiatPaid = selectIsFiatPaidForUri(state, props.uri);
   return {
@@ -78,7 +88,10 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isCollectionClaim: valueType === 'collection',
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
-    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri) || selectIsActiveLivestreamForClaimId(state, claimId) || Boolean(selectActiveLivestreamForChannel(state, channelClaimId)),
+    isCurrentClaimLive:
+      selectIsActiveLivestreamForUri(state, uri) ||
+      selectIsActiveLivestreamForClaimId(state, claimId) ||
+      Boolean(selectActiveLivestreamForChannel(state, channelClaimId)),
     scheduledState: selectScheduledStateForUri(state, uri),
     playingUri: selectPlayingUri(state),
     playingCollectionId: selectPlayingCollectionId(state),
@@ -87,7 +100,7 @@ const select = (state, props) => {
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
     channelLiveFetched: selectChannelIsLiveFetchedForUri(state, uri),
-    sourceLoaded: selectVideoSourceLoadedForUri(state, uri)
+    sourceLoaded: selectVideoSourceLoadedForUri(state, uri),
   };
 };
 
@@ -97,8 +110,11 @@ const perform = {
   doMembershipMine,
   doStartFloatingPlayingUri,
   doMembershipList,
-  doClearPlayingUri
+  doClearPlayingUri,
 };
-export default (Component => withRouter(connect(select, perform, null, {
-  areStatePropsEqual
-})(withStreamClaimRender(Component))));
+export default (Component) =>
+  withRouter(
+    connect(select, perform, null, {
+      areStatePropsEqual,
+    })(withStreamClaimRender(Component))
+  );

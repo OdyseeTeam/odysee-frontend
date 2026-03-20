@@ -1,5 +1,5 @@
-import React from "react";
-import "./style.scss";
+import React from 'react';
+import './style.scss';
 type Props = {
   label: string;
   sortKey: string | null;
@@ -9,14 +9,7 @@ type Props = {
   setOrder: (order: string | null | undefined) => void;
 };
 export default function (props: Props) {
-  const {
-    label,
-    sortKey,
-    ownKey,
-    order,
-    setKey,
-    setOrder
-  } = props;
+  const { label, sortKey, ownKey, order, setKey, setOrder } = props;
 
   const onUpClick = () => {
     if (order !== 'asc' || sortKey !== ownKey) {
@@ -40,21 +33,35 @@ export default function (props: Props) {
 
   const upActive = order === 'asc' && sortKey === ownKey;
   const downActive = order === 'desc' && sortKey === ownKey;
-  return <th>
+  return (
+    <th>
       <span className="th-label-with-arrows">
         {__(label)}
         <span className="arrows">
-          <span className={`arrow-up ${upActive ? 'arrow-up--active' : ''}`} onClick={() => onUpClick()} role="button" tabIndex={0} onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') onDownClick();
-        }}>
+          <span
+            className={`arrow-up ${upActive ? 'arrow-up--active' : ''}`}
+            onClick={() => onUpClick()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onDownClick();
+            }}
+          >
             &#9650;
           </span>
-          <span className={`arrow-down ${downActive ? 'arrow-down--active' : ''}`} onClick={() => onDownClick()} role="button" tabIndex={0} onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') onDownClick();
-        }}>
+          <span
+            className={`arrow-down ${downActive ? 'arrow-down--active' : ''}`}
+            onClick={() => onDownClick()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onDownClick();
+            }}
+          >
             &#9660;
           </span>
         </span>
       </span>
-    </th>;
+    </th>
+  );
 }

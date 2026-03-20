@@ -1,7 +1,7 @@
-import React, { useRef } from "react";
-import { Modal } from "modal/modal";
-import { formatFileSystemPath } from "util/url";
-import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from "config";
+import React, { useRef } from 'react';
+import { Modal } from 'modal/modal';
+import { formatFileSystemPath } from 'util/url';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 type Props = {
   upload: (arg0: WebFile) => void;
   filePath: string;
@@ -10,12 +10,7 @@ type Props = {
 };
 
 function ModalAutoGenerateThumbnail(props: Props) {
-  const {
-    closeModal,
-    filePath,
-    upload,
-    showToast
-  } = props;
+  const { closeModal, filePath, upload, showToast } = props;
   const playerRef = useRef();
   let videoSrc;
 
@@ -30,11 +25,11 @@ function ModalAutoGenerateThumbnail(props: Props) {
       const imageBuffer = captureSnapshot(quality);
       // $FlowFixMe
       const file = new File([imageBuffer], 'thumbnail.jpeg', {
-        type: 'image/jpeg'
+        type: 'image/jpeg',
       });
       return {
         imageBuffer,
-        file
+        file,
       };
     };
 
@@ -87,14 +82,31 @@ function ModalAutoGenerateThumbnail(props: Props) {
   function onError(): void {
     showToast({
       isError: true,
-      message: __("Something didn't work. Please try again.")
+      message: __("Something didn't work. Please try again."),
     });
   }
 
-  return <Modal isOpen title={__('Upload thumbnail')} contentLabel={__('Confirm Thumbnail Upload')} type="confirm" confirmButtonLabel={__('Upload')} onConfirmed={uploadImage} onAborted={closeModal}>
+  return (
+    <Modal
+      isOpen
+      title={__('Upload thumbnail')}
+      contentLabel={__('Confirm Thumbnail Upload')}
+      type="confirm"
+      confirmButtonLabel={__('Upload')}
+      onConfirmed={uploadImage}
+      onAborted={closeModal}
+    >
       <p className="section__subtitle">{__('Pause at any time to select a thumbnail from your video')}.</p>
-      <video className="video-thumbnail-generator" ref={playerRef} src={videoSrc} onLoadedMetadata={resize} onError={onError} controls />
-    </Modal>;
+      <video
+        className="video-thumbnail-generator"
+        ref={playerRef}
+        src={videoSrc}
+        onLoadedMetadata={resize}
+        onError={onError}
+        controls
+      />
+    </Modal>
+  );
 }
 
 export default ModalAutoGenerateThumbnail;

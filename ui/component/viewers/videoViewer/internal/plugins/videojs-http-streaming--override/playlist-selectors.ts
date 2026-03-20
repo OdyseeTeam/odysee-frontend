@@ -1,10 +1,10 @@
 /* eslint-disable */
-import window from "global/window";
-import Config from "./config";
-import Playlist from "./playlist";
+import window from 'global/window';
+import Config from './config';
+import Playlist from './playlist';
 const gFirstAutoBandwidth = {
   uri: '',
-  bandwidth: null
+  bandwidth: null,
 };
 
 // Utilities
@@ -73,10 +73,17 @@ const stableSort = function (array, sortFn) {
  * currently detected bandwidth, accounting for some amount of
  * bandwidth variance
  */
-export const simpleSelector = function (master, playerBandwidth, playerWidth, playerHeight, limitRenditionByPlayerDimensions, useFirstFoundRendition) {
+export const simpleSelector = function (
+  master,
+  playerBandwidth,
+  playerWidth,
+  playerHeight,
+  limitRenditionByPlayerDimensions,
+  useFirstFoundRendition
+) {
   if (useFirstFoundRendition) {
     if (gFirstAutoBandwidth.uri === master.uri) {
-      const p = master.playlists.find(playlist => playlist.id === gFirstAutoBandwidth.selectedId);
+      const p = master.playlists.find((playlist) => playlist.id === gFirstAutoBandwidth.selectedId);
 
       if (p) {
         return p;
@@ -85,7 +92,7 @@ export const simpleSelector = function (master, playerBandwidth, playerWidth, pl
   }
 
   // convert the playlists to an intermediary representation to make comparisons easier
-  let sortedPlaylistReps = master.playlists.map(playlist => {
+  let sortedPlaylistReps = master.playlists.map((playlist) => {
     let bandwidth;
     const width = playlist.attributes.RESOLUTION && playlist.attributes.RESOLUTION.width;
     const height = playlist.attributes.RESOLUTION && playlist.attributes.RESOLUTION.height;
@@ -95,31 +102,35 @@ export const simpleSelector = function (master, playerBandwidth, playerWidth, pl
       bandwidth,
       width,
       height,
-      playlist
+      playlist,
     };
   });
   stableSort(sortedPlaylistReps, (left, right) => left.bandwidth - right.bandwidth);
   // filter out any playlists that have been excluded due to
   // incompatible configurations
-  sortedPlaylistReps = sortedPlaylistReps.filter(rep => !Playlist.isIncompatible(rep.playlist));
+  sortedPlaylistReps = sortedPlaylistReps.filter((rep) => !Playlist.isIncompatible(rep.playlist));
   // filter out any playlists that have been disabled manually through the representations
   // api or blacklisted temporarily due to playback errors.
-  let enabledPlaylistReps = sortedPlaylistReps.filter(rep => Playlist.isEnabled(rep.playlist));
+  let enabledPlaylistReps = sortedPlaylistReps.filter((rep) => Playlist.isEnabled(rep.playlist));
 
   if (!enabledPlaylistReps.length) {
     // if there are no enabled playlists, then they have all been blacklisted or disabled
     // by the user through the representations api. In this case, ignore blacklisting and
     // fallback to what the user wants by using playlists the user has not disabled.
-    enabledPlaylistReps = sortedPlaylistReps.filter(rep => !Playlist.isDisabled(rep.playlist));
+    enabledPlaylistReps = sortedPlaylistReps.filter((rep) => !Playlist.isDisabled(rep.playlist));
   }
 
   // filter out any variant that has greater effective bitrate
   // than the current estimated bandwidth
-  const bandwidthPlaylistReps = enabledPlaylistReps.filter(rep => rep.bandwidth * Config.BANDWIDTH_VARIANCE < playerBandwidth);
+  const bandwidthPlaylistReps = enabledPlaylistReps.filter(
+    (rep) => rep.bandwidth * Config.BANDWIDTH_VARIANCE < playerBandwidth
+  );
   let highestRemainingBandwidthRep = bandwidthPlaylistReps[bandwidthPlaylistReps.length - 1];
   // get all of the renditions with the same (highest) bandwidth
   // and then taking the very first element
-  const bandwidthBestRep = bandwidthPlaylistReps.filter(rep => rep.bandwidth === highestRemainingBandwidthRep.bandwidth)[0];
+  const bandwidthBestRep = bandwidthPlaylistReps.filter(
+    (rep) => rep.bandwidth === highestRemainingBandwidthRep.bandwidth
+  )[0];
 
   // if we're not going to limit renditions by player size, make an early decision.
   if (limitRenditionByPlayerDimensions === false) {
@@ -128,14 +139,18 @@ export const simpleSelector = function (master, playerBandwidth, playerWidth, pl
   }
 
   // filter out playlists without resolution information
-  const haveResolution = bandwidthPlaylistReps.filter(rep => rep.width && rep.height);
+  const haveResolution = bandwidthPlaylistReps.filter((rep) => rep.width && rep.height);
   // sort variants by resolution
   stableSort(haveResolution, (left, right) => left.width - right.width);
   // if we have the exact resolution as the player use it
-  const resolutionBestRepList = haveResolution.filter(rep => rep.width === playerWidth && rep.height === playerHeight);
+  const resolutionBestRepList = haveResolution.filter(
+    (rep) => rep.width === playerWidth && rep.height === playerHeight
+  );
   highestRemainingBandwidthRep = resolutionBestRepList[resolutionBestRepList.length - 1];
   // ensure that we pick the highest bandwidth variant that have exact resolution
-  const resolutionBestRep = resolutionBestRepList.filter(rep => rep.bandwidth === highestRemainingBandwidthRep.bandwidth)[0];
+  const resolutionBestRep = resolutionBestRepList.filter(
+    (rep) => rep.bandwidth === highestRemainingBandwidthRep.bandwidth
+  )[0];
   let resolutionPlusOneList;
   let resolutionPlusOneSmallest;
   let resolutionPlusOneRep;
@@ -143,17 +158,22 @@ export const simpleSelector = function (master, playerBandwidth, playerWidth, pl
   // find the smallest variant that is larger than the player
   // if there is no match of exact resolution
   if (!resolutionBestRep) {
-    resolutionPlusOneList = haveResolution.filter(rep => rep.width > playerWidth || rep.height > playerHeight);
+    resolutionPlusOneList = haveResolution.filter((rep) => rep.width > playerWidth || rep.height > playerHeight);
     // find all the variants have the same smallest resolution
-    resolutionPlusOneSmallest = resolutionPlusOneList.filter(rep => rep.width === resolutionPlusOneList[0].width && rep.height === resolutionPlusOneList[0].height);
+    resolutionPlusOneSmallest = resolutionPlusOneList.filter(
+      (rep) => rep.width === resolutionPlusOneList[0].width && rep.height === resolutionPlusOneList[0].height
+    );
     // ensure that we also pick the highest bandwidth variant that
     // is just-larger-than the video player
     highestRemainingBandwidthRep = resolutionPlusOneSmallest[resolutionPlusOneSmallest.length - 1];
-    resolutionPlusOneRep = resolutionPlusOneSmallest.filter(rep => rep.bandwidth === highestRemainingBandwidthRep.bandwidth)[0];
+    resolutionPlusOneRep = resolutionPlusOneSmallest.filter(
+      (rep) => rep.bandwidth === highestRemainingBandwidthRep.bandwidth
+    )[0];
   }
 
   // fallback chain of variants
-  const chosenRep = resolutionPlusOneRep || resolutionBestRep || bandwidthBestRep || enabledPlaylistReps[0] || sortedPlaylistReps[0];
+  const chosenRep =
+    resolutionPlusOneRep || resolutionBestRep || bandwidthBestRep || enabledPlaylistReps[0] || sortedPlaylistReps[0];
   return chosenRep ? chosenRep.playlist : null;
 };
 
@@ -181,7 +201,14 @@ export const lastBandwidthSelector = function () {
   const isAutoSelected = hlsQualitySelector?.getCurrentQuality() === 'auto';
   const useFirstFoundRendition = player.isLivestream && isAutoSelected;
   this.estimatedBandwidth = newBandwidthEstimate(this.estimatedBandwidth || this.systemBandwidth, this.systemBandwidth);
-  const selectedBandwidth = simpleSelector(this.playlists.master, this.estimatedBandwidth, parseInt(safeGetComputedStyle(this.tech_.el(), 'width'), 10) * pixelRatio, parseInt(safeGetComputedStyle(this.tech_.el(), 'height'), 10) * pixelRatio, this.limitRenditionByPlayerDimensions, useFirstFoundRendition);
+  const selectedBandwidth = simpleSelector(
+    this.playlists.master,
+    this.estimatedBandwidth,
+    parseInt(safeGetComputedStyle(this.tech_.el(), 'width'), 10) * pixelRatio,
+    parseInt(safeGetComputedStyle(this.tech_.el(), 'height'), 10) * pixelRatio,
+    this.limitRenditionByPlayerDimensions,
+    useFirstFoundRendition
+  );
 
   // --- Update history
   if (useFirstFoundRendition && selectedBandwidth) {
@@ -195,7 +222,8 @@ export const lastBandwidthSelector = function () {
   // --- Update "Auto" label with quality value
   if (selectedBandwidth && isAutoSelected) {
     const qualityLabel = selectedBandwidth.attributes.RESOLUTION.height + 'p';
-    hlsQualitySelector._qualityButton.menuButton_.$('.vjs-icon-placeholder').innerHTML = `<span>${__('Auto --[Video quality. Short form]--')}<span>${qualityLabel}</span></span>`;
+    hlsQualitySelector._qualityButton.menuButton_.$('.vjs-icon-placeholder').innerHTML =
+      `<span>${__('Auto --[Video quality. Short form]--')}<span>${qualityLabel}</span></span>`;
   }
 
   return selectedBandwidth;

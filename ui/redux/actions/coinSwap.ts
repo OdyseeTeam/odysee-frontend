@@ -1,7 +1,7 @@
-import * as ACTIONS from "constants/action_types";
-import { selectPrefsReady } from "redux/selectors/sync";
-import { doAlertWaitingForSync } from "redux/actions/app";
-import { Lbryio } from "lbryinc";
+import * as ACTIONS from 'constants/action_types';
+import { selectPrefsReady } from 'redux/selectors/sync';
+import { doAlertWaitingForSync } from 'redux/actions/app';
+import { Lbryio } from 'lbryinc';
 export const doAddCoinSwap = (coinSwapInfo: CoinSwapInfo) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const ready = selectPrefsReady(state);
@@ -12,7 +12,7 @@ export const doAddCoinSwap = (coinSwapInfo: CoinSwapInfo) => (dispatch: Dispatch
 
   dispatch({
     type: ACTIONS.ADD_COIN_SWAP,
-    data: coinSwapInfo
+    data: coinSwapInfo,
   });
 };
 export const doRemoveCoinSwap = (chargeCode: string) => (dispatch: Dispatch, getState: GetState) => {
@@ -26,17 +26,17 @@ export const doRemoveCoinSwap = (chargeCode: string) => (dispatch: Dispatch, get
   dispatch({
     type: ACTIONS.REMOVE_COIN_SWAP,
     data: {
-      chargeCode
-    }
+      chargeCode,
+    },
   });
 };
 export const doQueryCoinSwapStatus = (chargeCode: string) => (dispatch: Dispatch, getState: GetState) => {
   Lbryio.call('btc', 'status', {
-    charge_code: chargeCode
-  }).then(response => {
+    charge_code: chargeCode,
+  }).then((response) => {
     dispatch({
       type: ACTIONS.COIN_SWAP_STATUS_RECEIVED,
-      data: response
+      data: response,
     });
   });
 };

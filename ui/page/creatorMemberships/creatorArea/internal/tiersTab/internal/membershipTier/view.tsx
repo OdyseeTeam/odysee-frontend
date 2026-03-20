@@ -1,9 +1,9 @@
-import React from "react";
-import Symbol from "component/common/symbol";
-import { Menu, MenuButton, MenuList, MenuItem } from "@reach/menu-button";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import Icon from "component/common/icon";
+import React from 'react';
+import Symbol from 'component/common/symbol';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import Icon from 'component/common/icon';
 type Props = {
   membership: CreatorMembership;
   index: number;
@@ -12,9 +12,7 @@ type Props = {
   removeMembership: () => void;
   // -- redux --
   doOpenModal: (modalId: string, arg1: {}) => void;
-  doToast: (params: {
-    message: string;
-  }) => void;
+  doToast: (params: { message: string }) => void;
   doDeactivateMembershipForId: (membershipId: number | null | undefined) => Promise<Membership>;
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
   exchangeRate: {
@@ -34,12 +32,14 @@ function MembershipTier(props: Props) {
     doToast,
     doDeactivateMembershipForId,
     doMembershipList,
-    exchangeRate
+    exchangeRate,
   } = props;
-  return <>
+  return (
+    <>
       <div className="membership-tier__header">
         <span className="membership-tier__name">{`${membership.name} ${membership.enabled ? '' : __('(Disabled)')}`}</span>
-        {membership.enabled === true && <Menu>
+        {membership.enabled === true && (
+          <Menu>
             <MenuButton className="menu__button">
               <Icon size={18} icon={ICONS.SETTINGS} />
             </MenuButton>
@@ -52,49 +52,60 @@ function MembershipTier(props: Props) {
                 </div>
               </MenuItem>
 
-              <MenuItem className="comment__menu-option" onSelect={() => hasSubscribers ? doToast({
-            message: __('This membership has active subscribers and cannot be deleted.'),
-            isError: true
-          }) : doOpenModal(MODALS.CONFIRM, {
-            title: __('Confirm Membership Deletion'),
-            subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-              membership_name: membership.name
-            }),
-            busyMsg: __('Deleting your membership...'),
-            onConfirm: (closeModal, setIsBusy) => {
-              setIsBusy(true);
-              doDeactivateMembershipForId(membership.membership_id).then(() => {
-                setIsBusy(false);
-                doToast({
-                  message: __('Your membership was successfully deleted.')
-                });
-                removeMembership();
-                closeModal();
-                doMembershipList({
-                  channel_claim_id: membership.channel_claim_id ?? ''
-                });
-              }).catch(() => setIsBusy(false));
-            }
-          })}>
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() =>
+                  hasSubscribers
+                    ? doToast({
+                        message: __('This membership has active subscribers and cannot be deleted.'),
+                        isError: true,
+                      })
+                    : doOpenModal(MODALS.CONFIRM, {
+                        title: __('Confirm Membership Deletion'),
+                        subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
+                          membership_name: membership.name,
+                        }),
+                        busyMsg: __('Deleting your membership...'),
+                        onConfirm: (closeModal, setIsBusy) => {
+                          setIsBusy(true);
+                          doDeactivateMembershipForId(membership.membership_id)
+                            .then(() => {
+                              setIsBusy(false);
+                              doToast({
+                                message: __('Your membership was successfully deleted.'),
+                              });
+                              removeMembership();
+                              closeModal();
+                              doMembershipList({
+                                channel_claim_id: membership.channel_claim_id ?? '',
+                              });
+                            })
+                            .catch(() => setIsBusy(false));
+                        },
+                      })
+                }
+              >
                 <div className="menu__link">
                   <Icon size={16} icon={ICONS.DELETE} />
                   {__('Delete Tier')}
                 </div>
               </MenuItem>
             </MenuList>
-          </Menu>}
+          </Menu>
+        )}
       </div>
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
         <span>
           ${(Number(membership?.prices[0].amount) / 100).toFixed(2)} (
-          <Symbol token="ar" amount={Number((Number(membership?.prices[0].amount) / 100).toFixed(2)) / exchangeRate.ar} />
+          <Symbol
+            token="ar"
+            amount={Number((Number(membership?.prices[0].amount) / 100).toFixed(2)) / exchangeRate.ar}
+          />
           )
         </span>{' '}
-        {
-        /* the ui basically supports monthly right now */
-      }
+        {/* the ui basically supports monthly right now */}
         <label>{__('Description ')}</label>
         <span className="membership-tier__description">{membership.description}</span>
         <div className="membership-tier__perks">
@@ -106,7 +117,8 @@ function MembershipTier(props: Props) {
           </div>
         </div>
       </div>
-    </>;
+    </>
+  );
 }
 
 export default MembershipTier;

@@ -1,6 +1,6 @@
-import { secondsToDhms } from "util/time";
+import { secondsToDhms } from 'util/time';
 const TYPES = {
-  INVALID_CHANNEL_AGE: 'INVALID_CHANNEL_AGE'
+  INVALID_CHANNEL_AGE: 'INVALID_CHANNEL_AGE',
 };
 type ApiMsgConfig = {
   originalMsg: string | RegExp;

@@ -15,7 +15,9 @@
     background-color: var(--color-header-button);
     height: 0;
     margin-top: 0;
-    transition: height 0.3s, marginTop 0.3s;
+    transition:
+      height 0.3s,
+      marginTop 0.3s;
 
     &.tabs--open {
       height: 250px;

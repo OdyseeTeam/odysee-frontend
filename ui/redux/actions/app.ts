@@ -1,56 +1,67 @@
 // @if TARGET='app'
-import { execSync } from "child_process";
-import isDev from "electron-is-dev";
-import { ipcRenderer, remote } from "electron";
+import { execSync } from 'child_process';
+import isDev from 'electron-is-dev';
+import { ipcRenderer, remote } from 'electron';
 // @endif
-import moment from "moment";
-import path from "path";
-import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from "config";
-import * as ACTIONS from "constants/action_types";
-import * as MODALS from "constants/modal_types";
-import * as SETTINGS from "constants/settings";
-import * as DAEMON_SETTINGS from "constants/daemon_settings";
-import * as SHARED_PREFERENCES from "constants/shared_preferences";
-import Lbry from "lbry";
-import { doFetchChannelListMine, doCheckPendingClaims } from "redux/actions/claims";
-import { doFetchCollectionListMine } from "redux/actions/collections";
-import { doFetchPersonalRecommendations } from "redux/actions/search";
-import { selectClaimForUri, selectClaimIsMineForUri } from "redux/selectors/claims";
-import { doFetchFileInfos } from "redux/actions/file_info";
-import { doClearSupport, doBalanceSubscribe } from "redux/actions/wallet";
-import { doClearPublish } from "redux/actions/publish";
-import { Lbryio } from "lbryinc";
-import { doToast, doError, doNotificationList } from "redux/actions/notifications";
-import pushNotifications from "$web/src/push-notifications";
-import Native from "native";
-import { doFetchDaemonSettings, doSetAutoLaunch, doSetDaemonSetting, doFindFFmpeg, doGetDaemonStatus } from "redux/actions/settings";
-import { selectIsUpgradeSkipped, selectUpdateUrl, selectUpgradeDownloadItem, selectUpgradeDownloadPath, selectUpgradeFilename, selectAutoUpdateDeclined, selectRemoteVersion, selectUpgradeTimer, selectModal, selectAllowAnalytics, selectAppDrawerOpen } from "redux/selectors/app";
-import { selectDaemonSettings, selectClientSetting } from "redux/selectors/settings";
-import { selectUser, selectUserVerifiedEmail } from "redux/selectors/user";
-import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from "redux/actions/sync";
-import { doAuthenticate } from "redux/actions/user";
+import moment from 'moment';
+import path from 'path';
+import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
+import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import * as SHARED_PREFERENCES from 'constants/shared_preferences';
+import Lbry from 'lbry';
+import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
+import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doFetchPersonalRecommendations } from 'redux/actions/search';
+import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
+import { doFetchFileInfos } from 'redux/actions/file_info';
+import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
+import { doClearPublish } from 'redux/actions/publish';
+import { Lbryio } from 'lbryinc';
+import { doToast, doError, doNotificationList } from 'redux/actions/notifications';
+import pushNotifications from '$web/src/push-notifications';
+import Native from 'native';
+import {
+  doFetchDaemonSettings,
+  doSetAutoLaunch,
+  doSetDaemonSetting,
+  doFindFFmpeg,
+  doGetDaemonStatus,
+} from 'redux/actions/settings';
+import {
+  selectIsUpgradeSkipped,
+  selectUpdateUrl,
+  selectUpgradeDownloadItem,
+  selectUpgradeDownloadPath,
+  selectUpgradeFilename,
+  selectAutoUpdateDeclined,
+  selectRemoteVersion,
+  selectUpgradeTimer,
+  selectModal,
+  selectAllowAnalytics,
+  selectAppDrawerOpen,
+} from 'redux/selectors/app';
+import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
+import { doAuthenticate } from 'redux/actions/user';
 const p = { version: '0.0.0' }; // Version from package.json
-import { doMembershipMine } from "redux/actions/memberships";
-import analytics from "analytics";
-import { doSignOutCleanup } from "util/saved-passwords";
-import { LocalStorage, LS } from "util/storage";
-import { doNotificationSocketConnect } from "redux/actions/websocket";
-import { stringifyServerParam, shouldSetSetting } from "util/sync-settings";
-import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from "util/claim";
-import { doTipAccountStatus } from "./stripe";
-const {
-  lbrySettings: config,
-  version: appVersion
-} = p;
+import { doMembershipMine } from 'redux/actions/memberships';
+import analytics from 'analytics';
+import { doSignOutCleanup } from 'util/saved-passwords';
+import { LocalStorage, LS } from 'util/storage';
+import { doNotificationSocketConnect } from 'redux/actions/websocket';
+import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { doTipAccountStatus } from './stripe';
+const { lbrySettings: config, version: appVersion } = p;
 
 // @if TARGET='app'
-const {
-  autoUpdater
-} = remote.require('electron-updater');
+const { autoUpdater } = remote.require('electron-updater');
 
-const {
-  download
-} = remote.require('electron-dl');
+const { download } = remote.require('electron-dl');
 
 const Fs = remote.require('fs');
 
@@ -61,26 +72,26 @@ export function doOpenModal(id: any, modalProps: any = {}) {
     type: ACTIONS.SHOW_MODAL,
     data: {
       id,
-      modalProps
-    }
+      modalProps,
+    },
   };
 }
 export function doHideModal() {
   return {
-    type: ACTIONS.HIDE_MODAL
+    type: ACTIONS.HIDE_MODAL,
   };
 }
 export function doUpdateDownloadProgress(percent: any) {
   return {
     type: ACTIONS.UPGRADE_DOWNLOAD_PROGRESSED,
     data: {
-      percent
-    }
+      percent,
+    },
   };
 }
 export function doSkipUpgrade() {
   return {
-    type: ACTIONS.SKIP_UPGRADE
+    type: ACTIONS.SKIP_UPGRADE,
   };
 }
 export function doStartUpgrade() {
@@ -98,10 +109,10 @@ export function doDownloadUpgrade() {
     const dir = Fs.mkdtempSync(remote.app.getPath('temp') + path.sep);
     const upgradeFilename = selectUpgradeFilename(state);
     const options = {
-      onProgress: p => dispatch(doUpdateDownloadProgress(Math.round(p * 100))),
-      directory: dir
+      onProgress: (p) => dispatch(doUpdateDownloadProgress(Math.round(p * 100))),
+      directory: dir,
     };
-    download(remote.getCurrentWindow(), selectUpdateUrl(state), options).then(downloadItem => {
+    download(remote.getCurrentWindow(), selectUpdateUrl(state), options).then((downloadItem) => {
       /**
        * TODO: get the download path directly from the download object. It should just be
        * downloadItem.getSavePath(), but the copy on the main process is being garbage collected
@@ -111,12 +122,12 @@ export function doDownloadUpgrade() {
         type: ACTIONS.UPGRADE_DOWNLOAD_COMPLETED,
         data: {
           downloadItem,
-          path: path.join(dir, upgradeFilename)
-        }
+          path: path.join(dir, upgradeFilename),
+        },
       });
     });
     dispatch({
-      type: ACTIONS.UPGRADE_DOWNLOAD_STARTED
+      type: ACTIONS.UPGRADE_DOWNLOAD_STARTED,
     });
     dispatch(doHideModal());
     dispatch(doOpenModal(MODALS.DOWNLOADING)); // @endif
@@ -144,7 +155,7 @@ export function doClearUpgradeTimer() {
     if (selectUpgradeTimer(state)) {
       clearInterval(selectUpgradeTimer(state));
       dispatch({
-        type: ACTIONS.CLEAR_UPGRADE_TIMER
+        type: ACTIONS.CLEAR_UPGRADE_TIMER,
       });
     }
   };
@@ -152,7 +163,7 @@ export function doClearUpgradeTimer() {
 export function doAutoUpdate() {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.AUTO_UPDATE_DOWNLOADED
+      type: ACTIONS.AUTO_UPDATE_DOWNLOADED,
     });
     dispatch(doOpenModal(MODALS.AUTO_UPDATE_DOWNLOADED));
     dispatch(doClearUpgradeTimer());
@@ -162,7 +173,7 @@ export function doAutoUpdateDeclined() {
   return (dispatch: Dispatch) => {
     dispatch(doClearUpgradeTimer());
     dispatch({
-      type: ACTIONS.AUTO_UPDATE_DECLINED
+      type: ACTIONS.AUTO_UPDATE_DECLINED,
     });
   };
 }
@@ -185,7 +196,7 @@ export function doCancelUpgrade() {
     }
 
     dispatch({
-      type: ACTIONS.UPGRADE_CANCELLED
+      type: ACTIONS.UPGRADE_CANCELLED,
     });
   };
 }
@@ -193,7 +204,7 @@ export function doCheckUpgradeAvailable() {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     dispatch({
-      type: ACTIONS.CHECK_UPGRADE_START
+      type: ACTIONS.CHECK_UPGRADE_START,
     });
 
     if (['win32', 'darwin'].includes(process.platform) || !!process.env.APPIMAGE) {
@@ -208,26 +219,27 @@ export function doCheckUpgradeAvailable() {
       return;
     }
 
-    const success = ({
-      remoteVersion,
-      upgradeAvailable
-    }) => {
+    const success = ({ remoteVersion, upgradeAvailable }) => {
       dispatch({
         type: ACTIONS.CHECK_UPGRADE_SUCCESS,
         data: {
           upgradeAvailable,
-          remoteVersion
-        }
+          remoteVersion,
+        },
       });
 
-      if (upgradeAvailable && !selectModal(state) && (!selectIsUpgradeSkipped(state) || remoteVersion !== selectRemoteVersion(state))) {
+      if (
+        upgradeAvailable &&
+        !selectModal(state) &&
+        (!selectIsUpgradeSkipped(state) || remoteVersion !== selectRemoteVersion(state))
+      ) {
         dispatch(doOpenModal(MODALS.UPGRADE));
       }
     };
 
     const fail = () => {
       dispatch({
-        type: ACTIONS.CHECK_UPGRADE_FAIL
+        type: ACTIONS.CHECK_UPGRADE_FAIL,
       });
     };
 
@@ -244,24 +256,28 @@ export function doCheckUpgradeSubscribe() {
     dispatch({
       type: ACTIONS.CHECK_UPGRADE_SUBSCRIBE,
       data: {
-        checkUpgradeTimer
-      }
+        checkUpgradeTimer,
+      },
     });
   };
 }
 export function doMinVersionCheck() {
   return (dispatch: Dispatch) => {
-    fetch(`${URL}/$/minVersion/v1/get`).then(response => response.json()).then(json => json?.status === 'success' && json?.data ? Number(json.data) : undefined).then(liveMinimumVersion => {
-      if (liveMinimumVersion > MINIMUM_VERSION) {
-        dispatch({
-          type: ACTIONS.RELOAD_REQUIRED,
-          data: {
-            reason: 'newVersionFound',
-            extra: liveMinimumVersion
-          }
-        });
-      }
-    }).catch(err => assert(false, 'minVersion failed', err));
+    fetch(`${URL}/$/minVersion/v1/get`)
+      .then((response) => response.json())
+      .then((json) => (json?.status === 'success' && json?.data ? Number(json.data) : undefined))
+      .then((liveMinimumVersion) => {
+        if (liveMinimumVersion > MINIMUM_VERSION) {
+          dispatch({
+            type: ACTIONS.RELOAD_REQUIRED,
+            data: {
+              reason: 'newVersionFound',
+              extra: liveMinimumVersion,
+            },
+          });
+        }
+      })
+      .catch((err) => assert(false, 'minVersion failed', err));
   };
 }
 export function doMinVersionSubscribe() {
@@ -278,19 +294,17 @@ export function doMinVersionSubscribe() {
 export function doCheckDaemonVersion() {
   return (dispatch: Dispatch) => {
     // @if TARGET='app'
-    Lbry.version().then(({
-      lbrynet_version: lbrynetVersion
-    }) => {
+    Lbry.version().then(({ lbrynet_version: lbrynetVersion }) => {
       // Avoid the incompatible daemon modal if running in dev mode
       // Lets you  run a different daemon than the one specified in package.json
       if (config.lbrynetDaemonVersion === lbrynetVersion || process.env.NODE_ENV !== 'production') {
         return dispatch({
-          type: ACTIONS.DAEMON_VERSION_MATCH
+          type: ACTIONS.DAEMON_VERSION_MATCH,
         });
       }
 
       dispatch({
-        type: ACTIONS.DAEMON_VERSION_MISMATCH
+        type: ACTIONS.DAEMON_VERSION_MISMATCH,
       });
 
       if (process.env.NODE_ENV === 'production') {
@@ -300,7 +314,7 @@ export function doCheckDaemonVersion() {
     // @endif
     // @if TARGET='web'
     dispatch({
-      type: ACTIONS.DAEMON_VERSION_MATCH
+      type: ACTIONS.DAEMON_VERSION_MATCH,
     }); // @endif
   };
 }
@@ -333,10 +347,15 @@ export function doAlertWaitingForSync() {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const authenticated = selectUserVerifiedEmail(state);
-    dispatch(doToast({
-      message: !authenticated && IS_WEB ? __('Sign in or create an account to change this setting.') : __('Please wait a bit, we are still getting your account ready.'),
-      isError: false
-    }));
+    dispatch(
+      doToast({
+        message:
+          !authenticated && IS_WEB
+            ? __('Sign in or create an account to change this setting.')
+            : __('Please wait a bit, we are still getting your account ready.'),
+        isError: false,
+      })
+    );
   };
 }
 export function doDaemonReady() {
@@ -344,15 +363,26 @@ export function doDaemonReady() {
     const state = getState();
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
     const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
-    dispatch(doAuthenticate(appVersion, shareUsageData, status => {
-      const trendingAlgorithm = status && status.wallet && status.wallet.connected_features && status.wallet.connected_features.trending_algorithm;
+    dispatch(
+      doAuthenticate(
+        appVersion,
+        shareUsageData,
+        (status) => {
+          const trendingAlgorithm =
+            status &&
+            status.wallet &&
+            status.wallet.connected_features &&
+            status.wallet.connected_features.trending_algorithm;
 
-      if (trendingAlgorithm) {
-        analytics.event.trendingAlgorithm(trendingAlgorithm);
-      }
-    }, undefined));
+          if (trendingAlgorithm) {
+            analytics.event.trendingAlgorithm(trendingAlgorithm);
+          }
+        },
+        undefined
+      )
+    );
     dispatch({
-      type: ACTIONS.DAEMON_READY
+      type: ACTIONS.DAEMON_READY,
     });
     // @if TARGET='app'
     dispatch(doBalanceSubscribe());
@@ -390,19 +420,21 @@ export function doQuit() {
 export function doQuitAnyDaemon() {
   return (dispatch: Dispatch) => {
     // @if TARGET='app'
-    Lbry.stop().catch(() => {
-      try {
-        if (process.platform === 'win32') {
-          execSync('taskkill /im lbrynet.exe /t /f');
-        } else {
-          execSync('pkill lbrynet');
+    Lbry.stop()
+      .catch(() => {
+        try {
+          if (process.platform === 'win32') {
+            execSync('taskkill /im lbrynet.exe /t /f');
+          } else {
+            execSync('pkill lbrynet');
+          }
+        } catch (error) {
+          dispatch(doAlertError(`Quitting daemon failed due to: ${error.message}`));
         }
-      } catch (error) {
-        dispatch(doAlertError(`Quitting daemon failed due to: ${error.message}`));
-      }
-    }).finally(() => {
-      dispatch(doQuit());
-    }); // @endif
+      })
+      .finally(() => {
+        dispatch(doQuit());
+      }); // @endif
   };
 }
 export function doChangeVolume(volume: any) {
@@ -410,8 +442,8 @@ export function doChangeVolume(volume: any) {
     dispatch({
       type: ACTIONS.VOLUME_CHANGED,
       data: {
-        volume
-      }
+        volume,
+      },
     });
   };
 }
@@ -420,36 +452,33 @@ export function doChangeMute(muted: any) {
     dispatch({
       type: ACTIONS.VOLUME_MUTED,
       data: {
-        muted
-      }
+        muted,
+      },
     });
   };
 }
 export function doClickCommentButton() {
   return {
-    type: ACTIONS.ADD_COMMENT
+    type: ACTIONS.ADD_COMMENT,
   };
 }
 export function doToggleSearchExpanded() {
   return {
-    type: ACTIONS.TOGGLE_SEARCH_EXPANDED
+    type: ACTIONS.TOGGLE_SEARCH_EXPANDED,
   };
 }
 export function doAnalyticsViewForUri(uri: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
-    const {
-      txid,
-      nout,
-      claim_id: claimId
-    } = claim;
+    const { txid, nout, claim_id: claimId } = claim;
     const claimIsMine = selectClaimIsMineForUri(state, uri);
-    const isUnlistedOrScheduled = getClaimScheduledState(claim) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
+    const isUnlistedOrScheduled =
+      getClaimScheduledState(claim) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
     const isGlobalMod = Boolean(selectUser(state)?.global_mod);
     const outpoint = `${txid}:${nout}`;
 
-    if (claimIsMine || isGlobalMod && isUnlistedOrScheduled) {
+    if (claimIsMine || (isGlobalMod && isUnlistedOrScheduled)) {
       return Promise.resolve();
     }
 
@@ -463,15 +492,11 @@ export function doAnalyticsBuffer(uri: string, bufferData: any) {
     const claim = selectClaimForUri(state, uri);
     const user = selectUser(state);
     const {
-      value: {
-        video,
-        audio,
-        source
-      }
+      value: { video, audio, source },
     } = claim;
     const timeAtBuffer = isLivestream ? 0 : parseInt(bufferData.currentTime * 1000);
     const bufferDuration = parseInt(bufferData.secondsToLoad * 1000);
-    const fileDurationInSeconds = isLivestream ? 0 : video && video.duration || audio && audio.duration;
+    const fileDurationInSeconds = isLivestream ? 0 : (video && video.duration) || (audio && audio.duration);
     const fileSize = isLivestream ? 0 : source.size; // size in bytes
 
     const fileSizeInBits = isLivestream ? '0' : fileSize * 8;
@@ -489,7 +514,7 @@ export function doAnalyticsBuffer(uri: string, bufferData: any) {
         userId,
         duration: fileDurationInSeconds,
         playerPoweredBy: bufferData.playerPoweredBy,
-        readyState: bufferData.readyState
+        readyState: bufferData.readyState,
       });
     }
   };
@@ -528,7 +553,7 @@ export function doSignIn() {
 
 function clearBeforeUnloadListeners() {
   const beforeUnloads = Object.values(window.beforeUnloadMap || {});
-  beforeUnloads.forEach(x => {
+  beforeUnloads.forEach((x) => {
     // $FlowIgnore mixed bug
     window.removeEventListener('beforeunload', x.cb);
   });
@@ -545,15 +570,18 @@ function doSignOutAction() {
       }
     } finally {
       LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
-      Lbryio.call('user', 'signout').then(doSignOutCleanup).then(async () => {
-        // @if TARGET='web'
-        window.persistor.pause();
-        await window.persistor.flush();
-        await window.persistor.purge(); // @endif
-      }).catch(err => {
-        analytics.error(`\`doSignOut\`: ${err.message || err}`);
-      }) // $FlowFixMe
-      .finally(() => location.reload());
+      Lbryio.call('user', 'signout')
+        .then(doSignOutCleanup)
+        .then(async () => {
+          // @if TARGET='web'
+          window.persistor.pause();
+          await window.persistor.flush();
+          await window.persistor.purge(); // @endif
+        })
+        .catch((err) => {
+          analytics.error(`\`doSignOut\`: ${err.message || err}`);
+        }) // $FlowFixMe
+        .finally(() => location.reload());
     }
   };
 }
@@ -563,14 +591,16 @@ export function doSignOut() {
     const pendingActions = Object.values(window.beforeUnloadMap || {});
 
     if (pendingActions.length > 0) {
-      dispatch(doOpenModal(MODALS.SIGN_OUT, {
-        // $FlowIgnore mixed bug
-        pendingActions: pendingActions.map(x => x.msg),
-        onConfirm: () => {
-          clearBeforeUnloadListeners();
-          dispatch(doSignOutAction());
-        }
-      }));
+      dispatch(
+        doOpenModal(MODALS.SIGN_OUT, {
+          // $FlowIgnore mixed bug
+          pendingActions: pendingActions.map((x) => x.msg),
+          onConfirm: () => {
+            clearBeforeUnloadListeners();
+            dispatch(doSignOutAction());
+          },
+        })
+      );
     } else {
       dispatch(doSignOutAction());
     }
@@ -579,13 +609,13 @@ export function doSignOut() {
 export function doSetWelcomeVersion(version: any) {
   return {
     type: ACTIONS.SET_WELCOME_VERSION,
-    data: version
+    data: version,
   };
 }
 export function doSetHasNavigated() {
   return {
     type: ACTIONS.SET_HAS_NAVIGATED,
-    data: true
+    data: true,
   };
 }
 export function doToggle3PAnalytics(allowParam: any, doNotDispatch: any) {
@@ -599,15 +629,13 @@ export function doToggle3PAnalytics(allowParam: any, doNotDispatch: any) {
     if (!doNotDispatch) {
       return dispatch({
         type: ACTIONS.SET_ALLOW_ANALYTICS,
-        data: allow
+        data: allow,
       });
     }
   };
 }
 export function doGetAndPopulatePreferences(syncId?: number) {
-  const {
-    SDK_SYNC_KEYS
-  } = SHARED_PREFERENCES;
+  const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
@@ -632,9 +660,7 @@ export function doGetAndPopulatePreferences(syncId?: number) {
         }
 
         // @if TARGET='app'
-        const {
-          settings
-        } = savedPreferences.value;
+        const { settings } = savedPreferences.value;
 
         if (settings) {
           Object.entries(settings).forEach(([key, val]) => {
@@ -650,7 +676,6 @@ export function doGetAndPopulatePreferences(syncId?: number) {
             }
           });
         } // @endif
-
       } else {
         dispatch(doSetPrefsReady());
       }
@@ -659,13 +684,15 @@ export function doGetAndPopulatePreferences(syncId?: number) {
     }
 
     function failCb(er) {
-      dispatch(doToast({
-        isError: true,
-        message: __('Unable to load your saved preferences.')
-      }));
+      dispatch(
+        doToast({
+          isError: true,
+          message: __('Unable to load your saved preferences.'),
+        })
+      );
       dispatch({
         type: ACTIONS.SYNC_FATAL_ERROR,
-        error: er
+        error: er,
       });
       return false;
     }
@@ -691,12 +718,12 @@ export function doHandleSyncComplete(error: any, hasNewData: any, syncId: any) {
 }
 export function doToggleInterestedInYoutubeSync() {
   return {
-    type: ACTIONS.TOGGLE_YOUTUBE_SYNC_INTEREST
+    type: ACTIONS.TOGGLE_YOUTUBE_SYNC_INTEREST,
   };
 }
 export function doToggleSplashAnimation() {
   return {
-    type: ACTIONS.TOGGLE_SPLASH_ANIMATION
+    type: ACTIONS.TOGGLE_SPLASH_ANIMATION,
   };
 }
 export function doSetActiveChannel(claimId: ClaimId, override: boolean) {
@@ -705,8 +732,8 @@ export function doSetActiveChannel(claimId: ClaimId, override: boolean) {
       return dispatch({
         type: ACTIONS.SET_ACTIVE_CHANNEL,
         data: {
-          claimId
-        }
+          claimId,
+        },
       });
     }
   };
@@ -715,14 +742,14 @@ export function doSetIncognito(incognitoEnabled: boolean) {
   return {
     type: ACTIONS.SET_INCOGNITO,
     data: {
-      enabled: incognitoEnabled
-    }
+      enabled: incognitoEnabled,
+    },
   };
 }
 export function doSetAdBlockerFound(found: boolean) {
   return {
     type: ACTIONS.SET_AD_BLOCKER_FOUND,
-    data: found
+    data: found,
   };
 }
 export function doSetGdprConsentList(rawList: string = '') {
@@ -730,7 +757,7 @@ export function doSetGdprConsentList(rawList: string = '') {
   const list = rawList.split(',').filter(Boolean);
   return {
     type: ACTIONS.SET_GDPR_CONSENT_LIST,
-    data: list
+    data: list,
   };
 }
 export function doToggleAppDrawer(type: any) {
@@ -741,43 +768,48 @@ export function doToggleAppDrawer(type: any) {
 
     if (isOpen) {
       dispatch({
-        type: ACTIONS.DRAWER_CLOSED
+        type: ACTIONS.DRAWER_CLOSED,
       });
     } else {
       dispatch({
         type: ACTIONS.DRAWER_OPENED,
-        data: type
+        data: type,
       });
     }
   };
 }
-export const doSetMainPlayerDimension = (dimensions: any) => (dispatch: Dispatch) => dispatch({
-  type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS,
-  data: dimensions
-});
-export const doSetVideoSourceLoaded = (uri: string) => (dispatch: Dispatch) => dispatch({
-  type: ACTIONS.SET_VIDEO_SOURCE_LOADED,
-  data: uri
-});
+export const doSetMainPlayerDimension = (dimensions: any) => (dispatch: Dispatch) =>
+  dispatch({
+    type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS,
+    data: dimensions,
+  });
+export const doSetVideoSourceLoaded = (uri: string) => (dispatch: Dispatch) =>
+  dispatch({
+    type: ACTIONS.SET_VIDEO_SOURCE_LOADED,
+    data: uri,
+  });
 const MOMENT_LOCALE_MAP = {
   no: 'nn',
   'zh-Hans': 'zh-cn',
-  'zh-Hant': 'zh-tw'
+  'zh-Hant': 'zh-tw',
 };
 export function doSetChronoLocale(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     const lang = MOMENT_LOCALE_MAP[language] || language;
 
-    if (lang === 'en' || lang && lang.startsWith('en-')) {
+    if (lang === 'en' || (lang && lang.startsWith('en-'))) {
       moment.locale('en');
     } else {
       // $FlowIgnore: allow non-literal string; errors will be handled.
-      import(`moment/locale/${lang}`
-      /* webpackChunkName: "locale-[request]" */
-      ).then(() => moment.locale(lang)).catch(err => {
-        assert(false, 'Failed to load locale:', err);
-        moment.locale('en');
-      });
+      import(
+        `moment/locale/${lang}`
+        /* webpackChunkName: "locale-[request]" */
+      )
+        .then(() => moment.locale(lang))
+        .catch((err) => {
+          assert(false, 'Failed to load locale:', err);
+          moment.locale('en');
+        });
     }
   };
 }
@@ -785,7 +817,7 @@ export function doSetAssignedLbrynetServer(server: string) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SET_ASSIGNED_LBRYNET_SERVER,
-      data: server
+      data: server,
     });
   };
 }

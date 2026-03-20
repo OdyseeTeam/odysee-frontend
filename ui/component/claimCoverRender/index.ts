@@ -1,16 +1,14 @@
-import { connect } from "react-redux";
-import * as SETTINGS from "constants/settings";
-import { getThumbnailFromClaim, isClaimShort } from "util/claim";
-import { selectShortsSidePanelOpen } from "redux/selectors/shorts";
-import { selectClaimForUri, selectClaimIsNsfwForUri } from "redux/selectors/claims";
-import { selectClientSetting } from "redux/selectors/settings";
-import { makeSelectFileRenderModeForUri, selectPlayingUri } from "redux/selectors/content";
-import ClaimCoverRender from "./view";
+import { connect } from 'react-redux';
+import * as SETTINGS from 'constants/settings';
+import { getThumbnailFromClaim, isClaimShort } from 'util/claim';
+import { selectShortsSidePanelOpen } from 'redux/selectors/shorts';
+import { selectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri, selectPlayingUri } from 'redux/selectors/content';
+import ClaimCoverRender from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const claim = selectClaimForUri(state, uri);
   const playingUri = selectPlayingUri(state);
   const isCurrentlyPlaying = playingUri && playingUri.uri === uri;
@@ -22,7 +20,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     sidePanelOpen: selectShortsSidePanelOpen(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
-    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)
+    autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
   };
 };
 

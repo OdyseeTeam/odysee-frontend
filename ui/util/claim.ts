@@ -1,9 +1,7 @@
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from "constants/tags";
-import * as SETTINGS from "constants/settings";
-import { parseURI } from "util/lbryURI";
-const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc,
-  [tag]: true
-}), {});
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
+import { parseURI } from 'util/lbryURI';
+const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
 export const isClaimNsfw = (claim: Claim): boolean => {
   if (!claim) {
     throw new Error('No claim passed to isClaimNsfw()');
@@ -28,11 +26,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
 export function createNormalizedClaimSearchKey(options: ClaimSearchOptions) {
   // Ignore page because we don't care what the last page searched was, we want everything
   // Ignore release_time because that will change depending on when you call claim_search ex: release_time: ">12344567"
-  const {
-    page: optionToIgnoreForQuery,
-    release_time: anotherToIgnore,
-    ...rest
-  } = options;
+  const { page: optionToIgnoreForQuery, release_time: anotherToIgnore, ...rest } = options;
   const query = JSON.stringify(rest);
   return query;
 }
@@ -46,8 +40,8 @@ export function concatClaims(claimList: Array<Claim> = [], concatClaimList: Arra
   }
 
   const claims = claimList.slice();
-  concatClaimList.forEach(claim => {
-    if (!claims.some(item => item.claim_id === claim.claim_id)) {
+  concatClaimList.forEach((claim) => {
+    if (!claims.some((item) => item.claim_id === claim.claim_id)) {
       claims.push(claim);
     }
   });
@@ -56,11 +50,13 @@ export function concatClaims(claimList: Array<Claim> = [], concatClaimList: Arra
 export function filterClaims(claims: Array<Claim>, query: string | null | undefined): Array<Claim> {
   if (query) {
     const queryMatchRegExp = new RegExp(query, 'i');
-    return claims.filter(claim => {
-      const {
-        value
-      } = claim;
-      return value.title && value.title.match(queryMatchRegExp) || claim.signing_channel && claim.signing_channel.name.match(queryMatchRegExp) || claim.name && claim.name.match(queryMatchRegExp);
+    return claims.filter((claim) => {
+      const { value } = claim;
+      return (
+        (value.title && value.title.match(queryMatchRegExp)) ||
+        (claim.signing_channel && claim.signing_channel.name.match(queryMatchRegExp)) ||
+        (claim.name && claim.name.match(queryMatchRegExp))
+      );
     });
   }
 
@@ -92,12 +88,7 @@ export function isCanonicalUrl(uri: string) {
   let streamName, streamClaimId, channelName, channelClaimId;
 
   try {
-    ({
-      streamName,
-      streamClaimId,
-      channelName,
-      channelClaimId
-    } = parseURI(uri));
+    ({ streamName, streamClaimId, channelName, channelClaimId } = parseURI(uri));
   } catch (error) {}
 
   return Boolean(streamName && streamClaimId && channelName && channelClaimId);
@@ -106,11 +97,7 @@ export function isPermanentUrl(uri: string) {
   let streamName, streamClaimId, channelName;
 
   try {
-    ({
-      streamName,
-      streamClaimId,
-      channelName
-    } = parseURI(uri));
+    ({ streamName, streamClaimId, channelName } = parseURI(uri));
   } catch (error) {}
 
   return Boolean(streamName && streamClaimId && !channelName);
@@ -132,7 +119,7 @@ export function getChannelNameFromClaim(claim: Claim | null | undefined) {
 export function getChannelTitleFromClaim(claim: Claim | null | undefined) {
   const channelFromClaim = getChannelFromClaim(claim);
   const value = getClaimMetadata(channelFromClaim);
-  return value && value.title || getNameFromClaim(channelFromClaim);
+  return (value && value.title) || getNameFromClaim(channelFromClaim);
 }
 export function getChannelFromClaim(claim: Claim | null | undefined) {
   return !claim ? null : claim.value_type === 'channel' ? claim : claim.signing_channel; // && claim.is_channel_signature_valid
@@ -199,10 +186,7 @@ export function getClaimVideoInfo(claim: Claim | null | undefined) {
   return metadata && metadata.video;
 }
 export function getVideoClaimAspectRatio(claim: Claim | null | undefined) {
-  const {
-    width: claimWidth,
-    height: claimHeight
-  } = getClaimVideoInfo(claim) || {};
+  const { width: claimWidth, height: claimHeight } = getClaimVideoInfo(claim) || {};
   // some might not have these values, so default to 16:9
   const width = claimWidth || 1920;
   const height = claimHeight || 1080;
@@ -213,9 +197,7 @@ export const isStreamPlaceholderClaim = (claim: StreamClaim | null | undefined) 
 };
 export const getThumbnailFromClaim = (claim: Claim | null | undefined) => {
   if (!claim) return claim;
-  const {
-    thumbnail
-  } = claim.value || {};
+  const { thumbnail } = claim.value || {};
   return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : null;
 };
 export const isClaimShort = (claim: Claim | null | undefined): boolean => {

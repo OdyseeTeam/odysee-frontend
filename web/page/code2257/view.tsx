@@ -1,10 +1,14 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
 
 const Code2257Page = () => {
-  return <Page>
-      <Card title="18 USC 2257 Statement: odysee.com" body={<div>
+  return (
+    <Page>
+      <Card
+        title="18 USC 2257 Statement: odysee.com"
+        body={
+          <div>
             <p>
               odysee.com is not a producer (primary or secondary) of any and all of the content found on the website
               (odysee.com). With respect to the records as per 18 USC 2257 for any and all content found on this site,
@@ -33,8 +37,11 @@ const Code2257Page = () => {
               Users of odysee.com who come across such content are urged to flag it as inappropriate by clicking 'Report
               this video' link found below each video.
             </p>
-          </div>} />
-    </Page>;
+          </div>
+        }
+      />
+    </Page>
+  );
 };
 
 export default Code2257Page;

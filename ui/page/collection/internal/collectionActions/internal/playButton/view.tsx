@@ -1,21 +1,16 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import FileActionButton from "component/common/file-action-button";
-import { useHistory } from "react-router";
-import { formatLbryUrlForWeb, generateListSearchUrlParams } from "util/url";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import FileActionButton from 'component/common/file-action-button';
+import { useHistory } from 'react-router';
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 type ButtonProps = {
   uri: string | null | undefined;
   collectionId: string;
 };
 
 const PlayButton = (props: ButtonProps) => {
-  const {
-    uri,
-    collectionId
-  } = props;
-  const {
-    push
-  } = useHistory();
+  const { uri, collectionId } = props;
+  const { push } = useHistory();
   if (!uri) return null;
 
   function handlePlay() {
@@ -23,8 +18,8 @@ const PlayButton = (props: ButtonProps) => {
       pathname: formatLbryUrlForWeb(uri),
       search: generateListSearchUrlParams(collectionId),
       state: {
-        forceAutoplay: true
-      }
+        forceAutoplay: true,
+      },
     });
   }
 

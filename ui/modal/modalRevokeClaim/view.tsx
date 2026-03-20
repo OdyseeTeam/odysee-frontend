@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Modal } from "modal/modal";
-import { FormField } from "component/common/form";
-import * as txnTypes from "constants/transaction_types";
-import Card from "component/common/card";
-import Button from "component/button";
-import I18nMessage from "component/i18nMessage";
-import LbcSymbol from "component/common/lbc-symbol";
+import React, { useState } from 'react';
+import { Modal } from 'modal/modal';
+import { FormField } from 'component/common/form';
+import * as txnTypes from 'constants/transaction_types';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import I18nMessage from 'component/i18nMessage';
+import LbcSymbol from 'component/common/lbc-symbol';
 type Props = {
   closeModal: () => void;
   abandonTxo: (arg0: Txo, arg1: () => void) => void;
@@ -17,29 +17,16 @@ type Props = {
   doResolveUri: (arg0: string) => void;
 };
 export default function ModalRevokeClaim(props: Props) {
-  const {
-    tx,
-    hasYouTubeChannels,
-    claim,
-    closeModal,
-    abandonTxo,
-    abandonClaim,
-    cb,
-    doResolveUri
-  } = props;
-  const {
-    value_type: valueType,
-    type,
-    normalized_name: name,
-    is_my_input: isSupport
-  } = tx || claim;
+  const { tx, hasYouTubeChannels, claim, closeModal, abandonTxo, abandonClaim, cb, doResolveUri } = props;
+  const { value_type: valueType, type, normalized_name: name, is_my_input: isSupport } = tx || claim;
   const [channelName, setChannelName] = useState('');
   React.useEffect(() => {
     if (claim) {
       doResolveUri(claim.permanent_url);
     }
   }, [claim, doResolveUri]);
-  const shouldConfirmChannel = valueType === txnTypes.CHANNEL || type === txnTypes.CHANNEL || type === txnTypes.UPDATE && name.startsWith('@');
+  const shouldConfirmChannel =
+    valueType === txnTypes.CHANNEL || type === txnTypes.CHANNEL || (type === txnTypes.UPDATE && name.startsWith('@'));
 
   function getButtonLabel(type: string, isSupport: boolean) {
     if (isSupport && type === txnTypes.SUPPORT) {
@@ -55,54 +42,74 @@ export default function ModalRevokeClaim(props: Props) {
 
   function getMsgBody(type: string, isSupport: boolean, name: string) {
     if (isSupport && type === txnTypes.SUPPORT) {
-      return <React.Fragment>
+      return (
+        <React.Fragment>
           <p>{__('Are you sure you want to remove this boost?')}</p>
           <p>
-            <I18nMessage tokens={{
-            lbc: <LbcSymbol />
-          }}>
+            <I18nMessage
+              tokens={{
+                lbc: <LbcSymbol />,
+              }}
+            >
               These Credits are permanently yours and this boost can be removed at any time. Removing this boost will
               reduce discoverability and return %lbc% to your spendable balance.
             </I18nMessage>
           </p>
-        </React.Fragment>;
+        </React.Fragment>
+      );
     } else if (type === txnTypes.SUPPORT) {
-      return <React.Fragment>
+      return (
+        <React.Fragment>
           <p>{__('Are you sure you want to unlock these Credits?')}</p>
           <p>
-            {__('These Credits are permanently yours and can be unlocked at any time. Unlocking them allows you to spend them, but reduces discoverability of your content in lookups and search results. It is recommended you leave Credits locked until you need or want to spend them.')}
+            {__(
+              'These Credits are permanently yours and can be unlocked at any time. Unlocking them allows you to spend them, but reduces discoverability of your content in lookups and search results. It is recommended you leave Credits locked until you need or want to spend them.'
+            )}
           </p>
-        </React.Fragment>;
+        </React.Fragment>
+      );
     } else if (shouldConfirmChannel) {
-      return <React.Fragment>
+      return (
+        <React.Fragment>
           <p>
             {__('This will permanently remove your channel. Content published under this channel will be orphaned.')}
           </p>
-          {hasYouTubeChannels && <div className="help--warning">
+          {hasYouTubeChannels && (
+            <div className="help--warning">
               <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
               <p>
-                {__("If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.")}
+                {__(
+                  "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."
+                )}
               </p>
-            </div>}
-          <p>{__('Are you sure? Type %name% to confirm that you wish to remove the channel.', {
-            name
-          })}</p>
-          <FormField type={'text'} onChange={e => setChannelName(e.target.value)} />
-        </React.Fragment>;
+            </div>
+          )}
+          <p>
+            {__('Are you sure? Type %name% to confirm that you wish to remove the channel.', {
+              name,
+            })}
+          </p>
+          <FormField type={'text'} onChange={(e) => setChannelName(e.target.value)} />
+        </React.Fragment>
+      );
     }
 
-    return <React.Fragment>
+    return (
+      <React.Fragment>
         <p>{__('Are you sure you want to remove this?')}</p>
         <p>
-          <I18nMessage tokens={{
-          lbc: <LbcSymbol />
-        }}>
+          <I18nMessage
+            tokens={{
+              lbc: <LbcSymbol />,
+            }}
+          >
             This will prevent others from resolving and accessing the content you published. It will return the %lbc% to
             your spendable balance.
           </I18nMessage>
         </p>
         <p className="help error__text"> {__('FINAL WARNING: This action is permanent and cannot be undone.')}</p>
-      </React.Fragment>;
+      </React.Fragment>
+    );
   }
 
   function revokeClaim() {
@@ -111,10 +118,23 @@ export default function ModalRevokeClaim(props: Props) {
   }
 
   const label = getButtonLabel(type, isSupport);
-  return <Modal isOpen contentLabel={label} type="card" onAborted={closeModal}>
-      <Card title={label} body={getMsgBody(type, isSupport, name)} actions={<div className="section__actions">
-            <Button disabled={shouldConfirmChannel && name.normalize('NFC') !== channelName.normalize('NFC')} button="primary" label={label} onClick={revokeClaim} />
+  return (
+    <Modal isOpen contentLabel={label} type="card" onAborted={closeModal}>
+      <Card
+        title={label}
+        body={getMsgBody(type, isSupport, name)}
+        actions={
+          <div className="section__actions">
+            <Button
+              disabled={shouldConfirmChannel && name.normalize('NFC') !== channelName.normalize('NFC')}
+              button="primary"
+              label={label}
+              onClick={revokeClaim}
+            />
             <Button button="link" label={__('Cancel')} onClick={closeModal} />
-          </div>} />
-    </Modal>;
+          </div>
+        }
+      />
+    </Modal>
+  );
 }

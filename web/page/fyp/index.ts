@@ -1,2 +1,2 @@
-import PageFyp from "./view";
+import PageFyp from './view';
 export default PageFyp;

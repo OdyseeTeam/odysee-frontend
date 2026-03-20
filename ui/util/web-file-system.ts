@@ -1,17 +1,17 @@
 // Some functions to work with the new html5 file system API:
 // Wrapper for webkitGetAsEntry
 // Note: webkitGetAsEntry might be renamed to GetAsEntry
-const getAsEntry = item => {
+const getAsEntry = (item) => {
   if (item.kind === 'file' && item.webkitGetAsEntry) {
     return item.webkitGetAsEntry();
   }
 };
 
 // Get file object from fileEntry
-const getFile = fileEntry => new Promise((resolve, reject) => fileEntry.file(resolve, reject));
+const getFile = (fileEntry) => new Promise((resolve, reject) => fileEntry.file(resolve, reject));
 
 // Read entries from directory
-const readDirectory = directory => {
+const readDirectory = (directory) => {
   // Some browsers don't support this
   if (directory.createReader !== undefined) {
     let dirReader = directory.createReader();
@@ -38,12 +38,9 @@ const getFiles = (items, directoryEntries = false) => {
 // Generate a valid file tree from dataTransfer:
 // - Ignores directory entries
 // - Ignores recursive search
-export const getTree = async dataTransfer => {
+export const getTree = async (dataTransfer) => {
   if (dataTransfer) {
-    const {
-      items,
-      files
-    } = dataTransfer;
+    const { items, files } = dataTransfer;
 
     // Handle single item drop
     if (files.length === 1) {

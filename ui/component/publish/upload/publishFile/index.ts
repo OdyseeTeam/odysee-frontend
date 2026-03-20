@@ -1,9 +1,14 @@
-import { connect } from "react-redux";
-import { selectBalance } from "redux/selectors/wallet";
-import { selectIsStillEditing, selectPublishFormValue, selectMyClaimForUri, selectPrevFileSizeTooBig } from "redux/selectors/publish";
-import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from "redux/actions/publish";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import PublishFile from "./view";
+import { connect } from 'react-redux';
+import { selectBalance } from 'redux/selectors/wallet';
+import {
+  selectIsStillEditing,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
+import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import PublishFile from './view';
 
 const select = (state, props) => ({
   name: selectPublishFormValue(state, 'name'),
@@ -17,12 +22,12 @@ const select = (state, props) => ({
   isVid: selectPublishFormValue(state, 'fileVid'),
   myClaimForUri: selectMyClaimForUri(state),
   prevFileSizeTooBig: selectPrevFileSizeTooBig(state),
-  activeChannelClaim: selectActiveChannelClaim(state)
+  activeChannelClaim: selectActiveChannelClaim(state),
 });
 
 const perform = {
   doUpdatePublishForm,
   doUpdateFile,
-  doUpdateTitle
+  doUpdateTitle,
 };
 export default connect(select, perform)(PublishFile);

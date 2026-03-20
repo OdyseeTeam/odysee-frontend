@@ -1,9 +1,9 @@
-import * as ACTIONS from "constants/action_types";
-import Lbry from "lbry";
-import isEqual from "util/deep-equal";
-import { doGetAndPopulatePreferences } from "redux/actions/app";
-import { doPreferenceSet, doUpdateLastSyncHash } from "redux/actions/sync";
-import { selectLastSyncHash } from "redux/selectors/sync";
+import * as ACTIONS from 'constants/action_types';
+import Lbry from 'lbry';
+import isEqual from 'util/deep-equal';
+import { doGetAndPopulatePreferences } from 'redux/actions/app';
+import { doPreferenceSet, doUpdateLastSyncHash } from 'redux/actions/sync';
+import { selectLastSyncHash } from 'redux/selectors/sync';
 const RUN_PREFERENCES_DELAY_MS = 2000;
 const SHARED_PREFERENCE_VERSION = '0.1';
 let oldShared = {};
@@ -15,7 +15,7 @@ function reportPreSyncError(dispatch, error) {
 
   dispatch({
     type: ACTIONS.SYNC_FATAL_ERROR,
-    error
+    error,
   });
 }
 
@@ -24,19 +24,15 @@ function getPreferenceMetadata(state) {
   const hasVerifiedEmail = state?.user?.user?.has_verified_email;
   const prefsReady = state?.sync?.prefsReady;
   return {
-    preferenceKey: syncEnabled && hasVerifiedEmail && prefsReady ? 'shared' : 'local'
+    preferenceKey: syncEnabled && hasVerifiedEmail && prefsReady ? 'shared' : 'local',
   };
 }
 
 function buildSharedState(state, sharedStateFilters) {
   const shared = {};
-  Object.keys(sharedStateFilters).forEach(key => {
+  Object.keys(sharedStateFilters).forEach((key) => {
     const filter = sharedStateFilters[key];
-    const {
-      source,
-      property,
-      transform
-    } = filter;
+    const { source, property, transform } = filter;
     let value = state?.[source]?.[property];
 
     if (transform) {
@@ -48,105 +44,96 @@ function buildSharedState(state, sharedStateFilters) {
   return shared;
 }
 
-export const buildSharedStateMiddleware = (actions: Array<string>, sharedStateFilters: {}) => ({
-  getState,
-  dispatch
-}: {
-  getState: GetState;
-  dispatch: Dispatch;
-}) => (next: (arg0: {}) => void) => (action: {
-  type: string;
-  data: any;
-  $isSync?: boolean;
-  [key: string]: any;
-}) => {
-  // We don't care if sync is disabled here, we always want to backup preferences to the wallet
-  if (!actions.includes(action.type) || typeof action === 'function') {
-    return next(action);
-  }
+export const buildSharedStateMiddleware =
+  (actions: Array<string>, sharedStateFilters: {}) =>
+  ({ getState, dispatch }: { getState: GetState; dispatch: Dispatch }) =>
+  (next: (arg0: {}) => void) =>
+  (action: { type: string; data: any; $isSync?: boolean; [key: string]: any }) => {
+    // We don't care if sync is disabled here, we always want to backup preferences to the wallet
+    if (!actions.includes(action.type) || typeof action === 'function') {
+      return next(action);
+    }
 
-  if (action?.$isSync) {
-    // Cross-tab mirrored action: apply state update but do not redo sync side-effects.
-    return next(action);
-  }
+    if (action?.$isSync) {
+      // Cross-tab mirrored action: apply state update but do not redo sync side-effects.
+      return next(action);
+    }
 
-  function applySharedAction(currentAction) {
-    clearTimeout(timeout);
-    timeout = null;
-    const actionResult = next(currentAction);
+    function applySharedAction(currentAction) {
+      clearTimeout(timeout);
+      timeout = null;
+      const actionResult = next(currentAction);
 
-    // Call `getState` after calling `next` to ensure the state has updated in response to the action
-    function runPreferences() {
-      const nextState = getState();
-      const {
-        preferenceKey: currentPreferenceKey
-      } = getPreferenceMetadata(nextState);
-      const shared = buildSharedState(nextState, sharedStateFilters);
+      // Call `getState` after calling `next` to ensure the state has updated in response to the action
+      function runPreferences() {
+        const nextState = getState();
+        const { preferenceKey: currentPreferenceKey } = getPreferenceMetadata(nextState);
+        const shared = buildSharedState(nextState, sharedStateFilters);
 
-      if (!isEqual(oldShared, shared)) {
-        // only update if the preference changed from last call in the same session
-        oldShared = shared;
-        dispatch(doPreferenceSet(currentPreferenceKey, shared, SHARED_PREFERENCE_VERSION));
+        if (!isEqual(oldShared, shared)) {
+          // only update if the preference changed from last call in the same session
+          oldShared = shared;
+          dispatch(doPreferenceSet(currentPreferenceKey, shared, SHARED_PREFERENCE_VERSION));
+        }
+
+        clearTimeout(timeout);
+        return actionResult;
       }
 
-      clearTimeout(timeout);
+      timeout = setTimeout(runPreferences, RUN_PREFERENCES_DELAY_MS);
+      dispatch({
+        type: ACTIONS.SHARED_STATE_SYNC_ID_CHANGED,
+        data: timeout,
+      });
       return actionResult;
     }
 
-    timeout = setTimeout(runPreferences, RUN_PREFERENCES_DELAY_MS);
-    dispatch({
-      type: ACTIONS.SHARED_STATE_SYNC_ID_CHANGED,
-      data: timeout
-    });
-    return actionResult;
-  }
+    const hadPendingWrite = timeout != null;
+    clearTimeout(timeout);
+    timeout = null;
+    const state = getState();
+    const { preferenceKey } = getPreferenceMetadata(state);
 
-  const hadPendingWrite = timeout != null;
-  clearTimeout(timeout);
-  timeout = null;
-  const state = getState();
-  const {
-    preferenceKey
-  } = getPreferenceMetadata(state);
+    if (preferenceKey === 'shared') {
+      if (hadPendingWrite) {
+        // Local state is already ahead of remote; keep building on that state until the debounce flushes.
+        return applySharedAction(action);
+      }
 
-  if (preferenceKey === 'shared') {
-    if (hadPendingWrite) {
-      // Local state is already ahead of remote; keep building on that state until the debounce flushes.
-      return applySharedAction(action);
+      preSyncQueue = preSyncQueue
+        .catch((error) => {
+          reportPreSyncError(dispatch, error);
+        })
+        .then(async () => {
+          const previousSyncHash = selectLastSyncHash(getState());
+          let currentSyncHash;
+          let shouldPopulatePreferences = previousSyncHash == null;
+
+          try {
+            currentSyncHash = await Lbry.sync_hash();
+            shouldPopulatePreferences = previousSyncHash == null || currentSyncHash !== previousSyncHash;
+          } catch {
+            shouldPopulatePreferences = true;
+          }
+
+          if (shouldPopulatePreferences) {
+            let populated = false;
+
+            try {
+              populated = Boolean(await dispatch(doGetAndPopulatePreferences()));
+            } catch (error) {
+              reportPreSyncError(dispatch, error);
+            }
+
+            if (populated && currentSyncHash !== undefined) {
+              dispatch(doUpdateLastSyncHash(currentSyncHash));
+            }
+          }
+
+          return applySharedAction(action);
+        });
+      return preSyncQueue;
     }
 
-    preSyncQueue = preSyncQueue.catch(error => {
-      reportPreSyncError(dispatch, error);
-    }).then(async () => {
-      const previousSyncHash = selectLastSyncHash(getState());
-      let currentSyncHash;
-      let shouldPopulatePreferences = previousSyncHash == null;
-
-      try {
-        currentSyncHash = await Lbry.sync_hash();
-        shouldPopulatePreferences = previousSyncHash == null || currentSyncHash !== previousSyncHash;
-      } catch {
-        shouldPopulatePreferences = true;
-      }
-
-      if (shouldPopulatePreferences) {
-        let populated = false;
-
-        try {
-          populated = Boolean(await dispatch(doGetAndPopulatePreferences()));
-        } catch (error) {
-          reportPreSyncError(dispatch, error);
-        }
-
-        if (populated && currentSyncHash !== undefined) {
-          dispatch(doUpdateLastSyncHash(currentSyncHash));
-        }
-      }
-
-      return applySharedAction(action);
-    });
-    return preSyncQueue;
-  }
-
-  return applySharedAction(action);
-};
+    return applySharedAction(action);
+  };

@@ -1,8 +1,8 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import Card from "component/common/card";
-import Button from "component/button";
-import StripeCard from "component/settingsStripeCard";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import StripeCard from 'component/settingsStripeCard';
 type Props = {
   previousModal?: string;
   // in case this modal was called from another modal
@@ -14,13 +14,7 @@ type Props = {
 };
 
 const ModalStripeCard = (props: Props) => {
-  const {
-    previousModal,
-    previousProps,
-    hasSavedCard,
-    doHideModal,
-    doOpenModal
-  } = props;
+  const { previousModal, previousProps, hasSavedCard, doHideModal, doOpenModal } = props;
   const [isBusy, setIsBusy] = React.useState();
 
   function handleGoBack() {
@@ -30,12 +24,20 @@ const ModalStripeCard = (props: Props) => {
     if (previousModal) doOpenModal(previousModal, previousProps);
   }
 
-  return <Modal onAborted={isBusy ? undefined : doHideModal} isOpen type="card" className="modal--add-card">
-      <Card title={hasSavedCard ? __('Card Details') : __('Add your Card')} body={<StripeCard setIsBusy={setIsBusy} isModal />} actions={<div className="section__actions">
+  return (
+    <Modal onAborted={isBusy ? undefined : doHideModal} isOpen type="card" className="modal--add-card">
+      <Card
+        title={hasSavedCard ? __('Card Details') : __('Add your Card')}
+        body={<StripeCard setIsBusy={setIsBusy} isModal />}
+        actions={
+          <div className="section__actions">
             <Button button="primary" label={__('OK')} onClick={handleGoBack} disabled={isBusy || !hasSavedCard} />
             <Button button="link" label={__('Cancel')} onClick={doHideModal} disabled={isBusy} />
-          </div>} />
-    </Modal>;
+          </div>
+        }
+      />
+    </Modal>
+  );
 };
 
 export default ModalStripeCard;

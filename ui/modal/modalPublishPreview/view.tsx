@@ -1,26 +1,26 @@
-import React from "react";
-import moment from "moment";
-import type { DoPublishDesktop } from "redux/actions/publish";
-import "./style.scss";
-import Button from "component/button";
-import { Form, FormField } from "component/common/form";
-import { Modal } from "modal/modal";
-import Card from "component/common/card";
-import Tag from "component/tag";
-import MarkdownPreview from "component/common/markdown-preview";
-import { getLanguageName } from "constants/languages";
-import { COPYRIGHT, OTHER } from "constants/licenses";
-import LbcSymbol from "component/common/lbc-symbol";
-import ChannelThumbnail from "component/channelThumbnail";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import { NO_FILE, PAYWALL } from "constants/publish";
-import * as PUBLISH_TYPES from "constants/publish_types";
-import * as STRIPE from "constants/stripe";
-import { TO_SECONDS } from "util/stripe";
-import { removeInternalTags } from "util/tags";
-import { secondsToDhms } from "util/time";
-import { MINIMUM_PUBLISH_BID } from "constants/claim";
+import React from 'react';
+import moment from 'moment';
+import type { DoPublishDesktop } from 'redux/actions/publish';
+import './style.scss';
+import Button from 'component/button';
+import { Form, FormField } from 'component/common/form';
+import { Modal } from 'modal/modal';
+import Card from 'component/common/card';
+import Tag from 'component/tag';
+import MarkdownPreview from 'component/common/markdown-preview';
+import { getLanguageName } from 'constants/languages';
+import { COPYRIGHT, OTHER } from 'constants/licenses';
+import LbcSymbol from 'component/common/lbc-symbol';
+import ChannelThumbnail from 'component/channelThumbnail';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
+import * as STRIPE from 'constants/stripe';
+import { TO_SECONDS } from 'util/stripe';
+import { removeInternalTags } from 'util/tags';
+import { secondsToDhms } from 'util/time';
+import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 type Props = {
   publishPayload: PublishParams;
   previewResponse: PublishResponse;
@@ -105,24 +105,19 @@ const ModalPublishPreview = (props: Props) => {
     memberRestrictionTierIds,
     memberRestrictionStatus,
     visibility,
-    scheduledShow
+    scheduledShow,
   } = props;
-  const {
-    description,
-    file_path: filePath,
-    remote_url,
-    release_time: rtPayload,
-    title
-  } = payload;
+  const { description, file_path: filePath, remote_url, release_time: rtPayload, title } = payload;
   const releaseTimeInfo = React.useMemo(() => {
     return {
       userEntered: rtStore !== undefined,
       value: rtPayload,
-      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter()
+      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter(),
     };
   }, [rtPayload, rtStore]);
-  const livestream = uri && isLivestreamClaim || //   $FlowFixMe
-  previewResponse?.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source;
+  const livestream =
+    (uri && isLivestreamClaim) || //   $FlowFixMe
+    (previewResponse?.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
   // leave the confirm modal up if we're not going straight to upload/reflecting
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
@@ -130,15 +125,21 @@ const ModalPublishPreview = (props: Props) => {
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
-  assert(!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid, 'Something wrong:', memberRestrictionStatus);
+  assert(
+    !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
+    'Something wrong:',
+    memberRestrictionStatus
+  );
 
   // **************************************************************************
   // **************************************************************************
   function createRow(label: string, value: any, hide?: boolean) {
-    return hide ? null : <tr>
+    return hide ? null : (
+      <tr>
         <td>{label}</td>
         <td>{value}</td>
-      </tr>;
+      </tr>
+    );
   }
 
   function truncateWithEllipsis(str, maxChars) {
@@ -169,7 +170,11 @@ const ModalPublishPreview = (props: Props) => {
         return __('Confirm Edit');
       }
     } else if (livestream || isLivestreamClaim || remote_url) {
-      return releaseTimeInfo.valueIsInFuture ? __('Schedule Livestream') : (!livestream || !isLivestreamClaim) && remote_url ? __('Publish Replay') : __('Create Livestream');
+      return releaseTimeInfo.valueIsInFuture
+        ? __('Schedule Livestream')
+        : (!livestream || !isLivestreamClaim) && remote_url
+          ? __('Publish Replay')
+          : __('Create Livestream');
     } else if (type === PUBLISH_TYPES.POST) {
       return __('Confirm Post');
     } else {
@@ -186,17 +191,25 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function getDescription() {
-    return description ? <div className="media__info-text-preview">
+    return description ? (
+      <div className="media__info-text-preview">
         <MarkdownPreview content={description} simpleLinks />
-      </div> : null;
+      </div>
+    ) : null;
   }
 
   function getLicense() {
-    return licenseType === COPYRIGHT ? <p>© {otherLicenseDescription}</p> : licenseType === OTHER ? <p>
+    return licenseType === COPYRIGHT ? (
+      <p>© {otherLicenseDescription}</p>
+    ) : licenseType === OTHER ? (
+      <p>
         {otherLicenseDescription}
         <br />
         {licenseUrl}
-      </p> : <p>{__(licenseType)}</p>;
+      </p>
+    ) : (
+      <p>{__(licenseType)}</p>
+    );
   }
 
   function getDeposit() {
@@ -225,27 +238,33 @@ const ModalPublishPreview = (props: Props) => {
 
       case PAYWALL.FIAT:
         const rentalSeconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
-        return <>
-            {fiatPurchaseEnabled && fiatPurchaseFee && <div className="publish-preview__fiat-price">
+        return (
+          <>
+            {fiatPurchaseEnabled && fiatPurchaseFee && (
+              <div className="publish-preview__fiat-price">
                 <Icon icon={ICONS.BUY} />
                 <p>
                   {__('Purchase for %currency%%amount%', {
-                currency: STRIPE.CURRENCY[fiatPurchaseFee.currency].symbol,
-                amount: fiatPurchaseFee.amount
-              })}
+                    currency: STRIPE.CURRENCY[fiatPurchaseFee.currency].symbol,
+                    amount: fiatPurchaseFee.amount,
+                  })}
                 </p>
-              </div>}
-            {fiatRentalEnabled && fiatRentalFee && fiatRentalExpiration && <div className="publish-preview__fiat-price">
+              </div>
+            )}
+            {fiatRentalEnabled && fiatRentalFee && fiatRentalExpiration && (
+              <div className="publish-preview__fiat-price">
                 <Icon icon={ICONS.TIME} />
                 <p>
                   {__('Rent %duration% for %currency%%amount%', {
-                duration: secondsToDhms(rentalSeconds),
-                currency: STRIPE.CURRENCY[fiatRentalFee.currency].symbol,
-                amount: fiatRentalFee.amount
-              })}
+                    duration: secondsToDhms(rentalSeconds),
+                    currency: STRIPE.CURRENCY[fiatRentalFee.currency].symbol,
+                    amount: fiatRentalFee.amount,
+                  })}
                 </p>
-              </div>}
-          </>;
+              </div>
+            )}
+          </>
+        );
 
       default:
         console.error(`Unhandled paywall type: ${paywall}`); // eslint-disable-line no-console
@@ -256,19 +275,30 @@ const ModalPublishPreview = (props: Props) => {
 
   function getTagsValue(tags) {
     const visibleTags = removeInternalTags(tags);
-    return visibleTags.map(tag => <Tag key={tag.name} title={tag.name} name={tag.name} type="flow" onClick={() => {}} // Do nothing. Don't set to null since that results in "View Tag" action.
-    />);
+    return visibleTags.map((tag) => (
+      <Tag
+        key={tag.name}
+        title={tag.name}
+        name={tag.name}
+        type="flow"
+        onClick={() => {}} // Do nothing. Don't set to null since that results in "View Tag" action.
+      />
+    ));
   }
 
   function getChannelValue(channel) {
-    const channelClaim = myChannels && myChannels.find(x => x.name === channel);
-    return channel ? <div className="channel-value">
+    const channelClaim = myChannels && myChannels.find((x) => x.name === channel);
+    return channel ? (
+      <div className="channel-value">
         {channelClaim && <ChannelThumbnail xsmall noLazyLoad uri={channelClaim.permanent_url} />}
         {channel}
-      </div> : <div className="channel-value">
+      </div>
+    ) : (
+      <div className="channel-value">
         <Icon sectionIcon icon={ICONS.ANONYMOUS} />
         <i>{__('Anonymous')}</i>
-      </div>;
+      </div>
+    );
   }
 
   function getReleaseTimeLabel() {
@@ -288,13 +318,19 @@ const ModalPublishPreview = (props: Props) => {
       return null;
     }
 
-    return <div className="publish-preview__tier-restrictions">
+    return (
+      <div className="publish-preview__tier-restrictions">
         {myMembershipTiers.map((tier: CreatorMembership) => {
-        const tierId = tier?.membership_id || '0';
-        const tierSelected = memberRestrictionTierIds.includes(tierId);
-        return tierSelected ? <FormField key={tierId} name={tierId} type="checkbox" defaultChecked label={tier?.name || tierId} /> : <div key={tierId} className="dummy-tier" />;
-      })}
-      </div>;
+          const tierId = tier?.membership_id || '0';
+          const tierSelected = memberRestrictionTierIds.includes(tierId);
+          return tierSelected ? (
+            <FormField key={tierId} name={tierId} type="checkbox" defaultChecked label={tier?.name || tierId} />
+          ) : (
+            <div key={tierId} className="dummy-tier" />
+          );
+        })}
+      </div>
+    );
   }
 
   function hideTierRestrictions() {
@@ -324,7 +360,9 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function hideReplayRow() {
-    const show = type === 'livestream' && (liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder' && liveEditType !== 'update_only');
+    const show =
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType !== 'update_only'));
     return !show;
   }
 
@@ -351,9 +389,13 @@ const ModalPublishPreview = (props: Props) => {
   */
   // **************************************************************************
   // **************************************************************************
-  return <Modal isOpen contentLabel={modalTitle} type="card" onAborted={closeModal}>
+  return (
+    <Modal isOpen contentLabel={modalTitle} type="card" onAborted={closeModal}>
       <Form onSubmit={onConfirmed}>
-        <Card title={modalTitle} body={<>
+        <Card
+          title={modalTitle}
+          body={
+            <>
               <div className="section">
                 <table className="table table--condensed table--publish-preview">
                   <tbody>
@@ -375,23 +417,39 @@ const ModalPublishPreview = (props: Props) => {
                   </tbody>
                 </table>
               </div>
-              {paywall === PAYWALL.FIAT && <div className="publish-preview__fee-footnote">{`* ${__('processing and platform fees apply')}`}</div>}
-              {txFee && <div className="publish-preview__blockchain-fee" aria-label={__('Estimated transaction fee:')}>
+              {paywall === PAYWALL.FIAT && (
+                <div className="publish-preview__fee-footnote">{`* ${__('processing and platform fees apply')}`}</div>
+              )}
+              {txFee && (
+                <div className="publish-preview__blockchain-fee" aria-label={__('Estimated transaction fee:')}>
                   <b>{__('Est. transaction fee:')}</b>&nbsp;&nbsp;
                   <em>
                     <LbcSymbol postfix={txFee} />
                   </em>
-                </div>}
-            </>} actions={<>
+                </div>
+              )}
+            </>
+          }
+          actions={
+            <>
               <div className="section__actions">
                 <Button autoFocus button="primary" disabled={publishing} label={confirmBtnText} onClick={onConfirmed} />
                 <Button button="link" label={__('Cancel')} onClick={closeModal} />
               </div>
               <p className="help">{__('Once the transaction is sent, it cannot be reversed.')}</p>
-              <FormField type="checkbox" name="sync_toggle" label={__('Skip preview and confirmation')} checked={!enablePublishPreview} onChange={() => setEnablePublishPreview(!enablePublishPreview)} />
-            </>} />
+              <FormField
+                type="checkbox"
+                name="sync_toggle"
+                label={__('Skip preview and confirmation')}
+                checked={!enablePublishPreview}
+                onChange={() => setEnablePublishPreview(!enablePublishPreview)}
+              />
+            </>
+          }
+        />
       </Form>
-    </Modal>;
+    </Modal>
+  );
 };
 
 export default ModalPublishPreview;

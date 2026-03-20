@@ -1,4 +1,4 @@
-import { COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES } from "constants/report_content";
+import { COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES } from 'constants/report_content';
 
 function getCategoryUrl(category: string) {
   switch (category) {
@@ -15,7 +15,7 @@ function getCategoryUrl(category: string) {
 
 export async function sendContentReport(category: string, params: string) {
   return fetch(`${getCategoryUrl(category)}?${params}`, {
-    method: 'POST'
+    method: 'POST',
   });
 }
 export type SendContentReportFn = typeof sendContentReport;

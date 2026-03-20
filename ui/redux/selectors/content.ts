@@ -1,11 +1,23 @@
-import { createSelector } from "reselect";
-import { selectClaimsByUri, selectClaimIsMineForUri, makeSelectContentTypeForUri, selectClaimForUri, selectCostInfoForUri, selectPendingPurchaseForUri, selectIsAnonymousFiatContentForUri, selectClaimIsNsfwForUri, selectScheduledStateForUri, selectIsUriUnlisted, makeSelectFileExtensionForUri } from "redux/selectors/claims";
-import { makeSelectMediaTypeForUri } from "redux/selectors/file_info";
-import { selectBalance } from "redux/selectors/wallet";
-import { selectPendingUnlockedRestrictionsForUri } from "redux/selectors/memberships";
-import * as RENDER_MODES from "constants/file_render_modes";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from "constants/claim";
+import { createSelector } from 'reselect';
+import {
+  selectClaimsByUri,
+  selectClaimIsMineForUri,
+  makeSelectContentTypeForUri,
+  selectClaimForUri,
+  selectCostInfoForUri,
+  selectPendingPurchaseForUri,
+  selectIsAnonymousFiatContentForUri,
+  selectClaimIsNsfwForUri,
+  selectScheduledStateForUri,
+  selectIsUriUnlisted,
+  makeSelectFileExtensionForUri,
+} from 'redux/selectors/claims';
+import { makeSelectMediaTypeForUri } from 'redux/selectors/file_info';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/claim';
 const RECENT_HISTORY_AMOUNT = 10;
 const HISTORY_ITEMS_PER_PAGE = 50;
 export const selectState = (state: State) => state.content || {};
@@ -38,7 +50,8 @@ export const selectPlayingCollectionIfPlayingForId = (state: State, id: string) 
   const playingCollection = selectPlayingCollection(state);
   return playingCollection.collectionId === id && playingCollection;
 };
-export const selectIsCollectionPlayingForId = (state: State, id: string) => Boolean(selectPlayingCollectionIfPlayingForId(state, id));
+export const selectIsCollectionPlayingForId = (state: State, id: string) =>
+  Boolean(selectPlayingCollectionIfPlayingForId(state, id));
 export const selectListShuffleForId = (state: State, id: string) => {
   const playingCollection = selectPlayingCollectionIfPlayingForId(state, id);
   return playingCollection && playingCollection.shuffle;
@@ -56,17 +69,13 @@ export const selectFileIsPlayingOnPage = (state: State, uri: string) => {
   return (claim.canonical_url, claim.permanent_url).includes(primaryUri);
 };
 export const selectIsUriCurrentlyPlaying = (state: State, uri: string) => {
-  const {
-    uri: playingUri
-  } = selectPlayingUri(state);
+  const { uri: playingUri } = selectPlayingUri(state);
   if (!playingUri) return false;
   if (playingUri === uri) return true;
   const claim = selectClaimForUri(state, uri);
 
   if (uri && claim) {
-    const {
-      canonical_url: uri
-    } = claim;
+    const { canonical_url: uri } = claim;
     if (playingUri === uri) return true;
   }
 
@@ -79,20 +88,9 @@ export const selectIsPlayerFloating = (state: State) => {
   const autoplayCountdownUri = selectAutoplayCountdownUri(state);
   const mainFileUri = playingUri.uri || autoplayCountdownUri;
   if (!mainFileUri && !autoplayCountdownUri) return false;
-  const {
-    source,
-    primaryUri: playingPrimaryUri,
-    location: playingLocation,
-    collection
-  } = playingUri;
-  const {
-    pathname: playingPathName,
-    search: playingSearch
-  } = playingLocation || {};
-  const {
-    pathname,
-    search
-  } = state.router.location;
+  const { source, primaryUri: playingPrimaryUri, location: playingLocation, collection } = playingUri;
+  const { pathname: playingPathName, search: playingSearch } = playingLocation || {};
+  const { pathname, search } = state.router.location;
   const urlParams = new URLSearchParams(search);
   // $FlowFixMe
   const playingUrlParams = new URLSearchParams(playingSearch);
@@ -105,7 +103,7 @@ export const selectIsPlayerFloating = (state: State) => {
   const isQueue = source === 'queue';
   const isInlineSecondaryPlayer = hasSecondarySource && mainFileUri !== primaryUri && playingPathName === pathname;
 
-  if (isQueue && primaryUri !== mainFileUri || isInlineSecondaryPlayer && isOnDifferentTab) {
+  if ((isQueue && primaryUri !== mainFileUri) || (isInlineSecondaryPlayer && isOnDifferentTab)) {
     return true;
   }
 
@@ -115,7 +113,11 @@ export const selectIsPlayerFloating = (state: State) => {
     return false;
   }
 
-  if (isQueue && (primaryUri === mainFileUri || pageCollectionId !== collection.collectionId) || isInlineSecondaryPlayer || (hasSecondarySource && !isComment && primaryUri ? playingPrimaryUri === primaryUri : mainFileUri === primaryUri)) {
+  if (
+    (isQueue && (primaryUri === mainFileUri || pageCollectionId !== collection.collectionId)) ||
+    isInlineSecondaryPlayer ||
+    (hasSecondarySource && !isComment && primaryUri ? playingPrimaryUri === primaryUri : mainFileUri === primaryUri)
+  ) {
     return false;
   }
 
@@ -134,18 +136,23 @@ export const selectContentPositionForUri = (state: State, uri: string) => {
   return null;
 };
 export const selectHistory = (state: State) => selectState(state).history || [];
-export const selectHistoryPageCount = createSelector(selectHistory, history => Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE));
-export const makeSelectHistoryForPage = (page: number) => createSelector(selectHistory, selectClaimsByUri, (history, claimsByUri) => {
-  const left = page * HISTORY_ITEMS_PER_PAGE;
-  const historyItemsForPage = history.slice(left, left + HISTORY_ITEMS_PER_PAGE);
-  return historyItemsForPage;
-});
-export const makeSelectHistoryForUri = (uri: string) => createSelector(selectHistory, history => history.find(i => i.uri === uri));
-export const makeSelectHasVisitedUri = (uri: string) => createSelector(makeSelectHistoryForUri(uri), history => Boolean(history));
-export const selectRecentHistory = createSelector(selectHistory, history => {
+export const selectHistoryPageCount = createSelector(selectHistory, (history) =>
+  Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE)
+);
+export const makeSelectHistoryForPage = (page: number) =>
+  createSelector(selectHistory, selectClaimsByUri, (history, claimsByUri) => {
+    const left = page * HISTORY_ITEMS_PER_PAGE;
+    const historyItemsForPage = history.slice(left, left + HISTORY_ITEMS_PER_PAGE);
+    return historyItemsForPage;
+  });
+export const makeSelectHistoryForUri = (uri: string) =>
+  createSelector(selectHistory, (history) => history.find((i) => i.uri === uri));
+export const makeSelectHasVisitedUri = (uri: string) =>
+  createSelector(makeSelectHistoryForUri(uri), (history) => Boolean(history));
+export const selectRecentHistory = createSelector(selectHistory, (history) => {
   return history.slice(0, RECENT_HISTORY_AMOUNT);
 });
-export const selectWatchHistoryUris = createSelector(selectHistory, history => {
+export const selectWatchHistoryUris = createSelector(selectHistory, (history) => {
   const uris = [];
 
   for (let entry of history) {
@@ -163,117 +170,156 @@ export const selectWatchHistoryUris = createSelector(selectHistory, history => {
     return fileName && path.extname(fileName).substring(1);
   });
 */
-export const makeSelectFileRenderModeForUri = (uri: string) => createSelector(makeSelectContentTypeForUri(uri), makeSelectMediaTypeForUri(uri), makeSelectFileExtensionForUri(uri), (contentType, mediaType, extension) => {
-  if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe' || mediaType === 'livestream') {
-    return RENDER_MODES.VIDEO;
-  }
+export const makeSelectFileRenderModeForUri = (uri: string) =>
+  createSelector(
+    makeSelectContentTypeForUri(uri),
+    makeSelectMediaTypeForUri(uri),
+    makeSelectFileExtensionForUri(uri),
+    (contentType, mediaType, extension) => {
+      if (
+        mediaType === 'video' ||
+        (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+        mediaType === 'livestream'
+      ) {
+        return RENDER_MODES.VIDEO;
+      }
 
-  if (mediaType === 'audio') {
-    return RENDER_MODES.AUDIO;
-  }
+      if (mediaType === 'audio') {
+        return RENDER_MODES.AUDIO;
+      }
 
-  if (mediaType === 'image') {
-    return RENDER_MODES.IMAGE;
-  }
+      if (mediaType === 'image') {
+        return RENDER_MODES.IMAGE;
+      }
 
-  if (['md', 'markdown'].includes(extension) || ['text/md', 'text/markdown'].includes(contentType)) {
-    return RENDER_MODES.MARKDOWN;
-  }
+      if (['md', 'markdown'].includes(extension) || ['text/md', 'text/markdown'].includes(contentType)) {
+        return RENDER_MODES.MARKDOWN;
+      }
 
-  if (contentType === 'application/pdf') {
-    return RENDER_MODES.PDF;
-  }
+      if (contentType === 'application/pdf') {
+        return RENDER_MODES.PDF;
+      }
 
-  if (['text/htm', 'text/html'].includes(contentType)) {
-    return RENDER_MODES.HTML;
-  }
+      if (['text/htm', 'text/html'].includes(contentType)) {
+        return RENDER_MODES.HTML;
+      }
 
-  if (['text', 'document', 'script'].includes(mediaType)) {
-    return RENDER_MODES.DOCUMENT;
-  }
+      if (['text', 'document', 'script'].includes(mediaType)) {
+        return RENDER_MODES.DOCUMENT;
+      }
 
-  // @if TARGET='app'
-  if (extension === 'docx') {
-    return RENDER_MODES.DOCX;
-  }
+      // @if TARGET='app'
+      if (extension === 'docx') {
+        return RENDER_MODES.DOCX;
+      }
 
-  // @endif
-  // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
-  if (['3D-file', 'model'].includes(mediaType)) {
-    return RENDER_MODES.CAD;
-  }
+      // @endif
+      // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
+      if (['3D-file', 'model'].includes(mediaType)) {
+        return RENDER_MODES.CAD;
+      }
 
-  // Force content type for fallback support of older claims
-  if (mediaType === 'comic-book' || FORCE_CONTENT_TYPE_COMIC.includes(contentType)) {
-    return RENDER_MODES.COMIC;
-  }
+      // Force content type for fallback support of older claims
+      if (mediaType === 'comic-book' || FORCE_CONTENT_TYPE_COMIC.includes(contentType)) {
+        return RENDER_MODES.COMIC;
+      }
 
-  if (['application/zip', 'application/x-gzip', 'application/x-gtar', 'application/x-tgz', 'application/vnd.rar', 'application/x-7z-compressed'].includes(contentType)) {
-    return RENDER_MODES.DOWNLOAD;
-  }
+      if (
+        [
+          'application/zip',
+          'application/x-gzip',
+          'application/x-gtar',
+          'application/x-tgz',
+          'application/vnd.rar',
+          'application/x-7z-compressed',
+        ].includes(contentType)
+      ) {
+        return RENDER_MODES.DOWNLOAD;
+      }
 
-  if (mediaType === 'application') {
-    return RENDER_MODES.APPLICATION;
-  }
+      if (mediaType === 'application') {
+        return RENDER_MODES.APPLICATION;
+      }
 
-  return RENDER_MODES.UNSUPPORTED;
-});
-export const selectFileRenderModeForUri = createSelector((state, uri) => makeSelectContentTypeForUri(uri)(state), (state, uri) => makeSelectMediaTypeForUri(uri)(state), (state, uri) => makeSelectFileExtensionForUri(uri)(state), (contentType, mediaType, extension) => {
-  if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe' || mediaType === 'livestream') {
-    return RENDER_MODES.VIDEO;
-  }
+      return RENDER_MODES.UNSUPPORTED;
+    }
+  );
+export const selectFileRenderModeForUri = createSelector(
+  (state, uri) => makeSelectContentTypeForUri(uri)(state),
+  (state, uri) => makeSelectMediaTypeForUri(uri)(state),
+  (state, uri) => makeSelectFileExtensionForUri(uri)(state),
+  (contentType, mediaType, extension) => {
+    if (
+      mediaType === 'video' ||
+      (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+      mediaType === 'livestream'
+    ) {
+      return RENDER_MODES.VIDEO;
+    }
 
-  if (mediaType === 'audio') {
-    return RENDER_MODES.AUDIO;
-  }
+    if (mediaType === 'audio') {
+      return RENDER_MODES.AUDIO;
+    }
 
-  if (mediaType === 'image') {
-    return RENDER_MODES.IMAGE;
-  }
+    if (mediaType === 'image') {
+      return RENDER_MODES.IMAGE;
+    }
 
-  if (['md', 'markdown'].includes(extension) || ['text/md', 'text/markdown'].includes(contentType)) {
-    return RENDER_MODES.MARKDOWN;
-  }
+    if (['md', 'markdown'].includes(extension) || ['text/md', 'text/markdown'].includes(contentType)) {
+      return RENDER_MODES.MARKDOWN;
+    }
 
-  if (contentType === 'application/pdf') {
-    return RENDER_MODES.PDF;
-  }
+    if (contentType === 'application/pdf') {
+      return RENDER_MODES.PDF;
+    }
 
-  if (['text/htm', 'text/html'].includes(contentType)) {
-    return RENDER_MODES.HTML;
-  }
+    if (['text/htm', 'text/html'].includes(contentType)) {
+      return RENDER_MODES.HTML;
+    }
 
-  if (['text', 'document', 'script'].includes(mediaType)) {
-    return RENDER_MODES.DOCUMENT;
-  }
+    if (['text', 'document', 'script'].includes(mediaType)) {
+      return RENDER_MODES.DOCUMENT;
+    }
 
-  // @if TARGET='app'
-  if (extension === 'docx') {
-    return RENDER_MODES.DOCX;
-  }
+    // @if TARGET='app'
+    if (extension === 'docx') {
+      return RENDER_MODES.DOCX;
+    }
 
-  // @endif
-  // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
-  if (['3D-file', 'model'].includes(mediaType)) {
-    return RENDER_MODES.CAD;
-  }
+    // @endif
+    // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
+    if (['3D-file', 'model'].includes(mediaType)) {
+      return RENDER_MODES.CAD;
+    }
 
-  // Force content type for fallback support of older claims
-  if (mediaType === 'comic-book' || FORCE_CONTENT_TYPE_COMIC.includes(contentType)) {
-    return RENDER_MODES.COMIC;
-  }
+    // Force content type for fallback support of older claims
+    if (mediaType === 'comic-book' || FORCE_CONTENT_TYPE_COMIC.includes(contentType)) {
+      return RENDER_MODES.COMIC;
+    }
 
-  if (['application/zip', 'application/x-gzip', 'application/x-gtar', 'application/x-tgz', 'application/vnd.rar', 'application/x-7z-compressed'].includes(contentType)) {
-    return RENDER_MODES.DOWNLOAD;
-  }
+    if (
+      [
+        'application/zip',
+        'application/x-gzip',
+        'application/x-gtar',
+        'application/x-tgz',
+        'application/vnd.rar',
+        'application/x-7z-compressed',
+      ].includes(contentType)
+    ) {
+      return RENDER_MODES.DOWNLOAD;
+    }
 
-  if (mediaType === 'application') {
-    return RENDER_MODES.APPLICATION;
-  }
+    if (mediaType === 'application') {
+      return RENDER_MODES.APPLICATION;
+    }
 
-  return RENDER_MODES.UNSUPPORTED;
-});
-export const selectIsPlayableForUri = createSelector(selectFileRenderModeForUri, renderMode => RENDER_MODES.FLOATING_MODES.includes(renderMode));
+    return RENDER_MODES.UNSUPPORTED;
+  }
+);
+export const selectIsPlayableForUri = createSelector(selectFileRenderModeForUri, (renderMode) =>
+  RENDER_MODES.FLOATING_MODES.includes(renderMode)
+);
 export const selectIsMarkdownPostForUri = (state: State, uri: string) => {
   const renderMode = makeSelectFileRenderModeForUri(uri)(state);
   return renderMode === RENDER_MODES.MARKDOWN;

@@ -1,14 +1,14 @@
-import { useHistory } from "react-router-dom";
-import { SEARCH_IN_LANGUAGE } from "constants/hashes";
-import { SETTINGS_GRP } from "constants/settings";
-import React from "react";
-import * as SETTINGS from "constants/settings";
-import Card from "component/common/card";
-import { FormField } from "component/common/form";
-import HomepageSelector from "component/homepageSelector";
-import SettingLanguage from "component/settingLanguage";
-import SettingsRow from "component/settingsRow";
-import ThemeSelector from "component/themeSelector";
+import { useHistory } from 'react-router-dom';
+import { SEARCH_IN_LANGUAGE } from 'constants/hashes';
+import { SETTINGS_GRP } from 'constants/settings';
+import React from 'react';
+import * as SETTINGS from 'constants/settings';
+import Card from 'component/common/card';
+import { FormField } from 'component/common/form';
+import HomepageSelector from 'component/homepageSelector';
+import SettingLanguage from 'component/settingLanguage';
+import SettingsRow from 'component/settingsRow';
+import ThemeSelector from 'component/themeSelector';
 type Props = {
   clock24h: boolean;
   searchInLanguage: boolean;
@@ -70,5 +70,6 @@ export default function SettingAppearance(props: Props) {
 } // prettier-ignore
 
 const HELP = {
-  LANGUAGE: 'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.'
+  LANGUAGE:
+    'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.',
 };

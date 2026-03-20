@@ -1,11 +1,11 @@
 // @ts-expect-error
-import { Global } from "@emotion/react";
-import { Menu, MenuButton, MenuList, MenuItem } from "@reach/menu-button";
-import { useHistory } from "react-router-dom";
-import usePersistedState from "effects/use-persisted-state";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import React from "react";
+import { Global } from '@emotion/react';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { useHistory } from 'react-router-dom';
+import usePersistedState from 'effects/use-persisted-state';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import React from 'react';
 type Props = {
   isPopoutWindow?: boolean;
   hyperchatsHidden?: boolean;
@@ -22,9 +22,7 @@ type Props = {
   channelHasMembershipTiers: boolean;
   isLivestreamChatMembersOnly?: boolean;
   doToggleLiveChatMembersOnlySettingForClaimId: (claimId: ClaimId) => Promise<any>;
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
 };
 
 const LivestreamMenu = (props: Props) => {
@@ -44,21 +42,23 @@ const LivestreamMenu = (props: Props) => {
     channelHasMembershipTiers,
     isLivestreamChatMembersOnly,
     doToggleLiveChatMembersOnlySettingForClaimId,
-    doToast
+    doToast,
   } = props;
   const {
-    location: {
-      pathname
-    }
+    location: { pathname },
   } = useHistory();
   const initialPopoutUnload = React.useRef(false);
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
 
   function updateLivestreamMembersOnlyChat() {
     if (claimId) {
-      doToggleLiveChatMembersOnlySettingForClaimId(claimId).then(() => doToast({
-        message: __(isLivestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.')
-      }));
+      doToggleLiveChatMembersOnlySettingForClaimId(claimId).then(() =>
+        doToast({
+          message: __(
+            isLivestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
+          ),
+        })
+      );
     }
   }
 
@@ -67,7 +67,7 @@ const LivestreamMenu = (props: Props) => {
       const popoutWindow = window.open('/$/popout' + pathname, 'Popout Chat', 'height=700,width=400');
 
       // Adds function to popoutWindow when unloaded and verify if it was closed
-      const handleUnload = e => {
+      const handleUnload = (e) => {
         if (!initialPopoutUnload.current) {
           initialPopoutUnload.current = true;
         } else {
@@ -86,7 +86,8 @@ const LivestreamMenu = (props: Props) => {
     }
   }
 
-  return <>
+  return (
+    <>
       <MenuGlobalStyles showTimestamps={showTimestamps} />
 
       <Menu>
@@ -95,12 +96,14 @@ const LivestreamMenu = (props: Props) => {
         </MenuButton>
 
         <MenuList className="menu__list">
-          {channelHasMembershipTiers && claimIsMine && <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
+          {channelHasMembershipTiers && claimIsMine && (
+            <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
               <span className="menu__link">
                 <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
                 {__(isLivestreamChatMembersOnly ? 'Disable Members-Only Chat' : 'Enable Members-Only Chat')}
               </span>
-            </MenuItem>}
+            </MenuItem>
+          )}
           <MenuItem className="comment__menu-option" onSelect={() => setShowTimestamps(!showTimestamps)}>
             <span className="menu__link">
               <Icon aria-hidden icon={ICONS.TIME} />
@@ -114,16 +117,17 @@ const LivestreamMenu = (props: Props) => {
             </span>
           </MenuItem>
 
-          {!isMobile ? <>
-              {!noHyperchats && <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
+          {!isMobile ? (
+            <>
+              {!noHyperchats && (
+                <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
                   <span className="menu__link">
                     <Icon aria-hidden icon={hyperchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
                     {hyperchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
                   </span>
-                </MenuItem>}
-              {
-            /* No need for Hide Chat on mobile with the expand/collapse drawer */
-          }
+                </MenuItem>
+              )}
+              {/* No need for Hide Chat on mobile with the expand/collapse drawer */}
               <MenuItem className="comment__menu-option" onSelect={hideChat}>
                 <span className="menu__link">
                   <Icon aria-hidden icon={ICONS.EYE} />
@@ -131,21 +135,29 @@ const LivestreamMenu = (props: Props) => {
                 </span>
               </MenuItem>
 
-              {!isPopoutWindow && <MenuItem className="comment__menu-option" onSelect={handlePopout}>
+              {!isPopoutWindow && (
+                <MenuItem className="comment__menu-option" onSelect={handlePopout}>
                   <span className="menu__link">
                     <Icon aria-hidden icon={ICONS.EXTERNAL} />
                     {__('Popout Chat')}
                   </span>
-                </MenuItem>}
-            </> : !noHyperchats && <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
+                </MenuItem>
+              )}
+            </>
+          ) : (
+            !noHyperchats && (
+              <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
                 <span className="menu__link">
                   <Icon aria-hidden icon={hyperchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
                   {hyperchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
                 </span>
-              </MenuItem>}
+              </MenuItem>
+            )
+          )}
         </MenuList>
       </Menu>
-    </>;
+    </>
+  );
 };
 
 export default LivestreamMenu;
@@ -154,12 +166,14 @@ type GlobalStylesProps = {
 };
 
 const MenuGlobalStyles = (globalStylesProps: GlobalStylesProps) => {
-  const {
-    showTimestamps
-  } = globalStylesProps;
-  return <Global styles={{
-    ':root': {
-      '--live-timestamp-opacity': showTimestamps ? '0.5' : '0'
-    }
-  }} />;
+  const { showTimestamps } = globalStylesProps;
+  return (
+    <Global
+      styles={{
+        ':root': {
+          '--live-timestamp-opacity': showTimestamps ? '0.5' : '0',
+        },
+      }}
+    />
+  );
 };

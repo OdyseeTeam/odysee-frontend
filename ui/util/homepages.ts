@@ -6,7 +6,11 @@
  * @param hp If provided, only update the data for this specified homepage.
  * @returns The new/merged db.
  */
-export function updateHomepageDb(oldDb: HomepagesDb | null | undefined, newDb: HomepagesDb | null | undefined, hp: string | null | undefined) {
+export function updateHomepageDb(
+  oldDb: HomepagesDb | null | undefined,
+  newDb: HomepagesDb | null | undefined,
+  hp: string | null | undefined
+) {
   if (!oldDb && newDb) {
     return newDb;
   } else if (!oldDb || !newDb) {
@@ -14,12 +18,9 @@ export function updateHomepageDb(oldDb: HomepagesDb | null | undefined, newDb: H
   }
 
   if (hp) {
-    return { ...oldDb,
-      [hp]: newDb[hp]
-    };
+    return { ...oldDb, [hp]: newDb[hp] };
   } else {
-    return { ...newDb
-    };
+    return { ...newDb };
   }
 }
 
@@ -39,12 +40,11 @@ export function postProcessHomepageDb(oldDb: HomepagesDb | null | undefined) {
     return oldDb;
   }
 
-  const db = { ...oldDb
-  };
-  const homepagesToCheck = Object.keys(oldDb).filter(hp => {
+  const db = { ...oldDb };
+  const homepagesToCheck = Object.keys(oldDb).filter((hp) => {
     return hp !== 'en' && db[hp];
   });
-  homepagesToCheck.forEach(hp => {
+  homepagesToCheck.forEach((hp) => {
     if (!db[hp].portals) {
       db[hp].portals = db['en'].portals;
     }

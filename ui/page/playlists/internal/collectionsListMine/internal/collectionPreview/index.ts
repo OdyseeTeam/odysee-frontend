@@ -1,25 +1,43 @@
-import { connect } from "react-redux";
-import { selectIsResolvingForId, selectTitleForUri, selectClaimIdForUri, selectClaimForClaimId, selectThumbnailForUri, selectClaimIsPendingForId } from "redux/selectors/claims";
-import { selectCollectionTitleForId, selectCountForCollectionId, selectAreCollectionItemsFetchingForId, selectFirstItemUrlForCollection, selectFirstPlayableUrlForCollectionId, selectUpdatedAtForCollectionId, selectCreatedAtForCollectionId, selectIsCollectionBuiltInForId, selectThumbnailForCollectionId, selectCollectionIsEmptyForId, selectCollectionTypeForId, selectCollectionHasEditsForId, selectCollectionIsPublishingForId, selectCollectionPublishErrorForId, selectCollectionAutoPublishForId, selectCollectionAutoPublishScheduledAtForId } from "redux/selectors/collections";
-import { getChannelFromClaim } from "util/claim";
-import CollectionPreview from "./view";
+import { connect } from 'react-redux';
+import {
+  selectIsResolvingForId,
+  selectTitleForUri,
+  selectClaimIdForUri,
+  selectClaimForClaimId,
+  selectThumbnailForUri,
+  selectClaimIsPendingForId,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionTitleForId,
+  selectCountForCollectionId,
+  selectAreCollectionItemsFetchingForId,
+  selectFirstItemUrlForCollection,
+  selectFirstPlayableUrlForCollectionId,
+  selectUpdatedAtForCollectionId,
+  selectCreatedAtForCollectionId,
+  selectIsCollectionBuiltInForId,
+  selectThumbnailForCollectionId,
+  selectCollectionIsEmptyForId,
+  selectCollectionTypeForId,
+  selectCollectionHasEditsForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
+} from 'redux/selectors/collections';
+import { getChannelFromClaim } from 'util/claim';
+import CollectionPreview from './view';
 
 const select = (state, props) => {
-  const {
-    collectionId: propCollectionId,
-    uri
-  } = props;
-  const collectionId = propCollectionId || uri && selectClaimIdForUri(state, uri);
+  const { collectionId: propCollectionId, uri } = props;
+  const collectionId = propCollectionId || (uri && selectClaimIdForUri(state, uri));
   const claim = selectClaimForClaimId(state, collectionId);
   const channel = getChannelFromClaim(claim);
-  const collectionUri = uri || claim && (claim.canonical_url || claim.permanent_url) || null;
+  const collectionUri = uri || (claim && (claim.canonical_url || claim.permanent_url)) || null;
   let channelTitle = null;
 
   if (channel) {
-    const {
-      value,
-      name
-    } = channel;
+    const { value, name } = channel;
 
     if (value && value.title) {
       channelTitle = value.title;
@@ -56,7 +74,7 @@ const select = (state, props) => {
     isPublishing: selectCollectionIsPublishingForId(state, collectionId),
     publishError: selectCollectionPublishErrorForId(state, collectionId),
     autoPublish: selectCollectionAutoPublishForId(state, collectionId),
-    autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId)
+    autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId),
   };
 };
 

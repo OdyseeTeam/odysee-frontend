@@ -1,14 +1,18 @@
-import * as React from "react";
-import { createPortal } from "react-dom";
-import { lazyImport } from "util/lazyImport";
-import * as ICONS from "constants/icons";
-import FileTitleSection from "component/fileTitleSection";
-import Empty from "component/common/empty";
-import Button from "component/button";
-import "./style.scss";
-const CommentsList = lazyImport(() => import('component/commentsList'
-/* webpackChunkName: "comments" */
-));
+import * as React from 'react';
+import { createPortal } from 'react-dom';
+import { lazyImport } from 'util/lazyImport';
+import * as ICONS from 'constants/icons';
+import FileTitleSection from 'component/fileTitleSection';
+import Empty from 'component/common/empty';
+import Button from 'component/button';
+import './style.scss';
+const CommentsList = lazyImport(
+  () =>
+    import(
+      'component/commentsList'
+      /* webpackChunkName: "comments" */
+    )
+);
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -30,7 +34,7 @@ export default function MobilePanel(props: Props) {
     commentsDisabled,
     linkedCommentId,
     threadCommentId,
-    isComments
+    isComments,
   } = props;
   const modalRef = React.useRef();
   const [isClosing, setIsClosing] = React.useState(false);
@@ -42,7 +46,7 @@ export default function MobilePanel(props: Props) {
     }, 250);
   }, [onClose]);
   React.useEffect(() => {
-    const handleEscape: any = e => {
+    const handleEscape: any = (e) => {
       if (e.key === 'Escape') {
         handleClose();
       }
@@ -61,7 +65,7 @@ export default function MobilePanel(props: Props) {
     };
   }, [isOpen, handleClose]);
 
-  const handleBackdropClick = e => {
+  const handleBackdropClick = (e) => {
     if (e.target === modalRef.current) {
       handleClose();
     }
@@ -73,25 +77,54 @@ export default function MobilePanel(props: Props) {
     }
   }, [isOpen]);
   if (!document.body) return null;
-  return createPortal(<div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>
-      {(isOpen || isClosing) && <div className={`shorts-mobile-panel__backdrop ${isClosing ? 'shorts-mobile-panel__backdrop--closing' : ''}`} ref={modalRef} onClick={handleBackdropClick}>
+  return createPortal(
+    <div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>
+      {(isOpen || isClosing) && (
+        <div
+          className={`shorts-mobile-panel__backdrop ${isClosing ? 'shorts-mobile-panel__backdrop--closing' : ''}`}
+          ref={modalRef}
+          onClick={handleBackdropClick}
+        >
           <div className={`shorts-mobile-panel__modal ${isClosing ? 'shorts-mobile-panel__modal--closing' : ''}`}>
             <div className="shorts-mobile-panel__header">
               <div className="shorts-mobile-panel__drag-handle" />
               <div className="shorts-mobile-panel__title-section">
                 <div>{isComments ? __('Comments') : __('Video Details')}</div>
-                <Button className="shorts-mobile-panel__close-button" onClick={handleClose} icon={ICONS.REMOVE} iconSize={20} title={__('Close')} />
+                <Button
+                  className="shorts-mobile-panel__close-button"
+                  onClick={handleClose}
+                  icon={ICONS.REMOVE}
+                  iconSize={20}
+                  title={__('Close')}
+                />
               </div>
             </div>
 
             <div className="shorts-page__side-panel-content">
-              {!isComments ? <FileTitleSection uri={uri} accessStatus={accessStatus} /> : <>
-                  {contentUnlocked && (commentsDisabled ? <Empty padded text={__('The creator of this content has disabled comments.')} /> : <React.Suspense fallback={null}>
-                        <CommentsList uri={uri} linkedCommentId={linkedCommentId} threadCommentId={threadCommentId} notInDrawer />
-                      </React.Suspense>)}
-                </>}
+              {!isComments ? (
+                <FileTitleSection uri={uri} accessStatus={accessStatus} />
+              ) : (
+                <>
+                  {contentUnlocked &&
+                    (commentsDisabled ? (
+                      <Empty padded text={__('The creator of this content has disabled comments.')} />
+                    ) : (
+                      <React.Suspense fallback={null}>
+                        <CommentsList
+                          uri={uri}
+                          linkedCommentId={linkedCommentId}
+                          threadCommentId={threadCommentId}
+                          notInDrawer
+                        />
+                      </React.Suspense>
+                    ))}
+                </>
+              )}
             </div>
           </div>
-        </div>}
-    </div>, document.body);
+        </div>
+      )}
+    </div>,
+    document.body
+  );
 }

@@ -46,8 +46,8 @@ export const platform = {
   },
   browserName: function () {
     let ua = this.userAgent(),
-        tem,
-        M = ua.match(/(fxios|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+      tem,
+      M = ua.match(/(fxios|opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
 
     if (/trident/i.test(M[1])) {
       tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
@@ -78,7 +78,10 @@ export const platform = {
   // mobile detection
   // **************************************************************************
   isMobile: function () {
-    return this.userAgent().match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile|CRiOS|OPiOS|Mobile|FxiOS/i) !== null;
+    return (
+      this.userAgent().match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile|CRiOS|OPiOS|Mobile|FxiOS/i) !==
+      null
+    );
   },
   isDesktop: function () {
     return !this.isMobile();
@@ -87,28 +90,51 @@ export const platform = {
   // desktop detection
   // **************************************************************************
   isSafari: function () {
-    return this.userAgent().indexOf('Safari') !== -1 && navigator.vendor.indexOf('Apple Computer') !== -1 && !this.isChrome() && !this.isFirefox() && !this.isOpera();
+    return (
+      this.userAgent().indexOf('Safari') !== -1 &&
+      navigator.vendor.indexOf('Apple Computer') !== -1 &&
+      !this.isChrome() &&
+      !this.isFirefox() &&
+      !this.isOpera()
+    );
   },
   isChrome: function () {
-    return (this.userAgent().indexOf('Chrome') !== -1 && navigator.vendor.indexOf('Google Inc') !== -1 || this.userAgent().indexOf('CriOS') !== -1) && !this.isOpera();
+    return (
+      ((this.userAgent().indexOf('Chrome') !== -1 && navigator.vendor.indexOf('Google Inc') !== -1) ||
+        this.userAgent().indexOf('CriOS') !== -1) &&
+      !this.isOpera()
+    );
   },
   isIE: function () {
-    return this.browserName().toLowerCase().match(/ie|msie|iemobile/i) != null;
+    return (
+      this.browserName()
+        .toLowerCase()
+        .match(/ie|msie|iemobile/i) != null
+    );
   },
   isEdge: function () {
     return this.browserName().toLowerCase().match(/edge/i) != null;
   },
   isFirefox: function () {
-    return this.browserName().toLowerCase().match(/firefox|fxios/i) != null;
+    return (
+      this.browserName()
+        .toLowerCase()
+        .match(/firefox|fxios/i) != null
+    );
   },
   isOpera: function () {
-    return this.userAgent().toLowerCase().match(/opera|opr|opera mini|opios/i) != null || Object.prototype.toString.call(window.operamini) === '[object OperaMini]';
+    return (
+      this.userAgent()
+        .toLowerCase()
+        .match(/opera|opr|opera mini|opios/i) != null ||
+      Object.prototype.toString.call(window.operamini) === '[object OperaMini]'
+    );
   },
   // **************************************************************************
   // mobile browser detection
   // **************************************************************************
   isMobileChrome: function () {
-    return this.userAgent().toLowerCase().match('crios') != null || this.isChrome() && this.isMobile();
+    return this.userAgent().toLowerCase().match('crios') != null || (this.isChrome() && this.isMobile());
   },
   isMobileSafari: function () {
     return this.isMobile() && this.isSafari();
@@ -125,8 +151,11 @@ export const platform = {
   // **************************************************************************
   // **************************************************************************
   isIOS: function () {
-    return (/iPad|iPhone|iPod/.test(navigator.platform) || // for iOS 13+ , platform is MacIntel, so use this to test
-    navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) && !window.MSStream;
+    return (
+      (/iPad|iPhone|iPod/.test(navigator.platform) || // for iOS 13+ , platform is MacIntel, so use this to test
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
+      !window.MSStream
+    );
   },
   isAndroid: function () {
     return this.userAgent().match(/Android/i) != null;
@@ -168,5 +197,5 @@ export const platform = {
   },
   isTouch: function () {
     return 'ontouchstart' in window || 'onmsgesturechange' in window; // return 'ontouchstart' in document.documentElement;
-  }
+  },
 };

@@ -1,2 +1,2 @@
-import ABTest from "./view";
+import ABTest from './view';
 export default ABTest;

@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import SettingMenuItem from "./SettingMenuItem";
+import videojs from 'video.js';
+import SettingMenuItem from './SettingMenuItem';
 
 class SettingOnOffItem extends SettingMenuItem {
   createEl() {
@@ -13,7 +13,7 @@ class SettingOnOffItem extends SettingMenuItem {
         <div>
           <div class="vjs-onoff-button"></div>
         </div>
-      `
+      `,
     });
     return el;
   }
@@ -33,7 +33,6 @@ class SettingOnOffItem extends SettingMenuItem {
   }
 
   selected() {}
-
 }
 
 videojs.registerComponent('SettingOnOffItem', SettingOnOffItem);

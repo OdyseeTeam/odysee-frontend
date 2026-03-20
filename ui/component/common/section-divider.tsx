@@ -1,7 +1,9 @@
-import React from "react";
+import React from 'react';
 
-const SectionDivider = () => <div className="section__divider">
+const SectionDivider = () => (
+  <div className="section__divider">
     <hr />
-  </div>;
+  </div>
+);
 
 export default SectionDivider;

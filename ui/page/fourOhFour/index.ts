@@ -1,2 +1,2 @@
-import FourOhFourPage from "./view";
+import FourOhFourPage from './view';
 export default FourOhFourPage;

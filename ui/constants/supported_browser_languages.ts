@@ -40,6 +40,6 @@ const SUPPORTED_BROWSER_LANGUAGES = {
   cs: 'cs',
   kn: 'kn',
   uk: 'uk',
-  vi: 'vi'
+  vi: 'vi',
 };
 export default SUPPORTED_BROWSER_LANGUAGES;

@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 type Props = {
   uri: string | null | undefined;
-  isComment?: Boolean;
+  isComment?: boolean;
   fallback?: any;
   // --- redux ---
   claim: ChannelClaim | null | undefined;
@@ -9,17 +9,14 @@ type Props = {
 };
 
 function ChannelTitle(props: Props) {
-  const {
-    title,
-    claim,
-    isComment,
-    fallback
-  } = props;
+  const { title, claim, isComment, fallback } = props;
 
   if (isComment) {
     if (!title) {
       let cleanFallback = fallback && fallback[0] && fallback[0].substring(fallback[0].indexOf('@'));
-      return cleanFallback && cleanFallback.substring(0, cleanFallback.indexOf(':')) ? cleanFallback.substring(0, cleanFallback.indexOf(':')) : cleanFallback;
+      return cleanFallback && cleanFallback.substring(0, cleanFallback.indexOf(':'))
+        ? cleanFallback.substring(0, cleanFallback.indexOf(':'))
+        : cleanFallback;
     } else return title;
   }
 

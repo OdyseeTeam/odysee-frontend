@@ -1,19 +1,22 @@
-import "scss/component/_file-price.scss";
-import * as ICONS from "constants/icons";
-import classnames from "classnames";
-import CreditAmount from "component/common/credit-amount";
-import Icon from "component/common/icon";
-import React from "react";
+import 'scss/component/_file-price.scss';
+import * as ICONS from 'constants/icons';
+import classnames from 'classnames';
+import CreditAmount from 'component/common/credit-amount';
+import Icon from 'component/common/icon';
+import React from 'react';
 type Props = {
   claim: {} | null | undefined;
   sdkPaid: boolean;
   fiatPaid: boolean;
-  costInfo?: {
-    includesData: boolean;
-    cost: number;
-  } | null | undefined;
+  costInfo?:
+    | {
+        includesData: boolean;
+        cost: number;
+      }
+    | null
+    | undefined;
   showFullPrice: boolean;
-  type?: "default" | "filepage" | "modal" | "thumbnail";
+  type?: 'default' | 'filepage' | 'modal' | 'thumbnail';
   uri: string;
   rentalInfo: {
     price: number;
@@ -37,7 +40,7 @@ type Props = {
 
 class FilePrice extends React.PureComponent<Props> {
   static defaultProps = {
-    showFullPrice: false
+    showFullPrice: false,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -59,7 +62,7 @@ class FilePrice extends React.PureComponent<Props> {
       rentalInfo,
       purchaseInfo,
       isFetchingPurchases,
-      fiatPaid
+      fiatPaid,
     } = this.props;
     const fiatRequired = Boolean(purchaseInfo) || Boolean(rentalInfo);
     const hasPrice = customPrices || fiatRequired || costInfo?.cost;
@@ -73,43 +76,91 @@ class FilePrice extends React.PureComponent<Props> {
       'filePrice--filepage': type === 'filepage',
       'filePrice--thumbnail': type === 'thumbnail',
       'filePrice--modal': type === 'modal',
-      'filePrice--fiat': fiatRequired
+      'filePrice--fiat': fiatRequired,
     });
 
     if (fiatRequired) {
-      if (isFetchingPurchases || fiatPaid && type !== 'thumbnail') {
+      if (isFetchingPurchases || (fiatPaid && type !== 'thumbnail')) {
         return null;
       }
 
       const hasMultiOptions = Boolean(purchaseInfo) && Boolean(rentalInfo);
       const showIconsOnly = hasMultiOptions && type === 'thumbnail';
-      return <div className={classnames('filePriceFiatDuo', {
-        'filePriceFiatDuo--filePage': type === 'filepage'
-      })}>
-          {fiatPaid ? <CreditAmount amount={''} className={className} isFiat icon={ICONS.COMPLETED} /> : sdkPaid ? <span className={className}>
+      return (
+        <div
+          className={classnames('filePriceFiatDuo', {
+            'filePriceFiatDuo--filePage': type === 'filepage',
+          })}
+        >
+          {fiatPaid ? (
+            <CreditAmount amount={''} className={className} isFiat icon={ICONS.COMPLETED} />
+          ) : sdkPaid ? (
+            <span className={className}>
               <Icon icon={ICONS.PURCHASED} size={type === 'filepage' ? 22 : undefined} />
-            </span> : <>
-              {purchaseInfo && <CreditAmount amount={showIconsOnly ? '' : purchaseInfo} customAmounts={customPrices ? {
-            amountFiat: customPrices.priceFiat,
-            amountLBC: customPrices.priceLBC
-          } : undefined} className={className} isFiat showFullPrice={showFullPrice} icon={ICONS.BUY} />}
-              {rentalInfo && <CreditAmount amount={showIconsOnly ? '' : rentalInfo.price} className={className} isFiat showFullPrice={showFullPrice} icon={ICONS.TIME} />}
-            </>}
-        </div>;
+            </span>
+          ) : (
+            <>
+              {purchaseInfo && (
+                <CreditAmount
+                  amount={showIconsOnly ? '' : purchaseInfo}
+                  customAmounts={
+                    customPrices
+                      ? {
+                          amountFiat: customPrices.priceFiat,
+                          amountLBC: customPrices.priceLBC,
+                        }
+                      : undefined
+                  }
+                  className={className}
+                  isFiat
+                  showFullPrice={showFullPrice}
+                  icon={ICONS.BUY}
+                />
+              )}
+              {rentalInfo && (
+                <CreditAmount
+                  amount={showIconsOnly ? '' : rentalInfo.price}
+                  className={className}
+                  isFiat
+                  showFullPrice={showFullPrice}
+                  icon={ICONS.TIME}
+                />
+              )}
+            </>
+          )}
+        </div>
+      );
     }
 
     if (sdkPaid) {
-      return <span className={className}>
+      return (
+        <span className={className}>
           <Icon icon={ICONS.PURCHASED} size={type === 'filepage' ? 22 : undefined} />
-        </span>;
+        </span>
+      );
     }
 
-    return <CreditAmount amount={costInfo && costInfo.cost > 0 ? costInfo.cost : undefined} customAmounts={customPrices ? {
-      amountFiat: customPrices.priceFiat,
-      amountLBC: customPrices.priceLBC
-    } : undefined} className={className} isEstimate={!!costInfo && !costInfo.includesData} isFiat={isFiat} showFree showFullPrice={showFullPrice} showLBC={showLBC} size={14} />;
+    return (
+      <CreditAmount
+        amount={costInfo && costInfo.cost > 0 ? costInfo.cost : undefined}
+        customAmounts={
+          customPrices
+            ? {
+                amountFiat: customPrices.priceFiat,
+                amountLBC: customPrices.priceLBC,
+              }
+            : undefined
+        }
+        className={className}
+        isEstimate={!!costInfo && !costInfo.includesData}
+        isFiat={isFiat}
+        showFree
+        showFullPrice={showFullPrice}
+        showLBC={showLBC}
+        size={14}
+      />
+    );
   }
-
 }
 
 export default FilePrice;

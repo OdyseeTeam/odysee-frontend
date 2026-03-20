@@ -1,9 +1,9 @@
-import { isNameValid, isURIValid, normalizeURI, parseURI } from "util/lbryURI";
-import { URL as SITE_URL, URL_LOCAL, URL_DEV, SIMPLE_SITE } from "config";
-import * as CS from "constants/claim_search";
-import { SEARCH_OPTIONS } from "constants/search";
-import * as SETTINGS from "constants/settings";
-import { getSearchQueryString } from "util/query-params";
+import { isNameValid, isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
+import { URL as SITE_URL, URL_LOCAL, URL_DEV, SIMPLE_SITE } from 'config';
+import * as CS from 'constants/claim_search';
+import { SEARCH_OPTIONS } from 'constants/search';
+import * as SETTINGS from 'constants/settings';
+import { getSearchQueryString } from 'util/query-params';
 export function createNormalizedSearchKey(query: string) {
   const removeParam = (query: string, param: string) => {
     // TODO: find a standard way to do this.
@@ -48,7 +48,7 @@ export function getUriForSearchTerm(term: string) {
   const isLbryUrl = term.startsWith('lbry://') && term !== 'lbry://';
   const error = '';
 
-  const addLbryIfNot = term => {
+  const addLbryIfNot = (term) => {
     return term.startsWith('lbry://') ? term : `lbry://${term}`;
   };
 
@@ -57,7 +57,7 @@ export function getUriForSearchTerm(term: string) {
     if (includesLbryTvLocal) prefix = WEB_LOCAL_PREFIX;
     if (includesLbryTvDev) prefix = WEB_DEV_PREFIX;
     if (includesOdysee) prefix = ODYSEE_PREFIX;
-    let query = term && term.slice(prefix.length).replace(/:/g, '#') || '';
+    let query = (term && term.slice(prefix.length).replace(/:/g, '#')) || '';
 
     try {
       const lbryUrl = `lbry://${query}`;
@@ -112,11 +112,16 @@ export function getUriForSearchTerm(term: string) {
  * @param language
  * @returns {{size: number, nsfw: boolean, isBackgroundSearch: boolean}}
  */
-export function getRecommendationSearchOptions(matureEnabled: boolean, claimIsMature: boolean, claimId: string, language: string | null | undefined) {
+export function getRecommendationSearchOptions(
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language: string | null | undefined
+) {
   const options = {
     size: 20,
     nsfw: matureEnabled,
-    isBackgroundSearch: true
+    isBackgroundSearch: true,
   };
 
   if (SIMPLE_SITE) {
@@ -135,11 +140,17 @@ export function getRecommendationSearchOptions(matureEnabled: boolean, claimIsMa
 
   return options;
 }
-export function getShortsRecommendationSearchOptions(matureEnabled: boolean, claimIsMature: boolean, claimId: string, language: string | null | undefined, forChannel: boolean | null | undefined) {
+export function getShortsRecommendationSearchOptions(
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language: string | null | undefined,
+  forChannel: boolean | null | undefined
+) {
   const options = {
     size: 50,
     nsfw: matureEnabled,
-    isBackgroundSearch: false
+    isBackgroundSearch: false,
   };
   options[SEARCH_OPTIONS.CLAIM_TYPE] = 'stream';
   options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;

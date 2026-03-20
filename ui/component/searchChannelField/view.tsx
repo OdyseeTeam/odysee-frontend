@@ -1,12 +1,12 @@
-import React from "react";
-import { isNameValid, parseURI } from "util/lbryURI";
-import Button from "component/button";
-import ClaimPreview from "component/claimPreview";
-import { FormField } from "component/common/form-components/form-field";
-import Icon from "component/common/icon";
-import TagsSearch from "component/tagsSearch";
-import * as ICONS from "constants/icons";
-import { getUriForSearchTerm } from "util/search";
+import React from 'react';
+import { isNameValid, parseURI } from 'util/lbryURI';
+import Button from 'component/button';
+import ClaimPreview from 'component/claimPreview';
+import { FormField } from 'component/common/form-components/form-field';
+import Icon from 'component/common/icon';
+import TagsSearch from 'component/tagsSearch';
+import * as ICONS from 'constants/icons';
+import { getUriForSearchTerm } from 'util/search';
 type Props = {
   label: string;
   labelAddNew: string;
@@ -16,9 +16,7 @@ type Props = {
   onAdd?: (channelUri: string) => void;
   onRemove?: (channelUri: string) => void;
   // --- perform ---
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
   doResolveUris: (uris: Array<string>) => void;
 };
 export default function SearchChannelField(props: Props) {
@@ -159,5 +157,6 @@ export default function SearchChannelField(props: Props) {
 } // prettier-ignore
 
 const HELP = {
-  CHANNEL_SEARCH: 'Enter the full channel name or URL to search.\n\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8'
+  CHANNEL_SEARCH:
+    'Enter the full channel name or URL to search.\n\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
 };

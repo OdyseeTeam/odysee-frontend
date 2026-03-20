@@ -1,15 +1,15 @@
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import { SETTINGS_GRP } from "constants/settings";
-import type { Node } from "react";
-import React from "react";
-import { useHistory } from "react-router-dom";
-import classnames from "classnames";
-import Button from "component/button";
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import { SETTINGS_GRP } from 'constants/settings';
+import type { Node } from 'react';
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import classnames from 'classnames';
+import Button from 'component/button';
 // @if TARGET='app'
-import { IS_MAC } from "component/app/view";
+import { IS_MAC } from 'component/app/view';
 // @endif
-import { useIsSmallScreen } from "effects/use-screensize";
+import { useIsSmallScreen } from 'effects/use-screensize';
 type SideNavLink = {
   title: string;
   link?: string;
@@ -19,36 +19,39 @@ type SideNavLink = {
   icon: string;
   extra?: Node;
 };
-const SIDE_LINKS: Array<SideNavLink> = [{
-  title: 'Appearance',
-  section: SETTINGS_GRP.APPEARANCE,
-  icon: ICONS.APPEARANCE
-}, {
-  title: 'Account',
-  section: SETTINGS_GRP.ACCOUNT,
-  icon: ICONS.ACCOUNT
-}, {
-  title: 'Content settings',
-  section: SETTINGS_GRP.CONTENT,
-  icon: ICONS.CONTENT
-}, {
-  title: 'Player settings',
-  section: SETTINGS_GRP.PLAYER,
-  icon: ICONS.PLAY
-}, {
-  title: 'System',
-  section: SETTINGS_GRP.SYSTEM,
-  icon: ICONS.SETTINGS
-}];
+const SIDE_LINKS: Array<SideNavLink> = [
+  {
+    title: 'Appearance',
+    section: SETTINGS_GRP.APPEARANCE,
+    icon: ICONS.APPEARANCE,
+  },
+  {
+    title: 'Account',
+    section: SETTINGS_GRP.ACCOUNT,
+    icon: ICONS.ACCOUNT,
+  },
+  {
+    title: 'Content settings',
+    section: SETTINGS_GRP.CONTENT,
+    icon: ICONS.CONTENT,
+  },
+  {
+    title: 'Player settings',
+    section: SETTINGS_GRP.PLAYER,
+    icon: ICONS.PLAY,
+  },
+  {
+    title: 'System',
+    section: SETTINGS_GRP.SYSTEM,
+    icon: ICONS.SETTINGS,
+  },
+];
 export default function SettingsSideNavigation() {
   const sidebarOpen = true;
   const isSmallScreen = useIsSmallScreen();
   const isAbsolute = isSmallScreen;
   const microNavigation = !sidebarOpen || isSmallScreen;
-  const {
-    location,
-    goBack
-  } = useHistory();
+  const { location, goBack } = useHistory();
 
   function scrollToSection(section: string) {
     const TOP_MARGIN_PX = 20;
@@ -58,7 +61,7 @@ export default function SettingsSideNavigation() {
       window.scrollTo({
         top: element.offsetTop - TOP_MARGIN_PX,
         left: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   }
@@ -86,54 +89,78 @@ export default function SettingsSideNavigation() {
     return null;
   }
 
-  return <div className={classnames('navigation__wrapper', {
-    'navigation__wrapper--micro': microNavigation,
-    'navigation__wrapper--absolute': isAbsolute
-  })}>
-      <nav aria-label={'Sidebar'} className={classnames('navigation', {
-      'navigation--micro': microNavigation,
-      // @if TARGET='app'
-      'navigation--mac': IS_MAC // @endif
-
-    })}>
+  return (
+    <div
+      className={classnames('navigation__wrapper', {
+        'navigation__wrapper--micro': microNavigation,
+        'navigation__wrapper--absolute': isAbsolute,
+      })}
+    >
+      <nav
+        aria-label={'Sidebar'}
+        className={classnames('navigation', {
+          'navigation--micro': microNavigation,
+          // @if TARGET='app'
+          'navigation--mac': IS_MAC, // @endif
+        })}
+      >
         <div>
-          <ul className={classnames('navigation-links navigation-links--settings', {
-          'navigation-links--micro': !sidebarOpen
-        })}>
-            {SIDE_LINKS.map(linkProps => {
-            return <li key={linkProps.title}>
-                  <Button {...linkProps} label={__(linkProps.title)} title={__(linkProps.title)} icon={linkProps.icon} className={classnames('navigation-link', {})} // $FlowFixMe
-              onClick={getOnClickHandler(linkProps.section)} />
+          <ul
+            className={classnames('navigation-links navigation-links--settings', {
+              'navigation-links--micro': !sidebarOpen,
+            })}
+          >
+            {SIDE_LINKS.map((linkProps) => {
+              return (
+                <li key={linkProps.title}>
+                  <Button
+                    {...linkProps}
+                    label={__(linkProps.title)}
+                    title={__(linkProps.title)}
+                    icon={linkProps.icon}
+                    className={classnames('navigation-link', {})} // $FlowFixMe
+                    onClick={getOnClickHandler(linkProps.section)}
+                  />
                   {linkProps.extra && linkProps.extra}
-                </li>;
-          })}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
 
-      {isSmallScreen && sidebarOpen && <>
-          <nav className={classnames('navigation--absolute', {
-        // @if TARGET='app'
-        'navigation--mac': IS_MAC // @endif
-
-      })}>
+      {isSmallScreen && sidebarOpen && (
+        <>
+          <nav
+            className={classnames('navigation--absolute', {
+              // @if TARGET='app'
+              'navigation--mac': IS_MAC, // @endif
+            })}
+          >
             <div>
               <ul className="navigation-links--absolute">
-                {SIDE_LINKS.map(linkProps => {
-              // $FlowFixMe
-              const {
-                link,
-                route,
-                ...passedProps
-              } = linkProps;
-              return <li key={linkProps.title}>
-                      <Button {...passedProps} label={__(linkProps.title)} title={__(linkProps.title)} icon={linkProps.icon} className={classnames('navigation-link', {})} onClick={getOnClickHandler(linkProps.section)} />
+                {SIDE_LINKS.map((linkProps) => {
+                  // $FlowFixMe
+                  const { link, route, ...passedProps } = linkProps;
+                  return (
+                    <li key={linkProps.title}>
+                      <Button
+                        {...passedProps}
+                        label={__(linkProps.title)}
+                        title={__(linkProps.title)}
+                        icon={linkProps.icon}
+                        className={classnames('navigation-link', {})}
+                        onClick={getOnClickHandler(linkProps.section)}
+                      />
                       {linkProps.extra && linkProps.extra}
-                    </li>;
-            })}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </nav>
-        </>}
-    </div>;
+        </>
+      )}
+    </div>
+  );
 }

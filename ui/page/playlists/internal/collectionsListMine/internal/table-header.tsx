@@ -1,6 +1,7 @@
-import React from "react";
+import React from 'react';
 
-const TableHeader = () => <table className="table table--playlists">
+const TableHeader = () => (
+  <table className="table table--playlists">
     <thead>
       <tr>
         <th className="table-column__playlist">{__('Playlist')}</th>
@@ -13,6 +14,7 @@ const TableHeader = () => <table className="table table--playlists">
         <th className="table-column__action">{__('Play')}</th>
       </tr>
     </thead>
-  </table>;
+  </table>
+);
 
 export default TableHeader;

@@ -41,7 +41,9 @@
 
 .upcoming-grid,
 .upcoming-list {
-  transition: min-height 0.2s, height 0.2s;
+  transition:
+    min-height 0.2s,
+    height 0.2s;
   .button__content {
     width: 100%;
     &:hover {
@@ -50,7 +52,9 @@
   }
   .claim-grid,
   .claim-list {
-    transition: opacity 0.2s, display 0.2;
+    transition:
+      opacity 0.2s,
+      display 0.2;
     opacity: 1;
   }
 }

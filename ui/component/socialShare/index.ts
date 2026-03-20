@@ -1,18 +1,22 @@
-import { connect } from "react-redux";
-import { doFetchInviteStatus } from "redux/actions/user";
-import { doFetchUriAccessKey } from "redux/actions/content";
-import { selectClaimForUri, selectTitleForUri, makeSelectTagInClaimOrChannelForUri, selectClaimIsNsfwForUri, selectIsFiatRequiredForUri } from "redux/selectors/claims";
-import { doGenerateShareUrl } from "./thunk";
-import SocialShare from "./view";
-import { selectUserInviteReferralCode, selectUser, selectUserInviteStatusFetched } from "redux/selectors/user";
-import { selectContentPositionForUri } from "redux/selectors/content";
-import { selectContentHasProtectedMembershipIds } from "redux/selectors/memberships";
-import { DISABLE_DOWNLOAD_BUTTON_TAG } from "constants/tags";
+import { connect } from 'react-redux';
+import { doFetchInviteStatus } from 'redux/actions/user';
+import { doFetchUriAccessKey } from 'redux/actions/content';
+import {
+  selectClaimForUri,
+  selectTitleForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectClaimIsNsfwForUri,
+  selectIsFiatRequiredForUri,
+} from 'redux/selectors/claims';
+import { doGenerateShareUrl } from './thunk';
+import SocialShare from './view';
+import { selectUserInviteReferralCode, selectUser, selectUserInviteStatusFetched } from 'redux/selectors/user';
+import { selectContentPositionForUri } from 'redux/selectors/content';
+import { selectContentHasProtectedMembershipIds } from 'redux/selectors/memberships';
+import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const claim = selectClaimForUri(state, uri);
   return {
     claim,
@@ -24,13 +28,13 @@ const select = (state, props) => {
     disableDownloadButton: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isMembershipProtected: claim && selectContentHasProtectedMembershipIds(state, claim.claim_id),
-    isFiatRequired: selectIsFiatRequiredForUri(state, uri)
+    isFiatRequired: selectIsFiatRequiredForUri(state, uri),
   };
 };
 
 const perform = {
   doFetchInviteStatus,
   doFetchUriAccessKey,
-  doGenerateShareUrl
+  doGenerateShareUrl,
 };
 export default connect(select, perform)(SocialShare);

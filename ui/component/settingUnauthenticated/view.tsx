@@ -1,13 +1,13 @@
 /**
  * Settings that we allow for unauthenticated users.
  */
-import React from "react";
-import Card from "component/common/card";
-import { FormField } from "component/common/form";
-import HomepageSelector from "component/homepageSelector";
-import SettingLanguage from "component/settingLanguage";
-import SettingsRow from "component/settingsRow";
-import ThemeSelector from "component/themeSelector";
+import React from 'react';
+import Card from 'component/common/card';
+import { FormField } from 'component/common/form';
+import HomepageSelector from 'component/homepageSelector';
+import SettingLanguage from 'component/settingLanguage';
+import SettingsRow from 'component/settingsRow';
+import ThemeSelector from 'component/themeSelector';
 type Props = {
   searchInLanguage: boolean;
   homepageKeys: Array<string>;
@@ -38,4 +38,5 @@ export default function SettingUnauthenticated(props: Props) {
         </>} />;
 } // prettier-ignore
 
-const HELP_LANGUAGE = 'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.';
+const HELP_LANGUAGE =
+  'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.';

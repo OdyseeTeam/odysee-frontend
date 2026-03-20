@@ -1,24 +1,24 @@
-import { $Diff } from "utility-types";
-import React from "react";
-import type { Node } from "react";
-import type { HomepageCat } from "util/buildHomepage";
-import classnames from "classnames";
-import * as MODALS from "constants/modal_types";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import * as KEYCODES from "constants/keycodes";
-import { SIDEBAR_SUBS_DISPLAYED } from "constants/subscriptions";
-import Button from "component/button";
-import ClaimPreviewTitle from "component/claimPreviewTitle";
-import Icon from "component/common/icon";
-import NotificationBubble from "component/notificationBubble";
-import DebouncedInput from "component/common/debounced-input";
-import I18nMessage from "component/i18nMessage";
-import ChannelThumbnail from "component/channelThumbnail";
-import { useIsMobile } from "effects/use-screensize";
-import { platform } from "util/platform";
-import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from "config";
-import MembershipBadge from "component/membershipBadge";
+import { $Diff } from 'utility-types';
+import React from 'react';
+import type { Node } from 'react';
+import type { HomepageCat } from 'util/buildHomepage';
+import classnames from 'classnames';
+import * as MODALS from 'constants/modal_types';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import * as KEYCODES from 'constants/keycodes';
+import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
+import Button from 'component/button';
+import ClaimPreviewTitle from 'component/claimPreviewTitle';
+import Icon from 'component/common/icon';
+import NotificationBubble from 'component/notificationBubble';
+import DebouncedInput from 'component/common/debounced-input';
+import I18nMessage from 'component/i18nMessage';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { useIsMobile } from 'effects/use-screensize';
+import { platform } from 'util/platform';
+import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
+import MembershipBadge from 'component/membershipBadge';
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 type SideNavLink = {
   title: string;
@@ -31,7 +31,7 @@ type SideNavLink = {
   noI18n?: boolean;
 };
 
-const getHomeButton = additionalAction => {
+const getHomeButton = (additionalAction) => {
   const isEmbed = typeof window !== 'undefined' && window.location.pathname.startsWith('/$/embed');
   const homePath = isEmbed ? '/$/embed/home' : '/';
   return {
@@ -43,83 +43,88 @@ const getHomeButton = additionalAction => {
         window.scrollTo({
           top: 0,
           left: 0,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
 
         if (additionalAction) {
           additionalAction();
         }
       }
-    }
+    },
   };
 };
 
 const RECENT_FROM_FOLLOWING = {
   title: 'Following --[sidebar button]--',
   link: `/$/${PAGES.CHANNELS_FOLLOWING}`,
-  icon: ICONS.SUBSCRIBE
+  icon: ICONS.SUBSCRIBE,
 };
 const NOTIFICATIONS: SideNavLink = {
   title: 'Notifications',
   link: `/$/${PAGES.NOTIFICATIONS}`,
   icon: ICONS.NOTIFICATION,
   extra: <NotificationBubble inline />,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const WALLET: SideNavLink = {
   title: 'Wallet',
   link: `/$/${PAGES.WALLET}`,
   icon: ICONS.WALLET,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const WATCH_LATER: SideNavLink = {
   title: 'Watch Later',
   link: `/$/${PAGES.PLAYLIST}/watchlater`,
   icon: ICONS.TIME,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const FAVORITES: SideNavLink = {
   title: 'Favorites',
   link: `/$/${PAGES.PLAYLIST}/favorites`,
   icon: ICONS.STAR,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const PLAYLISTS: SideNavLink = {
   title: 'Playlists',
   link: `/$/${PAGES.PLAYLISTS}`,
   icon: ICONS.PLAYLIST,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const WATCH_HISTORY: SideNavLink = {
   title: 'Watch History',
   link: `/$/${PAGES.WATCH_HISTORY}`,
   icon: ICONS.WATCH_HISTORY,
-  hideForUnauth: true
+  hideForUnauth: true,
 };
 const PREMIUM: SideNavLink = {
   title: 'Premium',
   link: `/$/${PAGES.ODYSEE_MEMBERSHIP}`,
   icon: ICONS.UPGRADE,
   hideForUnauth: true,
-  noI18n: true
+  noI18n: true,
 };
-const UNAUTH_LINKS: Array<SideNavLink> = [{
-  title: 'Log In',
-  link: `/$/${PAGES.AUTH_SIGNIN}`,
-  icon: ICONS.SIGN_IN
-}, {
-  title: 'Sign Up',
-  link: `/$/${PAGES.AUTH}`,
-  icon: ICONS.SIGN_UP
-}, {
-  title: 'Settings',
-  link: `/$/${PAGES.SETTINGS}`,
-  icon: ICONS.SETTINGS
-}, {
-  title: 'Help',
-  link: `/$/${PAGES.HELP}`,
-  icon: ICONS.HELP
-}];
+const UNAUTH_LINKS: Array<SideNavLink> = [
+  {
+    title: 'Log In',
+    link: `/$/${PAGES.AUTH_SIGNIN}`,
+    icon: ICONS.SIGN_IN,
+  },
+  {
+    title: 'Sign Up',
+    link: `/$/${PAGES.AUTH}`,
+    icon: ICONS.SIGN_UP,
+  },
+  {
+    title: 'Settings',
+    link: `/$/${PAGES.SETTINGS}`,
+    icon: ICONS.SETTINGS,
+  },
+  {
+    title: 'Help',
+    link: `/$/${PAGES.HELP}`,
+    icon: ICONS.HELP,
+  },
+];
 // ****************************************************************************
 // ****************************************************************************
 // type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
@@ -179,76 +184,91 @@ function SideNavigation(props: Props) {
     doClearPurchasedUriSuccess,
     doOpenModal,
     doGetDisplayedSubs,
-    doBeginPublish
+    doBeginPublish,
   } = props;
-  const MOBILE_PUBLISH: Array<SideNavLink> = [{
-    title: 'Upload',
-    icon: ICONS.PUBLISH,
-    hideForUnauth: true,
-    onClick: () => doBeginPublish('file')
-  }, {
-    title: 'Go Live',
-    icon: ICONS.GOLIVE,
-    hideForUnauth: true,
-    onClick: () => doBeginPublish('livestream')
-  }, {
-    title: 'Post',
-    icon: ICONS.POST,
-    hideForUnauth: true,
-    onClick: () => doBeginPublish('post')
-  }];
-  const MOBILE_LINKS: Array<SideNavLink> = [{
-    title: 'New Channel',
-    link: `/$/${PAGES.CHANNEL_NEW}`,
-    icon: ICONS.CHANNEL,
-    hideForUnauth: true
-  }, {
-    title: 'Sync YouTube Channel',
-    link: `/$/${PAGES.YOUTUBE_SYNC}`,
-    icon: ICONS.YOUTUBE,
-    hideForUnauth: true
-  }, {
-    title: 'Uploads',
-    link: `/$/${PAGES.UPLOADS}`,
-    icon: ICONS.PUBLISH,
-    hideForUnauth: true
-  }, {
-    title: 'Channels',
-    link: `/$/${PAGES.CHANNELS}`,
-    icon: ICONS.CHANNEL,
-    hideForUnauth: true
-  }, {
-    title: 'Creator Analytics',
-    link: `/$/${PAGES.CREATOR_DASHBOARD}`,
-    icon: ICONS.ANALYTICS,
-    hideForUnauth: true
-  }, {
-    title: 'Credits',
-    link: `/$/${PAGES.REWARDS}`,
-    icon: ICONS.REWARDS,
-    hideForUnauth: true
-  }, {
-    title: 'Invites',
-    link: `/$/${PAGES.INVITE}`,
-    icon: ICONS.INVITE,
-    hideForUnauth: true
-  }, {
-    title: 'Settings',
-    link: `/$/${PAGES.SETTINGS}`,
-    icon: ICONS.SETTINGS,
-    hideForUnauth: true
-  }, {
-    title: 'Help',
-    link: `/$/${PAGES.HELP}`,
-    icon: ICONS.HELP,
-    hideForUnauth: true
-  }, {
-    title: 'Sign Out',
-    onClick: doSignOut,
-    icon: ICONS.SIGN_OUT,
-    hideForUnauth: true
-  }];
-  const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || user && user.experimental_ui;
+  const MOBILE_PUBLISH: Array<SideNavLink> = [
+    {
+      title: 'Upload',
+      icon: ICONS.PUBLISH,
+      hideForUnauth: true,
+      onClick: () => doBeginPublish('file'),
+    },
+    {
+      title: 'Go Live',
+      icon: ICONS.GOLIVE,
+      hideForUnauth: true,
+      onClick: () => doBeginPublish('livestream'),
+    },
+    {
+      title: 'Post',
+      icon: ICONS.POST,
+      hideForUnauth: true,
+      onClick: () => doBeginPublish('post'),
+    },
+  ];
+  const MOBILE_LINKS: Array<SideNavLink> = [
+    {
+      title: 'New Channel',
+      link: `/$/${PAGES.CHANNEL_NEW}`,
+      icon: ICONS.CHANNEL,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Sync YouTube Channel',
+      link: `/$/${PAGES.YOUTUBE_SYNC}`,
+      icon: ICONS.YOUTUBE,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Uploads',
+      link: `/$/${PAGES.UPLOADS}`,
+      icon: ICONS.PUBLISH,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Channels',
+      link: `/$/${PAGES.CHANNELS}`,
+      icon: ICONS.CHANNEL,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Creator Analytics',
+      link: `/$/${PAGES.CREATOR_DASHBOARD}`,
+      icon: ICONS.ANALYTICS,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Credits',
+      link: `/$/${PAGES.REWARDS}`,
+      icon: ICONS.REWARDS,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Invites',
+      link: `/$/${PAGES.INVITE}`,
+      icon: ICONS.INVITE,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Settings',
+      link: `/$/${PAGES.SETTINGS}`,
+      icon: ICONS.SETTINGS,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Help',
+      link: `/$/${PAGES.HELP}`,
+      icon: ICONS.HELP,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Sign Out',
+      onClick: doSignOut,
+      icon: ICONS.SIGN_OUT,
+      hideForUnauth: true,
+    },
+  ];
+  const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const isAuthenticated = Boolean(email);
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
   const [expandTags, setExpandTags] = React.useState(false);
@@ -256,10 +276,10 @@ function SideNavigation(props: Props) {
   const isAbsolute = isOnFilePage || isMediumScreen;
   const isMobile = useIsMobile();
   const [menuInitialized, setMenuInitialized] = React.useState(false);
-  const menuCanCloseCompletely = isOnFilePage && !isMobile || isMobile && menuInitialized;
+  const menuCanCloseCompletely = (isOnFilePage && !isMobile) || (isMobile && menuInitialized);
   const hideMenuFromView = menuCanCloseCompletely && !sidebarOpen;
   const [canDisposeMenu, setCanDisposeMenu] = React.useState(false);
-  const shouldRenderLargeMenu = menuCanCloseCompletely && !isAbsolute || sidebarOpen;
+  const shouldRenderLargeMenu = (menuCanCloseCompletely && !isAbsolute) || sidebarOpen;
   const sideNavigationRef = React.useRef(null);
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
   const showPushMenu = !menuCanCloseCompletely;
@@ -277,48 +297,51 @@ function SideNavigation(props: Props) {
   // **************************************************************************
   // **************************************************************************
   function getLink(props: SideNavLink) {
-    const {
-      hideForUnauth,
-      route,
-      link,
-      noI18n,
-      ...passedProps
-    } = props;
-    const {
-      title,
-      icon,
-      extra
-    } = passedProps;
+    const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
+    const { title, icon, extra } = passedProps;
 
     if (hideForUnauth && !email) {
       return null;
     }
 
-    return <li key={route || link || title}>
-        <Button {...passedProps} icon={icon} navigate={route || link} label={noI18n ? title : __(title)} title={noI18n ? title : __(title)} className={classnames('navigation-link', {
-        'navigation-link--pulse': icon === ICONS.LIBRARY && pulseLibrary,
-        'navigation-link--highlighted': icon === ICONS.NOTIFICATION && unseenCount > 0
-      })} activeClass="navigation-link--active" />
+    return (
+      <li key={route || link || title}>
+        <Button
+          {...passedProps}
+          icon={icon}
+          navigate={route || link}
+          label={noI18n ? title : __(title)}
+          title={noI18n ? title : __(title)}
+          className={classnames('navigation-link', {
+            'navigation-link--pulse': icon === ICONS.LIBRARY && pulseLibrary,
+            'navigation-link--highlighted': icon === ICONS.NOTIFICATION && unseenCount > 0,
+          })}
+          activeClass="navigation-link--active"
+        />
         {extra && extra}
-      </li>;
+      </li>
+    );
   }
 
   function getCategoryLink(props: SidebarCat) {
-    const {
-      id,
-      title,
-      route,
-      link,
-      icon
-    } = props;
+    const { id, title, route, link, icon } = props;
 
     if (id === 'UPCOMING') {
       return null;
     }
 
-    return <li key={route || link || title}>
-        <Button icon={icon} navigate={route || link} label={__(title)} title={__(title)} className="navigation-link" activeClass="navigation-link--active" />
-      </li>;
+    return (
+      <li key={route || link || title}>
+        <Button
+          icon={icon}
+          navigate={route || link}
+          label={__(title)}
+          title={__(title)}
+          className="navigation-link"
+          activeClass="navigation-link--active"
+        />
+      </li>
+    );
   }
 
   function getSubscriptionSection() {
@@ -327,21 +350,43 @@ function SideNavigation(props: Props) {
         return null; // Don't show yet, just wait to save some renders
       }
 
-      return <ul className="navigation__secondary navigation-links">
-          {!showMicroMenu && <SectionHeader title={__('Following')} actionTooltip={__('Manage')} navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''} />}
-          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && <li className="navigation-item">
+      return (
+        <ul className="navigation__secondary navigation-links">
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Following')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
+            <li className="navigation-item">
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
-            </li>}
-          {displayedSubs.map(sub => <SubscriptionListItem key={sub.uri} subscription={sub} />)}
-          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && <li className="navigation-item">
-              <Button icon={ICONS.MORE} title={__('Manage Following')} navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`} className="navigation-link navigation-link--icon-centered" activeClass="navigation-link--active" />
-            </li>}
-          {!!subscriptionFilter && !displayedSubs.length && <li>
+            </li>
+          )}
+          {displayedSubs.map((sub) => (
+            <SubscriptionListItem key={sub.uri} subscription={sub} />
+          ))}
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
+            <li className="navigation-item">
+              <Button
+                icon={ICONS.MORE}
+                title={__('Manage Following')}
+                navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
+                className="navigation-link navigation-link--icon-centered"
+                activeClass="navigation-link--active"
+              />
+            </li>
+          )}
+          {!!subscriptionFilter && !displayedSubs.length && (
+            <li>
               <div className="navigation-item">
                 <div className="empty empty--centered">{__('No results')}</div>
               </div>
-            </li>}
-        </ul>;
+            </li>
+          )}
+        </ul>
+      );
     }
 
     return null;
@@ -349,18 +394,33 @@ function SideNavigation(props: Props) {
 
   function getFollowedTagsSection() {
     if (showTagSection) {
-      return <ul className="navigation__secondary navigation-links">
-          {!showMicroMenu && <SectionHeader title={__('Tags')} actionTooltip={__('Manage')} navigate={!subscriptionFilter ? `/$/${PAGES.TAGS_FOLLOWING_MANAGE}` : ''} />}
+      return (
+        <ul className="navigation__secondary navigation-links">
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Tags')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.TAGS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
           <li key="all" className="navigation-link__wrapper">
             <Button navigate={`/$/tags`} label={__('View all')} className="navigation-link" />
           </li>
-          {displayedFollowedTags.map(({
-          name
-        }, key) => <li key={name} className="navigation-link__wrapper">
+          {displayedFollowedTags.map(({ name }, key) => (
+            <li key={name} className="navigation-link__wrapper">
               <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-            </li>)}
-          {followedTags.length > SIDEBAR_SUBS_DISPLAYED && <Button key="showMore" label={expandTags ? __('Show less') : __('Show more')} className="navigation-link" onClick={() => setExpandTags(!expandTags)} />}
-        </ul>;
+            </li>
+          ))}
+          {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
+            <Button
+              key="showMore"
+              label={expandTags ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandTags(!expandTags)}
+            />
+          )}
+        </ul>
+      );
     }
 
     return null;
@@ -403,7 +463,7 @@ function SideNavigation(props: Props) {
       if (sidebarOpen && e) {
         const navigationButton = document.querySelector('#navigation-button');
 
-        if (e.target === navigationButton || navigationButton && navigationButton.contains(e.target)) {
+        if (e.target === navigationButton || (navigationButton && navigationButton.contains(e.target))) {
           if (sideNavigationRef.current === null || sideNavigationRef.current.contains(e.target)) {
             setSidebarOpen(false);
           }
@@ -457,7 +517,7 @@ function SideNavigation(props: Props) {
   React.useEffect(() => {
     if (showSubsSection) {
       // Done this way to avoid over-render from claimsByUris[].
-      doGetDisplayedSubs(subscriptionFilter).then(result => setDisplayedSubs(result));
+      doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
     }
   }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
   // **************************************************************************
@@ -469,27 +529,45 @@ function SideNavigation(props: Props) {
     navigate?: string;
   };
 
-  const SectionHeader = ({
-    title,
-    actionTooltip,
-    onClick,
-    navigate
-  }: SectionHeaderProps) => {
-    return <div className="navigation-section-header">
+  const SectionHeader = ({ title, actionTooltip, onClick, navigate }: SectionHeaderProps) => {
+    return (
+      <div className="navigation-section-header">
         <span>{title}</span>
-        {(onClick || navigate) && <Button button="link" iconRight={ICONS.SETTINGS} onClick={onClick} navigate={navigate} title={actionTooltip} />}
-      </div>;
+        {(onClick || navigate) && (
+          <Button
+            button="link"
+            iconRight={ICONS.SETTINGS}
+            onClick={onClick}
+            navigate={navigate}
+            title={actionTooltip}
+          />
+        )}
+      </div>
+    );
   };
 
-  const unAuthNudge = DOMAIN === 'lbry.tv' ? null : <div className="navigation__auth-nudge">
+  const unAuthNudge =
+    DOMAIN === 'lbry.tv' ? null : (
+      <div className="navigation__auth-nudge">
         <span>
-          <I18nMessage tokens={{
-        lbc: <Icon icon={ICONS.LBC} />
-      }}>Sign up to receive %lbc%.</I18nMessage>
+          <I18nMessage
+            tokens={{
+              lbc: <Icon icon={ICONS.LBC} />,
+            }}
+          >
+            Sign up to receive %lbc%.
+          </I18nMessage>
         </span>
-        <Button button="secondary" label={__('Sign Up')} navigate={`/$/${PAGES.AUTH}?src=sidenav_nudge`} disabled={user === null} />{' '}
-      </div>;
-  const helpLinks = <ul className="navigation__tertiary navigation-links--small">
+        <Button
+          button="secondary"
+          label={__('Sign Up')}
+          navigate={`/$/${PAGES.AUTH}?src=sidenav_nudge`}
+          disabled={user === null}
+        />{' '}
+      </div>
+    );
+  const helpLinks = (
+    <ul className="navigation__tertiary navigation-links--small">
       <li className="navigation-link">
         <Button label={__('FAQ and Support')} href="https://help.odysee.tv/" target="_blank" />
       </li>
@@ -508,41 +586,54 @@ function SideNavigation(props: Props) {
       <li className="navigation-link" id="gdprSidebarLink">
         <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />
       </li>
-    </ul>;
+    </ul>
+  );
   // **************************************************************************
   // **************************************************************************
-  return <div className={classnames('navigation__wrapper', {
-    'navigation__wrapper--micro': showMicroMenu,
-    'navigation__wrapper--absolute': isAbsolute
-  })} ref={sideNavigationRef}>
-      <nav aria-label={'Sidebar'} className={classnames('navigation', {
-      'navigation--micro': showMicroMenu,
-      'navigation--push': showPushMenu,
-      'navigation-file-page-and-mobile': hideMenuFromView,
-      'navigation-touch': touch
-    })}>
-        {(!canDisposeMenu || sidebarOpen) && <div className="navigation-inner-container">
+  return (
+    <div
+      className={classnames('navigation__wrapper', {
+        'navigation__wrapper--micro': showMicroMenu,
+        'navigation__wrapper--absolute': isAbsolute,
+      })}
+      ref={sideNavigationRef}
+    >
+      <nav
+        aria-label={'Sidebar'}
+        className={classnames('navigation', {
+          'navigation--micro': showMicroMenu,
+          'navigation--push': showPushMenu,
+          'navigation-file-page-and-mobile': hideMenuFromView,
+          'navigation-touch': touch,
+        })}
+      >
+        {(!canDisposeMenu || sidebarOpen) && (
+          <div className="navigation-inner-container">
             <ul className="navigation-links--absolute mobile-only">
               {notificationsEnabled && getLink(NOTIFICATIONS)}
               {getLink(WALLET)}
             </ul>
 
-            <ul className={classnames('navigation-links', {
-          'navigation-links--micro': showMicroMenu,
-          'navigation-links--absolute': shouldRenderLargeMenu
-        })}>
+            <ul
+              className={classnames('navigation-links', {
+                'navigation-links--micro': showMicroMenu,
+                'navigation-links--absolute': shouldRenderLargeMenu,
+              })}
+            >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
               {showMicroMenu && getLink(WATCH_LATER)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
             <ul className="navigation-links--absolute mobile-only">
-              {email && MOBILE_PUBLISH.map(linkProps => getLink(linkProps))}
+              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
             </ul>
-            <ul className={classnames('navigation-links', {
-          'navigation-links--micro': showMicroMenu,
-          'navigation-links--absolute': shouldRenderLargeMenu
-        })}>
+            <ul
+              className={classnames('navigation-links', {
+                'navigation-links--micro': showMicroMenu,
+                'navigation-links--absolute': shouldRenderLargeMenu,
+              })}
+            >
               {!showMicroMenu && email && <SectionHeader title={__('Lists')} />}
               {!showMicroMenu && getLink(WATCH_LATER)}
               {!showMicroMenu && getLink(FAVORITES)}
@@ -550,31 +641,46 @@ function SideNavigation(props: Props) {
               {!showMicroMenu && getLink(WATCH_HISTORY)}
             </ul>
 
-            <ul className={classnames('navigation-links', {
-          'navigation-links--micro': showMicroMenu,
-          'navigation-links--absolute': shouldRenderLargeMenu
-        })}>
-              {categories && <>
-                  {!showMicroMenu && <SectionHeader title={__('Categories')} onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)} actionTooltip={__('Sort and customize your homepage')} />}
-                  {categories.map(linkProps => getCategoryLink(linkProps))}
-                </>}
+            <ul
+              className={classnames('navigation-links', {
+                'navigation-links--micro': showMicroMenu,
+                'navigation-links--absolute': shouldRenderLargeMenu,
+              })}
+            >
+              {categories && (
+                <>
+                  {!showMicroMenu && (
+                    <SectionHeader
+                      title={__('Categories')}
+                      onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)}
+                      actionTooltip={__('Sort and customize your homepage')}
+                    />
+                  )}
+                  {categories.map((linkProps) => getCategoryLink(linkProps))}
+                </>
+              )}
             </ul>
 
             <ul className="navigation-links--absolute mobile-only">
-              {email && MOBILE_LINKS.map(linkProps => getLink(linkProps))}
-              {!email && UNAUTH_LINKS.map(linkProps => getLink(linkProps))}
+              {email && MOBILE_LINKS.map((linkProps) => getLink(linkProps))}
+              {!email && UNAUTH_LINKS.map((linkProps) => getLink(linkProps))}
             </ul>
 
             {getSubscriptionSection()}
             {getFollowedTagsSection()}
             {!isAuthenticated && sidebarOpen && unAuthNudge}
-          </div>}
+          </div>
+        )}
         {(!canDisposeMenu || sidebarOpen) && shouldRenderLargeMenu && helpLinks}
       </nav>
-      <div className={classnames('navigation__overlay', {
-      'navigation__overlay--active': showOverlay
-    })} onClick={() => setSidebarOpen(false)} />
-    </div>;
+      <div
+        className={classnames('navigation__overlay', {
+          'navigation__overlay--active': showOverlay,
+        })}
+        onClick={() => setSidebarOpen(false)}
+      />
+    </div>
+  );
 }
 
 // ****************************************************************************
@@ -585,15 +691,15 @@ type SubItemProps = {
 };
 
 function SubscriptionListItem(props: SubItemProps) {
-  const {
-    subscription
-  } = props;
-  const {
-    uri,
-    channelName
-  } = subscription;
-  return <li className="navigation-link__wrapper navigation__subscription">
-      <Button navigate={uri} className="navigation-link navigation-link--with-thumbnail" activeClass="navigation-link--active">
+  const { subscription } = props;
+  const { uri, channelName } = subscription;
+  return (
+    <li className="navigation-link__wrapper navigation__subscription">
+      <Button
+        navigate={uri}
+        className="navigation-link navigation-link--with-thumbnail"
+        activeClass="navigation-link--active"
+      >
         <ChannelThumbnail xsmall uri={uri} hideStakedIndicator />
         <div className="navigation__subscription-title">
           <ClaimPreviewTitle uri={uri} />
@@ -603,7 +709,8 @@ function SubscriptionListItem(props: SubItemProps) {
           </span>
         </div>
       </Button>
-    </li>;
+    </li>
+  );
 }
 
 export default SideNavigation;

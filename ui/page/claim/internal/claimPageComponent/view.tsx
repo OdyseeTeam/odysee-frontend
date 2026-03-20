@@ -1,20 +1,28 @@
-import { DOMAIN } from "config";
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from "constants/comment";
-import React, { useEffect } from "react";
-import { lazyImport } from "util/lazyImport";
-import { Redirect } from "react-router-dom";
-import Spinner from "component/spinner";
-import { formatLbryUrlForWeb } from "util/url";
-import { parseURI } from "util/lbryURI";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { COL_TYPES } from "constants/collections";
-import PAGES from "constants/pages";
-const ChannelPage = lazyImport(() => import('./internal/channelPage'
-/* webpackChunkName: "channelPage" */
-));
-const StreamClaimPage = lazyImport(() => import('./internal/streamClaimPage'
-/* webpackChunkName: "streamClaimPage" */
-));
+import { DOMAIN } from 'config';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import React, { useEffect } from 'react';
+import { lazyImport } from 'util/lazyImport';
+import { Redirect } from 'react-router-dom';
+import Spinner from 'component/spinner';
+import { formatLbryUrlForWeb } from 'util/url';
+import { parseURI } from 'util/lbryURI';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COL_TYPES } from 'constants/collections';
+import PAGES from 'constants/pages';
+const ChannelPage = lazyImport(
+  () =>
+    import(
+      './internal/channelPage'
+      /* webpackChunkName: "channelPage" */
+    )
+);
+const StreamClaimPage = lazyImport(
+  () =>
+    import(
+      './internal/streamClaimPage'
+      /* webpackChunkName: "streamClaimPage" */
+    )
+);
 const isDev = process.env.NODE_ENV !== 'production';
 type Props = {
   uri: string;
@@ -32,9 +40,7 @@ type Props = {
   doFetchCreatorSettings: (channelId: string) => Promise<any>;
   doFetchLatestClaimForChannel: (uri: string) => void;
   doFetchChannelIsLiveForId: (channelId: string) => void;
-  doFetchItemsInCollection: (params: {
-    collectionId: string;
-  }) => void;
+  doFetchItemsInCollection: (params: { collectionId: string }) => void;
 };
 
 const ClaimPageComponent = (props: Props) => {
@@ -54,13 +60,9 @@ const ClaimPageComponent = (props: Props) => {
     doFetchCreatorSettings,
     doFetchLatestClaimForChannel,
     doFetchChannelIsLiveForId,
-    doFetchItemsInCollection
+    doFetchItemsInCollection,
   } = props;
-  const {
-    search,
-    pathname,
-    hash
-  } = location;
+  const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
@@ -71,9 +73,7 @@ const ClaimPageComponent = (props: Props) => {
   const isEmbed = pathname && pathname.startsWith('/$/embed');
   // In embed mode with live/latest path, use the resolved URL instead of the channel URL
   const effectiveUri = isEmbed && isNewestPath && latestClaimUrl ? latestClaimUrl : uri;
-  const {
-    isChannel
-  } = parseURI(effectiveUri);
+  const { isChannel } = parseURI(effectiveUri);
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
       doFetchChannelIsLiveForId(claimId);
@@ -89,7 +89,12 @@ const ClaimPageComponent = (props: Props) => {
     if (isEmbed) return;
 
     if (canonicalUrl) {
-      const statePos = hash.indexOf('#state') > -1 ? hash.indexOf('#state') : hash.indexOf('&state') > -1 ? hash.indexOf('&state') : undefined;
+      const statePos =
+        hash.indexOf('#state') > -1
+          ? hash.indexOf('#state')
+          : hash.indexOf('&state') > -1
+            ? hash.indexOf('&state')
+            : undefined;
       const pageHash = statePos === undefined ? hash : hash.substring(0, statePos);
       const urlPath = pathname + pageHash;
       const path = urlPath.slice(1).replace(/:/g, '#');
@@ -97,10 +102,7 @@ const ClaimPageComponent = (props: Props) => {
       let queryString, pathHash;
 
       try {
-        ({
-          queryString,
-          pathHash
-        } = parseURI(path));
+        ({ queryString, pathHash } = parseURI(path));
       } catch (e) {}
 
       const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':');
@@ -117,7 +119,7 @@ const ClaimPageComponent = (props: Props) => {
         }
 
         if (urlParams.toString()) replaceUrl += `?${urlParams.toString()}`;
-        if (pathHash || !pathHash && !queryString && pageHash) replaceUrl += String(pathHash || pageHash);
+        if (pathHash || (!pathHash && !queryString && pageHash)) replaceUrl += String(pathHash || pageHash);
         history.replaceState(history.state, '', replaceUrl);
       }
     }
@@ -130,16 +132,18 @@ const ClaimPageComponent = (props: Props) => {
   React.useEffect(() => {
     if (claim && collectionId) {
       doFetchItemsInCollection({
-        collectionId
+        collectionId,
       });
     }
   }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
 
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner delayed />
-      </div>;
+      </div>
+    );
   }
 
   // Skip redirects in embed mode to preserve the embed URL
@@ -152,7 +156,7 @@ const ClaimPageComponent = (props: Props) => {
     // Don't navigate directly to repost urls
     // Always redirect to the actual content
     // Also redirect to channel page (uri) when on a non-existing latest path (live or content)
-    if (claim && (claim.repost_url === uri || isNewestPath && latestClaimUrl === null)) {
+    if (claim && (claim.repost_url === uri || (isNewestPath && latestClaimUrl === null))) {
       const newUrl = formatLbryUrlForWeb(canonicalUrl);
       return <Redirect to={newUrl} />;
     }
@@ -160,12 +164,11 @@ const ClaimPageComponent = (props: Props) => {
     if (claim && isCollection && collectionFirstItemUri) {
       switch (collection?.type) {
         case COL_TYPES.COLLECTION:
-        case COL_TYPES.PLAYLIST:
-          {
-            urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
-            const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
-            return <Redirect to={newUrl} />;
-          }
+        case COL_TYPES.PLAYLIST: {
+          urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
+          const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
+          return <Redirect to={newUrl} />;
+        }
 
         case COL_TYPES.FEATURED_CHANNELS:
           return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
@@ -181,7 +184,14 @@ const ClaimPageComponent = (props: Props) => {
     return <ChannelPage uri={effectiveUri} location={location} />;
   }
 
-  return <StreamClaimPage uri={effectiveUri} collectionId={collectionId} linkedCommentId={linkedCommentId} threadCommentId={threadCommentId} />;
+  return (
+    <StreamClaimPage
+      uri={effectiveUri}
+      collectionId={collectionId}
+      linkedCommentId={linkedCommentId}
+      threadCommentId={threadCommentId}
+    />
+  );
 };
 
 export default ClaimPageComponent;

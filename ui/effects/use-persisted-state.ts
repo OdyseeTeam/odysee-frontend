@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { LocalStorage } from "util/storage";
+import { useState, useEffect } from 'react';
+import { LocalStorage } from 'util/storage';
 const listeners = {};
 
 function getSetAllValues(key, setValue) {
@@ -8,7 +8,7 @@ function getSetAllValues(key, setValue) {
     return setValue;
   }
 
-  return value => listeners[key].forEach(fn => fn(value));
+  return (value) => listeners[key].forEach((fn) => fn(value));
 }
 
 export default function usePersistedState(key, firstTimeDefault) {
@@ -56,7 +56,7 @@ export default function usePersistedState(key, firstTimeDefault) {
     return () => {
       if (key) {
         // remove hook on unmount
-        listeners[key] = listeners[key].filter(listener => listener !== setValue);
+        listeners[key] = listeners[key].filter((listener) => listener !== setValue);
       }
     };
   }, [key, value]);

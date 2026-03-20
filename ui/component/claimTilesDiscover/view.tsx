@@ -1,12 +1,12 @@
-import type { Node } from "react";
-import React, { useRef } from "react";
-import Button from "component/button";
-import ClaimPreviewTile from "component/claimPreviewTile";
-import I18nMessage from "component/i18nMessage";
-import useGetLastVisibleSlot from "effects/use-get-last-visible-slot";
-import useResolvePins from "effects/use-resolve-pins";
-import classNames from "classnames";
-import type { HomepageTitles } from "util/buildHomepage";
+import type { Node } from 'react';
+import React, { useRef } from 'react';
+import Button from 'component/button';
+import ClaimPreviewTile from 'component/claimPreviewTile';
+import I18nMessage from 'component/i18nMessage';
+import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
+import useResolvePins from 'effects/use-resolve-pins';
+import classNames from 'classnames';
+import type { HomepageTitles } from 'util/buildHomepage';
 const SHOW_TIMEOUT_MSG = false;
 
 function urisEqual(prev: Array<string> | null | undefined, next: Array<string> | null | undefined) {
@@ -101,7 +101,7 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
-    sectionTitle
+    sectionTitle,
   } = props;
   const listRef = React.useRef();
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
@@ -112,11 +112,12 @@ function ClaimTilesDiscover(props: Props) {
   const resolvedPinUris = useResolvePins({
     pins,
     doResolveClaimIds,
-    doResolveUris
+    doResolveUris,
   });
   const uriBuffer = useRef([]);
   const timedOut = claimSearchResults === null;
-  const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0 && !claimSearchLastPageReached;
+  const shouldPerformSearch =
+    !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0 && !claimSearchLastPageReached;
   const uris = (prefixUris || []).concat(claimSearchUris);
   if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
 
@@ -148,7 +149,7 @@ function ClaimTilesDiscover(props: Props) {
     }
 
     if (resolvedPinUris) {
-      resolvedPinUris.forEach(pin => {
+      resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
           // remove the duplicate pin; we'll put it back at 2nd slot later.
           uris.splice(uris.indexOf(pin), 1);
@@ -162,7 +163,7 @@ function ClaimTilesDiscover(props: Props) {
     }
   }
 
-  const getInjectedItem = index => {
+  const getInjectedItem = (index) => {
     if (injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
@@ -188,11 +189,13 @@ function ClaimTilesDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      const searchSettings = fetchViewCount ? {
-        fetch: {
-          viewCount: true
-        }
-      } : null;
+      const searchSettings = fetchViewCount
+        ? {
+            fetch: {
+              viewCount: true,
+            },
+          }
+        : null;
       doClaimSearch(searchOptions, searchSettings);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringified, fetchViewCount]);
@@ -200,44 +203,82 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
   if (timedOut && SHOW_TIMEOUT_MSG) {
-    return <div className="empty empty--centered">
+    return (
+      <div className="empty empty--centered">
         <p>{__('Sorry, your request timed out. Try refreshing in a bit.')}</p>
         <p>
-          <I18nMessage tokens={{
-          contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />
-        }}>
+          <I18nMessage
+            tokens={{
+              contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
+            }}
+          >
             If you continue to have issues, please %contact_support%.
           </I18nMessage>
         </p>
-      </div>;
+      </div>
+    );
   }
 
   if (!timedOut && finalUris && finalUris.length === 0 && !loading && claimSearchLastPageReached) {
     return <div className="empty empty--centered">{__('No results')}</div>;
   }
 
-  return <ul ref={listRef} className={classNames('claim-grid', {
-    'claim-shorts-grid': props.isShorts || sectionTitle === 'Shorts'
-  })}>
-      {!loading && finalUris && finalUris.length ? finalUris.map((uri, i) => {
-      if (uri) {
-        const inj = getInjectedItem(i);
+  return (
+    <ul
+      ref={listRef}
+      className={classNames('claim-grid', {
+        'claim-shorts-grid': props.isShorts || sectionTitle === 'Shorts',
+      })}
+    >
+      {!loading && finalUris && finalUris.length
+        ? finalUris.map((uri, i) => {
+            if (uri) {
+              const inj = getInjectedItem(i);
 
-        if (inj) {
-          if (!uriBuffer.current.includes(i)) {
-            uriBuffer.current.push(i);
-          }
-        }
+              if (inj) {
+                if (!uriBuffer.current.includes(i)) {
+                  uriBuffer.current.push(i);
+                }
+              }
 
-        return <React.Fragment key={uri}>
+              return (
+                <React.Fragment key={uri}>
                   {inj && inj}
-                  {(i < finalUris.length - uriBuffer.current.length || i < pageSize - uriBuffer.current.length) && <ClaimPreviewTile sectionTitle={sectionTitle} showNoSourceClaims={hasNoSource || showNoSourceClaims} uri={uri} properties={renderProperties} />}
-                </React.Fragment>;
-      } else {
-        return <ClaimPreviewTile sectionTitle={sectionTitle} showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />;
-      }
-    }) : new Array(pageSize).fill(1).map((x, i) => <ClaimPreviewTile sectionTitle={sectionTitle} showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />)}
-    </ul>;
+                  {(i < finalUris.length - uriBuffer.current.length || i < pageSize - uriBuffer.current.length) && (
+                    <ClaimPreviewTile
+                      sectionTitle={sectionTitle}
+                      showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                      uri={uri}
+                      properties={renderProperties}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            } else {
+              return (
+                <ClaimPreviewTile
+                  sectionTitle={sectionTitle}
+                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                  key={i}
+                  placeholder
+                  pulse
+                />
+              );
+            }
+          })
+        : new Array(pageSize)
+            .fill(1)
+            .map((x, i) => (
+              <ClaimPreviewTile
+                sectionTitle={sectionTitle}
+                showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                key={i}
+                placeholder
+                pulse
+              />
+            ))}
+    </ul>
+  );
 }
 
 export default React.memo<Props>(ClaimTilesDiscover, areEqual); // ****************************************************************************
@@ -275,9 +316,15 @@ function areEqual(prev: Props, next: Props) {
   // --- Default the rest(*) to shallow-compare ---
   // (*) including new props introduced in the future, in case developer forgets
   // to update this function. Better to render more than miss an important one.
-  const KEYS_TO_IGNORE = [...ARRAY_KEYS, 'claimType', // Handled above.
-  'claimsByUri', // Used for view-count. Just ignore it for now.
-  'location', 'history', 'match', 'doClaimSearch'];
+  const KEYS_TO_IGNORE = [
+    ...ARRAY_KEYS,
+    'claimType', // Handled above.
+    'claimsByUri', // Used for view-count. Just ignore it for now.
+    'location',
+    'history',
+    'match',
+    'doClaimSearch',
+  ];
   const propKeys = Object.keys(next);
 
   for (let i = 0; i < propKeys.length; ++i) {

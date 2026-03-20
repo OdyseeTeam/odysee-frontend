@@ -1,5 +1,5 @@
-import * as SETTINGS from "constants/settings";
-import { getDefaultLanguage } from "util/default-languages";
+import * as SETTINGS from 'constants/settings';
+import { getDefaultLanguage } from 'util/default-languages';
 const isProduction = process.env.NODE_ENV === 'production';
 window.i18n_messages = window.i18n_messages || {};
 let reportTimer;
@@ -29,7 +29,6 @@ function saveMessageWeb(message) {
     reportTimer = setTimeout(() => console.log(window.new_strings), 2000); // eslint-disable-line no-console
     // @endif
   } // @endif
-
 }
 
 function removeContextMetadata(message) {

@@ -1,4 +1,4 @@
-import type { DoPublishDesktop } from "redux/actions/publish";
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 /*
   On submit, this component calls publish, which dispatches doPublishDesktop.
@@ -7,32 +7,40 @@ import type { DoPublishDesktop } from "redux/actions/publish";
   On web, the Lbry publish method call is overridden in platform/web/api-setup, using a function in platform/web/publish.
   File upload is carried out in the background by that function.
  */
-import { SITE_NAME, SIMPLE_SITE } from "config";
-import React, { useEffect } from "react";
-import { buildURI, isURIValid, isNameValid } from "util/lbryURI";
-import { lazyImport } from "util/lazyImport";
-import * as THUMBNAIL_STATUSES from "constants/thumbnail_upload_statuses";
-import Button from "component/button";
-import ChannelSelector from "component/channelSelector";
-import classnames from "classnames";
-import TagsSelect from "component/tagsSelect";
-import PublishAdditionalOptions from "component/publish/shared/publishAdditionalOptions";
-import PublishFormErrors from "component/publish/shared/publishFormErrors";
-import PublishVisibility from "component/publish/shared/publishVisibility";
-import PublishPost from "component/publish/post/publishPost";
-import Card from "component/common/card";
-import I18nMessage from "component/i18nMessage";
-import * as PUBLISH_MODES from "constants/publish_types";
-import Spinner from "component/spinner";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import PublishProtectedContent from "component/publishProtectedContent";
-const SelectThumbnail = lazyImport(() => import('component/selectThumbnail'
-/* webpackChunkName: "selectThumbnail" */
-));
-const PublishPrice = lazyImport(() => import('component/publish/shared/publishPrice'
-/* webpackChunkName: "publish" */
-));
+import { SITE_NAME, SIMPLE_SITE } from 'config';
+import React, { useEffect } from 'react';
+import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import Button from 'component/button';
+import ChannelSelector from 'component/channelSelector';
+import classnames from 'classnames';
+import TagsSelect from 'component/tagsSelect';
+import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
+import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
+import PublishPost from 'component/publish/post/publishPost';
+import Card from 'component/common/card';
+import I18nMessage from 'component/i18nMessage';
+import * as PUBLISH_MODES from 'constants/publish_types';
+import Spinner from 'component/spinner';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import PublishProtectedContent from 'component/publishProtectedContent';
+const SelectThumbnail = lazyImport(
+  () =>
+    import(
+      'component/selectThumbnail'
+      /* webpackChunkName: "selectThumbnail" */
+    )
+);
+const PublishPrice = lazyImport(
+  () =>
+    import(
+      'component/publish/shared/publishPrice'
+      /* webpackChunkName: "publish" */
+    )
+);
 type Props = {
   disabled: boolean;
   tags: Array<Tag>;
@@ -128,7 +136,7 @@ function PostForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
-    memberRestrictionStatus
+    memberRestrictionStatus,
   } = props;
   const inEditMode = Boolean(editingURI);
   const mode = PUBLISH_MODES.POST;
@@ -146,13 +154,32 @@ function PostForm(props: Props) {
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
-  const fileMimeType = myClaimForUri && myClaimForUri.value && myClaimForUri.value.source ? myClaimForUri.value.source.media_type : undefined;
+  const fileMimeType =
+    myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
+      ? myClaimForUri.value.source.media_type
+      : undefined;
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   // TODO: formValidLessFile should be a selector
-  const formValidLessFile = (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) && name && isNameValid(name) && title && bid && thumbnail && !bidError && !releaseTimeError && !emptyPostError && !(thumbnailError && !thumbnailUploaded) && !releaseTimeError && !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
+  const formValidLessFile =
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
+    name &&
+    isNameValid(name) &&
+    title &&
+    bid &&
+    thumbnail &&
+    !bidError &&
+    !releaseTimeError &&
+    !emptyPostError &&
+    !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
+    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
-  const formValid = isOverwritingExistingClaim ? false : editingURI && !filePath ? isStillEditing && formValidLessFile : formValidLessFile;
+  const formValid = isOverwritingExistingClaim
+    ? false
+    : editingURI && !filePath
+      ? isStillEditing && formValidLessFile
+      : formValidLessFile;
   const [previewing, setPreviewing] = React.useState(false);
   const formTitle = !editingURI ? __('Post an article') : __('Edit post');
   const isClear = !title && !name && !thumbnail;
@@ -173,10 +200,9 @@ function PostForm(props: Props) {
     if (publishError) {
       setPreviewing(false);
       updatePublishForm({
-        publishError: undefined
+        publishError: undefined,
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [publishError]);
   let submitLabel;
 
@@ -203,7 +229,6 @@ function PostForm(props: Props) {
     if (publishing || publishSuccess) {
       clearPublish();
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [clearPublish]);
   useEffect(() => {
     if (!thumbnail) {
@@ -232,18 +257,26 @@ function PostForm(props: Props) {
     let uri;
 
     try {
-      uri = name && buildURI({
-        streamName: name,
-        activeChannelName
-      }, true);
+      uri =
+        name &&
+        buildURI(
+          {
+            streamName: name,
+            activeChannelName,
+          },
+          true
+        );
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({
-          streamName: name
-        }, true);
+        const uriLessChannel = buildURI(
+          {
+            streamName: name,
+          },
+          true
+        );
         resolveUri(uriLessChannel);
       } catch (e) {}
     }
@@ -254,7 +287,7 @@ function PostForm(props: Props) {
       resolveUri(uri);
       checkAvailability(name);
       updatePublishForm({
-        uri
+        uri,
       });
     }
   }, [name, activeChannelName, resolveUri, updatePublishForm, checkAvailability]);
@@ -268,12 +301,12 @@ function PostForm(props: Props) {
     if (incognito) {
       updatePublishForm({
         channel: undefined,
-        channelId: undefined
+        channelId: undefined,
       });
     } else if (activeChannelName) {
       updatePublishForm({
         channel: activeChannelName,
-        channelId: activeChannelId
+        channelId: activeChannelId,
       });
     }
   }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
@@ -285,7 +318,7 @@ function PostForm(props: Props) {
 
       if (fileName) {
         return new File([fileText], `${fileName}.md`, {
-          type: 'text/markdown'
+          type: 'text/markdown',
         });
       }
     }
@@ -308,7 +341,7 @@ function PostForm(props: Props) {
         // New content stored locally and is not empty
         if (outputFile) {
           updatePublishForm({
-            filePath: outputFile
+            filePath: outputFile,
           });
           runPublish = true;
         }
@@ -340,33 +373,66 @@ function PostForm(props: Props) {
   }, [autoSwitchMode, editingURI, fileMimeType, myClaimForUri, mode, setAutoSwitchMode]);
 
   if (publishing) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <h1 className="section__subtitle">{__('Publishing...')}</h1>
         <Spinner delayed />
-      </div>;
+      </div>
+    );
   }
 
-  const isFormIncomplete = isClaimingInitialRewards || formDisabled || uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS || !(uploadThumbnailStatus === THUMBNAIL_STATUSES.MANUAL || uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE) || thumbnailError || previewing;
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.MANUAL || uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE) ||
+    thumbnailError ||
+    previewing;
   // Editing claim uri
-  return <div className="card-stack">
+  return (
+    <div className="card-stack">
       <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.POST} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 
-      <Card background body={<div className="publish-row publish-row--no-margin">
-            <PublishPost inEditMode={inEditMode} uri={permanentUrl} mode={mode} fileMimeType={fileMimeType} disabled={disabled || publishing} inProgress={isInProgress} setPrevFileText={setPrevFileText} />
-          </div>} />
+      <Card
+        background
+        body={
+          <div className="publish-row publish-row--no-margin">
+            <PublishPost
+              inEditMode={inEditMode}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+            />
+          </div>
+        }
+      />
 
-      {!publishing && <div className={classnames({
-      'card--disabled': formDisabled
-    })}>
-          <Card background title={__('Thumbnail')} body={<div className="publish-row">
+      {!publishing && (
+        <div
+          className={classnames({
+            'card--disabled': formDisabled,
+          })}
+        >
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
                 <SelectThumbnail />
-              </div>} />
+              </div>
+            }
+          />
 
           <PublishVisibility />
 
@@ -374,49 +440,97 @@ function PostForm(props: Props) {
 
           <PublishPrice disabled={formDisabled} />
 
-          <h2 className="card__title" style={{
-        marginTop: 'var(--spacing-l)'
-      }}>
+          <h2
+            className="card__title"
+            style={{
+              marginTop: 'var(--spacing-l)',
+            }}
+          >
             {__('Tags')}
           </h2>
-          <Card background body={<div className="publish-row">
-                <TagsSelect suggestMature={!SIMPLE_SITE} disableAutoFocus hideHeader label={__('Selected Tags')} empty={__('No tags added')} limitSelect={TAGS_LIMIT} help={__("Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'.")} placeholder={__('gaming, crypto')} onSelect={newTags => {
-          const validatedTags = [];
-          newTags.forEach(newTag => {
-            if (!tags.some(tag => tag.name === newTag.name)) {
-              validatedTags.push(newTag);
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({
+                      tags: [...tags, ...validatedTags],
+                    });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({
+                      tags: newTags,
+                    });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
             }
-          });
-          updatePublishForm({
-            tags: [...tags, ...validatedTags]
-          });
-        }} onRemove={clickedTag => {
-          const newTags = tags.slice().filter(tag => tag.name !== clickedTag.name);
-          updatePublishForm({
-            tags: newTags
-          });
-        }} tagsChosen={tags} />
-              </div>} />
+          />
 
           <PublishAdditionalOptions disabled={formDisabled} />
-        </div>}
+        </div>
+      )}
       <section>
         <div className="section__actions publish__actions">
-          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete || !formValid} />
+          <Button
+            button="primary"
+            onClick={handlePublish}
+            label={submitLabel}
+            disabled={isFormIncomplete || !formValid}
+          />
           <ChannelSelector disabled={isFormIncomplete} isPublishMenu />
         </div>
         <p className="help">
-          {!formDisabled && !formValid ? <PublishFormErrors title={title} mode={mode} /> : <I18nMessage tokens={{
-          odysee_terms_of_service: <Button button="link" href="https://odysee.com/$/tos" label={__('%site_name% Terms of Service', {
-            site_name: SITE_NAME
-          })} />,
-          odysee_community_guidelines: <Button button="link" href="https://help.odysee.tv/communityguidelines/" target="_blank" label={__('Community Guidelines')} />
-        }}>
+          {!formDisabled && !formValid ? (
+            <PublishFormErrors title={title} mode={mode} />
+          ) : (
+            <I18nMessage
+              tokens={{
+                odysee_terms_of_service: (
+                  <Button
+                    button="link"
+                    href="https://odysee.com/$/tos"
+                    label={__('%site_name% Terms of Service', {
+                      site_name: SITE_NAME,
+                    })}
+                  />
+                ),
+                odysee_community_guidelines: (
+                  <Button
+                    button="link"
+                    href="https://help.odysee.tv/communityguidelines/"
+                    target="_blank"
+                    label={__('Community Guidelines')}
+                  />
+                ),
+              }}
+            >
               By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
-            </I18nMessage>}
+            </I18nMessage>
+          )}
         </p>
       </section>
-    </div>;
+    </div>
+  );
 }
 
 export default PostForm;

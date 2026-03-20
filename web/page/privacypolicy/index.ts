@@ -1,2 +1,2 @@
-import PagePrivacyPolicy from "./view";
+import PagePrivacyPolicy from './view';
 export default PagePrivacyPolicy;

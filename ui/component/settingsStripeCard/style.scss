@@ -113,7 +113,10 @@
   color: var(--color-black) !important;
 
   &:focus {
-    box-shadow: 0 0 0 1px rgba(50, 151, 211, 0.3), 0 1px 1px 0 rgba(0, 0, 0, 0.07), 0 0 0 4px rgba(50, 151, 211, 0.3) !important;
+    box-shadow:
+      0 0 0 1px rgba(50, 151, 211, 0.3),
+      0 1px 1px 0 rgba(0, 0, 0, 0.07),
+      0 0 0 4px rgba(50, 151, 211, 0.3) !important;
     outline: none;
     z-index: 9;
   }
@@ -146,7 +149,9 @@
 }
 
 .sr-combo-inputs-row {
-  box-shadow: 0px 0px 0px 0.5px rgba(50, 50, 93, 0.1), 0px 2px 5px 0px rgba(50, 50, 93, 0.1),
+  box-shadow:
+    0px 0px 0px 0.5px rgba(50, 50, 93, 0.1),
+    0px 2px 5px 0px rgba(50, 50, 93, 0.1),
     0px 1px 1.5px 0px rgba(0, 0, 0, 0.07);
   border-radius: 7px;
 }

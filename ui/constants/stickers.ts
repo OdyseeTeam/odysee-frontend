@@ -3,7 +3,7 @@ const buildCDNUrl = (path: string) => `https://static.odycdn.com/stickers/${path
 const buildSticker = (name: string, path: string, price?: number) => ({
   name: `:${name}:`,
   url: buildCDNUrl(path),
-  price: price
+  price: price,
 });
 
 const CAT_BORDER = 'CAT/PNG/cat_with_border.png';
@@ -65,6 +65,65 @@ const WOW = 'MISC/PNG/wow.png';
 const GRR = 'MISC/PNG/grr.png';
 const ACTUALLY = 'MISC/PNG/actually.png';
 const THUMBS_UP = 'MISC/PNG/thumbs_up.png';
-export const FREE_GLOBAL_STICKERS = [buildSticker('FIRE', FIRE_WITH_FRAME), buildSticker('SLIME', SLIME_WITH_FRAME), buildSticker('PISS', PISS), buildSticker('THUMBS_UP', THUMBS_UP), buildSticker('BRAVO', BRAVO), buildSticker('WOW', WOW), buildSticker('GRR', GRR), buildSticker('ACTUALLY', ACTUALLY), buildSticker('INTERESTING', INTERESTING), buildSticker('CAT', CAT_BORDER), buildSticker('FAIL', FAIL_BORDER), buildSticker('HYPE', HYPE_BORDER), buildSticker('PANTS_1', PANTS_1_WITH_FRAME), buildSticker('DOGE', DOGE), buildSticker('EGG_CARTON', EGG_CARTON), // buildSticker('XMAS', XMAS),
-buildSticker('WAITING', WAITING), buildSticker('BULL_RIDE', BULL_RIDE), buildSticker('ELIMINATED', ELIMINATED), buildSticker('BAN', BAN), buildSticker('MONEY_PRINTER', MONEY_PRINTER), buildSticker('MOUNT_RUSHMORE', MOUNT_RUSHMORE), buildSticker('KANYE_WEST', KANYE_WEST), buildSticker('TAYLOR_SWIFT', TAYLOR_SWIFT), buildSticker('DONALD_TRUMP', DONALD_TRUMP), buildSticker('BILL_CLINTON', BILL_CLINTON), buildSticker('EPSTEIN_ISLAND', EPSTEIN_ISLAND), buildSticker('KURT_COBAIN', KURT_COBAIN), buildSticker('BILL_COSBY', BILL_COSBY), buildSticker('CHE_GUEVARA', CHE_GUEVARA), buildSticker('PREGNANT_MAN_BLONDE', PREGNANT_MAN_BLONDE_WHITE_BORDER), buildSticker('ROCKET_SPACEMAN', ROCKET_SPACEMAN_WITH_BORDER), buildSticker('SALTY', SALTY), buildSticker('SICK_FLAME', SICK_2_WITH_BORDER), buildSticker('SICK_SKULL', SICK_1_WITH_BORDERDARK_WITH_FRAME), buildSticker('SPHAGETTI_BATH', SPHAGETTI_BATH_WITH_FRAME), buildSticker('THUG_LIFE', THUG_LIFE_WITH_BORDER), buildSticker('TRAP', TRAP), buildSticker('TRASH', TRASH), buildSticker('WHUUT', WHUUT_WITH_FRAME)];
-export const PAID_GLOBAL_STICKERS = [buildSticker('TIP_HAND_FLIP', TIP_HAND_FLIP, 1), buildSticker('TIP_HAND_FLIP_COIN', TIP_HAND_FLIP_COIN, 1), buildSticker('TIP_HAND_FLIP_LBC', TIP_HAND_FLIP_LBC, 1), buildSticker('COMET_TIP', COMET_TIP, 5), buildSticker('SILVER_ODYSEE_COIN', SILVER_ODYSEE_COIN, 5), buildSticker('LBC_COMET_TIP', LBC_COMET_TIP, 25), buildSticker('SMALL_TIP', SMALL_TIP, 25), buildSticker('SMALL_LBC_TIP', SMALL_LBC_TIP, 25), buildSticker('BITE_TIP', BITE_TIP, 50), buildSticker('BITE_TIP_CLOSEUP', BITE_TIP_CLOSEUP, 50), buildSticker('BITE_LBC_CLOSEUP', BITE_LBC_CLOSEUP, 50), buildSticker('MEDIUM_TIP', MEDIUM_TIP, 50), buildSticker('MEDIUM_LBC_TIP', MEDIUM_LBC_TIP, 50), buildSticker('LARGE_TIP', LARGE_TIP, 100), buildSticker('LARGE_LBC_TIP', LARGE_LBC_TIP, 100), buildSticker('BIG_TIP', BIG_TIP, 150), buildSticker('BIG_LBC_TIP', BIG_LBC_TIP, 150), buildSticker('FORTUNE_CHEST', FORTUNE_CHEST, 200), buildSticker('FORTUNE_CHEST_LBC', FORTUNE_CHEST_LBC, 200)];
+export const FREE_GLOBAL_STICKERS = [
+  buildSticker('FIRE', FIRE_WITH_FRAME),
+  buildSticker('SLIME', SLIME_WITH_FRAME),
+  buildSticker('PISS', PISS),
+  buildSticker('THUMBS_UP', THUMBS_UP),
+  buildSticker('BRAVO', BRAVO),
+  buildSticker('WOW', WOW),
+  buildSticker('GRR', GRR),
+  buildSticker('ACTUALLY', ACTUALLY),
+  buildSticker('INTERESTING', INTERESTING),
+  buildSticker('CAT', CAT_BORDER),
+  buildSticker('FAIL', FAIL_BORDER),
+  buildSticker('HYPE', HYPE_BORDER),
+  buildSticker('PANTS_1', PANTS_1_WITH_FRAME),
+  buildSticker('DOGE', DOGE),
+  buildSticker('EGG_CARTON', EGG_CARTON), // buildSticker('XMAS', XMAS),
+  buildSticker('WAITING', WAITING),
+  buildSticker('BULL_RIDE', BULL_RIDE),
+  buildSticker('ELIMINATED', ELIMINATED),
+  buildSticker('BAN', BAN),
+  buildSticker('MONEY_PRINTER', MONEY_PRINTER),
+  buildSticker('MOUNT_RUSHMORE', MOUNT_RUSHMORE),
+  buildSticker('KANYE_WEST', KANYE_WEST),
+  buildSticker('TAYLOR_SWIFT', TAYLOR_SWIFT),
+  buildSticker('DONALD_TRUMP', DONALD_TRUMP),
+  buildSticker('BILL_CLINTON', BILL_CLINTON),
+  buildSticker('EPSTEIN_ISLAND', EPSTEIN_ISLAND),
+  buildSticker('KURT_COBAIN', KURT_COBAIN),
+  buildSticker('BILL_COSBY', BILL_COSBY),
+  buildSticker('CHE_GUEVARA', CHE_GUEVARA),
+  buildSticker('PREGNANT_MAN_BLONDE', PREGNANT_MAN_BLONDE_WHITE_BORDER),
+  buildSticker('ROCKET_SPACEMAN', ROCKET_SPACEMAN_WITH_BORDER),
+  buildSticker('SALTY', SALTY),
+  buildSticker('SICK_FLAME', SICK_2_WITH_BORDER),
+  buildSticker('SICK_SKULL', SICK_1_WITH_BORDERDARK_WITH_FRAME),
+  buildSticker('SPHAGETTI_BATH', SPHAGETTI_BATH_WITH_FRAME),
+  buildSticker('THUG_LIFE', THUG_LIFE_WITH_BORDER),
+  buildSticker('TRAP', TRAP),
+  buildSticker('TRASH', TRASH),
+  buildSticker('WHUUT', WHUUT_WITH_FRAME),
+];
+export const PAID_GLOBAL_STICKERS = [
+  buildSticker('TIP_HAND_FLIP', TIP_HAND_FLIP, 1),
+  buildSticker('TIP_HAND_FLIP_COIN', TIP_HAND_FLIP_COIN, 1),
+  buildSticker('TIP_HAND_FLIP_LBC', TIP_HAND_FLIP_LBC, 1),
+  buildSticker('COMET_TIP', COMET_TIP, 5),
+  buildSticker('SILVER_ODYSEE_COIN', SILVER_ODYSEE_COIN, 5),
+  buildSticker('LBC_COMET_TIP', LBC_COMET_TIP, 25),
+  buildSticker('SMALL_TIP', SMALL_TIP, 25),
+  buildSticker('SMALL_LBC_TIP', SMALL_LBC_TIP, 25),
+  buildSticker('BITE_TIP', BITE_TIP, 50),
+  buildSticker('BITE_TIP_CLOSEUP', BITE_TIP_CLOSEUP, 50),
+  buildSticker('BITE_LBC_CLOSEUP', BITE_LBC_CLOSEUP, 50),
+  buildSticker('MEDIUM_TIP', MEDIUM_TIP, 50),
+  buildSticker('MEDIUM_LBC_TIP', MEDIUM_LBC_TIP, 50),
+  buildSticker('LARGE_TIP', LARGE_TIP, 100),
+  buildSticker('LARGE_LBC_TIP', LARGE_LBC_TIP, 100),
+  buildSticker('BIG_TIP', BIG_TIP, 150),
+  buildSticker('BIG_LBC_TIP', BIG_LBC_TIP, 150),
+  buildSticker('FORTUNE_CHEST', FORTUNE_CHEST, 200),
+  buildSticker('FORTUNE_CHEST_LBC', FORTUNE_CHEST_LBC, 200),
+];

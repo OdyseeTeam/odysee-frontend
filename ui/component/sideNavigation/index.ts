@@ -1,49 +1,53 @@
-import { connect } from "react-redux";
-import { createSelector } from "reselect";
-import SideNavigation from "./view";
-import * as SETTINGS from "constants/settings";
-import { SIDEBAR_SUBS_DISPLAYED } from "constants/subscriptions";
-import { getSortedRowData } from "page/home/helper";
-import { doBeginPublish } from "redux/actions/publish";
-import { doFetchLastActiveSubs } from "redux/actions/subscriptions";
-import { selectLastActiveSubscriptions, selectSubscriptionUris, selectSubscriptions } from "redux/selectors/subscriptions";
-import { doClearClaimSearch } from "redux/actions/claims";
-import { doClearPurchasedUriSuccess } from "redux/actions/file";
-import { selectFollowedTags } from "redux/selectors/tags";
-import { selectUserVerifiedEmail, selectUser, hasLegacyOdyseePremium } from "redux/selectors/user";
-import { selectClientSettings, selectHomepageData } from "redux/selectors/settings";
-import { doOpenModal, doSignOut } from "redux/actions/app";
-import { selectUnseenNotificationCount } from "redux/selectors/notifications";
-import { selectClaimsByUri, selectPurchaseUriSuccess } from "redux/selectors/claims";
-import { GetLinksData } from "util/buildHomepage";
+import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
+import SideNavigation from './view';
+import * as SETTINGS from 'constants/settings';
+import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
+import { getSortedRowData } from 'page/home/helper';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
+import {
+  selectLastActiveSubscriptions,
+  selectSubscriptionUris,
+  selectSubscriptions,
+} from 'redux/selectors/subscriptions';
+import { doClearClaimSearch } from 'redux/actions/claims';
+import { doClearPurchasedUriSuccess } from 'redux/actions/file';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectUserVerifiedEmail, selectUser, hasLegacyOdyseePremium } from 'redux/selectors/user';
+import { selectClientSettings, selectHomepageData } from 'redux/selectors/settings';
+import { doOpenModal, doSignOut } from 'redux/actions/app';
+import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
+import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
+import { GetLinksData } from 'util/buildHomepage';
 // ****************************************************************************
 // selectSidebarCategories
 // ****************************************************************************
-const selectSidebarCategories = createSelector(selectHomepageData, selectClientSettings, selectUserVerifiedEmail, hasLegacyOdyseePremium, (homepageData, clientSettings, email, hasMembership) => {
-  const applyHomepageOrderToSidebar = clientSettings[SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR];
-  const homepageOrder = clientSettings[SETTINGS.HOMEPAGE_ORDER];
-  const isSmallScreen = false; // we don't care about tile count, just want categories.
+const selectSidebarCategories = createSelector(
+  selectHomepageData,
+  selectClientSettings,
+  selectUserVerifiedEmail,
+  hasLegacyOdyseePremium,
+  (homepageData, clientSettings, email, hasMembership) => {
+    const applyHomepageOrderToSidebar = clientSettings[SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR];
+    const homepageOrder = clientSettings[SETTINGS.HOMEPAGE_ORDER];
+    const isSmallScreen = false; // we don't care about tile count, just want categories.
 
-  const isMediumScreen = false;
-  const isLargeScreen = false;
-  const rowData = GetLinksData(homepageData || {}, isSmallScreen, isMediumScreen, isLargeScreen);
-  let categories = rowData;
+    const isMediumScreen = false;
+    const isLargeScreen = false;
+    const rowData = GetLinksData(homepageData || {}, isSmallScreen, isMediumScreen, isLargeScreen);
+    let categories = rowData;
 
-  if (applyHomepageOrderToSidebar) {
-    const sortedRowData
-    /* : Array<RowDataItem> */
-    = getSortedRowData(Boolean(email), homepageOrder, homepageData, rowData);
-    categories = sortedRowData.filter(x => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
+    if (applyHomepageOrderToSidebar) {
+      const sortedRowData =
+        /* : Array<RowDataItem> */
+        getSortedRowData(Boolean(email), homepageOrder, homepageData, rowData);
+      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
+    }
+
+    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
   }
-
-  return categories.map(({
-    pinnedUrls,
-    pinnedClaimIds,
-    hideByDefault,
-    hideSort,
-    ...theRest
-  }) => theRest);
-});
+);
 
 // ****************************************************************************
 // doGetDisplayedSubs
@@ -59,7 +63,7 @@ function doGetDisplayedSubs(filter) {
     if (subs) {
       if (filter) {
         const f = filter.toLowerCase();
-        subs.forEach(sub => {
+        subs.forEach((sub) => {
           const claim = claimsByUri[sub?.uri];
 
           if (claim) {
@@ -80,7 +84,7 @@ function doGetDisplayedSubs(filter) {
 // ****************************************************************************
 // SideNavigation
 // ****************************************************************************
-const select = state => ({
+const select = (state) => ({
   sidebarCategories: selectSidebarCategories(state),
   lastActiveSubs: selectLastActiveSubscriptions(state),
   followedTags: selectFollowedTags(state),
@@ -89,7 +93,7 @@ const select = state => ({
   unseenCount: selectUnseenNotificationCount(state),
   user: selectUser(state),
   hasMembership: hasLegacyOdyseePremium(state),
-  subscriptionUris: selectSubscriptionUris(state) || []
+  subscriptionUris: selectSubscriptionUris(state) || [],
 });
 
 export default connect(select, {
@@ -99,5 +103,5 @@ export default connect(select, {
   doClearPurchasedUriSuccess,
   doOpenModal,
   doGetDisplayedSubs,
-  doBeginPublish
+  doBeginPublish,
 })(SideNavigation);

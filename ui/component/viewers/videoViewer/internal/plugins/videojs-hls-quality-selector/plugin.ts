@@ -1,13 +1,11 @@
 /* eslint-disable */
-import videojs from "video.js";
-import p from "../../../../../../../package.json";
-import ConcreteButton from "./ConcreteButton";
-import ConcreteMenuItem from "./ConcreteMenuItem";
-import * as QUALITY_OPTIONS from "constants/player";
-import { VJS_EVENTS } from "constants/player";
-const {
-  version: VERSION
-} = p;
+import videojs from 'video.js';
+import p from '../../../../../../../package.json';
+import ConcreteButton from './ConcreteButton';
+import ConcreteMenuItem from './ConcreteMenuItem';
+import * as QUALITY_OPTIONS from 'constants/player';
+import { VJS_EVENTS } from 'constants/player';
+const { version: VERSION } = p;
 // Default options for the plugin.
 const defaults = {};
 // Cross-compatibility for Video.js 5 and 6.
@@ -46,10 +44,8 @@ class HlsQualitySelectorPlugin {
     // Bind event listeners
     this.bindPlayerEvents();
     // Listen for source changes
-    this.player.on('loadedmetadata', e => {
-      const {
-        claimSrcVhs
-      } = this.player;
+    this.player.on('loadedmetadata', (e) => {
+      const { claimSrcVhs } = this.player;
 
       const initialQuality = this.createIOSQualityList() || this._initialQuality;
 
@@ -79,18 +75,23 @@ class HlsQualitySelectorPlugin {
   }
 
   updateConfig() {
-    this.config = { ...this.config,
+    this.config = {
+      ...this.config,
       defaultQuality: this.player.appState.defaultQuality,
-      originalVideoHeight: this.player.appState.originalVideoHeight
+      originalVideoHeight: this.player.appState.originalVideoHeight,
     };
   }
 
   handleNoQualities() {
-    if (this.player?.appState?.originalVideoHeight && this._qualityButton && !(this.player?.claimSrcVhs || this.player?.isLivestream)) {
+    if (
+      this.player?.appState?.originalVideoHeight &&
+      this._qualityButton &&
+      !(this.player?.claimSrcVhs || this.player?.isLivestream)
+    ) {
       const levelItem = this.getQualityMenuItem.call(this, {
         label: `${this.player.appState.originalVideoHeight}p`,
         value: this.player.appState.originalVideoHeight,
-        selected: true
+        selected: true,
       });
 
       this._qualityButton.createItems = function () {
@@ -120,7 +121,7 @@ class HlsQualitySelectorPlugin {
    */
   getVhs() {
     return this.player.tech({
-      IWillNotUseThisInPlugins: true
+      IWillNotUseThisInPlugins: true,
     }).vhs;
   }
 
@@ -142,9 +143,13 @@ class HlsQualitySelectorPlugin {
     const player = this.player;
     this._qualityButton = new ConcreteButton(player);
     const placementIndex = player.controlBar.children().length - 2;
-    const concreteButtonInstance = player.controlBar.addChild(this._qualityButton, {
-      componentClass: 'qualitySelector'
-    }, this.config.placementIndex || placementIndex);
+    const concreteButtonInstance = player.controlBar.addChild(
+      this._qualityButton,
+      {
+        componentClass: 'qualitySelector',
+      },
+      this.config.placementIndex || placementIndex
+    );
     concreteButtonInstance.addClass('vjs-quality-selector');
 
     if (!this.config.displayCurrentQuality) {
@@ -158,21 +163,23 @@ class HlsQualitySelectorPlugin {
   }
 
   resolveOriginalQualityLabel(abbreviatedForm, includeResolution) {
-    const {
-      originalVideoHeight: videoHeight
-    } = this.config;
+    const { originalVideoHeight: videoHeight } = this.config;
 
     if (includeResolution && videoHeight) {
-      return abbreviatedForm ? __('Orig (%quality%) --[Video quality popup. Short form.]--', {
-        quality: videoHeight + 'p'
-      }) : __('Original (%quality%) --[Video quality popup. Long form.]--', {
-        quality: videoHeight + 'p'
-      });
+      return abbreviatedForm
+        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', {
+            quality: videoHeight + 'p',
+          })
+        : __('Original (%quality%) --[Video quality popup. Long form.]--', {
+            quality: videoHeight + 'p',
+          });
     } else {
       // The allocated space for the button is fixed and happened to fit
       // "Original", so we don't abbreviate for English. But it will most likely
       // not fit for other languages, hence the 2 strings.
-      return abbreviatedForm ? __('Original --[Video quality button. Abbreviate to fit space.]--') : __('Original --[Video quality button. Long form.]--');
+      return abbreviatedForm
+        ? __('Original --[Video quality button. Abbreviate to fit space.]--')
+        : __('Original --[Video quality button. Long form.]--');
     }
   }
 
@@ -229,23 +236,23 @@ class HlsQualitySelectorPlugin {
     }
 
     const player = this.player;
-    const {
-      defaultQuality
-    } = this.config;
+    const { defaultQuality } = this.config;
     const levelItems = [];
     const selectOriginal = defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false;
-    levelItems.push(this.getQualityMenuItem.call(this, {
-      label: this.resolveOriginalQualityLabel(false, false),
-      value: QUALITY_OPTIONS.ORIGINAL,
-      selected: false // selectOriginal,
-
-    }));
-    levelItems.push(this.getQualityMenuItem.call(this, {
-      label: QUALITY_OPTIONS.AUTO,
-      value: QUALITY_OPTIONS.AUTO,
-      selected: false // !selectOriginal,
-
-    }));
+    levelItems.push(
+      this.getQualityMenuItem.call(this, {
+        label: this.resolveOriginalQualityLabel(false, false),
+        value: QUALITY_OPTIONS.ORIGINAL,
+        selected: false, // selectOriginal,
+      })
+    );
+    levelItems.push(
+      this.getQualityMenuItem.call(this, {
+        label: QUALITY_OPTIONS.AUTO,
+        value: QUALITY_OPTIONS.AUTO,
+        selected: false, // !selectOriginal,
+      })
+    );
 
     if (this._qualityButton) {
       this._qualityButton.createItems = () => levelItems;
@@ -271,23 +278,24 @@ class HlsQualitySelectorPlugin {
     for (let i = 0; i < levels.length; ++i) {
       const currentHeight = levels[i].height;
 
-      if (!levelItems.filter(_existingItem => _existingItem.item?.value === currentHeight).length) {
+      if (!levelItems.filter((_existingItem) => _existingItem.item?.value === currentHeight).length) {
         const heightStr = currentHeight + 'p';
         const levelItem = this.getQualityMenuItem.call(this, {
           label: heightStr,
           value: currentHeight,
-          selected: defaultQuality ? currentHeight === defaultQuality : undefined
+          selected: defaultQuality ? currentHeight === defaultQuality : undefined,
         });
         // Stop at index 0 since the list starts from max quality
         const isLiveOriginal = defaultQuality === QUALITY_OPTIONS.ORIGINAL && player.isLivestream && i === 0;
-        const shouldCheckHeight = defaultQuality && !nextLowestQualityItem && (currentHeight <= defaultQuality || isLiveOriginal);
+        const shouldCheckHeight =
+          defaultQuality && !nextLowestQualityItem && (currentHeight <= defaultQuality || isLiveOriginal);
 
         if (shouldCheckHeight) {
           nextLowestQualityItem = levelItem;
           nextLowestQualityItemObj = {
             label: heightStr,
             value: currentHeight,
-            selected: true
+            selected: true,
           };
         }
 
@@ -296,7 +304,9 @@ class HlsQualitySelectorPlugin {
     }
 
     if (nextLowestQualityItem) {
-      levelItems = levelItems.map(item => item === nextLowestQualityItem ? this.getQualityMenuItem.call(this, nextLowestQualityItemObj) : item);
+      levelItems = levelItems.map((item) =>
+        item === nextLowestQualityItem ? this.getQualityMenuItem.call(this, nextLowestQualityItemObj) : item
+      );
     }
 
     levelItems.sort((current, next) => {
@@ -316,26 +326,32 @@ class HlsQualitySelectorPlugin {
     });
 
     if (!player.isLivestream) {
-      levelItems.push(this.getQualityMenuItem.call(this, {
-        label: this.resolveOriginalQualityLabel(false, true),
-        value: QUALITY_OPTIONS.ORIGINAL,
-        selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false
-      }));
+      levelItems.push(
+        this.getQualityMenuItem.call(this, {
+          label: this.resolveOriginalQualityLabel(false, true),
+          value: QUALITY_OPTIONS.ORIGINAL,
+          selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false,
+        })
+      );
 
       if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !this._initialQualityHandled) {
         this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL);
       }
     }
 
-    levelItems.push(this.getQualityMenuItem.call(this, {
-      label: QUALITY_OPTIONS.AUTO,
-      value: QUALITY_OPTIONS.AUTO,
-      selected: !defaultQuality ? true : defaultQuality === QUALITY_OPTIONS.AUTO
-    }));
+    levelItems.push(
+      this.getQualityMenuItem.call(this, {
+        label: QUALITY_OPTIONS.AUTO,
+        value: QUALITY_OPTIONS.AUTO,
+        selected: !defaultQuality ? true : defaultQuality === QUALITY_OPTIONS.AUTO,
+      })
+    );
 
     // initial button inner text based on default quality setting, or next lowest
     if (!this._initialQualityHandled) {
-      this.setButtonInnerText(nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO);
+      this.setButtonInnerText(
+        nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO
+      );
     }
 
     if (this._qualityButton) {
@@ -347,7 +363,10 @@ class HlsQualitySelectorPlugin {
     }
 
     if (defaultQuality) {
-      this._initialQuality = nextLowestQualityItemObj?.value || defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL || QUALITY_OPTIONS.AUTO;
+      this._initialQuality =
+        nextLowestQualityItemObj?.value ||
+        (defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL) ||
+        QUALITY_OPTIONS.AUTO;
     } else {
       delete this._initialQuality;
     }
@@ -393,12 +412,19 @@ class HlsQualitySelectorPlugin {
     this._currentQuality = height;
 
     if (this.config.displayCurrentQuality) {
-      this.setButtonInnerText(height === QUALITY_OPTIONS.AUTO ? QUALITY_OPTIONS.AUTO : height === QUALITY_OPTIONS.ORIGINAL ? QUALITY_OPTIONS.ORIGINAL : `${height}p`);
+      this.setButtonInnerText(
+        height === QUALITY_OPTIONS.AUTO
+          ? QUALITY_OPTIONS.AUTO
+          : height === QUALITY_OPTIONS.ORIGINAL
+            ? QUALITY_OPTIONS.ORIGINAL
+            : `${height}p`
+      );
     }
 
     for (let i = 0; i < qualityList.length; ++i) {
       const quality = qualityList[i];
-      quality.enabled = quality.height === height || height === QUALITY_OPTIONS.AUTO || height === QUALITY_OPTIONS.ORIGINAL;
+      quality.enabled =
+        quality.height === height || height === QUALITY_OPTIONS.AUTO || height === QUALITY_OPTIONS.ORIGINAL;
     }
 
     if (height === QUALITY_OPTIONS.ORIGINAL) {
@@ -468,7 +494,6 @@ class HlsQualitySelectorPlugin {
   getCurrentQuality() {
     return this._currentQuality || QUALITY_OPTIONS.AUTO;
   }
-
 }
 /**
  * Function to invoke when the player is ready.
@@ -484,7 +509,6 @@ class HlsQualitySelectorPlugin {
  * @param    {Object} [options={}]
  *           A plain object containing options for the plugin.
  */
-
 
 const onPlayerReady = (player, options) => {
   player.addClass('vjs-hls-quality-selector');

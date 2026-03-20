@@ -1,14 +1,14 @@
-import React from "react";
-import Button from "component/button";
-import { ENABLE_NO_SOURCE_CLAIMS } from "config";
-import * as ICONS from "constants/icons";
-import ClaimListDiscover from "component/claimListDiscover";
-import { useIsMobile, useIsLargeScreen } from "effects/use-screensize";
-import usePersistedState from "effects/use-persisted-state";
+import React from 'react';
+import Button from 'component/button';
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import * as ICONS from 'constants/icons';
+import ClaimListDiscover from 'component/claimListDiscover';
+import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
+import usePersistedState from 'effects/use-persisted-state';
 const DEFAULT_LIVESTREAM_TILE_LIMIT = 8;
 const SECTION = Object.freeze({
   COLLAPSED: 1,
-  EXPANDED: 2
+  EXPANDED: 2,
 });
 
 function getTileLimit(isLargeScreen, originalSize) {
@@ -35,7 +35,7 @@ export default function LivestreamSection(props: Props) {
     // -- redux --
     livestreamSectionQueryStr,
     activeLivestreamUris,
-    doFetchAllActiveLivestreamsForQuery
+    doFetchAllActiveLivestreamsForQuery,
   } = props;
   const [liveSectionStore, setLiveSectionStore] = usePersistedState('discover:lsSection', SECTION.COLLAPSED);
   const [expandedYPos, setExpandedYPos] = React.useState(null);
@@ -72,36 +72,98 @@ export default function LivestreamSection(props: Props) {
   }
 
   if (isMobile) {
-    return <div className="livestream-list">
-        <ClaimListDiscover uris={liveSection === SECTION.COLLAPSED ? activeLivestreamUris.slice(0, initialLiveTileLimit) : activeLivestreamUris} tileLayout={tileLayout} headerLabel={<h1 className="page__title">{__('Livestreams')}</h1>} useSkeletonScreen={false} showHeader={false} hideFilters hideMembersOnlyContent={hideMembersOnlyContent} infiniteScroll={false} loading={false} showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} />
+    return (
+      <div className="livestream-list">
+        <ClaimListDiscover
+          uris={
+            liveSection === SECTION.COLLAPSED
+              ? activeLivestreamUris.slice(0, initialLiveTileLimit)
+              : activeLivestreamUris
+          }
+          tileLayout={tileLayout}
+          headerLabel={<h1 className="page__title">{__('Livestreams')}</h1>}
+          useSkeletonScreen={false}
+          showHeader={false}
+          hideFilters
+          hideMembersOnlyContent={hideMembersOnlyContent}
+          infiniteScroll={false}
+          loading={false}
+          showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+        />
 
-        {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && <div className="upcoming-list__view-more">
-            <Button label={__('Show more livestreams')} button="link" iconRight={ICONS.DOWN} className="claim-grid__title--secondary" onClick={() => {
-          doFetchAllActiveLivestreamsForQuery();
-          setExpandedYPos(window.scrollY);
-          setLiveSection(SECTION.EXPANDED);
-        }} />
-          </div>}
+        {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (
+          <div className="upcoming-list__view-more">
+            <Button
+              label={__('Show more livestreams')}
+              button="link"
+              iconRight={ICONS.DOWN}
+              className="claim-grid__title--secondary"
+              onClick={() => {
+                doFetchAllActiveLivestreamsForQuery();
+                setExpandedYPos(window.scrollY);
+                setLiveSection(SECTION.EXPANDED);
+              }}
+            />
+          </div>
+        )}
 
-        {liveTilesOverLimit && liveSection === SECTION.EXPANDED && <div className="upcoming-list__view-more">
-            <Button label={__('Show fewer livestreams')} button="link" iconRight={ICONS.UP} className="claim-grid__title--secondary" onClick={collapseSection} />
-          </div>}
-      </div>;
+        {liveTilesOverLimit && liveSection === SECTION.EXPANDED && (
+          <div className="upcoming-list__view-more">
+            <Button
+              label={__('Show fewer livestreams')}
+              button="link"
+              iconRight={ICONS.UP}
+              className="claim-grid__title--secondary"
+              onClick={collapseSection}
+            />
+          </div>
+        )}
+      </div>
+    );
   }
 
-  return <div className="livestream-list">
-      <ClaimListDiscover uris={liveSection === SECTION.COLLAPSED ? activeLivestreamUris.slice(0, initialLiveTileLimit) : activeLivestreamUris} tileLayout={tileLayout} showHeader={false} hideFilters infiniteScroll={false} loading={false} showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} hideMembersOnlyContent={hideMembersOnlyContent} />
+  return (
+    <div className="livestream-list">
+      <ClaimListDiscover
+        uris={
+          liveSection === SECTION.COLLAPSED ? activeLivestreamUris.slice(0, initialLiveTileLimit) : activeLivestreamUris
+        }
+        tileLayout={tileLayout}
+        showHeader={false}
+        hideFilters
+        infiniteScroll={false}
+        loading={false}
+        showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+        hideMembersOnlyContent={hideMembersOnlyContent}
+      />
 
-      {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && <div className="upcoming-list__view-more">
-          <Button label={__('Show more livestreams')} button="link" iconRight={ICONS.DOWN} className="claim-grid__title--secondary" onClick={() => {
-        doFetchAllActiveLivestreamsForQuery();
-        setExpandedYPos(window.scrollY);
-        setLiveSection(SECTION.EXPANDED);
-      }} />
-        </div>}
+      {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (
+        <div className="upcoming-list__view-more">
+          <Button
+            label={__('Show more livestreams')}
+            button="link"
+            iconRight={ICONS.DOWN}
+            className="claim-grid__title--secondary"
+            onClick={() => {
+              doFetchAllActiveLivestreamsForQuery();
+              setExpandedYPos(window.scrollY);
+              setLiveSection(SECTION.EXPANDED);
+            }}
+          />
+        </div>
+      )}
 
-      {liveTilesOverLimit && liveSection === SECTION.EXPANDED && <div className="upcoming-list__view-more">
-          <Button label={__('Show fewer livestreams')} button="link" iconRight={ICONS.UP} className="claim-grid__title--secondary" onClick={collapseSection} />
-        </div>}
-    </div>;
+      {liveTilesOverLimit && liveSection === SECTION.EXPANDED && (
+        <div className="upcoming-list__view-more">
+          <Button
+            label={__('Show fewer livestreams')}
+            button="link"
+            iconRight={ICONS.UP}
+            className="claim-grid__title--secondary"
+            onClick={collapseSection}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

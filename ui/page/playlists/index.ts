@@ -1,17 +1,21 @@
-import { connect } from "react-redux";
-import { selectAreBuiltinCollectionsEmpty, selectHasCollections, selectIsFetchingMyCollections } from "redux/selectors/collections";
-import { doFetchCollectionListMine } from "redux/actions/collections";
-import { doOpenModal } from "redux/actions/app";
-import PlaylistsPage from "./view";
+import { connect } from 'react-redux';
+import {
+  selectAreBuiltinCollectionsEmpty,
+  selectHasCollections,
+  selectIsFetchingMyCollections,
+} from 'redux/selectors/collections';
+import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doOpenModal } from 'redux/actions/app';
+import PlaylistsPage from './view';
 
-const select = state => ({
+const select = (state) => ({
   areBuiltinCollectionsEmpty: selectAreBuiltinCollectionsEmpty(state),
   hasCollections: selectHasCollections(state),
-  isFetchingCollections: selectIsFetchingMyCollections(state)
+  isFetchingCollections: selectIsFetchingMyCollections(state),
 });
 
 const perform = {
   doFetchCollectionListMine,
-  doOpenModal
+  doOpenModal,
 };
 export default connect(select, perform)(PlaylistsPage);

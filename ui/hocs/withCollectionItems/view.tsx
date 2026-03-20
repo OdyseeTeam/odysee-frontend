@@ -1,5 +1,5 @@
-import React from "react";
-import Spinner from "component/spinner";
+import React from 'react';
+import Spinner from 'component/spinner';
 type Props = {
   collectionId: string;
   useIds?: boolean;
@@ -9,9 +9,7 @@ type Props = {
   collectionIds: Array<string> | null | undefined;
   collectionHasItemsResolved: boolean;
   doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void;
-  doFetchItemsInCollection: (params: {
-    collectionId: string;
-  }) => void;
+  doFetchItemsInCollection: (params: { collectionId: string }) => void;
 };
 
 /**
@@ -30,29 +28,31 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
       collectionIds,
       collectionHasItemsResolved,
       doResolveClaimId,
-      doFetchItemsInCollection
+      doFetchItemsInCollection,
     } = props;
     const collectionItems = useIds ? collectionIds : collectionUrls;
     const shouldFetchCollectionItems = collectionItems === undefined || !collectionHasItemsResolved;
     React.useEffect(() => {
       if (!isPrivate) {
         doResolveClaimId(collectionId, true, {
-          include_is_my_output: true
+          include_is_my_output: true,
         });
       }
     }, [collectionId, doResolveClaimId, isPrivate]);
     React.useEffect(() => {
       if (shouldFetchCollectionItems) {
         doFetchItemsInCollection({
-          collectionId
+          collectionId,
         });
       }
     }, [collectionId, doFetchItemsInCollection, shouldFetchCollectionItems]);
 
     if (collectionItems === undefined) {
-      return <div className="main--empty">
+      return (
+        <div className="main--empty">
           <Spinner />
-        </div>;
+        </div>
+      );
     }
 
     return <Component {...props} />;

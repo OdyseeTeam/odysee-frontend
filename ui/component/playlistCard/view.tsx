@@ -1,29 +1,29 @@
 // @ts-expect-error
-import { Global } from "@emotion/react";
-import React from "react";
-import classnames from "classnames";
-import CollectionItemsList from "component/collectionItemsList";
-import Card from "component/common/card";
-import Button from "component/button";
-import * as PAGES from "constants/pages";
-import * as DRAWERS from "constants/drawer_types";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import { NavLink } from "react-router-dom";
-import UriIndicator from "component/uriIndicator";
-import I18nMessage from "component/i18nMessage";
-import ShuffleButton from "./internal/shuffleButton";
-import LoopButton from "./internal/loopButton";
-import SwipeableDrawer from "component/swipeableDrawer";
-import DrawerExpandButton from "component/swipeableDrawerExpand";
-import usePersistedState from "effects/use-persisted-state";
-import { HEADER_HEIGHT_MOBILE } from "constants/player";
-import { getMaxLandscapeHeight } from "util/window";
-import { useIsMobile, useIsSmallScreen } from "effects/use-screensize";
-import { getLocalizedNameForCollectionId } from "util/collections";
-import "./style.lazy.scss";
+import { Global } from '@emotion/react';
+import React from 'react';
+import classnames from 'classnames';
+import CollectionItemsList from 'component/collectionItemsList';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
+import * as DRAWERS from 'constants/drawer_types';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { NavLink } from 'react-router-dom';
+import UriIndicator from 'component/uriIndicator';
+import I18nMessage from 'component/i18nMessage';
+import ShuffleButton from './internal/shuffleButton';
+import LoopButton from './internal/loopButton';
+import SwipeableDrawer from 'component/swipeableDrawer';
+import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import usePersistedState from 'effects/use-persisted-state';
+import { HEADER_HEIGHT_MOBILE } from 'constants/player';
+import { getMaxLandscapeHeight } from 'util/window';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
+import { getLocalizedNameForCollectionId } from 'util/collections';
+import './style.lazy.scss';
 type Props = {
   id: string;
   playingItemUrl: string;
@@ -53,15 +53,8 @@ type Props = {
   thumbnailFromClaim: string;
 };
 export default function PlaylistCard(props: Props) {
-  const {
-    collectionName,
-    useDrawer,
-    hasCollectionById,
-    playingItemIndex,
-    collectionLength,
-    collectionEmpty,
-    id
-  } = props;
+  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
+    props;
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
   if (!hasCollectionById) return null;
@@ -70,21 +63,35 @@ export default function PlaylistCard(props: Props) {
     showEdit,
     setShowEdit,
     currentIndexLabel,
-    ...props
+    ...props,
   };
 
   if (useDrawer) {
-    return <>
-        <DrawerExpandButton fixed icon={ICONS.PLAYLIST_PLAYBACK} label={__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel} type={DRAWERS.PLAYLIST} />
+    return (
+      <>
+        <DrawerExpandButton
+          fixed
+          icon={ICONS.PLAYLIST_PLAYBACK}
+          label={
+            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
+          }
+          type={DRAWERS.PLAYLIST}
+        />
 
-        <SwipeableDrawer startOpen={!collectionEmpty} type={DRAWERS.PLAYLIST} title={// returns the card title element
-      <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />} hasSubtitle>
-          {
-          /* returns the card body element */
-        }
+        <SwipeableDrawer
+          startOpen={!collectionEmpty}
+          type={DRAWERS.PLAYLIST}
+          title={
+            // returns the card title element
+            <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />
+          }
+          hasSubtitle
+        >
+          {/* returns the card body element */}
           <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" bodyOnly />
         </SwipeableDrawer>
-      </>;
+      </>
+    );
   }
 
   // returns the full card element
@@ -157,53 +164,55 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     }
 
     const isPlayingQueue = playingCollectionId === COLLECTIONS_CONSTS.QUEUE_ID;
-    const title = isPlayingQueue ? __('Are you sure you want to quit and clear the current Queue?') : __('Are you sure you want to quit the current playlist?');
+    const title = isPlayingQueue
+      ? __('Are you sure you want to quit and clear the current Queue?')
+      : __('Are you sure you want to quit the current playlist?');
     doOpenModal(MODALS.CONFIRM, {
       title: title,
       subtitle: __('The current video will keep playing.'),
-      onConfirm: closeModal => {
+      onConfirm: (closeModal) => {
         doClearPlayingCollection();
         if (isPlayingQueue) doClearQueueList();
         closeModal();
-      }
+      },
     });
   }
 
-  const activeListItemRef = React.useCallback(node => {
-    if (node && bodyRef && Number.isInteger(playingItemIndex)) {
-      activeItemRef.current = node;
-      // without this, the list would scroll to the top of the item
-      // so make it so it's approximately centered instead
-      const listCenter = bodyRef.offsetHeight / 2;
-      let topToScroll = node.offsetTop - bodyRef.offsetTop - listCenter;
+  const activeListItemRef = React.useCallback(
+    (node) => {
+      if (node && bodyRef && Number.isInteger(playingItemIndex)) {
+        activeItemRef.current = node;
+        // without this, the list would scroll to the top of the item
+        // so make it so it's approximately centered instead
+        const listCenter = bodyRef.offsetHeight / 2;
+        let topToScroll = node.offsetTop - bodyRef.offsetTop - listCenter;
 
-      if (playingItemIndex === 1) {
-        topToScroll = 0;
-      } else if (playingItemIndex === collectionLength) {
-        topToScroll = bodyRef.scrollHeight;
+        if (playingItemIndex === 1) {
+          topToScroll = 0;
+        } else if (playingItemIndex === collectionLength) {
+          topToScroll = bodyRef.scrollHeight;
+        }
+
+        try {
+          bodyRef.scrollTo({
+            top: topToScroll,
+            behavior: isSmallScreen ? 'instant' : 'smooth',
+          });
+        } catch (error) {}
+
+        setScrolledPast(false);
+        scrollRestorePending.current = true;
       }
-
-      try {
-        bodyRef.scrollTo({
-          top: topToScroll,
-          behavior: isSmallScreen ? 'instant' : 'smooth'
-        });
-      } catch (error) {}
-
-      setScrolledPast(false);
-      scrollRestorePending.current = true;
-    }
-  }, [bodyRef, collectionLength, isSmallScreen, playingItemIndex]);
+    },
+    [bodyRef, collectionLength, isSmallScreen, playingItemIndex]
+  );
   React.useEffect(() => {
     if (bodyRef) {
       const handleScroll = () => {
         const currentActiveItem = activeItemRef.current;
 
         if (currentActiveItem) {
-          const {
-            top,
-            height
-          } = currentActiveItem.getBoundingClientRect();
+          const { top, height } = currentActiveItem.getBoundingClientRect();
           const itemTop = currentActiveItem.offsetTop - bodyRef.offsetTop;
           const itemBottom = itemTop + height;
           let [playerTop, playerInfoTop] = [0, 0];
@@ -216,7 +225,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               const playerTransform = playerElem && playerElem.style.transform;
 
               if (playerTransform) {
-                playerTop = Number(playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)')));
+                playerTop = Number(
+                  playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
+                );
               }
             }
 
@@ -226,7 +237,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             }
           }
 
-          const scrolled = top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight || itemBottom < bodyRef.scrollTop;
+          const scrolled =
+            top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
+            itemBottom < bodyRef.scrollTop;
 
           if (!scrollRestorePending.current) {
             setScrolledPast(scrolled);
@@ -237,7 +250,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       };
 
       const itemWasRemoved = collectionLength < lengthRef.current;
-      const itemWasAdded = collectionLength > lengthRef.current && Number.isInteger(playingItemIndex) && playingItemIndex === activeItemIndexRef.current;
+      const itemWasAdded =
+        collectionLength > lengthRef.current &&
+        Number.isInteger(playingItemIndex) &&
+        playingItemIndex === activeItemIndexRef.current;
       lengthRef.current = collectionLength;
       activeItemIndexRef.current = playingItemIndex;
 
@@ -261,11 +277,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     if (!wrapper || !bodyRef) return;
 
     const handleWheel = (e: WheelEvent) => {
-      const {
-        scrollTop,
-        scrollHeight,
-        clientHeight
-      } = bodyRef;
+      const { scrollTop, scrollHeight, clientHeight } = bodyRef;
       const atTop = scrollTop <= 0 && e.deltaY < 0;
       const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
 
@@ -276,96 +288,210 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     };
 
     wrapper.addEventListener('wheel', handleWheel, {
-      passive: false
+      passive: false,
     });
     return () => wrapper.removeEventListener('wheel', handleWheel);
   }, [bodyRef]);
-  return <>
-      <Global styles={{
-      '.claim-list__scroll-to-recent': {
-        opacity: !scrolledPastActive || !hasActive ? '0' : '0.9 !important',
-        // visibility also needed because it prevents clicking on the button
-        // opacity makes it invisible but still clickable
-        visibility: !scrolledPastActive || !hasActive ? 'hidden' : 'visible !important',
-        '&:hover': {
-          opacity: !scrolledPastActive || !hasActive ? '0' : '1 !important'
-        }
-      },
-      '.playlist__wrapper': {
-        '.claim-list': {
-          'li:last-child': {
-            marginBottom: scrolledPastActive && hasActive && playingItemIndex !== collectionLength ? '3rem !important' : undefined
-          }
-        }
-      }
-    }} />
+  return (
+    <>
+      <Global
+        styles={{
+          '.claim-list__scroll-to-recent': {
+            opacity: !scrolledPastActive || !hasActive ? '0' : '0.9 !important',
+            // visibility also needed because it prevents clicking on the button
+            // opacity makes it invisible but still clickable
+            visibility: !scrolledPastActive || !hasActive ? 'hidden' : 'visible !important',
+            '&:hover': {
+              opacity: !scrolledPastActive || !hasActive ? '0' : '1 !important',
+            },
+          },
+          '.playlist__wrapper': {
+            '.claim-list': {
+              'li:last-child': {
+                marginBottom:
+                  scrolledPastActive && hasActive && playingItemIndex !== collectionLength
+                    ? '3rem !important'
+                    : undefined,
+              },
+            },
+          },
+        }}
+      />
 
       <div ref={wrapperRef}>
-        <Card {...cardProps} smallTitle slimHeader={!isFloating} gridHeader={!titleOnly} singlePane headerActions={!bodyOpen || bodyOnly ? undefined : <div className="playlist-card-actions">
+        <Card
+          {...cardProps}
+          smallTitle
+          slimHeader={!isFloating}
+          gridHeader={!titleOnly}
+          singlePane
+          headerActions={
+            !bodyOpen || bodyOnly ? undefined : (
+              <div className="playlist-card-actions">
                 <section>
                   <LoopButton id={id} />
                   <ShuffleButton url={playingItemUrl} id={id} />
                 </section>
 
                 <section>
-                  <Button requiresAuth title={__('Copy')} className="button-toggle" icon={ICONS.COPY} onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, {
-            sourceId: id
-          })} />
+                  <Button
+                    requiresAuth
+                    title={__('Copy')}
+                    className="button-toggle"
+                    icon={ICONS.COPY}
+                    onClick={() =>
+                      doOpenModal(MODALS.COLLECTION_CREATE, {
+                        sourceId: id,
+                      })
+                    }
+                  />
 
-                  {isMyCollection ? !collectionEmpty && <Button title={__('Arrange')} className={classnames('button-toggle', {
-            'button-toggle--active': showEdit
-          })} icon={ICONS.ARRANGE} onClick={() => setShowEdit(!showEdit)} /> : id && <Button requiresAuth title={__('Save')} className="button-toggle" icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD} onClick={() => doToggleCollectionSavedForId(id)} />}
+                  {isMyCollection
+                    ? !collectionEmpty && (
+                        <Button
+                          title={__('Arrange')}
+                          className={classnames('button-toggle', {
+                            'button-toggle--active': showEdit,
+                          })}
+                          icon={ICONS.ARRANGE}
+                          onClick={() => setShowEdit(!showEdit)}
+                        />
+                      )
+                    : id && (
+                        <Button
+                          requiresAuth
+                          title={__('Save')}
+                          className="button-toggle"
+                          icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                          onClick={() => doToggleCollectionSavedForId(id)}
+                        />
+                      )}
                 </section>
-              </div>} title={bodyOnly ? undefined : <NavLink to={`/$/${PAGES.PLAYLIST}/${id || ''}`} className={classnames('playlist__title', {
-        'align-end': isFloating
-      })}>
-                {isFloating ? <>
+              </div>
+            )
+          }
+          title={
+            bodyOnly ? undefined : (
+              <NavLink
+                to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
+                className={classnames('playlist__title', {
+                  'align-end': isFloating,
+                })}
+              >
+                {isFloating ? (
+                  <>
                     <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
                     <div className="playlist__title-text">
                       <span className="text-ellipsis">
                         {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
                       </span>
                     </div>
-                  </> : <>
-                    <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
+                  </>
+                ) : (
+                  <>
+                    <Icon
+                      icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST}
+                      className="icon--margin-right"
+                    />
                     <div className="playlist__title-text">
                       <div className="playlist__title-text-list">
                         <span className="text-ellipsis">{usedCollectionName}</span>
                       </div>
-                      {bodyOnly ? undefined : <>
+                      {bodyOnly ? undefined : (
+                        <>
                           <div className="sub">
-                            {isPrivateCollection ? <I18nMessage tokens={{
-                  lock_icon: <Icon icon={ICONS.LOCK} style={{
-                    transform: 'translateY(3px)'
-                  }} />
-                }}>
+                            {isPrivateCollection ? (
+                              <I18nMessage
+                                tokens={{
+                                  lock_icon: (
+                                    <Icon
+                                      icon={ICONS.LOCK}
+                                      style={{
+                                        transform: 'translateY(3px)',
+                                      }}
+                                    />
+                                  ),
+                                }}
+                              >
                                 Private %lock_icon%
-                              </I18nMessage> : <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />}
+                              </I18nMessage>
+                            ) : (
+                              <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                            )}
 
                             {currentIndexLabel}
                           </div>
-                        </>}
+                        </>
+                      )}
                     </div>
-                  </>}
+                  </>
+                )}
 
-                {hasEdits && <Icon title={__('Pending edits')} icon={ICONS.PUBLISH} color="red" style={{
-          marginLeft: 'var(--spacing-xxs)'
-        }} />}
-              </NavLink>} titleActions={bodyOnly || titleOnly ? undefined : <>
-                {!bodyOnly && <Button className={classnames('button-toggle', {
-          'button-toggle--active': !bodyOpen
-        })} icon={bodyOpen ? ICONS.UP : ICONS.DOWN} onClick={() => {
-          if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
-          setBodyOpen(!bodyOpen);
-        }} />}
+                {hasEdits && (
+                  <Icon
+                    title={__('Pending edits')}
+                    icon={ICONS.PUBLISH}
+                    color="red"
+                    style={{
+                      marginLeft: 'var(--spacing-xxs)',
+                    }}
+                  />
+                )}
+              </NavLink>
+            )
+          }
+          titleActions={
+            bodyOnly || titleOnly ? undefined : (
+              <>
+                {!bodyOnly && (
+                  <Button
+                    className={classnames('button-toggle', {
+                      'button-toggle--active': !bodyOpen,
+                    })}
+                    icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
+                    onClick={() => {
+                      if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
+                      setBodyOpen(!bodyOpen);
+                    }}
+                  />
+                )}
 
-                <Button title={__('Close Playlist')} className="button-toggle" icon={ICONS.REMOVE} onClick={closePlaylist} />
-              </>} body={!bodyOpen || titleOnly ? undefined : <CollectionItemsList collectionId={id} type="small" activeUri={playingItemUrl} empty={__('Playlist is Empty')} showEdit={showEdit} smallThumbnail showIndexes playItemsOnClick={playingCurrentPlaylist} disableClickNavigation={disableClickNavigation} doDisablePlayerDrag={doDisablePlayerDrag} setActiveListItemRef={bodyRef ? activeListItemRef : undefined} setListRef={node => setBodyRef(node)} scrolledPastActive={scrolledPastActive} restoreScrollPos={() => activeListItemRef(activeItemRef.current)} setHasActive={hasActive => {
-        listHasActive.current = hasActive;
-        setHasActive(hasActive);
-      }} />} // Disabled due to it blocking the clicking of the scrollbar
-      // backgroundImage={backgroundImage}
-      />
+                <Button
+                  title={__('Close Playlist')}
+                  className="button-toggle"
+                  icon={ICONS.REMOVE}
+                  onClick={closePlaylist}
+                />
+              </>
+            )
+          }
+          body={
+            !bodyOpen || titleOnly ? undefined : (
+              <CollectionItemsList
+                collectionId={id}
+                type="small"
+                activeUri={playingItemUrl}
+                empty={__('Playlist is Empty')}
+                showEdit={showEdit}
+                smallThumbnail
+                showIndexes
+                playItemsOnClick={playingCurrentPlaylist}
+                disableClickNavigation={disableClickNavigation}
+                doDisablePlayerDrag={doDisablePlayerDrag}
+                setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
+                setListRef={(node) => setBodyRef(node)}
+                scrolledPastActive={scrolledPastActive}
+                restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
+                setHasActive={(hasActive) => {
+                  listHasActive.current = hasActive;
+                  setHasActive(hasActive);
+                }}
+              />
+            )
+          } // Disabled due to it blocking the clicking of the scrollbar
+          // backgroundImage={backgroundImage}
+        />
       </div>
-    </>;
+    </>
+  );
 };

@@ -12,7 +12,7 @@
 
   var codeMirrorEditor = function (instance) {
     if (!instance.getWrapperElement) {
-      throw "Invalid CodeMirror object given";
+      throw 'Invalid CodeMirror object given';
     }
 
     this.codeMirror = instance;
@@ -40,13 +40,17 @@
   codeMirrorEditor.attach = function (codeMirror, options) {
     options = options || {};
     var editor = new codeMirrorEditor(codeMirror),
-        inlineattach = new inlineAttachment(options, editor),
-        el = codeMirror.getWrapperElement();
-    el.addEventListener('paste', function (e) {
-      inlineattach.onPaste(e);
-    }, false);
+      inlineattach = new inlineAttachment(options, editor),
+      el = codeMirror.getWrapperElement();
+    el.addEventListener(
+      'paste',
+      function (e) {
+        inlineattach.onPaste(e);
+      },
+      false
+    );
     codeMirror.setOption('onDragEvent', function (data, e) {
-      if (e.type === "drop") {
+      if (e.type === 'drop') {
         e.stopPropagation();
         e.preventDefault();
         return inlineattach.onDrop(e);
@@ -61,11 +65,15 @@
   codeMirrorEditor4.attach = function (codeMirror, options) {
     options = options || {};
     var editor = new codeMirrorEditor(codeMirror),
-        inlineattach = new inlineAttachment(options, editor),
-        el = codeMirror.getWrapperElement();
-    el.addEventListener('paste', function (e) {
-      inlineattach.onPaste(e);
-    }, false);
+      inlineattach = new inlineAttachment(options, editor),
+      el = codeMirror.getWrapperElement();
+    el.addEventListener(
+      'paste',
+      function (e) {
+        inlineattach.onPaste(e);
+      },
+      false
+    );
     codeMirror.on('drop', function (data, e) {
       if (inlineattach.onDrop(e)) {
         e.stopPropagation();

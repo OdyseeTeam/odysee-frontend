@@ -1,2 +1,2 @@
-import YoutubeBadge from "./view";
+import YoutubeBadge from './view';
 export default YoutubeBadge;

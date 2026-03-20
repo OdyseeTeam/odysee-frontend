@@ -1,11 +1,11 @@
-import React from "react";
-import { URL } from "config";
-import { formatLbryUrlForWeb } from "util/url";
-import * as ICONS from "constants/icons";
-import CopyableText from "component/copyableText";
-import ChannelThumbnail from "component/channelThumbnail";
-import ButtonNavigateChannelId from "component/buttonNavigateChannelId";
-import TruncatedText from "component/common/truncated-text";
+import React from 'react';
+import { URL } from 'config';
+import { formatLbryUrlForWeb } from 'util/url';
+import * as ICONS from 'constants/icons';
+import CopyableText from 'component/copyableText';
+import ChannelThumbnail from 'component/channelThumbnail';
+import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
+import TruncatedText from 'component/common/truncated-text';
 type Props = {
   channelClaim: ChannelClaim;
   // -- redux --
@@ -14,12 +14,9 @@ type Props = {
 };
 
 const ChannelOverview = (props: Props) => {
-  const {
-    channelClaim,
-    supportersAmount,
-    monthlyIncome
-  } = props;
-  return <>
+  const { channelClaim, supportersAmount, monthlyIncome } = props;
+  return (
+    <>
       <td className="channelThumbnail">
         <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
       </td>
@@ -32,16 +29,24 @@ const ChannelOverview = (props: Props) => {
       <td>${(monthlyIncome / 100).toFixed(2)}</td>
 
       <td>
-        <ButtonNavigateChannelId button="alt" channelId={channelClaim.claim_id} icon={ICONS.MEMBERSHIP} navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`} />
+        <ButtonNavigateChannelId
+          button="alt"
+          channelId={channelClaim.claim_id}
+          icon={ICONS.MEMBERSHIP}
+          navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+        />
       </td>
 
       <td className="membership-table__url">
         <CopyableText // onlyCopy
-      hideValue // primaryButton
-      // linkTo={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
-      copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`} snackMessage={__('Page location copied')} />
+          hideValue // primaryButton
+          // linkTo={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+          copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+          snackMessage={__('Page location copied')}
+        />
       </td>
-    </>;
+    </>
+  );
 };
 
 export default ChannelOverview;

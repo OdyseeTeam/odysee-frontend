@@ -9,7 +9,6 @@ export class Container {
     static useStableEmpty(input: Array<any>): Array<any> {
       return input.length === 0 ? Container.Arr.EMPTY : input;
     }
-
   };
   static Obj = class {
     static EMPTY: {} = Object.freeze({});
@@ -38,6 +37,5 @@ export class Container {
 
       return true;
     }
-
   };
 }

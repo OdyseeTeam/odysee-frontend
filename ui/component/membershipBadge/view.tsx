@@ -1,19 +1,19 @@
-import "scss/component/_comment-badge.scss";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import * as MODALS from "constants/modal_types";
-import * as MEMBERSHIP_CONSTS from "constants/memberships";
-import React from "react";
-import CommentBadge from "component/common/comment-badge";
-import { formatLbryUrlForWeb } from "util/url";
-import { CHANNEL_PAGE } from "constants/urlParams";
-import { useHistory } from "react-router-dom";
-import { parseURI, buildURI } from "util/lbryURI";
-import Button from "component/button";
+import 'scss/component/_comment-badge.scss';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as MEMBERSHIP_CONSTS from 'constants/memberships';
+import React from 'react';
+import CommentBadge from 'component/common/comment-badge';
+import { formatLbryUrlForWeb } from 'util/url';
+import { CHANNEL_PAGE } from 'constants/urlParams';
+import { useHistory } from 'react-router-dom';
+import { parseURI, buildURI } from 'util/lbryURI';
+import Button from 'component/button';
 const BADGE_ICONS = {
   [MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM]: ICONS.PREMIUM,
   [MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS]: ICONS.PREMIUM_PLUS,
-  Creator: ICONS.MEMBERSHIP
+  Creator: ICONS.MEMBERSHIP,
 };
 type Props = {
   membershipName: string;
@@ -46,7 +46,7 @@ function MembershipBadge(props: Props) {
     hideTooltip,
     uri,
     validUserMembershipForChannel,
-    doOpenModal
+    doOpenModal,
   } = props;
   const badgeToShow = getBadgeToShow(membershipName);
   if (!membershipName) return null;
@@ -54,11 +54,19 @@ function MembershipBadge(props: Props) {
     size: 40,
     placement,
     hideTooltip,
-    className
+    className,
   };
-  return <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow} doOpenModal={doOpenModal} uri={uri} validUserMembershipForChannel={validUserMembershipForChannel}>
+  return (
+    <BadgeWrapper
+      linkPage={linkPage}
+      badgeToShow={badgeToShow}
+      doOpenModal={doOpenModal}
+      uri={uri}
+      validUserMembershipForChannel={validUserMembershipForChannel}
+    >
       <CommentBadge label={membershipName} icon={BADGE_ICONS[badgeToShow]} {...badgeProps} />
-    </BadgeWrapper>;
+    </BadgeWrapper>
+  );
 }
 
 type WrapperProps = {
@@ -71,38 +79,34 @@ type WrapperProps = {
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const {
-    linkPage,
-    children,
-    badgeToShow,
-    doOpenModal,
-    validUserMembershipForChannel,
-    uri
-  } = props;
-  const {
-    push
-  } = useHistory();
+  const { linkPage, children, badgeToShow, doOpenModal, validUserMembershipForChannel, uri } = props;
+  const { push } = useHistory();
   if (!linkPage) return children;
 
   if (badgeToShow === 'Creator' && uri) {
-    const {
-      channelName,
-      channelClaimId
-    } = parseURI(uri);
+    const { channelName, channelClaimId } = parseURI(uri);
     const channelUri = buildURI({
       channelName,
-      channelClaimId
+      channelClaimId,
     });
     const urlParams = new URLSearchParams();
     urlParams.set(CHANNEL_PAGE.QUERIES.VIEW, CHANNEL_PAGE.VIEWS.MEMBERSHIP);
-    return <Button onClick={() => validUserMembershipForChannel ? push({
-      pathname: formatLbryUrlForWeb(channelUri),
-      search: urlParams.toString()
-    }) : doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-      uri: channelUri
-    })}>
+    return (
+      <Button
+        onClick={() =>
+          validUserMembershipForChannel
+            ? push({
+                pathname: formatLbryUrlForWeb(channelUri),
+                search: urlParams.toString(),
+              })
+            : doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                uri: channelUri,
+              })
+        }
+      >
         {children}
-      </Button>;
+      </Button>
+    );
   }
 
   return <Button navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>{children}</Button>;

@@ -1,25 +1,22 @@
-import * as MODALS from "constants/modal_types";
-import * as ICONS from "constants/icons";
-import React from "react";
-import FileActionButton from "component/common/file-action-button";
-import Tooltip from "component/common/tooltip";
-import { platform } from "util/platform";
-import { useIsMobile } from "effects/use-screensize";
+import * as MODALS from 'constants/modal_types';
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import FileActionButton from 'component/common/file-action-button';
+import Tooltip from 'component/common/tooltip';
+import { platform } from 'util/platform';
+import { useIsMobile } from 'effects/use-screensize';
 
 // ****************************************************************************
 // withUnlisted
 // ****************************************************************************
 function withUnlisted(Component: (props: any) => React.ReactElement<React.ComponentProps<any>, any>) {
   return function UnlistedShare(props: any) {
-    const {
-      isClaimMine,
-      isUnlisted
-    } = props;
+    const { isClaimMine, isUnlisted } = props;
     const [showHint, setShowHint] = React.useState(false);
     const state = React.useMemo(() => {
       return {
         open: showHint,
-        onClose: () => setShowHint(false)
+        onClose: () => setShowHint(false),
       };
     }, [showHint]);
     React.useEffect(() => {
@@ -28,7 +25,6 @@ function withUnlisted(Component: (props: any) => React.ReactElement<React.Compon
         const t = setTimeout(() => setShowHint(true), 1000);
         return () => clearTimeout(t);
       } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
-
     }, []);
 
     if (isUnlisted && !isClaimMine) {
@@ -39,11 +35,13 @@ function withUnlisted(Component: (props: any) => React.ReactElement<React.Compon
     }
 
     if (showHint) {
-      return <Tooltip arrow state={state} title={__('Get a sharable link for your unlisted content.')}>
+      return (
+        <Tooltip arrow state={state} title={__('Get a sharable link for your unlisted content.')}>
           <div onMouseEnter={() => setShowHint(false)}>
             <Component {...props} />
           </div>
-        </Tooltip>;
+        </Tooltip>
+      );
     }
 
     return <Component {...props} />;
@@ -65,23 +63,25 @@ type Props = {
 };
 
 function ClaimShareButton(props: Props) {
-  const {
-    uri,
-    fileAction,
-    collectionId,
-    webShareable,
-    shrinkOnMobile = false,
-    isUnlisted,
-    doOpenModal
-  } = props;
+  const { uri, fileAction, collectionId, webShareable, shrinkOnMobile = false, isUnlisted, doOpenModal } = props;
   const isMobile = useIsMobile();
   const label = isMobile && shrinkOnMobile ? '' : __('Share');
   const title = isUnlisted ? 'Get a sharable link for your unlisted content.' : 'Share this content';
-  return <FileActionButton title={__(title)} label={label} icon={ICONS.SHARE} onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, {
-    uri,
-    webShareable,
-    collectionId
-  })} noStyle={!fileAction} />;
+  return (
+    <FileActionButton
+      title={__(title)}
+      label={label}
+      icon={ICONS.SHARE}
+      onClick={() =>
+        doOpenModal(MODALS.SOCIAL_SHARE, {
+          uri,
+          webShareable,
+          collectionId,
+        })
+      }
+      noStyle={!fileAction}
+    />
+  );
 }
 
 export default withUnlisted(ClaimShareButton);

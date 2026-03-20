@@ -1,42 +1,52 @@
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import { selectClaimForUri, selectIsUriResolving, selectClaimIsMine, makeSelectClaimIsPending, selectGeoRestrictionForUri, selectLatestClaimForUri, makeSelectTagInClaimOrChannelForUri } from "redux/selectors/claims";
-import { selectCollectionForId, selectFirstItemUrlForCollection, selectAreCollectionItemsFetchingForId } from "redux/selectors/collections";
-import { selectHomepageFetched, selectUserVerifiedEmail } from "redux/selectors/user";
-import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from "redux/actions/claims";
-import { doBeginPublish } from "redux/actions/publish";
-import { doOpenModal } from "redux/actions/app";
-import { getChannelIdFromClaim } from "util/claim";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { selectIsSubscribedForUri } from "redux/selectors/subscriptions";
-import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from "redux/selectors/livestream";
-import { doFetchChannelIsLiveForId } from "redux/actions/livestream";
-import { doFetchCreatorSettings } from "redux/actions/comments";
-import { selectSettingsForChannelId } from "redux/selectors/comments";
-import { doFetchItemsInCollection } from "redux/actions/collections";
-import { PREFERENCE_EMBED } from "constants/tags";
-import withResolvedClaimRender from "hocs/withResolvedClaimRender";
-import ClaimPageComponent from "./view";
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import {
+  selectClaimForUri,
+  selectIsUriResolving,
+  selectClaimIsMine,
+  makeSelectClaimIsPending,
+  selectGeoRestrictionForUri,
+  selectLatestClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionForId,
+  selectFirstItemUrlForCollection,
+  selectAreCollectionItemsFetchingForId,
+} from 'redux/selectors/collections';
+import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
+import { getChannelIdFromClaim } from 'util/claim';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
+import { selectSettingsForChannelId } from 'redux/selectors/comments';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { PREFERENCE_EMBED } from 'constants/tags';
+import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
+import ClaimPageComponent from './view';
 
 const select = (state, props) => {
-  const {
-    uri,
-    location,
-    liveContentPath
-  } = props;
-  const {
-    search
-  } = location;
+  const { uri, location, liveContentPath } = props;
+  const { search } = location;
   const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelClaimId = getChannelIdFromClaim(claim);
-  const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || claim && claim.value_type === 'collection' && claim.claim_id || null;
-  const {
-    canonical_url: canonicalUrl,
-    claim_id: claimId
-  } = claim || {};
-  const latestContentClaim = liveContentPath ? selectLatestLiveClaimForChannel(state, claimId) : selectLatestClaimForUri(state, canonicalUrl);
-  const latestClaimUrl = liveContentPath ? selectLatestLiveUriForChannel(state, claimId) : latestContentClaim && latestContentClaim.canonical_url;
+  const collectionId =
+    urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) ||
+    (claim && claim.value_type === 'collection' && claim.claim_id) ||
+    null;
+  const { canonical_url: canonicalUrl, claim_id: claimId } = claim || {};
+  const latestContentClaim = liveContentPath
+    ? selectLatestLiveClaimForChannel(state, claimId)
+    : selectLatestClaimForUri(state, canonicalUrl);
+  const latestClaimUrl = liveContentPath
+    ? selectLatestLiveUriForChannel(state, claimId)
+    : latestContentClaim && latestContentClaim.canonical_url;
   const preferEmbed = makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state);
   return {
     uri,
@@ -55,7 +65,7 @@ const select = (state, props) => {
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     homepageFetched: selectHomepageFetched(state),
-    creatorSettings: selectSettingsForChannelId(state, channelClaimId)
+    creatorSettings: selectSettingsForChannelId(state, channelClaimId),
   };
 };
 
@@ -67,6 +77,6 @@ const perform = {
   doFetchLatestClaimForChannel,
   doFetchChannelIsLiveForId,
   doFetchCreatorSettings,
-  doFetchItemsInCollection
+  doFetchItemsInCollection,
 };
 export default withResolvedClaimRender(withRouter(connect(select, perform)(ClaimPageComponent)));

@@ -20,14 +20,18 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview",
     "check": "vp check",
     "check:fix": "vp check --fix",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "fmt": "vp fmt",
+    "fmt:check": "vp fmt --check",
     "typecheck": "tsc --noEmit",
-    "dev:web-server": "cross-env NODE_ENV=development concurrently \"vite build --watch\" \"cd web && pnpm dev:server\"",
-    "run:web-server": "cross-env NODE_ENV=production vite build && cd web && pnpm dev:server",
+    "dev:web-server": "cross-env NODE_ENV=development concurrently \"vp build --watch\" \"cd web && pnpm dev:server\"",
+    "run:web-server": "cross-env NODE_ENV=production vp build && cd web && pnpm dev:server",
     "postinstall": "cd web && pnpm install"
   },
   "dependencies": {
@@ -145,6 +149,7 @@
     "@reach/tabs": "^0.1.5",
     "@reach/tooltip": "^0.12.1",
     "@reach/utils": "^0.12.1",
+    "@types/node": "^25.5.0",
     "@types/react": "^16.14.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-redux": "^7.1.0",
@@ -160,7 +165,8 @@
     "process": "^0.11.10",
     "sass": "^1.54.0",
     "typescript": "^5.4.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vite-plus": "^0.1.12"
   },
   "resolutions": {
     "video.js": "7.21.4"

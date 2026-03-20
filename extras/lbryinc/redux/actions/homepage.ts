@@ -1,27 +1,27 @@
-import { Lbryio } from "lbryinc";
-import { batchActions } from "util/batch-actions";
-import { doResolveUris } from "util/lbryURI";
-import * as ACTIONS from "constants/action_types";
+import { Lbryio } from 'lbryinc';
+import { batchActions } from 'util/batch-actions';
+import { doResolveUris } from 'util/lbryURI';
+import * as ACTIONS from 'constants/action_types';
 export function doFetchFeaturedUris(offloadResolve = false) {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
-      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED
+      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED,
     });
 
-    const success = ({
-      Uris
-    }) => {
+    const success = ({ Uris }) => {
       let urisToResolve = [];
-      Object.keys(Uris).forEach(category => {
+      Object.keys(Uris).forEach((category) => {
         urisToResolve = [...urisToResolve, ...Uris[category]];
       });
-      const actions = [{
-        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: Uris,
-          success: true
-        }
-      }];
+      const actions = [
+        {
+          type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
+          data: {
+            uris: Uris,
+            success: true,
+          },
+        },
+      ];
 
       if (urisToResolve.length && !offloadResolve) {
         actions.push(doResolveUris(urisToResolve));
@@ -34,8 +34,8 @@ export function doFetchFeaturedUris(offloadResolve = false) {
       dispatch({
         type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
         data: {
-          uris: {}
-        }
+          uris: {},
+        },
       });
     };
 
@@ -43,20 +43,23 @@ export function doFetchFeaturedUris(offloadResolve = false) {
   };
 }
 export function doFetchTrendingUris() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
-      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED
+      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED,
     });
 
-    const success = data => {
-      const urisToResolve = data.map(uri => uri.url);
-      const actions = [doResolveUris(urisToResolve), {
-        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: data,
-          success: true
-        }
-      }];
+    const success = (data) => {
+      const urisToResolve = data.map((uri) => uri.url);
+      const actions = [
+        doResolveUris(urisToResolve),
+        {
+          type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+          data: {
+            uris: data,
+            success: true,
+          },
+        },
+      ];
       dispatch(batchActions(...actions));
     };
 
@@ -64,8 +67,8 @@ export function doFetchTrendingUris() {
       dispatch({
         type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
         data: {
-          uris: []
-        }
+          uris: [],
+        },
       });
     };
 

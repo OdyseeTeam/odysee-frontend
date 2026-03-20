@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import { toCapitalCase } from "util/string";
+import videojs from 'video.js';
+import { toCapitalCase } from 'util/string';
 const VideoJsButtonClass = videojs.getComponent('MenuButton');
 const VideoJsMenuClass = videojs.getComponent('Menu');
 const VideoJsComponent = videojs.getComponent('Component');
@@ -17,7 +17,7 @@ export default class ConcreteButton extends VideoJsButtonClass {
   constructor(player) {
     super(player, {
       title: player.localize('Quality'),
-      name: 'QualityButton'
+      name: 'QualityButton',
     });
   }
 
@@ -38,7 +38,7 @@ export default class ConcreteButton extends VideoJsButtonClass {
    */
   createMenu() {
     const menu = new VideoJsMenuClass(this.player_, {
-      menuButton: this
+      menuButton: this,
     });
     this.hideThreshold_ = 0;
 
@@ -47,10 +47,10 @@ export default class ConcreteButton extends VideoJsButtonClass {
       const titleEl = Dom.createEl('li', {
         className: 'vjs-menu-title',
         innerHTML: toCapitalCase(this.options_.title),
-        tabIndex: -1
+        tabIndex: -1,
       });
       const titleComponent = new VideoJsComponent(this.player_, {
-        el: titleEl
+        el: titleEl,
       });
       this.hideThreshold_ += 1;
       menu.addItem(titleComponent);
@@ -67,5 +67,4 @@ export default class ConcreteButton extends VideoJsButtonClass {
 
     return menu;
   }
-
 }

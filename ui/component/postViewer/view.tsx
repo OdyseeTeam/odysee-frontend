@@ -1,25 +1,25 @@
-import * as React from "react";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import { formatCredits } from "util/format-credits";
-import FileDetails from "component/fileDetails";
-import GeoRestictionInfo from "component/geoRestictionInfo";
-import ClaimAuthor from "component/claimAuthor";
-import FileTitle from "component/fileTitle";
-import FileActions from "component/fileActions";
-import StreamClaimRenderInline from "component/streamClaimRenderInline";
-import FileValues from "component/fileValues";
-import FileViewCount from "component/fileViewCount";
-import ClaimTags from "component/claimTags";
-import DateTime from "component/dateTime";
-import Button from "component/button";
-import LbcSymbol from "component/common/lbc-symbol";
-import classnames from "classnames";
-import "./style.lazy.scss";
+import * as React from 'react';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { formatCredits } from 'util/format-credits';
+import FileDetails from 'component/fileDetails';
+import GeoRestictionInfo from 'component/geoRestictionInfo';
+import ClaimAuthor from 'component/claimAuthor';
+import FileTitle from 'component/fileTitle';
+import FileActions from 'component/fileActions';
+import StreamClaimRenderInline from 'component/streamClaimRenderInline';
+import FileValues from 'component/fileValues';
+import FileViewCount from 'component/fileViewCount';
+import ClaimTags from 'component/claimTags';
+import DateTime from 'component/dateTime';
+import Button from 'component/button';
+import LbcSymbol from 'component/common/lbc-symbol';
+import classnames from 'classnames';
+import './style.lazy.scss';
 const EXPAND = {
   NONE: 'none',
   CREDIT_DETAILS: 'credit_details',
-  FILE_DETAILS: 'file_details'
+  FILE_DETAILS: 'file_details',
 };
 type Props = {
   uri: string;
@@ -30,13 +30,7 @@ type Props = {
 };
 
 function PostViewer(props: Props) {
-  const {
-    uri,
-    claim,
-    claimIsMine,
-    contentUnlocked,
-    doOpenModal
-  } = props;
+  const { uri, claim, claimIsMine, contentUnlocked, doOpenModal } = props;
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
   if (!claim) {
@@ -55,37 +49,58 @@ function PostViewer(props: Props) {
     }
   }
 
-  return <div className="post">
+  return (
+    <div className="post">
       <FileTitle uri={uri} className="post__title" />
       <GeoRestictionInfo uri={uri} />
-      <div className={classnames('post__info', {
-      'post__info--expanded': expand !== EXPAND.NONE
-    })}>
+      <div
+        className={classnames('post__info', {
+          'post__info--expanded': expand !== EXPAND.NONE,
+        })}
+      >
         <span className="post__date">
           <DateTime uri={uri} type="date" />
           {contentUnlocked && <FileViewCount uri={uri} />}
         </span>
         <div className="post__info--grouped">
-          <Button button="link" className="dim" icon={ICONS.INFO} aria-label={__('View claim details')} onClick={() => handleExpand(EXPAND.FILE_DETAILS)} />
+          <Button
+            button="link"
+            className="dim"
+            icon={ICONS.INFO}
+            aria-label={__('View claim details')}
+            onClick={() => handleExpand(EXPAND.FILE_DETAILS)}
+          />
           <Button button="link" className="dim" onClick={() => handleExpand(EXPAND.CREDIT_DETAILS)}>
             <LbcSymbol postfix={expand === EXPAND.CREDIT_DETAILS ? __('Hide') : formattedAmount} />
           </Button>
-          {claimIsMine && hasSupport && <Button button="link" className="expandable__button" icon={ICONS.UNLOCK} aria-label={__('Unlock tips')} onClick={() => {
-          doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
-            uri
-          });
-        }} />}
+          {claimIsMine && hasSupport && (
+            <Button
+              button="link"
+              className="expandable__button"
+              icon={ICONS.UNLOCK}
+              aria-label={__('Unlock tips')}
+              onClick={() => {
+                doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
+                  uri,
+                });
+              }}
+            />
+          )}
         </div>
       </div>
 
-      {expand === EXPAND.CREDIT_DETAILS && <div className="section post__info--credit-details">
+      {expand === EXPAND.CREDIT_DETAILS && (
+        <div className="section post__info--credit-details">
           <FileValues uri={uri} />
-        </div>}
+        </div>
+      )}
 
-      {expand === EXPAND.FILE_DETAILS && <div className="section post__info--credit-details">
+      {expand === EXPAND.FILE_DETAILS && (
+        <div className="section post__info--credit-details">
           <ClaimTags uri={uri} type="large" />
           <FileDetails uri={uri} />
-        </div>}
+        </div>
+      )}
 
       <ClaimAuthor uri={uri} />
 
@@ -93,7 +108,8 @@ function PostViewer(props: Props) {
         <StreamClaimRenderInline uri={uri} />
       </div>
       <FileActions uri={uri} />
-    </div>;
+    </div>
+  );
 }
 
 export default PostViewer;

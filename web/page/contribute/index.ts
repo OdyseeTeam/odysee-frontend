@@ -1,2 +1,2 @@
-import ContributePage from "./view";
+import ContributePage from './view';
 export default ContributePage;

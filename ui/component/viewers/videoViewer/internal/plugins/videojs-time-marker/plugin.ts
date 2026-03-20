@@ -11,12 +11,12 @@
  * The change in z-order adds some flexibility for future tweaks, but it is
  * primarily to detach itself from the seekBar's clipping region.
  */
-import videojs from "video.js";
-import type { Player } from "../../videojs";
-import ProgressNub from "./ProgressNub";
-import TimeMarker from "./TimeMarker";
-import "./ProgressNub.scss";
-import "./TimeMarker.scss";
+import videojs from 'video.js';
+import type { Player } from '../../videojs';
+import ProgressNub from './ProgressNub';
+import TimeMarker from './TimeMarker';
+import './ProgressNub.scss';
+import './TimeMarker.scss';
 const defaultOptions = {};
 type Options = {};
 

@@ -1,11 +1,11 @@
-import React from "react";
-import { useOnResize } from "effects/use-on-resize";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import * as SETTINGS from "constants/settings";
-import classnames from "classnames";
-import { NavLink } from "react-router-dom";
-import "./style.lazy.scss";
+import React from 'react';
+import { useOnResize } from 'effects/use-on-resize';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
+import classnames from 'classnames';
+import { NavLink } from 'react-router-dom';
+import './style.lazy.scss';
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
@@ -19,17 +19,8 @@ type Props = {
   doSetClientSetting: (key: string, value: any, push: boolean) => void;
 };
 export default function Portals(props: Props) {
-  const {
-    homepageData,
-    homepageOrder,
-    doSetClientSetting,
-    authenticated,
-    activePortal
-  } = props;
-  const {
-    portals,
-    categories
-  } = homepageData;
+  const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
+  const { portals, categories } = homepageData;
   const mainPortal = portals?.mainPortal;
   const mainPortals = mainPortal?.portals || [];
   const [width, setWidth] = React.useState(0);
@@ -57,7 +48,6 @@ export default function Portals(props: Props) {
     if (portals && width) {
       setMarginLeft((index - 1) * (tileWidth * -1));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [portals, index, width]);
   const handleResize = React.useCallback(() => {
     if (wrapper.current) {
@@ -76,25 +66,25 @@ export default function Portals(props: Props) {
   useOnResize(handleResize);
   const NON_CATEGORY = Object.freeze({
     BANNER: {
-      label: 'Banner'
+      label: 'Banner',
     },
     FOLLOWING: {
-      label: 'Following'
+      label: 'Following',
     },
     PORTALS: {
-      label: 'Portals'
+      label: 'Portals',
     },
     FYP: {
-      label: 'Recommended'
-    }
+      label: 'Recommended',
+    },
   });
 
   function getInitialList(listId, savedOrder, homepageSections) {
     const savedActiveOrder = savedOrder.active || [];
     const savedHiddenOrder = savedOrder.hidden || [];
     const sectionKeys = Object.keys(homepageSections);
-    let activeOrder: Array<string> = savedActiveOrder.filter(x => sectionKeys.includes(x));
-    let hiddenOrder: Array<string> = savedHiddenOrder.filter(x => sectionKeys.includes(x));
+    let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
+    let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
     sectionKeys.forEach((key: string) => {
       if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
         if (homepageSections[key].hideByDefault) {
@@ -102,14 +92,15 @@ export default function Portals(props: Props) {
         } else {
           if (key === 'BANNER') {
             activeOrder.unshift(key);
-          } else if (key === 'PORTALS') {// Skip
+          } else if (key === 'PORTALS') {
+            // Skip
           } else {
             activeOrder.push(key);
           }
         }
       }
     });
-    activeOrder = activeOrder.filter(x => !hiddenOrder.includes(x));
+    activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
     return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
   }
 
@@ -125,12 +116,10 @@ export default function Portals(props: Props) {
         orderToSave.hidden = ['PORTALS'];
       }
     } else if (!orderToSave.hidden) {
-      const SECTIONS = { ...NON_CATEGORY,
-        ...(categories || {})
-      };
+      const SECTIONS = { ...NON_CATEGORY, ...categories };
       orderToSave = {
         active: [],
-        hidden: []
+        hidden: [],
       };
       orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
       orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
@@ -143,63 +132,121 @@ export default function Portals(props: Props) {
     setKill(true);
   }
 
-  return mainPortal ? <div id="portals" className={classnames('portals-wrapper', {
-    kill: kill
-  })} style={{
-    backgroundImage: 'url(https://thumbnails.odycdn.com/optimize/s:' + imageWidth + ':0/quality:95/plain/' + mainPortal.background + ')'
-  }} onMouseEnter={() => setPause(true)} onMouseLeave={() => setPause(false)}>
+  return mainPortal ? (
+    <div
+      id="portals"
+      className={classnames('portals-wrapper', {
+        kill: kill,
+      })}
+      style={{
+        backgroundImage:
+          'url(https://thumbnails.odycdn.com/optimize/s:' +
+          imageWidth +
+          ':0/quality:95/plain/' +
+          mainPortal.background +
+          ')',
+      }}
+      onMouseEnter={() => setPause(true)}
+      onMouseLeave={() => setPause(false)}
+    >
       <h1>{mainPortal.description}</h1>
-      <div className="portal-rotator" style={{
-      marginLeft: marginLeft
-    }} ref={wrapper}>
+      <div
+        className="portal-rotator"
+        style={{
+          marginLeft: marginLeft,
+        }}
+        ref={wrapper}
+      >
         {mainPortals.map((portal, i) => {
-        return <div className={classnames('portal-wrapper', {
-          disabled: portal.name === activePortal
-        })} style={{
-          width: tileWidth - 12,
-          minWidth: tileWidth - 12
-        }} key={i} onMouseEnter={() => setHover(portal.name)} onMouseLeave={() => setHover(undefined)}>
-              <NavLink aria-hidden tabIndex={-1} to={{
-            pathname: '/$/portal/' + portal.name,
-            state: portal
-          }}>
-                <div className="portal-thumbnail" style={{
-              background: `rgba(` + portal.css.rgb + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
-              border: `2px solid rgba(` + portal.css.rgb + `,1)`
-            }}>
-                  <img style={{
+          return (
+            <div
+              className={classnames('portal-wrapper', {
+                disabled: portal.name === activePortal,
+              })}
+              style={{
                 width: tileWidth - 12,
-                height: tileWidth - 12
-              }} src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image} />
+                minWidth: tileWidth - 12,
+              }}
+              key={i}
+              onMouseEnter={() => setHover(portal.name)}
+              onMouseLeave={() => setHover(undefined)}
+            >
+              <NavLink
+                aria-hidden
+                tabIndex={-1}
+                to={{
+                  pathname: '/$/portal/' + portal.name,
+                  state: portal,
+                }}
+              >
+                <div
+                  className="portal-thumbnail"
+                  style={{
+                    background: `rgba(` + portal.css.rgb + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
+                    border: `2px solid rgba(` + portal.css.rgb + `,1)`,
+                  }}
+                >
+                  <img
+                    style={{
+                      width: tileWidth - 12,
+                      height: tileWidth - 12,
+                    }}
+                    src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image}
+                  />
                 </div>
-                <div className="portal-title" style={{
-              border: `2px solid rgba(` + portal.css.rgb + `,1)`
-            }}>
+                <div
+                  className="portal-title"
+                  style={{
+                    border: `2px solid rgba(` + portal.css.rgb + `,1)`,
+                  }}
+                >
                   <label>{portal.label}</label>
                 </div>
               </NavLink>
-            </div>;
-      })}
+            </div>
+          );
+        })}
       </div>
-      {mainPortals.length > tileNum && <>
-          <div className="portal-browse left" onClick={() => setIndex(index > 1 ? index - 1 : mainPortals.length - (tileNum - 1))}>
+      {mainPortals.length > tileNum && (
+        <>
+          <div
+            className="portal-browse left"
+            onClick={() => setIndex(index > 1 ? index - 1 : mainPortals.length - (tileNum - 1))}
+          >
             ‹
           </div>
-          <div className="portal-browse right" onClick={() => setIndex(index + (tileNum - 1) < mainPortals.length ? index + 1 : 1)}>
+          <div
+            className="portal-browse right"
+            onClick={() => setIndex(index + (tileNum - 1) < mainPortals.length ? index + 1 : 1)}
+          >
             ›
           </div>
           <div className="portal-active-indicator">
             {mainPortals.map((item, i) => {
-          return i < mainPortals.length - (tileNum - 1) && <div key={i} className={i + 1 === index ? 'portal-active-indicator-active' : ''} onClick={() => setIndex(i + 1)} />;
-        })}
+              return (
+                i < mainPortals.length - (tileNum - 1) && (
+                  <div
+                    key={i}
+                    className={i + 1 === index ? 'portal-active-indicator-active' : ''}
+                    onClick={() => setIndex(i + 1)}
+                  />
+                )
+              );
+            })}
           </div>
-        </>}
-      {authenticated && <div className="portals-remove" onClick={() => removePortals()}>
+        </>
+      )}
+      {authenticated && (
+        <div className="portals-remove" onClick={() => removePortals()}>
           <Icon icon={ICONS.REMOVE} />
-        </div>}
-    </div> : <div className="portals-wrapper">
+        </div>
+      )}
+    </div>
+  ) : (
+    <div className="portals-wrapper">
       <div className="portal-wrapper">
         <div className="portal-thumbnail" />
       </div>
-    </div>;
+    </div>
+  );
 }

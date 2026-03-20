@@ -1,14 +1,14 @@
-import { connect } from "react-redux";
-import { doOpenModal, doHideModal } from "redux/actions/app";
-import { selectHasSavedCard } from "redux/selectors/stripe";
-import ModalStripeCard from "./view";
+import { connect } from 'react-redux';
+import { doOpenModal, doHideModal } from 'redux/actions/app';
+import { selectHasSavedCard } from 'redux/selectors/stripe';
+import ModalStripeCard from './view';
 
-const select = state => ({
-  hasSavedCard: selectHasSavedCard(state)
+const select = (state) => ({
+  hasSavedCard: selectHasSavedCard(state),
 });
 
 const perform = {
   doOpenModal,
-  doHideModal
+  doHideModal,
 };
 export default connect(select, perform)(ModalStripeCard);

@@ -1,20 +1,16 @@
-import React from "react";
-import "./style.scss";
-import ButtonToggle from "../buttonToggle";
+import React from 'react';
+import './style.scss';
+import ButtonToggle from '../buttonToggle';
 type Props = {
   address: string;
   // select
   accountUpdating?: string;
   account: any;
-  doUpdateArweaveAddressStatus: (address: string, status: "active" | "inactive") => void;
+  doUpdateArweaveAddressStatus: (address: string, status: 'active' | 'inactive') => void;
 };
 
 function ButtonToggleAddressActive(props: Props) {
-  const {
-    accountUpdating,
-    account,
-    doUpdateArweaveAddressStatus
-  } = props;
+  const { accountUpdating, account, doUpdateArweaveAddressStatus } = props;
 
   if (account) {
     const handleClick = () => {

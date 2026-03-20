@@ -1,7 +1,7 @@
-import * as ICONS from "constants/icons";
-import React from "react";
-import classnames from "classnames";
-import { icons } from "./icon-custom";
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import classnames from 'classnames';
+import { icons } from './icon-custom';
 // It would be nice to standardize this somehow
 // These are copied from `scss/vars`, can they both come from the same source?
 const RED_COLOR = '#e2495e';
@@ -53,16 +53,7 @@ class IconComponent extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      icon,
-      tooltip,
-      customTooltipText,
-      iconColor,
-      size,
-      className,
-      sectionIcon = false,
-      ...rest
-    } = this.props;
+    const { icon, tooltip, customTooltipText, iconColor, size, className, sectionIcon = false, ...rest } = this.props;
     const Icon = icons[this.props.icon];
 
     if (!Icon) {
@@ -81,12 +72,20 @@ class IconComponent extends React.PureComponent<Props> {
       tooltipText = customTooltipText || this.getTooltip(icon);
     }
 
-    const component = <Icon title={tooltipText} size={size || (sectionIcon ? 20 : 16)} className={classnames(`icon icon--${icon}`, className, {
-      'color-override': iconColor
-    })} color={color} aria-hidden {...rest} />;
+    const component = (
+      <Icon
+        title={tooltipText}
+        size={size || (sectionIcon ? 20 : 16)}
+        className={classnames(`icon icon--${icon}`, className, {
+          'color-override': iconColor,
+        })}
+        color={color}
+        aria-hidden
+        {...rest}
+      />
+    );
     return sectionIcon ? <span className={`icon__wrapper icon__wrapper--${icon}`}>{component}</span> : component;
   }
-
 }
 
 export default IconComponent;

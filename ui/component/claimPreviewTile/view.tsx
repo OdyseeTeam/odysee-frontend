@@ -1,34 +1,34 @@
-import React from "react";
-import classnames from "classnames";
-import { NavLink, withRouter } from "react-router-dom";
-import { ChannelPageContext } from "contexts/channel";
-import * as COLLECTIONS from "constants/collections";
-import ClaimPreviewProgress from "component/claimPreviewProgress";
-import FileThumbnail from "component/fileThumbnail";
-import UriIndicator from "component/uriIndicator";
-import TruncatedText from "component/common/truncated-text";
-import DateTimeClaim from "component/dateTimeClaim";
-import LivestreamDateTime from "component/livestreamDateTime";
-import ChannelThumbnail from "component/channelThumbnail";
-import FileViewCountInline from "component/fileViewCountInline";
+import React from 'react';
+import classnames from 'classnames';
+import { NavLink, withRouter } from 'react-router-dom';
+import { ChannelPageContext } from 'contexts/channel';
+import * as COLLECTIONS from 'constants/collections';
+import ClaimPreviewProgress from 'component/claimPreviewProgress';
+import FileThumbnail from 'component/fileThumbnail';
+import UriIndicator from 'component/uriIndicator';
+import TruncatedText from 'component/common/truncated-text';
+import DateTimeClaim from 'component/dateTimeClaim';
+import LivestreamDateTime from 'component/livestreamDateTime';
+import ChannelThumbnail from 'component/channelThumbnail';
+import FileViewCountInline from 'component/fileViewCountInline';
 // import SubscribeButton from 'component/subscribeButton';
-import useGetThumbnail from "effects/use-get-thumbnail";
-import { isClaimAllowedForCollection } from "util/collections";
-import { formatLbryUrlForWeb, generateListSearchUrlParams } from "util/url";
-import { formatClaimPreviewTitle } from "util/formatAriaLabel";
-import PreviewOverlayProperties from "component/previewOverlayProperties";
-import FileHideRecommendation from "component/fileHideRecommendation";
-import FileWatchLaterLink from "component/fileWatchLaterLink";
-import ButtonAddToQueue from "component/buttonAddToQueue";
-import ClaimRepostAuthor from "component/claimRepostAuthor";
-import ClaimMenuList from "component/claimMenuList";
-import CollectionPreviewOverlay from "component/collectionPreviewOverlay";
-import { FYP_ID } from "constants/urlParams";
-import * as PAGES from "constants/pages";
-import { EmbedContext } from "contexts/embed";
-import { isClaimShort } from "util/claim";
-import type { HomepageTitles } from "util/buildHomepage";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import useGetThumbnail from 'effects/use-get-thumbnail';
+import { isClaimAllowedForCollection } from 'util/collections';
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
+import PreviewOverlayProperties from 'component/previewOverlayProperties';
+import FileHideRecommendation from 'component/fileHideRecommendation';
+import FileWatchLaterLink from 'component/fileWatchLaterLink';
+import ButtonAddToQueue from 'component/buttonAddToQueue';
+import ClaimRepostAuthor from 'component/claimRepostAuthor';
+import ClaimMenuList from 'component/claimMenuList';
+import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import { FYP_ID } from 'constants/urlParams';
+import * as PAGES from 'constants/pages';
+import { EmbedContext } from 'contexts/embed';
+import { isClaimShort } from 'util/claim';
+import type { HomepageTitles } from 'util/buildHomepage';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 type Props = {
   uri: string;
   date?: any;
@@ -107,7 +107,7 @@ function ClaimPreviewTile(props: Props) {
     isShort,
     isShortFromChannelPage,
     sectionTitle,
-    disableShortsView
+    disableShortsView,
   } = props;
   const isEmbed = React.useContext(EmbedContext);
   const pageHistory = useHistory();
@@ -122,21 +122,30 @@ function ClaimPreviewTile(props: Props) {
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId || '';
-  const navigateUrl = isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW ? `/$/${PAGES.PLAYLIST}/${listId}` : formatLbryUrlForWeb(canonicalUrl || uri || '/') + (listId ? generateListSearchUrlParams(listId) : '') + (claim && isClaimShort(claim) && !disableShortsView ? '?view=shorts' : '') + (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : '') + (isShort && isShortFromChannelPage && !disableShortsView ? `${claim && isClaimShort(claim) || fypId ? '&' : '?'}from=channel` : '');
+  const navigateUrl =
+    isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW
+      ? `/$/${PAGES.PLAYLIST}/${listId}`
+      : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
+        (listId ? generateListSearchUrlParams(listId) : '') +
+        (claim && isClaimShort(claim) && !disableShortsView ? '?view=shorts' : '') +
+        (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : '') +
+        (isShort && isShortFromChannelPage && !disableShortsView
+          ? `${(claim && isClaimShort(claim)) || fypId ? '&' : '?'}from=channel`
+          : '');
   // sigh...
   const navLinkProps = {
     to: navigateUrl,
-    onClick: e => {
+    onClick: (e) => {
       onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
-    }
+    },
   };
   const queryParams = new URLSearchParams(pageHistory.location.search);
   const signingChannel = claim && claim.signing_channel;
   const isChannel = claim && claim.value_type === 'channel';
   const channelUri = !isChannel ? signingChannel && signingChannel.permanent_url : claim && claim.permanent_url;
-  const channelTitle = signingChannel && (signingChannel.value && signingChannel.value.title || signingChannel.name);
+  const channelTitle = signingChannel && ((signingChannel.value && signingChannel.value.title) || signingChannel.name);
   const isChannelPage = React.useContext(ChannelPageContext);
-  const shouldShowViewCount = !(!viewCount || claim && claim.repost_url || isLivestream || !isChannelPage);
+  const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
   const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
   const useShortsThumb = sectionTitle === 'Shorts' || queryParams.get('view') === 'shortsTab';
   let shouldHide = false;
@@ -152,7 +161,11 @@ function ClaimPreviewTile(props: Props) {
   }
 
   if (!shouldHide && !placeholder) {
-    shouldHide = banState.blacklisted || banState.filtered || !showHiddenByUser && (banState.muted || banState.blocked) || isAbandoned && !showUnresolvedClaims;
+    shouldHide =
+      banState.blacklisted ||
+      banState.filtered ||
+      (!showHiddenByUser && (banState.muted || banState.blocked)) ||
+      (isAbandoned && !showUnresolvedClaims);
   }
 
   // Filter empty reposts
@@ -179,18 +192,25 @@ function ClaimPreviewTile(props: Props) {
   }
 
   if (placeholder || claim === undefined) {
-    return <li className={classnames('placeholder claim-preview--tile', {
-      pulse: pulse
-    })}>
-        <div className={classnames('media__thumb', {
-        media__thumb__short: useShortsThumb
-      })} />
+    return (
+      <li
+        className={classnames('placeholder claim-preview--tile', {
+          pulse: pulse,
+        })}
+      >
+        <div
+          className={classnames('media__thumb', {
+            media__thumb__short: useShortsThumb,
+          })}
+        />
         <div className="placeholder__wrapper">
           <div className="claim-tile__title" />
           <div className="claim-tile__title_b" />
-          <div className={classnames('claim-tile__info', {
-          contains_view_count: shouldShowViewCount
-        })}>
+          <div
+            className={classnames('claim-tile__info', {
+              contains_view_count: shouldShowViewCount,
+            })}
+          >
             <div className="channel-thumbnail" />
             <div className="claim-tile__about">
               <div className="button__content" />
@@ -198,61 +218,86 @@ function ClaimPreviewTile(props: Props) {
             </div>
           </div>
         </div>
-      </li>;
+      </li>
+    );
   }
 
-  return <li onClick={handleClick} className={classnames('claim-preview__wrapper claim-preview--tile', {
-    'claim-preview__wrapper--channel': isChannel,
-    'claim-preview__wrapper--live': isLivestreamActive,
-    'claim-preview__wrapper--short': isShort && sectionTitle === 'Shorts'
-  })}>
+  return (
+    <li
+      onClick={handleClick}
+      className={classnames('claim-preview__wrapper claim-preview--tile', {
+        'claim-preview__wrapper--channel': isChannel,
+        'claim-preview__wrapper--live': isLivestreamActive,
+        'claim-preview__wrapper--short': isShort && sectionTitle === 'Shorts',
+      })}
+    >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
-        <FileThumbnail isShort={isShort} thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
-          {!isChannel && <React.Fragment>
-              {(fypId && isStream || showCollectionContext) && <div className="claim-preview__hover-actions-grid">
-                  {fypId && isStream && <div className="claim-preview__hover-actions">
+        <FileThumbnail
+          isShort={isShort}
+          thumbnail={thumbnailUrl}
+          allowGifs
+          tileLayout
+          uri={uri}
+          secondaryUri={firstCollectionItemUrl}
+        >
+          {!isChannel && (
+            <React.Fragment>
+              {((fypId && isStream) || showCollectionContext) && (
+                <div className="claim-preview__hover-actions-grid">
+                  {fypId && isStream && (
+                    <div className="claim-preview__hover-actions">
                       <FileHideRecommendation focusable={false} uri={repostedContentUri} />
-                    </div>}
+                    </div>
+                  )}
 
-                  {showCollectionContext && <>
+                  {showCollectionContext && (
+                    <>
                       <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
                       <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
-                    </>}
-                </div>}
+                    </>
+                  )}
+                </div>
+              )}
 
               <div className="claim-preview__file-property-overlay">
                 <PreviewOverlayProperties uri={uri} properties={properties} />
               </div>
               <ClaimPreviewProgress uri={uri} />
-            </React.Fragment>}
+            </React.Fragment>
+          )}
           {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
         </FileThumbnail>
       </NavLink>
 
-      {
-      /* TODO: change this after ClaimPreview/ClaimPreviewTile refactor
-      onlyThumb used for the preview tile functionality, without the bottom part (channel, menu, etc) */
-    }
-      {!onlyThumb && <>
+      {/* TODO: change this after ClaimPreview/ClaimPreviewTile refactor
+      onlyThumb used for the preview tile functionality, without the bottom part (channel, menu, etc) */}
+      {!onlyThumb && (
+        <>
           <div className="claim-tile__header">
             <NavLink aria-label={ariaLabelData} {...navLinkProps} target={isEmbed && '_blank'}>
               <h2 className="claim-preview__title">
-                <TruncatedText text={title || claim && claim.name} lines={isChannel ? 1 : 2} />
-                {isChannel && <div className="claim-tile__about">
+                <TruncatedText text={title || (claim && claim.name)} lines={isChannel ? 1 : 2} />
+                {isChannel && (
+                  <div className="claim-tile__about">
                     <UriIndicator uri={uri} external={isEmbed} />
-                  </div>}
+                  </div>
+                )}
               </h2>
             </NavLink>
             <ClaimMenuList uri={uri} collectionId={listId} fypId={fypId} channelUri={channelUri} />
           </div>
           <div>
-            <div className={classnames('claim-tile__info', {
-          contains_view_count: shouldShowViewCount
-        })}>
-              {isChannel ? //  <div className="claim-tile__about--channel">
-          //    <SubscribeButton uri={repostedChannelUri || uri} />
-          //  </div>
-          <></> : <React.Fragment>
+            <div
+              className={classnames('claim-tile__info', {
+                contains_view_count: shouldShowViewCount,
+              })}
+            >
+              {isChannel ? ( //  <div className="claim-tile__about--channel">
+                //    <SubscribeButton uri={repostedChannelUri || uri} />
+                //  </div>
+                <></>
+              ) : (
+                <React.Fragment>
                   <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                     <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
                   </UriIndicator>
@@ -265,14 +310,19 @@ function ClaimPreviewTile(props: Props) {
                       {!isLivestream && <DateTimeClaim uri={uri} />}
                     </div>
                   </div>
-                </React.Fragment>}
+                </React.Fragment>
+              )}
             </div>
-            {isRepost && <div className="claim-tile__repost-author">
+            {isRepost && (
+              <div className="claim-tile__repost-author">
                 <ClaimRepostAuthor uri={uri} />
-              </div>}
+              </div>
+            )}
           </div>
-        </>}
-    </li>;
+        </>
+      )}
+    </li>
+  );
 }
 
 export default withRouter(ClaimPreviewTile);

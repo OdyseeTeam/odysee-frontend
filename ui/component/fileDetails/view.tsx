@@ -1,8 +1,8 @@
-import { SIMPLE_SITE } from "config";
-import React, { PureComponent } from "react";
-import Button from "component/button";
-import path from "path";
-import { formatBytes } from "util/format-bytes";
+import { SIMPLE_SITE } from 'config';
+import React, { PureComponent } from 'react';
+import Button from 'component/button';
+import path from 'path';
+import { formatBytes } from 'util/format-bytes';
 type Props = {
   claim: StreamClaim;
   fileInfo: FileListItem;
@@ -14,25 +14,18 @@ type Props = {
 
 class FileDetails extends PureComponent<Props> {
   render() {
-    const {
-      claim,
-      contentType,
-      fileInfo,
-      metadata,
-      openFolder
-    } = this.props;
+    const { claim, contentType, fileInfo, metadata, openFolder } = this.props;
 
     if (!claim || !metadata) {
       return <span className="empty">{__('Empty claim or metadata info.')}</span>;
     }
 
-    const {
-      languages,
-      license,
-      license_url
-    } = metadata;
+    const { languages, license, license_url } = metadata;
     const mediaType = contentType || 'unknown';
-    const fileSize = metadata.source && metadata.source.size ? formatBytes(metadata.source.size) : fileInfo && fileInfo.download_path && formatBytes(fileInfo.written_bytes);
+    const fileSize =
+      metadata.source && metadata.source.size
+        ? formatBytes(metadata.source.size)
+        : fileInfo && fileInfo.download_path && formatBytes(fileInfo.written_bytes);
     let downloadPath = fileInfo && fileInfo.download_path ? path.normalize(fileInfo.download_path) : null;
     let downloadNote;
 
@@ -43,50 +36,70 @@ class FileDetails extends PureComponent<Props> {
       downloadNote = __('This file may have been streamed, moved or deleted');
     }
 
-    return <>
-        {!SIMPLE_SITE && <>
-            {languages && <div className="media__details">
+    return (
+      <>
+        {!SIMPLE_SITE && (
+          <>
+            {languages && (
+              <div className="media__details">
                 <span>{__('Languages')}</span>
                 <span>{languages.join(' ')}</span>
-              </div>}
+              </div>
+            )}
 
-            {mediaType && <div className="media__details">
+            {mediaType && (
+              <div className="media__details">
                 <span>{__('Media Type')}</span>
                 <span>{mediaType}</span>
-              </div>}
+              </div>
+            )}
 
             <div className="media__details">
               <span>{__('License')}</span>
               <span>{license}</span>
             </div>
 
-            {downloadPath && <div className="media__details">
+            {downloadPath && (
+              <div className="media__details">
                 <span>{__('Downloaded to')}</span>
                 <span>
-                  <Button button="link" className="button--download-link" onClick={() => {
-              if (downloadPath) {
-                openFolder(downloadPath);
-              }
-            }} label={downloadNote || downloadPath.replace(/(.{10})/g, '$1\u200b')} />
+                  <Button
+                    button="link"
+                    className="button--download-link"
+                    onClick={() => {
+                      if (downloadPath) {
+                        openFolder(downloadPath);
+                      }
+                    }}
+                    label={downloadNote || downloadPath.replace(/(.{10})/g, '$1\u200b')}
+                  />
                 </span>
-              </div>}
-          </>}
+              </div>
+            )}
+          </>
+        )}
 
-        {SIMPLE_SITE && <>
-            {license !== 'None' && <div className="file-detail">
+        {SIMPLE_SITE && (
+          <>
+            {license !== 'None' && (
+              <div className="file-detail">
                 <span className="file-detail__label">{__('License')}</span>
                 <span className="file-detail__value">{license}</span>
                 {license_url && <span className="file-detail__value">{license_url}</span>}
-              </div>}
+              </div>
+            )}
 
-            {fileSize && <div className="file-detail">
+            {fileSize && (
+              <div className="file-detail">
                 <span className="file-detail__label">{__('File size')}</span>
                 <span className="file-detail__value">{fileSize}</span>
-              </div>}
-          </>}
-      </>;
+              </div>
+            )}
+          </>
+        )}
+      </>
+    );
   }
-
 }
 
 export default FileDetails;

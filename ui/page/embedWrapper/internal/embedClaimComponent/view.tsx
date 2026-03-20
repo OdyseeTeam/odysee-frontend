@@ -1,38 +1,62 @@
 // @noflow
-import React from "react";
-import classnames from "classnames";
-import * as RENDER_MODES from "constants/file_render_modes";
-import { useHistory } from "react-router";
-import { parseURI } from "util/lbryURI";
-import { lazyImport } from "util/lazyImport";
-import MarkdownPreview from "component/common/markdown-preview";
-import { formatLbryUrlForWeb } from "util/url";
-import PropTypes from "prop-types";
-import withStreamClaimRender from "hocs/withStreamClaimRender";
-import Spinner from "component/spinner";
-import I18nMessage from "component/i18nMessage";
-import Button from "component/button";
-const LivestreamScheduledInfo = lazyImport(() => import('component/livestreamScheduledInfo'
-/* webpackChunkName: "livestreamScheduledInfo" */
-));
-const ClaimPreviewTile = lazyImport(() => import('component/claimPreviewTile'
-/* webpackChunkName: "claimPreviewTile" */
-));
-const ClaimPreview = lazyImport(() => import('component/claimPreview'
-/* webpackChunkName: "claimPreview" */
-));
-const VideoRender = lazyImport(() => import('component/videoClaimRender'
-/* webpackChunkName: "videoClaimRender" */
-));
-const ClaimListDiscover = lazyImport(() => import('component/claimListDiscover'
-/* webpackChunkName: "claimListDiscover" */
-));
-const ClaimList = lazyImport(() => import('component/claimList'
-/* webpackChunkName: "claimList" */
-));
+import React from 'react';
+import classnames from 'classnames';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import { useHistory } from 'react-router';
+import { parseURI } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
+import MarkdownPreview from 'component/common/markdown-preview';
+import { formatLbryUrlForWeb } from 'util/url';
+import PropTypes from 'prop-types';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import Spinner from 'component/spinner';
+import I18nMessage from 'component/i18nMessage';
+import Button from 'component/button';
+const LivestreamScheduledInfo = lazyImport(
+  () =>
+    import(
+      'component/livestreamScheduledInfo'
+      /* webpackChunkName: "livestreamScheduledInfo" */
+    )
+);
+const ClaimPreviewTile = lazyImport(
+  () =>
+    import(
+      'component/claimPreviewTile'
+      /* webpackChunkName: "claimPreviewTile" */
+    )
+);
+const ClaimPreview = lazyImport(
+  () =>
+    import(
+      'component/claimPreview'
+      /* webpackChunkName: "claimPreview" */
+    )
+);
+const VideoRender = lazyImport(
+  () =>
+    import(
+      'component/videoClaimRender'
+      /* webpackChunkName: "videoClaimRender" */
+    )
+);
+const ClaimListDiscover = lazyImport(
+  () =>
+    import(
+      'component/claimListDiscover'
+      /* webpackChunkName: "claimListDiscover" */
+    )
+);
+const ClaimList = lazyImport(
+  () =>
+    import(
+      'component/claimList'
+      /* webpackChunkName: "claimList" */
+    )
+);
 
 // Note: Prop types are inferred from connected component; avoid TS/Flow in this file to satisfy linters
-const EmbedClaimComponent = props => {
+const EmbedClaimComponent = (props) => {
   const {
     uri,
     latestClaimUrl,
@@ -47,26 +71,24 @@ const EmbedClaimComponent = props => {
     doFileGetForUri,
     collectionUrls,
     doFetchItemsInCollection,
-    doFetchChannelIsLiveForId
+    doFetchChannelIsLiveForId,
   } = props;
   const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
-  const {
-    isChannel,
-    channelName
-  } = parseURI(uri);
+  const { isChannel, channelName } = parseURI(uri);
   const isVideo = RENDER_MODES.FLOATING_MODES.includes(renderMode);
-  const ClickHereButton = React.useMemo(() => () => <Button button="link" label={__('Click Here')} href={formatLbryUrlForWeb(uri)} />, [uri]);
+  const ClickHereButton = React.useMemo(
+    () => () => <Button button="link" label={__('Click Here')} href={formatLbryUrlForWeb(uri)} />,
+    [uri]
+  );
   // Fetch collection items - must be before any conditional returns
   React.useEffect(() => {
     if (isCollection && collectionId && doFetchItemsInCollection) {
       doFetchItemsInCollection({
-        collectionId
+        collectionId,
       });
     }
   }, [isCollection, collectionId, doFetchItemsInCollection]);
@@ -80,91 +102,151 @@ const EmbedClaimComponent = props => {
   if (isChannel) {
     // For feature=livenow, show the latest livestream if available
     if (featureParam === 'livenow' && latestClaimUrl) {
-      return <EmbeddedVideoClaim uri={latestClaimUrl} embedded>
+      return (
+        <EmbeddedVideoClaim uri={latestClaimUrl} embedded>
           <div className="help--notice help--notice-embed-livestream">
-            <I18nMessage tokens={{
-            channel_name: channelName,
-            click_here: <ClickHereButton />
-          }}>
+            <I18nMessage
+              tokens={{
+                channel_name: channelName,
+                click_here: <ClickHereButton />,
+              }}
+            >
               %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
               %click_here% to start chatting.
             </I18nMessage>
           </div>
-        </EmbeddedVideoClaim>;
+        </EmbeddedVideoClaim>
+      );
     }
 
-    return <React.Suspense fallback={<div className="main--empty">
+    return (
+      <React.Suspense
+        fallback={
+          <div className="main--empty">
             <Spinner text={__('Loading...')} />
-          </div>}>
+          </div>
+        }
+      >
         <ClaimPreview uri={uri} />
 
-        {channelClaimId && <div style={{
-        marginTop: '16px'
-      }}>
-            <h2 style={{
-          fontSize: '1.2rem',
-          marginBottom: '12px',
-          color: 'var(--color-text)'
-        }}>
+        {channelClaimId && (
+          <div
+            style={{
+              marginTop: '16px',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+                color: 'var(--color-text)',
+              }}
+            >
               {__('Recent Content')}
             </h2>
-            <ClaimListDiscover channelIds={[channelClaimId]} showHeader={false} tileLayout pageSize={12} claimType={['stream', 'repost']} orderBy="release_time" hideFilters />
-          </div>}
+            <ClaimListDiscover
+              channelIds={[channelClaimId]}
+              showHeader={false}
+              tileLayout
+              pageSize={12}
+              claimType={['stream', 'repost']}
+              orderBy="release_time"
+              hideFilters
+            />
+          </div>
+        )}
 
-        {latestClaimUrl === null && featureParam === 'livenow' && <div className="help--notice" style={{
-        marginTop: '20px'
-      }}>
+        {latestClaimUrl === null && featureParam === 'livenow' && (
+          <div
+            className="help--notice"
+            style={{
+              marginTop: '20px',
+            }}
+          >
             {__("%channelName% isn't live right now, check back later to watch the stream.", {
-          channelName
-        })}
-          </div>}
-      </React.Suspense>;
+              channelName,
+            })}
+          </div>
+        )}
+      </React.Suspense>
+    );
   }
 
   // Playlist / Collection embed: show cover + playable list
   if (isCollection && collectionId) {
-    return <React.Suspense fallback={<div className="main--empty">
+    return (
+      <React.Suspense
+        fallback={
+          <div className="main--empty">
             <Spinner text={__('Loading playlist...')} />
-          </div>}>
+          </div>
+        }
+      >
         <ClaimPreview uri={uri} />
-        {collectionUrls === undefined ? <div className="main--empty">
+        {collectionUrls === undefined ? (
+          <div className="main--empty">
             <Spinner text={__('Loading playlist...')} />
-          </div> : collectionUrls && collectionUrls.length > 0 ? <div style={{
-        marginTop: '16px'
-      }}>
+          </div>
+        ) : collectionUrls && collectionUrls.length > 0 ? (
+          <div
+            style={{
+              marginTop: '16px',
+            }}
+          >
             <ClaimList uris={collectionUrls} tileLayout playItemsOnClick />
-          </div> : <div className="help--notice" style={{
-        marginTop: '16px'
-      }}>
+          </div>
+        ) : (
+          <div
+            className="help--notice"
+            style={{
+              marginTop: '16px',
+            }}
+          >
             {__('This playlist is empty.')}
-          </div>}
-      </React.Suspense>;
+          </div>
+        )}
+      </React.Suspense>
+    );
   }
 
   if (isVideo) {
-    return <>
+    return (
+      <>
         <EmbeddedVideoClaim uri={uri} embedded>
-          {isLivestreamClaim && <>
+          {isLivestreamClaim && (
+            <>
               {showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
 
-              <div className={classnames('help--notice help--notice-embed-livestream', {
-            'help--notice-short': showScheduledInfo
-          })}>
-                {showScheduledInfo ? <I18nMessage tokens={{
-              click_here: <ClickHereButton />
-            }}>
+              <div
+                className={classnames('help--notice help--notice-embed-livestream', {
+                  'help--notice-short': showScheduledInfo,
+                })}
+              >
+                {showScheduledInfo ? (
+                  <I18nMessage
+                    tokens={{
+                      click_here: <ClickHereButton />,
+                    }}
+                  >
                     %click_here% if you want to join the chat for this stream.
-                  </I18nMessage> : <I18nMessage tokens={{
-              channel_name: channelName,
-              click_here: <ClickHereButton />
-            }}>
+                  </I18nMessage>
+                ) : (
+                  <I18nMessage
+                    tokens={{
+                      channel_name: channelName,
+                      click_here: <ClickHereButton />,
+                    }}
+                  >
                     %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
                     %click_here% to start chatting.
-                  </I18nMessage>}
+                  </I18nMessage>
+                )}
               </div>
-            </>}
+            </>
+          )}
         </EmbeddedVideoClaim>
-      </>;
+      </>
+    );
   }
 
   // Posts (Markdown) embed
@@ -176,24 +258,19 @@ const EmbedClaimComponent = props => {
 };
 
 // eslint-disable-next-line react/prop-types
-const EmbeddedVideoClaimComponent = ({
-  uri,
-  streamClaim
-}) => <VideoRender uri={uri} embedded streamClaim={streamClaim} />;
+const EmbeddedVideoClaimComponent = ({ uri, streamClaim }) => (
+  <VideoRender uri={uri} embedded streamClaim={streamClaim} />
+);
 
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
 EmbeddedVideoClaimComponent.propTypes = {
   uri: PropTypes.string.isRequired,
-  streamClaim: PropTypes.object
+  streamClaim: PropTypes.object,
 };
 
 // Minimal Markdown Embed Viewer: fetch content and render markdown
 // eslint-disable-next-line react/prop-types
-const EmbeddedMarkdown = ({
-  uri,
-  streamingUrl,
-  doFileGetForUri
-}) => {
+const EmbeddedMarkdown = ({ uri, streamingUrl, doFileGetForUri }) => {
   const [content, setContent] = React.useState();
   React.useEffect(() => {
     if (!streamingUrl && doFileGetForUri) {
@@ -207,7 +284,7 @@ const EmbeddedMarkdown = ({
       try {
         if (!streamingUrl) return setContent(undefined);
         const res = await fetch(streamingUrl, {
-          credentials: 'omit'
+          credentials: 'omit',
         });
         if (!res.ok) return setContent(null);
         const text = await res.text();
@@ -224,28 +301,31 @@ const EmbeddedMarkdown = ({
   }, [streamingUrl]);
   if (content === undefined) return <Spinner text={__('Loading post...')} />;
   if (content === null) return <div className="help--notice">{__("Sorry, we couldn't load this post.")}</div>;
-  return <div className="file-viewer file-viewer--document" style={{
-    position: 'relative'
-  }}>
+  return (
+    <div
+      className="file-viewer file-viewer--document"
+      style={{
+        position: 'relative',
+      }}
+    >
       <div className="document file-render__viewer markdown-post">
         <MarkdownPreview content={content} isMarkdownPost promptLinks />
       </div>
-    </div>;
+    </div>
+  );
 };
 
 EmbeddedMarkdown.propTypes = {
   uri: PropTypes.string.isRequired,
   streamingUrl: PropTypes.string,
-  doFileGetForUri: PropTypes.func
+  doFileGetForUri: PropTypes.func,
 };
 
-const EmbeddedClaimComponent = ({
-  uri
-}) => <ClaimPreviewTile uri={uri} onlyThumb />;
+const EmbeddedClaimComponent = ({ uri }) => <ClaimPreviewTile uri={uri} onlyThumb />;
 
 const EmbeddedClaim = withStreamClaimRender(EmbeddedClaimComponent);
 EmbeddedClaimComponent.propTypes = {
-  uri: PropTypes.string.isRequired
+  uri: PropTypes.string.isRequired,
 };
 export default EmbedClaimComponent;
 EmbedClaimComponent.propTypes = {
@@ -261,5 +341,5 @@ EmbedClaimComponent.propTypes = {
   doFileGetForUri: PropTypes.func,
   collectionUrls: PropTypes.array,
   doFetchItemsInCollection: PropTypes.func,
-  doFetchChannelIsLiveForId: PropTypes.func
+  doFetchChannelIsLiveForId: PropTypes.func,
 };

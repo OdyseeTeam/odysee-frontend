@@ -1,20 +1,20 @@
-import videojs from "video.js";
-import "./touchOverlay";
-import window from "global/window";
-import "./plugin.scss";
+import videojs from 'video.js';
+import './touchOverlay';
+import window from 'global/window';
+import './plugin.scss';
 const VERSION = '0.4.1';
 // Default options for the plugin.
 const defaults = {
   fullscreen: {
     enterOnRotate: true,
     lockOnRotate: true,
-    iOS: false
+    iOS: false,
   },
   touchControls: {
     seekSeconds: 5,
     tapTimeout: 300,
-    disableOnEnd: false
-  }
+    disableOnEnd: false,
+  },
 };
 const screen = window.screen;
 
@@ -53,7 +53,12 @@ const onPlayerReady = (player, options) => {
     player.addClass('vjs-mobile-ui-disable-end');
   }
 
-  if (options.fullscreen.iOS && videojs.browser.IS_IOS && videojs.browser.IOS_VERSION > 9 && !player.el_.ownerDocument.querySelector('.bc-iframe')) {
+  if (
+    options.fullscreen.iOS &&
+    videojs.browser.IS_IOS &&
+    videojs.browser.IOS_VERSION > 9 &&
+    !player.el_.ownerDocument.querySelector('.bc-iframe')
+  ) {
     player.tech_.el_.setAttribute('playsinline', 'playsinline');
 
     player.tech_.supportsFullScreen = () => false;
@@ -94,11 +99,14 @@ const onPlayerReady = (player, options) => {
         player.requestFullscreen();
 
         if (options.fullscreen.lockOnRotate && screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').then(() => {
-            locked = true;
-          }).catch(() => {
-            videojs.log('orientation lock not allowed');
-          });
+          screen.orientation
+            .lock('landscape')
+            .then(() => {
+              locked = true;
+            })
+            .catch(() => {
+              videojs.log('orientation lock not allowed');
+            });
         }
       }
     }
@@ -119,7 +127,7 @@ const onPlayerReady = (player, options) => {
     }
   }
 
-  player.on('ended', _ => {
+  player.on('ended', (_) => {
     if (locked === true) {
       screen.orientation.unlock();
       locked = false;

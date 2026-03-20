@@ -1,25 +1,33 @@
-import React from "react";
-import { useHistory } from "react-router";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "component/common/tabs";
-import { lazyImport } from "util/lazyImport";
-import HelpHub from "component/common/help-hub";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import Page from "component/page";
-import ChannelSelector from "component/channelSelector";
-import Spinner from "component/spinner";
-import Button from "component/button";
-import "./style.scss";
-const PledgesTab = lazyImport(() => import('./pledgesTab'
-/* webpackChunkName: "pledgesTab" */
-));
-const PaymentsTab = lazyImport(() => import('./paymentsTab'
-/* webpackChunkName: "outgoingPaymentsTab" */
-));
+import React from 'react';
+import { useHistory } from 'react-router';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { lazyImport } from 'util/lazyImport';
+import HelpHub from 'component/common/help-hub';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import Page from 'component/page';
+import ChannelSelector from 'component/channelSelector';
+import Spinner from 'component/spinner';
+import Button from 'component/button';
+import './style.scss';
+const PledgesTab = lazyImport(
+  () =>
+    import(
+      './pledgesTab'
+      /* webpackChunkName: "pledgesTab" */
+    )
+);
+const PaymentsTab = lazyImport(
+  () =>
+    import(
+      './paymentsTab'
+      /* webpackChunkName: "outgoingPaymentsTab" */
+    )
+);
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
-  PAYMENTS: 'payments'
+  PAYMENTS: 'payments',
 };
 type Props = {
   // -- redux --
@@ -35,7 +43,7 @@ const SupporterArea = (props: Props) => {
     activeChannelClaim,
     myChannelClaims,
     doListAllMyMembershipTiers,
-    myChannelIds
+    myChannelIds,
   } = props;
   React.useEffect(() => {
     if (myChannelClaims !== undefined) {
@@ -43,10 +51,8 @@ const SupporterArea = (props: Props) => {
     }
   }, [doListAllMyMembershipTiers, myChannelClaims]);
   const {
-    location: {
-      search
-    },
-    push
+    location: { search },
+    push,
   } = useHistory();
   const [allSelected, setAllSelected] = React.useState(true);
   const channelsToList = React.useMemo(() => {
@@ -57,11 +63,13 @@ const SupporterArea = (props: Props) => {
   }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   if (activeChannelClaim === undefined) {
-    return <Page className="premium-wrapper">
+    return (
+      <Page className="premium-wrapper">
         <div className="main--empty">
           <Spinner />
         </div>
-      </Page>;
+      </Page>
+    );
   }
 
   const urlParams = new URLSearchParams(search);
@@ -92,7 +100,8 @@ const SupporterArea = (props: Props) => {
     push(url);
   }
 
-  return <Page className="membershipPage-wrapper">
+  return (
+    <Page className="membershipPage-wrapper">
       <div className="supporter-header-wrapper">
         <div className="supporter-header">
           <Button navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`} icon={ICONS.BACK} button="liquidass" />
@@ -102,30 +111,45 @@ const SupporterArea = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
           <TabList>
-            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
-            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Payments')}</Tab>
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+              {__('Overview')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+              {__('Payments')}
+            </Tab>
           </TabList>
         </div>
 
         <TabPanels>
           <TabPanel>
             <PledgesTab />
-            <HelpHub href="https://help.odysee.tv/category-memberships/donorportal" image="LadyFungus" text={__('What are these donations? Lady Fungus can explain it in the %help_hub%.')} />
+            <HelpHub
+              href="https://help.odysee.tv/category-memberships/donorportal"
+              image="LadyFungus"
+              text={__('What are these donations? Lady Fungus can explain it in the %help_hub%.')}
+            />
           </TabPanel>
 
           <TabPanel>
             <>
               <span className="section__subtitle ">{__('Membership Payments for Channel')}</span>
-              <ChannelSelector channelIds={myChannelIds} hideCreateNew allOptionProps={{
-              onSelectAll: () => setAllSelected(true),
-              isSelected: allSelected
-            }} hideAnon onChannelSelect={() => setAllSelected(false)} />
+              <ChannelSelector
+                channelIds={myChannelIds}
+                hideCreateNew
+                allOptionProps={{
+                  onSelectAll: () => setAllSelected(true),
+                  isSelected: allSelected,
+                }}
+                hideAnon
+                onChannelSelect={() => setAllSelected(false)}
+              />
               <PaymentsTab channelsToList={channelsToList} />
             </>
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </Page>;
+    </Page>
+  );
 };
 
 export default SupporterArea;

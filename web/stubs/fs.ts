@@ -13,7 +13,7 @@ export default {
     logWarning('accessFileSync');
     return undefined;
   },
-  constants: {}
+  constants: {},
 }; // [TODO_NEED_VERIFICATION]
 // The TODO_NEED_VERIFICATION marker indicates that the existing dependency
 // array was retained just to get lint passing.

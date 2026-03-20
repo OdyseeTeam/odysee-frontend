@@ -1838,7 +1838,9 @@ $claim-preview-progress-bar-height: 5px;
     z-index: 1;
     font-size: 3rem;
     color: #fff;
-    text-shadow: 0 0 3px var(--color-primary), 0 0 5px var(--color-primary);
+    text-shadow:
+      0 0 3px var(--color-primary),
+      0 0 5px var(--color-primary);
     max-height: 100%;
 
     @media (max-width: $breakpoint-small) {
@@ -2031,7 +2033,9 @@ $claim-preview-progress-bar-height: 5px;
   bottom: 0;
   z-index: 1600;
   justify-content: center;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 
   .button {
     background-color: var(--color-header-button) !important;

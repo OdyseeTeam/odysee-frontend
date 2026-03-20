@@ -1,3 +1,3 @@
-import AdditionalFilters from "./view"; // Placeholder: anticipating redux map in the future
+import AdditionalFilters from './view'; // Placeholder: anticipating redux map in the future
 
 export default AdditionalFilters;

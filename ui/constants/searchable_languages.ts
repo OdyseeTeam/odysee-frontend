@@ -1,4 +1,4 @@
-import { getLanguageName } from "./languages";
+import { getLanguageName } from './languages';
 const SEARCHABLE_LANGUAGES = {
   en: getLanguageName('en'),
   hr: getLanguageName('hr'),
@@ -11,7 +11,7 @@ const SEARCHABLE_LANGUAGES = {
   ru: getLanguageName('ru'),
   es: getLanguageName('es'),
   tr: getLanguageName('tr'),
-  cs: getLanguageName('cs')
+  cs: getLanguageName('cs'),
 }; // Properties: language code (e.g. 'ja')
 // Values: name of the language in native form (e.g. '日本語')
 

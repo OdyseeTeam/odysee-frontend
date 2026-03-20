@@ -5,10 +5,10 @@
 // https://github.com/reduxjs/redux/issues/1499
 // Unsure of the best solution at the momentf
 // - Sean
-import * as ACTIONS from "constants/action_types";
-import mergeClaim from "util/merge-claim";
-import { getChannelIdFromClaim } from "util/claim";
-import { claimToStoredCollection } from "util/collections";
+import * as ACTIONS from 'constants/action_types';
+import mergeClaim from 'util/merge-claim';
+import { getChannelIdFromClaim } from 'util/claim';
+import { claimToStoredCollection } from 'util/collections';
 const reducers = {};
 const defaultState: ClaimsState = {
   byId: {},
@@ -63,7 +63,7 @@ const defaultState: ClaimsState = {
   fetchingMyPurchasedClaims: undefined,
   fetchingMyPurchasedClaimsError: undefined,
   costInfosById: {},
-  hasPublicationClaims: undefined
+  hasPublicationClaims: undefined,
 };
 
 // ****************************************************************************
@@ -80,9 +80,7 @@ function resolveDelta(original: any, delta: any) {
   } else {
     // When there are changes: create a new object, spread existing references,
     // and overwrite specific items with new data.
-    return { ...original,
-      ...delta
-    };
+    return { ...original, ...delta };
   }
 }
 
@@ -93,10 +91,19 @@ function claimHasNewData(original, fresh) {
   // (https://github.com/OdyseeTeam/odysee-frontend/issues/116#issuecomment-962747147).
   // Just do a length comparison for now, which covers 99% of cases while we
   // figure out what's causing the order to change.
-  const ignoreTags = original && original.value && original.value.tags && original.value.tags.length && fresh && fresh.value && fresh.value.tags && fresh.value.tags.length && original.value.tags.length !== fresh.value.tags.length;
+  const ignoreTags =
+    original &&
+    original.value &&
+    original.value.tags &&
+    original.value.tags.length &&
+    fresh &&
+    fresh.value &&
+    fresh.value.tags &&
+    fresh.value.tags.length &&
+    original.value.tags.length !== fresh.value.tags.length;
 
   const excludeKeys = (key, value) => {
-    if (key === 'confirmations' || ignoreTags && key === 'tags' || ignoreIsMyOutput && key === 'is_my_output') {
+    if (key === 'confirmations' || (ignoreTags && key === 'tags') || (ignoreIsMyOutput && key === 'is_my_output')) {
       return undefined;
     }
 
@@ -156,10 +163,7 @@ function selectClaimIsMine(state: ClaimsState, claim: Claim) {
     return true;
   }
 
-  const {
-    myChannelClaimsById,
-    myClaims
-  } = state;
+  const { myChannelClaimsById, myClaims } = state;
 
   if (new Set(myClaims).has(claim.claim_id)) {
     return true;
@@ -182,14 +186,12 @@ function selectClaimIsMine(state: ClaimsState, claim: Claim) {
 function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
   const {
     resolveInfo,
-    query
+    query,
   }: {
     resolveInfo: ClaimActionResolveInfo;
     query?: string;
   } = action.data;
-  const {
-    claim_ids: queryClaimIds
-  } = query ? JSON.parse(query) : {};
+  const { claim_ids: queryClaimIds } = query ? JSON.parse(query) : {};
   const byUriDelta = {};
   const byIdDelta = {};
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
@@ -198,16 +200,12 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
   let newFailedToResolveUrls = new Set(state.failedToResolveUris);
   const myClaimIds = new Set(state.myClaims);
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
-  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds) && new Set(state.myCollectionClaimIds);
+  let newMyCollectionClaimIds =
+    state.myCollectionClaimIds && new Set(state.myCollectionClaimIds) && new Set(state.myCollectionClaimIds);
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
-    const {
-      claimsInChannel,
-      stream,
-      channel: channelFromResolve,
-      collection
-    } = resolveResponse;
-    const channel = channelFromResolve || stream && stream.signing_channel;
+    const { claimsInChannel, stream, channel: channelFromResolve, collection } = resolveResponse;
+    const channel = channelFromResolve || (stream && stream.signing_channel);
     const repostSrcChannel = stream && stream.reposted_claim ? stream.reposted_claim.signing_channel : null;
 
     if (stream) {
@@ -307,7 +305,7 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
   });
 
   if (queryClaimIds) {
-    queryClaimIds.forEach(claimId => {
+    queryClaimIds.forEach((claimId) => {
       if (!(claimId in state.byId) && !(claimId in byIdDelta)) {
         byIdDelta[claimId] = null;
       }
@@ -322,9 +320,11 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
     failedToResolveUris: Array.from(newFailedToResolveUrls),
     resolvedCollectionsById: newResolvedCollectionsById,
     myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
-    ...(!state.myClaims || myClaimIds.size !== state.myClaims.length ? {
-      myClaims: Array.from(myClaimIds)
-    } : {})
+    ...(!state.myClaims || myClaimIds.size !== state.myClaims.length
+      ? {
+          myClaims: Array.from(myClaimIds),
+        }
+      : {}),
   });
 }
 
@@ -333,64 +333,60 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
 // ****************************************************************************
 reducers[ACTIONS.RESOLVE_URIS_START] = (state: ClaimsState, action: any): ClaimsState => {
   const {
-    uris
+    uris,
   }: {
     uris: Array<string>;
   } = action.data;
   const oldResolving = state.resolvingUris || [];
   const newResolving = oldResolving.slice();
-  uris.forEach(uri => {
+  uris.forEach((uri) => {
     if (!newResolving.includes(uri)) {
       newResolving.push(uri);
     }
   });
   return Object.assign({}, state, {
-    resolvingUris: newResolving
+    resolvingUris: newResolving,
   });
 };
 
 reducers[ACTIONS.SET_COST_INFOS_BY_ID] = (state: ClaimsState, action: any): ClaimsState => {
   const costInfos = action.data;
   const newCostInfosById = Object.assign({}, state.costInfosById);
-  costInfos.forEach(costInfo => {
-    const {
-      claimId,
-      ...costData
-    } = costInfo;
+  costInfos.forEach((costInfo) => {
+    const { claimId, ...costData } = costInfo;
     newCostInfosById[claimId] = costData;
   });
-  return { ...state,
-    costInfosById: newCostInfosById
-  };
+  return { ...state, costInfosById: newCostInfosById };
 };
 
 reducers[ACTIONS.RESOLVE_URIS_SUCCESS] = (state: ClaimsState, action: any): ClaimsState => {
-  return { ...handleClaimAction(state, action)
-  };
+  return { ...handleClaimAction(state, action) };
 };
 
 reducers[ACTIONS.RESOLVE_URIS_FAIL] = (state: ClaimsState, action: any): ClaimsState => {
   const uris: Array<string> = action.data;
   const newResolvingUris = new Set(state.resolvingUris);
   const newFailedToResolveUrls = new Set(state.failedToResolveUris.concat(uris));
-  uris.forEach(uri => newResolvingUris.delete(uri));
-  return { ...state,
+  uris.forEach((uri) => newResolvingUris.delete(uri));
+  return {
+    ...state,
     resolvingUris: Array.from(newResolvingUris),
-    failedToResolveUris: Array.from(newFailedToResolveUrls)
+    failedToResolveUris: Array.from(newFailedToResolveUrls),
   };
 };
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsState => Object.assign({}, state, {
-  isFetchingClaimListMine: true,
-  isFetchingClaimListMineSuccess: undefined
-});
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    isFetchingClaimListMine: true,
+    isFetchingClaimListMineSuccess: undefined,
+  });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const {
     result,
     setNewPageItems,
     isAllMyClaimsFetched,
-    isPublicationOnlyClaimList
+    isPublicationOnlyClaimList,
   }: {
     result: ClaimListResponse;
     setNewPageItems?: boolean;
@@ -412,7 +408,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
       permanent_url: permanentUri,
       claim_id: claimId,
       canonical_url: canonicalUri,
-      value_type: valueType
+      value_type: valueType,
     } = claim;
 
     if (claim.type && claim.type.match(/claim|update/)) {
@@ -462,27 +458,31 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
     pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     isAllMyClaimsFetched: state.isAllMyClaimsFetched || isAllMyClaimsFetched,
-    ...(setNewPageItems ? {
-      myClaimsPageResults: urlsForCurrentPage,
-      myClaimsPageNumber: page,
-      myClaimsPageTotalResults: totalItems
-    } : {})
+    ...(setNewPageItems
+      ? {
+          myClaimsPageResults: urlsForCurrentPage,
+          myClaimsPageNumber: page,
+          myClaimsPageTotalResults: totalItems,
+        }
+      : {}),
   });
 };
 
-reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED] = (state: ClaimsState): ClaimsState => Object.assign({}, state, {
-  isFetchingClaimListMine: false,
-  isFetchingClaimListMineSuccess: false
-});
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    isFetchingClaimListMine: false,
+    isFetchingClaimListMineSuccess: false,
+  });
 
-reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: ClaimsState): ClaimsState => Object.assign({}, state, {
-  fetchingMyChannels: true,
-  fetchingMyChannelsSuccess: undefined
-});
+reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    fetchingMyChannels: true,
+    fetchingMyChannelsSuccess: undefined,
+  });
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const {
-    claims
+    claims,
   }: {
     claims: Array<ChannelClaim>;
   } = action.data;
@@ -498,19 +498,10 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
     newMyChannelClaimsById = null;
   } else {
     newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
-    claims.forEach(claim => {
-      const {
-        meta
-      } = claim;
-      const {
-        claims_in_channel: claimsInChannel
-      } = meta;
-      const {
-        canonical_url: canonicalUrl,
-        permanent_url: permanentUrl,
-        claim_id: claimId,
-        confirmations
-      } = claim;
+    claims.forEach((claim) => {
+      const { meta } = claim;
+      const { claims_in_channel: claimsInChannel } = meta;
+      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
       updateIfValueChanged(state.claimsByUri, byUriDelta, canonicalUrl, claimId);
       updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUrl, claimId);
       channelClaimCounts[canonicalUrl] = claimsInChannel;
@@ -542,27 +533,24 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
     fetchingMyChannels: false,
     fetchingMyChannelsSuccess: true,
     myChannelClaimsById: newMyChannelClaimsById,
-    myClaims: myClaimIds ? Array.from(myClaimIds) : null
+    myClaims: myClaimIds ? Array.from(myClaimIds) : null,
   });
 };
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     fetchingMyChannels: false,
-    fetchingMyChannelsSuccess: false
+    fetchingMyChannelsSuccess: false,
   });
 };
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    uri,
-    page
-  } = action.data;
+  const { uri, page } = action.data;
   const fetchingChannelClaims = Object.assign({}, state.fetchingChannelClaims);
   fetchingChannelClaims[uri] = page;
   return Object.assign({}, state, {
     fetchingChannelClaims,
-    currentChannelPage: page
+    currentChannelPage: page,
   });
 };
 
@@ -572,7 +560,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: ClaimsState, action: 
     claims,
     claimsInChannel,
     page,
-    totalPages
+    totalPages,
   }: {
     uri: string;
     claims: Array<StreamClaim>;
@@ -593,7 +581,7 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: ClaimsState, action: 
   const claimsByUriDelta = {};
 
   if (claims !== undefined) {
-    claims.forEach(claim => {
+    claims.forEach((claim) => {
       allClaimIds.add(claim.claim_id);
       currentPageClaimIds.push(claim.claim_id);
       updateIfClaimChanged(state.byId, byIdDelta, claim.claim_id, claim);
@@ -613,28 +601,25 @@ reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED] = (state: ClaimsState, action: 
     fetchingChannelClaims,
     claimsByUri: resolveDelta(state.claimsByUri, claimsByUriDelta),
     channelClaimCounts,
-    currentChannelPage: page
+    currentChannelPage: page,
   });
 };
 
 reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: ClaimsState, action: any): ClaimsState => {
   const {
-    claimId
+    claimId,
   }: {
     claimId: string;
   } = action.data;
   const abandoningById = Object.assign({}, state.abandoningById);
   abandoningById[claimId] = true;
   return Object.assign({}, state, {
-    abandoningById
+    abandoningById,
   });
 };
 
 reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePendingClaimsAction): ClaimsState => {
-  const {
-    claims: pendingClaims,
-    options
-  } = action.data;
+  const { claims: pendingClaims, options } = action.data;
   const byIdDelta = {};
   const pendingById = Object.assign({}, state.pendingById);
   const byUriDelta = {};
@@ -645,12 +630,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
   // $FlowFixMe
   pendingClaims.forEach((claim: Claim) => {
     let newClaim;
-    const {
-      permanent_url: uri,
-      claim_id: claimId,
-      type,
-      value_type: valueType
-    } = claim;
+    const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
     const oldClaim = state.byId[claimId];
 
     if (oldClaim && oldClaim.canonical_url) {
@@ -658,9 +638,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
 
       if (options) {
         if (options.overrideTags) {
-          newClaim.value = { ...newClaim.value,
-            tags: claim.value?.tags
-          };
+          newClaim.value = { ...newClaim.value, tags: claim.value?.tags };
         }
 
         if (options.overrideSigningChannel) {
@@ -698,24 +676,21 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById,
     myChannelClaimsById: newMyChannelClaimsById,
-    claimsByUri: resolveDelta(state.claimsByUri, byUriDelta)
+    claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
   });
 };
 
 reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): ClaimsState => {
   const {
     claims: confirmedClaims,
-    pending: pendingClaims
+    pending: pendingClaims,
   }: {
     claims: Array<Claim>;
     pending: Record<string, Claim>;
   } = action.data;
   const byIdDelta = {};
   confirmedClaims.forEach((claim: GenericClaim) => {
-    const {
-      claim_id: claimId,
-      type
-    } = claim;
+    const { claim_id: claimId, type } = claim;
     let newClaim = claim;
     const oldClaim = state.byId[claimId];
 
@@ -729,13 +704,13 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
   });
   return Object.assign({}, state, {
     pendingById: pendingClaims,
-    byId: resolveDelta(state.byId, byIdDelta)
+    byId: resolveDelta(state.byId, byIdDelta),
   });
 };
 
 reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): ClaimsState => {
   const {
-    claimId
+    claimId,
   }: {
     claimId: string;
   } = action.data;
@@ -748,7 +723,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
   let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
   let abandonedUris = [];
-  Object.keys(claimsByUri).forEach(uri => {
+  Object.keys(claimsByUri).forEach((uri) => {
     if (claimsByUri[uri] === claimId) {
       abandonedUris.push(uri);
       delete claimsByUri[uri];
@@ -756,7 +731,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
   });
 
   if (abandonedUris.length > 0 && state.myClaimsPageResults) {
-    myClaimsPageResults = state.myClaimsPageResults.filter(uri => !abandonedUris.includes(uri));
+    myClaimsPageResults = state.myClaimsPageResults.filter((uri) => !abandonedUris.includes(uri));
   }
 
   if (abandoningById[claimId]) {
@@ -767,7 +742,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
     delete newMyChannelClaimsById[claimId];
   }
 
-  const myClaims = newMyClaims.filter(i => i !== claimId);
+  const myClaims = newMyClaims.filter((i) => i !== claimId);
 
   if (newMyCollectionClaimIds) {
     newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
@@ -787,108 +762,93 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
     byId,
     claimsByUri,
     abandoningById,
-    myClaimsPageResults: myClaimsPageResults || state.myClaimsPageResults
+    myClaimsPageResults: myClaimsPageResults || state.myClaimsPageResults,
   });
 };
 
-reducers[ACTIONS.CLEAR_CHANNEL_ERRORS] = (state: ClaimsState): ClaimsState => ({ ...state,
+reducers[ACTIONS.CLEAR_CHANNEL_ERRORS] = (state: ClaimsState): ClaimsState => ({
+  ...state,
   createChannelError: null,
-  updateChannelError: null
+  updateChannelError: null,
 });
 
-reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: ClaimsState): ClaimsState => ({ ...state,
+reducers[ACTIONS.CREATE_CHANNEL_STARTED] = (state: ClaimsState): ClaimsState => ({
+  ...state,
   creatingChannel: true,
-  createChannelError: null
+  createChannelError: null,
 });
 
 reducers[ACTIONS.CREATE_CHANNEL_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
-    creatingChannel: false
+    creatingChannel: false,
   });
 };
 
 reducers[ACTIONS.CREATE_CHANNEL_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     creatingChannel: false,
-    createChannelError: action.data
+    createChannelError: action.data,
   });
 };
 
 reducers[ACTIONS.UPDATE_CHANNEL_STARTED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     updateChannelError: '',
-    updatingChannel: true
+    updatingChannel: true,
   });
 };
 
 reducers[ACTIONS.UPDATE_CHANNEL_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     updateChannelError: '',
-    updatingChannel: false
+    updatingChannel: false,
   });
 };
 
 reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     updateChannelError: action.data.message,
-    updatingChannel: false
+    updatingChannel: false,
   });
 };
 
-reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: ClaimsState): ClaimsState => Object.assign({}, state, {
-  pendingChannelImports: true
-});
+reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    pendingChannelImports: true,
+  });
 
-reducers[ACTIONS.IMPORT_CHANNEL_COMPLETED] = (state: ClaimsState): ClaimsState => Object.assign({}, state, {
-  pendingChannelImports: false
-});
+reducers[ACTIONS.IMPORT_CHANNEL_COMPLETED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    pendingChannelImports: false,
+  });
 
 reducers[ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    claimSearchByQuery: {},
-    claimSearchByQueryLastPageReached: {},
-    claimSearchByQueryMiscInfo: {}
-  };
+  return { ...state, claimSearchByQuery: {}, claimSearchByQueryLastPageReached: {}, claimSearchByQueryMiscInfo: {} };
 };
 
 reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    query
-  } = action.data;
+  const { query } = action.data;
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const newResolvingIds = new Set(state.resolvingIds);
   fetchingClaimSearchByQuery[query] = true;
-  const {
-    claim_ids: claimIds
-  } = JSON.parse(query);
-  if (claimIds?.length > 0) claimIds.forEach(claimId => newResolvingIds.add(claimId));
-  return { ...state,
-    fetchingClaimSearchByQuery,
-    resolvingIds: Array.from(newResolvingIds)
-  };
+  const { claim_ids: claimIds } = JSON.parse(query);
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.add(claimId));
+  return { ...state, fetchingClaimSearchByQuery, resolvingIds: Array.from(newResolvingIds) };
 };
 
 reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
-  const claimSearchByQueryMiscInfo = { ...state.claimSearchByQueryMiscInfo
-  };
+  const claimSearchByQueryMiscInfo = { ...state.claimSearchByQueryMiscInfo };
   const newResolvingIds = new Set(state.resolvingIds);
   const newFailedToResolveIds = new Set(state.failedToResolveIds);
-  const {
-    append,
-    query,
-    urls,
-    page,
-    pageSize,
-    totalItems,
-    totalPages
-  } = action.data;
+  const { append, query, urls, page, pageSize, totalItems, totalPages } = action.data;
 
   if (append) {
     // todo: check for duplicate urls when concatenating?
-    claimSearchByQuery[query] = claimSearchByQuery[query] && claimSearchByQuery[query].length ? claimSearchByQuery[query].concat(urls) : urls;
+    claimSearchByQuery[query] =
+      claimSearchByQuery[query] && claimSearchByQuery[query].length ? claimSearchByQuery[query].concat(urls) : urls;
   } else {
     claimSearchByQuery[query] = urls;
   }
@@ -900,33 +860,30 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: ClaimsState, action: any): Cl
     page,
     pageSize,
     totalItems,
-    totalPages
+    totalPages,
   };
-  const {
-    claim_ids: claimIds
-  } = JSON.parse(query);
+  const { claim_ids: claimIds } = JSON.parse(query);
 
   if (claimIds?.length > 0) {
-    claimIds.forEach(claimId => {
+    claimIds.forEach((claimId) => {
       newResolvingIds.delete(claimId);
       newFailedToResolveIds.delete(claimId);
     });
   }
 
-  return Object.assign({}, state, { ...handleClaimAction(state, action),
+  return Object.assign({}, state, {
+    ...handleClaimAction(state, action),
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     claimSearchByQueryMiscInfo,
     fetchingClaimSearchByQuery,
     resolvingIds: Array.from(newResolvingIds),
-    failedToResolveIds: Array.from(newFailedToResolveIds)
+    failedToResolveIds: Array.from(newFailedToResolveIds),
   });
 };
 
 reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    query
-  } = action.data;
+  const { query } = action.data;
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
@@ -939,125 +896,84 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: ClaimsState, action: any): Claim
     claimSearchByQuery[query] = null;
   }
 
-  const {
-    claim_ids: claimIds
-  } = JSON.parse(query);
-  const newFailedToResolveIds = claimIds?.length > 0 ? new Set(state.failedToResolveIds.concat(claimIds)) : state.failedToResolveIds;
-  if (claimIds?.length > 0) claimIds.forEach(claimId => newResolvingIds.delete(claimId));
+  const { claim_ids: claimIds } = JSON.parse(query);
+  const newFailedToResolveIds =
+    claimIds?.length > 0 ? new Set(state.failedToResolveIds.concat(claimIds)) : state.failedToResolveIds;
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery,
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     resolvingIds: Array.from(newResolvingIds),
-    failedToResolveIds: Array.from(newFailedToResolveIds)
+    failedToResolveIds: Array.from(newFailedToResolveIds),
   });
 };
 
 reducers[ACTIONS.CLAIM_REPOST_STARTED] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    repostLoading: true,
-    repostError: null
-  };
+  return { ...state, repostLoading: true, repostError: null };
 };
 
 reducers[ACTIONS.CLAIM_REPOST_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    originalClaimId,
-    repostClaim
-  } = action.data;
-  const byId = { ...state.byId
-  };
-  const claimsByUri = { ...state.claimsByUri
-  };
+  const { originalClaimId, repostClaim } = action.data;
+  const byId = { ...state.byId };
+  const claimsByUri = { ...state.claimsByUri };
   const claimThatWasReposted = byId[originalClaimId];
-  const repostStub = { ...repostClaim,
-    reposted_claim: claimThatWasReposted
-  };
+  const repostStub = { ...repostClaim, reposted_claim: claimThatWasReposted };
   byId[repostStub.claim_id] = repostStub;
   claimsByUri[repostStub.permanent_url] = repostStub.claim_id;
-  return { ...state,
-    byId,
-    claimsByUri,
-    repostLoading: false,
-    repostError: null
-  };
+  return { ...state, byId, claimsByUri, repostLoading: false, repostError: null };
 };
 
 reducers[ACTIONS.CLAIM_REPOST_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    error
-  } = action.data;
-  return { ...state,
-    repostLoading: false,
-    repostError: error
-  };
+  const { error } = action.data;
+  return { ...state, repostLoading: false, repostError: error };
 };
 
 reducers[ACTIONS.CLEAR_REPOST_ERROR] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    repostError: null
-  };
+  return { ...state, repostError: null };
 };
 
 reducers[ACTIONS.ADD_FILES_REFLECTING] = (state: ClaimsState, action): ClaimsState => {
   const pendingClaim = action.data;
-  const {
-    reflectingById
-  } = state;
+  const { reflectingById } = state;
   const claimId = pendingClaim && pendingClaim.claim_id;
   reflectingById[claimId] = {
     fileListItem: pendingClaim,
     progress: 0,
-    stalled: false
+    stalled: false,
   };
-  return Object.assign({}, state, { ...state,
-    reflectingById: reflectingById
-  });
+  return Object.assign({}, state, { ...state, reflectingById: reflectingById });
 };
 
 reducers[ACTIONS.UPDATE_FILES_REFLECTING] = (state: ClaimsState, action): ClaimsState => {
   const newReflectingById = action.data;
-  return Object.assign({}, state, { ...state,
-    reflectingById: newReflectingById
-  });
+  return Object.assign({}, state, { ...state, reflectingById: newReflectingById });
 };
 
 reducers[ACTIONS.TOGGLE_CHECKING_REFLECTING] = (state: ClaimsState, action): ClaimsState => {
   const checkingReflecting = action.data;
-  return Object.assign({}, state, { ...state,
-    checkingReflecting
-  });
+  return Object.assign({}, state, { ...state, checkingReflecting });
 };
 
 reducers[ACTIONS.TOGGLE_CHECKING_PENDING] = (state: ClaimsState, action): ClaimsState => {
   const checking = action.data;
-  return Object.assign({}, state, { ...state,
-    checkingPending: checking
-  });
+  return Object.assign({}, state, { ...state, checkingPending: checking });
 };
 
 reducers[ACTIONS.PURCHASE_LIST_STARTED] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    fetchingMyPurchases: true,
-    fetchingMyPurchasesError: null
-  };
+  return { ...state, fetchingMyPurchases: true, fetchingMyPurchasesError: null };
 };
 
 reducers[ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    uri,
-    results
-  } = action.data;
+  const { uri, results } = action.data;
   const latestByUri = Object.assign({}, state.latestByUri);
   latestByUri[uri] = results;
-  return Object.assign({}, state, { ...state,
-    latestByUri
-  });
+  return Object.assign({}, state, { ...state, latestByUri });
 };
 
 reducers[ACTIONS.PURCHASE_LIST_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const {
-    result
+    result,
   }: {
     result: PurchaseListResponse;
     resolve: boolean;
@@ -1067,16 +983,13 @@ reducers[ACTIONS.PURCHASE_LIST_COMPLETED] = (state: ClaimsState, action: any): C
   let byIdDelta = {};
   let byUriDelta = {};
   let urlsForCurrentPage = [];
-  result.items.forEach(item => {
+  result.items.forEach((item) => {
     if (!item.claim) {
       // Abandoned claim
       return;
     }
 
-    const {
-      claim,
-      ...purchaseInfo
-    } = item;
+    const { claim, ...purchaseInfo } = item;
     claim.purchase_receipt = purchaseInfo;
     const claimId = claim.claim_id;
     const uri = claim.canonical_url;
@@ -1090,25 +1003,17 @@ reducers[ACTIONS.PURCHASE_LIST_COMPLETED] = (state: ClaimsState, action: any): C
     myPurchases: urlsForCurrentPage,
     myPurchasesPageNumber: page,
     myPurchasesPageTotalResults: totalItems,
-    fetchingMyPurchases: false
+    fetchingMyPurchases: false,
   });
 };
 
 reducers[ACTIONS.PURCHASE_LIST_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    error
-  } = action.data;
-  return { ...state,
-    fetchingMyPurchases: false,
-    fetchingMyPurchasesError: error
-  };
+  const { error } = action.data;
+  return { ...state, fetchingMyPurchases: false, fetchingMyPurchasesError: error };
 };
 
 reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
-  const {
-    uri,
-    purchaseReceipt
-  } = action.data;
+  const { uri, purchaseReceipt } = action.data;
   let byId = Object.assign({}, state.byId);
   let byUri = Object.assign({}, state.claimsByUri);
   let myPurchases = state.myPurchases ? state.myPurchases.slice() : [];
@@ -1120,23 +1025,15 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state: ClaimsState, action: any): Cl
   }
 
   myPurchases.push(uri);
-  return { ...state,
-    byId,
-    myPurchases,
-    purchaseUriSuccess: true
-  };
+  return { ...state, byId, myPurchases, purchaseUriSuccess: true };
 };
 
 reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    purchaseUriSuccess: false
-  };
+  return { ...state, purchaseUriSuccess: false };
 };
 
 reducers[ACTIONS.CLEAR_PURCHASED_URI_SUCCESS] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    purchaseUriSuccess: false
-  };
+  return { ...state, purchaseUriSuccess: false };
 };
 
 export function claimsReducer(state: ClaimsState = defaultState, action: any) {
@@ -1146,23 +1043,21 @@ export function claimsReducer(state: ClaimsState = defaultState, action: any) {
 }
 
 reducers[ACTIONS.CHECK_IF_PURCHASED_STARTED] = (state: ClaimsState): ClaimsState => {
-  return { ...state,
-    fetchingMyPurchasedClaims: true
-  };
+  return { ...state, fetchingMyPurchasedClaims: true };
 };
 
 reducers[ACTIONS.CHECK_IF_PURCHASED_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     fetchingMyPurchasedClaims: false,
-    fetchingMyPurchasedClaimsError: action.data
+    fetchingMyPurchasedClaimsError: action.data,
   });
 };
 
 reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const myPurchasedClaims = state.myPurchasedClaims.slice();
   const purchases: Array<any> = action.data || [];
-  purchases.forEach(p => {
-    const index = myPurchasedClaims.findIndex(x => x.id === p.id);
+  purchases.forEach((p) => {
+    const index = myPurchasedClaims.findIndex((x) => x.id === p.id);
 
     if (index > -1) {
       // Replace existing, since it seems like the data could be updated (contains `updated_at` field).
@@ -1171,26 +1066,17 @@ reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: ClaimsState, action: an
       myPurchasedClaims.push(p);
     }
   });
-  return { ...state,
-    myPurchasedClaims,
-    fetchingMyPurchasedClaims: false
-  };
+  return { ...state, myPurchasedClaims, fetchingMyPurchasedClaims: false };
 };
 
 // --- Collection Claims ---
 reducers[ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE] = (state: ClaimsState, action: any) => {
   const resolvedCollectionObj: Collection = action.data;
-  const {
-    id: collectionId
-  } = resolvedCollectionObj;
+  const { id: collectionId } = resolvedCollectionObj;
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
   const currentCollectionStore = newResolvedCollectionsById[collectionId];
-  newResolvedCollectionsById[collectionId] = { ...currentCollectionStore,
-    ...resolvedCollectionObj
-  };
-  return { ...state,
-    resolvedCollectionsById: newResolvedCollectionsById
-  };
+  newResolvedCollectionsById[collectionId] = { ...currentCollectionStore, ...resolvedCollectionObj };
+  return { ...state, resolvedCollectionsById: newResolvedCollectionsById };
 };
 
 reducers[ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS] = (state: ClaimsState, action: any): ClaimsState => {
@@ -1204,8 +1090,9 @@ reducers[ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS] = (state: ClaimsState, action
     newMyCollectionClaimIds.delete(collectionId);
   }
 
-  return { ...state,
+  return {
+    ...state,
     resolvedCollectionsById: newResolvedCollectionsById,
-    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds)
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
   };
 };

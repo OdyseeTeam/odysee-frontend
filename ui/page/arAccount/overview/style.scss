@@ -63,20 +63,20 @@
 
       .toggle-wrapper {
         margin-left: auto;
-        min-width:40px;
+        min-width: 40px;
       }
 
       &:last-of-type {
         margin-bottom: 0;
       }
 
-      .payment-option__labels{
-        display:flex;
+      .payment-option__labels {
+        display: flex;
         flex-direction: column;
-        span{
-          display:inline-block;
-          font-size:var(--font-xsmall);
-          opacity:.6;
+        span {
+          display: inline-block;
+          font-size: var(--font-xsmall);
+          opacity: 0.6;
         }
       }
     }
@@ -84,7 +84,7 @@
 
   .payment-options-content {
     display: flex;
-    flex-direction: column;    
+    flex-direction: column;
     width: 100%;
     height: 100%;
     background: var(--color-background);
@@ -96,39 +96,38 @@
       flex: 1;
       justify-content: center;
 
-
       .payment-option__wallet {
-        display:flex;
+        display: flex;
         background: var(--color-header-button);
         border-radius: var(--border-radius);
         padding: var(--spacing-xs);
         align-items: center;
 
-        .payment-option__wallet-info{
-          flex:1;
-          span{
+        .payment-option__wallet-info {
+          flex: 1;
+          span {
             font-size: var(--font-xsmall);
             opacity: 0.6;
-          }          
-        }
-        .payment-option__wallet-button{
-          display:flex;
-          width:fit-content;
-          .button{
-            margin-left:var(--spacing-s);
           }
-        }        
+        }
+        .payment-option__wallet-button {
+          display: flex;
+          width: fit-content;
+          .button {
+            margin-left: var(--spacing-s);
+          }
+        }
 
         @media (max-width: $breakpoint-small) {
           flex-direction: column;
-          .payment-option__wallet-button{
-            width:100%;
-            .button{
-              margin-top:var(--spacing-s);
-              margin-left:unset;
-              margin-right:auto;
+          .payment-option__wallet-button {
+            width: 100%;
+            .button {
+              margin-top: var(--spacing-s);
+              margin-left: unset;
+              margin-right: auto;
             }
-          }          
+          }
         }
       }
     }
@@ -182,20 +181,20 @@
   }
 
   .transaction-history {
-    display:flex;
+    display: flex;
     flex-direction: column;
     padding: var(--spacing-s);
     background: var(--color-background);
     border-radius: var(--border-radius);
     margin-top: calc(var(--spacing-s) * -1);
 
-    .spinner{
+    .spinner {
       margin-left: auto;
       margin-right: auto;
     }
 
     .transaction-history__row {
-      display: flex;        
+      display: flex;
       width: 100%;
       gap: var(--spacing-s);
       grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -209,11 +208,11 @@
         min-width: 60px;
         width: 60px;
       }
-      .transaction-history__amount{
+      .transaction-history__amount {
         min-width: 70px;
         width: 70px;
       }
-      .transaction-history__token{
+      .transaction-history__token {
         min-width: 56px;
         width: 56px;
       }
@@ -245,7 +244,7 @@
         .transaction-history__action {
           min-width: 40px;
         }
-        .transaction-history__amount{
+        .transaction-history__amount {
           min-width: 44px;
         }
         .transaction-history__token {
@@ -273,7 +272,6 @@
           min-width: 40px;
         }
       }
-
     }
   }
 }

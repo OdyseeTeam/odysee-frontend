@@ -1,15 +1,19 @@
-import { connect } from "react-redux";
-import { selectClaimIsPendingForId, selectClaimForId } from "redux/selectors/claims";
-import { selectCountForCollectionId, selectCollectionHasEditsForId, selectCollectionAutoPublishForId, selectCollectionAutoPublishScheduledAtForId, selectCollectionIsPublishingForId } from "redux/selectors/collections";
-import { doCollectionEdit } from "redux/actions/collections";
-import CollectionHeader from "./view";
+import { connect } from 'react-redux';
+import { selectClaimIsPendingForId, selectClaimForId } from 'redux/selectors/claims';
+import {
+  selectCountForCollectionId,
+  selectCollectionHasEditsForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
+  selectCollectionIsPublishingForId,
+} from 'redux/selectors/collections';
+import { doCollectionEdit } from 'redux/actions/collections';
+import CollectionHeader from './view';
 
 const select = (state, props) => {
-  const {
-    id: collectionId
-  } = props.collection;
+  const { id: collectionId } = props.collection;
   const claim = collectionId && selectClaimForId(state, collectionId);
-  const uri = claim && (claim.canonical_url || claim.permanent_url) || null;
+  const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
   return {
     uri,
     hasClaim: Boolean(claim),
@@ -18,11 +22,11 @@ const select = (state, props) => {
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     autoPublish: selectCollectionAutoPublishForId(state, collectionId),
     autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId),
-    isPublishing: selectCollectionIsPublishingForId(state, collectionId)
+    isPublishing: selectCollectionIsPublishingForId(state, collectionId),
   };
 };
 
 const perform = {
-  doCollectionEdit
+  doCollectionEdit,
 };
 export default connect(select, perform)(CollectionHeader);

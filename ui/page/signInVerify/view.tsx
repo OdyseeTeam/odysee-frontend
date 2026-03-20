@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { withRouter } from "react-router";
-import Page from "component/page";
-import ReCAPTCHA from "react-google-recaptcha";
-import Button from "component/button";
-import { Lbryio } from "lbryinc";
-import I18nMessage from "component/i18nMessage";
-import Card from "component/common/card";
+import React, { useState } from 'react';
+import { withRouter } from 'react-router';
+import Page from 'component/page';
+import ReCAPTCHA from 'react-google-recaptcha';
+import Button from 'component/button';
+import { Lbryio } from 'lbryinc';
+import I18nMessage from 'component/i18nMessage';
+import Card from 'component/common/card';
 type Props = {
   history: {
     push: (arg0: string) => void;
@@ -18,16 +18,13 @@ type Props = {
 // Guard against parents remounting. We don't want to send multi api calls.
 let verificationApiHistory = {
   called: false,
-  successful: false
+  successful: false,
 };
 
 function SignInVerifyPage(props: Props) {
   const {
-    history: {
-      push,
-      location
-    },
-    doToast
+    history: { push, location },
+    doToast,
   } = props;
   const [isAuthenticationSuccess, setIsAuthenticationSuccess] = useState(verificationApiHistory.successful);
   const [showCaptchaMessage, setShowCaptchaMessage] = useState(false);
@@ -43,7 +40,7 @@ function SignInVerifyPage(props: Props) {
   function onAuthError(message) {
     doToast({
       message: message || __('Authentication failure.'),
-      isError: true
+      isError: true,
     });
   }
 
@@ -51,13 +48,11 @@ function SignInVerifyPage(props: Props) {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
   React.useEffect(() => {
     if (!needsRecaptcha && !isAuthenticationSuccess && !verificationApiHistory.called) {
       verifyUser();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount only
-
   }, []);
   React.useEffect(() => {
     let captchaTimeout;
@@ -89,41 +84,82 @@ function SignInVerifyPage(props: Props) {
       auth_token: authToken,
       email: userSubmittedEmail,
       verification_token: verificationToken,
-      ...(captchaValue ? {
-        recaptcha: captchaValue
-      } : {})
-    }).then(() => {
-      verificationApiHistory.successful = true;
-      setIsAuthenticationSuccess(true);
-    }).catch(() => {
-      verificationApiHistory.successful = false;
-      onAuthError(__('Invalid captcha response or other authentication error.'));
-    }).finally(() => {
-      setVerificationTried(true);
-    });
+      ...(captchaValue
+        ? {
+            recaptcha: captchaValue,
+          }
+        : {}),
+    })
+      .then(() => {
+        verificationApiHistory.successful = true;
+        setIsAuthenticationSuccess(true);
+      })
+      .catch(() => {
+        verificationApiHistory.successful = false;
+        onAuthError(__('Invalid captcha response or other authentication error.'));
+      })
+      .finally(() => {
+        setVerificationTried(true);
+      });
   }
 
-  return <Page authPage noFooter>
+  return (
+    <Page authPage noFooter>
       <div className="main__sign-up">
-        {verificationTried && <Card title={successful ? __('Log in success!') : needsRecaptcha ? __('Log in') : __('Log in failed')} subtitle={<React.Fragment>
+        {verificationTried && (
+          <Card
+            title={successful ? __('Log in success!') : needsRecaptcha ? __('Log in') : __('Log in failed')}
+            subtitle={
+              <React.Fragment>
                 <p>
-                  {successful ? __('You can now close this tab.') : needsRecaptcha ? null : __('New verification email has been sent')}
+                  {successful
+                    ? __('You can now close this tab.')
+                    : needsRecaptcha
+                      ? null
+                      : __('New verification email has been sent')}
                 </p>
-                {showCaptchaMessage && !successful && <p>
-                    <I18nMessage tokens={{
-            refresh: <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
-          }}>
+                {showCaptchaMessage && !successful && (
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        refresh: (
+                          <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
+                        ),
+                      }}
+                    >
                       Not seeing a captcha? Check your ad blocker or try %refresh%.
                     </I18nMessage>
-                  </p>}
-              </React.Fragment>} actions={<>
-                {!successful && needsRecaptcha && <div className="section__actions">
-                    <ReCAPTCHA sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG" onChange={onCaptchaChange} asyncScriptOnLoad={onCaptchaReady} onExpired={onAuthError} onErrored={onAuthError} />
-                  </div>}
-                {successful && <Button button="primary" label={__('Continue to Odysee')} onClick={() => window.location.assign('/')} />}
-              </>} />}
+                  </p>
+                )}
+              </React.Fragment>
+            }
+            actions={
+              <>
+                {!successful && needsRecaptcha && (
+                  <div className="section__actions">
+                    <ReCAPTCHA
+                      sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
+                      onChange={onCaptchaChange}
+                      asyncScriptOnLoad={onCaptchaReady}
+                      onExpired={onAuthError}
+                      onErrored={onAuthError}
+                    />
+                  </div>
+                )}
+                {successful && (
+                  <Button
+                    button="primary"
+                    label={__('Continue to Odysee')}
+                    onClick={() => window.location.assign('/')}
+                  />
+                )}
+              </>
+            }
+          />
+        )}
       </div>
-    </Page>;
+    </Page>
+  );
 }
 
 export default withRouter(SignInVerifyPage);

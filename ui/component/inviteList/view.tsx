@@ -1,25 +1,25 @@
-import React from "react";
-import RewardLink from "component/rewardLink";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import Card from "component/common/card";
-import LbcMessage from "component/common/lbc-message";
+import React from 'react';
+import RewardLink from 'component/rewardLink';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import Card from 'component/common/card';
+import LbcMessage from 'component/common/lbc-message';
 type Props = {
-  invitees: Array<{
-    email: string;
-    invite_accepted: boolean;
-    invite_reward_claimed: boolean;
-    invite_reward_claimable: boolean;
-  }> | null | undefined;
+  invitees:
+    | Array<{
+        email: string;
+        invite_accepted: boolean;
+        invite_reward_claimed: boolean;
+        invite_reward_claimable: boolean;
+      }>
+    | null
+    | undefined;
   referralReward: Reward | null | undefined;
 };
 
 class InviteList extends React.PureComponent<Props> {
   render() {
-    const {
-      invitees,
-      referralReward
-    } = this.props;
+    const { invitees, referralReward } = this.props;
 
     if (!invitees || !invitees.length) {
       return null;
@@ -27,23 +27,44 @@ class InviteList extends React.PureComponent<Props> {
 
     let rewardAmount = 0;
 
-    let rewardHelp = __("Woah, you have a lot of friends! You've claimed the maximum amount of invite credits. Email %email% if you'd like to be whitelisted for more invites.", {
-      email: 'hello@odysee.com'
-    });
+    let rewardHelp = __(
+      "Woah, you have a lot of friends! You've claimed the maximum amount of invite credits. Email %email% if you'd like to be whitelisted for more invites.",
+      {
+        email: 'hello@odysee.com',
+      }
+    );
 
     if (referralReward) {
       rewardAmount = referralReward.reward_amount;
       rewardHelp = '';
     }
 
-    const showClaimable = invitees.some(invite => invite.invite_reward_claimable && !invite.invite_reward_claimed);
-    return <Card title={<div className="table__header-text">{__('Invite History')}</div>} subtitle={<div className="table__header-text">
+    const showClaimable = invitees.some((invite) => invite.invite_reward_claimable && !invite.invite_reward_claimed);
+    return (
+      <Card
+        title={<div className="table__header-text">{__('Invite History')}</div>}
+        subtitle={
+          <div className="table__header-text">
             <LbcMessage>{rewardHelp}</LbcMessage>
-          </div>} titleActions={referralReward && showClaimable && <div className="card__actions--inline">
-              <RewardLink button label={__(`Receive Your %reward_amount% Invite Credit`, {
-        reward_amount: rewardAmount
-      })} claim_code={referralReward.claim_code} />
-            </div>} isBodyList body={<div className="table__wrapper">
+          </div>
+        }
+        titleActions={
+          referralReward &&
+          showClaimable && (
+            <div className="card__actions--inline">
+              <RewardLink
+                button
+                label={__(`Receive Your %reward_amount% Invite Credit`, {
+                  reward_amount: rewardAmount,
+                })}
+                claim_code={referralReward.claim_code}
+              />
+            </div>
+          )
+        }
+        isBodyList
+        body={
+          <div className="table__wrapper">
             <table className="table section">
               <thead>
                 <tr>
@@ -53,25 +74,32 @@ class InviteList extends React.PureComponent<Props> {
                 </tr>
               </thead>
               <tbody>
-                {invitees.map(invitee => <tr key={invitee.email}>
+                {invitees.map((invitee) => (
+                  <tr key={invitee.email}>
                     <td>{invitee.email}</td>
                     <td>
                       <span>{invitee.invite_accepted ? __('Accepted') : __('Not Accepted')}</span>
                     </td>
                     <td>
-                      {invitee.invite_reward_claimed && <React.Fragment>
+                      {invitee.invite_reward_claimed && (
+                        <React.Fragment>
                           <span>{__('Claimed')}</span>
                           <Icon icon={ICONS.COMPLETE} />
-                        </React.Fragment>}
+                        </React.Fragment>
+                      )}
 
-                      {!invitee.invite_reward_claimed && (invitee.invite_reward_claimable ? <span>{__('Claimable')}</span> : __('Unclaimable'))}
+                      {!invitee.invite_reward_claimed &&
+                        (invitee.invite_reward_claimable ? <span>{__('Claimable')}</span> : __('Unclaimable'))}
                     </td>
-                  </tr>)}
+                  </tr>
+                ))}
               </tbody>
             </table>
-          </div>} />;
+          </div>
+        }
+      />
+    );
   }
-
 }
 
 export default InviteList;

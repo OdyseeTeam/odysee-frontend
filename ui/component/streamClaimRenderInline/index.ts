@@ -1,13 +1,18 @@
-import { connect } from "react-redux";
-import { makeSelectDownloadPathForUri, selectStreamingUrlForUri } from "redux/selectors/file_info";
-import { makeSelectClaimForUri, selectThumbnailForUri, makeSelectContentTypeForUri, makeSelectFileExtensionForUri } from "redux/selectors/claims";
-import * as SETTINGS from "constants/settings";
-import { selectClientSetting, selectTheme } from "redux/selectors/settings";
-import { makeSelectFileRenderModeForUri } from "redux/selectors/content";
-import { doAnalyticsViewForUri } from "redux/actions/app";
-import { doClaimEligiblePurchaseRewards } from "redux/actions/rewards";
-import withStreamClaimRender from "hocs/withStreamClaimRender";
-import StreamClaimRenderInline from "./view";
+import { connect } from 'react-redux';
+import { makeSelectDownloadPathForUri, selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import {
+  makeSelectClaimForUri,
+  selectThumbnailForUri,
+  makeSelectContentTypeForUri,
+  makeSelectFileExtensionForUri,
+} from 'redux/selectors/claims';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doAnalyticsViewForUri } from 'redux/actions/app';
+import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import StreamClaimRenderInline from './view';
 
 const select = (state, props) => {
   const autoplay = props.embedded ? false : selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA);
@@ -20,13 +25,13 @@ const select = (state, props) => {
     fileExtension: makeSelectFileExtensionForUri(props.uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, props.uri),
     renderMode: makeSelectFileRenderModeForUri(props.uri)(state),
-    autoplay: autoplay
+    autoplay: autoplay,
   };
 };
 
-const perform = dispatch => ({
-  doAnalyticsViewForUri: uri => dispatch(doAnalyticsViewForUri(uri)),
-  claimRewards: () => dispatch(doClaimEligiblePurchaseRewards())
+const perform = (dispatch) => ({
+  doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),
+  claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
 });
 
 export default withStreamClaimRender(connect(select, perform)(StreamClaimRenderInline));

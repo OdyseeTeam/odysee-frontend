@@ -1,55 +1,89 @@
-import * as PAGES from "constants/pages";
-import * as MODALS from "constants/modal_types";
-import * as SETTINGS from "constants/settings";
-import React, { useEffect, useState } from "react";
-import { lazyImport } from "util/lazyImport";
-import { tusUnlockAndNotify, tusHandleTabUpdates } from "util/tus";
-import analytics from "analytics";
-import { setSearchUserId } from "redux/actions/search";
-import { parseURI, buildURI } from "util/lbryURI";
-import { generateGoogleCacheUrl } from "util/url";
-import Router from "component/router/index";
-import ModalRouter from "modal/modalRouter";
-import ReactModal from "react-modal";
-import useKonamiListener from "util/enhanced-layout";
-import Yrbl from "component/yrbl";
-import VideoRenderFloating from "component/videoRenderFloating";
-import { withRouter } from "react-router";
-import usePrevious from "effects/use-previous";
-import Nag from "component/nag";
-import Wander from "component/wander";
-import REWARDS from "rewards";
-import usePersistedState from "effects/use-persisted-state";
-import useConnectionStatus from "effects/use-connection-status";
-import Spinner from "component/spinner";
-import LANGUAGES from "constants/languages";
-import { BeforeUnload, Unload } from "util/beforeUnload";
-import { platform } from "util/platform";
-import YoutubeWelcome from "web/component/youtubeReferralWelcome";
-import { useDegradedPerformance, STATUS_OK, STATUS_DEGRADED, STATUS_FAILING, STATUS_DOWN } from "web/effects/use-degraded-performance";
-import LANGUAGE_MIGRATIONS from "constants/language-migrations";
-import { useIsMobile } from "effects/use-screensize";
-const DebugLog = lazyImport(() => import('component/debugLog'
-/* webpackChunkName: "debugLog" */
-));
-const FileDrop = lazyImport(() => import('component/fileDrop'
-/* webpackChunkName: "fileDrop" */
-));
-const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun'
-/* webpackChunkName: "nagCFR" */
-));
-const NagDegradedPerformance = lazyImport(() => import('web/component/nag-degraded-performance'
-/* webpackChunkName: "NagDegradedPerformance" */
-));
-const NagNoUser = lazyImport(() => import('web/component/nag-no-user'
-/* webpackChunkName: "nag-no-user" */
-));
-const NagSunset = lazyImport(() => import('web/component/nag-sunset'
-/* webpackChunkName: "nag-sunset" */
-));
-const SyncFatalError = lazyImport(() => import('component/syncFatalError'
-/* webpackChunkName: "syncFatalError" */
-));
+import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
+import React, { useEffect, useState } from 'react';
+import { lazyImport } from 'util/lazyImport';
+import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
+import analytics from 'analytics';
+import { setSearchUserId } from 'redux/actions/search';
+import { parseURI, buildURI } from 'util/lbryURI';
+import { generateGoogleCacheUrl } from 'util/url';
+import Router from 'component/router/index';
+import ModalRouter from 'modal/modalRouter';
+import ReactModal from 'react-modal';
+import useKonamiListener from 'util/enhanced-layout';
+import Yrbl from 'component/yrbl';
+import VideoRenderFloating from 'component/videoRenderFloating';
+import { withRouter } from 'react-router';
+import usePrevious from 'effects/use-previous';
+import Nag from 'component/nag';
+import Wander from 'component/wander';
+import REWARDS from 'rewards';
+import usePersistedState from 'effects/use-persisted-state';
+import useConnectionStatus from 'effects/use-connection-status';
+import Spinner from 'component/spinner';
+import LANGUAGES from 'constants/languages';
+import { BeforeUnload, Unload } from 'util/beforeUnload';
+import { platform } from 'util/platform';
+import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
+import {
+  useDegradedPerformance,
+  STATUS_OK,
+  STATUS_DEGRADED,
+  STATUS_FAILING,
+  STATUS_DOWN,
+} from 'web/effects/use-degraded-performance';
+import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import { useIsMobile } from 'effects/use-screensize';
+const DebugLog = lazyImport(
+  () =>
+    import(
+      'component/debugLog'
+      /* webpackChunkName: "debugLog" */
+    )
+);
+const FileDrop = lazyImport(
+  () =>
+    import(
+      'component/fileDrop'
+      /* webpackChunkName: "fileDrop" */
+    )
+);
+const NagContinueFirstRun = lazyImport(
+  () =>
+    import(
+      'component/nagContinueFirstRun'
+      /* webpackChunkName: "nagCFR" */
+    )
+);
+const NagDegradedPerformance = lazyImport(
+  () =>
+    import(
+      'web/component/nag-degraded-performance'
+      /* webpackChunkName: "NagDegradedPerformance" */
+    )
+);
+const NagNoUser = lazyImport(
+  () =>
+    import(
+      'web/component/nag-no-user'
+      /* webpackChunkName: "nag-no-user" */
+    )
+);
+const NagSunset = lazyImport(
+  () =>
+    import(
+      'web/component/nag-sunset'
+      /* webpackChunkName: "nag-sunset" */
+    )
+);
+const SyncFatalError = lazyImport(
+  () =>
+    import(
+      'component/syncFatalError'
+      /* webpackChunkName: "syncFatalError" */
+    )
+);
 // ****************************************************************************
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
@@ -66,12 +100,15 @@ type Props = {
   language: string;
   languages: Array<string>;
   theme: string;
-  user: {
-    id: string;
-    has_verified_email: boolean;
-    is_reward_approved: boolean;
-    experimental_ui: boolean;
-  } | null | undefined;
+  user:
+    | {
+        id: string;
+        has_verified_email: boolean;
+        is_reward_approved: boolean;
+        experimental_ui: boolean;
+      }
+    | null
+    | undefined;
   locale: LocaleInfo | null | undefined;
   location: {
     pathname: string;
@@ -124,9 +161,7 @@ type Props = {
   doSetAssignedLbrynetServer: (server: string) => void;
   doOpenModal: (id: string, arg1: {} | null | undefined) => void;
   doSetClientSetting: (arg0: string, arg1: any, arg2: boolean | null | undefined) => void;
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
 };
 export const AppContext = React.createContext<any>();
 
@@ -170,7 +205,7 @@ function App(props: Props) {
     doSetAssignedLbrynetServer,
     doOpenModal,
     doSetClientSetting,
-    doToast
+    doToast,
   } = props;
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
@@ -180,16 +215,12 @@ function App(props: Props) {
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
-  const {
-    pathname,
-    hash,
-    search
-  } = location;
+  const { pathname, hash, search } = location;
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
   // referral claiming
-  const referredRewardAvailable = rewards && rewards.some(reward => reward.reward_type === REWARDS.TYPE_REFEREE);
+  const referredRewardAvailable = rewards && rewards.some((reward) => reward.reward_type === REWARDS.TYPE_REFEREE);
   const urlParams = new URLSearchParams(search);
   const rawReferrerParam = urlParams.get('r');
   const fromLbrytvParam = urlParams.get('sunset');
@@ -233,13 +264,8 @@ function App(props: Props) {
   try {
     // here queryString and startTime are "removed" from the buildURI process
     // to build only the uri itself
-    const {
-      queryString,
-      startTime,
-      ...parsedUri
-    } = parseURI(path);
-    uri = buildURI({ ...parsedUri
-    }, true);
+    const { queryString, startTime, ...parsedUri } = parseURI(path);
+    uri = buildURI({ ...parsedUri }, true);
   } catch (e) {
     const match = path.match(/[#/:]/);
 
@@ -260,10 +286,19 @@ function App(props: Props) {
     // Active uploads warning (show globally so users know why the browser prompts on leave)
     if (uploadCount > 0 && !embedPath) {
       const pathname = location && location.pathname;
-      const onUploadPage = pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`) || pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`);
+      const onUploadPage =
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`));
 
       if (!onUploadPage) {
-        return <Nag type="helpful" message={__('Upload in progress. Closing or reloading may interrupt your upload.')} actionText={__('View Uploads')} onClick={() => history.push(`/$/${PAGES.UPLOADS}`)} />;
+        return (
+          <Nag
+            type="helpful"
+            message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
+            actionText={__('View Uploads')}
+            onClick={() => history.push(`/$/${PAGES.UPLOADS}`)}
+          />
+        );
       }
     }
 
@@ -279,14 +314,22 @@ function App(props: Props) {
 
     if (syncFatalError) {
       if (!retryingSync) {
-        return <Nag type="error" message={__('Failed to synchronize settings. Wait a while before retrying.')} actionText={__('Retry')} onClick={() => {
-          syncLoop(true);
-          setRetryingSync(true);
-          setTimeout(() => setRetryingSync(false), 4000);
-        }} />;
+        return (
+          <Nag
+            type="error"
+            message={__('Failed to synchronize settings. Wait a while before retrying.')}
+            actionText={__('Retry')}
+            onClick={() => {
+              syncLoop(true);
+              setRetryingSync(true);
+              setTimeout(() => setRetryingSync(false), 4000);
+            }}
+          />
+        );
       }
     } else if (reloadRequired) {
-      const msg = reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
+      const msg =
+        reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
       assert(reloadRequired === 'newVersionFound' || reloadRequired === 'lazyImportFailed');
       return <Nag message={__(msg)} actionText={__('Refresh')} onClick={() => window.location.reload()} />;
     }
@@ -302,7 +345,7 @@ function App(props: Props) {
     if (syncIsLocked) {
       const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
 
-      const handleBeforeUnload = event => {
+      const handleBeforeUnload = (event) => {
         event.preventDefault();
         event.returnValue = msg;
       };
@@ -317,7 +360,7 @@ function App(props: Props) {
 
     const handleUnload = () => tusUnlockAndNotify();
 
-    const handleBeforeUnload = event => {
+    const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
     };
@@ -332,14 +375,14 @@ function App(props: Props) {
   useEffect(() => {
     if (!uploadCount) return;
 
-    const onStorageUpdate = e => tusHandleTabUpdates(e.key);
+    const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
 
     window.addEventListener('storage', onStorageUpdate);
     return () => window.removeEventListener('storage', onStorageUpdate);
   }, [uploadCount]);
   // allows user to pause miniplayer using the spacebar without the page scrolling down
   useEffect(() => {
-    const handleKeyPress = e => {
+    const handleKeyPress = (e) => {
       if (e.key === ' ' && e.target === document.body) {
         e.preventDefault();
       }
@@ -352,7 +395,6 @@ function App(props: Props) {
     if (referredRewardAvailable && sanitizedReferrerParam) {
       doUserSetReferrerForUri(sanitizedReferrerParam);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [sanitizedReferrerParam, referredRewardAvailable]);
   useEffect(() => {
     // $FlowFixMe
@@ -368,7 +410,6 @@ function App(props: Props) {
       fetchModAmIList();
       fetchDelegatesForMyChannels();
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [hasMyChannels, hasNoChannels, setIncognito]);
   useEffect(() => {
     if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
@@ -376,38 +417,40 @@ function App(props: Props) {
     }
   }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel, hasMyChannels, prefsReady]);
   useEffect(() => {
-    if (isFypModalShown || !prefsReady || // $FlowIgnore
-    homepageOrder.active?.includes('FYP') || // $FlowIgnore
-    homepageOrder.hidden?.includes('FYP') || !personalRecommendations.uris.length) {
+    if (
+      isFypModalShown ||
+      !prefsReady || // $FlowIgnore
+      homepageOrder.active?.includes('FYP') || // $FlowIgnore
+      homepageOrder.hidden?.includes('FYP') ||
+      !personalRecommendations.uris.length
+    ) {
       return;
     }
 
     doOpenModal(MODALS.CONFIRM, {
       title: __('Homepage recommendations available'),
-      subtitle: __('Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'),
+      subtitle: __(
+        'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
+      ),
       labelOk: __('Yes!'),
       labelCancel: __('Later'),
-      onConfirm: closeModal => {
+      onConfirm: (closeModal) => {
         closeModal();
         const active = homepageOrder?.active || [];
-        const newHomePageOrder = { ...homepageOrder,
-          active: ['FYP', ...active]
-        };
+        const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
         doToast({
-          message: __('Homepage recommendations enabled.')
+          message: __('Homepage recommendations enabled.'),
         });
       },
-      onCancel: closeModal => {
+      onCancel: (closeModal) => {
         closeModal();
         const hidden = homepageOrder?.hidden || [];
-        const newHomePageOrder = { ...homepageOrder,
-          hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden]
-        };
+        const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
         doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
         doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
-      }
+      },
     });
   }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
   useEffect(() => {
@@ -422,7 +465,6 @@ function App(props: Props) {
         document.documentElement.dir = LANGUAGES[language][2];
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [language, languages]);
   useEffect(() => {
     if (shouldMigrateLanguage) {
@@ -489,7 +531,8 @@ function App(props: Props) {
         document.head.removeChild(script);
         // $FlowFixMe
         document.head.removeChild(secondScript);
-      } catch (err) {// eslint-disable-next-line no-console
+      } catch (err) {
+        // eslint-disable-next-line no-console
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
@@ -513,7 +556,6 @@ function App(props: Props) {
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       history.push(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [syncError, pathname, isAuthenticated]);
   useEffect(() => {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
@@ -526,7 +568,6 @@ function App(props: Props) {
 
       doSetLastViewedAnnouncement('clear');
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   // Keep this at the end to ensure initial setup effects are run first
   useEffect(() => {
@@ -541,9 +582,8 @@ function App(props: Props) {
       // When language is changed or translations are fetched, we render.
       setLangRenderKey(Date.now());
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- don't respond to syncIsLocked, but skip action when locked.
-
   }, [language, languages]);
-  const appRef = React.useCallback(wrapperElement => {
+  const appRef = React.useCallback((wrapperElement) => {
     if (wrapperElement) {
       ReactModal.setAppElement(wrapperElement);
     }
@@ -553,22 +593,36 @@ function App(props: Props) {
   // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time
   // It's not needed on desktop since there is no un-authed state
   if (user === undefined) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner delayed />
-      </div>;
+      </div>
+    );
   }
 
   if (connectionStatus.online && lbryTvApiStatus === STATUS_DOWN) {
     // TODO: Rename `SyncFatalError` since it has nothing to do with syncing.
-    return <React.Suspense fallback={null}>
+    return (
+      <React.Suspense fallback={null}>
         <SyncFatalError lbryTvApiStatus={lbryTvApiStatus} />
-      </React.Suspense>;
+      </React.Suspense>
+    );
   }
 
-  return <div className={MAIN_WRAPPER_CLASS} ref={appRef} key={langRenderKey}>
-      {lbryTvApiStatus === STATUS_DOWN ? <Yrbl className="main--empty" title={__('odysee.com is currently down')} subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')} /> : <AppContext.Provider value={{
-      uri
-    }}>
+  return (
+    <div className={MAIN_WRAPPER_CLASS} ref={appRef} key={langRenderKey}>
+      {lbryTvApiStatus === STATUS_DOWN ? (
+        <Yrbl
+          className="main--empty"
+          title={__('odysee.com is currently down')}
+          subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
+        />
+      ) : (
+        <AppContext.Provider
+          value={{
+            uri,
+          }}
+        >
           <Router uri={uri} />
           <Wander />
           <ModalRouter />
@@ -578,12 +632,16 @@ function App(props: Props) {
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
             <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
-            {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />}
+            {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
+              <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
+            )}
             {getStatusNag()}
             {useDebugLog && <DebugLog />}
           </React.Suspense>
-        </AppContext.Provider>}
-    </div>;
+        </AppContext.Provider>
+      )}
+    </div>
+  );
 }
 
 export default withRouter(App);

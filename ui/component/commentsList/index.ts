@@ -1,21 +1,40 @@
-import type { Props } from "./view";
-import CommentsList from "./view";
-import { connect } from "react-redux";
-import { selectClaimForUri, selectClaimIsMine, selectFetchingMyChannels, selectScheduledStateForUri, selectProtectedContentTagForUri } from "redux/selectors/claims";
-import { selectTopLevelCommentsForUri, selectTopLevelTotalPagesForUri, selectIsFetchingComments, selectIsFetchingTopLevelComments, selectIsFetchingReacts, selectTotalCommentsCountForUri, selectOthersReacts, selectMyReacts, selectCommentIdsForUri, selectCommentsEnabledSettingForChannelId, selectPinnedCommentsForUri, selectCommentForCommentId, selectCommentAncestorsForId } from "redux/selectors/comments";
-import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from "redux/actions/comments";
-import { doPopOutInlinePlayer } from "redux/actions/content";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import { getChannelIdFromClaim } from "util/claim";
-import { doFetchOdyseeMembershipForChannelIds, doFetchChannelMembershipsForChannelIds } from "redux/actions/memberships";
-import { selectUserHasValidMembershipForCreatorId } from "redux/selectors/memberships";
+import type { Props } from './view';
+import CommentsList from './view';
+import { connect } from 'react-redux';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectFetchingMyChannels,
+  selectScheduledStateForUri,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
+import {
+  selectTopLevelCommentsForUri,
+  selectTopLevelTotalPagesForUri,
+  selectIsFetchingComments,
+  selectIsFetchingTopLevelComments,
+  selectIsFetchingReacts,
+  selectTotalCommentsCountForUri,
+  selectOthersReacts,
+  selectMyReacts,
+  selectCommentIdsForUri,
+  selectCommentsEnabledSettingForChannelId,
+  selectPinnedCommentsForUri,
+  selectCommentForCommentId,
+  selectCommentAncestorsForId,
+} from 'redux/selectors/comments';
+import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
+import { doPopOutInlinePlayer } from 'redux/actions/content';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { getChannelIdFromClaim } from 'util/claim';
+import {
+  doFetchOdyseeMembershipForChannelIds,
+  doFetchChannelMembershipsForChannelIds,
+} from 'redux/actions/memberships';
+import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
-  const {
-    uri,
-    threadCommentId,
-    linkedCommentId
-  } = props;
+  const { uri, threadCommentId, linkedCommentId } = props;
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -45,7 +64,7 @@ const select = (state, props) => {
     topLevelComments: selectTopLevelCommentsForUri(state, uri),
     topLevelTotalPages: selectTopLevelTotalPagesForUri(state, uri),
     totalComments: selectTotalCommentsCountForUri(state, uri),
-    scheduledState: selectScheduledStateForUri(state, uri)
+    scheduledState: selectScheduledStateForUri(state, uri),
   };
 };
 
@@ -56,6 +75,6 @@ const perform = {
   resetComments: doCommentReset,
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,
-  doPopOutInlinePlayer
+  doPopOutInlinePlayer,
 };
 export default connect<_, Props, _, _, _, _>(select, perform)(CommentsList);

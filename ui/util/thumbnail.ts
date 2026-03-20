@@ -1,4 +1,4 @@
-import { IMAGE_PROXY_URL, THUMBNAIL_CDN_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH, THUMBNAIL_QUALITY } from "config";
+import { IMAGE_PROXY_URL, THUMBNAIL_CDN_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH, THUMBNAIL_QUALITY } from 'config';
 type Props = {
   thumbnail: string | null | undefined;
   height?: number;
@@ -12,7 +12,7 @@ export function getThumbnailCdnUrl(props: Props) {
     height = THUMBNAIL_HEIGHT,
     width = THUMBNAIL_WIDTH,
     quality = THUMBNAIL_QUALITY,
-    isShorts = false
+    isShorts = false,
   } = props;
 
   if (!THUMBNAIL_CDN_URL || !thumbnail) {
@@ -36,7 +36,12 @@ export function getThumbnailCdnUrl(props: Props) {
   }
 }
 export function getImageProxyUrl(thumbnail: string | null | undefined) {
-  if (IMAGE_PROXY_URL && thumbnail && !thumbnail.startsWith(THUMBNAIL_CDN_URL) && !thumbnail.startsWith(IMAGE_PROXY_URL)) {
+  if (
+    IMAGE_PROXY_URL &&
+    thumbnail &&
+    !thumbnail.startsWith(THUMBNAIL_CDN_URL) &&
+    !thumbnail.startsWith(IMAGE_PROXY_URL)
+  ) {
     return `${IMAGE_PROXY_URL}?${thumbnail}`;
   }
 

@@ -1,13 +1,13 @@
-import "scss/component/_swipeable-drawer.scss";
+import 'scss/component/_swipeable-drawer.scss';
 // @ts-expect-error;
-import { Global } from "@emotion/react";
-import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS, HEADER_HEIGHT_MOBILE } from "constants/player";
-import { getMaxLandscapeHeight } from "util/window";
-import Drawer from "@mui/material/Drawer";
-import * as ICONS from "constants/icons";
-import * as React from "react";
-import * as DRAWERS from "constants/drawer_types";
-import Button from "component/button";
+import { Global } from '@emotion/react';
+import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS, HEADER_HEIGHT_MOBILE } from 'constants/player';
+import { getMaxLandscapeHeight } from 'util/window';
+import Drawer from '@mui/material/Drawer';
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import * as DRAWERS from 'constants/drawer_types';
+import Button from 'component/button';
 const TRANSITION_MS = 225;
 const TRANSITION_STR = `${TRANSITION_MS}ms cubic-bezier(0, 0, 0.2, 1) 0ms`;
 type Props = {
@@ -22,16 +22,7 @@ type Props = {
   doToggleAppDrawer: (type: string) => void;
 };
 export default function SwipeableDrawer(props: Props) {
-  const {
-    title,
-    hasSubtitle,
-    children,
-    type,
-    startOpen,
-    open,
-    actions,
-    doToggleAppDrawer
-  } = props;
+  const { title, hasSubtitle, children, type, startOpen, open, actions, doToggleAppDrawer } = props;
   const pullerHeight = type === DRAWERS.PLAYLIST ? 120 : 62;
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();
@@ -71,13 +62,13 @@ export default function SwipeableDrawer(props: Props) {
         let backdropTop = contentHeight;
         // $FlowFixMe
         let backdropHeight = document.documentElement.getBoundingClientRect().height - backdropTop;
-        let opacity = (touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight * -1 + 1;
+        let opacity = ((touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight) * -1 + 1;
 
         // increase the backdrop height so it also covers the video when pulling the drawer up
         if (isDraggingAboveVideo) {
           backdropTop = HEADER_HEIGHT_MOBILE;
           backdropHeight = playerHeight;
-          opacity = (touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight * -1 + 1;
+          opacity = ((touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight) * -1 + 1;
         }
 
         backdrop.setAttribute('style', `top: ${backdropTop}px; opacity: ${opacity}`);
@@ -108,7 +99,10 @@ export default function SwipeableDrawer(props: Props) {
           paperRef.current.setAttribute('style', `transform: none !important; transition: transform ${TRANSITION_STR}`);
         }
 
-        root.setAttribute('style', `transform: translateY(${positionToStop}px) !important; transition: transform ${TRANSITION_STR}`);
+        root.setAttribute(
+          'style',
+          `transform: translateY(${positionToStop}px) !important; transition: transform ${TRANSITION_STR}`
+        );
         setTimeout(() => {
           root.style.height = `calc(100% - ${positionToStop}px)`;
         }, TRANSITION_MS);
@@ -166,7 +160,9 @@ export default function SwipeableDrawer(props: Props) {
   }
 
   const handleResize = React.useCallback(() => {
-    const element = document.querySelector(`.${PRIMARY_IMAGE_WRAPPER_CLASS}`) || document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
+    const element =
+      document.querySelector(`.${PRIMARY_IMAGE_WRAPPER_CLASS}`) ||
+      document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
     if (!element) return;
     const rect = element.getBoundingClientRect();
     setPlayerHeight(rect.height);
@@ -175,7 +171,6 @@ export default function SwipeableDrawer(props: Props) {
     if (startOpen && !open) {
       toggleDrawer();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   React.useEffect(() => {
     // Drawer will follow the cover image on resize, so it's always visible
@@ -198,67 +193,98 @@ export default function SwipeableDrawer(props: Props) {
       }
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer on unmount
   }, []);
-  const drawerElemRef = React.useCallback(node => {
-    if (node) {
-      const isFullscreenDrawer = node.style.transform.includes(`translateY(${HEADER_HEIGHT_MOBILE}px)`);
-      const openStateChanged = openPrev.current !== open; // so didn't run because of window resize
+  const drawerElemRef = React.useCallback(
+    (node) => {
+      if (node) {
+        const isFullscreenDrawer = node.style.transform.includes(`translateY(${HEADER_HEIGHT_MOBILE}px)`);
+        const openStateChanged = openPrev.current !== open; // so didn't run because of window resize
 
-      if (!isFullscreenDrawer || openStateChanged) {
-        node.setAttribute('style', `transform: translateY(${landscapePlayerHeight}px); height: calc(100% - ${landscapePlayerHeight}px);`);
-        // $FlowFixMe
-        document.documentElement?.style?.setProperty('--content-height', String(landscapePlayerHeight));
+        if (!isFullscreenDrawer || openStateChanged) {
+          node.setAttribute(
+            'style',
+            `transform: translateY(${landscapePlayerHeight}px); height: calc(100% - ${landscapePlayerHeight}px);`
+          );
+          // $FlowFixMe
+          document.documentElement?.style?.setProperty('--content-height', String(landscapePlayerHeight));
+        }
+
+        drawerRoot.current = node;
+        openPrev.current = open;
       }
-
-      drawerRoot.current = node;
-      openPrev.current = open;
-    }
-  }, [landscapePlayerHeight, open]);
-  return <>
+    },
+    [landscapePlayerHeight, open]
+  );
+  return (
+    <>
       <DrawerGlobalStyles open={open} />
 
-      <Drawer ref={drawerElemRef} anchor="bottom" open={open} disableEnforceFocus ModalProps={{
-      keepMounted: true,
-      sx: {
-        zIndex: '2'
-      }
-    }} BackdropProps={{
-      ref: backdropRef,
-      open,
-      sx: {
-        backgroundColor: 'black'
-      }
-    }} PaperProps={{
-      ref: paperRef,
-      sx: {
-        height: `calc(100% - ${pullerHeight}px)`
-      }
-    }}>
-        {open && <div className="swipeable-drawer__header" style={{
-        top: -pullerHeight,
-        height: pullerHeight
-      }}>
+      <Drawer
+        ref={drawerElemRef}
+        anchor="bottom"
+        open={open}
+        disableEnforceFocus
+        ModalProps={{
+          keepMounted: true,
+          sx: {
+            zIndex: '2',
+          },
+        }}
+        BackdropProps={{
+          ref: backdropRef,
+          open,
+          sx: {
+            backgroundColor: 'black',
+          },
+        }}
+        PaperProps={{
+          ref: paperRef,
+          sx: {
+            height: `calc(100% - ${pullerHeight}px)`,
+          },
+        }}
+      >
+        {open && (
+          <div
+            className="swipeable-drawer__header"
+            style={{
+              top: -pullerHeight,
+              height: pullerHeight,
+            }}
+          >
             <span className="swipeable-drawer__puller" />
-            <HeaderContents title={title} hasSubtitle={hasSubtitle} actions={actions} type={type} handleClose={handleCloseDrawer} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} />
-          </div>}
+            <HeaderContents
+              title={title}
+              hasSubtitle={hasSubtitle}
+              actions={actions}
+              type={type}
+              handleClose={handleCloseDrawer}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            />
+          </div>
+        )}
 
         {children}
       </Drawer>
-    </>;
+    </>
+  );
 }
 type GlobalStylesProps = {
   open: boolean;
 };
 
 const DrawerGlobalStyles = (props: GlobalStylesProps) => {
-  const {
-    open
-  } = props;
-  return <Global styles={{
-    '.main-wrapper__inner--filepage': {
-      overflow: open ? 'hidden' : 'unset',
-      maxHeight: open ? '100%' : 'unset'
-    }
-  }} />;
+  const { open } = props;
+  return (
+    <Global
+      styles={{
+        '.main-wrapper__inner--filepage': {
+          overflow: open ? 'hidden' : 'unset',
+          maxHeight: open ? '100%' : 'unset',
+        },
+      }}
+    />
+  );
 };
 
 type HeaderProps = {
@@ -270,21 +296,21 @@ type HeaderProps = {
 };
 
 const HeaderContents = (props: HeaderProps) => {
-  const {
-    title,
-    hasSubtitle,
-    actions,
-    handleClose,
-    type,
-    ...divProps
-  } = props;
-  return <div className="swipeable-drawer__header-content" {...divProps}>
+  const { title, hasSubtitle, actions, handleClose, type, ...divProps } = props;
+  return (
+    <div className="swipeable-drawer__header-content" {...divProps}>
       {title}
 
       <div className="swipeable-drawer__header-actions">
         {actions}
 
-        <Button button={type === DRAWERS.PLAYLIST ? 'close' : undefined} icon={ICONS.REMOVE} iconSize={16} onClick={handleClose} />
+        <Button
+          button={type === DRAWERS.PLAYLIST ? 'close' : undefined}
+          icon={ICONS.REMOVE}
+          iconSize={16}
+          onClick={handleClose}
+        />
       </div>
-    </div>;
+    </div>
+  );
 };

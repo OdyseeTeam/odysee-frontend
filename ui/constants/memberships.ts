@@ -1,49 +1,54 @@
-import * as STRIPE from "constants/stripe";
+import * as STRIPE from 'constants/stripe';
 export const ODYSEE_TIER_NAMES = Object.freeze({
   PREMIUM: 'Premium',
-  PREMIUM_PLUS: 'Premium+'
+  PREMIUM_PLUS: 'Premium+',
 });
 export const DESCRIPTIONS = Object.freeze({
   [ODYSEE_TIER_NAMES.PREMIUM]: 'Badge on profile, automatic credits confirmation, early access to new features',
-  [ODYSEE_TIER_NAMES.PREMIUM_PLUS]: 'Badge on profile, automatic credits confirmation, early access to new features, keeps Odysee Ad-free for everyone'
+  [ODYSEE_TIER_NAMES.PREMIUM_PLUS]:
+    'Badge on profile, automatic credits confirmation, early access to new features, keeps Odysee Ad-free for everyone',
 });
 export const INTERVALS = Object.freeze({
   year: 'Yearly',
-  month: 'Monthly'
+  month: 'Monthly',
 });
 export const PRICES = Object.freeze({
   [ODYSEE_TIER_NAMES.PREMIUM]: {
     [STRIPE.CURRENCIES.EUR]: '€0.89',
-    [STRIPE.CURRENCIES.USD]: '99¢'
+    [STRIPE.CURRENCIES.USD]: '99¢',
   },
   [ODYSEE_TIER_NAMES.PREMIUM_PLUS]: {
     [STRIPE.CURRENCIES.EUR]: '€2.68',
-    [STRIPE.CURRENCIES.USD]: '$2.99'
-  }
+    [STRIPE.CURRENCIES.USD]: '$2.99',
+  },
 });
 export const ODYSEE_PERKS = Object.freeze({
   MEMBER_BADGE: {
     id: 4,
     name: 'Member badge',
-    description: 'Badge shown in chat'
+    description: 'Badge shown in chat',
   },
   PROTECTED_CONTENT: {
     id: 5,
     name: 'Exclusive content',
-    description: 'Access to members-only content and chat'
+    description: 'Access to members-only content and chat',
   },
   PROTECTED_LIVESTREAM: {
     id: 6,
     name: 'Exclusive livestreams',
-    description: 'Access to members-only livestreams and chat'
+    description: 'Access to members-only livestreams and chat',
   },
   MEMBERS_ONLY_CHAT: {
     id: 7,
     name: 'Members-only chat',
     description: 'Access to members-only chat on public content',
-    editable: true
-  }
+    editable: true,
+  },
 });
 export const DEFAULT_TIER_PERKS = [ODYSEE_PERKS.MEMBER_BADGE.id];
-export const PERMANENT_TIER_PERKS = [ODYSEE_PERKS.MEMBER_BADGE.id, ODYSEE_PERKS.PROTECTED_CONTENT.id, ODYSEE_PERKS.PROTECTED_LIVESTREAM.id];
+export const PERMANENT_TIER_PERKS = [
+  ODYSEE_PERKS.MEMBER_BADGE.id,
+  ODYSEE_PERKS.PROTECTED_CONTENT.id,
+  ODYSEE_PERKS.PROTECTED_LIVESTREAM.id,
+];
 export const EDITABLE_TIER_PERKS = [ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id];

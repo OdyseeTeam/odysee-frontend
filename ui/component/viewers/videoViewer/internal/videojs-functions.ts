@@ -1,8 +1,4 @@
-const VideoJsFunctions = ({
-  isAudio
-}: {
-  isAudio: boolean;
-}) => {
+const VideoJsFunctions = ({ isAudio }: { isAudio: boolean }) => {
   // Create the video DOM element and wrapper
   function createVideoPlayerDOM(container: any) {
     if (!container) return;
@@ -22,7 +18,7 @@ const VideoJsFunctions = ({
   }
 
   return {
-    createVideoPlayerDOM
+    createVideoPlayerDOM,
   };
 };
 

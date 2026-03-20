@@ -1,12 +1,12 @@
-import React from "react";
-import { parseURI } from "util/lbryURI";
-import { getImageProxyUrl } from "util/thumbnail";
-import classnames from "classnames";
-import Gerbil from "./gerbil.png";
-import FreezeframeWrapper from "component/common/freezeframe-wrapper";
-import OptimizedImage from "component/optimizedImage";
-import { AVATAR_DEFAULT } from "config";
-import MembershipBadge from "component/membershipBadge";
+import React from 'react';
+import { parseURI } from 'util/lbryURI';
+import { getImageProxyUrl } from 'util/thumbnail';
+import classnames from 'classnames';
+import Gerbil from './gerbil.png';
+import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
+import OptimizedImage from 'component/optimizedImage';
+import { AVATAR_DEFAULT } from 'config';
+import MembershipBadge from 'component/membershipBadge';
 type Props = {
   thumbnail: string | null | undefined;
   uri: string;
@@ -52,7 +52,7 @@ function ChannelThumbnail(props: Props) {
     showMemberBadge,
     isChannel,
     odyseeMembership,
-    tooltipTitle
+    tooltipTitle,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -61,7 +61,7 @@ function ChannelThumbnail(props: Props) {
   const defaultAvatar = AVATAR_DEFAULT || Gerbil;
   const channelThumbnail = thumbnailPreview || thumbnail || defaultAvatar;
   const isAnimated = channelThumbnail && (channelThumbnail.endsWith('gif') || channelThumbnail.endsWith('webp'));
-  const showThumb = !obscure && !!thumbnail || thumbnailPreview;
+  const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
   const stableFreezeUrlRef = React.useRef(null);
 
   if (isAnimated && !allowGifs && channelThumbnail) {
@@ -74,13 +74,11 @@ function ChannelThumbnail(props: Props) {
       linkPage: isChannel,
       placement: isChannel ? 'bottom' : undefined,
       hideTooltip,
-      className: isChannel ? 'profile-badge__tooltip' : undefined
+      className: isChannel ? 'profile-badge__tooltip' : undefined,
     };
   }, [hideTooltip, isChannel, odyseeMembership]);
   // Generate a random color class based on the first letter of the channel name
-  const {
-    channelName
-  } = parseURI(uri);
+  const { channelName } = parseURI(uri);
   let initializer;
   let colorClassName;
 
@@ -99,35 +97,50 @@ function ChannelThumbnail(props: Props) {
   }, [doResolveUri, shouldResolve, uri]);
 
   if (stableFreezeUrlRef.current) {
-    return <FreezeframeWrapper src={stableFreezeUrlRef.current} className={classnames('channel-thumbnail', className, {
-      'channel-thumbnail--small': small,
-      'channel-thumbnail--xsmall': xsmall,
-      'channel-thumbnail--xxsmall': xxsmall,
-      'channel-thumbnail--resolving': isResolving
-    })}>
+    return (
+      <FreezeframeWrapper
+        src={stableFreezeUrlRef.current}
+        className={classnames('channel-thumbnail', className, {
+          'channel-thumbnail--small': small,
+          'channel-thumbnail--xsmall': xsmall,
+          'channel-thumbnail--xxsmall': xxsmall,
+          'channel-thumbnail--resolving': isResolving,
+        })}
+      >
         {showMemberBadge ? <MembershipBadge {...badgeProps} /> : null}
-      </FreezeframeWrapper>;
+      </FreezeframeWrapper>
+    );
   }
 
-  return <div className={classnames('channel-thumbnail', className, {
-    [colorClassName]: !showThumb,
-    'channel-thumbnail--small': small,
-    'channel-thumbnail--xsmall': xsmall,
-    'channel-thumbnail--xxsmall': xxsmall,
-    'channel-thumbnail--resolving': isResolving
-  })} title={tooltipTitle}>
-      {
-      /* width: use the same size for all 'small' variants so that caching works better */
-    }
-      <OptimizedImage className={!channelThumbnail ? 'channel-thumbnail__default' : 'channel-thumbnail__custom'} src={!thumbLoadError && channelThumbnail || defaultAvatar} width={xxsmall || xsmall || small ? 64 : 160} quality={95} loading={noLazyLoad ? undefined : 'lazy'} onError={() => {
-      if (setThumbUploadError) {
-        setThumbUploadError(true);
-      } else {
-        setThumbLoadError(true);
-      }
-    }} />
+  return (
+    <div
+      className={classnames('channel-thumbnail', className, {
+        [colorClassName]: !showThumb,
+        'channel-thumbnail--small': small,
+        'channel-thumbnail--xsmall': xsmall,
+        'channel-thumbnail--xxsmall': xxsmall,
+        'channel-thumbnail--resolving': isResolving,
+      })}
+      title={tooltipTitle}
+    >
+      {/* width: use the same size for all 'small' variants so that caching works better */}
+      <OptimizedImage
+        className={!channelThumbnail ? 'channel-thumbnail__default' : 'channel-thumbnail__custom'}
+        src={(!thumbLoadError && channelThumbnail) || defaultAvatar}
+        width={xxsmall || xsmall || small ? 64 : 160}
+        quality={95}
+        loading={noLazyLoad ? undefined : 'lazy'}
+        onError={() => {
+          if (setThumbUploadError) {
+            setThumbUploadError(true);
+          } else {
+            setThumbLoadError(true);
+          }
+        }}
+      />
       {showMemberBadge && <MembershipBadge {...badgeProps} />}
-    </div>;
+    </div>
+  );
 }
 
 export default ChannelThumbnail;

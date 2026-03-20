@@ -1,27 +1,31 @@
-import * as PAGES from "constants/pages";
-import * as SETTINGS from "constants/settings";
-import React from "react";
-import classnames from "classnames";
-import { useHistory } from "react-router";
-import UserEmailNew from "component/userEmailNew";
-import UserEmailVerify from "component/userEmailVerify";
-import UserFirstChannel from "component/userFirstChannel";
-import UserChannelFollowIntro from "component/userChannelFollowIntro";
-import UserTagFollowIntro from "component/userTagFollowIntro";
-import YoutubeSync from "page/youtubeSync";
-import { DEFAULT_BID_FOR_FIRST_CHANNEL } from "component/userFirstChannel/view";
-import { YOUTUBE_STATUSES } from "lbryinc";
-import REWARDS from "rewards";
-import UserVerify from "component/userVerify";
-import Spinner from "component/spinner";
-import useFetched from "effects/use-fetched";
-import Confetti from "react-confetti";
-import usePrevious from "effects/use-previous";
-import { lazyImport } from "util/lazyImport";
-import { SHOW_TAGS_INTRO } from "config";
-const YoutubeTransferStatus = lazyImport(() => import('component/youtubeTransferStatus'
-/* webpackChunkName: "youtubeTransferStatus" */
-));
+import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
+import React from 'react';
+import classnames from 'classnames';
+import { useHistory } from 'react-router';
+import UserEmailNew from 'component/userEmailNew';
+import UserEmailVerify from 'component/userEmailVerify';
+import UserFirstChannel from 'component/userFirstChannel';
+import UserChannelFollowIntro from 'component/userChannelFollowIntro';
+import UserTagFollowIntro from 'component/userTagFollowIntro';
+import YoutubeSync from 'page/youtubeSync';
+import { DEFAULT_BID_FOR_FIRST_CHANNEL } from 'component/userFirstChannel/view';
+import { YOUTUBE_STATUSES } from 'lbryinc';
+import REWARDS from 'rewards';
+import UserVerify from 'component/userVerify';
+import Spinner from 'component/spinner';
+import useFetched from 'effects/use-fetched';
+import Confetti from 'react-confetti';
+import usePrevious from 'effects/use-previous';
+import { lazyImport } from 'util/lazyImport';
+import { SHOW_TAGS_INTRO } from 'config';
+const YoutubeTransferStatus = lazyImport(
+  () =>
+    import(
+      'component/youtubeTransferStatus'
+      /* webpackChunkName: "youtubeTransferStatus" */
+    )
+);
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
 const STEP_PARAM = 'step';
@@ -71,14 +75,11 @@ function UserSignUp(props: Props) {
     setClientSetting,
     interestedInYoutubeSync,
     doToggleInterestedInYoutubeSync,
-    prefsReady
+    prefsReady,
   } = props;
   const {
-    location: {
-      search,
-      pathname
-    },
-    replace
+    location: { search, pathname },
+    replace,
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const redirect = urlParams.get(REDIRECT_PARAM);
@@ -92,9 +93,15 @@ function UserSignUp(props: Props) {
   const hasFetchedReward = useFetched(claimingReward);
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const channelCount = channels ? channels.length : 0;
-  const hasClaimedEmailAward = claimedRewards.some(reward => reward.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
+  const hasClaimedEmailAward = claimedRewards.some((reward) => reward.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
-  const isYoutubeTransferComplete = hasYoutubeChannels && youtubeChannels.every(channel => channel.transfer_state === YOUTUBE_STATUSES.YOUTUBE_SYNC_COMPLETED_TRANSFER || channel.sync_status === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED);
+  const isYoutubeTransferComplete =
+    hasYoutubeChannels &&
+    youtubeChannels.every(
+      (channel) =>
+        channel.transfer_state === YOUTUBE_STATUSES.YOUTUBE_SYNC_COMPLETED_TRANSFER ||
+        channel.sync_status === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED
+    );
   // Complexity warning
   // We can't just check if we are currently fetching something
   // We may want to keep a component rendered while something is being fetched, instead of replacing it with the large spinner
@@ -102,18 +109,26 @@ function UserSignUp(props: Props) {
   // reward claiming, channel creation, account syncing, and youtube transfer
   // The possible screens for the sign in flow
   const showEmail = !hasVerifiedEmail;
-  const showEmailVerification = emailToVerify && !hasVerifiedEmail || !hasVerifiedEmail && passwordSet;
-  const showUserVerification = balance === 0 && hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
-  const showChannelCreation = hasVerifiedEmail && (balance !== undefined && balance !== null && balance > DEFAULT_BID_FOR_FIRST_CHANNEL && channelCount === 0 && !hasYoutubeChannels || interestedInYoutubeSync);
+  const showEmailVerification = (emailToVerify && !hasVerifiedEmail) || (!hasVerifiedEmail && passwordSet);
+  const showUserVerification =
+    balance === 0 && hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
+  const showChannelCreation =
+    hasVerifiedEmail &&
+    ((balance !== undefined &&
+      balance !== null &&
+      balance > DEFAULT_BID_FOR_FIRST_CHANNEL &&
+      channelCount === 0 &&
+      !hasYoutubeChannels) ||
+      interestedInYoutubeSync);
   const showYoutubeTransfer = hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete;
-  const showFollowIntro = step === 'channels' || hasVerifiedEmail && !followingAcknowledged;
-  const showTagsIntro = SHOW_TAGS_INTRO && (step === 'tags' || hasVerifiedEmail && !tagsAcknowledged);
+  const showFollowIntro = step === 'channels' || (hasVerifiedEmail && !followingAcknowledged);
+  const showTagsIntro = SHOW_TAGS_INTRO && (step === 'tags' || (hasVerifiedEmail && !tagsAcknowledged));
   const canHijackSignInFlowWithSpinner = hasVerifiedEmail && !showFollowIntro && !showTagsIntro && !rewardsAcknowledged;
   const showSpinnerForSync = syncingWallet && !hasSynced && balance === undefined;
   const isCurrentlyFetchingSomething = fetchingChannels || claimingReward || showSpinnerForSync || creatingChannel;
-  const isWaitingForSomethingToFinish = // If the user has claimed the email award, we need to wait until the balance updates sometime in the future
-  !hasFetchedReward && !hasClaimedEmailAward || syncEnabled && !hasSynced;
-  const showLoadingSpinner = canHijackSignInFlowWithSpinner && (isCurrentlyFetchingSomething || isWaitingForSomethingToFinish);
+  const isWaitingForSomethingToFinish = (!hasFetchedReward && !hasClaimedEmailAward) || (syncEnabled && !hasSynced); // If the user has claimed the email award, we need to wait until the balance updates sometime in the future
+  const showLoadingSpinner =
+    canHijackSignInFlowWithSpinner && (isCurrentlyFetchingSomething || isWaitingForSomethingToFinish);
 
   function setSettingAndSync(setting, value) {
     setClientSetting(setting, value, true);
@@ -123,7 +138,6 @@ function UserSignUp(props: Props) {
     if (previousHasVerifiedEmail === false && hasVerifiedEmail && prefsReady) {
       setSettingAndSync(SETTINGS.FIRST_RUN_STARTED, true);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [hasVerifiedEmail, previousHasVerifiedEmail, prefsReady]);
   React.useEffect(() => {
     // Don't claim the reward if sync is enabled until after a sync has been completed successfully
@@ -133,50 +147,98 @@ function UserSignUp(props: Props) {
     if (hasVerifiedEmail && !hasClaimedEmailAward && !hasFetchedReward && !delayForSync) {
       claimConfirmEmailReward();
     }
-  }, [hasVerifiedEmail, claimConfirmEmailReward, hasClaimedEmailAward, hasFetchedReward, syncEnabled, hasSynced, balance]);
+  }, [
+    hasVerifiedEmail,
+    claimConfirmEmailReward,
+    hasClaimedEmailAward,
+    hasFetchedReward,
+    syncEnabled,
+    hasSynced,
+    balance,
+  ]);
   // Loop through this list from the end, until it finds a matching component
   // If it never finds one, assume the user has completed every step and redirect them
-  const SIGN_IN_FLOW = [showEmail && <UserEmailNew interestedInYoutubSync={interestedInYoutubeSync} doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />, showEmailVerification && <UserEmailVerify />, showUserVerification && <UserVerify onSkip={() => {
-    setSettingAndSync(SETTINGS.REWARDS_ACKNOWLEDGED, true);
-  }} />, showChannelCreation && (interestedInYoutubeSync ? <YoutubeSync inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} /> : <UserFirstChannel doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />), showFollowIntro && <UserChannelFollowIntro onContinue={() => {
-    if (urlParams.get('reset_scroll')) {
-      urlParams.delete('reset_scroll');
-      urlParams.append('reset_scroll', '2');
-    }
+  const SIGN_IN_FLOW = [
+    showEmail && (
+      <UserEmailNew
+        interestedInYoutubSync={interestedInYoutubeSync}
+        doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync}
+      />
+    ),
+    showEmailVerification && <UserEmailVerify />,
+    showUserVerification && (
+      <UserVerify
+        onSkip={() => {
+          setSettingAndSync(SETTINGS.REWARDS_ACKNOWLEDGED, true);
+        }}
+      />
+    ),
+    showChannelCreation &&
+      (interestedInYoutubeSync ? (
+        <YoutubeSync inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
+      ) : (
+        <UserFirstChannel doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
+      )),
+    showFollowIntro && (
+      <UserChannelFollowIntro
+        onContinue={() => {
+          if (urlParams.get('reset_scroll')) {
+            urlParams.delete('reset_scroll');
+            urlParams.append('reset_scroll', '2');
+          }
 
-    urlParams.delete(STEP_PARAM);
-    setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, true);
-    replace(`${pathname}?${urlParams.toString()}`);
-  }} onBack={() => {
-    if (urlParams.get('reset_scroll')) {
-      urlParams.delete('reset_scroll');
-      urlParams.append('reset_scroll', '3');
-    }
+          urlParams.delete(STEP_PARAM);
+          setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, true);
+          replace(`${pathname}?${urlParams.toString()}`);
+        }}
+        onBack={() => {
+          if (urlParams.get('reset_scroll')) {
+            urlParams.delete('reset_scroll');
+            urlParams.append('reset_scroll', '3');
+          }
 
-    setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, false);
-    replace(`${pathname}?${urlParams.toString()}`);
-  }} />, showTagsIntro && <UserTagFollowIntro onContinue={() => {
-    let url = `/$/${PAGES.AUTH}?reset_scroll=1&${STEP_PARAM}=channels`;
+          setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, false);
+          replace(`${pathname}?${urlParams.toString()}`);
+        }}
+      />
+    ),
+    showTagsIntro && (
+      <UserTagFollowIntro
+        onContinue={() => {
+          let url = `/$/${PAGES.AUTH}?reset_scroll=1&${STEP_PARAM}=channels`;
 
-    if (redirect) {
-      url += `&${REDIRECT_PARAM}=${redirect}`;
-    }
+          if (redirect) {
+            url += `&${REDIRECT_PARAM}=${redirect}`;
+          }
 
-    if (shouldRedirectImmediately) {
-      url += `&${REDIRECT_IMMEDIATELY_PARAM}=true`;
-    }
+          if (shouldRedirectImmediately) {
+            url += `&${REDIRECT_IMMEDIATELY_PARAM}=true`;
+          }
 
-    replace(url);
-    setSettingAndSync(SETTINGS.TAGS_ACKNOWLEDGED, true);
-  }} />, showYoutubeTransfer && <div>
+          replace(url);
+          setSettingAndSync(SETTINGS.TAGS_ACKNOWLEDGED, true);
+        }}
+      />
+    ),
+    showYoutubeTransfer && (
+      <div>
         <React.Suspense fallback={null}>
-          <YoutubeTransferStatus /> <Confetti recycle={false} style={{
-        position: 'fixed'
-      }} />
+          <YoutubeTransferStatus />{' '}
+          <Confetti
+            recycle={false}
+            style={{
+              position: 'fixed',
+            }}
+          />
         </React.Suspense>
-      </div>, showLoadingSpinner && <div className="main--empty">
+      </div>
+    ),
+    showLoadingSpinner && (
+      <div className="main--empty">
         <Spinner />
-      </div>];
+      </div>
+    ),
+  ];
 
   //   $FlowFixMe
   function getSignInStep() {
@@ -215,9 +277,15 @@ function UserSignUp(props: Props) {
     replace(redirect || '/');
   }
 
-  return <section className={classnames('main--contained', {
-    'main--hoisted': isScrollable
-  })}>{componentToRender}</section>;
+  return (
+    <section
+      className={classnames('main--contained', {
+        'main--hoisted': isScrollable,
+      })}
+    >
+      {componentToRender}
+    </section>
+  );
 }
 
 export default UserSignUp;

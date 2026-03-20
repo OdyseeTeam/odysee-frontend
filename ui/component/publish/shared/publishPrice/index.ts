@@ -1,11 +1,11 @@
-import { connect } from "react-redux";
-import { selectMemberRestrictionStatus, selectPublishFormValue } from "redux/selectors/publish";
-import { doUpdatePublishForm } from "redux/actions/publish";
-import { doCustomerPurchaseCost, doTipAccountStatus } from "redux/actions/stripe";
-import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from "redux/selectors/stripe";
-import PublishPrice from "./view";
+import { connect } from 'react-redux';
+import { selectMemberRestrictionStatus, selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { doCustomerPurchaseCost, doTipAccountStatus } from 'redux/actions/stripe';
+import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
+import PublishPrice from './view';
 
-const select = state => ({
+const select = (state) => ({
   paywall: selectPublishFormValue(state, 'paywall'),
   fiatPurchaseEnabled: selectPublishFormValue(state, 'fiatPurchaseEnabled'),
   fiatPurchaseFee: selectPublishFormValue(state, 'fiatPurchaseFee'),
@@ -16,12 +16,12 @@ const select = state => ({
   chargesEnabled: selectAccountChargesEnabled(state),
   memberRestrictionStatus: selectMemberRestrictionStatus(state),
   visibility: selectPublishFormValue(state, 'visibility'),
-  monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state)
+  monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state),
 });
 
 const perform = {
   updatePublishForm: doUpdatePublishForm,
   doTipAccountStatus,
-  doCustomerPurchaseCost
+  doCustomerPurchaseCost,
 };
 export default connect(select, perform)(PublishPrice);

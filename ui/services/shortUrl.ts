@@ -1,9 +1,8 @@
-import { SHORT_URL_API } from "config";
+import { SHORT_URL_API } from 'config';
 const ShortUrl = {
   url: SHORT_URL_API,
   enabled: Boolean(SHORT_URL_API),
-  createFrom: (longUrl: string): Promise<ShortUrlResponse> => createFrom(longUrl) // expandFrom: (shortUrl: string) => expandFrom(shortUrl),
-
+  createFrom: (longUrl: string): Promise<ShortUrlResponse> => createFrom(longUrl), // expandFrom: (shortUrl: string) => expandFrom(shortUrl),
 };
 
 // ****************************************************************************
@@ -18,22 +17,24 @@ function callApi(body) {
     method: 'POST',
     headers: {
       accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   };
-  return fetch(`${ShortUrl.url}`, options).then(res => res.json()).then(res => {
-    if (res?.error) {
-      throw new Error(`${ShortUrl.url}: ${res.error}`);
-    }
+  return fetch(`${ShortUrl.url}`, options)
+    .then((res) => res.json())
+    .then((res) => {
+      if (res?.error) {
+        throw new Error(`${ShortUrl.url}: ${res.error}`);
+      }
 
-    return res;
-  });
+      return res;
+    });
 }
 
 function createFrom(longUrl: string): Promise<ShortUrlResponse> {
   const body = {
-    url: longUrl
+    url: longUrl,
   };
   return callApi(body);
 }

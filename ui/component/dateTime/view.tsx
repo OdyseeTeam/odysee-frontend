@@ -1,6 +1,6 @@
-import { getTimeAgoStr } from "util/time";
-import moment from "moment";
-import React from "react";
+import { getTimeAgoStr } from 'util/time';
+import moment from 'moment';
+import React from 'react';
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 // ----------------------------------------------------------------------------
 // NOTE
@@ -25,12 +25,18 @@ class DateTime extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      lastRenderTime: new Date()
+      lastRenderTime: new Date(),
     };
   }
 
   shouldComponentUpdate(nextProps: Props): boolean {
-    if (moment(this.props.date).diff(moment(nextProps.date)) !== 0 || this.props.clock24h !== nextProps.clock24h || this.props.timeAgo !== nextProps.timeAgo || this.props.minUpdateDeltaMs !== nextProps.minUpdateDeltaMs || this.props.type !== nextProps.type) {
+    if (
+      moment(this.props.date).diff(moment(nextProps.date)) !== 0 ||
+      this.props.clock24h !== nextProps.clock24h ||
+      this.props.timeAgo !== nextProps.timeAgo ||
+      this.props.minUpdateDeltaMs !== nextProps.minUpdateDeltaMs ||
+      this.props.type !== nextProps.type
+    ) {
       return true;
     }
 
@@ -49,29 +55,26 @@ class DateTime extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    const {
-      timeAgo
-    } = this.props;
-    if (timeAgo) this.setState({
-      lastRenderTime: new Date()
-    });
+    const { timeAgo } = this.props;
+    if (timeAgo)
+      this.setState({
+        lastRenderTime: new Date(),
+      });
   }
 
   render() {
-    const {
-      clock24h,
-      date,
-      genericSeconds,
-      showFutureDate,
-      timeAgo,
-      type
-    } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type } = this.props;
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
-    return <span className="date_time" title={timeAgo && moment(date).format(`LL ${clockFormat}`)}>
-        {date ? timeAgo ? getTimeAgoStr(date, showFutureDate, genericSeconds) : moment(date).format(type === 'date' ? 'LL' : clockFormat) : '...'}
-      </span>;
+    return (
+      <span className="date_time" title={timeAgo && moment(date).format(`LL ${clockFormat}`)}>
+        {date
+          ? timeAgo
+            ? getTimeAgoStr(date, showFutureDate, genericSeconds)
+            : moment(date).format(type === 'date' ? 'LL' : clockFormat)
+          : '...'}
+      </span>
+    );
   }
-
 }
 
 export default DateTime;

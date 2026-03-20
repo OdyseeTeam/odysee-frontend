@@ -1,12 +1,10 @@
-import React from "react";
+import React from 'react';
 type Props = {
   themePath: string | null | undefined;
 };
 
 const Theme = (props: Props) => {
-  const {
-    themePath
-  } = props;
+  const { themePath } = props;
 
   if (!themePath) {
     return null;

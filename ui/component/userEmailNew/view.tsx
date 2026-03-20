@@ -1,18 +1,18 @@
-import * as PAGES from "constants/pages";
-import { DOMAIN, SIMPLE_SITE } from "config";
-import React, { useState } from "react";
-import { FormField, Form } from "component/common/form";
-import Button from "component/button";
-import analytics from "analytics";
-import { EMAIL_REGEX } from "constants/email";
-import I18nMessage from "component/i18nMessage";
-import { useHistory } from "react-router-dom";
-import Card from "component/common/card";
-import ErrorText from "component/common/error-text";
-import Nag from "component/nag";
-import classnames from "classnames";
-import LoginGraphic from "component/loginGraphic";
-import { LocalStorage, LS } from "util/storage";
+import * as PAGES from 'constants/pages';
+import { DOMAIN, SIMPLE_SITE } from 'config';
+import React, { useState } from 'react';
+import { FormField, Form } from 'component/common/form';
+import Button from 'component/button';
+import analytics from 'analytics';
+import { EMAIL_REGEX } from 'constants/email';
+import I18nMessage from 'component/i18nMessage';
+import { useHistory } from 'react-router-dom';
+import Card from 'component/common/card';
+import ErrorText from 'component/common/error-text';
+import Nag from 'component/nag';
+import classnames from 'classnames';
+import LoginGraphic from 'component/loginGraphic';
+import { LocalStorage, LS } from 'util/storage';
 type Props = {
   errorMessage: string | null | undefined;
   emailExists: boolean;
@@ -41,15 +41,10 @@ function UserEmailNew(props: Props) {
     clearEmailEntry,
     emailExists,
     interestedInYoutubSync,
-    doToggleInterestedInYoutubeSync
+    doToggleInterestedInYoutubeSync,
   } = props;
-  const {
-    share_usage_data: shareUsageData
-  } = daemonSettings;
-  const {
-    push,
-    location
-  } = useHistory();
+  const { share_usage_data: shareUsageData } = daemonSettings;
+  const { push, location } = useHistory();
   const urlParams = new URLSearchParams(location.search);
   const emailFromUrl = urlParams.get('email');
   const defaultEmail = emailFromUrl ? decodeURIComponent(emailFromUrl) : '';
@@ -68,10 +63,12 @@ function UserEmailNew(props: Props) {
     setSync(formSyncEnabled);
     setShareDiagnosticData(true);
     // @endif
-    doSignUp(email, password === '' ? undefined : password).then(() => {
-      LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
-      analytics.event.emailProvided();
-    }).catch(() => {});
+    doSignUp(email, password === '' ? undefined : password)
+      .then(() => {
+        LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
+        analytics.event.emailProvided();
+      })
+      .catch(() => {});
   }
 
   function handleChangeToSignIn(additionalParams) {
@@ -97,58 +94,108 @@ function UserEmailNew(props: Props) {
     if (emailExists) {
       handleChangeToSignIn();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [emailExists]);
-  return <div className={classnames('main__sign-up', {
-    'main__sign-up--graphic': SIMPLE_SITE
-  })}>
-      <Card title={__('Join')} // @if TARGET='app'
-    subtitle={__('An account allows you to receive credits and backup your data.')} // @endif
-    actions={<div className={classnames({
-      'card--disabled': DOMAIN === 'lbry.tv' && IS_WEB
-    })}>
+  return (
+    <div
+      className={classnames('main__sign-up', {
+        'main__sign-up--graphic': SIMPLE_SITE,
+      })}
+    >
+      <Card
+        title={__('Join')} // @if TARGET='app'
+        subtitle={__('An account allows you to receive credits and backup your data.')} // @endif
+        actions={
+          <div
+            className={classnames({
+              'card--disabled': DOMAIN === 'lbry.tv' && IS_WEB,
+            })}
+          >
             <Form onSubmit={handleSubmit} className="section">
-              <FormField autoFocus placeholder={__('yourstruly@example.com')} type="email" name="sign_up_email" label={__('Email')} value={email} onChange={e => setEmail(e.target.value)} />
-              <FormField type="password" name="sign_in_password" label={__('Password')} value={password} onChange={e => setPassword(e.target.value)} />
+              <FormField
+                autoFocus
+                placeholder={__('yourstruly@example.com')}
+                type="email"
+                name="sign_up_email"
+                label={__('Email')}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <FormField
+                type="password"
+                name="sign_in_password"
+                label={__('Password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
 
-              {
-          /* @if TARGET='web' */
-        }
-              <FormField type="checkbox" name="youtube_sync_checkbox" label={__('Sync my YouTube channel')} checked={interestedInYoutubSync} onChange={() => doToggleInterestedInYoutubeSync()} />
-              {
-          /* @endif */
-        }
+              {/* @if TARGET='web' */}
+              <FormField
+                type="checkbox"
+                name="youtube_sync_checkbox"
+                label={__('Sync my YouTube channel')}
+                checked={interestedInYoutubSync}
+                onChange={() => doToggleInterestedInYoutubeSync()}
+              />
+              {/* @endif */}
 
-              {
-          /* @if TARGET='app' */
-        }
-              <FormField type="checkbox" name="sync_checkbox" label={<React.Fragment>
+              {/* @if TARGET='app' */}
+              <FormField
+                type="checkbox"
+                name="sync_checkbox"
+                label={
+                  <React.Fragment>
                     {__('Backup your account and wallet data.')}{' '}
                     <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                  </React.Fragment>} checked={formSyncEnabled} onChange={() => setFormSyncEnabled(!formSyncEnabled)} />
-              {
-          /* @endif */
-        }
+                  </React.Fragment>
+                }
+                checked={formSyncEnabled}
+                onChange={() => setFormSyncEnabled(!formSyncEnabled)}
+              />
+              {/* @endif */}
 
-              {!shareUsageData && !IS_WEB && <FormField type="checkbox" name="share_data_checkbox" checked={localShareUsageData} onChange={handleUsageDataChange} label={<React.Fragment>
+              {!shareUsageData && !IS_WEB && (
+                <FormField
+                  type="checkbox"
+                  name="share_data_checkbox"
+                  checked={localShareUsageData}
+                  onChange={handleUsageDataChange}
+                  label={
+                    <React.Fragment>
                       {__('Share usage data with LBRY inc.')}{' '}
                       <Button button="link" href="https://odysee.com/$/privacypolicy" label={__('Learn More')} />
                       {!localShareUsageData && <span className="error__text"> ({__('Required')})</span>}
-                    </React.Fragment>} />}
+                    </React.Fragment>
+                  }
+                />
+              )}
               <div className="section__actions">
-                <Button button="primary" type="submit" label={__('Sign Up')} disabled={!email || !password || !valid || !IS_WEB && !localShareUsageData && !shareUsageData || isPending} />
+                <Button
+                  button="primary"
+                  type="submit"
+                  label={__('Sign Up')}
+                  disabled={
+                    !email || !password || !valid || (!IS_WEB && !localShareUsageData && !shareUsageData) || isPending
+                  }
+                />
                 <Button button="link" onClick={handleChangeToSignIn} label={__('Log In')} />
               </div>
               <p className="help--card-actions">
-                <I18nMessage tokens={{
-            terms: <Button button="link" href="https://odysee.com/$/tos" label={__('terms')} />
-          }}>
+                <I18nMessage
+                  tokens={{
+                    terms: <Button button="link" href="https://odysee.com/$/tos" label={__('terms')} />,
+                  }}
+                >
                   By creating an account, you agree to our %terms% and confirm you're over the age of 13.
                 </I18nMessage>
               </p>
             </Form>
-          </div>} nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>} secondPane={SIMPLE_SITE && <LoginGraphic />} />
-    </div>;
+          </div>
+        }
+        nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>}
+        secondPane={SIMPLE_SITE && <LoginGraphic />}
+      />
+    </div>
+  );
 }
 
 export default UserEmailNew;

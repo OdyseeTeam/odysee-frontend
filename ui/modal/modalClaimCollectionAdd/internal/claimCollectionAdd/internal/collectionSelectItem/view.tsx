@@ -1,8 +1,8 @@
-import React from "react";
-import { FormField } from "component/common/form";
-import { COL_TYPES } from "constants/collections";
-import { getLocalizedNameForCollectionId } from "util/collections";
-import Icon from "component/common/icon";
+import React from 'react';
+import { FormField } from 'component/common/form';
+import { COL_TYPES } from 'constants/collections';
+import { getLocalizedNameForCollectionId } from 'util/collections';
+import Icon from 'component/common/icon';
 type Props = {
   icon: string;
   uri: string;
@@ -10,22 +10,11 @@ type Props = {
   collection: Collection;
   collectionHasClaim: boolean;
   collectionPending: Collection;
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string;
-    collectionName: string;
-    collectionId: string;
-  }) => void;
+  doPlaylistAddAndAllowPlaying: (params: { uri: string; collectionName: string; collectionId: string }) => void;
 };
 
 function CollectionSelectItem(props: Props) {
-  const {
-    icon,
-    uri,
-    collection,
-    collectionHasClaim,
-    collectionPending,
-    doPlaylistAddAndAllowPlaying
-  } = props;
+  const { icon, uri, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
   const id = collection.id;
   const name = getLocalizedNameForCollectionId(id) || collection.name;
 
@@ -33,7 +22,7 @@ function CollectionSelectItem(props: Props) {
     doPlaylistAddAndAllowPlaying({
       uri,
       collectionId: id,
-      collectionName: name
+      collectionName: name,
     });
   }
 
@@ -41,12 +30,24 @@ function CollectionSelectItem(props: Props) {
     return null;
   }
 
-  return <li className="collection-select__item">
-      <FormField checked={collectionHasClaim} disabled={collectionPending} icon={icon} type="checkbox" name={`select-${id}`} onChange={handleChange} label={<span>
+  return (
+    <li className="collection-select__item">
+      <FormField
+        checked={collectionHasClaim}
+        disabled={collectionPending}
+        icon={icon}
+        type="checkbox"
+        name={`select-${id}`}
+        onChange={handleChange}
+        label={
+          <span>
             <Icon icon={icon} className={'icon-collection-select'} />
             {`${name}`}
-          </span>} />
-    </li>;
+          </span>
+        }
+      />
+    </li>
+  );
 }
 
 export default CollectionSelectItem;

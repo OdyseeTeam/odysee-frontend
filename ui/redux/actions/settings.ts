@@ -1,39 +1,37 @@
-import Lbry from "lbry";
-import { doWalletReconnect } from "redux/actions/wallet";
-import * as SETTINGS from "constants/settings";
-import * as DAEMON_SETTINGS from "constants/daemon_settings";
-import * as ACTIONS from "constants/action_types";
-import * as MODALS from "constants/modal_types";
-import * as SHARED_PREFERENCES from "constants/shared_preferences";
-import { doToast } from "redux/actions/notifications";
-import analytics from "analytics";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
-import { launcher } from "util/autoLaunch";
-import { selectClientSetting, selectHomepageDb } from "redux/selectors/settings";
-import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from "redux/actions/sync";
-import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal, doSetChronoLocale } from "redux/actions/app";
-import { selectPrefsReady } from "redux/selectors/sync";
-import { Lbryio } from "lbryinc";
-import { getDefaultLanguage } from "util/default-languages";
-import { postProcessHomepageDb, updateHomepageDb } from "util/homepages";
-import { LocalStorage } from "util/storage";
+import Lbry from 'lbry';
+import { doWalletReconnect } from 'redux/actions/wallet';
+import * as SETTINGS from 'constants/settings';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
+import * as SHARED_PREFERENCES from 'constants/shared_preferences';
+import { doToast } from 'redux/actions/notifications';
+import analytics from 'analytics';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import { launcher } from 'util/autoLaunch';
+import { selectClientSetting, selectHomepageDb } from 'redux/selectors/settings';
+import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
+import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal, doSetChronoLocale } from 'redux/actions/app';
+import { selectPrefsReady } from 'redux/selectors/sync';
+import { Lbryio } from 'lbryinc';
+import { getDefaultLanguage } from 'util/default-languages';
+import { postProcessHomepageDb, updateHomepageDb } from 'util/homepages';
+import { LocalStorage } from 'util/storage';
 
 import { URL_DEV } from 'config';
 
-const {
-  SDK_SYNC_KEYS
-} = SHARED_PREFERENCES;
+const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
 export const IS_MAC = process.platform === 'darwin';
 const UPDATE_IS_NIGHT_INTERVAL = 5 * 60 * 1000;
 export function doFetchDaemonSettings() {
   return (dispatch: Dispatch) => {
-    Lbry.settings_get().then(settings => {
+    Lbry.settings_get().then((settings) => {
       analytics.setState(settings.share_usage_data);
       dispatch({
         type: ACTIONS.DAEMON_SETTINGS_RECEIVED,
         data: {
-          settings
-        }
+          settings,
+        },
       });
     });
   };
@@ -41,24 +39,24 @@ export function doFetchDaemonSettings() {
 export function doFindFFmpeg() {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.FINDING_FFMPEG_STARTED
+      type: ACTIONS.FINDING_FFMPEG_STARTED,
     });
-    return Lbry.ffmpeg_find().then(done => {
+    return Lbry.ffmpeg_find().then((done) => {
       dispatch(doGetDaemonStatus());
       dispatch({
-        type: ACTIONS.FINDING_FFMPEG_COMPLETED
+        type: ACTIONS.FINDING_FFMPEG_COMPLETED,
       });
     });
   };
 }
 export function doGetDaemonStatus() {
   return (dispatch: Dispatch) => {
-    return Lbry.status().then(status => {
+    return Lbry.status().then((status) => {
       dispatch({
         type: ACTIONS.DAEMON_STATUS_RECEIVED,
         data: {
-          status
-        }
+          status,
+        },
       });
       return status;
     });
@@ -74,18 +72,18 @@ export function doClearDaemonSetting(key: string) {
     }
 
     const clearKey = {
-      key
+      key,
     };
     assert(false, 'Will not work in web');
     // not if syncLocked
-    Lbry.settings_clear(clearKey).then(defaultSettings => {
+    Lbry.settings_clear(clearKey).then((defaultSettings) => {
       if (SDK_SYNC_KEYS.includes(key)) {
         dispatch({
           type: ACTIONS.SHARED_PREFERENCE_SET,
           data: {
             key: key,
-            value: null
-          }
+            value: null,
+          },
         });
       }
 
@@ -93,13 +91,13 @@ export function doClearDaemonSetting(key: string) {
         dispatch(doWalletReconnect());
       }
     });
-    Lbry.settings_get().then(settings => {
+    Lbry.settings_get().then((settings) => {
       analytics.setState(settings.share_usage_data);
       dispatch({
         type: ACTIONS.DAEMON_SETTINGS_RECEIVED,
         data: {
-          settings
-        }
+          settings,
+        },
       });
     });
   };
@@ -117,16 +115,16 @@ export function doSetDaemonSetting(key: string, value: any, doNotDispatch: boole
     assert(false, 'Will not work in web');
     const newSettings = {
       key,
-      value: !value && value !== false ? null : value
+      value: !value && value !== false ? null : value,
     };
-    Lbry.settings_set(newSettings).then(newSetting => {
+    Lbry.settings_set(newSettings).then((newSetting) => {
       if (SDK_SYNC_KEYS.includes(key) && !doNotDispatch) {
         dispatch({
           type: ACTIONS.SHARED_PREFERENCE_SET,
           data: {
             key: key,
-            value: newSetting[key]
-          }
+            value: newSetting[key],
+          },
         });
       }
 
@@ -135,13 +133,13 @@ export function doSetDaemonSetting(key: string, value: any, doNotDispatch: boole
         dispatch(doWalletReconnect()); // todo: add sdk reloadsettings() (or it happens automagically?)
       }
     });
-    Lbry.settings_get().then(settings => {
+    Lbry.settings_get().then((settings) => {
       analytics.setState(settings.share_usage_data);
       dispatch({
         type: ACTIONS.DAEMON_SETTINGS_RECEIVED,
         data: {
-          settings
-        }
+          settings,
+        },
       });
     });
   };
@@ -149,7 +147,7 @@ export function doSetDaemonSetting(key: string, value: any, doNotDispatch: boole
 export function doSaveCustomWalletServers(servers: string) {
   return {
     type: ACTIONS.SAVE_CUSTOM_WALLET_SERVERS,
-    data: servers
+    data: servers,
   };
 }
 export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean) {
@@ -165,8 +163,8 @@ export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean)
       type: ACTIONS.CLIENT_SETTING_CHANGED,
       data: {
         key,
-        value
-      }
+        value,
+      },
     });
 
     if (pushPrefs) {
@@ -174,10 +172,11 @@ export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean)
     }
   };
 }
-export const doSetPreferredCurrency = (value: any) => (dispatch: Dispatch) => dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
+export const doSetPreferredCurrency = (value: any) => (dispatch: Dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
 export function doUpdateIsNight() {
   return {
-    type: ACTIONS.UPDATE_IS_NIGHT
+    type: ACTIONS.UPDATE_IS_NIGHT,
   };
 }
 export function doUpdateIsNightAsync() {
@@ -187,29 +186,21 @@ export function doUpdateIsNightAsync() {
   };
 }
 export function doSetDarkTime(value: any, options: any) {
-  const {
-    fromTo,
-    time
-  } = options;
+  const { fromTo, time } = options;
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const darkModeTimes = state.settings.clientSettings[SETTINGS.DARK_MODE_TIMES];
-    const {
-      hour,
-      min
-    } = darkModeTimes[fromTo];
+    const { hour, min } = darkModeTimes[fromTo];
     const newHour = time === 'hour' ? value : hour;
     const newMin = time === 'min' ? value : min;
     const modifiedTimes = {
       [fromTo]: {
         hour: newHour,
         min: newMin,
-        formattedTime: newHour + ':' + newMin
-      }
+        formattedTime: newHour + ':' + newMin,
+      },
     };
-    const mergedTimes = { ...darkModeTimes,
-      ...modifiedTimes
-    };
+    const mergedTimes = { ...darkModeTimes, ...modifiedTimes };
     dispatch(doSetClientSetting(SETTINGS.DARK_MODE_TIMES, mergedTimes));
     dispatch(doUpdateIsNight());
   };
@@ -218,8 +209,8 @@ export function doGetWalletSyncPreference() {
   const SYNC_KEY = 'enable-sync';
   return (dispatch: Dispatch) => {
     return Lbry.preference_get({
-      key: SYNC_KEY
-    }).then(result => {
+      key: SYNC_KEY,
+    }).then((result) => {
       const enabled = result && result[SYNC_KEY];
 
       if (enabled !== null) {
@@ -235,8 +226,8 @@ export function doSetWalletSyncPreference(pref: any) {
   return (dispatch: Dispatch) => {
     return Lbry.preference_set({
       key: SYNC_KEY,
-      value: pref
-    }).then(result => {
+      value: pref,
+    }).then((result) => {
       const enabled = result && result[SYNC_KEY];
 
       if (enabled !== null) {
@@ -252,7 +243,7 @@ export function doPushSettingsToPrefs() {
     // $FlowFixMe please
     return new Promise((resolve, reject) => {
       dispatch({
-        type: ACTIONS.SYNC_CLIENT_SETTINGS
+        type: ACTIONS.SYNC_CLIENT_SETTINGS,
       });
       resolve();
     });
@@ -296,34 +287,37 @@ export function doExitSettingsPage() {
 async function fetchAndStoreLanguage(language: string) {
   // this should match the behavior/logic in index-web.html
   const url = `https://odysee.com/app-strings/${language}.json`;
-  return fetch(url).then(r => r.json()).then(j => {
-    window.i18n_messages[language] = j;
-  }).catch(err => {
-    assert(false, `Failed: "${language}" from (${url})`, err);
-    throw err;
-  });
+  return fetch(url)
+    .then((r) => r.json())
+    .then((j) => {
+      window.i18n_messages[language] = j;
+    })
+    .catch((err) => {
+      assert(false, `Failed: "${language}" from (${url})`, err);
+      throw err;
+    });
 }
 
 export function doFetchLanguage(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
-    const {
-      settings
-    } = getState();
+    const { settings } = getState();
 
-    if (settings.language !== language || settings.loadedLanguages && !settings.loadedLanguages.includes(language)) {
-      return fetchAndStoreLanguage(language).then(() => {
-        dispatch(doSetChronoLocale(language));
-        dispatch({
-          type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-          data: {
-            language
-          }
+    if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
+      return fetchAndStoreLanguage(language)
+        .then(() => {
+          dispatch(doSetChronoLocale(language));
+          dispatch({
+            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
+            data: {
+              language,
+            },
+          });
+        })
+        .catch((e) => {
+          dispatch({
+            type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE,
+          });
         });
-      }).catch(e => {
-        dispatch({
-          type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE
-        });
-      });
     }
   };
 }
@@ -331,16 +325,18 @@ export function doFetchDevStrings() {
   return (dispatch: Dispatch, getState: GetState) => {
     // @if process.env.NODE_ENV!='production'
     if (!window.app_strings) {
-      fetch(`${URL_DEV}/app-strings.json`).then(r => r.json()).then(j => window.app_strings = j).catch(() => {});
+      fetch(`${URL_DEV}/app-strings.json`)
+        .then((r) => r.json())
+        .then((j) => (window.app_strings = j))
+        .catch(() => {});
     } // @endif
-
   };
 }
 
 function populateCategoryTitles(categories) {
   if (categories) {
     window.CATEGORY_PAGE_TITLE = {};
-    Object.values(categories).forEach(x => {
+    Object.values(categories).forEach((x) => {
       // $FlowIgnore mixed bug
       window.CATEGORY_PAGE_TITLE[x.name] = x.label;
     });
@@ -364,14 +360,13 @@ export function doLoadBuiltInHomepageData() {
       window.homepages = {};
       const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
 
-      keys.forEach(hp => window.homepages[hp] = undefined);
+      keys.forEach((hp) => (window.homepages[hp] = undefined));
       window.homepages['en'] = enHp;
       populateCategoryTitles(window.homepages?.en?.categories);
       dispatch({
-        type: ACTIONS.FETCH_HOMEPAGES_DONE
+        type: ACTIONS.FETCH_HOMEPAGES_DONE,
       });
     } // @endif
-
   };
 }
 export function doOpenAnnouncements() {
@@ -380,35 +375,40 @@ export function doOpenAnnouncements() {
     // initial mount. Not sure what scenario that covers, so just delay a bit
     // until it is mounted.
     setTimeout(() => {
-      dispatch(doOpenModal(MODALS.ANNOUNCEMENTS, {
-        isAutoInvoked: true
-      }));
+      dispatch(
+        doOpenModal(MODALS.ANNOUNCEMENTS, {
+          isAutoInvoked: true,
+        })
+      );
     }, 1000);
   };
 }
 export function doFetchHomepages(hp?: string) {
   return (dispatch: Dispatch) => {
     const param = hp ? `?hp=${hp}` : '';
-    return fetch(`https://odysee.com/$/api/content/v2/get${param}`).then(response => response.json()).then(json => {
-      if (json?.status === 'success' && json?.data) {
-        window.homepages = updateHomepageDb(window.homepages, json.data, hp);
-        window.homepages = postProcessHomepageDb(window.homepages);
-        populateCategoryTitles(window.homepages?.en?.categories);
-        dispatch({
-          type: ACTIONS.FETCH_HOMEPAGES_DONE
-        });
-      } else {
-        dispatch({
-          type: ACTIONS.FETCH_HOMEPAGES_FAILED
-        });
-      }
-    }).catch(e => {
-      console.log('doFetchHomepages:', e); // eslint-disable-line no-console
+    return fetch(`https://odysee.com/$/api/content/v2/get${param}`)
+      .then((response) => response.json())
+      .then((json) => {
+        if (json?.status === 'success' && json?.data) {
+          window.homepages = updateHomepageDb(window.homepages, json.data, hp);
+          window.homepages = postProcessHomepageDb(window.homepages);
+          populateCategoryTitles(window.homepages?.en?.categories);
+          dispatch({
+            type: ACTIONS.FETCH_HOMEPAGES_DONE,
+          });
+        } else {
+          dispatch({
+            type: ACTIONS.FETCH_HOMEPAGES_FAILED,
+          });
+        }
+      })
+      .catch((e) => {
+        console.log('doFetchHomepages:', e); // eslint-disable-line no-console
 
-      dispatch({
-        type: ACTIONS.FETCH_HOMEPAGES_FAILED
+        dispatch({
+          type: ACTIONS.FETCH_HOMEPAGES_FAILED,
+        });
       });
-    });
   };
 }
 export function doSetHomepage(code: string) {
@@ -427,15 +427,9 @@ export function doSetHomepage(code: string) {
 }
 export function doSetLanguage(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
-    const {
-      settings
-    } = getState();
-    const {
-      daemonSettings
-    } = settings;
-    const {
-      share_usage_data: shareSetting
-    } = daemonSettings;
+    const { settings } = getState();
+    const { daemonSettings } = settings;
+    const { share_usage_data: shareSetting } = daemonSettings;
     const isSharingData = shareSetting || IS_WEB;
     let languageSetting = language;
 
@@ -445,43 +439,57 @@ export function doSetLanguage(language: string) {
     }
 
     // @endif
-    if (settings.language !== languageSetting || settings.loadedLanguages && !settings.loadedLanguages.includes(language)) {
-      return fetchAndStoreLanguage(language).then(() => {
-        dispatch(doSetChronoLocale(language));
-        dispatch({
-          type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-          data: {
-            language
-          }
-        });
-      }).then(() => {
-        dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
+    if (
+      settings.language !== languageSetting ||
+      (settings.loadedLanguages && !settings.loadedLanguages.includes(language))
+    ) {
+      return fetchAndStoreLanguage(language)
+        .then(() => {
+          dispatch(doSetChronoLocale(language));
+          dispatch({
+            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
+            data: {
+              language,
+            },
+          });
+        })
+        .then(() => {
+          dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
 
-        if (isSharingData) {
-          Lbryio.call('user', 'language', {
-            language: language
-          }).catch(() => {});
-        }
-      }).catch(e => {
-        dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
-        const languageName = SUPPORTED_LANGUAGES[language] ? SUPPORTED_LANGUAGES[language] : language;
-        const fetched = Boolean(window.i18n_messages && window.i18n_messages[language]);
-        const log = `doSetLanguage-${fetched ? 'load' : 'fetch'}`;
-        analytics.log(e, {
-          fingerprint: [log],
-          tags: {
-            language
+          if (isSharingData) {
+            Lbryio.call('user', 'language', {
+              language: language,
+            }).catch(() => {});
           }
-        }, log);
-        dispatch(doToast({
-          message: fetched ? __('Failed to load %language% translations.', {
-            language: languageName
-          }) : __('Failed to fetch %language% translations.', {
-            language: languageName
-          }),
-          isError: true
-        }));
-      });
+        })
+        .catch((e) => {
+          dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
+          const languageName = SUPPORTED_LANGUAGES[language] ? SUPPORTED_LANGUAGES[language] : language;
+          const fetched = Boolean(window.i18n_messages && window.i18n_messages[language]);
+          const log = `doSetLanguage-${fetched ? 'load' : 'fetch'}`;
+          analytics.log(
+            e,
+            {
+              fingerprint: [log],
+              tags: {
+                language,
+              },
+            },
+            log
+          );
+          dispatch(
+            doToast({
+              message: fetched
+                ? __('Failed to load %language% translations.', {
+                    language: languageName,
+                  })
+                : __('Failed to fetch %language% translations.', {
+                    language: languageName,
+                  }),
+              isError: true,
+            })
+          );
+        });
     } else {
       return Promise.resolve();
     }
@@ -497,7 +505,7 @@ export function doSetAutoLaunch(value: any) {
     }
 
     if (value === undefined) {
-      launcher.isEnabled().then(isEnabled => {
+      launcher.isEnabled().then((isEnabled) => {
         if (isEnabled) {
           if (!autoLaunch) {
             launcher.disable().then(() => {
@@ -555,9 +563,11 @@ export function toggleAutoplayNext() {
     const ready = selectPrefsReady(state);
     const autoplayNext = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
     dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_NEXT, !autoplayNext, ready));
-    dispatch(doToast({
-      message: autoplayNext ? __('Autoplay Next is off.') : __('Autoplay Next is on.')
-    }));
+    dispatch(
+      doToast({
+        message: autoplayNext ? __('Autoplay Next is off.') : __('Autoplay Next is on.'),
+      })
+    );
   };
 }
 export function toggleDisableShortsView() {
@@ -566,9 +576,11 @@ export function toggleDisableShortsView() {
     const ready = selectPrefsReady(state);
     const disableShortsView = selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW);
     dispatch(doSetClientSetting(SETTINGS.DISABLE_SHORTS_VIEW, !disableShortsView, ready));
-    dispatch(doToast({
-      message: disableShortsView ? __('Shorts View is disabled') : __('Shorts View is enabled.')
-    }));
+    dispatch(
+      doToast({
+        message: disableShortsView ? __('Shorts View is disabled') : __('Shorts View is enabled.'),
+      })
+    );
   };
 }
 export function toggleAutoplayNextShort() {
@@ -577,10 +589,14 @@ export function toggleAutoplayNextShort() {
     const ready = selectPrefsReady(state);
     const autoplayNextShort = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS);
     dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_NEXT_SHORTS, !autoplayNextShort, ready));
-    dispatch(doToast({
-      message: autoplayNextShort ? __('Autoplay Next short is off.') : __('Autoplay Next short is on.')
-    }));
+    dispatch(
+      doToast({
+        message: autoplayNextShort ? __('Autoplay Next short is off.') : __('Autoplay Next short is on.'),
+      })
+    );
   };
 }
-export const doSetDefaultVideoQuality = (value: any) => (dispatch: Dispatch) => dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
-export const doSetDefaultChannel = (claimId: ClaimId) => (dispatch: Dispatch) => dispatch(doSetClientSetting(SETTINGS.ACTIVE_CHANNEL_CLAIM, claimId, true));
+export const doSetDefaultVideoQuality = (value: any) => (dispatch: Dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
+export const doSetDefaultChannel = (claimId: ClaimId) => (dispatch: Dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.ACTIVE_CHANNEL_CLAIM, claimId, true));

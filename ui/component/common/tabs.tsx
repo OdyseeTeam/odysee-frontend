@@ -1,7 +1,13 @@
-import React, { Fragment, useState, useRef, useContext, useLayoutEffect, createContext } from "react";
-import { Tabs as ReachTabs, Tab as ReachTab, TabList as ReachTabList, TabPanels as ReachTabPanels, TabPanel as ReachTabPanel } from "@reach/tabs";
-import classnames from "classnames";
-import { useOnResize } from "effects/use-on-resize";
+import React, { Fragment, useState, useRef, useContext, useLayoutEffect, createContext } from 'react';
+import {
+  Tabs as ReachTabs,
+  Tab as ReachTab,
+  TabList as ReachTabList,
+  TabPanels as ReachTabPanels,
+  TabPanel as ReachTabPanel,
+} from '@reach/tabs';
+import classnames from 'classnames';
+import { useOnResize } from 'effects/use-on-resize';
 // Tabs are a compound component
 // The components are used individually, but they will still interact and share state
 // When using, at a minimum you must arrange the components in this pattern
@@ -45,18 +51,23 @@ function Tabs(props: TabsProps) {
   useOnResize(handleResize);
   const tabLabels = props.children[0];
   const tabContent = props.children[1];
-  return <AnimatedContext.Provider value={setSelectedRect}>
+  return (
+    <AnimatedContext.Provider value={setSelectedRect}>
       <ReachTabs className="tabs" {...props} ref={tabsRef}>
         {tabLabels}
 
-        <div className="tab__divider" style={{
-        left: selectedRect && tabsRect && selectedRect.left - tabsRect.left,
-        width: selectedRect && selectedRect.width
-      }} />
+        <div
+          className="tab__divider"
+          style={{
+            left: selectedRect && tabsRect && selectedRect.left - tabsRect.left,
+            width: selectedRect && selectedRect.width,
+          }}
+        />
 
         {tabContent}
       </ReachTabs>
-    </AnimatedContext.Provider>;
+    </AnimatedContext.Provider>
+  );
 }
 
 //
@@ -66,10 +77,7 @@ type TabListProps = {
 };
 
 function TabList(props: TabListProps) {
-  const {
-    className,
-    ...rest
-  } = props;
+  const { className, ...rest } = props;
   return <ReachTabList className={classnames('tabs__list', className)} {...rest} />;
 }
 
@@ -78,18 +86,14 @@ function TabList(props: TabListProps) {
 // Accesses `setSelectedRect` from context to set itself as active if needed
 // Flow doesn't understand we don't have to pass it in ourselves
 type TabProps = {
-  isSelected?: Boolean;
+  isSelected?: boolean;
   className?: string;
 };
 
 function Tab(props: TabProps) {
   // @reach/tabs provides an `isSelected` prop
   // We could also useContext to read it manually
-  const {
-    isSelected,
-    className,
-    ...rest
-  } = props;
+  const { isSelected, className, ...rest } = props;
   const [rect, setRect] = React.useState();
   // Recalculate "Rect" on window resize
   const handleResize = React.useCallback(() => {
@@ -106,9 +110,20 @@ function Tab(props: TabProps) {
   useLayoutEffect(() => {
     if (isSelected) setSelectedRect(rect);
   }, [isSelected, rect, setSelectedRect]);
-  return <ReachTab ref={ref} {...rest} className={classnames('tab', {
-    'tab--selected': isSelected
-  }, className)} type="button" />;
+  return (
+    <ReachTab
+      ref={ref}
+      {...rest}
+      className={classnames(
+        'tab',
+        {
+          'tab--selected': isSelected,
+        },
+        className
+      )}
+      type="button"
+    />
+  );
 }
 
 //
@@ -118,14 +133,13 @@ type TabPanelsProps = {
 };
 
 function TabPanels(props: TabPanelsProps) {
-  const {
-    header,
-    ...rest
-  } = props;
-  return <Fragment>
+  const { header, ...rest } = props;
+  return (
+    <Fragment>
       {header}
       <ReachTabPanels {...rest} />
-    </Fragment>;
+    </Fragment>
+  );
 }
 
 //

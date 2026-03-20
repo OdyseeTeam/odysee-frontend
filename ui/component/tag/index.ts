@@ -1,2 +1,2 @@
-import Tag from "./view";
+import Tag from './view';
 export default Tag;

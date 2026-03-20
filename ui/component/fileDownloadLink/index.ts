@@ -1,11 +1,16 @@
-import { connect } from "react-redux";
-import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from "redux/selectors/claims";
-import { selectContentStates } from "redux/selectors/content";
-import { makeSelectFileInfoForUri, makeSelectDownloadingForUri, makeSelectLoadingForUri, selectStreamingUrlForUri } from "redux/selectors/file_info";
-import { doOpenModal } from "redux/actions/app";
-import { doClearPlayingUri, doDownloadUri } from "redux/actions/content";
-import { selectIsProtectedContentLockedFromUserForId } from "redux/selectors/memberships";
-import FileDownloadLink from "./view";
+import { connect } from 'react-redux';
+import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectContentStates } from 'redux/selectors/content';
+import {
+  makeSelectFileInfoForUri,
+  makeSelectDownloadingForUri,
+  makeSelectLoadingForUri,
+  selectStreamingUrlForUri,
+} from 'redux/selectors/file_info';
+import { doOpenModal } from 'redux/actions/app';
+import { doClearPlayingUri, doDownloadUri } from 'redux/actions/content';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
+import FileDownloadLink from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -18,14 +23,14 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, props.uri),
     contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, props.uri)),
-    uriAccessKey: selectContentStates(state).uriAccessKeys[props.uri]
+    uriAccessKey: selectContentStates(state).uriAccessKeys[props.uri],
   };
 };
 
-const perform = dispatch => ({
-  download: uri => dispatch(doDownloadUri(uri)),
+const perform = (dispatch) => ({
+  download: (uri) => dispatch(doDownloadUri(uri)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  pause: () => dispatch(doClearPlayingUri())
+  pause: () => dispatch(doClearPlayingUri()),
 });
 
 export default connect(select, perform)(FileDownloadLink);

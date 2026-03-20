@@ -1,9 +1,9 @@
-import { connect } from "react-redux";
-import type { Props } from "./view";
-import ClaimSearchView from "./view";
-import { doClaimSearch } from "redux/actions/claims";
-import { selectClaimsStates, selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from "redux/selectors/claims";
-import { createNormalizedClaimSearchKey } from "util/claim";
+import { connect } from 'react-redux';
+import type { Props } from './view';
+import ClaimSearchView from './view';
+import { doClaimSearch } from 'redux/actions/claims';
+import { selectClaimsStates, selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
+import { createNormalizedClaimSearchKey } from 'util/claim';
 
 const select = (state, props) => {
   const csByQuery = selectClaimSearchByQuery(state);
@@ -13,11 +13,11 @@ const select = (state, props) => {
   return {
     csResults: csByQuery[query],
     csResultsMiscInfo: csByQueryMiscInfo[query],
-    isFetching: csIsFetchingByQuery[query]
+    isFetching: csIsFetchingByQuery[query],
   };
 };
 
 const perform = {
-  doClaimSearch
+  doClaimSearch,
 };
 export default connect<_, Props, _, _, _, _>(select, perform)(ClaimSearchView);

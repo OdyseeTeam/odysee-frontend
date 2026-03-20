@@ -1,24 +1,24 @@
-import { ENABLE_UI_NOTIFICATIONS } from "config";
-import { useHistory } from "react-router";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import Icon from "component/common/icon";
-import NotificationBubble from "component/notificationBubble";
-import React from "react";
-import Tooltip from "component/common/tooltip";
-import Notification from "component/notification";
-import DateTime from "component/dateTime";
-import ChannelThumbnail from "component/channelThumbnail";
-import { Menu as MuiMenu } from "@mui/material";
-import Button from "component/button";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
-import { RULE } from "constants/notifications";
-import UriIndicator from "component/uriIndicator";
-import { getNotificationLocation } from "../notification/helpers/target";
-import { generateNotificationTitle } from "../notification/helpers/title";
-import { generateNotificationText } from "../notification/helpers/text";
-import { parseURI } from "util/lbryURI";
-import { NavLink } from "react-router-dom";
+import { ENABLE_UI_NOTIFICATIONS } from 'config';
+import { useHistory } from 'react-router';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import Icon from 'component/common/icon';
+import NotificationBubble from 'component/notificationBubble';
+import React from 'react';
+import Tooltip from 'component/common/tooltip';
+import Notification from 'component/notification';
+import DateTime from 'component/dateTime';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { Menu as MuiMenu } from '@mui/material';
+import Button from 'component/button';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import { RULE } from 'constants/notifications';
+import UriIndicator from 'component/uriIndicator';
+import { getNotificationLocation } from '../notification/helpers/target';
+import { generateNotificationTitle } from '../notification/helpers/title';
+import { generateNotificationText } from '../notification/helpers/text';
+import { parseURI } from 'util/lbryURI';
+import { NavLink } from 'react-router-dom';
 type Props = {
   notifications: Array<Notification>;
   unseenCount: number;
@@ -40,18 +40,16 @@ export default function NotificationHeaderButton(props: Props) {
     seeNotification,
     deleteNotification,
     doSeeAllNotifications,
-    doGetMembershipSupportersList
+    doGetMembershipSupportersList,
   } = props;
   const list = notifications.slice(0, 20);
-  const {
-    push
-  } = useHistory();
-  const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || user && user.experimental_ui);
+  const { push } = useHistory();
+  const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
 
-  const handleClick = event => {
+  const handleClick = (event) => {
     doSeeAllNotifications();
     if (unseenCount > 0) doSeeAllNotifications();
     setAnchorEl(!anchorEl ? event.currentTarget : null);
@@ -67,17 +65,17 @@ export default function NotificationHeaderButton(props: Props) {
     MenuListProps: {
       'aria-labelledby': 'basic-button',
       sx: {
-        padding: 'var(--spacing-xs)'
-      }
+        padding: 'var(--spacing-xs)',
+      },
     },
     className: 'menu__list--header menu__list--notifications',
     sx: {
-      'z-index': 2
+      'z-index': 2,
     },
     PaperProps: {
-      className: 'MuiMenu-list--paper'
+      className: 'MuiMenu-list--paper',
     },
-    disableScrollLock: true
+    disableScrollLock: true,
   };
 
   const handleClickAway = () => {
@@ -89,12 +87,19 @@ export default function NotificationHeaderButton(props: Props) {
     }
   };
 
-  const creatorIcon = (channelUrl, channelThumbnail) => <UriIndicator uri={channelUrl} link showAtSign channelInfo={{
-    uri: channelUrl,
-    name: ''
-  }}>
+  const creatorIcon = (channelUrl, channelThumbnail) => (
+    <UriIndicator
+      uri={channelUrl}
+      link
+      showAtSign
+      channelInfo={{
+        uri: channelUrl,
+        name: '',
+      }}
+    >
       <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
-    </UriIndicator>;
+    </UriIndicator>
+  );
 
   function handleMenuClick() {
     push(`/$/${PAGES.NOTIFICATIONS}`);
@@ -112,18 +117,11 @@ export default function NotificationHeaderButton(props: Props) {
   if (!notificationsEnabled) return null;
 
   function menuEntry(notification) {
-    const {
-      id,
-      active_at,
-      notification_rule,
-      notification_parameters,
-      is_read,
-      type
-    } = notification;
+    const { id, active_at, notification_rule, notification_parameters, is_read, type } = notification;
     let channelUrl,
-        icon,
-        disableAutoplay = false,
-        notificationAction;
+      icon,
+      disableAutoplay = false,
+      notificationAction;
 
     switch (notification_rule) {
       case RULE.CREATOR_SUBSCRIBER:
@@ -175,10 +173,7 @@ export default function NotificationHeaderButton(props: Props) {
     }
 
     function handleNotificationClick() {
-      const {
-        id,
-        is_read: isRead
-      } = notification;
+      const { id, is_read: isRead } = notification;
 
       if (!isRead) {
         seeNotification([id]);
@@ -191,37 +186,53 @@ export default function NotificationHeaderButton(props: Props) {
 
     if (channelUrl) {
       try {
-        ({
-          claimName: channelName
-        } = parseURI(channelUrl));
+        ({ claimName: channelName } = parseURI(channelUrl));
       } catch (e) {}
     }
 
-    return <NavLink onClick={handleNotificationClick} key={id} to={{ ...getNotificationLocation(notification),
-      state: !disableAutoplay ? undefined : {
-        forceDisableAutoplay: true
-      }
-    }}>
-        <div className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'} key={id}>
+    return (
+      <NavLink
+        onClick={handleNotificationClick}
+        key={id}
+        to={{
+          ...getNotificationLocation(notification),
+          state: !disableAutoplay
+            ? undefined
+            : {
+                forceDisableAutoplay: true,
+              },
+        }}
+      >
+        <div
+          className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
+          key={id}
+        >
           <div className="notification__icon">{icon}</div>
           <div className="menu__list--notification-info">
             <div className="menu__list--notification-type">
               {generateNotificationTitle(notification_rule, notification_parameters, channelName)}
             </div>
-            <div className={type === 'comments' ? 'menu__list--notification-title blockquote' : 'menu__list--notification-title'}>
+            <div
+              className={
+                type === 'comments' ? 'menu__list--notification-title blockquote' : 'menu__list--notification-title'
+              }
+            >
               {generateNotificationText(notification_rule, notification_parameters)}
             </div>
             {!is_read && <span className="dot">•</span>}
             <DateTime timeAgo date={active_at} />
           </div>
-          <div className="delete-notification" onClick={e => handleNotificationDelete(e, id)}>
+          <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
             <Icon icon={ICONS.DELETE} sectionIcon />
           </div>
         </div>
-      </NavLink>;
+      </NavLink>
+    );
   }
 
-  return notificationsEnabled && <>
+  return (
+    notificationsEnabled && (
+      <>
         <Tooltip title={__('Notifications')}>
           <Button className="header__navigationItem--icon" onClick={handleClick}>
             <Icon size={18} icon={ICONS.NOTIFICATION} aria-hidden />
@@ -231,19 +242,19 @@ export default function NotificationHeaderButton(props: Props) {
 
         <ClickAwayListener onClickAway={handleClickAway}>
           <MuiMenu {...menuProps}>
-            {
-          /* <div className="menu__list--notifications-header" /> */
-        }
+            {/* <div className="menu__list--notifications-header" /> */}
             <div className="menu__list--notifications-list">
-              {list.map(notification => {
-            return menuEntry(notification);
-          })}
-              {list.length === 0 && <div className="menu__list--notification-empty">
+              {list.map((notification) => {
+                return menuEntry(notification);
+              })}
+              {list.length === 0 && (
+                <div className="menu__list--notification-empty">
                   <div className="menu__list--notification-empty-title">{__('No notifications')}</div>
                   <div className="menu__list--notification-empty-text">
                     {__("You don't have any notifications yet, but they will be here when you do!")}
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
 
             <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
@@ -251,5 +262,7 @@ export default function NotificationHeaderButton(props: Props) {
             </NavLink>
           </MuiMenu>
         </ClickAwayListener>
-      </>;
+      </>
+    )
+  );
 }

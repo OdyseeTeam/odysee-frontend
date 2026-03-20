@@ -1,8 +1,8 @@
-import React from "react";
-import * as PAGES from "constants/pages";
-import Spinner from "component/spinner";
-import Button from "component/button";
-import ErrorBubble from "component/common/error-bubble";
+import React from 'react';
+import * as PAGES from 'constants/pages';
+import Spinner from 'component/spinner';
+import Button from 'component/button';
+import ErrorBubble from 'component/common/error-bubble';
 type Props = {
   component: any;
   switchToTiersTab?: () => void;
@@ -23,7 +23,7 @@ const TabWrapper = (props: Props) => {
     bankAccountConfirmed,
     hasTiers,
     supportersList,
-    doTipAccountStatus
+    doTipAccountStatus,
   } = props;
   const isOnTiersTab = !switchToTiersTab;
   React.useEffect(() => {
@@ -32,15 +32,27 @@ const TabWrapper = (props: Props) => {
     }
   }, [bankAccountConfirmed, doTipAccountStatus]);
 
-  if (myChannelClaims === undefined || bankAccountConfirmed === undefined || supportersList === undefined && !isOnTiersTab) {
-    return <div className="main--empty">
+  if (
+    myChannelClaims === undefined ||
+    bankAccountConfirmed === undefined ||
+    (supportersList === undefined && !isOnTiersTab)
+  ) {
+    return (
+      <div className="main--empty">
         <Spinner />
-      </div>;
+      </div>
+    );
   }
 
   // FIRST: needs a channel
   if (!myChannelClaims || myChannelClaims.length === 0) {
-    return <ErrorBubble title={__("You don't have any channels")} subtitle={__('To be able to begin receiving payments you have to have at least 1 channel.')} action={<Button button="primary" navigate={`/$/${PAGES.CHANNEL_NEW}`} label={__('Create A Channel')} />} />;
+    return (
+      <ErrorBubble
+        title={__("You don't have any channels")}
+        subtitle={__('To be able to begin receiving payments you have to have at least 1 channel.')}
+        action={<Button button="primary" navigate={`/$/${PAGES.CHANNEL_NEW}`} label={__('Create A Channel')} />}
+      />
+    );
   }
 
   // SECOND: verify bank account
@@ -59,7 +71,13 @@ const TabWrapper = (props: Props) => {
   // }
   // FOURTH: all that's left for the tabs to be filled in, is some tiers to be created
   if (!hasTiers && !isOnTiersTab) {
-    return <ErrorBubble title={__("You don't have any Tiers")} subtitle={__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')} action={<Button requiresChannel button="primary" label={__('Add a Tier')} onClick={switchToTiersTab} />} />;
+    return (
+      <ErrorBubble
+        title={__("You don't have any Tiers")}
+        subtitle={__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}
+        action={<Button requiresChannel button="primary" label={__('Add a Tier')} onClick={switchToTiersTab} />}
+      />
+    );
   }
 
   return component;

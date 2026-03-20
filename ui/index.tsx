@@ -1,72 +1,101 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from 'react';
 // core-js polyfills are loaded by Vite automatically via browserslist
-import ErrorBoundary from "component/errorBoundary";
-import App from "component/app";
-import SnackBar from "component/snackBar";
+import ErrorBoundary from 'component/errorBoundary';
+import App from 'component/app';
+import SnackBar from 'component/snackBar';
 // @if TARGET='app'
-import SplashScreen from "component/splash";
-import * as ACTIONS from "constants/action_types";
-import moment from "moment";
+import SplashScreen from 'component/splash';
+import * as ACTIONS from 'constants/action_types';
+import moment from 'moment';
 // @endif
-import { ipcRenderer, remote, shell } from "electron";
-import * as MODALS from "constants/modal_types";
-import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { doDaemonReady, doAutoUpdate, doOpenModal, doHideModal, doToggle3PAnalytics, doMinVersionSubscribe } from "redux/actions/app";
-import Lbry, { apiCall } from "lbry";
-import { isURIValid } from "util/lbryURI";
-import { setSearchApi } from "redux/actions/search";
-import { doResolveSubscriptions } from "redux/actions/subscriptions";
-import { doSetLanguage, doFetchLanguage, doFetchDevStrings, doFetchHomepages, doUpdateIsNightAsync, doLoadBuiltInHomepageData } from "redux/actions/settings";
-import { doFetchUserLocale } from "redux/actions/user";
-import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from "lbryinc";
-import rewards from "rewards";
-import { store, persistor, history } from "store";
-import app from "./app";
-import doLogWarningConsoleMessage from "./logWarningConsoleMessage";
-import { ConnectedRouter, push } from "connected-react-router";
-import { formatLbryUrlForWeb, formatInAppUrl } from "util/url";
-import { PersistGate } from "redux-persist/integration/react";
-import analytics from "analytics";
-import { doToast } from "redux/actions/notifications";
-import { getAuthToken, setAuthToken, doAuthTokenRefresh } from "util/saved-passwords";
-import { X_LBRY_AUTH_TOKEN } from "constants/token";
-import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from "config";
+import { ipcRenderer, remote, shell } from 'electron';
+import * as MODALS from 'constants/modal_types';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import {
+  doDaemonReady,
+  doAutoUpdate,
+  doOpenModal,
+  doHideModal,
+  doToggle3PAnalytics,
+  doMinVersionSubscribe,
+} from 'redux/actions/app';
+import Lbry, { apiCall } from 'lbry';
+import { isURIValid } from 'util/lbryURI';
+import { setSearchApi } from 'redux/actions/search';
+import { doResolveSubscriptions } from 'redux/actions/subscriptions';
+import {
+  doSetLanguage,
+  doFetchLanguage,
+  doFetchDevStrings,
+  doFetchHomepages,
+  doUpdateIsNightAsync,
+  doLoadBuiltInHomepageData,
+} from 'redux/actions/settings';
+import { doFetchUserLocale } from 'redux/actions/user';
+import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
+import rewards from 'rewards';
+import { store, persistor, history } from 'store';
+import app from './app';
+import doLogWarningConsoleMessage from './logWarningConsoleMessage';
+import { ConnectedRouter, push } from 'connected-react-router';
+import { formatLbryUrlForWeb, formatInAppUrl } from 'util/url';
+import { PersistGate } from 'redux-persist/integration/react';
+import analytics from 'analytics';
+import { doToast } from 'redux/actions/notifications';
+import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
-import "scss/third-party.scss";
+import 'scss/third-party.scss';
 // Import our app styles
 // If a style is not necessary for the initial page load, it should be removed from `all.scss`
 // and loaded dynamically in the component that consumes it
-import "scss/all.scss";
+import 'scss/all.scss';
 // @if TARGET='web'
 // These overrides can't live in web/ because they need to use the same instance of `Lbry`
-import apiPublishCallViaWeb from "web/setup/publish";
-import { doSendPastRecsysEntries } from "redux/actions/content";
+import apiPublishCallViaWeb from 'web/setup/publish';
+import { doSendPastRecsysEntries } from 'redux/actions/content';
 analytics.init();
 // Handle IndexedDB errors gracefully (e.g., "Connection to Indexed Database server lost")
 // These can happen due to browser storage issues, too many tabs, or private browsing restrictions.
 // The site continues to work normally - state just won't persist across refreshes.
 // We silently handle this since it's not actionable and doesn't affect video playback.
-window.addEventListener('unhandledrejection', event => {
+window.addEventListener('unhandledrejection', (event) => {
   const errorMessage = event.reason?.message || event.reason?.toString() || '';
 
-  if (errorMessage.includes('IndexedDB') || errorMessage.includes('Indexed Database') || errorMessage.includes('IDBDatabase')) {
+  if (
+    errorMessage.includes('IndexedDB') ||
+    errorMessage.includes('Indexed Database') ||
+    errorMessage.includes('IDBDatabase')
+  ) {
     event.preventDefault(); // Prevent the error from being reported to Sentry
 
     console.warn('IndexedDB error (handled):', errorMessage);
   }
 });
 Lbry.setDaemonConnectionString(PROXY_URL);
-Lbry.setOverride('publish', params => new Promise((resolve, reject) => {
-  apiPublishCallViaWeb(apiCall, Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN) ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN] : '', 'publish', params, resolve, reject);
-}));
+Lbry.setOverride(
+  'publish',
+  (params) =>
+    new Promise((resolve, reject) => {
+      apiPublishCallViaWeb(
+        apiCall,
+        Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
+          ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
+          : '',
+        'publish',
+        params,
+        resolve,
+        reject
+      );
+    })
+);
 // @endif
 analytics.event.initAppStartTime(Date.now());
 
 // @if TARGET='app'
-const {
-  autoUpdater
-} = remote.require('electron-updater');
+const { autoUpdater } = remote.require('electron-updater');
 
 autoUpdater.logger = remote.require('electron-log');
 
@@ -85,18 +114,22 @@ doAuthTokenRefresh();
 // We keep a local variable for authToken because `ipcRenderer.send` does not
 // contain a response, so there is no way to know when it's been set
 let authToken;
-Lbryio.setOverride('setAuthToken', authToken => {
+Lbryio.setOverride('setAuthToken', (authToken) => {
   setAuthToken(authToken);
   return authToken;
 });
-Lbryio.setOverride('getAuthToken', () => new Promise(resolve => {
-  const authTokenToReturn = authToken || getAuthToken();
-  resolve(authTokenToReturn);
-}));
+Lbryio.setOverride(
+  'getAuthToken',
+  () =>
+    new Promise((resolve) => {
+      const authTokenToReturn = authToken || getAuthToken();
+      resolve(authTokenToReturn);
+    })
+);
 rewards.setCallback('claimFirstRewardSuccess', () => {
   app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
 });
-rewards.setCallback('claimRewardSuccess', reward => {
+rewards.setCallback('claimRewardSuccess', (reward) => {
   if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
     app.store.dispatch(doHideModal());
   }
@@ -104,9 +137,11 @@ rewards.setCallback('claimRewardSuccess', reward => {
 // @if TARGET='app'
 ipcRenderer.on('open-uri-requested', (event, url, newSession) => {
   function handleError() {
-    app.store.dispatch(doToast({
-      message: __('Invalid LBRY URL requested')
-    }));
+    app.store.dispatch(
+      doToast({
+        message: __('Invalid LBRY URL requested'),
+      })
+    );
   }
 
   const path = url.slice('lbry://'.length);
@@ -133,13 +168,11 @@ ipcRenderer.on('open-menu', (event, uri) => {
     app.store.dispatch(push('/$/help'));
   }
 });
-const {
-  dock
-} = remote.app;
+const { dock } = remote.app;
 ipcRenderer.on('window-is-focused', () => {
   if (!dock) return;
   app.store.dispatch({
-    type: ACTIONS.WINDOW_FOCUSED
+    type: ACTIONS.WINDOW_FOCUSED,
   });
   dock.setBadge('');
 });
@@ -148,13 +181,11 @@ ipcRenderer.on('devtools-is-opened', () => {
 });
 // Force exit mode for html5 fullscreen api
 // See: https://github.com/electron/electron/issues/18188
-remote.getCurrentWindow().on('leave-full-screen', event => {
+remote.getCurrentWindow().on('leave-full-screen', (event) => {
   document.webkitExitFullscreen();
 });
-document.addEventListener('click', event => {
-  let {
-    target
-  } = event;
+document.addEventListener('click', (event) => {
+  let { target } = event;
 
   while (target && target !== document) {
     if (target.matches('a[href^="http"]') || target.matches('a[href^="mailto"]')) {
@@ -167,10 +198,10 @@ document.addEventListener('click', event => {
   }
 });
 // @endif
-document.addEventListener('dragover', event => {
+document.addEventListener('dragover', (event) => {
   event.preventDefault();
 });
-document.addEventListener('drop', event => {
+document.addEventListener('drop', (event) => {
   event.preventDefault();
 });
 
@@ -181,7 +212,7 @@ function AppWrapper() {
   useEffect(() => {
     // @if TARGET='app'
     moment.locale(remote.app.getLocale());
-    autoUpdater.on('error', error => {
+    autoUpdater.on('error', (error) => {
       console.error(error.message); // eslint-disable-line no-console
     });
 
@@ -198,7 +229,6 @@ function AppWrapper() {
         app.store.dispatch(doAutoUpdate());
       });
     } // @endif
-
   }, []);
   useEffect(() => {
     if (persistDone) {
@@ -234,21 +264,31 @@ function AppWrapper() {
       };
     }
   }, [readyToLaunch, persistDone]);
-  return <Provider store={store}>
-      <PersistGate persistor={persistor} onBeforeLift={() => setPersistDone(true)} loading={<div className="main--launching" />}>
+  return (
+    <Provider store={store}>
+      <PersistGate
+        persistor={persistor}
+        onBeforeLift={() => setPersistDone(true)}
+        loading={<div className="main--launching" />}
+      >
         <Fragment>
-          {readyToLaunch ? <ConnectedRouter history={history}>
+          {readyToLaunch ? (
+            <ConnectedRouter history={history}>
               <ErrorBoundary>
                 <App />
                 <SnackBar />
               </ErrorBoundary>
-            </ConnectedRouter> : <Fragment>
+            </ConnectedRouter>
+          ) : (
+            <Fragment>
               <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />
               <SnackBar />
-            </Fragment>}
+            </Fragment>
+          )}
         </Fragment>
       </PersistGate>
-    </Provider>;
+    </Provider>
+  );
 }
 
 ReactDOM.render(<AppWrapper />, document.getElementById('app'));

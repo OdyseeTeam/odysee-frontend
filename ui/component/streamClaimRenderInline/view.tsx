@@ -1,29 +1,41 @@
-import { remote } from "electron";
-import React from "react";
-import { lazyImport } from "util/lazyImport";
-import classnames from "classnames";
-import * as RENDER_MODES from "constants/file_render_modes";
-import * as KEYCODES from "constants/keycodes";
-import { webDownloadClaim } from "util/downloadClaim";
+import { remote } from 'electron';
+import React from 'react';
+import { lazyImport } from 'util/lazyImport';
+import classnames from 'classnames';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import * as KEYCODES from 'constants/keycodes';
+import { webDownloadClaim } from 'util/downloadClaim';
 // import fs from 'fs';
-import analytics from "analytics";
-import DocumentViewer from "component/viewers/documentViewer";
+import analytics from 'analytics';
+import DocumentViewer from 'component/viewers/documentViewer';
 // @if TARGET='app'
 // should match
-import DocxViewer from "component/viewers/docxViewer";
+import DocxViewer from 'component/viewers/docxViewer';
 // import ComicBookViewer from 'component/viewers/comicBookViewer';
 // import ThreeViewer from 'component/viewers/threeViewer';
 // @endif
 // const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
-const HtmlViewer = lazyImport(() => import('component/viewers/htmlViewer'
-/* webpackChunkName: "htmlViewer" */
-));
-const ImageViewer = lazyImport(() => import('component/viewers/imageViewer'
-/* webpackChunkName: "imageViewer" */
-));
-const PdfViewer = lazyImport(() => import('component/viewers/pdfViewer'
-/* webpackChunkName: "pdfViewer" */
-));
+const HtmlViewer = lazyImport(
+  () =>
+    import(
+      'component/viewers/htmlViewer'
+      /* webpackChunkName: "htmlViewer" */
+    )
+);
+const ImageViewer = lazyImport(
+  () =>
+    import(
+      'component/viewers/imageViewer'
+      /* webpackChunkName: "imageViewer" */
+    )
+);
+const PdfViewer = lazyImport(
+  () =>
+    import(
+      'component/viewers/pdfViewer'
+      /* webpackChunkName: "pdfViewer" */
+    )
+);
 type Props = {
   uri: string;
   streamingUrl: string;
@@ -49,24 +61,17 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
     super(props);
     (this as any).escapeListener = this.escapeListener.bind(this);
     this.state = {
-      prevUri: undefined
+      prevUri: undefined,
     };
   }
 
   componentDidMount() {
-    const {
-      renderMode,
-      embedded,
-      doAnalyticsViewForUri,
-      uri,
-      claimRewards,
-      streamingUrl
-    } = this.props;
+    const { renderMode, embedded, doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
     analytics.event.playerLoaded(renderMode, embedded);
 
     if (uri && streamingUrl) {
       this.setState({
-        prevUri: uri
+        prevUri: uri,
       });
       doAnalyticsViewForUri(uri).then(claimRewards);
     }
@@ -81,16 +86,11 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate() {
-    const {
-      doAnalyticsViewForUri,
-      uri,
-      claimRewards,
-      streamingUrl
-    } = this.props;
+    const { doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
 
     if (uri && streamingUrl && uri !== this.state.prevUri) {
       this.setState({
-        prevUri: uri
+        prevUri: uri,
       });
       doAnalyticsViewForUri(uri).then(claimRewards);
     }
@@ -109,50 +109,60 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   }
 
   renderViewer() {
-    const {
-      currentTheme,
-      contentType,
-      downloadPath,
-      streamingUrl,
-      uri,
-      renderMode,
-      thumbnail
-    } = this.props;
+    const { currentTheme, contentType, downloadPath, streamingUrl, uri, renderMode, thumbnail } = this.props;
     const source = streamingUrl;
 
     switch (renderMode) {
       case RENDER_MODES.IMAGE:
-        return <React.Suspense fallback={null}>
+        return (
+          <React.Suspense fallback={null}>
             <ImageViewer uri={uri} source={source} />
-          </React.Suspense>;
+          </React.Suspense>
+        );
 
       case RENDER_MODES.HTML:
-        return <React.Suspense fallback={null}>
+        return (
+          <React.Suspense fallback={null}>
             <HtmlViewer source={downloadPath || source} />
-          </React.Suspense>;
+          </React.Suspense>
+        );
 
       case RENDER_MODES.DOCUMENT:
       case RENDER_MODES.MARKDOWN:
-        return <DocumentViewer source={{
-          stream: source,
-          contentType
-        }} renderMode={renderMode} theme={currentTheme} />;
+        return (
+          <DocumentViewer
+            source={{
+              stream: source,
+              contentType,
+            }}
+            renderMode={renderMode}
+            theme={currentTheme}
+          />
+        );
 
       case RENDER_MODES.DOCX:
         return <DocxViewer source={downloadPath} />;
 
       case RENDER_MODES.PDF:
-        return <React.Suspense fallback={null}>
+        return (
+          <React.Suspense fallback={null}>
             <PdfViewer source={downloadPath || source} />
-          </React.Suspense>;
+          </React.Suspense>
+        );
 
       case RENDER_MODES.CAD:
-        return <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} title={__('Download')} onClick={() => {
-            webDownloadClaim(streamingUrl, 'file', false);
-          }} />
+        return (
+          <React.Suspense fallback={null}>
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              title={__('Download')}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
-        /*
+          /*
         <ThreeViewer
           source={{
             fileType: fileExtension,
@@ -161,15 +171,21 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
           theme={currentTheme}
         />
         */
-        ;
+        );
 
       case RENDER_MODES.COMIC:
-        return <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} title={__('Download')} onClick={() => {
-            webDownloadClaim(streamingUrl, 'file', false);
-          }} />
+        return (
+          <React.Suspense fallback={null}>
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              title={__('Download')}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
-        /*
+          /*
         <ComicBookViewer
           source={{
             // @if TARGET='app'
@@ -180,52 +196,63 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
           theme={currentTheme}
         />
         */
-        ;
+        );
 
       case RENDER_MODES.APPLICATION:
-        return <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} title={__('Download')} onClick={() => {
-            webDownloadClaim(streamingUrl, 'file', false);
-          }} />
+        return (
+          <React.Suspense fallback={null}>
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              title={__('Download')}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
-        /*
+          /*
         <React.Suspense fallback={null}>
           <AppViewer uri={uri} />
         </React.Suspense>
         */
-        ;
+        );
 
       case RENDER_MODES.DOWNLOAD:
-        return <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} title={__('Download')} onClick={() => {
-            webDownloadClaim(streamingUrl, 'file', false);
-          }} />
+        return (
+          <React.Suspense fallback={null}>
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              title={__('Download')}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
-        /*
+          /*
         <React.Suspense fallback={null}>
           <AppViewer uri={uri} />
         </React.Suspense>
         */
-        ;
+        );
     }
 
     return null;
   }
 
   render() {
-    const {
-      embedded,
-      renderMode,
-      className
-    } = this.props;
-    return <div className={classnames('file-render', className, {
-      'file-render--document': RENDER_MODES.TEXT_MODES.includes(renderMode) && !embedded,
-      'file-render--embed': embedded
-    })}>
+    const { embedded, renderMode, className } = this.props;
+    return (
+      <div
+        className={classnames('file-render', className, {
+          'file-render--document': RENDER_MODES.TEXT_MODES.includes(renderMode) && !embedded,
+          'file-render--embed': embedded,
+        })}
+      >
         {this.renderViewer()}
-      </div>;
+      </div>
+    );
   }
-
 }
 
 export default StreamClaimRenderInline;

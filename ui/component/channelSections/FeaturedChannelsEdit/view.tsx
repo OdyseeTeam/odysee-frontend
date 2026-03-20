@@ -1,12 +1,12 @@
 /**
  * Covers both "create" and "edit" actions for a featured-channel.
  */
-import React from "react";
-import { v4 as Uuidv4 } from "uuid";
-import Button from "component/button";
-import ChannelFinder from "component/channelFinder";
-import Card from "component/common/card";
-import { FormField } from "component/common/form";
+import React from 'react';
+import { v4 as Uuidv4 } from 'uuid';
+import Button from 'component/button';
+import ChannelFinder from 'component/channelFinder';
+import Card from 'component/common/card';
+import { FormField } from 'component/common/form';
 type Props = {
   channelId: string;
   // The section's owner ID.
@@ -24,31 +24,18 @@ type Props = {
   channelClaim: ChannelClaim | null | undefined;
   // Dumb thing just to feed doUpdateCreatorSettings().
   doUpdateCreatorSettings: (channelClaim: ChannelClaim, settings: PerChannelSettings) => void;
-  doToast: (arg0: {
-    message: string;
-    isError?: boolean;
-    linkText?: string;
-    linkTarget?: string;
-  }) => void;
+  doToast: (arg0: { message: string; isError?: boolean; linkText?: string; linkTarget?: string }) => void;
 };
 export default function FeaturedChannelsEdit(props: Props) {
-  const {
-    sectionId,
-    onSave,
-    onCancel,
-    sections,
-    featuredChannels,
-    channelClaim,
-    doUpdateCreatorSettings,
-    doToast
-  } = props;
+  const { sectionId, onSave, onCancel, sections, featuredChannels, channelClaim, doUpdateCreatorSettings, doToast } =
+    props;
   const isEditing = Boolean(sectionId);
   const fc: FeaturedChannelsSection | null | undefined = React.useMemo(() => {
-    return featuredChannels && featuredChannels.find(x => x.id === sectionId);
+    return featuredChannels && featuredChannels.find((x) => x.id === sectionId);
   }, [featuredChannels, sectionId]);
   const [name, setName] = React.useState(fc ? fc.value.title : '');
   const [uris, setUris] = React.useState(fc ? fc.value.uris : []);
-  const missingData = !sections || isEditing && !fc || !channelClaim;
+  const missingData = !sections || (isEditing && !fc) || !channelClaim;
 
   // **************************************************************************
   // **************************************************************************
@@ -57,7 +44,7 @@ export default function FeaturedChannelsEdit(props: Props) {
       message: __('Failed to update the list.'),
       subMessage: __('Try refreshing the page and edit again. Sorry :('),
       isError: true,
-      duration: 'long'
+      duration: 'long',
     });
   }
 
@@ -74,16 +61,11 @@ export default function FeaturedChannelsEdit(props: Props) {
     if (isEditing) {
       // --- EDIT ---
       // $FlowIgnore²
-      const index = fc ? entries.findIndex(x => x.id === fc.id) : -1;
+      const index = fc ? entries.findIndex((x) => x.id === fc.id) : -1;
 
       if (index > -1) {
         // $FlowIgnore²
-        const newFc: FeaturedChannelsSection = { ...fc,
-          value: { ...fc.value,
-            title: name,
-            uris: uris
-          }
-        };
+        const newFc: FeaturedChannelsSection = { ...fc, value: { ...fc.value, title: name, uris: uris } };
         entries.splice(index, 1, newFc);
       } else {
         showFailureToast();
@@ -96,17 +78,15 @@ export default function FeaturedChannelsEdit(props: Props) {
         value_type: 'featured_channels',
         value: {
           title: name,
-          uris: uris
-        }
+          uris: uris,
+        },
       });
     }
 
-    const newSections = { ...sections,
-      entries
-    };
+    const newSections = { ...sections, entries };
     // $FlowIgnore²
     doUpdateCreatorSettings(channelClaim, {
-      channel_sections: newSections
+      channel_sections: newSections,
     });
 
     if (onSave) {
@@ -120,24 +100,20 @@ export default function FeaturedChannelsEdit(props: Props) {
     }
   }
 
-  function handleSelectedUrisChanged(change: "remove" | "add" | "reorder", params: any) {
-    const {
-      uri,
-      to,
-      from
-    } = params;
+  function handleSelectedUrisChanged(change: 'remove' | 'add' | 'reorder', params: any) {
+    const { uri, to, from } = params;
 
     switch (change) {
       case 'remove':
-        setUris(prev => prev.filter(p => p !== uri));
+        setUris((prev) => prev.filter((p) => p !== uri));
         break;
 
       case 'add':
-        setUris(prev => prev.concat([uri]));
+        setUris((prev) => prev.concat([uri]));
         break;
 
       case 'reorder':
-        setUris(prev => {
+        setUris((prev) => {
           const next = prev.slice(); // immutable change
 
           next.splice(from, 1);
@@ -156,16 +132,36 @@ export default function FeaturedChannelsEdit(props: Props) {
   // **************************************************************************
   // **************************************************************************
   if (missingData) {
-    return <Card title={__('Featured channel list not found')} subtitle={__('Try refreshing the page and re-initiate the edit.')} body={<div className="section__actions">
+    return (
+      <Card
+        title={__('Featured channel list not found')}
+        subtitle={__('Try refreshing the page and re-initiate the edit.')}
+        body={
+          <div className="section__actions">
             <Button button="primary" label={__('OK')} onClick={handleCancel} />
-          </div>} />;
+          </div>
+        }
+      />
+    );
   }
 
-  return <Card body={<>
-          <FormField label={__('Featured channels title')} // placeholder={__('Add list title')}
-    type="text" name="fc_name" value={name} onChange={e => setName(e.target.value)} />
+  return (
+    <Card
+      body={
+        <>
+          <FormField
+            label={__('Featured channels title')} // placeholder={__('Add list title')}
+            type="text"
+            name="fc_name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-          <ChannelFinder label={__('Search for channels to add')} selectedUris={uris} onSelectedUrisChanged={handleSelectedUrisChanged} />
+          <ChannelFinder
+            label={__('Search for channels to add')}
+            selectedUris={uris}
+            onSelectedUrisChanged={handleSelectedUrisChanged}
+          />
 
           <div className="section__actions">
             <Button label={__('Done')} button="primary" disabled={!name || uris.length === 0} onClick={handleSave} />
@@ -173,5 +169,8 @@ export default function FeaturedChannelsEdit(props: Props) {
           </div>
 
           <div className="error__text">{!name && <span>{__('A title is required')}</span>}</div>
-        </>} />;
+        </>
+      }
+    />
+  );
 }

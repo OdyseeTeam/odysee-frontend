@@ -1,19 +1,22 @@
-import { EMOTES_48px as EMOTES, TWEMOTENAMES } from "constants/emotes";
-import { matchSorter } from "match-sorter";
-import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from "constants/search";
-import * as KEYCODES from "constants/keycodes";
-import Autocomplete from "@mui/material/Autocomplete";
-import BusyIndicator from "component/common/busy-indicator";
+import { EMOTES_48px as EMOTES, TWEMOTENAMES } from 'constants/emotes';
+import { matchSorter } from 'match-sorter';
+import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
+import * as KEYCODES from 'constants/keycodes';
+import Autocomplete from '@mui/material/Autocomplete';
+import BusyIndicator from 'component/common/busy-indicator';
 // import EMOJIS from 'emoji-dictionary';
-import Popper from "@mui/material/Popper";
-import React from "react";
-import useLighthouse from "effects/use-lighthouse";
-import useThrottle from "effects/use-throttle";
-import { parseURI } from "util/lbryURI";
-import TextareaSuggestionsOption from "./render-option";
-import TextareaSuggestionsInput from "./render-input";
-import TextareaSuggestionsGroup from "./render-group";
-const SUGGESTION_REGEX = new RegExp('((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)', 'gm');
+import Popper from '@mui/material/Popper';
+import React from 'react';
+import useLighthouse from 'effects/use-lighthouse';
+import useThrottle from 'effects/use-throttle';
+import { parseURI } from 'util/lbryURI';
+import TextareaSuggestionsOption from './render-option';
+import TextareaSuggestionsInput from './render-input';
+import TextareaSuggestionsGroup from './render-group';
+const SUGGESTION_REGEX = new RegExp(
+  '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
+  'gm'
+);
 
 /** Regex Explained step-by-step:
  *
@@ -93,7 +96,7 @@ export default function TextareaWithSuggestions(props: Props) {
     toggleSelectors,
     handleTip,
     handleSubmit,
-    handlePreventClick
+    handlePreventClick,
   } = props;
   const inputDefaultProps = {
     className,
@@ -101,7 +104,7 @@ export default function TextareaWithSuggestions(props: Props) {
     maxLength,
     spellCheck,
     type,
-    disabled
+    disabled,
   };
   const [suggestionValue, setSuggestionValue] = React.useState(undefined);
   const [highlightedSuggestion, setHighlightedSuggestion] = React.useState('');
@@ -122,31 +125,35 @@ export default function TextareaWithSuggestions(props: Props) {
 
   const additionalOptions = {
     isBackgroundSearch: false,
-    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS
+    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS,
   };
-  const {
-    results,
-    loading
-  } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0);
+  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0);
   const stringifiedResults = JSON.stringify(results);
   const hasMinLength = suggestionTerm && isMention && suggestionTerm.length >= LIGHTHOUSE_MIN_CHARACTERS;
   const isTyping = isMention && debouncedTerm !== suggestionTerm;
-  const showPlaceholder = isMention && !invalidTerm && (isTyping || loading || results && results.length > 0 && !hasNewResolvedResults);
+  const showPlaceholder =
+    isMention && !invalidTerm && (isTyping || loading || (results && results.length > 0 && !hasNewResolvedResults));
 
   const shouldFilter = (uri, previous) => uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
 
-  const filteredCommentors = canonicalCommentors && canonicalCommentors.filter(uri => shouldFilter(uri));
-  const filteredSubs = canonicalSubs && canonicalSubs.filter(uri => shouldFilter(uri, filteredCommentors));
-  const filteredTop = canonicalTop && shouldFilter(canonicalTop, filteredSubs) && shouldFilter(canonicalTop, filteredCommentors) && canonicalTop;
-  const filteredSearch = canonicalSearch && canonicalSearch.filter(uri => shouldFilter(uri, filteredSubs) && shouldFilter(uri, filteredCommentors) && uri !== filteredTop);
+  const filteredCommentors = canonicalCommentors && canonicalCommentors.filter((uri) => shouldFilter(uri));
+  const filteredSubs = canonicalSubs && canonicalSubs.filter((uri) => shouldFilter(uri, filteredCommentors));
+  const filteredTop =
+    canonicalTop &&
+    shouldFilter(canonicalTop, filteredSubs) &&
+    shouldFilter(canonicalTop, filteredCommentors) &&
+    canonicalTop;
+  const filteredSearch =
+    canonicalSearch &&
+    canonicalSearch.filter(
+      (uri) => shouldFilter(uri, filteredSubs) && shouldFilter(uri, filteredCommentors) && uri !== filteredTop
+    );
   let emoteNames;
   // let emojiNames;
   const allOptions = [];
 
   if (isEmote) {
-    emoteNames = EMOTES.map(({
-      name
-    }) => name);
+    emoteNames = EMOTES.map(({ name }) => name);
     const emotesAndEmojis = [...emoteNames, ...TWEMOTENAMES];
     allOptions.push(...emotesAndEmojis);
   } else {
@@ -157,25 +164,36 @@ export default function TextareaWithSuggestions(props: Props) {
     if (filteredSearch) allOptions.push(...filteredSearch);
   }
 
-  const allOptionsGrouped = allOptions.length > 0 ? allOptions.map(option => {
-    const groupName = isEmote ? emoteNames.includes(option) && __('Emotes') || TWEMOTENAMES.includes(option) && __('Emojis') : canonicalCreatorUri === option && __('Creator') || filteredSubs && filteredSubs.includes(option) && __('Following') || filteredCommentors && filteredCommentors.includes(option) && __('From Comments') || filteredTop && filteredTop === option && 'Top' || filteredSearch && filteredSearch.includes(option) && __('From Search');
-    let emoteLabel;
+  const allOptionsGrouped =
+    allOptions.length > 0
+      ? allOptions.map((option) => {
+          const groupName = isEmote
+            ? (emoteNames.includes(option) && __('Emotes')) || (TWEMOTENAMES.includes(option) && __('Emojis'))
+            : (canonicalCreatorUri === option && __('Creator')) ||
+              (filteredSubs && filteredSubs.includes(option) && __('Following')) ||
+              (filteredCommentors && filteredCommentors.includes(option) && __('From Comments')) ||
+              (filteredTop && filteredTop === option && 'Top') ||
+              (filteredSearch && filteredSearch.includes(option) && __('From Search'));
+          let emoteLabel;
 
-    if (isEmote) {
-      // $FlowFixMe
-      emoteLabel = `:${option.replace(/:/g, '')}:`;
-    }
+          if (isEmote) {
+            // $FlowFixMe
+            emoteLabel = `:${option.replace(/:/g, '')}:`;
+          }
 
-    return {
-      label: emoteLabel || option.replace('lbry://', '').replace('#', ':'),
-      group: groupName
-    };
-  }) : [];
-  const allMatches = useSuggestionMatch(suggestionTerm || '', allOptionsGrouped.map(({
-    label
-  }) => label)) || [];
+          return {
+            label: emoteLabel || option.replace('lbry://', '').replace('#', ':'),
+            group: groupName,
+          };
+        })
+      : [];
+  const allMatches =
+    useSuggestionMatch(
+      suggestionTerm || '',
+      allOptionsGrouped.map(({ label }) => label)
+    ) || [];
 
-  const restoreCursorPosition = cursorIndex => {
+  const restoreCursorPosition = (cursorIndex) => {
     if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
       // $FlowIgnore
       queueMicrotask(() => {
@@ -192,8 +210,8 @@ export default function TextareaWithSuggestions(props: Props) {
   function handleInputChange(value: string) {
     onChange({
       target: {
-        value
-      }
+        value,
+      },
     });
     const cursorIndex = inputRef && inputRef.current && inputRef.current.selectionStart;
     const suggestionMatches = value.match(SUGGESTION_REGEX);
@@ -212,7 +230,11 @@ export default function TextareaWithSuggestions(props: Props) {
     let isEmote = exec && exec[2];
     let currentSuggestionIndex = exec && exec.index;
     let currentLastIndex = exec && SUGGESTION_REGEX.lastIndex;
-    let currentSuggestionValue = cursorIndex >= currentSuggestionIndex && cursorIndex <= currentLastIndex && suggestionMatches && suggestionMatches[0];
+    let currentSuggestionValue =
+      cursorIndex >= currentSuggestionIndex &&
+      cursorIndex <= currentLastIndex &&
+      suggestionMatches &&
+      suggestionMatches[0];
 
     if (suggestionMatches && suggestionMatches.length > 1) {
       currentSuggestionValue = suggestionMatches.find((match, index) => {
@@ -247,7 +269,7 @@ export default function TextareaWithSuggestions(props: Props) {
         term: currentSuggestionValue.substring(tokenIndex),
         index: currentSuggestionIndex,
         lastIndex: currentLastIndex,
-        isEmote
+        isEmote,
       });
     } else if (suggestionValue) {
       inputRef.current.removeAttribute('typing-term');
@@ -257,40 +279,45 @@ export default function TextareaWithSuggestions(props: Props) {
     restoreCursorPosition(cursorIndex);
   }
 
-  const handleSelect = React.useCallback((selectedValue: string, key?: number) => {
-    if (!suggestionValue) return;
+  const handleSelect = React.useCallback(
+    (selectedValue: string, key?: number) => {
+      if (!suggestionValue) return;
 
-    if (!selectedValue) {
-      setSuggestionValue(undefined);
-      setClose(true);
-      return;
-    }
-
-    const elem = inputRef && inputRef.current;
-    // $FlowFixMe
-    const newCursorPos = suggestionValue && suggestionValue.beforeTerm && suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
-    // $FlowFixMe
-    const contentBegin = messageValue.substring(0, suggestionValue.index);
-    // $FlowFixMe
-    const replaceValue = suggestionValue.beforeTerm + selectedValue;
-    // $FlowFixMe
-    const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
-    // $FlowFixMe
-    const contentEnd = endTo.startsWith(' ') ? endTo : ' ' + endTo;
-    const newValue = contentBegin + replaceValue + contentEnd;
-    onChange({
-      target: {
-        value: newValue
+      if (!selectedValue) {
+        setSuggestionValue(undefined);
+        setClose(true);
+        return;
       }
-    });
-    setSuggestionValue(null);
-    // no keycode === was selected with TAB (function was called by effect) or on click
-    // ENTER is handled on commentCreate after attempting to send on livestream
-    if (!key && inputRef && inputRef.current) inputRef.current.removeAttribute('typing-term');
-    elem.focus();
-    restoreCursorPosition(newCursorPos);
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps -- restoreCursorPosition excluded, just a helper function
-  [messageValue, inputRef, onChange, suggestionValue]);
+
+      const elem = inputRef && inputRef.current;
+      // $FlowFixMe
+      const newCursorPos =
+        suggestionValue &&
+        suggestionValue.beforeTerm &&
+        suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
+      // $FlowFixMe
+      const contentBegin = messageValue.substring(0, suggestionValue.index);
+      // $FlowFixMe
+      const replaceValue = suggestionValue.beforeTerm + selectedValue;
+      // $FlowFixMe
+      const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
+      // $FlowFixMe
+      const contentEnd = endTo.startsWith(' ') ? endTo : ' ' + endTo;
+      const newValue = contentBegin + replaceValue + contentEnd;
+      onChange({
+        target: {
+          value: newValue,
+        },
+      });
+      setSuggestionValue(null);
+      // no keycode === was selected with TAB (function was called by effect) or on click
+      // ENTER is handled on commentCreate after attempting to send on livestream
+      if (!key && inputRef && inputRef.current) inputRef.current.removeAttribute('typing-term');
+      elem.focus();
+      restoreCursorPosition(newCursorPos);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps -- restoreCursorPosition excluded, just a helper function
+    [messageValue, inputRef, onChange, suggestionValue]
+  );
 
   /** ------- **/
 
@@ -305,7 +332,6 @@ export default function TextareaWithSuggestions(props: Props) {
       inputElement.focus();
       if (messageValue) inputElement.setSelectionRange(messageValue.length, messageValue.length);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- do NOT listen to messageValue, otherwise will autofocus while typing
-
   }, [autoFocus, inputRef]);
   React.useEffect(() => {
     if (!isMention) return;
@@ -335,9 +361,7 @@ export default function TextareaWithSuggestions(props: Props) {
     if (!suggestionTerm) return; // only if there is a term, or else can't tab to navigate page
 
     function handleKeyDown(e: React.KeyboardEvent<any>) {
-      const {
-        keyCode
-      } = e;
+      const { keyCode } = e;
 
       if (highlightedSuggestion && keyCode === KEYCODES.TAB) {
         e.preventDefault();
@@ -353,9 +377,7 @@ export default function TextareaWithSuggestions(props: Props) {
     const inputElement = inputRef && inputRef.current;
 
     function overrideKeyHandling(event) {
-      const {
-        keyCode
-      } = event;
+      const { keyCode } = event;
 
       if (!suggestionTerm && (keyCode === KEYCODES.UP || keyCode === KEYCODES.DOWN)) {
         event.stopPropagation();
@@ -378,20 +400,58 @@ export default function TextareaWithSuggestions(props: Props) {
   /** Render **/
 
   /** ------ **/
-  return <Autocomplete PopperComponent={AutocompletePopper} autoHighlight disableClearable filterOptions={options => options.filter(({
-    label
-  }) => allMatches.includes(label))} freeSolo fullWidth getOptionLabel={option => option.label || ''} groupBy={option => option.group} id={id} inputValue={messageValue} loading={allMatches.length === 0 || showPlaceholder} loadingText={showPlaceholder ? <BusyIndicator message={__('Searching...')} /> : __('Nothing found')} onBlur={() => onBlur && onBlur()}
-  /* Different from onInputChange, onChange is only used for the selected value,
+  return (
+    <Autocomplete
+      PopperComponent={AutocompletePopper}
+      autoHighlight
+      disableClearable
+      filterOptions={(options) => options.filter(({ label }) => allMatches.includes(label))}
+      freeSolo
+      fullWidth
+      getOptionLabel={(option) => option.label || ''}
+      groupBy={(option) => option.group}
+      id={id}
+      inputValue={messageValue}
+      loading={allMatches.length === 0 || showPlaceholder}
+      loadingText={showPlaceholder ? <BusyIndicator message={__('Searching...')} /> : __('Nothing found')}
+      onBlur={() => onBlur && onBlur()}
+      /* Different from onInputChange, onChange is only used for the selected value,
     so here it is acting simply as a selection handler (see it as onSelect) */
-  onChange={(event, value) => handleSelect(value.label, event.keyCode)} onClose={(event, reason) => reason !== 'selectOption' && setClose(true)} onFocus={() => onFocus && onFocus()} onHighlightChange={(event, option) => setHighlightedSuggestion(option)} onInputChange={(event, value, reason) => reason === 'input' && handleInputChange(value)} onOpen={() => suggestionTerm && setClose(false)}
-  /* 'open' is for the popper box component, set to check for a valid term
+      onChange={(event, value) => handleSelect(value.label, event.keyCode)}
+      onClose={(event, reason) => reason !== 'selectOption' && setClose(true)}
+      onFocus={() => onFocus && onFocus()}
+      onHighlightChange={(event, option) => setHighlightedSuggestion(option)}
+      onInputChange={(event, value, reason) => reason === 'input' && handleInputChange(value)}
+      onOpen={() => suggestionTerm && setClose(false)}
+      /* 'open' is for the popper box component, set to check for a valid term
     or else it will be displayed all the time as empty (no options) */
-  open={!!suggestionTerm && !shouldClose} options={allOptionsGrouped} renderGroup={({
-    group,
-    children
-  }) => <TextareaSuggestionsGroup groupName={group} suggestionTerm={suggestionTerm} searchQuery={searchQuery}>
+      open={!!suggestionTerm && !shouldClose}
+      options={allOptionsGrouped}
+      renderGroup={({ group, children }) => (
+        <TextareaSuggestionsGroup groupName={group} suggestionTerm={suggestionTerm} searchQuery={searchQuery}>
           {children}
-        </TextareaSuggestionsGroup>} renderInput={params => <TextareaSuggestionsInput params={params} messageValue={messageValue} inputRef={inputRef} inputDefaultProps={inputDefaultProps} toggleSelectors={toggleSelectors} handleTip={handleTip} handleSubmit={handleSubmit} handlePreventClick={handlePreventClick} submitButtonRef={submitButtonRef} claimIsMine={claimIsMine} slimInput={slimInput} />} renderOption={(optionProps, option) => <TextareaSuggestionsOption label={option.label} isEmote={isEmote} optionProps={optionProps} />} />;
+        </TextareaSuggestionsGroup>
+      )}
+      renderInput={(params) => (
+        <TextareaSuggestionsInput
+          params={params}
+          messageValue={messageValue}
+          inputRef={inputRef}
+          inputDefaultProps={inputDefaultProps}
+          toggleSelectors={toggleSelectors}
+          handleTip={handleTip}
+          handleSubmit={handleSubmit}
+          handlePreventClick={handlePreventClick}
+          submitButtonRef={submitButtonRef}
+          claimIsMine={claimIsMine}
+          slimInput={slimInput}
+        />
+      )}
+      renderOption={(optionProps, option) => (
+        <TextareaSuggestionsOption label={option.label} isEmote={isEmote} optionProps={optionProps} />
+      )}
+    />
+  );
 }
 
 const AutocompletePopper = (props: any) => <Popper {...props} placement="top" />;
@@ -399,8 +459,10 @@ const AutocompletePopper = (props: any) => <Popper {...props} placement="top" />
 function useSuggestionMatch(term: string, list: Array<string>) {
   const throttledTerm = useThrottle(term);
   return React.useMemo(() => {
-    return !throttledTerm || throttledTerm.trim() === '' ? undefined : matchSorter(list, term, {
-      keys: [item => item]
-    });
+    return !throttledTerm || throttledTerm.trim() === ''
+      ? undefined
+      : matchSorter(list, term, {
+          keys: [(item) => item],
+        });
   }, [list, term, throttledTerm]);
 }

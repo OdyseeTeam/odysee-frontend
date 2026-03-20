@@ -1,17 +1,17 @@
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import React from "react";
-import Page from "component/page";
-import Spinner from "component/spinner";
-import { FormField } from "component/common/form";
-import Notification from "component/notification";
-import Button from "component/button";
-import usePersistedState from "effects/use-persisted-state";
-import Yrbl from "component/yrbl";
-import * as NOTIFICATIONS from "constants/notifications";
-import useFetched from "effects/use-fetched";
-import { RULE } from "constants/notifications";
-import BrowserNotificationBanner from "$web/component/browserNotificationBanner";
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import Page from 'component/page';
+import Spinner from 'component/spinner';
+import { FormField } from 'component/common/form';
+import Notification from 'component/notification';
+import Button from 'component/button';
+import usePersistedState from 'effects/use-persisted-state';
+import Yrbl from 'component/yrbl';
+import * as NOTIFICATIONS from 'constants/notifications';
+import useFetched from 'effects/use-fetched';
+import { RULE } from 'constants/notifications';
+import BrowserNotificationBanner from '$web/component/browserNotificationBanner';
 type Props = {
   notifications: Array<Notification>;
   notificationsFiltered: Array<Notification>;
@@ -39,7 +39,7 @@ export default function NotificationsPage(props: Props) {
     doNotificationCategories,
     notificationCategories,
     activeChannel,
-    doCommentReactList
+    doCommentReactList,
   } = props;
   const [name, setName] = usePersistedState('notifications--rule', NOTIFICATIONS.NOTIFICATION_NAME_ALL);
   const isFiltered = name !== NOTIFICATIONS.NOTIFICATION_NAME_ALL;
@@ -52,13 +52,17 @@ export default function NotificationsPage(props: Props) {
   React.useEffect(() => {
     if (ready && !fetching && activeChannel) {
       let idsForReactionFetch = [];
-      list.map(notification => {
-        const {
-          notification_rule,
-          notification_parameters
-        } = notification;
-        const isComment = notification_rule === RULE.COMMENT || notification_rule === RULE.COMMENT_REPLY || notification_rule === RULE.CREATOR_COMMENT;
-        const commentId = isComment && notification_parameters && notification_parameters.dynamic && notification_parameters.dynamic.hash;
+      list.map((notification) => {
+        const { notification_rule, notification_parameters } = notification;
+        const isComment =
+          notification_rule === RULE.COMMENT ||
+          notification_rule === RULE.COMMENT_REPLY ||
+          notification_rule === RULE.CREATOR_COMMENT;
+        const commentId =
+          isComment &&
+          notification_parameters &&
+          notification_parameters.dynamic &&
+          notification_parameters.dynamic.hash;
 
         if (commentId) {
           idsForReactionFetch.push(commentId);
@@ -84,7 +88,7 @@ export default function NotificationsPage(props: Props) {
 
       if (name !== NOTIFICATIONS.NOTIFICATION_NAME_ALL) {
         try {
-          const matchingCategory = arrayNotificationCategories.find(category => category.name === name);
+          const matchingCategory = arrayNotificationCategories.find((category) => category.name === name);
 
           if (matchingCategory) {
             doNotificationList(matchingCategory.types, false);
@@ -101,10 +105,12 @@ export default function NotificationsPage(props: Props) {
     }
   }, []);
   // eslint-disable-line react-hooks/exhaustive-deps
-  return <Page className="notification-page">
+  return (
+    <Page className="notification-page">
       <BrowserNotificationBanner />
 
-      {ready && <div className="claim-list__header">
+      {ready && (
+        <div className="claim-list__header">
           <h1 className="page__title">
             <Icon icon={ICONS.NOTIFICATION} />
             <label>{__('Notifications')}</label>
@@ -112,30 +118,61 @@ export default function NotificationsPage(props: Props) {
           <div className="claim-list__alt-controls--wrap">
             {fetching && <Spinner type="small" delayed />}
 
-            {unreadCount > 0 && <Button icon={ICONS.EYE} onClick={doReadNotifications} button="secondary" label={__('Mark all as read')} />}
+            {unreadCount > 0 && (
+              <Button
+                icon={ICONS.EYE}
+                onClick={doReadNotifications}
+                button="secondary"
+                label={__('Mark all as read')}
+              />
+            )}
 
-            {notificationCategories && <FormField type="select" name="filter" value={name} onChange={e => setName(e.target.value)}>
-                {notificationCategories.map(category => {
-            return <option key={category.name} value={category.name}>
+            {notificationCategories && (
+              <FormField type="select" name="filter" value={name} onChange={(e) => setName(e.target.value)}>
+                {notificationCategories.map((category) => {
+                  return (
+                    <option key={category.name} value={category.name}>
                       {__(category.name)}
-                    </option>;
-          })}
-              </FormField>}
+                    </option>
+                  );
+                })}
+              </FormField>
+            )}
           </div>
-        </div>}
+        </div>
+      )}
 
-      {!ready ? <div className="main--empty">
+      {!ready ? (
+        <div className="main--empty">
           <Spinner />
-        </div> : list && list.length > 0 && !(isFiltered && fetching) ? <div className="card">
+        </div>
+      ) : list && list.length > 0 && !(isFiltered && fetching) ? (
+        <div className="card">
           <div className="notification_list">
-            {list.map(notification => {
-          return <Notification key={notification.id} notification={notification} />;
-        })}
+            {list.map((notification) => {
+              return <Notification key={notification.id} notification={notification} />;
+            })}
           </div>
-        </div> : <div className="main--empty">
-          {!fetching && <Yrbl title={__('No notifications')} subtitle={isFiltered ? __('Try selecting another filter.') : __("You don't have any notifications yet, but they will be here when you do!")} actions={<div className="section__actions">
+        </div>
+      ) : (
+        <div className="main--empty">
+          {!fetching && (
+            <Yrbl
+              title={__('No notifications')}
+              subtitle={
+                isFiltered
+                  ? __('Try selecting another filter.')
+                  : __("You don't have any notifications yet, but they will be here when you do!")
+              }
+              actions={
+                <div className="section__actions">
                   <Button button="primary" icon={ICONS.HOME} label={__('Go Home')} navigate="/" />
-                </div>} />}
-        </div>}
-    </Page>;
+                </div>
+              }
+            />
+          )}
+        </div>
+      )}
+    </Page>
+  );
 }

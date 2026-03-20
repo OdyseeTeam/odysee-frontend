@@ -1,2 +1,2 @@
-import PageTOS from "./view";
+import PageTOS from './view';
 export default PageTOS;

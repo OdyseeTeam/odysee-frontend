@@ -1,4 +1,4 @@
-import { selectClaimIdForUri } from "redux/selectors/claims";
+import { selectClaimIdForUri } from 'redux/selectors/claims';
 
 const selectState = (state: State) => state.stats || {};
 

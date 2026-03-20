@@ -1,13 +1,13 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import * as MEMBERSHIP_CONSTS from "constants/memberships";
-import Icon from "component/common/icon";
-import I18nMessage from "component/i18nMessage";
-import AstronautAndFriends from "./internal/assets/astronaut_n_friends.png";
-import BadgePremium from "./internal/assets/badge_premium.png";
-import BadgePremiumPlus from "./internal/assets/badge_premium-plus.png";
-import OdyseePremium from "./internal/assets/odysee_premium.png";
-import JoinButton from "./internal/joinPlanButton";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import * as MEMBERSHIP_CONSTS from 'constants/memberships';
+import Icon from 'component/common/icon';
+import I18nMessage from 'component/i18nMessage';
+import AstronautAndFriends from './internal/assets/astronaut_n_friends.png';
+import BadgePremium from './internal/assets/badge_premium.png';
+import BadgePremiumPlus from './internal/assets/badge_premium-plus.png';
+import OdyseePremium from './internal/assets/odysee_premium.png';
+import JoinButton from './internal/joinPlanButton';
 type Props = {
   pageLocation: string;
   // -- redux --
@@ -15,11 +15,9 @@ type Props = {
 };
 
 const MembershipSplash = (props: Props) => {
-  const {
-    pageLocation,
-    preferredCurrency
-  } = props;
-  return <div className="membership-splash">
+  const { pageLocation, preferredCurrency } = props;
+  return (
+    <div className="membership-splash">
       <div className="membership-splash__banner">
         <img width="1000" height="740" src={AstronautAndFriends} />
 
@@ -29,10 +27,12 @@ const MembershipSplash = (props: Props) => {
           </section>
 
           <section>
-            <I18nMessage tokens={{
-            early_access: <b>{__('early access')}</b>,
-            site_wide_badge: <b>{__('site-wide badge')}</b>
-          }}>
+            <I18nMessage
+              tokens={{
+                early_access: <b>{__('early access')}</b>,
+                site_wide_badge: <b>{__('site-wide badge')}</b>,
+              }}
+            >
               Get %early_access% features and a %site_wide_badge%
             </I18nMessage>
           </section>
@@ -57,10 +57,13 @@ const MembershipSplash = (props: Props) => {
               <img width="500" height="500" src={BadgePremium} />
 
               <section>
-                <I18nMessage tokens={{
-                premium_recurrence: <div className="membership-splash__info-range">{__('A MONTH')}</div>,
-                premium_price: MEMBERSHIP_CONSTS.PRICES[MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM][preferredCurrency]
-              }}>
+                <I18nMessage
+                  tokens={{
+                    premium_recurrence: <div className="membership-splash__info-range">{__('A MONTH')}</div>,
+                    premium_price:
+                      MEMBERSHIP_CONSTS.PRICES[MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM][preferredCurrency],
+                  }}
+                >
                   %premium_price% %premium_recurrence% --[context: '99¢ A MONTH']--
                 </I18nMessage>
               </section>
@@ -82,10 +85,13 @@ const MembershipSplash = (props: Props) => {
               <img width="500" height="500" src={BadgePremiumPlus} />
 
               <section>
-                <I18nMessage tokens={{
-                premium_recurrence: <div className="membership-splash__info-range">{__('A MONTH')}</div>,
-                premium_price: MEMBERSHIP_CONSTS.PRICES[MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS][preferredCurrency]
-              }}>
+                <I18nMessage
+                  tokens={{
+                    premium_recurrence: <div className="membership-splash__info-range">{__('A MONTH')}</div>,
+                    premium_price:
+                      MEMBERSHIP_CONSTS.PRICES[MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS][preferredCurrency],
+                  }}
+                >
                   %premium_price% %premium_recurrence% --[context: '99¢ A MONTH']--
                 </I18nMessage>
               </section>
@@ -100,17 +106,22 @@ const MembershipSplash = (props: Props) => {
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
-const EarlyAcessInfo = () => <div className="membership-splash__info-content">
+const EarlyAcessInfo = () => (
+  <div className="membership-splash__info-content">
     <Icon icon={ICONS.EARLY_ACCESS} />
     <h1 className="balance-text">{__('Exclusive and early access to features')}</h1>
-  </div>;
+  </div>
+);
 
-const BadgeInfo = () => <div className="membership-splash__info-content">
+const BadgeInfo = () => (
+  <div className="membership-splash__info-content">
     <Icon icon={ICONS.MEMBER_BADGE} />
     <h1 className="balance-text">{__('Badge on profile')}</h1>
-  </div>;
+  </div>
+);
 
 export default MembershipSplash;

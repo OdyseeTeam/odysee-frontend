@@ -21,9 +21,11 @@
   function setNativeValue(el, value) {
     var setter = el.tagName === 'TEXTAREA' ? nativeTextareaValueSetter : nativeInputValueSetter;
     setter.call(el, value);
-    el.dispatchEvent(new Event('input', {
-      bubbles: true
-    }));
+    el.dispatchEvent(
+      new Event('input', {
+        bubbles: true,
+      })
+    );
   }
 
   var textareaEditor = function (el) {
@@ -69,9 +71,13 @@
     options = options || {};
     var editor = new textareaEditor(el);
     var inlineattach = new window.inlineAttachment(options, editor);
-    el.addEventListener('paste', function (e) {
-      inlineattach.onPaste(e);
-    }, false);
+    el.addEventListener(
+      'paste',
+      function (e) {
+        inlineattach.onPaste(e);
+      },
+      false
+    );
     el.addEventListener('drop', function (e) {
       if (inlineattach.onDrop(e)) {
         e.stopPropagation();

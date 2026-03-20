@@ -1,4 +1,4 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 
 function hitsFiftyPercent() {
   // from 0 - 999
@@ -14,7 +14,7 @@ function hitsFiftyPercent() {
 
 const adTags = {
   ford: '612fb75a42715a07645a614c',
-  live: '60b354389c7adb506d0bd9a4'
+  live: '60b354389c7adb506d0bd9a4',
 };
 // Modified to work with IMA
 // const vastMacroUrl =
@@ -56,22 +56,33 @@ function runAds(internalFeatureEnabled, allowPreRoll, player, embedded) {
   // height and width of player
   const height = videoElement.offsetHeight;
   const width = videoElement.offsetWidth;
-  const vpaidMacroUrl = 'https://gov.aniview.com/api/adserver/vast3/' + '?AV_PUBLISHERID=60afcbc58cfdb065440d2426' + `&AV_CHANNELID=${adTags.live}` + `&AV_URL=${encodeURIComponent(window.location.href)}` + `&cb=${encodeURIComponent(timestamp)}` + `&AV_WIDTH=${width}` + `&AV_HEIGHT=${height}` + // '&AV_SCHAIN=[SCHAIN_MACRO]' +
-  // '&AV_CCPA=[CCPA_MACRO]' +
-  // '&AV_GDPR=[GDPR_MACRO]' +
-  // '&AV_CONSENT=[CONSENT_MACRO]' +
-  `&skip=true` + `&skiptimer=5` + `&logo=true` + `&usevslot=true` + `&vastretry=2` + `&hidecontrols=false`;
+  const vpaidMacroUrl =
+    'https://gov.aniview.com/api/adserver/vast3/' +
+    '?AV_PUBLISHERID=60afcbc58cfdb065440d2426' +
+    `&AV_CHANNELID=${adTags.live}` +
+    `&AV_URL=${encodeURIComponent(window.location.href)}` +
+    `&cb=${encodeURIComponent(timestamp)}` +
+    `&AV_WIDTH=${width}` +
+    `&AV_HEIGHT=${height}` + // '&AV_SCHAIN=[SCHAIN_MACRO]' +
+    // '&AV_CCPA=[CCPA_MACRO]' +
+    // '&AV_GDPR=[GDPR_MACRO]' +
+    // '&AV_CONSENT=[CONSENT_MACRO]' +
+    `&skip=true` +
+    `&skiptimer=5` +
+    `&logo=true` +
+    `&usevslot=true` +
+    `&vastretry=2` +
+    `&hidecontrols=false`;
   // always have ads on if internal feature is on,
   // otherwise if not authed, roll for 20% to see an ad
   // allowPreRoll currently means unauthenticated (don't show to logged in users)
-  const shouldShowAnAd = internalFeatureEnabled || !embedded && allowPreRoll && hitsAtFiftyPercentChance;
+  const shouldShowAnAd = internalFeatureEnabled || (!embedded && allowPreRoll && hitsAtFiftyPercentChance);
 
   if (shouldShowAnAd && browserIsChrome && !IS_MOBILE) {
     // fire up ima integration via module
     player.ima({
       adTagUrl: vpaidMacroUrl,
-      vpaidMode: 2 // 2 maps to insecure
-
+      vpaidMode: 2, // 2 maps to insecure
     });
   }
 }

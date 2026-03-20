@@ -1,10 +1,14 @@
-import { connect } from "react-redux";
-import { selectClaimForUri, selectClaimSearchByQuery, makeSelectTagInClaimOrChannelForUri } from "redux/selectors/claims";
-import { doResolveUris } from "redux/actions/claims";
-import { selectSettingsByChannelId } from "redux/selectors/comments";
-import { doUpdateCreatorSettings } from "redux/actions/comments";
-import { PREFERENCE_EMBED } from "constants/tags";
-import HomeTab from "./view";
+import { connect } from 'react-redux';
+import {
+  selectClaimForUri,
+  selectClaimSearchByQuery,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { doResolveUris } from 'redux/actions/claims';
+import { selectSettingsByChannelId } from 'redux/selectors/comments';
+import { doUpdateCreatorSettings } from 'redux/actions/comments';
+import { PREFERENCE_EMBED } from 'constants/tags';
+import HomeTab from './view';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -12,12 +16,12 @@ const select = (state, props) => {
     claimSearchByQuery: selectClaimSearchByQuery(state),
     settingsByChannelId: selectSettingsByChannelId(state),
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
-    claim
+    claim,
   };
 };
 
 const perform = {
   doResolveUris,
-  doUpdateCreatorSettings
+  doUpdateCreatorSettings,
 };
 export default connect(select, perform)(HomeTab);

@@ -1,7 +1,7 @@
 /*
   LBRY FIRST does not work due to api changes
  */
-import "proxy-polyfill";
+import 'proxy-polyfill';
 const CHECK_LBRYFIRST_STARTED_TRY_NUMBER = 200;
 //
 // Basic LBRYFIRST connection config
@@ -12,7 +12,7 @@ const LbryFirst: LbryFirstTypes = {
   connectPromise: null,
   lbryFirstConnectionString: 'http://localhost:1337/rpc',
   apiRequestHeaders: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   // Allow overriding lbryFirst connection string (e.g. to `/api/proxy` for lbryweb)
   setLbryFirstConnectionString: (value: string) => {
@@ -20,10 +20,10 @@ const LbryFirst: LbryFirstTypes = {
   },
   setApiHeader: (key: string, value: string) => {
     LbryFirst.apiRequestHeaders = Object.assign(LbryFirst.apiRequestHeaders, {
-      [key]: value
+      [key]: value,
     });
   },
-  unsetApiHeader: key => {
+  unsetApiHeader: (key) => {
     Object.keys(LbryFirst.apiRequestHeaders).includes(key) && delete LbryFirst.apiRequestHeaders['key'];
   },
   // Allow overriding Lbry methods
@@ -37,11 +37,13 @@ const LbryFirst: LbryFirstTypes = {
   stop: () => lbryFirstCallWithResult('stop', {}),
   version: () => lbryFirstCallWithResult('version', {}),
   // Upload to youtube
-  upload: (params: {
-    title: string;
-    description: string;
-    file_path: string | null | undefined;
-  } = {}) => {
+  upload: (
+    params: {
+      title: string;
+      description: string;
+      file_path: string | null | undefined;
+    } = {}
+  ) => {
     // Only upload when originally publishing for now
     if (!params.file_path) {
       return Promise.resolve();
@@ -58,7 +60,7 @@ const LbryFirst: LbryFirstTypes = {
       Description: params.description,
       FilePath: params.file_path,
       Category: '',
-      Keywords: ''
+      Keywords: '',
     };
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
@@ -84,13 +86,15 @@ const LbryFirst: LbryFirstTypes = {
         // Check every half second to see if the lbryFirst is accepting connections
         function checkLbryFirstStarted() {
           tryNum += 1;
-          LbryFirst.status().then(resolve).catch(() => {
-            if (tryNum <= CHECK_LBRYFIRST_STARTED_TRY_NUMBER) {
-              setTimeout(checkLbryFirstStarted, tryNum < 50 ? 400 : 1000);
-            } else {
-              reject(new Error('Unable to connect to LBRY'));
-            }
-          });
+          LbryFirst.status()
+            .then(resolve)
+            .catch(() => {
+              if (tryNum <= CHECK_LBRYFIRST_STARTED_TRY_NUMBER) {
+                setTimeout(checkLbryFirstStarted, tryNum < 50 ? 400 : 1000);
+              } else {
+                reject(new Error('Unable to connect to LBRY'));
+              }
+            });
         }
 
         checkLbryFirstStarted();
@@ -100,7 +104,7 @@ const LbryFirst: LbryFirstTypes = {
     // Flow thinks this could be empty, but it will always return a promise
     // $FlowFixMe
     return LbryFirst.connectPromise;
-  }
+  },
 };
 
 function checkAndParse(response) {
@@ -108,7 +112,7 @@ function checkAndParse(response) {
     return response.json();
   }
 
-  return response.json().then(json => {
+  return response.json().then((json) => {
     let error;
 
     if (json.error) {
@@ -122,7 +126,12 @@ function checkAndParse(response) {
   });
 }
 
-export function apiCall(method: string, params: {} | null | undefined, resolve: (...args: Array<any>) => any, reject: (...args: Array<any>) => any) {
+export function apiCall(
+  method: string,
+  params: {} | null | undefined,
+  resolve: (...args: Array<any>) => any,
+  reject: (...args: Array<any>) => any
+) {
   const counter = new Date().getTime();
   const paramsArray = [params];
   const options = {
@@ -132,25 +141,33 @@ export function apiCall(method: string, params: {} | null | undefined, resolve: 
       jsonrpc: '2.0',
       method,
       params: paramsArray,
-      id: counter
-    })
+      id: counter,
+    }),
   };
-  return fetch(LbryFirst.lbryFirstConnectionString, options).then(checkAndParse).then(response => {
-    const error = response.error || response.result && response.result.error;
+  return fetch(LbryFirst.lbryFirstConnectionString, options)
+    .then(checkAndParse)
+    .then((response) => {
+      const error = response.error || (response.result && response.result.error);
 
-    if (error) {
-      return reject(error);
-    }
+      if (error) {
+        return reject(error);
+      }
 
-    return resolve(response.result);
-  }).catch(reject);
+      return resolve(response.result);
+    })
+    .catch(reject);
 }
 
 function lbryFirstCallWithResult(name: string, params: {} | null | undefined = {}) {
   return new Promise((resolve, reject) => {
-    apiCall(name, params, result => {
-      resolve(result);
-    }, reject);
+    apiCall(
+      name,
+      params,
+      (result) => {
+        resolve(result);
+      },
+      reject
+    );
   });
 }
 
@@ -162,10 +179,10 @@ const lbryFirstProxy = new Proxy(LbryFirst, {
       return target[name];
     }
 
-    return (params = {}) => new Promise((resolve, reject) => {
-      apiCall(name, params, resolve, reject);
-    });
-  }
-
+    return (params = {}) =>
+      new Promise((resolve, reject) => {
+        apiCall(name, params, resolve, reject);
+      });
+  },
 });
 export default lbryFirstProxy;

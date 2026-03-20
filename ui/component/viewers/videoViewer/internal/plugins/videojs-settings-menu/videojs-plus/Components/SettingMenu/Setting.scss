@@ -36,7 +36,10 @@
 
   .vjs-menu-content {
     will-change: transform, width, height;
-    transition: 0.3s transform ease, 0.3s width ease, 0.3s height ease;
+    transition:
+      0.3s transform ease,
+      0.3s width ease,
+      0.3s height ease;
     overflow: hidden;
   }
 

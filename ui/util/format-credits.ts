@@ -30,7 +30,9 @@ export function formatCredits(amount, precision, shortFormat = false) {
     }
   }
 
-  return numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')) + suffix;
+  return (
+    numberWithCommas(actualAmount.toFixed(actualPrecision >= 0 ? actualPrecision : 1).replace(/\.*0+$/, '')) + suffix
+  );
 }
 export function formatFullPrice(amount, precision = 1) {
   let formated = '';
@@ -39,7 +41,7 @@ export function formatFullPrice(amount, precision = 1) {
 
   if (fraction) {
     const decimals = fraction.split('');
-    const first = decimals.filter(number => number !== '0')[0];
+    const first = decimals.filter((number) => number !== '0')[0];
     const index = decimals.indexOf(first);
     // Set format fraction
     formated = `.${fraction.substring(0, index + precision)}`;

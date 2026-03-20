@@ -2,12 +2,24 @@
   "name": "videojs-hls-quality-selector",
   "version": "1.1.4",
   "description": "Adds a quality selector menu for HLS sources played in videojs.  Requires `videojs-contrib-hls` and videojs-contrib-quality-levels plugins.",
+  "keywords": [
+    "videojs",
+    "videojs-plugin"
+  ],
+  "license": "MIT",
+  "author": "Chris Boustead (chris@forgemotion.com)",
+  "repository": "https://github.com/chrisboustead/videojs-hls-quality-selector.git",
+  "files": [
+    "CONTRIBUTING.md",
+    "dist/",
+    "docs/",
+    "index.html",
+    "scripts/",
+    "src/",
+    "test/"
+  ],
   "main": "dist/videojs-hls-quality-selector.cjs.js",
   "module": "dist/videojs-hls-quality-selector.es.js",
-  "generator-videojs-plugin": {
-    "version": "5.0.3"
-  },
-  "repository": "https://github.com/chrisboustead/videojs-hls-quality-selector.git",
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
@@ -42,29 +54,6 @@
     "prepush": "npm run lint",
     "precommit": "npm run docs:toc && git add README.md"
   },
-  "keywords": [
-    "videojs",
-    "videojs-plugin"
-  ],
-  "author": "Chris Boustead (chris@forgemotion.com)",
-  "license": "MIT",
-  "vjsstandard": {
-    "ignore": [
-      "dist",
-      "docs",
-      "test/dist",
-      "test/karma.conf.js"
-    ]
-  },
-  "files": [
-    "CONTRIBUTING.md",
-    "dist/",
-    "docs/",
-    "index.html",
-    "scripts/",
-    "src/",
-    "test/"
-  ],
   "dependencies": {
     "global": "^4.3.2",
     "karma-safaritechpreview-launcher": "0.0.6",
@@ -105,5 +94,16 @@
     "sinon": "^2.2.0",
     "uglify-js": "^3.0.7",
     "videojs-standard": "^6.0.0"
+  },
+  "generator-videojs-plugin": {
+    "version": "5.0.3"
+  },
+  "vjsstandard": {
+    "ignore": [
+      "dist",
+      "docs",
+      "test/dist",
+      "test/karma.conf.js"
+    ]
   }
 }

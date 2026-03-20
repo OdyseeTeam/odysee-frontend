@@ -1,38 +1,38 @@
-import { ENABLE_PREROLL_ADS } from "config";
-import { ERR_GRP } from "constants/errors";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import { VJS_EVENTS } from "constants/player";
-import React, { useEffect, useState, useContext, useCallback } from "react";
-import * as Chapters from "./internal/chapters";
-import type { Player } from "./internal/videojs";
-import VideoJs from "./internal/videojs";
-import analytics from "analytics";
-import { EmbedContext } from "contexts/embed";
-import classnames from "classnames";
-import { FORCE_CONTENT_TYPE_PLAYER } from "constants/claim";
-import FileViewerEmbeddedEnded from "./internal/fileViewerEmbeddedEnded";
-import FileViewerEmbeddedTitle from "component/fileViewerEmbeddedTitle";
-import useAutoplayNext from "./internal/effects/use-autoplay-next";
-import useTheaterMode from "./internal/effects/use-theater-mode";
-import { addPlayNextButton } from "./internal/play-next";
-import { addPlayPreviousButton } from "./internal/play-previous";
-import { useGetAds } from "effects/use-get-ads";
-import Button from "component/button";
-import I18nMessage from "component/i18nMessage";
-import ClaimPreviewTile from "component/claimPreviewTile";
-import FileReactions from "component/fileReactions";
-import { useHistory } from "react-router";
-import { getAllIds } from "util/buildHomepage";
-import type { HomepageCat } from "util/buildHomepage";
-import debounce from "util/debounce";
-import useInterval from "effects/use-interval";
-import { lastBandwidthSelector } from "./internal/plugins/videojs-http-streaming--override/playlist-selectors";
-import { isClaimUnlisted } from "util/claim";
-import { parseURI } from "util/lbryURI";
-import { platform } from "util/platform";
-import { LocalStorage } from "util/storage";
-import { useIsMobile } from "effects/use-screensize";
+import { ENABLE_PREROLL_ADS } from 'config';
+import { ERR_GRP } from 'constants/errors';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import { VJS_EVENTS } from 'constants/player';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
+import * as Chapters from './internal/chapters';
+import type { Player } from './internal/videojs';
+import VideoJs from './internal/videojs';
+import analytics from 'analytics';
+import { EmbedContext } from 'contexts/embed';
+import classnames from 'classnames';
+import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
+import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import useAutoplayNext from './internal/effects/use-autoplay-next';
+import useTheaterMode from './internal/effects/use-theater-mode';
+import { addPlayNextButton } from './internal/play-next';
+import { addPlayPreviousButton } from './internal/play-previous';
+import { useGetAds } from 'effects/use-get-ads';
+import Button from 'component/button';
+import I18nMessage from 'component/i18nMessage';
+import ClaimPreviewTile from 'component/claimPreviewTile';
+import FileReactions from 'component/fileReactions';
+import { useHistory } from 'react-router';
+import { getAllIds } from 'util/buildHomepage';
+import type { HomepageCat } from 'util/buildHomepage';
+import debounce from 'util/debounce';
+import useInterval from 'effects/use-interval';
+import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import { isClaimUnlisted } from 'util/claim';
+import { parseURI } from 'util/lbryURI';
+import { platform } from 'util/platform';
+import { LocalStorage } from 'util/storage';
+import { useIsMobile } from 'effects/use-screensize';
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
@@ -80,9 +80,7 @@ type Props = {
   internalFeature: boolean;
   homepageData?: Record<string, HomepageCat>;
   shareTelemetry: boolean;
-  doPlayNextUri: (params: {
-    uri: string;
-  }) => void;
+  doPlayNextUri: (params: { uri: string }) => void;
   collectionId: string;
   recomendedContent: any;
   nextPlaylistUri: string;
@@ -93,11 +91,7 @@ type Props = {
   isLivestreamClaim: boolean;
   activeLivestreamForChannel: LivestreamActiveClaim | null | undefined;
   defaultQuality: string | null | undefined;
-  doToast: (arg0: {
-    message: string;
-    linkText: string;
-    linkTarget: string;
-  }) => void;
+  doToast: (arg0: { message: string; linkText: string; linkTarget: string }) => void;
   doSetContentHistoryItem: (uri: string) => void;
   doClearContentHistoryUri: (uri: string) => void;
   isPurchasableContent: boolean;
@@ -105,10 +99,7 @@ type Props = {
   purchaseMadeForClaimId: boolean;
   isProtectedContent: boolean;
   isDownloadDisabled: boolean;
-  doSetShowAutoplayCountdownForUri: (params: {
-    uri: string | null | undefined;
-    show: boolean;
-  }) => void;
+  doSetShowAutoplayCountdownForUri: (params: { uri: string | null | undefined; show: boolean }) => void;
   doSetVideoSourceLoaded: (uri: string) => void;
   autoPlayNextShort: boolean;
 };
@@ -166,7 +157,7 @@ function VideoViewer(props: Props) {
     isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
-    autoPlayNextShort
+    autoPlayNextShort,
   } = props;
   const videoEnded = React.useRef(false);
   const isMobile = useIsMobile();
@@ -181,14 +172,12 @@ function VideoViewer(props: Props) {
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
-  const channelTitle = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title || '';
+  const channelTitle =
+    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
   const {
-    location: {
-      pathname,
-      search
-    }
+    location: { pathname, search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
@@ -225,7 +214,6 @@ function VideoViewer(props: Props) {
       // save the updated watch time
       doSetContentHistoryItem(claim.permanent_url);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [isPlaying]);
   useEffect(() => {
     if (isFirstRender.current) {
@@ -235,20 +223,26 @@ function VideoViewer(props: Props) {
 
     toggleAutoplayNext(); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [localAutoplayNext]);
-  useInterval(() => {
-    if (playerRef.current && isPlaying && !isLivestreamClaim) {
-      handlePosition(playerRef.current);
-    }
-  }, !isLivestreamClaim ? PLAY_POSITION_SAVE_INTERVAL_MS : null);
-  const updateVolumeState = React.useCallback(debounce((volume, muted) => {
-    changeVolume(volume);
-    changeMute(muted);
-  }, 500), []);
+  useInterval(
+    () => {
+      if (playerRef.current && isPlaying && !isLivestreamClaim) {
+        handlePosition(playerRef.current);
+      }
+    },
+    !isLivestreamClaim ? PLAY_POSITION_SAVE_INTERVAL_MS : null
+  );
+  const updateVolumeState = React.useCallback(
+    debounce((volume, muted) => {
+      changeVolume(volume);
+      changeMute(muted);
+    }, 500),
+    []
+  );
   // Update vjsCallbackDataRef (ensures videojs callbacks are not using stale values):
   useEffect(() => {
     vjsCallbackDataRef.current = {
       embedded: isEmbedded,
-      videoPlaybackRate: videoPlaybackRate
+      videoPlaybackRate: videoPlaybackRate,
     };
   }, [isEmbedded, videoPlaybackRate]);
   const handlePlayNextUri = React.useCallback(() => {
@@ -265,17 +259,17 @@ function VideoViewer(props: Props) {
         // and `player.play()`. Chrome allows it. Skip the countdown for now.
         // $FlowIgnore: shouldPlayRecommended guarantees non-null playNextUri
         doPlayNextUri({
-          uri: playNextUri
+          uri: playNextUri,
         });
       } else {
         doSetShowAutoplayCountdownForUri({
           uri,
-          show: true
+          show: true,
         });
       }
     } else if (playNextUri) {
       doPlayNextUri({
-        uri: playNextUri
+        uri: playNextUri,
       });
     }
   }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
@@ -284,7 +278,7 @@ function VideoViewer(props: Props) {
       videoNode.currentTime = 0;
     } else if (playPreviousUri) {
       doPlayNextUri({
-        uri: playPreviousUri
+        uri: playPreviousUri,
       });
     }
   }, [doPlayNextUri, playPreviousUri, videoNode]);
@@ -353,7 +347,7 @@ function VideoViewer(props: Props) {
 
     doSetShowAutoplayCountdownForUri({
       uri,
-      show: false
+      show: false,
     });
     if (embedContext) embedContext.setVideoEnded(false);
     analytics.video.videoIsPlaying(true, player);
@@ -415,7 +409,7 @@ function VideoViewer(props: Props) {
         addPlayPreviousButton(player, handlePlayPreviousUri);
       }
 
-      addAutoplayNextButton(player, () => setLocalAutoplayNext(e => !e), autoplayNext);
+      addAutoplayNextButton(player, () => setLocalAutoplayNext((e) => !e), autoplayNext);
     }
 
     // PR: #5535
@@ -434,9 +428,9 @@ function VideoViewer(props: Props) {
       }
     };
 
-    const onPauseEvent = event => onPause(event, player);
+    const onPauseEvent = (event) => onPause(event, player);
 
-    const onPlayerClosedEvent = event => onPlayerClosed(event, player);
+    const onPlayerClosedEvent = (event) => onPlayerClosed(event, player);
 
     const onVolumeChange = () => {
       if (player) {
@@ -457,13 +451,13 @@ function VideoViewer(props: Props) {
           fingerprint = ['videojs-media-segment-append--audio'];
         }
 
-        const options = { ...(fingerprint ? {
-            fingerprint
-          } : {})
-        };
+        const options = (fingerprint
+            ? {
+                fingerprint,
+              }
+            : {});
         analytics.log(`[${mediaError.code}] ${mediaError.message}`, options, ERR_GRP.VIDEOJS);
       } // @endif
-
     };
 
     const onRateChange = () => {
@@ -499,7 +493,7 @@ function VideoViewer(props: Props) {
         doToast({
           message: __('You can also change your default quality on settings.'),
           linkText: __('Settings'),
-          linkTarget: '/settings'
+          linkTarget: '/settings',
         });
       }
     }
@@ -554,52 +548,126 @@ function VideoViewer(props: Props) {
   }
 
   const [hovered, setHovered] = useState(false);
-  return <>
-      {isEmbedded && <div className={classnames({
-      'file-viewer__embedded-header-hide': isPlaying
-    })}>
+  return (
+    <>
+      {isEmbedded && (
+        <div
+          className={classnames({
+            'file-viewer__embedded-header-hide': isPlaying,
+          })}
+        >
           <FileViewerEmbeddedTitle uri={uri} />
-        </div>}
+        </div>
+      )}
 
-      <div className={classnames('file-viewer', {
-      'file-viewer--is-playing': isPlaying,
-      'file-viewer--ended-embed': showEmbedEndOverlay
-    })} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div
+        className={classnames('file-viewer', {
+          'file-viewer--is-playing': isPlaying,
+          'file-viewer--ended-embed': showEmbedEndOverlay,
+        })}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
-        {showRecommendationOverlay && <div className="recommendation-overlay-wrapper">
+        {showRecommendationOverlay && (
+          <div className="recommendation-overlay-wrapper">
             <div className="recommendation-overlay-grid">
-              {recomendedContent && recomendedContent.slice(0, 9).map((url, i) => <div key={url} onClick={() => {
-            i === 4 && isMobile ? replay() : doPlayNextUri({
-              uri: url
-            });
-          }}>
+              {recomendedContent &&
+                recomendedContent.slice(0, 9).map((url, i) => (
+                  <div
+                    key={url}
+                    onClick={() => {
+                      i === 4 && isMobile
+                        ? replay()
+                        : doPlayNextUri({
+                            uri: url,
+                          });
+                    }}
+                  >
                     <ClaimPreviewTile uri={url} onClickHandledByParent />
-                  </div>)}
+                  </div>
+                ))}
             </div>
-          </div>}
+          </div>
+        )}
 
-        {!isFetchingAd && adUrl && <>
+        {!isFetchingAd && adUrl && (
+          <>
             <span className="ads__video-notify">
               {__('Advertisement')}{' '}
-              <Button className="ads__video-close" icon={ICONS.REMOVE} title={__('Close')} onClick={() => setAdUrl(null)} />
+              <Button
+                className="ads__video-close"
+                icon={ICONS.REMOVE}
+                title={__('Close')}
+                onClick={() => setAdUrl(null)}
+              />
             </span>
             <span className="ads__video-nudge">
-              <I18nMessage tokens={{
-            sign_up: <Button button="secondary" className="ads__video-link" label={__('Sign Up')} navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`} />
-          }}>
+              <I18nMessage
+                tokens={{
+                  sign_up: (
+                    <Button
+                      button="secondary"
+                      className="ads__video-link"
+                      label={__('Sign Up')}
+                      navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`}
+                    />
+                  ),
+                }}
+              >
                 %sign_up% to turn ads off.
               </I18nMessage>
             </span>
-          </>}
+          </>
+        )}
 
-        <VideoJs adUrl={adUrl} source={adUrl || source} sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType} isAudio={isAudio} poster={isAudio ? thumbnail : ''} onPlayerReady={onPlayerReady} startMuted={autoplayIfEmbedded} toggleVideoTheaterMode={toggleVideoTheaterMode} claimId={claimId} title={claim && (claim.value && claim.value.title || claim.name)} channelTitle={channelTitle} userId={userId} allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
-      internalFeatureEnabled={internalFeature} shareTelemetry={shareTelemetry} playNext={handlePlayNextUri} playPrevious={handlePlayPreviousUri} embedded={isEmbedded} embeddedInternal={isMarkdownOrComment} claimValues={claim.value} doAnalyticsViewForUri={doAnalyticsViewForUri} doAnalyticsBuffer={doAnalyticsBuffer} claimRewards={claimRewards} uri={uri} userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id} isLivestreamClaim={isLivestreamClaim} activeLivestreamForChannel={activeLivestreamForChannel} defaultQuality={defaultQuality} doToast={doToast} isPurchasableContent={isPurchasableContent} isRentableContent={isRentableContent} isProtectedContent={isProtectedContent} isDownloadDisabled={isDownloadDisabled} isUnlisted={isClaimUnlisted(claim)} doSetVideoSourceLoaded={doSetVideoSourceLoaded} autoPlayNextShort={autoPlayNextShort} />
+        <VideoJs
+          adUrl={adUrl}
+          source={adUrl || source}
+          sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
+          isAudio={isAudio}
+          poster={isAudio ? thumbnail : ''}
+          onPlayerReady={onPlayerReady}
+          startMuted={autoplayIfEmbedded}
+          toggleVideoTheaterMode={toggleVideoTheaterMode}
+          claimId={claimId}
+          title={claim && ((claim.value && claim.value.title) || claim.name)}
+          channelTitle={channelTitle}
+          userId={userId}
+          allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
+          internalFeatureEnabled={internalFeature}
+          shareTelemetry={shareTelemetry}
+          playNext={handlePlayNextUri}
+          playPrevious={handlePlayPreviousUri}
+          embedded={isEmbedded}
+          embeddedInternal={isMarkdownOrComment}
+          claimValues={claim.value}
+          doAnalyticsViewForUri={doAnalyticsViewForUri}
+          doAnalyticsBuffer={doAnalyticsBuffer}
+          claimRewards={claimRewards}
+          uri={uri}
+          userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
+          isLivestreamClaim={isLivestreamClaim}
+          activeLivestreamForChannel={activeLivestreamForChannel}
+          defaultQuality={defaultQuality}
+          doToast={doToast}
+          isPurchasableContent={isPurchasableContent}
+          isRentableContent={isRentableContent}
+          isProtectedContent={isProtectedContent}
+          isDownloadDisabled={isDownloadDisabled}
+          isUnlisted={isClaimUnlisted(claim)}
+          doSetVideoSourceLoaded={doSetVideoSourceLoaded}
+          autoPlayNextShort={autoPlayNextShort}
+        />
 
-        {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && <div className="embed-reactions-overlay" aria-label={__('Reactions')}>
+        {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (
+          <div className="embed-reactions-overlay" aria-label={__('Reactions')}>
             <FileReactions uri={uri} />
-          </div>}
+          </div>
+        )}
       </div>
-    </>;
+    </>
+  );
 }
 
 export default VideoViewer;

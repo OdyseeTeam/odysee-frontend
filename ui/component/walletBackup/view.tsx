@@ -1,11 +1,11 @@
-import * as React from "react";
-import { shell, remote } from "electron";
-import Button from "component/button";
-import CopyableText from "component/copyableText";
-import AdmZip from "adm-zip";
-import path from "path";
-import Card from "component/common/card";
-import I18nMessage from "component/i18nMessage";
+import * as React from 'react';
+import { shell, remote } from 'electron';
+import Button from 'component/button';
+import CopyableText from 'component/copyableText';
+import AdmZip from 'adm-zip';
+import path from 'path';
+import Card from 'component/common/card';
+import I18nMessage from 'component/i18nMessage';
 type Props = {
   daemonSettings: {
     wallet_dir: string | null | undefined;
@@ -21,26 +21,26 @@ class WalletBackup extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       errorMessage: null,
-      successMessage: null
+      successMessage: null,
     };
   }
 
   showErrorMessage(message: string) {
     this.setState({
-      errorMessage: message
+      errorMessage: message,
     });
   }
 
   showSuccessMessage(message: string) {
     this.setState({
-      successMessage: message
+      successMessage: message,
     });
   }
 
   clearMessages() {
     this.setState({
       errorMessage: null,
-      successMessage: null
+      successMessage: null,
     });
   }
 
@@ -84,35 +84,54 @@ class WalletBackup extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.showSuccessMessage(__('Saved zip archive to %outputPath%', {
-      outputPath
-    }));
+    this.showSuccessMessage(
+      __('Saved zip archive to %outputPath%', {
+        outputPath,
+      })
+    );
     shell.showItemInFolder(outputPath);
   }
 
   render() {
-    const {
-      daemonSettings = {}
-    } = this.props;
-    const {
-      wallet_dir: lbryumWalletDir
-    } = daemonSettings;
-    return <Card title={__('Backup your LBRY wallet')} subtitle={<ul>
+    const { daemonSettings = {} } = this.props;
+    const { wallet_dir: lbryumWalletDir } = daemonSettings;
+    return (
+      <Card
+        title={__('Backup your LBRY wallet')}
+        subtitle={
+          <ul>
             <li>
-              {__('Your LBRY Credits, channels, and publishes are controllable by you and only you, via wallet file(s) stored locally on your computer.')}
+              {__(
+                'Your LBRY Credits, channels, and publishes are controllable by you and only you, via wallet file(s) stored locally on your computer.'
+              )}
             </li>
             <li>
-              {__('If Sync is on, LBRY will backup your wallet and preferences. If disabled, you are responsible for keeping a backup.')}
+              {__(
+                'If Sync is on, LBRY will backup your wallet and preferences. If disabled, you are responsible for keeping a backup.'
+              )}
             </li>
             <li>
-              {__('However, it is easy to back up manually. To backup your wallet, make a copy of the folder listed below:')}
+              {__(
+                'However, it is easy to back up manually. To backup your wallet, make a copy of the folder listed below:'
+              )}
             </li>
-          </ul>} actions={<React.Fragment>
+          </ul>
+        }
+        actions={
+          <React.Fragment>
             <CopyableText copyable={lbryumWalletDir} snackMessage={__('Path copied.')} />
             <p className="help">
-              <I18nMessage tokens={{
-          helpLink: <Button button="link" href="https://lbry.com/faq/how-to-backup-wallet" label={__('see this article')} />
-        }}>
+              <I18nMessage
+                tokens={{
+                  helpLink: (
+                    <Button
+                      button="link"
+                      href="https://lbry.com/faq/how-to-backup-wallet"
+                      label={__('see this article')}
+                    />
+                  ),
+                }}
+              >
                 Access to these files are equivalent to having access to your Credits, channels, and publishes. Keep any
                 copies you make of your wallet in a secure place. For more details on backing up and best practices
                 %helpLink%.
@@ -125,12 +144,18 @@ class WalletBackup extends React.PureComponent<Props, State> {
               {this.state.successMessage}
             </p>
             <div className="card__actions">
-              <Button button="primary" label={__('Create Backup')} onClick={() => this.backupWalletDir(lbryumWalletDir)} />
+              <Button
+                button="primary"
+                label={__('Create Backup')}
+                onClick={() => this.backupWalletDir(lbryumWalletDir)}
+              />
               <Button button="link" label={__('Open Folder')} onClick={() => shell.openPath(lbryumWalletDir)} />
             </div>
-          </React.Fragment>} />;
+          </React.Fragment>
+        }
+      />
+    );
   }
-
 }
 
 export default WalletBackup;

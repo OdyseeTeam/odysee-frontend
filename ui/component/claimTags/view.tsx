@@ -1,6 +1,6 @@
-import * as React from "react";
-import classnames from "classnames";
-import Tag from "component/tag";
+import * as React from 'react';
+import classnames from 'classnames';
+import Tag from 'component/tag';
 const SLIM_TAGS = 1;
 const NORMAL_TAGS = 3;
 const LARGE_TAGS = 6;
@@ -10,11 +10,7 @@ type Props = {
   type: string;
 };
 export default function ClaimTags(props: Props) {
-  const {
-    tags,
-    followedTags,
-    type
-  } = props;
+  const { tags, followedTags, type } = props;
   const numberOfTags = type === 'small' ? SLIM_TAGS : type === 'large' ? LARGE_TAGS : NORMAL_TAGS;
   let tagsToDisplay = [];
 
@@ -34,7 +30,7 @@ export default function ClaimTags(props: Props) {
     }
   }
 
-  const sortedTags = tags.sort((a, b) => a.localeCompare(b));
+  const sortedTags = tags.toSorted((a, b) => a.localeCompare(b));
 
   for (var i = 0; i < sortedTags.length; i++) {
     const tag = sortedTags[i];
@@ -53,9 +49,15 @@ export default function ClaimTags(props: Props) {
     return [];
   }
 
-  return <div className={classnames('claim__tags', {
-    'claim__tags--large': type === 'large'
-  })}>
-      {tagsToDisplay.map(tag => <Tag key={tag} title={tag} name={tag} />)}
-    </div>;
+  return (
+    <div
+      className={classnames('claim__tags', {
+        'claim__tags--large': type === 'large',
+      })}
+    >
+      {tagsToDisplay.map((tag) => (
+        <Tag key={tag} title={tag} name={tag} />
+      ))}
+    </div>
+  );
 }

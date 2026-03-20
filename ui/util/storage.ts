@@ -9,7 +9,7 @@ export const LS = Object.freeze({
   TUS_LOCKED_UPLOADS: 'tusLockedUploads',
   TUS_REFRESH_LOCK: 'tusRefreshLock',
   TUS_REMOVED_UPLOADS: 'tusRemovedUploads',
-  IS_NEW_ACCOUNT: 'is_new_account'
+  IS_NEW_ACCOUNT: 'is_new_account',
 });
 // ****************************************************************************
 // ****************************************************************************
@@ -110,7 +110,8 @@ function storageFactory(getStorage: () => Storage, name: string) {
     }
   }
 
-  function log(e: Error, func: string) {// analytics.log(e, { fingerprint: [`${name}-${func}`] }, `${name}`);
+  function log(e: Error, func: string) {
+    // analytics.log(e, { fingerprint: [`${name}-${func}`] }, `${name}`);
   }
 
   return {
@@ -122,7 +123,6 @@ function storageFactory(getStorage: () => Storage, name: string) {
 
     get length() {
       return length();
-    }
-
+    },
   };
 }

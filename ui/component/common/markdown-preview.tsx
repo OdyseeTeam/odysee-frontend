@@ -1,30 +1,34 @@
-import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from "config";
-import { platform } from "util/platform";
-import { formattedEmote, inlineEmote } from "util/remark-emote";
-import { formattedLinks, inlineLinks } from "util/remark-lbry";
-import { formattedTimestamp, inlineTimestamp } from "util/remark-timestamp";
-import { getThumbnailCdnUrl } from "util/thumbnail";
-import * as ICONS from "constants/icons";
-import * as React from "react";
-import Button from "component/button";
-import classnames from "classnames";
-import defaultSchema from "hast-util-sanitize/lib/github.json";
-import MarkdownLink from "component/markdownLink";
-import OptimizedImage from "component/optimizedImage";
-import reactRenderer from "remark-react";
-import remark from "remark";
-import remarkAttr from "remark-attr";
-import remarkBreaks from "remark-breaks";
-import remarkEmoji from "remark-emoji";
-import remarkFrontMatter from "remark-frontmatter";
-import remarkStrip from "strip-markdown";
-import ZoomableImage from "component/zoomableImage";
+import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from 'config';
+import { platform } from 'util/platform';
+import { formattedEmote, inlineEmote } from 'util/remark-emote';
+import { formattedLinks, inlineLinks } from 'util/remark-lbry';
+import { formattedTimestamp, inlineTimestamp } from 'util/remark-timestamp';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import Button from 'component/button';
+import classnames from 'classnames';
+import defaultSchema from 'hast-util-sanitize/lib/github.json';
+import MarkdownLink from 'component/markdownLink';
+import OptimizedImage from 'component/optimizedImage';
+import reactRenderer from 'remark-react';
+import remark from 'remark';
+import remarkAttr from 'remark-attr';
+import remarkBreaks from 'remark-breaks';
+import remarkEmoji from 'remark-emoji';
+import remarkFrontMatter from 'remark-frontmatter';
+import remarkStrip from 'strip-markdown';
+import ZoomableImage from 'component/zoomableImage';
 // import { TWEMOTEARRAY } from 'constants/emotes';
 // const visit = require('unist-util-visit');
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
 function isEmote(title, src) {
-  return title && RE_EMOTE.test(title) && (src.includes('static.odycdn.com/emoticons') || src.includes('/public/img/emoticons'));
+  return (
+    title &&
+    RE_EMOTE.test(title) &&
+    (src.includes('static.odycdn.com/emoticons') || src.includes('/public/img/emoticons'))
+  );
 }
 
 function isStakeEnoughForPreview(stakedLevel) {
@@ -109,21 +113,18 @@ const remarkTwemoji = (tree) => {
 // ****************************************************************************
 // ****************************************************************************
 const SimpleLink = (props: SimpleLinkProps) => {
-  const {
-    title,
-    children,
-    href,
-    embed
-  } = props;
+  const { title, children, href, embed } = props;
 
   if (!href) {
     return children || null;
   }
 
   if (!href.startsWith('lbry:/')) {
-    return <a href={href} title={title} target={'_blank'} rel={'noreferrer noopener'}>
+    return (
+      <a href={href} title={title} target={'_blank'} rel={'noreferrer noopener'}>
         {children}
-      </a>;
+      </a>
+    );
   }
 
   const [uri, search] = href.split('?');
@@ -133,9 +134,11 @@ const SimpleLink = (props: SimpleLinkProps) => {
   if (embed || embedParam) {
     // Decode this since users might just copy it from the url bar
     const decodedUri = decodeURI(uri);
-    return <div className="embed__inline-button embed__inline-button--preview">
+    return (
+      <div className="embed__inline-button embed__inline-button--preview">
         <pre>{decodedUri}</pre>
-      </div>;
+      </div>
+    );
   }
 
   // Dummy link (no 'href')
@@ -145,12 +148,7 @@ const SimpleLink = (props: SimpleLinkProps) => {
 // ****************************************************************************
 // ****************************************************************************
 const SimpleImageLink = (props: ImageLinkProps) => {
-  const {
-    src,
-    title,
-    alt,
-    helpText
-  } = props;
+  const { src, title, alt, helpText } = props;
 
   if (!src) {
     return null;
@@ -160,14 +158,22 @@ const SimpleImageLink = (props: ImageLinkProps) => {
     return <OptimizedImage src={src} title={title} className="emote" waitLoad loading="lazy" />;
   }
 
-  return <Button button="link" iconRight={ICONS.EXTERNAL} label={title || alt || src} title={helpText || title || alt || src} className="button--external-link" href={src} />;
+  return (
+    <Button
+      button="link"
+      iconRight={ICONS.EXTERNAL}
+      label={title || alt || src}
+      title={helpText || title || alt || src}
+      className="button--external-link"
+      href={src}
+    />
+  );
 };
 
 // ****************************************************************************
 // ****************************************************************************
 // Use github sanitation schema
-const schema = { ...defaultSchema
-};
+const schema = { ...defaultSchema };
 // Extend sanitation schema to support lbry protocol
 schema.protocols.href.push('lbry');
 schema.attributes.a.push('embed');
@@ -188,11 +194,9 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
     setUserMention,
     hasMembership,
     isComment,
-    isMinimal
+    isMinimal,
   } = props;
-  const {
-    content
-  } = props;
+  const { content } = props;
 
   if (typeof content === 'object') {
     // Due to an unfortunate typo that corrupted the collection field, we need
@@ -200,78 +204,121 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
     return '';
   }
 
-  const strippedContent = content ? content.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
-    if (platform.isSafari()) {
-      return iframeUrl;
-    }
+  const strippedContent = content
+    ? content.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
+        if (platform.isSafari()) {
+          return iframeUrl;
+        }
 
-    // Let the browser try to create an iframe to see if the markup is valid
-    const outer = document.createElement('div');
-    outer.innerHTML = iframeHtml;
-    const iframe = ((outer.querySelector('iframe') as any) as HTMLIFrameElement | null | undefined);
+        // Let the browser try to create an iframe to see if the markup is valid
+        const outer = document.createElement('div');
+        outer.innerHTML = iframeHtml;
+        const iframe = outer.querySelector('iframe') as any as HTMLIFrameElement | null | undefined;
 
-    if (iframe) {
-      const src = iframe.src;
+        if (iframe) {
+          const src = iframe.src;
 
-      if (src && src.startsWith('lbry://')) {
-        return src;
-      }
-    }
+          if (src && src.startsWith('lbry://')) {
+            return src;
+          }
+        }
 
-    return iframeHtml;
-  }) : '';
+        return iframeHtml;
+      })
+    : '';
   const remarkOptions: Record<string, any> = {
     sanitize: schema,
     fragment: React.Fragment,
     remarkReactComponents: {
-      a: noDataStore ? SimpleLink : linkProps => <MarkdownLink {...linkProps} parentCommentId={parentCommentId} simpleLinks={simpleLinks} allowPreview={(isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isMinimal} setUserMention={setUserMention} isComment={isComment} />,
+      a: noDataStore
+        ? SimpleLink
+        : (linkProps) => (
+            <MarkdownLink
+              {...linkProps}
+              parentCommentId={parentCommentId}
+              simpleLinks={simpleLinks}
+              allowPreview={(isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isMinimal}
+              setUserMention={setUserMention}
+              isComment={isComment}
+            />
+          ),
       // Workaraund of remarkOptions.Fragment
       div: React.Fragment,
-      img: imgProps => {
-        const imageCdnUrl = getThumbnailCdnUrl({
-          thumbnail: imgProps.src,
-          width: 0,
-          height: 0,
-          quality: 85
-        }) || MISSING_THUMB_DEFAULT;
+      img: (imgProps) => {
+        const imageCdnUrl =
+          getThumbnailCdnUrl({
+            thumbnail: imgProps.src,
+            width: 0,
+            height: 0,
+            quality: 85,
+          }) || MISSING_THUMB_DEFAULT;
 
         if (noDataStore) {
-          return <div className="file-viewer file-viewer--document">
+          return (
+            <div className="file-viewer file-viewer--document">
               <img {...imgProps} src={imageCdnUrl} />
-            </div>;
+            </div>
+          );
         } else if ((isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isEmote(imgProps.title, imgProps.src)) {
           return <ZoomableImage {...imgProps} src={imageCdnUrl} />;
         } else {
-          return <SimpleImageLink src={imageCdnUrl} alt={imgProps.alt} title={imgProps.title} helpText={__('Odysee Premium required to enable image previews')} />;
+          return (
+            <SimpleImageLink
+              src={imageCdnUrl}
+              alt={imgProps.alt}
+              title={imgProps.title}
+              helpText={__('Odysee Premium required to enable image previews')}
+            />
+          );
         }
-      }
-    }
+      },
+    },
   };
   const remarkAttrOpts = {
     scope: 'extended',
     elements: ['link'],
     extend: {
-      link: ['embed']
+      link: ['embed'],
     },
-    defaultValue: true
+    defaultValue: true,
   };
 
   // Strip all content and just render text
   if (strip) {
     // Remove new lines and extra space
     remarkOptions.remarkReactComponents.p = SimpleText;
-    return <span dir="auto" className="markdown-preview">
-        {remark().use(remarkStrip).use(remarkFrontMatter, ['yaml']).use(reactRenderer, remarkOptions).processSync(content).contents}
-      </span>;
+    return (
+      <span dir="auto" className="markdown-preview">
+        {
+          remark()
+            .use(remarkStrip)
+            .use(remarkFrontMatter, ['yaml'])
+            .use(reactRenderer, remarkOptions)
+            .processSync(content).contents
+        }
+      </span>
+    );
   }
 
-  return <div dir="auto" className={classnames('notranslate markdown-preview', className)}>
-      {remark().use(remarkAttr, remarkAttrOpts) // Remark plugins for lbry urls
-    // Note: The order is important
-    .use(formattedLinks).use(inlineLinks).use(disableTimestamps || isMarkdownPost ? null : inlineTimestamp).use(disableTimestamps || isMarkdownPost ? null : formattedTimestamp) // Emojis
-    // .use(remarkTwemoji)
-    .use(inlineEmote).use(formattedEmote) // :code:
-    .use(remarkEmoji) // Render new lines without needing spaces.
-    .use(remarkBreaks).use(remarkFrontMatter, ['yaml']).use(reactRenderer, remarkOptions).processSync(strippedContent).contents}
-    </div>;
+  return (
+    <div dir="auto" className={classnames('notranslate markdown-preview', className)}>
+      {
+        remark()
+          .use(remarkAttr, remarkAttrOpts) // Remark plugins for lbry urls
+          // Note: The order is important
+          .use(formattedLinks)
+          .use(inlineLinks)
+          .use(disableTimestamps || isMarkdownPost ? null : inlineTimestamp)
+          .use(disableTimestamps || isMarkdownPost ? null : formattedTimestamp) // Emojis
+          // .use(remarkTwemoji)
+          .use(inlineEmote)
+          .use(formattedEmote) // :code:
+          .use(remarkEmoji) // Render new lines without needing spaces.
+          .use(remarkBreaks)
+          .use(remarkFrontMatter, ['yaml'])
+          .use(reactRenderer, remarkOptions)
+          .processSync(strippedContent).contents
+      }
+    </div>
+  );
 });

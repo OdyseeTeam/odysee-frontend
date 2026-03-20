@@ -1,19 +1,19 @@
-import * as React from "react";
-import { normalizeURI } from "util/lbryURI";
-import FilePrice from "component/filePrice";
-import GeoRestrictionInfo from "component/geoRestictionInfo";
-import ClaimInsufficientCredits from "component/claimInsufficientCredits";
-import FileSubtitle from "component/fileSubtitle";
-import ClaimAuthor from "component/claimAuthor";
-import Card from "component/common/card";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import Icon from "component/common/icon";
-import I18nMessage from "component/i18nMessage";
-import Button from "component/button";
-import FileDescription from "component/fileDescription";
-import { ENABLE_MATURE } from "config";
-import { useIsMobile } from "effects/use-screensize";
+import * as React from 'react';
+import { normalizeURI } from 'util/lbryURI';
+import FilePrice from 'component/filePrice';
+import GeoRestrictionInfo from 'component/geoRestictionInfo';
+import ClaimInsufficientCredits from 'component/claimInsufficientCredits';
+import FileSubtitle from 'component/fileSubtitle';
+import ClaimAuthor from 'component/claimAuthor';
+import Card from 'component/common/card';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import Icon from 'component/common/icon';
+import I18nMessage from 'component/i18nMessage';
+import Button from 'component/button';
+import FileDescription from 'component/fileDescription';
+import { ENABLE_MATURE } from 'config';
+import { useIsMobile } from 'effects/use-screensize';
 import { escapeHtmlProperty } from 'util/web';
 
 type Props = {
@@ -40,22 +40,37 @@ export default function FileTitleSection(props: Props) {
     channelClaimId,
     title,
     doFetchSubCount,
-    accessStatus
+    accessStatus,
   } = props;
   const isMobile = useIsMobile();
   React.useEffect(() => {
     if (channelClaimId) doFetchSubCount(channelClaimId);
   }, [channelClaimId, doFetchSubCount]);
-  return <Card isPageTitle noTitleWrap title={<>
+  return (
+    <Card
+      isPageTitle
+      noTitleWrap
+      title={
+        <>
           {escapeHtmlProperty(title)}
-          {nsfw && <span className="media__title-badge">
+          {nsfw && (
+            <span className="media__title-badge">
               <span className="badge badge--tag-mature">{__('Mature')}</span>
-            </span>}
+            </span>
+          )}
           <GeoRestrictionInfo uri={uri} />
-        </>} titleActions={<FilePrice uri={normalizeURI(uri)} type="filepage" hideFree />} body={<>
+        </>
+      }
+      titleActions={<FilePrice uri={normalizeURI(uri)} type="filepage" hideFree />}
+      body={
+        <>
           <ClaimInsufficientCredits uri={uri} />
           <FileSubtitle uri={uri} />
-        </>} actions={isNsfwBlocked ? <div className="main--empty">
+        </>
+      }
+      actions={
+        isNsfwBlocked ? (
+          <div className="main--empty">
             <h2>
               <>
                 <Icon className="icon--hidden" icon={ICONS.EYE_OFF} />
@@ -63,19 +78,36 @@ export default function FileTitleSection(props: Props) {
               </>
             </h2>
             <div>
-              {ENABLE_MATURE ? <I18nMessage tokens={{
-        content_settings: <Button button="link" label={__('content settings')} navigate={`/$/${PAGES.SETTINGS}`} />
-      }}>
+              {ENABLE_MATURE ? (
+                <I18nMessage
+                  tokens={{
+                    content_settings: (
+                      <Button button="link" label={__('content settings')} navigate={`/$/${PAGES.SETTINGS}`} />
+                    ),
+                  }}
+                >
                   Change this in your %content_settings%.
-                </I18nMessage> : <I18nMessage tokens={{
-        download_url: <Button label={__('lbry.com')} button="link" href="https://lbry.com/get" />
-      }}>
+                </I18nMessage>
+              ) : (
+                <I18nMessage
+                  tokens={{
+                    download_url: <Button label={__('lbry.com')} button="link" href="https://lbry.com/get" />,
+                  }}
+                >
                   You can download the LBRY Desktop or Android app on %download_url% and enable mature content in
                   Settings.
-                </I18nMessage>}
+                </I18nMessage>
+              )}
             </div>
-          </div> : <>
+          </div>
+        ) : (
+          <>
             <ClaimAuthor channelSubCount={subCount} uri={uri} />
             {!hideDescription && <FileDescription expandOverride={isMobile && livestream} uri={uri} />}
-          </>} accessStatus={accessStatus} />;
+          </>
+        )
+      }
+      accessStatus={accessStatus}
+    />
+  );
 }

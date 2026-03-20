@@ -1,2 +1,2 @@
-import BlockList from "./view";
+import BlockList from './view';
 export default BlockList;

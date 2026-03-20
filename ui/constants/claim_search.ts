@@ -40,12 +40,12 @@ export const ORDER_BY_NAME_ASC = 'name_asc';
 export const ORDER_BY_NAME_ASC_VALUE = ['^name'];
 // @note: These are used to build the default controls available on claim listings.
 export const ORDER_BY_TYPES = [ORDER_BY_NEW, ORDER_BY_TRENDING, ORDER_BY_TOP];
-export type Duration = "all" | "short" | "long" | "custom";
+export type Duration = 'all' | 'short' | 'long' | 'custom';
 export const DURATION = {
   SHORT: 'short',
   LONG: 'long',
   ALL: 'all',
-  CUSTOM: 'custom'
+  CUSTOM: 'custom',
 };
 export const DURATION_TYPES = Object.values(DURATION);
 export const SORT_BY = {
@@ -55,13 +55,13 @@ export const SORT_BY = {
   NEWEST: {
     key: 'new',
     opt: '',
-    str: 'Newest first'
+    str: 'Newest first',
   },
   OLDEST: {
     key: 'old',
     opt: '^',
-    str: 'Oldest first'
-  }
+    str: 'Oldest first',
+  },
 };
 export const FILE_VIDEO = 'video';
 export const FILE_AUDIO = 'audio';
@@ -77,5 +77,16 @@ export const CLAIM_REPOST = 'repost';
 export const CLAIM_COLLECTION = 'collection';
 export const CLAIM_TYPES = [CLAIM_CHANNEL, CLAIM_REPOST, CLAIM_STREAM, CLAIM_COLLECTION];
 export const CONTENT_ALL = 'all';
-export const CONTENT_TYPES = [CONTENT_ALL, FILE_VIDEO, FILE_AUDIO, FILE_IMAGE, FILE_DOCUMENT, CLAIM_COLLECTION, CLAIM_CHANNEL, FILE_MODEL, CLAIM_REPOST, FILE_BINARY];
+export const CONTENT_TYPES = [
+  CONTENT_ALL,
+  FILE_VIDEO,
+  FILE_AUDIO,
+  FILE_IMAGE,
+  FILE_DOCUMENT,
+  CLAIM_COLLECTION,
+  CLAIM_CHANNEL,
+  FILE_MODEL,
+  CLAIM_REPOST,
+  FILE_BINARY,
+];
 export const KEYS = [ORDER_BY_KEY, TAGS_KEY, FRESH_KEY, CONTENT_KEY, DURATION_KEY];

@@ -1,23 +1,23 @@
-import type { ElementRef } from "react";
-import { URL, URL_LOCAL, URL_DEV, KNOWN_APP_DOMAINS } from "config";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import React from "react";
-import classnames from "classnames";
-import Icon from "component/common/icon";
-import { isURIValid, normalizeURI, parseURI } from "util/lbryURI";
-import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from "@reach/combobox";
+import type { ElementRef } from 'react';
+import { URL, URL_LOCAL, URL_DEV, KNOWN_APP_DOMAINS } from 'config';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import classnames from 'classnames';
+import Icon from 'component/common/icon';
+import { isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
+import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from '@reach/combobox';
 // import '@reach/combobox/styles.css'; --> 'scss/third-party.scss'
-import useLighthouse from "effects/use-lighthouse";
-import { Form } from "component/common/form";
-import Button from "component/button";
-import WunderbarTopSuggestion from "component/wunderbarTopSuggestion";
-import WunderbarSuggestion from "component/wunderbarSuggestion";
-import { useHistory } from "react-router";
-import { formatLbryUrlForWeb } from "util/url";
-import Yrbl from "component/yrbl";
-import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from "constants/search";
-import Spinner from "component/spinner";
+import useLighthouse from 'effects/use-lighthouse';
+import { Form } from 'component/common/form';
+import Button from 'component/button';
+import WunderbarTopSuggestion from 'component/wunderbarTopSuggestion';
+import WunderbarSuggestion from 'component/wunderbarSuggestion';
+import { useHistory } from 'react-router';
+import { formatLbryUrlForWeb } from 'util/url';
+import Yrbl from 'component/yrbl';
+import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
+import Spinner from 'component/spinner';
 const LBRY_PROTOCOL = 'lbry://';
 const WEB_DEV_PREFIX = `${URL_DEV}/`;
 const WEB_LOCAL_PREFIX = `${URL_LOCAL}/`;
@@ -63,20 +63,18 @@ export default function WunderBarSuggestions(props: Props) {
     customSelectAction,
     searchInLanguage,
     languageSetting,
-    doResolveUris
+    doResolveUris,
   } = props;
   const inputRef: ElementRef<any> = React.useRef();
   const viewResultsRef: ElementRef<any> = React.useRef();
   const exploreTagRef: ElementRef<any> = React.useRef();
 
-  const isRefFocused = ref => ref && ref.current && ref.current === document.activeElement;
+  const isRefFocused = (ref) => ref && ref.current && ref.current === document.activeElement;
 
   const isFocused = isRefFocused(inputRef) || isRefFocused(viewResultsRef) || isRefFocused(exploreTagRef);
   const {
     push,
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const queryFromUrl = urlParams.get('q') || '';
@@ -84,10 +82,7 @@ export default function WunderBarSuggestions(props: Props) {
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   const searchSize = isMobile ? 20 : 5;
   const additionalOptions = getAdditionalOptions(channelsOnly, searchInLanguage ? languageSetting : null);
-  const {
-    results,
-    loading
-  } = useLighthouse(debouncedTerm, showMature, searchSize, additionalOptions, 0);
+  const { results, loading } = useLighthouse(debouncedTerm, showMature, searchSize, additionalOptions, 0);
   const noResults = debouncedTerm && !loading && results && results.length === 0;
   const nameFromQuery = debouncedTerm && debouncedTerm.trim().replace(/\s+/g, '').replace(/:/g, '#');
   const uriFromQuery = `lbry://${nameFromQuery}`;
@@ -95,9 +90,7 @@ export default function WunderBarSuggestions(props: Props) {
   let channelUrlForTopTest;
 
   try {
-    const {
-      isChannel
-    } = parseURI(uriFromQuery);
+    const { isChannel } = parseURI(uriFromQuery);
     uriFromQueryIsValid = true;
 
     if (!isChannel) {
@@ -135,10 +128,10 @@ export default function WunderBarSuggestions(props: Props) {
     }
 
     doCloseMobileSearch();
-    const knownAppDomains = KNOWN_APP_DOMAINS.map(x => `https://${x}/`); // Match WEB_PROD_PREFIX's 'https://xx/' format.
+    const knownAppDomains = KNOWN_APP_DOMAINS.map((x) => `https://${x}/`); // Match WEB_PROD_PREFIX's 'https://xx/' format.
 
     const webDomainList = [WEB_PROD_PREFIX, ...knownAppDomains, WEB_LOCAL_PREFIX, WEB_DEV_PREFIX];
-    const webDomainIndex = webDomainList.findIndex(x => value.includes(x));
+    const webDomainIndex = webDomainList.findIndex((x) => value.includes(x));
     const wasCopiedFromWeb = webDomainIndex !== -1;
     const isLbryUrl = value.startsWith('lbry://');
 
@@ -148,7 +141,7 @@ export default function WunderBarSuggestions(props: Props) {
 
     if (customSelectAction) {
       // Give them full results, as our resolved one might truncate the claimId.
-      customSelectAction(results ? results.find(r => r.startsWith(value)) : '');
+      customSelectAction(results ? results.find((r) => r.startsWith(value)) : '');
       return;
     }
 
@@ -229,12 +222,7 @@ export default function WunderBarSuggestions(props: Props) {
     }
 
     function overrideHomeEndHandling(event) {
-      const {
-        ctrlKey,
-        metaKey,
-        shiftKey,
-        key
-      } = event;
+      const { ctrlKey, metaKey, shiftKey, key } = event;
 
       if (!ctrlKey && !metaKey) {
         if (key === 'Home' || key === 'End') {
@@ -260,11 +248,7 @@ export default function WunderBarSuggestions(props: Props) {
   }, [inputRef]);
   React.useEffect(() => {
     function handleKeyDown(event) {
-      const {
-        ctrlKey,
-        metaKey,
-        keyCode
-      } = event;
+      const { ctrlKey, metaKey, keyCode } = event;
 
       if (!inputRef.current) {
         return;
@@ -288,12 +272,12 @@ export default function WunderBarSuggestions(props: Props) {
       }
 
       // @if TARGET='app'
-      const shouldFocus = process.platform === 'darwin' ? keyCode === L_KEY_CODE && metaKey : keyCode === L_KEY_CODE && ctrlKey;
+      const shouldFocus =
+        process.platform === 'darwin' ? keyCode === L_KEY_CODE && metaKey : keyCode === L_KEY_CODE && ctrlKey;
 
       if (shouldFocus) {
         inputRef.current.focus();
       } // @endif
-
     }
 
     window.addEventListener('keydown', handleKeyDown);
@@ -317,7 +301,6 @@ export default function WunderBarSuggestions(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps -- wrong, but unused code
         inputRef.current.removeEventListener('dblclick', handleDoubleClick);
       } // @endif
-
     };
   }, [inputRef]);
   React.useEffect(() => {
@@ -339,39 +322,65 @@ export default function WunderBarSuggestions(props: Props) {
   React.useEffect(() => {
     if (subscriptionUris && term && term.length > 1) {
       let subscriptionResults = [];
-      subscriptionUris.map(uri => {
-        if (claimsByUri[uri] && subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 && (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) || // $FlowIgnore
-        claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))) {
+      subscriptionUris.map((uri) => {
+        if (
+          claimsByUri[uri] &&
+          subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
+          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) || // $FlowIgnore
+            claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))
+        ) {
           subscriptionResults.push(claimsByUri[uri].permanent_url);
         }
       });
       setSubscriptionResults(subscriptionResults.slice(0, isMobile ? 5 : 10));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [term]);
   React.useEffect(() => {
     if (results && subscriptionResults) {
-      subscriptionResults.map(subscription => {
+      subscriptionResults.map((subscription) => {
         if (results.indexOf(subscription) !== -1) results.splice(results.indexOf(subscription), 1);
       });
     }
   }, [subscriptionResults, results]);
-  return <>
-      <Form className={classnames('wunderbar__wrapper', {
-      'wunderbar__wrapper--mobile': isMobile
-    })} onSubmit={() => handleSelect(term)}>
+  return (
+    <>
+      <Form
+        className={classnames('wunderbar__wrapper', {
+          'wunderbar__wrapper--mobile': isMobile,
+        })}
+        onSubmit={() => handleSelect(term)}
+      >
         <Combobox className="wunderbar" onSelect={handleSelect} openOnFocus>
           <Icon icon={ICONS.SEARCH} />
-          <ComboboxInput ref={inputRef} className="wunderbar__input" placeholder={__('Search')} onChange={e => setTerm(e.target.value)} value={term} />
-          {term && <Button icon={ICONS.REMOVE} aria-label={__('Clear')} button="alt" className="wunderbar__clear" onClick={() => {
-          setTerm('');
-        }} />}
+          <ComboboxInput
+            ref={inputRef}
+            className="wunderbar__input"
+            placeholder={__('Search')}
+            onChange={(e) => setTerm(e.target.value)}
+            value={term}
+          />
+          {term && (
+            <Button
+              icon={ICONS.REMOVE}
+              aria-label={__('Clear')}
+              button="alt"
+              className="wunderbar__clear"
+              onClick={() => {
+                setTerm('');
+              }}
+            />
+          )}
 
-          {isFocused && <ComboboxPopover portal={false} className={classnames('wunderbar__suggestions', {
-          'wunderbar__suggestions--mobile': isMobile
-        })}>
+          {isFocused && (
+            <ComboboxPopover
+              portal={false}
+              className={classnames('wunderbar__suggestions', {
+                'wunderbar__suggestions--mobile': isMobile,
+              })}
+            >
               <ComboboxList>
-                {!noBottomLinks && <div className="wunderbar__bottom-links">
+                {!noBottomLinks && (
+                  <div className="wunderbar__bottom-links">
                     <ComboboxOption value={term} className="wunderbar__more-results">
                       <Button ref={viewResultsRef} button="link" label={__('View All Results')} />
                     </ComboboxOption>
@@ -381,7 +390,8 @@ export default function WunderBarSuggestions(props: Props) {
                         <div className="tag">{term.split(' ').join('')}</div>
                       </Button>
                     </ComboboxOption>
-                  </div>}
+                  </div>
+                )}
 
                 <hr className="wunderbar__top-separator" />
 
@@ -389,21 +399,32 @@ export default function WunderBarSuggestions(props: Props) {
 
                 <div className="wunderbar__label">{__('Search Results')}</div>
 
-                {subscriptionResults.length > 0 && subscriptionResults.map(uri => <WunderbarSuggestion key={uri} uri={uri} />)}
+                {subscriptionResults.length > 0 &&
+                  subscriptionResults.map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)}
 
                 {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
 
-                {!showPlaceholder && results ? results.slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length).map(uri => <WunderbarSuggestion key={uri} uri={uri} />) : null}
+                {!showPlaceholder && results
+                  ? results
+                      .slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length)
+                      .map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
+                  : null}
               </ComboboxList>
-            </ComboboxPopover>}
+            </ComboboxPopover>
+          )}
         </Combobox>
       </Form>
-      {isMobile && !term && <div className="main--empty">
+      {isMobile && !term && (
+        <div className="main--empty">
           <Yrbl subtitle={__('Search for something...')} alwaysShow />
-        </div>}
+        </div>
+      )}
 
-      {isMobile && noResults && <div className="main--empty">
+      {isMobile && noResults && (
+        <div className="main--empty">
           <Yrbl type="sad" subtitle={__('No results')} alwaysShow />
-        </div>}
-    </>;
+        </div>
+      )}
+    </>
+  );
 }

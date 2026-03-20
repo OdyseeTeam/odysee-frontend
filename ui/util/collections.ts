@@ -1,6 +1,6 @@
-import { COL_TYPES, SECTION_TAGS, WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID } from "constants/collections";
-import { getCurrentTimeInSec } from "util/time";
-import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from "util/claim";
+import { COL_TYPES, SECTION_TAGS, WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID } from 'constants/collections';
+import { getCurrentTimeInSec } from 'util/time';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 export const defaultCollectionState: Collection = {
   id: '',
   name: '',
@@ -9,12 +9,12 @@ export const defaultCollectionState: Collection = {
   itemCount: 0,
   createdAt: getCurrentTimeInSec(),
   updatedAt: getCurrentTimeInSec(),
-  type: 'collection'
+  type: 'collection',
 };
 export function getClaimIdsInCollectionClaim(claim: CollectionClaim | null | undefined) {
   if (!claim) return claim;
   // $FlowFixMe
-  return claim.value.claims || claim.claims && claim.claims.map(claim => claim.claim_id) || [];
+  return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
 }
 export function claimToStoredCollection(claim: CollectionClaim) {
   const storedCollection: Collection = Object.assign({}, defaultCollectionState);
@@ -30,7 +30,7 @@ export function claimToStoredCollection(claim: CollectionClaim) {
     tags: claim.value.tags || [],
     createdAt: claim.meta?.creation_timestamp || claim.timestamp,
     updatedAt: claim.timestamp || claim.meta?.creation_timestamp,
-    type: resolveCollectionType(claim.value.tags)
+    type: resolveCollectionType(claim.value.tags),
   });
   return storedCollection;
 }
@@ -52,8 +52,17 @@ export const getItemCountForCollection = (collection: Collection) => {
  * @param streamTypes
  * @returns {string}
  */
-export function resolveCollectionType(tags: Array<string> | null | undefined, valueTypes: Set<string> = new Set(), streamTypes: Set<string> = new Set()): CollectionType {
-  if (valueTypes.size === 1 && valueTypes.has('stream') && (streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video')) || streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video'))) {
+export function resolveCollectionType(
+  tags: Array<string> | null | undefined,
+  valueTypes: Set<string> = new Set(),
+  streamTypes: Set<string> = new Set()
+): CollectionType {
+  if (
+    valueTypes.size === 1 &&
+    valueTypes.has('stream') &&
+    ((streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video'))) ||
+      (streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video')))
+  ) {
     return COL_TYPES.PLAYLIST;
   }
 
@@ -75,7 +84,7 @@ export function resolveAuxParams(collectionType: string | null | undefined, coll
 
     case COL_TYPES.FEATURED_CHANNELS:
       auxParams.featuredChannelsParams = {
-        channelId: collectionClaim.signing_channel?.claim_id
+        channelId: collectionClaim.signing_channel?.claim_id,
       };
       break;
 

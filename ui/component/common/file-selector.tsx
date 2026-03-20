@@ -1,7 +1,7 @@
-import * as React from "react";
-import { remote } from "electron";
-import Button from "component/button";
-import { FormField } from "component/common/form";
+import * as React from 'react';
+import { remote } from 'electron';
+import Button from 'component/button';
+import { FormField } from 'component/common/form';
 type Props = {
   type: string;
   currentPath?: string | null | undefined;
@@ -17,7 +17,7 @@ type Props = {
 class FileSelector extends React.PureComponent<Props> {
   static defaultProps = {
     autoFocus: false,
-    type: 'file'
+    type: 'file',
   };
   fileInput: React.ElementRef<any>;
 
@@ -30,9 +30,7 @@ class FileSelector extends React.PureComponent<Props> {
   }
 
   handleFileInputSelection = () => {
-    const {
-      files
-    } = this.fileInput.current;
+    const { files } = this.fileInput.current;
 
     if (!files) {
       return;
@@ -47,18 +45,20 @@ class FileSelector extends React.PureComponent<Props> {
     this.fileInput.current.value = null; // clear the file input
   };
   handleDirectoryInputSelection = () => {
-    remote.dialog.showOpenDialog({
-      properties: ['openDirectory']
-    }).then(result => {
-      const path = result && result.filePaths[0];
+    remote.dialog
+      .showOpenDialog({
+        properties: ['openDirectory'],
+      })
+      .then((result) => {
+        const path = result && result.filePaths[0];
 
-      if (path) {
-        // $FlowFixMe
-        this.props.onFileChosen({
-          path
-        });
-      }
-    });
+        if (path) {
+          // $FlowFixMe
+          this.props.onFileChosen({
+            path,
+          });
+        }
+      });
   };
   fileInputButton = () => {
     this.fileInput.current.click();
@@ -66,25 +66,42 @@ class FileSelector extends React.PureComponent<Props> {
   input: HTMLInputElement | null | undefined;
 
   render() {
-    const {
-      type,
-      currentPath,
-      label,
-      placeholder,
-      accept,
-      error,
-      disabled,
-      autoFocus = false
-    } = this.props;
+    const { type, currentPath, label, placeholder, accept, error, disabled, autoFocus = false } = this.props;
     const placeHolder = currentPath || placeholder;
-    return <React.Fragment>
-        <FormField label={label} webkitdirectory="true" className="form-field--copyable" error={error} disabled={disabled} type="text" readOnly="readonly" value={placeHolder || __('Choose a file')} inputButton={<Button autoFocus={autoFocus} button="primary" disabled={disabled} onClick={type === 'openDirectory' ? this.handleDirectoryInputSelection : this.fileInputButton} label={__('Browse')} />} />
-        <input type={'file'} style={{
-        display: 'none'
-      }} accept={accept} ref={this.fileInput} onChange={() => type === 'openDirectory' ? () => {} : this.handleFileInputSelection()} webkitdirectory={type === 'openDirectory' ? 'True' : null} />
-      </React.Fragment>;
+    return (
+      <React.Fragment>
+        <FormField
+          label={label}
+          webkitdirectory="true"
+          className="form-field--copyable"
+          error={error}
+          disabled={disabled}
+          type="text"
+          readOnly="readonly"
+          value={placeHolder || __('Choose a file')}
+          inputButton={
+            <Button
+              autoFocus={autoFocus}
+              button="primary"
+              disabled={disabled}
+              onClick={type === 'openDirectory' ? this.handleDirectoryInputSelection : this.fileInputButton}
+              label={__('Browse')}
+            />
+          }
+        />
+        <input
+          type={'file'}
+          style={{
+            display: 'none',
+          }}
+          accept={accept}
+          ref={this.fileInput}
+          onChange={() => (type === 'openDirectory' ? () => {} : this.handleFileInputSelection())}
+          webkitdirectory={type === 'openDirectory' ? 'True' : null}
+        />
+      </React.Fragment>
+    );
   }
-
 }
 
 export default FileSelector;

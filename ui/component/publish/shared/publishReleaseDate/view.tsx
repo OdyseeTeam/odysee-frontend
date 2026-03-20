@@ -1,7 +1,7 @@
-import React from "react";
-import classnames from "classnames";
-import Button from "component/button";
-import DateTimePicker from "react-datetime-picker";
+import React from 'react';
+import classnames from 'classnames';
+import Button from 'component/button';
+import DateTimePicker from 'react-datetime-picker';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -38,7 +38,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
     releaseTimeError,
     clock24h,
     appLanguage,
-    updatePublishForm
+    updatePublishForm,
   } = props;
   const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
@@ -51,10 +51,10 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
     claimDateStr = date.toLocaleString(appLanguage || 'en');
   }
 
-  const onDateTimePickerChanged = value => {
+  const onDateTimePickerChanged = (value) => {
     if (value instanceof Date) {
       updatePublishForm({
-        releaseTime: dateToLinuxTimestamp(value)
+        releaseTime: dateToLinuxTimestamp(value),
       });
     }
   };
@@ -69,7 +69,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
         }
 
         updatePublishForm({
-          releaseTime: dateToLinuxTimestamp(newDate)
+          releaseTime: dateToLinuxTimestamp(newDate),
         });
         break;
 
@@ -77,7 +77,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
       case RESET_TO_ORIGINAL:
         // PAYLOAD.releaseTime() will do the right thing based on various scenarios.
         updatePublishForm({
-          releaseTime: undefined
+          releaseTime: undefined,
         });
         break;
 
@@ -85,7 +85,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
         console.assert(false, 'unhandled case'); // eslint-disable-line no-console
 
         updatePublishForm({
-          releaseTime: undefined
+          releaseTime: undefined,
         });
         break;
     }
@@ -103,20 +103,57 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
     }
   }
 
-  return <div className={classnames('form-field-date-picker', {
-    'form-field-date-picker--disabled': releaseTimeDisabled
-  })}>
+  return (
+    <div
+      className={classnames('form-field-date-picker', {
+        'form-field-date-picker--disabled': releaseTimeDisabled,
+      })}
+    >
       <label>{__('Release date')}</label>
       <div className="form-field-date-picker__controls">
-        {showDatePicker && <DateTimePicker key={forceRender} locale={appLanguage} className="date-picker-input" calendarClassName="form-field-calendar" onBlur={handleBlur} onChange={onDateTimePickerChanged} value={releaseTime ? linuxTimestampToDate(releaseTime) : undefined} format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'} disableClock clearIcon={null} minDate={minDate} maxDate={new Date(9999, 11, 31)} />}
-        {showDatePicker && <Button button="link" label={__('Now')} aria-label={__('Set to current date and time')} onClick={() => newDate(NOW)} />}
-        {showDefaultBtn && <Button button="link" label={isEdit ? __('Reset') : __('Default')} aria-label={isEdit ? __('Reset to original (previous) publish date') : __('Remove custom release date')} onClick={() => newDate(DEFAULT)} />}
+        {showDatePicker && (
+          <DateTimePicker
+            key={forceRender}
+            locale={appLanguage}
+            className="date-picker-input"
+            calendarClassName="form-field-calendar"
+            onBlur={handleBlur}
+            onChange={onDateTimePickerChanged}
+            value={releaseTime ? linuxTimestampToDate(releaseTime) : undefined}
+            format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
+            disableClock
+            clearIcon={null}
+            minDate={minDate}
+            maxDate={new Date(9999, 11, 31)}
+          />
+        )}
+        {showDatePicker && (
+          <Button
+            button="link"
+            label={__('Now')}
+            aria-label={__('Set to current date and time')}
+            onClick={() => newDate(NOW)}
+          />
+        )}
+        {showDefaultBtn && (
+          <Button
+            button="link"
+            label={isEdit ? __('Reset') : __('Default')}
+            aria-label={isEdit ? __('Reset to original (previous) publish date') : __('Remove custom release date')}
+            onClick={() => newDate(DEFAULT)}
+          />
+        )}
         {releaseTimeError && <span className="form-field-date-picker__error">{releaseTimeError}</span>}
       </div>
-      {claimDateStr && <div className="form-field-date-picker__past-value">{__('Previous:  %date%', {
-        date: claimDateStr
-      })}</div>}
-    </div>;
+      {claimDateStr && (
+        <div className="form-field-date-picker__past-value">
+          {__('Previous:  %date%', {
+            date: claimDateStr,
+          })}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default PublishReleaseDate;

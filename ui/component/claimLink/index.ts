@@ -1,8 +1,8 @@
-import { connect } from "react-redux";
-import { punctuationMarks } from "util/remark-lbry";
-import { selectClaimForUri, selectIsUriResolving } from "redux/selectors/claims";
-import { doResolveUri } from "redux/actions/claims";
-import ClaimLink from "./view";
+import { connect } from 'react-redux';
+import { punctuationMarks } from 'util/remark-lbry';
+import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
+import ClaimLink from './view';
 
 const select = (state, props) => {
   let uri = props.uri;
@@ -28,11 +28,11 @@ const select = (state, props) => {
     uri,
     claim,
     fullUri: props.uri,
-    isResolvingUri: selectIsUriResolving(state, uri)
+    isResolvingUri: selectIsUriResolving(state, uri),
   };
 };
 
 const perform = {
-  doResolveUri
+  doResolveUri,
 };
 export default connect(select, perform)(ClaimLink);

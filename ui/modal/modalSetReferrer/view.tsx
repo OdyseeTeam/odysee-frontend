@@ -1,8 +1,8 @@
-import * as React from "react";
-import { FormField, Form } from "component/common/form";
-import { Modal } from "modal/modal";
-import Button from "component/button";
-import Card from "component/common/card";
+import * as React from 'react';
+import { FormField, Form } from 'component/common/form';
+import { Modal } from 'modal/modal';
+import Button from 'component/button';
+import Card from 'component/common/card';
 type Props = {
   closeModal: () => void;
   error: string | null | undefined;
@@ -20,7 +20,7 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
   constructor() {
     super();
     this.state = {
-      referrer: ''
+      referrer: '',
     };
     (this as any).handleSubmit = this.handleSubmit.bind(this);
     (this as any).handleClose = this.handleClose.bind(this);
@@ -28,21 +28,13 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
   }
 
   handleSubmit() {
-    const {
-      referrer
-    } = this.state;
-    const {
-      doUserSetReferrerForUri
-    } = this.props;
+    const { referrer } = this.state;
+    const { doUserSetReferrerForUri } = this.props;
     doUserSetReferrerForUri(referrer);
   }
 
   handleClose() {
-    const {
-      referrerSetError,
-      resetReferrerError,
-      closeModal
-    } = this.props;
+    const { referrerSetError, resetReferrerError, closeModal } = this.props;
 
     if (referrerSetError) {
       resetReferrerError();
@@ -52,12 +44,9 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
   }
 
   handleTextChange(e: React.SyntheticEvent<any>) {
-    const {
-      referrerSetError,
-      resetReferrerError
-    } = this.props;
+    const { referrerSetError, resetReferrerError } = this.props;
     this.setState({
-      referrer: e.target.value
+      referrer: e.target.value,
     });
 
     if (referrerSetError) {
@@ -66,27 +55,39 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const {
-      closeModal,
-      rewardIsPending,
-      referrerSetError,
-      referrerSetPending
-    } = this.props;
-    const {
-      referrer
-    } = this.state;
-    return <Modal isOpen contentLabel={__('Enter inviter')} type="card" onAborted={closeModal}>
-        <Card title={__('Enter inviter')} subtitle={<React.Fragment>{__('Did someone invite you to use Odysee? Tell us who!')}</React.Fragment>} actions={<React.Fragment>
+    const { closeModal, rewardIsPending, referrerSetError, referrerSetPending } = this.props;
+    const { referrer } = this.state;
+    return (
+      <Modal isOpen contentLabel={__('Enter inviter')} type="card" onAborted={closeModal}>
+        <Card
+          title={__('Enter inviter')}
+          subtitle={<React.Fragment>{__('Did someone invite you to use Odysee? Tell us who!')}</React.Fragment>}
+          actions={
+            <React.Fragment>
               <Form onSubmit={this.handleSubmit}>
-                <FormField autoFocus type="text" name="referrer-code" inputButton={<Button button="primary" type="submit" disabled={!referrer || rewardIsPending} label={__('Set')} />} label={__('Code or channel')} placeholder="0123abc" value={referrer} onChange={this.handleTextChange} error={!referrerSetPending && referrerSetError} />
+                <FormField
+                  autoFocus
+                  type="text"
+                  name="referrer-code"
+                  inputButton={
+                    <Button button="primary" type="submit" disabled={!referrer || rewardIsPending} label={__('Set')} />
+                  }
+                  label={__('Code or channel')}
+                  placeholder="0123abc"
+                  value={referrer}
+                  onChange={this.handleTextChange}
+                  error={!referrerSetPending && referrerSetError}
+                />
               </Form>
               <div className="card__actions">
                 <Button button="primary" label={__('Done')} onClick={this.handleClose} />
               </div>
-            </React.Fragment>} />
-      </Modal>;
+            </React.Fragment>
+          }
+        />
+      </Modal>
+    );
   }
-
 }
 
 export default ModalSetReferrer;

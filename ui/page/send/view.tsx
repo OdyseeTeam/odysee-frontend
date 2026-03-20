@@ -1,16 +1,16 @@
-import React from "react";
-import Page from "component/page";
-import LbcSymbol from "component/common/lbc-symbol";
-import WalletSend from "component/walletSend";
-import { URL as SITE_URL, URL_LOCAL, URL_DEV } from "config";
-import { parseURI, isNameValid, isURIValid, normalizeURI } from "util/lbryURI";
+import React from 'react';
+import Page from 'component/page';
+import LbcSymbol from 'component/common/lbc-symbol';
+import WalletSend from 'component/walletSend';
+import { URL as SITE_URL, URL_LOCAL, URL_DEV } from 'config';
+import { parseURI, isNameValid, isURIValid, normalizeURI } from 'util/lbryURI';
 type Props = {};
 export default function SendPage(props: Props) {
   const [isAddress, setIsAddress] = React.useState(true);
   const [contentUri, setContentUri] = React.useState('');
   const [draftTransaction, setDraftTransaction] = React.useState({
     address: '',
-    amount: ''
+    amount: '',
   });
   const [enteredContent, setEnteredContentUri] = React.useState(undefined);
   const contentFirstRender = React.useRef(true);
@@ -31,7 +31,7 @@ export default function SendPage(props: Props) {
     const isLbryUrl = value.startsWith('lbry://') && value !== 'lbry://';
     const error = '';
 
-    const addLbryIfNot = term => {
+    const addLbryIfNot = (term) => {
       return term.startsWith('lbry://') ? term : `lbry://${term}`;
     };
 
@@ -40,7 +40,7 @@ export default function SendPage(props: Props) {
       if (includesLbryTvLocal) prefix = WEB_LOCAL_PREFIX;
       if (includesLbryTvDev) prefix = WEB_DEV_PREFIX;
       if (includesOdysee) prefix = ODYSEE_PREFIX;
-      let query = value && value.slice(prefix.length).replace(/:/g, '#') || '';
+      let query = (value && value.slice(prefix.length).replace(/:/g, '#')) || '';
 
       try {
         const lbryUrl = `lbry://${query}`;
@@ -101,11 +101,7 @@ export default function SendPage(props: Props) {
       }
 
       try {
-        const {
-          streamName,
-          channelName,
-          isChannel
-        } = parseURI(searchContent);
+        const { streamName, channelName, isChannel } = parseURI(searchContent);
 
         if (!isChannel && streamName && isNameValid(streamName)) {
           // contentNameValid = true;
@@ -120,12 +116,32 @@ export default function SendPage(props: Props) {
       }
     }
   }, [enteredContent, setContentUri, setContentError]);
-  return <Page noSideNavigation className="main--send" backout={{
-    backoutLabel: __('Done'),
-    title: <>
+  return (
+    <Page
+      noSideNavigation
+      className="main--send"
+      backout={{
+        backoutLabel: __('Done'),
+        title: (
+          <>
             <LbcSymbol prefix={__('Send')} size={28} />
           </>
-  }}>
-      <WalletSend isAddress={isAddress} setIsAddress={setIsAddress} contentUri={contentUri} contentError={contentError} setEnteredContentUri={setEnteredContentUri} confirmed={confirmed} setConfirmed={setConfirmed} draftTransaction={draftTransaction} setDraftTransaction={setDraftTransaction} sendLabel={sendLabel} setSendLabel={setSendLabel} />
-    </Page>;
+        ),
+      }}
+    >
+      <WalletSend
+        isAddress={isAddress}
+        setIsAddress={setIsAddress}
+        contentUri={contentUri}
+        contentError={contentError}
+        setEnteredContentUri={setEnteredContentUri}
+        confirmed={confirmed}
+        setConfirmed={setConfirmed}
+        draftTransaction={draftTransaction}
+        setDraftTransaction={setDraftTransaction}
+        sendLabel={sendLabel}
+        setSendLabel={setSendLabel}
+      />
+    </Page>
+  );
 }

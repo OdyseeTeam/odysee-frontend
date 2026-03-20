@@ -1,13 +1,13 @@
-import { SIMPLE_SITE } from "config";
-import React, { Fragment } from "react";
-import MarkdownPreview from "component/common/markdown-preview";
-import ClaimTags from "component/claimTags";
-import CreditAmount from "component/common/credit-amount";
-import Button from "component/button";
-import * as PAGES from "constants/pages";
-import DateTime from "component/dateTime";
-import YoutubeBadge from "component/youtubeBadge";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
+import { SIMPLE_SITE } from 'config';
+import React, { Fragment } from 'react';
+import MarkdownPreview from 'component/common/markdown-preview';
+import ClaimTags from 'component/claimTags';
+import CreditAmount from 'component/common/credit-amount';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
+import DateTime from 'component/dateTime';
+import YoutubeBadge from 'component/youtubeBadge';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 type Props = {
   claim: ChannelClaim;
   uri: string;
@@ -41,74 +41,83 @@ const formatWebsite = (website: string) => {
 };
 
 function AboutTab(props: Props) {
-  const {
-    claim,
-    uri,
-    description,
-    email,
-    website,
-    languages,
-    user,
-    channelIsBlackListed,
-    claimIsMine
-  } = props;
+  const { claim, uri, description, email, website, languages, user, channelIsBlackListed, claimIsMine } = props;
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
 
   // If channel is blacklisted, only show the DMCA message
   if (channelIsBlackListed) {
-    return <div className="card">
+    return (
+      <div className="card">
         <section className="card--section dmca-info">
           <p>
-            {__('In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.')}
+            {__(
+              'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
+            )}
           </p>
-          {claimIsMine && <p>
+          {claimIsMine && (
+            <p>
               {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
-            email: 'help@odysee.com'
-          })}
-            </p>}
+                email: 'help@odysee.com',
+              })}
+            </p>
+          )}
           <div className="section__actions">
-            <Button button="link" href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice" label={__('Read More')} />
+            <Button
+              button="link"
+              href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+              label={__('Read More')}
+            />
           </div>
         </section>
-      </div>;
+      </div>
+    );
   }
 
-  return <div className="card">
+  return (
+    <div className="card">
       <section className="section card--section">
         <Fragment>
-          {description && <>
+          {description && (
+            <>
               <label>{__('Description')}</label>
               <div className="media__info-text media__info-text--constrained">
                 <MarkdownPreview content={description} />
               </div>
-            </>}
-          {email && <Fragment>
+            </>
+          )}
+          {email && (
+            <Fragment>
               <label>{__('Contact')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={formatEmail(email)} simpleLinks />
               </div>
-            </Fragment>}
-          {website && <Fragment>
+            </Fragment>
+          )}
+          {website && (
+            <Fragment>
               <label>{__('Site')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={formatWebsite(website)} simpleLinks />
               </div>
-            </Fragment>}
+            </Fragment>
+          )}
 
           <label>{__('Tags')}</label>
           <div className="media__info-text">
             <ClaimTags uri={uri} type="large" />
           </div>
 
-          {languages && languages.length && <>
+          {languages && languages.length && (
+            <>
               <label>{__('Languages')}</label>
               <div className="media__info-text">
                 {languages.reduce((acc, lang, i) => {
-              return acc + `${SUPPORTED_LANGUAGES[lang] || lang}` + ' ';
-            }, '')}
+                  return acc + `${SUPPORTED_LANGUAGES[lang] || lang}` + ' ';
+                }, '')}
               </div>
-            </>}
+            </>
+          )}
 
           <label>{__('Total Uploads')}</label>
           <div className="media__info-text">{claim.meta.claims_in_channel}</div>
@@ -130,15 +139,26 @@ function AboutTab(props: Props) {
 
           <label>{__('Staked Credits')}</label>
           <div className="media__info-text">
-            <CreditAmount badge={false} amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)} precision={8} />{' '}
-            {SIMPLE_SITE && <Button button="link" label={__('view other claims at lbry://%name%', {
-            name: claim.name
-          })} navigate={`/$/${PAGES.TOP}?name=${claim.name}`} />}
+            <CreditAmount
+              badge={false}
+              amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)}
+              precision={8}
+            />{' '}
+            {SIMPLE_SITE && (
+              <Button
+                button="link"
+                label={__('view other claims at lbry://%name%', {
+                  name: claim.name,
+                })}
+                navigate={`/$/${PAGES.TOP}?name=${claim.name}`}
+              />
+            )}
           </div>
           {canView && <YoutubeBadge channelClaimId={claimId} />}
         </Fragment>
       </section>
-    </div>;
+    </div>
+  );
 }
 
 export default AboutTab;

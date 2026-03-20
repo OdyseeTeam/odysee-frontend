@@ -1,7 +1,7 @@
-import classnames from "classnames";
-import React from "react";
-import Empty from "component/common/empty";
-import ButtonRemoveFromCollection from "./buttonRemoveFromCollection";
+import classnames from 'classnames';
+import React from 'react';
+import Empty from 'component/common/empty';
+import ButtonRemoveFromCollection from './buttonRemoveFromCollection';
 type Props = {
   uri?: string;
   collectionId?: string | null | undefined;
@@ -11,32 +11,36 @@ type Props = {
 };
 
 function ClaimPreviewHidden(props: Props) {
-  const {
-    uri,
-    collectionId,
-    isChannel,
-    type,
-    message
-  } = props;
-  return <li className={classnames('claim-preview__wrapper', {
-    'claim-preview__wrapper--channel': isChannel && type !== 'inline',
-    'claim-preview__wrapper--inline': type === 'inline',
-    'claim-preview__wrapper--recommendation': type === 'small'
-  })}>
-      <div className={classnames('claim-preview  claim-preview--inactive claim-preview--empty', {
-      'claim-preview--large': type === 'large'
-    })}>
-        <div className={classnames('media__thumb', {
-        'media__thumb--small': type === 'small'
-      })}>
-          {collectionId && <div className="claim-preview__hover-actions-grid">
+  const { uri, collectionId, isChannel, type, message } = props;
+  return (
+    <li
+      className={classnames('claim-preview__wrapper', {
+        'claim-preview__wrapper--channel': isChannel && type !== 'inline',
+        'claim-preview__wrapper--inline': type === 'inline',
+        'claim-preview__wrapper--recommendation': type === 'small',
+      })}
+    >
+      <div
+        className={classnames('claim-preview  claim-preview--inactive claim-preview--empty', {
+          'claim-preview--large': type === 'large',
+        })}
+      >
+        <div
+          className={classnames('media__thumb', {
+            'media__thumb--small': type === 'small',
+          })}
+        >
+          {collectionId && (
+            <div className="claim-preview__hover-actions-grid">
               <ButtonRemoveFromCollection uri={uri} collectionId={collectionId} />
-            </div>}
+            </div>
+          )}
         </div>
 
         <Empty text={message} />
       </div>
-    </li>;
+    </li>
+  );
 }
 
 export default ClaimPreviewHidden;

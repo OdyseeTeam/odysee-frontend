@@ -1,6 +1,6 @@
-import { SORT_COMMENTS_NEW, SORT_COMMENTS_BEST, SORT_COMMENTS_CONTROVERSIAL } from "constants/comment";
-import { FREE_GLOBAL_STICKERS, PAID_GLOBAL_STICKERS } from "constants/stickers";
-import * as REACTION_TYPES from "constants/reactions";
+import { SORT_COMMENTS_NEW, SORT_COMMENTS_BEST, SORT_COMMENTS_CONTROVERSIAL } from 'constants/comment';
+import { FREE_GLOBAL_STICKERS, PAID_GLOBAL_STICKERS } from 'constants/stickers';
+import * as REACTION_TYPES from 'constants/reactions';
 const ALL_VALID_STICKERS = [...FREE_GLOBAL_STICKERS, ...PAID_GLOBAL_STICKERS];
 const stickerRegex = /(<stkr>:[A-Z0-9_]+:<stkr>)/;
 // Mostly taken from Reddit's sorting functions
@@ -12,14 +12,9 @@ type SortProps = {
   isMyComment: (arg0: string) => boolean;
 };
 export function sortComments(sortProps: SortProps): Array<Comment> {
-  const {
-    comments,
-    reactionsById,
-    sort,
-    isMyComment
-  } = sortProps;
+  const { comments, reactionsById, sort, isMyComment } = sortProps;
   if (!comments) return [];
-  return comments.slice().sort((a: Comment, b: Comment) => {
+  return comments.slice().toSorted((a: Comment, b: Comment) => {
     if (a.is_pinned) {
       return -1;
     } else if (b.is_pinned) {
@@ -38,10 +33,10 @@ export function sortComments(sortProps: SortProps): Array<Comment> {
 
     const aReactions = reactionsById[a.comment_id];
     const bReactions = reactionsById[b.comment_id];
-    const aLikes = aReactions && aReactions[REACTION_TYPES.LIKE] || 0;
-    const aDislikes = aReactions && aReactions[REACTION_TYPES.DISLIKE] || 0;
-    const bLikes = bReactions && bReactions[REACTION_TYPES.LIKE] || 0;
-    const bDislikes = bReactions && bReactions[REACTION_TYPES.DISLIKE] || 0;
+    const aLikes = (aReactions && aReactions[REACTION_TYPES.LIKE]) || 0;
+    const aDislikes = (aReactions && aReactions[REACTION_TYPES.DISLIKE]) || 0;
+    const bLikes = (bReactions && bReactions[REACTION_TYPES.LIKE]) || 0;
+    const bDislikes = (bReactions && bReactions[REACTION_TYPES.DISLIKE]) || 0;
 
     if (sort === SORT_COMMENTS_CONTROVERSIAL) {
       if (aLikes === 0 && aDislikes === 0) {
@@ -73,12 +68,12 @@ export function sortComments(sortProps: SortProps): Array<Comment> {
 
       const aP = aLikes / aN;
       const bP = bLikes / bN;
-      const aLeft = aP + 1 / (2 * aN) * z * z;
-      const aRight = z * Math.sqrt(aP * (1 - aP) / aN + z * z / (4 * aN * aN));
-      const aUnder = 1 + 1 / aN * z * z;
-      const bLeft = bP + 1 / (2 * bN) * z * z;
-      const bRight = z * Math.sqrt(bP * (1 - bP) / bN + z * z / (4 * bN * bN));
-      const bUnder = 1 + 1 / bN * z * z;
+      const aLeft = aP + (1 / (2 * aN)) * z * z;
+      const aRight = z * Math.sqrt((aP * (1 - aP)) / aN + (z * z) / (4 * aN * aN));
+      const aUnder = 1 + (1 / aN) * z * z;
+      const bLeft = bP + (1 / (2 * bN)) * z * z;
+      const bRight = z * Math.sqrt((bP * (1 - bP)) / bN + (z * z) / (4 * bN * bN));
+      const bUnder = 1 + (1 / bN) * z * z;
       return (bLeft - bRight) / bUnder - (aLeft - aRight) / aUnder;
     }
 
@@ -91,18 +86,19 @@ export function parseSticker(comment: string) {
   const stickerValue = matchSticker && matchSticker[0];
   const stickerName = stickerValue && stickerValue.replace(/<stkr>/g, '');
   const commentIsSticker = stickerValue && stickerValue.length === comment.length;
-  return commentIsSticker && ALL_VALID_STICKERS.find(({
-    name
-  }) => name === stickerName);
+  return commentIsSticker && ALL_VALID_STICKERS.find(({ name }) => name === stickerName);
 }
 export function getStickerUrl(comment: string) {
   const stickerFromComment = parseSticker(comment);
   return stickerFromComment && stickerFromComment.url;
 }
 export function getCommentsListTitle(totalComments: number) {
-  const title = totalComments === 0 && __('Leave a comment') || totalComments === 1 && __('1 comment') || __('%total_comments% comments', {
-    total_comments: totalComments
-  });
+  const title =
+    (totalComments === 0 && __('Leave a comment')) ||
+    (totalComments === 1 && __('1 comment')) ||
+    __('%total_comments% comments', {
+      total_comments: totalComments,
+    });
 
   return title;
 }

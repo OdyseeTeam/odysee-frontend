@@ -1,10 +1,10 @@
-import React from "react";
-import * as SETTINGS from "constants/settings";
-import { SETTINGS_GRP } from "constants/settings";
-import Card from "component/common/card";
-import { FormField } from "component/common/form";
-import SettingsRow from "component/settingsRow";
-import SettingDefaultQuality from "component/settingDefaultQuality";
+import React from 'react';
+import * as SETTINGS from 'constants/settings';
+import { SETTINGS_GRP } from 'constants/settings';
+import Card from 'component/common/card';
+import { FormField } from 'component/common/form';
+import SettingsRow from 'component/settingsRow';
+import SettingDefaultQuality from 'component/settingDefaultQuality';
 type Props = {
   // --- select ---
   floatingPlayer: boolean;
@@ -59,5 +59,6 @@ const HELP = {
   AUTOPLAY_MEDIA: 'Autoplay video and audio files when navigating to a file.',
   DISABLE_SHORTS_VIEW: 'Vertical content will use the standard view and video player.',
   AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
-  DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts. At this time, not all videos have multiple quality options, in which case the original quality will be used.'
+  DEFAULT_VIDEO_QUALITY:
+    'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts. At this time, not all videos have multiple quality options, in which case the original quality will be used.',
 };

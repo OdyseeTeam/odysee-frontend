@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 /**
  * Returns the last visible slot in a list.
  *
@@ -38,7 +38,6 @@ export default function useGetLastVisibleSlot(listRef: any, skipEval: boolean, c
       }, checkDelayMs);
       return () => clearTimeout(timer);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   return lastVisibleIndex;
 }

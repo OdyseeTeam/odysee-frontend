@@ -1,7 +1,7 @@
-import { regexAddress } from "util/lbryURI";
+import { regexAddress } from 'util/lbryURI';
 export default function validateSendTx(address: string) {
   const errors = {
-    address: ''
+    address: '',
   };
 
   // All we need to check is if the address is valid

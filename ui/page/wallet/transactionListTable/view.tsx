@@ -1,41 +1,43 @@
-import * as MODALS from "constants/modal_types";
-import React from "react";
-import Spinner from "component/spinner";
-import LbcSymbol from "component/common/lbc-symbol";
-import TxoListItem from "../transactionListTableItem";
+import * as MODALS from 'constants/modal_types';
+import React from 'react';
+import Spinner from 'component/spinner';
+import LbcSymbol from 'component/common/lbc-symbol';
+import TxoListItem from '../transactionListTableItem';
 type Props = {
   emptyMessage: string | null | undefined;
   loading: boolean;
-  openModal: (id: string, arg1: {
-    tx: Txo;
-    cb: (arg0: string) => void;
-  }) => void;
+  openModal: (
+    id: string,
+    arg1: {
+      tx: Txo;
+      cb: (arg0: string) => void;
+    }
+  ) => void;
   rewards: {};
   txos: Array<Txo>;
 };
 
 function TransactionListTable(props: Props) {
-  const {
-    emptyMessage,
-    rewards,
-    loading,
-    txos
-  } = props;
+  const { emptyMessage, rewards, loading, txos } = props;
   const REVOCABLE_TYPES = ['channel', 'stream', 'repost', 'support', 'claim', 'collection'];
 
   function revokeClaim(tx: any, cb: (arg0: string) => void) {
     props.openModal(MODALS.CONFIRM_CLAIM_REVOKE, {
       tx,
-      cb
+      cb,
     });
   }
 
-  return <React.Fragment>
+  return (
+    <React.Fragment>
       {!loading && !txos.length && <h2 className="main--empty empty">{emptyMessage || __('No transactions.')}</h2>}
-      {loading && <h2 className="main--empty empty">
+      {loading && (
+        <h2 className="main--empty empty">
           <Spinner delayed />
-        </h2>}
-      {!loading && !!txos.length && <div className="table__wrapper">
+        </h2>
+      )}
+      {!loading && !!txos.length && (
+        <div className="table__wrapper">
           <table className="table table--transactions">
             <thead>
               <tr>
@@ -49,11 +51,22 @@ function TransactionListTable(props: Props) {
               </tr>
             </thead>
             <tbody>
-              {txos && txos.map((t, i) => <TxoListItem key={`${t.txid}:${t.nout}-${i}`} txo={t} reward={rewards && rewards[t.txid]} isRevokeable={t.is_my_output && !t.is_spent && REVOCABLE_TYPES.includes(t.type)} revokeClaim={revokeClaim} />)}
+              {txos &&
+                txos.map((t, i) => (
+                  <TxoListItem
+                    key={`${t.txid}:${t.nout}-${i}`}
+                    txo={t}
+                    reward={rewards && rewards[t.txid]}
+                    isRevokeable={t.is_my_output && !t.is_spent && REVOCABLE_TYPES.includes(t.type)}
+                    revokeClaim={revokeClaim}
+                  />
+                ))}
             </tbody>
           </table>
-        </div>}
-    </React.Fragment>;
+        </div>
+      )}
+    </React.Fragment>
+  );
 }
 
 export default TransactionListTable;

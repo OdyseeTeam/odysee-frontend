@@ -1,11 +1,11 @@
-import * as ICONS from "constants/icons";
-import * as React from "react";
-import Button from "component/button";
-import Tag from "component/tag";
-import TagsSearch from "component/tagsSearch";
-import usePersistedState from "effects/use-persisted-state";
-import analytics from "analytics";
-import Card from "component/common/card";
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import Button from 'component/button';
+import Tag from 'component/tag';
+import TagsSearch from 'component/tagsSearch';
+import usePersistedState from 'effects/use-persisted-state';
+import analytics from 'analytics';
+import Card from 'component/common/card';
 type Props = {
   showClose?: boolean;
   followedTags: Array<Tag>;
@@ -47,12 +47,12 @@ export default function TagsSelect(props: Props) {
     label,
     limitShow,
     limitSelect,
-    excludedControlTags
+    excludedControlTags,
   } = props;
   const [hasClosed, setHasClosed] = usePersistedState('tag-select:has-closed', false);
   const tagsToDisplay = tagsChosen || followedTags;
   const tagCount = tagsToDisplay.length;
-  const hasMatureTag = tagsToDisplay.map(tag => tag.name).includes('mature');
+  const hasMatureTag = tagsToDisplay.map((tag) => tag.name).includes('mature');
 
   function handleClose() {
     setHasClosed(true);
@@ -63,7 +63,7 @@ export default function TagsSelect(props: Props) {
       onRemove(tag);
     } else if (doToggleTagFollowDesktop) {
       doToggleTagFollowDesktop(tag.name);
-      const wasFollowing = followedTags.map(tag => tag.name).includes(tag.name);
+      const wasFollowing = followedTags.map((tag) => tag.name).includes(tag.name);
       const nowFollowing = !wasFollowing;
       analytics.event.tagFollow(tag.name, nowFollowing, 'tag-select');
     }
@@ -74,14 +74,50 @@ export default function TagsSelect(props: Props) {
       setHasClosed(false);
     }
   }, [tagCount, setHasClosed, showClose]);
-  return (showClose && !hasClosed || !showClose) && <Card className="card--tags" title={hideHeader ? null : <React.Fragment>
+  return (
+    ((showClose && !hasClosed) || !showClose) && (
+      <Card
+        className="card--tags"
+        title={
+          hideHeader ? null : (
+            <React.Fragment>
               {title}
-              {showClose && tagsToDisplay.length > 0 && !hasClosed && <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />}
-            </React.Fragment>} actions={<React.Fragment>
-            <TagsSearch label={label} onRemove={handleTagClick} onSelect={onSelect} suggestMature={suggestMature && !hasMatureTag} disableAutoFocus={disableAutoFocus} tagsPassedIn={tagsToDisplay} placeholder={placeholder} limitShow={limitShow} limitSelect={limitSelect} excludedControlTags={excludedControlTags} help={help !== false && <span>
+              {showClose && tagsToDisplay.length > 0 && !hasClosed && (
+                <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />
+              )}
+            </React.Fragment>
+          )
+        }
+        actions={
+          <React.Fragment>
+            <TagsSearch
+              label={label}
+              onRemove={handleTagClick}
+              onSelect={onSelect}
+              suggestMature={suggestMature && !hasMatureTag}
+              disableAutoFocus={disableAutoFocus}
+              tagsPassedIn={tagsToDisplay}
+              placeholder={placeholder}
+              limitShow={limitShow}
+              limitSelect={limitSelect}
+              excludedControlTags={excludedControlTags}
+              help={
+                help !== false && (
+                  <span>
                     {help || __("The tags you follow will change what's trending for you.")}{' '}
-                    <Button button="link" label={__('Learn more')} href="https://help.odysee.tv/category-contentdiscovery/search/" />
+                    <Button
+                      button="link"
+                      label={__('Learn more')}
+                      href="https://help.odysee.tv/category-contentdiscovery/search/"
+                    />
                     .
-                  </span>} />
-          </React.Fragment>} />;
+                  </span>
+                )
+              }
+            />
+          </React.Fragment>
+        }
+      />
+    )
+  );
 }

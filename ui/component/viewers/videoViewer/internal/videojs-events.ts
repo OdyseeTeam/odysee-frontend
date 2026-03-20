@@ -1,14 +1,14 @@
-import analytics from "analytics";
-import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from "config";
-import { VJS_EVENTS } from "constants/player";
-import { getThumbnailCdnUrl } from "util/thumbnail";
-import { platform } from "util/platform";
+import analytics from 'analytics';
+import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from 'config';
+import { VJS_EVENTS } from 'constants/player';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
+import { platform } from 'util/platform';
 const IS_MOBILE = platform.isMobile();
 const isDev = process.env.NODE_ENV !== 'production';
 const TAP = {
   NONE: 'NONE',
   UNMUTE: 'UNMUTE',
-  RETRY: 'RETRY'
+  RETRY: 'RETRY',
 };
 
 const VideoJsEvents = ({
@@ -27,7 +27,7 @@ const VideoJsEvents = ({
   claimRewards,
   playerServerRef,
   isLivestreamClaim,
-  isShortsParam
+  isShortsParam,
 }: {
   tapToUnmuteRef: any;
   // DOM element
@@ -84,13 +84,29 @@ const VideoJsEvents = ({
       }
 
       // populates data for watchman, sends prom and matomo event
-      analytics.video.videoStartEvent(claimId, timeToStartVideo, playerPoweredBy, userId, uri, this, // pass the player
-      bitrateAsBitsPerSecond, isLivestreamClaim);
+      analytics.video.videoStartEvent(
+        claimId,
+        timeToStartVideo,
+        playerPoweredBy,
+        userId,
+        uri,
+        this, // pass the player
+        bitrateAsBitsPerSecond,
+        isLivestreamClaim
+      );
     } else {
       // populates data for watchman, sends prom and matomo event
-      analytics.video.videoStartEvent(claimId, 0, playerPoweredBy, userId, uri, this, // pass the player
-      // $FlowFixMe
-      this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH, isLivestreamClaim);
+      analytics.video.videoStartEvent(
+        claimId,
+        0,
+        playerPoweredBy,
+        userId,
+        uri,
+        this, // pass the player
+        // $FlowFixMe
+        this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH,
+        isLivestreamClaim
+      );
     }
 
     // hit backend to mark a view
@@ -190,7 +206,7 @@ const VideoJsEvents = ({
       const backoffDelays = [250, 1000, 5000, 15000];
       const timeoutDelay = backoffDelays[attempt - 1] || backoffDelays[backoffDelays.length - 1];
       setTimeout(() => {
-        const appendCacheBuster = src => {
+        const appendCacheBuster = (src) => {
           try {
             const url = new URL(src, window.location.href);
             url.searchParams.set('cb', Date.now().toString());
@@ -203,12 +219,10 @@ const VideoJsEvents = ({
         let newSrcObject;
 
         if (player.claimSrcVhs) {
-          newSrcObject = { ...player.claimSrcVhs
-          };
+          newSrcObject = { ...player.claimSrcVhs };
           newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
         } else if (player.claimSrcOriginal) {
-          newSrcObject = { ...player.claimSrcOriginal
-          };
+          newSrcObject = { ...player.claimSrcOriginal };
           newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
         }
 
@@ -219,11 +233,14 @@ const VideoJsEvents = ({
           player.one('loadedmetadata', () => {
             player.currentTime(lastPlaybackTime);
           });
-          player.play().then(() => {
-            showTapButton(TAP.NONE);
-          }).catch(() => {
-            showTapButton(TAP.RETRY);
-          });
+          player
+            .play()
+            .then(() => {
+              showTapButton(TAP.NONE);
+            })
+            .catch(() => {
+              showTapButton(TAP.RETRY);
+            });
         } else {
           showTapButton(TAP.RETRY);
         }
@@ -275,15 +292,19 @@ const VideoJsEvents = ({
       const thumbnail = getThumbnailCdnUrl({
         thumbnail: claimValues?.thumbnail?.url,
         width: THUMBNAIL_WIDTH_POSTER,
-        height: THUMBNAIL_HEIGHT_POSTER
+        height: THUMBNAIL_HEIGHT_POSTER,
       });
       // $FlowFixMe
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: claimValues.title,
         artist: channelTitle,
-        artwork: thumbnail ? [{
-          src: thumbnail
-        }] : undefined
+        artwork: thumbnail
+          ? [
+              {
+                src: thumbnail,
+              },
+            ]
+          : undefined,
       });
       // $FlowFixMe
       navigator.mediaSession.setActionHandler('seekbackward', function () {
@@ -426,7 +447,7 @@ const VideoJsEvents = ({
   return {
     retryVideoAfterFailure,
     unmuteAndHideHint,
-    initializeEvents
+    initializeEvents,
   };
 };
 

@@ -1,5 +1,5 @@
-import { URL, WEBPACK_WEB_PORT } from "config";
-import * as ICONS from "constants/icons";
+import { URL, WEBPACK_WEB_PORT } from 'config';
+import * as ICONS from 'constants/icons';
 export const TEST = 'test';
 export const LIVE = 'live';
 const isDev = process.env.NODE_ENV !== 'production';
@@ -12,17 +12,17 @@ export const APIS_DOWN_ERROR_RESPONSE = 'There was an error from the server, ple
 export const CARD_SETUP_ERROR_RESPONSE = 'There was an error getting your card setup, please try again later';
 export const CURRENCIES = Object.freeze({
   EUR: 'EUR',
-  USD: 'USD'
+  USD: 'USD',
 });
 export const CURRENCY = Object.freeze({
   [CURRENCIES.EUR]: {
     icon: ICONS.EURO,
-    symbol: '€'
+    symbol: '€',
   },
   [CURRENCIES.USD]: {
     icon: ICONS.FINANCE,
-    symbol: '$'
-  }
+    symbol: '$',
+  },
 });
 export const STRIPE_BILLING_URL = 'https://billing.stripe.com/p/login/4gw14s1bLbBfdmoaEE';
 export const STRIPE_ACCOUNT_DASHBOARD_URL = 'https://dashboard.stripe.com';

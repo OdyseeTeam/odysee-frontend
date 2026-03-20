@@ -2,8 +2,8 @@
  * @file touchOverlay.js
  * Touch UI component
  */
-import videojs from "video.js";
-import window from "global/window";
+import videojs from 'video.js';
+import window from 'global/window';
 const Component = videojs.getComponent('Component');
 const dom = videojs.dom || videojs;
 /**
@@ -29,7 +29,7 @@ class TouchOverlay extends Component {
     // Add play toggle overlay
     this.addChild('playToggle', {});
     // Clear overlay when playback starts or with control fade
-    player.on(['playing', 'userinactive'], e => {
+    player.on(['playing', 'userinactive'], (e) => {
       if (!this.player_.paused()) {
         this.removeClass('show-play-toggle');
       }
@@ -53,7 +53,7 @@ class TouchOverlay extends Component {
     const el = dom.createEl('div', {
       className: 'vjs-touch-overlay',
       // Touch overlay is not tabbable.
-      tabIndex: -1
+      tabIndex: -1,
     });
     return el;
   }
@@ -147,7 +147,6 @@ class TouchOverlay extends Component {
   disable() {
     this.off('touchend', this.handleTap);
   }
-
 }
 
 Component.registerComponent('TouchOverlay', TouchOverlay);

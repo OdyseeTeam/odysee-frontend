@@ -1,10 +1,14 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
 
 const YouTubeTOSPage = () => {
-  return <Page className="static-page">
-      <Card title="YouTube Sync Terms of Service" body={<div>
+  return (
+    <Page className="static-page">
+      <Card
+        title="YouTube Sync Terms of Service"
+        body={
+          <div>
             <p>
               <strong>Last Updated: October 2021</strong>
             </p>
@@ -602,8 +606,11 @@ const YouTubeTOSPage = () => {
               code, without first obtaining that authorization. This assurance and commitment shall survive termination
               of this Agreement.
             </p>
-          </div>} />
-    </Page>;
+          </div>
+        }
+      />
+    </Page>
+  );
 };
 
 export default YouTubeTOSPage;

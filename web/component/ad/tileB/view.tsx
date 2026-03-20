@@ -1,5 +1,5 @@
-import React from "react";
-import classnames from "classnames";
+import React from 'react';
+import classnames from 'classnames';
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
   revcontent: {
@@ -15,10 +15,7 @@ type Props = {
 };
 
 function AdTileB(props: Props) {
-  const {
-    provider,
-    shouldShowAds
-  } = props;
+  const { provider, shouldShowAds } = props;
   const [isActive, setIsActive] = React.useState(false);
   React.useEffect(() => {
     if (shouldShowAds) {
@@ -46,27 +43,40 @@ function AdTileB(props: Props) {
   }, [shouldShowAds, provider]);
 
   if (provider === 'revcontent') {
-    return <div className={classnames('rc_tileB', {
-      'show-rc_tile': isActive
-    })} id="rc-widget-952c79" data-rc-widget data-widget-host="habitat" data-endpoint="//trends.revcontent.com" data-widget-id="274791" />;
+    return (
+      <div
+        className={classnames('rc_tileB', {
+          'show-rc_tile': isActive,
+        })}
+        id="rc-widget-952c79"
+        data-rc-widget
+        data-widget-host="habitat"
+        data-endpoint="//trends.revcontent.com"
+        data-widget-id="274791"
+      />
+    );
   }
 
   if (shouldShowAds && provider === 'rumble') {
-    return <html>
-        <div className={classnames('rc_tileB rc_tileB--rmbl', {
-        'show-rc_tile': isActive
-      })}>
+    return (
+      <html>
+        <div
+          className={classnames('rc_tileB rc_tileB--rmbl', {
+            'show-rc_tile': isActive,
+          })}
+        >
           <script id="nrp-62" type="text/javascript" className="">
-            {function (node) {
-            var nrp = document.createElement('script');
-            nrp.type = 'text/javascript';
-            nrp.async = true;
-            nrp.src = AD_CONFIG.rumble.url;
-            if (node) node.appendChild(nrp);
-          }(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+            {(function (node) {
+              var nrp = document.createElement('script');
+              nrp.type = 'text/javascript';
+              nrp.async = true;
+              nrp.src = AD_CONFIG.rumble.url;
+              if (node) node.appendChild(nrp);
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
         </div>
-      </html>;
+      </html>
+    );
   }
 }
 

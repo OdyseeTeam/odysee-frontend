@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FormField } from "component/common/form";
-import Button from "component/button";
-import I18nMessage from "component/i18nMessage";
-import * as ICONS from "constants/icons";
-import ServerInputRow from "./internal/inputRow";
-import { stringifyServerParam } from "util/sync-settings";
+import React, { useState, useEffect, useRef } from 'react';
+import { FormField } from 'component/common/form';
+import Button from 'component/button';
+import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
+import ServerInputRow from './internal/inputRow';
+import { stringifyServerParam } from 'util/sync-settings';
 type StatusOfServer = {
   host: string;
   port: string;
@@ -38,31 +38,35 @@ function SettingWalletServer(props: Props) {
     saveServerConfig,
     customWalletServers,
     hasWalletServerPrefs,
-    walletReconnecting
+    walletReconnecting,
   } = props;
   const [advancedMode, setAdvancedMode] = useState(false);
   const walletStatus = daemonStatus && daemonStatus.wallet;
-  const activeWalletServers: ServerStatus = walletStatus && walletStatus.servers || [];
+  const activeWalletServers: ServerStatus = (walletStatus && walletStatus.servers) || [];
   const availableServers = walletStatus && walletStatus.available_servers;
   const serverConfig: ServerConfig = customWalletServers;
   const STATUS_INTERVAL = 5000;
   // onUnmount, if there are no available servers, doClear()
   // in order to replicate componentWillUnmount, the effect needs to get the value from a ref
   const hasAvailableRef = useRef();
-  useEffect(() => () => {
-    hasAvailableRef.current = availableServers;
-  }, [availableServers]);
-  useEffect(() => () => {
-    if (!hasAvailableRef.current) {
-      doClear();
-    }
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-  []);
+  useEffect(
+    () => () => {
+      hasAvailableRef.current = availableServers;
+    },
+    [availableServers]
+  );
+  useEffect(
+    () => () => {
+      if (!hasAvailableRef.current) {
+        doClear();
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+    []
+  );
   useEffect(() => {
     if (hasWalletServerPrefs) {
       setAdvancedMode(true);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -93,49 +97,80 @@ function SettingWalletServer(props: Props) {
     setCustomWalletServers(stringifyServerParam(newConfig));
   }
 
-  return <React.Fragment>
+  return (
+    <React.Fragment>
       <fieldset-section>
-        <FormField type="radio" name="default_wallet_servers" checked={!advancedMode} label={__('Use official lbry.tv wallet servers')} onChange={e => {
-        if (e.target.checked) {
-          doClear();
-        }
-      }} />
-        <FormField type="radio" name="custom_wallet_servers" checked={advancedMode} onChange={e => {
-        setAdvancedMode(e.target.checked);
+        <FormField
+          type="radio"
+          name="default_wallet_servers"
+          checked={!advancedMode}
+          label={__('Use official lbry.tv wallet servers')}
+          onChange={(e) => {
+            if (e.target.checked) {
+              doClear();
+            }
+          }}
+        />
+        <FormField
+          type="radio"
+          name="custom_wallet_servers"
+          checked={advancedMode}
+          onChange={(e) => {
+            setAdvancedMode(e.target.checked);
 
-        if (e.target.checked && customWalletServers.length) {
-          setCustomWalletServers(stringifyServerParam(customWalletServers));
-        }
-      }} label={__('Use custom wallet servers')} />
+            if (e.target.checked && customWalletServers.length) {
+              setCustomWalletServers(stringifyServerParam(customWalletServers));
+            }
+          }}
+          label={__('Use custom wallet servers')}
+        />
         <p className="help">
-          <I18nMessage tokens={{
-          learn_more: <Button button="link" href="http://lbry.com/faq/wallet-servers" label={__('Learn More')} />
-        }}>
+          <I18nMessage
+            tokens={{
+              learn_more: <Button button="link" href="http://lbry.com/faq/wallet-servers" label={__('Learn More')} />,
+            }}
+          >
             Wallet servers are used to relay data to and from the LBRY blockchain. They also determine what content
             shows in trending or is blocked. %learn_more%
           </I18nMessage>
         </p>
 
-        {advancedMode && <div>
-            {serverConfig && serverConfig.map((entry, index) => {
-          const [host, port] = entry;
-          const available = activeWalletServers.some(s => s.host === entry[0] && String(s.port) === entry[1] && s.availability);
-          return <div key={`${host}:${port}`} className="section section--padded card--inline form-field__internal-option">
+        {advancedMode && (
+          <div>
+            {serverConfig &&
+              serverConfig.map((entry, index) => {
+                const [host, port] = entry;
+                const available = activeWalletServers.some(
+                  (s) => s.host === entry[0] && String(s.port) === entry[1] && s.availability
+                );
+                return (
+                  <div
+                    key={`${host}:${port}`}
+                    className="section section--padded card--inline form-field__internal-option"
+                  >
                     <h3>
                       {host}:{port}
                     </h3>
                     <span className="help">
                       {available ? __('Connected') : walletReconnecting ? __('Connecting...') : __('Not connected')}
                     </span>
-                    <Button button="close" title={__('Remove custom wallet server')} icon={ICONS.REMOVE} onClick={() => onDelete(index)} />
-                  </div>;
-        })}
+                    <Button
+                      button="close"
+                      title={__('Remove custom wallet server')}
+                      icon={ICONS.REMOVE}
+                      onClick={() => onDelete(index)}
+                    />
+                  </div>
+                );
+              })}
             <div className="form-field__internal-option">
               <ServerInputRow update={onAdd} />
             </div>
-          </div>}
+          </div>
+        )}
       </fieldset-section>
-    </React.Fragment>;
+    </React.Fragment>
+  );
 }
 
 export default SettingWalletServer;

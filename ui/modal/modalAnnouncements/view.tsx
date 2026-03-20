@@ -1,10 +1,10 @@
-import React from "react";
-import { useHistory } from "react-router-dom";
-import Card from "component/common/card";
-import MarkdownPreview from "component/common/markdown-preview";
-import * as PAGES from "constants/pages";
-import { Modal } from "modal/modal";
-import { getSimpleStrHash } from "util/string";
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import Card from 'component/common/card';
+import MarkdownPreview from 'component/common/markdown-preview';
+import * as PAGES from 'constants/pages';
+import { Modal } from 'modal/modal';
+import { getSimpleStrHash } from 'util/string';
 type Props = {
   isAutoInvoked?: boolean;
   // --- redux ---
@@ -15,22 +15,14 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void;
 };
 export default function ModalAnnouncements(props: Props) {
+  const { authenticated, announcement, lastViewedHash, isAutoInvoked, doHideModal, doSetLastViewedAnnouncement } =
+    props;
   const {
-    authenticated,
-    announcement,
-    lastViewedHash,
-    isAutoInvoked,
-    doHideModal,
-    doSetLastViewedAnnouncement
-  } = props;
-  const {
-    location: {
-      pathname
-    }
+    location: { pathname },
   } = useHistory();
   const [show, setShow] = React.useState(false);
   React.useEffect(() => {
-    if (!authenticated || pathname !== '/' && pathname !== `/$/${PAGES.HELP}` || announcement === '') {
+    if (!authenticated || (pathname !== '/' && pathname !== `/$/${PAGES.HELP}`) || announcement === '') {
       doHideModal();
       return;
     }
@@ -47,14 +39,18 @@ export default function ModalAnnouncements(props: Props) {
       setShow(true);
       doSetLastViewedAnnouncement(hash);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
 
   if (!show) {
     return null;
   }
 
-  return <Modal type="card" isOpen onAborted={doHideModal}>
-      <Card className="announcement" actions={<MarkdownPreview className="markdown-preview--announcement" content={announcement} simpleLinks />} />
-    </Modal>;
+  return (
+    <Modal type="card" isOpen onAborted={doHideModal}>
+      <Card
+        className="announcement"
+        actions={<MarkdownPreview className="markdown-preview--announcement" content={announcement} simpleLinks />}
+      />
+    </Modal>
+  );
 }

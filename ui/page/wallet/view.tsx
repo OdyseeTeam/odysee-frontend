@@ -1,15 +1,15 @@
-import React from "react";
-import { useHistory } from "react-router";
-import Icon from "component/common/icon";
-import WalletBalance from "component/walletBalance";
-import Page from "component/page";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import Spinner from "component/spinner";
-import YrblWalletEmpty from "component/yrblWalletEmpty";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "component/common/tabs";
-import TxoList from "./txoList";
-import "./style.scss";
+import React from 'react';
+import { useHistory } from 'react-router';
+import Icon from 'component/common/icon';
+import WalletBalance from 'component/walletBalance';
+import Page from 'component/page';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import Spinner from 'component/spinner';
+import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import TxoList from './txoList';
+import './style.scss';
 const TAB_QUERY = 'tab';
 const CURRENCY_QUERY_PARAM = 'currency';
 const CREDITS_QUERY_PARAM_VALUE = 'credits';
@@ -17,7 +17,7 @@ const FIAT_QUERY_PARAM_VALUE = 'fiat';
 const TABS = {
   LBRY_CREDITS_TAB: 'credits',
   ACCOUNT_HISTORY: 'fiat-account-history',
-  PAYMENT_HISTORY: 'fiat-payment-history'
+  PAYMENT_HISTORY: 'fiat-payment-history',
 };
 type Props = {
   history: {
@@ -34,14 +34,10 @@ type Props = {
 };
 
 const WalletPage = (props: Props) => {
+  const { doTipAccountStatus } = props;
   const {
-    doTipAccountStatus
-  } = props;
-  const {
-    location: {
-      search
-    },
-    push
+    location: { search },
+    push,
   } = useHistory();
   // @if TARGET='web'
   const urlParams = new URLSearchParams(search);
@@ -96,15 +92,12 @@ const WalletPage = (props: Props) => {
   }
 
   // @endif
-  const {
-    totalBalance
-  } = props;
+  const { totalBalance } = props;
   const showIntro = totalBalance === 0;
   const loading = totalBalance === undefined;
-  return <>
-      {
-      /* @if TARGET='web' */
-    }
+  return (
+    <>
+      {/* @if TARGET='web' */}
       <Page className="transactionsPage-wrapper">
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
@@ -114,86 +107,96 @@ const WalletPage = (props: Props) => {
             <Tab>{__('Rentals/Purchases')}</Tab>
           </TabList>
           <TabPanels>
-            {
-            /* balances for lbc and fiat */
-          }
+            {/* balances for lbc and fiat */}
             <TabPanel>
               <div className="tmp-lbc-announcement">
                 <img src="https://thumbnails.odycdn.com/optimize/s:140:0/quality:95/plain/https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
-                <h3><Icon icon={ICONS.LBC} />LBC will be going away soon</h3>
+                <h3>
+                  <Icon icon={ICONS.LBC} />
+                  LBC will be going away soon
+                </h3>
                 <p>Odysee will be using AR cryptocurrency for Payments and Monetization.</p>
               </div>
               <WalletBalance />
             </TabPanel>
-            {
-            /* credits tab */
-          }
+            {/* credits tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">
-                  {loading && <div className="main--empty">
+                  {loading && (
+                    <div className="main--empty">
                       <Spinner delayed />
-                    </div>}
-                  {!loading && <>
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
                       {showIntro && <YrblWalletEmpty includeWalletLink />}
                       <div className="card-stack">{tabIndex === 1 && <TxoList search={search} />}</div>
-                    </>}
+                    </>
+                  )}
                 </div>
               </div>
             </TabPanel>
-            {
-            /* tips tab */
-          }
+            {/* tips tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">
-                  {loading && <div className="main--empty">
+                  {loading && (
+                    <div className="main--empty">
                       <Spinner delayed />
-                    </div>}
-                  {!loading && <>
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
                       <div className="card-stack">{tabIndex === 2 && <TxoList search={search} />}</div>
-                    </>}
+                    </>
+                  )}
                 </div>
               </div>
             </TabPanel>
-            {
-            /* rentals/purchases tab */
-          }
+            {/* rentals/purchases tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">
-                  {loading && <div className="main--empty">
+                  {loading && (
+                    <div className="main--empty">
                       <Spinner delayed />
-                    </div>}
-                  {!loading && <>
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
                       <div className="card-stack">{tabIndex === 3 && <TxoList search={search} />}</div>
-                    </>}
+                    </>
+                  )}
                 </div>
               </div>
             </TabPanel>
           </TabPanels>
         </Tabs>
       </Page>
-      {
-      /* @endif */
-    }
-      {
-      /* @if TARGET='app' */
-    }
+      {/* @endif */}
+      {/* @if TARGET='app' */}
       <Page>
-        {loading && <div className="main--empty">
+        {loading && (
+          <div className="main--empty">
             <Spinner delayed />
-          </div>}
-        {!loading && <>
-            {showIntro ? <YrblWalletEmpty includeWalletLink /> : <div className="card-stack">
+          </div>
+        )}
+        {!loading && (
+          <>
+            {showIntro ? (
+              <YrblWalletEmpty includeWalletLink />
+            ) : (
+              <div className="card-stack">
                 <TxoList search={search} />
-              </div>}
-          </>}
+              </div>
+            )}
+          </>
+        )}
       </Page>
-      {
-      /* @endif */
-    }
-    </>;
+      {/* @endif */}
+    </>
+  );
 };
 
 export default WalletPage;

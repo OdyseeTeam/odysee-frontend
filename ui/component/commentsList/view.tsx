@@ -1,25 +1,34 @@
-import { COMMENT_PAGE_SIZE_TOP_LEVEL, SORT_BY, LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from "constants/comment";
-import { ENABLE_COMMENT_REACTIONS } from "config";
-import { useIsMobile, useIsSmallScreen } from "effects/use-screensize";
-import { getCommentsListTitle } from "util/comments";
-import * as ICONS from "constants/icons";
-import * as REACTION_TYPES from "constants/reactions";
-import Button from "component/button";
-import Card from "component/common/card";
-import classnames from "classnames";
-import CommentView from "component/comment";
-import debounce from "util/debounce";
-import Empty from "component/common/empty";
-import React, { useEffect } from "react";
-import Spinner from "component/spinner";
-import usePersistedState from "effects/use-persisted-state";
-import { useHistory } from "react-router-dom";
-import CommentListMenu from "./internal/commentListMenu";
-import { lazyImport } from "util/lazyImport";
+import {
+  COMMENT_PAGE_SIZE_TOP_LEVEL,
+  SORT_BY,
+  LINKED_COMMENT_QUERY_PARAM,
+  THREAD_COMMENT_QUERY_PARAM,
+} from 'constants/comment';
+import { ENABLE_COMMENT_REACTIONS } from 'config';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
+import { getCommentsListTitle } from 'util/comments';
+import * as ICONS from 'constants/icons';
+import * as REACTION_TYPES from 'constants/reactions';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import classnames from 'classnames';
+import CommentView from 'component/comment';
+import debounce from 'util/debounce';
+import Empty from 'component/common/empty';
+import React, { useEffect } from 'react';
+import Spinner from 'component/spinner';
+import usePersistedState from 'effects/use-persisted-state';
+import { useHistory } from 'react-router-dom';
+import CommentListMenu from './internal/commentListMenu';
+import { lazyImport } from 'util/lazyImport';
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
-const CommentCreate = lazyImport(() => import('component/commentCreate'
-/* webpackChunkName: "comments" */
-));
+const CommentCreate = lazyImport(
+  () =>
+    import(
+      'component/commentCreate'
+      /* webpackChunkName: "comments" */
+    )
+);
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -52,7 +61,10 @@ type StateProps = {
   linkedCommentAncestors: Array<string> | null | undefined;
   myReactsByCommentId: Record<string, Array<string>> | null | undefined;
   // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
-  othersReactsById: Record<string, { [key in REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]?: number }> | null | undefined;
+  othersReactsById:
+    | Record<string, { [key in REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]?: number }>
+    | null
+    | undefined;
   commentsEnabledSetting: boolean | null | undefined;
   claimId: string | null | undefined;
   channelId: string | null | undefined;
@@ -67,15 +79,20 @@ type StateProps = {
   scheduledState: ClaimScheduledState;
 };
 type DispatchProps = {
-  fetchTopLevelComments: (uri: string, parentId: string | null | undefined, page: number, pageSize: number, sortBy: number, isLivestream?: boolean) => void;
+  fetchTopLevelComments: (
+    uri: string,
+    parentId: string | null | undefined,
+    page: number,
+    pageSize: number,
+    sortBy: number,
+    isLivestream?: boolean
+  ) => void;
   fetchComment: (arg0: CommentId) => void;
   fetchReacts: (arg0: Array<CommentId>) => Promise<any>;
   resetComments: (arg0: ClaimId) => void;
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void;
-  doPopOutInlinePlayer: (param: {
-    source: string;
-  }) => void;
+  doPopOutInlinePlayer: (param: { source: string }) => void;
 }; // ****************************************************************************
 // CommentList
 // ****************************************************************************
@@ -115,15 +132,12 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     doFetchChannelMembershipsForChannelIds,
     chatCommentsRestrictedToChannelMembers,
     isAChannelMember,
-    scheduledState
+    scheduledState,
   } = props;
   const threadRedirect = React.useRef(false);
   const {
     push,
-    location: {
-      pathname,
-      search
-    }
+    location: { pathname, search },
   } = useHistory();
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
@@ -140,9 +154,9 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
   const [uiFilteredComments, setUiFilteredComments] = React.useState([]);
-  const updateUiFilteredComments = React.useCallback(commentIds => {
-    setUiFilteredComments(prevCommentIds => {
-      const newCommentIds = commentIds.filter(id => !prevCommentIds.includes(id));
+  const updateUiFilteredComments = React.useCallback((commentIds) => {
+    setUiFilteredComments((prevCommentIds) => {
+      const newCommentIds = commentIds.filter((id) => !prevCommentIds.includes(id));
       return newCommentIds.length > 0 ? [...prevCommentIds, ...newCommentIds] : prevCommentIds;
     });
   }, []);
@@ -163,10 +177,12 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const threadTopLevelComment = threadCommentAncestors && threadCommentAncestors[threadCommentAncestors.length - 1];
   // Display comments immediately if not fetching reactions
   // If not, wait to show comments until reactions are fetched
-  const [readyToDisplayComments, setReadyToDisplayComments] = React.useState(Boolean(othersReactsById) || !ENABLE_COMMENT_REACTIONS);
+  const [readyToDisplayComments, setReadyToDisplayComments] = React.useState(
+    Boolean(othersReactsById) || !ENABLE_COMMENT_REACTIONS
+  );
   // get commenter claim ids for checking premium status
   const commenterClaimIds = React.useMemo(() => {
-    return topLevelComments.map(comment => comment.channel_id);
+    return topLevelComments.map((comment) => comment.channel_id);
   }, [topLevelComments]);
   React.useEffect(() => {
     if (commenterClaimIds.length > 0 && channelId) {
@@ -174,8 +190,12 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
     } // todo: investigate why topLevelComments triggers a re-render even though the comments are the same
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keep commenterClaimIds.length instead
-
-  }, [channelId, commenterClaimIds.length, doFetchChannelMembershipsForChannelIds, doFetchOdyseeMembershipForChannelIds]);
+  }, [
+    channelId,
+    commenterClaimIds.length,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+  ]);
   const handleReset = React.useCallback(() => {
     if (claimId) resetComments(claimId);
     setPage(1);
@@ -185,7 +205,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
     setPage(1);
     doPopOutInlinePlayer({
-      source: 'comment'
+      source: 'comment',
     });
   }
 
@@ -195,7 +215,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, newSort, false);
       setPage(1);
       doPopOutInlinePlayer({
-        source: 'comment'
+        source: 'comment',
       });
     }
   }
@@ -203,12 +223,18 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   // If a linked comment is deep within a thread, redirect to it's own thread page
   // based on the set depthLevel (mobile/desktop)
   React.useEffect(() => {
-    if (!threadCommentId && linkedCommentId && linkedCommentAncestors && linkedCommentAncestors.length > threadDepthLevel - 1 && !threadRedirect.current) {
+    if (
+      !threadCommentId &&
+      linkedCommentId &&
+      linkedCommentAncestors &&
+      linkedCommentAncestors.length > threadDepthLevel - 1 &&
+      !threadRedirect.current
+    ) {
       const urlParams = new URLSearchParams(search);
       urlParams.set(THREAD_COMMENT_QUERY_PARAM, linkedCommentId);
       push({
         pathname,
-        search: urlParams.toString()
+        search: urlParams.toString(),
       });
       // to do it only once
       threadRedirect.current = true;
@@ -222,7 +248,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       setPage(page + 1);
       setDebouncedUri(undefined);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- Only for comparing uri with debounced uri
-
   }, [debouncedUri, uri]);
   // Force comments reset
   useEffect(() => {
@@ -266,7 +291,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     if (threadCommentId) {
       refreshComments();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [threadCommentId]);
   // Fetch reacts
   useEffect(() => {
@@ -276,19 +300,30 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       if (!othersReactsById || !myReactsByCommentId) {
         idsForReactionFetch = allCommentIds;
       } else {
-        idsForReactionFetch = allCommentIds.filter(commentId => {
+        idsForReactionFetch = allCommentIds.filter((commentId) => {
           const key = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
-          return !othersReactsById[key] || activeChannelId && !myReactsByCommentId[key];
+          return !othersReactsById[key] || (activeChannelId && !myReactsByCommentId[key]);
         });
       }
 
       if (idsForReactionFetch.length !== 0) {
-        fetchReacts(idsForReactionFetch).then(() => {
-          setReadyToDisplayComments(true);
-        }).catch(() => setReadyToDisplayComments(true));
+        fetchReacts(idsForReactionFetch)
+          .then(() => {
+            setReadyToDisplayComments(true);
+          })
+          .catch(() => setReadyToDisplayComments(true));
       }
     }
-  }, [activeChannelId, allCommentIds, fetchReacts, fetchingChannels, isFetchingReacts, myReactsByCommentId, othersReactsById, totalFetchedComments]);
+  }, [
+    activeChannelId,
+    allCommentIds,
+    fetchReacts,
+    fetchingChannels,
+    isFetchingReacts,
+    myReactsByCommentId,
+    othersReactsById,
+    totalFetchedComments,
+  ]);
   // Scroll to linked-comment
   useEffect(() => {
     if (linkedCommentId || threadCommentId) {
@@ -309,7 +344,13 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
       const windowW = window.innerWidth || document.documentElement.clientWidth;
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);
-      const isInViewport = rect.width > 0 && rect.height > 0 && rect.bottom >= 0 && rect.right >= 0 && rect.top <= windowH && rect.left <= windowW;
+      const isInViewport =
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.bottom >= 0 &&
+        rect.right >= 0 &&
+        rect.top <= windowH &&
+        rect.left <= windowW;
       return (isInViewport || isApproachingViewport) && page < topLevelTotalPages;
     }
 
@@ -334,20 +375,31 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
         return () => scrollingElement.removeEventListener('scroll', handleCommentScroll);
       }
     }
-  }, [topLevelComments, hasDefaultExpansion, didInitialPageFetch, isFetchingComments, isMobile, moreBelow, page, readyToDisplayComments, topLevelTotalPages, uri]);
+  }, [
+    topLevelComments,
+    hasDefaultExpansion,
+    didInitialPageFetch,
+    isFetchingComments,
+    isMobile,
+    moreBelow,
+    page,
+    readyToDisplayComments,
+    topLevelTotalPages,
+    uri,
+  ]);
   const commentProps = {
     isTopLevel: true,
     uri,
     linkedCommentId,
     threadCommentId,
-    threadDepthLevel
+    threadDepthLevel,
   };
   const actionButtonsProps = {
     uri,
     totalUnfilteredComments,
     sort,
     changeSort,
-    handleRefresh: refreshComments
+    handleRefresh: refreshComments,
   };
 
   if (scheduledState === 'scheduled') {
@@ -355,64 +407,138 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     return null;
   }
 
-  return <Card className="card--enable-overflow comment__list" title={(!isMobile || notInDrawer) && title} titleActions={<CommentActionButtons {...actionButtonsProps} />} actions={<>
+  return (
+    <Card
+      className="card--enable-overflow comment__list"
+      title={(!isMobile || notInDrawer) && title}
+      titleActions={<CommentActionButtons {...actionButtonsProps} />}
+      actions={
+        <>
           {isMobile && !notInDrawer && <CommentActionButtons {...actionButtonsProps} />}
 
           <CommentCreate uri={uri} />
 
-          {threadCommentId && threadComment && <span className="comment__actions comment__thread-links">
-              <ThreadLinkButton label={__('View all comments')} threadCommentParent={threadTopLevelComment || threadCommentId} threadCommentId={threadCommentId} isViewAll />
+          {threadCommentId && threadComment && (
+            <span className="comment__actions comment__thread-links">
+              <ThreadLinkButton
+                label={__('View all comments')}
+                threadCommentParent={threadTopLevelComment || threadCommentId}
+                threadCommentId={threadCommentId}
+                isViewAll
+              />
 
-              {threadCommentParent && <ThreadLinkButton label={__('Show parent comments')} threadCommentParent={threadCommentParent} threadCommentId={threadCommentId} />}
-            </span>}
+              {threadCommentParent && (
+                <ThreadLinkButton
+                  label={__('Show parent comments')}
+                  threadCommentParent={threadCommentParent}
+                  threadCommentId={threadCommentId}
+                />
+              )}
+            </span>
+          )}
 
-          {commentsEnabledSetting && !isFetchingComments && !totalUnfilteredComments && !threadCommentId && <Empty padded text={__('That was pretty deep. What do you think?')} />}
+          {commentsEnabledSetting && !isFetchingComments && !totalUnfilteredComments && !threadCommentId && (
+            <Empty padded text={__('That was pretty deep. What do you think?')} />
+          )}
 
-          <ul ref={commentListRef} className={classnames('comments', {
-      'comments--contracted': isSmallScreen && !expandedComments && totalUnfilteredComments > 1
-    })}>
-            {readyToDisplayComments && <>
-                {threadComment && <CommentView key={threadComment.comment_id} comment={threadComment} disabled={notAuthedToChat} updateUiFilteredComments={updateUiFilteredComments} {...commentProps} />}
-                {pinnedComments && pinnedComments.map(c => {
-          if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
-            // Skip if part of the linked comment thread - thread is shown at the top
-            return;
-          }
+          <ul
+            ref={commentListRef}
+            className={classnames('comments', {
+              'comments--contracted': isSmallScreen && !expandedComments && totalUnfilteredComments > 1,
+            })}
+          >
+            {readyToDisplayComments && (
+              <>
+                {threadComment && (
+                  <CommentView
+                    key={threadComment.comment_id}
+                    comment={threadComment}
+                    disabled={notAuthedToChat}
+                    updateUiFilteredComments={updateUiFilteredComments}
+                    {...commentProps}
+                  />
+                )}
+                {pinnedComments &&
+                  pinnedComments.map((c) => {
+                    if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
+                      // Skip if part of the linked comment thread - thread is shown at the top
+                      return;
+                    }
 
-          return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} updateUiFilteredComments={updateUiFilteredComments} {...commentProps} />;
-        })}
+                    return (
+                      <CommentView
+                        key={c.comment_id}
+                        comment={c}
+                        disabled={notAuthedToChat}
+                        updateUiFilteredComments={updateUiFilteredComments}
+                        {...commentProps}
+                      />
+                    );
+                  })}
 
-                {topLevelComments.map(c => {
-          if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
-            // Skip if part of the linked comment thread - thread is shown at the top
-            return;
-          }
+                {topLevelComments.map((c) => {
+                  if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
+                    // Skip if part of the linked comment thread - thread is shown at the top
+                    return;
+                  }
 
-          return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} updateUiFilteredComments={updateUiFilteredComments} {...commentProps} />;
-        })}
-              </>}
+                  return (
+                    <CommentView
+                      key={c.comment_id}
+                      comment={c}
+                      disabled={notAuthedToChat}
+                      updateUiFilteredComments={updateUiFilteredComments}
+                      {...commentProps}
+                    />
+                  );
+                })}
+              </>
+            )}
           </ul>
 
-          {!hasDefaultExpansion && <div className="card__bottom-actions card__bottom-actions--comments">
-              {(!expandedComments || moreBelow) && totalUnfilteredComments > 1 && <Button button="link" title={!expandedComments ? __('Expand') : __('More')} label={!expandedComments ? __('Expand') : __('More')} onClick={() => !expandedComments ? setExpandedComments(true) : setPage(page + 1)} />}
-              {expandedComments && totalUnfilteredComments > 1 && <Button button="link" title={__('Collapse')} label={__('Collapse')} onClick={() => {
-        setExpandedComments(false);
+          {!hasDefaultExpansion && (
+            <div className="card__bottom-actions card__bottom-actions--comments">
+              {(!expandedComments || moreBelow) && totalUnfilteredComments > 1 && (
+                <Button
+                  button="link"
+                  title={!expandedComments ? __('Expand') : __('More')}
+                  label={!expandedComments ? __('Expand') : __('More')}
+                  onClick={() => (!expandedComments ? setExpandedComments(true) : setPage(page + 1))}
+                />
+              )}
+              {expandedComments && totalUnfilteredComments > 1 && (
+                <Button
+                  button="link"
+                  title={__('Collapse')}
+                  label={__('Collapse')}
+                  onClick={() => {
+                    setExpandedComments(false);
 
-        if (commentListRef.current) {
-          const ADDITIONAL_OFFSET = 200;
-          const refTop = commentListRef.current.getBoundingClientRect().top;
-          window.scrollTo({
-            top: refTop + window.pageYOffset - ADDITIONAL_OFFSET,
-            behavior: 'smooth'
-          });
-        }
-      }} />}
-            </div>}
+                    if (commentListRef.current) {
+                      const ADDITIONAL_OFFSET = 200;
+                      const refTop = commentListRef.current.getBoundingClientRect().top;
+                      window.scrollTo({
+                        top: refTop + window.pageYOffset - ADDITIONAL_OFFSET,
+                        behavior: 'smooth',
+                      });
+                    }
+                  }}
+                />
+              )}
+            </div>
+          )}
 
-          {(threadCommentId ? !readyToDisplayComments : isFetchingTopLevelComments || hasDefaultExpansion && moreBelow) && <div className="main--empty" ref={spinnerRef}>
+          {(threadCommentId
+            ? !readyToDisplayComments
+            : isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
+            <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
-            </div>}
-        </>} />;
+            </div>
+          )}
+        </>
+      }
+    />
+  );
 }
 type ActionButtonsProps = {
   uri: string;
@@ -423,36 +549,45 @@ type ActionButtonsProps = {
 };
 
 const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
-  const {
-    uri,
-    totalUnfilteredComments,
-    sort,
-    changeSort,
-    handleRefresh
-  } = actionButtonsProps;
+  const { uri, totalUnfilteredComments, sort, changeSort, handleRefresh } = actionButtonsProps;
   const sortButtonProps = {
     activeSort: sort,
-    changeSort
+    changeSort,
   };
-  return <div className="comment__actions">
-      {totalUnfilteredComments > 1 && ENABLE_COMMENT_REACTIONS && <span className="comment__sort">
+  return (
+    <div className="comment__actions">
+      {totalUnfilteredComments > 1 && ENABLE_COMMENT_REACTIONS && (
+        <span className="comment__sort">
           <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
-          <SortButton {...sortButtonProps} label={__('Controversial')} icon={ICONS.CONTROVERSIAL} sortOption={SORT_BY.CONTROVERSY} />
+          <SortButton
+            {...sortButtonProps}
+            label={__('Controversial')}
+            icon={ICONS.CONTROVERSIAL}
+            sortOption={SORT_BY.CONTROVERSY}
+          />
           <SortButton {...sortButtonProps} label={__('New')} icon={ICONS.NEW} sortOption={SORT_BY.NEWEST} />
-        </span>}
+        </span>
+      )}
 
       <div className="comment__settings">
-        <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} className="comment__refresh-button" onClick={e => {
-        const btn = e.currentTarget;
-        btn.classList.add('comment__refresh-button--spinning');
-        btn.addEventListener('animationend', () => btn.classList.remove('comment__refresh-button--spinning'), {
-          once: true
-        });
-        handleRefresh();
-      }} />
+        <Button
+          button="alt"
+          icon={ICONS.REFRESH}
+          title={__('Refresh')}
+          className="comment__refresh-button"
+          onClick={(e) => {
+            const btn = e.currentTarget;
+            btn.classList.add('comment__refresh-button--spinning');
+            btn.addEventListener('animationend', () => btn.classList.remove('comment__refresh-button--spinning'), {
+              once: true,
+            });
+            handleRefresh();
+          }}
+        />
         <CommentListMenu uri={uri} />
       </div>
-    </div>;
+    </div>
+  );
 };
 
 type SortButtonProps = {
@@ -462,15 +597,18 @@ type SortButtonProps = {
 };
 
 const SortButton = (sortButtonProps: SortButtonProps) => {
-  const {
-    activeSort,
-    sortOption,
-    changeSort,
-    ...buttonProps
-  } = sortButtonProps;
-  return <Button {...buttonProps} className={classnames(`button-toggle`, {
-    'button-toggle--active': activeSort === sortOption
-  })} button="alt" iconSize={18} onClick={() => changeSort(sortOption)} />;
+  const { activeSort, sortOption, changeSort, ...buttonProps } = sortButtonProps;
+  return (
+    <Button
+      {...buttonProps}
+      className={classnames(`button-toggle`, {
+        'button-toggle--active': activeSort === sortOption,
+      })}
+      button="alt"
+      iconSize={18}
+      onClick={() => changeSort(sortOption)}
+    />
+  );
 };
 
 type ThreadLinkProps = {
@@ -481,37 +619,37 @@ type ThreadLinkProps = {
 };
 
 const ThreadLinkButton = (props: ThreadLinkProps) => {
-  const {
-    label,
-    isViewAll,
-    threadCommentParent,
-    threadCommentId
-  } = props;
+  const { label, isViewAll, threadCommentParent, threadCommentId } = props;
   const {
     push,
-    location: {
-      pathname,
-      search
-    }
+    location: { pathname, search },
   } = useHistory();
-  return <Button button="link" label={label} icon={ICONS.ARROW_LEFT} iconSize={12} onClick={() => {
-    const urlParams = new URLSearchParams(search);
+  return (
+    <Button
+      button="link"
+      label={label}
+      icon={ICONS.ARROW_LEFT}
+      iconSize={12}
+      onClick={() => {
+        const urlParams = new URLSearchParams(search);
 
-    if (!isViewAll) {
-      urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentParent);
-      // on moving back, link the current thread comment so that it auto-expands into the correct conversation
-      urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentId);
-    } else {
-      urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
-      // links the top-level comment when going back to all comments, for easy locating
-      // in the middle of big comment sections
-      urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentParent);
-    }
+        if (!isViewAll) {
+          urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentParent);
+          // on moving back, link the current thread comment so that it auto-expands into the correct conversation
+          urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentId);
+        } else {
+          urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
+          // links the top-level comment when going back to all comments, for easy locating
+          // in the middle of big comment sections
+          urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentParent);
+        }
 
-    window.pendingLinkedCommentScroll = true;
-    push({
-      pathname,
-      search: urlParams.toString()
-    });
-  }} />;
+        window.pendingLinkedCommentScroll = true;
+        push({
+          pathname,
+          search: urlParams.toString(),
+        });
+      }}
+    />
+  );
 };

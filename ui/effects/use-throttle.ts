@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-const useEffectOnce = effect => {
+const useEffectOnce = (effect) => {
   React.useEffect(effect, []);
 };
 

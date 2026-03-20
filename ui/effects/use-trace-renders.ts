@@ -1,9 +1,8 @@
-import React from "react";
+import React from 'react';
 type Options = {
   color?: string;
   // Color for the given 'label'.
   disabled?: boolean; // Turn the output trace on/off without removing the effect.
-
 };
 /**
  * Hook to display debug info for the component's rendering process.
@@ -22,10 +21,7 @@ type Options = {
  */
 
 export default function useTraceRenders(props: any, label: string, options: Options = {}) {
-  const {
-    color = 'yellow',
-    disabled
-  } = options;
+  const { color = 'yellow', disabled } = options;
   const prev = React.useRef(props);
 
   function trace(msg) {
@@ -40,7 +36,7 @@ export default function useTraceRenders(props: any, label: string, options: Opti
       if (prev.current[k] !== v) {
         ps[k] = {
           prev: prev.current[k],
-          next: v
+          next: v,
         };
       }
 

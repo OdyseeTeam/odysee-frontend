@@ -1,8 +1,8 @@
-import React from "react";
-import ButtonTransaction from "component/common/transaction-link";
-import moment from "moment";
-import LbcSymbol from "component/common/lbc-symbol";
-import Card from "component/common/card";
+import React from 'react';
+import ButtonTransaction from 'component/common/transaction-link';
+import moment from 'moment';
+import LbcSymbol from 'component/common/lbc-symbol';
+import Card from 'component/common/card';
 type Reward = {
   id: string;
   reward_title: string;
@@ -15,17 +15,25 @@ type Props = {
 };
 
 const RewardListClaimed = (props: Props) => {
-  const {
-    rewards
-  } = props;
+  const { rewards } = props;
 
   if (!rewards || !rewards.length) {
     return null;
   }
 
-  return <Card title={<div className="table__header-text">{__('Claimed Credits')}</div>} subtitle={<div className="table__header-text">
-          {__('Claimed credit history is tied to your email. In case of lost or multiple wallets, your balance may differ from the amounts claimed')}
-        </div>} isBodyList body={<div className="table__wrapper">
+  return (
+    <Card
+      title={<div className="table__header-text">{__('Claimed Credits')}</div>}
+      subtitle={
+        <div className="table__header-text">
+          {__(
+            'Claimed credit history is tied to your email. In case of lost or multiple wallets, your balance may differ from the amounts claimed'
+          )}
+        </div>
+      }
+      isBodyList
+      body={
+        <div className="table__wrapper">
           <table className="table table--rewards">
             <thead>
               <tr>
@@ -38,15 +46,20 @@ const RewardListClaimed = (props: Props) => {
               </tr>
             </thead>
             <tbody>
-              {rewards.reverse().map(reward => <tr key={reward.id}>
+              {rewards.toReversed().map((reward) => (
+                <tr key={reward.id}>
                   <td>{reward.reward_title}</td>
                   <td>{reward.reward_amount}</td>
                   <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
                   <td>{moment(reward.created_at).format('LLL')}</td>
-                </tr>)}
+                </tr>
+              ))}
             </tbody>
           </table>
-        </div>} />;
+        </div>
+      }
+    />
+  );
 };
 
 export default RewardListClaimed;

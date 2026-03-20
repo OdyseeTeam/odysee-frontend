@@ -1,15 +1,14 @@
-import React from "react";
+import React from 'react';
 type Props = {
   doSetAdBlockerFound: (arg0: boolean) => void;
 };
 
 function AdBlockTester(props: Props) {
-  const {
-    doSetAdBlockerFound
-  } = props;
+  const { doSetAdBlockerFound } = props;
   React.useEffect(() => {
-    DetectAdblock(res => {
-      if (res) doSetAdBlockerFound(true);else doSetAdBlockerFound(false);
+    DetectAdblock((res) => {
+      if (res) doSetAdBlockerFound(true);
+      else doSetAdBlockerFound(false);
     });
   }, [doSetAdBlockerFound]);
   return null;
@@ -71,8 +70,11 @@ export const DetectByGoogleAd = (callback: (enable: boolean) => void) => {
   request.open('GET', reqURL, true);
 
   request.onreadystatechange = () => {
-    if (request.status === 0 || request.status >= 200 && request.status < 400) {
-      if (request.responseText.toLowerCase().indexOf('ublock') > -1 || request.responseText.toLowerCase().indexOf('height:1px') > -1) {
+    if (request.status === 0 || (request.status >= 200 && request.status < 400)) {
+      if (
+        request.responseText.toLowerCase().indexOf('ublock') > -1 ||
+        request.responseText.toLowerCase().indexOf('height:1px') > -1
+      ) {
         if (callbacked) {
           callback(true);
           return;

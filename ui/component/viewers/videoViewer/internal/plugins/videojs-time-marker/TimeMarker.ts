@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import type { Player } from "../../videojs";
+import videojs from 'video.js';
+import type { Player } from '../../videojs';
 const Component = videojs.getComponent('Component');
 
 class TimeMarker extends Component {
@@ -14,7 +14,7 @@ class TimeMarker extends Component {
 
   createEl() {
     return super.createEl('div', {
-      className: 'vjs-time-marker'
+      className: 'vjs-time-marker',
     });
   }
 
@@ -65,7 +65,7 @@ class TimeMarker extends Component {
       if (tsData) {
         const values = Object.values(tsData);
         // $FlowIssue
-        const seconds = values.map(v => v.seconds);
+        const seconds = values.map((v) => v.seconds);
         const curSeconds = time;
         let i = 0;
 
@@ -102,7 +102,7 @@ class TimeMarker extends Component {
   }
 
   handleMouseEnter() {
-    this.mouseMoveCallback = e => this.handleMouseMove(e);
+    this.mouseMoveCallback = (e) => this.handleMouseMove(e);
 
     this.registeredEvents.progressControlMouseMove = this.mouseMoveCallback;
     this.progressControl.on('mousemove', this.registeredEvents.progressControlMouseMove);
@@ -145,14 +145,12 @@ class TimeMarker extends Component {
     const n = Number(number);
     return Math.min(max, Math.max(min, isNaN(n) ? min : n));
   }
-
 }
 /**
  * Default options.
  */
 
-
 TimeMarker.prototype.options_ = {
-  children: ['timeTooltip']
+  children: ['timeTooltip'],
 };
 export default TimeMarker;

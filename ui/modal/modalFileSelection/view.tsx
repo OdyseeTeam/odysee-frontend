@@ -1,11 +1,11 @@
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import React from "react";
-import { Modal } from "modal/modal";
-import { withRouter } from "react-router";
-import Card from "component/common/card";
-import Button from "component/button";
-import FileList from "component/common/file-list";
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import { Modal } from 'modal/modal';
+import { withRouter } from 'react-router';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import FileList from 'component/common/file-list';
 type Props = {
   files: Array<WebFile>;
   hideModal: () => void;
@@ -20,12 +20,7 @@ type Props = {
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 const ModalFileSelection = (props: Props) => {
-  const {
-    history,
-    files,
-    hideModal,
-    updatePublishForm
-  } = props;
+  const { history, files, hideModal, updatePublishForm } = props;
   const [selectedFile, setSelectedFile] = React.useState(null);
   const navigateToPublish = React.useCallback(() => {
     // Navigate only if location is not publish area:
@@ -42,7 +37,7 @@ const ModalFileSelection = (props: Props) => {
 
   function handleSubmit() {
     updatePublishForm({
-      filePath: selectedFile
+      filePath: selectedFile,
     });
     handleCloseModal();
     navigateToPublish();
@@ -53,17 +48,31 @@ const ModalFileSelection = (props: Props) => {
     setSelectedFile(file);
   };
 
-  return <Modal isOpen type="card" onAborted={handleCloseModal} onConfirmed={handleCloseModal}>
-      <Card icon={ICONS.PUBLISH} title={__('Choose a file')} subtitle={__('Only one file is allowed, choose wisely:')} actions={<div>
+  return (
+    <Modal isOpen type="card" onAborted={handleCloseModal} onConfirmed={handleCloseModal}>
+      <Card
+        icon={ICONS.PUBLISH}
+        title={__('Choose a file')}
+        subtitle={__('Only one file is allowed, choose wisely:')}
+        actions={
+          <div>
             <div>
               <FileList files={files} onChange={handleFileChange} />
             </div>
             <div className="section__actions">
-              <Button disabled={!selectedFile || !files || !files.length} button="primary" label={__('Accept')} onClick={handleSubmit} />
+              <Button
+                disabled={!selectedFile || !files || !files.length}
+                button="primary"
+                label={__('Accept')}
+                onClick={handleSubmit}
+              />
               <Button button="link" label={__('Cancel')} onClick={handleCloseModal} />
             </div>
-          </div>} />
-    </Modal>;
+          </div>
+        }
+      />
+    </Modal>
+  );
 };
 
 export default withRouter(ModalFileSelection);

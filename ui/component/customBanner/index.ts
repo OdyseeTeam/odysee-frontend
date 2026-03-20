@@ -1,2 +1,2 @@
-import CustomBanner from "./view";
+import CustomBanner from './view';
 export default CustomBanner;

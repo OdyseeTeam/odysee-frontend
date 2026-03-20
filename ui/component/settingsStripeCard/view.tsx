@@ -1,18 +1,18 @@
-import React from "react";
-import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { Form, FormField, Submit } from "component/common/form";
-import { STRIPE_PUBLIC_KEY } from "config";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import * as PAGES from "constants/pages";
-import * as STRIPE from "constants/stripe";
-import Card from "component/common/card";
+import React from 'react';
+import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { Form, FormField, Submit } from 'component/common/form';
+import { STRIPE_PUBLIC_KEY } from 'config';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
+import Card from 'component/common/card';
 // @ts-expect-error
-import Plastic from "react-plastic";
-import Button from "component/button";
-import Spinner from "component/spinner";
-import "./style.scss";
+import Plastic from 'react-plastic';
+import Button from 'component/button';
+import Spinner from 'component/spinner';
+import './style.scss';
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 const CARD_NAME_REGEX = /[0-9!@#$%^&*()_+=[\]{};:"\\|,<>?~]/;
 type WrapperProps = {
@@ -25,9 +25,7 @@ type WrapperProps = {
   cardDetails: StripeCardDetails;
   doSetPreferredCurrency: (value: string) => void;
   doGetCustomerStatus: () => void;
-  doToast: (params: {
-    message: string;
-  }) => void;
+  doToast: (params: { message: string }) => void;
   doOpenModal: (modalId: string, arg1: {}) => void;
   doRemoveCardForPaymentMethodId: (paymentMethodId: string) => Promise<any>;
   doCustomerSetup: () => Promise<StripeCustomerSetupResponse>;
@@ -55,7 +53,7 @@ const SettingsStripeCard = (props: Props) => {
     doToast,
     doOpenModal,
     doRemoveCardForPaymentMethodId,
-    doCustomerSetup
+    doCustomerSetup,
   } = props;
   const stripe = useStripe();
   const elements = useElements();
@@ -65,33 +63,37 @@ const SettingsStripeCard = (props: Props) => {
 
   function confirmCardSetup(clientSecret) {
     const cardElement = elements.getElement(CardElement);
-    stripe.confirmCardSetup(clientSecret, {
-      payment_method: {
-        card: cardElement,
-        billing_details: {
-          email,
-          name: cardNameValue
+    stripe
+      .confirmCardSetup(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            email,
+            name: cardNameValue,
+          },
+        },
+      })
+      .then((result) => {
+        if (result.error) {
+          setLoading(false);
+          setFormError(result.error.message);
+        } else {
+          // The PaymentMethod was successfully set up
+          // hide and show the proper divs
+          stripe.retrieveSetupIntent(clientSecret).then(doGetCustomerStatus);
         }
-      }
-    }).then(result => {
-      if (result.error) {
-        setLoading(false);
-        setFormError(result.error.message);
-      } else {
-        // The PaymentMethod was successfully set up
-        // hide and show the proper divs
-        stripe.retrieveSetupIntent(clientSecret).then(doGetCustomerStatus);
-      }
-    });
+      });
   }
 
   function handleSubmit(event) {
     if (!stripe || !elements) return;
     event.preventDefault();
     setLoading(true);
-    doCustomerSetup().then((customerSetupResponse: StripeCustomerSetupResponse) => {
-      confirmCardSetup(customerSetupResponse.client_secret);
-    }).catch(() => setLoading(false));
+    doCustomerSetup()
+      .then((customerSetupResponse: StripeCustomerSetupResponse) => {
+        confirmCardSetup(customerSetupResponse.client_secret);
+      })
+      .catch(() => setLoading(false));
   }
 
   React.useEffect(() => {
@@ -120,9 +122,7 @@ const SettingsStripeCard = (props: Props) => {
   }
 
   function onChangeCardName(event) {
-    const {
-      value
-    } = event.target;
+    const { value } = event.target;
 
     if (CARD_NAME_REGEX.test(value)) {
       setFormError(__('Special characters and numbers are not allowed'));
@@ -135,76 +135,170 @@ const SettingsStripeCard = (props: Props) => {
   }
 
   if (cardDetails) {
-    return <div className="successCard">
-        {shouldShowBackToMembershipButton && <Button button="primary" label={__('Back To Odysee Premium')} icon={ICONS.UPGRADE} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} style={{
-        marginBottom: '20px'
-      }} />}
-        <Card className="add-payment-card" title={isModal ? undefined : __('Card Details')} body={<>
-              <Plastic type={cardDetails.brand} name={cardDetails.cardName} expiry={cardDetails.expiryMonth + '/' + cardDetails.expiryYear} number={'____________' + cardDetails.lastFour} />
+    return (
+      <div className="successCard">
+        {shouldShowBackToMembershipButton && (
+          <Button
+            button="primary"
+            label={__('Back To Odysee Premium')}
+            icon={ICONS.UPGRADE}
+            navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}
+            style={{
+              marginBottom: '20px',
+            }}
+          />
+        )}
+        <Card
+          className="add-payment-card"
+          title={isModal ? undefined : __('Card Details')}
+          body={
+            <>
+              <Plastic
+                type={cardDetails.brand}
+                name={cardDetails.cardName}
+                expiry={cardDetails.expiryMonth + '/' + cardDetails.expiryYear}
+                number={'____________' + cardDetails.lastFour}
+              />
               <div className="card-meta">
-                <Button button="secondary" label={__('View Tips')} icon={ICONS.SETTINGS} navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`} />
-                <Button className="remove-card__button" button="secondary" label={__('Remove Card')} icon={ICONS.DELETE} onClick={e => doOpenModal(MODALS.CONFIRM, {
-            title: __('Confirm Remove Card'),
-            subtitle: __('Remove the current card in your account?'),
-            onConfirm: (closeModal, setIsBusy) => {
-              setIsBusy(true);
-              doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId).then(() => {
-                setIsBusy(false);
-                doToast({
-                  message: __('Successfully removed card.')
-                });
-                closeModal();
-              });
-            }
-          })} />
+                <Button
+                  button="secondary"
+                  label={__('View Tips')}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
+                />
+                <Button
+                  className="remove-card__button"
+                  button="secondary"
+                  label={__('Remove Card')}
+                  icon={ICONS.DELETE}
+                  onClick={(e) =>
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Confirm Remove Card'),
+                      subtitle: __('Remove the current card in your account?'),
+                      onConfirm: (closeModal, setIsBusy) => {
+                        setIsBusy(true);
+                        doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId).then(() => {
+                          setIsBusy(false);
+                          doToast({
+                            message: __('Successfully removed card.'),
+                          });
+                          closeModal();
+                        });
+                      },
+                    })
+                  }
+                />
 
                 <label>{__('Currency To Use')}:</label>
                 <fieldset-section>
-                  <FormField name="currency_selector" type="select" onChange={e => doSetPreferredCurrency(e.target.value)} value={preferredCurrency}>
-                    {Object.values(STRIPE.CURRENCIES).map(currency => <option key={String(currency)} value={String(currency)}>
+                  <FormField
+                    name="currency_selector"
+                    type="select"
+                    onChange={(e) => doSetPreferredCurrency(e.target.value)}
+                    value={preferredCurrency}
+                  >
+                    {Object.values(STRIPE.CURRENCIES).map((currency) => (
+                      <option key={String(currency)} value={String(currency)}>
                         {String(currency)}
-                      </option>)}
+                      </option>
+                    ))}
                   </FormField>
                 </fieldset-section>
 
                 <label>{__('View billing history on Stripe')}</label>
-                <Button className="stripe-billing-history__button" button="secondary" label={__('Visit Stripe')} navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${encodeURIComponent(cardDetails?.email)}`} />
+                <Button
+                  className="stripe-billing-history__button"
+                  button="secondary"
+                  label={__('Visit Stripe')}
+                  navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${encodeURIComponent(cardDetails?.email)}`}
+                />
               </div>
-            </>} />
+            </>
+          }
+        />
         <br />
-      </div>;
+      </div>
+    );
   }
 
   if (cardDetails === null) {
-    return <Form className="stripe-card__form" onSubmit={handleSubmit}>
-        <FormField className="stripe-card__form-input" name="name-on-card" type="input" label={__('Name on card')} onChange={onChangeCardName} value={cardNameValue} disabled={stripeError} autoFocus />
+    return (
+      <Form className="stripe-card__form" onSubmit={handleSubmit}>
+        <FormField
+          className="stripe-card__form-input"
+          name="name-on-card"
+          type="input"
+          label={__('Name on card')}
+          onChange={onChangeCardName}
+          value={cardNameValue}
+          disabled={stripeError}
+          autoFocus
+        />
 
-        <FormField name="card-details" type="input" label={__('Card details')} inputElem={<CardElement className={'stripe-card__form-input' + (stripeError ? ' disabled' : '')} onChange={event => setFormError(event.error?.message)} />} />
+        <FormField
+          name="card-details"
+          type="input"
+          label={__('Card details')}
+          inputElem={
+            <CardElement
+              className={'stripe-card__form-input' + (stripeError ? ' disabled' : '')}
+              onChange={(event) => setFormError(event.error?.message)}
+            />
+          }
+        />
 
-        {stripeError ? <Button className="button--card-link" label={promisePending ? <div className="stripe__spinner" /> : __('Reload')} onClick={reloadForm} /> : <Submit className="button--card-link" disabled={isLoading || formError || !cardNameValue} label={isLoading ? <div className="stripe__spinner" /> : __('Add Card')} />}
+        {stripeError ? (
+          <Button
+            className="button--card-link"
+            label={promisePending ? <div className="stripe__spinner" /> : __('Reload')}
+            onClick={reloadForm}
+          />
+        ) : (
+          <Submit
+            className="button--card-link"
+            disabled={isLoading || formError || !cardNameValue}
+            label={isLoading ? <div className="stripe__spinner" /> : __('Add Card')}
+          />
+        )}
 
-        {formError && <span className="error__text error__text--stripe-card">
+        {formError && (
+          <span className="error__text error__text--stripe-card">
             <p>{formError}</p>
-            {stripeError ? <p>{__('You may have blockers turned on, try turning them off and reloading.')}</p> : undefined}
-          </span>}
-      </Form>;
+            {stripeError ? (
+              <p>{__('You may have blockers turned on, try turning them off and reloading.')}</p>
+            ) : undefined}
+          </span>
+        )}
+      </Form>
+    );
   }
 
-  return <div className="main--empty">
+  return (
+    <div className="main--empty">
       {customerStatusFetching && <Spinner text={__('Getting your card connection status...')} />}
-    </div>;
+    </div>
+  );
 };
 
 export default function Wrapper(props: WrapperProps) {
   const [stripeError, setStripeError] = React.useState();
   const [promisePending, setPromisePending] = React.useState(true);
   React.useEffect(() => {
-    stripePromise.then(() => setPromisePending(false)).catch(e => {
-      setPromisePending(false);
-      setStripeError(e.message);
-    });
+    stripePromise
+      .then(() => setPromisePending(false))
+      .catch((e) => {
+        setPromisePending(false);
+        setStripeError(e.message);
+      });
   }, []);
-  return <Elements stripe={stripePromise}>
-      <SettingsStripeCard {...props} promisePending={promisePending} stripeError={stripeError} reloadForm={() => window.location.reload()} />
-    </Elements>;
+  return (
+    <Elements stripe={stripePromise}>
+      <SettingsStripeCard
+        {...props}
+        promisePending={promisePending}
+        stripeError={stripeError}
+        reloadForm={() => window.location.reload()}
+      />
+    </Elements>
+  );
 }

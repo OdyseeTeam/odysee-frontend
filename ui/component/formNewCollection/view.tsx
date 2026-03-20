@@ -1,10 +1,10 @@
-import React from "react";
-import type { ElementRef } from "react";
-import * as ICONS from "constants/icons";
-import * as KEYCODES from "constants/keycodes";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { FormField } from "component/common/form";
-import Button from "component/button";
+import React from 'react';
+import type { ElementRef } from 'react';
+import * as ICONS from 'constants/icons';
+import * as KEYCODES from 'constants/keycodes';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { FormField } from 'component/common/form';
+import Button from 'component/button';
 type Props = {
   uri?: string;
   sourceId?: string;
@@ -12,31 +12,22 @@ type Props = {
   closeForm: (newCollectionName?: string, newCollectionId?: string) => void;
   // -- redux --
   sourceCollectionName?: string;
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri?: string;
-    collectionName: string;
-    createNew: boolean;
-  }) => void;
+  doPlaylistAddAndAllowPlaying: (params: { uri?: string; collectionName: string; createNew: boolean }) => void;
 };
 
 function FormNewCollection(props: Props) {
-  const {
-    uri,
-    sourceId,
-    onlyCreate,
-    closeForm,
-    sourceCollectionName,
-    doPlaylistAddAndAllowPlaying
-  } = props;
+  const { uri, sourceId, onlyCreate, closeForm, sourceCollectionName, doPlaylistAddAndAllowPlaying } = props;
   const buttonref: ElementRef<any> = React.useRef();
-  const [newCollectionName, setCollectionName] = React.useState(sourceCollectionName ? __('%copied_playlist_name% (copy)', {
-    copied_playlist_name: sourceCollectionName
-  }) : '');
+  const [newCollectionName, setCollectionName] = React.useState(
+    sourceCollectionName
+      ? __('%copied_playlist_name% (copy)', {
+          copied_playlist_name: sourceCollectionName,
+        })
+      : ''
+  );
 
   function handleNameInput(e) {
-    const {
-      value
-    } = e.target;
+    const { value } = e.target;
     setCollectionName(value);
   }
 
@@ -48,9 +39,11 @@ function FormNewCollection(props: Props) {
       collectionName: name,
       sourceId,
       createNew: true,
-      createCb: !sourceId ? undefined : newId => {
-        id = newId;
-      }
+      createCb: !sourceId
+        ? undefined
+        : (newId) => {
+            id = newId;
+          },
     });
     closeForm(name, id);
   }
@@ -66,10 +59,40 @@ function FormNewCollection(props: Props) {
     closeForm();
   }
 
-  return <FormField autoFocus type="text" name="new_collection" label={__('New Playlist Title')} placeholder={__(COLLECTIONS_CONSTS.PLACEHOLDER)} onKeyDown={handleKeyDown} inputButton={<>
-          <Button button="alt" icon={ICONS.COMPLETED} title={__('Confirm')} className="button-toggle" disabled={newCollectionName.trim().length === 0} onClick={handleAddCollection} ref={buttonref} />
-          {!onlyCreate && <Button button="alt" className="button-toggle" icon={ICONS.REMOVE} title={__('Cancel')} onClick={handleClearNew} />}
-        </>} onChange={handleNameInput} value={newCollectionName} />;
+  return (
+    <FormField
+      autoFocus
+      type="text"
+      name="new_collection"
+      label={__('New Playlist Title')}
+      placeholder={__(COLLECTIONS_CONSTS.PLACEHOLDER)}
+      onKeyDown={handleKeyDown}
+      inputButton={
+        <>
+          <Button
+            button="alt"
+            icon={ICONS.COMPLETED}
+            title={__('Confirm')}
+            className="button-toggle"
+            disabled={newCollectionName.trim().length === 0}
+            onClick={handleAddCollection}
+            ref={buttonref}
+          />
+          {!onlyCreate && (
+            <Button
+              button="alt"
+              className="button-toggle"
+              icon={ICONS.REMOVE}
+              title={__('Cancel')}
+              onClick={handleClearNew}
+            />
+          )}
+        </>
+      }
+      onChange={handleNameInput}
+      value={newCollectionName}
+    />
+  );
 }
 
 export default FormNewCollection;

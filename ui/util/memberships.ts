@@ -1,10 +1,13 @@
-import moment from "moment";
-export const getTotalPriceFromSupportersList = (supportersList: SupportersList) => supportersList.map(supporter => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
+import moment from 'moment';
+export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
+  supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
 export const getLastMonthPayments = (payments: any) => {
   const monthago = moment().subtract(30, 'days');
-  return payments.filter(p => p.completed_at && moment(p.completed_at).diff(monthago) > 0).reduce((total, payment) => {
-    return total + payment.usd_amount;
-  }, 0);
+  return payments
+    .filter((p) => p.completed_at && moment(p.completed_at).diff(monthago) > 0)
+    .reduce((total, payment) => {
+      return total + payment.usd_amount;
+    }, 0);
 };
 
 /**
@@ -44,15 +47,13 @@ export function getRestrictivePerkName(type: PublishType, liveCreateType: LiveCr
             case 'upload_replay':
               return EXCLUSIVE_CONTENT;
           }
-
       }
-
   }
 
   assert(false, 'unhandled restriction combo', {
     type,
     liveCreateType,
-    liveEditType
+    liveEditType,
   });
   return EXCLUSIVE_CONTENT;
 }
@@ -74,7 +75,7 @@ export const getRenewByMoment = (membershipSub: MembershipSub) => {
   const nowMoment = moment();
   const fpdaInFuture = nowMoment.diff(fpdaMoment) < 0;
   const endsAtInPast = endsAtMoment && nowMoment.diff(endsAtMoment) > 0;
-  const hasPendingPayment = membershipSub.payments.some(m => m.status === 'submitted');
+  const hasPendingPayment = membershipSub.payments.some((m) => m.status === 'submitted');
 
   if (hasPendingPayment) {
     return null;

@@ -6,38 +6,38 @@ import { DEFAULT_LANGUAGE } from 'config';
 
 export const remote = {
   dialog: {
-    showOpenDialog: callable
+    showOpenDialog: callable,
   },
   getCurrentWindow: callable,
   app: {
     getAppPath: callable,
     getLocale: () => {
       return DEFAULT_LANGUAGE;
-    }
+    },
   },
   BrowserWindow: {
-    getFocusedWindow: callable
+    getFocusedWindow: callable,
   },
   Menu: {
     getApplicationMenu: callable,
     buildFromTemplate: () => {
       return {
-        popup: () => {}
+        popup: () => {},
       };
-    }
+    },
   },
-  require: callable
+  require: callable,
 };
 export const clipboard = {
   readText: () => '',
-  writeText: text => {
+  writeText: (text) => {
     var dummy = document.createElement('textarea');
     document.body.appendChild(dummy);
     dummy.value = text;
     dummy.select();
     document.execCommand('copy');
     document.body.removeChild(dummy);
-  }
+  },
 };
 export const ipcRenderer = {};
 export const isDev = false;

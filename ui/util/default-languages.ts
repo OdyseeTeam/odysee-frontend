@@ -1,4 +1,4 @@
-import SUPPORTED_BROWSER_LANGUAGES from "constants/supported_browser_languages";
+import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 const DEFAULT_LANG = 'en';
 export const getDefaultLanguage = () => {
   const browserLanguage = window.navigator.language;
@@ -23,7 +23,7 @@ export const getDefaultLanguage = () => {
 export const getDefaultHomepageKey = () => {
   const language = getDefaultLanguage();
   const homepages = window.homepages || {};
-  return homepages[language] && language || homepages[language.slice(0, 2)] && language.slice(0, 2) || DEFAULT_LANG;
+  return (homepages[language] && language) || (homepages[language.slice(0, 2)] && language.slice(0, 2)) || DEFAULT_LANG;
 };
 
 /**
@@ -33,7 +33,7 @@ export const getDefaultHomepageKey = () => {
  * @returns {[string, string][]}
  */
 export function sortLanguageMap(languages) {
-  return Object.entries(languages).sort((a, b) => {
+  return Object.entries(languages).toSorted((a, b) => {
     const lhs = String(a[1]);
     const rhs = String(b[1]);
     if (lhs < rhs) return -1;
@@ -51,10 +51,11 @@ export function sortLanguageMap(languages) {
  * @param languageUrlParams Language override via URLSearchParams.
  * @returns {string|null} Comma-separated string of language codes, or null.
  */
-export function resolveLangForClaimSearch(languageSetting, // : string,
-searchInLanguageSetting, // : boolean,
-searchLanguages, // : ?Array<string>,
-languageUrlParams = null // : ?string
+export function resolveLangForClaimSearch(
+  languageSetting, // : string,
+  searchInLanguageSetting, // : boolean,
+  searchLanguages, // : ?Array<string>,
+  languageUrlParams = null // : ?string
 ) {
   const langParam = languageUrlParams;
   let lang;

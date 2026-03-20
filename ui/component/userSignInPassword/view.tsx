@@ -1,10 +1,10 @@
-import { SITE_NAME } from "config";
-import React, { useState } from "react";
-import { FormField, Form } from "component/common/form";
-import Button from "component/button";
-import Card from "component/common/card";
-import Nag from "component/nag";
-import UserPasswordReset from "component/userPasswordReset";
+import { SITE_NAME } from 'config';
+import React, { useState } from 'react';
+import { FormField, Form } from 'component/common/form';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import Nag from 'component/nag';
+import UserPasswordReset from 'component/userPasswordReset';
 type Props = {
   errorMessage: string | null | undefined;
   emailToVerify: string | null | undefined;
@@ -14,13 +14,7 @@ type Props = {
   isPending: boolean;
 };
 export default function UserSignInPassword(props: Props) {
-  const {
-    errorMessage,
-    doUserSignIn,
-    emailToVerify,
-    onHandleEmailOnly,
-    isPending
-  } = props;
+  const { errorMessage, doUserSignIn, emailToVerify, onHandleEmailOnly, isPending } = props;
   const [password, setPassword] = useState('');
   const [forgotPassword, setForgotPassword] = React.useState(false);
 
@@ -34,18 +28,41 @@ export default function UserSignInPassword(props: Props) {
     onHandleEmailOnly();
   }
 
-  return <div className="main__sign-in">
-      {forgotPassword ? <UserPasswordReset /> : <Card title={__('Enter your %SITE_NAME% password', {
-      SITE_NAME
-    })} subtitle={__('Logging in as %email%', {
-      email: emailToVerify
-    })} actions={<Form onSubmit={handleSubmit} className="section">
-              <FormField autoFocus type="password" name="sign_in_password" id="password" autoComplete="on" label={__('Password')} value={password} onChange={e => setPassword(e.target.value)} helper={<Button button="link" label={__('Forgot Password?')} onClick={() => setForgotPassword(true)} />} />
+  return (
+    <div className="main__sign-in">
+      {forgotPassword ? (
+        <UserPasswordReset />
+      ) : (
+        <Card
+          title={__('Enter your %SITE_NAME% password', {
+            SITE_NAME,
+          })}
+          subtitle={__('Logging in as %email%', {
+            email: emailToVerify,
+          })}
+          actions={
+            <Form onSubmit={handleSubmit} className="section">
+              <FormField
+                autoFocus
+                type="password"
+                name="sign_in_password"
+                id="password"
+                autoComplete="on"
+                label={__('Password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                helper={<Button button="link" label={__('Forgot Password?')} onClick={() => setForgotPassword(true)} />}
+              />
 
               <div className="section__actions">
                 <Button button="primary" type="submit" label={__('Continue')} disabled={!password || isPending} />
                 <Button button="link" onClick={handleChangeToSignIn} label={__('Use Magic Link')} />
               </div>
-            </Form>} nag={errorMessage && <Nag type="error" relative message={errorMessage} />} />}
-    </div>;
+            </Form>
+          }
+          nag={errorMessage && <Nag type="error" relative message={errorMessage} />}
+        />
+      )}
+    </div>
+  );
 }

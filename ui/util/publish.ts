@@ -1,17 +1,27 @@
-import { ESTIMATED_FEE, MINIMUM_PUBLISH_BID } from "constants/claim";
-import { COPYRIGHT, OTHER } from "constants/licenses";
-import { PAYWALL } from "constants/publish";
-import * as PUBLISH from "constants/publish";
-import { LBRY_FIRST_TAG, MEMBERS_ONLY_CONTENT_TAG, PURCHASE_TAG, PURCHASE_TAG_OLD, RENTAL_TAG, RENTAL_TAG_OLD, SCHEDULED_LIVESTREAM_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from "constants/tags";
-import { isStreamPlaceholderClaim } from "util/claim";
-import { creditsToString } from "util/format-credits";
-import { TO_SECONDS } from "util/stripe";
+import { ESTIMATED_FEE, MINIMUM_PUBLISH_BID } from 'constants/claim';
+import { COPYRIGHT, OTHER } from 'constants/licenses';
+import { PAYWALL } from 'constants/publish';
+import * as PUBLISH from 'constants/publish';
+import {
+  LBRY_FIRST_TAG,
+  MEMBERS_ONLY_CONTENT_TAG,
+  PURCHASE_TAG,
+  PURCHASE_TAG_OLD,
+  RENTAL_TAG,
+  RENTAL_TAG_OLD,
+  SCHEDULED_LIVESTREAM_TAG,
+  SCHEDULED_TAGS,
+  VISIBILITY_TAGS,
+} from 'constants/tags';
+import { isStreamPlaceholderClaim } from 'util/claim';
+import { creditsToString } from 'util/format-credits';
+import { TO_SECONDS } from 'util/stripe';
 export function getVideoBitrate(size, duration) {
   const s = Number(size);
   const d = Number(duration);
 
   if (s && d) {
-    return s * 8 / d;
+    return (s * 8) / d;
   } else {
     return 0;
   }
@@ -19,15 +29,17 @@ export function getVideoBitrate(size, duration) {
 export function handleBidChange(bid, amount, balance, setBidError, setParam) {
   const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
   setParam({
-    bid: bid
+    bid: bid,
   });
 
   if (bid <= 0.0 || isNaN(bid)) {
     setBidError(__('Deposit cannot be 0'));
   } else if (totalAvailableBidAmount < bid) {
-    setBidError(__('Deposit cannot be higher than your available balance: %balance%', {
-      balance: totalAvailableBidAmount
-    }));
+    setBidError(
+      __('Deposit cannot be higher than your available balance: %balance%', {
+        balance: totalAvailableBidAmount,
+      })
+    );
   } else if (totalAvailableBidAmount - bid < ESTIMATED_FEE) {
     setBidError(__('Please decrease your deposit to account for transaction fees'));
   } else if (bid < MINIMUM_PUBLISH_BID) {
@@ -49,7 +61,7 @@ export function dedupeLanguages(languages) {
     }
   } else if (languages.length > 2) {
     const newLangs = [];
-    languages.forEach(l => {
+    languages.forEach((l) => {
       if (!newLangs.includes(l)) {
         newLangs.push(l);
       }
@@ -79,13 +91,21 @@ export function handleLanguageChange(index, code, languageParam, setParams, para
     }
   }
 
-  setParams(params ? { ...params,
-    languages: langs
-  } : {
-    languages: langs
-  });
+  setParams(
+    params
+      ? { ...params, languages: langs }
+      : {
+          languages: langs,
+        }
+  );
 }
-export function resolvePublishPayload(publishData: UpdatePublishState, myClaimForUri: StreamClaim | null | undefined, myChannels: Array<ChannelClaim> | null | undefined, memberRestrictionStatus: MemberRestrictionStatus, preview: boolean) {
+export function resolvePublishPayload(
+  publishData: UpdatePublishState,
+  myClaimForUri: StreamClaim | null | undefined,
+  myChannels: Array<ChannelClaim> | null | undefined,
+  memberRestrictionStatus: MemberRestrictionStatus,
+  preview: boolean
+) {
   const {
     type,
     liveCreateType,
@@ -106,7 +126,7 @@ export function resolvePublishPayload(publishData: UpdatePublishState, myClaimFo
     fee,
     tags,
     optimize,
-    remoteFileUrl
+    remoteFileUrl,
   } = publishData;
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
   const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
@@ -123,12 +143,10 @@ export function resolvePublishPayload(publishData: UpdatePublishState, myClaimFo
   }
 
   // get the claim id from the channel name, we will use that instead
-  const namedChannelClaim = myChannels ? myChannels.find(myChannel => myChannel.name === channel) : null;
+  const namedChannelClaim = myChannels ? myChannels.find((myChannel) => myChannel.name === channel) : null;
   const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
   const nowTimeStamp = Number(Math.round(Date.now() / 1000));
-  const {
-    claim_id: claimId
-  } = myClaimForUri || {};
+  const { claim_id: claimId } = myClaimForUri || {};
   const publishPayload: PublishParams = {
     name,
     title,
@@ -140,27 +158,39 @@ export function resolvePublishPayload(publishData: UpdatePublishState, myClaimFo
     release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
     blocking: true,
     preview: false,
-    ...(claimId ? {
-      claim_id: claimId
-    } : {}),
+    ...(claimId
+      ? {
+          claim_id: claimId,
+        }
+      : {}),
     // 'stream_update' support
-    ...(optimize ? {
-      optimize_file: true
-    } : {}),
-    ...(thumbnail ? {
-      thumbnail_url: thumbnail
-    } : {}),
-    ...(channelId ? {
-      channel_id: channelId
-    } : {}),
-    ...(licenseUrl ? {
-      license_url: licenseUrl
-    } : {}),
-    ...(publishingLicense ? {
-      license: publishingLicense
-    } : {})
+    ...(optimize
+      ? {
+          optimize_file: true,
+        }
+      : {}),
+    ...(thumbnail
+      ? {
+          thumbnail_url: thumbnail,
+        }
+      : {}),
+    ...(channelId
+      ? {
+          channel_id: channelId,
+        }
+      : {}),
+    ...(licenseUrl
+      ? {
+          license_url: licenseUrl,
+        }
+      : {}),
+    ...(publishingLicense
+      ? {
+          license: publishingLicense,
+        }
+      : {}),
   };
-  const tagSet = new Set(tags.map(t => t.name));
+  const tagSet = new Set(tags.map((t) => t.name));
   PAYLOAD.tags.useLbryUploader(tagSet, publishData);
   PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
   PAYLOAD.tags.fiatPaywall(tagSet, publishData);
@@ -183,14 +213,20 @@ export function resolvePublishPayload(publishData: UpdatePublishState, myClaimFo
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath) {
-    if (type !== 'livestream' || type === 'livestream' && liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay') {
+    if (
+      type !== 'livestream' ||
+      (type === 'livestream' && liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay')
+    ) {
       // $FlowFixMe please
       publishPayload.file_path = filePath;
     }
   }
 
   if (remoteFileUrl) {
-    if (type === 'livestream' && (liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay')) {
+    if (
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay'))
+    ) {
       publishPayload.remote_url = remoteFileUrl;
     }
   }
@@ -207,11 +243,14 @@ export function resolvePublishPayload(publishData: UpdatePublishState, myClaimFo
  * Helper functions to resolve SDK's publish payload.
  */
 const PAYLOAD = {
-  releaseTime: (nowTs: number, userEnteredTs: number | null | undefined, claimToEdit: StreamClaim | null | undefined, publishData: UpdatePublishState) => {
+  releaseTime: (
+    nowTs: number,
+    userEnteredTs: number | null | undefined,
+    claimToEdit: StreamClaim | null | undefined,
+    publishData: UpdatePublishState
+  ) => {
     const isEditing = Boolean(claimToEdit);
-    const {
-      liveEditType
-    } = publishData;
+    const { liveEditType } = publishData;
     const unlistedFixedPublishDate = 2147483647; // Backend relies to future dates to skip sending of new content notifications
 
     const past = {};
@@ -288,12 +327,11 @@ const PAYLOAD = {
       }
     },
     scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
-      const {
-        type,
-        liveCreateType,
-        liveEditType
-      } = publishData;
-      const isPlaceholderClaim = type === 'livestream' && (liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder' && liveEditType === 'update_only');
+      const { type, liveCreateType, liveEditType } = publishData;
+      const isPlaceholderClaim =
+        type === 'livestream' &&
+        (liveCreateType === 'new_placeholder' ||
+          (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only'));
 
       if (isPlaceholderClaim && releaseTime && releaseTime > nowTime) {
         // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
@@ -311,11 +349,18 @@ const PAYLOAD = {
         fiatRentalEnabled,
         fiatRentalFee,
         fiatRentalExpiration,
-        visibility
+        visibility,
       } = publishData;
       const refSet = new Set(tagSet);
-      refSet.forEach(t => {
-        if (t === RENTAL_TAG || t === PURCHASE_TAG || t.startsWith(`${RENTAL_TAG}:`) || t.startsWith(`${PURCHASE_TAG}:`) || t.startsWith(RENTAL_TAG_OLD) || t.startsWith(PURCHASE_TAG_OLD)) {
+      refSet.forEach((t) => {
+        if (
+          t === RENTAL_TAG ||
+          t === PURCHASE_TAG ||
+          t.startsWith(`${RENTAL_TAG}:`) ||
+          t.startsWith(`${PURCHASE_TAG}:`) ||
+          t.startsWith(RENTAL_TAG_OLD) ||
+          t.startsWith(PURCHASE_TAG_OLD)
+        ) {
           tagSet.delete(t);
         }
       });
@@ -333,26 +378,37 @@ const PAYLOAD = {
         }
 
         // Rental
-        if (fiatRentalEnabled && fiatRentalFee?.currency && Number(fiatRentalFee.amount) > 0 && fiatRentalExpiration?.unit && Number(fiatRentalExpiration.value) > 0) {
+        if (
+          fiatRentalEnabled &&
+          fiatRentalFee?.currency &&
+          Number(fiatRentalFee.amount) > 0 &&
+          fiatRentalExpiration?.unit &&
+          Number(fiatRentalExpiration.value) > 0
+        ) {
           const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
           tagSet.add(RENTAL_TAG);
           tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
         }
       }
     },
-    membershipRestrictions: (tagSet: Set<string>, channel_id: string | null | undefined, memberRestrictionStatus: MemberRestrictionStatus) => {
+    membershipRestrictions: (
+      tagSet: Set<string>,
+      channel_id: string | null | undefined,
+      memberRestrictionStatus: MemberRestrictionStatus
+    ) => {
       tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
 
       if (channel_id && memberRestrictionStatus.isRestricting) {
         tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
       }
 
-      assert(!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid, 'Trying to publish an invalid Tier Restriction selection');
+      assert(
+        !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
+        'Trying to publish an invalid Tier Restriction selection'
+      );
     },
     visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const {
-        visibility
-      } = publishData;
+      const { visibility } = publishData;
       tagSet.delete(VISIBILITY_TAGS.PRIVATE);
       tagSet.delete(VISIBILITY_TAGS.UNLISTED);
       tagSet.delete(SCHEDULED_TAGS.SHOW);
@@ -379,6 +435,6 @@ const PAYLOAD = {
           assert(false, `unhandled: "${visibility}"`);
           break;
       }
-    }
-  }
+    },
+  },
 };

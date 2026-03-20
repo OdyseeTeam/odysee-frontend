@@ -1,14 +1,21 @@
-import { connect } from "react-redux";
-import { doOpenModal } from "redux/actions/app";
-import { doMembershipList } from "redux/actions/memberships";
-import { selectUserValidMembershipForChannelUri, selectCreatorHasMembershipsByUri, selectArEnabledMembershipTiersForChannelUri } from "redux/selectors/memberships";
-import { selectIsClaimOdyseeChannelForUri, selectChannelForClaimUri, selectChannelClaimIdForUri, selectClaimForUri } from "redux/selectors/claims";
-import ShareButton from "./view";
+import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
+import { doMembershipList } from 'redux/actions/memberships';
+import {
+  selectUserValidMembershipForChannelUri,
+  selectCreatorHasMembershipsByUri,
+  selectArEnabledMembershipTiersForChannelUri,
+} from 'redux/selectors/memberships';
+import {
+  selectIsClaimOdyseeChannelForUri,
+  selectChannelForClaimUri,
+  selectChannelClaimIdForUri,
+  selectClaimForUri,
+} from 'redux/selectors/claims';
+import ShareButton from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const channelClaim = selectClaimForUri(state, uri);
   const channelUri = selectChannelForClaimUri(state, uri);
   const channelId = selectChannelClaimIdForUri(state, uri);
@@ -23,12 +30,12 @@ const select = (state, props) => {
     channelName: channelClaim?.name,
     channelClaimId: channelClaim?.claim_id,
     channelUri,
-    channelId
+    channelId,
   };
 };
 
 const perform = {
   doOpenModal,
-  doMembershipList
+  doMembershipList,
 };
 export default connect(select, perform)(ShareButton);

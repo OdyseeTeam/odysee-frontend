@@ -1,9 +1,22 @@
-import { connect } from "react-redux";
-import { selectClaimIdForUri } from "redux/selectors/claims";
-import { doCommentModUnBlock, doCommentModBlock, doCommentModBlockAsAdmin, doCommentModUnBlockAsAdmin, doCommentModUnBlockAsModerator, doCommentModBlockAsModerator } from "redux/actions/comments";
-import { makeSelectChannelIsBlocked, makeSelectChannelIsAdminBlocked, makeSelectChannelIsModeratorBlockedForCreator, makeSelectUriIsBlockingOrUnBlocking, makeSelectIsTogglingForDelegator } from "redux/selectors/comments";
-import { BLOCK_LEVEL } from "constants/comment";
-import ChannelBlockButton from "./view";
+import { connect } from 'react-redux';
+import { selectClaimIdForUri } from 'redux/selectors/claims';
+import {
+  doCommentModUnBlock,
+  doCommentModBlock,
+  doCommentModBlockAsAdmin,
+  doCommentModUnBlockAsAdmin,
+  doCommentModUnBlockAsModerator,
+  doCommentModBlockAsModerator,
+} from 'redux/actions/comments';
+import {
+  makeSelectChannelIsBlocked,
+  makeSelectChannelIsAdminBlocked,
+  makeSelectChannelIsModeratorBlockedForCreator,
+  makeSelectUriIsBlockingOrUnBlocking,
+  makeSelectIsTogglingForDelegator,
+} from 'redux/selectors/comments';
+import { BLOCK_LEVEL } from 'constants/comment';
+import ChannelBlockButton from './view';
 
 const select = (state, props) => {
   let isBlocked;
@@ -29,7 +42,7 @@ const select = (state, props) => {
     isBlocked,
     isToggling,
     isBlockingOrUnBlocking: makeSelectUriIsBlockingOrUnBlocking(props.uri)(state),
-    creatorId: selectClaimIdForUri(state, props.creatorUri)
+    creatorId: selectClaimIdForUri(state, props.creatorUri),
   };
 };
 
@@ -39,5 +52,5 @@ export default connect(select, {
   doCommentModUnBlockAsAdmin,
   doCommentModBlockAsAdmin,
   doCommentModUnBlockAsModerator,
-  doCommentModBlockAsModerator
+  doCommentModBlockAsModerator,
 })(ChannelBlockButton);

@@ -1,6 +1,6 @@
-import React from "react";
-import Page from "component/page";
-import MarkdownPreview from "component/common/markdown-preview";
+import React from 'react';
+import Page from 'component/page';
+import MarkdownPreview from 'component/common/markdown-preview';
 export default function PageFyp() {
   const content = `# Recommended Videos - Beta version available to signed in users without enough watch history
   ## What is this?
@@ -17,7 +17,9 @@ export default function PageFyp() {
 
   ## Why don't I have any recommendations?
   Right now, it's a Premium feature. But you also might not be using Odysee enough. It's hard to make recommendations without knowing much about you. Otherwise, if you use uBlock Origin or Brave, make sure they are disabled on Odysee, as they interfere with us learning what you like.`;
-  return <Page>
+  return (
+    <Page>
       <MarkdownPreview content={__(content)} simpleLinks />
-    </Page>;
+    </Page>
+  );
 }

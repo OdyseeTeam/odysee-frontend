@@ -1,2 +1,2 @@
-import PageYouTubeTOS from "./view";
+import PageYouTubeTOS from './view';
 export default PageYouTubeTOS;

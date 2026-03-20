@@ -1,7 +1,7 @@
-import React from "react";
-import PaymentRow from "./internal/paymentRow";
-import { useLocation } from "react-router";
-import Paginate from "component/common/paginate";
+import React from 'react';
+import PaymentRow from './internal/paymentRow';
+import { useLocation } from 'react-router';
+import Paginate from 'component/common/paginate';
 interface IProps {
   doMembershipFetchIncomingPayments: () => void;
   txsFetching: boolean;
@@ -13,15 +13,8 @@ const PAGINATE_PARAM = 'page';
 const PAGE_SIZE = 25;
 
 function PaymentsTab(props: IProps) {
-  const {
-    doMembershipFetchIncomingPayments,
-    transactions,
-    txsFetching,
-    channelsToList
-  } = props;
-  const {
-    search
-  } = useLocation();
+  const { doMembershipFetchIncomingPayments, transactions, txsFetching, channelsToList } = props;
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlParamPage = Number(urlParams.get(PAGINATE_PARAM)) || 1;
   const pageStart = (urlParamPage - 1) * PAGE_SIZE;
@@ -29,9 +22,14 @@ function PaymentsTab(props: IProps) {
   React.useEffect(() => {
     doMembershipFetchIncomingPayments();
   }, [doMembershipFetchIncomingPayments]);
-  const channelIdsToList = channelsToList && channelsToList.map(c => c.claim_id);
-  const transactionsToList = (channelIdsToList && channelIdsToList.length ? transactions.filter(t => channelIdsToList.includes(t.creator_channel_claim_id)) : transactions).sort((a, b) => new Date(b.initiated_at) - new Date(a.initiated_at));
-  return <>
+  const channelIdsToList = channelsToList && channelsToList.map((c) => c.claim_id);
+  const transactionsToList = (
+    channelIdsToList && channelIdsToList.length
+      ? transactions.filter((t) => channelIdsToList.includes(t.creator_channel_claim_id))
+      : transactions
+  ).toSorted((a, b) => new Date(b.initiated_at) - new Date(a.initiated_at));
+  return (
+    <>
       <div className="membership-payments-table__wrapper">
         <table className="table">
           <thead>
@@ -46,16 +44,28 @@ function PaymentsTab(props: IProps) {
             </tr>
           </thead>
           <tbody>
-            {transactionsToList && transactionsToList.slice(pageStart, pageEnd).map(transaction => {
-            return <PaymentRow key={transaction.transaction_id} transaction={transaction} longList={transactionsToList.length > 100} />;
-          })}
+            {transactionsToList &&
+              transactionsToList.slice(pageStart, pageEnd).map((transaction) => {
+                return (
+                  <PaymentRow
+                    key={transaction.transaction_id}
+                    transaction={transaction}
+                    longList={transactionsToList.length > 100}
+                  />
+                );
+              })}
           </tbody>
         </table>
         <Paginate totalPages={Math.ceil(transactionsToList.length / PAGE_SIZE)} />
-        {!txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>}
-        {txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('Fetching Membership Payments')}</p>}
+        {!txsFetching && transactions.length === 0 && (
+          <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>
+        )}
+        {txsFetching && transactions.length === 0 && (
+          <p className="wallet__fiat-transactions">{__('Fetching Membership Payments')}</p>
+        )}
       </div>
-    </>;
+    </>
+  );
 }
 
 export default PaymentsTab;

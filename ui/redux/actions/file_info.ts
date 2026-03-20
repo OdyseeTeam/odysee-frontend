@@ -1,7 +1,7 @@
-import * as ACTIONS from "constants/action_types";
-import Lbry from "lbry";
-import { selectClaimsByUri } from "redux/selectors/claims";
-import { selectIsFetchingFileList, selectUrisLoading } from "redux/selectors/file_info";
+import * as ACTIONS from 'constants/action_types';
+import Lbry from 'lbry';
+import { selectClaimsByUri } from 'redux/selectors/claims';
+import { selectIsFetchingFileList, selectUrisLoading } from 'redux/selectors/file_info';
 export function doFetchFileInfo(uri) {
   return (dispatch, getState) => {
     const state = getState();
@@ -13,25 +13,23 @@ export function doFetchFileInfo(uri) {
       dispatch({
         type: ACTIONS.FETCH_FILE_INFO_STARTED,
         data: {
-          outpoint
-        }
+          outpoint,
+        },
       });
       Lbry.file_list({
         outpoint,
         full_status: true,
         page: 1,
-        page_size: 1
-      }).then(result => {
-        const {
-          items: fileInfos
-        } = result;
+        page_size: 1,
+      }).then((result) => {
+        const { items: fileInfos } = result;
         const fileInfo = fileInfos[0];
         dispatch({
           type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
           data: {
             outpoint,
-            fileInfo: fileInfo || null
-          }
+            fileInfo: fileInfo || null,
+          },
         });
       });
     }
@@ -44,20 +42,18 @@ export function doFileList(page = 1, pageSize = 99999) {
 
     if (!isFetching) {
       dispatch({
-        type: ACTIONS.FILE_LIST_STARTED
+        type: ACTIONS.FILE_LIST_STARTED,
       });
       Lbry.file_list({
         page,
-        page_size: pageSize
-      }).then(result => {
-        const {
-          items: fileInfos
-        } = result;
+        page_size: pageSize,
+      }).then((result) => {
+        const { items: fileInfos } = result;
         dispatch({
           type: ACTIONS.FILE_LIST_SUCCEEDED,
           data: {
-            fileInfos: fileInfos
-          }
+            fileInfos: fileInfos,
+          },
         });
       });
     }
@@ -75,7 +71,7 @@ export function doSetFileListSort(page, value) {
     type: ACTIONS.SET_FILE_LIST_SORT,
     data: {
       page,
-      value
-    }
+      value,
+    },
   };
 }

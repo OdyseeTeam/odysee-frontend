@@ -1,4 +1,4 @@
-import { selectChannelClaimIdForUri } from "redux/selectors/claims";
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 
 const selectState = (state: State) => state.stripe || {};
 
@@ -19,12 +19,12 @@ export const selectFullAPIArweaveAccounts = (state: State) => selectState(state)
 // find in arweaveStatus[] where active = true
 export const selectAPIArweaveActiveAccounts = (state: State): ArweaveAccountStatus => {
   const arweaveStatus = selectFullAPIArweaveStatus(state);
-  return arweaveStatus ? arweaveStatus.filter(entry => entry.status === 'active') : [];
+  return arweaveStatus ? arweaveStatus.filter((entry) => entry.status === 'active') : [];
 };
 export const selectAPIArweaveDefaultAccount = (state: State) => {
   const arweaveStatus = selectFullAPIArweaveStatus(state);
   // find and return each match
-  return arweaveStatus ? arweaveStatus.find(entry => entry.default) : null;
+  return arweaveStatus ? arweaveStatus.find((entry) => entry.default) : null;
 };
 export const selectArweaveDefaultAccountMonetizationEnabled = (state: State) => {
   const account = selectAPIArweaveDefaultAccount(state);
@@ -37,7 +37,7 @@ export const selectAPIArweaveDefaultAddress = (state: State) => {
 export const selectArweaveAccountForAddress = (state: State, address: string) => {
   const arweaveStatus = selectFullAPIArweaveStatus(state);
   // find and return each match
-  return arweaveStatus ? arweaveStatus.find(entry => entry.address === address) : null;
+  return arweaveStatus ? arweaveStatus.find((entry) => entry.address === address) : null;
 };
 export const selectArweaveTipDataForId = (state: State, id: string) => {
   const byId = selectState(state).canReceiveArweaveTipsById;
@@ -57,7 +57,8 @@ export const selectAccountChargesEnabled = (state: State) => {
   const accountStatus = selectAccountStatus(state);
   return accountStatus && accountStatus.charges_enabled;
 };
-export const selectAccountCheckIsFetchingForId = (state: State, id: string) => selectAccountCheckFetchingIds(state).includes(id);
+export const selectAccountCheckIsFetchingForId = (state: State, id: string) =>
+  selectAccountCheckFetchingIds(state).includes(id);
 export const selectAccountRequiresVerification = (state: State) => {
   const chargesEnabled = selectAccountChargesEnabled(state);
   if (!chargesEnabled) return chargesEnabled;
@@ -65,8 +66,11 @@ export const selectAccountRequiresVerification = (state: State) => {
   // const eventuallyDueInformation = accountStatus?.account_info.requirements.eventually_due;
   const currentlyDueInformation = accountStatus?.account_info.requirements.currently_due;
 
-  if ( // (eventuallyDueInformation && eventuallyDueInformation.length > 0) ||
-  currentlyDueInformation && currentlyDueInformation.length > 0) {
+  if (
+    // (eventuallyDueInformation && eventuallyDueInformation.length > 0) ||
+    currentlyDueInformation &&
+    currentlyDueInformation.length > 0
+  ) {
     return true;
   }
 
@@ -74,9 +78,7 @@ export const selectAccountRequiresVerification = (state: State) => {
 };
 export const selectPaymentMethods = (state: State) => {
   const customerStatus = selectCustomerStatus(state);
-  const {
-    PaymentMethods: paymentMethods
-  } = customerStatus || {};
+  const { PaymentMethods: paymentMethods } = customerStatus || {};
   return Number.isInteger(paymentMethods?.length) && paymentMethods;
 };
 export const selectLastFour = (state: State) => {
@@ -111,7 +113,7 @@ export const selectCardDetails = (state: State) => {
     expiryYear: card.exp_year,
     expiryMonth: card.exp_month,
     lastFour: card.last4,
-    email
+    email,
   };
   return cardDetails;
 };

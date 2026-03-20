@@ -1,29 +1,22 @@
-import { connect } from "react-redux";
-import EmbedWrapperPage from "./view";
-import * as PAGES from "constants/pages";
-import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from "redux/selectors/claims";
-import { doFetchLatestClaimForChannel } from "redux/actions/claims";
-import { buildURI, normalizeURI } from "util/lbryURI";
-import { getChannelIdFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from "util/claim";
-import { doCommentSocketConnect, doCommentSocketDisconnect } from "redux/actions/websocket";
-import { doFetchChannelIsLiveForId } from "redux/actions/livestream";
-import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from "redux/selectors/livestream";
-import { makeSelectFileRenderModeForUri } from "redux/selectors/content";
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from "redux/selectors/memberships";
-import { selectFirstItemUrlForCollection } from "redux/selectors/collections";
-import { doFetchItemsInCollection } from "redux/actions/collections";
+import { connect } from 'react-redux';
+import EmbedWrapperPage from './view';
+import * as PAGES from 'constants/pages';
+import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from 'redux/selectors/claims';
+import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { buildURI, normalizeURI } from 'util/lbryURI';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
+import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 
 const select = (state, props) => {
-  const {
-    search,
-    hash
-  } = state.router.location;
-  const {
-    match
-  } = props || {};
-  const {
-    pathname
-  } = state.router.location || {};
+  const { search, hash } = state.router.location;
+  const { match } = props || {};
+  const { pathname } = state.router.location || {};
   const matchedPath = match ? buildMatchWithHash(match, hash) : buildMatchFromPath(pathname);
   let uri = getUriFromMatch(matchedPath);
   const urlParams = new URLSearchParams(search);
@@ -37,17 +30,19 @@ const select = (state, props) => {
   }
 
   const claim = selectClaimForUri(state, uri);
-  const {
-    canonical_url: canonicalUrl
-  } = claim || {};
+  const { canonical_url: canonicalUrl } = claim || {};
   const claimId = claim?.claim_id;
   const channelClaim = getChannelFromClaim(claim);
   const channelClaimId = getChannelIdFromClaim(claim);
-  const {
-    canonical_url: channelUri
-  } = channelClaim || {};
-  const latestContentClaim = featureParam === PAGES.LIVE_NOW ? selectLatestLiveClaimForChannel(state, channelClaimId) : selectLatestClaimForUri(state, canonicalUrl);
-  const latestClaimUrl = featureParam === PAGES.LIVE_NOW ? selectLatestLiveUriForChannel(state, channelClaimId) : latestContentClaim && latestContentClaim.canonical_url;
+  const { canonical_url: channelUri } = channelClaim || {};
+  const latestContentClaim =
+    featureParam === PAGES.LIVE_NOW
+      ? selectLatestLiveClaimForChannel(state, channelClaimId)
+      : selectLatestClaimForUri(state, canonicalUrl);
+  const latestClaimUrl =
+    featureParam === PAGES.LIVE_NOW
+      ? selectLatestLiveUriForChannel(state, channelClaimId)
+      : latestContentClaim && latestContentClaim.canonical_url;
   const latestClaimId = latestContentClaim && latestContentClaim.claim_id;
   if (latestClaimUrl) uri = latestClaimUrl;
   // Detect collections from playlist-style URIs even if claim isn't resolved as a collection
@@ -58,7 +53,7 @@ const select = (state, props) => {
     if (collectionIdMatch) detectedCollectionId = collectionIdMatch[1];
   }
 
-  const isCollection = claim && claim.value_type === 'collection' || Boolean(detectedCollectionId);
+  const isCollection = (claim && claim.value_type === 'collection') || Boolean(detectedCollectionId);
   const collectionId = claim && claim.value_type === 'collection' ? claim.claim_id : detectedCollectionId;
   const collectionFirstItemUri = collectionId ? selectFirstItemUrlForCollection(state, collectionId) : null;
   const renderMode = uri ? makeSelectFileRenderModeForUri(uri)(state) : undefined;
@@ -76,7 +71,7 @@ const select = (state, props) => {
     latestClaimUrl,
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),
-    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id)
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
 
@@ -85,16 +80,13 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchLatestClaimForChannel,
-  doFetchItemsInCollection
+  doFetchItemsInCollection,
 };
 export default connect(select, perform)(EmbedWrapperPage);
 
 function getUriFromMatch(match) {
   if (match && match.params) {
-    const {
-      claimName,
-      claimId
-    } = match.params || {};
+    const { claimName, claimId } = match.params || {};
 
     if (!claimName) {
       return '';
@@ -106,7 +98,12 @@ function getUriFromMatch(match) {
     }
 
     // https://{DOMAIN}/claimName/claimId
-    const isOldPermanentUriFormat = typeof claimName === 'string' && !claimName.startsWith('@') && !claimName.includes(':') && !claimName.includes('#') && claimId;
+    const isOldPermanentUriFormat =
+      typeof claimName === 'string' &&
+      !claimName.startsWith('@') &&
+      !claimName.includes(':') &&
+      !claimName.includes('#') &&
+      claimId;
     // https://{DOMAIN}/channelName/claimName/
     // on match channelName = claimName / claimName = claimId
     const isCanonicalUriFormat = !isOldPermanentUriFormat;
@@ -115,7 +112,7 @@ function getUriFromMatch(match) {
       try {
         return buildURI({
           claimName,
-          claimId
+          claimId,
         });
       } catch (error) {}
     }
@@ -161,7 +158,7 @@ function buildMatchWithHash(match, hash) {
 
 function buildMatchFromPath(pathname) {
   const matchedPath = {
-    params: {}
+    params: {},
   };
 
   try {

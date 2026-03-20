@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 export default function useConnectionStatus() {
   const [online, setOnline] = React.useState(window.navigator.onLine);
   React.useEffect(() => {
@@ -18,6 +18,6 @@ export default function useConnectionStatus() {
     };
   }, []);
   return {
-    online
+    online,
   };
 }

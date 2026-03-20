@@ -1,14 +1,14 @@
-import "scss/component/_superchat.scss";
-import { getFormattedCreditsAmount, formatFullPrice } from "util/format-credits";
-import classnames from "classnames";
-import Icon from "component/common/icon";
-import LbcSymbol from "component/common/lbc-symbol";
-import Symbol from "component/common/symbol";
-import React from "react";
+import 'scss/component/_superchat.scss';
+import { getFormattedCreditsAmount, formatFullPrice } from 'util/format-credits';
+import classnames from 'classnames';
+import Icon from 'component/common/icon';
+import LbcSymbol from 'component/common/lbc-symbol';
+import Symbol from 'component/common/symbol';
+import React from 'react';
 type Props = {
   token?: string;
   chain?: string;
-  amount?: number | "";
+  amount?: number | '';
   className?: string;
   customAmounts?: {
     amountFiat: number;
@@ -37,7 +37,7 @@ class CreditAmount extends React.PureComponent<Props> {
     showFree: false,
     showFullPrice: false,
     showLBC: true,
-    showPlus: false
+    showPlus: false,
   };
 
   render() {
@@ -59,13 +59,17 @@ class CreditAmount extends React.PureComponent<Props> {
       showPlus,
       size,
       hyperChat,
-      icon
+      icon,
     } = this.props;
     // return null, otherwise it will try and convert undefined to a string
     if (amount === undefined && customAmounts === undefined) return null;
 
     function getSymbol(amountText, size, chain) {
-      return !token ? <LbcSymbol postfix={amountText} size={size} /> : <Symbol postfix={amountText} size={size} chain={chain} />;
+      return !token ? (
+        <LbcSymbol postfix={amountText} size={size} />
+      ) : (
+        <Symbol postfix={amountText} size={size} chain={chain} />
+      );
     }
 
     function getAmountText(amount: number, isFiat?: boolean) {
@@ -86,16 +90,20 @@ class CreditAmount extends React.PureComponent<Props> {
           // amountText = <LbcSymbol postfix={amountText} size={size} />;
           amountText = getSymbol(amountText, size, chain);
         } else if (showLBC && isFiat) {
-          amountText = <p style={{
-            display: 'inline'
-          }}>
+          amountText = (
+            <p
+              style={{
+                display: 'inline',
+              }}
+            >
               ${isNaN(Number(amountText)) ? amountText : (Math.round(Number(amount) * 100) / 100).toFixed(2)}
-            </p>;
+            </p>
+          );
         }
 
         if (fee) {
           amountText = __('%amount% fee', {
-            amount: amountText
+            amount: amountText,
           });
         }
 
@@ -103,21 +111,31 @@ class CreditAmount extends React.PureComponent<Props> {
       }
     }
 
-    return <span title={amount && !hideTitle ? formatFullPrice(amount, 2) : ''} className={classnames('credit-amount-wrapper', className, {
-      hyperChat: hyperChat
-    })}>
+    return (
+      <span
+        title={amount && !hideTitle ? formatFullPrice(amount, 2) : ''}
+        className={classnames('credit-amount-wrapper', className, {
+          hyperChat: hyperChat,
+        })}
+      >
         {icon && <Icon className="credit-amount__prefix-icon" icon={icon} />}
 
-        {customAmounts ? Object.values(customAmounts).map((amount, index) => <span key={String(amount)} className="credit-amount">
+        {customAmounts
+          ? Object.values(customAmounts).map((amount, index) => (
+              <span key={String(amount)} className="credit-amount">
                 {getAmountText(Number(amount), !index)}
-              </span>) : amount && <span className="credit-amount">{getAmountText(amount, isFiat)}</span>}
+              </span>
+            ))
+          : amount && <span className="credit-amount">{getAmountText(amount, isFiat)}</span>}
 
-        {isEstimate ? <span className="credit-amount__estimate" title={__('This is an estimate and does not include data fees')}>
+        {isEstimate ? (
+          <span className="credit-amount__estimate" title={__('This is an estimate and does not include data fees')}>
             *
-          </span> : null}
-      </span>;
+          </span>
+        ) : null}
+      </span>
+    );
   }
-
 }
 
 export default CreditAmount;

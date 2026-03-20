@@ -1,4 +1,4 @@
-import * as ACTIONS from "constants/action_types";
+import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 const defaultState: UserState = {
   authenticationIsPending: false,
@@ -38,70 +38,73 @@ const defaultState: UserState = {
   locale: undefined,
   localeFailed: undefined,
   homepageFetched: false,
-  userDeletionPending: undefined
+  userDeletionPending: undefined,
 };
 
-reducers[ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
-  authenticationIsPending: true,
-  userIsPending: true
-});
+reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
+  Object.assign({}, state, {
+    authenticationIsPending: true,
+    userIsPending: true,
+  });
 
-reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => Object.assign({}, state, {
-  authenticationIsPending: false,
-  userIsPending: false,
-  user: action.data.user,
-  user2FAPending: false
-});
+reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    authenticationIsPending: false,
+    userIsPending: false,
+    user: action.data.user,
+    user2FAPending: false,
+  });
 
-reducers[ACTIONS.AUTHENTICATION_FAILURE] = state => Object.assign({}, state, {
-  authenticationIsPending: false,
-  userIsPending: false,
-  user: null,
-  user2FAPending: false
-});
+reducers[ACTIONS.AUTHENTICATION_FAILURE] = (state) =>
+  Object.assign({}, state, {
+    authenticationIsPending: false,
+    userIsPending: false,
+    user: null,
+    user2FAPending: false,
+  });
 
-reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = state => {
+reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
   return Object.assign({}, state, {
-    isCheckingLegacyOdyseePremium: true
+    isCheckingLegacyOdyseePremium: true,
   });
 };
 
-reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = state => {
+reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
   return Object.assign({}, state, {
-    isCheckingLegacyOdyseePremium: false
+    isCheckingLegacyOdyseePremium: false,
   });
 };
 
 reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
-  const {
-    has_premium_plus,
-    has_premium
-  } = action.data;
+  const { has_premium_plus, has_premium } = action.data;
 
   if (has_premium_plus || has_premium) {
     return Object.assign({}, state, {
       hasLegacyOdyseePremium: true,
-      isCheckingLegacyOdyseePremium: false
+      isCheckingLegacyOdyseePremium: false,
     });
   }
 
   return Object.assign({}, state);
 };
 
-reducers[ACTIONS.USER_FETCH_STARTED] = state => Object.assign({}, state, {
-  userIsPending: true
-});
+reducers[ACTIONS.USER_FETCH_STARTED] = (state) =>
+  Object.assign({}, state, {
+    userIsPending: true,
+  });
 
-reducers[ACTIONS.USER_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
-  userIsPending: false,
-  user: action.data.user,
-  emailToVerify: action.data.user.has_verified_email ? null : state.emailToVerify
-});
+reducers[ACTIONS.USER_FETCH_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    userIsPending: false,
+    user: action.data.user,
+    emailToVerify: action.data.user.has_verified_email ? null : state.emailToVerify,
+  });
 
-reducers[ACTIONS.USER_FETCH_FAILURE] = state => Object.assign({}, state, {
-  userIsPending: true,
-  user: null
-});
+reducers[ACTIONS.USER_FETCH_FAILURE] = (state) =>
+  Object.assign({}, state, {
+    userIsPending: true,
+    user: null,
+  });
 
 reducers[ACTIONS.USER_PHONE_NEW_STARTED] = (state, action) => {
   const user = Object.assign({}, state.user);
@@ -109,46 +112,53 @@ reducers[ACTIONS.USER_PHONE_NEW_STARTED] = (state, action) => {
   return Object.assign({}, state, {
     phoneNewIsPending: true,
     phoneNewErrorMessage: '',
-    user
+    user,
   });
 };
 
-reducers[ACTIONS.USER_PHONE_NEW_SUCCESS] = (state, action) => Object.assign({}, state, {
-  phoneToVerify: action.data.phone,
-  phoneNewIsPending: false
-});
+reducers[ACTIONS.USER_PHONE_NEW_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    phoneToVerify: action.data.phone,
+    phoneNewIsPending: false,
+  });
 
-reducers[ACTIONS.USER_PHONE_RESET] = state => Object.assign({}, state, {
-  phoneToVerify: null
-});
+reducers[ACTIONS.USER_PHONE_RESET] = (state) =>
+  Object.assign({}, state, {
+    phoneToVerify: null,
+  });
 
-reducers[ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
-  phoneNewIsPending: false,
-  phoneNewErrorMessage: action.data.error
-});
+reducers[ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    phoneNewIsPending: false,
+    phoneNewErrorMessage: action.data.error,
+  });
 
-reducers[ACTIONS.USER_PHONE_VERIFY_STARTED] = state => Object.assign({}, state, {
-  phoneVerifyIsPending: true,
-  phoneVerifyErrorMessage: ''
-});
+reducers[ACTIONS.USER_PHONE_VERIFY_STARTED] = (state) =>
+  Object.assign({}, state, {
+    phoneVerifyIsPending: true,
+    phoneVerifyErrorMessage: '',
+  });
 
-reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
-  phoneToVerify: '',
-  phoneVerifyIsPending: false,
-  user: action.data.user
-});
+reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    phoneToVerify: '',
+    phoneVerifyIsPending: false,
+    user: action.data.user,
+  });
 
-reducers[ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
-  phoneVerifyIsPending: false,
-  phoneVerifyErrorMessage: action.data.error
-});
+reducers[ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    phoneVerifyIsPending: false,
+    phoneVerifyErrorMessage: action.data.error,
+  });
 
-reducers[ACTIONS.USER_EMAIL_NEW_STARTED] = state => Object.assign({}, state, {
-  emailNewIsPending: true,
-  emailNewErrorMessage: '',
-  emailAlreadyExists: false,
-  emailDoesNotExist: false
-});
+reducers[ACTIONS.USER_EMAIL_NEW_STARTED] = (state) =>
+  Object.assign({}, state, {
+    emailNewIsPending: true,
+    emailNewErrorMessage: '',
+    emailAlreadyExists: false,
+    emailDoesNotExist: false,
+  });
 
 reducers[ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
   const user = Object.assign({}, state.user);
@@ -156,26 +166,28 @@ reducers[ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
   return Object.assign({}, state, {
     emailToVerify: action.data.email,
     emailNewIsPending: false,
-    user
+    user,
   });
 };
 
-reducers[ACTIONS.USER_EMAIL_NEW_EXISTS] = state => Object.assign({}, state, {
-  emailAlreadyExists: true
-});
+reducers[ACTIONS.USER_EMAIL_NEW_EXISTS] = (state) =>
+  Object.assign({}, state, {
+    emailAlreadyExists: true,
+  });
 
-reducers[ACTIONS.USER_EMAIL_NEW_DOES_NOT_EXIST] = state => Object.assign({}, state, {
-  emailDoesNotExist: true
-});
+reducers[ACTIONS.USER_EMAIL_NEW_DOES_NOT_EXIST] = (state) =>
+  Object.assign({}, state, {
+    emailDoesNotExist: true,
+  });
 
-reducers[ACTIONS.USER_EMAIL_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
-  emailNewIsPending: false,
-  emailNewErrorMessage: action.data.error
-});
+reducers[ACTIONS.USER_EMAIL_NEW_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    emailNewIsPending: false,
+    emailNewErrorMessage: action.data.error,
+  });
 
-reducers[ACTIONS.USER_EMAIL_NEW_CLEAR_ENTRY] = state => {
-  const newUser = { ...state.user
-  };
+reducers[ACTIONS.USER_EMAIL_NEW_CLEAR_ENTRY] = (state) => {
+  const newUser = { ...state.user };
   delete newUser.primary_email;
   return Object.assign({}, state, {
     emailNewErrorMessage: null,
@@ -183,22 +195,24 @@ reducers[ACTIONS.USER_EMAIL_NEW_CLEAR_ENTRY] = state => {
     emailDoesNotExist: false,
     passwordExistsForUser: false,
     emailToVerify: null,
-    user: newUser
+    user: newUser,
   });
 };
 
-reducers[ACTIONS.USER_PASSWORD_SET_CLEAR] = state => Object.assign({}, state, {
-  passwordResetSuccess: false,
-  passwordResetPending: false,
-  passwordResetError: null,
-  passwordSetPending: false,
-  passwordSetSuccess: false
-});
+reducers[ACTIONS.USER_PASSWORD_SET_CLEAR] = (state) =>
+  Object.assign({}, state, {
+    passwordResetSuccess: false,
+    passwordResetPending: false,
+    passwordResetError: null,
+    passwordSetPending: false,
+    passwordSetSuccess: false,
+  });
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_STARTED] = state => Object.assign({}, state, {
-  emailVerifyIsPending: true,
-  emailVerifyErrorMessage: ''
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_STARTED] = (state) =>
+  Object.assign({}, state, {
+    emailVerifyIsPending: true,
+    emailVerifyErrorMessage: '',
+  });
 
 reducers[ACTIONS.USER_EMAIL_VERIFY_SUCCESS] = (state, action) => {
   const user = Object.assign({}, state.user);
@@ -206,72 +220,84 @@ reducers[ACTIONS.USER_EMAIL_VERIFY_SUCCESS] = (state, action) => {
   return Object.assign({}, state, {
     emailToVerify: '',
     emailVerifyIsPending: false,
-    user
+    user,
   });
 };
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
-  emailVerifyIsPending: false,
-  emailVerifyErrorMessage: action.data.error
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    emailVerifyIsPending: false,
+    emailVerifyErrorMessage: action.data.error,
+  });
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_SET] = (state, action) => Object.assign({}, state, {
-  emailToVerify: action.data.email
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_SET] = (state, action) =>
+  Object.assign({}, state, {
+    emailToVerify: action.data.email,
+  });
 
-reducers[ACTIONS.USER_IDENTITY_VERIFY_STARTED] = state => Object.assign({}, state, {
-  identityVerifyIsPending: true,
-  identityVerifyErrorMessage: ''
-});
+reducers[ACTIONS.USER_IDENTITY_VERIFY_STARTED] = (state) =>
+  Object.assign({}, state, {
+    identityVerifyIsPending: true,
+    identityVerifyErrorMessage: '',
+  });
 
-reducers[ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
-  identityVerifyIsPending: false,
-  identityVerifyErrorMessage: '',
-  user: action.data.user
-});
+reducers[ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    identityVerifyIsPending: false,
+    identityVerifyErrorMessage: '',
+    user: action.data.user,
+  });
 
-reducers[ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
-  identityVerifyIsPending: false,
-  identityVerifyErrorMessage: action.data.error
-});
+reducers[ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    identityVerifyIsPending: false,
+    identityVerifyErrorMessage: action.data.error,
+  });
 
-reducers[ACTIONS.USER_INVITE_STATUS_FETCH_STARTED] = state => Object.assign({}, state, {
-  inviteStatusIsPending: true
-});
+reducers[ACTIONS.USER_INVITE_STATUS_FETCH_STARTED] = (state) =>
+  Object.assign({}, state, {
+    inviteStatusIsPending: true,
+  });
 
-reducers[ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
-  inviteStatusIsPending: false,
-  invitesRemaining: action.data.invitesRemaining,
-  invitees: action.data.invitees,
-  referralLink: action.data.referralLink,
-  referralCode: action.data.referralCode
-});
+reducers[ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    inviteStatusIsPending: false,
+    invitesRemaining: action.data.invitesRemaining,
+    invitees: action.data.invitees,
+    referralLink: action.data.referralLink,
+    referralCode: action.data.referralCode,
+  });
 
-reducers[ACTIONS.USER_INVITE_NEW_STARTED] = state => Object.assign({}, state, {
-  inviteNewIsPending: true,
-  inviteNewErrorMessage: ''
-});
+reducers[ACTIONS.USER_INVITE_NEW_STARTED] = (state) =>
+  Object.assign({}, state, {
+    inviteNewIsPending: true,
+    inviteNewErrorMessage: '',
+  });
 
-reducers[ACTIONS.USER_INVITE_NEW_SUCCESS] = state => Object.assign({}, state, {
-  inviteNewIsPending: false,
-  inviteNewErrorMessage: ''
-});
+reducers[ACTIONS.USER_INVITE_NEW_SUCCESS] = (state) =>
+  Object.assign({}, state, {
+    inviteNewIsPending: false,
+    inviteNewErrorMessage: '',
+  });
 
-reducers[ACTIONS.USER_INVITE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
-  inviteNewIsPending: false,
-  inviteNewErrorMessage: action.data.error.message
-});
+reducers[ACTIONS.USER_INVITE_NEW_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    inviteNewIsPending: false,
+    inviteNewErrorMessage: action.data.error.message,
+  });
 
-reducers[ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state => Object.assign({}, state, {
-  inviteStatusIsPending: false,
-  invitesRemaining: null,
-  invitees: null
-});
+reducers[ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = (state) =>
+  Object.assign({}, state, {
+    inviteStatusIsPending: false,
+    invitesRemaining: null,
+    invitees: null,
+  });
 
-reducers[ACTIONS.USER_YOUTUBE_IMPORT_STARTED] = state => Object.assign({}, state, {
-  youtubeChannelImportPending: true,
-  youtubeChannelImportErrorMessage: ''
-});
+reducers[ACTIONS.USER_YOUTUBE_IMPORT_STARTED] = (state) =>
+  Object.assign({}, state, {
+    youtubeChannelImportPending: true,
+    youtubeChannelImportErrorMessage: '',
+  });
 
 reducers[ACTIONS.USER_YOUTUBE_IMPORT_SUCCESS] = (state, action) => {
   const total = action.data.reduce((acc, value) => acc + value.total_published_videos, 0);
@@ -280,109 +306,130 @@ reducers[ACTIONS.USER_YOUTUBE_IMPORT_SUCCESS] = (state, action) => {
     youtubeChannelImportPending: false,
     youtubeChannelImportErrorMessage: '',
     youtubeChannelImportTotal: total,
-    youtubeChannelImportComplete: complete
+    youtubeChannelImportComplete: complete,
   });
 };
 
-reducers[ACTIONS.USER_YOUTUBE_IMPORT_FAILURE] = (state, action) => Object.assign({}, state, {
-  youtubeChannelImportPending: false,
-  youtubeChannelImportErrorMessage: action.data
-});
+reducers[ACTIONS.USER_YOUTUBE_IMPORT_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    youtubeChannelImportPending: false,
+    youtubeChannelImportErrorMessage: action.data,
+  });
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_STARTED] = state => Object.assign({}, state, {
-  resendingVerificationEmail: true
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_STARTED] = (state) =>
+  Object.assign({}, state, {
+    resendingVerificationEmail: true,
+  });
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_SUCCESS] = state => Object.assign({}, state, {
-  resendingVerificationEmail: false
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_SUCCESS] = (state) =>
+  Object.assign({}, state, {
+    resendingVerificationEmail: false,
+  });
 
-reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_FAILURE] = state => Object.assign({}, state, {
-  resendingVerificationEmail: false
-});
+reducers[ACTIONS.USER_EMAIL_VERIFY_RETRY_FAILURE] = (state) =>
+  Object.assign({}, state, {
+    resendingVerificationEmail: false,
+  });
 
-reducers[ACTIONS.USER_SET_REFERRER_START] = state => Object.assign({}, state, {
-  referrerSetIsPending: true,
-  referrerSetError: defaultState.referrerSetError
-});
+reducers[ACTIONS.USER_SET_REFERRER_START] = (state) =>
+  Object.assign({}, state, {
+    referrerSetIsPending: true,
+    referrerSetError: defaultState.referrerSetError,
+  });
 
-reducers[ACTIONS.USER_SET_REFERRER_SUCCESS] = (state, action) => Object.assign({}, state, {
-  referrerSetIsPending: false,
-  referrerSetError: defaultState.referrerSetError,
-  referrerSet: action.data
-});
+reducers[ACTIONS.USER_SET_REFERRER_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    referrerSetIsPending: false,
+    referrerSetError: defaultState.referrerSetError,
+    referrerSet: action.data,
+  });
 
-reducers[ACTIONS.USER_SET_REFERRER_FAIL] = (state, action) => Object.assign({}, state, {
-  referrerSetIsPending: false,
-  referrerSetError: action.data.error.message,
-  referrerSet: null
-});
+reducers[ACTIONS.USER_SET_REFERRER_FAIL] = (state, action) =>
+  Object.assign({}, state, {
+    referrerSetIsPending: false,
+    referrerSetError: action.data.error.message,
+    referrerSet: null,
+  });
 
-reducers[ACTIONS.USER_SET_REFERRER_RESET] = state => Object.assign({}, state, {
-  referrerSetIsPending: false,
-  referrerSetError: defaultState.referrerSetError
-});
+reducers[ACTIONS.USER_SET_REFERRER_RESET] = (state) =>
+  Object.assign({}, state, {
+    referrerSetIsPending: false,
+    referrerSetError: defaultState.referrerSetError,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_EXISTS] = state => Object.assign({}, state, {
-  passwordExistsForUser: true
-});
+reducers[ACTIONS.USER_PASSWORD_EXISTS] = (state) =>
+  Object.assign({}, state, {
+    passwordExistsForUser: true,
+  });
 
-reducers[ACTIONS.USER_2FA_STARTED] = state => Object.assign({}, state, {
-  passwordExistsForUser: false,
-  user2FAPending: true
-});
+reducers[ACTIONS.USER_2FA_STARTED] = (state) =>
+  Object.assign({}, state, {
+    passwordExistsForUser: false,
+    user2FAPending: true,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_RESET_STARTED] = state => Object.assign({}, state, {
-  passwordResetPending: true,
-  passwordResetSuccess: defaultState.passwordResetSuccess,
-  passwordResetError: null
-});
+reducers[ACTIONS.USER_PASSWORD_RESET_STARTED] = (state) =>
+  Object.assign({}, state, {
+    passwordResetPending: true,
+    passwordResetSuccess: defaultState.passwordResetSuccess,
+    passwordResetError: null,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_RESET_SUCCESS] = state => Object.assign({}, state, {
-  passwordResetPending: false,
-  passwordResetSuccess: true
-});
+reducers[ACTIONS.USER_PASSWORD_RESET_SUCCESS] = (state) =>
+  Object.assign({}, state, {
+    passwordResetPending: false,
+    passwordResetSuccess: true,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_RESET_FAILURE] = (state, action) => Object.assign({}, state, {
-  passwordResetPending: false,
-  passwordResetError: action.data.error
-});
+reducers[ACTIONS.USER_PASSWORD_RESET_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    passwordResetPending: false,
+    passwordResetError: action.data.error,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_SET_STARTED] = state => Object.assign({}, state, {
-  passwordSetPending: true,
-  passwordSetSuccess: defaultState.passwordSetSuccess
-});
+reducers[ACTIONS.USER_PASSWORD_SET_STARTED] = (state) =>
+  Object.assign({}, state, {
+    passwordSetPending: true,
+    passwordSetSuccess: defaultState.passwordSetSuccess,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_SET_SUCCESS] = state => Object.assign({}, state, {
-  passwordSetPending: false,
-  passwordSetSuccess: true
-});
+reducers[ACTIONS.USER_PASSWORD_SET_SUCCESS] = (state) =>
+  Object.assign({}, state, {
+    passwordSetPending: false,
+    passwordSetSuccess: true,
+  });
 
-reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) => Object.assign({}, state, {
-  passwordSetPending: false,
-  passwordSetError: action.data.error
-});
+reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
+  Object.assign({}, state, {
+    passwordSetPending: false,
+    passwordSetError: action.data.error,
+  });
 
-reducers[ACTIONS.USER_DELETION_STARTED] = state => Object.assign({}, state, {
-  userDeletionPending: true
-});
+reducers[ACTIONS.USER_DELETION_STARTED] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: true,
+  });
 
-reducers[ACTIONS.USER_DELETION_COMPLETED] = state => Object.assign({}, state, {
-  userDeletionPending: false
-});
+reducers[ACTIONS.USER_DELETION_COMPLETED] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: false,
+  });
 
-reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) => Object.assign({}, state, {
-  locale: action.data,
-  localeFailed: false
-});
+reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
+  Object.assign({}, state, {
+    locale: action.data,
+    localeFailed: false,
+  });
 
-reducers[ACTIONS.USER_FETCH_LOCALE_FAILED] = (state, action) => Object.assign({}, state, {
-  localeFailed: true
-});
+reducers[ACTIONS.USER_FETCH_LOCALE_FAILED] = (state, action) =>
+  Object.assign({}, state, {
+    localeFailed: true,
+  });
 
-reducers[ACTIONS.FETCH_HOMEPAGES_DONE] = state => Object.assign({}, state, {
-  homepageFetched: true
-});
+reducers[ACTIONS.FETCH_HOMEPAGES_DONE] = (state) =>
+  Object.assign({}, state, {
+    homepageFetched: true,
+  });
 
 export default function userReducer(state: UserState = defaultState, action: any) {
   const handler = reducers[action.type];

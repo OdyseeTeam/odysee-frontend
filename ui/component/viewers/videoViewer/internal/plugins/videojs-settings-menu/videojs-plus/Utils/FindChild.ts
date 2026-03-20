@@ -1,4 +1,4 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 
 function findChild(parent, name, result) {
   const children = [];
@@ -13,7 +13,7 @@ function findChild(parent, name, result) {
           parent,
           component,
           index: parent.children_.indexOf(component),
-          [name]: component
+          [name]: component,
         });
       }
 
@@ -24,7 +24,7 @@ function findChild(parent, name, result) {
   return {
     name,
     parent,
-    children
+    children,
   };
 }
 

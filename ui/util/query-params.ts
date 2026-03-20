@@ -1,13 +1,17 @@
-import { SEARCH_OPTIONS } from "constants/search";
-import * as SETTINGS from "constants/settings";
-import { selectClientSetting } from "redux/selectors/settings";
+import { SEARCH_OPTIONS } from 'constants/search';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
 export function parseQueryParams(queryString: string) {
   if (queryString === '') return {};
-  const parts = queryString.split('?').pop().split('&').map(p => p.split('='));
+  const parts = queryString
+    .split('?')
+    .pop()
+    .split('&')
+    .map((p) => p.split('='));
   const params = {};
-  parts.forEach(array => {
+  parts.forEach((array) => {
     const [first, second] = array;
     params[first] = second;
   });
@@ -25,13 +29,15 @@ export function updateQueryParam(uri: string, key: string, value: string) {
   }
 }
 export const getSearchQueryString = (query: string, options: any = {}) => {
-  const isSurroundedByQuotes = str => str[0] === '"' && str[str.length - 1] === '"';
+  const isSurroundedByQuotes = (str) => str[0] === '"' && str[str.length - 1] === '"';
 
   const encodedQuery = encodeURIComponent(query);
-  const queryParams = [options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`, `size=${options.size || DEFAULT_SEARCH_SIZE}`, `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`];
-  const {
-    isBackgroundSearch
-  } = options;
+  const queryParams = [
+    options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,
+    `size=${options.size || DEFAULT_SEARCH_SIZE}`,
+    `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`,
+  ];
+  const { isBackgroundSearch } = options;
   const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
   let isDurationFilterSupported = false;
 
@@ -46,7 +52,7 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
         hasMediaTypeParam = true;
         const mediaTypesWithDurations = [SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_AUDIO];
 
-        if (mediaTypesWithDurations.some(mediaType => param.includes(mediaType))) {
+        if (mediaTypesWithDurations.some((mediaType) => param.includes(mediaType))) {
           mediaTypeHasDuration = true;
         }
       }
@@ -76,7 +82,9 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
        * when searching for channels or "everything".
        */
       if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
-        queryParams.push(`mediaType=${[SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => options[currentOption] ? `${acc}${currentOption},` : acc, '')}`);
+        queryParams.push(
+          `mediaType=${[SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc), '')}`
+        );
       }
     }
 
@@ -118,11 +126,9 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     max_aspect_ratio,
     deboost_same_creator,
     content_aspect_ratio,
-    content_aspect_ratio_or_missing
+    content_aspect_ratio_or_missing,
   } = options;
-  const {
-    store
-  } = window;
+  const { store } = window;
   let hideShorts = false;
 
   if (store) {
@@ -174,7 +180,7 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   }
 
   if (additionalOptions) {
-    Object.keys(additionalOptions).forEach(key => {
+    Object.keys(additionalOptions).forEach((key) => {
       const option = additionalOptions[key];
       queryParams.push(`${key}=${option}`);
     });

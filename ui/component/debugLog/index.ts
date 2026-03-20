@@ -1,13 +1,13 @@
-import { connect } from "react-redux";
-import DebugLog from "./view";
-import { doClearDebugLog } from "redux/actions/notifications";
-import { selectDebugLog } from "redux/selectors/notifications";
+import { connect } from 'react-redux';
+import DebugLog from './view';
+import { doClearDebugLog } from 'redux/actions/notifications';
+import { selectDebugLog } from 'redux/selectors/notifications';
 
-const select = state => ({
-  debugLog: selectDebugLog(state)
+const select = (state) => ({
+  debugLog: selectDebugLog(state),
 });
 
 const perform = {
-  doClearDebugLog
+  doClearDebugLog,
 };
 export default connect(select, perform)(DebugLog);

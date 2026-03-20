@@ -1,12 +1,12 @@
-import analytics from "analytics";
-import { doUpdateBalance, doSpendEverything, doSendCreditsToOdysee } from "redux/actions/wallet";
-import { doUserFetch, doUserDeleteAccount } from "redux/actions/user";
-import { selectTotalBalance } from "redux/selectors/wallet";
-import { selectMembershipMineFetched, selectMyActiveMembershipsById } from "redux/selectors/memberships";
-import { doMembershipCancelForMembershipId } from "redux/actions/memberships";
-import { selectCustomerStatus, selectAccountStatus } from "redux/selectors/stripe";
-import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from "redux/actions/stripe";
-type Status = "success" | "error_occurred";
+import analytics from 'analytics';
+import { doUpdateBalance, doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
+import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
+import { selectTotalBalance } from 'redux/selectors/wallet';
+import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
+import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
+import { selectCustomerStatus, selectAccountStatus } from 'redux/selectors/stripe';
+import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from 'redux/actions/stripe';
+type Status = 'success' | 'error_occurred';
 export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {
     await dispatch(doGetCustomerStatus());
@@ -24,8 +24,8 @@ export function doRemoveAccountSequence() {
 
     const activeMembershipChannelIds = Object.keys(activeMemberships);
     const activeMembershipIds = [];
-    activeMembershipChannelIds.map(creatorChannelId => {
-      activeMemberships[creatorChannelId].forEach(membership => {
+    activeMembershipChannelIds.map((creatorChannelId) => {
+      activeMemberships[creatorChannelId].forEach((membership) => {
         activeMembershipIds.push(membership.membership_id); // TODO CHECK THIS
       });
     });
@@ -71,7 +71,7 @@ export function doRemoveAccountSequence() {
 
       if (!isWalletEmpty) {
         await dispatch(doSpendEverything());
-        await new Promise(res => setTimeout(res, 5000)); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
+        await new Promise((res) => setTimeout(res, 5000)); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
 
         await dispatch(doUpdateBalance());
         await dispatch(doSendCreditsToOdysee());

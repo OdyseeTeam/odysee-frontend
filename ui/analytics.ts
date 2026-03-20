@@ -1,11 +1,11 @@
-import * as Sentry from "@sentry/react";
-import { apiLog } from "analytics/apiLog";
-import { events } from "analytics/events";
-import { sentryWrapper } from "analytics/sentryWrapper";
-import { watchman } from "analytics/watchman";
-import type { ApiLog } from "analytics/apiLog";
-import type { Events } from "analytics/events";
-import type { Watchman } from "analytics/watchman";
+import * as Sentry from '@sentry/react';
+import { apiLog } from 'analytics/apiLog';
+import { events } from 'analytics/events';
+import { sentryWrapper } from 'analytics/sentryWrapper';
+import { watchman } from 'analytics/watchman';
+import type { ApiLog } from 'analytics/apiLog';
+import type { Events } from 'analytics/events';
+import type { Watchman } from 'analytics/watchman';
 const isProduction = process.env.NODE_ENV === 'production';
 let gAnalyticsEnabled = false;
 // ****************************************************************************
@@ -51,17 +51,16 @@ const analytics: Analytics = {
   apiLog: apiLog,
   event: events,
   video: watchman,
-  error: message => {
+  error: (message) => {
     return analytics.apiLog.desktopError(message);
   },
   log: (error: Error | string, options?: LogOptions, label?: string) => {
-    return sentryWrapper.log(error, { ...options
-    }, label);
+    return sentryWrapper.log(error, { ...options }, label);
   },
   sentryError: (error, errorInfo) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (gAnalyticsEnabled && isProduction) {
-        Sentry.withScope(scope => {
+        Sentry.withScope((scope) => {
           scope.setExtras(errorInfo);
           scope.setTag('_origin', 'react-error-boundary');
           scope.setLevel('fatal');
@@ -73,12 +72,13 @@ const analytics: Analytics = {
       }
     });
   },
-  setUser: userId => {
+  setUser: (userId) => {
     analytics.event.setUser(userId); // Pass on to other submodules if needed...
   },
-  toggleThirdParty: (enabled: boolean): void => {// Retained to keep things compiling. We don't do third-party analytics,
+  toggleThirdParty: (enabled: boolean): void => {
+    // Retained to keep things compiling. We don't do third-party analytics,
     // so this can be removed, but together with the redux state.
-  }
+  },
 };
 analytics.setState(IS_WEB);
 export default analytics;

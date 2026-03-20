@@ -1,15 +1,18 @@
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, type Plugin } from 'vite-plus';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 // Load environment variables from .env.defaults and .env
 import dotenvDefaults from 'dotenv-defaults';
 dotenvDefaults.config({ silent: false, defaults: '.env.defaults' });
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
-const PROJECT_ROOT = __dirname;
 
 // Resolve pnpm's nested node_modules directories for SCSS loadPaths
 function resolvePnpmNodeModules(): string[] {
@@ -44,9 +47,7 @@ function buildEnvDefines(): Record<string, string> {
   defines['process.env.COMMIT_ID'] = JSON.stringify(process.env.COMMIT_ID || '');
   defines['process.env.SENTRY_AUTH_TOKEN'] = JSON.stringify(process.env.SENTRY_AUTH_TOKEN || '');
   defines['process.env.MOONPAY_SECRET_KEY'] = JSON.stringify(process.env.MOONPAY_SECRET_KEY || '');
-  defines['process.env.SDK_API_URL'] = JSON.stringify(
-    process.env.SDK_API_URL || process.env.LBRY_WEB_API || ''
-  );
+  defines['process.env.SDK_API_URL'] = JSON.stringify(process.env.SDK_API_URL || process.env.LBRY_WEB_API || '');
   defines['process.env.BUILD_REV'] = JSON.stringify(process.env.BUILD_REV || '');
   defines['process.env.SEARCH_API_URL'] = JSON.stringify(process.env.SEARCH_API_URL || '');
   return defines;
@@ -64,10 +65,7 @@ function preprocessPlugin(): Plugin {
 
       let result = code;
       // Remove app-only blocks: // @if TARGET='app' ... // @endif
-      result = result.replace(
-        /\/\/\s*@if\s+TARGET='app'[\s\S]*?\/\/\s*@endif/g,
-        ''
-      );
+      result = result.replace(/\/\/\s*@if\s+TARGET='app'[\s\S]*?\/\/\s*@endif/g, '');
       // Remove the @if TARGET='web' and @endif markers but keep the content
       result = result.replace(/\/\/\s*@if\s+TARGET='web'\s*\n?/g, '');
       result = result.replace(/\/\/\s*@endif\s*\n?/g, '');
@@ -119,7 +117,8 @@ function uiModuleResolverPlugin(): Plugin {
   // Top-level files in ui/ that can be imported as bare names
   // e.g. `import X from 'lbry'` resolves to `ui/lbry.ts`
   const uiFiles = new Set(
-    fs.readdirSync(UI_ROOT)
+    fs
+      .readdirSync(UI_ROOT)
       .filter((f) => f.match(/\.(ts|tsx)$/) && !f.startsWith('index.'))
       .map((f) => f.replace(/\.(ts|tsx)$/, ''))
   );
@@ -174,94 +173,98 @@ function uiModuleResolverPlugin(): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
-  const isProduction = mode === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
-  return {
-    root: __dirname,
-    publicDir: 'static',
+export default defineConfig({
+  root: __dirname,
+  publicDir: 'static',
 
-    define: {
-      ...buildEnvDefines(),
-      IS_WEB: JSON.stringify(true),
-      __static: JSON.stringify(path.join(__dirname, 'static')),
-      'process.platform': JSON.stringify('browser'),
+  define: {
+    ...buildEnvDefines(),
+    IS_WEB: JSON.stringify(true),
+    __static: JSON.stringify(path.join(__dirname, 'static')),
+    'process.platform': JSON.stringify('browser'),
+  },
+
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
+    alias: {
+      // Explicit aliases for things that aren't in ui/
+      config: path.resolve(__dirname, 'config.ts'),
+      lbryinc: path.resolve(__dirname, 'extras/lbryinc'),
+      recsys: path.resolve(__dirname, 'extras/recsys'),
+      homepage: path.resolve(UI_ROOT, 'util/homepage'),
+      homepages:
+        process.env.CUSTOM_HOMEPAGE === 'true'
+          ? path.resolve(__dirname, 'custom/homepages/v2')
+          : path.resolve(__dirname, 'homepages'),
+      memes:
+        process.env.CUSTOM_HOMEPAGE === 'true'
+          ? path.resolve(__dirname, 'custom/homepages/meme/index')
+          : path.resolve(__dirname, 'homepages/meme/index'),
+
+      // Web platform
+      web: WEB_ROOT,
+      $web: WEB_ROOT,
+      $ui: UI_ROOT,
+
+      // Web stubs for electron/fs
+      electron: path.resolve(WEB_ROOT, 'stubs/electron.ts'),
+      fs: path.resolve(WEB_ROOT, 'stubs/fs.ts'),
+
+      // Lodash optimizations
+      'lodash.get': 'lodash-es/get',
+      'lodash.set': 'lodash-es/set',
+      'lodash.unset': 'lodash-es/unset',
+      'lodash.pickby': 'lodash-es/pickBy',
+      'lodash.isempty': 'lodash-es/isEmpty',
+      'lodash.forin': 'lodash-es/forIn',
+      'lodash.clonedeep': 'lodash-es/cloneDeep',
+
+      // Build optimization
+      'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
     },
+  },
 
-    resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
-      alias: {
-        // Explicit aliases for things that aren't in ui/
-        config: path.resolve(__dirname, 'config.ts'),
-        lbryinc: path.resolve(__dirname, 'extras/lbryinc'),
-        recsys: path.resolve(__dirname, 'extras/recsys'),
-        homepage: path.resolve(UI_ROOT, 'util/homepage'),
-        homepages:
-          process.env.CUSTOM_HOMEPAGE === 'true'
-            ? path.resolve(__dirname, 'custom/homepages/v2')
-            : path.resolve(__dirname, 'homepages'),
-        memes:
-          process.env.CUSTOM_HOMEPAGE === 'true'
-            ? path.resolve(__dirname, 'custom/homepages/meme/index')
-            : path.resolve(__dirname, 'homepages/meme/index'),
-
-        // Web platform
-        web: WEB_ROOT,
-        $web: WEB_ROOT,
-        $ui: UI_ROOT,
-
-        // Web stubs for electron/fs
-        electron: path.resolve(WEB_ROOT, 'stubs/electron.ts'),
-        fs: path.resolve(WEB_ROOT, 'stubs/fs.ts'),
-
-        // Lodash optimizations
-        'lodash.get': 'lodash-es/get',
-        'lodash.set': 'lodash-es/set',
-        'lodash.unset': 'lodash-es/unset',
-        'lodash.pickby': 'lodash-es/pickBy',
-        'lodash.isempty': 'lodash-es/isEmpty',
-        'lodash.forin': 'lodash-es/forIn',
-        'lodash.clonedeep': 'lodash-es/cloneDeep',
-
-        // Build optimization
-        'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['legacy-js-api', 'import'],
+        loadPaths: [path.resolve(__dirname, 'ui/scss'), ...resolvePnpmNodeModules()],
       },
     },
+  },
 
-    css: {
-      preprocessorOptions: {
-        scss: {
-          silenceDeprecations: ['legacy-js-api', 'import'],
-          loadPaths: [
-            path.resolve(__dirname, 'ui/scss'),
-            ...resolvePnpmNodeModules(),
-          ],
-        },
-      },
+  plugins: [uiModuleResolverPlugin(), preprocessPlugin(), providePlugin(), react()],
+
+  server: {
+    port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),
+    open: true,
+  },
+
+  build: {
+    outDir: 'web/dist/public',
+    sourcemap: isProduction ? true : 'inline',
+    rollupOptions: {
+      input: path.resolve(__dirname, 'index.html'),
     },
+  },
 
-    plugins: [
-      uiModuleResolverPlugin(),
-      preprocessPlugin(),
-      providePlugin(),
-      react(),
-    ],
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-redux', 'redux', 'reselect'],
+  },
 
-    server: {
-      port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),
-      open: true,
+  lint: {
+    categories: {
+      correctness: 'error',
+      suspicious: 'warn',
     },
-
-    build: {
-      outDir: 'web/dist/public',
-      sourcemap: isProduction ? true : 'inline',
-      rollupOptions: {
-        input: path.resolve(__dirname, 'index.html'),
-      },
+    rules: {
+      // Suppress migration noise — revisit when adding strict types
+      'no-unused-vars': 'off',
+      'no-shadow': 'off',
+      'no-unused-expressions': 'off',
     },
-
-    optimizeDeps: {
-      include: ['react', 'react-dom', 'react-redux', 'redux', 'reselect'],
-    },
-  };
+    ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed'],
+  },
 });

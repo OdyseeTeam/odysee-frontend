@@ -1,1 +1,1 @@
-export { CollectionFormContext } from "./view";
+export { CollectionFormContext } from './view';

@@ -1,15 +1,13 @@
-import type { Props } from "./view";
-import CommentsReplies from "./view";
-import { connect } from "react-redux";
-import { selectIsFetchingCommentsForParentId, selectRepliesForParentId } from "redux/selectors/comments";
+import type { Props } from './view';
+import CommentsReplies from './view';
+import { connect } from 'react-redux';
+import { selectIsFetchingCommentsForParentId, selectRepliesForParentId } from 'redux/selectors/comments';
 
 const select = (state, props) => {
-  const {
-    parentId
-  } = props;
+  const { parentId } = props;
   return {
     fetchedReplies: selectRepliesForParentId(state, parentId),
-    isFetching: selectIsFetchingCommentsForParentId(state, parentId)
+    isFetching: selectIsFetchingCommentsForParentId(state, parentId),
   };
 };
 

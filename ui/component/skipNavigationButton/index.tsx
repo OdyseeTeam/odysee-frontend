@@ -1,9 +1,9 @@
-import React from "react";
-import Button from "component/button"; // Allow screen reader users ( or keyboard navigation )
+import React from 'react';
+import Button from 'component/button'; // Allow screen reader users ( or keyboard navigation )
 // to jump to main content
 
 export default function SkipNavigationButton() {
-  const skipNavigation = e => {
+  const skipNavigation = (e) => {
     // Match any focusable element
     const focusableElementQuery = `
       #main-content [tabindex]:not([tabindex="-1"]):not(:disabled),

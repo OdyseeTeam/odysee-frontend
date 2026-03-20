@@ -1,2 +1,2 @@
-import SeniorBackendEngineerPage from "./view";
+import SeniorBackendEngineerPage from './view';
 export default SeniorBackendEngineerPage;

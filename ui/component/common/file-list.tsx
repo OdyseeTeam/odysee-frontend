@@ -1,5 +1,5 @@
-import React from "react";
-import { useRadioState, Radio, RadioGroup } from "reakit/Radio";
+import React from 'react';
+import { useRadioState, Radio, RadioGroup } from 'reakit/Radio';
 type Props = {
   files: Array<WebFile>;
   onChange: (arg0: WebFile | void) => void;
@@ -9,16 +9,15 @@ type RadioProps = {
   label: string;
 };
 // Same as FormField type="radio" but it works with reakit:
-const ForwardedRadio = React.forwardRef((props: RadioProps, ref) => <span className="radio">
+const ForwardedRadio = React.forwardRef((props: RadioProps, ref) => (
+  <span className="radio">
     <input {...props} type="radio" ref={ref} />
     <label htmlFor={props.id}>{props.label}</label>
-  </span>);
+  </span>
+));
 
 function FileList(props: Props) {
-  const {
-    files,
-    onChange
-  } = props;
+  const { files, onChange } = props;
   const radio = useRadioState();
 
   const getFile = (value?: string) => {
@@ -44,7 +43,7 @@ function FileList(props: Props) {
 
         if (radio.state) {
           // Find selected element
-          const stop = radio.stops.find(item => item.id === radio.currentId);
+          const stop = radio.stops.find((item) => item.id === radio.currentId);
           const element = stop && stop.ref.current;
 
           // Only update state if new item is selected
@@ -57,17 +56,16 @@ function FileList(props: Props) {
         }
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [radio, onChange]);
-  return <div className={'file-list'}>
+  return (
+    <div className={'file-list'}>
       <RadioGroup {...radio} aria-label="files">
-        {files.map(({
-        name
-      }) => {
-        return <Radio key={name} {...radio} value={name} label={name} as={ForwardedRadio} />;
-      })}
+        {files.map(({ name }) => {
+          return <Radio key={name} {...radio} value={name} label={name} as={ForwardedRadio} />;
+        })}
       </RadioGroup>
-    </div>;
+    </div>
+  );
 }
 
 export default FileList;

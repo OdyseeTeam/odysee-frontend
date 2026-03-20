@@ -1,5 +1,5 @@
-import React from "react";
-import Button from "component/button";
+import React from 'react';
+import Button from 'component/button';
 type Props = {
   uri: string;
   isMuted: boolean;
@@ -9,12 +9,7 @@ type Props = {
 };
 
 function ChannelMuteButton(props: Props) {
-  const {
-    uri,
-    doChannelMute,
-    doChannelUnmute,
-    isMuted
-  } = props;
+  const { uri, doChannelMute, doChannelUnmute, isMuted } = props;
 
   function handleClick() {
     if (isMuted) {

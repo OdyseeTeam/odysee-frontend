@@ -1,22 +1,21 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import Icon from "component/common/icon";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import Icon from 'component/common/icon';
 type Props = {
   tileLayout?: boolean;
 };
 
 const PremiumPlusTile = (props: Props) => {
-  const {
-    tileLayout
-  } = props;
+  const { tileLayout } = props;
 
   const title = __('Get a gold badge and access to exclusive features!');
 
   const channel = __('Get Odysee Premium+');
 
   const time = '';
-  return tileLayout ? <li className="card claim-preview--tile claim-preview--premium-plus">
+  return tileLayout ? (
+    <li className="card claim-preview--tile claim-preview--premium-plus">
       <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
         <div className="media__thumb" />
         <div className="claim-tile__header">
@@ -34,7 +33,9 @@ const PremiumPlusTile = (props: Props) => {
           </div>
         </div>
       </a>
-    </li> : <li className="claim-preview__wrapper claim-preview__wrapper--row claim-preview--premium-plus">
+    </li>
+  ) : (
+    <li className="claim-preview__wrapper claim-preview__wrapper--row claim-preview--premium-plus">
       <div className="background" />
       <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
         <div className="claim-preview">
@@ -60,7 +61,8 @@ const PremiumPlusTile = (props: Props) => {
           </div>
         </div>
       </a>
-    </li>;
+    </li>
+  );
 };
 
 export default PremiumPlusTile;

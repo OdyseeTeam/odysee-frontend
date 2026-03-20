@@ -1,2 +1,2 @@
-import ReceivePage from "./view";
+import ReceivePage from './view';
 export default ReceivePage;

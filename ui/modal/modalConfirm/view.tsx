@@ -1,11 +1,11 @@
-import React from "react";
-import type { Node } from "react";
-import Button from "component/button";
-import Card from "component/common/card";
-import Spinner from "component/spinner";
-import { Modal } from "modal/modal";
-import BusyIndicator from "component/common/busy-indicator";
-import { FormField } from "component/common/form";
+import React from 'react';
+import type { Node } from 'react';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import Spinner from 'component/spinner';
+import { Modal } from 'modal/modal';
+import BusyIndicator from 'component/common/busy-indicator';
+import { FormField } from 'component/common/form';
 type Props = {
   title: string;
   subtitle?: string | Node;
@@ -32,7 +32,7 @@ export default function ModalConfirm(props: Props) {
     checkboxLabel,
     onConfirm,
     onCancel,
-    doHideModal
+    doHideModal,
   } = props;
   const [isBusy, setIsBusy] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState(!checkboxLabel);
@@ -51,14 +51,44 @@ export default function ModalConfirm(props: Props) {
     }
   }
 
-  return <Modal isOpen type="custom" width="wide">
-      <Card title={title} subtitle={subtitle} body={body} className="confirm__wrapper" actions={<>
-            {checkboxLabel && <FormField type="checkbox" name="modal_confirm_checkbox" label={checkboxLabel} checked={isChecked} disabled={isBusy} onChange={() => setIsChecked(!isChecked)} />}
+  return (
+    <Modal isOpen type="custom" width="wide">
+      <Card
+        title={title}
+        subtitle={subtitle}
+        body={body}
+        className="confirm__wrapper"
+        actions={
+          <>
+            {checkboxLabel && (
+              <FormField
+                type="checkbox"
+                name="modal_confirm_checkbox"
+                label={checkboxLabel}
+                checked={isChecked}
+                disabled={isBusy}
+                onChange={() => setIsChecked(!isChecked)}
+              />
+            )}
             <div className="section__actions">
-              {isBusy && busyMsg ? <BusyIndicator message={busyMsg} /> : <Button button="primary" label={isBusy ? <Spinner type="small" /> : labelOk || __('OK')} disabled={isBusy || !isChecked} onClick={handleOnClick} />}
+              {isBusy && busyMsg ? (
+                <BusyIndicator message={busyMsg} />
+              ) : (
+                <Button
+                  button="primary"
+                  label={isBusy ? <Spinner type="small" /> : labelOk || __('OK')}
+                  disabled={isBusy || !isChecked}
+                  onClick={handleOnClick}
+                />
+              )}
 
-              {!hideCancel && !(isBusy && busyMsg) && <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={handleOnCancel} />}
+              {!hideCancel && !(isBusy && busyMsg) && (
+                <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={handleOnCancel} />
+              )}
             </div>
-          </>} />
-    </Modal>;
+          </>
+        }
+      />
+    </Modal>
+  );
 }

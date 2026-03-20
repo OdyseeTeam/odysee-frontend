@@ -7,16 +7,15 @@ function isNotFunction(object) {
 }
 
 function createBulkThunkMiddleware() {
-  return ({
-    dispatch,
-    getState
-  }) => next => action => {
-    if (action.type === 'BATCH_ACTIONS') {
-      action.actions.filter(isFunction).map(actionFn => actionFn(dispatch, getState));
-    }
+  return ({ dispatch, getState }) =>
+    (next) =>
+    (action) => {
+      if (action.type === 'BATCH_ACTIONS') {
+        action.actions.filter(isFunction).map((actionFn) => actionFn(dispatch, getState));
+      }
 
-    return next(action);
-  };
+      return next(action);
+    };
 }
 
 function enableBatching(reducer) {

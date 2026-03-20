@@ -1,30 +1,30 @@
-import { RECSYS_ENDPOINT } from "config";
-import { selectUser } from "redux/selectors/user";
-import { selectRecommendedMetaForClaimId } from "redux/selectors/search";
-import { parseURI } from "util/lbryURI";
-import { getAuthToken } from "util/saved-passwords";
-import * as ACTIONS from "constants/action_types";
-import * as SETTINGS from "constants/settings";
-import { X_LBRY_AUTH_TOKEN } from "constants/token";
-import { makeSelectClaimForUri } from "redux/selectors/claims";
-import { selectPlayingUri, selectPrimaryUri } from "redux/selectors/content";
-import { selectClientSetting, selectDaemonSettings } from "redux/selectors/settings";
-import { selectIsSubscribedForClaimId } from "redux/selectors/subscriptions";
-import { history } from "store";
+import { RECSYS_ENDPOINT } from 'config';
+import { selectUser } from 'redux/selectors/user';
+import { selectRecommendedMetaForClaimId } from 'redux/selectors/search';
+import { parseURI } from 'util/lbryURI';
+import { getAuthToken } from 'util/saved-passwords';
+import * as ACTIONS from 'constants/action_types';
+import * as SETTINGS from 'constants/settings';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
+import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
+import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
+import { history } from 'store';
 const recsysEndpoint = RECSYS_ENDPOINT;
 const DEFAULT_RECSYS_ID = 'lighthouse-v0';
 
-const getClaimIdsFromUris = uris => {
-  return uris ? uris.map(uri => {
-    try {
-      const {
-        claimId
-      } = parseURI(uri);
-      return claimId;
-    } catch (e) {
-      return [];
-    }
-  }) : [];
+const getClaimIdsFromUris = (uris) => {
+  return uris
+    ? uris.map((uri) => {
+        try {
+          const { claimId } = parseURI(uri);
+          return claimId;
+        } catch (e) {
+          return [];
+        }
+      })
+    : [];
 };
 
 const recsys: Recsys = {
@@ -45,7 +45,7 @@ const recsys: Recsys = {
     if (window && window.store) {
       window.store.dispatch({
         type: ACTIONS.SET_RECSYS_ENTRIES,
-        data: recsys.entries
+        data: recsys.entries,
       });
     }
   },
@@ -132,7 +132,7 @@ const recsys: Recsys = {
         pageLoadedAt: Date.now(),
         events: [],
         incognito: !(user && user.has_verified_email),
-        isFollowing: selectIsSubscribedForClaimId(state, claimId)
+        isFollowing: selectIsSubscribedForClaimId(state, claimId),
       };
 
       if (parentUuid) {
@@ -166,30 +166,30 @@ const recsys: Recsys = {
    * @param isTentative Visibility change rather than tab closed.
    */
   sendRecsysEntry: function (claimId, isTentative) {
-    const shareTelemetry = IS_WEB || window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data;
+    const shareTelemetry =
+      IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
 
     if (recsys.entries[claimId] && shareTelemetry) {
       // Exclude `events` in the submission https://github.com/OdyseeTeam/odysee-frontend/issues/1317
-      const {
-        events,
-        ...entryData
-      } = recsys.entries[claimId];
+      const { events, ...entryData } = recsys.entries[claimId];
       const data = JSON.stringify(entryData);
       return fetch(recsysEndpoint, {
         method: 'POST',
         headers: {
           [X_LBRY_AUTH_TOKEN]: getAuthToken(),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: data
-      }).then(() => {
-        if (!isTentative) {
-          delete recsys.entries[claimId];
-          recsys.saveEntries();
-        }
-      }).catch(err => {
-        console.log('RECSYS: failed to send entry', err); // eslint-disable-line no-console
-      });
+        body: data,
+      })
+        .then(() => {
+          if (!isTentative) {
+            delete recsys.entries[claimId];
+            recsys.saveEntries();
+          }
+        })
+        .catch((err) => {
+          console.log('RECSYS: failed to send entry', err); // eslint-disable-line no-console
+        });
     }
 
     recsys.log('sendRecsysEntry', claimId);
@@ -204,7 +204,7 @@ const recsys: Recsys = {
       recsys.entries = entries;
     }
 
-    Object.keys(recsys.entries).forEach(claimId => {
+    Object.keys(recsys.entries).forEach((claimId) => {
       recsys.entries[claimId].isResumedSend = isResumedSend;
       recsys.sendRecsysEntry(claimId, false); // Send and delete.
     });
@@ -312,10 +312,10 @@ const recsys: Recsys = {
       // const primaryUri = selectPrimaryUri(state);
       const floatingPlayer = selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
       // When leaving page, if floating player is enabled, play will continue.
-      Object.keys(recsys.entries).forEach(claimId => {
+      Object.keys(recsys.entries).forEach((claimId) => {
         const shouldSkip = recsys.entries[claimId].parentUuid && !recsys.entries[claimId].recClaimIds;
 
-        if (!shouldSkip && (claimId !== playingClaimId && floatingPlayer || !floatingPlayer)) {
+        if (!shouldSkip && ((claimId !== playingClaimId && floatingPlayer) || !floatingPlayer)) {
           recsys.entries[claimId]['pageExitedAt'] = Date.now();
           recsys.saveEntries(); // recsys.sendRecsysEntry(claimId); breaks pop out = off, not helping with browser close.
         }
@@ -323,7 +323,7 @@ const recsys: Recsys = {
         recsys.log('OnNavigate', claimId);
       });
     }
-  }
+  },
 };
 history.listen(() => {
   recsys.onNavigate();

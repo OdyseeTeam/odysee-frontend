@@ -11,5 +11,5 @@ export const classes = {
   ACTIVE: 'ff-active',
   CANVAS_READY: 'ff-canvas-ready',
   RESPONSIVE: 'ff-responsive',
-  VISIBLE: 'ff-visible'
+  VISIBLE: 'ff-visible',
 };

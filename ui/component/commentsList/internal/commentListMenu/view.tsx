@@ -1,7 +1,7 @@
-import { Menu, MenuButton, MenuList, MenuItem } from "@reach/menu-button";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import React from "react";
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import React from 'react';
 type Props = {
   // -- redux --
   claimId: string | null | undefined;
@@ -13,9 +13,7 @@ type Props = {
   creatorMembershipsFetched: boolean;
   doToggleMembersOnlyCommentsSettingForClaimId: (claimId: ClaimId) => Promise<any>;
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
 };
 
 const CommentListMenu = (props: Props) => {
@@ -30,27 +28,34 @@ const CommentListMenu = (props: Props) => {
     creatorMembershipsFetched,
     doToggleMembersOnlyCommentsSettingForClaimId,
     doMembershipList,
-    doToast
+    doToast,
   } = props;
 
   function updateMembersOnlyComments() {
     if (claimId) {
-      doToggleMembersOnlyCommentsSettingForClaimId(claimId).then(() => doToast({
-        message: __(areCommentsMembersOnly ? 'Members-only comments are now disabled.' : 'Members-only comments are now enabled.')
-      }));
+      doToggleMembersOnlyCommentsSettingForClaimId(claimId).then(() =>
+        doToast({
+          message: __(
+            areCommentsMembersOnly
+              ? 'Members-only comments are now disabled.'
+              : 'Members-only comments are now enabled.'
+          ),
+        })
+      );
     }
   }
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelId) {
       doMembershipList({
-        channel_claim_id: channelId
+        channel_claim_id: channelId,
       });
     }
   }, [channelId, channelName, creatorMembershipsFetched, doMembershipList]);
 
   if (channelHasMembershipTiers && claimIsMine) {
-    return <Menu>
+    return (
+      <Menu>
         <MenuButton className="button button--alt menu__button">
           <Icon size={18} icon={ICONS.SETTINGS} />
         </MenuButton>
@@ -63,7 +68,8 @@ const CommentListMenu = (props: Props) => {
             </span>
           </MenuItem>
         </MenuList>
-      </Menu>;
+      </Menu>
+    );
   }
 
   return null;

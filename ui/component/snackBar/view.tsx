@@ -1,10 +1,10 @@
-import * as ICONS from "constants/icons";
-import React from "react";
-import Button from "component/button";
-import classnames from "classnames";
-import Icon from "component/common/icon";
-import LbcMessage from "component/common/lbc-message";
-import I18nMessage from "component/i18nMessage";
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import Button from 'component/button';
+import classnames from 'classnames';
+import Icon from 'component/common/icon';
+import LbcMessage from 'component/common/lbc-message';
+import I18nMessage from 'component/i18nMessage';
 type Props = {
   removeSnack: (arg0: any) => void;
   snack: ToastParams | null | undefined;
@@ -18,7 +18,7 @@ class SnackBar extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      isHovering: false
+      isHovering: false,
     };
     this.intervalId = null;
     (this as any).handleMouseEnter = this.handleMouseEnter.bind(this);
@@ -29,25 +29,19 @@ class SnackBar extends React.PureComponent<Props, State> {
 
   handleMouseEnter() {
     this.setState({
-      isHovering: true
+      isHovering: true,
     });
   }
 
   handleMouseLeave() {
     this.setState({
-      isHovering: false
+      isHovering: false,
     });
   }
 
   render() {
-    const {
-      snack,
-      snackCount,
-      removeSnack
-    } = this.props;
-    const {
-      isHovering
-    } = this.state;
+    const { snack, snackCount, removeSnack } = this.props;
+    const { isHovering } = this.state;
 
     if (!snack) {
       clearInterval(this.intervalId);
@@ -66,7 +60,7 @@ class SnackBar extends React.PureComponent<Props, State> {
       action,
       secondaryActionText,
       secondaryAction,
-      isError
+      isError,
     } = snack;
 
     if (this.intervalId) {
@@ -75,9 +69,12 @@ class SnackBar extends React.PureComponent<Props, State> {
     }
 
     if (!isHovering) {
-      this.intervalId = setInterval(() => {
-        removeSnack();
-      }, duration === 'long' ? 10000 : 5000);
+      this.intervalId = setInterval(
+        () => {
+          removeSnack();
+        },
+        duration === 'long' ? 10000 : 5000
+      );
     }
 
     function handleAction(passedAction) {
@@ -85,36 +82,55 @@ class SnackBar extends React.PureComponent<Props, State> {
       removeSnack();
     }
 
-    return <div className={classnames('snack-bar', {
-      'snack-bar--error': isError
-    })} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-        {snackCount > 1 && <div className="snack-bar-counter-bubble">
+    return (
+      <div
+        className={classnames('snack-bar', {
+          'snack-bar--error': isError,
+        })}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
+      >
+        {snackCount > 1 && (
+          <div className="snack-bar-counter-bubble">
             <span className="notification__count">{snackCount}</span>
-          </div>}
+          </div>
+        )}
         <div className="snack-bar__message">
           <Icon icon={isError ? ICONS.ALERT : ICONS.COMPLETED} size={18} />
           <p className="snack-bar__messageText">
             <LbcMessage>{message}</LbcMessage>
-            {subMessage && <p className="snack-bar__messageText snack-bar__messageText--sub">
+            {subMessage && (
+              <p className="snack-bar__messageText snack-bar__messageText--sub">
                 <LbcMessage>{subMessage}</LbcMessage>
-              </p>}
+              </p>
+            )}
           </p>
-          <Button className="snack-bar__close" icon={ICONS.REMOVE} title={__('Dismiss')} onClick={() => removeSnack()} />
+          <Button
+            className="snack-bar__close"
+            icon={ICONS.REMOVE}
+            title={__('Dismiss')}
+            onClick={() => removeSnack()}
+          />
         </div>
-        {linkText && linkTarget && // This is a little weird because of `linkTarget` code in `lbry-redux`
-      // Any navigation code should happen in the app, and that should be removed from lbry-redux
-      <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />}
-        {actionText && action && <div className="snack-bar__action">
-            <I18nMessage tokens={{
-          firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
-          secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />
-        }}>
+        {linkText && linkTarget && ( // This is a little weird because of `linkTarget` code in `lbry-redux`
+          // Any navigation code should happen in the app, and that should be removed from lbry-redux
+          <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />
+        )}
+        {actionText && action && (
+          <div className="snack-bar__action">
+            <I18nMessage
+              tokens={{
+                firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
+                secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />,
+              }}
+            >
               {secondaryAction ? '%firstAction% / %secondAction%' : '%firstAction%'}
             </I18nMessage>
-          </div>}
-      </div>;
+          </div>
+        )}
+      </div>
+    );
   }
-
 }
 
 export default SnackBar;

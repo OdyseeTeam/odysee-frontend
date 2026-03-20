@@ -1,23 +1,45 @@
-import { connect } from "react-redux";
-import * as SETTINGS from "constants/settings";
-import { selectGetSyncErrorMessage, selectPrefsReady, selectSyncFatalError, selectSyncIsLocked } from "redux/selectors/sync";
-import { doUserSetReferrerForUri } from "redux/actions/user";
-import { doSetLastViewedAnnouncement } from "redux/actions/content";
-import { selectUser, selectUserLocale, selectUserVerifiedEmail } from "redux/selectors/user";
-import { selectUnclaimedRewards } from "redux/selectors/rewards";
-import { selectMyChannelClaimIds } from "redux/selectors/claims";
-import { selectLanguage, selectLoadedLanguages, selectThemePath, selectDefaultChannelClaim, selectHomepageAnnouncement, selectClientSetting } from "redux/selectors/settings";
-import { selectModal, selectActiveChannelClaim } from "redux/selectors/app";
-import { selectUploadCount } from "redux/selectors/publish";
-import { selectPersonalRecommendations } from "redux/selectors/search";
-import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage, doSetClientSetting } from "redux/actions/settings";
-import { doToast } from "redux/actions/notifications";
-import { doSyncLoop } from "redux/actions/sync";
-import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from "redux/actions/app";
-import { doFetchModBlockedList, doFetchCommentModAmIList, doCommentModListDelegatesForMyChannels } from "redux/actions/comments";
-import App from "./view";
+import { connect } from 'react-redux';
+import * as SETTINGS from 'constants/settings';
+import {
+  selectGetSyncErrorMessage,
+  selectPrefsReady,
+  selectSyncFatalError,
+  selectSyncIsLocked,
+} from 'redux/selectors/sync';
+import { doUserSetReferrerForUri } from 'redux/actions/user';
+import { doSetLastViewedAnnouncement } from 'redux/actions/content';
+import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectUnclaimedRewards } from 'redux/selectors/rewards';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import {
+  selectLanguage,
+  selectLoadedLanguages,
+  selectThemePath,
+  selectDefaultChannelClaim,
+  selectHomepageAnnouncement,
+  selectClientSetting,
+} from 'redux/selectors/settings';
+import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectUploadCount } from 'redux/selectors/publish';
+import { selectPersonalRecommendations } from 'redux/selectors/search';
+import {
+  doOpenAnnouncements,
+  doSetLanguage,
+  doSetDefaultChannel,
+  doFetchLanguage,
+  doSetClientSetting,
+} from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
+import { doSyncLoop } from 'redux/actions/sync';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import {
+  doFetchModBlockedList,
+  doFetchCommentModAmIList,
+  doCommentModListDelegatesForMyChannels,
+} from 'redux/actions/comments';
+import App from './view';
 
-const select = state => ({
+const select = (state) => ({
   user: selectUser(state),
   locale: selectUserLocale(state),
   theme: selectThemePath(state),
@@ -38,7 +60,7 @@ const select = state => ({
   announcement: selectHomepageAnnouncement(state),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   isFypModalShown: selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN),
-  personalRecommendations: selectPersonalRecommendations(state)
+  personalRecommendations: selectPersonalRecommendations(state),
 });
 
 const perform = {
@@ -57,6 +79,6 @@ const perform = {
   doSetAssignedLbrynetServer,
   doOpenModal,
   doSetClientSetting,
-  doToast
+  doToast,
 };
 export default connect(select, perform)(App);

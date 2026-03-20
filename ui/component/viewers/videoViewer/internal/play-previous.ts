@@ -1,5 +1,5 @@
-import type { Player } from "./videojs";
-import videojs from "video.js";
+import type { Player } from './videojs';
+import videojs from 'video.js';
 
 class PlayPreviousButton extends videojs.getComponent('Button') {
   constructor(player, options = {}) {
@@ -7,7 +7,6 @@ class PlayPreviousButton extends videojs.getComponent('Button') {
     this.addClass('vjs-button--play-previous');
     this.controlText('Play Previous');
   }
-
 }
 
 export function addPlayPreviousButton(player: Player, playPreviousURI: () => void) {
@@ -17,7 +16,7 @@ export function addPlayPreviousButton(player: Player, playPreviousURI: () => voi
     text: 'Play Previous',
     clickHandler: () => {
       playPreviousURI();
-    }
+    },
   });
 
   if (controlBar) {

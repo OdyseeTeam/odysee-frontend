@@ -1,16 +1,20 @@
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery, selectClaimSearchByQueryLastPageReached } from "redux/selectors/claims";
-import { doClaimSearch, doResolveClaimIds, doResolveUris } from "redux/actions/claims";
-import { doFetchOdyseeMembershipForChannelIds } from "redux/actions/memberships";
-import * as SETTINGS from "constants/settings";
-import { selectClientSetting, selectShowMatureContent } from "redux/selectors/settings";
-import { selectMutedAndBlockedChannelIds } from "redux/selectors/blocked";
-import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from "config";
-import { createNormalizedClaimSearchKey } from "util/claim";
-import { CsOptHelper } from "util/claim-search";
-import * as CS from "constants/claim_search";
-import ClaimListDiscover from "./view";
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
+} from 'redux/selectors/claims';
+import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptHelper } from 'util/claim-search';
+import * as CS from 'constants/claim_search';
+import ClaimListDiscover from './view';
 
 function resolveHideMembersOnly(global, override) {
   return override === undefined || override === null ? global : override;
@@ -33,7 +37,7 @@ const select = (state, props) => {
     mutedAndBlockedChannelIds,
     hideShorts,
     pageSize: 8,
-    ...props
+    ...props,
   });
   const searchKey = createNormalizedClaimSearchKey(options);
   let claimSearchResults = selectClaimSearchByQuery(state)[searchKey];
@@ -44,7 +48,7 @@ const select = (state, props) => {
     showNsfw,
     hideReposts,
     // Don't use the query from 'createNormalizedClaimSearchKey(options)' since that doesn't include page & release_time
-    optionsStringified: JSON.stringify(options)
+    optionsStringified: JSON.stringify(options),
   };
 };
 
@@ -52,7 +56,7 @@ const perform = {
   doClaimSearch,
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
-  doResolveUris
+  doResolveUris,
 };
 export default withRouter(connect(select, perform)(ClaimListDiscover)); // ****************************************************************************
 // ****************************************************************************
@@ -83,7 +87,7 @@ function resolveSearchOptions(props) {
     claimIds,
     duration,
     contentAspectRatio,
-    excludeShorts
+    excludeShorts,
   } = props;
   const urlParams = new URLSearchParams(location.search);
   const feeAmountInUrl = urlParams.get('fee_amount');
@@ -91,7 +95,7 @@ function resolveSearchOptions(props) {
   const notTagInput: NotTagInput = {
     notTags,
     showNsfw,
-    hideMembersOnly
+    hideMembersOnly,
   };
   let streamTypesParam;
 
@@ -116,7 +120,7 @@ function resolveSearchOptions(props) {
     order_by: resolveOrderByOption(orderBy),
     stream_types: streamTypesParam,
     remove_duplicates: true,
-    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL)
+    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
   };
 
   function resolveOrderByOption(orderBy: string | Array<string>) {
@@ -148,7 +152,7 @@ function resolveSearchOptions(props) {
 
   if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
     options.has_no_source = true;
-  } else if (hasSource || !ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream')) {
+  } else if (hasSource || (!ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream'))) {
     options.has_source = true;
   }
 
@@ -167,7 +171,7 @@ function resolveSearchOptions(props) {
   // https://github.com/lbryio/lbry-desktop/issues/3774
   if (hideReposts && !forceShowReposts) {
     if (Array.isArray(options.claim_type)) {
-      options.claim_type = options.claim_type.filter(claimType => claimType !== 'repost');
+      options.claim_type = options.claim_type.filter((claimType) => claimType !== 'repost');
     } else {
       options.claim_type = ['stream', 'channel'];
     }

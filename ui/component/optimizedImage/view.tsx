@@ -1,5 +1,5 @@
-import React from "react";
-import { getThumbnailCdnUrl } from "util/thumbnail";
+import React from 'react';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 
 function scaleToDevicePixelRatio(value: number) {
   if (value === 64) return 64;
@@ -18,7 +18,7 @@ function getOptimizedImgUrl(url, width, height, quality) {
       thumbnail: optimizedUrl,
       width,
       height,
-      quality
+      quality,
     });
   }
 
@@ -51,13 +51,21 @@ function OptimizedImage(props: Props) {
     return null;
   }
 
-  return <img ref={ref} {...imgProps} style={{
-    visibility: waitLoad ? 'hidden' : 'visible'
-  }} src={optimizedSrc} onLoad={() => {
-    if (waitLoad) {
-      ref.current.style.visibility = 'visible';
-    }
-  }} />;
+  return (
+    <img
+      ref={ref}
+      {...imgProps}
+      style={{
+        visibility: waitLoad ? 'hidden' : 'visible',
+      }}
+      src={optimizedSrc}
+      onLoad={() => {
+        if (waitLoad) {
+          ref.current.style.visibility = 'visible';
+        }
+      }}
+    />
+  );
 }
 
 export default OptimizedImage;

@@ -1,10 +1,9 @@
-import React from "react";
-import * as CS from "constants/claim_search";
+import React from 'react';
+import * as CS from 'constants/claim_search';
 export const ClaimSearchFilterContext = React.createContext({
   contentTypes: CS.CONTENT_TYPES,
   liftUpTagSearch: false,
-  isChannelSearch: false // --Future expansion:
+  isChannelSearch: false, // --Future expansion:
   // durationTypes: CS.DURATION_TYPES,
   // ...
-
 });

@@ -1,26 +1,26 @@
-import { ENABLE_NO_SOURCE_CLAIMS } from "config";
-import type { Node } from "react";
-import * as CS from "constants/claim_search";
-import * as TAGS from "constants/tags";
-import React from "react";
-import { withRouter } from "react-router";
-import { MATURE_TAGS } from "constants/tags";
-import { resolveLangForClaimSearch } from "util/default-languages";
-import { createNormalizedClaimSearchKey } from "util/claim";
-import { CsOptHelper } from "util/claim-search";
-import Button from "component/button";
-import moment from "moment";
-import ClaimList from "component/claimList";
-import ClaimPreview from "component/claimPreview";
-import ClaimPreviewTile from "component/claimPreviewTile";
-import I18nMessage from "component/i18nMessage";
-import LangFilterIndicator from "component/langFilterIndicator";
-import ClaimListHeader from "component/claimListHeader";
-import { useIsLargeScreen } from "effects/use-screensize";
-import usePersistentUserParam from "effects/use-persistent-user-param";
-import usePersistedState from "effects/use-persisted-state";
-import type { HomepageTitles } from "util/buildHomepage";
-import * as SETTINGS from "constants/settings";
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import type { Node } from 'react';
+import * as CS from 'constants/claim_search';
+import * as TAGS from 'constants/tags';
+import React from 'react';
+import { withRouter } from 'react-router';
+import { MATURE_TAGS } from 'constants/tags';
+import { resolveLangForClaimSearch } from 'util/default-languages';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptHelper } from 'util/claim-search';
+import Button from 'component/button';
+import moment from 'moment';
+import ClaimList from 'component/claimList';
+import ClaimPreview from 'component/claimPreview';
+import ClaimPreviewTile from 'component/claimPreviewTile';
+import I18nMessage from 'component/i18nMessage';
+import LangFilterIndicator from 'component/langFilterIndicator';
+import ClaimListHeader from 'component/claimListHeader';
+import { useIsLargeScreen } from 'effects/use-screensize';
+import usePersistentUserParam from 'effects/use-persistent-user-param';
+import usePersistedState from 'effects/use-persisted-state';
+import type { HomepageTitles } from 'util/buildHomepage';
+import * as SETTINGS from 'constants/settings';
 type Props = {
   uris: Array<string>;
   prefixUris?: Array<string>;
@@ -43,7 +43,7 @@ type Props = {
   hideAdvancedFilter?: boolean;
   hideFilters?: boolean;
   includeSupportAction?: boolean;
-  infiniteScroll?: Boolean;
+  infiniteScroll?: boolean;
   isChannel?: boolean;
   personalView: boolean;
   showHeader: boolean;
@@ -114,9 +114,7 @@ type Props = {
   searchInLanguage: boolean;
   mutedAndBlockedChannelIds: Array<ClaimId>;
   // --- perform ---
-  doFetchThumbnailClaimsForCollectionIds: (params: {
-    collectionIds: Array<string>;
-  }) => void;
+  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void;
   doClaimSearch: (arg0: ClaimSearchOptions, arg1: DoClaimSearchSettings | null | undefined) => void;
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
   doResolveClaimIds: (arg0: Array<string>) => Promise<any>;
@@ -214,7 +212,7 @@ function ClaimListDiscover(props: Props) {
     sectionTitle,
     contentAspectRatio,
     excludeShortsAspectRatio,
-    hideShorts
+    hideShorts,
   } = props;
   const hasPins = pins && (pins.claimIds || pins.urls);
   const resolvedPinUris = React.useMemo(() => {
@@ -222,7 +220,7 @@ function ClaimListDiscover(props: Props) {
     let resolvedPinUris = [];
 
     if (pins && pins.claimIds) {
-      pins.claimIds.some(id => {
+      pins.claimIds.some((id) => {
         const claim = claimsById[id];
 
         if (!claim) {
@@ -240,17 +238,17 @@ function ClaimListDiscover(props: Props) {
     return resolvedPinUris;
   }, [claimsById, hasPins, pins]);
   const didNavigateForward = history.action === 'PUSH';
-  const {
-    search
-  } = location;
+  const { search } = location;
   const prevUris = React.useRef();
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState();
   const isLargeScreen = useIsLargeScreen();
-  const followed = followedTags && followedTags.map(t => t.name) || [];
+  const followed = (followedTags && followedTags.map((t) => t.name)) || [];
   const urlParams = new URLSearchParams(search);
   const tagsParam = // can be 'x,y,z' or 'x' or ['x','y'] or CS.CONSTANT
-  tags && getParamFromTags(tags) || urlParams.get(CS.TAGS_KEY) !== null && urlParams.get(CS.TAGS_KEY) || defaultTags && getParamFromTags(defaultTags);
+    (tags && getParamFromTags(tags)) ||
+    (urlParams.get(CS.TAGS_KEY) !== null && urlParams.get(CS.TAGS_KEY)) ||
+    (defaultTags && getParamFromTags(defaultTags));
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
@@ -307,14 +305,28 @@ function ClaimListDiscover(props: Props) {
   const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
   const originalPageSize = 12;
-  const dynamicPageSize = isLargeScreen ? Math.ceil(originalPageSize / 2 * 6) : Math.ceil(originalPageSize / 2 * 4);
+  const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const notTagInput: NotTagInput = {
     notTags,
     showNsfw,
-    hideMembersOnly
+    hideMembersOnly,
   };
-  const orderParam = usePersistentUserParam([orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy], 'orderUser', CS.ORDER_BY_TRENDING);
-  const durationOption = claimIds && claimIds.length > 0 ? undefined : CsOptHelper.duration(contentTypeParam, claimTypeParam, durationParam, duration, minDurationMinutes, maxDurationMinutes);
+  const orderParam = usePersistentUserParam(
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    'orderUser',
+    CS.ORDER_BY_TRENDING
+  );
+  const durationOption =
+    claimIds && claimIds.length > 0
+      ? undefined
+      : CsOptHelper.duration(
+          contentTypeParam,
+          claimTypeParam,
+          durationParam,
+          duration,
+          minDurationMinutes,
+          maxDurationMinutes
+        );
   let options: ClaimSearchOptions = {
     page_size: dynamicPageSize,
     page,
@@ -328,14 +340,16 @@ function ClaimListDiscover(props: Props) {
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
     content_aspect_ratio: undefined,
-    ...(durationOption ? {
-      duration: durationOption
-    } : {})
+    ...(durationOption
+      ? {
+          duration: durationOption,
+        }
+      : {}),
   };
 
   if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
     options.has_no_source = true;
-  } else if (hasSource || !ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream')) {
+  } else if (hasSource || (!ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream'))) {
     options.has_source = true;
   }
 
@@ -398,9 +412,15 @@ function ClaimListDiscover(props: Props) {
       // For more than 20, drop it down to 6 months
       // This helps with timeout issues for users that are following a ton of stuff
       // https://github.com/lbryio/lbry-sdk/issues/2420
-      if (options.channel_ids && options.channel_ids.length > 20 || options.any_tags && options.any_tags.length > 20) {
+      if (
+        (options.channel_ids && options.channel_ids.length > 20) ||
+        (options.any_tags && options.any_tags.length > 20)
+      ) {
         options.release_time = `>${Math.floor(moment().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
-      } else if (options.channel_ids && options.channel_ids.length > 10 || options.any_tags && options.any_tags.length > 10) {
+      } else if (
+        (options.channel_ids && options.channel_ids.length > 10) ||
+        (options.any_tags && options.any_tags.length > 10)
+      ) {
         options.release_time = `>${Math.floor(moment().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
       } else {
         // Hack for at least the New page until https://github.com/lbryio/lbry-sdk/issues/2591 is fixed
@@ -449,7 +469,7 @@ function ClaimListDiscover(props: Props) {
   if (hideRepostsEffective && !options.reposted_claim_id) {
     if (Array.isArray(options.claim_type)) {
       if (options.claim_type.length > 1) {
-        options.claim_type = options.claim_type.filter(claimType => claimType !== 'repost');
+        options.claim_type = options.claim_type.filter((claimType) => claimType !== 'repost');
       }
     } else {
       options.claim_type = ['stream', 'channel'];
@@ -468,7 +488,7 @@ function ClaimListDiscover(props: Props) {
     options.content_aspect_ratio = contentAspectRatio;
   }
 
-  const hasMatureTags = tagsParam && tagsParam.split(',').some(t => MATURE_TAGS.includes(t));
+  const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
   const searchKey = createNormalizedClaimSearchKey(options);
   const claimSearchResult = claimSearchByQuery[searchKey];
   const claimSearchResultLastPageReached = claimSearchByQueryLastPageReached[searchKey];
@@ -509,26 +529,47 @@ function ClaimListDiscover(props: Props) {
   }
 
   const shouldPerformSearch = // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
-  hasPins && !channelIdsParam ? false : !uris && (claimSearchResult === undefined || didNavigateForward || !loading && !claimSearchResultLastPageReached && claimSearchResult && claimSearchResult.length && // $FlowIgnore: page is always defined in this component
-  claimSearchResult.length < dynamicPageSize * options.page && claimSearchResult.length % dynamicPageSize === 0);
+    hasPins && !channelIdsParam
+      ? false
+      : !uris &&
+        (claimSearchResult === undefined ||
+          didNavigateForward ||
+          (!loading &&
+            !claimSearchResultLastPageReached &&
+            claimSearchResult &&
+            claimSearchResult.length && // $FlowIgnore: page is always defined in this component
+            claimSearchResult.length < dynamicPageSize * options.page &&
+            claimSearchResult.length % dynamicPageSize === 0));
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
-  const timedOutMessage = <div>
+  const timedOutMessage = (
+    <div>
       <p>
-        <I18nMessage tokens={{
-        again: <Button button="link" label={__('try again in a few seconds.')} onClick={() => setForceRefresh(Date.now())} />
-      }}>
+        <I18nMessage
+          tokens={{
+            again: (
+              <Button
+                button="link"
+                label={__('try again in a few seconds.')}
+                onClick={() => setForceRefresh(Date.now())}
+              />
+            ),
+          }}
+        >
           Sorry, your request timed out. Modify your options or %again%
         </I18nMessage>
       </p>
       <p>
-        <I18nMessage tokens={{
-        contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />
-      }}>
+        <I18nMessage
+          tokens={{
+            contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
+          }}
+        >
           If you continue to have issues, please %contact_support%.
         </I18nMessage>
       </p>
-    </div>;
+    </div>
+  );
   // **************************************************************************
   // **************************************************************************
   React.useEffect(() => {
@@ -568,7 +609,17 @@ function ClaimListDiscover(props: Props) {
     } else if (resolvedPinUris && !channelIdsParam) {
       setFinalUris(resolvedPinUris);
     }
-  }, [channelIdsParam, claimSearchResult, excludeUrisStr, hasPins, isUnfetchedClaimSearch, orderParam, pins, resolvedPinUris, uris]);
+  }, [
+    channelIdsParam,
+    claimSearchResult,
+    excludeUrisStr,
+    hasPins,
+    isUnfetchedClaimSearch,
+    orderParam,
+    pins,
+    resolvedPinUris,
+    uris,
+  ]);
 
   // **************************************************************************
   // Helpers
@@ -583,12 +634,10 @@ function ClaimListDiscover(props: Props) {
 
     // Compare every field except for 'page' and 'release_time'.
     // There might be better ways to achieve this.
-    let tmpPrevOptions = { ...prevOptions
-    };
+    let tmpPrevOptions = { ...prevOptions };
     tmpPrevOptions.page = -1;
     tmpPrevOptions.release_time = '';
-    let tmpOptions = { ...options
-    };
+    let tmpOptions = { ...options };
     tmpOptions.page = -1;
     tmpOptions.release_time = '';
     return JSON.stringify(tmpOptions) === JSON.stringify(tmpPrevOptions);
@@ -651,7 +700,7 @@ function ClaimListDiscover(props: Props) {
     }
 
     if (orderBy === CS.ORDER_BY_NEW && sortBy === CS.SORT_BY.OLDEST.key) {
-      return order_by.map(x => `${CS.SORT_BY.OLDEST.opt}${x}`);
+      return order_by.map((x) => `${CS.SORT_BY.OLDEST.opt}${x}`);
     }
 
     return order_by;
@@ -666,7 +715,7 @@ function ClaimListDiscover(props: Props) {
     //
     // It needs to sync up with ClaimTilesDiscover, or wait until the
     // consolidation task.
-    if (!pins || !uris || pins.onlyPinForOrder && pins.onlyPinForOrder !== order) {
+    if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
       return uris;
     }
 
@@ -675,7 +724,7 @@ function ClaimListDiscover(props: Props) {
         return uris.concat(resolvedPinUris);
       }
 
-      resolvedPinUris.forEach(pin => {
+      resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
           // remove the pin from the resolved/searched uris
           uris.splice(uris.indexOf(pin), 1);
@@ -691,7 +740,7 @@ function ClaimListDiscover(props: Props) {
 
   function filterExcludedUris(uris, excludeUris) {
     if (uris && excludeUris && excludeUris.length) {
-      return uris.filter(uri => !excludeUris.includes(uri));
+      return uris.filter((uri) => !excludeUris.includes(uri));
     }
 
     return uris;
@@ -706,56 +755,145 @@ function ClaimListDiscover(props: Props) {
   }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
   React.useEffect(() => {
     if (claimSearchResult && claimType && claimType.includes('collection')) {
-      const claimIds = claimSearchResult.map(uri => claimsByUri[uri]?.claim_id);
+      const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
       doFetchThumbnailClaimsForCollectionIds({
-        collectionIds: claimIds
+        collectionIds: claimIds,
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [claimSearchResult, claimType, doFetchThumbnailClaimsForCollectionIds]);
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringForEffect);
-      const searchSettings = { ...(fetchViewCount ? {
-          fetch: {
-            viewCount: true
-          }
-        } : {})
-      };
+      const searchSettings = (fetchViewCount
+          ? {
+              fetch: {
+                viewCount: true,
+              },
+            }
+          : {});
       doClaimSearch(searchOptions, searchSettings);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
-  const headerToUse = header || <ClaimListHeader channelIds={channelIds} defaultTags={defaultTags} tags={tags} freshness={freshness} defaultFreshness={defaultFreshness} claimType={claimType} streamType={streamType} defaultStreamType={defaultStreamType} feeAmount={feeAmount} // ENABLE_PAID_CONTENT_DISCOVER or something
-  orderBy={orderBy} defaultOrderBy={defaultOrderBy} hideAdvancedFilter={hideAdvancedFilter} hasMatureTags={hasMatureTags} hiddenNsfwMessage={hiddenNsfwMessage} setPage={setPage} tileLayout={tileLayout} hideLayoutButton={hideLayoutButton} hideFilters={hideFilters} scrollAnchor={scrollAnchor} contentType={contentType} meta={meta} />;
-  const claimListLoading = loading || channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined;
-  return <React.Fragment>
+  const headerToUse = header || (
+    <ClaimListHeader
+      channelIds={channelIds}
+      defaultTags={defaultTags}
+      tags={tags}
+      freshness={freshness}
+      defaultFreshness={defaultFreshness}
+      claimType={claimType}
+      streamType={streamType}
+      defaultStreamType={defaultStreamType}
+      feeAmount={feeAmount} // ENABLE_PAID_CONTENT_DISCOVER or something
+      orderBy={orderBy}
+      defaultOrderBy={defaultOrderBy}
+      hideAdvancedFilter={hideAdvancedFilter}
+      hasMatureTags={hasMatureTags}
+      hiddenNsfwMessage={hiddenNsfwMessage}
+      setPage={setPage}
+      tileLayout={tileLayout}
+      hideLayoutButton={hideLayoutButton}
+      hideFilters={hideFilters}
+      scrollAnchor={scrollAnchor}
+      contentType={contentType}
+      meta={meta}
+    />
+  );
+  const claimListLoading =
+    loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
+  return (
+    <React.Fragment>
       {headerLabel && headerLabel}
-      {tileLayout ? <div>
-          {!repostedClaimId && showHeader && <div className="section__header--actions">
+      {tileLayout ? (
+        <div>
+          {!repostedClaimId && showHeader && (
+            <div className="section__header--actions">
               <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>
-            </div>}
+            </div>
+          )}
           {subSection && <div>{subSection}</div>}
-          <ClaimList tileLayout loading={claimListLoading} uris={finalUris} prefixUris={prefixUris} onScrollBottom={handleScrollBottom} page={page} pageSize={dynamicPageSize} timedOutMessage={timedOutMessage} renderProperties={renderProperties} includeSupportAction={includeSupportAction} injectedItem={injectedItem} showHiddenByUser={showHiddenByUser} searchOptions={options} showNoSourceClaims={showNoSourceClaims} empty={empty} maxClaimRender={maxClaimRender} loadedCallback={loadedCallback} isShortFromChannelPage={isShortFromChannelPage} sectionTitle={sectionTitle} />
+          <ClaimList
+            tileLayout
+            loading={claimListLoading}
+            uris={finalUris}
+            prefixUris={prefixUris}
+            onScrollBottom={handleScrollBottom}
+            page={page}
+            pageSize={dynamicPageSize}
+            timedOutMessage={timedOutMessage}
+            renderProperties={renderProperties}
+            includeSupportAction={includeSupportAction}
+            injectedItem={injectedItem}
+            showHiddenByUser={showHiddenByUser}
+            searchOptions={options}
+            showNoSourceClaims={showNoSourceClaims}
+            empty={empty}
+            maxClaimRender={maxClaimRender}
+            loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
+          />
 
-          {claimListLoading && useSkeletonScreen && <div className="claim-grid">
-              {new Array(dynamicPageSize).fill(1).map((x, i) => <ClaimPreviewTile key={i} placeholder="loading" pulse />)}
-            </div>}
-        </div> : <div>
-          {showHeader && <div className="section__header--actions">
+          {claimListLoading && useSkeletonScreen && (
+            <div className="claim-grid">
+              {new Array(dynamicPageSize).fill(1).map((x, i) => (
+                <ClaimPreviewTile key={i} placeholder="loading" pulse />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          {showHeader && (
+            <div className="section__header--actions">
               <div className="section__actions">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>
-            </div>}
+            </div>
+          )}
           {subSection && <div>{subSection}</div>}
-          <ClaimList type={type} loading={claimListLoading} uris={finalUris} prefixUris={prefixUris} onScrollBottom={handleScrollBottom} page={page} pageSize={dynamicPageSize} timedOutMessage={timedOutMessage} renderProperties={renderProperties} includeSupportAction={includeSupportAction} injectedItem={injectedItem} showHiddenByUser={showHiddenByUser} searchOptions={options} showNoSourceClaims={hasNoSource || showNoSourceClaims} empty={empty} maxClaimRender={maxClaimRender} loadedCallback={loadedCallback} isShortFromChannelPage={isShortFromChannelPage} sectionTitle={sectionTitle} />
+          <ClaimList
+            type={type}
+            loading={claimListLoading}
+            uris={finalUris}
+            prefixUris={prefixUris}
+            onScrollBottom={handleScrollBottom}
+            page={page}
+            pageSize={dynamicPageSize}
+            timedOutMessage={timedOutMessage}
+            renderProperties={renderProperties}
+            includeSupportAction={includeSupportAction}
+            injectedItem={injectedItem}
+            showHiddenByUser={showHiddenByUser}
+            searchOptions={options}
+            showNoSourceClaims={hasNoSource || showNoSourceClaims}
+            empty={empty}
+            maxClaimRender={maxClaimRender}
+            loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
+          />
 
-          {claimListLoading && useSkeletonScreen && new Array(dynamicPageSize).fill(1).map((x, i) => <ClaimPreview showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder="loading" type={type} />)}
-        </div>}
-    </React.Fragment>;
+          {claimListLoading &&
+            useSkeletonScreen &&
+            new Array(dynamicPageSize)
+              .fill(1)
+              .map((x, i) => (
+                <ClaimPreview
+                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                  key={i}
+                  placeholder="loading"
+                  type={type}
+                />
+              ))}
+        </div>
+      )}
+    </React.Fragment>
+  );
 }
 
 export default withRouter(ClaimListDiscover);

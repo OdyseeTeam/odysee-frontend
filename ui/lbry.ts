@@ -1,8 +1,8 @@
-import analytics from "analytics";
-import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from "constants/errors";
-import { NO_AUTH, X_LBRY_AUTH_TOKEN } from "constants/token";
-import fetchWithTimeout from "util/fetch";
-import { PROXY_URL_NO_CF } from "config";
+import analytics from 'analytics';
+import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
+import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
+import fetchWithTimeout from 'util/fetch';
+import { PROXY_URL_NO_CF } from 'config';
 
 require('proxy-polyfill');
 
@@ -18,7 +18,7 @@ const Lbry: LbryTypes = {
   methodsUsingAlternateConnectionString: ['txo_list'],
   methodsWithNoArtificialTimeout: ['txo_list'],
   apiRequestHeaders: {
-    'Content-Type': 'application/json-rpc'
+    'Content-Type': 'application/json-rpc',
   },
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: (value: string) => {
@@ -26,10 +26,10 @@ const Lbry: LbryTypes = {
   },
   setApiHeader: (key: string, value: string) => {
     Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, {
-      [key]: value
+      [key]: value,
     });
   },
-  unsetApiHeader: key => {
+  unsetApiHeader: (key) => {
     Object.keys(Lbry.apiRequestHeaders).includes(key) && delete Lbry.apiRequestHeaders[key];
   },
   // Allow overriding Lbry methods
@@ -41,7 +41,17 @@ const Lbry: LbryTypes = {
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType: string | null | undefined, fileName: string | null | undefined) => {
     if (fileName) {
-      const formats = [[/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'], [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'], [/\.(jpeg|jpg|png|gif|svg|webp)$/i, 'image'], [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'], [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'], [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'], [/\.(stl|obj|fbx|gcode)$/i, '3D-file'], [/\.(cbr|cbt|cbz)$/i, 'comic-book'], [/\.(lbry)$/i, 'application']];
+      const formats = [
+        [/\.(mp4|m4v|webm|flv|f4v|ogv)$/i, 'video'],
+        [/\.(mp3|m4a|aac|wav|flac|ogg|opus)$/i, 'audio'],
+        [/\.(jpeg|jpg|png|gif|svg|webp)$/i, 'image'],
+        [/\.(h|go|ja|java|js|jsx|c|cpp|cs|css|rb|scss|sh|php|py)$/i, 'script'],
+        [/\.(html|json|csv|txt|log|md|markdown|docx|pdf|xml|yml|yaml)$/i, 'document'],
+        [/\.(pdf|odf|doc|docx|epub|org|rtf)$/i, 'e-book'],
+        [/\.(stl|obj|fbx|gcode)$/i, '3D-file'],
+        [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
+        [/\.(lbry)$/i, 'application'],
+      ];
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
           case true:
@@ -67,25 +77,25 @@ const Lbry: LbryTypes = {
   stop: () => daemonCallWithResult('stop', {}),
   version: () => daemonCallWithResult('version', {}),
   // Claim fetching and manipulation
-  resolve: params => daemonCallWithResult('resolve', params, handleAuthentication),
-  get: params => daemonCallWithResult('get', params),
-  claim_search: params => daemonCallWithResult('claim_search', params, claimSearchParamHook),
-  claim_list: params => daemonCallWithResult('claim_list', params),
-  channel_create: params => daemonCallWithResult('channel_create', params),
-  channel_update: params => daemonCallWithResult('channel_update', params),
-  channel_import: params => daemonCallWithResult('channel_import', params),
-  channel_list: params => daemonCallWithResult('channel_list', params),
-  stream_abandon: params => daemonCallWithResult('stream_abandon', params),
-  stream_list: params => daemonCallWithResult('stream_list', params),
-  channel_abandon: params => daemonCallWithResult('channel_abandon', params),
-  channel_sign: params => daemonCallWithResult('channel_sign', params),
-  support_create: params => daemonCallWithResult('support_create', params),
-  support_list: params => daemonCallWithResult('support_list', params),
-  stream_repost: params => daemonCallWithResult('stream_repost', params),
-  collection_resolve: params => daemonCallWithResult('collection_resolve', params),
-  collection_list: params => daemonCallWithResult('collection_list', params),
-  collection_create: params => daemonCallWithResult('collection_create', params),
-  collection_update: params => daemonCallWithResult('collection_update', params),
+  resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
+  get: (params) => daemonCallWithResult('get', params),
+  claim_search: (params) => daemonCallWithResult('claim_search', params, claimSearchParamHook),
+  claim_list: (params) => daemonCallWithResult('claim_list', params),
+  channel_create: (params) => daemonCallWithResult('channel_create', params),
+  channel_update: (params) => daemonCallWithResult('channel_update', params),
+  channel_import: (params) => daemonCallWithResult('channel_import', params),
+  channel_list: (params) => daemonCallWithResult('channel_list', params),
+  stream_abandon: (params) => daemonCallWithResult('stream_abandon', params),
+  stream_list: (params) => daemonCallWithResult('stream_list', params),
+  channel_abandon: (params) => daemonCallWithResult('channel_abandon', params),
+  channel_sign: (params) => daemonCallWithResult('channel_sign', params),
+  support_create: (params) => daemonCallWithResult('support_create', params),
+  support_list: (params) => daemonCallWithResult('support_list', params),
+  stream_repost: (params) => daemonCallWithResult('stream_repost', params),
+  collection_resolve: (params) => daemonCallWithResult('collection_resolve', params),
+  collection_list: (params) => daemonCallWithResult('collection_list', params),
+  collection_create: (params) => daemonCallWithResult('collection_create', params),
+  collection_update: (params) => daemonCallWithResult('collection_update', params),
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
   file_delete: (params = {}) => daemonCallWithResult('file_delete', params),
@@ -136,13 +146,15 @@ const Lbry: LbryTypes = {
         // Check every half second to see if the daemon is accepting connections
         function checkDaemonStarted() {
           tryNum += 1;
-          Lbry.status().then(resolve).catch(() => {
-            if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
-              setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
-            } else {
-              reject(new Error('Unable to connect to LBRY'));
-            }
-          });
+          Lbry.status()
+            .then(resolve)
+            .catch(() => {
+              if (tryNum <= CHECK_DAEMON_STARTED_TRY_NUMBER) {
+                setTimeout(checkDaemonStarted, tryNum < 50 ? 400 : 1000);
+              } else {
+                reject(new Error('Unable to connect to LBRY'));
+              }
+            });
         }
 
         checkDaemonStarted();
@@ -151,13 +163,14 @@ const Lbry: LbryTypes = {
 
     return Lbry.connectPromise;
   },
-  publish: (params = {}) => new Promise((resolve, reject) => {
-    if (Lbry.overrides.publish) {
-      Lbry.overrides.publish(params).then(resolve, reject);
-    } else {
-      apiCall('publish', params, resolve, reject);
-    }
-  })
+  publish: (params = {}) =>
+    new Promise((resolve, reject) => {
+      if (Lbry.overrides.publish) {
+        Lbry.overrides.publish(params).then(resolve, reject);
+      } else {
+        apiCall('publish', params, resolve, reject);
+      }
+    }),
 };
 const ApiFailureMgr = {
   MAX_FAILED_ATTEMPTS: 5,
@@ -201,7 +214,7 @@ const ApiFailureMgr = {
   },
   isListedMethod: function (method: string) {
     return this.METHODS_TO_LOG.includes(method);
-  }
+  },
 };
 
 /**
@@ -243,21 +256,29 @@ function checkAndParse(response: Response, method: string) {
     return response.json();
   }
 
-  return response.json().then(json => {
-    if (json.error) {
-      const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
-      return Promise.reject(new Error(errorMessage));
-    } else {
-      return Promise.reject(new Error('Protocol error with unknown response signature'));
-    }
-  }).catch(() => {
-    // If not parsable, throw the initial response rather than letting
-    // the json failure ("unexpected token at..") pass through.
-    return Promise.reject(new Error(`${method}: ${response.statusText} (${response.status}, JSON)`));
-  });
+  return response
+    .json()
+    .then((json) => {
+      if (json.error) {
+        const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
+        return Promise.reject(new Error(errorMessage));
+      } else {
+        return Promise.reject(new Error('Protocol error with unknown response signature'));
+      }
+    })
+    .catch(() => {
+      // If not parsable, throw the initial response rather than letting
+      // the json failure ("unexpected token at..") pass through.
+      return Promise.reject(new Error(`${method}: ${response.statusText} (${response.status}, JSON)`));
+    });
 }
 
-export function apiCall(method: string, params: {} | null | undefined, resolve: (...args: Array<any>) => any, reject: (...args: Array<any>) => any) {
+export function apiCall(
+  method: string,
+  params: {} | null | undefined,
+  resolve: (...args: Array<any>) => any,
+  reject: (...args: Array<any>) => any
+) {
   let apiRequestHeaders = Lbry.apiRequestHeaders;
 
   if (params && params[NO_AUTH]) {
@@ -274,48 +295,64 @@ export function apiCall(method: string, params: {} | null | undefined, resolve: 
       jsonrpc: '2.0',
       method,
       params,
-      id: counter
-    })
+      id: counter,
+    }),
   };
 
   if (ApiFailureMgr.isFailingAndShouldDrop(method, params)) {
     return Promise.reject('Dropped due to successive failures.');
   }
 
-  const baseConnectionString = Lbry.methodsUsingAlternateConnectionString.includes(method) ? Lbry.alternateConnectionString : Lbry.daemonConnectionString;
+  const baseConnectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+    ? Lbry.alternateConnectionString
+    : Lbry.daemonConnectionString;
   const connectionString = `${baseConnectionString}?m=${method}`;
   const SDK_FETCH_TIMEOUT_MS = 60000;
-  const fetchPromise = Lbry.methodsWithNoArtificialTimeout.includes(method) ? fetch(connectionString, options) : fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString, options));
-  return fetchPromise.then(response => checkAndParse(response, method)).then(response => {
-    const error = response.error || response.result && response.result.error;
+  const fetchPromise = Lbry.methodsWithNoArtificialTimeout.includes(method)
+    ? fetch(connectionString, options)
+    : fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString, options));
+  return fetchPromise
+    .then((response) => checkAndParse(response, method))
+    .then((response) => {
+      const error = response.error || (response.result && response.result.error);
 
-    if (error) {
-      ApiFailureMgr.logFailure(method, params, counter);
-      return reject(error);
-    } else {
-      ApiFailureMgr.logSuccess(method);
-      return resolve(response.result);
-    }
-  }).catch(err => {
-    ApiFailureMgr.logFailure(method, params, counter);
-
-    if (err?.message === FETCH_TIMEOUT) {
-      if (ERR_LOG_METHOD_WHITELIST.includes(method)) {
-        analytics.error(`${method}: timed out after ${SDK_FETCH_TIMEOUT_MS / 1000}s`);
+      if (error) {
+        ApiFailureMgr.logFailure(method, params, counter);
+        return reject(error);
+      } else {
+        ApiFailureMgr.logSuccess(method);
+        return resolve(response.result);
       }
+    })
+    .catch((err) => {
+      ApiFailureMgr.logFailure(method, params, counter);
 
-      reject(resolveFetchErrorMsg(method, FETCH_TIMEOUT));
-    } else {
-      reject(err);
-    }
-  });
+      if (err?.message === FETCH_TIMEOUT) {
+        if (ERR_LOG_METHOD_WHITELIST.includes(method)) {
+          analytics.error(`${method}: timed out after ${SDK_FETCH_TIMEOUT_MS / 1000}s`);
+        }
+
+        reject(resolveFetchErrorMsg(method, FETCH_TIMEOUT));
+      } else {
+        reject(err);
+      }
+    });
 }
 
-function daemonCallWithResult(name: string, params: {} = {}, paramOverrideHook: ((arg0: {}) => {}) | null = null): Promise<any> {
+function daemonCallWithResult(
+  name: string,
+  params: {} = {},
+  paramOverrideHook: ((arg0: {}) => {}) | null = null
+): Promise<any> {
   return new Promise((resolve, reject) => {
-    apiCall(name, paramOverrideHook ? paramOverrideHook(params) : params, result => {
-      resolve(result);
-    }, reject);
+    apiCall(
+      name,
+      paramOverrideHook ? paramOverrideHook(params) : params,
+      (result) => {
+        resolve(result);
+      },
+      reject
+    );
   });
 }
 
@@ -327,11 +364,11 @@ const lbryProxy = new Proxy(Lbry, {
       return target[name];
     }
 
-    return (params = {}) => new Promise((resolve, reject) => {
-      apiCall(name, params, resolve, reject);
-    });
-  }
-
+    return (params = {}) =>
+      new Promise((resolve, reject) => {
+        apiCall(name, params, resolve, reject);
+      });
+  },
 });
 const SEARCH_OPTIONS_THAT_REQUIRE_AUTH = ['include_purchase_receipt', 'include_is_my_output'];
 
@@ -347,10 +384,8 @@ const SEARCH_OPTIONS_THAT_REQUIRE_AUTH = ['include_purchase_receipt', 'include_i
  * @returns
  */
 function handleAuthentication(options: any) {
-  const authRequired = SEARCH_OPTIONS_THAT_REQUIRE_AUTH.some(k => options.hasOwnProperty(k));
-  return authRequired ? options : { ...options,
-    [NO_AUTH]: true
-  };
+  const authRequired = SEARCH_OPTIONS_THAT_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
+  return authRequired ? options : { ...options, [NO_AUTH]: true };
 }
 
 /**

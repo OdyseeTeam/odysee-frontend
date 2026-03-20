@@ -3,7 +3,7 @@ import AutoLaunch from 'auto-launch';
 
 export const launcher = new AutoLaunch({
   name: 'lbry',
-  isHidden: true
+  isHidden: true,
 }); // @endif
 
 // Web stub - autoLaunch is only used in the Electron app

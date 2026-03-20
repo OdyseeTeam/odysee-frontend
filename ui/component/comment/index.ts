@@ -1,27 +1,33 @@
-import type { Props } from "./view";
-import CommentView from "./view";
-import { connect } from "react-redux";
-import { selectStakedLevelForChannelUri, selectClaimForUri, selectHasChannels, selectMyClaimIdsRaw, selectTitleForUri, selectDateForUri } from "redux/selectors/claims";
-import { doCommentUpdate, doCommentList } from "redux/actions/comments";
-import { doToast } from "redux/actions/notifications";
-import { doClearPlayingUri, doClearPlayingSource } from "redux/actions/content";
-import { selectFetchedCommentAncestors, selectOthersReactsForComment, makeSelectTotalReplyPagesForParentId, selectIsFetchingCommentsForParentId, selectRepliesForParentId } from "redux/selectors/comments";
-import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from "redux/selectors/memberships";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import { selectPlayingUri } from "redux/selectors/content";
-import { selectUserVerifiedEmail } from "redux/selectors/user";
-import { getChannelIdFromClaim } from "util/claim";
+import type { Props } from './view';
+import CommentView from './view';
+import { connect } from 'react-redux';
+import {
+  selectStakedLevelForChannelUri,
+  selectClaimForUri,
+  selectHasChannels,
+  selectMyClaimIdsRaw,
+  selectTitleForUri,
+  selectDateForUri,
+} from 'redux/selectors/claims';
+import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
+import { doToast } from 'redux/actions/notifications';
+import { doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
+import {
+  selectFetchedCommentAncestors,
+  selectOthersReactsForComment,
+  makeSelectTotalReplyPagesForParentId,
+  selectIsFetchingCommentsForParentId,
+  selectRepliesForParentId,
+} from 'redux/selectors/comments';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
-  const {
-    comment,
-    uri
-  } = props;
-  const {
-    comment_id,
-    channel_url,
-    channel_id
-  } = comment || {};
+  const { comment, uri } = props;
+  const { comment_id, channel_url, channel_id } = comment || {};
   const activeChannelClaim = selectActiveChannelClaim(state);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const reactionKey = activeChannelId ? `${comment_id}:${activeChannelId}` : comment_id;
@@ -44,7 +50,7 @@ const select = (state, props) => {
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
     authorTitle: channel_url ? selectTitleForUri(state, channel_url) : null,
-    channelAge
+    channelAge,
   };
 };
 
@@ -53,6 +59,6 @@ const perform = {
   doClearPlayingSource,
   updateComment: doCommentUpdate,
   fetchReplies: doCommentList,
-  doToast
+  doToast,
 };
 export default connect<_, Props, _, _, _, _>(select, perform)(CommentView);

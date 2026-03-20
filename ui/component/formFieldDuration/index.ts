@@ -1,2 +1,2 @@
-import FormFieldDuration from "./view";
+import FormFieldDuration from './view';
 export default FormFieldDuration;

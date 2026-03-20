@@ -1,7 +1,7 @@
-import * as ICONS from "constants/icons";
-import React from "react";
-import Icon from "component/common/icon";
-import * as COL from "constants/collections";
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import Icon from 'component/common/icon';
+import * as COL from 'constants/collections';
 type Props = {
   uri: string;
   mediaType: string;
@@ -10,11 +10,7 @@ type Props = {
 };
 
 function FileType(props: Props) {
-  const {
-    mediaType,
-    isLivestream,
-    small
-  } = props;
+  const { mediaType, isLivestream, small } = props;
   const size = small ? COL.ICON_SIZE : undefined;
 
   if (mediaType === 'image') {

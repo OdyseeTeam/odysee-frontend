@@ -1,8 +1,8 @@
-import { connect } from "react-redux";
-import ButtonToggle from "./view";
+import { connect } from 'react-redux';
+import ButtonToggle from './view';
 
 const select = (state, props) => ({});
 
-const perform = dispatch => ({});
+const perform = (dispatch) => ({});
 
 export default connect(select, perform)(ButtonToggle);

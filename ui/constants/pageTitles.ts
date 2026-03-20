@@ -2,7 +2,7 @@
 //
 // Primarily used for the browser tab and history title.
 // Ensure new strings are added to 'app-string.json' for localization.
-import * as PAGES from "constants/pages";
+import * as PAGES from 'constants/pages';
 export const PAGE_TITLE = {
   // --- Categories ---
   // Dynamically populated in 'window.CATEGORY_PAGE_TITLE'.
@@ -54,5 +54,5 @@ export const PAGE_TITLE = {
   [PAGES.UPLOAD]: 'Upload a File to Odysee',
   [PAGES.WALLET]: 'Odysee',
   [PAGES.YOUTUBE_SYNC]: 'YouTube Sync',
-  [PAGES.YOUTUBE_TOS]: 'YouTube Sync Terms of Service'
+  [PAGES.YOUTUBE_TOS]: 'YouTube Sync Terms of Service',
 };

@@ -1,2 +1,2 @@
-import ITManagersPage from "./view";
+import ITManagersPage from './view';
 export default ITManagersPage;

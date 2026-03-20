@@ -1,2 +1,2 @@
-import IframeReact from "./view";
+import IframeReact from './view';
 export default IframeReact;

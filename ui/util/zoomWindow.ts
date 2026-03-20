@@ -1,12 +1,12 @@
-import { webFrame } from "electron";
-import * as SETTINGS from "constants/settings";
-import { LocalStorage } from "util/storage";
+import { webFrame } from 'electron';
+import * as SETTINGS from 'constants/settings';
+import { LocalStorage } from 'util/storage';
 const isDev = process.env.NODE_ENV !== 'production';
 export const ZOOM = {
   INCREMENT: 'INCREMENT',
   DECREMENT: 'DECREMENT',
   RESET: 'RESET',
-  LOAD_FROM_LOCAL_STORAGE: 'LOAD_FROM_LOCAL_STORAGE'
+  LOAD_FROM_LOCAL_STORAGE: 'LOAD_FROM_LOCAL_STORAGE',
 };
 
 function getNextZoomFactor(curFactor, isIncreasing) {

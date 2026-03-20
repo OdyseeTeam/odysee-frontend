@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 type Props = {
   title?: string;
   subtitle?: string;
@@ -7,21 +7,18 @@ type Props = {
 };
 
 const ErrorBubble = (props: Props) => {
-  const {
-    children,
-    title,
-    subtitle,
-    action
-  } = props;
+  const { children, title, subtitle, action } = props;
 
   if (title && subtitle && action) {
-    return <div className="error-bubble">
+    return (
+      <div className="error-bubble">
         <div>
           <label>{title}</label>
           <span>{subtitle}</span>
         </div>
         {action}
-      </div>;
+      </div>
+    );
   }
 
   if (!children) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 /**
  * Appends the uri access key to the address bar if:
  *
@@ -19,7 +19,10 @@ import React from "react";
  * @param doFetchUriAccessKey
  */
 
-export default function useAppendAccessKeyToUrl(claim: Claim | null | undefined, doFetchUriAccessKey: (uri: string) => Promise<UriAccessKey | null | undefined>) {
+export default function useAppendAccessKeyToUrl(
+  claim: Claim | null | undefined,
+  doFetchUriAccessKey: (uri: string) => Promise<UriAccessKey | null | undefined>
+) {
   const uri = claim?.canonical_url;
   React.useEffect(() => {
     if (!uri) return;
@@ -30,20 +33,22 @@ export default function useAppendAccessKeyToUrl(claim: Claim | null | undefined,
       if (path && path.startsWith('/$/embed/')) return;
     } catch (e) {}
 
-    doFetchUriAccessKey(uri).then((accessKey: UriAccessKey | null | undefined) => {
-      if (accessKey && accessKey.signature && accessKey.signature_ts) {
-        const current = new URL(window.location.href);
-        const curSig = current.searchParams.get('signature');
-        const curTs = current.searchParams.get('signature_ts');
+    doFetchUriAccessKey(uri)
+      .then((accessKey: UriAccessKey | null | undefined) => {
+        if (accessKey && accessKey.signature && accessKey.signature_ts) {
+          const current = new URL(window.location.href);
+          const curSig = current.searchParams.get('signature');
+          const curTs = current.searchParams.get('signature_ts');
 
-        // Only update the address bar if values actually differ
-        if (curSig !== accessKey.signature || curTs !== accessKey.signature_ts) {
-          current.searchParams.set('signature', accessKey.signature);
-          current.searchParams.set('signature_ts', accessKey.signature_ts);
-          history.replaceState(null, '', current.toString());
+          // Only update the address bar if values actually differ
+          if (curSig !== accessKey.signature || curTs !== accessKey.signature_ts) {
+            current.searchParams.set('signature', accessKey.signature);
+            current.searchParams.set('signature_ts', accessKey.signature_ts);
+            history.replaceState(null, '', current.toString());
+          }
         }
-      }
-    }).catch(() => {}); // Intentionally omit doFetchUriAccessKey to avoid identity churn; it does not
+      })
+      .catch(() => {}); // Intentionally omit doFetchUriAccessKey to avoid identity churn; it does not
     // affect the URL contents.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);

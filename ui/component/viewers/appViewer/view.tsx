@@ -1,5 +1,5 @@
-import React from "react";
-import Yrbl from "component/yrbl";
+import React from 'react';
+import Yrbl from 'component/yrbl';
 // import LoadingScreen from 'component/common/loading-screen';
 type Props = {
   source: string;
@@ -32,9 +32,14 @@ function AppViewer(props: Props) {
   //     setLoading(false);
   //   }
   // }, [outpoint, contentType, setAppUrl, setLoading]);
-  return <div className="content__cover--none">
-      <Yrbl title={__('Sorry')} subtitle={__('Games and apps are currently disabled due to potential security concerns.')} />
-    </div>; // return (
+  return (
+    <div className="content__cover--none">
+      <Yrbl
+        title={__('Sorry')}
+        subtitle={__('Games and apps are currently disabled due to potential security concerns.')}
+      />
+    </div>
+  ); // return (
   //   <div className="file-viewer">
   //     {!appUrl && (
   //       <LoadingScreen

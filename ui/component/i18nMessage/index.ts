@@ -1,2 +1,2 @@
-import i18n from "./view";
+import i18n from './view';
 export default i18n;

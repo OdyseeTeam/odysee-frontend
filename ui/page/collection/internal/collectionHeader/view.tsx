@@ -1,21 +1,21 @@
-import React from "react";
-import Card from "component/common/card";
-import CollectionActions from "../collectionActions";
-import CollectionHeaderActions from "./internal/collectionHeaderActions";
-import CollectionItemCount from "page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collectionItemCount";
-import CollectionPublicIcon from "page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collection-public-icon";
-import CollectionPrivateIcon from "component/common/collection-private-icon";
-import MarkdownPreview from "component/common/markdown-preview";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { COL_TYPES } from "constants/collections";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import DateTime from "component/dateTime";
-import ClaimAuthor from "component/claimAuthor";
-import CollectionTitle from "./internal/collectionTitle";
-import CollectionSubtitle from "./internal/collectionSubtitle";
-import AutoPublishCountdown from "page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/autoPublishCountdown";
-import "./style.scss";
+import React from 'react';
+import Card from 'component/common/card';
+import CollectionActions from '../collectionActions';
+import CollectionHeaderActions from './internal/collectionHeaderActions';
+import CollectionItemCount from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collectionItemCount';
+import CollectionPublicIcon from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collection-public-icon';
+import CollectionPrivateIcon from 'component/common/collection-private-icon';
+import MarkdownPreview from 'component/common/markdown-preview';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COL_TYPES } from 'constants/collections';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import DateTime from 'component/dateTime';
+import ClaimAuthor from 'component/claimAuthor';
+import CollectionTitle from './internal/collectionTitle';
+import CollectionSubtitle from './internal/collectionSubtitle';
+import AutoPublishCountdown from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/autoPublishCountdown';
+import './style.scss';
 type Props = {
   collection: any;
   showEdit: boolean;
@@ -50,26 +50,39 @@ const CollectionHeader = (props: Props) => {
     collectionHasEdits,
     autoPublish,
     autoPublishScheduledAt,
-    isPublishing // doCollectionEdit,
-
+    isPublishing, // doCollectionEdit,
   } = props;
   const isNotADefaultList = collection.id !== 'watchlater' && collection.id !== 'favorites';
-  const backgroundImage = collection && collection.thumbnail && collection.thumbnail.url ? 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url : undefined;
-  const {
-    id: collectionId
-  } = collection;
+  const backgroundImage =
+    collection && collection.thumbnail && collection.thumbnail.url
+      ? 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url
+      : undefined;
+  const { id: collectionId } = collection;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
   if (collection?.type === COL_TYPES.FEATURED_CHANNELS) {
-    return <Card title={<CollectionTitle collectionId={collectionId} noIcon />} subtitle={<CollectionSubtitle collectionId={collectionId} />} />;
+    return (
+      <Card
+        title={<CollectionTitle collectionId={collectionId} noIcon />}
+        subtitle={<CollectionSubtitle collectionId={collectionId} />}
+      />
+    );
   }
 
-  return <>
+  return (
+    <>
       <div className="collection-header__wrapper">
         <div className="background__wrapper">
-          {collection?.thumbnail?.url && <div className="background" style={backgroundImage && {
-          backgroundImage: 'url(' + backgroundImage + ')'
-        }} />}
+          {collection?.thumbnail?.url && (
+            <div
+              className="background"
+              style={
+                backgroundImage && {
+                  backgroundImage: 'url(' + backgroundImage + ')',
+                }
+              }
+            />
+          )}
         </div>
 
         <div className="collection-header__content">
@@ -79,55 +92,113 @@ const CollectionHeader = (props: Props) => {
               {uri ? <ClaimAuthor uri={uri} /> : <h1>{collection.name}</h1>}
             </div>
             <div className="collection-header__actions">
-              <CollectionHeaderActions uri={uri} collectionId={collectionId} isBuiltin={isBuiltin} setShowEdit={setShowEdit} showEdit={showEdit} claimIsPending={claimIsPending} isHeader />
+              <CollectionHeaderActions
+                uri={uri}
+                collectionId={collectionId}
+                isBuiltin={isBuiltin}
+                setShowEdit={setShowEdit}
+                showEdit={showEdit}
+                claimIsPending={claimIsPending}
+                isHeader
+              />
             </div>
           </div>
           <div className="collection-header__text">
             <div className="collection-header__description">
               <MarkdownPreview content={collection.description} />
               <div className="collection-header__meta">
-                <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                <div
+                  className="collection-header__meta-entry"
+                  style={
+                    backgroundImage && {
+                      backgroundImage: 'url(' + backgroundImage + ')',
+                    }
+                  }
+                >
                   <CollectionItemCount collectionId={collectionId} />
                 </div>
-                {hasClaim ? <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                {hasClaim ? (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
+                  >
                     <CollectionPublicIcon />
-                  </div> : <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                  </div>
+                ) : (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
+                  >
                     <CollectionPrivateIcon />
-                  </div>}
-                {autoPublish && <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                  </div>
+                )}
+                {autoPublish && (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
+                  >
                     <div className="auto-publish-badge">
                       <Icon icon={ICONS.PUBLISH} />
                       <span>
-                        {isPublishing ? __('Publishing...') : autoPublishScheduledAt ? <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} /> : collectionHasEdits ? __('Publish pending') : __('Auto-publish')}
+                        {isPublishing ? (
+                          __('Publishing...')
+                        ) : autoPublishScheduledAt ? (
+                          <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                        ) : collectionHasEdits ? (
+                          __('Publish pending')
+                        ) : (
+                          __('Auto-publish')
+                        )}
                       </span>
                     </div>
-                  </div>}
-                {isNotADefaultList && <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                  </div>
+                )}
+                {isNotADefaultList && (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
+                  >
                     <div className="create-at">
-                      {collection && <>
+                      {collection && (
+                        <>
                           <Icon icon={ICONS.TIME} />
                           <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
-                        </>}
+                        </>
+                      )}
                     </div>
-                  </div>}
-                <div className="collection-header__meta-entry" style={backgroundImage && {
-                backgroundImage: 'url(' + backgroundImage + ')'
-              }}>
+                  </div>
+                )}
+                <div
+                  className="collection-header__meta-entry"
+                  style={
+                    backgroundImage && {
+                      backgroundImage: 'url(' + backgroundImage + ')',
+                    }
+                  }
+                >
                   <div className="update-at">
-                    {collection && <>
+                    {collection && (
+                      <>
                         <Icon icon={ICONS.EDIT} />
                         <DateTime timeAgo date={Number(collection?.updatedAt) * 1000} />
-                      </>}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -135,10 +206,15 @@ const CollectionHeader = (props: Props) => {
           </div>
         </div>
       </div>
-      <CollectionActions uri={uri} collectionId={collectionId} isBuiltin={isBuiltin} setShowEdit={setShowEdit} showEdit={showEdit} />
+      <CollectionActions
+        uri={uri}
+        collectionId={collectionId}
+        isBuiltin={isBuiltin}
+        setShowEdit={setShowEdit}
+        showEdit={showEdit}
+      />
 
-      {
-      /* OLD CARD
+      {/* OLD CARD
       <Card
        title={<CollectionTitle collectionId={collectionId} />}
        titleActions={
@@ -172,9 +248,9 @@ const CollectionHeader = (props: Props) => {
          />
        }
       />
-      */
-    }
-    </>;
+      */}
+    </>
+  );
 };
 
 export default CollectionHeader;

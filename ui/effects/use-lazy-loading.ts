@@ -1,5 +1,5 @@
-import type { ElementRef } from "react";
-import React, { useEffect } from "react";
+import type { ElementRef } from 'react';
+import React, { useEffect } from 'react';
 /**
  * Helper React hook for lazy loading images
  * @param elementRef - A React useRef instance to the element to lazy load.
@@ -8,9 +8,14 @@ import React, { useEffect } from "react";
  * @param {Array<>} [deps=[]] - The dependencies this lazy-load is reliant on.
  */
 
-export default function useLazyLoading(elementRef: {
-  current: ElementRef<any> | null | undefined;
-}, backgroundFallback: string = '', yOffsetPx: number = 500, deps: Array<any> = []) {
+export default function useLazyLoading(
+  elementRef: {
+    current: ElementRef<any> | null | undefined;
+  },
+  backgroundFallback: string = '',
+  yOffsetPx: number = 500,
+  deps: Array<any> = []
+) {
   const [srcLoaded, setSrcLoaded] = React.useState(false);
   const threshold = 0.01;
 
@@ -67,21 +72,22 @@ export default function useLazyLoading(elementRef: {
       return;
     }
 
-    const lazyLoadingObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.intersectionRatio >= threshold) {
-          const {
-            target
-          } = entry;
-          observer.unobserve(target);
-          loadImgFromDataset(target, backgroundFallback, setSrcLoaded);
-        }
-      });
-    }, {
-      root: null,
-      rootMargin: `0px 0px ${calcRootMargin(yOffsetPx)}px 0px`,
-      threshold: [threshold]
-    });
+    const lazyLoadingObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.intersectionRatio >= threshold) {
+            const { target } = entry;
+            observer.unobserve(target);
+            loadImgFromDataset(target, backgroundFallback, setSrcLoaded);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: `0px 0px ${calcRootMargin(yOffsetPx)}px 0px`,
+        threshold: [threshold],
+      }
+    );
     // $FlowFixMe
     lazyLoadingObserver.observe(elementRef.current); // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
   }, deps);

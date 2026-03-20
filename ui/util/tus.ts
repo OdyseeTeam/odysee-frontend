@@ -5,9 +5,9 @@
  * An alternative is to sync the redux's 'publish::currentUploads' through the
  * wallet's sync process, but let's not pollute the wallet for now.
  */
-import { v4 as uuid } from "uuid";
-import { isLocalStorageAvailable, LocalStorage, LS } from "util/storage";
-import { doUpdateUploadRemove, doUpdateUploadProgress } from "redux/actions/publish";
+import { v4 as uuid } from 'uuid';
+import { isLocalStorageAvailable, LocalStorage, LS } from 'util/storage';
+import { doUpdateUploadRemove, doUpdateUploadProgress } from 'redux/actions/publish';
 const localStorageAvailable = isLocalStorageAvailable();
 let gTabId: string = '';
 
@@ -110,15 +110,19 @@ export function tusHandleTabUpdates(storageKey: string) {
     case LS.TUS_LOCKED_UPLOADS:
       // The locked IDs are in localStorage, but related GUI is unaware.
       // Send a redux update to force an update.
-      window.store.dispatch(doUpdateUploadProgress({
-        guid: 'force--update'
-      }));
+      window.store.dispatch(
+        doUpdateUploadProgress({
+          guid: 'force--update',
+        })
+      );
       break;
 
     case LS.TUS_REFRESH_LOCK:
-      window.store.dispatch(doUpdateUploadProgress({
-        guid: 'refresh--lock'
-      }));
+      window.store.dispatch(
+        doUpdateUploadProgress({
+          guid: 'refresh--lock',
+        })
+      );
       break;
 
     case LS.TUS_REMOVED_UPLOADS:
@@ -126,7 +130,7 @@ export function tusHandleTabUpdates(storageKey: string) {
       // same without affecting rehydration.
       if (localStorageAvailable) {
         const removedUploads = getRemovedUploads();
-        removedUploads.forEach(guid => window.store.dispatch(doUpdateUploadRemove(guid)));
+        removedUploads.forEach((guid) => window.store.dispatch(doUpdateUploadRemove(guid)));
       }
 
       break;

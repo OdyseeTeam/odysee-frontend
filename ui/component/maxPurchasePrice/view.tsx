@@ -1,5 +1,5 @@
-import React from "react";
-import { FormField, FormFieldPrice } from "component/common/form";
+import React from 'react';
+import { FormField, FormFieldPrice } from 'component/common/form';
 type Price = {
   currency: string;
   amount: number;
@@ -19,13 +19,10 @@ type Props = {
   setDaemonSetting: (arg0: string, arg1: SetDaemonSettingArg | null | undefined) => void;
 };
 export default function MaxPurchasePrice(props: Props) {
-  const {
-    daemonSettings,
-    setDaemonSetting
-  } = props;
+  const { daemonSettings, setDaemonSetting } = props;
   const defaultMaxKeyFee = {
     currency: 'USD',
-    amount: 50
+    amount: 50,
   };
   const disableMaxKeyFee = !(daemonSettings && daemonSettings.max_key_fee);
 
@@ -39,13 +36,33 @@ export default function MaxPurchasePrice(props: Props) {
     setDaemonSetting('max_key_fee', newValue);
   }
 
-  return <>
-      <FormField type="radio" name="no_max_purchase_no_limit" checked={disableMaxKeyFee} label={__('No Limit')} onChange={() => onKeyFeeDisableChange(true)} />
-      <FormField type="radio" name="max_purchase_limit" checked={!disableMaxKeyFee} onChange={() => {
-      onKeyFeeDisableChange(false);
-      onKeyFeeChange(defaultMaxKeyFee);
-    }} label={__('Choose limit')} />
+  return (
+    <>
+      <FormField
+        type="radio"
+        name="no_max_purchase_no_limit"
+        checked={disableMaxKeyFee}
+        label={__('No Limit')}
+        onChange={() => onKeyFeeDisableChange(true)}
+      />
+      <FormField
+        type="radio"
+        name="max_purchase_limit"
+        checked={!disableMaxKeyFee}
+        onChange={() => {
+          onKeyFeeDisableChange(false);
+          onKeyFeeChange(defaultMaxKeyFee);
+        }}
+        label={__('Choose limit')}
+      />
 
-      <FormFieldPrice name="max_key_fee" min={0} onChange={onKeyFeeChange} price={daemonSettings.max_key_fee ? daemonSettings.max_key_fee : defaultMaxKeyFee} disabled={disableMaxKeyFee} />
-    </>;
+      <FormFieldPrice
+        name="max_key_fee"
+        min={0}
+        onChange={onKeyFeeChange}
+        price={daemonSettings.max_key_fee ? daemonSettings.max_key_fee : defaultMaxKeyFee}
+        disabled={disableMaxKeyFee}
+      />
+    </>
+  );
 }

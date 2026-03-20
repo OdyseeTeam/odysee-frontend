@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import PreorderAndPurchaseContentCard from "./internal/preorderAndPurchaseContentCard";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import PreorderAndPurchaseContentCard from './internal/preorderAndPurchaseContentCard';
 type Props = {
   uri: string;
   // -- redux --
@@ -9,15 +9,13 @@ type Props = {
 
 class ModalPreorderAndPurchaseContent extends React.PureComponent<Props> {
   render() {
-    const {
-      uri,
-      doHideModal
-    } = this.props;
-    return <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card" width="wide">
+    const { uri, doHideModal } = this.props;
+    return (
+      <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card" width="wide">
         <PreorderAndPurchaseContentCard uri={uri} onCancel={doHideModal} />
-      </Modal>;
+      </Modal>
+    );
   }
-
 }
 
 export default ModalPreorderAndPurchaseContent;

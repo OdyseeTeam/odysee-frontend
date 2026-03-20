@@ -1,4 +1,4 @@
-import { store } from "store";
+import { store } from 'store';
 const env = process.env.NODE_ENV || 'production';
 const logs = [];
 let pause_asserts = false;
@@ -11,7 +11,7 @@ const app = {
     logs.push(message);
   },
 
-  pause_asserts
+  pause_asserts,
 };
 global.app = app;
 // Lbryinc needs access to the redux store for dispatching auth-releated actions

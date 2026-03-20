@@ -1,8 +1,8 @@
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import React from "react";
-import Button from "component/button";
-import Card from "component/common/card";
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import Button from 'component/button';
+import Card from 'component/common/card';
 type Props = {
   totalTippedAmount: number;
   transactions: StripeTransactions;
@@ -11,7 +11,7 @@ type Props = {
 const WalletBalance = (props: Props) => {
   const {
     // accountDetails,
-    transactions
+    transactions,
   } = props;
   // let cardDetails = {
   //   brand: card.brand,
@@ -36,18 +36,20 @@ const WalletBalance = (props: Props) => {
       setTotalCreatorsSupported(unique.length);
     }
   }, [transactions]);
-  return <Card // TODO: implement hasActiveCard and show the current card the user would charge to
-  // subtitle={hasActiveCard && <h2>Hello</h2>
-  //   // <Plastic
-  //   //   type={userCardDetails.brand}
-  //   //   name={userCardDetails.topOfDisplay + ' ' + userCardDetails.bottomOfDisplay}
-  //   //   expiry={userCardDetails.expiryMonth + '/' + userCardDetails.expiryYear}
-  //   //   number={'____________' + userCardDetails.lastFour}
-  //   // />
-  // }
-  actions={<>
+  return (
+    <Card // TODO: implement hasActiveCard and show the current card the user would charge to
+      // subtitle={hasActiveCard && <h2>Hello</h2>
+      //   // <Plastic
+      //   //   type={userCardDetails.brand}
+      //   //   name={userCardDetails.topOfDisplay + ' ' + userCardDetails.bottomOfDisplay}
+      //   //   expiry={userCardDetails.expiryMonth + '/' + userCardDetails.expiryYear}
+      //   //   number={'____________' + userCardDetails.lastFour}
+      //   // />
+      // }
+      actions={
+        <>
           <h2 className="section__title--small">
-            {transactions && transactions.length || 0}
+            {(transactions && transactions.length) || 0}
             {__('Total Tips')}
           </h2>
 
@@ -57,9 +59,17 @@ const WalletBalance = (props: Props) => {
           </h2>
 
           <div className="section__actions">
-            <Button button="secondary" label={__('Manage Cards')} icon={ICONS.SETTINGS} navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} />
+            <Button
+              button="secondary"
+              label={__('Manage Cards')}
+              icon={ICONS.SETTINGS}
+              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+            />
           </div>
-        </>} />;
+        </>
+      }
+    />
+  );
 };
 
 export default WalletBalance;

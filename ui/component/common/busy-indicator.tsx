@@ -1,22 +1,21 @@
-import React from "react";
+import React from 'react';
 type Props = {
   message: string | null | undefined;
 };
 
 class BusyIndicator extends React.PureComponent<Props> {
   static defaultProps = {
-    message: ''
+    message: '',
   };
 
   render() {
-    const {
-      message
-    } = this.props;
-    return <span className="busy-indicator">
+    const { message } = this.props;
+    return (
+      <span className="busy-indicator">
         {message} <span className="busy-indicator__loader" />
-      </span>;
+      </span>
+    );
   }
-
 }
 
 export default BusyIndicator;

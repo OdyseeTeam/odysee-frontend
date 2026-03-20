@@ -1,10 +1,10 @@
-import React from "react";
-import Button from "component/button";
-import { Form } from "component/common/form";
-import { Modal } from "modal/modal";
-import Card from "component/common/card";
-import LbcSymbol from "component/common/lbc-symbol";
-import ClaimPreview from "component/claimPreview";
+import React from 'react';
+import Button from 'component/button';
+import { Form } from 'component/common/form';
+import { Modal } from 'modal/modal';
+import Card from 'component/common/card';
+import LbcSymbol from 'component/common/lbc-symbol';
+import ClaimPreview from 'component/claimPreview';
 type TipParams = {
   amount: number;
   claim_id: string;
@@ -35,7 +35,7 @@ class ModalConfirmTransaction extends React.PureComponent<Props> {
       claim,
       activeChannelClaim,
       incognito,
-      setConfirmed
+      setConfirmed,
     } = this.props;
 
     if (!isAddress) {
@@ -43,7 +43,7 @@ class ModalConfirmTransaction extends React.PureComponent<Props> {
       const tipParams: TipParams = {
         amount: amount,
         claim_id: claimId,
-        channel_id: !incognito && activeChannelClaim && activeChannelClaim.claim_id || undefined
+        channel_id: (!incognito && activeChannelClaim && activeChannelClaim.claim_id) || undefined,
       };
       sendTip(tipParams, false);
     } else {
@@ -55,46 +55,72 @@ class ModalConfirmTransaction extends React.PureComponent<Props> {
   }
 
   render() {
-    const {
-      amount,
-      destination,
-      closeModal,
-      isAddress,
-      incognito,
-      activeChannelClaim
-    } = this.props;
+    const { amount, destination, closeModal, isAddress, incognito, activeChannelClaim } = this.props;
     const activeChannelUrl = activeChannelClaim && activeChannelClaim.canonical_url;
 
     const title = __('Confirm Transaction');
 
-    return <Modal isOpen contentLabel={title} type="card" onAborted={closeModal}>
+    return (
+      <Modal isOpen contentLabel={title} type="card" onAborted={closeModal}>
         <Form onSubmit={() => this.onConfirmed()}>
-          <Card title={title} body={<div className="section card--inline confirm__wrapper">
+          <Card
+            title={title}
+            body={
+              <div className="section card--inline confirm__wrapper">
                 <div className="section">
                   <div className="confirm__label">{__('Sending')}</div>
                   <div className="confirm__value">{<LbcSymbol postfix={amount} size={22} />}</div>
 
                   {!isAddress && <div className="confirm__label">{__('From --[the tip sender]--')}</div>}
-                  {!isAddress && <div className="confirm__value">
-                      {incognito ? 'Anonymous' : <ClaimPreview key={activeChannelUrl} uri={activeChannelUrl} actions={''} type={'small'} hideMenu hideRepostLabel />}
-                    </div>}
+                  {!isAddress && (
+                    <div className="confirm__value">
+                      {incognito ? (
+                        'Anonymous'
+                      ) : (
+                        <ClaimPreview
+                          key={activeChannelUrl}
+                          uri={activeChannelUrl}
+                          actions={''}
+                          type={'small'}
+                          hideMenu
+                          hideRepostLabel
+                        />
+                      )}
+                    </div>
+                  )}
 
                   <div className="confirm__label">{__('To --[the tip recipient]--')}</div>
                   <div className="confirm__value">
-                    {!isAddress ? <ClaimPreview key={destination} uri={destination} actions={''} type={'small'} hideMenu hideRepostLabel /> : destination}
+                    {!isAddress ? (
+                      <ClaimPreview
+                        key={destination}
+                        uri={destination}
+                        actions={''}
+                        type={'small'}
+                        hideMenu
+                        hideRepostLabel
+                      />
+                    ) : (
+                      destination
+                    )}
                   </div>
                 </div>
-              </div>} actions={<>
+              </div>
+            }
+            actions={
+              <>
                 <div className="section__actions">
                   <Button autoFocus button="primary" label={__('Send')} onClick={() => this.onConfirmed()} />
                   <Button button="link" label={__('Cancel')} onClick={closeModal} />
                 </div>
                 <p className="help">{__('Once the transaction is sent, it cannot be reversed.')}</p>
-              </>} />
+              </>
+            }
+          />
         </Form>
-      </Modal>;
+      </Modal>
+    );
   }
-
 }
 
 export default ModalConfirmTransaction;

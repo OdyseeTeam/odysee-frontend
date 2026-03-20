@@ -1,16 +1,16 @@
-import React from "react";
-import Button from "component/button";
-import ChannelSelector from "component/channelSelector";
-import ClaimPreview from "component/claimPreview";
-import CommentView from "component/comment";
-import Card from "component/common/card";
-import Empty from "component/common/empty";
-import Page from "component/page";
-import Spinner from "component/spinner";
-import { COMMENT_PAGE_SIZE_TOP_LEVEL } from "constants/comment";
-import * as ICONS from "constants/icons";
-import useFetched from "effects/use-fetched";
-import debounce from "util/debounce";
+import React from 'react';
+import Button from 'component/button';
+import ChannelSelector from 'component/channelSelector';
+import ClaimPreview from 'component/claimPreview';
+import CommentView from 'component/comment';
+import Card from 'component/common/card';
+import Empty from 'component/common/empty';
+import Page from 'component/page';
+import Spinner from 'component/spinner';
+import { COMMENT_PAGE_SIZE_TOP_LEVEL } from 'constants/comment';
+import * as ICONS from 'constants/icons';
+import useFetched from 'effects/use-fetched';
+import debounce from 'util/debounce';
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -39,7 +39,7 @@ export default function OwnComments(props: Props) {
     isFetchingComments,
     claimsById,
     doCommentReset,
-    doCommentListOwn
+    doCommentListOwn,
   } = props;
   const spinnerRef = React.useRef();
   const [isLoadingLong, setIsLoadingLong] = React.useState(false);
@@ -52,25 +52,40 @@ export default function OwnComments(props: Props) {
   const moreBelow = page < totalPages;
 
   function getCommentsElem(comments: Array<Comment>) {
-    return comments.map(comment => {
+    return comments.map((comment) => {
       const contentClaim = claimsById[comment.claim_id];
       const isChannel = contentClaim && contentClaim.value_type === 'channel';
       const isLivestream = Boolean(contentClaim && contentClaim.value_type === 'stream' && !contentClaim.value.source);
-      return <div key={comment.comment_id} className="comments-own card__main-actions">
+      return (
+        <div key={comment.comment_id} className="comments-own card__main-actions">
           <div className="section__actions">
             <div className="comments-own--claim">
-              {contentClaim && <ClaimPreview uri={contentClaim.canonical_url} searchParams={{ ...(isChannel ? {
-                view: 'discussion'
-              } : {}),
-              ...(isLivestream ? {} : {
-                lc: comment.comment_id
-              })
-            }} hideActions hideMenu properties={() => null} />}
+              {contentClaim && (
+                <ClaimPreview
+                  uri={contentClaim.canonical_url}
+                  searchParams={{
+                    ...(isChannel
+                      ? {
+                          view: 'discussion',
+                        }
+                      : {}),
+                    ...(isLivestream
+                      ? {}
+                      : {
+                          lc: comment.comment_id,
+                        }),
+                  }}
+                  hideActions
+                  hideMenu
+                  properties={() => null}
+                />
+              )}
               {!contentClaim && <Empty text={__('Content or channel was deleted.')} />}
             </div>
             <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions comment={comment} />
           </div>
-        </div>;
+        </div>
+      );
     });
   }
 
@@ -101,7 +116,8 @@ export default function OwnComments(props: Props) {
 
         try {
           await doCommentListOwn(activeChannelId, page, COMMENT_PAGE_SIZE_TOP_LEVEL);
-        } catch (error) {// Handle any errors here
+        } catch (error) {
+          // Handle any errors here
         } finally {
           clearTimeout(timeout); // Clear the timeout if the function finishes or fails
         }
@@ -125,7 +141,13 @@ export default function OwnComments(props: Props) {
 
       const windowW = window.innerWidth || document.documentElement.clientWidth;
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);
-      const isInViewport = rect.width > 0 && rect.height > 0 && rect.bottom >= 0 && rect.right >= 0 && rect.top <= windowH && rect.left <= windowW;
+      const isInViewport =
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.bottom >= 0 &&
+        rect.right >= 0 &&
+        rect.top <= windowH &&
+        rect.left <= windowW;
       return (isInViewport || isApproachingViewport) && page < topLevelTotalPages;
     }
 
@@ -155,21 +177,52 @@ export default function OwnComments(props: Props) {
     return null;
   }
 
-  return <Page noFooter noSideNavigation settingsPage backout={{
-    title: __('Your comments'),
-    backLabel: __('Back')
-  }}>
+  return (
+    <Page
+      noFooter
+      noSideNavigation
+      settingsPage
+      backout={{
+        title: __('Your comments'),
+        backLabel: __('Back'),
+      }}
+    >
       <ChannelSelector hideAnon />
-      <Card isBodyList title={totalComments > 0 ? totalComments === 1 ? __('1 comment') : __('%total_comments% comments', {
-      total_comments: totalComments
-    }) : isFetchingComments ? '' : __('No comments')} titleActions={<Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={() => {
-      setPage(0);
-    }} />} body={<>
+      <Card
+        isBodyList
+        title={
+          totalComments > 0
+            ? totalComments === 1
+              ? __('1 comment')
+              : __('%total_comments% comments', {
+                  total_comments: totalComments,
+                })
+            : isFetchingComments
+              ? ''
+              : __('No comments')
+        }
+        titleActions={
+          <Button
+            button="alt"
+            icon={ICONS.REFRESH}
+            title={__('Refresh')}
+            onClick={() => {
+              setPage(0);
+            }}
+          />
+        }
+        body={
+          <>
             {wasResetAndReady && <ul className="comments">{allComments && getCommentsElem(allComments)}</ul>}
-            {(isFetchingComments || moreBelow) && <div className="main--empty" ref={spinnerRef}>
+            {(isFetchingComments || moreBelow) && (
+              <div className="main--empty" ref={spinnerRef}>
                 <Spinner type="small" />
                 {isLoadingLong && <p>{__('Larger comment histories may take time to load')}</p>}
-              </div>}
-          </>} />
-    </Page>;
+              </div>
+            )}
+          </>
+        }
+      />
+    </Page>
+  );
 }

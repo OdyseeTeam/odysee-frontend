@@ -1,21 +1,18 @@
-import { connect } from "react-redux";
-import { selectClaimForUri, selectIsStreamPlaceholderForUri } from "redux/selectors/claims";
-import { getChannelIdFromClaim } from "util/claim";
-import { makeSelectFileRenderModeForUri } from "redux/selectors/content";
-import { selectShowScheduledLiveInfoForUri, selectLatestLiveUriForChannel } from "redux/selectors/livestream";
-import { selectStreamingUrlForUri } from "redux/selectors/file_info";
-import { selectUrlsForCollectionId } from "redux/selectors/collections";
-import { doFileGetForUri } from "redux/actions/file";
-import { doFetchItemsInCollection } from "redux/actions/collections";
-import { doFetchChannelIsLiveForId } from "redux/actions/livestream";
-import withResolvedClaimRender from "hocs/withResolvedClaimRender";
-import EmbedClaimComponent from "./view";
+import { connect } from 'react-redux';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectShowScheduledLiveInfoForUri, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { doFileGetForUri } from 'redux/actions/file';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
+import EmbedClaimComponent from './view';
 
 const select = (state, props) => {
-  const {
-    uri,
-    collectionId
-  } = props;
+  const { uri, collectionId } = props;
   const claim = selectClaimForUri(state, uri);
   // Resolve channel from claim robustly: channel pages use their own ID, streams use signing_channel
   const channelClaimId = getChannelIdFromClaim(claim);
@@ -31,13 +28,13 @@ const select = (state, props) => {
     collectionUrls: collectionId ? selectUrlsForCollectionId(state, collectionId) : null,
     channelClaimId,
     isCollection,
-    latestClaimUrl
+    latestClaimUrl,
   };
 };
 
 const perform = {
   doFileGetForUri,
   doFetchItemsInCollection,
-  doFetchChannelIsLiveForId
+  doFetchChannelIsLiveForId,
 };
 export default withResolvedClaimRender(connect(select, perform)(EmbedClaimComponent));

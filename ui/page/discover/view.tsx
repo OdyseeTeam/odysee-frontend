@@ -1,21 +1,21 @@
-import React from "react";
-import classnames from "classnames";
-import { DOMAIN, SIMPLE_SITE } from "config";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import * as CS from "constants/claim_search";
-import Page from "component/page";
-import ClaimListDiscover from "component/claimListDiscover";
-import Button from "component/button";
-import { ClaimSearchFilterContext } from "contexts/claimSearchFilterContext";
-import HiddenNsfw from "component/common/hidden-nsfw";
-import Icon from "component/common/icon";
-import LbcSymbol from "component/common/lbc-symbol";
-import I18nMessage from "component/i18nMessage";
-import moment from "moment";
-import LivestreamSection from "./internal/livestreamSection";
-import { tagSearchCsOptionsHook } from "util/search";
-const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter(x => x !== CS.CLAIM_REPOST);
+import React from 'react';
+import classnames from 'classnames';
+import { DOMAIN, SIMPLE_SITE } from 'config';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as CS from 'constants/claim_search';
+import Page from 'component/page';
+import ClaimListDiscover from 'component/claimListDiscover';
+import Button from 'component/button';
+import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
+import HiddenNsfw from 'component/common/hidden-nsfw';
+import Icon from 'component/common/icon';
+import LbcSymbol from 'component/common/lbc-symbol';
+import I18nMessage from 'component/i18nMessage';
+import moment from 'moment';
+import LivestreamSection from './internal/livestreamSection';
+import { tagSearchCsOptionsHook } from 'util/search';
+const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 type Props = {
   dynamicRouteProps: RowDataItem;
   location: {
@@ -33,16 +33,14 @@ type Props = {
 
 function DiscoverPage(props: Props) {
   const {
-    location: {
-      search
-    },
+    location: { search },
     repostedClaim,
     repostedUri,
     doResolveUri,
     tileLayout,
     dynamicRouteProps,
     discoverDataNew,
-    hideLivestreams
+    hideLivestreams,
   } = props;
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
   const isExplore = dynamicRouteProps && dynamicRouteProps.id === 'EXPLORABLE_CHANNEL';
@@ -60,26 +58,38 @@ function DiscoverPage(props: Props) {
   const hideMembersOnlyContent = isCategory && !isWildWest;
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
-  const tag = tags && tags[0] || null;
+  const tag = (tags && tags[0]) || null;
   const routedChannelIds = dynamicRouteProps?.options?.channelIds;
   const channelIds = routedChannelIds && routedChannelIds.length > 0 ? routedChannelIds : undefined;
   const excludedChannelIds = dynamicRouteProps?.options?.excludedChannelIds || undefined;
   const claimSearchFilters = {
     contentTypes: isCategory && !isWildWest ? CATEGORY_CONTENT_TYPES_FILTER : CS.CONTENT_TYPES,
-    liftUpTagSearch: true
+    liftUpTagSearch: true,
   };
 
   // **************************************************************************
   // **************************************************************************
   function getMeta() {
     if (!dynamicRouteProps) {
-      return <a className="help" target="_blank" rel="noreferrer" href="https://help.odysee.tv/category-blockchain/category-staking/increase/" title={__('Learn more about Credits on %DOMAIN%', {
-        DOMAIN
-      })}>
-          <I18nMessage tokens={{
-          lbc: <LbcSymbol />
-        }}>Results boosted by %lbc%</I18nMessage>
-        </a>;
+      return (
+        <a
+          className="help"
+          target="_blank"
+          rel="noreferrer"
+          href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
+          title={__('Learn more about Credits on %DOMAIN%', {
+            DOMAIN,
+          })}
+        >
+          <I18nMessage
+            tokens={{
+              lbc: <LbcSymbol />,
+            }}
+          >
+            Results boosted by %lbc%
+          </I18nMessage>
+        </a>
+      );
     }
 
     return null;
@@ -88,8 +98,17 @@ function DiscoverPage(props: Props) {
   function getSubSection() {
     const includeLivestreams = !tagsQuery && !hideLivestreams;
 
-    if (includeLivestreams && (isWildWest || channelIds && channelIds.length > 0)) {
-      return <LivestreamSection tileLayout={repostedUri ? false : tileLayout} channelIds={channelIds} excludedChannelIds={isWildWest ? excludedChannelIds : null} searchLanguages={dynamicRouteProps?.options?.searchLanguages} langParam={langParam} hideMembersOnlyContent={hideMembersOnlyContent} />;
+    if (includeLivestreams && (isWildWest || (channelIds && channelIds.length > 0))) {
+      return (
+        <LivestreamSection
+          tileLayout={repostedUri ? false : tileLayout}
+          channelIds={channelIds}
+          excludedChannelIds={isWildWest ? excludedChannelIds : null}
+          searchLanguages={dynamicRouteProps?.options?.searchLanguages}
+          langParam={langParam}
+          hideMembersOnlyContent={hideMembersOnlyContent}
+        />
+      );
     }
 
     return null;
@@ -100,7 +119,7 @@ function DiscoverPage(props: Props) {
       return {
         urls: routeProps.pinnedUrls,
         claimIds: routeProps.pinnedClaimIds,
-        onlyPinForOrder: CS.ORDER_BY_TRENDING
+        onlyPinForOrder: CS.ORDER_BY_TRENDING,
       };
     }
   }
@@ -110,26 +129,35 @@ function DiscoverPage(props: Props) {
 
     if (repostedClaim) {
       headerLabel = __('Reposts of %uri%', {
-        uri: repostedUri
+        uri: repostedUri,
       });
     } else if (tag && !isCategory) {
-      headerLabel = <h1 className="page__title">
+      headerLabel = (
+        <h1 className="page__title">
           <Icon icon={ICONS.TAG} size={10} />
           <span>
-            #{tag === CS.TAGS_ALL && __('All Content') || tag === CS.TAGS_FOLLOWED && __('Followed Tags') || tag}
+            #{(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
           </span>
 
           <span>
-            <Button className="claim-search__tags-link" button="link" label={__('Manage Tags')} navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} />
+            <Button
+              className="claim-search__tags-link"
+              button="link"
+              label={__('Manage Tags')}
+              navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
+            />
           </span>
-        </h1>;
+        </h1>
+      );
     } else {
-      headerLabel = <>
+      headerLabel = (
+        <>
           <h1 className="page__title">
-            <Icon icon={dynamicRouteProps && dynamicRouteProps.icon || ICONS.DISCOVER} size={10} />
-            <label>{dynamicRouteProps && __(`${dynamicRouteProps.title}`) || __('All Content')}</label>
+            <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
+            <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
           </h1>
-        </>;
+        </>
+      );
     }
 
     return headerLabel;
@@ -171,16 +199,53 @@ function DiscoverPage(props: Props) {
   }, [repostedUri, repostedClaimIsResolved, doResolveUri]);
   // **************************************************************************
   // **************************************************************************
-  return <Page noFooter fullWidthPage={tileLayout} className={classnames({
-    'hide-ribbon': hideRepostRibbon
-  })}>
+  return (
+    <Page
+      noFooter
+      fullWidthPage={tileLayout}
+      className={classnames({
+        'hide-ribbon': hideRepostRibbon,
+      })}
+    >
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
-        <ClaimListDiscover pins={getPins(dynamicRouteProps)} hideFilters={isWildWest ? true : hideFilter} header={repostedUri ? <span /> : undefined} subSection={getSubSection()} tileLayout={repostedUri ? false : tileLayout} defaultOrderBy={getDefaultOrderBy()} claimType={claimType ? [claimType] : undefined} defaultStreamType={undefined} // defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined} remove due to claim search bug with reposts
-      headerLabel={getHeaderLabel()} tags={tags} hiddenNsfwMessage={<HiddenNsfw type="page" />} repostedClaimId={repostedClaim ? repostedClaim.claim_id : null} // TODO: find a better way to determine discover / wild west vs other modes release times
-      // for now including && !tags so that
-      releaseTime={getReleaseTime()} feeAmount={undefined} channelIds={isExplore && exploreChannelsIds ? exploreChannelsIds : channelIds} excludedChannelIds={excludedChannelIds} limitClaimsPerChannel={orderParam === CS.ORDER_BY_NEW ? 5 : SIMPLE_SITE ? dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel || 3 : 3} meta={getMeta()} hasSource hideRepostsOverride={dynamicRouteProps ? false : undefined} hideMembersOnlyContent={hideMembersOnlyContent} searchLanguages={dynamicRouteProps?.options?.searchLanguages} duration={dynamicRouteProps?.options?.duration} csOptionsHook={tagSearchCsOptionsHook} sectionTitle={dynamicRouteProps?.title} />
+        <ClaimListDiscover
+          pins={getPins(dynamicRouteProps)}
+          hideFilters={isWildWest ? true : hideFilter}
+          header={repostedUri ? <span /> : undefined}
+          subSection={getSubSection()}
+          tileLayout={repostedUri ? false : tileLayout}
+          defaultOrderBy={getDefaultOrderBy()}
+          claimType={claimType ? [claimType] : undefined}
+          defaultStreamType={undefined} // defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined} remove due to claim search bug with reposts
+          headerLabel={getHeaderLabel()}
+          tags={tags}
+          hiddenNsfwMessage={<HiddenNsfw type="page" />}
+          repostedClaimId={repostedClaim ? repostedClaim.claim_id : null} // TODO: find a better way to determine discover / wild west vs other modes release times
+          // for now including && !tags so that
+          releaseTime={getReleaseTime()}
+          feeAmount={undefined}
+          channelIds={isExplore && exploreChannelsIds ? exploreChannelsIds : channelIds}
+          excludedChannelIds={excludedChannelIds}
+          limitClaimsPerChannel={
+            orderParam === CS.ORDER_BY_NEW
+              ? 5
+              : SIMPLE_SITE
+                ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) ||
+                  3
+                : 3
+          }
+          meta={getMeta()}
+          hasSource
+          hideRepostsOverride={dynamicRouteProps ? false : undefined}
+          hideMembersOnlyContent={hideMembersOnlyContent}
+          searchLanguages={dynamicRouteProps?.options?.searchLanguages}
+          duration={dynamicRouteProps?.options?.duration}
+          csOptionsHook={tagSearchCsOptionsHook}
+          sectionTitle={dynamicRouteProps?.title}
+        />
       </ClaimSearchFilterContext.Provider>
-    </Page>;
+    </Page>
+  );
 }
 
 export default DiscoverPage;

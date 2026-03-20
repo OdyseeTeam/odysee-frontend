@@ -1,6 +1,6 @@
-import React from "react";
-import Button from "component/button";
-import { BLOCK_LEVEL } from "constants/comment";
+import React from 'react';
+import Button from 'component/button';
+import { BLOCK_LEVEL } from 'constants/comment';
 type Props = {
   uri: string;
   blockLevel?: string;
@@ -9,11 +9,21 @@ type Props = {
   isBlockingOrUnBlocking: boolean;
   isToggling: boolean;
   doCommentModUnBlock: (arg0: string, arg1: boolean) => void;
-  doCommentModBlock: (arg0: string, arg1: string | null | undefined, arg2: Number | null | undefined, arg3: boolean) => void;
+  doCommentModBlock: (
+    arg0: string,
+    arg1: string | null | undefined,
+    arg2: number | null | undefined,
+    arg3: boolean
+  ) => void;
   doCommentModUnBlockAsAdmin: (arg0: string, arg1: string) => void;
   doCommentModBlockAsAdmin: (arg0: string, arg1: string | null | undefined, arg2: string | null | undefined) => void;
   doCommentModUnBlockAsModerator: (arg0: string, arg1: string, arg2: string) => void;
-  doCommentModBlockAsModerator: (arg0: string, arg1: string | null | undefined, arg2: string, arg3: string | null | undefined) => void;
+  doCommentModBlockAsModerator: (
+    arg0: string,
+    arg1: string | null | undefined,
+    arg2: string,
+    arg3: string | null | undefined
+  ) => void;
 };
 
 function ChannelBlockButton(props: Props) {
@@ -29,7 +39,7 @@ function ChannelBlockButton(props: Props) {
     doCommentModBlockAsModerator,
     isBlocked,
     isBlockingOrUnBlocking,
-    isToggling
+    isToggling,
   } = props;
 
   function handleClick() {
@@ -71,7 +81,13 @@ function ChannelBlockButton(props: Props) {
       default:
       case BLOCK_LEVEL.SELF:
       case BLOCK_LEVEL.ADMIN:
-        return isBlocked ? isBlockingOrUnBlocking ? __('Unblocking...') : __('Unblock') : isBlockingOrUnBlocking ? __('Blocking...') : __('Block');
+        return isBlocked
+          ? isBlockingOrUnBlocking
+            ? __('Unblocking...')
+            : __('Unblock')
+          : isBlockingOrUnBlocking
+            ? __('Blocking...')
+            : __('Block');
 
       case BLOCK_LEVEL.MODERATOR:
         if (isToggling) {
@@ -79,7 +95,6 @@ function ChannelBlockButton(props: Props) {
         } else {
           return isBlocked ? __('Unblock') : __('Block');
         }
-
     }
   }
 

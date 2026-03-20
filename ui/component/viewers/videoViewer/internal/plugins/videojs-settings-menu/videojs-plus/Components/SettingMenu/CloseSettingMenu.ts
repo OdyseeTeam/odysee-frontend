@@ -1,4 +1,4 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 const ClickableComponent = videojs.getComponent('ClickableComponent');
 
 class CloseSettingMenu extends ClickableComponent {
@@ -9,7 +9,6 @@ class CloseSettingMenu extends ClickableComponent {
   handleClick() {
     this.options_.menu.menuButton_.hideMenu();
   }
-
 }
 
 videojs.registerComponent('CloseSettingMenu', CloseSettingMenu);

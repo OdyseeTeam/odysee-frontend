@@ -1,6 +1,6 @@
-import React from "react";
-import ClaimCollectionAdd from "./internal/claimCollectionAdd";
-import { Modal } from "modal/modal";
+import React from 'react';
+import ClaimCollectionAdd from './internal/claimCollectionAdd';
+import { Modal } from 'modal/modal';
 type Props = {
   uri: string;
   // -- redux --
@@ -8,13 +8,12 @@ type Props = {
 };
 
 const ModalClaimCollectionAdd = (props: Props) => {
-  const {
-    uri,
-    doHideModal
-  } = props;
-  return <Modal isOpen type="card" onAborted={doHideModal}>
+  const { uri, doHideModal } = props;
+  return (
+    <Modal isOpen type="card" onAborted={doHideModal}>
       <ClaimCollectionAdd uri={uri} closeModal={doHideModal} />
-    </Modal>;
+    </Modal>
+  );
 };
 
 export default ModalClaimCollectionAdd;

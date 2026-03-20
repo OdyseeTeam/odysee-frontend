@@ -1,4 +1,4 @@
-import { getLanguageName } from "./languages";
+import { getLanguageName } from './languages';
 // supported_browser_languages
 const SUPPORTED_LANGUAGES = {
   af: getLanguageName('af'),
@@ -56,7 +56,7 @@ const SUPPORTED_LANGUAGES = {
   ur: getLanguageName('ur'),
   vi: getLanguageName('vi'),
   'zh-Hans': getLanguageName('zh-Hans'),
-  'zh-Hant': getLanguageName('zh-Hant')
+  'zh-Hant': getLanguageName('zh-Hant'),
 }; // Properties: language code (e.g. 'ja')
 // Values: name of the language in native form (e.g. '日本語')
 

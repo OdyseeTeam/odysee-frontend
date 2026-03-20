@@ -1,17 +1,29 @@
-import { connect } from "react-redux";
-import { selectHasClaimForId, selectClaimBidAmountForId, selectClaimIsPendingForId, selectClaimUriForId } from "redux/selectors/claims";
-import { selectBalance } from "redux/selectors/wallet";
-import { selectCollectionClaimUploadParamsForId } from "redux/selectors/publish";
-import { selectCollectionHasEditsForId, selectHasUnavailableClaimIdsForCollectionId, selectCollectionHasUnsavedEditsForId } from "redux/selectors/collections";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import { doCollectionPublish, doCollectionEdit, doClearEditsForCollectionId, doRemoveFromUnsavedChangesCollectionsForCollectionId } from "redux/actions/collections";
-import { doOpenModal } from "redux/actions/app";
-import CollectionPublishForm from "./view";
+import { connect } from 'react-redux';
+import {
+  selectHasClaimForId,
+  selectClaimBidAmountForId,
+  selectClaimIsPendingForId,
+  selectClaimUriForId,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
+import {
+  selectCollectionHasEditsForId,
+  selectHasUnavailableClaimIdsForCollectionId,
+  selectCollectionHasUnsavedEditsForId,
+} from 'redux/selectors/collections';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  doCollectionPublish,
+  doCollectionEdit,
+  doClearEditsForCollectionId,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
+} from 'redux/actions/collections';
+import { doOpenModal } from 'redux/actions/app';
+import CollectionPublishForm from './view';
 
 const select = (state, props) => {
-  const {
-    collectionId
-  } = props;
+  const { collectionId } = props;
   return {
     uri: selectClaimUriForId(state, collectionId),
     hasClaim: selectHasClaimForId(state, collectionId),
@@ -22,7 +34,7 @@ const select = (state, props) => {
     activeChannelClaim: selectActiveChannelClaim(state),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     collectionHasUnSavedEdits: selectCollectionHasUnsavedEditsForId(state, collectionId),
-    hasUnavailableClaims: selectHasUnavailableClaimIdsForCollectionId(state, collectionId)
+    hasUnavailableClaims: selectHasUnavailableClaimIdsForCollectionId(state, collectionId),
   };
 };
 
@@ -31,6 +43,6 @@ const perform = {
   doCollectionEdit,
   doClearEditsForCollectionId,
   doOpenModal,
-  doRemoveFromUnsavedChangesCollectionsForCollectionId
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
 };
 export default connect(select, perform)(CollectionPublishForm);

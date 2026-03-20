@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Label } from "./common";
+import * as React from 'react';
+import { Label } from './common';
 type InputSelectProps = {
   name: string;
   className?: string;
@@ -8,19 +8,14 @@ type InputSelectProps = {
   children?: any;
 };
 export const InputSelect = (inputSelectProps: InputSelectProps) => {
-  const {
-    name,
-    className,
-    errorMessage,
-    label,
-    children,
-    ...inputProps
-  } = inputSelectProps;
-  return <fieldset-section class={className || ''}>
+  const { name, className, errorMessage, label, children, ...inputProps } = inputSelectProps;
+  return (
+    <fieldset-section class={className || ''}>
       {(label || errorMessage) && <Label name={name} label={label} errorMessage={errorMessage} />}
 
       <select id={name} {...inputProps}>
         {children}
       </select>
-    </fieldset-section>;
+    </fieldset-section>
+  );
 };

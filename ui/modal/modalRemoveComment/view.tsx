@@ -1,8 +1,8 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import Button from "component/button";
-import CommentView from "component/comment";
-import Card from "component/common/card";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import Button from 'component/button';
+import CommentView from 'component/comment';
+import Card from 'component/common/card';
 type Props = {
   commentId: string;
   // sha256 digest identifying the comment
@@ -14,7 +14,12 @@ type Props = {
   // --- redux ---
   comment?: Comment;
   doHideModal: () => void;
-  doCommentAbandon: (arg0: string, arg1: Claim, arg2: boolean | null | undefined, arg3: Claim | null | undefined) => void;
+  doCommentAbandon: (
+    arg0: string,
+    arg1: Claim,
+    arg2: boolean | null | undefined,
+    arg3: Claim | null | undefined
+  ) => void;
 };
 
 function ModalRemoveComment(props: Props) {
@@ -27,36 +32,61 @@ function ModalRemoveComment(props: Props) {
     setQuickReply,
     comment,
     doHideModal,
-    doCommentAbandon
+    doCommentAbandon,
   } = props;
 
   function getCommentPreview(comment: Comment | null | undefined) {
-    return comment ? <div className="section comment-preview non-clickable">
-        <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
-      </div> : null;
+    return comment ? (
+      <div className="section comment-preview non-clickable">
+        <CommentView
+          comment={comment}
+          threadLevel={-1}
+          isTopLevel
+          hideActions
+          hideContextMenu
+          forceDisplayDeadComment
+        />
+      </div>
+    ) : null;
   }
 
-  return <Modal isOpen contentLabel={__('Confirm Comment Deletion')} type="card" onAborted={doHideModal}>
-      <Card title={__('Remove Comment')} body={<React.Fragment>
+  return (
+    <Modal isOpen contentLabel={__('Confirm Comment Deletion')} type="card" onAborted={doHideModal}>
+      <Card
+        title={__('Remove Comment')}
+        body={
+          <React.Fragment>
             <p>{__('Are you sure you want to remove this comment?')}</p>
-            {Boolean(supportAmount) && <p className="help error__text">
+            {Boolean(supportAmount) && (
+              <p className="help error__text">
                 {__('This comment has a tip associated with it which cannot be reverted.')}
-              </p>}
+              </p>
+            )}
             <div>{getCommentPreview(comment)}</div>
-          </React.Fragment>} actions={<>
+          </React.Fragment>
+        }
+        actions={
+          <>
             <div className="section__actions">
-              <Button button="primary" label={__('Remove')} onClick={() => {
-          doHideModal();
-          doCommentAbandon(commentId, deleterClaim, deleterIsModOrAdmin, creatorClaim);
+              <Button
+                button="primary"
+                label={__('Remove')}
+                onClick={() => {
+                  doHideModal();
+                  doCommentAbandon(commentId, deleterClaim, deleterIsModOrAdmin, creatorClaim);
 
-          if (setQuickReply) {
-            setQuickReply(undefined);
-          }
-        }} />
+                  if (setQuickReply) {
+                    setQuickReply(undefined);
+                  }
+                }}
+              />
               <Button button="link" label={__('Cancel')} onClick={doHideModal} />
             </div>
-          </>} />
-    </Modal>;
+          </>
+        }
+      />
+    </Modal>
+  );
 }
 
 export default ModalRemoveComment;

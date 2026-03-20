@@ -1,27 +1,31 @@
-import { connect } from "react-redux";
-import { doSetContentHistoryItem, doSetPrimaryUri } from "redux/actions/content";
-import { withRouter } from "react-router-dom";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { selectClaimIsNsfwForUri, selectClaimForUri, selectProtectedContentTagForUri, selectIsStreamPlaceholderForUri, selectCostInfoForUri, selectThumbnailForUri, makeSelectTagInClaimOrChannelForUri } from "redux/selectors/claims";
-import { selectBlackListedDataForUri, selectFilteredDataForUri } from "lbryinc";
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from "constants/comment";
-import { makeSelectFileRenderModeForUri } from "redux/selectors/content";
-import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from "redux/selectors/comments";
-import { doToggleAppDrawer } from "redux/actions/app";
-import { selectClientSetting } from "redux/selectors/settings";
-import * as SETTINGS from "constants/settings";
-import { getChannelIdFromClaim, isClaimShort } from "util/claim";
-import * as TAGS from "constants/tags";
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from "redux/selectors/memberships";
-import StreamClaimPage from "./view";
+import { connect } from 'react-redux';
+import { doSetContentHistoryItem, doSetPrimaryUri } from 'redux/actions/content';
+import { withRouter } from 'react-router-dom';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import {
+  selectClaimIsNsfwForUri,
+  selectClaimForUri,
+  selectProtectedContentTagForUri,
+  selectIsStreamPlaceholderForUri,
+  selectCostInfoForUri,
+  selectThumbnailForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { doToggleAppDrawer } from 'redux/actions/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
+import { getChannelIdFromClaim, isClaimShort } from 'util/claim';
+import * as TAGS from 'constants/tags';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import StreamClaimPage from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
-  const {
-    search
-  } = location;
+  const { uri } = props;
+  const { search } = location;
   const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
@@ -37,7 +41,8 @@ const select = (state, props) => {
     isMature: selectClaimIsNsfwForUri(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    commentsDisabled: commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
+    commentsDisabled:
+      commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
@@ -45,13 +50,13 @@ const select = (state, props) => {
     isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
     disableShortsView: !!collectionSidebarId || selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
     isClaimFiltered,
-    isClaimShort: isClaimShort(claim)
+    isClaimShort: isClaimShort(claim),
   };
 };
 
 const perform = {
   doSetContentHistoryItem,
   doSetPrimaryUri,
-  doToggleAppDrawer
+  doToggleAppDrawer,
 };
 export default withRouter(connect(select, perform)(StreamClaimPage));

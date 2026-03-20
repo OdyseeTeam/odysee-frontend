@@ -1,2 +1,2 @@
-import PasswordUpdate from "./view";
+import PasswordUpdate from './view';
 export default PasswordUpdate;

@@ -1,4 +1,4 @@
-import { COMMENT_SERVER_API } from "config";
+import { COMMENT_SERVER_API } from 'config';
 // prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
@@ -37,22 +37,24 @@ function fetchCommentsApi(method: string, params: {}) {
   const options = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       jsonrpc: '2.0',
       id: 1,
       method,
-      params
-    })
+      params,
+    }),
   };
-  return fetch(url, options).then(res => res.json()).then(res => {
-    if (res.error) {
-      throw new Error(res.error.message);
-    }
+  return fetch(url, options)
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.error) {
+        throw new Error(res.error.message);
+      }
 
-    return res.result;
-  });
+      return res.result;
+    });
 }
 
 export default Comments;

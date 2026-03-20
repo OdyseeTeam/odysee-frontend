@@ -1,21 +1,21 @@
-import "scss/component/_header.scss";
-import { formatCredits } from "util/format-credits";
-import { useIsMobile } from "effects/use-screensize";
-import { withRouter } from "react-router";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import Button from "component/button";
-import classnames from "classnames";
-import HeaderMenuButtons from "component/headerMenuButtons";
-import HeaderProfileMenuButton from "component/headerProfileMenuButton";
-import Logo from "component/logo";
-import NotificationBubble from "component/notificationBubble";
-import React from "react";
-import Skeleton from "@mui/material/Skeleton";
-import SkipNavigationButton from "component/skipNavigationButton";
-import Tooltip from "component/common/tooltip";
-import WunderBar from "component/wunderbar";
-import WanderButton from "../wanderButton";
+import 'scss/component/_header.scss';
+import { formatCredits } from 'util/format-credits';
+import { useIsMobile } from 'effects/use-screensize';
+import { withRouter } from 'react-router';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import Button from 'component/button';
+import classnames from 'classnames';
+import HeaderMenuButtons from 'component/headerMenuButtons';
+import HeaderProfileMenuButton from 'component/headerProfileMenuButton';
+import Logo from 'component/logo';
+import NotificationBubble from 'component/notificationBubble';
+import React from 'react';
+import Skeleton from '@mui/material/Skeleton';
+import SkipNavigationButton from 'component/skipNavigationButton';
+import Tooltip from 'component/common/tooltip';
+import WunderBar from 'component/wunderbar';
+import WanderButton from '../wanderButton';
 type Props = {
   authenticated: boolean;
   authHeader: boolean;
@@ -26,7 +26,6 @@ type Props = {
     backNavDefault?: string;
     title: string;
     simpleTitle: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
-
   };
   balance: number;
   emailToVerify?: string;
@@ -86,15 +85,12 @@ const Header = (props: Props) => {
     clearPasswordEntry,
     openChangelog,
     setSidebarOpen,
-    signOut
+    signOut,
   } = props;
   const {
-    location: {
-      pathname,
-      search
-    },
+    location: { pathname, search },
     goBack,
-    push
+    push,
   } = history;
   const isMobile = useIsMobile();
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
@@ -106,28 +102,27 @@ const Header = (props: Props) => {
   const isPlaylistPage = pathname.includes(PAGES.PLAYLIST);
   const urlParams = new URLSearchParams(search);
   const returnPath = urlParams.get('redirect');
-  const isYoutubeAuthErrorPage = iYTSyncPage && (urlParams.get('error') === 'true' || Boolean(urlParams.get('error_message')));
+  const isYoutubeAuthErrorPage =
+    iYTSyncPage && (urlParams.get('error') === 'true' || Boolean(urlParams.get('error_message')));
   // For pages that allow for "backing out", shows a backout option instead of the Home logo
   const canBackout = Boolean(backout);
-  const {
-    backLabel,
-    backNavDefault,
-    title: backTitle,
-    simpleTitle: simpleBackTitle
-  } = backout || {};
+  const { backLabel, backNavDefault, title: backTitle, simpleTitle: simpleBackTitle } = backout || {};
   const hideWallet = isMobile && isFloatingPlayerOpen;
   const balanceLoading = totalBalance === undefined;
   const roundedSpendableBalance = formatCredits(balance, 2, true);
   const roundedTotalBalance = formatCredits(totalBalance, 2, true);
   // Sign out if they click the "x" when they are on the password prompt
   const authHeaderAction = syncError && {
-    onClick: signOut
+    onClick: signOut,
   };
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
-  const homeButtonNavigationProps = isVerifyPage && {} || authHeader && authHeaderAction || {
-    navigate: isEmbedPath ? '/$/embed/home' : '/'
-  };
-  const sidebarLabel = sidebarOpen ? __('Close sidebar - hide channels you are following.') : __('Expand sidebar - view channels you are following.');
+  const homeButtonNavigationProps = (isVerifyPage && {}) ||
+    (authHeader && authHeaderAction) || {
+      navigate: isEmbedPath ? '/$/embed/home' : '/',
+    };
+  const sidebarLabel = sidebarOpen
+    ? __('Close sidebar - hide channels you are following.')
+    : __('Expand sidebar - view channels you are following.');
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
   function handleCollectionEditPageCleanUp() {
@@ -135,25 +130,27 @@ const Header = (props: Props) => {
     doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
   }
 
-  const onBackout = React.useCallback((e: any) => {
-    window.removeEventListener('popstate', onBackout);
+  const onBackout = React.useCallback(
+    (e: any) => {
+      window.removeEventListener('popstate', onBackout);
 
-    if (isPlaylistPage) {
-      handleCollectionEditPageCleanUp();
-    }
-
-    if (e.type !== 'popstate') {
-      if (returnPath) {
-        push(returnPath);
-      } else if (hasNavigated && !backNavDefault) {
-        // if not initiated by pop (back button)
-        goBack();
-      } else {
-        push(backNavDefault || `/`);
+      if (isPlaylistPage) {
+        handleCollectionEditPageCleanUp();
       }
-    }
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  [backNavDefault, goBack, hasNavigated, push, returnPath]);
+
+      if (e.type !== 'popstate') {
+        if (returnPath) {
+          push(returnPath);
+        } else if (hasNavigated && !backNavDefault) {
+          // if not initiated by pop (back button)
+          goBack();
+        } else {
+          push(backNavDefault || `/`);
+        }
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+    [backNavDefault, goBack, hasNavigated, push, returnPath]
+  );
   React.useEffect(() => {
     if (canBackout) {
       window.addEventListener('popstate', onBackout);
@@ -161,115 +158,206 @@ const Header = (props: Props) => {
     }
   }, [canBackout, onBackout]);
 
-  const userButtons = (hideWallet?: boolean, hideProfile?: boolean) => <div className="header__menu--right">
+  const userButtons = (hideWallet?: boolean, hideProfile?: boolean) => (
+    <div className="header__menu--right">
       {isMobile && !authHeader && !canBackout && <WunderBar />}
 
-      {authenticated ? <>
-          {!hideWallet && <>
-              {arweaveAccounts.length > 0 ? <WanderButton hideBalance={hideBalance} /> : <Tooltip title={balance > 0 ? __('Immediately spendable: %spendable_balance%', {
-          spendable_balance: roundedSpendableBalance
-        }) : __('Your Wallet')}>
+      {authenticated ? (
+        <>
+          {!hideWallet && (
+            <>
+              {arweaveAccounts.length > 0 ? (
+                <WanderButton hideBalance={hideBalance} />
+              ) : (
+                <Tooltip
+                  title={
+                    balance > 0
+                      ? __('Immediately spendable: %spendable_balance%', {
+                          spendable_balance: roundedSpendableBalance,
+                        })
+                      : __('Your Wallet')
+                  }
+                >
                   <div>
-                    {balanceLoading ? <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" /> : <Button navigate={`/$/${PAGES.WALLET}`} className={classnames('button--file-action header__navigationItem--balance', {
-              'header__navigationItem--balance-round': hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
-            })} label={hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady ? __(isMobile ? 'Wallet' : 'Your Wallet') : roundedTotalBalance} icon={ICONS.LBC} />}
+                    {balanceLoading ? (
+                      <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
+                    ) : (
+                      <Button
+                        navigate={`/$/${PAGES.WALLET}`}
+                        className={classnames('button--file-action header__navigationItem--balance', {
+                          'header__navigationItem--balance-round':
+                            hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
+                        })}
+                        label={
+                          hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
+                            ? __(isMobile ? 'Wallet' : 'Your Wallet')
+                            : roundedTotalBalance
+                        }
+                        icon={ICONS.LBC}
+                      />
+                    )}
                   </div>
-                </Tooltip>}
-            </>}
+                </Tooltip>
+              )}
+            </>
+          )}
 
           {!hideProfile && <HeaderProfileMenuButton />}
-        </> : !isMobile ? <>
+        </>
+      ) : !isMobile ? (
+        <>
           <HeaderProfileMenuButton />
           <div className="header__authButtons">
-            <Button navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`} button="link" label={__('Log In')} disabled={user === null} />
-            <Button navigate={`/$/${PAGES.AUTH}${authRedirectParam}`} button="primary" label={__('Sign Up')} disabled={user === null} />
+            <Button
+              navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
+              button="link"
+              label={__('Log In')}
+              disabled={user === null}
+            />
+            <Button
+              navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
+              button="primary"
+              label={__('Sign Up')}
+              disabled={user === null}
+            />
           </div>
-        </> : <HeaderProfileMenuButton />}
-    </div>;
+        </>
+      ) : (
+        <HeaderProfileMenuButton />
+      )}
+    </div>
+  );
 
-  return <header className={classnames('header', {
-    'header--minimal': authHeader
-  })}>
-      {!authHeader && canBackout ? <div className="card__actions--between header__contents">
+  return (
+    <header
+      className={classnames('header', {
+        'header--minimal': authHeader,
+      })}
+    >
+      {!authHeader && canBackout ? (
+        <div className="card__actions--between header__contents">
           <div className="header__menu--left">
             <Button onClick={onBackout} button="link" label={backLabel || __('Cancel')} icon={ICONS.ARROW_LEFT} />
           </div>
 
-          {backTitle && <h1 className="header__authTitle">{isMobile && simpleBackTitle || backTitle}</h1>}
+          {backTitle && <h1 className="header__authTitle">{(isMobile && simpleBackTitle) || backTitle}</h1>}
 
           {userButtons(false, isMobile)}
-        </div> : <>
+        </div>
+      ) : (
+        <>
           <div className="header__navigation">
             <div className="header__menu--left">
               <SkipNavigationButton />
 
-              {!authHeader && !props.hideSidebarToggle && <span style={{
-            position: 'relative'
-          }}>
-                  <Button aria-label={sidebarLabel} id="navigation-button" className="header__navigationItem--icon button-rotate" icon={ICONS.MENU} aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(!sidebarOpen)} />
+              {!authHeader && !props.hideSidebarToggle && (
+                <span
+                  style={{
+                    position: 'relative',
+                  }}
+                >
+                  <Button
+                    aria-label={sidebarLabel}
+                    id="navigation-button"
+                    className="header__navigationItem--icon button-rotate"
+                    icon={ICONS.MENU}
+                    aria-expanded={sidebarOpen}
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                  />
                   {isAbsoluteSideNavHidden && isMobile && <NotificationBubble />}
-                </span>}
+                </span>
+              )}
 
-              <Button aria-label={__('Home')} className="header__navigationItem--logo" onClick={() => {
-            if (pathname === '/' || pathname === '/$/embed/home') {
-              window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'smooth'
-              });
-              doClearClaimSearch();
-            }
-          }} {...homeButtonNavigationProps}>
+              <Button
+                aria-label={__('Home')}
+                className="header__navigationItem--logo"
+                onClick={() => {
+                  if (pathname === '/' || pathname === '/$/embed/home') {
+                    window.scrollTo({
+                      top: 0,
+                      left: 0,
+                      behavior: 'smooth',
+                    });
+                    doClearClaimSearch();
+                  }
+                }}
+                {...homeButtonNavigationProps}
+              >
                 <Logo />
               </Button>
 
-              {
-            /* @if process.env.DEV_CHANGELOG */
-          }
-              {history.location.pathname === '/' && <Button title="Changelog" className="badge--alert" label="Changelog" icon={ICONS.FEEDBACK} onClick={() => openChangelog({
-            title: __('Changelog'),
-            subtitle: __('Warning: this is a test instance.'),
-            body: <p style={{
-              whiteSpace: 'pre-wrap'
-            }}>{process.env.DEV_CHANGELOG}</p>,
-            onConfirm: closeModal => closeModal(),
-            hideCancel: true
-          })} />}
-              {
-            /* @endif */
-          }
+              {/* @if process.env.DEV_CHANGELOG */}
+              {history.location.pathname === '/' && (
+                <Button
+                  title="Changelog"
+                  className="badge--alert"
+                  label="Changelog"
+                  icon={ICONS.FEEDBACK}
+                  onClick={() =>
+                    openChangelog({
+                      title: __('Changelog'),
+                      subtitle: __('Warning: this is a test instance.'),
+                      body: (
+                        <p
+                          style={{
+                            whiteSpace: 'pre-wrap',
+                          }}
+                        >
+                          {process.env.DEV_CHANGELOG}
+                        </p>
+                      ),
+                      onConfirm: (closeModal) => closeModal(),
+                      hideCancel: true,
+                    })
+                  }
+                />
+              )}
+              {/* @endif */}
             </div>
 
-            {!authHeader && !isMobile && <div className="header__center">
+            {!authHeader && !isMobile && (
+              <div className="header__center">
                 <WunderBar />
                 <HeaderMenuButtons authRedirect={authRedirect} />
-              </div>}
+              </div>
+            )}
 
-            {!authHeader && !canBackout ? userButtons(hideWallet, false) : !isVerifyPage && !hideCancel && <div className="header__menu--right">
-                    <Button title={__('Go Back')} button="alt" // className="button--header-close"
-          icon={ICONS.REMOVE} onClick={() => {
-            if (isYoutubeAuthErrorPage) {
-              push(`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`);
-              return;
-            }
+            {!authHeader && !canBackout
+              ? userButtons(hideWallet, false)
+              : !isVerifyPage &&
+                !hideCancel && (
+                  <div className="header__menu--right">
+                    <Button
+                      title={__('Go Back')}
+                      button="alt" // className="button--header-close"
+                      icon={ICONS.REMOVE}
+                      onClick={() => {
+                        if (isYoutubeAuthErrorPage) {
+                          push(`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`);
+                          return;
+                        }
 
-            if (!iYTSyncPage && !isPwdResetPage) {
-              clearEmailEntry();
-              clearPasswordEntry();
-            }
+                        if (!iYTSyncPage && !isPwdResetPage) {
+                          clearEmailEntry();
+                          clearPasswordEntry();
+                        }
 
-            if (syncError) signOut();
+                        if (syncError) signOut();
 
-            if (isSignInPage && !emailToVerify || isSignUpPage || isPwdResetPage || iYTSyncPage) {
-              goBack();
-            } else {
-              push('/');
-            }
-          }} />
-                  </div>}
+                        if ((isSignInPage && !emailToVerify) || isSignUpPage || isPwdResetPage || iYTSyncPage) {
+                          goBack();
+                        } else {
+                          push('/');
+                        }
+                      }}
+                    />
+                  </div>
+                )}
           </div>
-        </>}
-    </header>;
+        </>
+      )}
+    </header>
+  );
 };
 
 export default withRouter(Header);

@@ -1,4 +1,4 @@
-import type { DoPublishDesktop } from "redux/actions/publish";
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 /*
   On submit, this component calls publish, which dispatches doPublishDesktop.
@@ -7,38 +7,46 @@ import type { DoPublishDesktop } from "redux/actions/publish";
   On web, the Lbry publish method call is overridden in platform/web/api-setup, using a function in platform/web/publish.
   File upload is carried out in the background by that function.
  */
-import { SITE_NAME, SIMPLE_SITE } from "config";
-import * as ICONS from "constants/icons";
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
-import Lbry from "lbry";
-import { buildURI, isURIValid, isNameValid } from "util/lbryURI";
-import * as THUMBNAIL_STATUSES from "constants/thumbnail_upload_statuses";
-import { BITRATE } from "constants/publish";
-import Button from "component/button";
-import ChannelSelector from "component/channelSelector";
-import classnames from "classnames";
-import TagsSelect from "component/tagsSelect";
-import PublishDescription from "component/publish/shared/publishDescription";
-import PublishAdditionalOptions from "component/publish/shared/publishAdditionalOptions";
-import PublishFormErrors from "component/publish/shared/publishFormErrors";
-import PublishStreamReleaseDate from "component/publish/shared/publishStreamReleaseDate";
-import PublishLivestream from "component/publish/livestream/publishLivestream";
-import Card from "component/common/card";
-import I18nMessage from "component/i18nMessage";
-import Spinner from "component/spinner";
-import { toHex } from "util/hex";
-import { lazyImport } from "util/lazyImport";
-import { NEW_LIVESTREAM_REPLAY_API } from "constants/livestream";
-import { useIsMobile } from "effects/use-screensize";
-import Tooltip from "component/common/tooltip";
-import PublishProtectedContent from "component/publishProtectedContent";
-const SelectThumbnail = lazyImport(() => import('component/selectThumbnail'
-/* webpackChunkName: "selectThumbnail" */
-));
-const PublishPrice = lazyImport(() => import('component/publish/shared/publishPrice'
-/* webpackChunkName: "publish" */
-));
+import { SITE_NAME, SIMPLE_SITE } from 'config';
+import * as ICONS from 'constants/icons';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
+import Lbry from 'lbry';
+import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { BITRATE } from 'constants/publish';
+import Button from 'component/button';
+import ChannelSelector from 'component/channelSelector';
+import classnames from 'classnames';
+import TagsSelect from 'component/tagsSelect';
+import PublishDescription from 'component/publish/shared/publishDescription';
+import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
+import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
+import PublishLivestream from 'component/publish/livestream/publishLivestream';
+import Card from 'component/common/card';
+import I18nMessage from 'component/i18nMessage';
+import Spinner from 'component/spinner';
+import { toHex } from 'util/hex';
+import { lazyImport } from 'util/lazyImport';
+import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import { useIsMobile } from 'effects/use-screensize';
+import Tooltip from 'component/common/tooltip';
+import PublishProtectedContent from 'component/publishProtectedContent';
+const SelectThumbnail = lazyImport(
+  () =>
+    import(
+      'component/selectThumbnail'
+      /* webpackChunkName: "selectThumbnail" */
+    )
+);
+const PublishPrice = lazyImport(
+  () =>
+    import(
+      'component/publish/shared/publishPrice'
+      /* webpackChunkName: "publish" */
+    )
+);
 type Props = {
   liveCreateType: LiveCreateType;
   liveEditType: LiveEditType;
@@ -142,12 +150,10 @@ function LivestreamForm(props: Props) {
     hasClaimedInitialRewards,
     setClearStatus,
     remoteFileUrl,
-    memberRestrictionStatus
+    memberRestrictionStatus,
   } = props;
   const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const createTypeShortcut = urlParams.get('s');
@@ -168,14 +174,29 @@ function LivestreamForm(props: Props) {
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const waitingForFile = waitForFile && !remoteFileUrl && !filePath;
   // If they are editing, they don't need a new file chosen
-  const formValidLessFile = (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) && name && isNameValid(name) && title && fileBitrate < BITRATE.MAX && bid && thumbnail && !bidError && !(thumbnailError && !thumbnailUploaded) && !releaseTimeError && !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
+  const formValidLessFile =
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
+    name &&
+    isNameValid(name) &&
+    title &&
+    fileBitrate < BITRATE.MAX &&
+    bid &&
+    thumbnail &&
+    !bidError &&
+    !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
+    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
-  const formValid = isOverwritingExistingClaim ? false : editingURI && !filePath // if we're editing we don't need a file
-  ? isStillEditing && formValidLessFile && !waitingForFile : formValidLessFile;
+  const formValid = isOverwritingExistingClaim
+    ? false
+    : editingURI && !filePath // if we're editing we don't need a file
+      ? isStillEditing && formValidLessFile && !waitingForFile
+      : formValidLessFile;
   const [previewing, setPreviewing] = React.useState(false);
-  const requiresReplayUrl = liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay';
+  const requiresReplayUrl =
+    liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
   const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
-  const disabled = !title || !name || requiresReplayUrl && !remoteFileUrl || requiresFile && !filePath;
+  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl) || (requiresFile && !filePath);
   const isClear = !title && !name && !description && !thumbnail;
   useEffect(() => {
     setClearStatus(isClear); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
@@ -202,10 +223,9 @@ function LivestreamForm(props: Props) {
     if (publishError) {
       setPreviewing(false);
       updatePublishForm({
-        publishError: undefined
+        publishError: undefined,
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [publishError]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
@@ -216,8 +236,8 @@ function LivestreamForm(props: Props) {
     try {
       await Lbry.channel_sign({
         channel_id: channelId,
-        hexdata: toHex(channelName || '')
-      }).then(data => {
+        hexdata: toHex(channelName || ''),
+      }).then((data) => {
         signedMessage = data;
       });
     } catch (e) {
@@ -226,7 +246,9 @@ function LivestreamForm(props: Props) {
 
     if (signedMessage) {
       const encodedChannelName = encodeURIComponent(channelName || '');
-      const newEndpointUrl = `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` + `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
+        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
       const responseFromNewApi = await fetch(newEndpointUrl);
       const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
       const newData: Array<LivestreamReplayItem> = [];
@@ -237,11 +259,14 @@ function LivestreamForm(props: Props) {
             const objectToPush = {
               data: {
                 fileLocation: dataItem.URL,
-                fileDuration: dataItem.Status.toLowerCase() === 'inprogress' ? __('Processing...(') + dataItem.PercentComplete + '%)' : (dataItem.Duration / 1000000000).toString(),
+                fileDuration:
+                  dataItem.Status.toLowerCase() === 'inprogress'
+                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
+                    : (dataItem.Duration / 1000000000).toString(),
                 percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created
-              }
+                uploadedAt: dataItem.Created,
+              },
             };
             newData.push(objectToPush);
           }
@@ -278,7 +303,6 @@ function LivestreamForm(props: Props) {
     if (publishing || publishSuccess) {
       clearPublish();
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [clearPublish]);
   useEffect(() => {
     if (!thumbnail) {
@@ -299,18 +323,26 @@ function LivestreamForm(props: Props) {
     let uri;
 
     try {
-      uri = name && buildURI({
-        streamName: name,
-        activeChannelName
-      }, true);
+      uri =
+        name &&
+        buildURI(
+          {
+            streamName: name,
+            activeChannelName,
+          },
+          true
+        );
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({
-          streamName: name
-        }, true);
+        const uriLessChannel = buildURI(
+          {
+            streamName: name,
+          },
+          true
+        );
         resolveUri(uriLessChannel);
       } catch (e) {}
     }
@@ -321,7 +353,7 @@ function LivestreamForm(props: Props) {
       resolveUri(uri);
       checkAvailability(name);
       updatePublishForm({
-        uri
+        uri,
       });
     }
   }, [name, activeChannelName, resolveUri, updatePublishForm, checkAvailability]);
@@ -334,15 +366,14 @@ function LivestreamForm(props: Props) {
   useEffect(() => {
     if (createTypeShortcut === 'Replay') {
       updatePublishForm({
-        liveCreateType: 'choose_replay'
+        liveCreateType: 'choose_replay',
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   useEffect(() => {
     updatePublishForm({
       channel: activeChannelName || undefined,
-      channelId: activeChannelId || undefined
+      channelId: activeChannelId || undefined,
     });
   }, [activeChannelName, activeChannelId, updatePublishForm]);
 
@@ -358,95 +389,218 @@ function LivestreamForm(props: Props) {
   }
 
   if (publishing) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <h1 className="section__subtitle">{__('Publishing...')}</h1>
         <Spinner delayed />
-      </div>;
+      </div>
+    );
   }
 
-  const isFormIncomplete = isClaimingInitialRewards || formDisabled || !formValid || uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS || requiresReplayUrl && !remoteFileUrl || requiresFile && !filePath || previewing;
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    !formValid ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    (requiresReplayUrl && !remoteFileUrl) ||
+    (requiresFile && !filePath) ||
+    previewing;
   // Editing claim uri
-  return <div className={balance < 0.01 ? 'disabled' : ''}>
+  return (
+    <div className={balance < 0.01 ? 'disabled' : ''}>
       <div className="card-stack">
         <Card className="publish-livestream-header">
-          <Button key={'New'} icon={ICONS.LIVESTREAM_MONOCHROME} iconSize={18} label={__('New Livestream')} button="alt" onClick={() => updatePublishForm({
-          liveCreateType: 'new_placeholder'
-        })} disabled={editingURI} className={classnames('button-toggle', {
-          'button-toggle--active': liveCreateType === 'new_placeholder'
-        })} />
-          {liveCreateType !== 'edit_placeholder' && <Button key={'Replay'} icon={ICONS.MENU} iconSize={18} label={__('Choose Replay')} button="alt" onClick={() => updatePublishForm({
-          liveCreateType: 'choose_replay'
-        })} disabled={!hasLivestreamData} className={classnames('button-toggle', {
-          'button-toggle--active': liveCreateType === 'choose_replay'
-        })} />}
-          {liveCreateType === 'edit_placeholder' && <Button key={'Edit'} icon={ICONS.EDIT} iconSize={18} label={__('Edit / Update')} button="alt" className="button-toggle button-toggle--active" />}
+          <Button
+            key={'New'}
+            icon={ICONS.LIVESTREAM_MONOCHROME}
+            iconSize={18}
+            label={__('New Livestream')}
+            button="alt"
+            onClick={() =>
+              updatePublishForm({
+                liveCreateType: 'new_placeholder',
+              })
+            }
+            disabled={editingURI}
+            className={classnames('button-toggle', {
+              'button-toggle--active': liveCreateType === 'new_placeholder',
+            })}
+          />
+          {liveCreateType !== 'edit_placeholder' && (
+            <Button
+              key={'Replay'}
+              icon={ICONS.MENU}
+              iconSize={18}
+              label={__('Choose Replay')}
+              button="alt"
+              onClick={() =>
+                updatePublishForm({
+                  liveCreateType: 'choose_replay',
+                })
+              }
+              disabled={!hasLivestreamData}
+              className={classnames('button-toggle', {
+                'button-toggle--active': liveCreateType === 'choose_replay',
+              })}
+            />
+          )}
+          {liveCreateType === 'edit_placeholder' && (
+            <Button
+              key={'Edit'}
+              icon={ICONS.EDIT}
+              iconSize={18}
+              label={__('Edit / Update')}
+              button="alt"
+              className="button-toggle button-toggle--active"
+            />
+          )}
           {!isMobile && <ChannelSelector hideAnon isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
-            <Button button="secondary" label={__('Check for Replays')} disabled={isCheckingLivestreams} icon={ICONS.REFRESH} onClick={() => fetchLivestreams(activeChannelId, activeChannelName)} />
+            <Button
+              button="secondary"
+              label={__('Check for Replays')}
+              disabled={isCheckingLivestreams}
+              icon={ICONS.REFRESH}
+              onClick={() => fetchLivestreams(activeChannelId, activeChannelName)}
+            />
           </Tooltip>
         </Card>
 
-        <Card background body={<div className="publish-row">
-              <PublishLivestream inEditMode={inEditMode} uri={permanentUrl} disabled={publishing} livestreamData={livestreamData} isCheckingLivestreams={isCheckingLivestreams} />
-            </div>} />
+        <Card
+          background
+          body={
+            <div className="publish-row">
+              <PublishLivestream
+                inEditMode={inEditMode}
+                uri={permanentUrl}
+                disabled={publishing}
+                livestreamData={livestreamData}
+                isCheckingLivestreams={isCheckingLivestreams}
+              />
+            </div>
+          }
+        />
 
-        <Card background title={__('Description')} body={<div className="publish-row">
+        <Card
+          background
+          title={__('Description')}
+          body={
+            <div className="publish-row">
               <PublishDescription disabled={disabled} />
-            </div>} />
+            </div>
+          }
+        />
 
-        {!publishing && <div className={classnames({
-        'card--disabled': disabled
-      })}>
-            {(liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder' && liveEditType === 'update_only') && <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />}
+        {!publishing && (
+          <div
+            className={classnames({
+              'card--disabled': disabled,
+            })}
+          >
+            {(liveCreateType === 'new_placeholder' ||
+              (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only')) && (
+              <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
+            )}
 
-            <Card background title={__('Thumbnail')} body={<div className="publish-row">
+            <Card
+              background
+              title={__('Thumbnail')}
+              body={
+                <div className="publish-row">
                   <SelectThumbnail />
-                </div>} livestreamData={livestreamData} />
+                </div>
+              }
+              livestreamData={livestreamData}
+            />
 
             <PublishProtectedContent claim={myClaimForUri} />
 
             {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
 
-            <Card background title={__('Tags')} body={<div className="publish-row">
-                  <TagsSelect suggestMature={!SIMPLE_SITE} disableAutoFocus hideHeader label={__('Selected Tags')} empty={__('No tags added')} limitSelect={TAGS_LIMIT} help={__("Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'.")} placeholder={__('gaming, crypto')} onSelect={newTags => {
-            const validatedTags = [];
-            newTags.forEach(newTag => {
-              if (!tags.some(tag => tag.name === newTag.name)) {
-                validatedTags.push(newTag);
+            <Card
+              background
+              title={__('Tags')}
+              body={
+                <div className="publish-row">
+                  <TagsSelect
+                    suggestMature={!SIMPLE_SITE}
+                    disableAutoFocus
+                    hideHeader
+                    label={__('Selected Tags')}
+                    empty={__('No tags added')}
+                    limitSelect={TAGS_LIMIT}
+                    help={__(
+                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                    )}
+                    placeholder={__('gaming, crypto')}
+                    onSelect={(newTags) => {
+                      const validatedTags = [];
+                      newTags.forEach((newTag) => {
+                        if (!tags.some((tag) => tag.name === newTag.name)) {
+                          validatedTags.push(newTag);
+                        }
+                      });
+                      updatePublishForm({
+                        tags: [...tags, ...validatedTags],
+                      });
+                    }}
+                    onRemove={(clickedTag) => {
+                      const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                      updatePublishForm({
+                        tags: newTags,
+                      });
+                    }}
+                    tagsChosen={tags}
+                  />
+                </div>
               }
-            });
-            updatePublishForm({
-              tags: [...tags, ...validatedTags]
-            });
-          }} onRemove={clickedTag => {
-            const newTags = tags.slice().filter(tag => tag.name !== clickedTag.name);
-            updatePublishForm({
-              tags: newTags
-            });
-          }} tagsChosen={tags} />
-                </div>} />
+            />
 
-            <PublishAdditionalOptions isLivestream disabled={disabled} showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'} // ^--- the name is wrong. should be "hide" instead
-        />
-          </div>}
+            <PublishAdditionalOptions
+              isLivestream
+              disabled={disabled}
+              showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'} // ^--- the name is wrong. should be "hide" instead
+            />
+          </div>
+        )}
         <section>
           <div className="section__actions publish__actions">
             <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
             <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
           </div>
           <p className="help">
-            {!formDisabled && !formValid ? <PublishFormErrors title={title} waitForFile={waitingForFile} /> : <I18nMessage tokens={{
-            odysee_terms_of_service: <Button button="link" href="https://odysee.com/$/tos" label={__('%site_name% Terms of Service', {
-              site_name: SITE_NAME
-            })} />,
-            odysee_community_guidelines: <Button button="link" href="https://help.odysee.tv/communityguidelines/" target="_blank" label={__('Community Guidelines')} />
-          }}>
+            {!formDisabled && !formValid ? (
+              <PublishFormErrors title={title} waitForFile={waitingForFile} />
+            ) : (
+              <I18nMessage
+                tokens={{
+                  odysee_terms_of_service: (
+                    <Button
+                      button="link"
+                      href="https://odysee.com/$/tos"
+                      label={__('%site_name% Terms of Service', {
+                        site_name: SITE_NAME,
+                      })}
+                    />
+                  ),
+                  odysee_community_guidelines: (
+                    <Button
+                      button="link"
+                      href="https://help.odysee.tv/communityguidelines/"
+                      target="_blank"
+                      label={__('Community Guidelines')}
+                    />
+                  ),
+                }}
+              >
                 By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
-              </I18nMessage>}
+              </I18nMessage>
+            )}
           </p>
         </section>
       </div>
-    </div>;
+    </div>
+  );
 }
 
 export default LivestreamForm;

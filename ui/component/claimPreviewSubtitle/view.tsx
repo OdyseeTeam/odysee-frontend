@@ -1,13 +1,13 @@
-import React from "react";
-import UriIndicator from "component/uriIndicator";
-import DateTimeClaim from "component/dateTimeClaim";
-import LivestreamDateTime from "component/livestreamDateTime";
-import Button from "component/button";
-import FileViewCountInline from "component/fileViewCountInline";
-import { getChannelSubCountStr, getChannelViewCountStr } from "util/formatMediaDuration";
-import { toCompactNotation } from "util/string";
-import { parseURI } from "util/lbryURI";
-import { EmbedContext } from "contexts/embed";
+import React from 'react';
+import UriIndicator from 'component/uriIndicator';
+import DateTimeClaim from 'component/dateTimeClaim';
+import LivestreamDateTime from 'component/livestreamDateTime';
+import Button from 'component/button';
+import FileViewCountInline from 'component/fileViewCountInline';
+import { getChannelSubCountStr, getChannelViewCountStr } from 'util/formatMediaDuration';
+import { toCompactNotation } from 'util/string';
+import { parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 const SPACED_BULLET = '\u00A0\u2022\u00A0';
 type Props = {
   uri: string;
@@ -25,22 +25,11 @@ type Props = {
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const {
-    pending,
-    uri,
-    claim,
-    type,
-    doBeginPublish,
-    isLivestream,
-    fetchSubCount,
-    subCount,
-    showAtSign,
-    lang
-  } = props;
+  const { pending, uri, claim, type, doBeginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
   const isEmbed = React.useContext(EmbedContext);
   const isChannel = claim && claim.value_type === 'channel';
-  const claimsInChannel = claim && claim.meta.claims_in_channel || 0;
-  const claimId = claim && claim.claim_id || '0';
+  const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
+  const claimId = (claim && claim.claim_id) || '0';
   const formattedSubCount = subCount ? toCompactNotation(subCount, lang, 10000) : null;
   React.useEffect(() => {
     if (isChannel) {
@@ -50,37 +39,54 @@ function ClaimPreviewSubtitle(props: Props) {
   let name;
 
   try {
-    ({
-      streamName: name
-    } = parseURI(uri));
+    ({ streamName: name } = parseURI(uri));
   } catch (e) {}
 
-  return <div className="media__subtitle">
-      {claim ? <React.Fragment>
+  return (
+    <div className="media__subtitle">
+      {claim ? (
+        <React.Fragment>
           <UriIndicator uri={uri} showAtSign={showAtSign} link external={isEmbed} />
-          {!pending && claim && <>
-              {isChannel && type !== 'inline' && <>
+          {!pending && claim && (
+            <>
+              {isChannel && type !== 'inline' && (
+                <>
                   <span className="claim-preview-metadata-sub-upload">
                     {getChannelViewCountStr(claimsInChannel)}
                     {Number.isInteger(subCount) ? SPACED_BULLET : ''}
                     {getChannelSubCountStr(subCount, formattedSubCount)}
                   </span>
-                </>}
+                </>
+              )}
 
-              {!isChannel && (isLivestream ? <LivestreamDateTime uri={uri} /> : <span className="claim-extra-info">
+              {!isChannel &&
+                (isLivestream ? (
+                  <LivestreamDateTime uri={uri} />
+                ) : (
+                  <span className="claim-extra-info">
                     <FileViewCountInline uri={uri} />
                     <DateTimeClaim uri={uri} />
-                  </span>)}
-            </>}
-        </React.Fragment> : <React.Fragment>
+                  </span>
+                ))}
+            </>
+          )}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
           <div>{__('Upload something and claim this spot!')}</div>
           <div className="card__actions">
-            <Button onClick={() => doBeginPublish('file', name)} button="primary" label={__('Publish to %uri%', {
-          uri
-        })} />
+            <Button
+              onClick={() => doBeginPublish('file', name)}
+              button="primary"
+              label={__('Publish to %uri%', {
+                uri,
+              })}
+            />
           </div>
-        </React.Fragment>}
-    </div>;
+        </React.Fragment>
+      )}
+    </div>
+  );
 }
 
 export default ClaimPreviewSubtitle;

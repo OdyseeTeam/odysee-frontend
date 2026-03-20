@@ -1,7 +1,7 @@
-import React from "react";
-import "./style.scss";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
+import React from 'react';
+import './style.scss';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 type Props = {
   uri: string | null | undefined;
   // --- internal ---
@@ -9,15 +9,15 @@ type Props = {
 };
 
 function FileVisibility(props: Props) {
-  const {
-    isUnlisted
-  } = props;
+  const { isUnlisted } = props;
 
   if (isUnlisted) {
-    return <div className="file-visibility">
+    return (
+      <div className="file-visibility">
         <Icon icon={ICONS.COPY_LINK} size={9} />
         {__('unlisted')}
-      </div>;
+      </div>
+    );
   }
 
   return null;

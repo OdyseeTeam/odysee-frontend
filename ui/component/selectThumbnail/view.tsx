@@ -1,14 +1,14 @@
-import * as MODALS from "constants/modal_types";
-import * as THUMBNAIL_STATUSES from "constants/thumbnail_upload_statuses";
-import Lbry from "lbry";
-import { DOMAIN, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from "config";
-import * as React from "react";
-import { FormField } from "component/common/form";
-import FileSelector from "component/common/file-selector";
-import Button from "component/button";
-import ThumbnailMissingImage from "./thumbnail-missing.png";
-import ThumbnailBrokenImage from "./thumbnail-broken.png";
-import "./style.lazy.scss";
+import * as MODALS from 'constants/modal_types';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import Lbry from 'lbry';
+import { DOMAIN, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import * as React from 'react';
+import { FormField } from 'component/common/form';
+import FileSelector from 'component/common/file-selector';
+import Button from 'component/button';
+import ThumbnailMissingImage from './thumbnail-missing.png';
+import ThumbnailBrokenImage from './thumbnail-broken.png';
+import './style.lazy.scss';
 type Props = {
   filePath: string | null | undefined;
   fileInfos: Record<string, FileListItem>;
@@ -42,7 +42,7 @@ function SelectThumbnail(props: Props) {
     updateThumbnailParams,
     thumbnailPath,
     resetThumbnailStatus,
-    optional
+    optional,
   } = props;
   const publishForm = !updateThumbnailParams;
   const thumbnail = publishForm ? props.thumbnail : thumbnailParam;
@@ -68,12 +68,12 @@ function SelectThumbnail(props: Props) {
 
     if (updateThumbnailParams) {
       updateThumbnailParams({
-        thumbnail_url: newThumbnail
+        thumbnail_url: newThumbnail,
       });
     } else {
       updatePublishForm({
         thumbnail: newThumbnail,
-        thumbnailError: newThumbnail.startsWith('data:image')
+        thumbnailError: newThumbnail.startsWith('data:image'),
       });
     }
   }
@@ -81,7 +81,7 @@ function SelectThumbnail(props: Props) {
   React.useEffect(() => {
     if (updateThumbnailParams && status !== thumbnailParamStatus) {
       updateThumbnailParams({
-        thumbnail_status: status
+        thumbnail_status: status,
       });
     }
   }, [status, thumbnailParamStatus, updateThumbnailParams]);
@@ -90,7 +90,8 @@ function SelectThumbnail(props: Props) {
   if (!thumbnail) {
     thumbnailSrc = ThumbnailMissingImage;
   } else if (thumbnailError) {
-    thumbnailSrc = manualInput && ThumbnailBrokenImage || status !== THUMBNAIL_STATUSES.COMPLETE && ThumbnailMissingImage;
+    thumbnailSrc =
+      (manualInput && ThumbnailBrokenImage) || (status !== THUMBNAIL_STATUSES.COMPLETE && ThumbnailMissingImage);
   } else {
     thumbnailSrc = thumbnail;
   }
@@ -101,66 +102,132 @@ function SelectThumbnail(props: Props) {
     the proper aspect ratio. This is to avoid blackbars on the side of images and inconsistent thumbnails
     We still need to render the image to see if there is an error loading the url
   */
-  const thumbPreview = <div className="column__item thumbnail-picker__preview" style={{
-    backgroundImage: `url(${String(thumbnailSrc)})`
-  }}>
-      {thumbUploaded && thumbnailError !== false && __('This will be visible in a few minutes after you submit this form.')}
-      <img style={{
-      display: 'none'
-    }} src={thumbnail} alt={__('Thumbnail Preview')} onError={() => publishForm ? updatePublishForm({
-      thumbnailError: true
-    }) : updateThumbnailParams({
-      thumbnail_error: Boolean(thumbnail)
-    })} onLoad={() => publishForm ? updatePublishForm({
-      thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false)
-    }) : updateThumbnailParams({
-      thumbnail_error: !isUrlInput
-    })} />
-    </div>;
-  return <>
+  const thumbPreview = (
+    <div
+      className="column__item thumbnail-picker__preview"
+      style={{
+        backgroundImage: `url(${String(thumbnailSrc)})`,
+      }}
+    >
+      {thumbUploaded &&
+        thumbnailError !== false &&
+        __('This will be visible in a few minutes after you submit this form.')}
+      <img
+        style={{
+          display: 'none',
+        }}
+        src={thumbnail}
+        alt={__('Thumbnail Preview')}
+        onError={() =>
+          publishForm
+            ? updatePublishForm({
+                thumbnailError: true,
+              })
+            : updateThumbnailParams({
+                thumbnail_error: Boolean(thumbnail),
+              })
+        }
+        onLoad={() =>
+          publishForm
+            ? updatePublishForm({
+                thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false),
+              })
+            : updateThumbnailParams({
+                thumbnail_error: !isUrlInput,
+              })
+        }
+      />
+    </div>
+  );
+  return (
+    <>
       {optional && <h2 className="card__title">{__('Thumbnail (Optional)')}</h2>}
-      {status !== THUMBNAIL_STATUSES.IN_PROGRESS && <div className="column card--thumbnail">
+      {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
+        <div className="column card--thumbnail">
           {thumbPreview}
-          {publishForm && thumbUploaded ? <div className="column__item">
+          {publishForm && thumbUploaded ? (
+            <div className="column__item">
               <p>{__('Upload complete.')}</p>
               <div className="section__actions">
                 <Button button="link" label={__('New thumbnail')} onClick={resetThumbnailStatus} />
               </div>
-            </div> : <div className="column__item">
-              {manualInput ? <>
-                  <FormField type="text" name="content_thumbnail" placeholder="https://images.fbi.gov/alien" value={thumbnail} disabled={formDisabled} onChange={handleThumbnailChange} />
+            </div>
+          ) : (
+            <div className="column__item">
+              {manualInput ? (
+                <>
+                  <FormField
+                    type="text"
+                    name="content_thumbnail"
+                    placeholder="https://images.fbi.gov/alien"
+                    value={thumbnail}
+                    disabled={formDisabled}
+                    onChange={handleThumbnailChange}
+                  />
                   {!thumbUploaded && <p className="help">{__('Enter a URL for your thumbnail.')}</p>}
-                </> : <>
-                  <FileSelector currentPath={thumbnailPath} placeholder={__('Choose an enticing thumbnail')} accept={accept} onFileChosen={file => openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
-            file,
-            cb: url => !publishForm && updateThumbnailParams({
-              thumbnail_url: url
-            })
-          })} />
-                  {!thumbUploaded && <p className="help">
+                </>
+              ) : (
+                <>
+                  <FileSelector
+                    currentPath={thumbnailPath}
+                    placeholder={__('Choose an enticing thumbnail')}
+                    accept={accept}
+                    onFileChosen={(file) =>
+                      openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
+                        file,
+                        cb: (url) =>
+                          !publishForm &&
+                          updateThumbnailParams({
+                            thumbnail_url: url,
+                          }),
+                      })
+                    }
+                  />
+                  {!thumbUploaded && (
+                    <p className="help">
                       {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
-              domain: DOMAIN,
-              max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024)
-            })}
-                    </p>}
-                </>}
+                        domain: DOMAIN,
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      })}
+                    </p>
+                  )}
+                </>
+              )}
               <div className="card__actions">
-                <Button button="link" label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')} onClick={() => updatePublishForm({
-            uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL
-          })} />
-                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && // Disabled on desktop until this is resolved
-          // https://github.com/electron/electron/issues/20750#issuecomment-709505902
-          <Button button="link" label={__('Take a snapshot from your video')} onClick={() => openModal(MODALS.AUTO_GENERATE_THUMBNAIL, {
-            filePath: actualFilePath
-          })} />}
+                <Button
+                  button="link"
+                  label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
+                  onClick={() =>
+                    updatePublishForm({
+                      uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
+                    })
+                  }
+                />
+                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && ( // Disabled on desktop until this is resolved
+                  // https://github.com/electron/electron/issues/20750#issuecomment-709505902
+                  <Button
+                    button="link"
+                    label={__('Take a snapshot from your video')}
+                    onClick={() =>
+                      openModal(MODALS.AUTO_GENERATE_THUMBNAIL, {
+                        filePath: actualFilePath,
+                      })
+                    }
+                  />
+                )}
               </div>
-            </div>}
-        </div>}
+            </div>
+          )}
+        </div>
+      )}
 
-      {status === THUMBNAIL_STATUSES.IN_PROGRESS && <div className="column card--thumbnail">
+      {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
+        <div className="column card--thumbnail">
           <p>{__('Uploading thumbnail')}...</p>
-        </div>}
-    </>;
+        </div>
+      )}
+    </>
+  );
 }
 
 export default SelectThumbnail;

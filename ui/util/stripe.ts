@@ -1,6 +1,6 @@
-import { STRIPE_PUBLIC_KEY } from "config";
-import * as STRIPE_CONSTS from "constants/stripe";
-import { PURCHASE_TAG, PURCHASE_TAG_OLD, RENTAL_TAG, RENTAL_TAG_OLD } from "constants/tags";
+import { STRIPE_PUBLIC_KEY } from 'config';
+import * as STRIPE_CONSTS from 'constants/stripe';
+import { PURCHASE_TAG, PURCHASE_TAG_OLD, RENTAL_TAG, RENTAL_TAG_OLD } from 'constants/tags';
 export function getStripeEnvironment() {
   if (STRIPE_PUBLIC_KEY) {
     if (STRIPE_PUBLIC_KEY.indexOf('pk_live') > -1) {
@@ -19,13 +19,13 @@ export const TO_SECONDS = {
   months: 2630000,
   weeks: 604800,
   days: 86400,
-  hours: 3600
+  hours: 3600,
 };
 export function parseRentalTag(tags: Array<string> | null | undefined) {
   const prefixes = [`${RENTAL_TAG}:`, RENTAL_TAG_OLD];
 
   for (const prefix of prefixes) {
-    const rentalTag = tags && tags.find(tag => tag.startsWith(prefix));
+    const rentalTag = tags && tags.find((tag) => tag.startsWith(prefix));
 
     if (rentalTag) {
       const parts = rentalTag.substring(prefix.length).split(':');
@@ -35,7 +35,7 @@ export function parseRentalTag(tags: Array<string> | null | undefined) {
       if (Number.isFinite(price) && Number.isFinite(expirationTimeInSeconds)) {
         return {
           price,
-          expirationTimeInSeconds
+          expirationTimeInSeconds,
         };
       } else {
         return null; // invalid format
@@ -49,7 +49,7 @@ export function parsePurchaseTag(tags: Array<string> | null | undefined) {
   const prefixes = [`${PURCHASE_TAG}:`, PURCHASE_TAG_OLD];
 
   for (const prefix of prefixes) {
-    const purchaseTag = tags && tags.find(tag => tag.startsWith(prefix));
+    const purchaseTag = tags && tags.find((tag) => tag.startsWith(prefix));
 
     if (purchaseTag) {
       const parts = purchaseTag.substring(prefix.length).split(':');

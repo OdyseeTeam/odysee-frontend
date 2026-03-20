@@ -1,42 +1,42 @@
-import "videojs-contrib-ads"; // must be loaded in this order
+import 'videojs-contrib-ads'; // must be loaded in this order
 
-import "videojs-ima"; // loads directly after contrib-ads
+import 'videojs-ima'; // loads directly after contrib-ads
 
-import "videojs-vtt-thumbnails";
-import "video.js/dist/alt/video-js-cdn.min.css";
-import "./keyboard-shortcuts-overlay.scss";
-import "./plugins/videojs-mobile-ui/plugin";
-import "@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css";
-import "@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css";
-import * as ICONS from "constants/icons";
-import { VIDEO_PLAYBACK_RATES, VJS_EVENTS } from "constants/player";
-import * as OVERLAY from "./overlays";
-import Button from "component/button";
-import classnames from "classnames";
-import events from "./videojs-events";
-import eventTracking from "videojs-event-tracking";
-import functions from "./videojs-functions";
-import hlsQualitySelector from "./plugins/videojs-hls-quality-selector/plugin";
-import keyboardShorcuts from "./videojs-shortcuts";
-import { ensureKeyboardShortcutsOverlay } from "./keyboard-shortcuts-overlay";
-import Chromecast from "./chromecast";
-import playerjs from "player.js";
-import qualityLevels from "videojs-contrib-quality-levels";
-import React, { useEffect, useRef, useState } from "react";
-import i18n from "./plugins/videojs-i18n/plugin";
-import recsys from "./plugins/videojs-recsys/plugin";
-import settingsMenu from "./plugins/videojs-settings-menu/plugin";
-import timeMarkerPlugin from "./plugins/videojs-time-marker/plugin";
-import watchdog from "./plugins/videojs-watchdog/plugin";
-import snapshotButton from "./plugins/videojs-snapshot-button/plugin";
+import 'videojs-vtt-thumbnails';
+import 'video.js/dist/alt/video-js-cdn.min.css';
+import './keyboard-shortcuts-overlay.scss';
+import './plugins/videojs-mobile-ui/plugin';
+import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
+import * as ICONS from 'constants/icons';
+import { VIDEO_PLAYBACK_RATES, VJS_EVENTS } from 'constants/player';
+import * as OVERLAY from './overlays';
+import Button from 'component/button';
+import classnames from 'classnames';
+import events from './videojs-events';
+import eventTracking from 'videojs-event-tracking';
+import functions from './videojs-functions';
+import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
+import keyboardShorcuts from './videojs-shortcuts';
+import { ensureKeyboardShortcutsOverlay } from './keyboard-shortcuts-overlay';
+import Chromecast from './chromecast';
+import playerjs from 'player.js';
+import qualityLevels from 'videojs-contrib-quality-levels';
+import React, { useEffect, useRef, useState } from 'react';
+import i18n from './plugins/videojs-i18n/plugin';
+import recsys from './plugins/videojs-recsys/plugin';
+import settingsMenu from './plugins/videojs-settings-menu/plugin';
+import timeMarkerPlugin from './plugins/videojs-time-marker/plugin';
+import watchdog from './plugins/videojs-watchdog/plugin';
+import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 // import runAds from './ads';
-import videojs from "video.js";
-import { useIsMobile } from "effects/use-screensize";
-import { platform } from "util/platform";
-import Lbry from "lbry";
-import { Lbryio } from "lbryinc";
-import { getStripeEnvironment } from "util/stripe";
-import { useHistory } from "react-router";
+import videojs from 'video.js';
+import { useIsMobile } from 'effects/use-screensize';
+import { platform } from 'util/platform';
+import Lbry from 'lbry';
+import { Lbryio } from 'lbryinc';
+import { getStripeEnvironment } from 'util/stripe';
+import { useHistory } from 'react-router';
 const stripeEnvironment = getStripeEnvironment();
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -46,14 +46,20 @@ require('@silvermine/videojs-airplay')(videojs);
 export type Player = {
   // -- custom --
   appState?: VideojsClientState;
-  claimSrcOriginal: {
-    src: string;
-    type: string;
-  } | null | undefined;
-  claimSrcVhs: {
-    src: string;
-    type: string;
-  } | null | undefined;
+  claimSrcOriginal:
+    | {
+        src: string;
+        type: string;
+      }
+    | null
+    | undefined;
+  claimSrcVhs:
+    | {
+        src: string;
+        type: string;
+      }
+    | null
+    | undefined;
   isLivestream?: boolean;
   chaptersInfo?: Array<{
     seconds: number;
@@ -101,10 +107,7 @@ export type Player = {
   readyState: () => number;
   requestFullscreen: () => boolean;
   setInterval: (arg0: any, arg1: number) => number;
-  src: (arg0: {
-    src: string;
-    type: string;
-  }) => string | null | undefined;
+  src: (arg0: { src: string; type: string }) => string | null | undefined;
   currentSrc: () => string;
   userActive: (arg0: boolean | null | undefined) => boolean;
   videoWidth: () => number;
@@ -163,7 +166,7 @@ const PLUGIN_MAP = {
   settingsMenu: settingsMenu,
   watchdog: watchdog,
   snapshotButton: snapshotButton,
-  timeMarkerPlugin: timeMarkerPlugin
+  timeMarkerPlugin: timeMarkerPlugin,
 };
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
   if (!Object.keys(videojs.getPlugins()).includes(pluginName)) {
@@ -213,7 +216,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isDownloadDisabled,
     isUnlisted,
     doSetVideoSourceLoaded,
-    autoPlayNextShort
+    autoPlayNextShort,
   } = props;
   const isMobile = useIsMobile();
   const playerRef = useRef();
@@ -227,14 +230,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const keyStateResetHandlerRef = useRef();
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
-  const {
-    videoUrl: livestreamVideoUrl
-  } = activeLivestreamForChannel || {};
+  const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIOS();
   const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
 
   const toggleKeyboardShortcutsOverlay = (forceState?: boolean) => {
@@ -249,28 +248,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     createKeyUpShortcutsHandler,
     createKeyStateResetHandler,
     createVideoScrollShortcutsHandler,
-    createVolumePanelScrollShortcutsHandler
+    createVolumePanelScrollShortcutsHandler,
   } = keyboardShorcuts({
     isMobile,
     isLivestreamClaim,
     toggleVideoTheaterMode,
     toggleKeyboardShortcutsOverlay,
     playNext,
-    playPrevious
+    playPrevious,
   });
   const [reload, setReload] = useState('initial');
-  const {
-    createVideoPlayerDOM
-  } = functions({
-    isAudio
+  const { createVideoPlayerDOM } = functions({
+    isAudio,
   });
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
-  const {
-    unmuteAndHideHint,
-    retryVideoAfterFailure,
-    initializeEvents
-  } = events({
+  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
     tapToUnmuteRef,
     tapToRetryRef,
     setReload,
@@ -287,7 +280,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     channelTitle,
     isShortsParam,
-    autoPlayNextShort
+    autoPlayNextShort,
   });
   const isLivestreamUi = Boolean(isLivestreamClaim && userClaimId);
   const videoJsOptions = {
@@ -295,26 +288,31 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playbackRates: VIDEO_PLAYBACK_RATES,
     responsive: true,
     controls: true,
-    html5: { ...(videojs.browser.IS_ANY_SAFARI ? {
-        nativeTextTracks: false
-      } : {}),
+    html5: {
+      ...(videojs.browser.IS_ANY_SAFARI
+        ? {
+            nativeTextTracks: false,
+          }
+        : {}),
       vhs: {
         overrideNative: overrideNativeVhs,
         // !videojs.browser.IS_ANY_SAFARI,
         enableLowInitialPlaylist: false,
         fastQualityChange: true,
-        useDtsForTimestampOffset: true
-      }
+        useDtsForTimestampOffset: true,
+      },
     },
-    liveTracker: isLivestreamUi ? {
-      trackingThreshold: 0,
-      liveTolerance: 10
-    } : false,
+    liveTracker: isLivestreamUi
+      ? {
+          trackingThreshold: 0,
+          liveTolerance: 10,
+        }
+      : false,
     inactivityTimeout: 2000,
     muted: startMuted,
     plugins: {
       eventTracking: true,
-      overlay: OVERLAY.OVERLAY_DATA
+      overlay: OVERLAY.OVERLAY_DATA,
     },
     controlBar: {
       currentTimeDisplay: true,
@@ -323,12 +321,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       playbackRateMenuButton: false,
       settingMenuButton: true,
       remainingTimeDisplay: true,
-      subsCapsButton: !IS_IOS
+      subsCapsButton: !IS_IOS,
     },
     techOrder: ['chromecast', 'html5'],
     ...Chromecast.getOptions(),
     suppressNotSupportedError: true,
-    liveui: isLivestreamUi
+    liveui: isLivestreamUi,
   };
 
   // TODO: would be nice to pull this out into functions file
@@ -344,18 +342,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       if (typeof player.reloadSourceOnError === 'function') {
         player.reloadSourceOnError({
-          errorInterval: 10
+          errorInterval: 10,
         });
       }
 
       if (typeof player.mobileUi === 'function') {
         player.mobileUi({
           fullscreen: {
-            enterOnRotate: false
+            enterOnRotate: false,
           },
           touchControls: {
-            seekSeconds: 10
-          }
+            seekSeconds: 10,
+          },
         });
       }
 
@@ -365,7 +363,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       if (typeof player.hlsQualitySelector === 'function') {
         player.hlsQualitySelector({
-          displayCurrentQuality: true
+          displayCurrentQuality: true,
         });
       }
 
@@ -374,7 +372,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.recsys({
           videoId: claimId,
           userId: userId,
-          embedded: embedded || embeddedInternal
+          embedded: embedded || embeddedInternal,
         });
       }
 
@@ -397,7 +395,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.watchdog({
           timeoutMs: 15000,
           livestreamsOnly: true,
-          action: () => setReload(Date.now())
+          action: () => setReload(Date.now()),
         });
       }
     });
@@ -427,7 +425,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     if (videoUrl && !window.player.currentSrc()) {
       window.player.src({
         type: 'application/x-mpegurl',
-        src: videoUrl
+        src: videoUrl,
       });
       window.player.load();
     }
@@ -508,14 +506,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.recsys.options_ = {
           videoId: claimId,
           userId: userId,
-          embedded: embedded || embeddedInternal
+          embedded: embedded || embeddedInternal,
         };
         vjsPlayer.recsys.lastTimeUpdate = null;
         vjsPlayer.recsys.currentTimeUpdate = null;
         vjsPlayer.recsys.inPause = false;
         vjsPlayer.recsys.watchedDuration = {
           total: 0,
-          lastTimestamp: -1
+          lastTimestamp: -1,
         };
       }
 
@@ -578,18 +576,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const protectedLivestreamResponse = await Lbry.get({
             uri: activeLivestreamForChannel.uri,
             base_streaming_url: activeLivestreamForChannel.videoUrl,
-            environment: stripeEnvironment
+            environment: stripeEnvironment,
           });
           // Guard: player may have been disposed during async operation
           if (!vjsPlayer || vjsPlayer.isDisposed()) return;
           vjsPlayer.src({
             HLS_FILETYPE,
-            src: protectedLivestreamResponse.streaming_url
+            src: protectedLivestreamResponse.streaming_url,
           });
         } else if (livestreamVideoUrl) {
           vjsPlayer.src({
             HLS_FILETYPE,
-            src: livestreamVideoUrl
+            src: livestreamVideoUrl,
           });
         }
       } else {
@@ -597,14 +595,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.removeClass('livestreamPlayer');
         const response = await fetch(source, {
           method: 'HEAD',
-          cache: 'no-store'
+          cache: 'no-store',
         });
         // Guard: player may have been disposed during async operation
         if (!vjsPlayer || vjsPlayer.isDisposed()) return;
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = {
           type: sourceType,
-          src: source
+          src: source,
         };
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
         let trimmedUrl = new URL(response.url);
@@ -616,7 +614,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8') && response.status < 400) {
           vjsPlayer.claimSrcVhs = {
             type: HLS_FILETYPE,
-            src: response.url
+            src: response.url,
           };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
           contentUrl = response.url;
@@ -630,7 +628,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             error_message: `PlayerSourceLoadError: Url: ${response.url} 
             | Redirected: ${String(response.redirected)}
             | Status: ${response.status}
-            | X-Powered-By: ${playerServerRef.current ? playerServerRef.current : 'header missing'}`
+            | X-Powered-By: ${playerServerRef.current ? playerServerRef.current : 'header missing'}`,
           });
         }
       }
@@ -658,16 +656,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             // otherwise, initialize plugin
             vjsPlayer.vttThumbnails({
               src: thumbnailPath,
-              showTimestamp: true
+              showTimestamp: true,
             });
           }
         }
       }
 
       // Pass data required by plugins from redux to player, then trigger.
-      vjsPlayer.appState = { ...vjsPlayer.appState,
+      vjsPlayer.appState = {
+        ...vjsPlayer.appState,
         defaultQuality: defaultQuality,
-        originalVideoHeight: claimValues?.video?.height
+        originalVideoHeight: claimValues?.video?.height,
       };
       vjsPlayer.trigger(VJS_EVENTS.SRC_CHANGED);
       vjsPlayer.load();
@@ -692,7 +691,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!isAudio) {
         vjsPlayer.snapshotButton({
           fileTitle: title,
-          poster
+          poster,
         });
       }
 
@@ -714,61 +713,66 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           if (!vjsPlayer.isFullscreen()) {
             vjsPlayer.requestFullscreen();
           }
-        } catch (e) {// Fullscreen request may fail if not triggered by user gesture in some browsers
+        } catch (e) {
+          // Fullscreen request may fail if not triggered by user gesture in some browsers
         }
       }
 
       if (promise !== undefined) {
-        promise.then(_ => {
-          // $FlowIssue
-          vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+        promise
+          .then((_) => {
+            // $FlowIssue
+            vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
 
-          // $FlowIssue
-          if (isShortsParam && vjsPlayer?.muted()) {
-            setTimeout(() => {
-              // $FlowIssue
-              vjsPlayer?.muted(false);
-              // $FlowIssue
-              vjsPlayer?.volume(1.0);
-            }, 100);
-          }
-        }).catch(error => {
-          const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
-          const attributes = ['font-weight:bold', 'color:pink'];
-          console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
-
-          if (noPermissionError) {
-            if (IS_IOS || isShortsParam) {
-              // autoplay not allowed, mute video, play and show 'tap to unmute' button
-              // $FlowIssue
-              vjsPlayer?.muted(true);
-              // $FlowIssue
-              const mutedPlayPromise = vjsPlayer?.play();
-
-              if (mutedPlayPromise !== undefined) {
-                mutedPlayPromise.then(() => {
-                  const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
-                  // $FlowIssue
-                  tapToUnmuteButton?.style.setProperty('visibility', 'visible');
-                  // $FlowIssue
-                  tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
-                }).catch(error => {
-                  // $FlowFixMe
-                  vjsPlayer?.addClass('vjs-paused');
-                  // $FlowFixMe
-                  vjsPlayer?.addClass('vjs-has-started');
-                  // $FlowFixMe
-                  document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
-                  // $FlowFixMe
-                  document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
-                });
-              }
-            } else {
-              // $FlowIssue
-              vjsPlayer?.bigPlayButton?.show();
+            // $FlowIssue
+            if (isShortsParam && vjsPlayer?.muted()) {
+              setTimeout(() => {
+                // $FlowIssue
+                vjsPlayer?.muted(false);
+                // $FlowIssue
+                vjsPlayer?.volume(1.0);
+              }, 100);
             }
-          }
-        });
+          })
+          .catch((error) => {
+            const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+            const attributes = ['font-weight:bold', 'color:pink'];
+            console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
+
+            if (noPermissionError) {
+              if (IS_IOS || isShortsParam) {
+                // autoplay not allowed, mute video, play and show 'tap to unmute' button
+                // $FlowIssue
+                vjsPlayer?.muted(true);
+                // $FlowIssue
+                const mutedPlayPromise = vjsPlayer?.play();
+
+                if (mutedPlayPromise !== undefined) {
+                  mutedPlayPromise
+                    .then(() => {
+                      const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('visibility', 'visible');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
+                    })
+                    .catch((error) => {
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-paused');
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-has-started');
+                      // $FlowFixMe
+                      document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
+                      // $FlowFixMe
+                      document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
+                    });
+                }
+              } else {
+                // $FlowIssue
+                vjsPlayer?.bigPlayButton?.show();
+              }
+            }
+          });
       }
     })();
 
@@ -822,10 +826,33 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
-  return <div className={classnames('video-js-parent', {
-    'video-js-parent--ios': IS_IOS
-  })} ref={containerRef}>
-      {!isShortsParam && <Button label={__('Tap to unmute')} button="link" icon={ICONS.VOLUME_MUTED} className="video-js--tap-to-unmute" onClick={unmuteAndHideHint} ref={tapToUnmuteRef} />}
-      {!isShortsParam && <Button label={__('Retry')} button="link" icon={ICONS.REFRESH} className="video-js--tap-to-unmute" onClick={() => retryVideoAfterFailure(true)} ref={tapToRetryRef} />}
-    </div>;
+  return (
+    <div
+      className={classnames('video-js-parent', {
+        'video-js-parent--ios': IS_IOS,
+      })}
+      ref={containerRef}
+    >
+      {!isShortsParam && (
+        <Button
+          label={__('Tap to unmute')}
+          button="link"
+          icon={ICONS.VOLUME_MUTED}
+          className="video-js--tap-to-unmute"
+          onClick={unmuteAndHideHint}
+          ref={tapToUnmuteRef}
+        />
+      )}
+      {!isShortsParam && (
+        <Button
+          label={__('Retry')}
+          button="link"
+          icon={ICONS.REFRESH}
+          className="video-js--tap-to-unmute"
+          onClick={() => retryVideoAfterFailure(true)}
+          ref={tapToRetryRef}
+        />
+      )}
+    </div>
+  );
 });

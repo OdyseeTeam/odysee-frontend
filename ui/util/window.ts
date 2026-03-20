@@ -1,4 +1,4 @@
-import { FLOATING_PLAYER_CLASS } from "constants/player";
+import { FLOATING_PLAYER_CLASS } from 'constants/player';
 export function getRootEl() {
   return document && document.documentElement;
 }
@@ -14,14 +14,8 @@ export function getFloatingPlayerRect() {
   const elem = document.querySelector(`.${FLOATING_PLAYER_CLASS}`);
   return elem ? elem.getBoundingClientRect() : null;
 }
-export function clampFloatingPlayerToScreen(params: {
-  x: number;
-  y: number;
-}) {
-  const {
-    x,
-    y
-  } = params;
+export function clampFloatingPlayerToScreen(params: { x: number; y: number }) {
+  const { x, y } = params;
   const playerRect = getFloatingPlayerRect();
   let newX = x;
   let newY = y;
@@ -45,20 +39,20 @@ export function clampFloatingPlayerToScreen(params: {
 
   return {
     x: newX,
-    y: newY
+    y: newY,
   };
 }
 export function calculateRelativePos(x: number, y: number) {
   return {
     x: x / getScreenWidth(),
-    y: y / getScreenHeight()
+    y: y / getScreenHeight(),
   };
 }
 // Max landscape height = calculates the maximum size the player would be at
 // if it was at landscape aspect ratio
 export function getMaxLandscapeHeight(width?: number) {
   const windowWidth = width || getScreenWidth();
-  const maxLandscapeHeight = windowWidth * 9 / 16;
+  const maxLandscapeHeight = (windowWidth * 9) / 16;
   return maxLandscapeHeight;
 }
 // If a video is higher than landscape, this calculates how much is needed in order
@@ -75,7 +69,7 @@ export function getPossiblePlayerHeight(height: number, isMobile: boolean) {
   const minHeight = getMaxLandscapeHeight();
   const maxPercentOfScreen = isMobile ? 70 : 80;
   // max player height
-  const maxHeight = getScreenHeight() * maxPercentOfScreen / 100;
+  const maxHeight = (getScreenHeight() * maxPercentOfScreen) / 100;
   const forceMaxHeight = height < maxHeight ? height : maxHeight;
   const forceMinHeight = isMobile && height < minHeight ? minHeight : forceMaxHeight;
   return forceMinHeight;

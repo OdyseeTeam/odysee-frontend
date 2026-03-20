@@ -1,7 +1,7 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import Button from "component/button";
-import MembershipDetails from "../membershipDetails";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import Button from 'component/button';
+import MembershipDetails from '../membershipDetails';
 type Props = {
   membership: CreatorMembership;
   disabled?: boolean;
@@ -33,7 +33,7 @@ const MembershipTier = (props: Props) => {
     isCanceled,
     userHasCreatorMembership,
     doOpenCancelationModalForMembership,
-    thisMembership
+    thisMembership,
   } = props;
 
   // TODO: develop getMembershipStatus(membershipSub) util function:
@@ -96,15 +96,27 @@ const MembershipTier = (props: Props) => {
 
     if (isCanceled && thisMembership) {
       // return restore button
-      return <Button icon={ICONS.MEMBERSHIP} button="primary" label={__('Uncancel')} onClick={() => doOpenCancelationModalForMembership(thisMembership, true)} disabled={disabled} />;
+      return (
+        <Button
+          icon={ICONS.MEMBERSHIP}
+          button="primary"
+          label={__('Uncancel')}
+          onClick={() => doOpenCancelationModalForMembership(thisMembership, true)}
+          disabled={disabled}
+        />
+      );
     }
 
     if (userHasCreatorMembership) {
-      return <div className={'help'}>
+      return (
+        <div className={'help'}>
           {__('$%membership_price% per month', {
-          membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(Number(membership?.prices[0].amount) < 100 ? 2 : 0)
-        })}
-        </div>;
+            membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(
+              Number(membership?.prices[0].amount) < 100 ? 2 : 0
+            ),
+          })}
+        </div>
+      );
     }
 
     if (isOwnChannel) {
@@ -112,15 +124,32 @@ const MembershipTier = (props: Props) => {
     }
 
     // return Join button
-    return <Button icon={ICONS.MEMBERSHIP} button="primary" label={__('Join for $%membership_price% per month', {
-      membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(Number(membership?.prices[0].amount) < 100 ? 2 : 0) // tiers
-
-    })} onClick={handleSelect} disabled={disabled} />;
+    return (
+      <Button
+        icon={ICONS.MEMBERSHIP}
+        button="primary"
+        label={__('Join for $%membership_price% per month', {
+          membership_price: (Number(membership?.prices[0].amount) / 100).toFixed(
+            Number(membership?.prices[0].amount) < 100 ? 2 : 0
+          ), // tiers
+        })}
+        onClick={handleSelect}
+        disabled={disabled}
+      />
+    );
   };
 
-  return <div className={Number.isInteger(index) && Number.isInteger(length) ? `membership-tier__wrapper item${(index || 0) + 1}-${length || 0}` : 'membership-tier__wrapper'}>
+  return (
+    <div
+      className={
+        Number.isInteger(index) && Number.isInteger(length)
+          ? `membership-tier__wrapper item${(index || 0) + 1}-${length || 0}`
+          : 'membership-tier__wrapper'
+      }
+    >
       <MembershipDetails isChannelTab={isChannelTab} membership={membership} headerAction={getMembershipAction()} />
-    </div>;
+    </div>
+  );
 };
 
 export default MembershipTier;

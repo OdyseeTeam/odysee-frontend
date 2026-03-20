@@ -1,21 +1,34 @@
-import * as ACTIONS from "constants/action_types";
-import * as ABANDON_STATES from "constants/abandon_states";
-import * as FILE_LIST from "constants/file_list";
-import * as TAGS from "constants/tags";
-import { Lbryio, doFetchViewCount } from "lbryinc";
-import Lbry from "lbry";
-import { normalizeURI } from "util/lbryURI";
-import { doToast } from "redux/actions/notifications";
-import { selectMyClaimsRaw, selectResolvingUris, selectClaimsByUri, selectMyChannelClaims, selectPendingClaimsById, selectClaimIsMine, selectIsMyChannelCountOverLimit, selectClaimsById, selectMyChannelClaimIds, selectFetchingMyChannels, selectResolvingIds, selectIsFetchingClaimSearchForQuery } from "redux/selectors/claims";
-import { doCheckIfPurchasedClaimIds } from "redux/actions/stripe";
-import { doFetchTxoPage } from "redux/actions/wallet";
-import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from "redux/actions/memberships";
-import { selectSupportsByOutpoint } from "redux/selectors/wallet";
-import { creditsToString } from "util/format-credits";
-import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from "util/claim";
-import { hasFiatTags } from "util/tags";
-import { PAGE_SIZE } from "constants/claim";
-import { doUserHasPremium } from "./user";
+import * as ACTIONS from 'constants/action_types';
+import * as ABANDON_STATES from 'constants/abandon_states';
+import * as FILE_LIST from 'constants/file_list';
+import * as TAGS from 'constants/tags';
+import { Lbryio, doFetchViewCount } from 'lbryinc';
+import Lbry from 'lbry';
+import { normalizeURI } from 'util/lbryURI';
+import { doToast } from 'redux/actions/notifications';
+import {
+  selectMyClaimsRaw,
+  selectResolvingUris,
+  selectClaimsByUri,
+  selectMyChannelClaims,
+  selectPendingClaimsById,
+  selectClaimIsMine,
+  selectIsMyChannelCountOverLimit,
+  selectClaimsById,
+  selectMyChannelClaimIds,
+  selectFetchingMyChannels,
+  selectResolvingIds,
+  selectIsFetchingClaimSearchForQuery,
+} from 'redux/selectors/claims';
+import { doCheckIfPurchasedClaimIds } from 'redux/actions/stripe';
+import { doFetchTxoPage } from 'redux/actions/wallet';
+import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
+import { creditsToString } from 'util/format-credits';
+import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
+import { hasFiatTags } from 'util/tags';
+import { PAGE_SIZE } from 'constants/claim';
+import { doUserHasPremium } from './user';
 let onChannelConfirmCallback;
 let checkPendingInterval;
 
@@ -24,16 +37,14 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     return Promise.resolve({
       claimId,
       cost: 0,
-      includesData: true
+      includesData: true,
     });
   }
 
   let usdCost = Number(fee.amount);
 
   if (fee.currency === 'LBC') {
-    const {
-      LBC_USD
-    } = await Lbryio.getExchangeRates();
+    const { LBC_USD } = await Lbryio.getExchangeRates();
     usdCost = usdCost / (1 / LBC_USD);
   }
 
@@ -43,7 +54,7 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     cost: Number(fee.amount),
     includesData: true,
     feeCurrency: fee.currency,
-    usdCost
+    usdCost,
   });
   /*
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
@@ -55,14 +66,19 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
   */
 }
 
-export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean = false, resolveReposts: boolean = true, additionalOptions: any = {}) {
+export function doResolveUris(
+  uris: Array<string>,
+  returnCachedClaims: boolean = false,
+  resolveReposts: boolean = true,
+  additionalOptions: any = {}
+) {
   return (dispatch: Dispatch, getState: GetState) => {
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
     const resolvingUrisSet = new Set(selectResolvingUris(state));
     const cachedClaims: ResolveResponse | {} = {};
     const claimsByUri = selectClaimsByUri(state);
-    const urisToResolve = normalizedUris.filter(uri => {
+    const urisToResolve = normalizedUris.filter((uri) => {
       if (resolvingUrisSet.has(uri)) {
         return false;
       }
@@ -71,7 +87,7 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
 
       if (returnCachedClaims && claim) {
         cachedClaims[claim.canonical_url || claim.permanent_url] = {
-          stream: claim
+          stream: claim,
         };
         return false;
       }
@@ -86,129 +102,134 @@ export function doResolveUris(uris: Array<string>, returnCachedClaims: boolean =
     dispatch({
       type: ACTIONS.RESOLVE_URIS_START,
       data: {
-        uris: normalizedUris
-      }
+        uris: normalizedUris,
+      },
     });
     return Lbry.resolve({
       urls: urisToResolve,
-      ...additionalOptions
-    }).then(async (response: ResolveResponse) => {
-      const collectionIds = new Set([]);
-      const repostsToResolve = new Set([]);
-      const membersOnlyClaimIds = new Set([]);
-      const channelClaimIds = new Set([]);
-      const costInfos = new Set();
-      const fiatClaimIds = [];
-      const resolveInfo: Record<string, {
-        stream: StreamClaim | null | undefined;
-        channel: ChannelClaim | null | undefined;
-        claimsInChannel: number | null | undefined;
-        collection: CollectionClaim | null | undefined;
-      }> = {};
-
-      for (const uri in response) {
-        const uriResolveInfo = Object.assign({}, response[uri]);
-
-        if (uriResolveInfo.error) {
-          const fallbackResolveInfo = {
-            stream: null,
-            claimsInChannel: null,
-            channel: null,
-            collection: null
-          };
-          resolveInfo[uri] = fallbackResolveInfo;
-        } else {
-          if (resolveReposts) {
-            const repostedClaim = uriResolveInfo.reposted_claim;
-
-            if (repostedClaim) {
-              const repostUrl = repostedClaim.permanent_url;
-
-              if (!resolvingUrisSet.has(repostUrl)) {
-                repostsToResolve.add(repostUrl);
-              }
-
-              if (repostedClaim.value_type !== 'channel' && repostedClaim.value_type !== 'collection') {
-                const isProtected = isClaimProtected(repostedClaim);
-                if (isProtected) membersOnlyClaimIds.add(repostedClaim.claim_id);
-              }
-            }
+      ...additionalOptions,
+    })
+      .then(async (response: ResolveResponse) => {
+        const collectionIds = new Set([]);
+        const repostsToResolve = new Set([]);
+        const membersOnlyClaimIds = new Set([]);
+        const channelClaimIds = new Set([]);
+        const costInfos = new Set();
+        const fiatClaimIds = [];
+        const resolveInfo: Record<
+          string,
+          {
+            stream: StreamClaim | null | undefined;
+            channel: ChannelClaim | null | undefined;
+            claimsInChannel: number | null | undefined;
+            collection: CollectionClaim | null | undefined;
           }
+        > = {};
 
-          const resultResponse = {};
+        for (const uri in response) {
+          const uriResolveInfo = Object.assign({}, response[uri]);
 
-          if (uriResolveInfo.value_type === 'channel') {
-            const channel: ChannelClaim = uriResolveInfo;
-            resultResponse.channel = channel;
-            resultResponse.claimsInChannel = channel.meta && channel.meta.claims_in_channel || 0;
-          } else if (uriResolveInfo.value_type === 'collection') {
-            const collection: CollectionClaim = uriResolveInfo;
-            resultResponse.collection = collection;
-            collectionIds.add(collection.claim_id);
+          if (uriResolveInfo.error) {
+            const fallbackResolveInfo = {
+              stream: null,
+              claimsInChannel: null,
+              channel: null,
+              collection: null,
+            };
+            resolveInfo[uri] = fallbackResolveInfo;
           } else {
-            const stream: StreamClaim = uriResolveInfo;
-            resultResponse.stream = stream;
-            const isProtected = isClaimProtected(stream);
-            if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
+            if (resolveReposts) {
+              const repostedClaim = uriResolveInfo.reposted_claim;
 
-            if ((hasFiatTags(stream) || stream.value?.fee) && stream.claim_id) {
-              fiatClaimIds.push(stream.claim_id);
+              if (repostedClaim) {
+                const repostUrl = repostedClaim.permanent_url;
+
+                if (!resolvingUrisSet.has(repostUrl)) {
+                  repostsToResolve.add(repostUrl);
+                }
+
+                if (repostedClaim.value_type !== 'channel' && repostedClaim.value_type !== 'collection') {
+                  const isProtected = isClaimProtected(repostedClaim);
+                  if (isProtected) membersOnlyClaimIds.add(repostedClaim.claim_id);
+                }
+              }
             }
 
-            if (stream.signing_channel) {
-              const channel: ChannelClaim = stream.signing_channel;
+            const resultResponse = {};
+
+            if (uriResolveInfo.value_type === 'channel') {
+              const channel: ChannelClaim = uriResolveInfo;
               resultResponse.channel = channel;
-              resultResponse.claimsInChannel = channel.meta && channel.meta.claims_in_channel || 0;
+              resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
+            } else if (uriResolveInfo.value_type === 'collection') {
+              const collection: CollectionClaim = uriResolveInfo;
+              resultResponse.collection = collection;
+              collectionIds.add(collection.claim_id);
+            } else {
+              const stream: StreamClaim = uriResolveInfo;
+              resultResponse.stream = stream;
+              const isProtected = isClaimProtected(stream);
+              if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
+
+              if ((hasFiatTags(stream) || stream.value?.fee) && stream.claim_id) {
+                fiatClaimIds.push(stream.claim_id);
+              }
+
+              if (stream.signing_channel) {
+                const channel: ChannelClaim = stream.signing_channel;
+                resultResponse.channel = channel;
+                resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
+              }
+
+              // $FlowFixMe
+              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
             }
 
-            // $FlowFixMe
-            costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
+            const channelId = getChannelIdFromClaim(uriResolveInfo);
+            if (channelId) channelClaimIds.add(channelId);
+            resolveInfo[uri] = resultResponse;
           }
-
-          const channelId = getChannelIdFromClaim(uriResolveInfo);
-          if (channelId) channelClaimIds.add(channelId);
-          resolveInfo[uri] = resultResponse;
         }
-      }
 
-      dispatch({
-        type: ACTIONS.RESOLVE_URIS_SUCCESS,
-        data: {
-          resolveInfo
-        }
-      });
-
-      if (costInfos.size > 0) {
-        const settledCostInfosById = await Promise.all(Array.from(costInfos));
         dispatch({
-          type: ACTIONS.SET_COST_INFOS_BY_ID,
-          data: settledCostInfosById
+          type: ACTIONS.RESOLVE_URIS_SUCCESS,
+          data: {
+            resolveInfo,
+          },
         });
-      }
 
-      if (membersOnlyClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
-      }
+        if (costInfos.size > 0) {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          dispatch({
+            type: ACTIONS.SET_COST_INFOS_BY_ID,
+            data: settledCostInfosById,
+          });
+        }
 
-      if (fiatClaimIds.length > 0) {
-        dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
-      }
+        if (membersOnlyClaimIds.size > 0) {
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
+        }
 
-      if (channelClaimIds.size > 0) {
-        dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
-      }
+        if (fiatClaimIds.length > 0) {
+          dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
+        }
 
-      if (repostsToResolve.size > 0) {
-        dispatch(doResolveUris(Array.from(repostsToResolve), true, false, additionalOptions));
-      }
+        if (channelClaimIds.size > 0) {
+          dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
+        }
 
-      return { ...response,
-        ...cachedClaims
-      };
-    }).catch(error => dispatch({
-      type: ACTIONS.RESOLVE_URIS_FAIL,
-      data: normalizedUris
-    }));
+        if (repostsToResolve.size > 0) {
+          dispatch(doResolveUris(Array.from(repostsToResolve), true, false, additionalOptions));
+        }
+
+        return { ...response, ...cachedClaims };
+      })
+      .catch((error) =>
+        dispatch({
+          type: ACTIONS.RESOLVE_URIS_FAIL,
+          data: normalizedUris,
+        })
+      );
   };
 }
 
@@ -226,7 +247,7 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: b
     const claimsById = selectClaimsById(state);
     const resolvingIds = selectResolvingIds(state);
     const cachedClaims: ResolveResponse | {} = {};
-    const idsToResolve = claimIds.filter(claimId => {
+    const idsToResolve = claimIds.filter((claimId) => {
       if (resolvingIds.includes(claimId)) {
         return false;
       }
@@ -235,7 +256,7 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: b
 
       if (returnCachedClaims && claim && claim.canonical_url) {
         cachedClaims[claim.canonical_url] = {
-          stream: claim
+          stream: claim,
         };
         return false;
       }
@@ -247,32 +268,49 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: b
       return Promise.resolve(cachedClaims);
     }
 
-    return dispatch(doClaimSearch({ ...(options || {}),
-      claim_ids: idsToResolve,
-      page: 1,
-      page_size: Math.min(idsToResolve.length, 50),
-      no_totals: true
-    }, {
-      useAutoPagination: idsToResolve.length > 50
-    })).then((response: ClaimSearchResponse) => ({ ...response,
-      ...cachedClaims
-    }));
+    return dispatch(
+      doClaimSearch(
+        {
+          ...options,
+          claim_ids: idsToResolve,
+          page: 1,
+          page_size: Math.min(idsToResolve.length, 50),
+          no_totals: true,
+        },
+        {
+          useAutoPagination: idsToResolve.length > 50,
+        }
+      )
+    ).then((response: ClaimSearchResponse) => ({ ...response, ...cachedClaims }));
   };
 }
-export const doResolveClaimId = (claimId: ClaimId, returnCachedClaims: boolean = true, options: {}) => doResolveClaimIds([claimId], returnCachedClaims, options);
-export function doResolveUri(uri: string, returnCachedClaims: boolean = false, resolveReposts: boolean = true, additionalOptions: any = {}) {
+export const doResolveClaimId = (claimId: ClaimId, returnCachedClaims: boolean = true, options: {}) =>
+  doResolveClaimIds([claimId], returnCachedClaims, options);
+export function doResolveUri(
+  uri: string,
+  returnCachedClaims: boolean = false,
+  resolveReposts: boolean = true,
+  additionalOptions: any = {}
+) {
   return doResolveUris([uri], returnCachedClaims, resolveReposts, additionalOptions);
 }
-export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = true, filterBy: Array<string> = [], fetchViewCount: boolean = false, channelIds: Array<string | null | undefined> = []) {
+export function doFetchClaimListMine(
+  page: number = 1,
+  pageSize: number = 99999,
+  resolve: boolean = true,
+  filterBy: Array<string> = [],
+  fetchViewCount: boolean = false,
+  channelIds: Array<string | null | undefined> = []
+) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
-      type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED
+      type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
     const state = getState();
     let claimTypes = ['stream', 'repost'];
 
     if (filterBy && filterBy.length !== 0) {
-      claimTypes = claimTypes.filter(t => filterBy.includes(t));
+      claimTypes = claimTypes.filter((t) => filterBy.includes(t));
     }
 
     // $FlowFixMe
@@ -281,77 +319,79 @@ export function doFetchClaimListMine(page: number = 1, pageSize: number = 99999,
       page_size: pageSize,
       claim_type: claimTypes,
       channel_id: channelIds,
-      resolve
-    }).then(async (result: StreamListResponse) => {
-      // Log stuck claims
-      const claims = result.items;
-      const pendingClaimsById = selectPendingClaimsById(state);
+      resolve,
+    })
+      .then(async (result: StreamListResponse) => {
+        // Log stuck claims
+        const claims = result.items;
+        const pendingClaimsById = selectPendingClaimsById(state);
 
-      for (let i = 0; i < claims.length - 1; i++) {
-        if (Object.keys(pendingClaimsById).includes(claims[i].claim_id)) {
-          continue;
+        for (let i = 0; i < claims.length - 1; i++) {
+          if (Object.keys(pendingClaimsById).includes(claims[i].claim_id)) {
+            continue;
+          }
+
+          if (claims[i].confirmations > claims[i + 1].confirmations) {
+            Lbryio.call('event', 'desktop_error', {
+              error_message: `CLAIM STUCK IN UPLOADS: ${claims[i].claim_id}`,
+            });
+            break;
+          }
         }
 
-        if (claims[i].confirmations > claims[i + 1].confirmations) {
-          Lbryio.call('event', 'desktop_error', {
-            error_message: `CLAIM STUCK IN UPLOADS: ${claims[i].claim_id}`
-          });
-          break;
-        }
-      }
-
-      dispatch({
-        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-        data: {
-          result,
-          resolve,
-          setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
-          isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
-          isPublicationOnlyClaimList: true
-        }
-      });
-      const claimIds: Array<ClaimId> = [];
-      const membersOnlyClaimIds = new Set([]);
-      const channelClaimIds = new Set([]);
-      const costInfos = new Set();
-      result.items.forEach(item => {
-        claimIds.push(item.claim_id);
-
-        if (item.value_type !== 'channel' && item.value_type !== 'collection') {
-          const isProtected = isClaimProtected(item);
-          if (isProtected) membersOnlyClaimIds.add(item.claim_id);
-        }
-
-        const channelId = getChannelIdFromClaim(item);
-        if (channelId) channelClaimIds.add(channelId);
-        // $FlowFixMe
-        costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
-      });
-
-      if (costInfos.size > 0) {
-        const settledCostInfosById = await Promise.all(Array.from(costInfos));
         dispatch({
-          type: ACTIONS.SET_COST_INFOS_BY_ID,
-          data: settledCostInfosById
+          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+          data: {
+            result,
+            resolve,
+            setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isPublicationOnlyClaimList: true,
+          },
         });
-      }
+        const claimIds: Array<ClaimId> = [];
+        const membersOnlyClaimIds = new Set([]);
+        const channelClaimIds = new Set([]);
+        const costInfos = new Set();
+        result.items.forEach((item) => {
+          claimIds.push(item.claim_id);
 
-      if (membersOnlyClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
-      }
+          if (item.value_type !== 'channel' && item.value_type !== 'collection') {
+            const isProtected = isClaimProtected(item);
+            if (isProtected) membersOnlyClaimIds.add(item.claim_id);
+          }
 
-      if (channelClaimIds.size > 0) {
-        dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
-      }
+          const channelId = getChannelIdFromClaim(item);
+          if (channelId) channelClaimIds.add(channelId);
+          // $FlowFixMe
+          costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
+        });
 
-      if (fetchViewCount && claimIds.length > 0) {
-        dispatch(doFetchViewCount(claimIds.join(',')));
-      }
-    }).catch(() => {
-      dispatch({
-        type: ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED
+        if (costInfos.size > 0) {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          dispatch({
+            type: ACTIONS.SET_COST_INFOS_BY_ID,
+            data: settledCostInfosById,
+          });
+        }
+
+        if (membersOnlyClaimIds.size > 0) {
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
+        }
+
+        if (channelClaimIds.size > 0) {
+          dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
+        }
+
+        if (fetchViewCount && claimIds.length > 0) {
+          dispatch(doFetchViewCount(claimIds.join(',')));
+        }
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED,
+        });
       });
-    });
   };
 }
 export type DoFetchClaimListMine = typeof doFetchClaimListMine;
@@ -361,30 +401,34 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
     const isClaim = txo.type === 'claim';
     const isSupport = txo.type === 'support' && txo.is_my_input === true;
     const isTip = txo.type === 'support' && txo.is_my_input === false;
-    const data = isClaim ? {
-      claimId: txo.claim_id
-    } : {
-      outpoint: `${txo.txid}:${txo.nout}`
-    };
+    const data = isClaim
+      ? {
+          claimId: txo.claim_id,
+        }
+      : {
+          outpoint: `${txo.txid}:${txo.nout}`,
+        };
     const startedActionType = isClaim ? ACTIONS.ABANDON_CLAIM_STARTED : ACTIONS.ABANDON_SUPPORT_STARTED;
     const completedActionType = isClaim ? ACTIONS.ABANDON_CLAIM_SUCCEEDED : ACTIONS.ABANDON_SUPPORT_COMPLETED;
     dispatch({
       type: startedActionType,
-      data
+      data,
     });
 
     const errorCallback = () => {
       if (cb) cb(ABANDON_STATES.ERROR);
-      dispatch(doToast({
-        message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
-        isError: true
-      }));
+      dispatch(
+        doToast({
+          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+          isError: true,
+        })
+      );
     };
 
     const successCallback = () => {
       dispatch({
         type: completedActionType,
-        data
+        data,
       });
       let abandonMessage;
 
@@ -397,9 +441,11 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
       }
 
       if (cb) cb(ABANDON_STATES.DONE);
-      dispatch(doToast({
-        message: abandonMessage
-      }));
+      dispatch(
+        doToast({
+          message: abandonMessage,
+        })
+      );
     };
 
     const abandonParams: {
@@ -407,7 +453,7 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
       txid?: string;
       nout?: number;
     } = {
-      blocking: true
+      blocking: true,
     };
 
     if (isClaim) {
@@ -422,9 +468,7 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
     if (isSupport || isTip) {
       method = 'support_abandon';
     } else if (isClaim) {
-      const {
-        normalized_name: claimName
-      } = txo;
+      const { normalized_name: claimName } = txo;
       method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
     }
 
@@ -437,10 +481,7 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
   };
 }
 export function doAbandonClaim(claim: Claim, cb: (arg0: string) => any) {
-  const {
-    txid,
-    nout
-  } = claim;
+  const { txid, nout } = claim;
   const outpoint = `${txid}:${nout}`;
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -448,7 +489,7 @@ export function doAbandonClaim(claim: Claim, cb: (arg0: string) => any) {
     const mySupports: Record<string, Support> = selectSupportsByOutpoint(state);
     // A user could be trying to abandon a support or one of their claims
     const claimIsMine = selectClaimIsMine(state, claim);
-    const claimToAbandon = claimIsMine ? claim : myClaims.find(claim => claim.txid === txid && claim.nout === nout);
+    const claimToAbandon = claimIsMine ? claim : myClaims.find((claim) => claim.txid === txid && claim.nout === nout);
     const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
@@ -456,31 +497,35 @@ export function doAbandonClaim(claim: Claim, cb: (arg0: string) => any) {
       return;
     }
 
-    const data = claimToAbandon ? {
-      claimId: claimToAbandon.claim_id
-    } : {
-      outpoint: `${supportToAbandon.txid}:${supportToAbandon.nout}`
-    };
+    const data = claimToAbandon
+      ? {
+          claimId: claimToAbandon.claim_id,
+        }
+      : {
+          outpoint: `${supportToAbandon.txid}:${supportToAbandon.nout}`,
+        };
     const isClaim = !!claimToAbandon;
     const startedActionType = isClaim ? ACTIONS.ABANDON_CLAIM_STARTED : ACTIONS.ABANDON_SUPPORT_STARTED;
     const completedActionType = isClaim ? ACTIONS.ABANDON_CLAIM_SUCCEEDED : ACTIONS.ABANDON_SUPPORT_COMPLETED;
     dispatch({
       type: startedActionType,
-      data
+      data,
     });
 
     const errorCallback = () => {
-      dispatch(doToast({
-        message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
-        isError: true
-      }));
+      dispatch(
+        doToast({
+          message: isClaim ? 'Error abandoning your claim/support' : 'Error unlocking your tip',
+          isError: true,
+        })
+      );
       if (cb) cb(ABANDON_STATES.ERROR);
     };
 
     const successCallback = () => {
       dispatch({
         type: completedActionType,
-        data
+        data,
       });
       if (cb) cb(ABANDON_STATES.DONE);
       let abandonMessage;
@@ -493,25 +538,25 @@ export function doAbandonClaim(claim: Claim, cb: (arg0: string) => any) {
         abandonMessage = __('Successfully unlocked your tip!');
       }
 
-      dispatch(doToast({
-        message: abandonMessage
-      }));
+      dispatch(
+        doToast({
+          message: abandonMessage,
+        })
+      );
       dispatch(doFetchTxoPage());
     };
 
     const abandonParams = {
       txid,
       nout,
-      blocking: true
+      blocking: true,
     };
     let method;
 
     if (supportToAbandon) {
       method = 'support_abandon';
     } else if (claimToAbandon) {
-      const {
-        name: claimName
-      } = claimToAbandon;
+      const { name: claimName } = claimToAbandon;
       method = claimName.startsWith('@') ? 'channel_abandon' : 'stream_abandon';
     }
 
@@ -529,8 +574,8 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       type: ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED,
       data: {
         uri,
-        page
-      }
+        page,
+      },
     });
     Lbry.claim_search({
       channel: uri,
@@ -538,28 +583,24 @@ export function doFetchClaimsByChannel(uri: string, page: number = 1) {
       page: page || 1,
       order_by: ['release_time'],
       include_is_my_output: true,
-      include_purchase_receipt: true
+      include_purchase_receipt: true,
     }).then((result: ClaimSearchResponse) => {
-      const {
-        items: claims,
-        total_items: claimsInChannel,
-        page: returnedPage
-      } = result;
+      const { items: claims, total_items: claimsInChannel, page: returnedPage } = result;
       dispatch({
         type: ACTIONS.FETCH_CHANNEL_CLAIMS_COMPLETED,
         data: {
           uri,
           claimsInChannel,
           claims: claims || [],
-          page: returnedPage || undefined
-        }
+          page: returnedPage || undefined,
+        },
       });
     });
   };
 }
 export function doClearChannelErrors() {
   return {
-    type: ACTIONS.CLEAR_CHANNEL_ERRORS
+    type: ACTIONS.CLEAR_CHANNEL_ERRORS,
   };
 }
 export function doCreateChannel(name: string, amount: number, optionalParams: any, onConfirm: any) {
@@ -567,13 +608,13 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
     const state = getState();
     const channelCountOverLimit = selectIsMyChannelCountOverLimit(state);
     dispatch({
-      type: ACTIONS.CREATE_CHANNEL_STARTED
+      type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
 
     if (channelCountOverLimit) {
       dispatch({
         type: ACTIONS.CREATE_CHANNEL_FAILED,
-        data: 'Channel limit exceeded'
+        data: 'Channel limit exceeded',
       });
       return;
     }
@@ -581,7 +622,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
     const createParams: ChannelCreateParam = {
       name,
       bid: creditsToString(amount),
-      blocking: true
+      blocking: true,
     };
 
     if (optionalParams) {
@@ -610,7 +651,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       }
 
       if (optionalParams.tags) {
-        createParams.tags = optionalParams.tags.map(tag => tag.name);
+        createParams.tags = optionalParams.tags.map((tag) => tag.name);
       }
 
       if (optionalParams.languages) {
@@ -618,40 +659,43 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       }
     }
 
-    return Lbry.channel_create(createParams) // outputs[0] is the certificate
-    // outputs[1] is the change from the tx, not in the app currently
-    .then((result: ChannelCreateResponse) => {
-      const channelClaim = result.outputs[0];
-      dispatch({
-        type: ACTIONS.CREATE_CHANNEL_COMPLETED,
-        data: {
-          channelClaim
-        }
-      });
-      dispatch({
-        type: ACTIONS.UPDATE_PENDING_CLAIMS,
-        data: {
-          claims: [channelClaim]
-        }
-      });
-      dispatch(doCheckPendingClaims(onConfirm));
-      return channelClaim;
-    }).catch(error => {
-      dispatch({
-        type: ACTIONS.CREATE_CHANNEL_FAILED,
-        data: error.message
-      });
-    });
+    return (
+      Lbry.channel_create(createParams) // outputs[0] is the certificate
+        // outputs[1] is the change from the tx, not in the app currently
+        .then((result: ChannelCreateResponse) => {
+          const channelClaim = result.outputs[0];
+          dispatch({
+            type: ACTIONS.CREATE_CHANNEL_COMPLETED,
+            data: {
+              channelClaim,
+            },
+          });
+          dispatch({
+            type: ACTIONS.UPDATE_PENDING_CLAIMS,
+            data: {
+              claims: [channelClaim],
+            },
+          });
+          dispatch(doCheckPendingClaims(onConfirm));
+          return channelClaim;
+        })
+        .catch((error) => {
+          dispatch({
+            type: ACTIONS.CREATE_CHANNEL_FAILED,
+            data: error.message,
+          });
+        })
+    );
   };
 }
 export function doUpdateChannel(params: any, cb: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
-      type: ACTIONS.UPDATE_CHANNEL_STARTED
+      type: ACTIONS.UPDATE_CHANNEL_STARTED,
     });
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
-    const channelClaim = myChannels.find(myChannel => myChannel.claim_id === params.claim_id);
+    const channelClaim = myChannels.find((myChannel) => myChannel.claim_id === params.claim_id);
     const updateParams = {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
@@ -666,7 +710,7 @@ export function doUpdateChannel(params: any, cb: any) {
       languages: params.languages || [],
       locations: [],
       blocking: true,
-      featured: params.featured || []
+      featured: params.featured || [],
     };
 
     // Remove params with null values
@@ -677,7 +721,7 @@ export function doUpdateChannel(params: any, cb: any) {
     }
 
     if (params.tags) {
-      updateParams.tags = params.tags.map(tag => tag.name);
+      updateParams.tags = params.tags.map((tag) => tag.name);
     }
 
     // we'll need to remove these once we add locations/channels to channel page edit/create options
@@ -685,92 +729,102 @@ export function doUpdateChannel(params: any, cb: any) {
       updateParams.locations = channelClaim.value.locations;
     }
 
-    return Lbry.channel_update(updateParams).then((result: ChannelUpdateResponse) => {
-      const channelClaim = result.outputs[0];
-      dispatch({
-        type: ACTIONS.UPDATE_CHANNEL_COMPLETED,
-        data: {
-          channelClaim
-        }
+    return Lbry.channel_update(updateParams)
+      .then((result: ChannelUpdateResponse) => {
+        const channelClaim = result.outputs[0];
+        dispatch({
+          type: ACTIONS.UPDATE_CHANNEL_COMPLETED,
+          data: {
+            channelClaim,
+          },
+        });
+        dispatch({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [channelClaim],
+          },
+        });
+        dispatch(doCheckPendingClaims(cb));
+        return Boolean(result.outputs[0]);
+      })
+      .then()
+      .catch((error) => {
+        dispatch({
+          type: ACTIONS.UPDATE_CHANNEL_FAILED,
+          data: error,
+        });
       });
-      dispatch({
-        type: ACTIONS.UPDATE_PENDING_CLAIMS,
-        data: {
-          claims: [channelClaim]
-        }
-      });
-      dispatch(doCheckPendingClaims(cb));
-      return Boolean(result.outputs[0]);
-    }).then().catch(error => {
-      dispatch({
-        type: ACTIONS.UPDATE_CHANNEL_FAILED,
-        data: error
-      });
-    });
   };
 }
 export function doImportChannel(certificate: string) {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.IMPORT_CHANNEL_STARTED
+      type: ACTIONS.IMPORT_CHANNEL_STARTED,
     });
     return Lbry.channel_import({
-      channel_data: certificate
-    }).then(() => {
-      dispatch({
-        type: ACTIONS.IMPORT_CHANNEL_COMPLETED
+      channel_data: certificate,
+    })
+      .then(() => {
+        dispatch({
+          type: ACTIONS.IMPORT_CHANNEL_COMPLETED,
+        });
+      })
+      .catch((error) => {
+        dispatch({
+          type: ACTIONS.IMPORT_CHANNEL_FAILED,
+          data: error,
+        });
       });
-    }).catch(error => {
-      dispatch({
-        type: ACTIONS.IMPORT_CHANNEL_FAILED,
-        data: error
-      });
-    });
   };
 }
-export const doFetchChannelListMine = (page: number = 1, pageSize: number = 99999, resolve: boolean = true) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const isFetching = selectFetchingMyChannels(state);
-  if (isFetching) return;
-  dispatch({
-    type: ACTIONS.FETCH_CHANNEL_LIST_STARTED
-  });
-
-  const callback = (response: ChannelListResponse) => {
+export const doFetchChannelListMine =
+  (page: number = 1, pageSize: number = 99999, resolve: boolean = true) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const isFetching = selectFetchingMyChannels(state);
+    if (isFetching) return;
     dispatch({
-      type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
-      data: {
-        claims: response.items
-      }
+      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
     });
-    dispatch(doUserHasPremium()); // depends on channel list
-  };
 
-  const failure = error => {
-    dispatch({
-      type: ACTIONS.FETCH_CHANNEL_LIST_FAILED,
-      data: error
-    });
-  };
+    const callback = (response: ChannelListResponse) => {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
+        data: {
+          claims: response.items,
+        },
+      });
+      dispatch(doUserHasPremium()); // depends on channel list
+    };
 
-  Lbry.channel_list({
-    page,
-    page_size: pageSize,
-    resolve
-  }).then(callback, failure);
-};
+    const failure = (error) => {
+      dispatch({
+        type: ACTIONS.FETCH_CHANNEL_LIST_FAILED,
+        data: error,
+      });
+    };
+
+    Lbry.channel_list({
+      page,
+      page_size: pageSize,
+      resolve,
+    }).then(callback, failure);
+  };
 export function doClearClaimSearch() {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY
+      type: ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY,
     });
   };
 }
-export function doClaimSearch(csOptions: ClaimSearchOptions = {
-  no_totals: true,
-  page_size: 10,
-  page: 1
-}, settings?: DoClaimSearchSettings) {
+export function doClaimSearch(
+  csOptions: ClaimSearchOptions = {
+    no_totals: true,
+    page_size: 10,
+    page: 1,
+  },
+  settings?: DoClaimSearchSettings
+) {
   const options = csOptions;
   const query = createNormalizedClaimSearchKey(options);
   return async (dispatch: Dispatch, getState: GetState) => {
@@ -780,8 +834,8 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: {
-        query: query
-      }
+        query: query,
+      },
     });
 
     const success = async (data: ClaimSearchResponse) => {
@@ -795,7 +849,7 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
       let collectionResolveInfo;
       data.items.some((stream: Claim, index: number) => {
         resolveInfo[stream.canonical_url] = {
-          stream
+          stream,
         };
         urls.push(stream.canonical_url);
         claimIds.push(stream.claim_id);
@@ -810,7 +864,7 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
         if (stream.value_type === 'collection') {
           if (!collectionResolveInfo) collectionResolveInfo = {};
           collectionResolveInfo[stream.canonical_url] = {
-            stream
+            stream,
           };
         }
 
@@ -831,22 +885,26 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
           page: options.page,
           pageSize: options.page_size,
           totalItems: data.total_items,
-          totalPages: data.total_pages
-        }
+          totalPages: data.total_pages,
+        },
       });
 
       if (costInfos.size > 0) {
         const settledCostInfosById = await Promise.all(Array.from(costInfos));
         dispatch({
           type: ACTIONS.SET_COST_INFOS_BY_ID,
-          data: settledCostInfosById
+          data: settledCostInfosById,
         });
-        const sdkPaidClaimIds = settledCostInfosById.filter(costInfo => Number(costInfo.cost) > 0).map(costInfo => costInfo.claimId);
+        const sdkPaidClaimIds = settledCostInfosById
+          .filter((costInfo) => Number(costInfo.cost) > 0)
+          .map((costInfo) => costInfo.claimId);
 
         if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
-          dispatch(doResolveClaimIds(sdkPaidClaimIds, false, {
-            include_purchase_receipt: true
-          }));
+          dispatch(
+            doResolveClaimIds(sdkPaidClaimIds, false, {
+              include_purchase_receipt: true,
+            })
+          );
         }
       }
 
@@ -854,8 +912,8 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
         dispatch({
           type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED,
           data: {
-            resolveInfo: collectionResolveInfo
-          }
+            resolveInfo: collectionResolveInfo,
+          },
         });
       }
 
@@ -878,13 +936,13 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
       return resolveInfo;
     };
 
-    const failure = err => {
+    const failure = (err) => {
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_FAILED,
         data: {
-          query
+          query,
         },
-        error: err
+        error: err,
       });
       return false;
     };
@@ -905,7 +963,7 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
           return success({
             items: allClaims,
             page: options.page,
-            page_size: options.page_size
+            page_size: options.page_size,
           });
         }
 
@@ -926,9 +984,9 @@ export function doClaimSearch(csOptions: ClaimSearchOptions = {
 }
 export function doRepost(options: StreamRepostOptions) {
   return (dispatch: Dispatch): Promise<any> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       dispatch({
-        type: ACTIONS.CLAIM_REPOST_STARTED
+        type: ACTIONS.CLAIM_REPOST_STARTED,
       });
 
       function success(response) {
@@ -937,14 +995,14 @@ export function doRepost(options: StreamRepostOptions) {
           type: ACTIONS.CLAIM_REPOST_COMPLETED,
           data: {
             originalClaimId: options.claim_id,
-            repostClaim
-          }
+            repostClaim,
+          },
         });
         dispatch({
           type: ACTIONS.UPDATE_PENDING_CLAIMS,
           data: {
-            claims: [repostClaim]
-          }
+            claims: [repostClaim],
+          },
         });
         dispatch(doFetchClaimListMine(1, 10));
         resolve(repostClaim);
@@ -954,8 +1012,8 @@ export function doRepost(options: StreamRepostOptions) {
         dispatch({
           type: ACTIONS.CLAIM_REPOST_FAILED,
           data: {
-            error: error.message
-          }
+            error: error.message,
+          },
         });
       }
 
@@ -966,22 +1024,27 @@ export function doRepost(options: StreamRepostOptions) {
 export function doCheckPublishNameAvailability(name: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
-      type: ACTIONS.CHECK_PUBLISH_NAME_STARTED
+      type: ACTIONS.CHECK_PUBLISH_NAME_STARTED,
     });
     const state = getState();
     const myChannelClaimIds = selectMyChannelClaimIds(state);
-    return dispatch(doClaimSearch({
-      name,
-      channel_ids: myChannelClaimIds,
-      page: 1,
-      page_size: 50,
-      no_totals: true,
-      include_is_my_output: true
-    }, {
-      useAutoPagination: true
-    })).then(result => {
+    return dispatch(
+      doClaimSearch(
+        {
+          name,
+          channel_ids: myChannelClaimIds,
+          page: 1,
+          page_size: 50,
+          no_totals: true,
+          include_is_my_output: true,
+        },
+        {
+          useAutoPagination: true,
+        }
+      )
+    ).then((result) => {
       dispatch({
-        type: ACTIONS.CHECK_PUBLISH_NAME_COMPLETED
+        type: ACTIONS.CHECK_PUBLISH_NAME_COMPLETED,
       });
       return Object.keys(result).length === 0;
     });
@@ -989,125 +1052,137 @@ export function doCheckPublishNameAvailability(name: string) {
 }
 export function doClearRepostError() {
   return {
-    type: ACTIONS.CLEAR_REPOST_ERROR
+    type: ACTIONS.CLEAR_REPOST_ERROR,
   };
 }
 export function doPurchaseList(page: number = 1, pageSize: number = PAGE_SIZE) {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.PURCHASE_LIST_STARTED
+      type: ACTIONS.PURCHASE_LIST_STARTED,
     });
 
     const success = (result: PurchaseListResponse) => {
       return dispatch({
         type: ACTIONS.PURCHASE_LIST_COMPLETED,
         data: {
-          result
-        }
+          result,
+        },
       });
     };
 
-    const failure = error => {
+    const failure = (error) => {
       dispatch({
         type: ACTIONS.PURCHASE_LIST_FAILED,
         data: {
-          error: error.message
-        }
+          error: error.message,
+        },
       });
     };
 
     Lbry.purchase_list({
       page: page,
       page_size: pageSize,
-      resolve: true
+      resolve: true,
     }).then(success, failure);
   };
 }
-export const doCheckPendingClaims = (onChannelConfirmed: (...args: Array<any>) => any) => (dispatch: Dispatch, getState: GetState) => {
-  if (onChannelConfirmed) {
-    onChannelConfirmCallback = onChannelConfirmed;
-  }
+export const doCheckPendingClaims =
+  (onChannelConfirmed: (...args: Array<any>) => any) => (dispatch: Dispatch, getState: GetState) => {
+    if (onChannelConfirmed) {
+      onChannelConfirmCallback = onChannelConfirmed;
+    }
 
-  clearInterval(checkPendingInterval);
+    clearInterval(checkPendingInterval);
 
-  const checkTxoList = () => {
-    const state = getState();
-    const pendingById = Object.assign({}, selectPendingClaimsById(state));
+    const checkTxoList = () => {
+      const state = getState();
+      const pendingById = Object.assign({}, selectPendingClaimsById(state));
 
-    if (Object.keys(pendingById).length) {
-      return Lbry.claim_list({
-        claim_id: Object.keys(pendingById),
-        resolve: true
-      }).then(results => {
-        const claims = results.items;
-        const confirmedClaims = [];
-        const membershipCheckClaimIds = [];
-        claims.forEach(claim => {
-          if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
-            confirmedClaims.push(claim);
-            delete pendingById[claim.claim_id];
+      if (Object.keys(pendingById).length) {
+        return Lbry.claim_list({
+          claim_id: Object.keys(pendingById),
+          resolve: true,
+        }).then((results) => {
+          const claims = results.items;
+          const confirmedClaims = [];
+          const membershipCheckClaimIds = [];
+          claims.forEach((claim) => {
+            if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
+              confirmedClaims.push(claim);
+              delete pendingById[claim.claim_id];
+            }
+
+            // $FlowIgnore
+            if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
+              membershipCheckClaimIds.push(claim.claim_id);
+            }
+          });
+          dispatch({
+            type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+            data: {
+              claims: confirmedClaims,
+              pending: pendingById,
+            },
+          });
+          dispatch(doMembershipContentForStreamClaimIds(membershipCheckClaimIds));
+          const channelClaims = confirmedClaims.filter((claim) => claim.value_type === 'channel');
+
+          if (channelClaims.length && onChannelConfirmCallback) {
+            channelClaims.forEach((claim) => onChannelConfirmCallback(claim));
           }
 
-          // $FlowIgnore
-          if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
-            membershipCheckClaimIds.push(claim.claim_id);
+          if (Object.keys(pendingById).length === 0) {
+            clearInterval(checkPendingInterval);
           }
         });
+      } else {
+        clearInterval(checkPendingInterval);
+      }
+    };
+
+    // do something with onConfirmed (typically get blocklist for channel)
+    checkPendingInterval = setInterval(() => {
+      checkTxoList();
+    }, 30000);
+  };
+export const doFetchLatestClaimForChannel =
+  (uri: string, isEmbed?: boolean) => (dispatch: Dispatch, getState: GetState) => {
+    const searchOptions = {
+      limit_claims_per_channel: 1,
+      channel: uri,
+      no_totals: true,
+      order_by: ['release_time'],
+      page: 1,
+      has_source: true,
+      stream_types: isEmbed ? ['audio', 'video'] : undefined,
+    };
+    return dispatch(doClaimSearch(searchOptions))
+      .then((results) =>
         dispatch({
-          type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+          type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE,
           data: {
-            claims: confirmedClaims,
-            pending: pendingById
-          }
-        });
-        dispatch(doMembershipContentForStreamClaimIds(membershipCheckClaimIds));
-        const channelClaims = confirmedClaims.filter(claim => claim.value_type === 'channel');
-
-        if (channelClaims.length && onChannelConfirmCallback) {
-          channelClaims.forEach(claim => onChannelConfirmCallback(claim));
-        }
-
-        if (Object.keys(pendingById).length === 0) {
-          clearInterval(checkPendingInterval);
-        }
-      });
-    } else {
-      clearInterval(checkPendingInterval);
-    }
+            uri,
+            results,
+          },
+        })
+      )
+      .catch(() =>
+        dispatch({
+          type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL,
+        })
+      );
   };
-
-  // do something with onConfirmed (typically get blocklist for channel)
-  checkPendingInterval = setInterval(() => {
-    checkTxoList();
-  }, 30000);
-};
-export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => (dispatch: Dispatch, getState: GetState) => {
-  const searchOptions = {
-    limit_claims_per_channel: 1,
-    channel: uri,
-    no_totals: true,
-    order_by: ['release_time'],
-    page: 1,
-    has_source: true,
-    stream_types: isEmbed ? ['audio', 'video'] : undefined
-  };
-  return dispatch(doClaimSearch(searchOptions)).then(results => dispatch({
-    type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE,
-    data: {
-      uri,
-      results
-    }
-  })).catch(() => dispatch({
-    type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL
-  }));
-};
-export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => await dispatch(doClaimSearch({
-  channel_ids: [channelId],
-  has_no_source: true,
-  claim_type: ['stream'],
-  no_totals: true,
-  page_size: 20,
-  page: 1,
-  include_is_my_output: true,
-  order_by: ['release_time']
-}));
+export const doFetchNoSourceClaimsForChannelId =
+  (channelId: ClaimId) => async (dispatch: Dispatch, getState: GetState) =>
+    await dispatch(
+      doClaimSearch({
+        channel_ids: [channelId],
+        has_no_source: true,
+        claim_type: ['stream'],
+        no_totals: true,
+        page_size: 20,
+        page: 1,
+        include_is_my_output: true,
+        order_by: ['release_time'],
+      })
+    );

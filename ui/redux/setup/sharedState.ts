@@ -1,9 +1,26 @@
 /**
  * All things shared-state (a.k.a. wallet-sync).
  */
-import * as ACTIONS from "constants/action_types";
-import { buildSharedStateMiddleware } from "redux/middleware/shared-state";
-export const triggerSharedStateActions = [ACTIONS.CHANNEL_SUBSCRIBE, ACTIONS.CHANNEL_UNSUBSCRIBE, ACTIONS.TOGGLE_BLOCK_CHANNEL, ACTIONS.ADD_COIN_SWAP, ACTIONS.REMOVE_COIN_SWAP, ACTIONS.TOGGLE_TAG_FOLLOW, ACTIONS.CREATE_CHANNEL_COMPLETED, ACTIONS.SYNC_CLIENT_SETTINGS, ACTIONS.SHARED_PREFERENCE_SET, ACTIONS.COLLECTION_EDIT, ACTIONS.COLLECTION_DELETE, ACTIONS.COLLECTION_NEW, ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, ACTIONS.COLLECTION_TOGGLE_SAVE, ACTIONS.COLLECTION_AUTOPUBLISH_SET, ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT];
+import * as ACTIONS from 'constants/action_types';
+import { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
+export const triggerSharedStateActions = [
+  ACTIONS.CHANNEL_SUBSCRIBE,
+  ACTIONS.CHANNEL_UNSUBSCRIBE,
+  ACTIONS.TOGGLE_BLOCK_CHANNEL,
+  ACTIONS.ADD_COIN_SWAP,
+  ACTIONS.REMOVE_COIN_SWAP,
+  ACTIONS.TOGGLE_TAG_FOLLOW,
+  ACTIONS.CREATE_CHANNEL_COMPLETED,
+  ACTIONS.SYNC_CLIENT_SETTINGS,
+  ACTIONS.SHARED_PREFERENCE_SET,
+  ACTIONS.COLLECTION_EDIT,
+  ACTIONS.COLLECTION_DELETE,
+  ACTIONS.COLLECTION_NEW,
+  ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS,
+  ACTIONS.COLLECTION_TOGGLE_SAVE,
+  ACTIONS.COLLECTION_AUTOPUBLISH_SET,
+  ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT,
+];
 
 /**
  * source: the reducer name
@@ -17,71 +34,69 @@ export const triggerSharedStateActions = [ACTIONS.CHANNEL_SUBSCRIBE, ACTIONS.CHA
 const sharedStateFilters = {
   tags: {
     source: 'tags',
-    property: 'followedTags'
+    property: 'followedTags',
   },
   subscriptions: {
     source: 'subscriptions',
     property: 'subscriptions',
-    transform: value => {
-      return value.map(({
-        uri
-      }) => uri);
-    }
+    transform: (value) => {
+      return value.map(({ uri }) => uri);
+    },
   },
   following: {
     source: 'subscriptions',
-    property: 'following'
+    property: 'following',
   },
   blocked: {
     source: 'blocked',
-    property: 'blockedChannels'
+    property: 'blockedChannels',
   },
   coin_swap_codes: {
     source: 'coinSwap',
     property: 'coinSwaps',
-    transform: coinSwaps => {
-      return coinSwaps.map(coinSwapInfo => coinSwapInfo.chargeCode);
-    }
+    transform: (coinSwaps) => {
+      return coinSwaps.map((coinSwapInfo) => coinSwapInfo.chargeCode);
+    },
   },
   settings: {
     source: 'settings',
-    property: 'sharedPreferences'
+    property: 'sharedPreferences',
   },
   app_welcome_version: {
     source: 'app',
-    property: 'welcomeVersion'
+    property: 'welcomeVersion',
   },
   sharing_3P: {
     source: 'app',
-    property: 'allowAnalytics'
+    property: 'allowAnalytics',
   },
   builtinCollections: {
     source: 'collections',
-    property: 'builtin'
+    property: 'builtin',
   },
   editedCollections: {
     source: 'collections',
-    property: 'edited'
+    property: 'edited',
   },
   updatedCollections: {
     source: 'collections',
-    property: 'updated'
+    property: 'updated',
   },
   savedCollectionIds: {
     source: 'collections',
-    property: 'savedIds'
+    property: 'savedIds',
   },
   unpublishedCollections: {
     source: 'collections',
-    property: 'unpublished'
+    property: 'unpublished',
   },
   autoPublishById: {
     source: 'collections',
-    property: 'autoPublishById'
+    property: 'autoPublishById',
   },
   lastViewedAnnouncement: {
     source: 'content',
-    property: 'lastViewedAnnouncement'
-  }
+    property: 'lastViewedAnnouncement',
+  },
 };
 export const sharedStateMiddleware = buildSharedStateMiddleware(triggerSharedStateActions, sharedStateFilters);

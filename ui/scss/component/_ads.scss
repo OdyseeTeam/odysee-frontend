@@ -119,7 +119,11 @@
     bottom: -500px;
     left: calc(var(--spacing-m) + 93px) !important;
     width: calc(100% - (var(--spacing-m) * 2) - 93px) !important;
-    transition: width 0.2s, left 0.2s, bottom 1s, opacity 1s !important;
+    transition:
+      width 0.2s,
+      left 0.2s,
+      bottom 1s,
+      opacity 1s !important;
     border: 2px solid var(--color-header-button);
     border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
 
@@ -269,7 +273,11 @@
   bottom: -500px;
   left: calc(var(--spacing-m) + 93px) !important;
   width: 848px;
-  transition: width 0.2s, left 0.2s, bottom 1s, opacity 1s !important;
+  transition:
+    width 0.2s,
+    left 0.2s,
+    bottom 1s,
+    opacity 1s !important;
   border: 2px solid var(--color-header-button);
   border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
 

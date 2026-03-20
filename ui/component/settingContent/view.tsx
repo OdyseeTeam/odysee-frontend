@@ -1,17 +1,17 @@
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import React from "react";
-import * as SETTINGS from "constants/settings";
-import * as COLLECTIONS from "constants/collections";
-import { Lbryio } from "lbryinc";
-import { SIMPLE_SITE } from "config";
-import * as MODALS from "constants/modal_types";
-import { SETTINGS_GRP } from "constants/settings";
-import Button from "component/button";
-import Card from "component/common/card";
-import { FormField, FormFieldPrice } from "component/common/form";
-import MaxPurchasePrice from "component/maxPurchasePrice";
-import SettingsRow from "component/settingsRow";
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import * as SETTINGS from 'constants/settings';
+import * as COLLECTIONS from 'constants/collections';
+import { Lbryio } from 'lbryinc';
+import { SIMPLE_SITE } from 'config';
+import * as MODALS from 'constants/modal_types';
+import { SETTINGS_GRP } from 'constants/settings';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import { FormField, FormFieldPrice } from 'component/common/form';
+import MaxPurchasePrice from 'component/maxPurchasePrice';
+import SettingsRow from 'component/settingsRow';
 type Price = {
   currency: string;
   amount: number;
@@ -132,9 +132,10 @@ const HELP = {
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
-  SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
+  SHOW_MATURE:
+    'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '',
   // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
-  PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.'
+  PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',
 };

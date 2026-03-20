@@ -1,14 +1,12 @@
-import React from "react";
-import CreditAmount from "component/common/credit-amount";
+import React from 'react';
+import CreditAmount from 'component/common/credit-amount';
 type Props = {
   uri: string;
   claim: Claim | null | undefined;
 };
 
 function ClaimEffectiveAmount(props: Props) {
-  const {
-    claim
-  } = props;
+  const { claim } = props;
 
   if (!claim) {
     return null;

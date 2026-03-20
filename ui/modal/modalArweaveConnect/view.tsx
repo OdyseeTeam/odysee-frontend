@@ -1,10 +1,10 @@
 // check provide button for arconnect connection
 // wait for connect
 // close.
-import React from "react";
-import Card from "component/common/card";
-import Button from "component/button";
-import { Modal } from "modal/modal";
+import React from 'react';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import { Modal } from 'modal/modal';
 type Props = {
   doHideModal: () => void;
   doOpenModal: (arg0: string, arg1: any) => void;
@@ -19,7 +19,7 @@ type Props = {
   walletAddress: string;
   walletBalance: any;
   isArAccountRegistering: boolean;
-  arAccountRegisteringError?: "";
+  arAccountRegisteringError?: '';
   previousModal?: {
     id: string;
     modalProps: any;
@@ -42,34 +42,57 @@ export default function ModalAnnouncements(props: Props) {
     isArAccountRegistering,
     arAccountRegisteringError,
     previousModal,
-    isConnecting // fullArweaveStatusArray,
-
+    isConnecting, // fullArweaveStatusArray,
   } = props;
-  const apiEntryWithAddress = fullAPIArweaveStatus.find(status => status.address === walletAddress);
+  const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
   const id = apiEntryWithAddress ? apiEntryWithAddress.id : null;
   // const usdcBalance = walletBalance ? walletBalance.usdc : 0;
   const hasArweaveEntry = fullAPIArweaveStatus && fullAPIArweaveStatus.length > 0;
   React.useEffect(() => {
     // automatically register first address if there isn't one
     if (!hasArweaveEntry && walletAddress) {
-      doRegisterArweaveAddress(walletAddress, true).then(() => {
-        doHideModal();
-      }).catch(e => {
-        if (e?.message === 'address already exists for another user') {
+      doRegisterArweaveAddress(walletAddress, true)
+        .then(() => {
           doHideModal();
-        }
-      });
+        })
+        .catch((e) => {
+          if (e?.message === 'address already exists for another user') {
+            doHideModal();
+          }
+        });
     }
   }, [walletAddress, doRegisterArweaveAddress, doHideModal, hasArweaveEntry, apiEntryWithAddress]);
 
   // if connected address is not registered at all
   const RegisterCard = () => {
-    return <Card className="announcement" title={__('Unregistered Wallet Address')} subtitle={__('Your Wander address, %address%, is not onboarded with the payments system. You can switch your Arweave address, or register this one for use.', {
-      address: walletAddress
-    })} actions={<div className="section__actions">
-            <Button button="primary" label={__('Register')} disabled={isArAccountRegistering} onClick={() => doRegisterArweaveAddress(walletAddress, true)} />
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
-          </div>} />;
+    return (
+      <Card
+        className="announcement"
+        title={__('Unregistered Wallet Address')}
+        subtitle={__(
+          'Your Wander address, %address%, is not onboarded with the payments system. You can switch your Arweave address, or register this one for use.',
+          {
+            address: walletAddress,
+          }
+        )}
+        actions={
+          <div className="section__actions">
+            <Button
+              button="primary"
+              label={__('Register')}
+              disabled={isArAccountRegistering}
+              onClick={() => doRegisterArweaveAddress(walletAddress, true)}
+            />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
+          </div>
+        }
+      />
+    );
   };
 
   // if address is found, but not default
@@ -94,29 +117,68 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   const MakeDefaultCard = () => {
-    return <Card className="announcement" title={__('Make Default Wallet Address')} body={<div className="section">
+    return (
+      <Card
+        className="announcement"
+        title={__('Make Default Wallet Address')}
+        body={
+          <div className="section">
             {__('Your Wander address, %address%, is not your primary wallet right now.', {
-        address: walletAddress
-      })}
-          </div>} actions={<div className="section__actions">
-            <Button button="primary" label={__('Make Default')} disabled={isArAccountRegistering} onClick={handleMakeDefault} />
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
-          </div>} />;
+              address: walletAddress,
+            })}
+          </div>
+        }
+        actions={
+          <div className="section__actions">
+            <Button
+              button="primary"
+              label={__('Make Default')}
+              disabled={isArAccountRegistering}
+              onClick={handleMakeDefault}
+            />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
+          </div>
+        }
+      />
+    );
   };
 
   const ErrorCard = () => {
-    return <Card className="announcement" title={__('Wallet Connect Error')} body={<div className="section">
-            <p>{__('There was an error registering that address: %error%', {
-          error: arAccountRegisteringError
-        })}</p>
+    return (
+      <Card
+        className="announcement"
+        title={__('Wallet Connect Error')}
+        body={
+          <div className="section">
+            <p>
+              {__('There was an error registering that address: %error%', {
+                error: arAccountRegisteringError,
+              })}
+            </p>
             <p>
               {__('Reach out to %email% with questions.', {
-          email: 'help@odysee.com'
-        })}
+                email: 'help@odysee.com',
+              })}
             </p>
-          </div>} actions={<div className="section__actions">
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
-          </div>} />;
+          </div>
+        }
+        actions={
+          <div className="section__actions">
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
+          </div>
+        }
+      />
+    );
   };
 
   const handleCloseModal = () => {
@@ -128,30 +190,41 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   const ConnectingCard = () => {
-    return <Card className="announcement" title={__('Connecting Wallet')} body={<div className="section">{__('Connecting...')}</div>} />;
+    return (
+      <Card
+        className="announcement"
+        title={__('Connecting Wallet')}
+        body={<div className="section">{__('Connecting...')}</div>}
+      />
+    );
   };
 
   const showConnecting = (isConnecting || isArAccountRegistering) && !apiEntryWithAddress;
   const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress;
-  const showMakeDefault = !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
-  const showErrorCard = !showConnecting && !!arAccountRegisteringError && arAccountRegisteringError !== 'address already exists for another user';
+  const showMakeDefault =
+    !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
+  const showErrorCard =
+    !showConnecting &&
+    !!arAccountRegisteringError &&
+    arAccountRegisteringError !== 'address already exists for another user';
 
-  if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault || arAccountRegisteringError === 'address already exists for another user') {
+  if (
+    (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) ||
+    arAccountRegisteringError === 'address already exists for another user'
+  ) {
     handleCloseModal();
     return null;
   }
 
   // if you don't already have
-  return <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
+  return (
+    <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
       {showConnecting && <ConnectingCard />}
-      {
-      /* don't bother showing register unless you're showing a 2nd+ address */
-    }
+      {/* don't bother showing register unless you're showing a 2nd+ address */}
       {showRegister && <RegisterCard />}
       {showErrorCard && <ErrorCard />}
       {showMakeDefault && <MakeDefaultCard />}
-      {
-      /* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */
-    }
-    </Modal>;
+      {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}
+    </Modal>
+  );
 }

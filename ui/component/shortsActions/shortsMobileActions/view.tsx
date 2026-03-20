@@ -1,13 +1,13 @@
-import React from "react";
-import { createPortal } from "react-dom";
-import classnames from "classnames";
-import Button from "component/button";
-import ChannelThumbnail from "component/channelThumbnail";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import * as REACTION_TYPES from "constants/reactions";
-import Counter from "component/counter";
+import React from 'react';
+import { createPortal } from 'react-dom';
+import classnames from 'classnames';
+import Button from 'component/button';
+import ChannelThumbnail from 'component/channelThumbnail';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import * as REACTION_TYPES from 'constants/reactions';
+import Counter from 'component/counter';
 type Props = {
   uri: string;
   likeCount: number;
@@ -47,7 +47,7 @@ const MobileActions = ({
   isSubscribed,
   channelPermanentUrl,
   doChannelSubscribe,
-  doChannelUnsubscribe
+  doChannelUnsubscribe,
 }: Props) => {
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
@@ -65,46 +65,67 @@ const MobileActions = ({
   const effectiveReaction = optimisticReaction !== undefined ? optimisticReaction : myReaction;
   const isFireActive = effectiveReaction === REACTION_TYPES.LIKE;
   const isSlimeActive = effectiveReaction === REACTION_TYPES.DISLIKE;
-  return <>
-      {fireEffect && createPortal(<div className="shorts-mobile-flames">
-            {Array.from({
-        length: 50
-      }, (_, i) => <div key={i} className="shorts-mobile-flames__particle" style={{
-        left: `calc(${i / 50 * 100}% - 35px)`,
-        animationDelay: `${Math.random()}s`
-      }} />)}
+  return (
+    <>
+      {fireEffect &&
+        createPortal(
+          <div className="shorts-mobile-flames">
+            {Array.from(
+              {
+                length: 50,
+              },
+              (_, i) => (
+                <div
+                  key={i}
+                  className="shorts-mobile-flames__particle"
+                  style={{
+                    left: `calc(${(i / 50) * 100}% - 35px)`,
+                    animationDelay: `${Math.random()}s`,
+                  }}
+                />
+              )
+            )}
           </div>, // $FlowFixMe
-    document.body)}
+          document.body
+        )}
 
-      {
-      /* $FlowFixMe */
-    }
+      {/* $FlowFixMe */}
       {slimeEffect && createPortal(<div className="shorts-mobile-slime" />, document.body)}
 
       <div className="shorts-mobile-panel__actions">
         <div className="shorts-mobile-panel__action-item">
-          <Button onClick={() => {
-          setOptimisticReaction(isFireActive ? null : REACTION_TYPES.LIKE);
+          <Button
+            onClick={() => {
+              setOptimisticReaction(isFireActive ? null : REACTION_TYPES.LIKE);
 
-          if (!isFireActive) {
-            setFireButtonGlow(false);
-            setFireEffect(false);
-            clearTimeout(fireButtonGlowTimeout.current);
-            clearTimeout(fireEffectTimeout.current);
-            requestAnimationFrame(() => {
-              setFireButtonGlow(true);
-              setFireEffect(true);
-              fireButtonGlowTimeout.current = setTimeout(() => setFireButtonGlow(false), 2000);
-              fireEffectTimeout.current = setTimeout(() => setFireEffect(false), 2000);
-            });
-          }
+              if (!isFireActive) {
+                setFireButtonGlow(false);
+                setFireEffect(false);
+                clearTimeout(fireButtonGlowTimeout.current);
+                clearTimeout(fireEffectTimeout.current);
+                requestAnimationFrame(() => {
+                  setFireButtonGlow(true);
+                  setFireEffect(true);
+                  fireButtonGlowTimeout.current = setTimeout(() => setFireButtonGlow(false), 2000);
+                  fireEffectTimeout.current = setTimeout(() => setFireEffect(false), 2000);
+                });
+              }
 
-          doReactionLike(uri);
-        }} icon={isFireActive ? ICONS.FIRE_ACTIVE : ICONS.FIRE} iconSize={16} title={__('I Like This')} requiresAuth authSrc="filereaction_like" className={classnames('shorts-mobile-panel__action-button button--file-action button-like', {
-          'button--fire': isFireActive,
-          'button--fire-glow-pulse': fireButtonGlow
-        })} label={<>
-                {isFireActive && <>
+              doReactionLike(uri);
+            }}
+            icon={isFireActive ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+            iconSize={16}
+            title={__('I Like This')}
+            requiresAuth
+            authSrc="filereaction_like"
+            className={classnames('shorts-mobile-panel__action-button button--file-action button-like', {
+              'button--fire': isFireActive,
+              'button--fire-glow-pulse': fireButtonGlow,
+            })}
+            label={
+              <>
+                {isFireActive && (
+                  <>
                     <div className="button__fire-glow" />
                     <div className="button__fire-particle1" />
                     <div className="button__fire-particle2" />
@@ -112,100 +133,169 @@ const MobileActions = ({
                     <div className="button__fire-particle4" />
                     <div className="button__fire-particle5" />
                     <div className="button__fire-particle6" />
-                  </>}
-              </>} />
+                  </>
+                )}
+              </>
+            }
+          />
           <span className="shorts-mobile-panel__count">
             <Counter value={Number.isInteger(likeCount) ? likeCount : 0} precision={0} startFrom={0} />
           </span>
         </div>
 
         <div className="shorts-mobile-panel__action-item">
-          <Button requiresAuth authSrc={'filereaction_dislike'} title={__('I dislike this')} className={classnames('shorts-mobile-panel__action-button button--file-action button-dislike', {
-          'button--slime': isSlimeActive,
-          'button--slime-glow-pulse': slimeButtonGlow
-        })} iconSize={16} icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME} onClick={() => {
-          setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
+          <Button
+            requiresAuth
+            authSrc={'filereaction_dislike'}
+            title={__('I dislike this')}
+            className={classnames('shorts-mobile-panel__action-button button--file-action button-dislike', {
+              'button--slime': isSlimeActive,
+              'button--slime-glow-pulse': slimeButtonGlow,
+            })}
+            iconSize={16}
+            icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+            onClick={() => {
+              setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
 
-          if (!isSlimeActive) {
-            setSlimeButtonGlow(false);
-            setSlimeEffect(false);
-            clearTimeout(slimeButtonGlowTimeout.current);
-            clearTimeout(slimeEffectTimeout.current);
-            requestAnimationFrame(() => {
-              setSlimeButtonGlow(true);
-              setSlimeEffect(true);
-              slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
-              slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
-            });
-          }
+              if (!isSlimeActive) {
+                setSlimeButtonGlow(false);
+                setSlimeEffect(false);
+                clearTimeout(slimeButtonGlowTimeout.current);
+                clearTimeout(slimeEffectTimeout.current);
+                requestAnimationFrame(() => {
+                  setSlimeButtonGlow(true);
+                  setSlimeEffect(true);
+                  slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
+                  slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                });
+              }
 
-          doReactionDislike(uri);
-        }} label={<>
-                {isSlimeActive && <>
+              doReactionDislike(uri);
+            }}
+            label={
+              <>
+                {isSlimeActive && (
+                  <>
                     <div className="button__slime-stain" />
                     <div className="button__slime-drop1" />
                     <div className="button__slime-drop2" />
-                  </>}
-              </>} />
+                  </>
+                )}
+              </>
+            }
+          />
           <span className="shorts-mobile-panel__count">
             <Counter value={Number.isInteger(dislikeCount) ? dislikeCount : 0} precision={0} startFrom={0} />
           </span>
         </div>
 
-        {channelUrl && <div className="shorts-mobile-panel__action-item" onMouseEnter={() => setAvatarHover(true)} onMouseLeave={() => setAvatarHover(false)} onClick={e => {
-        e.stopPropagation();
-        const sub = {
-          channelName: channelUrl.split('/').pop(),
-          uri: channelPermanentUrl
-        };
+        {channelUrl && (
+          <div
+            className="shorts-mobile-panel__action-item"
+            onMouseEnter={() => setAvatarHover(true)}
+            onMouseLeave={() => setAvatarHover(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const sub = {
+                channelName: channelUrl.split('/').pop(),
+                uri: channelPermanentUrl,
+              };
 
-        if (isSubscribed) {
-          doChannelUnsubscribe(sub);
-        } else {
-          doChannelSubscribe(sub);
-        }
-      }}>
+              if (isSubscribed) {
+                doChannelUnsubscribe(sub);
+              } else {
+                doChannelSubscribe(sub);
+              }
+            }}
+          >
             <div className="shorts-mobile-panel__avatar-wrapper">
               <ChannelThumbnail key={channelUrl} uri={channelUrl} hideStakedIndicator />
-              <div className={classnames('shorts-mobile-panel__subscribe-icon', {
-            'shorts-mobile-panel__subscribe-icon--active': isSubscribed
-          })}>
-                <Icon icon={isSubscribed && avatarHover ? ICONS.UNSUBSCRIBE : isSubscribed || avatarHover ? ICONS.SUBSCRIBED : ICONS.SUBSCRIBE} size={10} />
+              <div
+                className={classnames('shorts-mobile-panel__subscribe-icon', {
+                  'shorts-mobile-panel__subscribe-icon--active': isSubscribed,
+                })}
+              >
+                <Icon
+                  icon={
+                    isSubscribed && avatarHover
+                      ? ICONS.UNSUBSCRIBE
+                      : isSubscribed || avatarHover
+                        ? ICONS.SUBSCRIBED
+                        : ICONS.SUBSCRIBE
+                  }
+                  size={10}
+                />
               </div>
             </div>
             <span className="shorts-mobile-panel__count">{isSubscribed ? __('Following') : __('Follow')}</span>
-          </div>}
+          </div>
+        )}
 
         <div className="shorts-mobile-panel__action-item">
-          <Button className="shorts-mobile-panel__action-button" onClick={onCommentsClick} icon={ICONS.COMMENTS_LIST} iconSize={16} />
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onCommentsClick}
+            icon={ICONS.COMMENTS_LIST}
+            iconSize={16}
+          />
           <span className="shorts-mobile-panel__count">{__('Comments')}</span>
         </div>
 
         <div className="shorts-mobile-panel__action-item">
-          <Button className="shorts-mobile-panel__action-button" onClick={onShareClick} icon={ICONS.SHARE} iconSize={16} title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')} />
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onShareClick}
+            icon={ICONS.SHARE}
+            iconSize={16}
+            title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+          />
           <span className="shorts-mobile-panel__count">{__('Share')}</span>
         </div>
 
-        {!isUnlisted && <div className="shorts-mobile-panel__action-item">
-            <Button className="shorts-mobile-panel__action-button" onClick={() => doOpenModal(MODALS.REPOST, {
-          uri
-        })} icon={ICONS.REPOST} iconSize={16} title={__('Repost this content')} requiresChannel />
+        {!isUnlisted && (
+          <div className="shorts-mobile-panel__action-item">
+            <Button
+              className="shorts-mobile-panel__action-button"
+              onClick={() =>
+                doOpenModal(MODALS.REPOST, {
+                  uri,
+                })
+              }
+              icon={ICONS.REPOST}
+              iconSize={16}
+              title={__('Repost this content')}
+              requiresChannel
+            />
             <span className="shorts-mobile-panel__count">{__('Repost')}</span>
-          </div>}
+          </div>
+        )}
 
         <div className="shorts-mobile-panel__action-item">
-          <Button className="shorts-mobile-panel__action-button" onClick={onInfoButtonClick} icon={ICONS.INFO} iconSize={16} />
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onInfoButtonClick}
+            icon={ICONS.INFO}
+            iconSize={16}
+          />
           <span className="shorts-mobile-panel__count">{__('Details')}</span>
         </div>
 
         <div className="shorts-mobile-panel__action-item">
-          <Button className={classnames('shorts-mobile-panel__action-button button-bubble', {
-          'button-bubble--active': autoPlayNextShort
-        })} requiresAuth={IS_WEB} title={__('Autoplay Next')} onClick={doToggleShortsAutoplay} icon={ICONS.AUTOPLAY_NEXT} iconSize={24} />
+          <Button
+            className={classnames('shorts-mobile-panel__action-button button-bubble', {
+              'button-bubble--active': autoPlayNextShort,
+            })}
+            requiresAuth={IS_WEB}
+            title={__('Autoplay Next')}
+            onClick={doToggleShortsAutoplay}
+            icon={ICONS.AUTOPLAY_NEXT}
+            iconSize={24}
+          />
           <span className="shorts-mobile-panel__count">{__('Auto Next')}</span>
         </div>
       </div>
-    </>;
+    </>
+  );
 };
 
 export default MobileActions;

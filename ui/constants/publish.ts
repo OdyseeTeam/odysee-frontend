@@ -4,10 +4,10 @@ export const PAYWALL = Object.freeze({
   FREE: 'free',
   USDC: 'usdc',
   FIAT: 'fiat',
-  SDK: 'sdk'
+  SDK: 'sdk',
 });
 export const NO_FILE = '---';
 export const BITRATE = Object.freeze({
   RECOMMENDED: 9500000,
-  MAX: 19500000
+  MAX: 19500000,
 });

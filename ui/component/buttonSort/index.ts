@@ -1,2 +1,2 @@
-import ButtonSort from "./view";
+import ButtonSort from './view';
 export default ButtonSort;

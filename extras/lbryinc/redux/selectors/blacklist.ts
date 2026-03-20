@@ -1,7 +1,7 @@
-import { selectClaimForUri } from "redux/selectors/claims";
-import { getChannelFromClaim } from "util/claim";
-export const selectState = state => state.blacklist || {};
-export const selectBlackListedData = state => selectState(state).blackListedData;
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getChannelFromClaim } from 'util/claim';
+export const selectState = (state) => state.blacklist || {};
+export const selectBlackListedData = (state) => selectState(state).blackListedData;
 export const selectBlackListedDataForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);

@@ -1,6 +1,6 @@
-import { connect } from "react-redux";
-import SendUsdc from "./view";
+import { connect } from 'react-redux';
+import SendUsdc from './view';
 
-const select = state => ({});
+const select = (state) => ({});
 
 export default connect(select, {})(SendUsdc);

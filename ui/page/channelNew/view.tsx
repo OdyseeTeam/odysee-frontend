@@ -1,9 +1,9 @@
-import * as PAGES from "constants/pages";
-import React from "react";
-import ChannelEdit from "component/channelEdit";
-import Page from "component/page";
-import { useHistory } from "react-router";
-import YrblWalletEmpty from "component/yrblWalletEmpty";
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import ChannelEdit from 'component/channelEdit';
+import Page from 'component/page';
+import { useHistory } from 'react-router';
+import YrblWalletEmpty from 'component/yrblWalletEmpty';
 type Props = {
   balance: number;
   claimConfirmEmailReward: () => void;
@@ -12,16 +12,8 @@ type Props = {
 };
 
 function ChannelNew(props: Props) {
-  const {
-    balance,
-    claimConfirmEmailReward,
-    isAuthenticated,
-    channelCountOverLimit
-  } = props;
-  const {
-    push,
-    location
-  } = useHistory();
+  const { balance, claimConfirmEmailReward, isAuthenticated, channelCountOverLimit } = props;
+  const { push, location } = useHistory();
   const urlSearchParams = new URLSearchParams(location.search);
   const redirectUrl = urlSearchParams.get('redirect');
   const emptyBalance = balance === 0;
@@ -30,18 +22,31 @@ function ChannelNew(props: Props) {
       claimConfirmEmailReward();
     }
   }, [isAuthenticated, claimConfirmEmailReward, emptyBalance]);
-  return <Page className="channelPage-wrapper channelPage-edit-wrapper channelPage-new-wrapper" noSideNavigation fullWidthPage noFooter backout={{
-    title: __('Create a channel'),
-    backLabel: __('Cancel')
-  }}>
+  return (
+    <Page
+      className="channelPage-wrapper channelPage-edit-wrapper channelPage-new-wrapper"
+      noSideNavigation
+      fullWidthPage
+      noFooter
+      backout={{
+        title: __('Create a channel'),
+        backLabel: __('Cancel'),
+      }}
+    >
       {emptyBalance && <YrblWalletEmpty />}
 
-      {channelCountOverLimit && <div className="empty empty--centered">{__('Sorry, you have exceeded the channel creation limit.')}</div>}
+      {channelCountOverLimit && (
+        <div className="empty empty--centered">{__('Sorry, you have exceeded the channel creation limit.')}</div>
+      )}
 
-      <ChannelEdit disabled={emptyBalance || channelCountOverLimit} onDone={() => {
-      push(redirectUrl || `/$/${PAGES.CHANNELS}`);
-    }} />
-    </Page>;
+      <ChannelEdit
+        disabled={emptyBalance || channelCountOverLimit}
+        onDone={() => {
+          push(redirectUrl || `/$/${PAGES.CHANNELS}`);
+        }}
+      />
+    </Page>
+  );
 }
 
 export default ChannelNew;

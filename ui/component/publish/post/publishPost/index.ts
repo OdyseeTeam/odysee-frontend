@@ -1,16 +1,16 @@
-import { connect } from "react-redux";
-import { selectBalance } from "redux/selectors/wallet";
-import { selectPublishFormValue } from "redux/selectors/publish";
-import { doUpdatePublishForm, doUpdateTitle } from "redux/actions/publish";
-import PublishPost from "./view";
+import { connect } from 'react-redux';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
+import PublishPost from './view';
 
 const select = (state, props) => ({
   title: selectPublishFormValue(state, 'title'),
-  balance: selectBalance(state)
+  balance: selectBalance(state),
 });
 
 const perform = {
   doUpdatePublishForm,
-  doUpdateTitle
+  doUpdateTitle,
 };
 export default connect(select, perform)(PublishPost);

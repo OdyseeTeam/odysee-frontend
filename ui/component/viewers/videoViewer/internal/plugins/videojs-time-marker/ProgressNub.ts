@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import type { Player } from "../../videojs";
+import videojs from 'video.js';
+import type { Player } from '../../videojs';
 const Component = videojs.getComponent('Component');
 
 const throttle = function (fn: any, wait: any) {
@@ -34,7 +34,7 @@ class ProgressNub extends Component {
 
   createEl() {
     return super.createEl('div', {
-      className: 'vjs-progress-nub'
+      className: 'vjs-progress-nub',
     });
   }
 
@@ -51,17 +51,20 @@ class ProgressNub extends Component {
     };
 
     try {
-      const playProgressBar = this.player.getChild('controlBar').getChild('progressControl').getChild('seekBar').getChild('playProgressBar');
+      const playProgressBar = this.player
+        .getChild('controlBar')
+        .getChild('progressControl')
+        .getChild('seekBar')
+        .getChild('playProgressBar');
 
       if (playProgressBar) {
         playProgressBar.update = throttle(updateCbOverride, UPDATE_REFRESH_INTERVAL_MS);
       }
     } catch {}
   }
-
 }
 
 ProgressNub.prototype.options_ = {
-  children: []
+  children: [],
 };
 export default ProgressNub;

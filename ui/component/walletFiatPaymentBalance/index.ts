@@ -1,2 +1,2 @@
-import WalletFiatPaymentBalance from "./view";
+import WalletFiatPaymentBalance from './view';
 export default WalletFiatPaymentBalance;

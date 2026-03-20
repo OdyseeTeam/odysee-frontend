@@ -1,14 +1,17 @@
-import { connect } from "react-redux";
-import { selectClaimForUri, selectClaimIsMine, selectIsStreamPlaceholderForUri, selectIsShortForUri } from "redux/selectors/claims";
-import { makeSelectPendingAmountByUri } from "redux/selectors/wallet";
-import { doOpenModal } from "redux/actions/app";
-import FileDescription from "./view";
-import { getClaimMetadata } from "util/claim";
+import { connect } from 'react-redux';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectIsStreamPlaceholderForUri,
+  selectIsShortForUri,
+} from 'redux/selectors/claims';
+import { makeSelectPendingAmountByUri } from 'redux/selectors/wallet';
+import { doOpenModal } from 'redux/actions/app';
+import FileDescription from './view';
+import { getClaimMetadata } from 'util/claim';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const pendingAmount = makeSelectPendingAmountByUri(uri)(state);
   const claim = selectClaimForUri(state, uri);
   const metadata = getClaimMetadata(claim);
@@ -24,11 +27,11 @@ const select = (state, props) => {
     hasSupport,
     isLivestreamClaim,
     isEmpty,
-    isShort: selectIsShortForUri(state, props.uri)
+    isShort: selectIsShortForUri(state, props.uri),
   };
 };
 
 const perform = {
-  doOpenModal
+  doOpenModal,
 };
 export default connect(select, perform)(FileDescription);

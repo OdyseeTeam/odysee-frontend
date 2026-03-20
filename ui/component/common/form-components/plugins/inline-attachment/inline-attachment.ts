@@ -58,7 +58,7 @@
      * @param {String} previous Value which should be appended after the current content
      */
     appendInItsOwnLine: function (previous, appended) {
-      return (previous + "\n\n[[D]]" + appended).replace(/(\n{2,})\[\[D\]\]/, "\n\n").replace(/^(\n*)/, "");
+      return (previous + '\n\n[[D]]' + appended).replace(/(\n{2,})\[\[D\]\]/, '\n\n').replace(/^(\n*)/, '');
     },
 
     /**
@@ -69,22 +69,22 @@
      */
     insertTextAtCursor: function (el, text) {
       var scrollPos = el.scrollTop,
-          strPos = 0,
-          browser = false,
-          range;
+        strPos = 0,
+        browser = false,
+        range;
 
       if (el.selectionStart || el.selectionStart === '0') {
-        browser = "ff";
+        browser = 'ff';
       } else if (document.selection) {
-        browser = "ie";
+        browser = 'ie';
       }
 
-      if (browser === "ie") {
+      if (browser === 'ie') {
         el.focus();
         range = document.selection.createRange();
         range.moveStart('character', -el.value.length);
         strPos = range.text.length;
-      } else if (browser === "ff") {
+      } else if (browser === 'ff') {
         strPos = el.selectionStart;
       }
 
@@ -93,21 +93,21 @@
       el.value = front + text + back;
       strPos = strPos + text.length;
 
-      if (browser === "ie") {
+      if (browser === 'ie') {
         el.focus();
         range = document.selection.createRange();
         range.moveStart('character', -el.value.length);
         range.moveStart('character', strPos);
         range.moveEnd('character', 0);
         range.select();
-      } else if (browser === "ff") {
+      } else if (browser === 'ff') {
         el.selectionStart = strPos;
         el.selectionEnd = strPos;
         el.focus();
       }
 
       el.scrollTop = scrollPos;
-    }
+    },
   };
 
   /**
@@ -158,12 +158,12 @@
      * will be replaced by the urlText, the {filename} tag will be replaced
      * by the filename that has been returned by the server
      */
-    urlText: "![file]({filename})",
+    urlText: '![file]({filename})',
 
     /**
      * Text which will be used when uploading has failed
      */
-    errorText: "Error uploading file",
+    errorText: 'Error uploading file',
 
     /**
      * Extra parameters which will be send when uploading a file
@@ -209,7 +209,7 @@
     /**
      * When a file has succesfully been uploaded
      */
-    onFileUploaded: function () {}
+    onFileUploaded: function () {},
   };
 
   /**
@@ -220,10 +220,10 @@
    */
   inlineAttachment.prototype.uploadFile = function (file) {
     var me = this,
-        formData = new FormData(),
-        xhr = new XMLHttpRequest(),
-        settings = this.settings,
-        extension = settings.defaultExtension || settings.defualtExtension;
+      formData = new FormData(),
+      xhr = new XMLHttpRequest(),
+      settings = this.settings,
+      extension = settings.defaultExtension || settings.defualtExtension;
 
     if (typeof settings.setupFormData === 'function') {
       settings.setupFormData(formData, file);
@@ -239,7 +239,7 @@
       }
     }
 
-    var remoteFilename = "image-" + Date.now() + "." + extension;
+    var remoteFilename = 'image-' + Date.now() + '.' + extension;
 
     if (typeof settings.remoteFilename === 'function') {
       remoteFilename = settings.remoteFilename(file);
@@ -248,7 +248,7 @@
     formData.append(settings.uploadFieldName, file, remoteFilename);
 
     // Append the extra parameters to the formdata
-    if (typeof settings.extraParams === "object") {
+    if (typeof settings.extraParams === 'object') {
       for (var key in settings.extraParams) {
         if (settings.extraParams.hasOwnProperty(key)) {
           formData.append(key, settings.extraParams[key]);
@@ -259,7 +259,7 @@
     xhr.open('POST', settings.uploadUrl);
 
     // Add any available extra headers
-    if (typeof settings.extraHeaders === "object") {
+    if (typeof settings.extraHeaders === 'object') {
       for (var header in settings.extraHeaders) {
         if (settings.extraHeaders.hasOwnProperty(header)) {
           xhr.setRequestHeader(header, settings.extraHeaders[header]);
@@ -313,7 +313,7 @@
   inlineAttachment.prototype.onFileUploadResponse = function (xhr) {
     if (this.settings.onFileUploadResponse.call(this, xhr) !== false) {
       var result = JSON.parse(xhr.responseText),
-          filename = result[this.settings.jsonFieldName];
+        filename = result[this.settings.jsonFieldName];
 
       if (result && filename) {
         var newValue;
@@ -364,10 +364,10 @@
    */
   inlineAttachment.prototype.onPaste = function (e) {
     var result = false,
-        clipboardData = e.clipboardData,
-        items;
+      clipboardData = e.clipboardData,
+      items;
 
-    if (typeof clipboardData === "object") {
+    if (typeof clipboardData === 'object') {
       items = clipboardData.items || clipboardData.files || [];
 
       for (var i = 0; i < items.length; i++) {

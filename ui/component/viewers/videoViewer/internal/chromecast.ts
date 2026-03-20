@@ -78,7 +78,8 @@ export default class Chromecast {
           chromecastPlugin.dispose();
         }
       }
-    } catch (e) {// Ignore cleanup errors
+    } catch (e) {
+      // Ignore cleanup errors
     }
   }
 
@@ -108,9 +109,8 @@ export default class Chromecast {
       chromecast: {
         requestTitleFn: (src: string | null | undefined) => gTitle || '',
         requestSubtitleFn: (src: string | null | undefined) => gChannelTitle || '',
-        receiverAppID: 'FD107797'
-      }
+        receiverAppID: 'FD107797',
+      },
     };
   }
-
 }

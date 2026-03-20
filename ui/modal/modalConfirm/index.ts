@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
-import { doHideModal } from "redux/actions/app";
-import ModalConfirm from "./view";
+import { connect } from 'react-redux';
+import { doHideModal } from 'redux/actions/app';
+import ModalConfirm from './view';
 const perform = {
-  doHideModal
+  doHideModal,
 };
 export default connect(null, perform)(ModalConfirm);

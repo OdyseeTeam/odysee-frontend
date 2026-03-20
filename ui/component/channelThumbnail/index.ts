@@ -1,26 +1,28 @@
-import { connect } from "react-redux";
-import { selectThumbnailForUri, selectClaimForUri, selectIsUriResolving, selectClaimsByUri } from "redux/selectors/claims";
-import { doResolveUri } from "redux/actions/claims";
-import { selectUserOdyseeMembership } from "redux/selectors/memberships";
-import { getChannelIdFromClaim } from "util/claim";
-import ChannelThumbnail from "./view";
+import { connect } from 'react-redux';
+import {
+  selectThumbnailForUri,
+  selectClaimForUri,
+  selectIsUriResolving,
+  selectClaimsByUri,
+} from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
+import ChannelThumbnail from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const claim = selectClaimForUri(state, uri);
   return {
     thumbnail: selectThumbnailForUri(state, uri),
     claim,
     isResolving: selectIsUriResolving(state, uri),
     claimsByUri: selectClaimsByUri(state),
-    odyseeMembership: selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)) //
-
+    odyseeMembership: selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)), //
   };
 };
 
 const perform = {
-  doResolveUri
+  doResolveUri,
 };
 export default connect(select, perform)(ChannelThumbnail);

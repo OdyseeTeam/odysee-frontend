@@ -18,9 +18,9 @@
  * This file aims to encapsulate both the React and Videojs side of things
  * through a single `useAutoplayNext` call.
  */
-import React from "react";
-import videojs from "video.js";
-import type { Player } from "../videojs"; // ****************************************************************************
+import React from 'react';
+import videojs from 'video.js';
+import type { Player } from '../videojs'; // ****************************************************************************
 // TheaterModeButton
 // ****************************************************************************
 
@@ -30,7 +30,6 @@ class TheaterModeButton extends videojs.getComponent('Button') {
     this.addClass('vjs-button--theater-mode');
     this.controlText(__('Theater Mode (t)'));
   }
-
 }
 
 function addTheaterModeButton(player: Player, toggleVideoTheaterMode: () => void) {
@@ -40,7 +39,7 @@ function addTheaterModeButton(player: Player, toggleVideoTheaterMode: () => void
     text: 'Theater mode',
     clickHandler: () => {
       toggleVideoTheaterMode();
-    }
+    },
   });
 
   if (controlBar) {
@@ -51,7 +50,6 @@ function addTheaterModeButton(player: Player, toggleVideoTheaterMode: () => void
 } // ****************************************************************************
 // useAutoplayNext
 // ****************************************************************************
-
 
 export default function useTheaterMode(playerRef: any, videoTheaterMode: boolean) {
   React.useEffect(() => {
@@ -65,7 +63,6 @@ export default function useTheaterMode(playerRef: any, videoTheaterMode: boolean
         theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- I think no need to listen to refs
-
   }, [videoTheaterMode]);
   return addTheaterModeButton;
 }

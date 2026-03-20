@@ -1,5 +1,11 @@
-import React from "react";
-export default function useGetThumbnail(uri: string, claim: Claim | null | undefined, streamingUrl: string | null | undefined, getFile: (arg0: string) => void, shouldHide: boolean) {
+import React from 'react';
+export default function useGetThumbnail(
+  uri: string,
+  claim: Claim | null | undefined,
+  streamingUrl: string | null | undefined,
+  getFile: (arg0: string) => void,
+  shouldHide: boolean
+) {
   let thumbnailToUse;
   // $FlowFixMe
   const isImage = claim && claim.value && claim.value.stream_type === 'image';
@@ -26,7 +32,6 @@ export default function useGetThumbnail(uri: string, claim: Claim | null | undef
     if (shouldFetchFileInfo) {
       getFile(repostSrcUri || uri);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [shouldFetchFileInfo, repostSrcUri, uri]);
   React.useEffect(() => {
     setThumbnail(thumbnailToUse);

@@ -1,7 +1,7 @@
-import { selectClaimForUri } from "redux/selectors/claims";
-import { getChannelFromClaim } from "util/claim";
-export const selectState = state => state.filtered || {};
-export const selectFilteredData = state => selectState(state).filteredData;
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getChannelFromClaim } from 'util/claim';
+export const selectState = (state) => state.filtered || {};
+export const selectFilteredData = (state) => selectState(state).filteredData;
 export const selectFilteredDataForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);

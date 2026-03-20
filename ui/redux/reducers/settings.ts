@@ -1,15 +1,15 @@
-import * as ACTIONS from "constants/action_types";
-import * as SETTINGS from "constants/settings";
-import * as COLLECTIONS from "constants/collections";
-import * as SHARED_PREFERENCES from "constants/shared_preferences";
-import moment from "moment";
-import { getSubsetFromKeysArray } from "util/sync-settings";
-import { UNSYNCED_SETTINGS } from "config";
-const {
-  CLIENT_SYNC_KEYS
-} = SHARED_PREFERENCES;
-const settingsToIgnore = UNSYNCED_SETTINGS && UNSYNCED_SETTINGS.trim().split(' ') || [];
-const clientSyncKeys = settingsToIgnore.length ? CLIENT_SYNC_KEYS.filter(k => !settingsToIgnore.includes(k)) : CLIENT_SYNC_KEYS;
+import * as ACTIONS from 'constants/action_types';
+import * as SETTINGS from 'constants/settings';
+import * as COLLECTIONS from 'constants/collections';
+import * as SHARED_PREFERENCES from 'constants/shared_preferences';
+import moment from 'moment';
+import { getSubsetFromKeysArray } from 'util/sync-settings';
+import { UNSYNCED_SETTINGS } from 'config';
+const { CLIENT_SYNC_KEYS } = SHARED_PREFERENCES;
+const settingsToIgnore = (UNSYNCED_SETTINGS && UNSYNCED_SETTINGS.trim().split(' ')) || [];
+const clientSyncKeys = settingsToIgnore.length
+  ? CLIENT_SYNC_KEYS.filter((k) => !settingsToIgnore.includes(k))
+  : CLIENT_SYNC_KEYS;
 const reducers = {};
 const defaultState = {
   isNight: false,
@@ -19,7 +19,7 @@ const defaultState = {
   sharedPreferences: {},
   daemonSettings: {},
   daemonStatus: {
-    ffmpeg_status: {}
+    ffmpeg_status: {},
   },
   clientSettings: {
     // UX
@@ -34,8 +34,8 @@ const defaultState = {
       isFilteringEnabled: false,
       sortOption: {
         key: 'updatedAt',
-        value: 'asc'
-      }
+        value: 'asc',
+      },
     },
     // UI
     [SETTINGS.LANGUAGE]: null,
@@ -45,7 +45,7 @@ const defaultState = {
     [SETTINGS.HOMEPAGE]: null,
     [SETTINGS.HOMEPAGE_ORDER]: {
       active: null,
-      hidden: null
+      hidden: null,
     },
     [SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR]: false,
     [SETTINGS.HIDE_SPLASH_ANIMATION]: false,
@@ -62,19 +62,19 @@ const defaultState = {
       from: {
         hour: '21',
         min: '00',
-        formattedTime: '21:00'
+        formattedTime: '21:00',
       },
       to: {
         hour: '8',
         min: '00',
-        formattedTime: '8:00'
-      }
+        formattedTime: '8:00',
+      },
     },
     // Purchasing
     [SETTINGS.INSTANT_PURCHASE_ENABLED]: false,
     [SETTINGS.INSTANT_PURCHASE_MAX]: {
       currency: 'LBC',
-      amount: 0.1
+      amount: 0.1,
     },
     [SETTINGS.PREFERRED_CURRENCY]: 'USD',
     [SETTINGS.CRYPTO_DISCLAIMERS]: true,
@@ -92,86 +92,74 @@ const defaultState = {
     [SETTINGS.DEFAULT_VIDEO_QUALITY]: null,
     // OS
     [SETTINGS.AUTO_LAUNCH]: true,
-    [SETTINGS.TO_TRAY_WHEN_CLOSED]: true
-  }
+    [SETTINGS.TO_TRAY_WHEN_CLOSED]: true,
+  },
 };
 defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT] = defaultState.clientSettings[SETTINGS.AUTOPLAY_MEDIA];
 defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT_SHORTS] = false;
 
 reducers[ACTIONS.REHYDRATE] = (state, action) => {
-  const {
-    clientSettings
-  } = state;
+  const { clientSettings } = state;
 
   if (action && action.payload && action.payload.settings) {
     const persistedSettings = action.payload && action.payload.settings;
     const persistedClientSettings = persistedSettings.clientSettings;
-    const newClientSettings = { ...clientSettings,
-      ...persistedClientSettings
-    };
-    return Object.assign({}, state, { ...persistedSettings,
-      clientSettings: newClientSettings
-    });
+    const newClientSettings = { ...clientSettings, ...persistedClientSettings };
+    return Object.assign({}, state, { ...persistedSettings, clientSettings: newClientSettings });
   }
 
   return Object.assign({}, state, {
-    clientSettings
+    clientSettings,
   });
 };
 
-reducers[ACTIONS.FINDING_FFMPEG_STARTED] = state => Object.assign({}, state, {
-  findingFFmpeg: true
-});
+reducers[ACTIONS.FINDING_FFMPEG_STARTED] = (state) =>
+  Object.assign({}, state, {
+    findingFFmpeg: true,
+  });
 
-reducers[ACTIONS.FINDING_FFMPEG_COMPLETED] = state => Object.assign({}, state, {
-  findingFFmpeg: false
-});
+reducers[ACTIONS.FINDING_FFMPEG_COMPLETED] = (state) =>
+  Object.assign({}, state, {
+    findingFFmpeg: false,
+  });
 
-reducers[ACTIONS.DAEMON_SETTINGS_RECEIVED] = (state, action) => Object.assign({}, state, {
-  daemonSettings: action.data.settings
-});
+reducers[ACTIONS.DAEMON_SETTINGS_RECEIVED] = (state, action) =>
+  Object.assign({}, state, {
+    daemonSettings: action.data.settings,
+  });
 
-reducers[ACTIONS.DAEMON_STATUS_RECEIVED] = (state, action) => Object.assign({}, state, {
-  daemonStatus: action.data.status
-});
+reducers[ACTIONS.DAEMON_STATUS_RECEIVED] = (state, action) =>
+  Object.assign({}, state, {
+    daemonStatus: action.data.status,
+  });
 
 reducers[ACTIONS.CLIENT_SETTING_CHANGED] = (state, action) => {
-  const {
-    key,
-    value
-  } = action.data;
+  const { key, value } = action.data;
   const clientSettings = Object.assign({}, state.clientSettings);
   clientSettings[key] = value;
   return Object.assign({}, state, {
-    clientSettings
+    clientSettings,
   });
 };
 
-reducers[ACTIONS.UPDATE_IS_NIGHT] = state => {
-  const {
-    from,
-    to
-  } = state.clientSettings[SETTINGS.DARK_MODE_TIMES];
+reducers[ACTIONS.UPDATE_IS_NIGHT] = (state) => {
+  const { from, to } = state.clientSettings[SETTINGS.DARK_MODE_TIMES];
   const momentNow = moment();
   const startNightMoment = moment(from.formattedTime, 'HH:mm');
   const endNightMoment = moment(to.formattedTime, 'HH:mm');
   const isNight = !(momentNow.isAfter(endNightMoment) && momentNow.isBefore(startNightMoment));
   return Object.assign({}, state, {
-    isNight
+    isNight,
   });
 };
 
 reducers[ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS] = (state, action) => {
-  const {
-    loadedLanguages
-  } = state;
-  const {
-    language
-  } = action.data;
+  const { loadedLanguages } = state;
+  const { language } = action.data;
 
   if (language && loadedLanguages && !loadedLanguages.includes(language)) {
     return Object.assign({}, state, {
-      loadedLanguages: [...loadedLanguages, language]
+      loadedLanguages: [...loadedLanguages, language],
     });
   } else {
     return state;
@@ -179,55 +167,41 @@ reducers[ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS] = (state, action) => {
 };
 
 reducers[ACTIONS.SHARED_PREFERENCE_SET] = (state, action) => {
-  const {
-    key,
-    value
-  } = action.data;
+  const { key, value } = action.data;
   const sharedPreferences = Object.assign({}, state.sharedPreferences);
   sharedPreferences[key] = value;
   return Object.assign({}, state, {
-    sharedPreferences
+    sharedPreferences,
   });
 };
 
-reducers[ACTIONS.SYNC_CLIENT_SETTINGS] = state => {
-  const {
-    clientSettings
-  } = state;
+reducers[ACTIONS.SYNC_CLIENT_SETTINGS] = (state) => {
+  const { clientSettings } = state;
   const sharedPreferences = Object.assign({}, state.sharedPreferences);
   const selectedClientSettings = getSubsetFromKeysArray(clientSettings, clientSyncKeys);
-  const newSharedPreferences = { ...sharedPreferences,
-    ...selectedClientSettings
-  };
+  const newSharedPreferences = { ...sharedPreferences, ...selectedClientSettings };
   return Object.assign({}, state, {
-    sharedPreferences: newSharedPreferences
+    sharedPreferences: newSharedPreferences,
   });
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
-  const {
-    clientSettings: currentClientSettings
-  } = state;
-  const {
-    settings: sharedPreferences
-  } = action.data;
+  const { clientSettings: currentClientSettings } = state;
+  const { settings: sharedPreferences } = action.data;
   const selectedSettings = sharedPreferences ? getSubsetFromKeysArray(sharedPreferences, clientSyncKeys) : {};
-  const mergedClientSettings = { ...currentClientSettings,
-    ...selectedSettings
-  };
+  const mergedClientSettings = { ...currentClientSettings, ...selectedSettings };
   const newSharedPreferences = sharedPreferences || {};
   return Object.assign({}, state, {
     sharedPreferences: newSharedPreferences,
-    clientSettings: mergedClientSettings
+    clientSettings: mergedClientSettings,
   });
 };
 
 reducers[ACTIONS.SAVE_CUSTOM_WALLET_SERVERS] = (state, action) => {
   return Object.assign({}, state, {
-    customWalletServers: action.data
+    customWalletServers: action.data,
   });
 }; // @ts-expect-error
-
 
 export default function reducer(state = defaultState, action: any) {
   const handler = reducers[action.type];

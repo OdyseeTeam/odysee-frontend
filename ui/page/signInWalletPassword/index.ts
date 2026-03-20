@@ -1,10 +1,10 @@
-import { connect } from "react-redux";
-import { doToast } from "redux/actions/notifications";
-import SignInWalletPasswordPage from "./view";
+import { connect } from 'react-redux';
+import { doToast } from 'redux/actions/notifications';
+import SignInWalletPasswordPage from './view';
 
 const select = () => ({});
 
 const perform = {
-  doToast
+  doToast,
 };
 export default connect(select, perform)(SignInWalletPasswordPage);

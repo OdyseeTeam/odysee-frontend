@@ -55,5 +55,5 @@ export default {
   isEnabled,
   isDisabled,
   isBlacklisted,
-  isIncompatible
+  isIncompatible,
 };

@@ -1,19 +1,17 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import moment from "moment";
-import I18nMessage from "component/i18nMessage";
-import { getTimeAgoStr } from "util/time";
-import "./style.lazy.scss";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import moment from 'moment';
+import I18nMessage from 'component/i18nMessage';
+import { getTimeAgoStr } from 'util/time';
+import './style.lazy.scss';
 const CALC_TIME_INTERVAL_MS = 1000;
 type Props = {
   // -- redux --
   releaseTimeMs: number;
 };
 export default function LivestreamScheduledInfo(props: Props) {
-  const {
-    releaseTimeMs
-  } = props;
+  const { releaseTimeMs } = props;
   const [startDateFromNow, setStartDateFromNow] = React.useState();
   const [inPast, setInPast] = React.useState();
   const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
@@ -36,18 +34,28 @@ export default function LivestreamScheduledInfo(props: Props) {
     return () => clearInterval(intervalId);
   }, [releaseTimeMs]);
   if (!startDateFromNow) return null;
-  return <div className="livestream-scheduled">
+  return (
+    <div className="livestream-scheduled">
       <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
       <p className="livestream-scheduled__time">
         <span>
-          {!inPast ? <>
-              <I18nMessage tokens={{
-            time_date: startDateFromNow
-          }}>Live %time_date%</I18nMessage>
+          {!inPast ? (
+            <>
+              <I18nMessage
+                tokens={{
+                  time_date: startDateFromNow,
+                }}
+              >
+                Live %time_date%
+              </I18nMessage>
               <br />
               <span className="livestream-scheduled__date">{startDate}</span>
-            </> : __('Starting Soon')}
+            </>
+          ) : (
+            __('Starting Soon')
+          )}
         </span>
       </p>
-    </div>;
+    </div>
+  );
 }

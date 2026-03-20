@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 
 /* eslint-disable react/prop-types */
-import React from "react";
-import Button from "component/button";
+import React from 'react';
+import Button from 'component/button';
 let scriptLoading = false;
 let scriptLoaded = false;
 let scriptDidError = false; // Flow does not like the way this stripe plugin works
@@ -32,7 +32,7 @@ class CardVerify extends React.Component {
     super(props);
     this.state = {
       open: false,
-      scriptFailedToLoad: false
+      scriptFailedToLoad: false,
     };
   }
 
@@ -60,7 +60,7 @@ class CardVerify extends React.Component {
           this.onScriptLoaded();
         };
 
-        script.onerror = event => {
+        script.onerror = (event) => {
           scriptDidError = true;
           scriptLoading = false;
           reject(event);
@@ -68,20 +68,27 @@ class CardVerify extends React.Component {
         };
       });
       const wrappedPromise = new Promise((resolve, reject) => {
-        promise.then(() => canceled ? reject({
-          isCanceled: true
-        }) : resolve());
-        promise.catch(error => canceled ? reject({
-          isCanceled: true
-        }) : reject(error));
+        promise.then(() =>
+          canceled
+            ? reject({
+                isCanceled: true,
+              })
+            : resolve()
+        );
+        promise.catch((error) =>
+          canceled
+            ? reject({
+                isCanceled: true,
+              })
+            : reject(error)
+        );
       });
       return {
         promise: wrappedPromise,
 
         reject() {
           canceled = true;
-        }
-
+        },
       };
     })();
 
@@ -109,7 +116,7 @@ class CardVerify extends React.Component {
   onScriptLoaded = () => {
     if (!CardVerify.stripeHandler) {
       CardVerify.stripeHandler = StripeCheckout.configure({
-        key: this.props.stripeKey
+        key: this.props.stripeKey,
       });
 
       if (this.hasPendingClick) {
@@ -119,26 +126,26 @@ class CardVerify extends React.Component {
   };
   onScriptError = (...args) => {
     this.setState({
-      scriptFailedToLoad: true
+      scriptFailedToLoad: true,
     });
   };
   onClosed = () => {
     this.setState({
-      open: false
+      open: false,
     });
   };
 
   updateStripeHandler() {
     if (!CardVerify.stripeHandler) {
       CardVerify.stripeHandler = StripeCheckout.configure({
-        key: this.props.stripeKey
+        key: this.props.stripeKey,
       });
     }
   }
 
   showStripeDialog() {
     this.setState({
-      open: true
+      open: true,
     });
     CardVerify.stripeHandler.open({
       allowRememberMe: false,
@@ -148,7 +155,7 @@ class CardVerify extends React.Component {
       locale: 'auto',
       panelLabel: 'Verify',
       token: this.props.token,
-      zipCode: true
+      zipCode: true,
     });
   }
 
@@ -165,16 +172,22 @@ class CardVerify extends React.Component {
   };
 
   render() {
-    const {
-      scriptFailedToLoad
-    } = this.props;
-    return <div>
-        {scriptFailedToLoad && <div className="error__text">There was an error connecting to Stripe. Please try again later.</div>}
+    const { scriptFailedToLoad } = this.props;
+    return (
+      <div>
+        {scriptFailedToLoad && (
+          <div className="error__text">There was an error connecting to Stripe. Please try again later.</div>
+        )}
 
-        <Button button="primary" label={this.props.label} disabled={this.props.disabled || this.state.open || this.hasPendingClick} onClick={this.onClick.bind(this)} />
-      </div>;
+        <Button
+          button="primary"
+          label={this.props.label}
+          disabled={this.props.disabled || this.state.open || this.hasPendingClick}
+          onClick={this.onClick.bind(this)}
+        />
+      </div>
+    );
   }
-
 }
 
 export default CardVerify;

@@ -1,2 +1,2 @@
-import CheckoutPage from "./view";
+import CheckoutPage from './view';
 export default CheckoutPage;

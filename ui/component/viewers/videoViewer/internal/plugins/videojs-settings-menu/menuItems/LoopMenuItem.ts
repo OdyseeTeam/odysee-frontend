@@ -1,14 +1,10 @@
-import videojs from "video.js";
-import { VJS_COMP } from "constants/player";
+import videojs from 'video.js';
+import { VJS_COMP } from 'constants/player';
 const SettingOnOffItem = videojs.getComponent('SettingOnOffItem');
 
 class LoopMenuItem extends SettingOnOffItem {
   constructor(player, options) {
-    super(player, { ...options,
-      label: __('Loop'),
-      name: VJS_COMP.LOOP_MENU_ITEM,
-      icon: ''
-    });
+    super(player, { ...options, label: __('Loop'), name: VJS_COMP.LOOP_MENU_ITEM, icon: '' });
     this.addClass('vjs-setting-loop');
     player.on('loadedmetadata', () => {
       this.player_.loop(false);
@@ -25,7 +21,6 @@ class LoopMenuItem extends SettingOnOffItem {
   update(active) {
     super.update(active);
   }
-
 }
 
 videojs.registerComponent(VJS_COMP.LOOP_MENU_ITEM, LoopMenuItem);

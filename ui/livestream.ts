@@ -1,8 +1,8 @@
-import { LIVESTREAM_SERVER_API } from "config";
-import querystring from "querystring";
+import { LIVESTREAM_SERVER_API } from 'config';
+import querystring from 'querystring';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
-  enabled: Boolean(LIVESTREAM_SERVER_API)
+  enabled: Boolean(LIVESTREAM_SERVER_API),
 };
 
 Livestream.call = (resource, action, params = {}, method = 'post') => {
@@ -20,7 +20,7 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
     }
 
     if (response) {
-      return response.json().then(json => {
+      return response.json().then((json) => {
         let error;
 
         if (json.error) {
@@ -40,7 +40,7 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
     return fetch(url, options).then(checkAndParse);
   }
 
-  Object.keys(params).forEach(key => {
+  Object.keys(params).forEach((key) => {
     const value = params[key];
 
     if (typeof value === 'object') {
@@ -50,23 +50,25 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
   const qs = querystring.stringify(params);
   let url = `${Livestream.url}/${resource}/${action}?${qs}`;
   let options = {
-    method: 'GET'
+    method: 'GET',
   };
 
   if (method === 'post') {
     options = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: qs
+      body: qs,
     };
     url = `${Livestream.url}/${resource}/${action}`;
   }
 
-  return makeRequest(url, options).then(response => response.data).catch(error => {
-    throw error;
-  });
+  return makeRequest(url, options)
+    .then((response) => response.data)
+    .catch((error) => {
+      throw error;
+    });
 };
 
 export default Livestream;

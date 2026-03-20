@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import SettingMenuItem from "./SettingMenuItem";
+import videojs from 'video.js';
+import SettingMenuItem from './SettingMenuItem';
 
 class SettingSubOptionTitle extends SettingMenuItem {
   constructor(player, options) {
@@ -12,7 +12,6 @@ class SettingSubOptionTitle extends SettingMenuItem {
   handleClick() {
     this.options_.menu.restore();
   }
-
 }
 
 videojs.registerComponent('SettingSubOptionTitle', SettingSubOptionTitle);

@@ -250,7 +250,7 @@ const COUNTRY_LANGUAGES = {
   yt: 'fr',
   za: 'af,zu,xh',
   zm: 'en',
-  zw: 'en,sn,nd'
+  zw: 'en,sn,nd',
 };
 export default function getLanguagesForCountry(countryCode) {
   const country = countryCode.toLowerCase();
@@ -264,7 +264,7 @@ export default function getLanguagesForCountry(countryCode) {
   if (zhCountries.includes(country)) return zhLangs;
 
   if (languages.includes('zh')) {
-    languages.filter(lang => lang === 'zh');
+    languages.filter((lang) => lang === 'zh');
     languages.push(...zhLangs);
   }
 

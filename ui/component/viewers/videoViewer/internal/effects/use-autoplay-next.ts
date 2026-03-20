@@ -18,10 +18,10 @@
  * This file aims to encapsulate both the React and Videojs side of things
  * through a single `useAutoplayNext` call.
  */
-import React from "react";
-import videojs from "video.js";
-import type { Player } from "../videojs";
-import { VJS_COMP } from "constants/player"; // ****************************************************************************
+import React from 'react';
+import videojs from 'video.js';
+import type { Player } from '../videojs';
+import { VJS_COMP } from 'constants/player'; // ****************************************************************************
 // AutoplayNextButton
 // ****************************************************************************
 
@@ -37,18 +37,21 @@ class AutoplayNextButton extends videojs.getComponent('Button') {
     this.setAttribute('aria-checked', autoplayNext);
     this.hide();
   }
-
 }
 
 function addAutoplayNextButton(player: Player, toggleAutoplayNext: () => void, autoplayNext: boolean) {
   const controlBar = player.controlBar;
-  const autoplayButton = new AutoplayNextButton(player, {
-    name: VJS_COMP.AUTOPLAY_NEXT_BUTTON,
-    text: 'Autoplay Next',
-    clickHandler: () => {
-      toggleAutoplayNext();
-    }
-  }, autoplayNext);
+  const autoplayButton = new AutoplayNextButton(
+    player,
+    {
+      name: VJS_COMP.AUTOPLAY_NEXT_BUTTON,
+      text: 'Autoplay Next',
+      clickHandler: () => {
+        toggleAutoplayNext();
+      },
+    },
+    autoplayNext
+  );
 
   if (controlBar) {
     controlBar.addChild(autoplayButton);
@@ -56,7 +59,6 @@ function addAutoplayNextButton(player: Player, toggleAutoplayNext: () => void, a
 } // ****************************************************************************
 // useAutoplayNext
 // ****************************************************************************
-
 
 export default function useAutoplayNext(playerRef: any, autoplayNext: boolean, isMarkdownOrComment: boolean) {
   React.useEffect(() => {
@@ -74,7 +76,6 @@ export default function useAutoplayNext(playerRef: any, autoplayNext: boolean, i
         autoplayButton.setAttribute('aria-checked', autoplayNext);
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [autoplayNext, isMarkdownOrComment]);
   React.useEffect(() => {
     const player = playerRef.current;
@@ -82,7 +83,6 @@ export default function useAutoplayNext(playerRef: any, autoplayNext: boolean, i
     if (player) {
       player.trigger(`${VJS_COMP.AUTOPLAY_NEXT_BUTTON}::onState`, autoplayNext);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- I think listening to refs don't work?
-
   }, [autoplayNext]);
   return addAutoplayNextButton;
 }

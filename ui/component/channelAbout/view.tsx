@@ -1,13 +1,13 @@
-import { SIMPLE_SITE } from "config";
-import React, { Fragment } from "react";
-import MarkdownPreview from "component/common/markdown-preview";
-import ClaimTags from "component/claimTags";
-import CreditAmount from "component/common/credit-amount";
-import Button from "component/button";
-import * as PAGES from "constants/pages";
-import DateTime from "component/dateTime";
-import YoutubeBadge from "component/youtubeBadge";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
+import { SIMPLE_SITE } from 'config';
+import React, { Fragment } from 'react';
+import MarkdownPreview from 'component/common/markdown-preview';
+import ClaimTags from 'component/claimTags';
+import CreditAmount from 'component/common/credit-amount';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
+import DateTime from 'component/dateTime';
+import YoutubeBadge from 'component/youtubeBadge';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 type Props = {
   claim: ChannelClaim;
   uri: string;
@@ -29,57 +29,60 @@ const formatEmail = (email: string) => {
 };
 
 function ChannelAbout(props: Props) {
-  const {
-    claim,
-    uri,
-    description,
-    email,
-    website,
-    languages,
-    user
-  } = props;
+  const { claim, uri, description, email, website, languages, user } = props;
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
-  return <div className="card">
+  return (
+    <div className="card">
       <section className="section card--section">
         <Fragment>
-          {description && <>
+          {description && (
+            <>
               <label>{__('Description')}</label>
               <div className="media__info-text media__info-text--constrained">
                 <MarkdownPreview content={description} />
               </div>
-            </>}
-          {email && <Fragment>
+            </>
+          )}
+          {email && (
+            <Fragment>
               <label>{__('Contact')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={formatEmail(email)} simpleLinks />
               </div>
-            </Fragment>}
-          {website && <Fragment>
+            </Fragment>
+          )}
+          {website && (
+            <Fragment>
               <label>{__('Site')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={website} simpleLinks />
               </div>
-            </Fragment>}
+            </Fragment>
+          )}
 
           <label>{__('Tags')}</label>
           <div className="media__info-text">
             <ClaimTags uri={uri} type="large" />
           </div>
 
-          {languages && languages.length && <>
+          {languages && languages.length && (
+            <>
               <label>{__('Languages')}</label>
               <div className="media__info-text">
                 {languages.reduce((acc, lang, i) => {
-              return acc + `${SUPPORTED_LANGUAGES[lang] || lang}` + ' ';
-            }, '')}
+                  return acc + `${SUPPORTED_LANGUAGES[lang] || lang}` + ' ';
+                }, '')}
               </div>
-            </>}
+            </>
+          )}
 
-          {claim.meta.claims_in_channel && <>
+          {claim.meta.claims_in_channel && (
+            <>
               <label>{__('Total Uploads')}</label>
               <div className="media__info-text">{claim.meta.claims_in_channel}</div>
-            </>}
+            </>
+          )}
 
           <label>{__('Last Updated')}</label>
           <div className="media__info-text">
@@ -98,15 +101,26 @@ function ChannelAbout(props: Props) {
 
           <label>{__('Staked Credits')}</label>
           <div className="media__info-text">
-            <CreditAmount badge={false} amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)} precision={8} />{' '}
-            {SIMPLE_SITE && <Button button="link" label={__('view other claims at lbry://%name%', {
-            name: claim.name
-          })} navigate={`/$/${PAGES.TOP}?name=${claim.name}`} />}
+            <CreditAmount
+              badge={false}
+              amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)}
+              precision={8}
+            />{' '}
+            {SIMPLE_SITE && (
+              <Button
+                button="link"
+                label={__('view other claims at lbry://%name%', {
+                  name: claim.name,
+                })}
+                navigate={`/$/${PAGES.TOP}?name=${claim.name}`}
+              />
+            )}
           </div>
           {canView && <YoutubeBadge channelClaimId={claimId} />}
         </Fragment>
       </section>
-    </div>;
+    </div>
+  );
 }
 
 export default ChannelAbout;

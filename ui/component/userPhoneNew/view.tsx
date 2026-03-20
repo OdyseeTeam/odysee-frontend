@@ -1,23 +1,24 @@
-import * as React from "react";
-import { Form, FormField, Submit } from "component/common/form";
-import Card from "component/common/card";
+import * as React from 'react';
+import { Form, FormField, Submit } from 'component/common/form';
+import Card from 'component/common/card';
 import countryData from 'country-data';
 
 const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
 
-const countryCodes = countryData.callingCountries.all.filter(_ => _.emoji).reduce((acc, cur) => acc.concat(cur.countryCallingCodes.map(_ => ({ ...cur,
-  countryCallingCode: _
-}))), []).sort((a, b) => {
-  if (a.countryCallingCode < b.countryCallingCode) {
-    return -1;
-  }
+const countryCodes = countryData.callingCountries.all
+  .filter((_) => _.emoji)
+  .reduce((acc, cur) => acc.concat(cur.countryCallingCodes.map((_) => ({ ...cur, countryCallingCode: _ }))), [])
+  .toSorted((a, b) => {
+    if (a.countryCallingCode < b.countryCallingCode) {
+      return -1;
+    }
 
-  if (a.countryCallingCode > b.countryCallingCode) {
-    return 1;
-  }
+    if (a.countryCallingCode > b.countryCallingCode) {
+      return 1;
+    }
 
-  return 0;
-});
+    return 0;
+  });
 
 type Props = {
   addUserPhone: (arg0: string, arg1: string) => void;
@@ -35,7 +36,7 @@ class UserPhoneNew extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       phone: '',
-      countryCode: '+1'
+      countryCode: '+1',
     };
     (this as any).formatPhone = this.formatPhone.bind(this);
     (this as any).handleSubmit = this.handleSubmit.bind(this);
@@ -43,9 +44,7 @@ class UserPhoneNew extends React.PureComponent<Props, State> {
   }
 
   formatPhone(value: string) {
-    const {
-      countryCode
-    } = this.state;
+    const { countryCode } = this.state;
     const formattedNumber = value.replace(/\D/g, '');
 
     if (countryCode === '+1') {
@@ -66,48 +65,60 @@ class UserPhoneNew extends React.PureComponent<Props, State> {
 
   handleChanged(event: React.SyntheticEvent<any>) {
     this.setState({
-      phone: this.formatPhone(event.target.value)
+      phone: this.formatPhone(event.target.value),
     });
   }
 
   handleSelect(event: React.SyntheticEvent<any>) {
     this.setState({
-      countryCode: event.target.value
+      countryCode: event.target.value,
     });
   }
 
   handleSubmit() {
-    const {
-      phone,
-      countryCode
-    } = this.state;
+    const { phone, countryCode } = this.state;
     this.props.addUserPhone(phone.replace(/\D/g, ''), countryCode.substring(1));
   }
 
   render() {
-    const {
-      cancelButton,
-      phoneErrorMessage,
-      isPending
-    } = this.props;
-    return <Card title={__('Enter your phone number')} subtitle={__('Enter your phone number and we will send you a verification code. We will not share your phone number with third parties.')} actions={<Form onSubmit={this.handleSubmit}>
+    const { cancelButton, phoneErrorMessage, isPending } = this.props;
+    return (
+      <Card
+        title={__('Enter your phone number')}
+        subtitle={__(
+          'Enter your phone number and we will send you a verification code. We will not share your phone number with third parties.'
+        )}
+        actions={
+          <Form onSubmit={this.handleSubmit}>
             <fieldset-group class="fieldset-group--smushed">
               <FormField label={__('Country')} type="select" name="country-codes" onChange={this.handleSelect}>
-                {countryCodes.map((country, index) => <option key={index} value={country.countryCallingCode}>
+                {countryCodes.map((country, index) => (
+                  <option key={index} value={country.countryCallingCode}>
                     {isMac ? country.emoji : `(${country.alpha2})`} {country.countryCallingCode}
-                  </option>)}
+                  </option>
+                ))}
               </FormField>
-              <FormField type="text" label={__('Number')} placeholder={this.state.countryCode === '+1' ? '(555) 555-5555' : '5555555555'} name="phone" value={this.state.phone} error={phoneErrorMessage} onChange={event => {
-          this.handleChanged(event);
-        }} />
+              <FormField
+                type="text"
+                label={__('Number')}
+                placeholder={this.state.countryCode === '+1' ? '(555) 555-5555' : '5555555555'}
+                name="phone"
+                value={this.state.phone}
+                error={phoneErrorMessage}
+                onChange={(event) => {
+                  this.handleChanged(event);
+                }}
+              />
             </fieldset-group>
             <div className="card__actions">
               <Submit label={__('Submit')} disabled={isPending} />
               {cancelButton}
             </div>
-          </Form>} />;
+          </Form>
+        }
+      />
+    );
   }
-
 }
 
 export default UserPhoneNew;

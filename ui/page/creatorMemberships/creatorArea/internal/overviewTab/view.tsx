@@ -1,7 +1,7 @@
-import React from "react";
-import HelpHub from "component/common/help-hub";
-import ChannelOverview from "./internal/channelOverview";
-import "./style.scss";
+import React from 'react';
+import HelpHub from 'component/common/help-hub';
+import ChannelOverview from './internal/channelOverview';
+import './style.scss';
 type Props = {
   onChannelSelect: () => void;
   // -- redux --
@@ -19,7 +19,7 @@ function OverviewTab(props: Props) {
     totalSupportersAmount,
     totalMonthlyIncome,
     previousMonthlyIncome,
-    doSetActiveChannel
+    doSetActiveChannel,
   } = props;
 
   function selectChannel(channelClaim) {
@@ -27,19 +27,14 @@ function OverviewTab(props: Props) {
     onChannelSelect();
   }
 
-  return <>
+  return (
+    <>
       <table className="table table-total">
         <tr>
-          {
-          /* todo: allow sorting */
-        }
+          {/* todo: allow sorting */}
           <td>
-            {
-            /* todo: make this a link to the supporters tab with all channel set to on */
-          }
-            {
-            /* so they can see all their supporters */
-          }
+            {/* todo: make this a link to the supporters tab with all channel set to on */}
+            {/* so they can see all their supporters */}
             {__('Total Supporters')} <span>{totalSupportersAmount}</span>
           </td>
           <td>
@@ -66,15 +61,24 @@ function OverviewTab(props: Props) {
           </thead>
 
           <tbody>
-            {myChannelClaims.map(channelClaim => <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
+            {myChannelClaims.map((channelClaim) => (
+              <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
                 <ChannelOverview channelClaim={channelClaim} />
-              </tr>)}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      <HelpHub href="https://help.odysee.tv/category-memberships/" image="Spaceman" text={__('Want to increase your channel growth? Spaceman has whipped up some marketing concepts in the %help_hub%.')} />
-    </>;
+      <HelpHub
+        href="https://help.odysee.tv/category-memberships/"
+        image="Spaceman"
+        text={__(
+          'Want to increase your channel growth? Spaceman has whipped up some marketing concepts in the %help_hub%.'
+        )}
+      />
+    </>
+  );
 }
 
 export default OverviewTab;

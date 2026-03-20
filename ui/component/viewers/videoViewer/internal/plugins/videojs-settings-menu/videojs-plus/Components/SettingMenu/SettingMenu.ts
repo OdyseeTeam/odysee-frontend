@@ -1,12 +1,10 @@
-import videojs from "video.js";
-import CloseSettingMenu from "./CloseSettingMenu";
+import videojs from 'video.js';
+import CloseSettingMenu from './CloseSettingMenu';
 const Menu = videojs.getComponent('Menu');
 
 class SettingMenu extends Menu {
   constructor(player, options) {
-    super(player, { ...options,
-      name: 'SettingMenu'
-    });
+    super(player, { ...options, name: 'SettingMenu' });
     this.addClass('vjs-setting-menu');
   }
 
@@ -31,7 +29,7 @@ class SettingMenu extends Menu {
   createEl() {
     const el = super.createEl();
     const layer = new CloseSettingMenu(this.player_, {
-      menu: this
+      menu: this,
     });
     el.insertBefore(layer.el_, el.firstElementChild);
     return el;
@@ -39,18 +37,15 @@ class SettingMenu extends Menu {
 
   update(children = []) {
     const children_ = this.children().slice(0);
-    children_.forEach(child => {
+    children_.forEach((child) => {
       this.removeChild(child);
     });
-    children.forEach(child => {
+    children.forEach((child) => {
       this.addChild(child);
     });
   }
 
-  resize({
-    width,
-    height
-  }) {
+  resize({ width, height }) {
     this.contentEl_.style.width = width + 'px';
     this.contentEl_.style.height = height + 'px';
   }
@@ -84,19 +79,18 @@ class SettingMenu extends Menu {
     this.contentEl_.removeAttribute('style');
   }
 
-  hide() {// Disable default hide function
+  hide() {
+    // Disable default hide function
     // As the default hide function violate the calculation of menu dimension
   }
-
 }
 
 class SettingMenuTemp extends SettingMenu {
   constructor(player) {
     super(player, {
-      name: 'SettingMenuTemp'
+      name: 'SettingMenuTemp',
     });
   }
-
 }
 
 videojs.registerComponent('SettingMenu', SettingMenu);

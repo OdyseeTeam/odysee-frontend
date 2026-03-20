@@ -1,2 +1,2 @@
-import PageCode2257 from "./view";
+import PageCode2257 from './view';
 export default PageCode2257;

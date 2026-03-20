@@ -1,4 +1,4 @@
-import { SDK_API_PATH } from "config";
+import { SDK_API_PATH } from 'config';
 const isProduction = process.env.NODE_ENV === 'production';
 const WATCHMAN_BACKEND_ENDPOINT = 'https://watchman.na-backend.odysee.com/reports/playback';
 const SEND_DATA_TO_WATCHMAN_INTERVAL = 10; // in seconds
@@ -54,10 +54,9 @@ async function sendAndResetWatchmanData() {
     player: playerPoweredBy,
     user_id: userId.toString(),
     position: isLivestream ? 0 : Math.round(positionInVideo),
-    rel_position: isLivestream ? 0 : Math.round(positionInVideo / (totalDurationInSeconds * 1000) * 100),
+    rel_position: isLivestream ? 0 : Math.round((positionInVideo / (totalDurationInSeconds * 1000)) * 100),
     bitrate: bitrateAsBitsPerSecond,
-    bandwidth: undefined // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
-
+    bandwidth: undefined, // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
   };
   // post to watchman
   await sendWatchmanData(objectToSend);
@@ -94,9 +93,9 @@ async function sendWatchmanData(body) {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
     return response;
   } catch (err) {}
@@ -106,18 +105,30 @@ async function sendWatchmanData(body) {
 // ****************************************************************************
 export type Watchman = {
   setState: (enable: boolean) => void;
-  videoStartEvent: (arg0: string | null | undefined, arg1: number, arg2: string, arg3: number | null | undefined, arg4: string, arg5: any, arg6: number | null | undefined, arg7: boolean) => void;
+  videoStartEvent: (
+    arg0: string | null | undefined,
+    arg1: number,
+    arg2: string,
+    arg3: number | null | undefined,
+    arg4: string,
+    arg5: any,
+    arg6: number | null | undefined,
+    arg7: boolean
+  ) => void;
   videoIsPlaying: (arg0: boolean, arg1: any) => void;
-  videoBufferEvent: (arg0: StreamClaim, arg1: {
-    timeAtBuffer: number;
-    bufferDuration: number;
-    bitRate: number;
-    duration: number;
-    userId: string;
-    playerPoweredBy: string;
-    readyState: number;
-    isLivestream: boolean;
-  }) => Promise<any>;
+  videoBufferEvent: (
+    arg0: StreamClaim,
+    arg1: {
+      timeAtBuffer: number;
+      bufferDuration: number;
+      bitRate: number;
+      duration: number;
+      userId: string;
+      playerPoweredBy: string;
+      readyState: number;
+      isLivestream: boolean;
+    }
+  ) => Promise<any>;
 };
 export const watchman: Watchman = {
   setState: (enable: boolean) => {
@@ -147,7 +158,8 @@ export const watchman: Watchman = {
       stopWatchmanInterval();
       startWatchmanIntervalIfNotRunning(); // is being told to play, and seeking, don't do anything,
       // assume it's been started already from pause
-    } else if (isPlaying && playerIsSeeking) {// start but not a seek, assuming a start from paused content
+    } else if (isPlaying && playerIsSeeking) {
+      // start but not a seek, assuming a start from paused content
     } else if (isPlaying && !playerIsSeeking) {
       startWatchmanIntervalIfNotRunning();
     }
@@ -157,7 +169,16 @@ export const watchman: Watchman = {
     amountOfBufferEvents = amountOfBufferEvents + 1;
     amountOfBufferTimeInMS = amountOfBufferTimeInMS + data.bufferDuration;
   },
-  videoStartEvent: (claimId, timeToStartVideo, poweredBy, passedUserId, canonicalUrl, passedPlayer, videoBitrate, isLivestreamClaim) => {
+  videoStartEvent: (
+    claimId,
+    timeToStartVideo,
+    poweredBy,
+    passedUserId,
+    canonicalUrl,
+    passedPlayer,
+    videoBitrate,
+    isLivestreamClaim
+  ) => {
     // populate values for watchman when video starts
     userId = passedUserId;
     claimUrl = canonicalUrl;
@@ -170,7 +191,7 @@ export const watchman: Watchman = {
   },
   onDispose: () => {
     stopWatchmanInterval();
-  }
+  },
 };
 
 function sendPromMetric(name: string, value?: number, player: string) {
@@ -179,11 +200,11 @@ function sendPromMetric(name: string, value?: number, player: string) {
     const params = {
       name: name,
       value: value ? value.toString() : '',
-      player: player
+      player: player,
     };
     url.search = new URLSearchParams(params).toString();
     return fetch(url, {
-      method: 'post'
+      method: 'post',
     }).catch(function (error) {});
   }
 }

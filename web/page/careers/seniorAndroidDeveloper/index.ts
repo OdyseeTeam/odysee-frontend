@@ -1,2 +1,2 @@
-import SeniorAndroidDeveloperPage from "./view";
+import SeniorAndroidDeveloperPage from './view';
 export default SeniorAndroidDeveloperPage;

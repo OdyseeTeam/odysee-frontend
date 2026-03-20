@@ -1,6 +1,6 @@
-import React from "react";
-import { useHistory } from "react-router";
-import usePersistedState from "effects/use-persisted-state";
+import React from 'react';
+import { useHistory } from 'react-router';
+import usePersistedState from 'effects/use-persisted-state';
 /**
  * Resolves and provides persistence for a user param.
  *
@@ -18,15 +18,19 @@ import usePersistedState from "effects/use-persisted-state";
  * @returns {boolean}
  */
 
-export default function usePersistentUserParam(precedenceList: Array<any | null | undefined>, keyBase: string, keyDefaultValue: string | null | undefined) {
-  const {
-    action,
-    location
-  } = useHistory();
+export default function usePersistentUserParam(
+  precedenceList: Array<any | null | undefined>,
+  keyBase: string,
+  keyDefaultValue: string | null | undefined
+) {
+  const { action, location } = useHistory();
   const [stashed, setStashed] = usePersistedState(`${keyBase}-${location.pathname}`, keyDefaultValue);
-  const [stashedOnEntry, setStashedOnEntry] = usePersistedState(`${keyBase}-entry-${location.pathname}`, keyDefaultValue);
+  const [stashedOnEntry, setStashedOnEntry] = usePersistedState(
+    `${keyBase}-entry-${location.pathname}`,
+    keyDefaultValue
+  );
   // Find the first non-null value in the precedence list:
-  let param = precedenceList.find(x => x);
+  let param = precedenceList.find((x) => x);
 
   // If nothing was resolved, grab the stashed value, depending on the navigation action:
   if (!param) {
@@ -46,7 +50,6 @@ export default function usePersistentUserParam(precedenceList: Array<any | null 
     if (action !== 'POP') {
       setStashedOnEntry(param);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-
   }, []);
   return param;
 }

@@ -1,5 +1,5 @@
-import React from "react";
-import Button from "component/button";
+import React from 'react';
+import Button from 'component/button';
 type Props = {
   channelId?: string;
   // -- redux --
@@ -8,12 +8,7 @@ type Props = {
 };
 
 const ButtonNavigateChannelId = (props: Props) => {
-  const {
-    channelId,
-    defaultChannelId,
-    activeChannelId,
-    ...buttonProps
-  } = props;
+  const { channelId, defaultChannelId, activeChannelId, ...buttonProps } = props;
 
   const addWindowPendingActiveChannel = () => {
     if (channelId) {

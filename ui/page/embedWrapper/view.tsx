@@ -1,24 +1,36 @@
-import * as PAGES from "constants/pages";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import React from "react";
-import classnames from "classnames";
-import { useHistory, Redirect } from "react-router";
-import PropTypes from "prop-types";
-import { lazyImport } from "util/lazyImport";
-import * as RENDER_MODES from "constants/file_render_modes";
-import { EmbedContext } from "contexts/embed";
-import Spinner from "component/spinner";
-import { buildURI, normalizeURI, parseURI } from "util/lbryURI";
-import { formatLbryUrlForWeb } from "util/url";
-const ClaimPage = lazyImport(() => import('page/claim'
-/* webpackChunkName: "claimPage" */
-));
-const CollectionPage = lazyImport(() => import('page/collection'
-/* webpackChunkName: "collection" */
-));
-const EmbedClaimComponent = lazyImport(() => import('page/embedWrapper/internal/embedClaimComponent'
-/* webpackChunkName: "embedClaimComponent" */
-));
+import * as PAGES from 'constants/pages';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import React from 'react';
+import classnames from 'classnames';
+import { useHistory, Redirect } from 'react-router';
+import PropTypes from 'prop-types';
+import { lazyImport } from 'util/lazyImport';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import { EmbedContext } from 'contexts/embed';
+import Spinner from 'component/spinner';
+import { buildURI, normalizeURI, parseURI } from 'util/lbryURI';
+import { formatLbryUrlForWeb } from 'util/url';
+const ClaimPage = lazyImport(
+  () =>
+    import(
+      'page/claim'
+      /* webpackChunkName: "claimPage" */
+    )
+);
+const CollectionPage = lazyImport(
+  () =>
+    import(
+      'page/collection'
+      /* webpackChunkName: "collection" */
+    )
+);
+const EmbedClaimComponent = lazyImport(
+  () =>
+    import(
+      'page/embedWrapper/internal/embedClaimComponent'
+      /* webpackChunkName: "embedClaimComponent" */
+    )
+);
 // Keep uri derivation logic here and delegate full rendering to existing pages
 type Props = {
   uri?: string;
@@ -26,9 +38,7 @@ type Props = {
   collectionFirstItemUri?: string;
   isCollection?: boolean;
   renderMode?: string;
-  doFetchItemsInCollection?: (arg0: {
-    collectionId: string;
-  }) => void;
+  doFetchItemsInCollection?: (arg0: { collectionId: string }) => void;
 };
 
 const EmbedWrapperPage = (props: Props) => {
@@ -39,14 +49,11 @@ const EmbedWrapperPage = (props: Props) => {
     collectionFirstItemUri,
     isCollection,
     renderMode,
-    doFetchItemsInCollection
+    doFetchItemsInCollection,
   } = props;
   const {
-    location: {
-      search,
-      pathname
-    },
-    match
+    location: { search, pathname },
+    match,
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
@@ -71,7 +78,7 @@ const EmbedWrapperPage = (props: Props) => {
   React.useEffect(() => {
     if (collectionId && doFetchItemsInCollection) {
       doFetchItemsInCollection({
-        collectionId
+        collectionId,
       });
     }
   }, [collectionId, doFetchItemsInCollection]);
@@ -85,34 +92,52 @@ const EmbedWrapperPage = (props: Props) => {
 
   // Show loading while waiting for collection first item
   if (isPlaylistPath && collectionId && !collectionFirstItemUri) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner text={__('Loading playlist...')} />
-      </div>;
+      </div>
+    );
   }
 
   // Determine if this should render like a full page (channels/collections) or minimal (videos/posts)
-  const {
-    isChannel
-  } = uri ? parseURI(uri) : {
-    isChannel: false
-  };
+  const { isChannel } = uri
+    ? parseURI(uri)
+    : {
+        isChannel: false,
+      };
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const isPageLike = Boolean(isChannel || isCollection || isMarkdown);
-  return <EmbedContext.Provider value={{
-    videoEnded,
-    setVideoEnded
-  }}>
-      <div className={classnames('embed__wrapper', {
-      'embed__wrapper--light-background': embedLightBackground,
-      'embed__wrapper--page': isPageLike
-    })}>
-        <React.Suspense fallback={<div className="main--empty">
+  return (
+    <EmbedContext.Provider
+      value={{
+        videoEnded,
+        setVideoEnded,
+      }}
+    >
+      <div
+        className={classnames('embed__wrapper', {
+          'embed__wrapper--light-background': embedLightBackground,
+          'embed__wrapper--page': isPageLike,
+        })}
+      >
+        <React.Suspense
+          fallback={
+            <div className="main--empty">
               <Spinner text={__('Loading...')} />
-            </div>}>
-          {collectionId && !isPlaylistPath ? <CollectionPage collectionId={collectionId} /> : isPageLike ? <ClaimPage uri={uri} latestContentPath={latestContentPath} liveContentPath={liveContentPath} /> : <EmbedClaimComponent uri={uri} />}
+            </div>
+          }
+        >
+          {collectionId && !isPlaylistPath ? (
+            <CollectionPage collectionId={collectionId} />
+          ) : isPageLike ? (
+            <ClaimPage uri={uri} latestContentPath={latestContentPath} liveContentPath={liveContentPath} />
+          ) : (
+            <EmbedClaimComponent uri={uri} />
+          )}
         </React.Suspense>
       </div>
-    </EmbedContext.Provider>;
+    </EmbedContext.Provider>
+  );
 };
 
 EmbedWrapperPage.propTypes = {
@@ -121,16 +146,13 @@ EmbedWrapperPage.propTypes = {
   collectionFirstItemUri: PropTypes.string,
   isCollection: PropTypes.bool,
   renderMode: PropTypes.string,
-  doFetchItemsInCollection: PropTypes.func
+  doFetchItemsInCollection: PropTypes.func,
 };
 export default EmbedWrapperPage;
 
 function getUriFromMatch(match) {
   if (match) {
-    const {
-      claimName,
-      claimId
-    } = match.params || {};
+    const { claimName, claimId } = match.params || {};
 
     // Special case: don't resolve "home" as a claim (it has its own route)
     if (claimName === 'home' && !claimId) {
@@ -138,7 +160,8 @@ function getUriFromMatch(match) {
     }
 
     // https://{DOMAIN}/claimName/claimId
-    const isOldPermanentUriFormat = claimName && !claimName.startsWith('@') && !claimName.includes(':') && !claimName.includes('#') && claimId;
+    const isOldPermanentUriFormat =
+      claimName && !claimName.startsWith('@') && !claimName.includes(':') && !claimName.includes('#') && claimId;
     // https://{DOMAIN}/channelName/claimName/
     // on match channelName = claimName / claimName = claimId
     const isCanonicalUriFormat = !isOldPermanentUriFormat;
@@ -147,7 +170,7 @@ function getUriFromMatch(match) {
       try {
         return buildURI({
           claimName,
-          claimId
+          claimId,
         });
       } catch (error) {}
     }

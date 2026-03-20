@@ -1,32 +1,45 @@
-import { connect } from "react-redux";
-import { hasLegacyOdyseePremium } from "redux/selectors/user";
-import { selectClaimForUri, selectClaimIsMine, selectHasChannels, selectFetchingMyChannels, makeSelectTagInClaimOrChannelForUri, selectMyChannelClaimIds, selectedRestrictedCommentsChatTagForUri } from "redux/selectors/claims";
-import { DISABLE_SUPPORT_TAG } from "constants/tags";
-import { doCommentCreate, doFetchCreatorSettings, doCommentById, doFetchMyCommentedChannels } from "redux/actions/comments";
-import { doSendTip, doSendCashTip } from "redux/actions/wallet";
-import { doToast } from "redux/actions/notifications";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import { selectMyCommentedChannelIdsForId, selectCommentsDisabledSettingForChannelId, selectLivestreamChatMembersOnlyForChannelId, selectMembersOnlyCommentsForChannelId, selectFetchingCreatorSettings } from "redux/selectors/comments";
-import { getChannelIdFromClaim } from "util/claim";
-import { doOpenModal } from "redux/actions/app";
-import { selectPreferredCurrency } from "redux/selectors/settings";
-import { selectArweaveTipDataForId } from "redux/selectors/stripe";
-import { doTipAccountCheckForUri } from "redux/actions/stripe";
-import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from "redux/selectors/memberships";
-import { doArTip } from "redux/actions/arwallet";
-import { CommentCreate } from "./view";
-import { selectArweaveTippingErrorForId } from "redux/selectors/arwallet";
+import { connect } from 'react-redux';
+import { hasLegacyOdyseePremium } from 'redux/selectors/user';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectHasChannels,
+  selectFetchingMyChannels,
+  makeSelectTagInClaimOrChannelForUri,
+  selectMyChannelClaimIds,
+  selectedRestrictedCommentsChatTagForUri,
+} from 'redux/selectors/claims';
+import { DISABLE_SUPPORT_TAG } from 'constants/tags';
+import {
+  doCommentCreate,
+  doFetchCreatorSettings,
+  doCommentById,
+  doFetchMyCommentedChannels,
+} from 'redux/actions/comments';
+import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
+import { doToast } from 'redux/actions/notifications';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectMyCommentedChannelIdsForId,
+  selectCommentsDisabledSettingForChannelId,
+  selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
+  selectFetchingCreatorSettings,
+} from 'redux/selectors/comments';
+import { getChannelIdFromClaim } from 'util/claim';
+import { doOpenModal } from 'redux/actions/app';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from 'redux/selectors/memberships';
+import { doArTip } from 'redux/actions/arwallet';
+import { CommentCreate } from './view';
+import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const claim = selectClaimForUri(state, uri);
-  const {
-    claim_id: claimId,
-    name,
-    signing_channel: channel
-  } = claim || {};
+  const { claim_id: claimId, name, signing_channel: channel } = claim || {};
   // setup variables for tip API
   const channelClaimId = getChannelIdFromClaim(claim);
   const tipChannelName = channel ? channel.name : name;
@@ -34,7 +47,7 @@ const select = (state, props) => {
   const {
     claim_id: activeChannelClaimId,
     name: activeChannelName,
-    canonical_url: activeChannelUrl
+    canonical_url: activeChannelUrl,
   } = activeChannelClaim || {};
   const tipData = selectArweaveTipDataForId(state, channelClaimId);
   const canReceiveTips = tipData?.status === 'active' && tipData?.default;
@@ -62,7 +75,7 @@ const select = (state, props) => {
     hasPremiumPlus: hasLegacyOdyseePremium(state),
     recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
     arweaveTippingError: selectArweaveTippingErrorForId(state, channelClaimId),
-    canReceiveTips
+    canReceiveTips,
   };
 };
 
@@ -76,6 +89,6 @@ const perform = {
   doSendTip,
   doOpenModal,
   doTipAccountCheckForUri,
-  doArTip
+  doArTip,
 };
 export default connect(select, perform)(CommentCreate);

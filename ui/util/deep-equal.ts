@@ -54,9 +54,19 @@ function deepEq(a, b, aStack, bStack) {
     // Objects with different constructors are not equivalent, but `Object`s or `Array`s
     // from different frames are.
     var aCtor = a.constructor,
-        bCtor = b.constructor;
+      bCtor = b.constructor;
 
-    if (aCtor !== bCtor && !(typeof aCtor === 'function' && aCtor instanceof aCtor && typeof bCtor === 'function' && bCtor instanceof bCtor) && 'constructor' in a && 'constructor' in b) {
+    if (
+      aCtor !== bCtor &&
+      !(
+        typeof aCtor === 'function' &&
+        aCtor instanceof aCtor &&
+        typeof bCtor === 'function' &&
+        bCtor instanceof bCtor
+      ) &&
+      'constructor' in a &&
+      'constructor' in b
+    ) {
       return false;
     }
   }
@@ -92,7 +102,7 @@ function deepEq(a, b, aStack, bStack) {
   } else {
     // Deep compare objects.
     var keys = Object.keys(a),
-        key;
+      key;
     length = keys.length;
     // Ensure that both objects contain the same number of properties before comparing deep equality.
     if (Object.keys(b).length !== length) return false;

@@ -1,4 +1,4 @@
-import { getLanguageEngName } from "constants/languages";
+import { getLanguageEngName } from 'constants/languages';
 const HOMEPAGE_LANGUAGES = {
   en: getLanguageEngName('en'),
   fr: getLanguageEngName('fr'),
@@ -8,7 +8,7 @@ const HOMEPAGE_LANGUAGES = {
   ru: getLanguageEngName('ru'),
   it: getLanguageEngName('it'),
   'pt-BR': getLanguageEngName('pt-BR'),
-  hi: getLanguageEngName('hi')
+  hi: getLanguageEngName('hi'),
 };
 export function getHomepageLanguage(code) {
   switch (code) {

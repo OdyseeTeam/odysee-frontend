@@ -4,7 +4,7 @@ const Lbryio = {
   importPromise: undefined,
   loadModule: () => {
     if (!Lbryio.importPromise) {
-      Lbryio.importPromise = import('lbryinc').then(module => module.Lbryio).catch(err => console.log(err)); // eslint-disable-line no-console
+      Lbryio.importPromise = import('lbryinc').then((module) => module.Lbryio).catch((err) => console.log(err)); // eslint-disable-line no-console
     }
   },
   call: (resource, action, params = {}, method = 'post') => {
@@ -13,8 +13,9 @@ const Lbryio = {
     }
 
     return Lbryio.importPromise // $FlowIgnore (null promise will call loadModule)
-    .then(Lbryio => Lbryio.call(resource, action, params, method)).catch(err => assert(false, `"${resource}/${action}" failed`, err));
-  }
+      .then((Lbryio) => Lbryio.call(resource, action, params, method))
+      .catch((err) => assert(false, `"${resource}/${action}" failed`, err));
+  },
 };
 type LogPublishParams = {
   uri: string;
@@ -24,7 +25,13 @@ type LogPublishParams = {
 };
 export type ApiLog = {
   setState: (enable: boolean) => void;
-  view: (arg0: string, arg1: string, arg2: string, arg3: number | null | undefined, arg4: (() => void) | null | undefined) => Promise<any>;
+  view: (
+    arg0: string,
+    arg1: string,
+    arg2: string,
+    arg3: number | null | undefined,
+    arg4: (() => void) | null | undefined
+  ) => Promise<any>;
   search: () => void;
   publish: (arg0: ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void;
   desktopError: (message: string) => Promise<boolean>;
@@ -45,7 +52,7 @@ export const apiLog: ApiLog = {
         } = {
           uri,
           outpoint,
-          claim_id: claimId
+          claim_id: claimId,
         };
         resolve(Lbryio.call('file', 'view', params));
       } else {
@@ -61,13 +68,7 @@ export const apiLog: ApiLog = {
   publish: (claimResult: ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => {
     // Don't check if this is production so channels created on localhost are still linked to user
     if (gApiLogOn) {
-      const {
-        permanent_url: uri,
-        claim_id: claimId,
-        txid,
-        nout,
-        signing_channel: signingChannel
-      } = claimResult;
+      const { permanent_url: uri, claim_id: claimId, txid, nout, signing_channel: signingChannel } = claimResult;
       let channelClaimId;
 
       if (signingChannel) {
@@ -78,7 +79,7 @@ export const apiLog: ApiLog = {
       const params: LogPublishParams = {
         uri,
         claim_id: claimId,
-        outpoint
+        outpoint,
       };
 
       if (channelClaimId) {
@@ -91,10 +92,10 @@ export const apiLog: ApiLog = {
     }
   },
   desktopError: (message: string) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (gApiLogOn && isProduction) {
         return Lbryio.call('event', 'desktop_error', {
-          error_message: message
+          error_message: message,
         }).then(() => {
           resolve(true);
         });
@@ -102,5 +103,5 @@ export const apiLog: ApiLog = {
         resolve(false);
       }
     });
-  }
+  },
 };

@@ -1,19 +1,17 @@
-import { connect } from "react-redux";
-import { doOpenModal } from "redux/actions/app";
-import { selectClaimForUri, selectClaimRepostedAmountForUri } from "redux/selectors/claims";
-import ClaimRepostButton from "./view";
+import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
+import { selectClaimForUri, selectClaimRepostedAmountForUri } from 'redux/selectors/claims';
+import ClaimRepostButton from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   return {
     claim: selectClaimForUri(state, uri),
-    repostedAmount: selectClaimRepostedAmountForUri(state, uri)
+    repostedAmount: selectClaimRepostedAmountForUri(state, uri),
   };
 };
 
 const perform = {
-  doOpenModal
+  doOpenModal,
 };
 export default connect(select, perform)(ClaimRepostButton);

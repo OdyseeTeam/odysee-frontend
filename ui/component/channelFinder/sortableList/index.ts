@@ -1,2 +1,2 @@
-import SortableList from "./view";
+import SortableList from './view';
 export default SortableList;

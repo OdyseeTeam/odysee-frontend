@@ -1,15 +1,12 @@
-import React from "react";
-import Card from "component/common/card";
+import React from 'react';
+import Card from 'component/common/card';
 type Props = {
   fullHeight: boolean;
   src: string;
   title: string;
 };
 export default function I18nMessage(props: Props) {
-  const {
-    src,
-    title
-  } = props;
+  const { src, title } = props;
   const [failedToLoadSrc, setFailedToLoadSrc] = React.useState(false);
 
   // const iframeRef = React.useRef();
@@ -33,10 +30,22 @@ export default function I18nMessage(props: Props) {
      */
   }
 
-  return (// style={{height: iframeHeight}}
+  return (
+    // style={{height: iframeHeight}}
     // ref={iframeRef}
-    !failedToLoadSrc ? <iframe src={src} title={title} onLoad={onLoad} sandbox={!IS_WEB} /> : <Card title={__('Failed to load')} subtitle={<p>
-            {__('This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com')}
-          </p>} />
+    !failedToLoadSrc ? (
+      <iframe src={src} title={title} onLoad={onLoad} sandbox={!IS_WEB} />
+    ) : (
+      <Card
+        title={__('Failed to load')}
+        subtitle={
+          <p>
+            {__(
+              'This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com'
+            )}
+          </p>
+        }
+      />
+    )
   );
 }

@@ -1,18 +1,18 @@
-import * as MODALS from "constants/modal_types";
-import React, { useState } from "react";
-import { isNameValid } from "util/lbryURI";
-import Button from "component/button";
-import { Form, FormField } from "component/common/form";
-import { INVALID_NAME_ERROR } from "constants/claim";
-import Card from "component/common/card";
-import I18nMessage from "component/i18nMessage";
-import analytics from "analytics";
-import { sortLanguageMap } from "util/default-languages";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
-import ThumbnailBrokenImage from "component/selectThumbnail/thumbnail-broken.png";
-import { AVATAR_DEFAULT } from "config";
-import * as ICONS from "constants/icons";
-import * as PUBLISH from "constants/publish";
+import * as MODALS from 'constants/modal_types';
+import React, { useState } from 'react';
+import { isNameValid } from 'util/lbryURI';
+import Button from 'component/button';
+import { Form, FormField } from 'component/common/form';
+import { INVALID_NAME_ERROR } from 'constants/claim';
+import Card from 'component/common/card';
+import I18nMessage from 'component/i18nMessage';
+import analytics from 'analytics';
+import { sortLanguageMap } from 'util/default-languages';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
+import { AVATAR_DEFAULT } from 'config';
+import * as ICONS from 'constants/icons';
+import * as PUBLISH from 'constants/publish';
 export const DEFAULT_BID_FOR_FIRST_CHANNEL = 0.01;
 type Props = {
   createChannel: (arg0: string, arg1: number, arg2: any) => Promise<ChannelClaim>;
@@ -21,13 +21,16 @@ type Props = {
   claimingReward: boolean;
   user: User;
   doToggleInterestedInYoutubeSync: () => void;
-  openModal: (id: string, arg1: {
-    onUpdate: (arg0: string, arg1: boolean) => void;
-    assetName: string;
-    helpText: string;
-    currentValue: string;
-    title: string;
-  }) => void;
+  openModal: (
+    id: string,
+    arg1: {
+      onUpdate: (arg0: string, arg1: boolean) => void;
+      assetName: string;
+      helpText: string;
+      currentValue: string;
+      title: string;
+    }
+  ) => void;
 };
 
 function UserFirstChannel(props: Props) {
@@ -38,17 +41,15 @@ function UserFirstChannel(props: Props) {
     user,
     createChannelError,
     doToggleInterestedInYoutubeSync,
-    openModal
+    openModal,
   } = props;
-  const {
-    primary_email: primaryEmail
-  } = user;
+  const { primary_email: primaryEmail } = user;
   const initialChannel = primaryEmail ? primaryEmail.split('@')[0] : '';
   const [channel, setChannel] = useState(initialChannel);
   const [title, setTitle] = useState(initialChannel);
   const [isUpload, setIsUpload] = React.useState({
     cover: false,
-    thumbnail: false
+    thumbnail: false,
   });
   const [thumbError, setThumbError] = React.useState(false);
   const [params, setParams]: [any, (arg0: any) => void] = React.useState(getChannelParams());
@@ -63,7 +64,7 @@ function UserFirstChannel(props: Props) {
       languages: Array<string> | null | undefined;
     } = {
       title,
-      languages: languageParam || []
+      languages: languageParam || [],
     };
     return channelParams;
   }
@@ -79,12 +80,8 @@ function UserFirstChannel(props: Props) {
   }
 
   function handleThumbnailChange(thumbnailUrl: string, uploadSelected: boolean) {
-    setParams({ ...params,
-      thumbnailUrl
-    });
-    setIsUpload({ ...isUpload,
-      thumbnail: uploadSelected
-    });
+    setParams({ ...params, thumbnailUrl });
+    setIsUpload({ ...isUpload, thumbnail: uploadSelected });
     setThumbError(false);
   }
 
@@ -113,8 +110,8 @@ function UserFirstChannel(props: Props) {
     createChannel(`@${channel}`, DEFAULT_BID_FOR_FIRST_CHANNEL, {
       title: title,
       thumbnailUrl: params.thumbnailUrl,
-      languages: primaryLanguage
-    }).then(channelClaim => {
+      languages: primaryLanguage,
+    }).then((channelClaim) => {
       if (channelClaim) {
         analytics.apiLog.publish(channelClaim);
       }
@@ -122,9 +119,7 @@ function UserFirstChannel(props: Props) {
   }
 
   function handleChannelChange(e) {
-    const {
-      value
-    } = e.target;
+    const { value } = e.target;
     setChannel(value);
 
     if (!isNameValid(value)) {
@@ -135,65 +130,122 @@ function UserFirstChannel(props: Props) {
   }
 
   function handleTitleChange(e) {
-    const {
-      value
-    } = e.target;
+    const { value } = e.target;
     setTitle(value);
   }
 
-  return <div className="main__channel-creation">
-      <Card title={__('Create a Channel')} subtitle={<React.Fragment>
+  return (
+    <div className="main__channel-creation">
+      <Card
+        title={__('Create a Channel')}
+        subtitle={
+          <React.Fragment>
             <p>{__('Your channel will be used for publishing and commenting.')}</p>
             <p>{__('You can have more than one or remove it later.')}</p>
-          </React.Fragment>} actions={<Form onSubmit={handleCreateChannel}>
+          </React.Fragment>
+        }
+        actions={
+          <Form onSubmit={handleCreateChannel}>
             <fieldset-section>
               <label>{__('Channel profile picture')}</label>
               <div className="form-field__avatar_upload">
                 <img className="form-field__avatar" src={thumbnailPreview} />
-                <Button button="alt" title={__('Edit')} onClick={() => openModal(MODALS.IMAGE_UPLOAD, {
-            onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-            title: __('Edit Thumbnail Image'),
-            helpText: __('(1:1 ratio)'),
-            assetName: __('Thumbnail'),
-            currentValue: params.thumbnailUrl
-          })} icon={ICONS.CAMERA} iconSize={18} />
+                <Button
+                  button="alt"
+                  title={__('Edit')}
+                  onClick={() =>
+                    openModal(MODALS.IMAGE_UPLOAD, {
+                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                      title: __('Edit Thumbnail Image'),
+                      helpText: __('(1:1 ratio)'),
+                      assetName: __('Thumbnail'),
+                      currentValue: params.thumbnailUrl,
+                    })
+                  }
+                  icon={ICONS.CAMERA}
+                  iconSize={18}
+                />
               </div>
             </fieldset-section>
             <fieldset-section>
-              <FormField autoFocus type="text" name="channel_title2" label={__('Display Name')} placeholder={__('My Awesome Channel')} value={title} onChange={handleTitleChange} />
+              <FormField
+                autoFocus
+                type="text"
+                name="channel_title2"
+                label={__('Display Name')}
+                placeholder={__('My Awesome Channel')}
+                value={title}
+                onChange={handleTitleChange}
+              />
             </fieldset-section>
             <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
               <fieldset-section>
                 <label htmlFor="auth_first_channel">
-                  {createChannelError || nameError ? <span className="error__text">{createChannelError || nameError}</span> : __('Username (cannot be changed)')}
+                  {createChannelError || nameError ? (
+                    <span className="error__text">{createChannelError || nameError}</span>
+                  ) : (
+                    __('Username (cannot be changed)')
+                  )}
                 </label>
                 <div className="form-field__prefix">@</div>
               </fieldset-section>
 
-              <FormField placeholder={__('channel')} type="text" name="auth_first_channel" className="form-field" value={channel} onChange={handleChannelChange} />
+              <FormField
+                placeholder={__('channel')}
+                type="text"
+                name="auth_first_channel"
+                className="form-field"
+                value={channel}
+                onChange={handleChannelChange}
+              />
             </fieldset-group>
             <fieldset-section>
-              <FormField name="language_select" type="select" label={__('Primary Language')} onChange={event => handleLanguageChange(0, event.target.value)} value={primaryLanguage} helper={__('Your main content language')}>
+              <FormField
+                name="language_select"
+                type="select"
+                label={__('Primary Language')}
+                onChange={(event) => handleLanguageChange(0, event.target.value)}
+                value={primaryLanguage}
+                helper={__('Your main content language')}
+              >
                 <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
                   {__('None selected')}
                 </option>
-                {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => <option key={langKey} value={langKey}>
+                {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                  <option key={langKey} value={langKey}>
                     {langName}
-                  </option>)}
+                  </option>
+                ))}
               </FormField>
             </fieldset-section>
             <div className="section__actions">
-              <Button button="primary" type="submit" disabled={nameError || !channel || creatingChannel || claimingReward} label={creatingChannel || claimingReward ? __('Creating') : __('Create')} />
+              <Button
+                button="primary"
+                type="submit"
+                disabled={nameError || !channel || creatingChannel || claimingReward}
+                label={creatingChannel || claimingReward ? __('Creating') : __('Create')}
+              />
             </div>
             <div className="help--card-actions">
-              <I18nMessage tokens={{
-          sync_channel: <Button button="link" label={__('Sync it and skip this step')} onClick={() => doToggleInterestedInYoutubeSync()} />
-        }}>
+              <I18nMessage
+                tokens={{
+                  sync_channel: (
+                    <Button
+                      button="link"
+                      label={__('Sync it and skip this step')}
+                      onClick={() => doToggleInterestedInYoutubeSync()}
+                    />
+                  ),
+                }}
+              >
                 Have a YouTube channel? %sync_channel%.
               </I18nMessage>
             </div>
-          </Form>} />
-    </div>;
+          </Form>
+        }
+      />
+    </div>
+  );
 }
 
 export default UserFirstChannel;

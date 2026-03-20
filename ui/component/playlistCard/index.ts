@@ -1,28 +1,38 @@
-import { connect } from "react-redux";
-import PlaylistCard from "./view";
-import { selectClaimForUri, selectChannelNameForId, selectThumbnailForUri, selectClaimForClaimId } from "redux/selectors/claims";
-import { selectUrlsForCollectionId, selectCollectionTitleForId, selectCollectionIsMine, selectIsCollectionPrivateForId, selectIndexForUrlInCollectionForId, selectCollectionLengthForId, selectCollectionIsEmptyForId, selectCollectionForId, selectCollectionSavedForId, selectCollectionHasEditsForId } from "redux/selectors/collections";
-import { selectPlayingUri } from "redux/selectors/content";
-import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from "redux/actions/collections";
-import { doClearPlayingCollection } from "redux/actions/content";
-import { doOpenModal } from "redux/actions/app";
+import { connect } from 'react-redux';
+import PlaylistCard from './view';
+import {
+  selectClaimForUri,
+  selectChannelNameForId,
+  selectThumbnailForUri,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
+import {
+  selectUrlsForCollectionId,
+  selectCollectionTitleForId,
+  selectCollectionIsMine,
+  selectIsCollectionPrivateForId,
+  selectIndexForUrlInCollectionForId,
+  selectCollectionLengthForId,
+  selectCollectionIsEmptyForId,
+  selectCollectionForId,
+  selectCollectionSavedForId,
+  selectCollectionHasEditsForId,
+} from 'redux/selectors/collections';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from 'redux/actions/collections';
+import { doClearPlayingCollection } from 'redux/actions/content';
+import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
-  const {
-    id: collectionId
-  } = props;
+  const { id: collectionId } = props;
   const {
     uri: playingUri,
-    collection: {
-      collectionId: playingCollectionId
-    }
+    collection: { collectionId: playingCollectionId },
   } = selectPlayingUri(state);
   const playingCurrentPlaylist = collectionId === playingCollectionId;
-  const {
-    permanent_url: playingItemUrl
-  } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
+  const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
   const claim = selectClaimForClaimId(state, collectionId);
-  const collectionUri = claim && (claim.canonical_url || claim.permanent_url) || null;
+  const collectionUri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
   return {
     id: collectionId,
     playingItemUrl,
@@ -39,7 +49,7 @@ const select = (state, props) => {
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
     playingCollectionId,
     collectionSavedForId: selectCollectionSavedForId(state, collectionId),
-    thumbnailFromClaim: selectThumbnailForUri(state, playingItemUrl || collectionUri)
+    thumbnailFromClaim: selectThumbnailForUri(state, playingItemUrl || collectionUri),
   };
 };
 
@@ -48,6 +58,6 @@ const perform = {
   doClearPlayingCollection,
   doClearQueueList,
   doOpenModal,
-  doToggleCollectionSavedForId
+  doToggleCollectionSavedForId,
 };
 export default connect(select, perform)(PlaylistCard);

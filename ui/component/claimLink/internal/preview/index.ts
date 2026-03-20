@@ -1,16 +1,14 @@
-import { connect } from "react-redux";
-import { selectIsStreamPlaceholderForUri } from "redux/selectors/claims";
-import { selectPlayingUri, makeSelectFileRenderModeForUri } from "redux/selectors/content";
-import ClaimLinkPreview from "./view";
+import { connect } from 'react-redux';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectPlayingUri, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import ClaimLinkPreview from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   return {
     playingUri: selectPlayingUri(state),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri)
+    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
   };
 };
 

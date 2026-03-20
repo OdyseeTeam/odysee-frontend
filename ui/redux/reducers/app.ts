@@ -1,5 +1,5 @@
-import * as ACTIONS from "constants/action_types";
-import { remote } from "electron";
+import * as ACTIONS from 'constants/action_types';
+import { remote } from 'electron';
 // @if TARGET='app'
 const win = remote.BrowserWindow.getFocusedWindow();
 // @endif
@@ -94,10 +94,10 @@ const defaultState: AppState = {
   appDrawerOpen: false,
   mainPlayerDimensions: {
     height: undefined,
-    width: undefined
+    width: undefined,
   },
   videoSourceLoaded: undefined,
-  assignedLbrynetServer: undefined
+  assignedLbrynetServer: undefined,
 };
 
 // @@router comes from react-router
@@ -107,13 +107,9 @@ try {
 } catch (e) {}
 
 reducers['@@router/LOCATION_CHANGE'] = (state, action) => {
-  const {
-    currentScroll
-  } = state;
-  const scrollHistory = state.scrollHistory && state.scrollHistory.slice() || [];
-  const {
-    action: name
-  } = action.payload;
+  const { currentScroll } = state;
+  const scrollHistory = (state.scrollHistory && state.scrollHistory.slice()) || [];
+  const { action: name } = action.payload;
   let newCurrentScroll = currentScroll;
 
   if (name === 'PUSH') {
@@ -124,252 +120,253 @@ reducers['@@router/LOCATION_CHANGE'] = (state, action) => {
     scrollHistory.pop();
   }
 
-  return { ...state,
-    scrollHistory,
-    currentScroll: newCurrentScroll
-  };
+  return { ...state, scrollHistory, currentScroll: newCurrentScroll };
 };
 
-reducers[ACTIONS.DAEMON_READY] = state => Object.assign({}, state, {
-  daemonReady: true
-});
+reducers[ACTIONS.DAEMON_READY] = (state) =>
+  Object.assign({}, state, {
+    daemonReady: true,
+  });
 
-reducers[ACTIONS.PASSWORD_SAVED] = (state, action) => Object.assign({}, state, {
-  isPasswordSaved: action.data
-});
+reducers[ACTIONS.PASSWORD_SAVED] = (state, action) =>
+  Object.assign({}, state, {
+    isPasswordSaved: action.data,
+  });
 
-reducers[ACTIONS.DAEMON_VERSION_MATCH] = state => Object.assign({}, state, {
-  daemonVersionMatched: true
-});
+reducers[ACTIONS.DAEMON_VERSION_MATCH] = (state) =>
+  Object.assign({}, state, {
+    daemonVersionMatched: true,
+  });
 
-reducers[ACTIONS.DAEMON_VERSION_MISMATCH] = state => Object.assign({}, state, {
-  daemonVersionMatched: false
-});
+reducers[ACTIONS.DAEMON_VERSION_MISMATCH] = (state) =>
+  Object.assign({}, state, {
+    daemonVersionMatched: false,
+  });
 
-reducers[ACTIONS.UPGRADE_CANCELLED] = state => Object.assign({}, state, {
-  downloadProgress: null,
-  upgradeDownloadComplete: false,
-  modal: null
-});
+reducers[ACTIONS.UPGRADE_CANCELLED] = (state) =>
+  Object.assign({}, state, {
+    downloadProgress: null,
+    upgradeDownloadComplete: false,
+    modal: null,
+  });
 
-reducers[ACTIONS.AUTO_UPDATE_DOWNLOADED] = state => Object.assign({}, state, {
-  autoUpdateDownloaded: true
-});
+reducers[ACTIONS.AUTO_UPDATE_DOWNLOADED] = (state) =>
+  Object.assign({}, state, {
+    autoUpdateDownloaded: true,
+  });
 
-reducers[ACTIONS.AUTO_UPDATE_DECLINED] = state => Object.assign({}, state, {
-  autoUpdateDeclined: true
-});
+reducers[ACTIONS.AUTO_UPDATE_DECLINED] = (state) =>
+  Object.assign({}, state, {
+    autoUpdateDeclined: true,
+  });
 
-reducers[ACTIONS.UPGRADE_DOWNLOAD_COMPLETED] = (state, action) => Object.assign({}, state, {
-  downloadPath: action.data.path,
-  upgradeDownloading: false,
-  upgradeDownloadCompleted: true
-});
+reducers[ACTIONS.UPGRADE_DOWNLOAD_COMPLETED] = (state, action) =>
+  Object.assign({}, state, {
+    downloadPath: action.data.path,
+    upgradeDownloading: false,
+    upgradeDownloadCompleted: true,
+  });
 
-reducers[ACTIONS.UPGRADE_DOWNLOAD_STARTED] = state => Object.assign({}, state, {
-  upgradeDownloading: true
-});
+reducers[ACTIONS.UPGRADE_DOWNLOAD_STARTED] = (state) =>
+  Object.assign({}, state, {
+    upgradeDownloading: true,
+  });
 
-reducers[ACTIONS.CHANGE_MODALS_ALLOWED] = (state, action) => Object.assign({}, state, {
-  modalsAllowed: action.data.modalsAllowed
-});
+reducers[ACTIONS.CHANGE_MODALS_ALLOWED] = (state, action) =>
+  Object.assign({}, state, {
+    modalsAllowed: action.data.modalsAllowed,
+  });
 
-reducers[ACTIONS.SKIP_UPGRADE] = state => {
+reducers[ACTIONS.SKIP_UPGRADE] = (state) => {
   sessionStorage.setItem('upgradeSkipped', 'true');
   return Object.assign({}, state, {
-    isUpgradeSkipped: true
+    isUpgradeSkipped: true,
   });
 };
 
-reducers[ACTIONS.MEDIA_PLAY] = state => Object.assign({}, state, {
-  modalsAllowed: false
-});
+reducers[ACTIONS.MEDIA_PLAY] = (state) =>
+  Object.assign({}, state, {
+    modalsAllowed: false,
+  });
 
-reducers[ACTIONS.MEDIA_PAUSE] = state => Object.assign({}, state, {
-  modalsAllowed: true
-});
+reducers[ACTIONS.MEDIA_PAUSE] = (state) =>
+  Object.assign({}, state, {
+    modalsAllowed: true,
+  });
 
 reducers[ACTIONS.SET_PLAYING_URI] = (state, action) => {
   if (action.data.uri === null) {
     return Object.assign({}, state, {
-      modalsAllowed: true
+      modalsAllowed: true,
     });
   }
 
   return state;
 };
 
-reducers[ACTIONS.UPDATE_VERSION] = (state, action) => Object.assign({}, state, {
-  version: action.data.version
-});
+reducers[ACTIONS.UPDATE_VERSION] = (state, action) =>
+  Object.assign({}, state, {
+    version: action.data.version,
+  });
 
-reducers[ACTIONS.CHECK_UPGRADE_SUCCESS] = (state, action) => Object.assign({}, state, {
-  isUpgradeAvailable: action.data.upgradeAvailable,
-  remoteVersion: action.data.remoteVersion
-});
+reducers[ACTIONS.CHECK_UPGRADE_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    isUpgradeAvailable: action.data.upgradeAvailable,
+    remoteVersion: action.data.remoteVersion,
+  });
 
-reducers[ACTIONS.CHECK_UPGRADE_SUBSCRIBE] = (state, action) => Object.assign({}, state, {
-  checkUpgradeTimer: action.data.checkUpgradeTimer
-});
+reducers[ACTIONS.CHECK_UPGRADE_SUBSCRIBE] = (state, action) =>
+  Object.assign({}, state, {
+    checkUpgradeTimer: action.data.checkUpgradeTimer,
+  });
 
-reducers[ACTIONS.UPGRADE_DOWNLOAD_PROGRESSED] = (state, action) => Object.assign({}, state, {
-  downloadProgress: action.data.percent
-});
+reducers[ACTIONS.UPGRADE_DOWNLOAD_PROGRESSED] = (state, action) =>
+  Object.assign({}, state, {
+    downloadProgress: action.data.percent,
+  });
 
-reducers[ACTIONS.RELOAD_REQUIRED] = (state, action) => Object.assign({}, state, {
-  reloadRequired: action.data.reason
-});
+reducers[ACTIONS.RELOAD_REQUIRED] = (state, action) =>
+  Object.assign({}, state, {
+    reloadRequired: action.data.reason,
+  });
 
-reducers[ACTIONS.DOWNLOADING_COMPLETED] = state => {
-  const {
-    badgeNumber
-  } = state;
+reducers[ACTIONS.DOWNLOADING_COMPLETED] = (state) => {
+  const { badgeNumber } = state;
   // Don't update the badge number if the window is focused
   // @if TARGET='app'
   if (win && win.isFocused()) return Object.assign({}, state);
   // @endif
   return Object.assign({}, state, {
-    badgeNumber: badgeNumber + 1
+    badgeNumber: badgeNumber + 1,
   });
 };
 
-reducers[ACTIONS.WINDOW_FOCUSED] = state => Object.assign({}, state, {
-  badgeNumber: 0
-});
+reducers[ACTIONS.WINDOW_FOCUSED] = (state) =>
+  Object.assign({}, state, {
+    badgeNumber: 0,
+  });
 
-reducers[ACTIONS.VOLUME_CHANGED] = (state, action) => Object.assign({}, state, {
-  volume: action.data.volume
-});
+reducers[ACTIONS.VOLUME_CHANGED] = (state, action) =>
+  Object.assign({}, state, {
+    volume: action.data.volume,
+  });
 
-reducers[ACTIONS.VOLUME_MUTED] = (state, action) => Object.assign({}, state, {
-  muted: action.data.muted
-});
+reducers[ACTIONS.VOLUME_MUTED] = (state, action) =>
+  Object.assign({}, state, {
+    muted: action.data.muted,
+  });
 
-reducers[ACTIONS.HISTORY_NAVIGATE] = state => Object.assign({}, state, {
-  modal: undefined,
-  modalProps: {}
-});
+reducers[ACTIONS.HISTORY_NAVIGATE] = (state) =>
+  Object.assign({}, state, {
+    modal: undefined,
+    modalProps: {},
+  });
 
-reducers[ACTIONS.CLEAR_UPGRADE_TIMER] = state => Object.assign({}, state, {
-  checkUpgradeTimer: undefined
-});
+reducers[ACTIONS.CLEAR_UPGRADE_TIMER] = (state) =>
+  Object.assign({}, state, {
+    checkUpgradeTimer: undefined,
+  });
 
-reducers[ACTIONS.ADD_COMMENT] = state => Object.assign({}, state, {
-  hasClickedComment: true
-});
+reducers[ACTIONS.ADD_COMMENT] = (state) =>
+  Object.assign({}, state, {
+    hasClickedComment: true,
+  });
 
-reducers[ACTIONS.SHOW_MODAL] = (state, action) => Object.assign({}, state, {
-  modal: action.data.id,
-  modalProps: action.data.modalProps
-});
+reducers[ACTIONS.SHOW_MODAL] = (state, action) =>
+  Object.assign({}, state, {
+    modal: action.data.id,
+    modalProps: action.data.modalProps,
+  });
 
-reducers[ACTIONS.SET_WELCOME_VERSION] = (state, action) => Object.assign({}, state, {
-  welcomeVersion: action.data
-});
+reducers[ACTIONS.SET_WELCOME_VERSION] = (state, action) =>
+  Object.assign({}, state, {
+    welcomeVersion: action.data,
+  });
 
-reducers[ACTIONS.SET_ALLOW_ANALYTICS] = (state, action) => Object.assign({}, state, {
-  allowAnalytics: action.data
-});
+reducers[ACTIONS.SET_ALLOW_ANALYTICS] = (state, action) =>
+  Object.assign({}, state, {
+    allowAnalytics: action.data,
+  });
 
-reducers[ACTIONS.SET_HAS_NAVIGATED] = (state, action) => Object.assign({}, state, {
-  hasNavigated: action.data
-});
+reducers[ACTIONS.SET_HAS_NAVIGATED] = (state, action) =>
+  Object.assign({}, state, {
+    hasNavigated: action.data,
+  });
 
-reducers[ACTIONS.HIDE_MODAL] = state => Object.assign({}, state, {
-  modal: null,
-  modalProps: null
-});
+reducers[ACTIONS.HIDE_MODAL] = (state) =>
+  Object.assign({}, state, {
+    modal: null,
+    modalProps: null,
+  });
 
-reducers[ACTIONS.TOGGLE_SEARCH_EXPANDED] = state => Object.assign({}, state, {
-  searchOptionsExpanded: !state.searchOptionsExpanded
-});
+reducers[ACTIONS.TOGGLE_SEARCH_EXPANDED] = (state) =>
+  Object.assign({}, state, {
+    searchOptionsExpanded: !state.searchOptionsExpanded,
+  });
 
 reducers[ACTIONS.TOGGLE_YOUTUBE_SYNC_INTEREST] = (state, action) => {
-  return { ...state,
-    interestedInYoutubeSync: !state.interestedInYoutubeSync
-  };
+  return { ...state, interestedInYoutubeSync: !state.interestedInYoutubeSync };
 };
 
 reducers[ACTIONS.TOGGLE_SPLASH_ANIMATION] = (state, action) => {
-  return { ...state,
-    splashAnimationEnabled: !state.splashAnimationEnabled
-  };
+  return { ...state, splashAnimationEnabled: !state.splashAnimationEnabled };
 };
 
 reducers[ACTIONS.SET_ACTIVE_CHANNEL] = (state, action) => {
-  return { ...state,
-    activeChannel: action.data.claimId
-  };
+  return { ...state, activeChannel: action.data.claimId };
 };
 
 reducers[ACTIONS.SET_INCOGNITO] = (state, action) => {
-  return { ...state,
-    incognito: action.data.enabled
-  };
+  return { ...state, incognito: action.data.enabled };
 };
 
 reducers[ACTIONS.SET_GDPR_CONSENT_LIST] = (state, action) => {
-  return { ...state,
-    gdprConsentList: action.data
-  };
+  return { ...state, gdprConsentList: action.data };
 };
 
 reducers[ACTIONS.SET_AD_BLOCKER_FOUND] = (state, action) => {
-  return { ...state,
-    adBlockerFound: action.data
-  };
+  return { ...state, adBlockerFound: action.data };
 };
 
 reducers[ACTIONS.SET_MAIN_PLAYER_DIMENSIONS] = (state, action) => {
-  return { ...state,
-    mainPlayerDimensions: action.data
-  };
+  return { ...state, mainPlayerDimensions: action.data };
 };
 
 reducers[ACTIONS.SET_VIDEO_SOURCE_LOADED] = (state, action) => {
-  return { ...state,
-    videoSourceLoaded: action.data
-  };
+  return { ...state, videoSourceLoaded: action.data };
 };
 
 reducers[ACTIONS.SET_ASSIGNED_LBRYNET_SERVER] = (state, action) => {
-  return { ...state,
-    assignedLbrynetServer: action.data
-  };
+  return { ...state, assignedLbrynetServer: action.data };
 };
 
 reducers[ACTIONS.DRAWER_OPENED] = (state, action) => {
-  return { ...state,
-    appDrawerOpen: action.data
-  };
+  return { ...state, appDrawerOpen: action.data };
 };
 
 reducers[ACTIONS.DRAWER_CLOSED] = (state, action) => {
-  return { ...state,
-    appDrawerOpen: false
-  };
+  return { ...state, appDrawerOpen: false };
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
-  const {
-    welcomeVersion,
-    allowAnalytics
-  } = action.data;
-  return { ...state,
-    ...(welcomeVersion !== undefined ? {
-      welcomeVersion
-    } : {}),
-    ...(allowAnalytics !== undefined ? {
-      allowAnalytics
-    } : {})
+  const { welcomeVersion, allowAnalytics } = action.data;
+  return {
+    ...state,
+    ...(welcomeVersion !== undefined
+      ? {
+          welcomeVersion,
+        }
+      : {}),
+    ...(allowAnalytics !== undefined
+      ? {
+          allowAnalytics,
+        }
+      : {}),
   };
 };
 
 reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
-  return { ...state,
-    modal: null,
-    modalProps: null
-  };
+  return { ...state, modal: null, modalProps: null };
 };
 
 export default function reducer(state: AppState = defaultState, action: any) {

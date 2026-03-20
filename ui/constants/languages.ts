@@ -184,7 +184,7 @@ const LANGUAGES = {
   zh: ['Chinese', '中文'],
   'zh-Hans': ['Chinese (Simplified)', '中文 (简体)'],
   'zh-Hant': ['Chinese (Traditional)', '中文 (繁體)'],
-  zu: ['Zulu', 'isiZulu']
+  zu: ['Zulu', 'isiZulu'],
 };
 export function getLanguageEngName(code) {
   return LANGUAGES[code] ? LANGUAGES[code][0] : code;

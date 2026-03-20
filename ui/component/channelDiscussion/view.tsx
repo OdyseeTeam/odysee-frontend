@@ -1,9 +1,13 @@
-import React from "react";
-import Empty from "component/common/empty";
-import { lazyImport } from "util/lazyImport";
-const CommentsList = lazyImport(() => import('component/commentsList'
-/* webpackChunkName: "comments" */
-));
+import React from 'react';
+import Empty from 'component/common/empty';
+import { lazyImport } from 'util/lazyImport';
+const CommentsList = lazyImport(
+  () =>
+    import(
+      'component/commentsList'
+      /* webpackChunkName: "comments" */
+    )
+);
 type Props = {
   uri: string;
   linkedCommentId?: string;
@@ -12,22 +16,25 @@ type Props = {
 };
 
 function ChannelDiscussion(props: Props) {
-  const {
-    uri,
-    linkedCommentId,
-    threadCommentId,
-    commentSettingDisabled
-  } = props;
+  const { uri, linkedCommentId, threadCommentId, commentSettingDisabled } = props;
 
   if (commentSettingDisabled) {
     return <Empty text={__('The creator of this content has disabled comments.')} />;
   }
 
-  return <section className="section">
+  return (
+    <section className="section">
       <React.Suspense fallback={null}>
-        <CommentsList uri={uri} linkedCommentId={linkedCommentId} threadCommentId={threadCommentId} commentsAreExpanded notInDrawer />
+        <CommentsList
+          uri={uri}
+          linkedCommentId={linkedCommentId}
+          threadCommentId={threadCommentId}
+          commentsAreExpanded
+          notInDrawer
+        />
       </React.Suspense>
-    </section>;
+    </section>
+  );
 }
 
 export default ChannelDiscussion;

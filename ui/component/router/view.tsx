@@ -1,246 +1,546 @@
-import React, { useEffect } from "react";
-import { Route, Redirect, Switch, withRouter } from "react-router-dom";
-import * as PAGES from "constants/pages";
-import { PAGE_TITLE } from "constants/pageTitles";
-import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from "effects/use-screensize";
-import { lazyImport } from "util/lazyImport";
-import { LINKED_COMMENT_QUERY_PARAM } from "constants/comment";
-import { parseURI } from "util/lbryURI";
-import { SITE_TITLE } from "config";
-import LoadingBarOneOff from "component/loadingBarOneOff";
-import { GetLinksData } from "util/buildHomepage";
-import * as CS from "constants/claim_search";
-import { buildUnseenCountStr } from "util/notifications";
-import Spinner from "component/spinner";
-import HomePage from "page/home";
-import { getPathForPage, htmlDecode } from "util/url";
+import React, { useEffect } from 'react';
+import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
+import * as PAGES from 'constants/pages';
+import { PAGE_TITLE } from 'constants/pageTitles';
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
+import { lazyImport } from 'util/lazyImport';
+import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { parseURI } from 'util/lbryURI';
+import { SITE_TITLE } from 'config';
+import LoadingBarOneOff from 'component/loadingBarOneOff';
+import { GetLinksData } from 'util/buildHomepage';
+import * as CS from 'constants/claim_search';
+import { buildUnseenCountStr } from 'util/notifications';
+import Spinner from 'component/spinner';
+import HomePage from 'page/home';
+import { getPathForPage, htmlDecode } from 'util/url';
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
-const Code2257Page = lazyImport(() => import('web/page/code2257'
-/* webpackChunkName: "code2257" */
-));
-const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy'
-/* webpackChunkName: "privacypolicy" */
-));
-const TOSPage = lazyImport(() => import('web/page/tos'
-/* webpackChunkName: "tos" */
-));
-const CareersPage = lazyImport(() => import('web/page/careers'
-/* webpackChunkName: "careers" */
-));
-const CareersITProjectManagerPage = lazyImport(() => import('web/page/careers/itProjectManager'
-/* webpackChunkName: "itProjectManager" */
-));
-const ContributePage = lazyImport(() => import('web/page/contribute'
-/* webpackChunkName: "contribute" */
-));
-const SeniorBackendEngineerPage = lazyImport(() => import('web/page/careers/seniorBackendEngineer'
-/* webpackChunkName: "seniorBackendEngineer" */
-));
-const SoftwareSecurityEngineerPage = lazyImport(() => import('web/page/careers/securityEngineer'
-/* webpackChunkName: "securityEngineer" */
-));
-const SeniorAndroidDeveloperPage = lazyImport(() => import('web/page/careers/seniorAndroidDeveloper'
-/* webpackChunkName: "seniorAndroidDeveloper" */
-));
-const SeniorIosDeveloperPage = lazyImport(() => import('web/page/careers/seniorIosDeveloper'
-/* webpackChunkName: "seniorIosDeveloper" */
-));
-const IconsViewerPage = lazyImport(() => import('page/iconsViewer'
-/* webpackChunkName: "iconsViewer" */
-));
-const FypPage = lazyImport(() => import('web/page/fyp'
-/* webpackChunkName: "fyp" */
-));
-const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos'
-/* webpackChunkName: "youtubetos" */
-));
-const SignInPage = lazyImport(() => import('page/signIn'
-/* webpackChunkName: "signIn" */
-));
-const SignInWalletPasswordPage = lazyImport(() => import('page/signInWalletPassword'
-/* webpackChunkName: "signInWalletPassword" */
-));
-const SignUpPage = lazyImport(() => import('page/signUp'
-/* webpackChunkName: "signUp" */
-));
-const SignInVerifyPage = lazyImport(() => import('page/signInVerify'
-/* webpackChunkName: "signInVerify" */
-));
-const ReceivePage = lazyImport(() => import('page/receive'
-/* webpackChunkName: "receive" */
-));
-const SendPage = lazyImport(() => import('page/send'
-/* webpackChunkName: "send" */
-));
-const SwapPage = lazyImport(() => import('page/swap'
-/* webpackChunkName: "swap" */
-));
-const WalletPage = lazyImport(() => import('page/wallet'
-/* webpackChunkName: "wallet" */
-));
-const NotificationsPage = lazyImport(() => import('page/notifications'
-/* webpackChunkName: "notifications" */
-));
-const CollectionPage = lazyImport(() => import('page/collection'
-/* webpackChunkName: "collection" */
-));
-const ChannelNew = lazyImport(() => import('page/channelNew'
-/* webpackChunkName: "channelNew" */
-));
-const ChannelsFollowingDiscoverPage = lazyImport(() => import('page/channelsFollowingDiscover'
-/* webpackChunkName: "channelsFollowingDiscover" */
-));
-const ChannelsFollowingPage = lazyImport(() => import('page/channelsFollowing'
-/* webpackChunkName: "channelsFollowing" */
-));
-const ChannelsFollowingManage = lazyImport(() => import('page/channelsFollowingManage'
-/* webpackChunkName: "channelsFollowing" */
-));
-const ChannelsPage = lazyImport(() => import('page/channels'
-/* webpackChunkName: "channels" */
-));
-const CheckoutPage = lazyImport(() => import('page/checkoutPage'
-/* webpackChunkName: "checkoutPage" */
-));
-const CreatorDashboard = lazyImport(() => import('page/creatorDashboard'
-/* webpackChunkName: "creatorDashboard" */
-));
-const DiscoverPage = lazyImport(() => import('page/discover'
-/* webpackChunkName: "discover" */
-));
-const EmbedWrapperPage = lazyImport(() => import('page/embedWrapper'
-/* webpackChunkName: "embedWrapper" */
-));
-const PopoutChatPage = lazyImport(() => import('page/popoutChatWrapper'
-/* webpackChunkName: "popoutChat" */
-));
-const FeaturedChannelsPage = lazyImport(() => import('page/featuredChannels'
-/* webpackChunkName: "featuredChannels" */
-));
-const FileListPublished = lazyImport(() => import('page/fileListPublished'
-/* webpackChunkName: "fileListPublished" */
-));
-const FourOhFourPage = lazyImport(() => import('page/fourOhFour'
-/* webpackChunkName: "fourOhFour" */
-));
-const HelpPage = lazyImport(() => import('page/help'
-/* webpackChunkName: "help" */
-));
-const HiddenContentPage = lazyImport(() => import('page/hiddenContent'
-/* webpackChunkName: "hiddenContent" */
-));
-const InvitePage = lazyImport(() => import('page/invite'
-/* webpackChunkName: "invite" */
-));
-const InvitedPage = lazyImport(() => import('page/invited'
-/* webpackChunkName: "invited" */
-));
-const LibraryPage = lazyImport(() => import('page/library'
-/* webpackChunkName: "library" */
-));
-const ListBlockedPage = lazyImport(() => import('page/listBlocked'
-/* webpackChunkName: "listBlocked" */
-));
-const PlaylistsPage = lazyImport(() => import('page/playlists'
-/* webpackChunkName: "playlists" */
-));
-const WatchHistoryPage = lazyImport(() => import('page/watchHistory'
-/* webpackChunkName: "history" */
-));
-const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup'
-/* webpackChunkName: "livestreamSetup" */
-));
-const LivestreamCurrentPage = lazyImport(() => import('page/livestreamCurrent'
-/* webpackChunkName: "livestreamCurrent" */
-));
-const LivestreamCreatePage = lazyImport(() => import('page/livestreamCreate'
-/* webpackChunkName: "livestreamCreate" */
-));
-const OdyseeMembershipPage = lazyImport(() => import('page/odyseeMembership'
-/* webpackChunkName: "odyseeMembership" */
-));
-const MembershipsLandingPage = lazyImport(() => import('page/creatorMemberships'
-/* webpackChunkName: "membershipsLanding" */
-));
-const MembershipsCreatorAreaPage = lazyImport(() => import('page/creatorMemberships/creatorArea'
-/* webpackChunkName: "membershipsCreatorArea" */
-));
-const MembershipsSupporterAreaPage = lazyImport(() => import('page/creatorMemberships/supporterArea'
-/* webpackChunkName: "membershipsSupporterArea" */
-));
-const PortalPage = lazyImport(() => import('page/portal'
-/* webpackChunkName: "portal" */
-));
-const OwnComments = lazyImport(() => import('page/ownComments'
-/* webpackChunkName: "ownComments" */
-));
-const PasswordResetPage = lazyImport(() => import('page/passwordReset'
-/* webpackChunkName: "passwordReset" */
-));
-const PasswordSetPage = lazyImport(() => import('page/passwordSet'
-/* webpackChunkName: "passwordSet" */
-));
-const UploadPage = lazyImport(() => import('page/upload'
-/* webpackChunkName: "publish" */
-));
-const PostPage = lazyImport(() => import('page/post'
-/* webpackChunkName: "post" */
-));
-const ReportContentPage = lazyImport(() => import('page/reportContent'
-/* webpackChunkName: "reportContent" */
-));
-const ReportPage = lazyImport(() => import('page/report'
-/* webpackChunkName: "report" */
-));
-const RepostNew = lazyImport(() => import('page/repost'
-/* webpackChunkName: "repost" */
-));
-const RewardsPage = lazyImport(() => import('page/rewards'
-/* webpackChunkName: "rewards" */
-));
-const RewardsVerifyPage = lazyImport(() => import('page/rewardsVerify'
-/* webpackChunkName: "rewardsVerify" */
-));
-const SearchPage = lazyImport(() => import('page/search'
-/* webpackChunkName: "search" */
-));
-const SettingsStripeCard = lazyImport(() => import('page/settingsStripeCard'
-/* webpackChunkName: "settingsStripeCard" */
-));
-const SettingsStripeAccount = lazyImport(() => import('page/settingsStripeAccount'
-/* webpackChunkName: "settingsStripeAccount" */
-));
+const Code2257Page = lazyImport(
+  () =>
+    import(
+      'web/page/code2257'
+      /* webpackChunkName: "code2257" */
+    )
+);
+const PrivacyPolicyPage = lazyImport(
+  () =>
+    import(
+      'web/page/privacypolicy'
+      /* webpackChunkName: "privacypolicy" */
+    )
+);
+const TOSPage = lazyImport(
+  () =>
+    import(
+      'web/page/tos'
+      /* webpackChunkName: "tos" */
+    )
+);
+const CareersPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers'
+      /* webpackChunkName: "careers" */
+    )
+);
+const CareersITProjectManagerPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers/itProjectManager'
+      /* webpackChunkName: "itProjectManager" */
+    )
+);
+const ContributePage = lazyImport(
+  () =>
+    import(
+      'web/page/contribute'
+      /* webpackChunkName: "contribute" */
+    )
+);
+const SeniorBackendEngineerPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers/seniorBackendEngineer'
+      /* webpackChunkName: "seniorBackendEngineer" */
+    )
+);
+const SoftwareSecurityEngineerPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers/securityEngineer'
+      /* webpackChunkName: "securityEngineer" */
+    )
+);
+const SeniorAndroidDeveloperPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers/seniorAndroidDeveloper'
+      /* webpackChunkName: "seniorAndroidDeveloper" */
+    )
+);
+const SeniorIosDeveloperPage = lazyImport(
+  () =>
+    import(
+      'web/page/careers/seniorIosDeveloper'
+      /* webpackChunkName: "seniorIosDeveloper" */
+    )
+);
+const IconsViewerPage = lazyImport(
+  () =>
+    import(
+      'page/iconsViewer'
+      /* webpackChunkName: "iconsViewer" */
+    )
+);
+const FypPage = lazyImport(
+  () =>
+    import(
+      'web/page/fyp'
+      /* webpackChunkName: "fyp" */
+    )
+);
+const YouTubeTOSPage = lazyImport(
+  () =>
+    import(
+      'web/page/youtubetos'
+      /* webpackChunkName: "youtubetos" */
+    )
+);
+const SignInPage = lazyImport(
+  () =>
+    import(
+      'page/signIn'
+      /* webpackChunkName: "signIn" */
+    )
+);
+const SignInWalletPasswordPage = lazyImport(
+  () =>
+    import(
+      'page/signInWalletPassword'
+      /* webpackChunkName: "signInWalletPassword" */
+    )
+);
+const SignUpPage = lazyImport(
+  () =>
+    import(
+      'page/signUp'
+      /* webpackChunkName: "signUp" */
+    )
+);
+const SignInVerifyPage = lazyImport(
+  () =>
+    import(
+      'page/signInVerify'
+      /* webpackChunkName: "signInVerify" */
+    )
+);
+const ReceivePage = lazyImport(
+  () =>
+    import(
+      'page/receive'
+      /* webpackChunkName: "receive" */
+    )
+);
+const SendPage = lazyImport(
+  () =>
+    import(
+      'page/send'
+      /* webpackChunkName: "send" */
+    )
+);
+const SwapPage = lazyImport(
+  () =>
+    import(
+      'page/swap'
+      /* webpackChunkName: "swap" */
+    )
+);
+const WalletPage = lazyImport(
+  () =>
+    import(
+      'page/wallet'
+      /* webpackChunkName: "wallet" */
+    )
+);
+const NotificationsPage = lazyImport(
+  () =>
+    import(
+      'page/notifications'
+      /* webpackChunkName: "notifications" */
+    )
+);
+const CollectionPage = lazyImport(
+  () =>
+    import(
+      'page/collection'
+      /* webpackChunkName: "collection" */
+    )
+);
+const ChannelNew = lazyImport(
+  () =>
+    import(
+      'page/channelNew'
+      /* webpackChunkName: "channelNew" */
+    )
+);
+const ChannelsFollowingDiscoverPage = lazyImport(
+  () =>
+    import(
+      'page/channelsFollowingDiscover'
+      /* webpackChunkName: "channelsFollowingDiscover" */
+    )
+);
+const ChannelsFollowingPage = lazyImport(
+  () =>
+    import(
+      'page/channelsFollowing'
+      /* webpackChunkName: "channelsFollowing" */
+    )
+);
+const ChannelsFollowingManage = lazyImport(
+  () =>
+    import(
+      'page/channelsFollowingManage'
+      /* webpackChunkName: "channelsFollowing" */
+    )
+);
+const ChannelsPage = lazyImport(
+  () =>
+    import(
+      'page/channels'
+      /* webpackChunkName: "channels" */
+    )
+);
+const CheckoutPage = lazyImport(
+  () =>
+    import(
+      'page/checkoutPage'
+      /* webpackChunkName: "checkoutPage" */
+    )
+);
+const CreatorDashboard = lazyImport(
+  () =>
+    import(
+      'page/creatorDashboard'
+      /* webpackChunkName: "creatorDashboard" */
+    )
+);
+const DiscoverPage = lazyImport(
+  () =>
+    import(
+      'page/discover'
+      /* webpackChunkName: "discover" */
+    )
+);
+const EmbedWrapperPage = lazyImport(
+  () =>
+    import(
+      'page/embedWrapper'
+      /* webpackChunkName: "embedWrapper" */
+    )
+);
+const PopoutChatPage = lazyImport(
+  () =>
+    import(
+      'page/popoutChatWrapper'
+      /* webpackChunkName: "popoutChat" */
+    )
+);
+const FeaturedChannelsPage = lazyImport(
+  () =>
+    import(
+      'page/featuredChannels'
+      /* webpackChunkName: "featuredChannels" */
+    )
+);
+const FileListPublished = lazyImport(
+  () =>
+    import(
+      'page/fileListPublished'
+      /* webpackChunkName: "fileListPublished" */
+    )
+);
+const FourOhFourPage = lazyImport(
+  () =>
+    import(
+      'page/fourOhFour'
+      /* webpackChunkName: "fourOhFour" */
+    )
+);
+const HelpPage = lazyImport(
+  () =>
+    import(
+      'page/help'
+      /* webpackChunkName: "help" */
+    )
+);
+const HiddenContentPage = lazyImport(
+  () =>
+    import(
+      'page/hiddenContent'
+      /* webpackChunkName: "hiddenContent" */
+    )
+);
+const InvitePage = lazyImport(
+  () =>
+    import(
+      'page/invite'
+      /* webpackChunkName: "invite" */
+    )
+);
+const InvitedPage = lazyImport(
+  () =>
+    import(
+      'page/invited'
+      /* webpackChunkName: "invited" */
+    )
+);
+const LibraryPage = lazyImport(
+  () =>
+    import(
+      'page/library'
+      /* webpackChunkName: "library" */
+    )
+);
+const ListBlockedPage = lazyImport(
+  () =>
+    import(
+      'page/listBlocked'
+      /* webpackChunkName: "listBlocked" */
+    )
+);
+const PlaylistsPage = lazyImport(
+  () =>
+    import(
+      'page/playlists'
+      /* webpackChunkName: "playlists" */
+    )
+);
+const WatchHistoryPage = lazyImport(
+  () =>
+    import(
+      'page/watchHistory'
+      /* webpackChunkName: "history" */
+    )
+);
+const LiveStreamSetupPage = lazyImport(
+  () =>
+    import(
+      'page/livestreamSetup'
+      /* webpackChunkName: "livestreamSetup" */
+    )
+);
+const LivestreamCurrentPage = lazyImport(
+  () =>
+    import(
+      'page/livestreamCurrent'
+      /* webpackChunkName: "livestreamCurrent" */
+    )
+);
+const LivestreamCreatePage = lazyImport(
+  () =>
+    import(
+      'page/livestreamCreate'
+      /* webpackChunkName: "livestreamCreate" */
+    )
+);
+const OdyseeMembershipPage = lazyImport(
+  () =>
+    import(
+      'page/odyseeMembership'
+      /* webpackChunkName: "odyseeMembership" */
+    )
+);
+const MembershipsLandingPage = lazyImport(
+  () =>
+    import(
+      'page/creatorMemberships'
+      /* webpackChunkName: "membershipsLanding" */
+    )
+);
+const MembershipsCreatorAreaPage = lazyImport(
+  () =>
+    import(
+      'page/creatorMemberships/creatorArea'
+      /* webpackChunkName: "membershipsCreatorArea" */
+    )
+);
+const MembershipsSupporterAreaPage = lazyImport(
+  () =>
+    import(
+      'page/creatorMemberships/supporterArea'
+      /* webpackChunkName: "membershipsSupporterArea" */
+    )
+);
+const PortalPage = lazyImport(
+  () =>
+    import(
+      'page/portal'
+      /* webpackChunkName: "portal" */
+    )
+);
+const OwnComments = lazyImport(
+  () =>
+    import(
+      'page/ownComments'
+      /* webpackChunkName: "ownComments" */
+    )
+);
+const PasswordResetPage = lazyImport(
+  () =>
+    import(
+      'page/passwordReset'
+      /* webpackChunkName: "passwordReset" */
+    )
+);
+const PasswordSetPage = lazyImport(
+  () =>
+    import(
+      'page/passwordSet'
+      /* webpackChunkName: "passwordSet" */
+    )
+);
+const UploadPage = lazyImport(
+  () =>
+    import(
+      'page/upload'
+      /* webpackChunkName: "publish" */
+    )
+);
+const PostPage = lazyImport(
+  () =>
+    import(
+      'page/post'
+      /* webpackChunkName: "post" */
+    )
+);
+const ReportContentPage = lazyImport(
+  () =>
+    import(
+      'page/reportContent'
+      /* webpackChunkName: "reportContent" */
+    )
+);
+const ReportPage = lazyImport(
+  () =>
+    import(
+      'page/report'
+      /* webpackChunkName: "report" */
+    )
+);
+const RepostNew = lazyImport(
+  () =>
+    import(
+      'page/repost'
+      /* webpackChunkName: "repost" */
+    )
+);
+const RewardsPage = lazyImport(
+  () =>
+    import(
+      'page/rewards'
+      /* webpackChunkName: "rewards" */
+    )
+);
+const RewardsVerifyPage = lazyImport(
+  () =>
+    import(
+      'page/rewardsVerify'
+      /* webpackChunkName: "rewardsVerify" */
+    )
+);
+const SearchPage = lazyImport(
+  () =>
+    import(
+      'page/search'
+      /* webpackChunkName: "search" */
+    )
+);
+const SettingsStripeCard = lazyImport(
+  () =>
+    import(
+      'page/settingsStripeCard'
+      /* webpackChunkName: "settingsStripeCard" */
+    )
+);
+const SettingsStripeAccount = lazyImport(
+  () =>
+    import(
+      'page/settingsStripeAccount'
+      /* webpackChunkName: "settingsStripeAccount" */
+    )
+);
 // const SettingsCreatorPage = lazyImport(() => import('page/settingsCreator' /* webpackChunkName: "settingsCreator" */));
-const SettingsNotificationsPage = lazyImport(() => import('page/settingsNotifications'
-/* webpackChunkName: "settingsNotifications" */
-));
-const SettingsPage = lazyImport(() => import('page/settings'
-/* webpackChunkName: "settings" */
-));
-const ClaimPage = lazyImport(() => import('page/claim'
-/* webpackChunkName: "claimPage" */
-));
-const TagsFollowingManagePage = lazyImport(() => import('page/tagsFollowingManage'
-/* webpackChunkName: "tagsFollowingManage" */
-));
-const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing'
-/* webpackChunkName: "tagsFollowing" */
-));
-const TopPage = lazyImport(() => import('page/top'
-/* webpackChunkName: "top" */
-));
-const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate'
-/* webpackChunkName: "passwordUpdate" */
-));
-const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync'
-/* webpackChunkName: "youtubeSync" */
-));
-const PaymentAccountPage = lazyImport(() => import('page/paymentAccount'
-/* webpackChunkName: "paymentAccountSync" */
-));
-const ArAccountPage = lazyImport(() => import('page/arAccount'
-/* webpackChunkName: "arAccountPage" */
-));
+const SettingsNotificationsPage = lazyImport(
+  () =>
+    import(
+      'page/settingsNotifications'
+      /* webpackChunkName: "settingsNotifications" */
+    )
+);
+const SettingsPage = lazyImport(
+  () =>
+    import(
+      'page/settings'
+      /* webpackChunkName: "settings" */
+    )
+);
+const ClaimPage = lazyImport(
+  () =>
+    import(
+      'page/claim'
+      /* webpackChunkName: "claimPage" */
+    )
+);
+const TagsFollowingManagePage = lazyImport(
+  () =>
+    import(
+      'page/tagsFollowingManage'
+      /* webpackChunkName: "tagsFollowingManage" */
+    )
+);
+const TagsFollowingPage = lazyImport(
+  () =>
+    import(
+      'page/tagsFollowing'
+      /* webpackChunkName: "tagsFollowing" */
+    )
+);
+const TopPage = lazyImport(
+  () =>
+    import(
+      'page/top'
+      /* webpackChunkName: "top" */
+    )
+);
+const UpdatePasswordPage = lazyImport(
+  () =>
+    import(
+      'page/passwordUpdate'
+      /* webpackChunkName: "passwordUpdate" */
+    )
+);
+const YoutubeSyncPage = lazyImport(
+  () =>
+    import(
+      'page/youtubeSync'
+      /* webpackChunkName: "youtubeSync" */
+    )
+);
+const PaymentAccountPage = lazyImport(
+  () =>
+    import(
+      'page/paymentAccount'
+      /* webpackChunkName: "paymentAccountSync" */
+    )
+);
+const ArAccountPage = lazyImport(
+  () =>
+    import(
+      'page/arAccount'
+      /* webpackChunkName: "arAccountPage" */
+    )
+);
 
 // Tell the browser we are handling scroll restoration
 if ('scrollRestoration' in history) {
@@ -294,24 +594,27 @@ type PrivateRouteProps = Props & {
 };
 
 function PrivateRoute(props: PrivateRouteProps) {
-  const {
-    component: Component,
-    isAuthenticated,
-    ...rest
-  } = props;
+  const { component: Component, isAuthenticated, ...rest } = props;
   const urlSearchParams = new URLSearchParams(props.location.search);
   const redirectUrl = urlSearchParams.get('redirect');
-  return <Route {...rest} render={props => isAuthenticated || !IS_WEB ? <Component {...props} /> : <Redirect to={`/$/${PAGES.AUTH}?redirect=${redirectUrl || props.location.pathname}`} />} />;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated || !IS_WEB ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={`/$/${PAGES.AUTH}?redirect=${redirectUrl || props.location.pathname}`} />
+        )
+      }
+    />
+  );
 }
 
 function AppRouter(props: Props) {
   const {
     currentScroll,
-    location: {
-      pathname,
-      search,
-      hash
-    },
+    location: { pathname, search, hash },
     isAuthenticated,
     history,
     uri,
@@ -327,14 +630,10 @@ function AppRouter(props: Props) {
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
-    isGlobalMod
+    isGlobalMod,
   } = props;
   const defaultChannelRef = React.useRef(hasDefaultChannel);
-  const {
-    entries,
-    listen,
-    action: historyAction
-  } = history;
+  const { entries, listen, action: historyAction } = history;
   const entryIndex = history.index;
   const urlParams = new URLSearchParams(search);
   const resetScroll = urlParams.get('reset_scroll');
@@ -348,8 +647,16 @@ function AppRouter(props: Props) {
   const ClaimPageLivenow = React.useMemo(() => () => <ClaimPage uri={uri} liveContentPath />, [uri]);
   const categoryPages = React.useMemo(() => {
     if (!homepageData) return null;
-    const dynamicRoutes = GetLinksData(homepageData, isSmallScreen, isMediumScreen, isLargeScreen).filter((x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled));
-    return dynamicRoutes.map((dynamicRouteProps: RowDataItem) => <Route key={dynamicRouteProps.route} path={dynamicRouteProps.route} component={routerProps => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />} />);
+    const dynamicRoutes = GetLinksData(homepageData, isSmallScreen, isMediumScreen, isLargeScreen).filter(
+      (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
+    );
+    return dynamicRoutes.map((dynamicRouteProps: RowDataItem) => (
+      <Route
+        key={dynamicRouteProps.route}
+        path={dynamicRouteProps.route}
+        component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
+      />
+    ));
   }, [homepageData, isSmallScreen, isMediumScreen, isLargeScreen, wildWestDisabled]);
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -385,10 +692,7 @@ function AppRouter(props: Props) {
     };
 
     if (uri) {
-      const {
-        channelName,
-        streamName
-      } = parseURI(uri);
+      const { channelName, streamName } = parseURI(uri);
 
       if (title) {
         document.title = title;
@@ -430,11 +734,18 @@ function AppRouter(props: Props) {
     if (window.pendingActiveChannel) {
       doSetActiveChannel(window.pendingActiveChannel);
       delete window.pendingActiveChannel;
-    } else if (defaultChannelRef.current && pathname !== `/$/${PAGES.UPLOAD}` && pathname !== `/$/${PAGES.POST}` && !pathname.includes(`/$/${PAGES.LIST}/`) && !pathname.includes(`/$/${PAGES.PLAYLIST}/`) && pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` && pathname !== `/$/${PAGES.LIVESTREAM}`) {
+    } else if (
+      defaultChannelRef.current &&
+      pathname !== `/$/${PAGES.UPLOAD}` &&
+      pathname !== `/$/${PAGES.POST}` &&
+      !pathname.includes(`/$/${PAGES.LIST}/`) &&
+      !pathname.includes(`/$/${PAGES.PLAYLIST}/`) &&
+      pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
+      pathname !== `/$/${PAGES.LIVESTREAM}`
+    ) {
       // has a default channel selected, clear the current active channel
       doSetActiveChannel(null, true);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'pathname' change
-
   }, [pathname]);
   // react-router doesn't decode pathanmes before doing the route matching check
   // We have to redirect here because if we redirect on the server, it might get encoded again
@@ -454,9 +765,13 @@ function AppRouter(props: Props) {
     return <Redirect to={htmlDecodedUrl} />;
   }
 
-  return <React.Suspense fallback={<LoadingBarOneOff />}>
+  return (
+    <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
-        <Redirect from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`} to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`} />
+        <Redirect
+          from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`}
+          to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
+        />
         <Redirect from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING}`} to={`/$/${PAGES.CHANNELS_FOLLOWING}`} />
         <Redirect from={`/$/${PAGES.DEPRECATED__TAGS_FOLLOWING}`} to={`/$/${PAGES.TAGS_FOLLOWING}`} />
         <Redirect from={`/$/${PAGES.DEPRECATED__TAGS_FOLLOWING_MANAGE}`} to={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} />
@@ -501,16 +816,31 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.REPORT_CONTENT}`} exact component={ReportContentPage} />
         <Route {...props} path={`/$/${PAGES.LIST}/:collectionId`} component={CollectionPage} />
         <Route {...props} path={`/$/${PAGES.PLAYLIST}/:collectionId`} component={CollectionPage} />
-        <Route {...props} exact path={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`} component={ChannelsFollowingDiscoverPage} />
+        <Route
+          {...props}
+          exact
+          path={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
+          component={ChannelsFollowingDiscoverPage}
+        />
         <PrivateRoute {...props} exact path={`/$/${PAGES.YOUTUBE_SYNC}`} component={YoutubeSyncPage} />
         <PrivateRoute {...props} exact path={`/$/${PAGES.TAGS_FOLLOWING}`} component={TagsFollowingPage} />
-        <PrivateRoute {...props} exact path={`/$/${PAGES.CHANNELS_FOLLOWING}`} component={isAuthenticated || !IS_WEB ? ChannelsFollowingPage : DiscoverPage} />
+        <PrivateRoute
+          {...props}
+          exact
+          path={`/$/${PAGES.CHANNELS_FOLLOWING}`}
+          component={isAuthenticated || !IS_WEB ? ChannelsFollowingPage : DiscoverPage}
+        />
         <Route {...props} path={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`} component={SettingsNotificationsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_UPDATE_PWD}`} component={UpdatePasswordPage} />
 
-        <PrivateRoute {...props} exact path={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`} component={ChannelsFollowingManage} />
+        <PrivateRoute
+          {...props}
+          exact
+          path={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
+          component={ChannelsFollowingManage}
+        />
         <PrivateRoute {...props} path={`/$/${PAGES.INVITE}`} component={InvitePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNEL_NEW}`} component={ChannelNew} />
         <PrivateRoute {...props} path={`/$/${PAGES.REPOST_NEW}`} component={RepostNew} />
@@ -527,9 +857,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
-        {
-        /* <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} /> */
-      }
+        {/* <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} /> */}
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />
@@ -556,27 +884,32 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
-        {
-        /* Below need to go at the end to make sure we don't match any of our pages first */
-      }
+        {/* Below need to go at the end to make sure we don't match any of our pages first */}
         <Route path={`/$/${PAGES.LATEST}/:channelName`} exact component={ClaimPageLatest} />
         <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact component={ClaimPageLivenow} />
 
-        {
-        /* When fetching homepage data, display a loading state otherwise it will default to the claimPage component */
-      }
-        {
-        /* leave this at the bottom to prevent going above every other /$/ page */
-      }
-        {homepageData === undefined ? <Route path={`/$/:maybeCategoryPage`} exact component={() => <div className="main--empty">
+        {/* When fetching homepage data, display a loading state otherwise it will default to the claimPage component */}
+        {/* leave this at the bottom to prevent going above every other /$/ page */}
+        {homepageData === undefined ? (
+          <Route
+            path={`/$/:maybeCategoryPage`}
+            exact
+            component={() => (
+              <div className="main--empty">
                 <Spinner text={__('Loading category...')} />
-              </div>} /> : <Route path="/$/:nonExistingPage" component={FourOhFourPage} />}
+              </div>
+            )}
+          />
+        ) : (
+          <Route path="/$/:nonExistingPage" component={FourOhFourPage} />
+        )}
 
         <Route path="/:claimName" exact component={ClaimPageRender} />
         <Route path="/:claimName/:streamName" exact component={ClaimPageRender} />
         <Route path="/*" component={FourOhFourPage} />
       </Switch>
-    </React.Suspense>;
+    </React.Suspense>
+  );
 }
 
 export default withRouter(AppRouter);

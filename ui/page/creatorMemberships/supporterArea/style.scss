@@ -3,7 +3,7 @@
 .membershipPage-wrapper {
   margin-right: auto;
   margin-left: auto;
-  width:100%;
+  width: 100%;
   max-width: unset;
 
   .tab__wrapper {
@@ -94,15 +94,15 @@
   width: 100%;
   margin-top: calc(var(--spacing-l) * -1);
 
-  .supporter-header{
-    position:relative;
-    margin-left:auto;
+  .supporter-header {
+    position: relative;
+    margin-left: auto;
     margin-right: auto;
     width: calc(100% - 2 * var(--spacing-l));
     max-width: var(--page-max-width);
-    height:100%;
+    height: 100%;
 
-    .button{
+    .button {
       @media (max-width: $breakpoint-small) {
         margin-top: calc(var(--spacing-m) * 2);
       }
@@ -177,12 +177,11 @@
       }
     }
 
-
-    .button--alt{
+    .button--alt {
       background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
-      color:white;
-      &:hover{
-        color:white;
+      color: white;
+      &:hover {
+        color: white;
       }
     }
   }
@@ -213,12 +212,11 @@
   }
 }
 
-
 .membership-payments-table__wrapper {
-  label{
+  label {
     font-size: var(--font-xsmall);
     color: rgba(var(--color-text-base), 0.6);
-    margin-left:var(--spacing-s);
+    margin-left: var(--spacing-s);
   }
   .table {
     thead {
@@ -234,11 +232,11 @@
         }
       }
     }
-    .button--primary{
-      background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));    
-      color:white;
-      &:hover{
-        color:white;
+    .button--primary {
+      background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+      color: white;
+      &:hover {
+        color: white;
       }
     }
   }
@@ -267,5 +265,4 @@
       }
     }
   }
-
 }

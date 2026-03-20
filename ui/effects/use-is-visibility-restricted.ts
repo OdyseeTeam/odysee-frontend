@@ -1,7 +1,7 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import { VISIBILITY_TAGS } from "constants/tags";
-import { getChannelIdFromClaim, getClaimTags } from "util/claim";
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { VISIBILITY_TAGS } from 'constants/tags';
+import { getChannelIdFromClaim, getClaimTags } from 'util/claim';
 /**
  * Checks is there are any visibility restrictions for the given claim.
  *
@@ -18,7 +18,13 @@ import { getChannelIdFromClaim, getClaimTags } from "util/claim";
  * @returns {undefined|boolean} undefined = still pending; boolean = true if we need to restrict, false otherwise.
  */
 
-export default function useIsVisibilityRestricted(claim: Claim | null | undefined, claimIsMine: boolean | null | undefined, isGlobalMod: boolean, uriAccessKey: UriAccessKey | null | undefined, verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>) {
+export default function useIsVisibilityRestricted(
+  claim: Claim | null | undefined,
+  claimIsMine: boolean | null | undefined,
+  isGlobalMod: boolean,
+  uriAccessKey: UriAccessKey | null | undefined,
+  verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>
+) {
   const [isRestricted, setIsRestricted] = React.useState(undefined);
   const location = useLocation();
   let accessKey: UriAccessKey | null | undefined;
@@ -33,7 +39,7 @@ export default function useIsVisibilityRestricted(claim: Claim | null | undefine
         // $FlowIgnore (already filtered null)
         signature: searchParams.get('signature'),
         // $FlowIgnore (already filtered null)
-        signature_ts: searchParams.get('signature_ts')
+        signature_ts: searchParams.get('signature_ts'),
       };
     }
   }
@@ -49,9 +55,10 @@ export default function useIsVisibilityRestricted(claim: Claim | null | undefine
               channel_id: getChannelIdFromClaim(claim) || claim.claim_id,
               claim_id: claim.claim_id,
               signature: accessKey.signature,
-              signing_ts: accessKey.signature_ts
-            }).then((res: VerifyClaimSignatureResponse) => !res.is_valid) // Verification done
-            .catch(() => true); // Verification process failed, have to block
+              signing_ts: accessKey.signature_ts,
+            })
+              .then((res: VerifyClaimSignatureResponse) => !res.is_valid) // Verification done
+              .catch(() => true); // Verification process failed, have to block
           } else {
             return true; // Signature missing
           }
@@ -66,7 +73,7 @@ export default function useIsVisibilityRestricted(claim: Claim | null | undefine
     if (claimIsMine || uriAccessKey || isGlobalMod) {
       setIsRestricted(false);
     } else {
-      verify().then(res => setIsRestricted(res));
+      verify().then((res) => setIsRestricted(res));
     }
   }, [accessKey, claim, claimIsMine, isGlobalMod, uriAccessKey, verifyClaimSignature]);
   return isRestricted;

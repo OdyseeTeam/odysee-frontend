@@ -1,5 +1,5 @@
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
@@ -8,7 +8,7 @@ const FYP_SECTION: RowDataItem = {
   id: 'FYP',
   title: 'Recommended',
   icon: ICONS.GLOBE,
-  link: `/$/${PAGES.FYP}`
+  link: `/$/${PAGES.FYP}`,
 };
 
 function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: boolean | null | undefined) {
@@ -21,14 +21,19 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: bo
   return x;
 }
 
-export function getSortedRowData(authenticated: boolean, homepageOrder: HomepageOrder, homepageData: any, rowData: Array<RowDataItem>) {
+export function getSortedRowData(
+  authenticated: boolean,
+  homepageOrder: HomepageOrder,
+  homepageData: any,
+  rowData: Array<RowDataItem>
+) {
   let sortedRowData: Array<RowDataItem> = [];
   const hasBanner = Boolean(homepageData?.featured);
 
   if (authenticated) {
     if (homepageOrder.active) {
-      homepageOrder.active.forEach(key => {
-        const dataIndex = rowData.findIndex(data => data.id === key);
+      homepageOrder.active.forEach((key) => {
+        const dataIndex = rowData.findIndex((data) => data.id === key);
 
         if (dataIndex !== -1) {
           sortedRowData.push(rowData[dataIndex]);
@@ -38,17 +43,20 @@ export function getSortedRowData(authenticated: boolean, homepageOrder: Homepage
         } else if (key === 'BANNER' && hasBanner) {
           sortedRowData.push({
             id: 'BANNER',
-            title: undefined
+            title: undefined,
           });
         } else if (key === 'UPCOMING') {
           let followingIndex = sortedRowData.indexOf('FOLLOWING');
-          if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, {
-            id: 'UPCOMING',
-            title: 'Upcoming'
-          });else sortedRowData.push({
-            id: 'UPCOMING',
-            title: 'Upcoming'
-          });
+          if (followingIndex !== -1)
+            sortedRowData.splice(followingIndex, 0, {
+              id: 'UPCOMING',
+              title: 'Upcoming',
+            });
+          else
+            sortedRowData.push({
+              id: 'UPCOMING',
+              title: 'Upcoming',
+            });
         }
       });
       let discoveryChannel;
@@ -65,7 +73,7 @@ export function getSortedRowData(authenticated: boolean, homepageOrder: Homepage
       });
 
       if (discoveryChannel) {
-        const followingIndex = sortedRowData.findIndex(item => item.id === 'FOLLOWING');
+        const followingIndex = sortedRowData.findIndex((item) => item.id === 'FOLLOWING');
 
         if (followingIndex !== -1) {
           sortedRowData.splice(followingIndex + 1, 0, discoveryChannel);
@@ -74,28 +82,36 @@ export function getSortedRowData(authenticated: boolean, homepageOrder: Homepage
         }
       }
 
-      if (homepageOrder.active && !homepageOrder.active.includes('BANNER') && homepageOrder.hidden && !homepageOrder.hidden.includes('BANNER')) {
+      if (
+        homepageOrder.active &&
+        !homepageOrder.active.includes('BANNER') &&
+        homepageOrder.hidden &&
+        !homepageOrder.hidden.includes('BANNER')
+      ) {
         sortedRowData.unshift({
           id: 'BANNER',
-          title: undefined
+          title: undefined,
         });
       }
     } else {
-      if (hasBanner) rowData.unshift({
-        id: 'BANNER',
-        title: undefined
-      });
+      if (hasBanner)
+        rowData.unshift({
+          id: 'BANNER',
+          title: undefined,
+        });
       sortedRowData = pushAllValidCategories(rowData, authenticated);
-      if (authenticated) sortedRowData.splice(1, 0, {
-        id: 'UPCOMING',
-        title: 'Upcoming'
-      });
+      if (authenticated)
+        sortedRowData.splice(1, 0, {
+          id: 'UPCOMING',
+          title: 'Upcoming',
+        });
     }
   } else {
-    if (hasBanner) rowData.unshift({
-      id: 'BANNER',
-      title: undefined
-    });
+    if (hasBanner)
+      rowData.unshift({
+        id: 'BANNER',
+        title: undefined,
+      });
     sortedRowData = pushAllValidCategories(rowData, authenticated);
   }
 

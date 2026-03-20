@@ -1,14 +1,14 @@
-import * as React from "react";
-import Villain from "villain-react";
-import LoadingScreen from "component/common/loading-screen";
+import * as React from 'react';
+import Villain from 'villain-react';
+import LoadingScreen from 'component/common/loading-screen';
 // @if TARGET='web'
-import useStream from "effects/use-stream";
+import useStream from 'effects/use-stream';
 // @endif
 // @if TARGET='app'
-import useFileStream from "effects/use-stream-file";
+import useFileStream from 'effects/use-stream-file';
 // @endif
 // Import default styles for Villain
-import "villain-react/dist/style.css";
+import 'villain-react/dist/style.css';
 type Props = {
   source: {
     file: (arg0: string | null | undefined) => any;
@@ -24,10 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const ComicBookViewer = (props: Props) => {
-  const {
-    source,
-    theme
-  } = props;
+  const { source, theme } = props;
   let finalSource;
   // @if TARGET='web'
   finalSource = useStream(source.stream);
@@ -40,22 +37,22 @@ const ComicBookViewer = (props: Props) => {
     theme: theme === 'dark' ? 'Dark' : 'Light',
     allowFullScreen: true,
     autoHideControls: false,
-    allowGlobalShortcuts: true
+    allowGlobalShortcuts: true,
   };
-  const {
-    error,
-    loading,
-    content
-  } = finalSource;
+  const { error, loading, content } = finalSource;
   const ready = content !== null && !loading && !error;
 
   const errorMessage = __("Sorry, looks like we can't load the archive.");
 
-  return <div className="file-render__viewer  file-render__viewer--comic">
+  return (
+    <div className="file-render__viewer  file-render__viewer--comic">
       {loading && <LoadingScreen status={__('Loading')} isDocument />}
-      {ready && <Villain source={finalSource.content} className={'comic-viewer'} options={opts} workerUrl={workerUrl} />}
+      {ready && (
+        <Villain source={finalSource.content} className={'comic-viewer'} options={opts} workerUrl={workerUrl} />
+      )}
       {error && <LoadingScreen status={errorMessage} spinner={false} />}
-    </div>;
+    </div>
+  );
 };
 
 export default ComicBookViewer;

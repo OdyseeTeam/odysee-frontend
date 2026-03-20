@@ -1,14 +1,14 @@
-import type { Node } from "react";
-import * as ICONS from "constants/icons";
-import * as React from "react";
-import classnames from "classnames";
-import Icon from "component/common/icon";
-import FilePrice from "component/filePrice";
-import VideoDuration from "component/videoDuration";
-import LivestreamDateTime from "component/livestreamDateTime";
-import FileType from "component/fileType";
-import ClaimType from "component/claimType";
-import * as COL from "constants/collections";
+import type { Node } from 'react';
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import classnames from 'classnames';
+import Icon from 'component/common/icon';
+import FilePrice from 'component/filePrice';
+import VideoDuration from 'component/videoDuration';
+import LivestreamDateTime from 'component/livestreamDateTime';
+import FileType from 'component/fileType';
+import ClaimType from 'component/claimType';
+import * as COL from 'constants/collections';
 type Props = {
   uri: string;
   pending?: boolean;
@@ -45,7 +45,7 @@ export default function PreviewOverlayProperties(props: Props) {
     isLivestreamActive,
     isUnlisted,
     livestreamViewerCount,
-    isLivestreamScheduled
+    isLivestreamScheduled,
   } = props;
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
@@ -54,40 +54,72 @@ export default function PreviewOverlayProperties(props: Props) {
   const size = small ? COL.ICON_SIZE : undefined;
 
   if (pending && isUnlisted) {
-    return <div className={classnames('claim-preview__overlay-properties', {
-      '.claim-preview__overlay-properties--small': small
-    })}>
+    return (
+      <div
+        className={classnames('claim-preview__overlay-properties', {
+          '.claim-preview__overlay-properties--small': small,
+        })}
+      >
         {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
-      </div>;
+      </div>
+    );
   }
 
-  return <div className={classnames('claim-preview__overlay-properties', {
-    '.claim-preview__overlay-properties--small': small
-  })}>
-      {isLivestreamActive ? Number.isInteger(livestreamViewerCount) ? <>
+  return (
+    <div
+      className={classnames('claim-preview__overlay-properties', {
+        '.claim-preview__overlay-properties--small': small,
+      })}
+    >
+      {isLivestreamActive ? (
+        Number.isInteger(livestreamViewerCount) ? (
+          <>
             <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
             <span className="livestream__viewer-count">
               {livestreamViewerCount} <Icon icon={ICONS.EYE} />
             </span>
-          </> : __('LIVE') : typeof properties === 'function' ? properties(claim) : xsmall ? <>
+          </>
+        ) : (
+          __('LIVE')
+        )
+      ) : typeof properties === 'function' ? (
+        properties(claim)
+      ) : xsmall ? (
+        <>
           <VideoDuration uri={uri} />
           {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
-        </> : <>
+        </>
+      ) : (
+        <>
           {!isStream && <ClaimType uri={uri} small={small} />}
-          {hasEdits && <Icon customTooltipText={__('Unpublished Edits')} tooltip iconColor="red" size={size} icon={ICONS.PUBLISH} />}
+          {hasEdits && (
+            <Icon
+              customTooltipText={__('Unpublished Edits')}
+              tooltip
+              iconColor="red"
+              size={size}
+              icon={ICONS.PUBLISH}
+            />
+          )}
           {isCollection && claim && !iconOnly && <div>{claimLength}</div>}
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
           {isStream && !isLivestream && <FileType uri={uri} small={small} />}
-          {isLivestream && <>
+          {isLivestream && (
+            <>
               <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
-              {isLivestreamScheduled && <span className="livestream__viewer-count">
+              {isLivestreamScheduled && (
+                <span className="livestream__viewer-count">
                   <LivestreamDateTime uri={uri} />
-                </span>}
-            </>}
+                </span>
+              )}
+            </>
+          )}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
           {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
-        </>}
-    </div>;
+        </>
+      )}
+    </div>
+  );
 }

@@ -507,7 +507,9 @@
   visibility: hidden;
   opacity: 0;
   animation-timing-function: var(--resizing-animation-function);
-  transition: visibility var(--resizing-animation-timing), opacity var(--resizing-animation-timing);
+  transition:
+    visibility var(--resizing-animation-timing),
+    opacity var(--resizing-animation-timing);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 

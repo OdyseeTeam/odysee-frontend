@@ -1,17 +1,17 @@
-import React from "react";
-import CollectionItemsList from "component/collectionItemsList";
-import Page from "component/page";
-import * as PAGES from "constants/pages";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import { COLLECTION_PAGE } from "constants/urlParams";
-import { useHistory } from "react-router-dom";
-import CollectionPublishForm from "./internal/collectionPublishForm";
-import CollectionHeader from "./internal/collectionHeader";
-import Spinner from "component/spinner";
-import Card from "component/common/card";
-import Button from "component/button";
-import Yrbl from "component/yrbl";
-import "../playlists/style.scss";
+import React from 'react';
+import CollectionItemsList from 'component/collectionItemsList';
+import Page from 'component/page';
+import * as PAGES from 'constants/pages';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
+import { useHistory } from 'react-router-dom';
+import CollectionPublishForm from './internal/collectionPublishForm';
+import CollectionHeader from './internal/collectionHeader';
+import Spinner from 'component/spinner';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import Yrbl from 'component/yrbl';
+import '../playlists/style.scss';
 type Props = {
   // -- path match --
   collectionId: string;
@@ -43,25 +43,17 @@ const CollectionPage = (props: Props) => {
     hasPrivate,
     doResolveClaimId,
     doCollectionEdit,
-    doRemoveFromUnsavedChangesCollectionsForCollectionId
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
   const {
     push,
-    location: {
-      search,
-      state,
-      pathname
-    }
+    location: { search, state, pathname },
   } = useHistory();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
-  const {
-    showEdit: pageShowEdit
-  } = state || {};
+  const { showEdit: pageShowEdit } = state || {};
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
-  const {
-    name
-  } = collection || {};
+  const { name } = collection || {};
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
@@ -82,7 +74,7 @@ const CollectionPage = (props: Props) => {
 
   function saveChanges() {
     doCollectionEdit(collectionId, {
-      isPreview: false
+      isPreview: false,
     });
     setShowEdit(false);
   }
@@ -95,62 +87,102 @@ const CollectionPage = (props: Props) => {
   React.useEffect(() => {
     if (!isPrivate) {
       doResolveClaimId(collectionId, true, {
-        include_is_my_output: true
+        include_is_my_output: true,
       });
     }
   }, [collectionId, doResolveClaimId, isPrivate]);
 
   if (geoRestriction) {
-    return <Page noSideNavigation={isEmbedPath}>
+    return (
+      <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty">
-          <Yrbl title={__('Content unavailable')} subtitle={geoRestriction.message ? __(geoRestriction.message) : ''} type="sad" alwaysShow />
+          <Yrbl
+            title={__('Content unavailable')}
+            subtitle={geoRestriction.message ? __(geoRestriction.message) : ''}
+            type="sad"
+            alwaysShow
+          />
         </div>
-      </Page>;
+      </Page>
+    );
   }
 
   if (!hasPrivate && isResolvingCollection) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner />
-      </div>;
+      </div>
+    );
   }
 
   if (!collection && !isResolvingCollection) {
-    return <Page noSideNavigation={isEmbedPath}>
+    return (
+      <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty empty">{__('Nothing here')}</div>
-      </Page>;
+      </Page>
+    );
   }
 
   if (publishPage && !isBuiltin && isCollectionMine) {
-    const getPagePath = id => `/$/${PAGES.PLAYLIST}/${id}`;
+    const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
 
-    const doReturnForId = id => push(getPagePath(id));
+    const doReturnForId = (id) => push(getPagePath(id));
 
-    return <Page noFooter noSideNavigation backout={{
-      title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name
-    }}>
+    return (
+      <Page
+        noFooter
+        noSideNavigation
+        backout={{
+          title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name,
+        }}
+      >
         <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} useIds />
-      </Page>;
+      </Page>
+    );
   }
 
-  return <Page className="playlists-page__wrapper" noSideNavigation={isEmbedPath}>
+  return (
+    <Page className="playlists-page__wrapper" noSideNavigation={isEmbedPath}>
       <div className="section card-stack">
-        <CollectionPageContext.Provider value={{
-        togglePublicCollection
-      }}>
-          <CollectionHeader collection={collection} showEdit={showEdit} setShowEdit={setShowEdit} unavailableUris={unavailableUris} setUnavailable={setUnavailable} />
+        <CollectionPageContext.Provider
+          value={{
+            togglePublicCollection,
+          }}
+        >
+          <CollectionHeader
+            collection={collection}
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
+            unavailableUris={unavailableUris}
+            setUnavailable={setUnavailable}
+          />
 
-          <CollectionItemsList collectionId={collectionId} showEdit={showEdit} isEditPreview unavailableUris={unavailableUris} showNullPlaceholder />
+          <CollectionItemsList
+            collectionId={collectionId}
+            showEdit={showEdit}
+            isEditPreview
+            unavailableUris={unavailableUris}
+            showNullPlaceholder
+          />
         </CollectionPageContext.Provider>
       </div>
-      {showEdit && <div className="card-fixed-bottom">
-          <Card className="card--after-tabs tab__panel" actions={<>
+      {showEdit && (
+        <div className="card-fixed-bottom">
+          <Card
+            className="card--after-tabs tab__panel"
+            actions={
+              <>
                 <div className="section__actions">
                   <Button button="primary" label={__('Save')} onClick={saveChanges} />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
-              </>} />
-        </div>}
-    </Page>;
+              </>
+            }
+          />
+        </div>
+      )}
+    </Page>
+  );
 };
 
 export default CollectionPage;

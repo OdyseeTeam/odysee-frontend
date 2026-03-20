@@ -1,7 +1,7 @@
 // Created by xander on 6/21/2021
-import videojs from "video.js";
-import { VJS_EVENTS } from "constants/player";
-import RecSys from "recsys/recsys";
+import videojs from 'video.js';
+import { VJS_EVENTS } from 'constants/player';
+import RecSys from 'recsys/recsys';
 const VERSION = '0.0.1';
 
 /* RecSys */
@@ -12,8 +12,8 @@ const PlayerEvent = {
     stop: 1,
     scrub: 2,
     speed: 3,
-    ended: 4
-  }
+    ended: 4,
+  },
 };
 
 function newRecsysPlayerEvent(eventType, offset, arg) {
@@ -21,12 +21,12 @@ function newRecsysPlayerEvent(eventType, offset, arg) {
     return {
       event: eventType,
       offset: offset,
-      arg: arg
+      arg: arg,
     };
   } else {
     return {
       event: eventType,
-      offset: offset
+      offset: offset,
     };
   }
 }
@@ -35,7 +35,7 @@ const defaults = {
   videoId: null,
   userId: 0,
   debug: false,
-  embedded: false
+  embedded: false,
 };
 const Component = videojs.getComponent('Component');
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
@@ -56,17 +56,17 @@ class RecsysPlugin extends Component {
     this.inPause = false;
     this.watchedDuration = {
       total: 0,
-      lastTimestamp: -1
+      lastTimestamp: -1,
     };
     // Plugin event listeners
-    player.on('playing', event => this.onPlay(event));
-    player.on('pause', event => this.onPause(event));
-    player.on('ended', event => this.onEnded(event));
-    player.on('ratechange', event => this.onRateChange(event));
-    player.on('timeupdate', event => this.onTimeUpdate(event));
-    player.on('seeked', event => this.onSeeked(event));
+    player.on('playing', (event) => this.onPlay(event));
+    player.on('pause', (event) => this.onPause(event));
+    player.on('ended', (event) => this.onEnded(event));
+    player.on('ratechange', (event) => this.onRateChange(event));
+    player.on('timeupdate', (event) => this.onTimeUpdate(event));
+    player.on('seeked', (event) => this.onSeeked(event));
     // Event trigger to send recsys event
-    player.on(VJS_EVENTS.PLAYER_CLOSED, event => this.onDispose(event));
+    player.on(VJS_EVENTS.PLAYER_CLOSED, (event) => this.onDispose(event));
   }
 
   onPlay(event) {
@@ -91,7 +91,11 @@ class RecsysPlugin extends Component {
   }
 
   onRateChange(event) {
-    const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.speed, this.player.currentTime(), this.player.playbackRate());
+    const recsysEvent = newRecsysPlayerEvent(
+      PlayerEvent.event.speed,
+      this.player.currentTime(),
+      this.player.playbackRate()
+    );
     this.log('onRateChange', recsysEvent);
     RecSys.onRecsysPlayerEvent(this.options_.videoId, recsysEvent);
   }
@@ -168,7 +172,6 @@ class RecsysPlugin extends Component {
       console.log(`Recsys Player Debug:`, JSON.stringify(args)); // eslint-disable-line no-console
     }
   }
-
 }
 
 videojs.registerComponent('recsys', RecsysPlugin);

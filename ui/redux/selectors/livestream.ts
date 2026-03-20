@@ -1,10 +1,20 @@
-import moment from "moment";
-import { createSelector } from "reselect";
-import { createCachedSelector } from "re-reselect";
-import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from "constants/livestream";
-import * as TAGS from "constants/tags";
-import { selectMyClaims, selectPendingClaims, selectClaimForUri, selectChannelClaimIdForUri, selectMomentReleaseTimeForUri, selectClaimReleaseInFutureForUri, selectClaimReleaseInPastForUri, selectClaimIdForUri, makeSelectTagInClaimOrChannelForUri } from "redux/selectors/claims";
-import { selectCommentsDisabledSettingForChannelId } from "redux/selectors/comments";
+import moment from 'moment';
+import { createSelector } from 'reselect';
+import { createCachedSelector } from 're-reselect';
+import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
+import * as TAGS from 'constants/tags';
+import {
+  selectMyClaims,
+  selectPendingClaims,
+  selectClaimForUri,
+  selectChannelClaimIdForUri,
+  selectMomentReleaseTimeForUri,
+  selectClaimReleaseInFutureForUri,
+  selectClaimReleaseInPastForUri,
+  selectClaimIdForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
 const selectState = (state: State) => state.livestream || {};
 
@@ -15,57 +25,76 @@ export const selectFutureLivestreamsByCreatorId = (state: State) => selectState(
 export const selectPastLivestreamsByCreatorId = (state: State) => selectState(state).pastLivestreamsByCreatorId;
 export const selectViewersById = (state: State) => selectState(state).viewersById;
 export const selectIsLiveFetchingIds = (state: State) => selectState(state).isLiveFetchingIds;
-export const selectActiveLivestreamsFetchingQueries = (state: State) => selectState(state).activeLivestreamsFetchingQueries;
-export const selectActiveCreatorLivestreamsByQuery = (state: State) => selectState(state).activeCreatorLivestreamsByQuery;
+export const selectActiveLivestreamsFetchingQueries = (state: State) =>
+  selectState(state).activeLivestreamsFetchingQueries;
+export const selectActiveCreatorLivestreamsByQuery = (state: State) =>
+  selectState(state).activeCreatorLivestreamsByQuery;
 export const selectSocketConnectionById = (state: State) => selectState(state).socketConnectionById;
 export const selectIsLivePollingChannelIds = (state: State) => selectState(state).isLivePollingChannelIds;
 // -- General Selectors --
-export const selectLivestreamInfoForCreatorId = (state: State, creatorId: string) => selectLivestreamInfoByCreatorId(state)[creatorId];
-export const selectLivestreamInfoAlreadyFetchedForCreatorId = (state: State, creatorId: string) => selectLivestreamInfoForCreatorId(state, creatorId) !== undefined;
-export const selectLivestreamInfoNotFetchedForCreatorId = (state: State, creatorId: string) => !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+export const selectLivestreamInfoForCreatorId = (state: State, creatorId: string) =>
+  selectLivestreamInfoByCreatorId(state)[creatorId];
+export const selectLivestreamInfoAlreadyFetchedForCreatorId = (state: State, creatorId: string) =>
+  selectLivestreamInfoForCreatorId(state, creatorId) !== undefined;
+export const selectLivestreamInfoNotFetchedForCreatorId = (state: State, creatorId: string) =>
+  !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
 export const selectViewersForId = (state: State, claimId: string) => selectViewersById(state)[claimId];
-export const selectFutureLivestreamsForCreatorId = (state: State, creatorId: string) => selectFutureLivestreamsByCreatorId(state)[creatorId];
-export const selectPastLivestreamsForCreatorId = (state: State, creatorId: string) => selectPastLivestreamsByCreatorId(state)[creatorId];
-export const selectFilteredActiveLivestreamUris = createCachedSelector((state, channelIds, excludedChannelIds, query) => query ? selectActiveLivestreamsForQuery(state, query) : selectActiveLivestreamByCreatorId(state), (state, channelIds, excludedChannelIds) => [channelIds, excludedChannelIds], selectViewersById, (activeLivestreamByCreatorId, [channelIds, excludedChannelIds], viewersById) => {
-  if (!activeLivestreamByCreatorId) return activeLivestreamByCreatorId;
-  const filteredLivestreams = [];
+export const selectFutureLivestreamsForCreatorId = (state: State, creatorId: string) =>
+  selectFutureLivestreamsByCreatorId(state)[creatorId];
+export const selectPastLivestreamsForCreatorId = (state: State, creatorId: string) =>
+  selectPastLivestreamsByCreatorId(state)[creatorId];
+export const selectFilteredActiveLivestreamUris = createCachedSelector(
+  (state, channelIds, excludedChannelIds, query) =>
+    query ? selectActiveLivestreamsForQuery(state, query) : selectActiveLivestreamByCreatorId(state),
+  (state, channelIds, excludedChannelIds) => [channelIds, excludedChannelIds],
+  selectViewersById,
+  (activeLivestreamByCreatorId, [channelIds, excludedChannelIds], viewersById) => {
+    if (!activeLivestreamByCreatorId) return activeLivestreamByCreatorId;
+    const filteredLivestreams = [];
 
-  for (const creatorId in activeLivestreamByCreatorId) {
-    const activeCreatorLivestream = activeLivestreamByCreatorId[creatorId];
+    for (const creatorId in activeLivestreamByCreatorId) {
+      const activeCreatorLivestream = activeLivestreamByCreatorId[creatorId];
 
-    if (activeCreatorLivestream) {
-      const shouldInclude = (!channelIds || channelIds.includes(creatorId)) && (!excludedChannelIds || !excludedChannelIds.includes(creatorId));
+      if (activeCreatorLivestream) {
+        const shouldInclude =
+          (!channelIds || channelIds.includes(creatorId)) &&
+          (!excludedChannelIds || !excludedChannelIds.includes(creatorId));
 
-      if (shouldInclude) {
-        filteredLivestreams.push(activeCreatorLivestream);
+        if (shouldInclude) {
+          filteredLivestreams.push(activeCreatorLivestream);
+        }
       }
     }
-  }
 
-  const sortedLivestreams = filteredLivestreams.sort((a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
-    const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
-    if (viewCountA < viewCountB) return 1;
-    if (viewCountA > viewCountB) return -1;
-    return 0;
-  });
-  return sortedLivestreams.map((activeLivestream: LivestreamActiveClaim) => activeLivestream.uri);
-})((state: State, channelIds?: Array<string>, excludedChannelIds?: Array<string>, query?: string) => `${channelIds ? channelIds.toString() : ''}-${excludedChannelIds ? excludedChannelIds.toString() : ''}-${query || ''}`);
-export const selectIsLiveFetchingForId = (state: State, channelId: string) => selectIsLiveFetchingIds(state).includes(channelId);
-export const selectActiveCreatorLivestreamsForQuery = (state: State, query: string) => selectActiveCreatorLivestreamsByQuery(state)[query];
+    const sortedLivestreams = filteredLivestreams.toSorted((a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
+      const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
+      if (viewCountA < viewCountB) return 1;
+      if (viewCountA > viewCountB) return -1;
+      return 0;
+    });
+    return sortedLivestreams.map((activeLivestream: LivestreamActiveClaim) => activeLivestream.uri);
+  }
+)(
+  (state: State, channelIds?: Array<string>, excludedChannelIds?: Array<string>, query?: string) =>
+    `${channelIds ? channelIds.toString() : ''}-${excludedChannelIds ? excludedChannelIds.toString() : ''}-${query || ''}`
+);
+export const selectIsLiveFetchingForId = (state: State, channelId: string) =>
+  selectIsLiveFetchingIds(state).includes(channelId);
+export const selectActiveCreatorLivestreamsForQuery = (state: State, query: string) =>
+  selectActiveCreatorLivestreamsByQuery(state)[query];
 export const selectActiveLivestreamsForQuery = (state: State, query: string) => {
   const activeCreatorLivestreamsForQuery = selectActiveCreatorLivestreamsForQuery(state, query);
   if (!activeCreatorLivestreamsForQuery) return activeCreatorLivestreamsForQuery;
-  const {
-    creatorIds
-  } = activeCreatorLivestreamsForQuery;
+  const { creatorIds } = activeCreatorLivestreamsForQuery;
   if (!creatorIds) return creatorIds;
   const activeLivestreamByCreatorId = {};
-  creatorIds.forEach(creatorId => {
+  creatorIds.forEach((creatorId) => {
     activeLivestreamByCreatorId[creatorId] = selectActiveLivestreamByCreatorId(state)[creatorId];
   });
   return activeLivestreamByCreatorId;
 };
-export const selectIsLivePollingForChannelId = (state: State, claimId: string) => selectIsLivePollingChannelIds(state).includes(claimId);
+export const selectIsLivePollingForChannelId = (state: State, claimId: string) =>
+  selectIsLivePollingChannelIds(state).includes(claimId);
 export const selectActiveLivestreamsLastFetchedDateForQuery = (state: State, query: string) => {
   const activeCreatorLivestreamsForQuery = selectActiveCreatorLivestreamsForQuery(state, query);
   if (!activeCreatorLivestreamsForQuery) return activeCreatorLivestreamsForQuery;
@@ -76,9 +105,12 @@ export const selectActiveLivestreamsLastFetchedFailCountForQuery = (state: State
   if (!activeCreatorLivestreamsForQuery) return activeCreatorLivestreamsForQuery;
   return activeCreatorLivestreamsForQuery.lastFetchedFailCount;
 };
-export const selectIsFetchingActiveLivestreams = (state: State) => selectActiveLivestreamsFetchingQueries(state).length > 0;
-export const selectActiveLivestreamsFetchingForQuery = (state: State, query: string) => selectActiveLivestreamsFetchingQueries(state).includes(query);
-export const selectSocketConnectionForId = (state: State, claimId: string) => claimId && selectSocketConnectionById(state)[claimId];
+export const selectIsFetchingActiveLivestreams = (state: State) =>
+  selectActiveLivestreamsFetchingQueries(state).length > 0;
+export const selectActiveLivestreamsFetchingForQuery = (state: State, query: string) =>
+  selectActiveLivestreamsFetchingQueries(state).includes(query);
+export const selectSocketConnectionForId = (state: State, claimId: string) =>
+  claimId && selectSocketConnectionById(state)[claimId];
 export const selectSocketConnectedForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
   // $FlowFixMe
@@ -91,28 +123,55 @@ export const selectIsLivePollingForUri = (state: State, uri: string) => {
   return false;
 };
 // select non-pending claims without sources for given channel
-export const makeSelectLivestreamsForChannelId = (channelId: string) => createSelector(selectState, selectMyClaims, (livestreamState, myClaims = []) => {
-  return myClaims.filter(claim => claim.value_type === 'stream' && claim.value && !claim.value.source && claim.confirmations > 0 && claim.signing_channel && claim.signing_channel.claim_id === channelId).sort((a, b) => b.timestamp - a.timestamp); // newest first
-});
-export const makeSelectPendingLivestreamsForChannelId = (channelId: string) => createSelector(selectPendingClaims, pendingClaims => {
-  return pendingClaims.filter(claim => claim.value_type === 'stream' && claim.value && !claim.value.source && claim.signing_channel && claim.signing_channel.claim_id === channelId);
-});
-export const selectIsActiveLivestreamForUri = createCachedSelector((state: State, uri: string) => uri, selectActiveLivestreamByCreatorId, (uri, activeLivestreams) => {
-  if (!uri || !activeLivestreams) {
-    return false;
-  }
+export const makeSelectLivestreamsForChannelId = (channelId: string) =>
+  createSelector(selectState, selectMyClaims, (livestreamState, myClaims = []) => {
+    return myClaims
+      .filter(
+        (claim) =>
+          claim.value_type === 'stream' &&
+          claim.value &&
+          !claim.value.source &&
+          claim.confirmations > 0 &&
+          claim.signing_channel &&
+          claim.signing_channel.claim_id === channelId
+      )
+      .toSorted((a, b) => b.timestamp - a.timestamp); // newest first
+  });
+export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
+  createSelector(selectPendingClaims, (pendingClaims) => {
+    return pendingClaims.filter(
+      (claim) =>
+        claim.value_type === 'stream' &&
+        claim.value &&
+        !claim.value.source &&
+        claim.signing_channel &&
+        claim.signing_channel.claim_id === channelId
+    );
+  });
+export const selectIsActiveLivestreamForUri = createCachedSelector(
+  (state: State, uri: string) => uri,
+  selectActiveLivestreamByCreatorId,
+  (uri, activeLivestreams) => {
+    if (!uri || !activeLivestreams) {
+      return false;
+    }
 
-  const activeLivestreamValues = Object.values(activeLivestreams);
-  return activeLivestreamValues.some( // $FlowFixMe
-  (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.uri === uri);
-})((state: State, uri: string) => String(uri));
+    const activeLivestreamValues = Object.values(activeLivestreams);
+    return activeLivestreamValues.some(
+      // $FlowFixMe
+      (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.uri === uri
+    );
+  }
+)((state: State, uri: string) => String(uri));
 export const selectIsActiveLivestreamForClaimId = (state: State, claimId: string) => {
   if (!claimId) return false;
   const activeLivestreams = selectActiveLivestreamByCreatorId(state);
   if (!activeLivestreams) return false;
   const activeLivestreamValues = Object.values(activeLivestreams);
-  return activeLivestreamValues.some( // $FlowFixMe
-  (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.claimId === claimId);
+  return activeLivestreamValues.some(
+    // $FlowFixMe
+    (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.claimId === claimId
+  );
 };
 export const selectActiveLivestreamForChannel = (state: State, channelId: string) => {
   const activeLivestreams = selectActiveLivestreamByCreatorId(state);
@@ -162,8 +221,12 @@ export const selectLatestLiveClaimForChannel = (state: State, channelId: string)
   const latestLiveUri = selectLatestLiveUriForChannel(state, channelId);
   return latestLiveUri && selectClaimForUri(state, latestLiveUri);
 };
-export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, releaseTime => releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), moment()));
-export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, releaseTime => releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment()));
+export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), moment())
+);
+export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
+);
 export const selectShouldShowLivestreamForUri = (state: State, uri: string) => {
   const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);
   if (!isClaimActiveBroadcast) return isClaimActiveBroadcast;

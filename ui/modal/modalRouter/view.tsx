@@ -1,11 +1,11 @@
-import React from "react";
-import { withRouter } from "react-router";
-import LoadingBarOneOff from "component/loadingBarOneOff";
-import * as MODALS from "constants/modal_types";
-import * as URL from "constants/urlParams";
-import ModalError from "modal/modalError";
-import { lazyImport } from "util/lazyImport";
-import { ModalContext } from "contexts/modal";
+import React from 'react';
+import { withRouter } from 'react-router';
+import LoadingBarOneOff from 'component/loadingBarOneOff';
+import * as MODALS from 'constants/modal_types';
+import * as URL from 'constants/urlParams';
+import ModalError from 'modal/modalError';
+import { lazyImport } from 'util/lazyImport';
+import { ModalContext } from 'contexts/modal';
 // prettier-ignore
 const MAP = Object.freeze({
   [MODALS.ACCOUNT_DELETE]: lazyImport(() => import('modal/modalRemoveAccount'
@@ -201,17 +201,8 @@ type Props = {
 };
 
 function ModalRouter(props: Props) {
-  const {
-    modal,
-    error,
-    location,
-    doOpenModal,
-    doHideModal
-  } = props;
-  const {
-    pathname,
-    search
-  } = location;
+  const { modal, error, location, doOpenModal, doHideModal } = props;
+  const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
   const modalUrlParams = modalUrlId && urlParams.get(URL.MODAL_PARAMS);
@@ -235,44 +226,45 @@ function ModalRouter(props: Props) {
       // -- Use history.replaceState so user won't be able to navigate back to the modal
       history.replaceState(history.state, '', `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
-
   }, [doOpenModal, search, modal]);
   React.useEffect(() => {
     if (!modalUrlId) {
       doHideModal();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on pathname
-
   }, [pathname, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
-    return <React.Suspense fallback={<LoadingBarOneOff />}>
+    return (
+      <React.Suspense fallback={<LoadingBarOneOff />}>
         <ModalError {...error} />
-      </React.Suspense>;
+      </React.Suspense>
+    );
   }
 
   if (!modal) {
     return null;
   }
 
-  const {
-    id,
-    modalProps
-  } = modal;
+  const { id, modalProps } = modal;
   const SelectedModal = MAP[id];
 
   if (!SelectedModal) {
     return null;
   }
 
-  return <React.Suspense fallback={<LoadingBarOneOff />}>
-      <ModalContext.Provider value={{
-      modal,
-      isUrlParamModal: modalUrlId === id
-    }}>
+  return (
+    <React.Suspense fallback={<LoadingBarOneOff />}>
+      <ModalContext.Provider
+        value={{
+          modal,
+          isUrlParamModal: modalUrlId === id,
+        }}
+      >
         <SelectedModal {...modalProps} doHideModal={doHideModal} />
       </ModalContext.Provider>
-    </React.Suspense>;
+    </React.Suspense>
+  );
 }
 
 export default withRouter(ModalRouter);

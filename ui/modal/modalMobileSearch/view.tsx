@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import WunderbarSuggestions from "component/wunderbarSuggestions";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import WunderbarSuggestions from 'component/wunderbarSuggestions';
 type Props = {
   closeModal: () => void;
   channelsOnly?: boolean;
@@ -9,14 +9,16 @@ type Props = {
   customSelectAction?: (arg0: string) => void;
 };
 export default function ModalMobileSearch(props: Props) {
-  const {
-    closeModal,
-    channelsOnly,
-    noTopSuggestion,
-    noBottomLinks,
-    customSelectAction
-  } = props;
-  return <Modal onAborted={closeModal} isOpen type="card">
-      <WunderbarSuggestions isMobile channelsOnly={channelsOnly} noTopSuggestion={noTopSuggestion} noBottomLinks={noBottomLinks} customSelectAction={customSelectAction} />
-    </Modal>;
+  const { closeModal, channelsOnly, noTopSuggestion, noBottomLinks, customSelectAction } = props;
+  return (
+    <Modal onAborted={closeModal} isOpen type="card">
+      <WunderbarSuggestions
+        isMobile
+        channelsOnly={channelsOnly}
+        noTopSuggestion={noTopSuggestion}
+        noBottomLinks={noBottomLinks}
+        customSelectAction={customSelectAction}
+      />
+    </Modal>
+  );
 }

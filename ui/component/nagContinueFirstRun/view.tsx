@@ -1,7 +1,7 @@
-import * as PAGES from "constants/pages";
-import React from "react";
-import Nag from "component/nag";
-import { useHistory } from "react-router";
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import Nag from 'component/nag';
+import { useHistory } from 'react-router';
 type Props = {
   followingAcknowledged: boolean;
   firstRunStarted: boolean;
@@ -9,15 +9,10 @@ type Props = {
   syncSetttings: () => void;
 };
 export default function NagContinueFirstRun(props: Props) {
+  const { firstRunStarted, followingAcknowledged } = props;
   const {
-    firstRunStarted,
-    followingAcknowledged
-  } = props;
-  const {
-    location: {
-      pathname
-    },
-    push
+    location: { pathname },
+    push,
   } = useHistory();
   const isOnFirstRun = pathname.includes(PAGES.AUTH);
 
@@ -29,5 +24,12 @@ export default function NagContinueFirstRun(props: Props) {
     return null;
   }
 
-  return <Nag type="helpful" message={__('Continue setting up your account.')} actionText={__('Finish Up')} onClick={handleContinue} />;
+  return (
+    <Nag
+      type="helpful"
+      message={__('Continue setting up your account.')}
+      actionText={__('Finish Up')}
+      onClick={handleContinue}
+    />
+  );
 }

@@ -2,7 +2,8 @@ import { DOMAIN } from 'config';
 
 const AUTH_TOKEN = 'auth_token';
 const SAVED_PASSWORD = 'saved_password';
-const domain = typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
+const domain =
+  typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
 const isProduction = process.env.NODE_ENV === 'production';
 const maxExpiration = 2147483647;
 let sessionPassword;
@@ -72,7 +73,7 @@ function deleteCookie(name) {
 }
 
 function setSavedPassword(value, saveToDisk) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const password = value === undefined || value === null ? '' : value;
     sessionPassword = password;
 
@@ -87,17 +88,17 @@ function setSavedPassword(value, saveToDisk) {
 }
 
 function getSavedPassword() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     if (sessionPassword) {
       resolve(sessionPassword);
     }
 
-    return getPasswordFromCookie().then(p => resolve(p));
+    return getPasswordFromCookie().then((p) => resolve(p));
   });
 }
 
 function getPasswordFromCookie() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     let password;
     password = getCookie(SAVED_PASSWORD);
     resolve(password);
@@ -105,7 +106,7 @@ function getPasswordFromCookie() {
 }
 
 function deleteSavedPassword() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     deleteCookie(SAVED_PASSWORD);
     resolve();
   });
@@ -120,14 +121,14 @@ function setAuthToken(value) {
 }
 
 function deleteAuthToken() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     deleteCookie(AUTH_TOKEN);
     resolve();
   });
 }
 
 function doSignOutCleanup() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     deleteAuthToken();
     deleteSavedPassword();
     sessionStorage.removeItem('bannerHidden');
@@ -157,5 +158,5 @@ export {
   setAuthToken,
   deleteAuthToken,
   doSignOutCleanup,
-  doAuthTokenRefresh
+  doAuthTokenRefresh,
 };

@@ -1,12 +1,23 @@
-import { connect } from "react-redux";
-import { selectTitleForUri, selectThumbnailForUri, makeSelectCoverForUri, makeSelectMetadataItemForUri, makeSelectAmountForUri, makeSelectClaimForUri, selectUpdateChannelError, selectUpdatingChannel, selectCreateChannelError, selectCreatingChannel } from "redux/selectors/claims";
-import { selectBalance } from "redux/selectors/wallet";
-import { doUpdateChannel, doCreateChannel, doClearChannelErrors } from "redux/actions/claims";
-import { doOpenModal } from "redux/actions/app";
-import { doUpdateBlockListForPublishedChannel } from "redux/actions/comments";
-import { doClaimInitialRewards } from "redux/actions/rewards";
-import { selectIsClaimingInitialRewards, selectHasClaimedInitialRewards } from "redux/selectors/rewards";
-import ChannelForm from "./view";
+import { connect } from 'react-redux';
+import {
+  selectTitleForUri,
+  selectThumbnailForUri,
+  makeSelectCoverForUri,
+  makeSelectMetadataItemForUri,
+  makeSelectAmountForUri,
+  makeSelectClaimForUri,
+  selectUpdateChannelError,
+  selectUpdatingChannel,
+  selectCreateChannelError,
+  selectCreatingChannel,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import { doUpdateChannel, doCreateChannel, doClearChannelErrors } from 'redux/actions/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { doUpdateBlockListForPublishedChannel } from 'redux/actions/comments';
+import { doClaimInitialRewards } from 'redux/actions/rewards';
+import { selectIsClaimingInitialRewards, selectHasClaimedInitialRewards } from 'redux/selectors/rewards';
+import ChannelForm from './view';
 
 const select = (state, props) => ({
   claim: makeSelectClaimForUri(props.uri)(state),
@@ -26,24 +37,22 @@ const select = (state, props) => ({
   creatingChannel: selectCreatingChannel(state),
   balance: selectBalance(state),
   isClaimingInitialRewards: selectIsClaimingInitialRewards(state),
-  hasClaimedInitialRewards: selectHasClaimedInitialRewards(state)
+  hasClaimedInitialRewards: selectHasClaimedInitialRewards(state),
 });
 
-const perform = dispatch => ({
+const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  updateChannel: params => dispatch(doUpdateChannel(params)),
-  createChannel: params => {
-    const {
-      name,
-      amount,
-      ...optionalParams
-    } = params;
-    return dispatch(doCreateChannel('@' + name, amount, optionalParams, channelClaim => {
-      dispatch(doUpdateBlockListForPublishedChannel(channelClaim));
-    }));
+  updateChannel: (params) => dispatch(doUpdateChannel(params)),
+  createChannel: (params) => {
+    const { name, amount, ...optionalParams } = params;
+    return dispatch(
+      doCreateChannel('@' + name, amount, optionalParams, (channelClaim) => {
+        dispatch(doUpdateBlockListForPublishedChannel(channelClaim));
+      })
+    );
   },
   clearChannelErrors: () => dispatch(doClearChannelErrors()),
-  claimInitialRewards: () => dispatch(doClaimInitialRewards())
+  claimInitialRewards: () => dispatch(doClaimInitialRewards()),
 });
 
 export default connect(select, perform)(ChannelForm);

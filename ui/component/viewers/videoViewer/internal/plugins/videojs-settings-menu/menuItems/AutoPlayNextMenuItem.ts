@@ -1,5 +1,5 @@
-import videojs from "video.js";
-import { VJS_COMP } from "constants/player";
+import videojs from 'video.js';
+import { VJS_COMP } from 'constants/player';
 const SettingOnOffItem = videojs.getComponent('SettingOnOffItem');
 const name = VJS_COMP.AUTOPLAY_NEXT_MENU_ITEM;
 
@@ -8,7 +8,7 @@ class AutoPlayNextMenuItem extends SettingOnOffItem {
     super(player, {
       name: name,
       label: __('Autoplay next'),
-      icon: ''
+      icon: '',
     });
     this.updateVisibility();
     this.addClass('vjs-setting-autoplay-next');
@@ -33,7 +33,6 @@ class AutoPlayNextMenuItem extends SettingOnOffItem {
   update(active) {
     super.update(active);
   }
-
 }
 
 videojs.registerComponent(name, AutoPlayNextMenuItem);

@@ -1,2 +1,2 @@
-import SendPage from "./view";
+import SendPage from './view';
 export default SendPage;

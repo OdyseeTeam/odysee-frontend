@@ -1,6 +1,6 @@
-import type { Duration } from "constants/claim_search";
-import * as CS from "constants/claim_search";
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from "constants/tags";
+import type { Duration } from 'constants/claim_search';
+import * as CS from 'constants/claim_search';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
 
 /**
  * Common logic to generate ClaimSearch option payload.
@@ -31,13 +31,24 @@ export const CsOptHelper = {
    * @param maxMinutes Only for 'duration === custom'
    * @returns {?string|Array<string>}
    */
-  duration: (contentType: string | null | undefined, claimTypes: any | null | undefined, duration: Duration, durationVal?: string, minMinutes?: number, maxMinutes?: number) => {
+  duration: (
+    contentType: string | null | undefined,
+    claimTypes: any | null | undefined,
+    duration: Duration,
+    durationVal?: string,
+    minMinutes?: number,
+    maxMinutes?: number
+  ) => {
     const claimTypesWithDurations = [CS.CLAIM_STREAM, CS.CLAIM_REPOST];
     const claimTypesArray = Array.isArray(claimTypes) ? claimTypes : [claimTypes];
 
-    if (contentType !== CS.FILE_VIDEO && contentType !== CS.FILE_AUDIO && contentType !== null && // Any
-    contentType !== undefined || // Any
-    claimTypesArray[0] && !claimTypesArray.some(claimType => claimTypesWithDurations.includes(claimType))) {
+    if (
+      (contentType !== CS.FILE_VIDEO &&
+        contentType !== CS.FILE_AUDIO &&
+        contentType !== null && // Any
+        contentType !== undefined) || // Any
+      (claimTypesArray[0] && !claimTypesArray.some((claimType) => claimTypesWithDurations.includes(claimType)))
+    ) {
       return undefined;
     }
 
@@ -77,5 +88,5 @@ export const CsOptHelper = {
     }
 
     return x;
-  }
+  },
 };

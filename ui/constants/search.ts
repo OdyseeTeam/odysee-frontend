@@ -7,7 +7,7 @@ export const SEARCH_TYPES = {
   FILE: 'file',
   CHANNEL: 'channel',
   SEARCH: 'search',
-  TAG: 'tag'
+  TAG: 'tag',
 };
 export const SEARCH_OPTIONS = {
   RESULT_COUNT: 'size',
@@ -42,6 +42,6 @@ export const SEARCH_OPTIONS = {
   CONTENT_ASPECT_RATIO_OR_MISSING: 'content_aspect_ratio_or_missing',
   EXCLUDE_SHORTS: 'exclude_shorts',
   EXCLUDE_SHORTS_ASPECT_RATIO_LTE: 'exclude_shorts_aspect_ratio_lte',
-  EXCLUDE_SHORTS_DURATION_LTE: 'exclude_shorts_duration_lte'
+  EXCLUDE_SHORTS_DURATION_LTE: 'exclude_shorts_duration_lte',
 };
 export const SEARCH_PAGE_SIZE = 20;

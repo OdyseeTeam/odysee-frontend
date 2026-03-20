@@ -1,2 +1,2 @@
-import SoftwareSecurityEngineerPage from "./view";
+import SoftwareSecurityEngineerPage from './view';
 export default SoftwareSecurityEngineerPage;

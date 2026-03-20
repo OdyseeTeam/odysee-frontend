@@ -1,68 +1,79 @@
-import React from "react";
-import classnames from "classnames";
-import { Modal } from "modal/modal";
-import Card from "component/common/card";
-import Button from "component/button";
-import ClaimPreview from "component/claimPreview";
-import Spinner from "component/spinner";
-import { FormField } from "component/common/form";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from "constants/licenses";
-import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from "constants/tags";
-import { parsePurchaseTag, parseRentalTag } from "util/stripe";
-import { cloneDeep } from "util/clone";
-import "./style.scss";
-const COPYABLE_FIELDS = [{
-  key: 'title',
-  label: 'Title'
-}, {
-  key: 'description',
-  label: 'Description'
-}, {
-  key: 'tags',
-  label: 'Tags'
-}, {
-  key: 'thumbnail',
-  label: 'Thumbnail'
-}, {
-  key: 'languages',
-  label: 'Language'
-}, {
-  key: 'license',
-  label: 'License'
-}, {
-  key: 'visibility',
-  label: 'Visibility'
-}, {
-  key: 'price',
-  label: 'Price / Paywall'
-}];
-const FILTERS = [{
-  key: 'all',
-  label: 'All Uploads'
-}, {
-  key: 'unlisted',
-  label: 'Unlisted'
-}, {
-  key: 'scheduled',
-  label: 'Scheduled'
-}];
+import React from 'react';
+import classnames from 'classnames';
+import { Modal } from 'modal/modal';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import ClaimPreview from 'component/claimPreview';
+import Spinner from 'component/spinner';
+import { FormField } from 'component/common/form';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
+import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
+import { cloneDeep } from 'util/clone';
+import './style.scss';
+const COPYABLE_FIELDS = [
+  {
+    key: 'title',
+    label: 'Title',
+  },
+  {
+    key: 'description',
+    label: 'Description',
+  },
+  {
+    key: 'tags',
+    label: 'Tags',
+  },
+  {
+    key: 'thumbnail',
+    label: 'Thumbnail',
+  },
+  {
+    key: 'languages',
+    label: 'Language',
+  },
+  {
+    key: 'license',
+    label: 'License',
+  },
+  {
+    key: 'visibility',
+    label: 'Visibility',
+  },
+  {
+    key: 'price',
+    label: 'Price / Paywall',
+  },
+];
+const FILTERS = [
+  {
+    key: 'all',
+    label: 'All Uploads',
+  },
+  {
+    key: 'unlisted',
+    label: 'Unlisted',
+  },
+  {
+    key: 'scheduled',
+    label: 'Scheduled',
+  },
+];
 const MAX_VISIBLE_RESULTS = 100;
 type Props = {
-  searchUploads: (searchTerm: string, filter: string) => Promise<{
+  searchUploads: (
+    searchTerm: string,
+    filter: string
+  ) => Promise<{
     claims: Array<StreamClaim>;
   }>;
   doPopulatePublishFormFromClaim: (claim: StreamClaim, fields: Array<string>) => void;
   publishFormValues: any;
   updatePublishForm: (arg0: UpdatePublishState) => void;
   doOpenModal: (arg0: string, arg1: {} | null | undefined) => void;
-  doToast: (arg0: {
-    message: string;
-    actionText?: string;
-    action?: () => void;
-    isError?: boolean;
-  }) => void;
+  doToast: (arg0: { message: string; actionText?: string; action?: () => void; isError?: boolean }) => void;
   doHideModal: () => void;
 };
 type ClaimCopyMetadata = {
@@ -96,7 +107,15 @@ const FIELD_TO_FORM_KEYS = {
   languages: ['language', 'languages'],
   license: ['licenseType', 'licenseUrl', 'otherLicenseDescription'],
   visibility: ['visibility', 'memberRestrictionOn', 'memberRestrictionTierIds'],
-  price: ['paywall', 'fee', 'fiatPurchaseEnabled', 'fiatPurchaseFee', 'fiatRentalEnabled', 'fiatRentalFee', 'fiatRentalExpiration']
+  price: [
+    'paywall',
+    'fee',
+    'fiatPurchaseEnabled',
+    'fiatPurchaseFee',
+    'fiatRentalEnabled',
+    'fiatRentalFee',
+    'fiatRentalExpiration',
+  ],
 };
 
 function hasExistingValueForField(fieldKey: string, publishFormValues: any): boolean {
@@ -116,30 +135,36 @@ function hasExistingValueForField(fieldKey: string, publishFormValues: any): boo
       return Boolean((formValues.thumbnail || '').trim());
 
     case 'languages':
-      return Array.isArray(formValues.languages) && formValues.languages.length > 0 || Boolean((formValues.language || '').trim());
+      return (
+        (Array.isArray(formValues.languages) && formValues.languages.length > 0) ||
+        Boolean((formValues.language || '').trim())
+      );
 
-    case 'license':
-      {
-        const licenseType = String(formValues.licenseType || '').toLowerCase();
-        return licenseType && licenseType !== 'none' || Boolean((formValues.licenseUrl || '').trim()) || Boolean((formValues.otherLicenseDescription || '').trim());
-      }
+    case 'license': {
+      const licenseType = String(formValues.licenseType || '').toLowerCase();
+      return (
+        (licenseType && licenseType !== 'none') ||
+        Boolean((formValues.licenseUrl || '').trim()) ||
+        Boolean((formValues.otherLicenseDescription || '').trim())
+      );
+    }
 
-    case 'visibility':
-      {
-        const visibility = formValues.visibility || 'public';
-        const hasMemberRestriction = Boolean(formValues.memberRestrictionOn) || Array.isArray(formValues.memberRestrictionTierIds) && formValues.memberRestrictionTierIds.length > 0;
-        return visibility !== 'public' || hasMemberRestriction;
-      }
+    case 'visibility': {
+      const visibility = formValues.visibility || 'public';
+      const hasMemberRestriction =
+        Boolean(formValues.memberRestrictionOn) ||
+        (Array.isArray(formValues.memberRestrictionTierIds) && formValues.memberRestrictionTierIds.length > 0);
+      return visibility !== 'public' || hasMemberRestriction;
+    }
 
-    case 'price':
-      {
-        const feeAmount = Number(formValues?.fee?.amount || 0);
-        const purchaseAmount = Number(formValues?.fiatPurchaseFee?.amount || 0);
-        const rentalAmount = Number(formValues?.fiatRentalFee?.amount || 0);
-        const hasFiatPurchase = Boolean(formValues.fiatPurchaseEnabled && purchaseAmount > 0);
-        const hasFiatRental = Boolean(formValues.fiatRentalEnabled && rentalAmount > 0);
-        return formValues.paywall && formValues.paywall !== 'free' || feeAmount > 0 || hasFiatPurchase || hasFiatRental;
-      }
+    case 'price': {
+      const feeAmount = Number(formValues?.fee?.amount || 0);
+      const purchaseAmount = Number(formValues?.fiatPurchaseFee?.amount || 0);
+      const rentalAmount = Number(formValues?.fiatRentalFee?.amount || 0);
+      const hasFiatPurchase = Boolean(formValues.fiatPurchaseEnabled && purchaseAmount > 0);
+      const hasFiatRental = Boolean(formValues.fiatRentalEnabled && rentalAmount > 0);
+      return (formValues.paywall && formValues.paywall !== 'free') || feeAmount > 0 || hasFiatPurchase || hasFiatRental;
+    }
 
     default:
       return false;
@@ -152,13 +177,16 @@ function normalizeStringForCompare(value: any): string {
 
 function normalizeTagValuesForCompare(tags: any): Array<string> {
   if (!Array.isArray(tags)) return [];
-  return tags.map(tag => tag && typeof tag === 'object' ? tag.name : tag).map(tag => typeof tag === 'string' ? tag.trim().toLowerCase() : '').filter(Boolean);
+  return tags
+    .map((tag) => (tag && typeof tag === 'object' ? tag.name : tag))
+    .map((tag) => (typeof tag === 'string' ? tag.trim().toLowerCase() : ''))
+    .filter(Boolean);
 }
 
 function normalizeLanguageValuesForCompare(languages: any, fallbackLanguage: any): Array<string> {
   const hasLanguages = Array.isArray(languages) && languages.length > 0;
   const values = hasLanguages ? languages : fallbackLanguage ? [fallbackLanguage] : [];
-  return values.map(lang => String(lang).trim().toLowerCase()).filter(Boolean);
+  return values.map((lang) => String(lang).trim().toLowerCase()).filter(Boolean);
 }
 
 function areArraysEqualForCompare(a: Array<any>, b: Array<any>): boolean {
@@ -200,9 +228,7 @@ function getClaimLicenseValuesForCompare(metadata: ClaimCopyMetadata): {
   let licenseUrl = '';
 
   if (sourceLicense) {
-    const isStandardLicense = CC_LICENSES.some(({
-      value
-    }) => value === sourceLicense);
+    const isStandardLicense = CC_LICENSES.some(({ value }) => value === sourceLicense);
 
     if (isStandardLicense || sourceLicense === NONE || sourceLicense === PUBLIC_DOMAIN) {
       licenseType = sourceLicense;
@@ -222,11 +248,15 @@ function getClaimLicenseValuesForCompare(metadata: ClaimCopyMetadata): {
   return {
     licenseType: normalizeStringForCompare(licenseType).toLowerCase(),
     licenseUrl: normalizeStringForCompare(licenseUrl),
-    otherLicenseDescription: normalizeStringForCompare(otherLicenseDescription)
+    otherLicenseDescription: normalizeStringForCompare(otherLicenseDescription),
   };
 }
 
-function fieldWouldChangeValue(fieldKey: string, claim: StreamClaim | null | undefined, publishFormValues: any): boolean {
+function fieldWouldChangeValue(
+  fieldKey: string,
+  claim: StreamClaim | null | undefined,
+  publishFormValues: any
+): boolean {
   const formValues = publishFormValues || {};
   const metadata = getClaimCopyMetadata(claim);
 
@@ -237,61 +267,61 @@ function fieldWouldChangeValue(fieldKey: string, claim: StreamClaim | null | und
     case 'description':
       return normalizeStringForCompare(metadata.description) !== normalizeStringForCompare(formValues.description);
 
-    case 'tags':
-      {
-        const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags).sort();
-        const targetTags = normalizeTagValuesForCompare(formValues.tags).sort();
-        return !areArraysEqualForCompare(sourceTags, targetTags);
-      }
+    case 'tags': {
+      const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags).toSorted();
+      const targetTags = normalizeTagValuesForCompare(formValues.tags).toSorted();
+      return !areArraysEqualForCompare(sourceTags, targetTags);
+    }
 
     case 'thumbnail':
       return normalizeStringForCompare(metadata.thumbnailUrl) !== normalizeStringForCompare(formValues.thumbnail);
 
-    case 'languages':
-      {
-        const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null).sort();
-        const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language).sort();
-        return !areArraysEqualForCompare(sourceLanguages, targetLanguages);
-      }
+    case 'languages': {
+      const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null).toSorted();
+      const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language).toSorted();
+      return !areArraysEqualForCompare(sourceLanguages, targetLanguages);
+    }
 
-    case 'license':
-      {
-        const sourceLicenseValues = getClaimLicenseValuesForCompare(metadata);
-        const targetLicense = normalizeStringForCompare(formValues.licenseType).toLowerCase();
-        const targetLicenseUrl = normalizeStringForCompare(formValues.licenseUrl);
-        const targetOtherDescription = normalizeStringForCompare(formValues.otherLicenseDescription);
-        return sourceLicenseValues.licenseType !== targetLicense || sourceLicenseValues.licenseUrl !== targetLicenseUrl || sourceLicenseValues.otherLicenseDescription !== targetOtherDescription;
-      }
+    case 'license': {
+      const sourceLicenseValues = getClaimLicenseValuesForCompare(metadata);
+      const targetLicense = normalizeStringForCompare(formValues.licenseType).toLowerCase();
+      const targetLicenseUrl = normalizeStringForCompare(formValues.licenseUrl);
+      const targetOtherDescription = normalizeStringForCompare(formValues.otherLicenseDescription);
+      return (
+        sourceLicenseValues.licenseType !== targetLicense ||
+        sourceLicenseValues.licenseUrl !== targetLicenseUrl ||
+        sourceLicenseValues.otherLicenseDescription !== targetOtherDescription
+      );
+    }
 
     case 'visibility':
       return getClaimVisibilityKey(metadata.rawTags) !== getFormVisibilityKey(formValues);
 
-    case 'price':
-      {
-        const sourcePurchasePrice = Number(parsePurchaseTag(metadata.rawTags) || 0);
-        const sourceRentalData = parseRentalTag(metadata.rawTags);
-        const sourceRentalPrice = Number(sourceRentalData?.price || 0);
-        const sourceFeeAmount = Number(metadata.feeAmount || 0);
-        const targetPurchasePrice = Number(formValues?.fiatPurchaseFee?.amount || 0);
-        const targetRentalPrice = Number(formValues?.fiatRentalFee?.amount || 0);
-        const targetFeeAmount = Number(formValues?.fee?.amount || 0);
-        const targetHasPurchase = Boolean(formValues.fiatPurchaseEnabled && targetPurchasePrice > 0);
-        const targetHasRental = Boolean(formValues.fiatRentalEnabled && targetRentalPrice > 0);
-        const targetPaywall = String(formValues.paywall || 'free').toLowerCase();
-        const sourceHasPurchase = sourcePurchasePrice > 0;
-        const sourceHasRental = sourceRentalPrice > 0;
-        const sourceHasFee = sourceFeeAmount > 0;
-        if (sourceHasPurchase !== targetHasPurchase) return true;
-        if (sourceHasPurchase && !areNumbersEqualForCompare(sourcePurchasePrice, targetPurchasePrice)) return true;
-        if (sourceHasRental !== targetHasRental) return true;
-        if (sourceHasRental && !areNumbersEqualForCompare(sourceRentalPrice, targetRentalPrice)) return true;
-        const targetHasFee = targetFeeAmount > 0;
-        if (sourceHasFee !== targetHasFee) return true;
-        if (sourceHasFee && !areNumbersEqualForCompare(sourceFeeAmount, targetFeeAmount)) return true;
-        const sourceHasNoPricing = !sourceHasPurchase && !sourceHasRental && !sourceHasFee;
-        if (sourceHasNoPricing && targetPaywall !== 'free') return true;
-        return false;
-      }
+    case 'price': {
+      const sourcePurchasePrice = Number(parsePurchaseTag(metadata.rawTags) || 0);
+      const sourceRentalData = parseRentalTag(metadata.rawTags);
+      const sourceRentalPrice = Number(sourceRentalData?.price || 0);
+      const sourceFeeAmount = Number(metadata.feeAmount || 0);
+      const targetPurchasePrice = Number(formValues?.fiatPurchaseFee?.amount || 0);
+      const targetRentalPrice = Number(formValues?.fiatRentalFee?.amount || 0);
+      const targetFeeAmount = Number(formValues?.fee?.amount || 0);
+      const targetHasPurchase = Boolean(formValues.fiatPurchaseEnabled && targetPurchasePrice > 0);
+      const targetHasRental = Boolean(formValues.fiatRentalEnabled && targetRentalPrice > 0);
+      const targetPaywall = String(formValues.paywall || 'free').toLowerCase();
+      const sourceHasPurchase = sourcePurchasePrice > 0;
+      const sourceHasRental = sourceRentalPrice > 0;
+      const sourceHasFee = sourceFeeAmount > 0;
+      if (sourceHasPurchase !== targetHasPurchase) return true;
+      if (sourceHasPurchase && !areNumbersEqualForCompare(sourcePurchasePrice, targetPurchasePrice)) return true;
+      if (sourceHasRental !== targetHasRental) return true;
+      if (sourceHasRental && !areNumbersEqualForCompare(sourceRentalPrice, targetRentalPrice)) return true;
+      const targetHasFee = targetFeeAmount > 0;
+      if (sourceHasFee !== targetHasFee) return true;
+      if (sourceHasFee && !areNumbersEqualForCompare(sourceFeeAmount, targetFeeAmount)) return true;
+      const sourceHasNoPricing = !sourceHasPurchase && !sourceHasRental && !sourceHasFee;
+      if (sourceHasNoPricing && targetPaywall !== 'free') return true;
+      return false;
+    }
 
     default:
       return true;
@@ -300,9 +330,9 @@ function fieldWouldChangeValue(fieldKey: string, claim: StreamClaim | null | und
 
 function getUndoDataForFields(fields: Array<string>, publishFormValues: any): UpdatePublishState {
   const undoData = {};
-  fields.forEach(field => {
+  fields.forEach((field) => {
     const targetKeys = FIELD_TO_FORM_KEYS[field] || [];
-    targetKeys.forEach(targetKey => {
+    targetKeys.forEach((targetKey) => {
       undoData[targetKey] = cloneDeep(publishFormValues ? publishFormValues[targetKey] : undefined);
     });
   });
@@ -324,13 +354,20 @@ function getClaimCopyMetadata(claim: StreamClaim | null | undefined): ClaimCopyM
       hasRental: false,
       hasPurchase: false,
       hasVisibilitySettings: false,
-      visibilityLabel: ''
+      visibilityLabel: '',
     };
   }
 
   const value = claim.value;
   const rawTags = Array.isArray(value.tags) ? value.tags : [];
-  const filteredTags = rawTags.filter(tag => tag !== VISIBILITY_TAGS.UNLISTED && tag !== VISIBILITY_TAGS.PRIVATE && tag !== SCHEDULED_TAGS.HIDE && tag !== SCHEDULED_TAGS.SHOW && tag !== MEMBERS_ONLY_CONTENT_TAG);
+  const filteredTags = rawTags.filter(
+    (tag) =>
+      tag !== VISIBILITY_TAGS.UNLISTED &&
+      tag !== VISIBILITY_TAGS.PRIVATE &&
+      tag !== SCHEDULED_TAGS.HIDE &&
+      tag !== SCHEDULED_TAGS.SHOW &&
+      tag !== MEMBERS_ONLY_CONTENT_TAG
+  );
   const hasUnlisted = rawTags.includes(VISIBILITY_TAGS.UNLISTED);
   const hasPrivate = rawTags.includes(VISIBILITY_TAGS.PRIVATE);
   const hasMembersOnly = rawTags.includes(MEMBERS_ONLY_CONTENT_TAG);
@@ -360,13 +397,13 @@ function getClaimCopyMetadata(claim: StreamClaim | null | undefined): ClaimCopyM
     hasRental,
     hasPurchase,
     hasVisibilitySettings: Boolean(hasUnlisted || hasPrivate || hasMembersOnly),
-    visibilityLabel
+    visibilityLabel,
   };
 }
 
 function getFieldAvailabilityForClaim(claim: StreamClaim | null | undefined): Record<string, boolean> {
   const availability = {};
-  COPYABLE_FIELDS.forEach(field => {
+  COPYABLE_FIELDS.forEach((field) => {
     availability[field.key] = false;
   });
   const metadata = getClaimCopyMetadata(claim);
@@ -385,7 +422,7 @@ function getFieldAvailabilityForClaim(claim: StreamClaim | null | undefined): Re
 function getCopySummaryForClaim(claim: StreamClaim | null | undefined): ClaimCopySummary {
   const availability = getFieldAvailabilityForClaim(claim);
   const metadata = getClaimCopyMetadata(claim);
-  const fieldChips = COPYABLE_FIELDS.filter(field => availability[field.key]).map(field => field.label);
+  const fieldChips = COPYABLE_FIELDS.filter((field) => availability[field.key]).map((field) => field.label);
   const detailChips = [];
 
   if (metadata.visibilityLabel) {
@@ -404,7 +441,7 @@ function getCopySummaryForClaim(claim: StreamClaim | null | undefined): ClaimCop
     detailChips.push(__('Paid'));
   }
 
-  metadata.filteredTags.slice(0, MAX_DETAIL_CHIPS).forEach(tag => {
+  metadata.filteredTags.slice(0, MAX_DETAIL_CHIPS).forEach((tag) => {
     detailChips.push(`#${tag}`);
   });
   const visibleFieldChips = fieldChips.slice(0, MAX_FIELD_CHIPS);
@@ -413,7 +450,7 @@ function getCopySummaryForClaim(claim: StreamClaim | null | undefined): ClaimCop
     fieldChips: visibleFieldChips,
     detailChips: visibleDetailChips,
     hiddenFieldCount: Math.max(0, fieldChips.length - visibleFieldChips.length),
-    hiddenDetailCount: Math.max(0, detailChips.length - visibleDetailChips.length)
+    hiddenDetailCount: Math.max(0, detailChips.length - visibleDetailChips.length),
   };
 }
 
@@ -425,7 +462,7 @@ export default function ModalCopyFromUpload(props: Props) {
     updatePublishForm,
     doOpenModal,
     doToast,
-    doHideModal
+    doHideModal,
   } = props;
   const [searchTerm, setSearchTerm] = React.useState('');
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
@@ -438,7 +475,7 @@ export default function ModalCopyFromUpload(props: Props) {
   const [selectedClaim, setSelectedClaim] = React.useState<StreamClaim | null | undefined>(null);
   const [selectedFields, setSelectedFields] = React.useState<Record<string, boolean>>(() => {
     const defaults = {};
-    COPYABLE_FIELDS.forEach(field => {
+    COPYABLE_FIELDS.forEach((field) => {
       defaults[field.key] = true;
     });
     return defaults;
@@ -456,25 +493,28 @@ export default function ModalCopyFromUpload(props: Props) {
     };
   }, []);
   // Run search whenever debounced term or filter changes
-  const runSearch = React.useCallback(async (term: string, filter: string) => {
-    const reqId = ++searchRequestRef.current;
-    setLoading(true);
-    setLoadingFailed(false);
+  const runSearch = React.useCallback(
+    async (term: string, filter: string) => {
+      const reqId = ++searchRequestRef.current;
+      setLoading(true);
+      setLoadingFailed(false);
 
-    try {
-      const result = await searchUploads(term, filter);
-      if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
-      setClaims(Array.isArray(result?.claims) ? result.claims : []);
-    } catch {
-      if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
-      setClaims([]);
-      setLoadingFailed(true);
-    } finally {
-      if (isMountedRef.current && searchRequestRef.current === reqId) {
-        setLoading(false);
+      try {
+        const result = await searchUploads(term, filter);
+        if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
+        setClaims(Array.isArray(result?.claims) ? result.claims : []);
+      } catch {
+        if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
+        setClaims([]);
+        setLoadingFailed(true);
+      } finally {
+        if (isMountedRef.current && searchRequestRef.current === reqId) {
+          setLoading(false);
+        }
       }
-    }
-  }, [searchUploads]);
+    },
+    [searchUploads]
+  );
   React.useEffect(() => {
     runSearch(trimmedTerm, activeFilter);
   }, [trimmedTerm, activeFilter, runSearch]);
@@ -482,7 +522,7 @@ export default function ModalCopyFromUpload(props: Props) {
   const filteredClaims = React.useMemo(() => {
     if (activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3) {
       const lower = trimmedTerm.toLowerCase();
-      return claims.filter(c => (c?.value?.title || c?.name || '').toLowerCase().includes(lower));
+      return claims.filter((c) => (c?.value?.title || c?.name || '').toLowerCase().includes(lower));
     }
 
     return claims;
@@ -492,9 +532,7 @@ export default function ModalCopyFromUpload(props: Props) {
   const showShortSearchHint = activeFilter === 'all' && trimmedTerm.length > 0 && trimmedTerm.length < 3;
 
   function toggleField(key: string) {
-    setSelectedFields(prev => ({ ...prev,
-      [key]: !prev[key]
-    }));
+    setSelectedFields((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   function handleResultKeyDown(e: React.KeyboardEvent<HTMLDivElement>, claim: StreamClaim) {
@@ -504,25 +542,41 @@ export default function ModalCopyFromUpload(props: Props) {
     }
   }
 
-  const selectedAvailableFields = React.useMemo(() => COPYABLE_FIELDS.filter(field => selectedFields[field.key] && fieldAvailability[field.key]), [selectedFields, fieldAvailability]);
-  const fieldsThatWouldOverwrite = React.useMemo(() => selectedAvailableFields.filter(field => hasExistingValueForField(field.key, publishFormValues) && fieldWouldChangeValue(field.key, selectedClaim, publishFormValues)), [selectedAvailableFields, selectedClaim, publishFormValues]);
-  const fieldsToApply = React.useMemo(() => selectedAvailableFields.filter(field => fieldWouldChangeValue(field.key, selectedClaim, publishFormValues)), [selectedAvailableFields, selectedClaim, publishFormValues]);
+  const selectedAvailableFields = React.useMemo(
+    () => COPYABLE_FIELDS.filter((field) => selectedFields[field.key] && fieldAvailability[field.key]),
+    [selectedFields, fieldAvailability]
+  );
+  const fieldsThatWouldOverwrite = React.useMemo(
+    () =>
+      selectedAvailableFields.filter(
+        (field) =>
+          hasExistingValueForField(field.key, publishFormValues) &&
+          fieldWouldChangeValue(field.key, selectedClaim, publishFormValues)
+      ),
+    [selectedAvailableFields, selectedClaim, publishFormValues]
+  );
+  const fieldsToApply = React.useMemo(
+    () => selectedAvailableFields.filter((field) => fieldWouldChangeValue(field.key, selectedClaim, publishFormValues)),
+    [selectedAvailableFields, selectedClaim, publishFormValues]
+  );
   const hasFieldSelected = fieldsToApply.length > 0;
 
-  function applyCopy(fields: Array<{
-    key: string;
-    label: string;
-  }>) {
+  function applyCopy(
+    fields: Array<{
+      key: string;
+      label: string;
+    }>
+  ) {
     if (!selectedClaim || fields.length === 0) return;
-    const fieldKeys = fields.map(field => field.key);
+    const fieldKeys = fields.map((field) => field.key);
     const undoData = getUndoDataForFields(fieldKeys, publishFormValues);
     doPopulatePublishFormFromClaim(selectedClaim, fieldKeys);
     doToast({
       message: __('Copied %count% field(s).', {
-        count: fieldKeys.length
+        count: fieldKeys.length,
       }),
       actionText: __('Undo'),
-      action: () => updatePublishForm(undoData)
+      action: () => updatePublishForm(undoData),
     });
     doHideModal();
   }
@@ -533,26 +587,30 @@ export default function ModalCopyFromUpload(props: Props) {
     if (fieldsToApply.length === 0) {
       doToast({
         message: __('Selected fields already match the current form values.'),
-        isError: true
+        isError: true,
       });
       return;
     }
 
-    const overwriteFieldLabels = fieldsThatWouldOverwrite.map(field => field.label);
+    const overwriteFieldLabels = fieldsThatWouldOverwrite.map((field) => field.label);
 
     if (overwriteFieldLabels.length > 0) {
       doOpenModal(MODALS.CONFIRM, {
         title: __('Replace existing metadata?'),
         subtitle: __('The selected upload will replace %count% existing field(s) in this form.', {
-          count: overwriteFieldLabels.length
+          count: overwriteFieldLabels.length,
         }),
-        body: <ul className="copy-from-upload__overwrite-list">
-            {overwriteFieldLabels.map(fieldLabel => <li key={fieldLabel}>{__(fieldLabel)}</li>)}
-          </ul>,
+        body: (
+          <ul className="copy-from-upload__overwrite-list">
+            {overwriteFieldLabels.map((fieldLabel) => (
+              <li key={fieldLabel}>{__(fieldLabel)}</li>
+            ))}
+          </ul>
+        ),
         labelOk: __('Replace Fields'),
         onConfirm: () => {
           applyCopy(fieldsToApply);
-        }
+        },
       });
       return;
     }
@@ -561,112 +619,232 @@ export default function ModalCopyFromUpload(props: Props) {
   }
 
   // --- Step 1: Search & Select ---
-  const renderSearchStep = () => <div className="copy-from-upload__search-step">
+  const renderSearchStep = () => (
+    <div className="copy-from-upload__search-step">
       <div className="copy-from-upload__controls">
         <div className="copy-from-upload__filters">
-          {FILTERS.map(f => <Button key={f.key} button="alt" label={__(f.label)} onClick={() => setActiveFilter(f.key)} className={classnames('button-toggle', {
-          'button-toggle--active': activeFilter === f.key
-        })} />)}
+          {FILTERS.map((f) => (
+            <Button
+              key={f.key}
+              button="alt"
+              label={__(f.label)}
+              onClick={() => setActiveFilter(f.key)}
+              className={classnames('button-toggle', {
+                'button-toggle--active': activeFilter === f.key,
+              })}
+            />
+          ))}
         </div>
         <div className="copy-from-upload__search-field">
-          <FormField type="text" name="copy_from_upload_search" className="copy-from-upload__search-input" placeholder={__('Search by title...')} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} autoFocus />
+          <FormField
+            type="text"
+            name="copy_from_upload_search"
+            className="copy-from-upload__search-input"
+            placeholder={__('Search by title...')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            autoFocus
+          />
         </div>
       </div>
       <p className="copy-from-upload__result-hint">
         {__('Recent uploads are shown first by release date (up to 100).')}
       </p>
-      {showShortSearchHint && <p className="copy-from-upload__result-hint">
+      {showShortSearchHint && (
+        <p className="copy-from-upload__result-hint">
           {__('Type at least 3 characters for full search results. Short terms filter recent uploads.')}
-        </p>}
+        </p>
+      )}
       <div className="copy-from-upload__results">
-        {loading ? <div className="main--empty">
+        {loading ? (
+          <div className="main--empty">
             <Spinner />
-          </div> : loadingFailed ? <div className="main--empty">
+          </div>
+        ) : loadingFailed ? (
+          <div className="main--empty">
             <p>{__('Something went wrong. Please try again.')}</p>
             <Button button="link" label={__('Retry')} onClick={() => runSearch(trimmedTerm, activeFilter)} />
-          </div> : filteredClaims.length === 0 ? <div className="main--empty">
-            {activeFilter === 'unlisted' ? __('No unlisted uploads found') : activeFilter === 'scheduled' ? __('No scheduled uploads found') : __('No uploads found')}
-          </div> : visibleClaims.map(claim => {
-        const copySummary = getCopySummaryForClaim(claim);
-        return <div key={claim.claim_id} className="copy-from-upload__result-item" onClick={() => setSelectedClaim(claim)} role="button" tabIndex={0} onKeyDown={e => handleResultKeyDown(e, claim)}>
+          </div>
+        ) : filteredClaims.length === 0 ? (
+          <div className="main--empty">
+            {activeFilter === 'unlisted'
+              ? __('No unlisted uploads found')
+              : activeFilter === 'scheduled'
+                ? __('No scheduled uploads found')
+                : __('No uploads found')}
+          </div>
+        ) : (
+          visibleClaims.map((claim) => {
+            const copySummary = getCopySummaryForClaim(claim);
+            return (
+              <div
+                key={claim.claim_id}
+                className="copy-from-upload__result-item"
+                onClick={() => setSelectedClaim(claim)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => handleResultKeyDown(e, claim)}
+              >
                 <div className="copy-from-upload__result-main">
-                  <ClaimPreview uri={claim.permanent_url || claim.canonical_url} type="small" nonClickable hideActions hideMenu properties={false} />
+                  <ClaimPreview
+                    uri={claim.permanent_url || claim.canonical_url}
+                    type="small"
+                    nonClickable
+                    hideActions
+                    hideMenu
+                    properties={false}
+                  />
                 </div>
                 <div className="copy-from-upload__result-copy-meta">
                   <div className="copy-from-upload__chip-row">
-                    {copySummary.fieldChips.length > 0 ? copySummary.fieldChips.map(fieldLabel => <span key={`${claim.claim_id}:${fieldLabel}`} className="copy-from-upload__chip copy-from-upload__chip--field">
+                    {copySummary.fieldChips.length > 0 ? (
+                      copySummary.fieldChips.map((fieldLabel) => (
+                        <span
+                          key={`${claim.claim_id}:${fieldLabel}`}
+                          className="copy-from-upload__chip copy-from-upload__chip--field"
+                        >
                           {__(fieldLabel)}
-                        </span>) : <span className="copy-from-upload__chip copy-from-upload__chip--muted">
+                        </span>
+                      ))
+                    ) : (
+                      <span className="copy-from-upload__chip copy-from-upload__chip--muted">
                         {__('No copyable fields found')}
-                      </span>}
-                    {copySummary.hiddenFieldCount > 0 && <span className="copy-from-upload__chip copy-from-upload__chip--muted">
+                      </span>
+                    )}
+                    {copySummary.hiddenFieldCount > 0 && (
+                      <span className="copy-from-upload__chip copy-from-upload__chip--muted">
                         {__('+%count% more', {
-                  count: copySummary.hiddenFieldCount
-                })}
-                      </span>}
+                          count: copySummary.hiddenFieldCount,
+                        })}
+                      </span>
+                    )}
                   </div>
-                  {copySummary.detailChips.length > 0 && <div className="copy-from-upload__chip-row copy-from-upload__chip-row--detail">
-                      {copySummary.detailChips.map((detailLabel, index) => <span key={`${claim.claim_id}:detail:${index}`} className="copy-from-upload__chip copy-from-upload__chip--detail">
+                  {copySummary.detailChips.length > 0 && (
+                    <div className="copy-from-upload__chip-row copy-from-upload__chip-row--detail">
+                      {copySummary.detailChips.map((detailLabel, index) => (
+                        <span
+                          key={`${claim.claim_id}:detail:${index}`}
+                          className="copy-from-upload__chip copy-from-upload__chip--detail"
+                        >
                           {detailLabel}
-                        </span>)}
-                      {copySummary.hiddenDetailCount > 0 && <span className="copy-from-upload__chip copy-from-upload__chip--muted">
+                        </span>
+                      ))}
+                      {copySummary.hiddenDetailCount > 0 && (
+                        <span className="copy-from-upload__chip copy-from-upload__chip--muted">
                           {__('+%count% more', {
-                  count: copySummary.hiddenDetailCount
-                })}
-                        </span>}
-                    </div>}
+                            count: copySummary.hiddenDetailCount,
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>;
-      })}
+              </div>
+            );
+          })
+        )}
       </div>
-      {filteredClaims.length > MAX_VISIBLE_RESULTS && <p className="copy-from-upload__result-hint">
+      {filteredClaims.length > MAX_VISIBLE_RESULTS && (
+        <p className="copy-from-upload__result-hint">
           {__('Showing %shown% of %total% results. Refine your search to see more.', {
-        shown: MAX_VISIBLE_RESULTS,
-        total: filteredClaims.length
-      })}
-        </p>}
-    </div>;
+            shown: MAX_VISIBLE_RESULTS,
+            total: filteredClaims.length,
+          })}
+        </p>
+      )}
+    </div>
+  );
 
   // --- Step 2: Field Selection ---
   const renderFieldStep = () => {
     const claimTitle = selectedClaim?.value?.title || selectedClaim?.name || __('Untitled');
 
-    const availableFieldCount = COPYABLE_FIELDS.filter(field => fieldAvailability[field.key]).length;
+    const availableFieldCount = COPYABLE_FIELDS.filter((field) => fieldAvailability[field.key]).length;
     const overwriteCount = fieldsThatWouldOverwrite.length;
-    return <div className="copy-from-upload__field-step">
+    return (
+      <div className="copy-from-upload__field-step">
         <div className="copy-from-upload__selected-claim">
-          <Button button="link" icon={ICONS.ARROW_LEFT} label={__('Back to search')} onClick={() => setSelectedClaim(null)} />
+          <Button
+            button="link"
+            icon={ICONS.ARROW_LEFT}
+            label={__('Back to search')}
+            onClick={() => setSelectedClaim(null)}
+          />
           <div className="copy-from-upload__selected-preview">
-            <ClaimPreview uri={selectedClaim?.permanent_url || selectedClaim?.canonical_url} type="small" nonClickable hideActions hideMenu properties={false} />
+            <ClaimPreview
+              uri={selectedClaim?.permanent_url || selectedClaim?.canonical_url}
+              type="small"
+              nonClickable
+              hideActions
+              hideMenu
+              properties={false}
+            />
           </div>
         </div>
         <div className="copy-from-upload__field-list">
           <label className="copy-from-upload__field-label">
             {__('Select fields to copy from "%title%":', {
-            title: claimTitle
-          })}
+              title: claimTitle,
+            })}
           </label>
           <p className="copy-from-upload__field-hint">
             {__('Unavailable fields are grayed out because they are not set on the selected upload.')}
           </p>
-          {overwriteCount > 0 && <p className="copy-from-upload__field-hint">
+          {overwriteCount > 0 && (
+            <p className="copy-from-upload__field-hint">
               {__('%count% selected field(s) will replace existing values.', {
-            count: overwriteCount
-          })}
-            </p>}
-          {availableFieldCount === 0 && <p className="copy-from-upload__field-hint">{__('No copyable metadata found on this upload.')}</p>}
-          {COPYABLE_FIELDS.map(field => // Disable no-op options so users only pick fields that actually exist on the source claim.
-        <FormField key={field.key} type="checkbox" name={`copy_field_${field.key}`} label={__(field.label)} checked={Boolean(selectedFields[field.key] && fieldAvailability[field.key])} disabled={!fieldAvailability[field.key]} onChange={() => fieldAvailability[field.key] && toggleField(field.key)} />)}
+                count: overwriteCount,
+              })}
+            </p>
+          )}
+          {availableFieldCount === 0 && (
+            <p className="copy-from-upload__field-hint">{__('No copyable metadata found on this upload.')}</p>
+          )}
+          {COPYABLE_FIELDS.map((field) => (
+            // Disable no-op options so users only pick fields that actually exist on the source claim.
+            <FormField
+              key={field.key}
+              type="checkbox"
+              name={`copy_field_${field.key}`}
+              label={__(field.label)}
+              checked={Boolean(selectedFields[field.key] && fieldAvailability[field.key])}
+              disabled={!fieldAvailability[field.key]}
+              onChange={() => fieldAvailability[field.key] && toggleField(field.key)}
+            />
+          ))}
         </div>
-      </div>;
+      </div>
+    );
   };
 
-  return <Modal isOpen type="custom" width="wide" className="copy-from-upload-modal" onAborted={doHideModal}>
-      <Card title={selectedClaim ? __('Select Fields to Copy') : __('Copy from Previous Upload')} subtitle={selectedClaim ? __('Choose which fields to copy to your current upload.') : __('Search and select one of your previous uploads to copy its details.')} body={selectedClaim ? renderFieldStep() : renderSearchStep()} actions={<div className="section__actions">
-            {selectedClaim ? <>
-                <Button button="primary" label={__('Copy Selected Fields')} onClick={handleCopy} disabled={!hasFieldSelected} />
+  return (
+    <Modal isOpen type="custom" width="wide" className="copy-from-upload-modal" onAborted={doHideModal}>
+      <Card
+        title={selectedClaim ? __('Select Fields to Copy') : __('Copy from Previous Upload')}
+        subtitle={
+          selectedClaim
+            ? __('Choose which fields to copy to your current upload.')
+            : __('Search and select one of your previous uploads to copy its details.')
+        }
+        body={selectedClaim ? renderFieldStep() : renderSearchStep()}
+        actions={
+          <div className="section__actions">
+            {selectedClaim ? (
+              <>
+                <Button
+                  button="primary"
+                  label={__('Copy Selected Fields')}
+                  onClick={handleCopy}
+                  disabled={!hasFieldSelected}
+                />
                 <Button button="link" label={__('Back')} onClick={() => setSelectedClaim(null)} />
-              </> : <Button button="link" label={__('Cancel')} onClick={doHideModal} />}
-          </div>} />
-    </Modal>;
+              </>
+            ) : (
+              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+            )}
+          </div>
+        }
+      />
+    </Modal>
+  );
 }

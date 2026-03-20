@@ -1,15 +1,15 @@
-import { SITE_NAME } from "config";
-import * as PAGES from "constants/pages";
-import React from "react";
-import Button from "component/button";
-import ClaimPreview from "component/claimPreview";
-import Card from "component/common/card";
-import { buildURI, parseURI } from "util/lbryURI";
-import { ERRORS } from "lbryinc";
-import { formatLbryUrlForWeb } from "util/url";
-import ContentTab from "page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab";
-import I18nMessage from "component/i18nMessage";
-import Spinner from "component/spinner";
+import { SITE_NAME } from 'config';
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import Button from 'component/button';
+import ClaimPreview from 'component/claimPreview';
+import Card from 'component/common/card';
+import { buildURI, parseURI } from 'util/lbryURI';
+import { ERRORS } from 'lbryinc';
+import { formatLbryUrlForWeb } from 'util/url';
+import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab';
+import I18nMessage from 'component/i18nMessage';
+import Spinner from 'component/spinner';
 type Props = {
   userHasVerifiedEmail: boolean | null | undefined;
   doClaimRefereeReward: () => void;
@@ -41,21 +41,24 @@ function Invited(props: Props) {
     hasUnclaimedRefereeReward,
     referrerUri,
     isSubscribed,
-    channelTitle
+    channelTitle,
   } = props;
   const {
     isChannel: referrerIsChannel,
     channelName: referrerChannelName,
     channelClaimId: referrerChannelClaimId,
     streamName: referrerStreamName,
-    streamClaimId: referrerStreamClaimId
+    streamClaimId: referrerStreamClaimId,
   } = referrerUri ? parseURI(referrerUri) : {};
-  const redirectPath = formatLbryUrlForWeb(buildURI({
-    channelName: referrerChannelName,
-    channelClaimId: referrerChannelClaimId,
-    streamName: referrerStreamName,
-    streamClaimId: referrerStreamClaimId
-  })) || '/';
+  const redirectPath =
+    formatLbryUrlForWeb(
+      buildURI({
+        channelName: referrerChannelName,
+        channelClaimId: referrerChannelClaimId,
+        streamName: referrerStreamName,
+        streamClaimId: referrerStreamClaimId,
+      })
+    ) || '/';
   const referrerCode = getReferrerCodeFromCurrentPath();
 
   function handleDone() {
@@ -73,16 +76,14 @@ function Invited(props: Props) {
       let channelName;
 
       try {
-        const {
-          claimName
-        } = parseURI(referrerUri);
+        const { claimName } = parseURI(referrerUri);
         channelName = claimName;
       } catch (e) {}
 
       if (channelName) {
         doChannelSubscribe({
           channelName: channelName,
-          uri: referrerUri
+          uri: referrerUri,
         });
       }
     }
@@ -99,64 +100,135 @@ function Invited(props: Props) {
       doUserSetReferrerForUri(referrer);
     }
   }, [referrerUri, referrerCode, doUserSetReferrerForUri, referrerSet]);
-  const cardProps = React.useMemo(() => ({
-    body: <ClaimPreview uri={referrerUri} type="small" />
-  }), [referrerUri]);
-  const cardChildren = React.useMemo(() => referrerIsChannel && <div className="claim-preview--channel">
+  const cardProps = React.useMemo(
+    () => ({
+      body: <ClaimPreview uri={referrerUri} type="small" />,
+    }),
+    [referrerUri]
+  );
+  const cardChildren = React.useMemo(
+    () =>
+      referrerIsChannel && (
+        <div className="claim-preview--channel">
           <div className="section">
             <ContentTab uri={referrerUri} defaultPageSize={3} defaultInfiniteScroll={false} />
           </div>
-        </div>, [referrerIsChannel, referrerUri]);
+        </div>
+      ),
+    [referrerIsChannel, referrerUri]
+  );
 
   // Case 1: Loading
   if (referrerSet === undefined && referrerUri) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner />
-      </div>;
+      </div>
+    );
   }
 
   // Case 2: Already claimed reward
   if (referrerSetError === ERRORS.ALREADY_CLAIMED) {
-    return <Card {...cardProps} title={__('Whoa!')} subtitle={referrerIsChannel ? __("You've already claimed your referrer, but we've followed this channel for you.") : __('You already claimed your credit.')} actions={<Button button="primary" label={__('Done!')} onClick={handleDone} />}>
+    return (
+      <Card
+        {...cardProps}
+        title={__('Whoa!')}
+        subtitle={
+          referrerIsChannel
+            ? __("You've already claimed your referrer, but we've followed this channel for you.")
+            : __('You already claimed your credit.')
+        }
+        actions={<Button button="primary" label={__('Done!')} onClick={handleDone} />}
+      >
         {cardChildren}
-      </Card>;
+      </Card>
+    );
   }
 
   // Case 3: No reward to claim (referrer claim is null/deleted, or invite is invalid)
-  if (!referrerSet || referrerSetError && hasUnclaimedRefereeReward) {
-    return <Card {...cardProps} title={__('Welcome!')} subtitle={__('Something went wrong with your invite link.')} actions={<>
+  if (!referrerSet || (referrerSetError && hasUnclaimedRefereeReward)) {
+    return (
+      <Card
+        {...cardProps}
+        title={__('Welcome!')}
+        subtitle={__('Something went wrong with your invite link.')}
+        actions={
+          <>
             <p className="error__text">{__('Not a valid invite')}</p>
 
             <div className="section__actions">
-              <Button button="primary" label={userHasVerifiedEmail ? __('Verify') : __('Sign up')} navigate={userHasVerifiedEmail ? `/$/${PAGES.REWARDS_VERIFY}` : `/$/${PAGES.AUTH}?redirect=/$/${PAGES.REWARDS}`} />
+              <Button
+                button="primary"
+                label={userHasVerifiedEmail ? __('Verify') : __('Sign up')}
+                navigate={
+                  userHasVerifiedEmail ? `/$/${PAGES.REWARDS_VERIFY}` : `/$/${PAGES.AUTH}?redirect=/$/${PAGES.REWARDS}`
+                }
+              />
               <Button button="link" label={__('Explore')} onClick={handleDone} />
             </div>
-          </>}>
+          </>
+        }
+      >
         {cardChildren}
-      </Card>;
+      </Card>
+    );
   }
 
-  const SignUpButton = (buttonProps: any) => <Button button="link" label={userHasVerifiedEmail ? __('Finish verification') : __('Sign up')} navigate={userHasVerifiedEmail ? `/$/${PAGES.REWARDS_VERIFY}?redirect=/$/${PAGES.INVITE}${redirectPath}` : `/$/${PAGES.AUTH}?redirect=/$/${PAGES.INVITE}${redirectPath}`} {...buttonProps} />;
+  const SignUpButton = (buttonProps: any) => (
+    <Button
+      button="link"
+      label={userHasVerifiedEmail ? __('Finish verification') : __('Sign up')}
+      navigate={
+        userHasVerifiedEmail
+          ? `/$/${PAGES.REWARDS_VERIFY}?redirect=/$/${PAGES.INVITE}${redirectPath}`
+          : `/$/${PAGES.AUTH}?redirect=/$/${PAGES.INVITE}${redirectPath}`
+      }
+      {...buttonProps}
+    />
+  );
 
   // Case 4: Reward can be claimed
-  return <Card {...cardProps} title={referrerIsChannel ? __('%channel_name% invites you to the party!', {
-    channel_name: channelTitle
-  }) : __("You're invited!")} subtitle={referrerIsChannel ? <I18nMessage tokens={{
-    channel_name: channelTitle,
-    signup_link: <SignUpButton />,
-    site_name: SITE_NAME
-  }}>
+  return (
+    <Card
+      {...cardProps}
+      title={
+        referrerIsChannel
+          ? __('%channel_name% invites you to the party!', {
+              channel_name: channelTitle,
+            })
+          : __("You're invited!")
+      }
+      subtitle={
+        referrerIsChannel ? (
+          <I18nMessage
+            tokens={{
+              channel_name: channelTitle,
+              signup_link: <SignUpButton />,
+              site_name: SITE_NAME,
+            }}
+          >
             %channel_name% is waiting for you on %site_name%. %signup_link% to follow them.
-          </I18nMessage> : <I18nMessage tokens={{
-    signup_link: <SignUpButton />
-  }}>
+          </I18nMessage>
+        ) : (
+          <I18nMessage
+            tokens={{
+              signup_link: <SignUpButton />,
+            }}
+          >
             Content freedom and a present are waiting for you. %signup_link% to claim it.
-          </I18nMessage>} actions={<div className="section__actions">
+          </I18nMessage>
+        )
+      }
+      actions={
+        <div className="section__actions">
           <SignUpButton button="primary" />
           <Button button="link" label={__('Skip')} onClick={handleDone} />
-        </div>}>
+        </div>
+      }
+    >
       {cardChildren}
-    </Card>;
+    </Card>
+  );
 }
 
 export default Invited;

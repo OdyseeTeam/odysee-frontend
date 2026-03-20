@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import Button from "component/button";
-import { SIMPLE_SITE } from "config";
-import * as PAGES from "constants/pages";
-import { useHistory } from "react-router";
-import classnames from "classnames";
+import React, { useEffect } from 'react';
+import Button from 'component/button';
+import { SIMPLE_SITE } from 'config';
+import * as PAGES from 'constants/pages';
+import { useHistory } from 'react-router';
+import classnames from 'classnames';
 export default function Footer() {
   useEffect(() => {
     const maxTimeout = 2000;
@@ -24,9 +24,7 @@ export default function Footer() {
     checkForOneTrust();
   }, []);
   const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const isShorts = urlParams.get('view') === 'shorts';
@@ -35,12 +33,19 @@ export default function Footer() {
     return null;
   }
 
-  return <footer className={classnames('footer', {
-    'footer--shorts': isShorts
-  })}>
+  return (
+    <footer
+      className={classnames('footer', {
+        'footer--shorts': isShorts,
+      })}
+    >
       <ul className="navigation__tertiary footer__links">
         <li className="footer__link">
-          <Button label={__('Community Guidelines')} href="https://help.odysee.tv/communityguidelines/" target="_blank" />
+          <Button
+            label={__('Community Guidelines')}
+            href="https://help.odysee.tv/communityguidelines/"
+            target="_blank"
+          />
         </li>
         <li className="footer__link">
           <Button label={__('FAQ')} href="https://help.odysee.tv/" target="_blank" />
@@ -61,5 +66,6 @@ export default function Footer() {
           <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />
         </li>
       </ul>
-    </footer>;
+    </footer>
+  );
 }

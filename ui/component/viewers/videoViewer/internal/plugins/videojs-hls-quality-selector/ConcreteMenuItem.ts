@@ -1,4 +1,4 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 // Concrete classes
 const VideoJsMenuItemClass = videojs.getComponent('MenuItem');
 /**
@@ -18,7 +18,7 @@ export default class ConcreteMenuItem extends VideoJsMenuItemClass {
     super(player, {
       label: item.label,
       selectable: true,
-      selected: item.selected || false
+      selected: item.selected || false,
     });
     this.item = item;
     this.qualityButton = qualityButton;
@@ -38,5 +38,4 @@ export default class ConcreteMenuItem extends VideoJsMenuItemClass {
     this.plugin.setQuality(this.item.value, true);
     this.selected(true);
   }
-
 }

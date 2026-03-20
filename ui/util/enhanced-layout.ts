@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 export default function useKonamiListener() {
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
@@ -30,7 +30,8 @@ export default function useKonamiListener() {
 var Konami = function (callback) {
   var konami = {
     addEvent: function (obj, type, fn, ref_obj) {
-      if (obj.addEventListener) obj.addEventListener(type, fn, false);else if (obj.attachEvent) {
+      if (obj.addEventListener) obj.addEventListener(type, fn, false);
+      else if (obj.attachEvent) {
         // IE
         obj['e' + type + fn] = fn;
 
@@ -147,8 +148,8 @@ var Konami = function (callback) {
         var result = x_magnitude > y_magnitude ? x : y;
         result = this.tap === true ? 'TAP' : result;
         return result;
-      }
-    }
+      },
+    },
   };
   typeof callback === 'string' && konami.load(callback);
 

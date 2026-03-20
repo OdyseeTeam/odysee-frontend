@@ -1,12 +1,12 @@
-import React from "react";
-import DateTimeClaim from "component/dateTimeClaim";
-import FileViewCount from "component/fileViewCount";
-import FileActions from "component/fileActions";
-import FileVisibility from "component/fileVisibility";
-import ClaimPreviewReset from "component/claimPreviewReset";
-import LivestreamDateTime from "component/livestreamDateTime";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
+import React from 'react';
+import DateTimeClaim from 'component/dateTimeClaim';
+import FileViewCount from 'component/fileViewCount';
+import FileActions from 'component/fileActions';
+import FileVisibility from 'component/fileVisibility';
+import ClaimPreviewReset from 'component/claimPreviewReset';
+import LivestreamDateTime from 'component/livestreamDateTime';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 type Props = {
   uri: string;
   isLivestreamClaim?: boolean;
@@ -15,13 +15,9 @@ type Props = {
 };
 
 function FileSubtitle(props: Props) {
-  const {
-    uri,
-    isLivestreamClaim = false,
-    isLive = false,
-    contentUnlocked
-  } = props;
-  return <>
+  const { uri, isLivestreamClaim = false, isLive = false, contentUnlocked } = props;
+  return (
+    <>
       <div className="media__subtitle--between">
         <div className="file__viewdate">
           <Icon icon={ICONS.TIME} />
@@ -36,7 +32,8 @@ function FileSubtitle(props: Props) {
       </div>
 
       {isLivestreamClaim && isLive && <ClaimPreviewReset uri={uri} />}
-    </>;
+    </>
+  );
 }
 
 export default FileSubtitle;

@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import classnames from "classnames";
-import { THUMBNAIL_CDN_URL } from "config";
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import classnames from 'classnames';
+import { THUMBNAIL_CDN_URL } from 'config';
 type Props = {
   src: string;
   className: string;
@@ -8,11 +8,7 @@ type Props = {
 };
 const imageDataCache = new Map();
 const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props) => {
-  const {
-    src,
-    className,
-    children
-  } = props;
+  const { src, className, children } = props;
   const canvasRef = useRef();
   const [ready, setReady] = useState(() => {
     const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -55,7 +51,7 @@ const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props)
         imageDataCache.set(fullSrc, {
           imageData,
           width,
-          height
+          height,
         });
       } catch (e) {}
 
@@ -64,23 +60,35 @@ const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props)
 
     img.src = fullSrc;
   }, [fullSrc]);
-  return <div className={classnames(className, 'freezeframe-wrapper')}>
-      <canvas ref={canvasRef} className="freezeframe-canvas" style={{
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      visibility: ready ? 'visible' : 'hidden'
-    }} />
-      {!ready && fullSrc && <img src={fullSrc} className="freezeframe-fallback" style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      objectFit: 'cover'
-    }} />}
+  return (
+    <div className={classnames(className, 'freezeframe-wrapper')}>
+      <canvas
+        ref={canvasRef}
+        className="freezeframe-canvas"
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          visibility: ready ? 'visible' : 'hidden',
+        }}
+      />
+      {!ready && fullSrc && (
+        <img
+          src={fullSrc}
+          className="freezeframe-fallback"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover',
+          }}
+        />
+      )}
       {children}
-    </div>;
+    </div>
+  );
 });
 export default FreezeframeWrapper;

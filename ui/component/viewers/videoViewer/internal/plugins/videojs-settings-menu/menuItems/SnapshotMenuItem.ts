@@ -1,15 +1,10 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 const SettingMenuItem = videojs.getComponent('SettingMenuItem');
 const name = 'SnapshotMenuItem';
 
 class SnapshotMenuItem extends SettingMenuItem {
   constructor(player, options) {
-    super(player, { ...options,
-      name: name,
-      label: __('Take snapshot'),
-      icon: '',
-      entries: []
-    });
+    super(player, { ...options, name: name, label: __('Take snapshot'), icon: '', entries: [] });
     this.addClass('vjs-setting-snapshot');
 
     if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
@@ -31,7 +26,6 @@ class SnapshotMenuItem extends SettingMenuItem {
       this.options_.menu.menuButton_.hideMenu();
     }
   }
-
 }
 
 videojs.registerComponent(name, SnapshotMenuItem);

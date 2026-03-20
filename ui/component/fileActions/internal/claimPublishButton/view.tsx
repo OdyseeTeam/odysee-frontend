@@ -1,7 +1,7 @@
-import * as ICONS from "constants/icons";
-import { buildURI } from "util/lbryURI";
-import React from "react";
-import FileActionButton from "component/common/file-action-button";
+import * as ICONS from 'constants/icons';
+import { buildURI } from 'util/lbryURI';
+import React from 'react';
+import FileActionButton from 'component/common/file-action-button';
 type Props = {
   claimType: string;
   // redux
@@ -12,26 +12,17 @@ type Props = {
 };
 
 function ClaimPublishButton(props: Props) {
-  const {
-    claimType,
-    claim,
-    channelName,
-    claimIsMine,
-    doPrepareEdit
-  } = props;
+  const { claimType, claim, channelName, claimIsMine, doPrepareEdit } = props;
   // We want to use the short form uri for editing
   // This is what the user is used to seeing, they don't care about the claim id
   // We will select the claim id before they publish
   let editUri;
 
   if (claim && claimIsMine) {
-    const {
-      name: claimName,
-      claim_id: claimId
-    } = claim;
+    const { name: claimName, claim_id: claimId } = claim;
     const uriObject: LbryUrlObj = {
       streamName: claimName,
-      streamClaimId: claimId
+      streamClaimId: claimId,
     };
 
     if (channelName) {
@@ -41,7 +32,14 @@ function ClaimPublishButton(props: Props) {
     editUri = buildURI(uriObject);
   }
 
-  return <FileActionButton title={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')} label={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')} icon={ICONS.EDIT} onClick={!claim ? undefined : () => doPrepareEdit(claim, editUri)} />;
+  return (
+    <FileActionButton
+      title={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
+      label={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
+      icon={ICONS.EDIT}
+      onClick={!claim ? undefined : () => doPrepareEdit(claim, editUri)}
+    />
+  );
 }
 
 export default ClaimPublishButton;

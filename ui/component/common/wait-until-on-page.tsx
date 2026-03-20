@@ -1,5 +1,5 @@
-import React from "react";
-import debounce from "util/debounce";
+import React from 'react';
+import debounce from 'util/debounce';
 const DEBOUNCE_SCROLL_HANDLER_MS = 50;
 
 function scaleToDevicePixelRatio(value) {
@@ -19,28 +19,34 @@ type Props = {
   yOffset?: number;
 };
 export default function WaitUntilOnPage(props: Props) {
-  const {
-    yOffset
-  } = props;
+  const { yOffset } = props;
   const ref = React.useRef();
   const [shouldRender, setShouldRender] = React.useState(false);
-  const shouldElementRender = React.useCallback(ref => {
-    const element = ref && ref.current;
+  const shouldElementRender = React.useCallback(
+    (ref) => {
+      const element = ref && ref.current;
 
-    if (element) {
-      const bounding = element.getBoundingClientRect();
-      // $FlowFixMe
-      const windowH = window.innerHeight || document.documentElement.clientHeight;
-      // $FlowFixMe
-      const windowW = window.innerWidth || document.documentElement.clientWidth;
-      const isApproachingViewport = yOffset && bounding.top < windowH + scaleToDevicePixelRatio(yOffset);
-      const isInViewport = // also covers "element is larger than viewport".
-      bounding.width > 0 && bounding.height > 0 && bounding.bottom >= 0 && bounding.right >= 0 && bounding.top <= windowH && bounding.left <= windowW;
-      return isInViewport || isApproachingViewport;
-    }
+      if (element) {
+        const bounding = element.getBoundingClientRect();
+        // $FlowFixMe
+        const windowH = window.innerHeight || document.documentElement.clientHeight;
+        // $FlowFixMe
+        const windowW = window.innerWidth || document.documentElement.clientWidth;
+        const isApproachingViewport = yOffset && bounding.top < windowH + scaleToDevicePixelRatio(yOffset);
+        const isInViewport = // also covers "element is larger than viewport".
+          bounding.width > 0 &&
+          bounding.height > 0 &&
+          bounding.bottom >= 0 &&
+          bounding.right >= 0 &&
+          bounding.top <= windowH &&
+          bounding.left <= windowW;
+        return isInViewport || isApproachingViewport;
+      }
 
-    return false;
-  }, [yOffset]);
+      return false;
+    },
+    [yOffset]
+  );
   // Handles "element is already in viewport when mounted".
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,8 +75,10 @@ export default function WaitUntilOnPage(props: Props) {
     }
   }, [ref, setShouldRender, shouldRender, shouldElementRender]);
   const render = props.skipWait || shouldRender;
-  return <div ref={ref}>
+  return (
+    <div ref={ref}>
       {render && props.children}
       {!render && props.placeholder !== undefined && props.placeholder}
-    </div>;
+    </div>
+  );
 }

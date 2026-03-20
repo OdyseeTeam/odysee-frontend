@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 type Props = {
   source: string;
 };
@@ -12,24 +12,21 @@ class HtmlViewer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      loading: true
+      loading: true,
     };
     this.iframe = React.createRef();
   }
 
   componentDidMount() {
     const resize = () => {
-      const {
-        scrollHeight,
-        scrollWidth
-      } = this.iframe.current.contentDocument.body;
+      const { scrollHeight, scrollWidth } = this.iframe.current.contentDocument.body;
       this.iframe.current.style.height = `${scrollHeight}px`;
       this.iframe.current.style.width = `${scrollWidth}px`;
     };
 
     this.iframe.current.onload = () => {
       this.setState({
-        loading: false
+        loading: false,
       });
       resize();
     };
@@ -38,31 +35,20 @@ class HtmlViewer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const {
-      source
-    } = this.props;
-    const {
-      loading
-    } = this.state;
-    return <div className="file-viewer file-viewer--html file-viewer--iframe">
+    const { source } = this.props;
+    const { loading } = this.state;
+    return (
+      <div className="file-viewer file-viewer--html file-viewer--iframe">
         {loading && <div className="placeholder--text-document" />}
-        {
-        /* @if TARGET='app' */
-      }
+        {/* @if TARGET='app' */}
         <iframe ref={this.iframe} hidden={loading} sandbox="" title={__('File preview')} src={`file://${source}`} />
-        {
-        /* @endif */
-      }
-        {
-        /* @if TARGET='web' */
-      }
+        {/* @endif */}
+        {/* @if TARGET='web' */}
         <iframe ref={this.iframe} hidden={loading} sandbox="" title={__('File preview')} src={source} />
-        {
-        /* @endif */
-      }
-      </div>;
+        {/* @endif */}
+      </div>
+    );
   }
-
 }
 
 export default HtmlViewer;

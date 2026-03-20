@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 // @ts-ignore
-import { WanderConnect } from "@wanderapp/connect";
-import { LocalStorage } from "util/storage";
-import "./style.scss";
+import { WanderConnect } from '@wanderapp/connect';
+import { LocalStorage } from 'util/storage';
+import './style.scss';
 type Props = {
   arweaveAddress: string;
   connecting: boolean;
@@ -28,7 +28,7 @@ export default function Wander(props: Props) {
     connectArWallet,
     arweaveAddress,
     doArUpdateBalance,
-    doCleanTips
+    doCleanTips,
   } = props;
   const [instance, setInstance] = React.useState(null);
   const loginTimerRef = React.useRef(null);
@@ -51,7 +51,6 @@ export default function Wander(props: Props) {
         }
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [auth]);
   React.useEffect(() => {
     if (authenticated) {
@@ -67,29 +66,29 @@ export default function Wander(props: Props) {
             customStyles: `
               #wanderConnectButtonHost {
                 display:none;
-              }`
+              }`,
           },
           iframe: {
             routeLayout: {
               default: {
                 // type: 'dropdown',
-                type: 'modal'
+                type: 'modal',
               },
               auth: {
-                type: 'modal'
+                type: 'modal',
               },
               'auth-request': {
-                type: 'modal'
-              }
+                type: 'modal',
+              },
             },
             cssVars: {
               light: {
-                shadowBlurred: 'none'
+                shadowBlurred: 'none',
               },
               dark: {
                 shadowBlurred: 'none',
-                boxShadow: 'none'
-              }
+                boxShadow: 'none',
+              },
             },
             customStyles: `
               .backdrop {
@@ -133,8 +132,8 @@ export default function Wander(props: Props) {
                 }
                 */
               }
-            `
-          }
+            `,
+          },
         });
         setInstance(wanderInstance);
         window.wanderInstance = wanderInstance;
@@ -174,13 +173,18 @@ export default function Wander(props: Props) {
       doArSetAuth(instance.authInfo);
     };
 
-    const onMessage = event => {
+    const onMessage = (event) => {
       try {
         const data = event.data;
 
         if (data && data.id && !data.id.includes('react')) {
           if (data.type === 'embedded_auth') {
-            if (data.data.authType || data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null' && data.data.authType !== null) {
+            if (
+              data.data.authType ||
+              (data.data.authStatus === 'not-authenticated' &&
+                data.data.authType !== 'null' &&
+                data.data.authType !== null)
+            ) {
               if (data.data.authStatus !== 'loading') {
                 LocalStorage.setItem('WALLET_TYPE', data.data.authType);
 
@@ -225,7 +229,8 @@ export default function Wander(props: Props) {
             doArUpdateBalance();
           }
         }
-      } catch (e) {// Ignore errors from wallet SDK message handling
+      } catch (e) {
+        // Ignore errors from wallet SDK message handling
       }
     };
 

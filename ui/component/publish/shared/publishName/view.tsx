@@ -1,11 +1,11 @@
-import { DOMAIN } from "config";
-import { INVALID_NAME_ERROR } from "constants/claim";
-import React, { useState, useEffect } from "react";
-import { isNameValid } from "util/lbryURI";
-import { FormField } from "component/common/form";
-import NameHelpText from "./name-help-text";
-import { useIsMobile } from "effects/use-screensize";
-import useThrottle from "effects/use-throttle";
+import { DOMAIN } from 'config';
+import { INVALID_NAME_ERROR } from 'constants/claim';
+import React, { useState, useEffect } from 'react';
+import { isNameValid } from 'util/lbryURI';
+import { FormField } from 'component/common/form';
+import NameHelpText from './name-help-text';
+import { useIsMobile } from 'effects/use-screensize';
+import useThrottle from 'effects/use-throttle';
 type Props = {
   name: string;
   // TODO: unclear whether 'uri' comes from client or redux. It's currently both.
@@ -34,7 +34,7 @@ function PublishName(props: Props) {
     onChange,
     activeChannelClaim,
     incognito,
-    currentUploads
+    currentUploads,
   } = props;
   const [name, setName] = useState(publishFormName);
   const nameThrottled = useThrottle(name, 750);
@@ -42,7 +42,7 @@ function PublishName(props: Props) {
   const [blurred, setBlurred] = React.useState(false);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const isMobile = useIsMobile();
-  let prefix = IS_WEB ? isMobile ? '' : `${DOMAIN}/` : 'lbry://';
+  let prefix = IS_WEB ? (isMobile ? '' : `${DOMAIN}/`) : 'lbry://';
 
   if (activeChannelName && !incognito) {
     prefix += `${activeChannelName}/`;
@@ -68,11 +68,10 @@ function PublishName(props: Props) {
     if (publishFormName !== name) {
       setName(publishFormName);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
-
   }, [publishFormName]);
   useEffect(() => {
     updatePublishForm({
-      name: nameThrottled || ''
+      name: nameThrottled || '',
     });
   }, [nameThrottled, updatePublishForm]);
   useEffect(() => {
@@ -90,19 +89,37 @@ function PublishName(props: Props) {
 
     setNameError(nameError);
   }, [name, blurred]);
-  return <>
+  return (
+    <>
       <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
         <fieldset-section>
           <label>{__('URL')}</label>
           <div className="form-field__prefix">{prefix}</div>
         </fieldset-section>
-        <FormField type="text" name="content_name" value={name} error={nameError} disabled={isStillEditing} onChange={handleChange} onBlur={() => setBlurred(true)} autoComplete="off" />
+        <FormField
+          type="text"
+          name="content_name"
+          value={name}
+          error={nameError}
+          disabled={isStillEditing}
+          onChange={handleChange}
+          onBlur={() => setBlurred(true)}
+          autoComplete="off"
+        />
       </fieldset-group>
 
       <div className="form-field__help">
-        <NameHelpText uri={uri} isStillEditing={isStillEditing} myClaimForUri={myClaimForUri} myClaimForUriCaseInsensitive={myClaimForUriCaseInsensitive} currentUploads={currentUploads} onEditMyClaim={editExistingClaim} />
+        <NameHelpText
+          uri={uri}
+          isStillEditing={isStillEditing}
+          myClaimForUri={myClaimForUri}
+          myClaimForUriCaseInsensitive={myClaimForUriCaseInsensitive}
+          currentUploads={currentUploads}
+          onEditMyClaim={editExistingClaim}
+        />
       </div>
-    </>;
+    </>
+  );
 }
 
 export default PublishName;

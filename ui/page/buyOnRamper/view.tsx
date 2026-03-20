@@ -1,18 +1,18 @@
 /* eslint-disable */
-import React from "react";
-import { useHistory } from "react-router";
-import { ENABLE_ARCONNECT } from "config";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import Page from "component/page";
-import Card from "component/common/card";
-import Button from "component/button";
-import Symbol from "component/common/symbol";
-import WalletConnect from "component/walletConnect";
-import ReceiveUsdc from "../paymentAccount/receiveUsdc/view"; // huh?
+import React from 'react';
+import { useHistory } from 'react-router';
+import { ENABLE_ARCONNECT } from 'config';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import Page from 'component/page';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import Symbol from 'component/common/symbol';
+import WalletConnect from 'component/walletConnect';
+import ReceiveUsdc from '../paymentAccount/receiveUsdc/view'; // huh?
 
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "component/common/tabs";
-import "./style.scss";
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import './style.scss';
 type Props = {
   arWalletStatus: any;
   theme: string;
@@ -21,19 +21,11 @@ type Props = {
   doArDisconnect: () => void;
 };
 export default function BuyPage(props: Props) {
-  const {
-    arWalletStatus,
-    theme,
-    balance,
-    experimentalUi,
-    doArDisconnect
-  } = props;
+  const { arWalletStatus, theme, balance, experimentalUi, doArDisconnect } = props;
   // const [targetWallet, setTargetWallet] = React.useState(undefined);
   const {
-    location: {
-      search
-    },
-    push
+    location: { search },
+    push,
   } = useHistory();
   const root = document?.documentElement ?? undefined;
   if (!(root instanceof Element)) return;
@@ -42,10 +34,16 @@ export default function BuyPage(props: Props) {
   // const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
   const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
 
-  const rgbaToHex = rgba => {
+  const rgbaToHex = (rgba) => {
     // $FlowIgnore
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-    return `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
+      a < 1
+        ? Math.round(a * 255)
+            .toString(16)
+            .padStart(2, '0')
+        : ''
+    }`;
   };
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
@@ -55,7 +53,7 @@ export default function BuyPage(props: Props) {
     const r = Math.round(rB * (1 - aA) + rA * aA);
     const g = Math.round(gB * (1 - aA) + gA * aA);
     const b = Math.round(bB * (1 - aA) + bA * aA);
-    return `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).padStart(6, '0')}`;
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
   };
 
   const containerColor = `${rgbaToHexWithBackground(getComputedStyle(root).getPropertyValue('--color-background').trim(), getComputedStyle(root).getPropertyValue('--color-header-button').trim())}`;
@@ -86,7 +84,7 @@ export default function BuyPage(props: Props) {
     cardColor,
     primaryBtnTextColor: 'ffffff',
     borderRadius: '0',
-    wgBorderRadius: '0'
+    wgBorderRadius: '0',
   };
   const iframeUri = `https://buy.onramper.dev?${new URLSearchParams(params).toString()}`;
   const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
@@ -94,7 +92,7 @@ export default function BuyPage(props: Props) {
   const TAB_QUERY = 'tab';
   const TABS = {
     BUY: 'buy',
-    RECEIVE: 'receive'
+    RECEIVE: 'receive',
   };
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.BUY;
@@ -102,24 +100,26 @@ export default function BuyPage(props: Props) {
     if (theme) {
       setTimeout(() => {
         const iframe = iframeRef.current;
-        iframe.contentWindow.postMessage({
-          type: 'change-theme',
-          id: 'change-theme',
-          theme: {
-            containerColor: `#${rgbaToHexWithBackground(getComputedStyle(root).getPropertyValue('--color-background').trim(), getComputedStyle(root).getPropertyValue('--color-header-button').trim())}`,
-            primaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-primary').trim())}`,
-            primaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
-            secondaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
-            secondaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
-            cardColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
-            primaryBtnTextColor: '#ffffff',
-            borderRadius: '0rem',
-            widgetBorderRadius: '0rem'
-          }
-        }, '*');
+        iframe.contentWindow.postMessage(
+          {
+            type: 'change-theme',
+            id: 'change-theme',
+            theme: {
+              containerColor: `#${rgbaToHexWithBackground(getComputedStyle(root).getPropertyValue('--color-background').trim(), getComputedStyle(root).getPropertyValue('--color-header-button').trim())}`,
+              primaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-primary').trim())}`,
+              primaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
+              secondaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
+              secondaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
+              cardColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
+              primaryBtnTextColor: '#ffffff',
+              borderRadius: '0rem',
+              widgetBorderRadius: '0rem',
+            },
+          },
+          '*'
+        );
       }, 1000);
     } // $FlowIgnore
-
   }, [theme]);
   let tabIndex;
 
@@ -157,13 +157,15 @@ export default function BuyPage(props: Props) {
 
   React.useEffect(() => {
     fetch(proxyUrl + everpayUri) // .then(response => response.json())
-    .then(data => console.log(data)).catch(error => console.error('Error fetching data:', error));
+      .then((data) => console.log(data))
+      .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
   if (showArweave) {
-    return <Page // noSideNavigation
-    className="depositPage-wrapper" // backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
-    >
+    return (
+      <Page // noSideNavigation
+        className="depositPage-wrapper" // backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
+      >
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('Buy')}</Tab>
@@ -172,24 +174,51 @@ export default function BuyPage(props: Props) {
           <TabPanels>
             <TabPanel>
               <>
-                <Card className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`} title={<>
+                <Card
+                  className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
+                  title={
+                    <>
                       <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                      {arWalletStatus && <Button button="primary" icon={ICONS.WANDER} label={__('Disconnect')} onClick={handleArConnectDisconnect} />}
-                    </>} background actions={<div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-                      <iframe ref={iframeRef} src={iframeUri} title="Onramper Widget" // height="630px"
-                // width="420px"
-                allow="accelerometer; autoplay; camera; gyroscope; payment; microphone" />
-                    </div>} />
-                {!arWalletStatus && <div className="wallet">
+                      {arWalletStatus && (
+                        <Button
+                          button="primary"
+                          icon={ICONS.WANDER}
+                          label={__('Disconnect')}
+                          onClick={handleArConnectDisconnect}
+                        />
+                      )}
+                    </>
+                  }
+                  background
+                  actions={
+                    <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+                      <iframe
+                        ref={iframeRef}
+                        src={iframeUri}
+                        title="Onramper Widget" // height="630px"
+                        // width="420px"
+                        allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+                      />
+                    </div>
+                  }
+                />
+                {!arWalletStatus && (
+                  <div className="wallet">
                     <WalletConnect />
-                  </div>}
+                  </div>
+                )}
               </>
             </TabPanel>
             <TabPanel>
-              <ReceiveUsdc arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
+              <ReceiveUsdc
+                arWalletStatus={arWalletStatus}
+                balance={balance}
+                handleArConnectDisconnect={handleArConnectDisconnect}
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Page>;
+      </Page>
+    );
   }
 }

@@ -1,43 +1,46 @@
-import * as MODALS from "constants/modal_types";
-import * as ICONS from "constants/icons";
-import * as TAGS from "constants/tags";
-import React from "react";
-import classnames from "classnames";
-import { FormField } from "component/common/form";
-import Button from "component/button";
-import TagsSearch from "component/tagsSearch";
-import { FF_MAX_CHARS_IN_DESCRIPTION } from "constants/form-field";
-import ErrorText from "component/common/error-text";
-import ChannelThumbnail from "component/channelThumbnail";
-import { isNameValid, parseURI } from "util/lbryURI";
-import ClaimAbandonButton from "component/claimAbandonButton";
-import { useHistory } from "react-router-dom";
-import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from "constants/claim";
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from "component/common/tabs";
-import Card from "component/common/card";
-import * as PAGES from "constants/pages";
-import * as PUBLISH from "constants/publish";
-import analytics from "analytics";
-import LbcSymbol from "component/common/lbc-symbol";
-import SUPPORTED_LANGUAGES from "constants/supported_languages";
-import WalletSpendableBalanceHelp from "component/walletSpendableBalanceHelp";
-import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from "config";
-import { sortLanguageMap } from "util/default-languages";
-import ThumbnailBrokenImage from "component/selectThumbnail/thumbnail-broken.png";
-import Gerbil from "component/channelThumbnail/gerbil.png";
-import Icon from "component/common/icon";
+import * as MODALS from 'constants/modal_types';
+import * as ICONS from 'constants/icons';
+import * as TAGS from 'constants/tags';
+import React from 'react';
+import classnames from 'classnames';
+import { FormField } from 'component/common/form';
+import Button from 'component/button';
+import TagsSearch from 'component/tagsSearch';
+import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
+import ErrorText from 'component/common/error-text';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { isNameValid, parseURI } from 'util/lbryURI';
+import ClaimAbandonButton from 'component/claimAbandonButton';
+import { useHistory } from 'react-router-dom';
+import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR, ESTIMATED_FEE } from 'constants/claim';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import Card from 'component/common/card';
+import * as PAGES from 'constants/pages';
+import * as PUBLISH from 'constants/publish';
+import analytics from 'analytics';
+import LbcSymbol from 'component/common/lbc-symbol';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
+import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { sortLanguageMap } from 'util/default-languages';
+import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
+import Gerbil from 'component/channelThumbnail/gerbil.png';
+import Icon from 'component/common/icon';
 const MAX_TAG_SELECT = 5;
 type Props = {
   uri: string;
   onDone: () => void;
   disabled: boolean;
-  openModal: (id: string, arg1: {
-    onUpdate: (arg0: string, arg1: boolean) => void;
-    assetName: string;
-    helpText: string;
-    currentValue: string;
-    title: string;
-  }) => void;
+  openModal: (
+    id: string,
+    arg1: {
+      onUpdate: (arg0: string, arg1: boolean) => void;
+      assetName: string;
+      helpText: string;
+      currentValue: string;
+      title: string;
+    }
+  ) => void;
   // --- redux ---
   claim: ChannelClaim;
   title: string;
@@ -89,29 +92,23 @@ function ChannelForm(props: Props) {
     openModal,
     disabled,
     isClaimingInitialRewards,
-    hasClaimedInitialRewards
+    hasClaimedInitialRewards,
   } = props;
   const [nameError, setNameError] = React.useState(undefined);
   const [bidError, setBidError] = React.useState('');
   const [isUpload, setIsUpload] = React.useState({
     cover: false,
-    thumbnail: false
+    thumbnail: false,
   });
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);
   const [bidHasExceededDefaultAmount] = React.useState(Boolean(amount && amount > MINIMUM_PUBLISH_BID));
-  const {
-    claim_id: claimId
-  } = claim || {};
+  const { claim_id: claimId } = claim || {};
   const [params, setParams]: [any, (arg0: any) => void] = React.useState(getChannelParams());
-  const {
-    channelName
-  } = parseURI(uri);
+  const { channelName } = parseURI(uri);
   const name = params.name;
   const isNewChannel = !uri;
-  const {
-    replace
-  } = useHistory();
+  const { replace } = useHistory();
   const languageParam = params.languages;
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const secondaryLanguage = Array.isArray(languageParam) && languageParam.length >= 2 && languageParam[1];
@@ -123,7 +120,14 @@ function ChannelForm(props: Props) {
     return creatingChannel || updatingChannel ? __('Saving...') : __('Save');
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel]);
   const submitDisabled = React.useMemo(() => {
-    return isClaimingInitialRewards || creatingChannel || updatingChannel || coverError || bidError || isNewChannel && !params.name;
+    return (
+      isClaimingInitialRewards ||
+      creatingChannel ||
+      updatingChannel ||
+      coverError ||
+      bidError ||
+      (isNewChannel && !params.name)
+    );
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel, bidError, isNewChannel, coverError, params.name]);
   const errorMsg = resolveErrorMsg();
   const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
@@ -140,7 +144,7 @@ function ChannelForm(props: Props) {
 
   React.useEffect(() => {
     window.addEventListener('scroll', onScroll, {
-      passive: true
+      passive: true,
     });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -157,9 +161,12 @@ function ChannelForm(props: Props) {
       amount: number;
       languages: Array<string> | null | undefined;
       locations: Array<string> | null | undefined;
-      tags: Array<{
-        name: string;
-      }> | null | undefined;
+      tags:
+        | Array<{
+            name: string;
+          }>
+        | null
+        | undefined;
       claim_id?: string;
     } = {
       website,
@@ -171,11 +178,13 @@ function ChannelForm(props: Props) {
       amount: amount || 0.001,
       languages: languages || [],
       locations: locations || [],
-      tags: tags ? tags.map(tag => {
-        return {
-          name: tag
-        };
-      }) : []
+      tags: tags
+        ? tags.map((tag) => {
+            return {
+              name: tag,
+            };
+          })
+        : [],
     };
 
     if (claimId) {
@@ -186,21 +195,18 @@ function ChannelForm(props: Props) {
   }
 
   function handleBidChange(bid: number) {
-    const {
-      balance,
-      amount
-    } = props;
+    const { balance, amount } = props;
     const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
-    setParams({ ...params,
-      amount: bid
-    });
+    setParams({ ...params, amount: bid });
 
     if (bid <= 0.0 || isNaN(bid)) {
       setBidError(__('Deposit cannot be 0'));
     } else if (totalAvailableBidAmount < bid) {
-      setBidError(__('Deposit cannot be higher than your available balance: %balance%', {
-        balance: totalAvailableBidAmount
-      }));
+      setBidError(
+        __('Deposit cannot be higher than your available balance: %balance%', {
+          balance: totalAvailableBidAmount,
+        })
+      );
     } else if (totalAvailableBidAmount - bid < ESTIMATED_FEE) {
       setBidError(__('Please decrease your deposit to account for transaction fees'));
     } else if (bid < MINIMUM_PUBLISH_BID) {
@@ -228,40 +234,30 @@ function ChannelForm(props: Props) {
       }
     }
 
-    setParams({ ...params,
-      languages: langs
-    });
+    setParams({ ...params, languages: langs });
   }
 
   function handleThumbnailChange(thumbnailUrl: string, uploadSelected: boolean) {
-    setParams({ ...params,
-      thumbnailUrl
-    });
-    setIsUpload({ ...isUpload,
-      thumbnail: uploadSelected
-    });
+    setParams({ ...params, thumbnailUrl });
+    setIsUpload({ ...isUpload, thumbnail: uploadSelected });
     setThumbError(false);
   }
 
   function handleCoverChange(coverUrl: string, uploadSelected: boolean) {
-    setParams({ ...params,
-      coverUrl
-    });
-    setIsUpload({ ...isUpload,
-      cover: uploadSelected
-    });
+    setParams({ ...params, coverUrl });
+    setIsUpload({ ...isUpload, cover: uploadSelected });
     setCoverError(false);
   }
 
   function handleSubmit() {
     if (uri) {
-      updateChannel(params).then(success => {
+      updateChannel(params).then((success) => {
         if (success) {
           onDone();
         }
       });
     } else {
-      createChannel(params).then(success => {
+      createChannel(params).then((success) => {
         if (success) {
           analytics.apiLog.publish(success);
           onDone();
@@ -278,9 +274,9 @@ function ChannelForm(props: Props) {
       errorMsg = __('Transaction limit reached. Try reducing the Description length.');
     }
 
-    if (!isUpload.thumbnail && thumbError || !isUpload.cover && coverError) {
+    if ((!isUpload.thumbnail && thumbError) || (!isUpload.cover && coverError)) {
       errorMsg = __('Invalid %error_type%', {
-        error_type: thumbError && 'thumbnail' || coverError && 'cover image'
+        error_type: (thumbError && 'thumbnail') || (coverError && 'cover image'),
       });
     }
 
@@ -323,57 +319,94 @@ function ChannelForm(props: Props) {
   }
 
   // TODO clear and bail after submit
-  return <>
-      <div className={classnames({
-      'card--disabled': disabled
-    })}>
-        <header className="channel-cover" style={{
-        backgroundImage: 'url(' + coverSrc + ')'
-      }}>
+  return (
+    <>
+      <div
+        className={classnames({
+          'card--disabled': disabled,
+        })}
+      >
+        <header
+          className="channel-cover"
+          style={{
+            backgroundImage: 'url(' + coverSrc + ')',
+          }}
+        >
           <div className="channel-header-content">
             <div className="channel__quick-actions">
-              <Button button="alt" title={__('Cover')} onClick={() => openModal(MODALS.IMAGE_UPLOAD, {
-              onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
-              title: __('Edit Cover Image'),
-              helpText: __('(Recommmended: 2048x320 px)'),
-              assetName: __('Cover Image'),
-              currentValue: params.coverUrl,
-              otherValue: params.thumbnailUrl
-            })} icon={ICONS.CAMERA} iconSize={18} />
+              <Button
+                button="alt"
+                title={__('Cover')}
+                onClick={() =>
+                  openModal(MODALS.IMAGE_UPLOAD, {
+                    onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
+                    title: __('Edit Cover Image'),
+                    helpText: __('(Recommmended: 2048x320 px)'),
+                    assetName: __('Cover Image'),
+                    currentValue: params.coverUrl,
+                    otherValue: params.thumbnailUrl,
+                  })
+                }
+                icon={ICONS.CAMERA}
+                iconSize={18}
+              />
             </div>
-            {params.coverUrl && coverError && isUpload.cover && <div className="channel-cover__custom--waiting">
+            {params.coverUrl && coverError && isUpload.cover && (
+              <div className="channel-cover__custom--waiting">
                 <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
-              </div>}
+              </div>
+            )}
             <div className="channel__primary-info">
               <h1 className="channel__title">
-                {params.title || channelName && '@' + channelName || params.name && '@' + params.name}
+                {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
               </h1>
             </div>
           </div>
         </header>
 
         <Tabs index={tabIndex}>
-          <div className={classnames('tab__wrapper', {
-          'tab__wrapper--fixed': scrollPast
-        })}>
-            <div onClick={() => window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          })}>
-              <ChannelThumbnail className={classnames('channel__thumbnail--channel-page', {
-              'channel__thumbnail--channel-page-fixed': scrollPast
-            })} uri={uri} thumbnailPreview={thumbnailPreview} allowGifs setThumbUploadError={setThumbError} thumbUploadError={thumbError} />
+          <div
+            className={classnames('tab__wrapper', {
+              'tab__wrapper--fixed': scrollPast,
+            })}
+          >
+            <div
+              onClick={() =>
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth',
+                })
+              }
+            >
+              <ChannelThumbnail
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
+                uri={uri}
+                thumbnailPreview={thumbnailPreview}
+                allowGifs
+                setThumbUploadError={setThumbError}
+                thumbUploadError={thumbError}
+              />
               <div className="channel__edit-thumb">
-                <Button button="alt" title={__('Edit')} onClick={() => openModal(MODALS.IMAGE_UPLOAD, {
-                onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                title: __('Edit Thumbnail Image'),
-                helpText: __('(1:1 ratio)', {
-                  max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024)
-                }),
-                assetName: __('Thumbnail'),
-                currentValue: params.thumbnailUrl,
-                otherValue: params.coverUrl
-              })} icon={ICONS.CAMERA} iconSize={18} />
+                <Button
+                  button="alt"
+                  title={__('Edit')}
+                  onClick={() =>
+                    openModal(MODALS.IMAGE_UPLOAD, {
+                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                      title: __('Edit Thumbnail Image'),
+                      helpText: __('(1:1 ratio)', {
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      }),
+                      assetName: __('Thumbnail'),
+                      currentValue: params.thumbnailUrl,
+                      otherValue: params.coverUrl,
+                    })
+                  }
+                  icon={ICONS.CAMERA}
+                  iconSize={18}
+                />
               </div>
             </div>
 
@@ -388,118 +421,252 @@ function ChannelForm(props: Props) {
           </div>
           <TabPanels>
             <TabPanel>
-              <Card background title={__('General')} body={<div className="publish-row publish-row--no-margin">
-                    {isNewChannel && <Button button="primary" label={__('Sync YouTube Channel')} icon={ICONS.YOUTUBE} navigate={`/$/${PAGES.YOUTUBE_SYNC}`} />}
+              <Card
+                background
+                title={__('General')}
+                body={
+                  <div className="publish-row publish-row--no-margin">
+                    {isNewChannel && (
+                      <Button
+                        button="primary"
+                        label={__('Sync YouTube Channel')}
+                        icon={ICONS.YOUTUBE}
+                        navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
+                      />
+                    )}
 
-                    {isNewChannel && <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix" style={{
-                marginTop: 'var(--spacing-m)'
-              }}>
+                    {isNewChannel && (
+                      <fieldset-group
+                        class="fieldset-group--smushed fieldset-group--disabled-prefix"
+                        style={{
+                          marginTop: 'var(--spacing-m)',
+                        }}
+                      >
                         <fieldset-section>
                           <label htmlFor="channel_name">{__('Name')}</label>
                           <div className="form-field__prefix">@</div>
                         </fieldset-section>
 
-                        <FormField autoFocus={isNewChannel} type="text" name="channel_name" placeholder={__('MyAwesomeChannel')} value={params.name || channelName} error={nameError} disabled={!isNewChannel} onChange={e => setParams({ ...params,
-                  name: e.target.value
-                })} />
-                      </fieldset-group>}
+                        <FormField
+                          autoFocus={isNewChannel}
+                          type="text"
+                          name="channel_name"
+                          placeholder={__('MyAwesomeChannel')}
+                          value={params.name || channelName}
+                          error={nameError}
+                          disabled={!isNewChannel}
+                          onChange={(e) => setParams({ ...params, name: e.target.value })}
+                        />
+                      </fieldset-group>
+                    )}
 
-                    <fieldset-section style={{
-                marginTop: 'var(--spacing-m)'
-              }}>
-                      <FormField type="text" name="channel_title2" label={__('Title')} placeholder={__('My Awesome Channel')} value={params.title} onChange={e => setParams({ ...params,
-                  title: e.target.value
-                })} />
+                    <fieldset-section
+                      style={{
+                        marginTop: 'var(--spacing-m)',
+                      }}
+                    >
+                      <FormField
+                        type="text"
+                        name="channel_title2"
+                        label={__('Title')}
+                        placeholder={__('My Awesome Channel')}
+                        value={params.title}
+                        onChange={(e) => setParams({ ...params, title: e.target.value })}
+                      />
                     </fieldset-section>
-                    <FormField type="markdown" name="content_description2" label={__('Description')} placeholder={__('Description of your content')} value={params.description} onChange={text => setParams({ ...params,
-                description: text
-              })} textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION} />
-                  </div>} />
+                    <FormField
+                      type="markdown"
+                      name="content_description2"
+                      label={__('Description')}
+                      placeholder={__('Description of your content')}
+                      value={params.description}
+                      onChange={(text) => setParams({ ...params, description: text })}
+                      textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
+                    />
+                  </div>
+                }
+              />
 
-              <Card background title={__('Contact')} body={<div className="publish-row publish-row--no-margin">
-                    <FormField type="text" name="content_email2" label={__('Email')} placeholder={__('yourstruly@example.com')} disabled={false} value={params.email} onChange={e => setParams({ ...params,
-                email: e.target.value
-              })} />
-                    <FormField type="text" name="channel_website2" label={__('Website')} placeholder={__('aprettygoodsite.com')} disabled={false} value={params.website} onChange={e => setParams({ ...params,
-                website: e.target.value
-              })} />
-                  </div>} />
+              <Card
+                background
+                title={__('Contact')}
+                body={
+                  <div className="publish-row publish-row--no-margin">
+                    <FormField
+                      type="text"
+                      name="content_email2"
+                      label={__('Email')}
+                      placeholder={__('yourstruly@example.com')}
+                      disabled={false}
+                      value={params.email}
+                      onChange={(e) => setParams({ ...params, email: e.target.value })}
+                    />
+                    <FormField
+                      type="text"
+                      name="channel_website2"
+                      label={__('Website')}
+                      placeholder={__('aprettygoodsite.com')}
+                      disabled={false}
+                      value={params.website}
+                      onChange={(e) => setParams({ ...params, website: e.target.value })}
+                    />
+                  </div>
+                }
+              />
 
-              <Card background title={__('Tags')} className="card--tags" body={<div className="publish-row">
-                    <TagsSearch suggestMature={!SIMPLE_SITE} disableAutoFocus limitSelect={MAX_TAG_SELECT} tagsPassedIn={params.tags || []} excludedControlTags={[TAGS.DISABLE_COMMENTS_TAG]} label={__('Selected Tags')} onRemove={clickedTag => {
-                const newTags = params.tags.slice().filter(tag => tag.name !== clickedTag.name);
-                setParams({ ...params,
-                  tags: newTags
-                });
-              }} onSelect={newTags => {
-                newTags.forEach(newTag => {
-                  if (!params.tags.map(savedTag => savedTag.name).includes(newTag.name)) {
-                    setParams({ ...params,
-                      tags: [...params.tags, newTag]
-                    });
-                  } else {
-                    // If it already exists and the user types it in, remove it
-                    setParams({ ...params,
-                      tags: params.tags.filter(tag => tag.name !== newTag.name)
-                    });
-                  }
-                });
-              }} />
-                  </div>} />
+              <Card
+                background
+                title={__('Tags')}
+                className="card--tags"
+                body={
+                  <div className="publish-row">
+                    <TagsSearch
+                      suggestMature={!SIMPLE_SITE}
+                      disableAutoFocus
+                      limitSelect={MAX_TAG_SELECT}
+                      tagsPassedIn={params.tags || []}
+                      excludedControlTags={[TAGS.DISABLE_COMMENTS_TAG]}
+                      label={__('Selected Tags')}
+                      onRemove={(clickedTag) => {
+                        const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                        setParams({ ...params, tags: newTags });
+                      }}
+                      onSelect={(newTags) => {
+                        newTags.forEach((newTag) => {
+                          if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+                            setParams({ ...params, tags: [...params.tags, newTag] });
+                          } else {
+                            // If it already exists and the user types it in, remove it
+                            setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                }
+              />
 
-              <Card background title={__('Languages')} body={<div className="publish-row">
-                    <fieldset-section style={{
-                marginTop: 'calc(var(--spacing-m) * -1)'
-              }}>
-                      <FormField name="language_select" type="select" label={__('Primary Language')} onChange={event => handleLanguageChange(0, event.target.value)} value={primaryLanguage} helper={__('Your main content language')}>
+              <Card
+                background
+                title={__('Languages')}
+                body={
+                  <div className="publish-row">
+                    <fieldset-section
+                      style={{
+                        marginTop: 'calc(var(--spacing-m) * -1)',
+                      }}
+                    >
+                      <FormField
+                        name="language_select"
+                        type="select"
+                        label={__('Primary Language')}
+                        onChange={(event) => handleLanguageChange(0, event.target.value)}
+                        value={primaryLanguage}
+                        helper={__('Your main content language')}
+                      >
                         <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
                           {__('None selected')}
                         </option>
-                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => <option key={langKey} value={langKey}>
+                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                          <option key={langKey} value={langKey}>
                             {langName}
-                          </option>)}
+                          </option>
+                        ))}
                       </FormField>
                     </fieldset-section>
-                    <FormField name="language_select2" type="select" label={__('Secondary Language')} onChange={event => handleLanguageChange(1, event.target.value)} value={secondaryLanguage} disabled={!languageParam[0]} helper={__('Your other content language')}>
+                    <FormField
+                      name="language_select2"
+                      type="select"
+                      label={__('Secondary Language')}
+                      onChange={(event) => handleLanguageChange(1, event.target.value)}
+                      value={secondaryLanguage}
+                      disabled={!languageParam[0]}
+                      helper={__('Your other content language')}
+                    >
                       <option key={'sec-langNone'} value={PUBLISH.LANG_NONE}>
                         {__('None selected')}
                       </option>
-                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => <option key={langKey} value={langKey} disabled={langKey === languageParam[0]}>
+                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                        <option key={langKey} value={langKey} disabled={langKey === languageParam[0]}>
                           {langName}
-                        </option>)}
+                        </option>
+                      ))}
                     </FormField>
-                  </div>} />
+                  </div>
+                }
+              />
             </TabPanel>
             <TabPanel>
-              {bidHasExceededDefaultAmount && <Card background title={__('Credit Details')} body={<div className="publish-row publish-row--no-margin">
-                      <FormField className="form-field--price-amount" type="number" name="content_bid2" step="any" label={<LbcSymbol postfix={__('Deposit')} size={14} />} value={params.amount} error={bidError} min="0.0" disabled={false} onChange={event => handleBidChange(parseFloat(event.target.value))} placeholder={0.1} helper={<>
+              {bidHasExceededDefaultAmount && (
+                <Card
+                  background
+                  title={__('Credit Details')}
+                  body={
+                    <div className="publish-row publish-row--no-margin">
+                      <FormField
+                        className="form-field--price-amount"
+                        type="number"
+                        name="content_bid2"
+                        step="any"
+                        label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                        value={params.amount}
+                        error={bidError}
+                        min="0.0"
+                        disabled={false}
+                        onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                        placeholder={0.1}
+                        helper={
+                          <>
                             {__('Increasing your deposit can help your channel be discovered more easily.')}
                             <WalletSpendableBalanceHelp inline />
-                          </>} />
-                    </div>} />}
-              {!isNewChannel && <>
-                  <Card background title={__('Delete Channel')} body={<div className="publish-row">
+                          </>
+                        }
+                      />
+                    </div>
+                  }
+                />
+              )}
+              {!isNewChannel && (
+                <>
+                  <Card
+                    background
+                    title={__('Delete Channel')}
+                    body={
+                      <div className="publish-row">
                         <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
-                      </div>} />
-                </>}
+                      </div>
+                    }
+                  />
+                </>
+              )}
             </TabPanel>
           </TabPanels>
         </Tabs>
 
         <div className="card-fixed-bottom">
-          <Card className="card--after-tabs tab__panel" actions={<>
+          <Card
+            className="card--after-tabs tab__panel"
+            actions={
+              <>
                 <div className="section__actions">
                   <Button button="primary" disabled={submitDisabled} label={submitLabel} onClick={handleSubmit} />
                   <Button button="link" label={__('Cancel')} onClick={onDone} />
-                  {errorMsg ? <ErrorText>{errorMsg}</ErrorText> : <p className="help">
+                  {errorMsg ? (
+                    <ErrorText>{errorMsg}</ErrorText>
+                  ) : (
+                    <p className="help">
                       <Icon icon={ICONS.INFO} />
                       {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
-                    </p>}
+                    </p>
+                  )}
                 </div>
-              </>} />
+              </>
+            }
+          />
         </div>
       </div>
-    </>;
+    </>
+  );
 }
 
 export default ChannelForm;

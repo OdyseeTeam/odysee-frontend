@@ -8,15 +8,15 @@ export const SORT_BY = {
   OLDEST: 1,
   CONTROVERSY: 2,
   POPULARITY: 3,
-  NEWEST_NO_PINS: 4
+  NEWEST_NO_PINS: 4,
 };
 export const BLOCK_LEVEL = {
   SELF: 'self',
   MODERATOR: 'moderator',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
 };
 export const THRESHOLD_MS = {
-  IS_EDITED: 5 * 1000
+  IS_EDITED: 5 * 1000,
 };
 export const COMMENT_PAGE_SIZE_TOP_LEVEL = 10;
 export const COMMENT_PAGE_SIZE_REPLIES = 10;

@@ -1,16 +1,13 @@
-import { useIsMobile } from "effects/use-screensize";
-import * as ICONS from "constants/icons";
-import Icon from "component/common/icon";
-import React from "react";
+import { useIsMobile } from 'effects/use-screensize';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import React from 'react';
 type Props = {
   currentTheme: string;
   type: string;
 };
 export default function Logo(props: Props) {
-  const {
-    currentTheme,
-    type
-  } = props;
+  const { currentTheme, type } = props;
   const isMobile = useIsMobile();
   const isLightTheme = currentTheme === 'light';
 

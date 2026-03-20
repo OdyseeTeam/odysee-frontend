@@ -1,9 +1,9 @@
-import * as ACTIONS from "constants/action_types";
-import * as PAGES from "constants/pages";
-import { X_LBRY_AUTH_TOKEN } from "constants/token";
-import Lbry from "lbry";
-import { getAuthToken } from "util/saved-passwords";
-import { LocalStorage, LS } from "util/storage";
+import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import Lbry from 'lbry';
+import { getAuthToken } from 'util/saved-passwords';
+import { LocalStorage, LS } from 'util/storage';
 type Store = {
   dispatch: Dispatch;
   getState: GetState;
@@ -11,10 +11,7 @@ type Store = {
 export const populateAuthTokenHeader = (store: Store) => {
   return (next: any) => (action: any) => {
     // @if TARGET='web'
-    const {
-      dispatch,
-      getState
-    } = store;
+    const { dispatch, getState } = store;
 
     switch (action.type) {
       case ACTIONS.USER_FETCH_SUCCESS:
@@ -23,7 +20,7 @@ export const populateAuthTokenHeader = (store: Store) => {
           const authToken = getAuthToken();
           Lbry.setApiHeader(X_LBRY_AUTH_TOKEN, authToken);
           dispatch({
-            type: ACTIONS.USER_LOGGED_IN_BROADCAST
+            type: ACTIONS.USER_LOGGED_IN_BROADCAST,
           });
         }
 

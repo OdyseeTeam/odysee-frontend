@@ -47,7 +47,6 @@ class List {
   ended() {
     return this.index_ === this.values.length - 1;
   }
-
 }
 
 export default List;

@@ -1,2 +1,2 @@
-import NavigationHistoryPage from "./view";
+import NavigationHistoryPage from './view';
 export default NavigationHistoryPage;

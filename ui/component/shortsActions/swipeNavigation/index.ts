@@ -1,19 +1,15 @@
-import { connect } from "react-redux";
-import SwipeNavigationPortal from "./view";
-import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from "redux/selectors/claims";
-import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from "redux/selectors/reactions";
-import { doFetchReactions, doReactionLike, doReactionDislike } from "redux/actions/reactions";
-import { doOpenModal } from "redux/actions/app";
+import { connect } from 'react-redux';
+import SwipeNavigationPortal from './view';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
+import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
+import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, ownProps) => {
-  const {
-    uri
-  } = ownProps;
+  const { uri } = ownProps;
   const claim = ownProps?.uri ? selectClaimForUri(state, ownProps.uri) : null;
   const channel = claim?.signing_channel || null;
-  const {
-    claim_id: claimId
-  } = claim || {};
+  const { claim_id: claimId } = claim || {};
   return {
     hasChannel: !!channel,
     hasPlaylist: false,
@@ -23,7 +19,7 @@ const select = (state, ownProps) => {
     dislikeCount: uri ? selectDislikeCountForUri(state, uri) : 0,
     isLivestreamClaim: uri ? selectIsStreamPlaceholderForUri(state, uri) : false,
     isUnlisted: uri ? selectIsUriUnlisted(state, uri) : false,
-    webShareable: true
+    webShareable: true,
   };
 };
 
@@ -31,6 +27,6 @@ const perform = {
   doFetchReactions,
   doReactionLike,
   doReactionDislike,
-  doOpenModal
+  doOpenModal,
 };
 export default connect(select, perform)(SwipeNavigationPortal);

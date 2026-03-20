@@ -1,21 +1,23 @@
-import { handleActions } from "util/redux-utils";
-import { getCurrentTimeInSec } from "util/time";
-import { defaultCollectionState } from "util/collections";
-import * as ACTIONS from "constants/action_types";
-import * as COLS from "constants/collections";
+import { handleActions } from 'util/redux-utils';
+import { getCurrentTimeInSec } from 'util/time';
+import { defaultCollectionState } from 'util/collections';
+import * as ACTIONS from 'constants/action_types';
+import * as COLS from 'constants/collections';
 const defaultState: CollectionState = {
   // -- sync --
   builtin: {
-    watchlater: { ...defaultCollectionState,
+    watchlater: {
+      ...defaultCollectionState,
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      type: COLS.COL_TYPES.PLAYLIST
+      type: COLS.COL_TYPES.PLAYLIST,
     },
-    favorites: { ...defaultCollectionState,
+    favorites: {
+      ...defaultCollectionState,
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
-      type: COLS.COL_TYPES.PLAYLIST
-    }
+      type: COLS.COL_TYPES.PLAYLIST,
+    },
   },
   unpublished: {},
   edited: {},
@@ -26,333 +28,266 @@ const defaultState: CollectionState = {
   // -- local --
   isFetchingMyCollections: undefined,
   collectionItemsFetchingIds: [],
-  queue: { ...defaultCollectionState,
-    id: COLS.QUEUE_ID,
-    name: COLS.QUEUE_NAME,
-    type: COLS.COL_TYPES.PLAYLIST
-  },
+  queue: { ...defaultCollectionState, id: COLS.QUEUE_ID, name: COLS.QUEUE_NAME, type: COLS.COL_TYPES.PLAYLIST },
   resolvedIds: undefined,
   thumbnailClaimsFetchingCollectionIds: [],
   autoPublishById: {},
   autoPublishScheduledAtById: {},
   publishingById: {},
-  publishErrorById: {}
+  publishErrorById: {},
 };
-const collectionsReducer = handleActions({
-  [ACTIONS.COLLECTION_LIST_MINE_STARTED]: state => ({ ...state,
-    isFetchingMyCollections: true
-  }),
-  [ACTIONS.COLLECTION_LIST_MINE_COMPLETE]: state => ({ ...state,
-    isFetchingMyCollections: false
-  }),
-  [ACTIONS.COLLECTION_NEW]: (state, action) => {
-    const {
-      entry: params
-    } = action.data; // { id:, items: Array<string>}
+const collectionsReducer = handleActions(
+  {
+    [ACTIONS.COLLECTION_LIST_MINE_STARTED]: (state) => ({ ...state, isFetchingMyCollections: true }),
+    [ACTIONS.COLLECTION_LIST_MINE_COMPLETE]: (state) => ({ ...state, isFetchingMyCollections: false }),
+    [ACTIONS.COLLECTION_NEW]: (state, action) => {
+      const { entry: params } = action.data; // { id:, items: Array<string>}
 
-    const currentTime = getCurrentTimeInSec();
-    // entry
-    const newListTemplate: Collection = {
-      id: params.id,
-      name: params.name,
-      items: [],
-      itemCount: params.items.length,
-      createdAt: currentTime,
-      updatedAt: currentTime,
-      type: params.type
-    };
-    const newList = Object.assign({}, newListTemplate, { ...params
-    });
-    const {
-      unpublished: lists,
-      lastUsedCollectionIds
-    } = state;
-    const newLists = Object.assign({}, lists, {
-      [params.id]: newList
-    });
-    const newLastUsedCollectionIds = [params.id].concat(lastUsedCollectionIds.filter(id => id !== params.id)).splice(0, 3);
-    return { ...state,
-      unpublished: newLists,
-      lastUsedCollectionIds: newLastUsedCollectionIds
-    };
-  },
-  [ACTIONS.COLLECTION_TOGGLE_SAVE]: (state, action) => {
-    const collectionId = action.data;
-    const newSavedIds = new Set(state.savedIds);
+      const currentTime = getCurrentTimeInSec();
+      // entry
+      const newListTemplate: Collection = {
+        id: params.id,
+        name: params.name,
+        items: [],
+        itemCount: params.items.length,
+        createdAt: currentTime,
+        updatedAt: currentTime,
+        type: params.type,
+      };
+      const newList = Object.assign({}, newListTemplate, { ...params });
+      const { unpublished: lists, lastUsedCollectionIds } = state;
+      const newLists = Object.assign({}, lists, {
+        [params.id]: newList,
+      });
+      const newLastUsedCollectionIds = [params.id]
+        .concat(lastUsedCollectionIds.filter((id) => id !== params.id))
+        .splice(0, 3);
+      return { ...state, unpublished: newLists, lastUsedCollectionIds: newLastUsedCollectionIds };
+    },
+    [ACTIONS.COLLECTION_TOGGLE_SAVE]: (state, action) => {
+      const collectionId = action.data;
+      const newSavedIds = new Set(state.savedIds);
 
-    if (newSavedIds.has(collectionId)) {
-      newSavedIds.delete(collectionId);
-    } else {
-      newSavedIds.add(collectionId);
-    }
-
-    return { ...state,
-      savedIds: Array.from(newSavedIds)
-    };
-  },
-  [ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS]: (state, action) => {
-    const collectionId = action.data;
-    const newEditList = Object.assign({}, state.edited);
-    const newUnpublishedList = Object.assign({}, state.unpublished);
-    const newUpdatedList = Object.assign({}, state.updated);
-    const newUnsavedChangesList = Object.assign({}, state.unsavedChanges);
-    if (newEditList[collectionId]) delete newEditList[collectionId];
-    if (newUnpublishedList[collectionId]) delete newUnpublishedList[collectionId];
-    if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
-    if (newUnsavedChangesList[collectionId]) delete newUnsavedChangesList[collectionId];
-    const newPublishingById = Object.assign({}, state.publishingById);
-    const newPublishErrorById = Object.assign({}, state.publishErrorById);
-    if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
-    if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
-    return { ...state,
-      edited: newEditList,
-      unpublished: newUnpublishedList,
-      updated: newUpdatedList,
-      unsavedChanges: newUnsavedChangesList,
-      publishingById: newPublishingById,
-      publishErrorById: newPublishErrorById
-    };
-  },
-  [ACTIONS.COLLECTION_PUBLISH_START]: (state, action) => {
-    const {
-      collectionId
-    } = action.data;
-    const newPublishErrorById = Object.assign({}, state.publishErrorById);
-    if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
-    const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById
-    };
-    delete newAutoPublishScheduledAtById[collectionId];
-    return { ...state,
-      publishingById: { ...state.publishingById,
-        [collectionId]: true
-      },
-      publishErrorById: newPublishErrorById,
-      autoPublishScheduledAtById: newAutoPublishScheduledAtById
-    };
-  },
-  [ACTIONS.COLLECTION_PUBLISH_SUCCESS]: (state, action) => {
-    const {
-      collectionId,
-      publishedCollectionId
-    } = action.data;
-    const newPublishingById = { ...state.publishingById
-    };
-    const newPublishErrorById = { ...state.publishErrorById
-    };
-    delete newPublishingById[collectionId];
-    delete newPublishErrorById[collectionId];
-
-    if (publishedCollectionId && publishedCollectionId !== collectionId) {
-      delete newPublishingById[publishedCollectionId];
-      delete newPublishErrorById[publishedCollectionId];
-    }
-
-    return { ...state,
-      publishingById: newPublishingById,
-      publishErrorById: newPublishErrorById
-    };
-  },
-  [ACTIONS.COLLECTION_PUBLISH_FAIL]: (state, action) => {
-    const {
-      collectionId,
-      error
-    } = action.data;
-    const newPublishingById = Object.assign({}, state.publishingById);
-    if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
-    return { ...state,
-      publishingById: newPublishingById,
-      publishErrorById: { ...state.publishErrorById,
-        [collectionId]: String(error || 'Publish failed')
+      if (newSavedIds.has(collectionId)) {
+        newSavedIds.delete(collectionId);
+      } else {
+        newSavedIds.add(collectionId);
       }
-    };
-  },
-  [ACTIONS.COLLECTION_AUTOPUBLISH_SET]: (state, action) => {
-    const {
-      collectionId,
-      enabled
-    } = action.data;
-    const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById
-    };
-    if (!enabled) delete newAutoPublishScheduledAtById[collectionId];
-    return { ...state,
-      autoPublishById: { ...state.autoPublishById,
-        [collectionId]: enabled
-      },
-      autoPublishScheduledAtById: newAutoPublishScheduledAtById
-    };
-  },
-  [ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED]: (state, action) => {
-    const {
-      collectionId,
-      scheduledAt
-    } = action.data;
-    const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById
-    };
 
-    if (scheduledAt) {
-      newAutoPublishScheduledAtById[collectionId] = scheduledAt;
-    } else {
+      return { ...state, savedIds: Array.from(newSavedIds) };
+    },
+    [ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS]: (state, action) => {
+      const collectionId = action.data;
+      const newEditList = Object.assign({}, state.edited);
+      const newUnpublishedList = Object.assign({}, state.unpublished);
+      const newUpdatedList = Object.assign({}, state.updated);
+      const newUnsavedChangesList = Object.assign({}, state.unsavedChanges);
+      if (newEditList[collectionId]) delete newEditList[collectionId];
+      if (newUnpublishedList[collectionId]) delete newUnpublishedList[collectionId];
+      if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
+      if (newUnsavedChangesList[collectionId]) delete newUnsavedChangesList[collectionId];
+      const newPublishingById = Object.assign({}, state.publishingById);
+      const newPublishErrorById = Object.assign({}, state.publishErrorById);
+      if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
+      if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
+      return {
+        ...state,
+        edited: newEditList,
+        unpublished: newUnpublishedList,
+        updated: newUpdatedList,
+        unsavedChanges: newUnsavedChangesList,
+        publishingById: newPublishingById,
+        publishErrorById: newPublishErrorById,
+      };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_START]: (state, action) => {
+      const { collectionId } = action.data;
+      const newPublishErrorById = Object.assign({}, state.publishErrorById);
+      if (newPublishErrorById[collectionId]) delete newPublishErrorById[collectionId];
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
       delete newAutoPublishScheduledAtById[collectionId];
-    }
+      return {
+        ...state,
+        publishingById: { ...state.publishingById, [collectionId]: true },
+        publishErrorById: newPublishErrorById,
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
+      };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_SUCCESS]: (state, action) => {
+      const { collectionId, publishedCollectionId } = action.data;
+      const newPublishingById = { ...state.publishingById };
+      const newPublishErrorById = { ...state.publishErrorById };
+      delete newPublishingById[collectionId];
+      delete newPublishErrorById[collectionId];
 
-    return { ...state,
-      autoPublishScheduledAtById: newAutoPublishScheduledAtById
-    };
-  },
-  [ACTIONS.COLLECTION_DELETE]: (state, action) => {
-    const {
-      id,
-      collectionKey
-    } = action.data;
-    const collectionsByIdForKey = Object.assign({}, state[collectionKey]);
-    if (collectionsByIdForKey[id]) delete collectionsByIdForKey[id];
-    return { ...state,
-      [collectionKey]: collectionsByIdForKey,
-      lastUsedCollectionIds: state.lastUsedCollectionIds === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES ? state.lastUsedCollectionIds.filter(collectionId => collectionId !== id) : [id].concat(state.lastUsedCollectionIds.filter(collectionId => collectionId !== id)).splice(0, 3)
-    };
-  },
-  [ACTIONS.QUEUE_EDIT]: (state, action) => {
-    const {
-      collection
-    } = action.data;
-    const newQueue = Object.assign({}, state.queue, collection, {
-      updatedAt: getCurrentTimeInSec()
-    });
-    return { ...state,
-      queue: newQueue
-    };
-  },
-  [ACTIONS.QUEUE_CLEAR]: state => {
-    const newQueue = Object.assign({}, state.queue, {
-      items: [],
-      updatedAt: getCurrentTimeInSec()
-    });
-    return { ...state,
-      queue: newQueue
-    };
-  },
-  [ACTIONS.COLLECTION_EDIT]: (state, action) => {
-    const {
-      collectionKey,
-      collection
-    } = action.data;
-    const id = collection.id;
-    const {
-      [collectionKey]: currentCollections
-    } = state;
-    const newCollection = Object.assign({}, collection);
-    newCollection.updatedAt = getCurrentTimeInSec();
-    const newState = { ...state,
-      [collectionKey]: { ...currentCollections,
-        [id]: newCollection
-      },
-      lastUsedCollectionIds: ![COLS.WATCH_LATER_ID, COLS.FAVORITES_ID].includes(id) ? [id].concat(state.lastUsedCollectionIds.filter(collectionId => collectionId !== id)).splice(0, 3) : state.lastUsedCollectionIds
-    };
-    // Remove un-wanted versions of the list
-    [COLS.KEYS.UPDATED, COLS.KEYS.UNSAVED_CHANGES].forEach(key => {
-      if (collectionKey !== key) {
-        const {
-          [id]: _,
-          ...remainingCollections
-        } = state[key];
-        newState[key] = remainingCollections;
+      if (publishedCollectionId && publishedCollectionId !== collectionId) {
+        delete newPublishingById[publishedCollectionId];
+        delete newPublishErrorById[publishedCollectionId];
       }
-    });
-    return newState;
-  },
-  [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-    const {
-      builtinCollections,
-      savedCollectionIds,
-      unpublishedCollections,
-      editedCollections,
-      updatedCollections,
-      autoPublishById
-    } = action.data;
-    return { ...state,
-      edited: editedCollections || state.edited,
-      updated: updatedCollections || state.updated,
-      unpublished: unpublishedCollections || state.unpublished,
-      builtin: builtinCollections || state.builtin,
-      savedIds: savedCollectionIds || state.savedIds,
-      autoPublishById: { ...state.autoPublishById,
-        ...(autoPublishById || {})
-      }
-    };
-  },
-  [ACTIONS.COLLECTION_ITEMS_RESOLVE_START]: (state, action) => {
-    const collectionId = action.data;
-    const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
-    newCollectionItemsFetchingIds.add(collectionId);
-    return { ...state,
-      collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds)
-    };
-  },
-  [ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS]: (state, action) => {
-    const {
-      resolvedCollection
-    } = action.data;
-    const {
-      id,
-      key,
-      items,
-      updatedAt
-    } = resolvedCollection;
-    const newEdited = Object.assign({}, state.edited);
-    const newUnpublished = Object.assign({}, state.unpublished);
-    const newUpdated = Object.assign({}, state.updated);
-    const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
-    const newResolvedIds = new Set(state.resolvedIds);
 
-    if (key === COLS.KEYS.EDITED) {
-      if (newEdited[id]) Object.assign(newEdited[id].items, items);
-    } else if (key === COLS.KEYS.UNPUBLISHED) {
-      if (newUnpublished[id]) Object.assign(newUnpublished[id].items, items);
-    } else if (key === COLS.KEYS.UPDATED) {
-      if (newUpdated[id]) {
-        if (newUpdated[id]['updatedAt'] < updatedAt) {
-          delete newUpdated[id];
+      return { ...state, publishingById: newPublishingById, publishErrorById: newPublishErrorById };
+    },
+    [ACTIONS.COLLECTION_PUBLISH_FAIL]: (state, action) => {
+      const { collectionId, error } = action.data;
+      const newPublishingById = Object.assign({}, state.publishingById);
+      if (newPublishingById[collectionId]) delete newPublishingById[collectionId];
+      return {
+        ...state,
+        publishingById: newPublishingById,
+        publishErrorById: { ...state.publishErrorById, [collectionId]: String(error || 'Publish failed') },
+      };
+    },
+    [ACTIONS.COLLECTION_AUTOPUBLISH_SET]: (state, action) => {
+      const { collectionId, enabled } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+      if (!enabled) delete newAutoPublishScheduledAtById[collectionId];
+      return {
+        ...state,
+        autoPublishById: { ...state.autoPublishById, [collectionId]: enabled },
+        autoPublishScheduledAtById: newAutoPublishScheduledAtById,
+      };
+    },
+    [ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED]: (state, action) => {
+      const { collectionId, scheduledAt } = action.data;
+      const newAutoPublishScheduledAtById = { ...state.autoPublishScheduledAtById };
+
+      if (scheduledAt) {
+        newAutoPublishScheduledAtById[collectionId] = scheduledAt;
+      } else {
+        delete newAutoPublishScheduledAtById[collectionId];
+      }
+
+      return { ...state, autoPublishScheduledAtById: newAutoPublishScheduledAtById };
+    },
+    [ACTIONS.COLLECTION_DELETE]: (state, action) => {
+      const { id, collectionKey } = action.data;
+      const collectionsByIdForKey = Object.assign({}, state[collectionKey]);
+      if (collectionsByIdForKey[id]) delete collectionsByIdForKey[id];
+      return {
+        ...state,
+        [collectionKey]: collectionsByIdForKey,
+        lastUsedCollectionIds:
+          state.lastUsedCollectionIds === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES
+            ? state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)
+            : [id].concat(state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)).splice(0, 3),
+      };
+    },
+    [ACTIONS.QUEUE_EDIT]: (state, action) => {
+      const { collection } = action.data;
+      const newQueue = Object.assign({}, state.queue, collection, {
+        updatedAt: getCurrentTimeInSec(),
+      });
+      return { ...state, queue: newQueue };
+    },
+    [ACTIONS.QUEUE_CLEAR]: (state) => {
+      const newQueue = Object.assign({}, state.queue, {
+        items: [],
+        updatedAt: getCurrentTimeInSec(),
+      });
+      return { ...state, queue: newQueue };
+    },
+    [ACTIONS.COLLECTION_EDIT]: (state, action) => {
+      const { collectionKey, collection } = action.data;
+      const id = collection.id;
+      const { [collectionKey]: currentCollections } = state;
+      const newCollection = Object.assign({}, collection);
+      newCollection.updatedAt = getCurrentTimeInSec();
+      const newState = {
+        ...state,
+        [collectionKey]: { ...currentCollections, [id]: newCollection },
+        lastUsedCollectionIds: ![COLS.WATCH_LATER_ID, COLS.FAVORITES_ID].includes(id)
+          ? [id].concat(state.lastUsedCollectionIds.filter((collectionId) => collectionId !== id)).splice(0, 3)
+          : state.lastUsedCollectionIds,
+      };
+      // Remove un-wanted versions of the list
+      [COLS.KEYS.UPDATED, COLS.KEYS.UNSAVED_CHANGES].forEach((key) => {
+        if (collectionKey !== key) {
+          const { [id]: _, ...remainingCollections } = state[key];
+          newState[key] = remainingCollections;
+        }
+      });
+      return newState;
+    },
+    [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
+      const {
+        builtinCollections,
+        savedCollectionIds,
+        unpublishedCollections,
+        editedCollections,
+        updatedCollections,
+        autoPublishById,
+      } = action.data;
+      return {
+        ...state,
+        edited: editedCollections || state.edited,
+        updated: updatedCollections || state.updated,
+        unpublished: unpublishedCollections || state.unpublished,
+        builtin: builtinCollections || state.builtin,
+        savedIds: savedCollectionIds || state.savedIds,
+        autoPublishById: { ...state.autoPublishById, ...autoPublishById },
+      };
+    },
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_START]: (state, action) => {
+      const collectionId = action.data;
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      newCollectionItemsFetchingIds.add(collectionId);
+      return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
+    },
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS]: (state, action) => {
+      const { resolvedCollection } = action.data;
+      const { id, key, items, updatedAt } = resolvedCollection;
+      const newEdited = Object.assign({}, state.edited);
+      const newUnpublished = Object.assign({}, state.unpublished);
+      const newUpdated = Object.assign({}, state.updated);
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      const newResolvedIds = new Set(state.resolvedIds);
+
+      if (key === COLS.KEYS.EDITED) {
+        if (newEdited[id]) Object.assign(newEdited[id].items, items);
+      } else if (key === COLS.KEYS.UNPUBLISHED) {
+        if (newUnpublished[id]) Object.assign(newUnpublished[id].items, items);
+      } else if (key === COLS.KEYS.UPDATED) {
+        if (newUpdated[id]) {
+          if (newUpdated[id]['updatedAt'] < updatedAt) {
+            delete newUpdated[id];
+          }
         }
       }
-    }
 
-    newCollectionItemsFetchingIds.delete(id);
-    newResolvedIds.add(id);
-    return { ...state,
-      edited: newEdited,
-      unpublished: newUnpublished,
-      updated: newUpdated,
-      collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
-      resolvedIds: Array.from(newResolvedIds)
-    };
-  },
-  [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL]: (state, action) => {
-    const collectionId = action.data;
-    const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      newCollectionItemsFetchingIds.delete(id);
+      newResolvedIds.add(id);
+      return {
+        ...state,
+        edited: newEdited,
+        unpublished: newUnpublished,
+        updated: newUpdated,
+        collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
+        resolvedIds: Array.from(newResolvedIds),
+      };
+    },
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL]: (state, action) => {
+      const collectionId = action.data;
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
 
-    if (newCollectionItemsFetchingIds.has(collectionId)) {
-      newCollectionItemsFetchingIds.delete(collectionId);
-    }
+      if (newCollectionItemsFetchingIds.has(collectionId)) {
+        newCollectionItemsFetchingIds.delete(collectionId);
+      }
 
-    return { ...state,
-      collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds)
-    };
+      return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
+    },
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_START]: (state, action) => {
+      const collectionIds = action.data;
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.add(collectionIds);
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
+    },
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_COMPLETE]: (state, action) => {
+      const collectionIds = action.data;
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.delete(collectionIds);
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
+    },
   },
-  [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_START]: (state, action) => {
-    const collectionIds = action.data;
-    const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
-    newThumbnailClaimsFetchingCollectionIds.add(collectionIds);
-    return { ...state,
-      thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds)
-    };
-  },
-  [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_COMPLETE]: (state, action) => {
-    const collectionIds = action.data;
-    const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
-    newThumbnailClaimsFetchingCollectionIds.delete(collectionIds);
-    return { ...state,
-      thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds)
-    };
-  }
-}, defaultState);
+  defaultState
+);
 export { collectionsReducer };

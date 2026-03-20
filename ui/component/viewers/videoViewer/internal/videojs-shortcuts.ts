@@ -1,7 +1,7 @@
-import * as OVERLAY from "./overlays";
-import * as KEYCODES from "constants/keycodes";
-import { VIDEO_PLAYBACK_RATES } from "constants/player";
-import isUserTyping from "util/detect-typing";
+import * as OVERLAY from './overlays';
+import * as KEYCODES from 'constants/keycodes';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
+import isUserTyping from 'util/detect-typing';
 const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10; // time to seek in seconds
 
@@ -22,7 +22,7 @@ function volumeUp(event, playerRef, checkIsActive = true, amount = VOLUME_STEP) 
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
-  if (!player || checkIsActive && !videoElementIsActive) return;
+  if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
   player.volume(player.volume() + amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
@@ -33,7 +33,7 @@ function volumeDown(event, playerRef, checkIsActive = true, amount = VOLUME_STEP
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
-  if (!player || checkIsActive && !videoElementIsActive) return;
+  if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
   player.volume(player.volume() - amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
@@ -97,7 +97,7 @@ const VideoJsShorcuts = ({
   playPrevious,
   toggleVideoTheaterMode,
   toggleKeyboardShortcutsOverlay,
-  isMobile
+  isMobile,
 }: {
   playNext: any;
   // function
@@ -127,7 +127,7 @@ const VideoJsShorcuts = ({
       rate = player.playbackRate();
     }
 
-    let rateIndex = VIDEO_PLAYBACK_RATES.findIndex(x => x === rate);
+    let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
 
     if (rateIndex >= 0) {
       if (newRate === -1) {
@@ -357,7 +357,7 @@ const VideoJsShorcuts = ({
     createKeyUpShortcutsHandler,
     createKeyStateResetHandler,
     createVideoScrollShortcutsHandler,
-    createVolumePanelScrollShortcutsHandler
+    createVolumePanelScrollShortcutsHandler,
   };
 };
 

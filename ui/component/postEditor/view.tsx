@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { FormField } from "component/common/form";
-import debounce from "util/debounce";
+import React, { useEffect } from 'react';
+import { FormField } from 'component/common/form';
+import debounce from 'util/debounce';
 type Props = {
   uri: string | null | undefined;
   label: string | null | undefined;
@@ -13,7 +13,6 @@ type Props = {
   fetchStreamingUrl: (arg0: string) => void;
   setPrevFileText: (arg0: string) => void;
   updatePublishForm: (arg0: UpdatePublishState) => void; // setCurrentFileType: (string) => void,
-
 };
 
 function PostEditor(props: Props) {
@@ -28,17 +27,19 @@ function PostEditor(props: Props) {
     isStillEditing,
     setPrevFileText,
     fetchStreamingUrl,
-    updatePublishForm // setCurrentFileType,
-
+    updatePublishForm, // setCurrentFileType,
   } = props;
   const editing = isStillEditing && uri;
   const [ready, setReady] = React.useState(!editing);
   const [loading, setLoading] = React.useState(false);
-  const updateFileText = React.useCallback(debounce(value => {
-    updatePublishForm({
-      fileText: value
-    });
-  }, 750), []);
+  const updateFileText = React.useCallback(
+    debounce((value) => {
+      updatePublishForm({
+        fileText: value,
+      });
+    }, 750),
+    []
+  );
   useEffect(() => {
     if (editing && uri) {
       fetchStreamingUrl(uri);
@@ -59,7 +60,7 @@ function PostEditor(props: Props) {
   }, [fileText, loading, setLoading]);
   useEffect(() => {
     function readFileStream(url) {
-      return fetch(url).then(res => res.text());
+      return fetch(url).then((res) => res.text());
     }
 
     async function updateEditorText(url) {
@@ -71,7 +72,7 @@ function PostEditor(props: Props) {
           setPrevFileText(text);
           // Update text editor form
           updatePublishForm({
-            fileText: text
+            fileText: text,
           });
         }
       } catch (error) {
@@ -87,9 +88,27 @@ function PostEditor(props: Props) {
         updateEditorText(streamingUrl);
       }
     }
-  }, [ready, editing, fileText, filePath, fileMimeType, streamingUrl, setPrevFileText, updatePublishForm // setCurrentFileType,
+  }, [
+    ready,
+    editing,
+    fileText,
+    filePath,
+    fileMimeType,
+    streamingUrl,
+    setPrevFileText,
+    updatePublishForm, // setCurrentFileType,
   ]);
-  return <FormField type={'markdown'} name="content_post" label={label} placeholder={__('My content for this post...')} value={ready ? fileText : __('Loading...')} disabled={!ready || disabled} onChange={updateFileText} />;
+  return (
+    <FormField
+      type={'markdown'}
+      name="content_post"
+      label={label}
+      placeholder={__('My content for this post...')}
+      value={ready ? fileText : __('Loading...')}
+      disabled={!ready || disabled}
+      onChange={updateFileText}
+    />
+  );
 }
 
 export default PostEditor;

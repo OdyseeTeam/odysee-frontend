@@ -1,7 +1,7 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import Button from "component/button";
-import Spinner from "../spinner/view";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import Button from 'component/button';
+import Spinner from '../spinner/view';
 type Props = {
   arweaveAddress: string;
   connecting: boolean;
@@ -9,12 +9,7 @@ type Props = {
   wanderAuth: () => void;
 };
 export default function WalletConnect(props: Props) {
-  const {
-    connectArWallet,
-    arweaveAddress,
-    connecting,
-    wanderAuth
-  } = props;
+  const { connectArWallet, arweaveAddress, connecting, wanderAuth } = props;
   const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding' || connecting;
 
   async function getAddress() {
@@ -30,7 +25,6 @@ export default function WalletConnect(props: Props) {
     if (!arweaveAddress) {
       getAddress();
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [arweaveAddress]);
 
   async function handleArConnect() {
@@ -41,5 +35,11 @@ export default function WalletConnect(props: Props) {
     return <span>Install Wander Wallet extension.</span>;
   }
 
-  return auth ? <Button button="primary" label={__('Connecting...')} icon={ICONS.WANDER} /> : connecting ? <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} /> : <Spinner type="small" />;
+  return auth ? (
+    <Button button="primary" label={__('Connecting...')} icon={ICONS.WANDER} />
+  ) : connecting ? (
+    <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
+  ) : (
+    <Spinner type="small" />
+  );
 }

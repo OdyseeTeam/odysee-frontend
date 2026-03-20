@@ -1,20 +1,17 @@
-import React from "react";
-import * as MODALS from "constants/modal_types";
+import React from 'react';
+import * as MODALS from 'constants/modal_types';
 type Props = {
   openModal: (arg0: string, arg1: {}) => void;
 };
 
 function ZoomableImage(props: Props) {
-  const {
-    openModal,
-    ...imgProps
-  } = props;
+  const { openModal, ...imgProps } = props;
 
   const onClick = () => {
     // $FlowFixMe
     openModal(MODALS.VIEW_IMAGE, {
       src: imgProps.src,
-      title: imgProps.title || imgProps.alt
+      title: imgProps.title || imgProps.alt,
     });
   };
 

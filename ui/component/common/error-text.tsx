@@ -1,11 +1,9 @@
-import React from "react";
+import React from 'react';
 type Props = {
   children: string;
 };
 export default function ErrorText(props: Props) {
-  const {
-    children
-  } = props;
+  const { children } = props;
 
   if (!children) {
     return null;

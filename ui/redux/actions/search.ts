@@ -1,22 +1,22 @@
-import * as ACTIONS from "constants/action_types";
-import * as MODALS from "constants/modal_types";
-import * as SETTINGS from "constants/settings";
-import { doOpenModal } from "redux/actions/app";
-import { doToast } from "redux/actions/notifications";
-import { selectClientSetting, selectLanguage, selectShowMatureContent } from "redux/selectors/settings";
-import { selectClaimForUri, selectClaimIdForUri, selectClaimIsNsfwForUri } from "redux/selectors/claims";
-import { doClaimSearch, doResolveClaimIds, doResolveUris } from "redux/actions/claims";
-import { buildURI, isURIValid } from "util/lbryURI";
-import { batchActions } from "util/batch-actions";
-import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSearchValue } from "redux/selectors/search";
-import { selectUser } from "redux/selectors/user";
-import handleFetchResponse from "util/handle-fetch";
-import { getSearchQueryString } from "util/query-params";
-import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from "util/search";
-import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from "config";
-import { SEARCH_OPTIONS } from "constants/search";
-import { X_LBRY_AUTH_TOKEN } from "constants/token";
-import { getAuthToken } from "util/saved-passwords";
+import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
+import { doOpenModal } from 'redux/actions/app';
+import { doToast } from 'redux/actions/notifications';
+import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectClaimForUri, selectClaimIdForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
+import { buildURI, isURIValid } from 'util/lbryURI';
+import { batchActions } from 'util/batch-actions';
+import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSearchValue } from 'redux/selectors/search';
+import { selectUser } from 'redux/selectors/user';
+import handleFetchResponse from 'util/handle-fetch';
+import { getSearchQueryString } from 'util/query-params';
+import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
+import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
+import { SEARCH_OPTIONS } from 'constants/search';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { getAuthToken } from 'util/saved-passwords';
 const isDev = process.env.NODE_ENV !== 'production';
 // ****************************************************************************
 // FYP
@@ -29,28 +29,31 @@ const recsysFyp = {
   fetchPersonalRecommendations: (userId: string) => {
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp`, {
       headers: {
-        [X_LBRY_AUTH_TOKEN]: getAuthToken()
-      }
-    }).then(response => response.json()).then(result => result).catch(error => {
-      console.log('FYP: fetch', {
-        error,
-        userId
-      }); // eslint-disable-line no-console
+        [X_LBRY_AUTH_TOKEN]: getAuthToken(),
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => result)
+      .catch((error) => {
+        console.log('FYP: fetch', {
+          error,
+          userId,
+        }); // eslint-disable-line no-console
 
-      return {};
-    });
+        return {};
+      });
   },
   markPersonalRecommendations: (userId: string, gid: string) => {
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/mark`, {
       method: 'POST',
       headers: {
-        [X_LBRY_AUTH_TOKEN]: getAuthToken()
-      }
-    }).catch(error => {
+        [X_LBRY_AUTH_TOKEN]: getAuthToken(),
+      },
+    }).catch((error) => {
       console.log('FYP: mark', {
         error,
         userId,
-        gid
+        gid,
       }); // eslint-disable-line no-console
 
       return {};
@@ -66,19 +69,21 @@ const recsysFyp = {
     return fetch(endpoint, {
       method: 'POST',
       headers: {
-        [X_LBRY_AUTH_TOKEN]: getAuthToken()
-      }
-    }).then(result => result).catch(error => {
-      console.log('FYP: ignore', {
-        error,
-        userId,
-        gid,
-        claimId
-      }); // eslint-disable-line no-console
+        [X_LBRY_AUTH_TOKEN]: getAuthToken(),
+      },
+    })
+      .then((result) => result)
+      .catch((error) => {
+        console.log('FYP: ignore', {
+          error,
+          userId,
+          gid,
+          claimId,
+        }); // eslint-disable-line no-console
 
-      return {};
-    });
-  }
+        return {};
+      });
+  },
 };
 // ****************************************************************************
 // ****************************************************************************
@@ -92,7 +97,6 @@ type SearchOptions = {
   gid?: string;
   // for fyp only
   uuid?: string; // for fyp only
-
 };
 let lighthouse = {
   CONNECTION_STRING: SEARCH_SERVER_API,
@@ -107,11 +111,13 @@ let lighthouse = {
   },
   searchRecommendations: (queryString: string) => {
     if (lighthouse.user_id) {
-      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(handleFetchResponse);
+      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(
+        handleFetchResponse
+      );
     } else {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}`).then(handleFetchResponse);
     }
-  }
+  },
 };
 export const setSearchApi = (endpoint: string) => {
   lighthouse.CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
@@ -127,12 +133,9 @@ export const setSearchUserId = (userId: string | null | undefined) => {
  */
 const processLighthouseResults = (results: Array<any>) => {
   const uris = [];
-  results.forEach(item => {
+  results.forEach((item) => {
     if (item) {
-      const {
-        name,
-        claimId
-      } = item;
+      const { name, claimId } = item;
       const urlObj: LbryUrlObj = {};
 
       if (name.startsWith('@')) {
@@ -153,47 +156,62 @@ const processLighthouseResults = (results: Array<any>) => {
   return uris;
 };
 
-export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+export const doSearch =
+  (rawQuery: string, searchOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
+    const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
-  if (!query) {
-    dispatch({
-      type: ACTIONS.SEARCH_FAIL
-    });
-    return;
-  }
-
-  const state = getState();
-  const queryWithOptions = getSearchQueryString(query, searchOptions);
-  const size = searchOptions.size;
-  const from = searchOptions.from;
-  // If we have already searched for something, we don't need to do anything
-  const urisForQuery = makeSelectSearchUrisForQuery(queryWithOptions)(state);
-
-  if (urisForQuery && !!urisForQuery.length) {
-    if (!size || !from || from + size < urisForQuery.length) {
+    if (!query) {
+      dispatch({
+        type: ACTIONS.SEARCH_FAIL,
+      });
       return;
     }
-  }
 
-  dispatch({
-    type: ACTIONS.SEARCH_START
-  });
-  const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
-  const cmd = isSearchingRecommendations && !isDev ? lighthouse.searchRecommendations : lighthouse.search;
-  cmd(queryWithOptions).then((data: SearchResults) => {
-    const {
-      body: result,
-      poweredBy,
-      uuid
-    } = data;
-    const uris = processLighthouseResults(result);
+    const state = getState();
+    const queryWithOptions = getSearchQueryString(query, searchOptions);
+    const size = searchOptions.size;
+    const from = searchOptions.from;
+    // If we have already searched for something, we don't need to do anything
+    const urisForQuery = makeSelectSearchUrisForQuery(queryWithOptions)(state);
 
-    if (isSearchingRecommendations) {
-      // Temporarily resolve using `claim_search` until the SDK bug is fixed.
-      const claimIds = result.map(x => x.claimId);
-      dispatch(doResolveClaimIds(claimIds)).finally(() => {
-        dispatch({
+    if (urisForQuery && !!urisForQuery.length) {
+      if (!size || !from || from + size < urisForQuery.length) {
+        return;
+      }
+    }
+
+    dispatch({
+      type: ACTIONS.SEARCH_START,
+    });
+    const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
+    const cmd = isSearchingRecommendations && !isDev ? lighthouse.searchRecommendations : lighthouse.search;
+    cmd(queryWithOptions)
+      .then((data: SearchResults) => {
+        const { body: result, poweredBy, uuid } = data;
+        const uris = processLighthouseResults(result);
+
+        if (isSearchingRecommendations) {
+          // Temporarily resolve using `claim_search` until the SDK bug is fixed.
+          const claimIds = result.map((x) => x.claimId);
+          dispatch(doResolveClaimIds(claimIds)).finally(() => {
+            dispatch({
+              type: ACTIONS.SEARCH_SUCCESS,
+              data: {
+                query: queryWithOptions,
+                from: from,
+                size: size,
+                uris,
+                poweredBy,
+                uuid,
+              },
+            });
+          });
+          return;
+        }
+
+        const actions = [];
+        actions.push(doResolveUris(uris));
+        actions.push({
           type: ACTIONS.SEARCH_SUCCESS,
           data: {
             query: queryWithOptions,
@@ -201,164 +219,162 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (dis
             size: size,
             uris,
             poweredBy,
-            uuid
-          }
+            uuid,
+          },
+        });
+        dispatch(batchActions(...actions));
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.SEARCH_FAIL,
         });
       });
-      return;
-    }
-
-    const actions = [];
-    actions.push(doResolveUris(uris));
-    actions.push({
-      type: ACTIONS.SEARCH_SUCCESS,
-      data: {
-        query: queryWithOptions,
-        from: from,
-        size: size,
-        uris,
-        poweredBy,
-        uuid
-      }
-    });
-    dispatch(batchActions(...actions));
-  }).catch(() => {
+  };
+export const doUpdateSearchOptions =
+  (newOptions: SearchOptions, additionalOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const searchValue = selectSearchValue(state);
     dispatch({
-      type: ACTIONS.SEARCH_FAIL
+      type: ACTIONS.UPDATE_SEARCH_OPTIONS,
+      data: newOptions,
     });
-  });
-};
-export const doUpdateSearchOptions = (newOptions: SearchOptions, additionalOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const searchValue = selectSearchValue(state);
-  dispatch({
-    type: ACTIONS.UPDATE_SEARCH_OPTIONS,
-    data: newOptions
-  });
 
-  if (searchValue) {
-    // After updating, perform a search with the new options
-    dispatch(doSearch(searchValue, additionalOptions));
-  }
-};
+    if (searchValue) {
+      // After updating, perform a search with the new options
+      dispatch(doSearch(searchValue, additionalOptions));
+    }
+  };
 export const doSetMentionSearchResults = (query: string, uris: Array<string>) => (dispatch: Dispatch) => {
   dispatch({
     type: ACTIONS.SET_MENTION_SEARCH_RESULTS,
     data: {
       query,
-      uris
-    }
+      uris,
+    },
   });
 };
-export const doFetchShortsRecommendedContent = (uri: string, fyp: FypParam | null | undefined = null, forChannel: boolean | null | undefined = false) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const claim = selectClaimForUri(state, uri);
-  const matureEnabled = selectShowMatureContent(state);
-  const claimIsMature = selectClaimIsNsfwForUri(state, uri);
-  const languageSetting = selectLanguage(state);
-  const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
-  const language = searchInLanguage ? languageSetting : null;
+export const doFetchShortsRecommendedContent =
+  (uri: string, fyp: FypParam | null | undefined = null, forChannel: boolean | null | undefined = false) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const matureEnabled = selectShowMatureContent(state);
+    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const languageSetting = selectLanguage(state);
+    const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
+    const language = searchInLanguage ? languageSetting : null;
 
-  if (claim && claim.value && claim.claim_id) {
-    let idToUse;
+    if (claim && claim.value && claim.claim_id) {
+      let idToUse;
 
-    if (forChannel) {
-      const channelClaim = claim.signing_channel;
-      idToUse = channelClaim?.claim_id;
+      if (forChannel) {
+        const channelClaim = claim.signing_channel;
+        idToUse = channelClaim?.claim_id;
 
-      if (!idToUse) {
-        console.error('No channel ID found for channel shorts mode');
-        return;
+        if (!idToUse) {
+          console.error('No channel ID found for channel shorts mode');
+          return;
+        }
+      } else {
+        idToUse = claim.claim_id;
       }
-    } else {
-      idToUse = claim.claim_id;
+
+      const options: SearchOptions = getShortsRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        idToUse,
+        language,
+        forChannel
+      );
+
+      if (fyp) {
+        options['gid'] = fyp.gid;
+        options['uuid'] = fyp.uuid;
+      }
+
+      const { title } = claim.value;
+
+      if (title && options) {
+        dispatch(doSearch(title, options));
+      }
     }
+  };
+export const doFetchRecommendedContent =
+  (uri: string, fyp: FypParam | null | undefined = null) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const matureEnabled = selectShowMatureContent(state);
+    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const languageSetting = selectLanguage(state);
+    const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
+    const language = searchInLanguage ? languageSetting : null;
 
-    const options: SearchOptions = getShortsRecommendationSearchOptions(matureEnabled, claimIsMature, idToUse, language, forChannel);
+    if (claim && claim.value && claim.claim_id) {
+      const options: SearchOptions = getRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        claim.claim_id,
+        language
+      );
 
-    if (fyp) {
-      options['gid'] = fyp.gid;
-      options['uuid'] = fyp.uuid;
+      if (fyp) {
+        options['gid'] = fyp.gid;
+        options['uuid'] = fyp.uuid;
+      }
+
+      const { title } = claim.value;
+
+      if (title && options) {
+        dispatch(doSearch(title, options));
+      }
     }
-
-    const {
-      title
-    } = claim.value;
-
-    if (title && options) {
-      dispatch(doSearch(title, options));
-    }
-  }
-};
-export const doFetchRecommendedContent = (uri: string, fyp: FypParam | null | undefined = null) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const claim = selectClaimForUri(state, uri);
-  const matureEnabled = selectShowMatureContent(state);
-  const claimIsMature = selectClaimIsNsfwForUri(state, uri);
-  const languageSetting = selectLanguage(state);
-  const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
-  const language = searchInLanguage ? languageSetting : null;
-
-  if (claim && claim.value && claim.claim_id) {
-    const options: SearchOptions = getRecommendationSearchOptions(matureEnabled, claimIsMature, claim.claim_id, language);
-
-    if (fyp) {
-      options['gid'] = fyp.gid;
-      options['uuid'] = fyp.uuid;
-    }
-
-    const {
-      title
-    } = claim.value;
-
-    if (title && options) {
-      dispatch(doSearch(title, options));
-    }
-  }
-};
+  };
 export const doFetchPersonalRecommendations = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const user = selectUser(state);
 
   if (!user || !user.id) {
     dispatch({
-      type: ACTIONS.FYP_FETCH_FAILED
+      type: ACTIONS.FYP_FETCH_FAILED,
     });
     return;
   }
 
-  recsysFyp.fetchPersonalRecommendations(user.id).then(data => {
-    const {
-      gid,
-      recs
-    } = data;
+  recsysFyp
+    .fetchPersonalRecommendations(user.id)
+    .then((data) => {
+      const { gid, recs } = data;
 
-    if (gid && recs) {
-      const uris = processLighthouseResults(recs);
-      dispatch(doClaimSearch({
-        claim_ids: recs.map(r => r.claimId),
-        page: 1,
-        page_size: 50,
-        no_totals: true
-      })).finally(() => {
-        dispatch({
-          type: ACTIONS.FYP_FETCH_SUCCESS,
-          data: {
-            gid,
-            uris
-          }
+      if (gid && recs) {
+        const uris = processLighthouseResults(recs);
+        dispatch(
+          doClaimSearch({
+            claim_ids: recs.map((r) => r.claimId),
+            page: 1,
+            page_size: 50,
+            no_totals: true,
+          })
+        ).finally(() => {
+          dispatch({
+            type: ACTIONS.FYP_FETCH_SUCCESS,
+            data: {
+              gid,
+              uris,
+            },
+          });
         });
-      });
-    } else {
+      } else {
+        dispatch({
+          type: ACTIONS.FYP_FETCH_FAILED,
+        });
+      }
+    })
+    .catch(() => {
       dispatch({
-        type: ACTIONS.FYP_FETCH_FAILED
+        type: ACTIONS.FYP_FETCH_FAILED,
       });
-    }
-  }).catch(() => {
-    dispatch({
-      type: ACTIONS.FYP_FETCH_FAILED
     });
-  });
 };
 export const doRemovePersonalRecommendation = (uri: string) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
@@ -370,24 +386,31 @@ export const doRemovePersonalRecommendation = (uri: string) => (dispatch: Dispat
     return;
   }
 
-  dispatch(doOpenModal(MODALS.HIDE_RECOMMENDATION, {
-    uri,
-    onConfirm: hideChannel => {
-      recsysFyp.ignoreRecommendation(user.id, personalRecommendations.gid, claimId, hideChannel).then(res => {
-        dispatch({
-          type: ACTIONS.FYP_HIDE_URI,
-          data: {
-            uri
-          }
-        });
-        dispatch(doToast({
-          message: __('Recommendation removed.'),
-          subMessage: __('Thanks for the feedback!')
-        }));
-      }).catch(err => {
-        assert(false, 'recsys "ignore" failed', err);
-      });
-    }
-  }));
+  dispatch(
+    doOpenModal(MODALS.HIDE_RECOMMENDATION, {
+      uri,
+      onConfirm: (hideChannel) => {
+        recsysFyp
+          .ignoreRecommendation(user.id, personalRecommendations.gid, claimId, hideChannel)
+          .then((res) => {
+            dispatch({
+              type: ACTIONS.FYP_HIDE_URI,
+              data: {
+                uri,
+              },
+            });
+            dispatch(
+              doToast({
+                message: __('Recommendation removed.'),
+                subMessage: __('Thanks for the feedback!'),
+              })
+            );
+          })
+          .catch((err) => {
+            assert(false, 'recsys "ignore" failed', err);
+          });
+      },
+    })
+  );
 };
 export { lighthouse, recsysFyp };

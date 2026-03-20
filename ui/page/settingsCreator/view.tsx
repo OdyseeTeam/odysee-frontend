@@ -1,18 +1,18 @@
-import * as React from "react";
-import humanizeDuration from "humanize-duration";
-import * as ICONS from "constants/icons";
-import * as MODALS from "constants/modal_types";
-import Button from "component/button";
-import Card from "component/common/card";
-import TagsSearch from "component/tagsSearch";
-import Page from "component/page";
-import ChannelSelector from "component/channelSelector";
-import SearchChannelField from "component/searchChannelField";
-import SettingsRow from "component/settingsRow";
-import Spinner from "component/spinner";
-import { FormField } from "component/common/form-components/form-field";
-import { parseURI } from "util/lbryURI";
-import debounce from "util/debounce";
+import * as React from 'react';
+import humanizeDuration from 'humanize-duration';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import Button from 'component/button';
+import Card from 'component/common/card';
+import TagsSearch from 'component/tagsSearch';
+import Page from 'component/page';
+import ChannelSelector from 'component/channelSelector';
+import SearchChannelField from 'component/searchChannelField';
+import SettingsRow from 'component/settingsRow';
+import Spinner from 'component/spinner';
+import { FormField } from 'component/common/form-components/form-field';
+import { parseURI } from 'util/lbryURI';
+import debounce from 'util/debounce';
 const DEBOUNCE_REFRESH_MS = 1000;
 // ****************************************************************************
 // ****************************************************************************
@@ -21,10 +21,13 @@ type Props = {
   settingsByChannelId: Record<string, PerChannelSettings>;
   fetchingCreatorSettings: boolean;
   fetchingBlockedWords: boolean;
-  moderationDelegatesById: Record<string, Array<{
-    channelId: string;
-    channelName: string;
-  }>>;
+  moderationDelegatesById: Record<
+    string,
+    Array<{
+      channelId: string;
+      channelName: string;
+    }>
+  >;
   commentBlockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
   commentUnblockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
   commentModAddDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
@@ -32,9 +35,7 @@ type Props = {
   commentModListDelegates: (arg0: ChannelClaim) => void;
   fetchCreatorSettings: (channelId: string) => void;
   updateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
   doOpenModal: (id: string, arg1: {}) => void;
   myChannelClaims: any;
   listAllMyMembershipTiers: any;
@@ -309,13 +310,19 @@ export default function SettingsCreatorPage(props: Props) {
 
 const HELP = {
   SLOW_MODE: 'Minimum time gap in seconds between comments (affects livestream chat as well).',
-  CHANNEL_AGE: 'Channels with a lifespan lower than the specified duration will not be able to comment on your content.',
-  MIN_TIP: 'Enabling a minimum amount to comment will force all comments, including livestreams, to have tips associated with them. This can help prevent spam.',
-  MIN_SUPER: 'Enabling a minimum amount to hyperchat will force all TIPPED comments to have this value in order to be shown. This still allows regular comments to be posted.',
+  CHANNEL_AGE:
+    'Channels with a lifespan lower than the specified duration will not be able to comment on your content.',
+  MIN_TIP:
+    'Enabling a minimum amount to comment will force all comments, including livestreams, to have tips associated with them. This can help prevent spam.',
+  MIN_SUPER:
+    'Enabling a minimum amount to hyperchat will force all TIPPED comments to have this value in order to be shown. This still allows regular comments to be posted.',
   MIN_SUPER_OFF: '(This settings is not applicable if all comments require a tip.)',
   BLOCKED_WORDS: 'Comments and livestream chat containing these words will be blocked.',
-  MODERATORS: 'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Hidden" list.',
-  MODERATOR_SEARCH: 'Enter a channel name or URL to add as a moderator.\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
-  MEMBERS_ONLY_COMMENTS: 'Only channel members with "Members-only chat" perk can participate in public comments sections.',
-  MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats.'
+  MODERATORS:
+    'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Hidden" list.',
+  MODERATOR_SEARCH:
+    'Enter a channel name or URL to add as a moderator.\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
+  MEMBERS_ONLY_COMMENTS:
+    'Only channel members with "Members-only chat" perk can participate in public comments sections.',
+  MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats.',
 };

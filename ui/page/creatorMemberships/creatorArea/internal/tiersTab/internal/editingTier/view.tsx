@@ -1,11 +1,11 @@
-import React from "react";
-import { FormField } from "component/common/form";
-import { useIsMobile } from "effects/use-screensize";
-import * as MEMBERSHIP_CONSTS from "constants/memberships";
-import Button from "component/button";
-import BusyIndicator from "component/common/busy-indicator";
+import React from 'react';
+import { FormField } from 'component/common/form';
+import { useIsMobile } from 'effects/use-screensize';
+import * as MEMBERSHIP_CONSTS from 'constants/memberships';
+import Button from 'component/button';
+import BusyIndicator from 'component/common/busy-indicator';
 
-const getIsInputEmpty = value => !value || value.length <= 2 || !/\S/.test(value);
+const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
 const MIN_PRICE = '0.01'; // TODO: make this a decimal like 0.10
 
@@ -28,7 +28,10 @@ type Props = {
     error: string;
   }>;
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>;
-  doMembershipList: (params: MembershipListParams, forceUpdate: boolean | null | undefined) => Promise<CreatorMemberships>;
+  doMembershipList: (
+    params: MembershipListParams,
+    forceUpdate: boolean | null | undefined
+  ) => Promise<CreatorMemberships>;
   apiArweaveAddress: string;
 };
 
@@ -45,7 +48,7 @@ function MembershipEditTier(props: Props) {
     doMembershipUpdateTier,
     addChannelMembership,
     doMembershipList,
-    apiArweaveAddress
+    apiArweaveAddress,
   } = props;
   console.log('perk props', props);
   console.log('membershipOdyseePerks', membershipOdyseePerks);
@@ -57,7 +60,7 @@ function MembershipEditTier(props: Props) {
   const contributionRef = React.useRef();
   // no guarantee MEMBERSHIP_CONSTS._PERKS is the same as api get perks result. this is dumb.
   const defaultPerkIds = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
-  const currentPerkIds = [...membership.perks.map(perk => perk.id)];
+  const currentPerkIds = membership.perks.map((perk) => perk.id);
   const editablePerkIds = [...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS];
   const perksIdsShownInEditForm = Array.from(new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS]));
   const initialState = React.useRef({
@@ -66,13 +69,13 @@ function MembershipEditTier(props: Props) {
     price: Number(membership.prices[0].amount) / 100,
     // currently a single price
     perks: isCreatingAMembership ? defaultPerkIds : currentPerkIds,
-    frequency: 'monthly'
+    frequency: 'monthly',
   });
   const [editTierParams, setEditTierParams] = React.useState({
     editTierName: initialState.current.name,
     editTierDescription: initialState.current.description,
     editTierPrice: initialState.current.price,
-    editTierFrequency: initialState.current.frequency
+    editTierFrequency: initialState.current.frequency,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
@@ -96,7 +99,7 @@ function MembershipEditTier(props: Props) {
       name: editTierParams.editTierName,
       description: editTierParams.editTierDescription,
       price: editTierParams.editTierPrice,
-      perks: selectedPerkIds
+      perks: selectedPerkIds,
     };
     const membershipObjDidNotChange = JSON.stringify(initialObj) === JSON.stringify(newObj);
 
@@ -122,42 +125,47 @@ function MembershipEditTier(props: Props) {
           // hardcoded for now
           perks: selectedPerksAsArray,
           frequency: editTierParams.editTierFrequency,
-          payment_address: apiArweaveAddress
+          payment_address: apiArweaveAddress,
         };
-        doMembershipAddTier(params).then(responseOrError => {
-          const {
-            error
-          } = responseOrError;
-          setIsSubmitting(false);
+        doMembershipAddTier(params)
+          .then((responseOrError) => {
+            const { error } = responseOrError;
+            setIsSubmitting(false);
 
-          if (error) {
-            setSaveError(error);
-            return;
-          }
+            if (error) {
+              setSaveError(error);
+              return;
+            }
 
-          const selectedPerks = membershipOdyseePerks.filter(perk => selectedPerkIds.includes(perk.id));
-          const newMembershipObj: CreatorMembership = {
-            name: editTierParams.editTierName,
-            description: editTierParams.editTierDescription,
-            has_subscribers: false,
-            channel_name: activeChannelClaim.name,
-            prices: [{
-              amount: price,
-              currency: 'AR',
-              address: ''
-            }],
-            // HERE PRICES
-            perks: selectedPerks,
-            enabled: true
-          };
-          addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
+            const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
+            const newMembershipObj: CreatorMembership = {
+              name: editTierParams.editTierName,
+              description: editTierParams.editTierDescription,
+              has_subscribers: false,
+              channel_name: activeChannelClaim.name,
+              prices: [
+                {
+                  amount: price,
+                  currency: 'AR',
+                  address: '',
+                },
+              ],
+              // HERE PRICES
+              perks: selectedPerks,
+              enabled: true,
+            };
+            addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
 
-          removeEditing();
-          // force update for list
-          doMembershipList({
-            channel_claim_id: activeChannelClaim.claim_id
-          }, true);
-        }).catch(() => setIsSubmitting(false));
+            removeEditing();
+            // force update for list
+            doMembershipList(
+              {
+                channel_claim_id: activeChannelClaim.claim_id,
+              },
+              true
+            );
+          })
+          .catch(() => setIsSubmitting(false));
       } else {
         // is edit
         const params = {
@@ -165,66 +173,91 @@ function MembershipEditTier(props: Props) {
           new_description: editTierParams.editTierDescription,
           new_amount: price,
           membership_id: membership.membership_id,
-          new_members_only_chat_enabled: selectedPerkIds.includes(7) // selectedPerks has id 7
-
+          new_members_only_chat_enabled: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
-        doMembershipUpdateTier(params).then(responseOrError => {
-          setIsSubmitting(false);
-          const {
-            error
-          } = responseOrError;
+        doMembershipUpdateTier(params)
+          .then((responseOrError) => {
+            setIsSubmitting(false);
+            const { error } = responseOrError;
 
-          if (error) {
-            setSaveError(error);
-            return;
-          }
+            if (error) {
+              setSaveError(error);
+              return;
+            }
 
-          const selectedPerks = membershipOdyseePerks.filter(perk => selectedPerkIds.includes(perk.id));
-          const newMembershipObj: CreatorMembership = {
-            membership_id: membership.membership_id,
-            name: editTierParams.editTierName,
-            description: editTierParams.editTierDescription,
-            has_subscribers: membership.has_subscribers,
-            channel_name: activeChannelClaim.name,
-            channel_claim_id: activeChannelClaim.claim_id,
-            prices: [{
-              amount: price,
-              currency: 'usd',
-              address: ''
-            }],
-            // HERE PRICES
-            perks: selectedPerks,
-            enabled: true
-          };
-          addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
+            const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
+            const newMembershipObj: CreatorMembership = {
+              membership_id: membership.membership_id,
+              name: editTierParams.editTierName,
+              description: editTierParams.editTierDescription,
+              has_subscribers: membership.has_subscribers,
+              channel_name: activeChannelClaim.name,
+              channel_claim_id: activeChannelClaim.claim_id,
+              prices: [
+                {
+                  amount: price,
+                  currency: 'usd',
+                  address: '',
+                },
+              ],
+              // HERE PRICES
+              perks: selectedPerks,
+              enabled: true,
+            };
+            addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
 
-          removeEditing();
-          // force update for list
-          doMembershipList({
-            channel_claim_id: activeChannelClaim.claim_id
-          }, true);
-        }).catch(() => setIsSubmitting(false));
+            removeEditing();
+            // force update for list
+            doMembershipList(
+              {
+                channel_claim_id: activeChannelClaim.claim_id,
+              },
+              true
+            );
+          })
+          .catch(() => setIsSubmitting(false));
       }
     }
   }
 
-  const editTierWrapperRef = React.useCallback(node => {
-    if (node) {
-      const y = node.getBoundingClientRect().top + window.pageYOffset - roughHeaderHeight;
-      window.scrollTo({
-        top: y,
-        behavior: 'smooth'
-      });
-    }
-  }, [roughHeaderHeight]);
-  return <div className="membership-tier__wrapper-edit" ref={editTierWrapperRef}>
-      <FormField ref={nameRef} max="30" type="text" name="tier_name" label={__('Tier Name')} placeholder={membership.name} autoFocus onChange={e => setEditTierParams(prev => ({ ...prev,
-      editTierName: nameRef.current?.input?.current?.value || ''
-    }))} value={editTierParams.editTierName} />
+  const editTierWrapperRef = React.useCallback(
+    (node) => {
+      if (node) {
+        const y = node.getBoundingClientRect().top + window.pageYOffset - roughHeaderHeight;
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth',
+        });
+      }
+    },
+    [roughHeaderHeight]
+  );
+  return (
+    <div className="membership-tier__wrapper-edit" ref={editTierWrapperRef}>
+      <FormField
+        ref={nameRef}
+        max="30"
+        type="text"
+        name="tier_name"
+        label={__('Tier Name')}
+        placeholder={membership.name}
+        autoFocus
+        onChange={(e) =>
+          setEditTierParams((prev) => ({ ...prev, editTierName: nameRef.current?.input?.current?.value || '' }))
+        }
+        value={editTierParams.editTierName}
+      />
 
-      <FormField type="textarea" max="2000" lines="3" name="tier_description" label={__('Tier Description')} placeholder={__('Description of your tier')} value={editTierParams.editTierDescription} onChange={e => setEditTierParams(prev => ({ ...prev,
-      editTierDescription: e.target.value
-    }))} />
+      <FormField
+        type="textarea"
+        max="2000"
+        lines="3"
+        name="tier_description"
+        label={__('Tier Description')}
+        placeholder={__('Description of your tier')}
+        value={editTierParams.editTierDescription}
+        onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierDescription: e.target.value }))}
+      />
 
       <fieldset-section>
         <label htmlFor="tier_name">{__('Odysee Perks (Permanent)')}</label>
@@ -232,83 +265,134 @@ function MembershipEditTier(props: Props) {
       <div className="membership-tier__perks">
         <div className="membership-tier__perks-content">
           <ul>
-            {membershipOdyseePerks.map(tierPerk => {
-            const isPermanent = MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(tierPerk.id);
-            const isShownInEdit = perksIdsShownInEditForm.includes(tierPerk.id);
-            const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
-            const isEditable = editablePerkIds.includes(tierPerk.id);
+            {membershipOdyseePerks.map((tierPerk) => {
+              const isPermanent = MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(tierPerk.id);
+              const isShownInEdit = perksIdsShownInEditForm.includes(tierPerk.id);
+              const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
+              const isEditable = editablePerkIds.includes(tierPerk.id);
 
-            if (isCreatingAMembership) {
-              return <FormField key={tierPerk.id} type="checkbox" defaultChecked={isSelected} label={__(tierPerk.description)} name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')} className="membership_perks" onChange={() => setSelectedPerkIds(prevPerks => {
-                const newPrevPerks = new Set(prevPerks);
-                const isSelected = newPrevPerks.has(tierPerk.id);
+              if (isCreatingAMembership) {
+                return (
+                  <FormField
+                    key={tierPerk.id}
+                    type="checkbox"
+                    defaultChecked={isSelected}
+                    label={__(tierPerk.description)}
+                    name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
+                    className="membership_perks"
+                    onChange={() =>
+                      setSelectedPerkIds((prevPerks) => {
+                        const newPrevPerks = new Set(prevPerks);
+                        const isSelected = newPrevPerks.has(tierPerk.id);
 
-                if (!isSelected) {
-                  newPrevPerks.add(tierPerk.id);
-                } else {
-                  newPrevPerks.delete(tierPerk.id);
-                }
+                        if (!isSelected) {
+                          newPrevPerks.add(tierPerk.id);
+                        } else {
+                          newPrevPerks.delete(tierPerk.id);
+                        }
 
-                return Array.from(newPrevPerks);
-              })} />;
-            } else {
-              if (isShownInEdit) {
-                if (!isEditable) {
-                  return <li key={tierPerk.description}>{__(tierPerk.description)}</li>;
-                } else {
-                  return <FormField key={tierPerk.id} type="checkbox" defaultChecked={isPermanent || isSelected} label={__(tierPerk.description)} name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')} className="membership_perks" disabled={isPermanent} onChange={() => setSelectedPerkIds(prevPerks => {
-                    const newPrevPerks = new Set(prevPerks);
-                    const isSelected = newPrevPerks.has(tierPerk.id);
-
-                    if (!isSelected) {
-                      newPrevPerks.add(tierPerk.id);
-                    } else {
-                      newPrevPerks.delete(tierPerk.id);
+                        return Array.from(newPrevPerks);
+                      })
                     }
+                  />
+                );
+              } else {
+                if (isShownInEdit) {
+                  if (!isEditable) {
+                    return <li key={tierPerk.description}>{__(tierPerk.description)}</li>;
+                  } else {
+                    return (
+                      <FormField
+                        key={tierPerk.id}
+                        type="checkbox"
+                        defaultChecked={isPermanent || isSelected}
+                        label={__(tierPerk.description)}
+                        name={'perk_' + tierPerk.id + ' ' + 'membership_' + (membership.membership_id ?? '')}
+                        className="membership_perks"
+                        disabled={isPermanent}
+                        onChange={() =>
+                          setSelectedPerkIds((prevPerks) => {
+                            const newPrevPerks = new Set(prevPerks);
+                            const isSelected = newPrevPerks.has(tierPerk.id);
 
-                    return Array.from(newPrevPerks);
-                  })} />;
+                            if (!isSelected) {
+                              newPrevPerks.add(tierPerk.id);
+                            } else {
+                              newPrevPerks.delete(tierPerk.id);
+                            }
+
+                            return Array.from(newPrevPerks);
+                          })
+                        }
+                      />
+                    );
+                  }
                 }
               }
-            }
-          })}
+            })}
           </ul>
         </div>
       </div>
 
-      <FormField ref={contributionRef} className="form-field--price-amount" type="number" name="tier_contribution" step="1" min={MIN_PRICE} max={MAX_PRICE} label={__('Monthly Contribution ($/Month)')} value={editTierParams.editTierPrice} onChange={e => {
-      const value = contributionRef.current?.input?.current?.value;
-      setEditTierParams(prev => ({ ...prev,
-        editTierPrice: parseFloat(value)
-      }));
-    }} disabled={hasSubscribers} />
+      <FormField
+        ref={contributionRef}
+        className="form-field--price-amount"
+        type="number"
+        name="tier_contribution"
+        step="1"
+        min={MIN_PRICE}
+        max={MAX_PRICE}
+        label={__('Monthly Contribution ($/Month)')}
+        value={editTierParams.editTierPrice}
+        onChange={(e) => {
+          const value = contributionRef.current?.input?.current?.value;
+          setEditTierParams((prev) => ({ ...prev, editTierPrice: parseFloat(value) }));
+        }}
+        disabled={hasSubscribers}
+      />
 
       <div className="section__actions">
-        <Button disabled={nameError || descriptionError || priceError || isSubmitting} button="primary" label={isSubmitting ? <BusyIndicator message={__('Saving')} /> : __('Save Tier')} onClick={saveMembership} />
+        <Button
+          disabled={nameError || descriptionError || priceError || isSubmitting}
+          button="primary"
+          label={isSubmitting ? <BusyIndicator message={__('Saving')} /> : __('Save Tier')}
+          onClick={saveMembership}
+        />
         <Button button="link" label={__('Cancel')} onClick={onCancel} />
       </div>
-      {(nameError || descriptionError || saveError || priceLowerThanMin || priceHigherThanMax) && <div className="section__actions">
-          {
-        /* <p className="help"> */
-      }
+      {(nameError || descriptionError || saveError || priceLowerThanMin || priceHigherThanMax) && (
+        <div className="section__actions">
+          {/* <p className="help"> */}
           <div className={'errorColumn'}>
             <div className="error__text">
-              {nameError ? __('A membership name is required.') : descriptionError ? __('A membership description is required.') : undefined}
+              {nameError
+                ? __('A membership name is required.')
+                : descriptionError
+                  ? __('A membership description is required.')
+                  : undefined}
               {saveError && __(saveError)}
             </div>
             <div className="error__text">
-              {hasSubscribers ? __(`This membership has subscribers, you can't update the price currently.`) : priceLowerThanMin ? __('Price must be greater or equal than %min%.', {
-            min: MIN_PRICE
-          }) : priceHigherThanMax ? __('Price must be lower or equal than %max%.', {
-            max: MAX_PRICE
-          }) : !editTierParams.editTierPrice ? __('A price is required.') : undefined}
+              {hasSubscribers
+                ? __(`This membership has subscribers, you can't update the price currently.`)
+                : priceLowerThanMin
+                  ? __('Price must be greater or equal than %min%.', {
+                      min: MIN_PRICE,
+                    })
+                  : priceHigherThanMax
+                    ? __('Price must be lower or equal than %max%.', {
+                        max: MAX_PRICE,
+                      })
+                    : !editTierParams.editTierPrice
+                      ? __('A price is required.')
+                      : undefined}
             </div>
           </div>
-          {
-        /* </p> */
-      }
-        </div>}
-    </div>;
+          {/* </p> */}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default MembershipEditTier;

@@ -1,9 +1,9 @@
-import React from "react";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import ReactDOMServer from "react-dom/server";
-import "./plugins/videojs-overlay/plugin";
-import "./plugins/videojs-overlay/plugin.scss";
+import React from 'react';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import ReactDOMServer from 'react-dom/server';
+import './plugins/videojs-overlay/plugin';
+import './plugins/videojs-overlay/plugin.scss';
 // ****************************************************************************
 // ****************************************************************************
 const OVERLAY_NAME_ONE_OFF = 'one-off';
@@ -16,7 +16,8 @@ const OVERLAY_CLASS_SEEKED = 'vjs-overlay-seeked';
  * Overlays that will always be registered with the plugin.
  * @type {*[]}
  */
-const PERMANENT_OVERLAYS = [// Nothing for now.
+const PERMANENT_OVERLAYS = [
+  // Nothing for now.
   // --- Example: ---
   // {
   //   content: 'Video is now playing',
@@ -27,7 +28,7 @@ const PERMANENT_OVERLAYS = [// Nothing for now.
 ];
 export const OVERLAY_DATA = {
   // https://github.com/brightcove/videojs-overlay/blob/master/README.md#documentation
-  overlays: [...PERMANENT_OVERLAYS]
+  overlays: [...PERMANENT_OVERLAYS],
 };
 
 /**
@@ -39,14 +40,14 @@ export const OVERLAY_DATA = {
  */
 function showOneOffOverlay(player, className, overlayJsx, align) {
   // Delete existing:
-  OVERLAY_DATA.overlays = OVERLAY_DATA.overlays.filter(x => x.name !== OVERLAY_NAME_ONE_OFF);
+  OVERLAY_DATA.overlays = OVERLAY_DATA.overlays.filter((x) => x.name !== OVERLAY_NAME_ONE_OFF);
   // Create new one:
   OVERLAY_DATA.overlays.push({
     name: OVERLAY_NAME_ONE_OFF,
     class: className,
     content: ReactDOMServer.renderToStaticMarkup(overlayJsx),
     start: 'immediate',
-    align: align
+    align: align,
   });
   // Display it:
   player.overlay(OVERLAY_DATA);
@@ -60,12 +61,14 @@ function showOneOffOverlay(player, className, overlayJsx, align) {
  * @param isSpeedUp true if the change was speeding up, false otherwise.
  */
 export function showPlaybackRateOverlay(player, newRate, isSpeedUp) {
-  const overlayJsx = <div>
+  const overlayJsx = (
+    <div>
       <p>{newRate}x</p>
       <p>
         <Icon icon={isSpeedUp ? ICONS.ARROW_RIGHT : ICONS.ARROW_LEFT} size={48} />
       </p>
-    </div>;
+    </div>
+  );
   showOneOffOverlay(player, OVERLAY_CLASS_PLAYBACK_RATE, overlayJsx, 'center');
 }
 
@@ -77,13 +80,15 @@ export function showPlaybackRateOverlay(player, newRate, isSpeedUp) {
  * @param isForward true if seeking forward, false otherwise.
  */
 export function showSeekedOverlay(player, duration, isForward, isJumpTo) {
-  const overlayJsx = <div>
+  const overlayJsx = (
+    <div>
       <p>
         {!isJumpTo && (isForward ? '+' : '-')}
         {duration}
         {isJumpTo && '%'}
       </p>
-    </div>;
+    </div>
+  );
   showOneOffOverlay(player, OVERLAY_CLASS_SEEKED, overlayJsx, 'center');
 }
 
@@ -94,11 +99,13 @@ export function showSeekedOverlay(player, duration, isForward, isJumpTo) {
  * @param percentage how much % of volume active.
  */
 export function showVolumeverlay(player, percentage) {
-  const overlayJsx = <div>
+  const overlayJsx = (
+    <div>
       <p>
         {percentage}
         {'%'}
       </p>
-    </div>;
+    </div>
+  );
   showOneOffOverlay(player, OVERLAY_CLASS_SEEKED, overlayJsx, 'center');
 }

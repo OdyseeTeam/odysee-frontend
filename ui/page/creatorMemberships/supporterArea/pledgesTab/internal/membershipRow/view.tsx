@@ -1,15 +1,15 @@
-import React from "react";
-import { buildURI } from "util/lbryURI";
-import Spinner from "component/spinner";
-import { formatLbryUrlForWeb } from "util/url";
-import ChannelThumbnail from "component/channelThumbnail";
-import UriIndicator from "component/uriIndicator";
-import JoinMembershipButton from "component/joinMembershipButton";
-import { toCapitalCase } from "util/string";
-import Button from "component/button";
-import * as ICONS from "constants/icons";
-import moment from "moment";
-import { getFormattedRenewBy } from "util/memberships";
+import React from 'react';
+import { buildURI } from 'util/lbryURI';
+import Spinner from 'component/spinner';
+import { formatLbryUrlForWeb } from 'util/url';
+import ChannelThumbnail from 'component/channelThumbnail';
+import UriIndicator from 'component/uriIndicator';
+import JoinMembershipButton from 'component/joinMembershipButton';
+import { toCapitalCase } from 'util/string';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import moment from 'moment';
+import { getFormattedRenewBy } from 'util/memberships';
 type Props = {
   membershipSub: MembershipSub;
   creatorChannelClaim: Claim;
@@ -19,21 +19,19 @@ type Props = {
   creatorChannelUri: string;
 };
 export default function MembershipRow(props: Props) {
-  const {
-    membershipSub,
-    creatorChannelClaim,
-    activeChannelClaim,
-    membershipIndex,
-    doMembershipList
-  } = props;
+  const { membershipSub, creatorChannelClaim, activeChannelClaim, membershipIndex, doMembershipList } = props;
   const memberChannelName = activeChannelClaim?.name || '';
   const creatorChannelId = membershipSub.membership.channel_claim_id;
-  const creatorChannelUri = creatorChannelClaim ? buildURI({
-    channelName: creatorChannelClaim.name,
-    channelClaimId: creatorChannelId
-  }) : null;
+  const creatorChannelUri = creatorChannelClaim
+    ? buildURI({
+        channelName: creatorChannelClaim.name,
+        channelClaimId: creatorChannelId,
+      })
+    : null;
   const creatorChannelPath = creatorChannelUri ? formatLbryUrlForWeb(creatorChannelUri) : '';
-  const currency = membershipSub.subscription.current_price ? membershipSub.subscription.current_price.currency.toUpperCase() : '';
+  const currency = membershipSub.subscription.current_price
+    ? membershipSub.subscription.current_price.currency.toUpperCase()
+    : '';
   const supportAmount = membershipSub.subscription.current_price ? membershipSub.subscription.current_price.amount : ''; // in cents or 1/100th EUR
 
   const interval = membershipSub.subscription.current_price ? membershipSub.subscription.current_price.frequency : '';
@@ -42,16 +40,24 @@ export default function MembershipRow(props: Props) {
   //   membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z'
   //     ? new Date(Date.now()).toISOString()
   //     : new Date(membershipSub.subscription.ends_at);
-  const hasPendingPayment = membershipSub.payments.some(m => m.status === 'submitted');
-  const canRenew = !hasPendingPayment && membershipSub.subscription.earliest_renewal_at && new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
-  const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length;
-  const monthsSupported = paidMonths === 1 ? __('1 Month') : __('%paid_months% Months', {
-    paid_months: paidMonths
-  });
+  const hasPendingPayment = membershipSub.payments.some((m) => m.status === 'submitted');
+  const canRenew =
+    !hasPendingPayment &&
+    membershipSub.subscription.earliest_renewal_at &&
+    new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
+  const paidMonths = membershipSub.payments.filter(
+    (m) => m.status && (m.status === 'paid' || m.status === 'submitted')
+  ).length;
+  const monthsSupported =
+    paidMonths === 1
+      ? __('1 Month')
+      : __('%paid_months% Months', {
+          paid_months: paidMonths,
+        });
   React.useEffect(() => {
     if (membershipIndex === -1) {
       doMembershipList({
-        channel_claim_id: creatorChannelId
+        channel_claim_id: creatorChannelId,
       });
     }
   }, [creatorChannelId, doMembershipList, membershipIndex]);
@@ -92,17 +98,24 @@ export default function MembershipRow(props: Props) {
   //
   //
   if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
-    return <tr>
+    return (
+      <tr>
         <td colSpan="9">
           <Spinner />
         </td>
-      </tr>;
+      </tr>
+    );
   }
 
-  return <tr key={`${membershipSub.membership.channel_claim_id}${membershipSub.membership.name}`}>
+  return (
+    <tr key={`${membershipSub.membership.channel_claim_id}${membershipSub.membership.name}`}>
       <td className="channelThumbnail">
         <ChannelThumbnail xsmall uri={creatorChannelUri} />
-        <ChannelThumbnail xxsmall uri={creatorChannelUri === '' ? undefined : creatorChannelUri} tooltipTitle={memberChannelName === '' ? __('Anonymous') : memberChannelName} />
+        <ChannelThumbnail
+          xxsmall
+          uri={creatorChannelUri === '' ? undefined : creatorChannelUri}
+          tooltipTitle={memberChannelName === '' ? __('Anonymous') : memberChannelName}
+        />
       </td>
 
       <td>
@@ -119,12 +132,25 @@ export default function MembershipRow(props: Props) {
       </td>
       <td>{hasPendingPayment ? 'Submitted' : getFormattedRenewBy(membershipSub)}</td>
       <td>
-        {membershipSub.subscription.status === 'active' ? canRenew ? <JoinMembershipButton uri={creatorChannelUri} /> : __('Active') : membershipSub.subscription.status === 'lapsed' ? __('Past Due') : membershipSub.subscription.status === 'pending' ? __('Pending') : __('Canceled')}
+        {membershipSub.subscription.status === 'active' ? (
+          canRenew ? (
+            <JoinMembershipButton uri={creatorChannelUri} />
+          ) : (
+            __('Active')
+          )
+        ) : membershipSub.subscription.status === 'lapsed' ? (
+          __('Past Due')
+        ) : membershipSub.subscription.status === 'pending' ? (
+          __('Pending')
+        ) : (
+          __('Canceled')
+        )}
       </td>
       <td>
         <span dir="auto" className="button__label">
           <Button button="alt" icon={ICONS.MEMBERSHIP} navigate={creatorChannelPath + '?view=membership'} />
         </span>
       </td>
-    </tr>;
+    </tr>
+  );
 }

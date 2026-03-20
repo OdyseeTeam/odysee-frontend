@@ -1,9 +1,9 @@
-import React from "react";
-import Skeleton from "@mui/material/Skeleton";
-import { SIMPLE_SITE } from "config";
-import HelpLink from "component/common/help-link";
-import Tooltip from "component/common/tooltip";
-import { toCompactNotation } from "util/string";
+import React from 'react';
+import Skeleton from '@mui/material/Skeleton';
+import { SIMPLE_SITE } from 'config';
+import HelpLink from 'component/common/help-link';
+import Tooltip from 'component/common/tooltip';
+import { toCompactNotation } from 'util/string';
 type Props = {
   // --- redux ---
   claimId: string | null | undefined;
@@ -17,15 +17,7 @@ type Props = {
 };
 
 function FileViewCount(props: Props) {
-  const {
-    claimId,
-    isLivestreamClaim,
-    isLivestreamActive,
-    fetchViewCount,
-    viewCount,
-    activeViewers,
-    lang
-  } = props;
+  const { claimId, isLivestreamClaim, isLivestreamActive, fetchViewCount, viewCount, activeViewers, lang } = props;
   const count = isLivestreamClaim ? activeViewers || 0 : viewCount;
   // $FlowIgnore: Number.isInteger covers null case
   const countCompact = Number.isInteger(count) ? toCompactNotation(count, lang, 10000) : null;
@@ -34,9 +26,11 @@ function FileViewCount(props: Props) {
 
   function getRegularViewCountElem() {
     if (Number.isInteger(viewCount)) {
-      return viewCount !== 1 ? __('%view_count% views', {
-        view_count: countCompact
-      }) : __('1 view');
+      return viewCount !== 1
+        ? __('%view_count% views', {
+            view_count: countCompact,
+          })
+        : __('1 view');
     } else {
       return Placeholder;
     }
@@ -48,7 +42,7 @@ function FileViewCount(props: Props) {
     } else {
       return __('%viewer_count% currently %viewer_state%', {
         viewer_count: countCompact,
-        viewer_state: isLivestreamActive ? __('watching') : __('waiting')
+        viewer_state: isLivestreamActive ? __('watching') : __('waiting'),
       });
     }
   }
@@ -59,13 +53,15 @@ function FileViewCount(props: Props) {
     }
   }, [claimId]);
   // eslint-disable-line react-hooks/exhaustive-deps
-  return <Tooltip title={countFullResolution} followCursor placement="top">
+  return (
+    <Tooltip title={countFullResolution} followCursor placement="top">
       <span className="media__subtitle--centered">
         {isLivestreamClaim && getLivestreamViewCountElem()}
         {!isLivestreamClaim && activeViewers === undefined && getRegularViewCountElem()}
         {!SIMPLE_SITE && <HelpLink href="https://help.odysee.tv/category-basics/" />}
       </span>
-    </Tooltip>;
+    </Tooltip>
+  );
 }
 
 export default FileViewCount;

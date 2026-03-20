@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from 'moment';
 export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: string = 'Just now') {
   const suffixList = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
   const showFutureDate = true;
@@ -6,16 +6,16 @@ export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: 
   let duration = 0;
   let suffix = '';
   let str = '';
-  suffixList.some(s => {
+  suffixList.some((s) => {
     // moment() is very liberal with it's rounding.
     // Always round down dates for better youtube parity.
     duration = Math.floor(moment().diff(date, s));
     suffix = s;
-    return duration > 0 || showFutureDate && duration * -1 > 0;
+    return duration > 0 || (showFutureDate && duration * -1 > 0);
   });
 
   // Strip off the ending 's' for the singular suffix
-  if (duration === 1 || duration === -1 && showFutureDate) {
+  if (duration === 1 || (duration === -1 && showFutureDate)) {
     suffix = suffix.replace(/s$/g, '');
   }
 
@@ -38,6 +38,6 @@ export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: 
   }
 
   return __(str, {
-    duration
+    duration,
   });
 }

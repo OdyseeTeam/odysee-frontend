@@ -1,5 +1,5 @@
-import React, { memo } from "react";
-import PremiumPlusTile from "component/premiumPlusTile";
+import React, { memo } from 'react';
+import PremiumPlusTile from 'component/premiumPlusTile';
 // prettier-ignore
 const AD_CONFIG: {
   url: string;
@@ -28,12 +28,7 @@ type DispatchProps = {||};
 // @ts-ignore
 const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props: any) {
   // function AdTileA(props: Props & StateProps & DispatchProps) {
-  const {
-    provider,
-    tileLayout,
-    shouldShowAds,
-    noFallback
-  } = props;
+  const { provider, tileLayout, shouldShowAds, noFallback } = props;
   const [iframe, setIframe] = React.useState(false);
   const primaryIframeRef = React.useRef(false);
   const [useFallback, setUseFallback] = React.useState(false);
@@ -69,12 +64,13 @@ const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props:
     } else if (provider === 'rumble') {
       window.addEventListener('resize', handleResize);
       const adScript = document.getElementById('nrp-60');
-      const iframeCheck = adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe') || null;
+      const iframeCheck =
+        (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
 
       if (adScript && iframeCheck) {
         adScript.id = 'static';
         const iframeHTML = {
-          __html: iframeCheck.outerHTML
+          __html: iframeCheck.outerHTML,
         };
         setIframe(iframeHTML);
       }
@@ -86,31 +82,46 @@ const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props:
   }, [provider, shouldShowAds, useFallback]);
 
   if (shouldShowAds && (provider === 'revconent' || useFallback)) {
-    return <li className="claim-preview--tile">
-        <div className="rc_tile" id="rc-widget-fceddd" data-rc-widget data-widget-host="habitat" data-endpoint="//trends.revcontent.com" data-widget-id="273434" />
-      </li>;
+    return (
+      <li className="claim-preview--tile">
+        <div
+          className="rc_tile"
+          id="rc-widget-fceddd"
+          data-rc-widget
+          data-widget-host="habitat"
+          data-endpoint="//trends.revcontent.com"
+          data-widget-id="273434"
+        />
+      </li>
+    );
   } else if (shouldShowAds && provider === 'rumble' && !useFallback) {
     if (!iframe) {
-      return <li className="claim-preview--tile">
+      return (
+        <li className="claim-preview--tile">
           <div className={'rc_tile rc_tile--rmbl'}>
             <div>
               <script id="nrp-60" type="text/javascript" className="">
-                {function (node) {
-                var nrp = document.createElement('script');
-                nrp.type = 'text/javascript';
-                nrp.async = true;
-                nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
-                if (node) node.appendChild(nrp);
-                primaryIframeRef.current = true;
-              }(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+                {(function (node) {
+                  var nrp = document.createElement('script');
+                  nrp.type = 'text/javascript';
+                  nrp.async = true;
+                  nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
+                  if (node) node.appendChild(nrp);
+                  primaryIframeRef.current = true;
+                })(
+                  document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
+                )}
               </script>
             </div>
           </div>
-        </li>;
+        </li>
+      );
     } else {
-      return <li className="claim-preview--tile">
+      return (
+        <li className="claim-preview--tile">
           <div className={'rc_tile rc_tile--rmbl'} dangerouslySetInnerHTML={iframe} />
-        </li>;
+        </li>
+      );
     }
   } else if (!noFallback) {
     return <PremiumPlusTile tileLayout={tileLayout} />;

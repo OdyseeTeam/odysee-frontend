@@ -1,18 +1,16 @@
-import { connect } from "react-redux";
-import { doOpenModal } from "redux/actions/app";
-import { selectUserValidMembershipForChannelUri } from "redux/selectors/memberships";
-import MembershipBadge from "./view";
+import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
+import { selectUserValidMembershipForChannelUri } from 'redux/selectors/memberships';
+import MembershipBadge from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   return {
-    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri)
+    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri),
   };
 };
 
 const perform = {
-  doOpenModal
+  doOpenModal,
 };
 export default connect(select, perform)(MembershipBadge);

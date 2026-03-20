@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 // import twemoji from 'twemoji';
 // const emojiList = require('node-emoji');
 
@@ -23,12 +23,7 @@ type Props = {
 };
 
 const TruncatedText = (props: Props) => {
-  const {
-    text,
-    lines,
-    showTooltip,
-    style
-  } = props;
+  const { text, lines, showTooltip, style } = props;
   const tooltip = showTooltip ? text : '';
   // const RE_EMOJI = /:\+1:|:-1:|:[\w-]+:/g;
 
@@ -50,18 +45,22 @@ const TruncatedText = (props: Props) => {
      return got + ' ';
   }
   */
-  return <span title={tooltip} className="truncated-text" style={{
-    WebkitLineClamp: lines,
-    ...style
-  }}>
-      {
-      /* <Twemoji text={text} /> */
-    }
+  return (
+    <span
+      title={tooltip}
+      className="truncated-text"
+      style={{
+        WebkitLineClamp: lines,
+        ...style,
+      }}
+    >
+      {/* <Twemoji text={text} /> */}
       {text}
-    </span>;
+    </span>
+  );
 };
 
 TruncatedText.defaultProps = {
-  showTooltip: true
+  showTooltip: true,
 };
 export default TruncatedText;

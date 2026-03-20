@@ -1,2 +1,2 @@
-import SyncFatalError from "./view";
+import SyncFatalError from './view';
 export default SyncFatalError;

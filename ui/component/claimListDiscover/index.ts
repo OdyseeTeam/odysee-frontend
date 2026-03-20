@@ -1,13 +1,19 @@
-import { connect } from "react-redux";
-import { selectById, selectClaimsByUri, selectClaimSearchByQuery, selectClaimSearchByQueryLastPageReached, selectFetchingClaimSearch } from "redux/selectors/claims";
-import { doClaimSearch, doResolveClaimIds, doResolveUris } from "redux/actions/claims";
-import { doFetchThumbnailClaimsForCollectionIds } from "redux/actions/collections";
-import * as SETTINGS from "constants/settings";
-import { selectFollowedTags } from "redux/selectors/tags";
-import { selectMutedAndBlockedChannelIds } from "redux/selectors/blocked";
-import { doFetchOdyseeMembershipForChannelIds } from "redux/actions/memberships";
-import { selectClientSetting, selectShowMatureContent, selectLanguage } from "redux/selectors/settings";
-import ClaimListDiscover from "./view";
+import { connect } from 'react-redux';
+import {
+  selectById,
+  selectClaimsByUri,
+  selectClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
+  selectFetchingClaimSearch,
+} from 'redux/selectors/claims';
+import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
+import * as SETTINGS from 'constants/settings';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
+import ClaimListDiscover from './view';
 
 function resolveHideMembersOnly(global, override) {
   return override === undefined || override === null ? global : override;
@@ -35,6 +41,6 @@ const perform = {
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,
-  doFetchThumbnailClaimsForCollectionIds
+  doFetchThumbnailClaimsForCollectionIds,
 };
 export default connect(select, perform)(ClaimListDiscover);

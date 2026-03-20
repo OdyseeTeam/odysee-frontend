@@ -1,4 +1,4 @@
-import * as ACTIONS from "constants/action_types";
+import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 const defaultState = {
   fetching: false,
@@ -8,20 +8,19 @@ const defaultState = {
   claimPendingByType: {},
   claimErrorsByType: {},
   rewardedContentClaimIds: [],
-  viewRateById: {}
+  viewRateById: {},
 };
 
-reducers[ACTIONS.FETCH_REWARDS_STARTED] = state => Object.assign({}, state, {
-  fetching: true
-});
+reducers[ACTIONS.FETCH_REWARDS_STARTED] = (state) =>
+  Object.assign({}, state, {
+    fetching: true,
+  });
 
 reducers[ACTIONS.FETCH_REWARDS_COMPLETED] = (state, action) => {
-  const {
-    userRewards
-  } = action.data;
+  const { userRewards } = action.data;
   const unclaimedRewards = [];
   const claimedRewards = {};
-  userRewards.forEach(reward => {
+  userRewards.forEach((reward) => {
     if (reward.transaction_id) {
       claimedRewards[reward.id] = reward;
     } else {
@@ -31,7 +30,7 @@ reducers[ACTIONS.FETCH_REWARDS_COMPLETED] = (state, action) => {
   return Object.assign({}, state, {
     claimedRewardsById: claimedRewards,
     unclaimedRewards,
-    fetching: false
+    fetching: false,
   });
 };
 
@@ -57,59 +56,40 @@ function setClaimRewardState(state, reward, isClaiming, errorMessage = '') {
 
   return Object.assign({}, state, {
     claimPendingByType: newClaimPendingByType,
-    claimErrorsByType: newClaimErrorsByType
+    claimErrorsByType: newClaimErrorsByType,
   });
 }
 
 reducers[ACTIONS.CLAIM_REWARD_STARTED] = (state, action) => {
-  const {
-    reward
-  } = action.data;
+  const { reward } = action.data;
   return setClaimRewardState(state, reward, true, '');
 };
 
 reducers[ACTIONS.CLAIM_REWARD_SUCCESS] = (state, action) => {
-  const {
-    reward
-  } = action.data;
-  const {
-    unclaimedRewards
-  } = state;
-  const index = unclaimedRewards.findIndex(ur => ur.claim_code === reward.claim_code);
+  const { reward } = action.data;
+  const { unclaimedRewards } = state;
+  const index = unclaimedRewards.findIndex((ur) => ur.claim_code === reward.claim_code);
   unclaimedRewards.splice(index, 1);
-  const {
-    claimedRewardsById
-  } = state;
+  const { claimedRewardsById } = state;
   claimedRewardsById[reward.id] = reward;
-  const newState = { ...state,
-    unclaimedRewards: [...unclaimedRewards],
-    claimedRewardsById: { ...claimedRewardsById
-    }
-  };
+  const newState = { ...state, unclaimedRewards: [...unclaimedRewards], claimedRewardsById: { ...claimedRewardsById } };
   return setClaimRewardState(newState, reward, false, '');
 };
 
 reducers[ACTIONS.CLAIM_REWARD_FAILURE] = (state, action) => {
-  const {
-    reward,
-    error
-  } = action.data;
+  const { reward, error } = action.data;
   return setClaimRewardState(state, reward, false, error ? error.message : '');
 };
 
 reducers[ACTIONS.CLAIM_REWARD_CLEAR_ERROR] = (state, action) => {
-  const {
-    reward
-  } = action.data;
+  const { reward } = action.data;
   return setClaimRewardState(state, reward, state.claimPendingByType[reward.reward_type], '');
 };
 
 reducers[ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = (state, action) => {
-  const {
-    claimIds
-  } = action.data;
+  const { claimIds } = action.data;
   return Object.assign({}, state, {
-    rewardedContentClaimIds: claimIds
+    rewardedContentClaimIds: claimIds,
   });
 };
 
@@ -118,14 +98,12 @@ reducers[ACTIONS.USER_VIEW_RATE_COMPLETED] = (state, action) => {
   const newViewRateById = Object.assign({}, state.viewRateById);
 
   if (viewRateData?.rates?.length > 0) {
-    viewRateData.rates.forEach(data => {
+    viewRateData.rates.forEach((data) => {
       if (data.channel_claim_id) newViewRateById[data.channel_claim_id] = data;
     });
   }
 
-  return { ...state,
-    viewRateById: newViewRateById
-  };
+  return { ...state, viewRateById: newViewRateById };
 };
 
 export default function rewardsReducer(state = defaultState, action) {

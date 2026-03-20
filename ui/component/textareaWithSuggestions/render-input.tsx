@@ -1,8 +1,8 @@
-import * as ICONS from "constants/icons";
-import React from "react";
-import TextField from "@mui/material/TextField";
-import Button from "component/button";
-import Zoom from "@mui/material/Zoom";
+import * as ICONS from 'constants/icons';
+import React from 'react';
+import TextField from '@mui/material/TextField';
+import Button from 'component/button';
+import Zoom from '@mui/material/Zoom';
 type Props = {
   params: any;
   messageValue: string;
@@ -29,41 +29,62 @@ const TextareaSuggestionsInput = (props: Props) => {
     toggleSelectors,
     handleTip,
     handleSubmit,
-    handlePreventClick
+    handlePreventClick,
   } = props;
-  const {
-    InputProps,
-    disabled,
-    fullWidth,
-    id,
-    inputProps: autocompleteInputProps
-  } = params;
-  const inputProps = { ...autocompleteInputProps,
-    ...inputDefaultProps
-  };
+  const { InputProps, disabled, fullWidth, id, inputProps: autocompleteInputProps } = params;
+  const inputProps = { ...autocompleteInputProps, ...inputDefaultProps };
   const autocompleteProps = {
     InputProps,
     disabled,
     fullWidth,
     id,
-    inputProps
+    inputProps,
   };
 
   if (slimInput) {
-    InputProps.startAdornment = <Button icon={ICONS.STICKER} onClick={() => {
-      if (handlePreventClick) handlePreventClick();
-      toggleSelectors();
-    }} />;
-    InputProps.endAdornment = <>
-        {!claimIsMine && <Button disabled={!messageValue || messageValue.length === 0} icon={ICONS.USD} onClick={() => handleTip(false)} />}
+    InputProps.startAdornment = (
+      <Button
+        icon={ICONS.STICKER}
+        onClick={() => {
+          if (handlePreventClick) handlePreventClick();
+          toggleSelectors();
+        }}
+      />
+    );
+    InputProps.endAdornment = (
+      <>
+        {!claimIsMine && (
+          <Button
+            disabled={!messageValue || messageValue.length === 0}
+            icon={ICONS.USD}
+            onClick={() => handleTip(false)}
+          />
+        )}
 
         <Zoom in={messageValue ? messageValue.length > 0 : undefined} mountOnEnter unmountOnExit>
           <div>
-            <Button ref={submitButtonRef} button="primary" icon={ICONS.SUBMIT} iconColor="red" onClick={() => handleSubmit()} />
+            <Button
+              ref={submitButtonRef}
+              button="primary"
+              icon={ICONS.SUBMIT}
+              iconColor="red"
+              onClick={() => handleSubmit()}
+            />
           </div>
         </Zoom>
-      </>;
-    return <TextField inputRef={inputRef} variant="outlined" multiline minRows={1} maxRows={15} select={false} {...autocompleteProps} />;
+      </>
+    );
+    return (
+      <TextField
+        inputRef={inputRef}
+        variant="outlined"
+        multiline
+        minRows={1}
+        maxRows={15}
+        select={false}
+        {...autocompleteProps}
+      />
+    );
   }
 
   return <TextField inputRef={inputRef} multiline select={false} {...autocompleteProps} />;

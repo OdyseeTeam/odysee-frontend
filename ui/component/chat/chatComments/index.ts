@@ -1,19 +1,18 @@
-import { connect } from "react-redux";
-import { selectIsFetchingComments } from "redux/selectors/comments";
-import { selectIsUriResolving } from "redux/selectors/claims";
-import { VIEW_MODES } from "component/chat/view";
-import ChatComments from "./view";
+import { connect } from 'react-redux';
+import { selectIsFetchingComments } from 'redux/selectors/comments';
+import { selectIsUriResolving } from 'redux/selectors/claims';
+import { VIEW_MODES } from 'component/chat/view';
+import ChatComments from './view';
 
 const select = (state, props) => {
-  const {
-    comments,
-    viewMode
-  } = props;
+  const { comments, viewMode } = props;
   return {
     fetchingComments: selectIsFetchingComments(state),
-    resolvingSuperchats: Boolean(viewMode === VIEW_MODES.SUPERCHAT && comments && comments.some(({
-      channel_url
-    }) => selectIsUriResolving(state, channel_url)))
+    resolvingSuperchats: Boolean(
+      viewMode === VIEW_MODES.SUPERCHAT &&
+      comments &&
+      comments.some(({ channel_url }) => selectIsUriResolving(state, channel_url))
+    ),
   };
 };
 

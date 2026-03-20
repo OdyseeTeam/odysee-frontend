@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
-import { doToggleAppDrawer } from "redux/actions/app";
-import DrawerExpandButton from "./view";
+import { connect } from 'react-redux';
+import { doToggleAppDrawer } from 'redux/actions/app';
+import DrawerExpandButton from './view';
 const perform = {
-  doToggleAppDrawer
+  doToggleAppDrawer,
 };
 export default connect(null, perform)(DrawerExpandButton);

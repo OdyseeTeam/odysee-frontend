@@ -1,19 +1,19 @@
-import { connect } from "react-redux";
-import { selectStakedLevelForChannelUri, selectClaimForUri, selectClaimsByUri, selectTitleForUri, selectDateForUri } from "redux/selectors/claims";
-import { selectActiveChannelClaim } from "redux/selectors/app";
-import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from "redux/selectors/memberships";
-import { getChannelIdFromClaim } from "util/claim";
-import ChatComment from "./view";
+import { connect } from 'react-redux';
+import {
+  selectStakedLevelForChannelUri,
+  selectClaimForUri,
+  selectClaimsByUri,
+  selectTitleForUri,
+  selectDateForUri,
+} from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
+import ChatComment from './view';
 
 const select = (state, props) => {
-  const {
-    uri,
-    comment
-  } = props;
-  const {
-    channel_url: authorUri,
-    channel_id: channelId
-  } = comment;
+  const { uri, comment } = props;
+  const { channel_url: authorUri, channel_id: channelId } = comment;
   const authorTitle = selectTitleForUri(state, authorUri);
   const channelAge = selectDateForUri(state, authorUri);
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -27,7 +27,7 @@ const select = (state, props) => {
     creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channelId),
     activeChannelClaim,
     authorTitle,
-    channelAge
+    channelAge,
   };
 };
 

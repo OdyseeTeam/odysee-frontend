@@ -1,4 +1,4 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const CONTROL_BAR = 'ControlBar';
 const PLAYBACK_RATE_MENU_BUTTON = 'PlaybackRateMenuButton';
@@ -14,7 +14,7 @@ class LbryPlaybackRateMenuButton extends PlaybackRateMenuButton {
       controlBar.removeChild(playbackRateMenuButton);
       controlBar.addChild(new LbryPlaybackRateMenuButton(player));
     } catch (error) {
-      if (IS_DEV) throw Error('\n\nvideojs.jsx: Playback rate hierarchy changed?\n\n' + error);
+      if (IS_DEV) throw Error('\n\nvideojs.jsx: Playback rate hierarchy changed?\n\n' + error, { cause: error });
     }
   }
 
@@ -58,9 +58,11 @@ class LbryPlaybackRateMenuButton extends PlaybackRateMenuButton {
   handleMenuBlur(event, menu) {
     const relatedTarget = event.relatedTarget || document.activeElement;
 
-    if (!menu.children().some(element => {
-      return element.el() === relatedTarget;
-    })) {
+    if (
+      !menu.children().some((element) => {
+        return element.el() === relatedTarget;
+      })
+    ) {
       const btn = menu.menuButton_;
 
       if (btn && btn.buttonPressed_ && relatedTarget.parentElement !== btn.el()) {
@@ -71,12 +73,12 @@ class LbryPlaybackRateMenuButton extends PlaybackRateMenuButton {
 
   createMenu() {
     const menu = new Menu(this.player_, {
-      menuButton: this
+      menuButton: this,
     });
 
     // Override the original with ours. Must be done after the constructor
     // is called, as that is where `boundHandleBlur_` is originally set.
-    menu.boundHandleBlur_ = e => this.handleMenuBlur(e, menu);
+    menu.boundHandleBlur_ = (e) => this.handleMenuBlur(e, menu);
 
     this.hideThreshold_ = 0; // Must reset. See `MenuButton::createMenu` notes.
 
@@ -90,7 +92,6 @@ class LbryPlaybackRateMenuButton extends PlaybackRateMenuButton {
 
     return menu;
   }
-
 }
 
 export default LbryPlaybackRateMenuButton;

@@ -1,34 +1,36 @@
-import { Lbryio } from "lbryinc";
-import { doUpdateBalance } from "redux/actions/wallet";
-import { doToast } from "redux/actions/notifications";
-import * as ACTIONS from "constants/action_types";
-import { selectUnclaimedRewards, selectWeeklyWatchClaimedThisWeek } from "redux/selectors/rewards";
-import { selectUserIsRewardApproved } from "redux/selectors/user";
-import { doFetchInviteStatus } from "redux/actions/user";
-import rewards from "rewards";
-import { resolveApiMessage } from "util/api-message";
+import { Lbryio } from 'lbryinc';
+import { doUpdateBalance } from 'redux/actions/wallet';
+import { doToast } from 'redux/actions/notifications';
+import * as ACTIONS from 'constants/action_types';
+import { selectUnclaimedRewards, selectWeeklyWatchClaimedThisWeek } from 'redux/selectors/rewards';
+import { selectUserIsRewardApproved } from 'redux/selectors/user';
+import { doFetchInviteStatus } from 'redux/actions/user';
+import rewards from 'rewards';
+import { resolveApiMessage } from 'util/api-message';
 export function doRewardList() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
-      type: ACTIONS.FETCH_REWARDS_STARTED
+      type: ACTIONS.FETCH_REWARDS_STARTED,
     });
     Lbryio.call('reward', 'list', {
-      multiple_rewards_per_type: true
-    }).then(userRewards => {
-      dispatch({
-        type: ACTIONS.FETCH_REWARDS_COMPLETED,
-        data: {
-          userRewards
-        }
+      multiple_rewards_per_type: true,
+    })
+      .then((userRewards) => {
+        dispatch({
+          type: ACTIONS.FETCH_REWARDS_COMPLETED,
+          data: {
+            userRewards,
+          },
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.FETCH_REWARDS_COMPLETED,
+          data: {
+            userRewards: [],
+          },
+        });
       });
-    }).catch(() => {
-      dispatch({
-        type: ACTIONS.FETCH_REWARDS_COMPLETED,
-        data: {
-          userRewards: []
-        }
-      });
-    });
   };
 }
 export function doClaimRewardType(rewardType, options = {}) {
@@ -36,20 +38,33 @@ export function doClaimRewardType(rewardType, options = {}) {
     const state = getState();
     const userIsRewardApproved = selectUserIsRewardApproved(state);
     const unclaimedRewards = selectUnclaimedRewards(state);
-    const reward = rewardType === rewards.TYPE_REWARD_CODE || rewardType === rewards.TYPE_NEW_ANDROID ? {
-      reward_type: rewards.TYPE_REWARD_CODE
-    } : unclaimedRewards.find(ur => ur.reward_type === rewardType);
+    const reward =
+      rewardType === rewards.TYPE_REWARD_CODE || rewardType === rewards.TYPE_NEW_ANDROID
+        ? {
+            reward_type: rewards.TYPE_REWARD_CODE,
+          }
+        : unclaimedRewards.find((ur) => ur.reward_type === rewardType);
 
     // Try to claim the email reward right away, even if we haven't called reward_list yet
-    if (rewardType !== rewards.TYPE_REWARD_CODE && rewardType !== rewards.TYPE_CONFIRM_EMAIL && rewardType !== rewards.TYPE_WEEKLY_WATCH && rewardType !== rewards.TYPE_NEW_ANDROID) {
+    if (
+      rewardType !== rewards.TYPE_REWARD_CODE &&
+      rewardType !== rewards.TYPE_CONFIRM_EMAIL &&
+      rewardType !== rewards.TYPE_WEEKLY_WATCH &&
+      rewardType !== rewards.TYPE_NEW_ANDROID
+    ) {
       if (!reward || reward.transaction_id) {
         // already claimed or doesn't exist, do nothing
         return;
       }
     }
 
-    if (!userIsRewardApproved && rewardType !== rewards.TYPE_CONFIRM_EMAIL && rewardType !== rewards.TYPE_REWARD_CODE && rewardType !== rewards.TYPE_NEW_ANDROID) {
-      if (!options || !options.failSilently && rewards.callbacks.rewardApprovalRequested) {
+    if (
+      !userIsRewardApproved &&
+      rewardType !== rewards.TYPE_CONFIRM_EMAIL &&
+      rewardType !== rewards.TYPE_REWARD_CODE &&
+      rewardType !== rewards.TYPE_NEW_ANDROID
+    ) {
+      if (!options || (!options.failSilently && rewards.callbacks.rewardApprovalRequested)) {
         rewards.callbacks.rewardApprovalRequested();
       }
 
@@ -66,19 +81,19 @@ export function doClaimRewardType(rewardType, options = {}) {
     dispatch({
       type: ACTIONS.CLAIM_REWARD_STARTED,
       data: {
-        reward
-      }
+        reward,
+      },
     });
 
-    const success = successReward => {
+    const success = (successReward) => {
       // Temporary timeout to ensure the sdk has the correct balance after claiming a reward
       setTimeout(() => {
         dispatch(doUpdateBalance()).then(() => {
           dispatch({
             type: ACTIONS.CLAIM_REWARD_SUCCESS,
             data: {
-              reward: successReward
-            }
+              reward: successReward,
+            },
           });
 
           if (successReward.reward_type === rewards.TYPE_NEW_USER && rewards.callbacks.claimFirstRewardSuccess) {
@@ -96,20 +111,22 @@ export function doClaimRewardType(rewardType, options = {}) {
       }, 2000);
     };
 
-    const failure = error => {
+    const failure = (error) => {
       dispatch({
         type: ACTIONS.CLAIM_REWARD_FAILURE,
         data: {
           reward,
-          error: !options || !options.failSilently ? error : undefined
-        }
+          error: !options || !options.failSilently ? error : undefined,
+        },
       });
 
       if (options.notifyError) {
-        dispatch(doToast({
-          message: resolveApiMessage(error?.message || error),
-          isError: true
-        }));
+        dispatch(
+          doToast({
+            message: resolveApiMessage(error?.message || error),
+            isError: true,
+          })
+        );
       }
 
       if (options.callback) {
@@ -121,7 +138,7 @@ export function doClaimRewardType(rewardType, options = {}) {
   };
 }
 export function doClaimInitialRewards() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch(doClaimRewardType(rewards.TYPE_NEW_USER));
     dispatch(doClaimRewardType(rewards.TYPE_CONFIRM_EMAIL));
   };
@@ -136,36 +153,38 @@ export function doClaimEligiblePurchaseRewards() {
       return;
     }
 
-    if (unclaimedRewards.find(ur => ur.reward_type === rewards.TYPE_FIRST_STREAM)) {
+    if (unclaimedRewards.find((ur) => ur.reward_type === rewards.TYPE_FIRST_STREAM)) {
       dispatch(doClaimRewardType(rewards.TYPE_FIRST_STREAM));
     } else {
       if (selectWeeklyWatchClaimedThisWeek(state) === false) {
-        dispatch(doClaimRewardType(rewards.TYPE_WEEKLY_WATCH, {
-          failSilently: true
-        }));
+        dispatch(
+          doClaimRewardType(rewards.TYPE_WEEKLY_WATCH, {
+            failSilently: true,
+          })
+        );
       }
     }
   };
 }
 export function doClaimRewardClearError(reward) {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({
       type: ACTIONS.CLAIM_REWARD_CLEAR_ERROR,
       data: {
-        reward
-      }
+        reward,
+      },
     });
   };
 }
 export function doFetchRewardedContent() {
-  return dispatch => {
-    const success = nameToClaimId => {
+  return (dispatch) => {
+    const success = (nameToClaimId) => {
       dispatch({
         type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
         data: {
           claimIds: Object.values(nameToClaimId),
-          success: true
-        }
+          success: true,
+        },
       });
     };
 
@@ -174,16 +193,20 @@ export function doFetchRewardedContent() {
         type: ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
         data: {
           claimIds: [],
-          success: false
-        }
+          success: false,
+        },
       });
     };
 
     Lbryio.call('reward', 'list_featured').then(success, failure);
   };
 }
-export const doUserViewRateList = () => async (dispatch: Dispatch) => await Lbryio.call('user_rewards', 'view_rate').then(data => dispatch({
-  type: ACTIONS.USER_VIEW_RATE_COMPLETED,
-  data
-}));
-export const doClaimRefereeReward = (referralCode: string) => (dispatch: Dispatch) => dispatch(doClaimRewardType(rewards.TYPE_REFEREE));
+export const doUserViewRateList = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('user_rewards', 'view_rate').then((data) =>
+    dispatch({
+      type: ACTIONS.USER_VIEW_RATE_COMPLETED,
+      data,
+    })
+  );
+export const doClaimRefereeReward = (referralCode: string) => (dispatch: Dispatch) =>
+  dispatch(doClaimRewardType(rewards.TYPE_REFEREE));

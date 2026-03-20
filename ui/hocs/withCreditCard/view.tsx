@@ -1,8 +1,8 @@
-import React from "react";
-import * as MODALS from "constants/modal_types";
-import Button from "component/button";
-import Spinner from "component/spinner";
-import { ModalContext } from "contexts/modal";
+import React from 'react';
+import * as MODALS from 'constants/modal_types';
+import Button from 'component/button';
+import Spinner from 'component/spinner';
+import { ModalContext } from 'contexts/modal';
 type Props = {
   modalState: any;
   // -- redux --
@@ -22,14 +22,7 @@ type Props = {
 const withCreditCard = (Component: FunctionalComponentParam) => {
   const CreditCardPrompt = (props: Props) => {
     // eslint-disable-next-line react/prop-types
-    const {
-      hasSavedCard,
-      isAuthenticated,
-      doOpenModal,
-      doGetCustomerStatus,
-      modalState,
-      ...componentProps
-    } = props;
+    const { hasSavedCard, isAuthenticated, doOpenModal, doGetCustomerStatus, modalState, ...componentProps } = props;
     const fetchPending = isAuthenticated && hasSavedCard === undefined;
     const modal = React.useContext(ModalContext)?.modal;
     React.useEffect(() => {
@@ -39,15 +32,23 @@ const withCreditCard = (Component: FunctionalComponentParam) => {
     }, [doGetCustomerStatus, fetchPending]);
 
     if (!hasSavedCard) {
-      const handleOpenAddCardModal = () => doOpenModal(MODALS.ADD_CARD, { ...(modal ? {
-          previousModal: modal.id,
-          previousProps: { ...modal.modalProps,
-            ...modalState
-          }
-        } : {})
-      });
+      const handleOpenAddCardModal = () =>
+        doOpenModal(MODALS.ADD_CARD, (modal
+            ? {
+                previousModal: modal.id,
+                previousProps: { ...modal.modalProps, ...modalState },
+              }
+            : {}));
 
-      return <Button disabled={fetchPending} requiresAuth button="primary" label={fetchPending ? <Spinner type="small" /> : __('Confirm')} onClick={handleOpenAddCardModal} />;
+      return (
+        <Button
+          disabled={fetchPending}
+          requiresAuth
+          button="primary"
+          label={fetchPending ? <Spinner type="small" /> : __('Confirm')}
+          onClick={handleOpenAddCardModal}
+        />
+      );
     }
 
     return <Component {...componentProps} />;

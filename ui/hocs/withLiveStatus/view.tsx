@@ -1,5 +1,5 @@
-import React from "react";
-import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL } from "constants/livestream";
+import React from 'react';
+import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL } from 'constants/livestream';
 type Props = {
   uri?: string;
   forceRender?: string;
@@ -35,7 +35,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       socketConnected,
       alreadyDidInitialFetch,
       doFetchChannelIsLiveForId,
-      doSetIsLivePollingForChannelId
+      doSetIsLivePollingForChannelId,
     } = props;
     const isPolling = React.useRef(false);
     // if already polling, or listening for is_live, but not from this component. Don't poll/call again
@@ -60,14 +60,22 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       return () => {
         if (intervalId) clearInterval(intervalId);
       };
-    }, [outsitePolling, channelClaimId, doFetchChannelIsLiveForId, doSetIsLivePollingForChannelId, fasterPoll, alreadyDidInitialFetch, socketConnected]);
+    }, [
+      outsitePolling,
+      channelClaimId,
+      doFetchChannelIsLiveForId,
+      doSetIsLivePollingForChannelId,
+      fasterPoll,
+      alreadyDidInitialFetch,
+      socketConnected,
+    ]);
     React.useEffect(() => {
       return () => {
         if (isPolling.current) doSetIsLivePollingForChannelId(channelClaimId, false);
       }; // eslint-disable-next-line react-hooks/exhaustive-deps -- only unmount
     }, []);
 
-    if (forceRender || claimUri && claimUri !== uri) {
+    if (forceRender || (claimUri && claimUri !== uri)) {
       return <Component {...props} claimUri={claimUri || uri} />;
     }
 

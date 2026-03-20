@@ -1,12 +1,12 @@
-import React from "react";
-import classnames from "classnames";
-import * as RENDER_MODES from "constants/file_render_modes";
-import { useIsMobile } from "effects/use-screensize";
-import { EmbedContext } from "contexts/embed";
-import useGetPoster from "effects/use-get-poster";
-import Button from "component/button";
-import useSwipeNavigation from "effects/use-swipe-navigation";
-import { useHistory } from "react-router-dom";
+import React from 'react';
+import classnames from 'classnames';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import { useIsMobile } from 'effects/use-screensize';
+import { EmbedContext } from 'contexts/embed';
+import useGetPoster from 'effects/use-get-poster';
+import Button from 'component/button';
+import useSwipeNavigation from 'effects/use-swipe-navigation';
+import { useHistory } from 'react-router-dom';
 type Props = {
   children: any;
   passedRef: any;
@@ -49,13 +49,11 @@ const ClaimCoverRender = (props: Props) => {
     renderMode,
     videoTheaterMode,
     sidePanelOpen,
-    autoplayMedia
+    autoplayMedia,
   } = props;
   const isEmbed = React.useContext(EmbedContext);
   const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
@@ -70,26 +68,41 @@ const ClaimCoverRender = (props: Props) => {
     isEnabled: enableSwipe && isMobile,
     minSwipeDistance: 50,
     tapDuration: 200,
-    onTap: enableSwipe ? onClick : undefined
+    onTap: enableSwipe ? onClick : undefined,
   });
   const isNavigateLink = href;
   const Wrapper = isNavigateLink ? Button : 'div';
-  return <Wrapper ref={shouldUseShortsCoverLayout ? swipeRef : passedRef} href={href} onClick={onClick} style={thumbnail && !obscurePreview && !(isCurrentlyPlaying && shouldUseShortsCoverLayout) && !(shouldUseShortsCoverLayout && autoplayMedia) ? {
-    backgroundImage: `url("${thumbnail}")`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center'
-  } : {}} className={classnames('content__cover', {
-    'content__cover--shorts': shouldUseShortsCoverLayout,
-    'content__cover--embed': isEmbed,
-    'content__cover--black-background': !transparent,
-    'content__cover--disabled': !onClick && !href,
-    'content__cover--theater-mode': theaterMode && !isMobile,
-    'content__cover--link': isNavigateLink,
-    'card__media--nsfw': obscurePreview,
-    'content__cover--side-panel-open': sidePanelOpen && !isMobile
-  })}>
+  return (
+    <Wrapper
+      ref={shouldUseShortsCoverLayout ? swipeRef : passedRef}
+      href={href}
+      onClick={onClick}
+      style={
+        thumbnail &&
+        !obscurePreview &&
+        !(isCurrentlyPlaying && shouldUseShortsCoverLayout) &&
+        !(shouldUseShortsCoverLayout && autoplayMedia)
+          ? {
+              backgroundImage: `url("${thumbnail}")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+          : {}
+      }
+      className={classnames('content__cover', {
+        'content__cover--shorts': shouldUseShortsCoverLayout,
+        'content__cover--embed': isEmbed,
+        'content__cover--black-background': !transparent,
+        'content__cover--disabled': !onClick && !href,
+        'content__cover--theater-mode': theaterMode && !isMobile,
+        'content__cover--link': isNavigateLink,
+        'card__media--nsfw': obscurePreview,
+        'content__cover--side-panel-open': sidePanelOpen && !isMobile,
+      })}
+    >
       {children}
-    </Wrapper>;
+    </Wrapper>
+  );
 };
 
 export default ClaimCoverRender;

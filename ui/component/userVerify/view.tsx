@@ -1,13 +1,13 @@
-import { SITE_NAME } from "config";
-import * as ICONS from "constants/icons";
-import React, { Fragment } from "react";
-import Button from "component/button";
+import { SITE_NAME } from 'config';
+import * as ICONS from 'constants/icons';
+import React, { Fragment } from 'react';
+import Button from 'component/button';
 // import CardVerify from 'component/cardVerify';
 // import { Lbryio } from 'lbryinc';
-import Card from "component/common/card";
-import I18nMessage from "component/i18nMessage";
-import LbcSymbol from "component/common/lbc-symbol";
-import { Redirect } from "react-router-dom";
+import Card from 'component/common/card';
+import I18nMessage from 'component/i18nMessage';
+import LbcSymbol from 'component/common/lbc-symbol';
+import { Redirect } from 'react-router-dom';
 type Props = {
   errorMessage: string | null | undefined;
   isPending: boolean;
@@ -23,7 +23,7 @@ class UserVerify extends React.PureComponent<Props> {
   constructor() {
     super();
     (this as any).state = {
-      shouldRedirect: false
+      shouldRedirect: false,
     };
     (this as any).onToken = this.onToken.bind(this);
   }
@@ -32,14 +32,12 @@ class UserVerify extends React.PureComponent<Props> {
     if (this.props.is_reward_approved) {
       // $FlowIgnore
       this.setState({
-        shouldRedirect: true
+        shouldRedirect: true,
       });
     }
   }
 
-  onToken(data: {
-    id: string;
-  }) {
+  onToken(data: { id: string }) {
     this.props.verifyUserIdentity(data.id);
   }
 
@@ -47,10 +45,10 @@ class UserVerify extends React.PureComponent<Props> {
     const {
       /* errorMessage, isPending, */
       fetchUser,
-      onSkip
+      onSkip,
     } = this.props;
     const skipButtonProps = {
-      onClick: onSkip
+      onClick: onSkip,
     };
     const state = this.state;
 
@@ -58,36 +56,40 @@ class UserVerify extends React.PureComponent<Props> {
       return <Redirect to="/$/rewards" />;
     }
 
-    return <div className="main__auth-content">
+    return (
+      <div className="main__auth-content">
         <section className="section__header">
           <h1 className="section__title--large">
             {''}
-            <I18nMessage tokens={{
-            lbc: <LbcSymbol size={48} />
-          }}>
+            <I18nMessage
+              tokens={{
+                lbc: <LbcSymbol size={48} />,
+              }}
+            >
               Verify to get %lbc%
             </I18nMessage>
           </h1>
           <p>
-            <I18nMessage tokens={{
-            Refresh: <Button onClick={() => fetchUser()} button="link" label={__('Refresh')} />,
-            Skip: <Button {...skipButtonProps} button="link" label={__('Skip')} />,
-            SITE_NAME
-          }}>
+            <I18nMessage
+              tokens={{
+                Refresh: <Button onClick={() => fetchUser()} button="link" label={__('Refresh')} />,
+                Skip: <Button {...skipButtonProps} button="link" label={__('Skip')} />,
+                SITE_NAME,
+              }}
+            >
               Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the
               %SITE_NAME% community safe! %Skip%.
             </I18nMessage>
           </p>
           <p className="help">
             {__('This step is not mandatory and not required in order for you to use %SITE_NAME%.', {
-            SITE_NAME
-          })}
+              SITE_NAME,
+            })}
           </p>
         </section>
 
         <div className="section">
-          {
-          /*
+          {/*
           <Card
            icon={ICONS.WALLET}
            title={__('Verify via credit card')}
@@ -109,18 +111,22 @@ class UserVerify extends React.PureComponent<Props> {
            <hr />
            <p>{__('OR')}</p>
           </div>
-          */
-        }
+          */}
 
-          <Card icon={ICONS.HELP} title={__('Verify via email')} subtitle={<>
+          <Card
+            icon={ICONS.HELP}
+            title={__('Verify via email')}
+            subtitle={
+              <>
                 <p>
                   {__('You can request verification of your Odysee account by sending an email to help@odysee.com')}
                 </p>
                 <p>{__('Verification requests can take a few hours to be approved.')}</p>
-              </>} />
+              </>
+            }
+          />
 
-          {
-          /*
+          {/*
           <div className="section__divider">
            <hr />
            <p>{__('OR')}</p>
@@ -152,21 +158,29 @@ class UserVerify extends React.PureComponent<Props> {
              </Fragment>
            }
           />
-          */
-        }
+          */}
 
           <div className="section__divider">
             <hr />
             <p>{__('OR')}</p>
           </div>
 
-          <Card icon={ICONS.REMOVE} title={__('Skip')} subtitle={__("Verifying is optional. If you skip this, it just means you can't receive Credits from our system.")} actions={<Fragment>
+          <Card
+            icon={ICONS.REMOVE}
+            title={__('Skip')}
+            subtitle={__(
+              "Verifying is optional. If you skip this, it just means you can't receive Credits from our system."
+            )}
+            actions={
+              <Fragment>
                 <Button {...skipButtonProps} button="primary" label={__('Continue Without Verifying')} />
-              </Fragment>} />
+              </Fragment>
+            }
+          />
         </div>
-      </div>;
+      </div>
+    );
   }
-
 }
 
 export default UserVerify;

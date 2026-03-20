@@ -4,8 +4,13 @@
  * By default, the list is "locked" during initial mount to have a stable
  * pagination, but can be disabled through the `disableListLock` parameter.
  */
-import React from "react";
-export default function useClaimListInfiniteScroll(allUris: Array<string>, doResolveUris: (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => void, pageSize: number = 30, disableListLock: boolean = false) {
+import React from 'react';
+export default function useClaimListInfiniteScroll(
+  allUris: Array<string>,
+  doResolveUris: (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => void,
+  pageSize: number = 30,
+  disableListLock: boolean = false
+) {
   // Lock the full set of uris on mount, so we have a stable list for pagination.
   const [uris, setUris] = React.useState([]);
   // Infinite-scroll handling. 'page' is 0-indexed.
@@ -51,6 +56,6 @@ export default function useClaimListInfiniteScroll(allUris: Array<string>, doRes
     uris,
     page,
     isLoadingPage,
-    bumpPage
+    bumpPage,
   };
 }

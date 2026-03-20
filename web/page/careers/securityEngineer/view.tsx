@@ -1,15 +1,21 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
 
 const SoftwareSecurityEngineerPage = () => {
-  return <Page>
-      <Card body={<>
+  return (
+    <Page>
+      <Card
+        body={
+          <>
             <section className="section card--section">
-              <h1 className="card__title" style={{
-          fontSize: '28px',
-          marginBottom: '10px'
-        }}>
+              <h1
+                className="card__title"
+                style={{
+                  fontSize: '28px',
+                  marginBottom: '10px',
+                }}
+              >
                 Software Security Engineer @ Odysee
               </h1>
               <p>
@@ -82,18 +88,23 @@ const SoftwareSecurityEngineerPage = () => {
               </ul>
             </section>
 
-            <h1 style={{
-        marginTop: '30px',
-        fontSize: '18px'
-      }}>
+            <h1
+              style={{
+                marginTop: '30px',
+                fontSize: '18px',
+              }}
+            >
               To apply, please send your credentials to
               <a className="careers-mail-link" href="mailto:careers@odysee.com">
                 {' '}
                 careers@odysee.com
               </a>
             </h1>
-          </>} />
-    </Page>;
+          </>
+        }
+      />
+    </Page>
+  );
 };
 
 export default SoftwareSecurityEngineerPage;

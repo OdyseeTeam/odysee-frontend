@@ -1,18 +1,22 @@
-import React from "react";
-import { THUMBNAIL_WIDTH_POSTER, THUMBNAIL_HEIGHT_POSTER } from "config";
-import { getThumbnailCdnUrl } from "util/thumbnail";
+import React from 'react';
+import { THUMBNAIL_WIDTH_POSTER, THUMBNAIL_HEIGHT_POSTER } from 'config';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 const FileRenderPlaceholder = '/img/fileRenderPlaceholder.png';
 export default function useGetPoster(claimThumbnail: string | null | undefined, isShorts?: boolean) {
   const [thumbnail, setThumbnail] = React.useState(() => {
     if (claimThumbnail) {
-      return getThumbnailCdnUrl(isShorts ? {
-        thumbnail: claimThumbnail,
-        isShorts: true
-      } : {
-        thumbnail: claimThumbnail,
-        width: THUMBNAIL_WIDTH_POSTER,
-        height: THUMBNAIL_HEIGHT_POSTER
-      });
+      return getThumbnailCdnUrl(
+        isShorts
+          ? {
+              thumbnail: claimThumbnail,
+              isShorts: true,
+            }
+          : {
+              thumbnail: claimThumbnail,
+              width: THUMBNAIL_WIDTH_POSTER,
+              height: THUMBNAIL_HEIGHT_POSTER,
+            }
+      );
     }
 
     return isShorts ? null : FileRenderPlaceholder;
@@ -21,14 +25,20 @@ export default function useGetPoster(claimThumbnail: string | null | undefined, 
     if (!claimThumbnail) {
       setThumbnail(isShorts ? null : FileRenderPlaceholder);
     } else {
-      setThumbnail(getThumbnailCdnUrl(isShorts ? {
-        thumbnail: claimThumbnail,
-        isShorts: true
-      } : {
-        thumbnail: claimThumbnail,
-        width: THUMBNAIL_WIDTH_POSTER,
-        height: THUMBNAIL_HEIGHT_POSTER
-      }));
+      setThumbnail(
+        getThumbnailCdnUrl(
+          isShorts
+            ? {
+                thumbnail: claimThumbnail,
+                isShorts: true,
+              }
+            : {
+                thumbnail: claimThumbnail,
+                width: THUMBNAIL_WIDTH_POSTER,
+                height: THUMBNAIL_HEIGHT_POSTER,
+              }
+        )
+      );
     }
   }, [claimThumbnail, isShorts]);
   return thumbnail;

@@ -1,10 +1,10 @@
-import type { Props } from "./view";
-import Ad from "./view";
-import { connect } from "react-redux";
-import { selectAdBlockerFound, selectShouldShowAds } from "redux/selectors/app";
+import type { Props } from './view';
+import Ad from './view';
+import { connect } from 'react-redux';
+import { selectAdBlockerFound, selectShouldShowAds } from 'redux/selectors/app';
 // import { selectHomepageCategoryChannelIds } from 'redux/selectors/settings';
-import { selectClaimForUri } from "redux/selectors/claims";
-import { getChannelIdFromClaim } from "util/claim";
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -13,7 +13,7 @@ const select = (state, props) => {
   return {
     adBlockerFound,
     shouldShowAds,
-    channelId: getChannelIdFromClaim(claim)
+    channelId: getChannelIdFromClaim(claim),
   };
 };
 

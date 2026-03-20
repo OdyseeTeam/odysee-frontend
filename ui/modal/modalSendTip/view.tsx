@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import SendTip from "component/walletSendTip";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import SendTip from 'component/walletSendTip';
 type Props = {
   uri: string;
   claimIsMine: boolean;
@@ -14,20 +14,22 @@ type Props = {
 
 class ModalSendTip extends React.PureComponent<Props> {
   render() {
-    const {
-      uri,
-      claimIsMine,
-      isTipOnly,
-      hasSelectedTab,
-      customText,
-      doHideModal,
-      setAmount
-    } = this.props;
-    return <Modal onAborted={doHideModal} isOpen type="card">
-        <SendTip uri={uri} claimIsMine={claimIsMine} onCancel={doHideModal} isTipOnly={isTipOnly} hasSelectedTab={hasSelectedTab} customText={customText} setAmount={setAmount} modalProps={this.props} />
-      </Modal>;
+    const { uri, claimIsMine, isTipOnly, hasSelectedTab, customText, doHideModal, setAmount } = this.props;
+    return (
+      <Modal onAborted={doHideModal} isOpen type="card">
+        <SendTip
+          uri={uri}
+          claimIsMine={claimIsMine}
+          onCancel={doHideModal}
+          isTipOnly={isTipOnly}
+          hasSelectedTab={hasSelectedTab}
+          customText={customText}
+          setAmount={setAmount}
+          modalProps={this.props}
+        />
+      </Modal>
+    );
   }
-
 }
 
 export default ModalSendTip;

@@ -1,92 +1,66 @@
 /**
  * Content, a.k.a. "player" states.
  */
-import * as ACTIONS from "constants/action_types";
+import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 const defaultState: ContentState = {
   primaryUri: null,
   // Top level content uri triggered from the file page
   playingUri: {
     uri: undefined,
-    collection: {}
+    collection: {},
   },
   uriAccessKeys: {},
   positions: {},
   history: [],
   lastViewedAnnouncement: [],
   recsysEntries: {},
-  autoplayCountdownUri: null
+  autoplayCountdownUri: null,
 };
 
-reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) => Object.assign({}, state, {
-  primaryUri: action.data.uri
-});
+reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) =>
+  Object.assign({}, state, {
+    primaryUri: action.data.uri,
+  });
 
-reducers[ACTIONS.SET_PLAYING_URI] = (state, action) => Object.assign({}, state, {
-  playingUri: { ...action.data,
-    primaryUri: state.primaryUri
-  }
-});
+reducers[ACTIONS.SET_PLAYING_URI] = (state, action) =>
+  Object.assign({}, state, {
+    playingUri: { ...action.data, primaryUri: state.primaryUri },
+  });
 
 reducers[ACTIONS.SAVE_URI_ACCESS_KEY] = (state: ContentState, action: SaveUriAccessKeyAction) => {
-  const {
-    uri,
-    accessKey: newKey
-  } = action.data;
+  const { uri, accessKey: newKey } = action.data;
   const cachedKey = state.uriAccessKeys[uri];
 
   if (cachedKey && cachedKey.signature === newKey.signature && cachedKey.signature_ts === newKey.signature_ts) {
     return state;
   }
 
-  return { ...state,
-    uriAccessKeys: { ...state.uriAccessKeys,
-      [uri]: { ...newKey
-      }
-    }
-  };
+  return { ...state, uriAccessKeys: { ...state.uriAccessKeys, [uri]: { ...newKey } } };
 };
 
 reducers[ACTIONS.SET_CONTENT_POSITION] = (state, action) => {
-  const {
-    claimId,
-    outpoint,
-    position
-  } = action.data;
-  return { ...state,
-    positions: { ...state.positions,
-      [claimId]: { ...state.positions[claimId],
-        [outpoint]: position
-      }
-    }
+  const { claimId, outpoint, position } = action.data;
+  return {
+    ...state,
+    positions: { ...state.positions, [claimId]: { ...state.positions[claimId], [outpoint]: position } },
   };
 };
 
 reducers[ACTIONS.CLEAR_CONTENT_POSITION] = (state, action) => {
-  const {
-    claimId,
-    outpoint
-  } = action.data;
+  const { claimId, outpoint } = action.data;
 
   if (state.positions[claimId]) {
     const numOutpoints = Object.keys(state.positions[claimId]).length;
 
     if (numOutpoints <= 1) {
-      let positions = { ...state.positions
-      };
+      let positions = { ...state.positions };
       delete positions[claimId];
-      return { ...state,
-        positions: positions
-      };
+      return { ...state, positions: positions };
     } else {
-      let outpoints = { ...state.positions[claimId]
-      };
+      let outpoints = { ...state.positions[claimId] };
       delete outpoints[outpoint];
-      return { ...state,
-        positions: { ...state.positions,
-          [claimId]: outpoints
-        }
-      };
+      return { ...state, positions: { ...state.positions, [claimId]: outpoints } };
     }
   } else {
     return state;
@@ -94,40 +68,28 @@ reducers[ACTIONS.CLEAR_CONTENT_POSITION] = (state, action) => {
 };
 
 reducers[ACTIONS.SET_CONTENT_LAST_VIEWED] = (state, action) => {
-  const {
-    uri,
-    lastViewed
-  } = action.data;
-  const {
-    history
-  } = state;
+  const { uri, lastViewed } = action.data;
+  const { history } = state;
   const historyObj = {
     uri,
-    lastViewed
+    lastViewed,
   };
-  const index = history.findIndex(i => i.uri === uri);
-  const newHistory = index === -1 ? [historyObj].concat(history) : [historyObj].concat(history.slice(0, index), history.slice(index + 1));
-  return { ...state,
-    history: [...newHistory]
-  };
+  const index = history.findIndex((i) => i.uri === uri);
+  const newHistory =
+    index === -1
+      ? [historyObj].concat(history)
+      : [historyObj].concat(history.slice(0, index), history.slice(index + 1));
+  return { ...state, history: [...newHistory] };
 };
 
 reducers[ACTIONS.CLEAR_CONTENT_HISTORY_URI] = (state, action) => {
-  const {
-    uri
-  } = action.data;
-  const {
-    history
-  } = state;
-  const index = history.findIndex(i => i.uri === uri);
-  return index === -1 ? state : { ...state,
-    history: history.slice(0, index).concat(history.slice(index + 1))
-  };
+  const { uri } = action.data;
+  const { history } = state;
+  const index = history.findIndex((i) => i.uri === uri);
+  return index === -1 ? state : { ...state, history: history.slice(0, index).concat(history.slice(index + 1)) };
 };
 
-reducers[ACTIONS.CLEAR_CONTENT_HISTORY_ALL] = state => ({ ...state,
-  history: []
-});
+reducers[ACTIONS.CLEAR_CONTENT_HISTORY_ALL] = (state) => ({ ...state, history: [] });
 
 reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
   // Since homepages fall back to English if undefined, use an array instead of
@@ -140,39 +102,24 @@ reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
   const hash = action.data;
 
   if (hash === 'clear') {
-    return { ...state,
-      lastViewedAnnouncement: []
-    };
+    return { ...state, lastViewedAnnouncement: [] };
   }
 
-  return { ...state,
-    lastViewedAnnouncement: [hash].concat(state.lastViewedAnnouncement).slice(0, N_ENTRIES_TO_KEEP)
-  };
+  return { ...state, lastViewedAnnouncement: [hash].concat(state.lastViewedAnnouncement).slice(0, N_ENTRIES_TO_KEEP) };
 };
 
-reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state,
-  recsysEntries: action.data
-});
+reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEntries: action.data });
 
 reducers[ACTIONS.SHOW_AUTOPLAY_COUNTDOWN] = (state, action) => {
-  const {
-    uri,
-    show
-  } = action.data;
-  return { ...state,
-    autoplayCountdownUri: show ? uri : null
-  };
+  const { uri, show } = action.data;
+  return { ...state, autoplayCountdownUri: show ? uri : null };
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
-  const {
-    lastViewedAnnouncement
-  } = action.data;
+  const { lastViewedAnnouncement } = action.data;
   // Convert legacy string format to an array:
   const newValue = typeof lastViewedAnnouncement === 'string' ? [lastViewedAnnouncement] : lastViewedAnnouncement || [];
-  return { ...state,
-    lastViewedAnnouncement: newValue
-  };
+  return { ...state, lastViewedAnnouncement: newValue };
 };
 
 export default function reducer(state: ContentState = defaultState, action: any) {

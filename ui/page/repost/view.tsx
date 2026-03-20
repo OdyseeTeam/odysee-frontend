@@ -1,13 +1,13 @@
-import React from "react";
-import Page from "component/page";
-import { useHistory } from "react-router";
-import RepostCreate from "component/repostCreate";
-import YrblWalletEmpty from "component/yrblWalletEmpty";
-import useThrottle from "effects/use-throttle";
+import React from 'react';
+import Page from 'component/page';
+import { useHistory } from 'react-router';
+import RepostCreate from 'component/repostCreate';
+import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import useThrottle from 'effects/use-throttle';
 export const REPOST_PARAMS = {
   FROM: 'from',
   TO: 'to',
-  REDIRECT: 'redirect'
+  REDIRECT: 'redirect',
 };
 type Props = {
   // --redux--
@@ -16,14 +16,9 @@ type Props = {
 };
 
 function RepostPage(props: Props) {
+  const { balance, resolveUri } = props;
   const {
-    balance,
-    resolveUri
-  } = props;
-  const {
-    location: {
-      search
-    }
+    location: { search },
   } = useHistory();
   const [contentUri, setContentUri] = React.useState('');
   const [repostUri, setRepostUri] = React.useState('');
@@ -49,15 +44,30 @@ function RepostPage(props: Props) {
       resolveUri(repostTo);
     }
   }, [repostTo, resolveUri]);
-  return <Page noFooter noSideNavigation backout={{
-    title: __('Repost'),
-    backLabel: __('Back')
-  }}>
+  return (
+    <Page
+      noFooter
+      noSideNavigation
+      backout={{
+        title: __('Repost'),
+        backLabel: __('Back'),
+      }}
+    >
       {balance === 0 && <YrblWalletEmpty />}
       <div className={balance === 0 ? 'card--disabled' : undefined}>
-        <RepostCreate uri={decodedFrom} name={repostTo} redirectUri={redirectUri} repostUri={repostUri} contentUri={contentUri} setContentUri={setContentUri} setRepostUri={setRepostUri} isRepostPage />
+        <RepostCreate
+          uri={decodedFrom}
+          name={repostTo}
+          redirectUri={redirectUri}
+          repostUri={repostUri}
+          contentUri={contentUri}
+          setContentUri={setContentUri}
+          setRepostUri={setRepostUri}
+          isRepostPage
+        />
       </div>
-    </Page>;
+    </Page>
+  );
 }
 
 export default RepostPage;

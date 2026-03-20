@@ -1,10 +1,14 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
 
 const PrivacyPolicyPage = () => {
-  return <Page>
-      <Card title="Privacy Policy" body={<div>
+  return (
+    <Page>
+      <Card
+        title="Privacy Policy"
+        body={
+          <div>
             <p>
               This privacy policy has been compiled to better serve those who are concerned with how their 'Personally
               Identifiable Information' (PII) is being used online. PII, as described in US privacy law and information
@@ -380,8 +384,11 @@ const PrivacyPolicyPage = () => {
             </blockquote>
 
             <small>Last edited on 2025-02-13</small>
-          </div>} />
-    </Page>;
+          </div>
+        }
+      />
+    </Page>
+  );
 };
 
 export default PrivacyPolicyPage;

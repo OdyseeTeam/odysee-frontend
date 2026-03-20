@@ -11,7 +11,7 @@ export const RULE = {
   DAILY_WATCH_REMIND: 'daily_watch_remind',
   MISSED_OUT: 'missed_out',
   REWARDS_APPROVAL_PROMPT: 'rewards_approval_prompt',
-  CREATOR_SUBSCRIBER: 'creator_subscriber'
+  CREATOR_SUBSCRIBER: 'creator_subscriber',
 };
 export const NOTIFICATION_NAME_ALL = 'All';
 // -- Regex that matches a channel name "@something" when at the beginning of the sentence

@@ -1,5 +1,5 @@
-import { connect } from "react-redux";
-import AdAboveComments from "./view";
+import { connect } from 'react-redux';
+import AdAboveComments from './view';
 
 const select = (state, props) => ({});
 

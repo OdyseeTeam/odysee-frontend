@@ -22,29 +22,46 @@ export const COPYRIGHT_OWNER_MAX_LENGTH = 50;
 export const PARAMETERS = {
   type: {
     'Sexual content': {
-      [CATEGORIES]: ['Graphic sexual activity', 'Nudity', 'Suggestive, but without nudity', 'Content involving minors', 'Sexual Abusive title or description', 'Other sexual content']
+      [CATEGORIES]: [
+        'Graphic sexual activity',
+        'Nudity',
+        'Suggestive, but without nudity',
+        'Content involving minors',
+        'Sexual Abusive title or description',
+        'Other sexual content',
+      ],
     },
     'Violent or repulsive content': {
-      [CATEGORIES]: ['Adults fighting', 'Physical attack', 'Youth violence', 'Animal abuse']
+      [CATEGORIES]: ['Adults fighting', 'Physical attack', 'Youth violence', 'Animal abuse'],
     },
     'Hateful or abusive content': {
-      [CATEGORIES]: ['Promotes hatred or violence', 'Bullying', 'Hateful Abusive title or description']
+      [CATEGORIES]: ['Promotes hatred or violence', 'Bullying', 'Hateful Abusive title or description'],
     },
     'Harmful or dangerous acts': {
-      [CATEGORIES]: ['Pharmaceutical or drug abuse', 'Abuse of fire or explosives', 'Suicide or self injury', 'Other dangerous acts']
+      [CATEGORIES]: [
+        'Pharmaceutical or drug abuse',
+        'Abuse of fire or explosives',
+        'Suicide or self injury',
+        'Other dangerous acts',
+      ],
     },
     'Child abuse': {
-      [CATEGORIES]: ['Child abuse']
+      [CATEGORIES]: ['Child abuse'],
     },
     'Promotes terrorism': {
-      [CATEGORIES]: ['Promotes terrorism']
+      [CATEGORIES]: ['Promotes terrorism'],
     },
     'Spam or misleading': {
-      [CATEGORIES]: ['Mass advertising', 'Pharmaceutical drugs for sale', 'Misleading text', 'Misleading thumbnail', 'Scams or fraud']
+      [CATEGORIES]: [
+        'Mass advertising',
+        'Pharmaceutical drugs for sale',
+        'Misleading text',
+        'Misleading thumbnail',
+        'Scams or fraud',
+      ],
     },
     [INFRINGES_MY_RIGHTS]: {
-      [CATEGORIES]: [COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES]
-    } // CAPTIONS_ISSUE: 'Captions issue',
-
-  }
+      [CATEGORIES]: [COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES],
+    }, // CAPTIONS_ISSUE: 'Captions issue',
+  },
 };

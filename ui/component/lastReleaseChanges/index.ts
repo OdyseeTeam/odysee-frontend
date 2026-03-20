@@ -1,2 +1,2 @@
-import LastReleaseChanges from "./view";
+import LastReleaseChanges from './view';
 export default LastReleaseChanges;

@@ -1,6 +1,6 @@
 // Widths are taken from "ui/scss/init/vars.scss"
-import React, { useRef } from "react";
-import { getWindowAngle, isWindowLandscapeForAngle } from "util/window";
+import React, { useRef } from 'react';
+import { getWindowAngle, isWindowLandscapeForAngle } from 'util/window';
 const DEFAULT_SCREEN_SIZE = 1080;
 export function useWindowSize() {
   const isWindowClient = typeof window === 'object';
@@ -37,13 +37,12 @@ function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => bo
       window.addEventListener('resize', setSize);
       return () => window.removeEventListener('resize', setSize);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-
   }, [isWindowClient]);
   return windowSize;
 }
 
 export function useIsMobile() {
-  return useHasWindowWidthChangedEnough(windowSize => windowSize < 901);
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 901);
 }
 export function useIsMobileLandscape() {
   const isMobile = useIsMobile();
@@ -73,14 +72,14 @@ export function useIsLandscapeScreen() {
   return landscape;
 }
 export function useIsShortsMobile() {
-  return useHasWindowWidthChangedEnough(windowSize => windowSize < 1021);
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1021);
 }
 export function useIsSmallScreen() {
-  return useHasWindowWidthChangedEnough(windowSize => windowSize < 1151);
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
 }
 export function useIsMediumScreen() {
-  return useHasWindowWidthChangedEnough(windowSize => windowSize >= 1151 && windowSize <= 1600);
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize >= 1151 && windowSize <= 1600);
 }
 export function useIsLargeScreen() {
-  return useHasWindowWidthChangedEnough(windowSize => windowSize > 1600);
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize > 1600);
 }

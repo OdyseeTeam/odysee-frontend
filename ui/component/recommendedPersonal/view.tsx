@@ -1,21 +1,21 @@
-import React, { useState } from "react";
-import Button from "component/button";
-import ClaimList from "component/claimList";
-import ClaimPreviewTile from "component/claimPreviewTile";
-import I18nMessage from "component/i18nMessage";
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import { useIsLargeScreen, useIsSmallScreen } from "effects/use-screensize";
+import React, { useState } from 'react';
+import Button from 'component/button';
+import ClaimList from 'component/claimList';
+import ClaimPreviewTile from 'component/claimPreviewTile';
+import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import { useIsLargeScreen, useIsSmallScreen } from 'effects/use-screensize';
 // TODO: recsysFyp will be moved into 'RecSys', so the redux import in a jsx
 // violation is just temporary.
-import { recsysFyp } from "redux/actions/search";
+import { recsysFyp } from 'redux/actions/search';
 // ****************************************************************************
 // RecommendedPersonal
 // ****************************************************************************
 const VIEW = {
   ALL_VISIBLE: 0,
   COLLAPSED: 1,
-  EXPANDED: 2
+  EXPANDED: 2,
 };
 
 function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isSmallScreen) {
@@ -36,13 +36,7 @@ type Props = {
   doFetchPersonalRecommendations: () => void;
 };
 export default function RecommendedPersonal(props: Props) {
-  const {
-    header,
-    onLoad,
-    userId,
-    personalRecommendations,
-    doFetchPersonalRecommendations
-  } = props;
+  const { header, onLoad, userId, personalRecommendations, doFetchPersonalRecommendations } = props;
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
@@ -112,58 +106,88 @@ export default function RecommendedPersonal(props: Props) {
   // **************************************************************************
   // **************************************************************************
   if (!personalRecommendations.fetched) {
-    return <>
+    return (
+      <>
         {header}
         <ul className="claim-grid">
-          {new Array(countCollapsed).fill(1).map((x, i) => <ClaimPreviewTile key={i} placeholder />)}
+          {new Array(countCollapsed).fill(1).map((x, i) => (
+            <ClaimPreviewTile key={i} placeholder />
+          ))}
         </ul>
-        <div className="upcoming-list__view-more" style={{
-        visibility: 'hidden'
-      }}>
-          <Button label='"View More" dummy to reduce layout shift' button="link" className="claim-grid__title--secondary" />
+        <div
+          className="upcoming-list__view-more"
+          style={{
+            visibility: 'hidden',
+          }}
+        >
+          <Button
+            label='"View More" dummy to reduce layout shift'
+            button="link"
+            className="claim-grid__title--secondary"
+          />
         </div>
-      </>;
+      </>
+    );
   }
 
   if (count < 1) {
-    return <div>
+    return (
+      <div>
         {header}
         <div className="empty empty--centered-tight">
-          <I18nMessage tokens={{
-          learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('Learn More')} />
-        }}>
+          <I18nMessage
+            tokens={{
+              learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('Learn More')} />,
+            }}
+          >
             No recommendations available at the moment. Typically this means you need to view more content first.
             %learn_more%
           </I18nMessage>
         </div>
-      </div>;
+      </div>
+    );
   }
 
-  return <div ref={ref}>
+  return (
+    <div ref={ref}>
       {header}
 
-      <ClaimList tileLayout uris={personalRecommendations.uris.slice(0, finalCount + getHidden())} fypId={personalRecommendations.gid} onHidden={onClaimHidden} />
+      <ClaimList
+        tileLayout
+        uris={personalRecommendations.uris.slice(0, finalCount + getHidden())}
+        fypId={personalRecommendations.gid}
+        onHidden={onClaimHidden}
+      />
 
-      {view !== VIEW.ALL_VISIBLE && <div className="upcoming-list__view-more">
-          <Button label={view === VIEW.COLLAPSED ? __('Show more') : __('Show less')} button="link" iconRight={view === VIEW.COLLAPSED ? ICONS.DOWN : ICONS.UP} className="claim-grid__title--secondary" onClick={() => {
-        if (view === VIEW.COLLAPSED) {
-          setView(VIEW.EXPANDED);
-        } else {
-          setView(VIEW.COLLAPSED);
+      {view !== VIEW.ALL_VISIBLE && (
+        <div className="upcoming-list__view-more">
+          <Button
+            label={view === VIEW.COLLAPSED ? __('Show more') : __('Show less')}
+            button="link"
+            iconRight={view === VIEW.COLLAPSED ? ICONS.DOWN : ICONS.UP}
+            className="claim-grid__title--secondary"
+            onClick={() => {
+              if (view === VIEW.COLLAPSED) {
+                setView(VIEW.EXPANDED);
+              } else {
+                setView(VIEW.COLLAPSED);
 
-          if (ref.current) {
-            ref.current.scrollIntoView({
-              block: 'start',
-              behavior: 'smooth'
-            });
-          } else {
-            window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            }); // fallback, unlikely.
-          }
-        }
-      }} />
-        </div>}
-    </div>;
+                if (ref.current) {
+                  ref.current.scrollIntoView({
+                    block: 'start',
+                    behavior: 'smooth',
+                  });
+                } else {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                  }); // fallback, unlikely.
+                }
+              }
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

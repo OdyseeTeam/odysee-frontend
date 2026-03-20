@@ -1,11 +1,11 @@
-import React from "react";
-import Button from "component/button";
-import Paginate from "component/common/paginate";
-import CopyableText from "component/copyableText";
-import moment from "moment";
-import PAGES from "constants/pages";
-import * as STRIPE from "constants/stripe";
-import { toCapitalCase } from "util/string";
+import React from 'react';
+import Button from 'component/button';
+import Paginate from 'component/common/paginate';
+import CopyableText from 'component/copyableText';
+import moment from 'moment';
+import PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
+import { toCapitalCase } from 'util/string';
 type Props = {
   page: number;
   pageSize: number;
@@ -24,9 +24,9 @@ const WalletFiatAccountHistory = (props: Props) => {
     fetchDataOnMount,
     incomingHistory,
     transactionType,
-    doListAccountTransactions
+    doListAccountTransactions,
   } = props;
-  const transactionsRaw = incomingHistory ? incomingHistory.filter(x => typeFilterCb(x)) : [];
+  const transactionsRaw = incomingHistory ? incomingHistory.filter((x) => typeFilterCb(x)) : [];
   const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(transactionsRaw.length / pageSize);
 
@@ -54,13 +54,29 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getReceivingChannelName(transaction) {
-    return <Button navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id} label={transaction.channel_name} button="link" />;
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+        label={transaction.channel_name}
+        button="link"
+      />
+    );
   }
 
   function getSendingChannelName(transaction) {
-    return <>
-        {transaction.tipper_channel_name ? <Button navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id} label={transaction.tipper_channel_name} button="link" /> : __('Anonymous')}
-      </>;
+    return (
+      <>
+        {transaction.tipper_channel_name ? (
+          <Button
+            navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+            label={transaction.tipper_channel_name}
+            button="link"
+          />
+        ) : (
+          __('Anonymous')
+        )}
+      </>
+    );
   }
 
   function getTransactionType(transaction) {
@@ -68,7 +84,14 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getClaimLink(transaction) {
-    return <Button navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined} label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')} button="link" target="_blank" />;
+    return (
+      <Button
+        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
+        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+        button="link"
+        target="_blank"
+      />
+    );
   }
 
   function getTipAmount(transaction, currencySymbol) {
@@ -77,24 +100,30 @@ const WalletFiatAccountHistory = (props: Props) => {
     const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
 
     if (rate) {
-      return <>
+      return (
+        <>
           {symbol}
           {(transaction.tipped_amount / 100).toFixed(2)} {currency}
-        </>;
+        </>
+      );
     }
 
-    return <>
+    return (
+      <>
         {symbol}
         {transaction.tipped_amount / 100} {currency}
-      </>;
+      </>
+    );
   }
 
   function getProcessingFee(transaction, currencySymbol) {
     const symbol = currencySymbol || '$';
-    return <>
+    return (
+      <>
         {symbol}
         {(transaction.transaction_fee + transaction.application_fee) / 100}
-      </>;
+      </>
+    );
   }
 
   function getReceivedAmount(transaction, currencySymbol) {
@@ -102,25 +131,35 @@ const WalletFiatAccountHistory = (props: Props) => {
     const rate = transaction.locked_rate;
 
     if (rate) {
-      return <>
+      return (
+        <>
           {symbol}
           {(transaction.tipped_amount / 100).toFixed(2)} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
-        </>;
+        </>
+      );
     }
 
-    return <>
+    return (
+      <>
         {currencySymbol}
         {transaction.received_amount / 100}
-      </>;
+      </>
+    );
   }
 
   function getTransactionTx(transaction) {
-    return <>
-        {
-        /* $FlowIgnore */
-      }
-        {!transaction?.payment_intent_id?.startsWith('pi_') ? <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.payment_intent_id} /> : null}
-      </>;
+    return (
+      <>
+        {/* $FlowIgnore */}
+        {!transaction?.payment_intent_id?.startsWith('pi_') ? (
+          <CopyableText
+            hideValue
+            linkTo={`https://viewblock.io/arweave/tx/`}
+            copyable={transaction.payment_intent_id}
+          />
+        ) : null}
+      </>
+    );
   }
 
   // **************************************************************************
@@ -131,7 +170,8 @@ const WalletFiatAccountHistory = (props: Props) => {
     }
   }, []);
   // eslint-disable-line react-hooks/exhaustive-deps
-  return <>
+  return (
+    <>
       <div className="table__wrapper">
         <table className="table table--transactions">
           <thead>
@@ -148,11 +188,11 @@ const WalletFiatAccountHistory = (props: Props) => {
             </tr>
           </thead>
           <tbody>
-            {transactions && transactions.map(transaction => {
-            const {
-              symbol: currencySymbol
-            } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
-            return <tr key={transaction.name + transaction.created_at}>
+            {transactions &&
+              transactions.map((transaction) => {
+                const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
+                return (
+                  <tr key={transaction.name + transaction.created_at}>
                     {createColumn(getDate(transaction))}
                     {createColumn(getReceivingChannelName(transaction))}
                     {createColumn(getSendingChannelName(transaction))}
@@ -162,14 +202,16 @@ const WalletFiatAccountHistory = (props: Props) => {
                     {createColumn(getProcessingFee(transaction, currencySymbol))}
                     {createColumn(getReceivedAmount(transaction, currencySymbol))}
                     {createColumn(getTransactionTx(transaction))}
-                  </tr>;
-          })}
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
         {transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
       </div>
       <Paginate totalPages={totalPages} />
-    </>;
+    </>
+  );
 };
 
 export default WalletFiatAccountHistory;

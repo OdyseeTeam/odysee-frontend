@@ -1,4 +1,4 @@
-import * as RENDER_MODES from "constants/file_render_modes";
+import * as RENDER_MODES from 'constants/file_render_modes';
 const isProduction = process.env.NODE_ENV === 'production';
 // --- GA ---
 // - Events: 500 max (cannot be deleted).
@@ -25,7 +25,7 @@ export const GA_DIMENSIONS = {
   VALUE: 'value',
   START_TIME_MS: 'start_time_ms',
   DURATION_MS: 'duration_ms',
-  END_TIME_MS: 'end_time_ms'
+  END_TIME_MS: 'end_time_ms',
 };
 let gAppStartTime = 0;
 let gStartTimeByEvent = {};
@@ -60,16 +60,15 @@ export const events: Events = {
     if (gGoogleAnalyticsOn) {
       window.gtag('consent', 'update', {
         ad_storage: 'granted',
-        analytics_storage: 'granted'
+        analytics_storage: 'granted',
       });
     } // TODO: If we turn off at runtime, do we need to toggle window.gtag?
     // Not thinking about it now since we are removing GA anyway.
-
   },
   setUser: (userId: string) => {
     if (gGoogleAnalyticsOn && userId) {
       window.gtag('set', {
-        user_id: userId
+        user_id: userId,
       });
     }
   },
@@ -85,22 +84,22 @@ export const events: Events = {
   },
   emailProvided: () => {
     sendGaEvent('engagement', {
-      [GA_DIMENSIONS.TYPE]: 'email_provided'
+      [GA_DIMENSIONS.TYPE]: 'email_provided',
     });
   },
   emailVerified: () => {
     sendGaEvent('engagement', {
-      [GA_DIMENSIONS.TYPE]: 'email_verified'
+      [GA_DIMENSIONS.TYPE]: 'email_verified',
     });
   },
   openUrl: (url: string) => {
     sendGaEvent('engagement', {
       [GA_DIMENSIONS.TYPE]: 'open_url',
-      url
+      url,
     });
   },
   playerLoaded: (renderMode, embedded) => {
-    const RENDER_MODE_TO_EVENT = renderMode => {
+    const RENDER_MODE_TO_EVENT = (renderMode) => {
       switch (renderMode) {
         case RENDER_MODES.VIDEO:
           return 'loaded_video';
@@ -124,43 +123,43 @@ export const events: Events = {
 
     sendGaEvent('player', {
       [GA_DIMENSIONS.ACTION]: RENDER_MODE_TO_EVENT(renderMode),
-      [GA_DIMENSIONS.TYPE]: embedded ? 'embedded' : 'onsite'
+      [GA_DIMENSIONS.TYPE]: embedded ? 'embedded' : 'onsite',
     });
   },
-  playerVideoStarted: embedded => {
+  playerVideoStarted: (embedded) => {
     sendGaEvent('player', {
       [GA_DIMENSIONS.ACTION]: 'started_video',
-      [GA_DIMENSIONS.TYPE]: embedded ? 'embedded' : 'onsite'
+      [GA_DIMENSIONS.TYPE]: embedded ? 'embedded' : 'onsite',
     });
   },
   purchase: (purchaseInt: number) => {
     sendGaEvent('purchase', {
       // https://developers.google.com/analytics/devguides/collection/ga4/reference/events#purchase
-      [GA_DIMENSIONS.VALUE]: purchaseInt
+      [GA_DIMENSIONS.VALUE]: purchaseInt,
     });
   },
   rewardEligible: () => {
     sendGaEvent('engagement', {
-      [GA_DIMENSIONS.TYPE]: 'reward_eligible'
+      [GA_DIMENSIONS.TYPE]: 'reward_eligible',
     });
   },
   startup: (time: number) => {
     if (gAppStartTime !== 0) {
       sendGaEvent('diag_app_ready', {
-        [GA_DIMENSIONS.DURATION_MS]: time - gAppStartTime
+        [GA_DIMENSIONS.DURATION_MS]: time - gAppStartTime,
       });
     }
   },
   tagFollow: (tag, following) => {
     sendGaEvent('tags', {
       [GA_DIMENSIONS.ACTION]: following ? 'follow' : 'unfollow',
-      [GA_DIMENSIONS.VALUE]: tag
+      [GA_DIMENSIONS.VALUE]: tag,
     });
   },
   trendingAlgorithm: (trendingAlgorithm: string) => {
     sendGaEvent('engagement', {
       [GA_DIMENSIONS.TYPE]: 'trending_algorithm',
-      trending_algorithm: trendingAlgorithm
+      trending_algorithm: trendingAlgorithm,
     });
   },
   // --------------------------------------------------------------------------
@@ -181,11 +180,11 @@ export const events: Events = {
       sendGaEvent(name, {
         [GA_DIMENSIONS.START_TIME_MS]: gStartTimeByEvent[key] - gAppStartTime,
         [GA_DIMENSIONS.DURATION_MS]: time - gStartTimeByEvent[key],
-        [GA_DIMENSIONS.END_TIME_MS]: time - gAppStartTime
+        [GA_DIMENSIONS.END_TIME_MS]: time - gAppStartTime,
       });
       delete gStartTimeByEvent[key];
     }
-  }
+  },
 };
 
 // ****************************************************************************

@@ -121,7 +121,7 @@ $breakpoint-1280: 1280px;
 
   .banner-button {
     background-color: var(--banner-primary-button-bg);
-    
+
     &:hover {
       background-color: var(--banner-primary-button-hover);
     }
@@ -139,7 +139,7 @@ $breakpoint-1280: 1280px;
       rgba(93, 27, 189, 0.8) 60%,
       rgb(0, 202, 164) 90%
     );
-    
+
     .banner-button {
       background-color: var(--banner-primary-dark);
     }
@@ -152,7 +152,7 @@ $breakpoint-1280: 1280px;
       rgba(93, 27, 189, 0.8) 60%,
       rgb(0, 202, 164) 90%
     );
-    
+
     .banner-tag {
       background-color: rgba(217, 35, 111, 0.7);
     }
@@ -178,7 +178,7 @@ $breakpoint-1280: 1280px;
   .banner-button {
     background-color: var(--banner-secondary-button-bg);
     color: var(--banner-secondary-button-text);
-    
+
     &:hover {
       background-color: var(--banner-secondary-button-hover);
     }
@@ -274,20 +274,20 @@ $breakpoint-1280: 1280px;
 @media (max-width: $breakpoint-tablet) and (min-width: #{$breakpoint-small + 1}) {
   .banner-container {
     padding: 20px;
-    
+
     .banner-image {
       width: 200px;
       height: 200px;
     }
-    
+
     .banner-label {
       font-size: 26px;
     }
-    
+
     .banner-description {
       font-size: 16px;
     }
-    
+
     .banner-button {
       padding: 12px 15px;
     }
@@ -303,18 +303,18 @@ $breakpoint-1280: 1280px;
       align-items: center;
       text-align: center;
     }
-    
+
     .banner-image {
       margin: 0 auto 15px;
     }
-    
+
     .banner-label,
     .banner-description,
     .banner-tag {
       white-space: normal;
       text-align: center;
     }
-    
+
     .banner-info {
       position: static;
       justify-content: center;
@@ -329,7 +329,7 @@ $breakpoint-1280: 1280px;
     .banner-label {
       font-weight: 600;
     }
-    
+
     .banner-button {
       padding: 11px 14px;
     }
@@ -340,34 +340,34 @@ $breakpoint-1280: 1280px;
 @media (max-width: $breakpoint-medium) and (min-width: 769px) {
   .banner-container {
     padding: 0 20px;
-    
+
     .banner-content-wrapper {
       gap: 12px;
     }
-    
+
     .banner-image {
       width: 180px;
       height: 180px;
     }
-    
+
     .banner-label {
       font-size: 24px;
     }
-    
+
     .banner-description {
       font-size: 16px;
     }
-    
+
     .banner-tag {
       margin-bottom: 15px;
     }
-    
+
     .banner-button {
       padding: 9px 11px;
       font-size: 14px;
     }
   }
-  
+
   .banner-context-menu {
     top: 12px;
     right: 12px;
@@ -380,22 +380,22 @@ $breakpoint-1280: 1280px;
     .banner-content-wrapper {
       gap: 15px;
     }
-    
+
     .banner-image {
       width: 220px;
       height: 220px;
     }
-    
+
     .banner-label {
       font-size: 28px;
       white-space: normal;
     }
-    
+
     .banner-description {
       font-size: 17px;
       white-space: normal;
     }
-    
+
     .banner-button {
       padding: 10px 12px;
     }
@@ -403,31 +403,32 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1280px width (HD displays)
-@media (max-width: $breakpoint-1280) and (min-width: 1151px) {  // Corregido: usando valor directo
+@media (max-width: $breakpoint-1280) and (min-width: 1151px) {
+  // Corregido: usando valor directo
   .banner-container {
     .banner-content-wrapper {
       gap: 18px;
     }
-    
+
     .banner-image {
       width: 230px;
       height: 230px;
     }
-    
+
     .banner-label {
       font-size: 28px;
       max-width: 700px;
     }
-    
+
     .banner-description {
       font-size: 17px;
       max-width: 700px;
     }
-    
+
     .banner-button {
       padding: 10px 14px;
     }
-    
+
     .banner-info {
       font-size: 15px;
     }
@@ -435,27 +436,28 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1150px width
-@media (max-width: $breakpoint-1150) and (min-width: 1025px) {  // $breakpoint-tablet + 1 = 1025px
+@media (max-width: $breakpoint-1150) and (min-width: 1025px) {
+  // $breakpoint-tablet + 1 = 1025px
   .banner-container {
     .banner-content-wrapper {
       gap: 15px;
     }
-    
+
     .banner-image {
       width: 220px;
       height: 220px;
     }
-    
+
     .banner-label {
       font-size: 28px;
       white-space: normal;
     }
-    
+
     .banner-description {
       font-size: 17px;
       white-space: normal;
     }
-    
+
     .banner-button {
       padding: 10px 12px;
     }
@@ -467,15 +469,15 @@ $breakpoint-1280: 1280px;
   .banner-container {
     padding: 15px;
     margin-bottom: 15px;
-    
+
     .banner-content-wrapper {
       flex-direction: column;
       gap: 15px;
-      
+
       &.small-image-layout {
         flex-direction: row;
         align-items: flex-start;
-        
+
         .banner-image {
           width: 80px;
           height: 80px;
@@ -484,17 +486,17 @@ $breakpoint-1280: 1280px;
         }
       }
     }
-    
+
     .banner-background,
     .banner-image {
       margin: 0 0 15px 0;
-      
+
       &.square-image {
         width: 120px;
         height: 120px;
         margin: 0 auto 15px;
       }
-      
+
       &.circle-image {
         width: 100px;
         height: 100px;
@@ -502,49 +504,50 @@ $breakpoint-1280: 1280px;
         margin: 0 auto 15px;
       }
     }
-    
+
     .banner-label {
       font-size: 22px;
       white-space: normal;
     }
-    
+
     .banner-description {
       font-size: 15px;
       white-space: normal;
     }
-    
+
     .banner-tag {
       font-size: 13px;
       white-space: normal;
     }
-    
+
     .banner-button {
       width: 100%;
       padding: 12px;
       font-size: 15px;
     }
-    
+
     .banner-info {
       position: static;
       margin-top: 10px;
       font-size: 14px;
     }
   }
-  
-  .banner-primary, .banner-secondary {
-    &.vibrant-variant, 
+
+  .banner-primary,
+  .banner-secondary {
+    &.vibrant-variant,
     &.colorful-variant,
     &.variant-1,
     &.variant-2 {
       background-image: none;
     }
   }
-  
+
   .banner-context-menu {
     top: 10px;
     right: 10px;
   }
-  
+
   .banner-menu-button {
     width: 32px;
     height: 32px;

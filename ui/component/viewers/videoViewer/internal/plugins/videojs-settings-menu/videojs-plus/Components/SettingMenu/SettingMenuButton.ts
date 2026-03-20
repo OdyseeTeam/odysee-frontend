@@ -1,9 +1,9 @@
-import videojs from "video.js";
-import SettingMenu from "./SettingMenu";
-import "./Item/SettingOnOffItem";
-import "./Item/SettingOptionItem";
-import "./PlaybackRate/PlaybackRateSettingItem";
-import "./Setting.scss";
+import videojs from 'video.js';
+import SettingMenu from './SettingMenu';
+import './Item/SettingOnOffItem';
+import './Item/SettingOptionItem';
+import './PlaybackRate/PlaybackRateSettingItem';
+import './Setting.scss';
 const MenuButton = videojs.getComponent('MenuButton');
 
 class SettingMenuButton extends MenuButton {
@@ -27,12 +27,12 @@ class SettingMenuButton extends MenuButton {
 
   createMenu() {
     const menu = new SettingMenu(this.player_, {
-      menuButton: this
+      menuButton: this,
     });
     const entries = this.options_.entries || [];
-    entries.forEach(componentName => {
+    entries.forEach((componentName) => {
       const component = menu.addChild(componentName, {
-        menu
+        menu,
       });
       menu[componentName] = component;
     });
@@ -70,12 +70,11 @@ class SettingMenuButton extends MenuButton {
       this.one(document.body, 'click', this.hideMenu); // _this.buttonPressed_ && _this.one(document.body, 'touchend', _this.hideMenu);
     }, 0);
   }
-
 }
 
 SettingMenuButton.prototype.controlText_ = __('Settings');
 SettingMenuButton.prototype.options_ = {
-  entries: []
+  entries: [],
 };
 videojs.registerComponent('SettingMenuButton', SettingMenuButton);
 export default SettingMenuButton;

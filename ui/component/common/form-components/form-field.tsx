@@ -1,20 +1,20 @@
-import "easymde/dist/easymde.min.css";
-import "./plugins/inline-attachment/inline-attachment";
-import "./plugins/inline-attachment/codemirror-4.inline-attachment";
-import "./plugins/inline-attachment/textarea.inline-attachment";
-import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from "constants/cdn_urls";
-import { FF_MAX_CHARS_DEFAULT } from "constants/form-field";
-import { openEditorMenu } from "util/context-menu";
-import { lazyImport } from "util/lazyImport";
-import MarkdownPreview from "component/common/markdown-preview";
-import React from "react";
-import ReactDOMServer from "react-dom/server";
-import SimpleMDE from "react-simplemde-editor";
-import type { ElementRef } from "react";
-import { InputSimple, BlockWrapWrapper } from "./input-simple";
-import { InputSelect } from "./input-select";
-import { CountInfo, QuickAction, Label } from "./common";
-import { TextareaWrapper } from "./slim-input-field";
+import 'easymde/dist/easymde.min.css';
+import './plugins/inline-attachment/inline-attachment';
+import './plugins/inline-attachment/codemirror-4.inline-attachment';
+import './plugins/inline-attachment/textarea.inline-attachment';
+import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constants/cdn_urls';
+import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
+import { openEditorMenu } from 'util/context-menu';
+import { lazyImport } from 'util/lazyImport';
+import MarkdownPreview from 'component/common/markdown-preview';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+import SimpleMDE from 'react-simplemde-editor';
+import type { ElementRef } from 'react';
+import { InputSimple, BlockWrapWrapper } from './input-simple';
+import { InputSelect } from './input-select';
+import { CountInfo, QuickAction, Label } from './common';
+import { TextareaWrapper } from './slim-input-field';
 // prettier-ignore
 const TextareaWithSuggestions = lazyImport(() => import('component/textareaWithSuggestions'
 /* webpackChunkName: "suggestions" */
@@ -59,10 +59,7 @@ type Props = {
   inputElem?: any;
   onSlimInputClose?: () => void;
   onChange?: (arg0: any) => any;
-  setShowSelectors?: (arg0: {
-    tab?: string;
-    open: boolean;
-  }) => void;
+  setShowSelectors?: (arg0: { tab?: string; open: boolean }) => void;
   quickActionHandler?: (arg0: any) => any;
   render?: () => React.ReactNode;
   handleTip?: (isLBC: boolean) => any;
@@ -75,7 +72,7 @@ type State = {
 export class FormField extends React.PureComponent<Props, State> {
   static defaultProps = {
     labelOnLeft: false,
-    blockWrap: true
+    blockWrap: true,
   };
   input: {
     current: ElementRef<any>;
@@ -86,16 +83,12 @@ export class FormField extends React.PureComponent<Props, State> {
     super(props);
     this.input = React.createRef();
     this.state = {
-      drawerOpen: false
+      drawerOpen: false,
     };
   }
 
   componentDidMount() {
-    const {
-      autoFocus,
-      showSelectors,
-      slimInput
-    } = this.props;
+    const { autoFocus, showSelectors, slimInput } = this.props;
     const input = this.input.current;
     if (input && autoFocus) input.focus();
     if (slimInput && showSelectors && showSelectors.open && input) input.blur();
@@ -107,9 +100,7 @@ export class FormField extends React.PureComponent<Props, State> {
   }
 
   maybeAttachTextareaInlineAttachment() {
-    const {
-      type
-    } = this.props;
+    const { type } = this.props;
     const input = this.input.current;
 
     if (type === 'textarea' && input && !this.textareaInlineAttachmentAttached) {
@@ -118,12 +109,12 @@ export class FormField extends React.PureComponent<Props, State> {
         uploadUrl: IMG_CDN_PUBLISH_URL,
         uploadFieldName: UPLOAD_CONFIG.BLOB_KEY,
         extraParams: {
-          [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL
+          [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL,
         },
         filenameTag: '{filename}',
         urlText: '![image]({filename})',
         jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
-        errorText: '![image]("failed to upload file")'
+        errorText: '![image]("failed to upload file")',
       });
     }
   }
@@ -172,72 +163,82 @@ export class FormField extends React.PureComponent<Props, State> {
     const errorMessage = typeof error === 'object' ? error.message : error;
     const wrapperProps = {
       type,
-      helper
+      helper,
     };
     const labelProps = {
       name,
-      label
+      label,
     };
     const countInfoProps = {
       charCount,
-      textAreaMaxLength
+      textAreaMaxLength,
     };
     const quickActionProps = {
       label: quickActionLabel,
-      quickActionHandler
+      quickActionHandler,
     };
     const inputSimpleProps = {
       name,
       label,
       disabled,
-      ...inputProps
+      ...inputProps,
     };
     const inputSelectProps = {
       name,
       error,
       label,
       children,
-      ...inputProps
+      ...inputProps,
     };
 
     switch (type) {
       case 'radio':
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <BlockWrapWrapper blockWrap={blockWrap}>
               <InputSimple {...inputSimpleProps} type="radio" />
             </BlockWrapWrapper>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'checkbox':
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <div className="checkbox">
               <InputSimple {...inputSimpleProps} type="checkbox" />
             </div>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'range':
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <div className="range">
               <InputSimple {...inputSimpleProps} type="range" />
             </div>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'select':
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <InputSelect {...inputSelectProps} />
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'select-tiny':
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <InputSelect {...inputSelectProps} className="select--slim" />
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'markdown':
         const handleEvents = {
-          contextmenu: openEditorMenu
+          contextmenu: openEditorMenu,
         };
 
-        const getInstance = editor => {
+        const getInstance = (editor) => {
           // SimpleMDE max char check
           editor.codemirror.on('beforeChange', (instance, changes) => {
             if (textAreaMaxLength && changes.update) {
@@ -277,34 +278,37 @@ export class FormField extends React.PureComponent<Props, State> {
                   // code, thus our change got wiped out.
                   // Add a small delay to handle that case.
                   setTimeout(() => {
-                    instance.setSelection({
-                      line: to.line,
-                      ch: baseIndex + urlLineText.lastIndexOf('(') + 1
-                    }, {
-                      line: to.line,
-                      ch: baseIndex + urlLineText.lastIndexOf(')')
-                    });
+                    instance.setSelection(
+                      {
+                        line: to.line,
+                        ch: baseIndex + urlLineText.lastIndexOf('(') + 1,
+                      },
+                      {
+                        line: to.line,
+                        ch: baseIndex + urlLineText.lastIndexOf(')'),
+                      }
+                    );
                   }, 25);
                 }
               }
             } catch (e) {} // Do nothing (revert to original behavior)
-
           });
           // Add ability to upload pasted/dragged image (https://github.com/sparksuite/simplemde-markdown-editor/issues/328#issuecomment-227075500)
           window.inlineAttachment.editors.codemirror4.attach(editor.codemirror, {
             uploadUrl: IMG_CDN_PUBLISH_URL,
             uploadFieldName: UPLOAD_CONFIG.BLOB_KEY,
             extraParams: {
-              [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL
+              [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL,
             },
             filenameTag: '{filename}',
             urlText: '![image]({filename})',
             jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
-            errorText: '![image]("failed to upload file")'
+            errorText: '![image]("failed to upload file")',
           });
         };
 
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <div className="form-field--SimpleMDE">
               <fieldset-section>
                 <div className="form-field__two-column">
@@ -315,74 +319,156 @@ export class FormField extends React.PureComponent<Props, State> {
                   <QuickAction {...quickActionProps} />
                 </div>
 
-                <SimpleMDE {...inputProps} id={name} type="textarea" events={handleEvents} getMdeInstance={getInstance} options={{
-                spellChecker: false,
-                hideIcons: ['heading', 'image', 'fullscreen', 'side-by-side'],
-                status: [{
-                  className: 'editor-statusbar__upload-hint',
-                  defaultValue: el => {
-                    el.innerHTML = __('Attach images by pasting or drag-and-drop.');
-                  }
-                }, 'lines', 'words', 'cursor'],
+                <SimpleMDE
+                  {...inputProps}
+                  id={name}
+                  type="textarea"
+                  events={handleEvents}
+                  getMdeInstance={getInstance}
+                  options={{
+                    spellChecker: false,
+                    hideIcons: ['heading', 'image', 'fullscreen', 'side-by-side'],
+                    status: [
+                      {
+                        className: 'editor-statusbar__upload-hint',
+                        defaultValue: (el) => {
+                          el.innerHTML = __('Attach images by pasting or drag-and-drop.');
+                        },
+                      },
+                      'lines',
+                      'words',
+                      'cursor',
+                    ],
 
-                previewRender(plainText) {
-                  const preview = <MarkdownPreview content={plainText} noDataStore />;
-                  return ReactDOMServer.renderToString(preview);
-                }
-
-              }} />
+                    previewRender(plainText) {
+                      const preview = <MarkdownPreview content={plainText} noDataStore />;
+                      return ReactDOMServer.renderToString(preview);
+                    },
+                  }}
+                />
 
                 <CountInfo {...countInfoProps} />
               </fieldset-section>
             </div>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       case 'textarea':
-        const closeSelector = setShowSelectors && showSelectors ? () => setShowSelectors({
-          tab: showSelectors.tab || undefined,
-          open: false
-        }) : () => {};
-        const textAreaValue = inputProps.value && typeof inputProps.value === 'string' && max && inputProps.value.length > max ? inputProps.value.substring(0, max) : inputProps.value;
-        return <FormFieldWrapper {...wrapperProps}>
+        const closeSelector =
+          setShowSelectors && showSelectors
+            ? () =>
+                setShowSelectors({
+                  tab: showSelectors.tab || undefined,
+                  open: false,
+                })
+            : () => {};
+        const textAreaValue =
+          inputProps.value && typeof inputProps.value === 'string' && max && inputProps.value.length > max
+            ? inputProps.value.substring(0, max)
+            : inputProps.value;
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <fieldset-section>
-              <TextareaWrapper isDrawerOpen={Boolean(this.state.drawerOpen)} toggleDrawer={() => this.setState({
-              drawerOpen: !this.state.drawerOpen
-            })} closeSelector={closeSelector} commentSelectorsProps={commentSelectorsProps} showSelectors={Boolean(showSelectors && showSelectors.open)} slimInput={slimInput} slimInputButtonRef={slimInputButtonRef} onSlimInputClose={onSlimInputClose} tipModalOpen={tipModalOpen}>
-                {(!slimInput || this.state.drawerOpen) && label && <div className="form-field__two-column">
+              <TextareaWrapper
+                isDrawerOpen={Boolean(this.state.drawerOpen)}
+                toggleDrawer={() =>
+                  this.setState({
+                    drawerOpen: !this.state.drawerOpen,
+                  })
+                }
+                closeSelector={closeSelector}
+                commentSelectorsProps={commentSelectorsProps}
+                showSelectors={Boolean(showSelectors && showSelectors.open)}
+                slimInput={slimInput}
+                slimInputButtonRef={slimInputButtonRef}
+                onSlimInputClose={onSlimInputClose}
+                tipModalOpen={tipModalOpen}
+              >
+                {(!slimInput || this.state.drawerOpen) && label && (
+                  <div className="form-field__two-column">
                     <Label {...labelProps} />
 
-                    {max && typeof textAreaValue === 'string' && <label className={Number(max) - String(textAreaValue).length > 0 ? 'input-max-counter' : 'input-max-counter-error'}>
+                    {max && typeof textAreaValue === 'string' && (
+                      <label
+                        className={
+                          Number(max) - String(textAreaValue).length > 0
+                            ? 'input-max-counter'
+                            : 'input-max-counter-error'
+                        }
+                      >
                         {Number(max) - String(textAreaValue).length}
-                      </label>}
+                      </label>
+                    )}
 
                     <QuickAction {...quickActionProps} />
 
                     <CountInfo {...countInfoProps} />
-                  </div>}
+                  </div>
+                )}
 
                 {noticeLabel}
 
-                {hideSuggestions ? <textarea {...inputProps} type={type} id={name} maxLength={max || textAreaMaxLength || FF_MAX_CHARS_DEFAULT} ref={this.input} value={textAreaValue} /> : <React.Suspense fallback={null}>
-                    <TextareaWithSuggestions {...inputProps} spellCheck uri={uri} type={type} id={name} maxLength={max || textAreaMaxLength || FF_MAX_CHARS_DEFAULT} value={textAreaValue} inputRef={this.input} isLivestream={isLivestream} toggleSelectors={setShowSelectors && showSelectors ? () => {
-                  const input = this.input.current;
-                  if (!showSelectors.open && input) input.blur();
-                  setShowSelectors({
-                    tab: showSelectors.tab || undefined,
-                    open: !showSelectors.open
-                  });
-                } : undefined} handleTip={handleTip} handleSubmit={() => {
-                  if (handleSubmit) handleSubmit();
-                  if (slimInput) this.setState({
-                    drawerOpen: false
-                  });
-                  closeSelector();
-                }} claimIsMine={commentSelectorsProps && commentSelectorsProps.claimIsMine} slimInput={slimInput} handlePreventClick={!this.state.drawerOpen ? () => this.setState({
-                  drawerOpen: true
-                }) : undefined} autoFocus={this.state.drawerOpen && (!showSelectors || !showSelectors.open)} submitButtonRef={submitButtonRef} />
-                  </React.Suspense>}
+                {hideSuggestions ? (
+                  <textarea
+                    {...inputProps}
+                    type={type}
+                    id={name}
+                    maxLength={max || textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
+                    ref={this.input}
+                    value={textAreaValue}
+                  />
+                ) : (
+                  <React.Suspense fallback={null}>
+                    <TextareaWithSuggestions
+                      {...inputProps}
+                      spellCheck
+                      uri={uri}
+                      type={type}
+                      id={name}
+                      maxLength={max || textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
+                      value={textAreaValue}
+                      inputRef={this.input}
+                      isLivestream={isLivestream}
+                      toggleSelectors={
+                        setShowSelectors && showSelectors
+                          ? () => {
+                              const input = this.input.current;
+                              if (!showSelectors.open && input) input.blur();
+                              setShowSelectors({
+                                tab: showSelectors.tab || undefined,
+                                open: !showSelectors.open,
+                              });
+                            }
+                          : undefined
+                      }
+                      handleTip={handleTip}
+                      handleSubmit={() => {
+                        if (handleSubmit) handleSubmit();
+                        if (slimInput)
+                          this.setState({
+                            drawerOpen: false,
+                          });
+                        closeSelector();
+                      }}
+                      claimIsMine={commentSelectorsProps && commentSelectorsProps.claimIsMine}
+                      slimInput={slimInput}
+                      handlePreventClick={
+                        !this.state.drawerOpen
+                          ? () =>
+                              this.setState({
+                                drawerOpen: true,
+                              })
+                          : undefined
+                      }
+                      autoFocus={this.state.drawerOpen && (!showSelectors || !showSelectors.open)}
+                      submitButtonRef={submitButtonRef}
+                    />
+                  </React.Suspense>
+                )}
               </TextareaWrapper>
             </fieldset-section>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
 
       default:
         const inputElementProps = {
@@ -391,39 +477,54 @@ export class FormField extends React.PureComponent<Props, State> {
           disabled,
           maxLength: max,
           ref: this.input,
-          ...inputProps
+          ...inputProps,
         };
-        return <FormFieldWrapper {...wrapperProps}>
+        return (
+          <FormFieldWrapper {...wrapperProps}>
             <fieldset-section>
-              {(label || errorMessage) && <div>
+              {(label || errorMessage) && (
+                <div>
                   <Label {...labelProps} errorMessage={errorMessage} />
-                  {inputElementProps.maxLength && typeof inputElementProps.value === 'string' && <label className={Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0 ? 'input-max-counter' : 'input-max-counter-error'}>
+                  {inputElementProps.maxLength && typeof inputElementProps.value === 'string' && (
+                    <label
+                      className={
+                        Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0
+                          ? 'input-max-counter'
+                          : 'input-max-counter-error'
+                      }
+                    >
                       {Number(inputElementProps.maxLength) - String(inputElementProps.value).length}
-                    </label>}
-                </div>}
+                    </label>
+                  )}
+                </div>
+              )}
 
-              {
-              /*
+              {/*
               {prefix && (
                <label htmlFor={name} className={disabled || error ? 'disabled' : ''}>
                  {prefix}
                </label>
               )}
-               */
-            }
+               */}
 
-              {inputButton ? <input-submit>
+              {inputButton ? (
+                <input-submit>
                   {!hideValue && <input {...inputElementProps} />}
                   {inputButton}
-                </input-submit> : inputElem || !prefix ? <input {...inputElementProps} /> : <div className="arInput-wrapper">
+                </input-submit>
+              ) : inputElem || !prefix ? (
+                <input {...inputElementProps} />
+              ) : (
+                <div className="arInput-wrapper">
                   <span>{prefix}</span>
                   <input {...inputElementProps} />
-                </div>}
+                </div>
+              )}
             </fieldset-section>
-          </FormFieldWrapper>;
+          </FormFieldWrapper>
+        );
     }
   }
-
 }
 export default FormField;
 type WrapperProps = {
@@ -433,13 +534,11 @@ type WrapperProps = {
 };
 
 const FormFieldWrapper = (wrapperProps: WrapperProps) => {
-  const {
-    type,
-    children,
-    helper
-  } = wrapperProps;
-  return <>
+  const { type, children, helper } = wrapperProps;
+  return (
+    <>
       {type && children}
       {helper && <div className="form-field__help">{helper}</div>}
-    </>;
+    </>
+  );
 };

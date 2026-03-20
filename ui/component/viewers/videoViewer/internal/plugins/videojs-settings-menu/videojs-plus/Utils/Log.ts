@@ -1,11 +1,11 @@
-import videojs from "video.js";
+import videojs from 'video.js';
 let logType = '';
 
 try {
   logType = localStorage && localStorage.getItem('vjs-plus-log');
 } catch (e) {}
 
-const log = function () {
+const log = (function () {
   if (logType === 'normal' || videojs.browser.IE_VERSION) {
     // log without style
     return console.info.bind(console, '[VJS Plus]:'); // eslint-disable-line no-console
@@ -15,6 +15,6 @@ const log = function () {
   }
 
   return function () {};
-}();
+})();
 
 export default log;

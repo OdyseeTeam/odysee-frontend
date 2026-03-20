@@ -1,14 +1,18 @@
-import React from "react";
-import analytics from "analytics";
-import { formatLbryChannelName } from "util/url";
-import { lazyImport } from "util/lazyImport";
-import { useIsMobile, useIsMobileLandscape } from "effects/use-screensize";
-import { LivestreamContext } from "contexts/livestream";
-import LivestreamLayout from "component/livestreamLayout";
-import LoadingBarOneOff from "component/loadingBarOneOff";
-const ChatLayout = lazyImport(() => import('component/chat'
-/* webpackChunkName: "chat" */
-));
+import React from 'react';
+import analytics from 'analytics';
+import { formatLbryChannelName } from 'util/url';
+import { lazyImport } from 'util/lazyImport';
+import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+import { LivestreamContext } from 'contexts/livestream';
+import LivestreamLayout from 'component/livestreamLayout';
+import LoadingBarOneOff from 'component/loadingBarOneOff';
+const ChatLayout = lazyImport(
+  () =>
+    import(
+      'component/chat'
+      /* webpackChunkName: "chat" */
+    )
+);
 type Props = {
   uri: string;
   // -- redux --
@@ -18,9 +22,14 @@ type Props = {
     connected: boolean | null | undefined;
   };
   isStreamPlaying: boolean;
-  theaterMode?: Boolean;
+  theaterMode?: boolean;
   contentUnlocked: boolean;
-  doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: string | null | undefined) => void;
+  doCommentSocketConnect: (
+    uri: string,
+    channelName: string,
+    claimId: string,
+    subCategory: string | null | undefined
+  ) => void;
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void;
 };
 export default function LivestreamPage(props: Props) {
@@ -34,7 +43,7 @@ export default function LivestreamPage(props: Props) {
     theaterMode,
     contentUnlocked,
     doCommentSocketConnect,
-    doCommentSocketDisconnect
+    doCommentSocketDisconnect,
   } = props;
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
@@ -47,19 +56,12 @@ export default function LivestreamPage(props: Props) {
     // TODO: This should not be needed once we unify the livestream player (?)
     analytics.event.playerLoaded('livestream', false);
   }, []);
-  const {
-    signing_channel: channelClaim
-  } = claim || {};
-  const {
-    canonical_url: channelUrl
-  } = channelClaim || {};
+  const { signing_channel: channelClaim } = claim || {};
+  const { canonical_url: channelUrl } = channelClaim || {};
   // On livestream page, only connect, videoRenderFloating will handle disconnect.
   // (either by leaving page with floating player off, or by closing the player)
   React.useEffect(() => {
-    const {
-      claim_id: claimId,
-      signing_channel: channelClaim
-    } = claim;
+    const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
     if (claimId && channelName && !socketConnection?.connected && contentUnlocked) {
@@ -73,26 +75,34 @@ export default function LivestreamPage(props: Props) {
   React.useEffect(() => {
     return () => {
       if (!streamPlayingRef.current) {
-        const {
-          claim_id: claimId,
-          signing_channel: channelClaim
-        } = claim;
+        const { claim_id: claimId, signing_channel: channelClaim } = claim;
         const channelName = channelClaim && formatLbryChannelName(channelUrl);
         if (claimId && channelName && contentUnlocked) doCommentSocketDisconnect(claimId, channelName);
       }
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
   }, []);
-  return <LivestreamContext.Provider value={{
-    livestreamPage: true
-  }}>
-      {
-      /* -- Prevent layout shift: only render when ChatLayout is already imported otherwise
-      the chat will appear and push everything on the page */
-    }
-      {(!showLivestreamChat || layoutRendered) && <LivestreamLayout uri={uri} livestreamChatEnabled={livestreamChatEnabled} />}
+  return (
+    <LivestreamContext.Provider
+      value={{
+        livestreamPage: true,
+      }}
+    >
+      {/* -- Prevent layout shift: only render when ChatLayout is already imported otherwise
+      the chat will appear and push everything on the page */}
+      {(!showLivestreamChat || layoutRendered) && (
+        <LivestreamLayout uri={uri} livestreamChatEnabled={livestreamChatEnabled} />
+      )}
 
-      {showLivestreamChat && <React.Suspense fallback={<LoadingBarOneOff />}>
-          <ChatLayout uri={uri} hyperchatsHidden={hyperchatsHidden} toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)} setLayoutRendered={setLayoutRendered} />
-        </React.Suspense>}
-    </LivestreamContext.Provider>;
+      {showLivestreamChat && (
+        <React.Suspense fallback={<LoadingBarOneOff />}>
+          <ChatLayout
+            uri={uri}
+            hyperchatsHidden={hyperchatsHidden}
+            toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
+            setLayoutRendered={setLayoutRendered}
+          />
+        </React.Suspense>
+      )}
+    </LivestreamContext.Provider>
+  );
 }

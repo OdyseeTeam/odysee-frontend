@@ -1,6 +1,6 @@
-import * as ICONS from "constants/icons";
-import * as React from "react";
-import Icon from "component/common/icon";
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import Icon from 'component/common/icon';
 type Props = {
   channel: ChannelClaim | null | undefined;
   cheapestPlanPrice: number | null | undefined;
@@ -19,38 +19,46 @@ const PreviewOverlayProtectedContent = (props: Props) => {
     cheapestPlanPrice,
     channel,
     doMembershipList,
-    hasProtectedContentTag
+    hasProtectedContentTag,
   } = props;
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
       doMembershipList({
-        channel_claim_id: channel.claim_id
+        channel_claim_id: channel.claim_id,
       });
     }
   }, [channel, cheapestPlanPrice, doMembershipList, protectedMembershipIds]);
 
-  if (userIsAMember || protectedMembershipIds && claimIsMine) {
-    return <div className="protected-content__wrapper--unlocked">
+  if (userIsAMember || (protectedMembershipIds && claimIsMine)) {
+    return (
+      <div className="protected-content__wrapper--unlocked">
         <Icon icon={ICONS.UNLOCK} size={64} />
-      </div>;
+      </div>
+    );
   }
 
   if (hasProtectedContentTag) {
-    return <div className="protected-content__wrapper">
+    return (
+      <div className="protected-content__wrapper">
         <div className="protected-content__lock">
           <Icon icon={ICONS.LOCK} />
         </div>
-        {userIsAMember !== undefined && protectedMembershipIds && cheapestPlanPrice && <div className="protected-content__label-wrapper">
+        {userIsAMember !== undefined && protectedMembershipIds && cheapestPlanPrice && (
+          <div className="protected-content__label-wrapper">
             <div className="protected-content__label-container">
               <div className="protected-content__label">
                 {__('Members Only')}
-                <span>{__('Join for $%membership_price% per month', {
-                membership_price: cheapestPlanPrice
-              })}</span>
+                <span>
+                  {__('Join for $%membership_price% per month', {
+                    membership_price: cheapestPlanPrice,
+                  })}
+                </span>
               </div>
             </div>
-          </div>}
-      </div>;
+          </div>
+        )}
+      </div>
+    );
   }
 
   return null;

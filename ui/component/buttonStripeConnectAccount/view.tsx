@@ -1,7 +1,7 @@
-import React from "react";
-import * as ICONS from "constants/icons";
-import Button from "component/button";
-import BusyIndicator from "component/common/busy-indicator";
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import Button from 'component/button';
+import BusyIndicator from 'component/common/busy-indicator';
 type Props = {
   // -- redux --
   chargesEnabled: boolean | null | undefined;
@@ -20,7 +20,7 @@ const ButtonStripeConnectAccount = (props: Props) => {
     accountLinkResponse,
     accountStatusFetching,
     doTipAccountStatus,
-    doGetAndSetAccountLink
+    doGetAndSetAccountLink,
   } = props;
   const [accountLinkFetching, setAccountLinkFetching] = React.useState(false);
   const bankAccountNotFetched = chargesEnabled === undefined;
@@ -29,7 +29,9 @@ const ButtonStripeConnectAccount = (props: Props) => {
 
   function confirmAddBankAccount() {
     setAccountLinkFetching(true);
-    doGetAndSetAccountLink().then(() => setAccountLinkFetching(false)).catch(() => setAccountLinkFetching(false));
+    doGetAndSetAccountLink()
+      .then(() => setAccountLinkFetching(false))
+      .catch(() => setAccountLinkFetching(false));
   }
 
   React.useEffect(() => {
@@ -39,18 +41,44 @@ const ButtonStripeConnectAccount = (props: Props) => {
   }, [bankAccountNotFetched, doTipAccountStatus]);
 
   if (bankAccountNotFetched || accountStatusFetching || accountLinkFetching) {
-    return <Button disabled button="primary" label={<BusyIndicator message={accountLinkFetching ? __('Confirming...') : __('Getting your bank account connection status...')} />} icon={ICONS.FINANCE} />;
+    return (
+      <Button
+        disabled
+        button="primary"
+        label={
+          <BusyIndicator
+            message={accountLinkFetching ? __('Confirming...') : __('Getting your bank account connection status...')}
+          />
+        }
+        icon={ICONS.FINANCE}
+      />
+    );
   }
 
   if (accountRequiresVerification) {
-    return <Button button="primary" label={__('Complete Verification')} icon={ICONS.SETTINGS} navigate={stripeConnectionUrl} className="stripe__complete-verification-button" />;
+    return (
+      <Button
+        button="primary"
+        label={__('Complete Verification')}
+        icon={ICONS.SETTINGS}
+        navigate={stripeConnectionUrl}
+        className="stripe__complete-verification-button"
+      />
+    );
   }
 
   if (stripeConnectionUrl) {
     return <Button button="link" label={__('Click here to connect a bank account')} navigate={stripeConnectionUrl} />;
   }
 
-  return <Button button="primary" label={accountStatusFailed ? __('Retry') : __('Connect a bank account')} icon={ICONS.FINANCE} onClick={accountStatusFailed ? doTipAccountStatus : confirmAddBankAccount} />;
+  return (
+    <Button
+      button="primary"
+      label={accountStatusFailed ? __('Retry') : __('Connect a bank account')}
+      icon={ICONS.FINANCE}
+      onClick={accountStatusFailed ? doTipAccountStatus : confirmAddBankAccount}
+    />
+  );
 };
 
 export default ButtonStripeConnectAccount;

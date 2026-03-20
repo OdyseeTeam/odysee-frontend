@@ -1,4 +1,9 @@
-export function webDownloadClaim(streamingUrl: string, fileName: string | null | undefined, isSecure: boolean | null | undefined, uriAccessKey: UriAccessKey | null | undefined) {
+export function webDownloadClaim(
+  streamingUrl: string,
+  fileName: string | null | undefined,
+  isSecure: boolean | null | undefined,
+  uriAccessKey: UriAccessKey | null | undefined
+) {
   const url = new URL(streamingUrl);
   // Existing usages allowed null string. Try to capture that scenario
   assert(fileName, 'Trying to download an empty fileName');

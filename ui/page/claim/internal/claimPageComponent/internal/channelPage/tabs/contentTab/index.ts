@@ -1,20 +1,24 @@
-import { connect } from "react-redux";
-import { PAGE_SIZE } from "constants/claim";
-import { makeSelectClaimsInChannelForPage, makeSelectFetchingChannelClaims, selectClaimIsMine, makeSelectTotalPagesInChannelSearch, selectClaimForUri } from "redux/selectors/claims";
-import { doResolveUris } from "redux/actions/claims";
-import * as SETTINGS from "constants/settings";
-import { makeSelectChannelIsMuted } from "redux/selectors/blocked";
-import { withRouter } from "react-router";
-import { selectClientSetting, selectShowMatureContent } from "redux/selectors/settings";
-import { selectAdBlockerFound } from "redux/selectors/app";
-import { selectActiveLivestreamForChannel } from "redux/selectors/livestream";
-import { getChannelIdFromClaim } from "util/claim";
-import ContentTab from "./view";
+import { connect } from 'react-redux';
+import { PAGE_SIZE } from 'constants/claim';
+import {
+  makeSelectClaimsInChannelForPage,
+  makeSelectFetchingChannelClaims,
+  selectClaimIsMine,
+  makeSelectTotalPagesInChannelSearch,
+  selectClaimForUri,
+} from 'redux/selectors/claims';
+import { doResolveUris } from 'redux/actions/claims';
+import * as SETTINGS from 'constants/settings';
+import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
+import { withRouter } from 'react-router';
+import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectAdBlockerFound } from 'redux/selectors/app';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { getChannelIdFromClaim } from 'util/claim';
+import ContentTab from './view';
 
 const select = (state, props) => {
-  const {
-    search
-  } = props.location;
+  const { search } = props.location;
   const urlParams = new URLSearchParams(search);
   const page = urlParams.get('page') || 0;
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -33,11 +37,11 @@ const select = (state, props) => {
     hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     adBlockerFound: selectAdBlockerFound(state),
-    shortsOnly: props.shortsOnly || isShorts
+    shortsOnly: props.shortsOnly || isShorts,
   };
 };
 
 const perform = {
-  doResolveUris
+  doResolveUris,
 };
 export default withRouter(connect(select, perform)(ContentTab));

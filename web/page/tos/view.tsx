@@ -1,10 +1,14 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
 
 const TOSPage = () => {
-  return <Page className="static-page">
-      <Card title="Terms of Service" body={<div>
+  return (
+    <Page className="static-page">
+      <Card
+        title="Terms of Service"
+        body={
+          <div>
             <p>
               <strong>Last Updated: February 2025</strong>
             </p>
@@ -35,7 +39,8 @@ const TOSPage = () => {
               viewing of information, videos, music, data and other materials (<strong>“Content"</strong>). Content is
               distributed to Odysee by publishers and is stored in fragmented shards via a distributed network of
               third-party devices (<strong>“Hosts"</strong>) that utilize Odysee. Odysee also allows publishers to bid
-              on and reserve names (<strong>“Names"</strong>), which can be used as a unique identifier for Content.{' '}
+              on and reserve names (<strong>“Names"</strong>), which can be used as a unique identifier for
+              Content.{' '}
             </p>
 
             <p>
@@ -589,8 +594,11 @@ const TOSPage = () => {
               </a>
               . <em> Version: RELEASE.2025-02-07T23-21-09Z</em>.
             </p>
-          </div>} />
-    </Page>;
+          </div>
+        }
+      />
+    </Page>
+  );
 };
 
 export default TOSPage;

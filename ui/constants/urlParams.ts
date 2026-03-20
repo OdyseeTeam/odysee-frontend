@@ -1,7 +1,7 @@
 export const FYP_ID = 'fypId';
 export const CHANNEL_PAGE = Object.freeze({
   QUERIES: {
-    VIEW: 'view'
+    VIEW: 'view',
   },
   VIEWS: {
     HOME: 'home',
@@ -13,24 +13,24 @@ export const CHANNEL_PAGE = Object.freeze({
     ABOUT: 'about',
     SETTINGS: 'settings',
     EDIT: 'edit',
-    SHORTS: 'shortsTab'
-  }
+    SHORTS: 'shortsTab',
+  },
 });
 export const COLLECTION_PAGE = Object.freeze({
   QUERIES: {
-    VIEW: 'view'
+    VIEW: 'view',
   },
   VIEWS: {
     // edit === private/local edits
     EDIT: 'edit',
     // public === public edits/publish playlist
     PUBLISH: 'publish',
-    PUBLIC: 'public'
-  }
+    PUBLIC: 'public',
+  },
 });
 export const CHANNEL_SECTIONS_QUERIES = Object.freeze({
   CLAIM_ID: 'claimId',
-  SECTION_ID: 'sectionId'
+  SECTION_ID: 'sectionId',
 });
 export const MODAL = 'modal';
 export const MODAL_PARAMS = 'modal_params';

@@ -1,11 +1,11 @@
-import React from "react";
-import Button from "component/button";
-import Paginate from "component/common/paginate";
-import CopyableText from "component/copyableText";
-import moment from "moment";
-import PAGES from "constants/pages";
-import * as STRIPE from "constants/stripe";
-import { toCapitalCase } from "util/string";
+import React from 'react';
+import Button from 'component/button';
+import Paginate from 'component/common/paginate';
+import CopyableText from 'component/copyableText';
+import moment from 'moment';
+import PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
+import { toCapitalCase } from 'util/string';
 type Props = {
   page: number;
   pageSize: number;
@@ -16,7 +16,7 @@ type Props = {
   lastFour: any | null | undefined;
   doCustomerListPaymentHistory: () => void;
   doGetCustomerStatus: () => void;
-  transactionType: "tips" | "rentals-purchases";
+  transactionType: 'tips' | 'rentals-purchases';
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
@@ -27,7 +27,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
     paymentHistory,
     doCustomerListPaymentHistory,
     doGetCustomerStatus,
-    transactionType
+    transactionType,
   } = props;
   const transactionsRaw = paymentHistory ? paymentHistory.filter(typeFilterCb) : [];
   const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
@@ -57,7 +57,13 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }
 
   function getReceivingChannelName(transaction) {
-    return <Button navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id} label={transaction.channel_name} button="link" />;
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+        label={transaction.channel_name}
+        button="link"
+      />
+    );
   }
 
   function getTransactionType(transaction) {
@@ -65,16 +71,25 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }
 
   function getClaimLink(transaction) {
-    return <Button navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined} label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')} button="link" target="_blank" />;
+    return (
+      <Button
+        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
+        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+        button="link"
+        target="_blank"
+      />
+    );
   }
 
   function getTipAmount(transaction) {
     const symbol = transaction.currency !== 'AR' ? STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol : '$';
     const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
-    return <>
+    return (
+      <>
         {symbol}
         {transaction.tipped_amount / 100} {currency}
-      </>;
+      </>
+    );
   }
 
   function getIsAnon(transaction) {
@@ -82,9 +97,17 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }
 
   function getTransactionTx(transaction) {
-    return <>
-        {transaction?.currency === 'AR' ? <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.payment_intent_id} /> : null}
-      </>;
+    return (
+      <>
+        {transaction?.currency === 'AR' ? (
+          <CopyableText
+            hideValue
+            linkTo={`https://viewblock.io/arweave/tx/`}
+            copyable={transaction.payment_intent_id}
+          />
+        ) : null}
+      </>
+    );
   }
 
   // **************************************************************************
@@ -98,7 +121,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
   React.useEffect(() => {
     doGetCustomerStatus();
   }, [doGetCustomerStatus]);
-  return <>
+  return (
+    <>
       <div className="section card-stack">
         <div className="table__wrapper">
           <table className="table table--transactions">
@@ -114,25 +138,27 @@ const WalletFiatPaymentHistory = (props: Props) => {
               </tr>
             </thead>
             <tbody>
-              {transactions && transactions.map(t => <tr key={t.name + t.created_at}>
+              {transactions &&
+                transactions.map((t) => (
+                  <tr key={t.name + t.created_at}>
                     {createColumn(getDate(t))}
                     {createColumn(getReceivingChannelName(t))}
                     {createColumn(getTransactionType(t))}
                     {createColumn(getClaimLink(t))}
                     {createColumn(getTipAmount(t))}
-                    {
-                /* TODO: this is incorrect need it per transactions not per user */
-              }
+                    {/* TODO: this is incorrect need it per transactions not per user */}
                     {createColumn(getIsAnon(t))}
                     {createColumn(getTransactionTx(t))}
-                  </tr>)}
+                  </tr>
+                ))}
             </tbody>
           </table>
           {(!transactions || transactions.length === 0) && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
         </div>
         <Paginate totalPages={totalPages} />
       </div>
-    </>;
+    </>
+  );
 };
 
 export default WalletFiatPaymentHistory;

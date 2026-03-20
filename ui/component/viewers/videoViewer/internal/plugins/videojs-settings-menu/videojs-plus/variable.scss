@@ -55,7 +55,9 @@ $small-dimension: 1px; // 480px;
       color: #333;
       background-color: #fff;
       transform: translateY(100%);
-      transition: 0.3s transform ease, 0.3s height ease;
+      transition:
+        0.3s transform ease,
+        0.3s height ease;
     }
 
     .vjs-menu-item {

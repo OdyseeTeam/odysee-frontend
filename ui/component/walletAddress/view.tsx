@@ -1,8 +1,8 @@
-import React from "react";
-import Button from "component/button";
-import CopyableText from "component/copyableText";
-import QRCode from "component/common/qr-code";
-import Card from "component/common/card";
+import React from 'react';
+import Button from 'component/button';
+import CopyableText from 'component/copyableText';
+import QRCode from 'component/common/qr-code';
+import Card from 'component/common/card';
 type Props = {
   checkAddressIsMine: (arg0: string) => void;
   receiveAddress: string;
@@ -17,17 +17,13 @@ class WalletAddress extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      showQR: false
+      showQR: false,
     };
     (this as any).toggleQR = this.toggleQR.bind(this);
   }
 
   componentDidMount() {
-    const {
-      checkAddressIsMine,
-      receiveAddress,
-      getNewAddress
-    } = this.props;
+    const { checkAddressIsMine, receiveAddress, getNewAddress } = this.props;
 
     if (!receiveAddress) {
       getNewAddress();
@@ -38,34 +34,48 @@ class WalletAddress extends React.PureComponent<Props, State> {
 
   toggleQR() {
     this.setState({
-      showQR: !this.state.showQR
+      showQR: !this.state.showQR,
     });
   }
 
   render() {
-    const {
-      receiveAddress,
-      getNewAddress,
-      gettingNewAddress
-    } = this.props;
-    const {
-      showQR
-    } = this.state;
-    return <Card title={__('Receive Credits')} subtitle={__('Use this address to receive LBRY Credits.')} actions={<React.Fragment>
-            <CopyableText primaryButton label={__('Your Address')} copyable={receiveAddress} snackMessage={__('Address copied.')} />
+    const { receiveAddress, getNewAddress, gettingNewAddress } = this.props;
+    const { showQR } = this.state;
+    return (
+      <Card
+        title={__('Receive Credits')}
+        subtitle={__('Use this address to receive LBRY Credits.')}
+        actions={
+          <React.Fragment>
+            <CopyableText
+              primaryButton
+              label={__('Your Address')}
+              copyable={receiveAddress}
+              snackMessage={__('Address copied.')}
+            />
 
             <div className="card__actions">
-              {!IS_WEB && <Button button="secondary" label={__('Get New Address')} onClick={getNewAddress} disabled={gettingNewAddress} />}
+              {!IS_WEB && (
+                <Button
+                  button="secondary"
+                  label={__('Get New Address')}
+                  onClick={getNewAddress}
+                  disabled={gettingNewAddress}
+                />
+              )}
               <Button button="link" label={showQR ? __('Hide QR code') : __('Show QR code')} onClick={this.toggleQR} />
             </div>
             <p className="help">
-              {!IS_WEB && __('You can generate a new address at any time, and any previous addresses will continue to work.')}
+              {!IS_WEB &&
+                __('You can generate a new address at any time, and any previous addresses will continue to work.')}
             </p>
 
             {showQR && <QRCode value={receiveAddress} paddingTop />}
-          </React.Fragment>} />;
+          </React.Fragment>
+        }
+      />
+    );
   }
-
 }
 
 export default WalletAddress;

@@ -1,4 +1,4 @@
-import { getTimeAgoStr } from "util/time";
+import { getTimeAgoStr } from 'util/time';
 export function formatClaimPreviewTitle(title, channelTitle, date, mediaDuration) {
   // Aria-label value for claim preview
   let ariaDate = date ? getTimeAgoStr(date, true) : null;
@@ -10,13 +10,13 @@ export function formatClaimPreviewTitle(title, channelTitle, date, mediaDuration
         title,
         channelTitle,
         ariaDate,
-        mediaDuration
+        mediaDuration,
       });
     } else {
       ariaLabelData = __('%title% by %channelTitle%, %mediaDuration%', {
         title,
         channelTitle,
-        mediaDuration
+        mediaDuration,
       });
     }
   } else {
@@ -24,12 +24,12 @@ export function formatClaimPreviewTitle(title, channelTitle, date, mediaDuration
       ariaLabelData = __('%title% by %channelTitle% %ariaDate%', {
         title,
         channelTitle,
-        ariaDate
+        ariaDate,
       });
     } else {
       ariaLabelData = __('%title% by %channelTitle%', {
         title,
-        channelTitle
+        channelTitle,
       });
     }
   }

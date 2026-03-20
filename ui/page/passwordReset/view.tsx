@@ -1,8 +1,10 @@
-import React from "react";
-import UserPasswordReset from "component/userPasswordReset";
-import Page from "component/page";
+import React from 'react';
+import UserPasswordReset from 'component/userPasswordReset';
+import Page from 'component/page';
 export default function PasswordResetPage() {
-  return <Page authPage>
+  return (
+    <Page authPage>
       <UserPasswordReset />
-    </Page>;
+    </Page>
+  );
 }

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import BusyIndicator from "component/common/busy-indicator";
-import FileSelector from "component/common/file-selector";
-import Button from "component/button";
-import FileThumbnail from "component/fileThumbnail";
-import * as MODALS from "constants/modal_types";
-import { serializeFileObj } from "util/file";
-import { tusIsSessionLocked } from "util/tus";
+import React, { useState } from 'react';
+import BusyIndicator from 'component/common/busy-indicator';
+import FileSelector from 'component/common/file-selector';
+import Button from 'component/button';
+import FileThumbnail from 'component/fileThumbnail';
+import * as MODALS from 'constants/modal_types';
+import { serializeFileObj } from 'util/file';
+import { tusIsSessionLocked } from 'util/tus';
 type Props = {
   uploadItem: FileUploadItem;
   doPublishResume: (arg0: any) => void;
@@ -13,23 +13,8 @@ type Props = {
   doOpenModal: (arg0: string, arg1: {}) => void;
 };
 export default function WebUploadItem(props: Props) {
-  const {
-    uploadItem,
-    doPublishResume,
-    doUpdateUploadRemove,
-    doOpenModal
-  } = props;
-  const {
-    params,
-    file,
-    fileFingerprint,
-    progress,
-    status,
-    publishId,
-    resumable,
-    uploader,
-    backend
-  } = uploadItem;
+  const { uploadItem, doPublishResume, doUpdateUploadRemove, doOpenModal } = props;
+  const { params, file, fileFingerprint, progress, status, publishId, resumable, uploader, backend } = uploadItem;
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
   const locked = tusIsSessionLocked(params.guid);
@@ -37,9 +22,7 @@ export default function WebUploadItem(props: Props) {
   function handleFileChange(newFile: WebFile, clearName = true) {
     if (serializeFileObj(newFile) === fileFingerprint) {
       setShowFileSelector(false);
-      doPublishResume({ ...params,
-        file_path: newFile
-      });
+      doPublishResume({ ...params, file_path: newFile });
 
       if (!params.guid) {
         // Can remove this if-block after January 2022.
@@ -50,8 +33,8 @@ export default function WebUploadItem(props: Props) {
         title: __('Invalid file'),
         subtitle: __('It appears to be a different or modified file.'),
         body: <p className="help--warning">{__('Please select the same file from the initial upload.')}</p>,
-        onConfirm: closeModal => closeModal(),
-        hideCancel: true
+        onConfirm: (closeModal) => closeModal(),
+        hideCancel: true,
       });
     }
   }
@@ -60,18 +43,23 @@ export default function WebUploadItem(props: Props) {
     doOpenModal(MODALS.CONFIRM, {
       title: __('Cancel upload'),
       subtitle: __('Cancel and remove the selected upload?'),
-      body: params.name ? <>
+      body: params.name ? (
+        <>
           <div className="section section--padded border-std non-clickable">
             <p className="empty">{`lbry://${params.name}`}</p>
           </div>
           <div className="section section__subtitle">
             <p>
-              {__('If the file has been fully uploaded and already being processed, it might still appear in your Uploads list later.')}
+              {__(
+                'If the file has been fully uploaded and already being processed, it might still appear in your Uploads list later.'
+              )}
             </p>
           </div>
-        </> : undefined,
-      onConfirm: closeModal => {
-        if (tusIsSessionLocked(params.guid)) {// Corner-case: it's possible for the upload to resume in another tab
+        </>
+      ) : undefined,
+      onConfirm: (closeModal) => {
+        if (tusIsSessionLocked(params.guid)) {
+          // Corner-case: it's possible for the upload to resume in another tab
           // after the modal has appeared. Make a final lock-check here.
           // We can invoke a toast here, but just do nothing for now.
           // The upload status should make things obvious.
@@ -90,7 +78,7 @@ export default function WebUploadItem(props: Props) {
         }
 
         closeModal();
-      }
+      },
     });
   }
 
@@ -188,12 +176,16 @@ export default function WebUploadItem(props: Props) {
       if (publishId) {
         // ... '/notify' was already sent and known to be successful. We just
         // need to resume from the '/status' query stage.
-        return !isCheckingStatus ? <Button label={__('Check Status')} button="link" onClick={() => {
-          setIsCheckingStatus(true);
-          doPublishResume({ ...params,
-            publishId
-          });
-        }} /> : null;
+        return !isCheckingStatus ? (
+          <Button
+            label={__('Check Status')}
+            button="link"
+            onClick={() => {
+              setIsCheckingStatus(true);
+              doPublishResume({ ...params, publishId });
+            }}
+          />
+        ) : null;
       }
 
       let isFileActive = file instanceof File;
@@ -202,15 +194,20 @@ export default function WebUploadItem(props: Props) {
       // problem. Since we can't programmatically detect this scenario, always
       // assume so and ask the user to re-select the file.
       isFileActive = false;
-      return <Button label={isFileActive ? __('Resume') : __('Retry')} button="link" onClick={() => {
-        if (isFileActive) {
-          doPublishResume({ ...params,
-            file_path: file
-          });
-        } else {
-          setShowFileSelector(true);
-        }
-      }} disabled={showFileSelector} />;
+      return (
+        <Button
+          label={isFileActive ? __('Resume') : __('Retry')}
+          button="link"
+          onClick={() => {
+            if (isFileActive) {
+              doPublishResume({ ...params, file_path: file });
+            } else {
+              setShowFileSelector(true);
+            }
+          }}
+          disabled={showFileSelector}
+        />
+      );
     }
   }
 
@@ -219,7 +216,9 @@ export default function WebUploadItem(props: Props) {
       return null;
     }
 
-    return <Button label={__('Retry')} button="link" onClick={() => setShowFileSelector(true)} disabled={showFileSelector} />;
+    return (
+      <Button label={__('Retry')} button="link" onClick={() => setShowFileSelector(true)} disabled={showFileSelector} />
+    );
   }
 
   function getCancelButton() {
@@ -234,7 +233,6 @@ export default function WebUploadItem(props: Props) {
         if (parseInt(progress) === 100) {
           return null;
         } // @endif
-
       }
 
       return <Button label={__('Cancel')} button="link" onClick={handleCancel} />;
@@ -242,24 +240,34 @@ export default function WebUploadItem(props: Props) {
   }
 
   function getFileSelector() {
-    return <div className="claim-preview--padded">
-        <FileSelector label={__('File')} onFileChosen={handleFileChange} // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-      placeholder={__('Select the file to resume upload...')} />
-      </div>;
+    return (
+      <div className="claim-preview--padded">
+        <FileSelector
+          label={__('File')}
+          onFileChosen={handleFileChange} // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
+          placeholder={__('Select the file to resume upload...')}
+        />
+      </div>
+    );
   }
 
   function getProgressBar() {
-    return <>
+    return (
+      <>
         <div className="claim-upload__progress--label">lbry://{params.name}</div>
         <div className={'claim-upload__progress--outer card--inline'}>
-          <div className={'claim-upload__progress--inner'} style={{
-          width: `${progress}%`
-        }}>
+          <div
+            className={'claim-upload__progress--inner'}
+            style={{
+              width: `${progress}%`,
+            }}
+          >
             <span className="claim-upload__progress--inner-text">{getProgressElem()}</span>
           </div>
         </div>
         <div className="claim-upload__progress-sub-text">{getProgressSubText()}</div>
-      </>;
+      </>
+    );
   }
 
   React.useEffect(() => {
@@ -267,7 +275,12 @@ export default function WebUploadItem(props: Props) {
       setShowFileSelector(false);
     }
   }, [locked, showFileSelector]);
-  return <li className={'claim-preview__wrapper claim-preview__wrapper--row web-upload-item claim-preview claim-preview--inactive card--inline'}>
+  return (
+    <li
+      className={
+        'claim-preview__wrapper claim-preview__wrapper--row web-upload-item claim-preview claim-preview--inactive card--inline'
+      }
+    >
       <FileThumbnail thumbnail={params.thumbnail_url} />
       <div className={'claim-preview-metadata'}>
         <div className="claim-preview-info">
@@ -280,5 +293,6 @@ export default function WebUploadItem(props: Props) {
         {showFileSelector && getFileSelector()}
         {!showFileSelector && getProgressBar()}
       </div>
-    </li>;
+    </li>
+  );
 }

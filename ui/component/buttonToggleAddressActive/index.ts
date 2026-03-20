@@ -1,19 +1,17 @@
-import { connect } from "react-redux";
-import ButtonToggleAddressActive from "./view";
-import { doUpdateArweaveAddressStatus } from "redux/actions/stripe";
-import { selectArAccountUpdating, selectArweaveAccountForAddress } from "redux/selectors/stripe";
+import { connect } from 'react-redux';
+import ButtonToggleAddressActive from './view';
+import { doUpdateArweaveAddressStatus } from 'redux/actions/stripe';
+import { selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/selectors/stripe';
 
 const select = (state, props) => {
-  const {
-    address
-  } = props;
+  const { address } = props;
   return {
     account: selectArweaveAccountForAddress(state, address),
-    accountUpdating: selectArAccountUpdating(state)
+    accountUpdating: selectArAccountUpdating(state),
   };
 };
 
 const perform = {
-  doUpdateArweaveAddressStatus
+  doUpdateArweaveAddressStatus,
 };
 export default connect(select, perform)(ButtonToggleAddressActive);

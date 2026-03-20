@@ -1,11 +1,11 @@
-import type { Node } from "react";
-import React, { forwardRef, useRef } from "react";
-import Icon from "component/common/icon";
-import classnames from "classnames";
-import { NavLink } from "react-router-dom";
-import { formatLbryUrlForWeb } from "util/url";
-import * as PAGES from "constants/pages";
-import useCombinedRefs from "effects/use-combined-refs";
+import type { Node } from 'react';
+import React, { forwardRef, useRef } from 'react';
+import Icon from 'component/common/icon';
+import classnames from 'classnames';
+import { NavLink } from 'react-router-dom';
+import { formatLbryUrlForWeb } from 'util/url';
+import * as PAGES from 'constants/pages';
+import useCombinedRefs from 'effects/use-combined-refs';
 type Props = {
   id: string | null | undefined;
   href: string | null | undefined;
@@ -80,79 +80,117 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     doHideModal,
     ...otherProps
   } = props;
-  const disable = disabled || user === null && requiresAuth;
+  const disable = disabled || (user === null && requiresAuth);
   const onClick = disabled ? undefined : onClickProp;
-  const combinedClassName = classnames('button', button ? {
-    'button--primary': button === 'primary',
-    'button--secondary': button === 'secondary',
-    'button--alt': button === 'alt',
-    'button--inverse': button === 'inverse',
-    'button--close': button === 'close',
-    'button--disabled': disable,
-    'button--link': button === 'link',
-    'button--liquidass': button === 'liquidass'
-  } : 'button--no-style', className);
+  const combinedClassName = classnames(
+    'button',
+    button
+      ? {
+          'button--primary': button === 'primary',
+          'button--secondary': button === 'secondary',
+          'button--alt': button === 'alt',
+          'button--inverse': button === 'inverse',
+          'button--close': button === 'close',
+          'button--disabled': disable,
+          'button--link': button === 'link',
+          'button--liquidass': button === 'liquidass',
+        }
+      : 'button--no-style',
+    className
+  );
   const innerRef = useRef(null);
   const combinedRef = useCombinedRefs(ref, innerRef, myref);
-  const size = iconSize || !label && !children ? 18 : undefined; // Fall back to default
+  const size = iconSize || (!label && !children) ? 18 : undefined; // Fall back to default
 
   // Label can be a string or object ( use title instead )
   const ariaLabel = description || (typeof label === 'string' ? label : title);
-  const content = <span className="button__content">
+  const content = (
+    <span className="button__content">
       {icon && <Icon icon={icon} iconColor={iconColor} size={iconSize} />}
 
-      {!largestLabel && label && <span dir="auto" className="button__label">
+      {!largestLabel && label && (
+        <span dir="auto" className="button__label">
           {label}
-        </span>}
+        </span>
+      )}
 
-      {
-      /* largestLabel is used when a single button has two different labels based on hover state */
-    }
-      {largestLabel && <div dir="auto" className="button__label" style={{
-      position: 'relative'
-    }}>
-          <div style={{
-        position: 'relative',
-        left: '50%',
-        top: '50%',
-        transform: `translate(-50%, 0%)`
-      }}>
-            <span style={{
-          visibility: 'hidden'
-        }}>
+      {/* largestLabel is used when a single button has two different labels based on hover state */}
+      {largestLabel && (
+        <div
+          dir="auto"
+          className="button__label"
+          style={{
+            position: 'relative',
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, 0%)`,
+            }}
+          >
+            <span
+              style={{
+                visibility: 'hidden',
+              }}
+            >
               {largestLabel || label}
-              <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: `translate(-50%, -50%)`
-          }}>
-                <span style={{
-              visibility: 'visible'
-            }}>{label}</span>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate(-50%, -50%)`,
+                }}
+              >
+                <span
+                  style={{
+                    visibility: 'visible',
+                  }}
+                >
+                  {label}
+                </span>
               </div>
             </span>
           </div>
-        </div>}
+        </div>
+      )}
 
       {children && children}
       {iconRight && <Icon icon={iconRight} iconColor={iconColor} size={iconSize || size} />}
-    </span>;
+    </span>
+  );
 
   // check if the link is for odysee.com
   function isAnOdyseeLink(urlString) {
-    return urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1);
+    return (
+      urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
+    );
   }
 
   // if it's an internal link we won't open a new tab
   const isAnInternalLink = (href || navigate) && (isAnOdyseeLink(href) || isAnOdyseeLink(navigate));
 
-  if (href || navigate && navigate.startsWith('http')) {
+  if (href || (navigate && navigate.startsWith('http'))) {
     // TODO: replace the below with an outbound link tracker for matomo
-    return <a target={navigateTarget || (isAnInternalLink ? '' : '_blank')} rel="noopener noreferrer" href={href || navigate} className={combinedClassName} title={title} onClick={onClick} aria-label={ariaLabel} disabled={disabled} // is there a reason this wasn't here before?
-    ref={combinedRef} {...otherProps}>
+    return (
+      <a
+        target={navigateTarget || (isAnInternalLink ? '' : '_blank')}
+        rel="noopener noreferrer"
+        href={href || navigate}
+        className={combinedClassName}
+        title={title}
+        onClick={onClick}
+        aria-label={ariaLabel}
+        disabled={disabled} // is there a reason this wasn't here before?
+        ref={combinedRef}
+        {...otherProps}
+      >
         {content}
-      </a>;
+      </a>
+    );
   }
 
   // Handle lbry:// uris passed in, or already formatted web urls
@@ -179,7 +217,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
-  if (requiresAuth && !emailVerified || requiresChannel && !hasChannels) {
+  if ((requiresAuth && !emailVerified) || (requiresChannel && !hasChannels)) {
     // requiresChannel can be used for both requiresAuth and requiresChannel,
     // since if the button requiresChannel, it also implies it requiresAuth in order to proceed
     // so using requiresChannel means: unauth users are sent to signup, auth users to create channel
@@ -190,37 +228,74 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
       redirectUrl += `&src=${authSrc}`;
     }
 
-    return <NavLink exact onClick={e => {
-      e.stopPropagation();
-      // in case the redirect came from a modal, it will stay open on the
-      // sign up page, so close it to make the sign up form seen
-      doHideModal();
-    }} to={redirectUrl} title={title || defaultTooltip} disabled={disable} className={combinedClassName} activeClassName={activeClass} aria-label={ariaLabel} ref={combinedRef} {...otherProps}>
+    return (
+      <NavLink
+        exact
+        onClick={(e) => {
+          e.stopPropagation();
+          // in case the redirect came from a modal, it will stay open on the
+          // sign up page, so close it to make the sign up form seen
+          doHideModal();
+        }}
+        to={redirectUrl}
+        title={title || defaultTooltip}
+        disabled={disable}
+        className={combinedClassName}
+        activeClassName={activeClass}
+        aria-label={ariaLabel}
+        ref={combinedRef}
+        {...otherProps}
+      >
         {content}
-      </NavLink>;
+      </NavLink>
+    );
   }
 
-  return path ? <NavLink exact to={path} title={title || defaultTooltip} disabled={disable} onClick={e => {
-    e.stopPropagation();
-    // Prevent duplicate history entries when navigating to the current page
-    const currentPath = window.location.pathname + window.location.search;
+  return path ? (
+    <NavLink
+      exact
+      to={path}
+      title={title || defaultTooltip}
+      disabled={disable}
+      onClick={(e) => {
+        e.stopPropagation();
+        // Prevent duplicate history entries when navigating to the current page
+        const currentPath = window.location.pathname + window.location.search;
 
-    if (path === currentPath || path === window.location.pathname) {
-      e.preventDefault();
-    }
+        if (path === currentPath || path === window.location.pathname) {
+          e.preventDefault();
+        }
 
-    if (onClick) {
-      onClick();
-    }
-  }} className={combinedClassName} activeClassName={activeClass} aria-label={ariaLabel} ref={combinedRef} {...otherProps}>
+        if (onClick) {
+          onClick();
+        }
+      }}
+      className={combinedClassName}
+      activeClassName={activeClass}
+      aria-label={ariaLabel}
+      ref={combinedRef}
+      {...otherProps}
+    >
       {content}
-    </NavLink> : <button ref={combinedRef} title={title || defaultTooltip} aria-label={ariaLabel} className={combinedClassName} onClick={e => {
-    if (onClick) {
-      e.stopPropagation();
-      onClick(e);
-    }
-  }} disabled={disable} type={type} {...otherProps}>
+    </NavLink>
+  ) : (
+    <button
+      ref={combinedRef}
+      title={title || defaultTooltip}
+      aria-label={ariaLabel}
+      className={combinedClassName}
+      onClick={(e) => {
+        if (onClick) {
+          e.stopPropagation();
+          onClick(e);
+        }
+      }}
+      disabled={disable}
+      type={type}
+      {...otherProps}
+    >
       {content}
-    </button>;
+    </button>
+  );
 });
 export default Button;

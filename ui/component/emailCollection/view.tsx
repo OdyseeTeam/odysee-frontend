@@ -1,26 +1,23 @@
-import React from "react";
-import Button from "component/button";
-import UserEmailNew from "component/userEmailNew";
-import UserEmailVerify from "component/userEmailVerify";
+import React from 'react';
+import Button from 'component/button';
+import UserEmailNew from 'component/userEmailNew';
+import UserEmailVerify from 'component/userEmailVerify';
 type Props = {
   email: string;
   emailCollectionAcknowledged: boolean;
-  user: {
-    has_verified_email: boolean;
-  } | null | undefined;
+  user:
+    | {
+        has_verified_email: boolean;
+      }
+    | null
+    | undefined;
   completeFirstRun: () => void;
   acknowledgeEmail: () => void;
 };
 
 class FirstRunEmailCollection extends React.PureComponent<Props> {
   render() {
-    const {
-      completeFirstRun,
-      email,
-      user,
-      emailCollectionAcknowledged,
-      acknowledgeEmail
-    } = this.props;
+    const { completeFirstRun, email, user, emailCollectionAcknowledged, acknowledgeEmail } = this.props;
 
     // this shouldn't happen
     if (!user) {
@@ -42,7 +39,6 @@ class FirstRunEmailCollection extends React.PureComponent<Props> {
 
     return null;
   }
-
 }
 
 export default FirstRunEmailCollection;

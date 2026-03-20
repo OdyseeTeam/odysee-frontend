@@ -1,28 +1,24 @@
-import * as React from "react";
-import * as dat from "dat.gui";
-import LoadingScreen from "component/common/loading-screen";
+import * as React from 'react';
+import * as dat from 'dat.gui';
+import LoadingScreen from 'component/common/loading-screen';
 // ThreeJS
-import { LoadingManager } from "three-full/sources/loaders/LoadingManager";
-import { STLLoader } from "three-full/sources/loaders/STLLoader";
-import { OBJLoader2 } from "three-full/sources/loaders/OBJLoader2";
-import { OrbitControls } from "three-full/sources/controls/OrbitControls";
-import { Geometry } from "three-full/sources/core/Geometry";
-import { Box3 } from "three-full/sources/math/Box3";
-import { Vector3 } from "three-full/sources/math/Vector3";
-import { Mesh } from "three-full/sources/objects/Mesh";
-import { Group } from "three-full/sources/objects/Group";
-import { PerspectiveCamera } from "three-full/sources/cameras/PerspectiveCamera";
-import { MeshPhongMaterial } from "three-full/sources/materials/MeshPhongMaterial";
-import detectWebGL from "./internal/detector";
-import ThreeGrid from "./internal/grid";
-import ThreeScene from "./internal/scene";
-import ThreeRenderer from "./internal/renderer";
+import { LoadingManager } from 'three-full/sources/loaders/LoadingManager';
+import { STLLoader } from 'three-full/sources/loaders/STLLoader';
+import { OBJLoader2 } from 'three-full/sources/loaders/OBJLoader2';
+import { OrbitControls } from 'three-full/sources/controls/OrbitControls';
+import { Geometry } from 'three-full/sources/core/Geometry';
+import { Box3 } from 'three-full/sources/math/Box3';
+import { Vector3 } from 'three-full/sources/math/Vector3';
+import { Mesh } from 'three-full/sources/objects/Mesh';
+import { Group } from 'three-full/sources/objects/Group';
+import { PerspectiveCamera } from 'three-full/sources/cameras/PerspectiveCamera';
+import { MeshPhongMaterial } from 'three-full/sources/materials/MeshPhongMaterial';
+import detectWebGL from './internal/detector';
+import ThreeGrid from './internal/grid';
+import ThreeScene from './internal/scene';
+import ThreeRenderer from './internal/renderer';
 
-const Manager = ({
-  onLoad,
-  onStart,
-  onError
-}) => {
+const Manager = ({ onLoad, onStart, onError }) => {
   const manager = new LoadingManager();
   manager.onLoad = onLoad;
   manager.onStart = onStart;
@@ -33,21 +29,18 @@ const Manager = ({
 const Loader = (fileType, manager) => {
   const fileTypes = {
     stl: () => new STLLoader(manager),
-    obj: () => new OBJLoader2(manager)
+    obj: () => new OBJLoader2(manager),
   };
   return fileTypes[fileType] ? fileTypes[fileType]() : null;
 };
 
-const ThreeLoader = ({
-  fileType = null,
-  downloadPath = null
-}, renderModel, managerEvents) => {
+const ThreeLoader = ({ fileType = null, downloadPath = null }, renderModel, managerEvents) => {
   if (fileType && downloadPath) {
     const manager = Manager(managerEvents);
     const loader = Loader(fileType, manager);
 
     if (loader) {
-      loader.load(`file://${downloadPath}`, data => {
+      loader.load(`file://${downloadPath}`, (data) => {
         renderModel(fileType, data);
       });
     }
@@ -73,9 +66,11 @@ type State = {
 };
 
 class ThreeViewer extends React.PureComponent<Props, State> {
-  static testWebgl = (): Promise<void> => new Promise((resolve, reject) => {
-    if (detectWebGL()) resolve();else reject();
-  });
+  static testWebgl = (): Promise<void> =>
+    new Promise((resolve, reject) => {
+      if (detectWebGL()) resolve();
+      else reject();
+    });
 
   static createOrbitControls(camera: any, canvas: any) {
     const controls = new OrbitControls(camera, canvas);
@@ -95,14 +90,14 @@ class ThreeViewer extends React.PureComponent<Props, State> {
     const max = {
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
     };
     const min = {
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
     };
-    group.traverse(child => {
+    group.traverse((child) => {
       if (child instanceof Mesh) {
         const box = new Box3().setFromObject(child);
         // Max
@@ -119,7 +114,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
     const meshX = Math.abs(max.x - min.x);
     const scaleFactor = 10 / Math.max(meshX, meshY);
     group.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    group.position.setY(meshY / 2 * scaleFactor);
+    group.position.setY((meshY / 2) * scaleFactor);
     // Reset object position
     const box = new Box3().setFromObject(group);
     // Update position
@@ -140,13 +135,13 @@ class ThreeViewer extends React.PureComponent<Props, State> {
       showFog: true,
       gridColor: 0x414e5c,
       centerLineColor: 0x7f8c8d,
-      backgroundColor: 0x0b0c0d
+      backgroundColor: 0x0b0c0d,
     };
     // State
     this.state = {
       error: null,
       isReady: false,
-      isLoading: false
+      isLoading: false,
     };
     // Internal objects
     this.gui = null;
@@ -162,17 +157,19 @@ class ThreeViewer extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    ThreeViewer.testWebgl().then(() => {
-      this.renderScene();
-      // Update render on resize window
-      window.addEventListener('resize', this.handleResize, false);
-    }).catch(() => {
-      // No webgl support, handle Error...
-      // TODO: Use a better error message
-      this.setState({
-        error: "Sorry, your computer doesn't support WebGL."
+    ThreeViewer.testWebgl()
+      .then(() => {
+        this.renderScene();
+        // Update render on resize window
+        window.addEventListener('resize', this.handleResize, false);
+      })
+      .catch(() => {
+        // No webgl support, handle Error...
+        // TODO: Use a better error message
+        this.setState({
+          error: "Sorry, your computer doesn't support WebGL.",
+        });
       });
-    });
   }
 
   componentWillUnmount() {
@@ -198,7 +195,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
       }
 
       // Clean up group items
-      this.mesh.traverse(child => {
+      this.mesh.traverse((child) => {
         if (child instanceof Mesh) {
           if (child.geometry) child.geometry.dispose();
           if (child.material) child.material.dispose();
@@ -275,7 +272,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
     if (this.guiContainer && this.mesh) {
       this.gui = new dat.GUI({
         autoPlace: false,
-        name: 'controls'
+        name: 'controls',
       });
       const config = {
         color: this.materialColor,
@@ -291,18 +288,22 @@ class ThreeViewer extends React.PureComponent<Props, State> {
           this.controls.autoRotate = false;
           // Reset camera
           this.restoreCamera();
-        }
+        },
       };
       const materialFolder = this.gui.addFolder('Material');
       // Color picker
       const colorPicker = materialFolder.addColor(config, 'color').name('Color').listen();
-      colorPicker.onChange(color => {
+      colorPicker.onChange((color) => {
         this.material.color.set(color);
       });
       materialFolder.add(this.material, 'shininess', 0, 100).name('Shininess').listen();
-      materialFolder.add(this.material, 'flatShading').name('FlatShading').onChange(() => {
-        this.updateMaterial(this.material);
-      }).listen();
+      materialFolder
+        .add(this.material, 'flatShading')
+        .name('FlatShading')
+        .onChange(() => {
+          this.updateMaterial(this.material);
+        })
+        .listen();
       materialFolder.add(this.material, 'wireframe').name('Wireframe').listen();
       const sceneFolder = this.gui.addFolder('Scene');
       sceneFolder.add(this.controls, 'autoRotate').name('Auto-Rotate').listen();
@@ -327,53 +328,44 @@ class ThreeViewer extends React.PureComponent<Props, State> {
   }
 
   startLoader() {
-    const {
-      source
-    } = this.props;
+    const { source } = this.props;
 
     if (source) {
       ThreeLoader(source, this.renderModel.bind(this), {
         onStart: this.handleStart,
         onLoad: this.handleReady,
-        onError: this.handleError
+        onError: this.handleError,
       });
     }
   }
 
   handleStart = () => {
     this.setState({
-      isLoading: true
+      isLoading: true,
     });
   };
   handleReady = () => {
     this.setState({
       isReady: true,
-      isLoading: false
+      isLoading: false,
     });
     // GUI
     this.createInterfaceControls();
   };
   handleError = () => {
     this.setState({
-      error: "Sorry, looks like we can't load this file"
+      error: "Sorry, looks like we can't load this file",
     });
   };
   handleResize = () => {
-    const {
-      offsetWidth: width,
-      offsetHeight: height
-    } = this.viewer || {};
+    const { offsetWidth: width, offsetHeight: height } = this.viewer || {};
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.controls.update();
     this.renderer.setSize(width, height);
   };
 
-  updateControlsTarget(point: {
-    x: number;
-    y: number;
-    z: number;
-  }) {
+  updateControlsTarget(point: { x: number; y: number; z: number }) {
     this.controls.target.fromArray([point.x, point.y, point.z]);
     this.controls.update();
   }
@@ -400,7 +392,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
     this.mesh = new Group();
     this.mesh.name = 'model';
     // Assign new material
-    mesh.traverse(child => {
+    mesh.traverse((child) => {
       if (child instanceof Mesh) {
         // Get geometry from child
         const geometry = new Geometry();
@@ -421,8 +413,8 @@ class ThreeViewer extends React.PureComponent<Props, State> {
 
   renderModel(fileType: string, parsedData: any) {
     const renderTypes = {
-      stl: data => this.renderStl(data),
-      obj: data => this.renderObj(data)
+      stl: (data) => this.renderStl(data),
+      obj: (data) => this.renderObj(data),
     };
 
     if (renderTypes[fileType]) {
@@ -431,26 +423,20 @@ class ThreeViewer extends React.PureComponent<Props, State> {
   }
 
   renderScene() {
-    const {
-      gridColor,
-      centerLineColor
-    } = this.theme;
+    const { gridColor, centerLineColor } = this.theme;
     this.renderer = ThreeRenderer({
       antialias: true,
       shadowMap: true,
-      gammaCorrection: true
+      gammaCorrection: true,
     });
     this.scene = ThreeScene(this.theme);
     const canvas = this.renderer.domElement;
-    const {
-      offsetWidth: width,
-      offsetHeight: height
-    } = this.viewer || {};
+    const { offsetWidth: width, offsetHeight: height } = this.viewer || {};
     // Grid
     this.grid = ThreeGrid({
       size: 100,
       gridColor,
-      centerLineColor
+      centerLineColor,
     });
     this.scene.add(this.grid);
     // Camera
@@ -464,7 +450,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
     this.material = new MeshPhongMaterial({
       depthWrite: true,
       flatShading: true,
-      vertexColors: 1
+      vertexColors: 1,
     });
     // Set material color
     this.material.color.set(this.materialColor);
@@ -486,27 +472,24 @@ class ThreeViewer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const {
-      error,
-      isReady,
-      isLoading
-    } = this.state;
+    const { error, isReady, isLoading } = this.state;
 
     const loadingMessage = __('Loading 3D model.');
 
     const showLoading = isLoading && !error && !isReady;
     const containerClass = 'gui-container';
-    return <>
+    return (
+      <>
         <div className="file-render__viewer file-render__viewer--three">
-          <div ref={element => this.guiContainer = element} className={containerClass} />
-          <div className="three-viewer" ref={viewer => this.viewer = viewer}>
+          <div ref={(element) => (this.guiContainer = element)} className={containerClass} />
+          <div className="three-viewer" ref={(viewer) => (this.viewer = viewer)}>
             {error && <LoadingScreen status={error} spinner={false} />}
             {showLoading && <LoadingScreen status={loadingMessage} spinner />}
           </div>
         </div>
-      </>;
+      </>
+    );
   }
-
 }
 
 export default ThreeViewer;

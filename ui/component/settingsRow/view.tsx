@@ -1,7 +1,7 @@
-import React from "react";
-import Button from "component/button";
-import * as PAGES from "constants/pages";
-import classnames from "classnames";
+import React from 'react';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
+import classnames from 'classnames';
 type Props = {
   title: string;
   subtitle?: string;
@@ -16,38 +16,37 @@ type Props = {
   children?: React.ReactNode;
 };
 export default function SettingsRow(props: Props) {
-  const {
-    title,
-    subtitle,
-    warning,
-    multirow,
-    useVerticalSeparator,
-    disabled,
-    highlighted,
-    membersOnly,
-    children
-  } = props;
-  return <div className={classnames('card__main-actions settings-row', {
-    'section__actions--between': !multirow,
-    'opacity-40': disabled,
-    'card--highlightedActive': highlighted
-  })}>
+  const { title, subtitle, warning, multirow, useVerticalSeparator, disabled, highlighted, membersOnly, children } =
+    props;
+  return (
+    <div
+      className={classnames('card__main-actions settings-row', {
+        'section__actions--between': !multirow,
+        'opacity-40': disabled,
+        'card--highlightedActive': highlighted,
+      })}
+    >
       <div className="settings-row__title">
         <span>
           {title}
-          {membersOnly && <Button className="settings-row__members-only" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+          {membersOnly && (
+            <Button className="settings-row__members-only" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
               {'PREMIUM'}
-            </Button>}
+            </Button>
+          )}
         </span>
         {subtitle && <p className="settings-row__subtitle">{subtitle}</p>}
       </div>
       {warning && <div className="help--warning">{warning}</div>}
-      <div className={classnames('settings-row__value', {
-      'settings-row__value--multirow': multirow,
-      'settings-row__vertical-separator': useVerticalSeparator,
-      'non-clickable': disabled
-    })}>
+      <div
+        className={classnames('settings-row__value', {
+          'settings-row__value--multirow': multirow,
+          'settings-row__vertical-separator': useVerticalSeparator,
+          'non-clickable': disabled,
+        })}
+      >
         {children && children}
       </div>
-    </div>;
+    </div>
+  );
 }

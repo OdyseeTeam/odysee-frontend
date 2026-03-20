@@ -1,9 +1,9 @@
-import { connect } from "react-redux";
-import { getClaimMetadata } from "util/claim";
-import { selectClaimForUri, selectGeoRestrictionForUri } from "redux/selectors/claims";
-import { doResolveClaimId } from "redux/actions/claims";
-import FeaturedSection from "./view";
-import { doFetchViewCount } from "lbryinc";
+import { connect } from 'react-redux';
+import { getClaimMetadata } from 'util/claim';
+import { selectClaimForUri, selectGeoRestrictionForUri } from 'redux/selectors/claims';
+import { doResolveClaimId } from 'redux/actions/claims';
+import FeaturedSection from './view';
+import { doFetchViewCount } from 'lbryinc';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -13,12 +13,12 @@ const select = (state, props) => {
   return {
     claim,
     description,
-    geoRestriction
+    geoRestriction,
   };
 };
 
 const perform = {
   doResolveClaimId,
-  doFetchViewCount
+  doFetchViewCount,
 };
 export default connect(select, perform)(FeaturedSection);

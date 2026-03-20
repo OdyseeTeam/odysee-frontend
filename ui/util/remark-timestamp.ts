@@ -1,4 +1,4 @@
-import visit from "unist-util-visit";
+import visit from 'unist-util-visit';
 const TIMESTAMP_NODE_TYPE = 'timestamp';
 
 // ***************************************************************************
@@ -71,7 +71,7 @@ function findNextTimestamp(value, fromIndex, strictlyFromIndex) {
       // Profit!
       return {
         text: str,
-        index: match.index
+        index: match.index,
       };
     }
 
@@ -91,13 +91,15 @@ function locateTimestamp(value, fromIndex) {
 }
 
 // Generate 'timestamp' markdown node
-const createTimestampNode = text => ({
+const createTimestampNode = (text) => ({
   type: TIMESTAMP_NODE_TYPE,
   value: text,
-  children: [{
-    type: 'text',
-    value: text
-  }]
+  children: [
+    {
+      type: 'text',
+      value: text,
+    },
+  ],
 });
 
 // Generate a markdown link from timestamp
@@ -112,7 +114,8 @@ function tokenizeTimestamp(eat, value, silent) {
     try {
       const text = ts.text;
       return eat(text)(createTimestampNode(text));
-    } catch (err) {// Do nothing
+    } catch (err) {
+      // Do nothing
     }
   }
 }
@@ -136,7 +139,7 @@ export function inlineTimestamp() {
 // Format timestamp
 // ***************************************************************************
 function strToSeconds(stime) {
-  const tt = stime.split(':').reverse();
+  const tt = stime.split(':').toReversed();
   return (tt.length >= 3 ? +tt[2] : 0) * 60 * 60 + (tt.length >= 2 ? +tt[1] : 0) * 60 + (tt.length >= 1 ? +tt[0] : 0);
 }
 
@@ -147,14 +150,16 @@ const transformer = (node, index, parent) => {
     node.type = 'link';
     node.url = `?t=${seconds}`;
     node.title = timestampStr;
-    node.children = [{
-      type: 'text',
-      value: timestampStr
-    }];
+    node.children = [
+      {
+        type: 'text',
+        value: timestampStr,
+      },
+    ];
   }
 };
 
-const transform = tree => {
+const transform = (tree) => {
   visit(tree, [TIMESTAMP_NODE_TYPE], transformer);
 };
 

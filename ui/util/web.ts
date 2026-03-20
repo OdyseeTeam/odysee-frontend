@@ -35,7 +35,10 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
 function generateEmbedUrlEncoded(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   const encodedUri = encodeURIComponent(uriPath).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
-  return generateEmbedUrl(encodedUri, startTime, referralLink, newestType, autoplay, uriAccessKey).replace(/\$/g, '%24');
+  return generateEmbedUrl(encodedUri, startTime, referralLink, newestType, autoplay, uriAccessKey).replace(
+    /\$/g,
+    '%24'
+  );
 }
 
 function generateEmbedIframeData(src) {
@@ -43,7 +46,7 @@ function generateEmbedIframeData(src) {
   const ratio = '16 / 9';
   const html = `<iframe id="odysee-iframe" style="width:${width}; aspect-ratio:${ratio};" src="${src}" allowfullscreen></iframe>`;
   return {
-    html
+    html,
   };
 }
 
@@ -60,7 +63,11 @@ function generateNewestUrl(channelName, newestType) {
 }
 
 function getThumbnailCardCdnUrl(url) {
-  if (!THUMBNAIL_CARDS_CDN_URL || !url || url && (url.includes('https://twitter-card') || url.includes('https://cards.odycdn.com'))) {
+  if (
+    !THUMBNAIL_CARDS_CDN_URL ||
+    !url ||
+    (url && (url.includes('https://twitter-card') || url.includes('https://cards.odycdn.com')))
+  ) {
     return url;
   }
 
@@ -75,11 +82,25 @@ function getParameterByName(name, url) {
 }
 
 function escapeHtmlProperty(property) {
-  return property ? String(property).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;') : '';
+  return property
+    ? String(property)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+    : '';
 }
 
 function unscapeHtmlProperty(property) {
-  return property ? String(property).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'") : '';
+  return property
+    ? String(property)
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+    : '';
 }
 
 export {
@@ -93,5 +114,5 @@ export {
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
-  generateNewestUrl
+  generateNewestUrl,
 };

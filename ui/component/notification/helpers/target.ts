@@ -1,15 +1,12 @@
-import * as CONFIGS from "config";
-import { LINKED_COMMENT_QUERY_PARAM } from "constants/comment";
-import { RULE } from "constants/notifications";
-import * as PAGES from "constants/pages";
-import { CHANNEL_PAGE } from "constants/urlParams";
-import { parseURI } from "util/lbryURI";
-import { formatLbryUrlForWeb } from "util/url";
+import * as CONFIGS from 'config';
+import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { RULE } from 'constants/notifications';
+import * as PAGES from 'constants/pages';
+import { CHANNEL_PAGE } from 'constants/urlParams';
+import { parseURI } from 'util/lbryURI';
+import { formatLbryUrlForWeb } from 'util/url';
 export function getNotificationTarget(notification: WebNotification) {
-  const {
-    notification_rule,
-    notification_parameters
-  } = notification;
+  const { notification_rule, notification_parameters } = notification;
 
   switch (notification_rule) {
     case RULE.WEEKLY_WATCH_REMINDER:
@@ -33,11 +30,11 @@ export function getNotificationTarget(notification: WebNotification) {
 }
 
 function getUrlParams(notification, notificationTarget) {
-  const {
-    notification_rule,
-    notification_parameters
-  } = notification;
-  const isCommentNotification = notification_rule === RULE.COMMENT || notification_rule === RULE.COMMENT_REPLY || notification_rule === RULE.CREATOR_COMMENT;
+  const { notification_rule, notification_parameters } = notification;
+  const isCommentNotification =
+    notification_rule === RULE.COMMENT ||
+    notification_rule === RULE.COMMENT_REPLY ||
+    notification_rule === RULE.CREATOR_COMMENT;
   const urlParams = new URLSearchParams();
 
   if (isCommentNotification && notification_parameters.dynamic.hash) {
@@ -45,9 +42,7 @@ function getUrlParams(notification, notificationTarget) {
   }
 
   try {
-    const {
-      isChannel
-    } = parseURI(notificationTarget);
+    const { isChannel } = parseURI(notificationTarget);
     if (isChannel) urlParams.append(CHANNEL_PAGE.QUERIES.VIEW, CHANNEL_PAGE.VIEWS.DISCUSSION);
   } catch (e) {}
 
@@ -83,8 +78,10 @@ export function getNotificationLocation(notification: WebNotification, target: s
   const url = new URL(link, CONFIGS.URL);
   return {
     pathname: url.pathname,
-    ...(url.search ? {
-      search: url.search
-    } : {})
+    ...(url.search
+      ? {
+          search: url.search,
+        }
+      : {}),
   };
 }

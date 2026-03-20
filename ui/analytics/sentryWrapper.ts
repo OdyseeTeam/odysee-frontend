@@ -12,8 +12,8 @@
  *   sentry_debug    : true         // enables verbose logging
  *   sentry_test_dsn : https://blah // if you have your own DSN
  */
-import * as Sentry from "@sentry/react";
-import { LocalStorage } from "util/storage";
+import * as Sentry from '@sentry/react';
+import { LocalStorage } from 'util/storage';
 const SENTRY_DSN = 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2';
 const TEST_DSN = LocalStorage.getItem('sentry_test_dsn') || '';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
@@ -26,7 +26,11 @@ let gSentryEnabled = false; // *************************************************
 declare type SentryWrapper = {
   init: () => void;
   setState: (enable: boolean) => void;
-  log: (error: Error | string, options?: SentryEventOptions, transactionName?: string) => Promise<LogId | null | undefined>;
+  log: (
+    error: Error | string,
+    options?: SentryEventOptions,
+    transactionName?: string
+  ) => Promise<LogId | null | undefined>;
 };
 export const sentryWrapper: SentryWrapper = {
   init: () => {
@@ -45,7 +49,7 @@ export const sentryWrapper: SentryWrapper = {
         maxBreadcrumbs: 50,
         release: process.env.BUILD_REV,
         tracesSampleRate: 0.0,
-        allowUrls: FORCE_INSTALL ? null : [/https:\/\/((.*)\.)?odysee\.(com|tv)/]
+        allowUrls: FORCE_INSTALL ? null : [/https:\/\/((.*)\.)?odysee\.(com|tv)/],
       });
       gSentryInitialized = true;
     }
@@ -54,23 +58,26 @@ export const sentryWrapper: SentryWrapper = {
     gSentryEnabled = enable;
   },
   log: (error: Error | string, options?: SentryEventOptions, transactionName?: string) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (gSentryInitialized && gSentryEnabled) {
-        Sentry.withScope(scope => {
+        Sentry.withScope((scope) => {
           if (transactionName) {
             // Using transactionName as the label is somewhat of a hack:
             // https://stackoverflow.com/questions/72133586/how-can-i-change-the-name-or-message-of-a-javascript-error-object-used-in-sentry
             scope.setTransactionName(transactionName);
           }
 
-          const eventId = typeof error === 'string' ? Sentry.captureMessage(error, reformatTagKeys(options)) : Sentry.captureException(error, reformatTagKeys(options));
+          const eventId =
+            typeof error === 'string'
+              ? Sentry.captureMessage(error, reformatTagKeys(options))
+              : Sentry.captureException(error, reformatTagKeys(options));
           resolve(eventId);
         });
       } else {
         resolve(null);
       }
     });
-  }
+  },
 };
 
 // ****************************************************************************
@@ -86,7 +93,7 @@ function handleBeforeSend(event, hints) {
       return null;
     }
 
-    if (frames.length > 0 && frames.every(f => f.filename === '<anonymous>')) {
+    if (frames.length > 0 && frames.every((f) => f.filename === '<anonymous>')) {
       event.fingerprint = ['all-anonymous-frames'];
     }
   } catch {}

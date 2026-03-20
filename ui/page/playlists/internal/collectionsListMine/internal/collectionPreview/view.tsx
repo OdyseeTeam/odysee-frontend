@@ -1,26 +1,26 @@
-import React from "react";
-import { NavLink, useHistory } from "react-router-dom";
-import CollectionItemCount from "./internal/collectionItemCount";
-import CollectionPrivateIcon from "component/common/collection-private-icon";
-import CollectionPublicIcon from "./internal/collection-public-icon";
-import CollectionMenuList from "component/collectionMenuList";
-import { COL_TYPES } from "constants/collections";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import * as COLLECTIONS_CONSTS from "constants/collections";
-import FileThumbnail from "component/fileThumbnail";
-import ChannelThumbnail from "component/channelThumbnail";
-import UriIndicator from "component/uriIndicator";
-import DateTime from "component/dateTime";
-import { formatLbryUrlForWeb, generateListSearchUrlParams } from "util/url";
-import { getLocalizedNameForCollectionId } from "util/collections";
-import CollectionPreviewOverlay from "component/collectionPreviewOverlay";
-import Button from "component/button";
-import ClaimPreviewLoading from "component/common/claim-preview-loading";
-import Icon from "component/common/icon";
-import Tooltip from "component/common/tooltip";
-import Spinner from "component/spinner";
-import AutoPublishCountdown from "./internal/autoPublishCountdown";
+import React from 'react';
+import { NavLink, useHistory } from 'react-router-dom';
+import CollectionItemCount from './internal/collectionItemCount';
+import CollectionPrivateIcon from 'component/common/collection-private-icon';
+import CollectionPublicIcon from './internal/collection-public-icon';
+import CollectionMenuList from 'component/collectionMenuList';
+import { COL_TYPES } from 'constants/collections';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import FileThumbnail from 'component/fileThumbnail';
+import ChannelThumbnail from 'component/channelThumbnail';
+import UriIndicator from 'component/uriIndicator';
+import DateTime from 'component/dateTime';
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { getLocalizedNameForCollectionId } from 'util/collections';
+import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import Button from 'component/button';
+import ClaimPreviewLoading from 'component/common/claim-preview-loading';
+import Icon from 'component/common/icon';
+import Tooltip from 'component/common/tooltip';
+import Spinner from 'component/spinner';
+import AutoPublishCountdown from './internal/autoPublishCountdown';
 type Props = {
   uri: string;
   collectionId: string;
@@ -33,7 +33,7 @@ type Props = {
   isResolvingCollection: boolean;
   title?: string;
   channel: any | null | undefined;
-  channelTitle?: String;
+  channelTitle?: string;
   hasClaim: boolean;
   firstCollectionItemUrl: string | null | undefined;
   firstPlayableCollectionItemUrl: string | null | undefined;
@@ -77,14 +77,14 @@ function CollectionPreview(props: Props) {
     isPublishing,
     publishError,
     autoPublish,
-    autoPublishScheduledAt
+    autoPublishScheduledAt,
   } = props;
-  const {
-    push
-  } = useHistory();
+  const { push } = useHistory();
   if (collectionType === 'featuredChannels') return null;
   const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
-  const optimizedPreviewThumbnail = previewThumbnail ? `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/${previewThumbnail}` : null;
+  const optimizedPreviewThumbnail = previewThumbnail
+    ? `https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/${previewThumbnail}`
+    : null;
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
@@ -103,18 +103,30 @@ function CollectionPreview(props: Props) {
 
   const navLinkProps = {
     to: navigateUrl,
-    onClick: e => e.stopPropagation()
+    onClick: (e) => e.stopPropagation(),
   };
   if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID && isEmpty) return null;
-  return <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
+  return (
+    <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
       <CollectionMenuList collectionId={collectionId} />
-      <div className="background" style={optimizedPreviewThumbnail ? {
-      backgroundImage: `url(${optimizedPreviewThumbnail})`
-    } : undefined} />
+      <div
+        className="background"
+        style={
+          optimizedPreviewThumbnail
+            ? {
+                backgroundImage: `url(${optimizedPreviewThumbnail})`,
+              }
+            : undefined
+        }
+      />
       <div className="content">
         <div className="thumbnail">
           <NavLink {...navLinkProps}>
-            <FileThumbnail uri={uri || firstCollectionItemUrl} secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null} thumbnail={previewThumbnail || null}>
+            <FileThumbnail
+              uri={uri || firstCollectionItemUrl}
+              secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
+              thumbnail={previewThumbnail || null}
+            >
               <CollectionPreviewOverlay collectionId={collectionId} />
             </FileThumbnail>
           </NavLink>
@@ -127,48 +139,76 @@ function CollectionPreview(props: Props) {
                 {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
                 {usedCollectionName}
                 {collectionHasEdits && <Icon icon={ICONS.PUBLISH} />}
-                {claimIsPending && <Tooltip title={__('Your publish is being confirmed and will be live soon')} arrow={false} enterDelay={100}>
+                {claimIsPending && (
+                  <Tooltip
+                    title={__('Your publish is being confirmed and will be live soon')}
+                    arrow={false}
+                    enterDelay={100}
+                  >
                     <div className="pending-change">
                       <Spinner />
                     </div>
-                  </Tooltip>}
-                {isPublishing && <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
+                  </Tooltip>
+                )}
+                {isPublishing && (
+                  <Tooltip title={__('Publishing playlist updates in the background')} arrow={false} enterDelay={100}>
                     <div className="pending-change">
                       <Spinner />
                     </div>
-                  </Tooltip>}
-                {collectionHasEdits && publishError && <Tooltip title={__('Last publish failed. Open playlist and retry publish.')} arrow={false} enterDelay={100}>
+                  </Tooltip>
+                )}
+                {collectionHasEdits && publishError && (
+                  <Tooltip
+                    title={__('Last publish failed. Open playlist and retry publish.')}
+                    arrow={false}
+                    enterDelay={100}
+                  >
                     <span>
                       <Icon icon={ICONS.WARNING} />
                     </span>
-                  </Tooltip>}
+                  </Tooltip>
+                )}
               </h2>
             </NavLink>
           </div>
-          {hasClaim && <div className="channel">
+          {hasClaim && (
+            <div className="channel">
               <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
                 <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
                 <label>{channelTitle}</label>
               </UriIndicator>
-            </div>}
+            </div>
+          )}
 
           <div className="info">
             <div className="meta">
               <CollectionItemCount collectionId={collectionId} />
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
 
-              {autoPublish && <div className="auto-publish-badge">
+              {autoPublish && (
+                <div className="auto-publish-badge">
                   <Icon icon={ICONS.PUBLISH} />
                   <span>
-                    {isPublishing ? __('Publishing...') : autoPublishScheduledAt ? <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} /> : collectionHasEdits ? __('Publish pending') : __('Auto-publish')}
+                    {isPublishing ? (
+                      __('Publishing...')
+                    ) : autoPublishScheduledAt ? (
+                      <AutoPublishCountdown scheduledAt={autoPublishScheduledAt} />
+                    ) : collectionHasEdits ? (
+                      __('Publish pending')
+                    ) : (
+                      __('Auto-publish')
+                    )}
                   </span>
-                </div>}
+                </div>
+              )}
 
               <div className="create-at">
-                {collectionCreatedAt && <>
+                {collectionCreatedAt && (
+                  <>
                     <Icon icon={ICONS.TIME} />
                     <DateTime timeAgo date={collectionCreatedAt} />
-                  </>}
+                  </>
+                )}
               </div>
 
               <div className="update-at">
@@ -178,18 +218,27 @@ function CollectionPreview(props: Props) {
             </div>
 
             <div className="action">
-              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && <Button button="alt" icon={ICONS.PLAY} onClick={() => push({
-              pathname: firstItemPath,
-              search: generateListSearchUrlParams(collectionId),
-              state: {
-                forceAutoplay: true
-              }
-            })} />}
+              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && (
+                <Button
+                  button="alt"
+                  icon={ICONS.PLAY}
+                  onClick={() =>
+                    push({
+                      pathname: firstItemPath,
+                      search: generateListSearchUrlParams(collectionId),
+                      state: {
+                        forceAutoplay: true,
+                      },
+                    })
+                  }
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
-    </li>;
+    </li>
+  );
 }
 
 export default CollectionPreview;

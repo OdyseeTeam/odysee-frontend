@@ -1,6 +1,6 @@
-import React from "react";
-import MUITooltip from "@mui/material/Tooltip";
-import type { Node } from "react";
+import React from 'react';
+import MUITooltip from '@mui/material/Tooltip';
+import type { Node } from 'react';
 type Props = {
   arrow?: boolean;
   children: Node;
@@ -27,13 +27,25 @@ function Tooltip(props: Props) {
     className,
     followCursor = false,
     placement = 'bottom',
-    state
+    state,
   } = props;
-  return <MUITooltip arrow={arrow} disableInteractive={disableInteractive} enterDelay={enterDelay} enterNextDelay={enterDelay} title={title} followCursor={followCursor} placement={placement} classes={{
-    tooltip: className
-  }} {...state || {}}>
+  return (
+    <MUITooltip
+      arrow={arrow}
+      disableInteractive={disableInteractive}
+      enterDelay={enterDelay}
+      enterNextDelay={enterDelay}
+      title={title}
+      followCursor={followCursor}
+      placement={placement}
+      classes={{
+        tooltip: className,
+      }}
+      {...(state || {})}
+    >
       {children}
-    </MUITooltip>;
+    </MUITooltip>
+  );
 }
 
 export default Tooltip;

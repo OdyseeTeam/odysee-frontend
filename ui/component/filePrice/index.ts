@@ -1,7 +1,15 @@
-import { connect } from "react-redux";
-import { selectClaimForUri, selectClaimWasPurchasedForUri, selectRentalTagForUri, selectPurchaseTagForUri, selectIsFiatPaidForUri, selectIsFetchingPurchases, selectCostInfoForUri } from "redux/selectors/claims";
-import { doTipAccountCheckForUri } from "redux/actions/stripe";
-import FilePrice from "./view";
+import { connect } from 'react-redux';
+import {
+  selectClaimForUri,
+  selectClaimWasPurchasedForUri,
+  selectRentalTagForUri,
+  selectPurchaseTagForUri,
+  selectIsFiatPaidForUri,
+  selectIsFetchingPurchases,
+  selectCostInfoForUri,
+} from 'redux/selectors/claims';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import FilePrice from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -12,7 +20,7 @@ const select = (state, props) => {
   if (purchaseTag && costInfo?.cost > 0 && costInfo.feeCurrency === 'LBC') {
     customPrices = {
       priceFiat: Number(purchaseTag),
-      priceLBC: Number(costInfo.cost)
+      priceLBC: Number(costInfo.cost),
     };
   }
 
@@ -24,11 +32,11 @@ const select = (state, props) => {
     rentalInfo: selectRentalTagForUri(state, props.uri),
     customPrices,
     purchaseInfo: purchaseTag,
-    isFetchingPurchases: selectIsFetchingPurchases(state)
+    isFetchingPurchases: selectIsFetchingPurchases(state),
   };
 };
 
 const perform = {
-  doTipAccountCheckForUri
+  doTipAccountCheckForUri,
 };
 export default connect(select, perform)(FilePrice);

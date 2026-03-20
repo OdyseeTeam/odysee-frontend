@@ -1,8 +1,8 @@
-import React from "react";
-import classnames from "classnames";
-import Button from "component/button";
-import * as ICONS from "constants/icons";
-import * as REACTION_TYPES from "constants/reactions";
+import React from 'react';
+import classnames from 'classnames';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import * as REACTION_TYPES from 'constants/reactions';
 type Props = {
   uri: string;
   claimId: string | null | undefined;
@@ -22,7 +22,7 @@ const FloatingReactions = ({
   disableReactions,
   doFetchReactions,
   doReactionLike,
-  doReactionDislike
+  doReactionDislike,
 }: Props) => {
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
@@ -39,25 +39,35 @@ const FloatingReactions = ({
   const isFireActive = effectiveReaction === REACTION_TYPES.LIKE;
   const isSlimeActive = effectiveReaction === REACTION_TYPES.DISLIKE;
   if (disableReactions) return null;
-  return <div className="floating-player__reactions">
+  return (
+    <div className="floating-player__reactions">
       <div className="floating-player__reaction">
-        <Button onClick={() => {
-        setOptimisticReaction(isFireActive ? null : REACTION_TYPES.LIKE);
+        <Button
+          onClick={() => {
+            setOptimisticReaction(isFireActive ? null : REACTION_TYPES.LIKE);
 
-        if (!isFireActive) {
-          setFireButtonGlow(false);
-          clearTimeout(fireButtonGlowTimeout.current);
-          requestAnimationFrame(() => {
-            setFireButtonGlow(true);
-            fireButtonGlowTimeout.current = setTimeout(() => setFireButtonGlow(false), 2000);
-          });
-        }
+            if (!isFireActive) {
+              setFireButtonGlow(false);
+              clearTimeout(fireButtonGlowTimeout.current);
+              requestAnimationFrame(() => {
+                setFireButtonGlow(true);
+                fireButtonGlowTimeout.current = setTimeout(() => setFireButtonGlow(false), 2000);
+              });
+            }
 
-        doReactionLike(uri);
-      }} icon={isFireActive ? ICONS.FIRE_ACTIVE : ICONS.FIRE} iconSize={14} requiresAuth authSrc="filereaction_like" className={classnames('button--file-action button-like', {
-        'button--fire': isFireActive,
-        'button--fire-glow-pulse': fireButtonGlow
-      })} label={isFireActive ? <>
+            doReactionLike(uri);
+          }}
+          icon={isFireActive ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+          iconSize={14}
+          requiresAuth
+          authSrc="filereaction_like"
+          className={classnames('button--file-action button-like', {
+            'button--fire': isFireActive,
+            'button--fire-glow-pulse': fireButtonGlow,
+          })}
+          label={
+            isFireActive ? (
+              <>
                 <div className="button__fire-glow" />
                 <div className="button__fire-particle1" />
                 <div className="button__fire-particle2" />
@@ -65,33 +75,51 @@ const FloatingReactions = ({
                 <div className="button__fire-particle4" />
                 <div className="button__fire-particle5" />
                 <div className="button__fire-particle6" />
-              </> : null} />
+              </>
+            ) : null
+          }
+        />
       </div>
 
-      {!disableSlimes && <div className="floating-player__reaction">
-          <Button onClick={() => {
-        setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
+      {!disableSlimes && (
+        <div className="floating-player__reaction">
+          <Button
+            onClick={() => {
+              setOptimisticReaction(isSlimeActive ? null : REACTION_TYPES.DISLIKE);
 
-        if (!isSlimeActive) {
-          setSlimeButtonGlow(false);
-          clearTimeout(slimeButtonGlowTimeout.current);
-          requestAnimationFrame(() => {
-            setSlimeButtonGlow(true);
-            slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
-          });
-        }
+              if (!isSlimeActive) {
+                setSlimeButtonGlow(false);
+                clearTimeout(slimeButtonGlowTimeout.current);
+                requestAnimationFrame(() => {
+                  setSlimeButtonGlow(true);
+                  slimeButtonGlowTimeout.current = setTimeout(() => setSlimeButtonGlow(false), 3000);
+                });
+              }
 
-        doReactionDislike(uri);
-      }} icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME} iconSize={14} requiresAuth authSrc="filereaction_dislike" className={classnames('button--file-action button-dislike', {
-        'button--slime': isSlimeActive,
-        'button--slime-glow-pulse': slimeButtonGlow
-      })} label={isSlimeActive ? <>
+              doReactionDislike(uri);
+            }}
+            icon={isSlimeActive ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+            iconSize={14}
+            requiresAuth
+            authSrc="filereaction_dislike"
+            className={classnames('button--file-action button-dislike', {
+              'button--slime': isSlimeActive,
+              'button--slime-glow-pulse': slimeButtonGlow,
+            })}
+            label={
+              isSlimeActive ? (
+                <>
                   <div className="button__slime-stain" />
                   <div className="button__slime-drop1" />
                   <div className="button__slime-drop2" />
-                </> : null} />
-        </div>}
-    </div>;
+                </>
+              ) : null
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default FloatingReactions;

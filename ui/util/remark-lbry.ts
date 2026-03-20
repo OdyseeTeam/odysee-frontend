@@ -1,6 +1,6 @@
-import { parseURI } from "util/lbryURI";
-import visit from "unist-util-visit";
-import { parseEntities as decode } from "parse-entities";
+import { parseURI } from 'util/lbryURI';
+import visit from 'unist-util-visit';
+import { parseEntities as decode } from 'parse-entities';
 const protocol = 'lbry://';
 const uriRegex = /(lbry:\/\/)[^\s"]*[^)]/g;
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
@@ -11,10 +11,15 @@ const mentionRegex = /@[^\s"=?!@$%^&*;,{}<>/\\]*/gm;
 
 function handlePunctuation(value) {
   const protocolIndex = value.indexOf('lbry://') === 0 ? protocol.length - 1 : 0;
-  const channelModifierIndex = value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex) || value.indexOf('#', protocolIndex) >= 0 && value.indexOf('#', protocolIndex);
-  const claimModifierIndex = value.indexOf(':', channelModifierIndex + 1) >= 0 && value.indexOf(':', channelModifierIndex + 1) || value.indexOf('#', channelModifierIndex + 1) >= 0 && value.indexOf('#', channelModifierIndex + 1) || channelModifierIndex;
+  const channelModifierIndex =
+    (value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex)) ||
+    (value.indexOf('#', protocolIndex) >= 0 && value.indexOf('#', protocolIndex));
+  const claimModifierIndex =
+    (value.indexOf(':', channelModifierIndex + 1) >= 0 && value.indexOf(':', channelModifierIndex + 1)) ||
+    (value.indexOf('#', channelModifierIndex + 1) >= 0 && value.indexOf('#', channelModifierIndex + 1)) ||
+    channelModifierIndex;
   let punctuationIndex;
-  punctuationMarks.some(p => {
+  punctuationMarks.some((p) => {
     if (claimModifierIndex) {
       punctuationIndex = value.indexOf(p, claimModifierIndex + 1) >= 0 && value.indexOf(p, claimModifierIndex + 1);
     }
@@ -55,13 +60,15 @@ const createURI = (text, uri, embed = false) => ({
   data: {
     // Custom attribute
     hProperties: {
-      embed
-    }
+      embed,
+    },
   },
-  children: [{
-    type: 'text',
-    value: text
-  }]
+  children: [
+    {
+      type: 'text',
+      value: text,
+    },
+  ],
 });
 
 const validateURI = (match, eat) => {
@@ -82,7 +89,8 @@ const validateURI = (match, eat) => {
         // Create claim link
         return eat(newText)(createURI(newText, newText, true));
       }
-    } catch (err) {// Silent errors: console.error(err)
+    } catch (err) {
+      // Silent errors: console.error(err)
     }
   }
 };
@@ -130,24 +138,25 @@ const visitor = (node, index, parent) => {
           // Create new node data
           node.data = {
             hProperties: {
-              embed: true
-            }
+              embed: true,
+            },
           };
         } else if (node.data.hProperties) {
           // Don't overwrite current attributes
           node.data.hProperties = {
             embed: true,
-            ...node.data.hProperties
+            ...node.data.hProperties,
           };
         }
       }
-    } catch (err) {// Silent errors: console.error(err)
+    } catch (err) {
+      // Silent errors: console.error(err)
     }
   }
 };
 
 // transform
-const transform = tree => {
+const transform = (tree) => {
   visit(tree, ['link'], visitor);
 };
 
@@ -232,9 +241,9 @@ function tokenizeUrl(eat, value, silent) {
     type: 'link',
     title: null,
     url: decode(subvalue, {
-      nonTerminated: false
+      nonTerminated: false,
     }),
-    children: content
+    children: content,
   });
 }
 

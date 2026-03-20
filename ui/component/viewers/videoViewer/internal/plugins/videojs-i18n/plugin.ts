@@ -16,8 +16,8 @@
  * (1) 'AutoplayNextButton' and 'TheaterModeButton' handles i18n (among other
  * things) on its own.
  */
-import videojs from "video.js";
-import type { Player } from "../../videojs";
+import videojs from 'video.js';
+import type { Player } from '../../videojs';
 const VERSION = '1.0.0';
 const defaultOptions = {};
 
@@ -52,7 +52,10 @@ function resolveCtrlText(e, player) {
 
       case 'volumechange':
         try {
-          ctrlBar.getChild('VolumePanel').getChild('MuteToggle').controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
+          ctrlBar
+            .getChild('VolumePanel')
+            .getChild('MuteToggle')
+            .controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
         } catch (e) {
           logError('MuteToggle: ' + e);
         }
@@ -74,22 +77,25 @@ function resolveCtrlText(e, player) {
         setLabel(ctrlBar, 'FullscreenToggle', player.isFullscreen() ? __('Exit Fullscreen (f)') : __('Fullscreen (f)'));
 
         try {
-          ctrlBar.getChild('VolumePanel').getChild('MuteToggle').controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
+          ctrlBar
+            .getChild('VolumePanel')
+            .getChild('MuteToggle')
+            .controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
         } catch (e) {
           logError('MuteToggle: ' + e);
         }
 
         resolveCtrlText({
-          type: 'play'
+          type: 'play',
         });
         resolveCtrlText({
-          type: 'pause'
+          type: 'pause',
         });
         resolveCtrlText({
-          type: 'volumechange'
+          type: 'volumechange',
         });
         resolveCtrlText({
-          type: 'fullscreenchange'
+          type: 'fullscreenchange',
         });
         break;
 
@@ -101,7 +107,7 @@ function resolveCtrlText(e, player) {
 }
 
 function onPlayerReady(player: Player, options: {}) {
-  const h = e => resolveCtrlText(e, player);
+  const h = (e) => resolveCtrlText(e, player);
 
   player.on('play', h);
   player.on('pause', h);

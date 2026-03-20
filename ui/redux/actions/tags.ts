@@ -1,6 +1,6 @@
-import { selectPrefsReady } from "redux/selectors/sync";
-import * as ACTIONS from "constants/action_types";
-import { doAlertWaitingForSync } from "redux/actions/app";
+import { selectPrefsReady } from 'redux/selectors/sync';
+import * as ACTIONS from 'constants/action_types';
+import { doAlertWaitingForSync } from 'redux/actions/app';
 export const doToggleTagFollowDesktop = (name: string) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const ready = selectPrefsReady(state);
@@ -12,19 +12,19 @@ export const doToggleTagFollowDesktop = (name: string) => (dispatch: Dispatch, g
   dispatch({
     type: ACTIONS.TOGGLE_TAG_FOLLOW,
     data: {
-      name
-    }
+      name,
+    },
   });
 };
 export const doAddTag = (name: string) => ({
   type: ACTIONS.TAG_ADD,
   data: {
-    name
-  }
+    name,
+  },
 });
 export const doDeleteTag = (name: string) => ({
   type: ACTIONS.TAG_DELETE,
   data: {
-    name
-  }
+    name,
+  },
 });

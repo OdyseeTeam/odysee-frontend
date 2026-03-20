@@ -1,2 +1,2 @@
-import LangFilterIndicator from "./view";
+import LangFilterIndicator from './view';
 export default LangFilterIndicator;

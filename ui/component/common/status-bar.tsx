@@ -1,6 +1,6 @@
-import React from "react";
-import { ipcRenderer } from "electron";
-import classnames from "classnames";
+import React from 'react';
+import { ipcRenderer } from 'electron';
+import classnames from 'classnames';
 type Props = {};
 type State = {
   hoverUrl: string;
@@ -12,7 +12,7 @@ class StatusBar extends React.PureComponent<Props, State> {
     super();
     this.state = {
       hoverUrl: '',
-      show: false
+      show: false,
     };
     (this as any).handleUrlChange = this.handleUrlChange.bind(this);
   }
@@ -30,28 +30,30 @@ class StatusBar extends React.PureComponent<Props, State> {
     // without the component collapsing.
     if (url === '') {
       this.setState({
-        show: false
+        show: false,
       });
     } else {
       this.setState({
-        show: true
+        show: true,
       });
       this.setState({
-        hoverUrl: url
+        hoverUrl: url,
       });
     }
   }
 
   render() {
-    const {
-      hoverUrl,
-      show
-    } = this.state;
-    return <div className={classnames('status-bar', {
-      visible: show
-    })}>{decodeURI(hoverUrl)}</div>;
+    const { hoverUrl, show } = this.state;
+    return (
+      <div
+        className={classnames('status-bar', {
+          visible: show,
+        })}
+      >
+        {decodeURI(hoverUrl)}
+      </div>
+    );
   }
-
 }
 
 export default StatusBar;

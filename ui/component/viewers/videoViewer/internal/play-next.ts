@@ -1,5 +1,5 @@
-import type { Player } from "./videojs";
-import videojs from "video.js";
+import type { Player } from './videojs';
+import videojs from 'video.js';
 
 class PlayNextButton extends videojs.getComponent('Button') {
   constructor(player, options = {}) {
@@ -7,7 +7,6 @@ class PlayNextButton extends videojs.getComponent('Button') {
     this.addClass('vjs-button--play-next');
     this.controlText('Play Next');
   }
-
 }
 
 export function addPlayNextButton(player: Player, playNextURI: () => void) {
@@ -17,7 +16,7 @@ export function addPlayNextButton(player: Player, playNextURI: () => void) {
     text: 'Play Next',
     clickHandler: () => {
       playNextURI();
-    }
+    },
   });
 
   if (controlBar) {

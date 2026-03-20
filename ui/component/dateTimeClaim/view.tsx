@@ -1,11 +1,11 @@
-import type { ClaimTsList } from "redux/selectors/claims";
-import React from "react";
-import moment from "moment";
-import { formatDateStr } from "./helper";
-import { SCHEDULED_TAGS, VISIBILITY_TAGS } from "constants/tags";
+import type { ClaimTsList } from 'redux/selectors/claims';
+import React from 'react';
+import moment from 'moment';
+import { formatDateStr } from './helper';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 type Props = {
   uri: string | null | undefined;
-  format?: "date-only";
+  format?: 'date-only';
   disableFromNowFormat?: boolean;
   // --- Internal ---
   claimTsList: ClaimTsList;
@@ -14,13 +14,7 @@ type Props = {
 };
 
 function DateTimeClaim(props: Props) {
-  const {
-    claimTsList,
-    clock24h,
-    disableFromNowFormat,
-    format,
-    tags
-  } = props;
+  const { claimTsList, clock24h, disableFromNowFormat, format, tags } = props;
   const date: Date | null | undefined = resolveDate(tags, claimTsList);
   const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
   const title = moment(date).format(`LL ${clockFormat}`);
@@ -50,9 +44,11 @@ function DateTimeClaim(props: Props) {
     }
   }
 
-  return <span className="date_time" title={title}>
+  return (
+    <span className="date_time" title={title}>
       {getDateElem()}
-    </span>;
+    </span>
+  );
 }
 
 export default DateTimeClaim;

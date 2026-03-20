@@ -1,27 +1,25 @@
-import * as ICONS from "constants/icons";
-import * as PAGES from "constants/pages";
-import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR } from "constants/claim";
-import React from "react";
-import Card from "component/common/card";
-import Button from "component/button";
-import ChannelSelector from "component/channelSelector";
-import { FormField } from "component/common/form";
-import { parseURI, isNameValid, isURIValid, normalizeURI } from "util/lbryURI";
-import { creditsToString } from "util/format-credits";
-import analytics from "analytics";
-import LbcSymbol from "component/common/lbc-symbol";
-import ClaimPreview from "component/claimPreview";
-import { URL as SITE_URL, URL_LOCAL, URL_DEV } from "config";
-import HelpLink from "component/common/help-link";
-import WalletSpendableBalanceHelp from "component/walletSpendableBalanceHelp";
-import BidHelpText from "component/publish/shared/publishBid/bid-help-text";
-import Spinner from "component/spinner";
-import { REPOST_PARAMS } from "page/repost/view";
-import "./style.scss";
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR } from 'constants/claim';
+import React from 'react';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import ChannelSelector from 'component/channelSelector';
+import { FormField } from 'component/common/form';
+import { parseURI, isNameValid, isURIValid, normalizeURI } from 'util/lbryURI';
+import { creditsToString } from 'util/format-credits';
+import analytics from 'analytics';
+import LbcSymbol from 'component/common/lbc-symbol';
+import ClaimPreview from 'component/claimPreview';
+import { URL as SITE_URL, URL_LOCAL, URL_DEV } from 'config';
+import HelpLink from 'component/common/help-link';
+import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
+import BidHelpText from 'component/publish/shared/publishBid/bid-help-text';
+import Spinner from 'component/spinner';
+import { REPOST_PARAMS } from 'page/repost/view';
+import './style.scss';
 type Props = {
-  doToast: (arg0: {
-    message: string;
-  }) => void;
+  doToast: (arg0: { message: string }) => void;
   doClearRepostError: () => void;
   doRepost: (arg0: StreamRepostOptions) => Promise<any>;
   doHideModal: () => void;
@@ -74,9 +72,9 @@ function RepostCreate(props: Props) {
     activeChannelClaim,
     fetchingMyChannels,
     incognito,
-    isRepostPage
+    isRepostPage,
   } = props;
-  const defaultName = name || claim && claim.name || '';
+  const defaultName = name || (claim && claim.name) || '';
   const contentClaimId = claim && claim.claim_id;
   const enteredClaimId = enteredContentClaim && enteredContentClaim.claim_id;
   const [repostBid, setRepostBid] = React.useState(0.01);
@@ -89,7 +87,7 @@ function RepostCreate(props: Props) {
   const repostUrlName = `lbry://${incognito || !activeChannelClaim ? '' : `${activeChannelClaim.name}/`}`;
   const contentFirstRender = React.useRef(true);
 
-  const setAutoRepostBid = amount => {
+  const setAutoRepostBid = (amount) => {
     if (balance && balance > 0.02) {
       if (uri) {
         setRepostBid(0.01);
@@ -114,7 +112,7 @@ function RepostCreate(props: Props) {
     const isLbryUrl = value.startsWith('lbry://') && value !== 'lbry://';
     const error = '';
 
-    const addLbryIfNot = term => {
+    const addLbryIfNot = (term) => {
       return term.startsWith('lbry://') ? term : `lbry://${term}`;
     };
 
@@ -123,7 +121,7 @@ function RepostCreate(props: Props) {
       if (includesLbryTvLocal) prefix = WEB_LOCAL_PREFIX;
       if (includesLbryTvDev) prefix = WEB_DEV_PREFIX;
       if (includesOdysee) prefix = ODYSEE_PREFIX;
-      let query = value && value.slice(prefix.length).replace(/:/g, '#') || '';
+      let query = (value && value.slice(prefix.length).replace(/:/g, '#')) || '';
 
       try {
         const lbryUrl = `lbry://${query}`;
@@ -187,17 +185,18 @@ function RepostCreate(props: Props) {
 
   React.useEffect(() => {
     if (enteredRepostName && isNameValid(enteredRepostName)) {
-      doCheckPublishNameAvailability(enteredRepostName).then(r => setAvailable(r));
+      doCheckPublishNameAvailability(enteredRepostName).then((r) => setAvailable(r));
     }
   }, [enteredRepostName, doCheckPublishNameAvailability]);
   // takeover amount, bid suggestion
   React.useEffect(() => {
-    const repostTakeoverAmount = Number(enteredRepostAmount) ? Number(enteredRepostAmount) + 0.01 : Number(passedRepostAmount) + 0.01;
+    const repostTakeoverAmount = Number(enteredRepostAmount)
+      ? Number(enteredRepostAmount) + 0.01
+      : Number(passedRepostAmount) + 0.01;
 
     if (repostTakeoverAmount) {
       setAutoRepostBid(repostTakeoverAmount);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: should include setAutoRepostBid + useCallback
-
   }, [enteredRepostAmount, passedRepostAmount]);
   // repost bid error
   React.useEffect(() => {
@@ -232,11 +231,7 @@ function RepostCreate(props: Props) {
       }
 
       try {
-        const {
-          streamName,
-          channelName,
-          isChannel
-        } = parseURI(searchContent);
+        const { streamName, channelName, isChannel } = parseURI(searchContent);
 
         if (!isChannel && streamName && isNameValid(streamName)) {
           // contentNameValid = true;
@@ -276,14 +271,14 @@ function RepostCreate(props: Props) {
         name: enteredRepostName,
         bid: creditsToString(repostBid),
         channel_id: activeChannelClaim && !incognito ? activeChannelClaim.claim_id : undefined,
-        claim_id: repostClaimId
+        claim_id: repostClaimId,
       }).then((repostClaim: StreamClaim) => {
         doCheckPendingClaims();
         analytics.apiLog.publish(repostClaim);
         doToast({
           message: __('Woohoo! Successfully reposted this claim.'),
           linkText: __('Uploads'),
-          linkTarget: '/uploads'
+          linkTarget: '/uploads',
         });
         doHideModal();
       });
@@ -296,72 +291,159 @@ function RepostCreate(props: Props) {
   }
 
   if (fetchingMyChannels) {
-    return <div className="main--empty">
+    return (
+      <div className="main--empty">
         <Spinner />
-      </div>;
+      </div>
+    );
   }
 
-  return <>
-      <Card title={__('Repost')} className="repost-wrapper" subtitle={isRepostPage ? undefined : <Button button="link" label={__('Open Repost in new tab')} iconRight={ICONS.EXTERNAL} href={`/$/${PAGES.REPOST_NEW}?${REPOST_PARAMS.FROM}=${encodeURIComponent(uri)}&to=${encodeURIComponent(enteredRepostName)}`} navigateTarget="_blank" />} actions={<div>
+  return (
+    <>
+      <Card
+        title={__('Repost')}
+        className="repost-wrapper"
+        subtitle={
+          isRepostPage ? undefined : (
+            <Button
+              button="link"
+              label={__('Open Repost in new tab')}
+              iconRight={ICONS.EXTERNAL}
+              href={`/$/${PAGES.REPOST_NEW}?${REPOST_PARAMS.FROM}=${encodeURIComponent(uri)}&to=${encodeURIComponent(enteredRepostName)}`}
+              navigateTarget="_blank"
+            />
+          )
+        }
+        actions={
+          <div>
             <fieldset-section>
               <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
                 <fieldset-section>
                   <label htmlFor="auth_first_channel">
-                    {repostNameError ? <span className="error__text">{repostNameError}</span> : <span>
+                    {repostNameError ? (
+                      <span className="error__text">{repostNameError}</span>
+                    ) : (
+                      <span>
                         {__('Repost URL')}
                         <HelpLink href="https://help.odysee.tv/category-blockchain/category-staking/naming/" />
-                      </span>}
+                      </span>
+                    )}
                   </label>
                   <div className="form-field__prefix">{repostUrlName}</div>
                 </fieldset-section>
-                <FormField type="text" name="repost_name" value={enteredRepostName} onChange={event => setEnteredRepostName(event.target.value)} placeholder={__('MyFunName')} />
+                <FormField
+                  type="text"
+                  name="repost_name"
+                  value={enteredRepostName}
+                  onChange={(event) => setEnteredRepostName(event.target.value)}
+                  placeholder={__('MyFunName')}
+                />
               </fieldset-group>
             </fieldset-section>
 
-            {uri && <fieldset-section style={{
-        marginTop: 'var(--spacing-m)',
-        marginBottom: 'calc(-1 * var(--spacing-m))'
-      }}>
+            {uri && (
+              <fieldset-section
+                style={{
+                  marginTop: 'var(--spacing-m)',
+                  marginBottom: 'calc(-1 * var(--spacing-m))',
+                }}
+              >
                 <ClaimPreview key={uri} uri={uri} actions={''} showNullPlaceholder />
-              </fieldset-section>}
-            {!uri && name && <>
-                <FormField label={__('Content to repost')} type="text" name="content_url" value={enteredContent} error={contentError} onChange={event => setEnteredContentUri(event.target.value)} placeholder={__('Enter a name or %domain% URL', {
-          domain: SITE_URL
-        })} />
-              </>}
+              </fieldset-section>
+            )}
+            {!uri && name && (
+              <>
+                <FormField
+                  label={__('Content to repost')}
+                  type="text"
+                  name="content_url"
+                  value={enteredContent}
+                  error={contentError}
+                  onChange={(event) => setEnteredContentUri(event.target.value)}
+                  placeholder={__('Enter a name or %domain% URL', {
+                    domain: SITE_URL,
+                  })}
+                />
+              </>
+            )}
 
-            {!uri && <fieldset-section>
+            {!uri && (
+              <fieldset-section>
                 <ClaimPreview key={contentUri} uri={contentUri} actions={''} type={'large'} showNullPlaceholder />
-              </fieldset-section>}
+              </fieldset-section>
+            )}
 
-            <div style={{
-        marginTop: 'var(--spacing-m)',
-        display: 'flex',
-        gap: 'var(--spacing-m)',
-        alignItems: 'flex-start'
-      }}>
-              <div style={{
-          minWidth: '10em'
-        }}>
-                <FormField type="number" name="repost_bid" min="0" step="any" placeholder="0.123" className="form-field--price-amount" label={<LbcSymbol postfix={__('Support --[button to support a claim]--')} size={14} />} value={repostBid} error={repostBidError} disabled={!enteredRepostName || resolvingRepost} onChange={event => setRepostBid(event.target.value)} onWheel={e => e.stopPropagation()} />
+            <div
+              style={{
+                marginTop: 'var(--spacing-m)',
+                display: 'flex',
+                gap: 'var(--spacing-m)',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  minWidth: '10em',
+                }}
+              >
+                <FormField
+                  type="number"
+                  name="repost_bid"
+                  min="0"
+                  step="any"
+                  placeholder="0.123"
+                  className="form-field--price-amount"
+                  label={<LbcSymbol postfix={__('Support --[button to support a claim]--')} size={14} />}
+                  value={repostBid}
+                  error={repostBidError}
+                  disabled={!enteredRepostName || resolvingRepost}
+                  onChange={(event) => setRepostBid(event.target.value)}
+                  onWheel={(e) => e.stopPropagation()}
+                />
                 <WalletSpendableBalanceHelp inline />
               </div>
-              <div className="form-field__help" style={{
-          marginTop: 'var(--spacing-xs)'
-        }}>
-                <BidHelpText uri={'lbry://' + enteredRepostName} amountNeededForTakeover={enteredRepostAmount} isResolvingUri={isResolvingEnteredRepost} />
+              <div
+                className="form-field__help"
+                style={{
+                  marginTop: 'var(--spacing-xs)',
+                }}
+              >
+                <BidHelpText
+                  uri={'lbry://' + enteredRepostName}
+                  amountNeededForTakeover={enteredRepostAmount}
+                  isResolvingUri={isResolvingEnteredRepost}
+                />
               </div>
             </div>
 
-            <div className="section__actions publish__actions" style={{
-        marginTop: 'var(--spacing-m)'
-      }}>
-              <Button icon={ICONS.REPOST} disabled={resolvingRepost || reposting || repostBidError || repostNameError || (!uri || enteredContent) && contentNameError || !uri && !enteredContentClaim} button="primary" label={reposting ? __('Reposting') : __('Repost')} onClick={handleSubmit} />
+            <div
+              className="section__actions publish__actions"
+              style={{
+                marginTop: 'var(--spacing-m)',
+              }}
+            >
+              <Button
+                icon={ICONS.REPOST}
+                disabled={
+                  resolvingRepost ||
+                  reposting ||
+                  repostBidError ||
+                  repostNameError ||
+                  ((!uri || enteredContent) && contentNameError) ||
+                  (!uri && !enteredContentClaim)
+                }
+                button="primary"
+                label={reposting ? __('Reposting') : __('Repost')}
+                onClick={handleSubmit}
+              />
               <ChannelSelector isPublishMenu />
               <Button button="link" label={__('Cancel')} onClick={cancelIt} />
             </div>
-          </div>} />
-    </>;
+          </div>
+        }
+      />
+    </>
+  );
 }
 
 export default RepostCreate;

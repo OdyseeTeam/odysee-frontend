@@ -1,10 +1,10 @@
-import { connect } from "react-redux";
-import { selectBalance } from "redux/selectors/wallet";
-import { selectIsStillEditing, selectPublishFormValue } from "redux/selectors/publish";
-import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from "redux/actions/publish";
-import PublishLivestream from "./view";
+import { connect } from 'react-redux';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
+import PublishLivestream from './view';
 
-const select = state => ({
+const select = (state) => ({
   title: selectPublishFormValue(state, 'title'),
   filePath: selectPublishFormValue(state, 'filePath'),
   fileBitrate: state.publish.fileBitrate,
@@ -15,12 +15,12 @@ const select = state => ({
   balance: selectBalance(state),
   publishing: selectPublishFormValue(state, 'publishing'),
   duration: selectPublishFormValue(state, 'fileDur'),
-  isVid: selectPublishFormValue(state, 'fileVid')
+  isVid: selectPublishFormValue(state, 'fileVid'),
 });
 
 const perform = {
   doUpdatePublishForm,
   doUpdateFile,
-  doUpdateTitle
+  doUpdateTitle,
 };
 export default connect(select, perform)(PublishLivestream);

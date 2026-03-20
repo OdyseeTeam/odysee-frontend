@@ -1,5 +1,5 @@
-import { selectUser } from "redux/selectors/user";
-import sha256 from "crypto-js/sha256";
+import { selectUser } from 'redux/selectors/user';
+import sha256 from 'crypto-js/sha256';
 
 function isInGroupA(userID, experimentID) {
   // Each experiment has a unique experimentID. By concatenating the userID
@@ -36,9 +36,7 @@ type ABTestProps = {
   experimentId: string;
 };
 export default function ABTest(props: ABTestProps) {
-  const {
-    experimentId
-  } = props;
+  const { experimentId } = props;
   const state = window.store.getState();
   const user = selectUser(state);
   const userId = user ? user.id : 0;

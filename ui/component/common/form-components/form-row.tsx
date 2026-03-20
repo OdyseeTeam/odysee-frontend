@@ -1,6 +1,6 @@
 // Used as a wrapper for FormField to produce inline form elements
-import * as React from "react";
-import classnames from "classnames";
+import * as React from 'react';
+import classnames from 'classnames';
 type Props = {
   children: React.ReactNode;
   padded?: boolean;
@@ -11,28 +11,24 @@ type Props = {
 };
 export class FormRow extends React.PureComponent<Props> {
   static defaultProps = {
-    padded: false
+    padded: false,
   };
 
   render() {
-    const {
-      children,
-      padded,
-      verticallyCentered,
-      stretch,
-      alignRight,
-      centered
-    } = this.props;
-    return <div className={classnames('form-row', {
-      'form-row--padded': padded,
-      'form-row--vertically-centered': verticallyCentered,
-      'form-row--stretch': stretch,
-      'form-row--right': alignRight,
-      'form-row--centered': centered
-    })}>
+    const { children, padded, verticallyCentered, stretch, alignRight, centered } = this.props;
+    return (
+      <div
+        className={classnames('form-row', {
+          'form-row--padded': padded,
+          'form-row--vertically-centered': verticallyCentered,
+          'form-row--stretch': stretch,
+          'form-row--right': alignRight,
+          'form-row--centered': centered,
+        })}
+      >
         {children}
-      </div>;
+      </div>
+    );
   }
-
 }
 export default FormRow;

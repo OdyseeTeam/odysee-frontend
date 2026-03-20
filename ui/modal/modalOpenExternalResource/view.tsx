@@ -1,8 +1,8 @@
-import React from "react";
-import { Modal } from "modal/modal";
-import { formatFileSystemPath } from "util/url";
+import React from 'react';
+import { Modal } from 'modal/modal';
+import { formatFileSystemPath } from 'util/url';
 // @if TARGET='app'
-import { shell } from "electron";
+import { shell } from 'electron';
 // @endif
 type Props = {
   uri: string;
@@ -13,25 +13,15 @@ type Props = {
 };
 
 function ModalOpenExternalResource(props: Props) {
-  const {
-    uri,
-    isTrusted,
-    path,
-    isMine,
-    closeModal
-  } = props;
+  const { uri, isTrusted, path, isMine, closeModal } = props;
 
-  if (uri && isTrusted || path && isMine) {
+  if ((uri && isTrusted) || (path && isMine)) {
     openResource();
   }
 
   function openResource() {
     // @if TARGET='app'
-    const {
-      openExternal,
-      openPath,
-      showItemInFolder
-    } = shell;
+    const { openExternal, openPath, showItemInFolder } = shell;
 
     if (uri) {
       openExternal(uri);
@@ -55,13 +45,24 @@ function ModalOpenExternalResource(props: Props) {
     closeModal();
   }
 
-  return <Modal isOpen title={__('Warning!')} contentLabel={__('Confirm External Resource')} type="confirm" confirmButtonLabel={__('Continue')} onConfirmed={() => openResource()} onAborted={closeModal}>
+  return (
+    <Modal
+      isOpen
+      title={__('Warning!')}
+      contentLabel={__('Confirm External Resource')}
+      type="confirm"
+      confirmButtonLabel={__('Continue')}
+      onConfirmed={() => openResource()}
+      onAborted={closeModal}
+    >
       <p>
-        {uri && __('This link leads to an external website.') || path && __('This file has been shared with you by other people.')}
+        {(uri && __('This link leads to an external website.')) ||
+          (path && __('This file has been shared with you by other people.'))}
       </p>
       <blockquote>{uri || path}</blockquote>
       <p>{__('Odysee is not responsible for its content, click continue to proceed at your own risk.')}</p>
-    </Modal>;
+    </Modal>
+  );
 }
 
 export default ModalOpenExternalResource;

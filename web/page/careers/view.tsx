@@ -1,15 +1,19 @@
-import React from "react";
-import Page from "component/page";
-import Card from "component/common/card";
-import Button from "component/button";
-import Icon from "component/common/icon";
-import * as PAGES from "constants/pages";
-import * as ICONS from "constants/icons";
-import "./style.scss";
+import React from 'react';
+import Page from 'component/page';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import Icon from 'component/common/icon';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import './style.scss';
 
 const CareersPage = () => {
-  return <Page>
-      <Card className="careers-overview-page" body={<>
+  return (
+    <Page>
+      <Card
+        className="careers-overview-page"
+        body={
+          <>
             <div className="careers-hero">
               <h1>Work at Odysee</h1>
               <p className="careers-subtitle">Join the revolution in decentralized media</p>
@@ -41,12 +45,20 @@ const CareersPage = () => {
                 <h3 className="openings-title">Current Openings</h3>
 
                 <div className="job-listing-item">
-                  <Button label={'Frontend Developer – Decentralized Media Ecosystem'} navigate={`https://odysee.com/@careers:4/frontenddev:8`} className="job-listing frontend-job" />
+                  <Button
+                    label={'Frontend Developer – Decentralized Media Ecosystem'}
+                    navigate={`https://odysee.com/@careers:4/frontenddev:8`}
+                    className="job-listing frontend-job"
+                  />
                   <p className="job-description">Help build the future of content creation and discovery</p>
                 </div>
 
                 <div className="job-listing-item">
-                  <Button label={'Senior Backend Engineer'} navigate={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} className="job-listing backend-job" />
+                  <Button
+                    label={'Senior Backend Engineer'}
+                    navigate={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`}
+                    className="job-listing backend-job"
+                  />
                   <p className="job-description">Scale our infrastructure for millions of creators</p>
                 </div>
               </div>
@@ -61,8 +73,11 @@ const CareersPage = () => {
                 </p>
               </div>
             </section>
-          </>} />
-    </Page>;
+          </>
+        }
+      />
+    </Page>
+  );
 };
 
 export default CareersPage;

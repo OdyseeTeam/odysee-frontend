@@ -1,7 +1,7 @@
-import React from "react";
-import Card from "component/common/card";
-import "./style.scss";
-import { Lbryio } from "lbryinc";
+import React from 'react';
+import Card from 'component/common/card';
+import './style.scss';
+import { Lbryio } from 'lbryinc';
 type Props = {
   cardHeader: () => React.ReactNode;
   mode: string;
@@ -11,20 +11,20 @@ type Props = {
   arweaveAccount: any;
 };
 export default function OnRamper(props: Props) {
-  const {
-    cardHeader,
-    arWalletStatus,
-    theme,
-    mode,
-    arweaveAccount
-  } = props;
+  const { cardHeader, arWalletStatus, theme, mode, arweaveAccount } = props;
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;
 
-  const rgbaToHex = rgba => {
+  const rgbaToHex = (rgba) => {
     // $FlowIgnore
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-    return `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
+      a < 1
+        ? Math.round(a * 255)
+            .toString(16)
+            .padStart(2, '0')
+        : ''
+    }`;
   };
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
@@ -35,7 +35,7 @@ export default function OnRamper(props: Props) {
     const r = Math.round(rB * (1 - aA) + rA * aA);
     const g = Math.round(gB * (1 - aA) + gA * aA);
     const b = Math.round(bB * (1 - aA) + bA * aA);
-    return `${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).padStart(6, '0')}`;
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
   };
 
   const getRootStyle = (varName: string): string => {
@@ -55,35 +55,43 @@ export default function OnRamper(props: Props) {
     enableCountrySelector: 'true',
     partnerContext: 'Odysee',
     mode,
-    ...(mode === 'buy' ? {
-      defaultCrypto: 'usdc_base'
-    } : {
-      sell_defaultCrypto: 'usdc_base'
-    }),
-    ...(mode === 'buy' ? {
-      onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum'
-    } : {
-      sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum'
-    }),
-    ...(mode === 'buy' ? {
-      defaultFiat: 'USD'
-    } : {
-      sell_defaultFiat: 'USD'
-    }),
+    ...(mode === 'buy'
+      ? {
+          defaultCrypto: 'usdc_base',
+        }
+      : {
+          sell_defaultCrypto: 'usdc_base',
+        }),
+    ...(mode === 'buy'
+      ? {
+          onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum',
+        }
+      : {
+          sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum',
+        }),
+    ...(mode === 'buy'
+      ? {
+          defaultFiat: 'USD',
+        }
+      : {
+          sell_defaultFiat: 'USD',
+        }),
     // $FlowIgnore
     ...(mode === 'buy' && {
-      defaultAmount: '30'
+      defaultAmount: '30',
     }),
     // $FlowIgnore
     ...(mode === 'buy' && {
       // $FlowIgnore
-      networkWallets: `bsc:${depositAddress},base:${depositAddress},ethereum:${depositAddress}`
+      networkWallets: `bsc:${depositAddress},base:${depositAddress},ethereum:${depositAddress}`,
     }),
-    ...(mode === 'buy' ? {
-      onlyCryptoNetworks: `base,bsc,ethereum`
-    } : {
-      sell_onlyCryptoNetworks: `base,bsc,ethereum`
-    }),
+    ...(mode === 'buy'
+      ? {
+          onlyCryptoNetworks: `base,bsc,ethereum`,
+        }
+      : {
+          sell_onlyCryptoNetworks: `base,bsc,ethereum`,
+        }),
     // theme
     themeName: 'dark',
     containerColor,
@@ -94,20 +102,24 @@ export default function OnRamper(props: Props) {
     cardColor,
     primaryBtnTextColor: 'ffffff',
     borderRadius: '0',
-    wgBorderRadius: '0'
+    wgBorderRadius: '0',
   };
 
-  const getSignContentSubsetFromParams: (params: any) => string = params => {
+  const getSignContentSubsetFromParams: (params: any) => string = (params) => {
     const subsetParams = {};
-    const subsetKeys = Object.keys(params).filter(key => key === 'networkWallets' || key === 'wallets' || key === 'walletAddressTags');
-    subsetKeys.forEach(key => {
+    const subsetKeys = Object.keys(params).filter(
+      (key) => key === 'networkWallets' || key === 'wallets' || key === 'walletAddressTags'
+    );
+    subsetKeys.forEach((key) => {
       subsetParams[key] = params[key];
     });
     return buildParamString(subsetParams);
   };
 
-  const buildParamString = params => {
-    const paramString = Object.keys(params).map(key => `${key}=${params[key]}`).join('&');
+  const buildParamString = (params) => {
+    const paramString = Object.keys(params)
+      .map((key) => `${key}=${params[key]}`)
+      .join('&');
     return paramString || '';
   };
 
@@ -120,14 +132,14 @@ export default function OnRamper(props: Props) {
       return '';
     }
 
-    inputString.split('&').forEach(pair => {
+    inputString.split('&').forEach((pair) => {
       // Split each pair into key and value
       const [key, value] = pair.split('=');
       // Split the value into nested key-value pairs
       const nestedPairs = value.split(',');
       inputObject[key] = {}; // Initialize the nested object for the key
 
-      nestedPairs.forEach(nestedPair => {
+      nestedPairs.forEach((nestedPair) => {
         // Split each nested pair into nested key and value
         const [nestedKey, nestedValue] = nestedPair.split(':');
         // Assign the nested key-value pair to the nested object
@@ -138,13 +150,13 @@ export default function OnRamper(props: Props) {
     // Sort the keys of each nested object alphabetically
     for (const key in inputObject) {
       // $FlowIgnore
-      inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).sort());
+      inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).toSorted());
     }
 
     // Sort the keys of the top-level object alphabetically
-    const sortedKeys = Object.keys(inputObject).sort();
+    const sortedKeys = Object.keys(inputObject).toSorted();
     const sortedObject: Record<string, Record<string, string>> = {};
-    sortedKeys.forEach(key => {
+    sortedKeys.forEach((key) => {
       sortedObject[key] = inputObject[key];
     });
     // Reconstruct the string from the sorted object
@@ -155,7 +167,8 @@ export default function OnRamper(props: Props) {
 
       // Append nested key-value pairs, sorted alphabetically
       resultString += Object.entries(sortedObject[key]) // $FlowIgnore
-      .map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`).join(',');
+        .map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`)
+        .join(',');
       resultString += '&'; // Separate key-value pairs with '&'
     }
 
@@ -179,9 +192,14 @@ export default function OnRamper(props: Props) {
       setIsSigning(true);
 
       try {
-        const response = await Lbryio.call('or', 'sign', {
-          url: `${signContent}`
-        }, 'post');
+        const response = await Lbryio.call(
+          'or',
+          'sign',
+          {
+            url: `${signContent}`,
+          },
+          'post'
+        );
         setOnRamperSignature(response.signature);
       } catch (error) {
         setOnRamperError(`Failed to sign OnRamper url: ${error.message}`);
@@ -202,26 +220,49 @@ export default function OnRamper(props: Props) {
         const iframe = iframeRef.current;
 
         if (iframe) {
-          iframe.contentWindow.postMessage({
-            type: 'change-theme',
-            id: 'change-theme',
-            theme: {
-              containerColor: `#${rgbaToHexWithBackground(getRootStyle('--color-background'), getRootStyle('--color-header-button'))}`,
-              primaryColor: `#${rgbaToHex(getRootStyle('--color-primary'))}`,
-              primaryTextColor: getRootStyle('--color-text'),
-              secondaryColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
-              secondaryTextColor: getRootStyle('--color-text'),
-              cardColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
-              primaryBtnTextColor: '#ffffff',
-              borderRadius: '0rem',
-              widgetBorderRadius: '0rem'
-            }
-          }, '*');
+          iframe.contentWindow.postMessage(
+            {
+              type: 'change-theme',
+              id: 'change-theme',
+              theme: {
+                containerColor: `#${rgbaToHexWithBackground(getRootStyle('--color-background'), getRootStyle('--color-header-button'))}`,
+                primaryColor: `#${rgbaToHex(getRootStyle('--color-primary'))}`,
+                primaryTextColor: getRootStyle('--color-text'),
+                secondaryColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
+                secondaryTextColor: getRootStyle('--color-text'),
+                cardColor: `#${rgbaToHex(getRootStyle('--color-background'))}`,
+                primaryBtnTextColor: '#ffffff',
+                borderRadius: '0rem',
+                widgetBorderRadius: '0rem',
+              },
+            },
+            '*'
+          );
         }
       }, 1000);
     }
   }, [theme]);
-  return <Card className={!arWalletStatus ? `card--buyusdc card--disabled` : `card--buyusdc`} title={cardHeader()} background actions={onRamperError ? <div className="error">{onRamperError}</div> : isSigning || mode === 'buy' && !onRamperSignature ? <div className="loading">Loading...</div> : <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-            <iframe ref={iframeRef} src={iframeUri} title="Onramper Widget" allow="accelerometer; autoplay; camera; gyroscope; payment; microphone" />
-          </div>} />;
+  return (
+    <Card
+      className={!arWalletStatus ? `card--buyusdc card--disabled` : `card--buyusdc`}
+      title={cardHeader()}
+      background
+      actions={
+        onRamperError ? (
+          <div className="error">{onRamperError}</div>
+        ) : isSigning || (mode === 'buy' && !onRamperSignature) ? (
+          <div className="loading">Loading...</div>
+        ) : (
+          <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+            <iframe
+              ref={iframeRef}
+              src={iframeUri}
+              title="Onramper Widget"
+              allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+            />
+          </div>
+        )
+      }
+    />
+  );
 }

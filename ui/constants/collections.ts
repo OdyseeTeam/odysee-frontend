@@ -1,4 +1,4 @@
-import * as ICONS from "constants/icons";
+import * as ICONS from 'constants/icons';
 // ui
 export const ICON_SIZE = 12;
 export const PLACEHOLDER = 'My Awesome Playlist';
@@ -13,8 +13,7 @@ export const COL_TYPES = Object.freeze({
   CHANNELS: 'channelList',
   FEATURED_CHANNELS: 'featuredChannels',
   // Specifically for Channel-sections, different from generic 'channelList'.
-  COLLECTION: 'collection' // temp placeholder for mixed content
-
+  COLLECTION: 'collection', // temp placeholder for mixed content
 });
 export const WATCH_LATER_ID = 'watchlater';
 export const WATCH_LATER_NAME = 'Watch Later';
@@ -32,73 +31,72 @@ export const KEYS = Object.freeze({
   UPDATED: 'updated',
   UNPUBLISHED: 'unpublished',
   SAVED: 'savedIds',
-  UNSAVED_CHANGES: 'unsavedChanges'
+  UNSAVED_CHANGES: 'unsavedChanges',
 });
 export const SECTION_TAGS = Object.freeze({
-  FEATURED_CHANNELS: '__section__featured__'
+  FEATURED_CHANNELS: '__section__featured__',
 });
 export const PLAYLIST_ICONS = {
   [FAVORITES_ID]: ICONS.STAR,
   [WATCH_LATER_ID]: ICONS.TIME,
-  [QUEUE_ID]: ICONS.PLAYLIST
+  [QUEUE_ID]: ICONS.PLAYLIST,
 };
 export const LIST_TYPE = Object.freeze({
   ALL: 'All',
   PRIVATE: 'Private',
   PUBLIC: 'Public',
   EDITED: 'Edited',
-  SAVED: 'Saved'
+  SAVED: 'Saved',
 });
 export const PLAYLIST_SHOW_COUNT = Object.freeze({
   DEFAULT: 12,
-  MOBILE: 6
+  MOBILE: 6,
 });
 export const SORT_ORDER = Object.freeze({
   ASC: 'asc',
   // ascending
-  DESC: 'desc' // descending
-
+  DESC: 'desc', // descending
 });
 export const SORT_KEYS = Object.freeze({
   NAME: 'name',
   CREATED_AT: 'createdAt',
   UPDATED_AT: 'updatedAt',
   RELEASED_AT: 'releasedAt',
-  COUNT: 'count'
+  COUNT: 'count',
 });
 export const SORT_VALUES = Object.freeze({
   [SORT_KEYS.NAME]: {
     str: 'Name',
     orders: {
       [SORT_ORDER.ASC]: 'A-Z',
-      [SORT_ORDER.DESC]: 'Z-A'
-    }
+      [SORT_ORDER.DESC]: 'Z-A',
+    },
   },
   [SORT_KEYS.CREATED_AT]: {
     str: 'Creation Time',
     orders: {
       [SORT_ORDER.ASC]: 'Newest First',
-      [SORT_ORDER.DESC]: 'Oldest First'
-    }
+      [SORT_ORDER.DESC]: 'Oldest First',
+    },
   },
   [SORT_KEYS.UPDATED_AT]: {
     str: 'Updated Time',
     orders: {
       [SORT_ORDER.ASC]: 'Newest First',
-      [SORT_ORDER.DESC]: 'Oldest First'
-    }
+      [SORT_ORDER.DESC]: 'Oldest First',
+    },
   },
   [SORT_KEYS.COUNT]: {
     str: 'Video Count',
     orders: {
       [SORT_ORDER.ASC]: 'Increasing',
-      [SORT_ORDER.DESC]: 'Decreasing'
-    }
-  }
+      [SORT_ORDER.DESC]: 'Decreasing',
+    },
+  },
 });
 export const DEFAULT_SORT = {
   key: 'name',
-  value: SORT_ORDER.ASC
+  value: SORT_ORDER.ASC,
 };
 export const DEFAULT_ACTION_PLAY = 'defaultCollectionActionPlay';
 export const DEFAULT_ACTION_VIEW = 'defaultCollectionActionView';

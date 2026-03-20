@@ -63,5 +63,5 @@ export const SETTINGS_GRP = {
   ACCOUNT: 'account',
   CONTENT: 'content',
   PLAYER: 'player',
-  SYSTEM: 'system'
+  SYSTEM: 'system',
 };

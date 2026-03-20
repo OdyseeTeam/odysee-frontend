@@ -1,7 +1,7 @@
 // Can't use aliases here because we're doing exports/require
-import { DOMAIN } from "config";
-import * as URLParams from "constants/urlParams";
-import ShortUrl from "services/shortUrl";
+import { DOMAIN } from 'config';
+import * as URLParams from 'constants/urlParams';
+import ShortUrl from 'services/shortUrl';
 import * as PAGES from '../constants/pages';
 import { parseURI, buildURI } from '../util/lbryURI';
 import * as COLLECTIONS_CONSTS from '../constants/collections';
@@ -12,7 +12,7 @@ function encodeWithSpecialCharEncode(string) {
   return encodeURIComponent(string).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
 }
 
-export const formatLbryUrlForWeb = uri => {
+export const formatLbryUrlForWeb = (uri) => {
   if (!uri) return uri;
   let newUrl = uri.replace('lbry://', '/').replace(/#/g, ':');
 
@@ -23,8 +23,8 @@ export const formatLbryUrlForWeb = uri => {
 
   return newUrl;
 };
-export const formatLbryChannelName = uri => uri && uri.replace('lbry://', '').replace(/#/g, ':');
-export const formatFileSystemPath = path => {
+export const formatLbryChannelName = (uri) => uri && uri.replace('lbry://', '').replace(/#/g, ':');
+export const formatFileSystemPath = (path) => {
   if (!path) {
     return;
   }
@@ -43,14 +43,14 @@ export const formatFileSystemPath = path => {
   ex: lbry://?rewards
   ex: open.lbry.com/?rewards
 */
-export const formatInAppUrl = path => {
+export const formatInAppUrl = (path) => {
   // Determine if we need to add a leading "/$/" for app pages
   const APP_PAGE_REGEX = /(\?)([a-z]*)(.*)/;
   const appPageMatches = APP_PAGE_REGEX.exec(path);
 
   if (appPageMatches && appPageMatches.length) {
     // Definitely an app page (or it's formatted like one)
-    const [,, page, queryString] = appPageMatches;
+    const [, , page, queryString] = appPageMatches;
 
     if (Object.values(PAGES).includes(page)) {
       let actualUrl = '/$/' + page;
@@ -79,7 +79,7 @@ export const formatWebUrlIntoLbryUrl = (pathname, search) => {
 
   return appLink;
 };
-export const generateInitialUrl = hash => {
+export const generateInitialUrl = (hash) => {
   let url = '/';
 
   if (hash) {
@@ -92,7 +92,7 @@ export const generateInitialUrl = hash => {
 export const generateLbryContentUrl = (canonicalUrl, permanentUrl) => {
   return canonicalUrl ? canonicalUrl.split('lbry://')[1] : permanentUrl.split('lbry://')[1];
 };
-export const generateLbryWebUrl = lbryUrl => {
+export const generateLbryWebUrl = (lbryUrl) => {
   return lbryUrl.replace(/#/g, ':');
 };
 export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, startTime, listId) => {
@@ -110,7 +110,16 @@ export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, sta
   const encodedPart = encodeWithSpecialCharEncode(`${lbryWebUrl}?${urlParamsString}`);
   return `${domain}/${encodedPart}`;
 };
-export const generateShareUrl = (domain, lbryUrl, referralCode, rewardsApproved, includeStartTime, startTime, listId, viewKeySigData: ChannelSignResponse) => {
+export const generateShareUrl = (
+  domain,
+  lbryUrl,
+  referralCode,
+  rewardsApproved,
+  includeStartTime,
+  startTime,
+  listId,
+  viewKeySigData: ChannelSignResponse
+) => {
   let urlParams = new URLSearchParams();
 
   if (referralCode && rewardsApproved) {
@@ -131,53 +140,75 @@ export const generateShareUrl = (domain, lbryUrl, referralCode, rewardsApproved,
   }
 
   const urlParamsString = urlParams.toString();
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId
-  } = parseURI(lbryUrl);
-  let uriParts = { ...(streamName ? {
-      streamName: encodeWithSpecialCharEncode(streamName)
-    } : {}),
-    ...(streamClaimId ? {
-      streamClaimId
-    } : {}),
-    ...(channelName ? {
-      channelName: encodeWithSpecialCharEncode(channelName)
-    } : {}),
-    ...(channelClaimId ? {
-      channelClaimId
-    } : {})
+  const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(lbryUrl);
+  let uriParts = {
+    ...(streamName
+      ? {
+          streamName: encodeWithSpecialCharEncode(streamName),
+        }
+      : {}),
+    ...(streamClaimId
+      ? {
+          streamClaimId,
+        }
+      : {}),
+    ...(channelName
+      ? {
+          channelName: encodeWithSpecialCharEncode(channelName),
+        }
+      : {}),
+    ...(channelClaimId
+      ? {
+          channelClaimId,
+        }
+      : {}),
   };
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
   const url = `${domain}/${lbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
   return url;
 };
-export const generateShortShareUrl = async (domain, lbryUrl, referralCode, rewardsApproved, includeStartTime, startTime, listId, uriAccessKey?: UriAccessKey) => {
+export const generateShortShareUrl = async (
+  domain,
+  lbryUrl,
+  referralCode,
+  rewardsApproved,
+  includeStartTime,
+  startTime,
+  listId,
+  uriAccessKey?: UriAccessKey
+) => {
   type Params = Array<[string, string | null | undefined]>;
-  const paramsToShorten: Params = [['signature', uriAccessKey ? uriAccessKey.signature : null], ['signature_ts', uriAccessKey ? uriAccessKey.signature_ts : null], [COLLECTIONS_CONSTS.COLLECTION_ID, listId || null], ['r', referralCode && rewardsApproved ? referralCode : null]];
+  const paramsToShorten: Params = [
+    ['signature', uriAccessKey ? uriAccessKey.signature : null],
+    ['signature_ts', uriAccessKey ? uriAccessKey.signature_ts : null],
+    [COLLECTIONS_CONSTS.COLLECTION_ID, listId || null],
+    ['r', referralCode && rewardsApproved ? referralCode : null],
+  ];
   const paramsToRetain: Params = [['t', includeStartTime ? startTime.toString() : null]];
   // -- Build base URL with claim gists:
-  const {
-    streamName,
-    streamClaimId,
-    channelName,
-    channelClaimId
-  } = parseURI(lbryUrl);
-  const uriParts = { ...(streamName ? {
-      streamName: encodeWithSpecialCharEncode(streamName)
-    } : {}),
-    ...(streamClaimId ? {
-      streamClaimId
-    } : {}),
-    ...(channelName ? {
-      channelName: encodeWithSpecialCharEncode(channelName)
-    } : {}),
-    ...(channelClaimId ? {
-      channelClaimId
-    } : {})
+  const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(lbryUrl);
+  const uriParts = {
+    ...(streamName
+      ? {
+          streamName: encodeWithSpecialCharEncode(streamName),
+        }
+      : {}),
+    ...(streamClaimId
+      ? {
+          streamClaimId,
+        }
+      : {}),
+    ...(channelName
+      ? {
+          channelName: encodeWithSpecialCharEncode(channelName),
+        }
+      : {}),
+    ...(channelClaimId
+      ? {
+          channelClaimId,
+        }
+      : {}),
   };
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
@@ -190,12 +221,14 @@ export const generateShortShareUrl = async (domain, lbryUrl, referralCode, rewar
     }
   });
   // -- Fetch the short url:
-  const shortUrl = await ShortUrl.createFrom(urlToShorten.toString()).then((res: ShortUrlResponse) => {
-    return res.shortUrl;
-  }).catch(err => {
-    assert(false, 'ShortUrl api failed, returning original', err);
-    return urlToShorten.toString();
-  });
+  const shortUrl = await ShortUrl.createFrom(urlToShorten.toString())
+    .then((res: ShortUrlResponse) => {
+      return res.shortUrl;
+    })
+    .catch((err) => {
+      assert(false, 'ShortUrl api failed, returning original', err);
+      return urlToShorten.toString();
+    });
   // -- Put remaining params that we want in original form:
   const finalUrl = new URL(shortUrl);
   paramsToRetain.forEach((p: Params) => {
@@ -214,7 +247,7 @@ export const generateRssUrl = (domain, channelClaim) => {
   const url = `${domain}/$/rss/${channelClaim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
   return url;
 };
-export const generateListSearchUrlParams = collectionId => {
+export const generateListSearchUrlParams = (collectionId) => {
   const urlParams = new URLSearchParams();
   urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
   return `?` + urlParams.toString();
@@ -235,7 +268,7 @@ export function generateGoogleCacheUrl(search, path) {
     }
   }
 }
-export const getPathForPage = page => `/$/${page}/`;
+export const getPathForPage = (page) => `/$/${page}/`;
 export const getModalUrlParam = (modal, modalParams = {}) => {
   const urlParams = new URLSearchParams();
   urlParams.set(URLParams.MODAL, modal);
@@ -249,5 +282,13 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 // like "&currency".
 export function htmlDecode(str) {
   if (typeof str !== 'string' || !str.includes('&')) return str;
-  return str.replace(/&quot;/gi, '"').replace(/&#0*34;/gi, '"').replace(/&#x27;/gi, "'").replace(/&#0*39;/gi, "'").replace(/&apos;/gi, "'").replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&amp;/gi, '&');
+  return str
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*34;/gi, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#0*39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&');
 }

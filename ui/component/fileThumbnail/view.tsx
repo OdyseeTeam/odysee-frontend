@@ -1,14 +1,16 @@
-import type { Node } from "react";
-import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from "config";
-import { getImageProxyUrl, getThumbnailCdnUrl } from "util/thumbnail";
-import React from "react";
-import FreezeframeWrapper from "component/common/freezeframe-wrapper";
-import classnames from "classnames";
-import Thumb from "./internal/thumb";
-import PreviewOverlayProtectedContent from "../previewOverlayProtectedContent";
-const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({
-  thumbnail: MISSING_THUMB_DEFAULT
-}) : undefined;
+import type { Node } from 'react';
+import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from 'config';
+import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
+import React from 'react';
+import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
+import classnames from 'classnames';
+import Thumb from './internal/thumb';
+import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
+const FALLBACK = MISSING_THUMB_DEFAULT
+  ? getThumbnailCdnUrl({
+      thumbnail: MISSING_THUMB_DEFAULT,
+    })
+  : undefined;
 type Props = {
   uri?: string;
   thumbnail: string | null | undefined;
@@ -26,7 +28,6 @@ type Props = {
   thumbnailFromClaim: string | null | undefined;
   thumbnailFromSecondaryClaim: string | null | undefined;
   isShort: boolean; // doResolveUri: (uri: string) => void,
-
 };
 
 function FileThumbnail(props: Props) {
@@ -43,23 +44,33 @@ function FileThumbnail(props: Props) {
     hasResolvedClaim,
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
-    isShort = false // doResolveUri,
-
+    isShort = false, // doResolveUri,
   } = props;
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
-  const thumbnail = passedThumbnail || (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
+  const thumbnail =
+    passedThumbnail ||
+    (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   if (!allowGifs && isGif) {
     const url = getImageProxyUrl(thumbnail);
-    return url && <FreezeframeWrapper isShort={isShort} small={small} src={url} className={classnames('media__thumb', className, {
-      'media__thumb--resolving': hasResolvedClaim === false,
-      'media__thumb--small': small
-    })}>
+    return (
+      url && (
+        <FreezeframeWrapper
+          isShort={isShort}
+          small={small}
+          src={url}
+          className={classnames('media__thumb', className, {
+            'media__thumb--resolving': hasResolvedClaim === false,
+            'media__thumb--small': small,
+          })}
+        >
           <PreviewOverlayProtectedContent uri={uri} />
           {children}
-        </FreezeframeWrapper>;
+        </FreezeframeWrapper>
+      )
+    );
   }
 
   let url = thumbnail;
@@ -72,7 +83,7 @@ function FileThumbnail(props: Props) {
       url = getThumbnailCdnUrl({
         thumbnail,
         quality: THUMBNAIL_QUALITY,
-        isShorts: isShort
+        isShorts: isShort,
       });
     }
   }
@@ -80,19 +91,30 @@ function FileThumbnail(props: Props) {
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
 
   if (!gettingThumbnail) {
-    return <Thumb small={small} thumb={thumbnailUrl || MISSING_THUMB_DEFAULT} fallback={FALLBACK} className={className} forceReload={forceReload}>
+    return (
+      <Thumb
+        small={small}
+        thumb={thumbnailUrl || MISSING_THUMB_DEFAULT}
+        fallback={FALLBACK}
+        className={className}
+        forceReload={forceReload}
+      >
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
-      </Thumb>;
+      </Thumb>
+    );
   }
 
-  return <div className={classnames('media__thumb', className, {
-    'media__thumb--resolving': hasResolvedClaim === false,
-    'media__thumb--small': small // 'media__thumb__short': isShort, This didn't seem to be necessary. Caused issues due to using short format thumbnail to shorts with no thumbnail, in non short views
-
-  })}>
+  return (
+    <div
+      className={classnames('media__thumb', className, {
+        'media__thumb--resolving': hasResolvedClaim === false,
+        'media__thumb--small': small, // 'media__thumb__short': isShort, This didn't seem to be necessary. Caused issues due to using short format thumbnail to shorts with no thumbnail, in non short views
+      })}
+    >
       {children}
-    </div>;
+    </div>
+  );
 }
 
 export default FileThumbnail;

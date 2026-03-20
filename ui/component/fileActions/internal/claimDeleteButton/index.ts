@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
-import { doOpenModal } from "redux/actions/app";
-import ClaimDeleteButton from "./view";
+import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
+import ClaimDeleteButton from './view';
 const perform = {
-  doOpenModal
+  doOpenModal,
 };
 export default connect(null, perform)(ClaimDeleteButton);

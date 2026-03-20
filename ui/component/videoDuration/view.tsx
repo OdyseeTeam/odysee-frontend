@@ -1,15 +1,12 @@
-import React from "react";
-import formatMediaDuration from "util/formatMediaDuration";
+import React from 'react';
+import formatMediaDuration from 'util/formatMediaDuration';
 type Props = {
   claim: StreamClaim | null | undefined;
   className?: string;
 };
 
 function VideoDuration(props: Props) {
-  const {
-    claim,
-    className
-  } = props;
+  const { claim, className } = props;
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   let duration;
 

@@ -1,11 +1,25 @@
-import { connect } from "react-redux";
-import { doHideModal } from "redux/actions/app";
-import { makeSelectClaimForUri, selectTitleForUri, selectRepostError, selectRepostLoading, selectMyClaimsWithoutChannels, makeSelectEffectiveAmountForUri, selectIsUriResolving, selectFetchingMyChannels } from "redux/selectors/claims";
-import { selectBalance } from "redux/selectors/wallet";
-import { doRepost, doClearRepostError, doCheckPublishNameAvailability, doCheckPendingClaims } from "redux/actions/claims";
-import { doToast } from "redux/actions/notifications";
-import { selectActiveChannelClaim, selectIncognito } from "redux/selectors/app";
-import RepostCreate from "./view";
+import { connect } from 'react-redux';
+import { doHideModal } from 'redux/actions/app';
+import {
+  makeSelectClaimForUri,
+  selectTitleForUri,
+  selectRepostError,
+  selectRepostLoading,
+  selectMyClaimsWithoutChannels,
+  makeSelectEffectiveAmountForUri,
+  selectIsUriResolving,
+  selectFetchingMyChannels,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import {
+  doRepost,
+  doClearRepostError,
+  doCheckPublishNameAvailability,
+  doCheckPendingClaims,
+} from 'redux/actions/claims';
+import { doToast } from 'redux/actions/notifications';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import RepostCreate from './view';
 
 const select = (state, props) => ({
   claim: makeSelectClaimForUri(props.uri)(state),
@@ -23,7 +37,7 @@ const select = (state, props) => ({
   isResolvingEnteredRepost: props.repostUri && selectIsUriResolving(state, `lbry://${props.repostUri}`),
   activeChannelClaim: selectActiveChannelClaim(state),
   fetchingMyChannels: selectFetchingMyChannels(state),
-  incognito: selectIncognito(state)
+  incognito: selectIncognito(state),
 });
 
 export default connect(select, {
@@ -32,5 +46,5 @@ export default connect(select, {
   doClearRepostError,
   doToast,
   doCheckPublishNameAvailability,
-  doCheckPendingClaims
+  doCheckPendingClaims,
 })(RepostCreate);

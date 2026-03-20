@@ -1,2 +1,2 @@
-import ReportContentPage from "./view";
+import ReportContentPage from './view';
 export default ReportContentPage;

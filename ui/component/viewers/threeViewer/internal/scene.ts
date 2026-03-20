@@ -1,8 +1,8 @@
-import { Color } from "three-full/sources/math/Color";
-import { HemisphereLight } from "three-full/sources/lights/HemisphereLight";
-import { DirectionalLight } from "three-full/sources/lights/DirectionalLight";
-import { Scene } from "three-full/sources/scenes/Scene";
-import { Fog } from "three-full/sources/scenes/Fog";
+import { Color } from 'three-full/sources/math/Color';
+import { HemisphereLight } from 'three-full/sources/lights/HemisphereLight';
+import { DirectionalLight } from 'three-full/sources/lights/DirectionalLight';
+import { Scene } from 'three-full/sources/scenes/Scene';
+import { Fog } from 'three-full/sources/scenes/Fog';
 
 const addLights = (scene, color, groundColor) => {
   // Light color
@@ -21,10 +21,7 @@ const addLights = (scene, color, groundColor) => {
   scene.add(shadowLight);
 };
 
-const ViewerScene = ({
-  backgroundColor,
-  showFog
-}) => {
+const ViewerScene = ({ backgroundColor, showFog }) => {
   // New scene
   const bg = new Color(backgroundColor);
   const scene = new Scene();

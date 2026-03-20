@@ -1,16 +1,14 @@
-import { connect } from "react-redux";
-import { doResolveUris } from "redux/actions/claims";
-import { doSetMentionSearchResults } from "redux/actions/search";
-import { makeSelectWinningUriForQuery } from "redux/selectors/search";
-import { MAX_LIVESTREAM_COMMENTS } from "constants/livestream";
-import { selectChannelMentionData } from "redux/selectors/comments";
-import { withRouter } from "react-router";
-import TextareaWithSuggestions from "./view";
+import { connect } from 'react-redux';
+import { doResolveUris } from 'redux/actions/claims';
+import { doSetMentionSearchResults } from 'redux/actions/search';
+import { makeSelectWinningUriForQuery } from 'redux/selectors/search';
+import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
+import { selectChannelMentionData } from 'redux/selectors/comments';
+import { withRouter } from 'react-router';
+import TextareaWithSuggestions from './view';
 
 const select = (state, props) => {
-  const {
-    uri
-  } = props;
+  const { uri } = props;
   const maxComments = props.isLivestream ? MAX_LIVESTREAM_COMMENTS : -1;
   const data = selectChannelMentionData(state, uri, maxComments);
   const {
@@ -20,7 +18,7 @@ const select = (state, props) => {
     canonicalSubscriptions,
     commentorUris,
     hasNewResolvedResults,
-    query
+    query,
   } = data;
   return {
     canonicalCommentors,
@@ -30,12 +28,12 @@ const select = (state, props) => {
     canonicalTop: makeSelectWinningUriForQuery(query)(state),
     commentorUris,
     hasNewResolvedResults,
-    searchQuery: query
+    searchQuery: query,
   };
 };
 
 const perform = {
   doResolveUris,
-  doSetMentionSearchResults
+  doSetMentionSearchResults,
 };
 export default withRouter(connect(select, perform)(TextareaWithSuggestions));

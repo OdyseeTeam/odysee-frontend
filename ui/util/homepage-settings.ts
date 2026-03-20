@@ -5,7 +5,7 @@ export function normalizeHomepageSettings(rawHomepageSettings: any): Record<stri
 
   if (Array.isArray(rawHomepageSettings)) {
     return {
-      sections: rawHomepageSettings
+      sections: rawHomepageSettings,
     };
   }
 
@@ -15,7 +15,7 @@ export function normalizeHomepageSettings(rawHomepageSettings: any): Record<stri
 
       if (Array.isArray(parsed)) {
         return {
-          sections: parsed
+          sections: parsed,
         };
       }
 
@@ -53,26 +53,30 @@ function normalizeUploadTemplates(rawTemplates: any): Array<UploadTemplate> {
     return [];
   }
 
-  return parsedTemplates.map((template, index) => {
-    if (!template || typeof template !== 'object') return null;
-    const name = typeof template.name === 'string' ? template.name.trim() : '';
-    if (!name) return null;
-    const createdAt = Number(template.createdAt || 0);
-    const lastUsedAt = Number(template.lastUsedAt || 0);
-    const isPinned = Boolean(template.isPinned);
-    const data = template.data && typeof template.data === 'object' ? template.data : {};
-    return {
-      id: template.id || `${name.toLowerCase().replace(/\s+/g, '-')}-${createdAt || index}`,
-      name,
-      createdAt: Number.isFinite(createdAt) ? createdAt : 0,
-      lastUsedAt: Number.isFinite(lastUsedAt) && lastUsedAt > 0 ? lastUsedAt : undefined,
-      isPinned,
-      data
-    };
-  }).filter(Boolean);
+  return parsedTemplates
+    .map((template, index) => {
+      if (!template || typeof template !== 'object') return null;
+      const name = typeof template.name === 'string' ? template.name.trim() : '';
+      if (!name) return null;
+      const createdAt = Number(template.createdAt || 0);
+      const lastUsedAt = Number(template.lastUsedAt || 0);
+      const isPinned = Boolean(template.isPinned);
+      const data = template.data && typeof template.data === 'object' ? template.data : {};
+      return {
+        id: template.id || `${name.toLowerCase().replace(/\s+/g, '-')}-${createdAt || index}`,
+        name,
+        createdAt: Number.isFinite(createdAt) ? createdAt : 0,
+        lastUsedAt: Number.isFinite(lastUsedAt) && lastUsedAt > 0 ? lastUsedAt : undefined,
+        isPinned,
+        data,
+      };
+    })
+    .filter(Boolean);
 }
 
-export function getUploadTemplatesFromSettings(channelSettings: PerChannelSettings | null | undefined): Array<UploadTemplate> {
+export function getUploadTemplatesFromSettings(
+  channelSettings: PerChannelSettings | null | undefined
+): Array<UploadTemplate> {
   if (!channelSettings) {
     return [];
   }

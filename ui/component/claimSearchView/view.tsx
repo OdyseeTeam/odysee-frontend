@@ -20,21 +20,21 @@
  *
  *  [CsOptHelper] can be used to generate common options.
  */
-import type { Node } from "react";
-import React from "react";
-import "./style.scss";
-import ClaimList from "component/claimList";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
-import Spinner from "component/spinner";
-import debounce from "util/debounce";
+import type { Node } from 'react';
+import React from 'react';
+import './style.scss';
+import ClaimList from 'component/claimList';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import Spinner from 'component/spinner';
+import debounce from 'util/debounce';
 // ****************************************************************************
 // ****************************************************************************
 export type Props = {
   csOptions: ClaimSearchOptions;
-  pagination?: "infinite" | "paged";
+  pagination?: 'infinite' | 'paged';
   header?: string | Node;
-  layout?: "tile" | "list";
+  layout?: 'tile' | 'list';
 };
 type StateProps = {
   csResults: Array<string> | null | undefined;
@@ -56,7 +56,7 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
     csResults,
     csResultsMiscInfo,
     isFetching,
-    doClaimSearch
+    doClaimSearch,
   } = props;
   type ScrollInfo = {
     isFetching: boolean;
@@ -80,15 +80,11 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
     // We don't want to re-register the handler each time any of the props
     // changed, hence the ref method.
     if (scrollInfoRef.current) {
-      const {
-        isFetching,
-        csResults,
-        hasMorePages
-      } = scrollInfoRef.current;
+      const { isFetching, csResults, hasMorePages } = scrollInfoRef.current;
 
       if (!isFetching) {
         if (csResults && hasMorePages) {
-          setPage(prev => prev + 1);
+          setPage((prev) => prev + 1);
         }
       }
     }
@@ -111,18 +107,22 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
       return null;
     }
 
-    return <div className="cs-view__no-results" onClick={advanceToNextPage}>
+    return (
+      <div className="cs-view__no-results" onClick={advanceToNextPage}>
         {csResults === null && <p>{__('Sorry, your request timed out. Try refreshing in a bit.')}</p>}
         {csResults && csResults.length === 0 && <p>{__('No results.')}</p>}
-      </div>;
+      </div>
+    );
   };
 
   const MoreIndicator = () => {
     if (pagination === 'infinite') {
-      return <div className="cs-view__has-more" onClick={advanceToNextPage}>
+      return (
+        <div className="cs-view__has-more" onClick={advanceToNextPage}>
           {isFetching && <Spinner type="small" />}
           {!isFetching && hasMorePages && <Icon icon={ICONS.DOWN} />}
-        </div>;
+        </div>
+      );
     }
 
     return null;
@@ -140,18 +140,14 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
         setPage(1); // Covers the case of results purged while we are mounted.
       }
 
-      doClaimSearch({ ...csOptions,
-        page: 1
-      });
+      doClaimSearch({ ...csOptions, page: 1 });
     } else {
       assert(csResultsMiscInfo, 'claimSearchView: previous search info missing', csResultsMiscInfo);
       const prevPage = csResultsMiscInfo && csResultsMiscInfo.page ? csResultsMiscInfo.page : null;
       const pageChanged = prevPage && page !== prevPage;
 
       if (pageChanged && hasMorePages) {
-        doClaimSearch({ ...csOptions,
-          page: page
-        });
+        doClaimSearch({ ...csOptions, page: page });
       }
     }
   }, [csOptions, csResults, csResultsMiscInfo, doClaimSearch, hasMorePages, page, pagination]);
@@ -159,7 +155,7 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
     scrollInfoRef.current = {
       isFetching,
       csResults,
-      hasMorePages
+      hasMorePages,
     };
   }, [isFetching, csResults, hasMorePages]);
   React.useEffect(() => {
@@ -189,12 +185,19 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
     return null;
   }
 
-  return <div className="cs-view" ref={containerRef}>
+  return (
+    <div className="cs-view" ref={containerRef}>
       <Header />
-      <ClaimList uris={csResults} tileLayout={layout === 'tile'} showNoSourceClaims={csOptions.has_no_source || undefined} noEmpty />
+      <ClaimList
+        uris={csResults}
+        tileLayout={layout === 'tile'}
+        showNoSourceClaims={csOptions.has_no_source || undefined}
+        noEmpty
+      />
       <NoResults />
       <MoreIndicator />
-    </div>;
+    </div>
+  );
 }
 
 export default ClaimSearchView;

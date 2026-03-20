@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import classnames from "classnames";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
+import React, { useState } from 'react';
+import classnames from 'classnames';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 // prettier-ignore
 const Lazy = {
   DragDropContext: React.lazy(() => import('react-beautiful-dnd'
@@ -22,21 +22,21 @@ const Lazy = {
 };
 const NON_CATEGORY = Object.freeze({
   UPCOMING: {
-    label: 'Upcoming'
+    label: 'Upcoming',
   },
   FOLLOWING: {
-    label: 'Following'
+    label: 'Following',
   },
   WATCH_LATER: {
     label: 'Watch Later',
-    hideByDefault: true
+    hideByDefault: true,
   },
   SHORTS: {
-    label: 'Shorts'
+    label: 'Shorts',
   },
   FYP: {
-    label: 'Recommended'
-  }
+    label: 'Recommended',
+  },
 });
 
 // ****************************************************************************
@@ -56,7 +56,7 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   destClone.splice(droppableDestination.index, 0, removed);
   return {
     [droppableSource.droppableId]: sourceClone,
-    [droppableDestination.droppableId]: destClone
+    [droppableDestination.droppableId]: destClone,
   };
 };
 
@@ -64,22 +64,30 @@ function getInitialList(listId, savedOrder, homepageSections) {
   const savedActiveOrder = savedOrder.active || [];
   const savedHiddenOrder = savedOrder.hidden || [];
   const sectionKeys = Object.keys(homepageSections);
-  let activeOrder: Array<string> = savedActiveOrder.filter(x => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
-  let hiddenOrder: Array<string> = savedHiddenOrder.filter(x => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
+  let activeOrder: Array<string> = savedActiveOrder.filter(
+    (x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS'
+  );
+  let hiddenOrder: Array<string> = savedHiddenOrder.filter(
+    (x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS'
+  );
   sectionKeys.forEach((key: string) => {
     if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
       if (homepageSections[key].hideByDefault) {
         hiddenOrder.push(key);
       } else {
-        if (key === 'BANNER' || key === 'PORTALS') {} else if (key === 'UPCOMING') {
+        if (key === 'BANNER' || key === 'PORTALS') {
+        } else if (key === 'UPCOMING') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
-          if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);else activeOrder.push(key);
+          if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
+          else activeOrder.push(key);
         } else if (key === 'SHORTS') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
-          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);else activeOrder.push(key);
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
+          else activeOrder.push(key);
         } else if (key === 'DISCOVERY_CHANNEL' || key === 'EXPLORABLE_CHANNEL') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
-          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);else activeOrder.push(key);
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
+          else activeOrder.push(key);
         } else if (key === 'FYP') {
           // Default FYP to hidden
           hiddenOrder = [key, ...hiddenOrder];
@@ -89,7 +97,7 @@ function getInitialList(listId, savedOrder, homepageSections) {
       }
     }
   });
-  activeOrder = activeOrder.filter(x => !hiddenOrder.includes(x));
+  activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
   return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
 }
 
@@ -107,17 +115,9 @@ type Props = {
   homepageOrder: HomepageOrder;
 };
 export default function HomepageSort(props: Props) {
-  const {
-    onUpdate,
-    homepageData,
-    homepageOrder
-  } = props;
-  const {
-    categories
-  } = homepageData;
-  const SECTIONS = { ...NON_CATEGORY,
-    ...categories
-  };
+  const { onUpdate, homepageData, homepageOrder } = props;
+  const { categories } = homepageData;
+  const SECTIONS = { ...NON_CATEGORY, ...categories };
   const [listActive, setListActive] = useState(() => getInitialList('ACTIVE', homepageOrder, SECTIONS));
   const [listHidden, setListHidden] = useState(() => getInitialList('HIDDEN', homepageOrder, SECTIONS));
   const BINS = {
@@ -125,21 +125,18 @@ export default function HomepageSort(props: Props) {
       id: 'ACTIVE',
       title: 'Active',
       list: listActive,
-      setList: setListActive
+      setList: setListActive,
     },
     HIDDEN: {
       id: 'HIDDEN',
       title: 'Hidden',
       list: listHidden,
-      setList: setListHidden
-    }
+      setList: setListHidden,
+    },
   };
 
   function onDragEnd(result) {
-    const {
-      source,
-      destination
-    } = result;
+    const { source, destination } = result;
 
     if (destination) {
       if (source.droppableId === destination.droppableId) {
@@ -155,69 +152,84 @@ export default function HomepageSort(props: Props) {
 
   const draggedItemRef = React.useRef();
 
-  const DraggableItem = ({
-    item,
-    index
-  }: any) => {
+  const DraggableItem = ({ item, index }: any) => {
     if (!SECTIONS[item]) {
       return null;
     }
 
     const label = SECTIONS[item]?.label || item;
-    return <Lazy.Draggable draggableId={item} index={index}>
+    return (
+      <Lazy.Draggable draggableId={item} index={index}>
         {(draggableProvided, snapshot) => {
-        if (snapshot.isDragging) {
-          // Handle strange offset (https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307)
-          const dp = draggableProvided.draggableProps;
+          if (snapshot.isDragging) {
+            // Handle strange offset (https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307)
+            const dp = draggableProvided.draggableProps;
 
-          if (draggedItemRef.current && dp.style && dp.style.left && dp.style.top) {
-            // $FlowFixMe (`.offsetLeft` is wrong; should be `.current.offsetLeft`. But Firefox breaks without wrong code).
-            dp.style.left = draggedItemRef.offsetLeft;
-            // $FlowIgnore (already confirmed 'style' is not null and not NotDraggingStyle)
-            dp.style.top = dp.style.top - document.getElementsByClassName('modal')[0].offsetTop;
+            if (draggedItemRef.current && dp.style && dp.style.left && dp.style.top) {
+              // $FlowFixMe (`.offsetLeft` is wrong; should be `.current.offsetLeft`. But Firefox breaks without wrong code).
+              dp.style.left = draggedItemRef.offsetLeft;
+              // $FlowIgnore (already confirmed 'style' is not null and not NotDraggingStyle)
+              dp.style.top = dp.style.top - document.getElementsByClassName('modal')[0].offsetTop;
+            }
           }
-        }
 
-        return <div className="homepage-sort__entry" ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} {...draggableProvided.dragHandleProps}>
+          return (
+            <div
+              className="homepage-sort__entry"
+              ref={draggableProvided.innerRef}
+              {...draggableProvided.draggableProps}
+              {...draggableProvided.dragHandleProps}
+            >
               <div ref={draggedItemRef}>
                 <Icon icon={ICONS.MENU} title={__('Drag')} size={20} />
               </div>
               {__(label)} {}
-            </div>;
-      }}
-      </Lazy.Draggable>;
+            </div>
+          );
+        }}
+      </Lazy.Draggable>
+    );
   };
 
-  const DroppableBin = ({
-    bin,
-    className
-  }: any) => {
-    return <Lazy.Droppable droppableId={bin.id}>
-        {(provided, snapshot) => <div ref={provided.innerRef} {...provided.droppableProps} className={classnames('homepage-sort__bin', className, {
-        'homepage-sort__bin--highlight': snapshot.isDraggingOver
-      })}>
+  const DroppableBin = ({ bin, className }: any) => {
+    return (
+      <Lazy.Droppable droppableId={bin.id}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={classnames('homepage-sort__bin', className, {
+              'homepage-sort__bin--highlight': snapshot.isDraggingOver,
+            })}
+          >
             <div className="homepage-sort__bin-header">{__(bin.title)}</div>
 
-            {bin.list.map((item, index) => <DraggableItem key={item} item={item} index={index} />)}
+            {bin.list.map((item, index) => (
+              <DraggableItem key={item} item={item} index={index} />
+            ))}
             {provided.placeholder}
-          </div>}
-      </Lazy.Droppable>;
+          </div>
+        )}
+      </Lazy.Droppable>
+    );
   };
 
   React.useEffect(() => {
     if (onUpdate) {
       return onUpdate({
         active: listActive,
-        hidden: listHidden
+        hidden: listHidden,
       });
     }
   }, [listActive, listHidden, onUpdate]);
-  return <React.Suspense fallback={null}>
+  return (
+    <React.Suspense fallback={null}>
       <div className="homepage-sort">
         <Lazy.DragDropContext onDragEnd={onDragEnd}>
           <DroppableBin bin={BINS.ACTIVE} />
           <DroppableBin bin={BINS.HIDDEN} />
         </Lazy.DragDropContext>
       </div>
-    </React.Suspense>;
+    </React.Suspense>
+  );
 }

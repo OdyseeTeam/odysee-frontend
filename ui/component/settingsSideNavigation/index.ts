@@ -1,2 +1,2 @@
-import SettingsSideNavigation from "./view";
+import SettingsSideNavigation from './view';
 export default SettingsSideNavigation;

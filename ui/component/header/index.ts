@@ -1,20 +1,20 @@
-import { connect } from "react-redux";
-import { doClearEmailEntry, doClearPasswordEntry } from "redux/actions/user";
-import { doSignOut, doOpenModal } from "redux/actions/app";
-import { doClearClaimSearch } from "redux/actions/claims";
-import { doRemoveFromUnsavedChangesCollectionsForCollectionId } from "redux/actions/collections";
-import { selectClientSetting } from "redux/selectors/settings";
-import { selectGetSyncErrorMessage, selectPrefsReady } from "redux/selectors/sync";
-import { selectHasNavigated } from "redux/selectors/app";
-import { selectTotalBalance, selectBalance } from "redux/selectors/wallet";
-import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from "redux/selectors/user";
-import { selectAPIArweaveActiveAccounts } from "redux/selectors/stripe";
-import { selectIsPlayerFloating } from "redux/selectors/content";
-import * as MODALS from "constants/modal_types";
-import * as SETTINGS from "constants/settings";
-import Header from "./view";
+import { connect } from 'react-redux';
+import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
+import { doSignOut, doOpenModal } from 'redux/actions/app';
+import { doClearClaimSearch } from 'redux/actions/claims';
+import { doRemoveFromUnsavedChangesCollectionsForCollectionId } from 'redux/actions/collections';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectGetSyncErrorMessage, selectPrefsReady } from 'redux/selectors/sync';
+import { selectHasNavigated } from 'redux/selectors/app';
+import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
+import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
+import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectIsPlayerFloating } from 'redux/selectors/content';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
+import Header from './view';
 
-const select = state => ({
+const select = (state) => ({
   authenticated: selectUserVerifiedEmail(state),
   balance: selectBalance(state),
   emailToVerify: selectEmailToVerify(state),
@@ -25,16 +25,17 @@ const select = state => ({
   user: selectUser(state),
   prefsReady: selectPrefsReady(state),
   arweaveAccounts: selectAPIArweaveActiveAccounts(state),
-  isFloatingPlayerOpen: selectIsPlayerFloating(state)
+  isFloatingPlayerOpen: selectIsPlayerFloating(state),
 });
 
-const perform = dispatch => ({
+const perform = (dispatch) => ({
   doClearClaimSearch: () => dispatch(doClearClaimSearch()),
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: collectionId => dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId)),
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId) =>
+    dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId)),
   clearEmailEntry: () => dispatch(doClearEmailEntry()),
   clearPasswordEntry: () => dispatch(doClearPasswordEntry()),
   signOut: () => dispatch(doSignOut()),
-  openChangelog: modalProps => dispatch(doOpenModal(MODALS.CONFIRM, modalProps))
+  openChangelog: (modalProps) => dispatch(doOpenModal(MODALS.CONFIRM, modalProps)),
 });
 
 export default connect(select, perform)(Header);

@@ -1,7 +1,7 @@
-import * as React from "react";
-import Button from "component/button";
-import NavigationHistoryItem from "component/navigationHistoryItem";
-import Paginate from "component/common/paginate";
+import * as React from 'react';
+import Button from 'component/button';
+import NavigationHistoryItem from 'component/navigationHistoryItem';
+import Paginate from 'component/common/paginate';
 type HistoryItem = {
   uri: string;
   lastViewed: number;
@@ -19,7 +19,7 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
   constructor() {
     super();
     this.state = {
-      itemsSelected: {}
+      itemsSelected: {},
     };
     (this as any).selectAll = this.selectAll.bind(this);
     (this as any).unselectAll = this.unselectAll.bind(this);
@@ -27,11 +27,8 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
   }
 
   onSelect(uri: string) {
-    const {
-      itemsSelected
-    } = this.state;
-    const newItemsSelected = { ...itemsSelected
-    };
+    const { itemsSelected } = this.state;
+    const newItemsSelected = { ...itemsSelected };
 
     if (itemsSelected[uri]) {
       delete newItemsSelected[uri];
@@ -40,67 +37,68 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
     }
 
     this.setState({
-      itemsSelected: { ...newItemsSelected
-      }
+      itemsSelected: { ...newItemsSelected },
     });
   }
 
   selectAll() {
-    const {
-      historyItems
-    } = this.props;
+    const { historyItems } = this.props;
     const newSelectedState = {};
-    historyItems.forEach(({
-      uri
-    }) => newSelectedState[uri] = true);
+    historyItems.forEach(({ uri }) => (newSelectedState[uri] = true));
     this.setState({
-      itemsSelected: newSelectedState
+      itemsSelected: newSelectedState,
     });
   }
 
   unselectAll() {
     this.setState({
-      itemsSelected: {}
+      itemsSelected: {},
     });
   }
 
   removeSelected() {
-    const {
-      clearHistoryUri
-    } = this.props;
-    const {
-      itemsSelected
-    } = this.state;
-    Object.keys(itemsSelected).forEach(uri => clearHistoryUri(uri));
+    const { clearHistoryUri } = this.props;
+    const { itemsSelected } = this.state;
+    Object.keys(itemsSelected).forEach((uri) => clearHistoryUri(uri));
     this.setState({
-      itemsSelected: {}
+      itemsSelected: {},
     });
   }
 
   render() {
-    const {
-      historyItems = [],
-      pageCount
-    } = this.props;
-    const {
-      itemsSelected
-    } = this.state;
+    const { historyItems = [], pageCount } = this.props;
+    const { itemsSelected } = this.state;
     const allSelected = Object.keys(itemsSelected).length === historyItems.length;
     const selectHandler = allSelected ? this.unselectAll : this.selectAll;
-    return historyItems.length ? <React.Fragment>
+    return historyItems.length ? (
+      <React.Fragment>
         <div className="card__actions">
-          {Object.keys(itemsSelected).length ? <Button button="link" label={__('Delete')} onClick={this.removeSelected} /> : <span>{
-            /* Using an empty span so spacing stays the same if the button isn't rendered */
-          }</span>}
+          {Object.keys(itemsSelected).length ? (
+            <Button button="link" label={__('Delete')} onClick={this.removeSelected} />
+          ) : (
+            <span>{/* Using an empty span so spacing stays the same if the button isn't rendered */}</span>
+          )}
           <Button button="link" label={allSelected ? __('Cancel') : __('Select All')} onClick={selectHandler} />
         </div>
-        {!!historyItems.length && <section className="card  item-list">
-            {historyItems.map(item => <NavigationHistoryItem key={item.uri} uri={item.uri} lastViewed={item.lastViewed} selected={!!itemsSelected[item.uri]} onSelect={() => {
-          this.onSelect(item.uri);
-        }} />)}
-          </section>}
+        {!!historyItems.length && (
+          <section className="card  item-list">
+            {historyItems.map((item) => (
+              <NavigationHistoryItem
+                key={item.uri}
+                uri={item.uri}
+                lastViewed={item.lastViewed}
+                selected={!!itemsSelected[item.uri]}
+                onSelect={() => {
+                  this.onSelect(item.uri);
+                }}
+              />
+            ))}
+          </section>
+        )}
         <Paginate totalPages={pageCount} />
-      </React.Fragment> : <div className="main--empty">
+      </React.Fragment>
+    ) : (
+      <div className="main--empty">
         <section className="card card--section">
           <h2 className="card__title card__title--deprecated">
             {__('Your history is empty, what are you doing here?')}
@@ -110,9 +108,9 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
             <Button button="primary" navigate="/" label={__('Explore new content')} />
           </div>
         </section>
-      </div>;
+      </div>
+    );
   }
-
 }
 
 export default UserHistoryPage;

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 type Props = {
   // -- redux --
   nextPlaylistUri: string;
@@ -28,7 +28,7 @@ const withPlaybackUris = (Component: FunctionalComponentParam) => {
       isLivestreamClaim,
       ...componentProps
     } = props;
-    const playNextUriRef = React.useRef(nextPlaylistUri || autoplayNext && nextRecommendedUri);
+    const playNextUriRef = React.useRef(nextPlaylistUri || (autoplayNext && nextRecommendedUri));
     const playNextUri = React.useMemo(() => {
       if (nextPlaylistUri) {
         // handles current playing item is deleted case: stores the previous value for the next item

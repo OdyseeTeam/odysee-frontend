@@ -1,21 +1,21 @@
-import React from "react";
+import React from 'react';
 const LISTENER = {
   ADD: 'add',
-  REMOVE: 'remove'
+  REMOVE: 'remove',
 };
 const DRAG_TYPES = {
   END: 'dragend',
   START: 'dragstart',
   ENTER: 'dragenter',
-  LEAVE: 'dragleave'
+  LEAVE: 'dragleave',
 };
 const DRAG_SCORE = {
   [DRAG_TYPES.ENTER]: 1,
-  [DRAG_TYPES.LEAVE]: -1
+  [DRAG_TYPES.LEAVE]: -1,
 };
 const DRAG_STATE = {
   [DRAG_TYPES.END]: false,
-  [DRAG_TYPES.START]: true
+  [DRAG_TYPES.START]: true,
 }; // Returns simple detection for global drag-drop
 
 export default function useDragDrop() {
@@ -26,13 +26,13 @@ export default function useDragDrop() {
     let draggingElement = false;
 
     // Check if the event target is a text input (textarea/input) that handles its own drops
-    const isTextInputTarget = event => {
+    const isTextInputTarget = (event) => {
       const tag = event.target && event.target.tagName;
       return tag === 'TEXTAREA' || tag === 'INPUT';
     };
 
     // Handle file drop
-    const handleDropEvent = event => {
+    const handleDropEvent = (event) => {
       // Ignore non file types ( html elements / text )
       if (!draggingElement) {
         // Let text inputs (comment box, etc.) handle their own image drops
@@ -54,12 +54,12 @@ export default function useDragDrop() {
     };
 
     // Drag event for non files type ( html elements / text )
-    const handleDragElementEvent = event => {
+    const handleDragElementEvent = (event) => {
       draggingElement = DRAG_STATE[event.type];
     };
 
     // Drag events
-    const handleDragEvent = event => {
+    const handleDragEvent = (event) => {
       // Let text inputs handle their own drag events
       if (isTextInputTarget(event)) return;
       event.stopPropagation();
@@ -79,7 +79,7 @@ export default function useDragDrop() {
     };
 
     // Register / Unregister listeners
-    const handleEventListeners = event => {
+    const handleEventListeners = (event) => {
       const action = `${event}EventListener`;
       // Handle drop event
       document[action]('drop', handleDropEvent);
@@ -102,6 +102,6 @@ export default function useDragDrop() {
   }, []);
   return {
     drag,
-    dropData
+    dropData,
   };
 }

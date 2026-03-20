@@ -1,11 +1,16 @@
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import { doSearch } from "redux/actions/search";
-import { selectIsSearching, makeSelectSearchUrisForQuery, selectSearchOptions, makeSelectHasReachedMaxResultsLength } from "redux/selectors/search";
-import { selectClientSetting, selectLanguage, selectShowMatureContent } from "redux/selectors/settings";
-import { getSearchQueryString } from "util/query-params";
-import SearchPage from "./view";
-import * as SETTINGS from "constants/settings";
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { doSearch } from 'redux/actions/search';
+import {
+  selectIsSearching,
+  makeSelectSearchUrisForQuery,
+  selectSearchOptions,
+  makeSelectHasReachedMaxResultsLength,
+} from 'redux/selectors/search';
+import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import { getSearchQueryString } from 'util/query-params';
+import SearchPage from './view';
+import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const showMature = selectShowMatureContent(state);
@@ -18,12 +23,15 @@ const select = (state, props) => {
     urlQuery = urlQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
   }
 
-  const searchOptions = { ...selectSearchOptions(state),
+  const searchOptions = {
+    ...selectSearchOptions(state),
     isBackgroundSearch: false,
     nsfw: showMature,
-    ...(searchInLanguage ? {
-      language: languageSetting
-    } : {})
+    ...(searchInLanguage
+      ? {
+          language: languageSetting,
+        }
+      : {}),
   };
   const query = getSearchQueryString(urlQuery, searchOptions);
   const uris = makeSelectSearchUrisForQuery(query)(state);
@@ -33,12 +41,12 @@ const select = (state, props) => {
     searchOptions,
     isSearching: selectIsSearching(state),
     uris: uris,
-    hasReachedMaxResultsLength: hasReachedMaxResultsLength
+    hasReachedMaxResultsLength: hasReachedMaxResultsLength,
   };
 };
 
-const perform = dispatch => ({
-  search: (query, options) => dispatch(doSearch(query, options))
+const perform = (dispatch) => ({
+  search: (query, options) => dispatch(doSearch(query, options)),
 });
 
 export default withRouter(connect(select, perform)(SearchPage));

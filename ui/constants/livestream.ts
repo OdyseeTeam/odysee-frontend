@@ -1,4 +1,4 @@
-import { LIVESTREAM_SERVER_API } from "config";
+import { LIVESTREAM_SERVER_API } from 'config';
 export const LIVESTREAM_REPLAY_API = 'https://api.live.odysee.com/v1/replays/odysee';
 export const LIVESTREAM_RTMP_URL = 'rtmp://stream.odysee.com/live';
 export const LIVESTREAM_KILL = `${LIVESTREAM_SERVER_API}/streams/kill?app=live&`;

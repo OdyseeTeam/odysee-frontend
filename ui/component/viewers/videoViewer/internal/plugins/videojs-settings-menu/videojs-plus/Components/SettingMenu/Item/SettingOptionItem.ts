@@ -1,7 +1,7 @@
-import videojs from "video.js";
-import SettingMenuItem from "./SettingMenuItem";
-import SettingSubOptionTitle from "./SettingSubOptionTitle";
-import SettingSubOptionItem from "./SettingSubOptionItem";
+import videojs from 'video.js';
+import SettingMenuItem from './SettingMenuItem';
+import SettingSubOptionTitle from './SettingSubOptionTitle';
+import SettingSubOptionItem from './SettingSubOptionItem';
 
 /**
  * @param {Array<Object|number|string>} entries
@@ -11,7 +11,7 @@ function parseEntries(entries, selectedIndex) {
     if (data !== null && typeof data !== 'object') {
       data = {
         value: data,
-        label: data
+        label: data,
       };
     }
 
@@ -22,14 +22,11 @@ function parseEntries(entries, selectedIndex) {
       selectedIndex = index;
     }
 
-    return { ...data,
-      index,
-      default: isDefault
-    };
+    return { ...data, index, default: isDefault };
   });
   return {
     entries,
-    selected: entries[selectedIndex || 0]
+    selected: entries[selectedIndex || 0],
   };
 }
 
@@ -44,20 +41,17 @@ class SettingOptionItem extends SettingMenuItem {
   }
 
   createEl() {
-    const {
-      icon,
-      label
-    } = this.options_;
+    const { icon, label } = this.options_;
     const el = videojs.dom.createEl('li', {
       className: 'vjs-menu-item vjs-setting-menu-item',
       innerHTML: `
         <div class="vjs-icon-placeholder ${icon || ''}"></div>
         <div class="vjs-setting-menu-label">${this.localize(label)}</div>
         <div class="vjs-spacer"></div>
-      `
+      `,
     });
     this.selectedValueEl = videojs.dom.createEl('div', {
-      className: 'vjs-setting-menu-value'
+      className: 'vjs-setting-menu-value',
     });
     el.appendChild(this.selectedValueEl);
     return el;
@@ -67,21 +61,21 @@ class SettingOptionItem extends SettingMenuItem {
     Object.assign(this, parseEntries(entries_, selectedIndex));
     this.updateSelectedValue();
     const SubOptionItem = videojs.getComponent(`${this.name_}Child`) || SettingSubOptionItem;
-    this.subMenuItems = [new SettingSubOptionTitle(this.player_, {
-      label: this.options_.label,
-      menu: this.menu
-    }), ...this.entries.map(({
-      label,
-      value
-    }, index) => {
-      return new SubOptionItem(this.player_, {
-        index,
-        label,
-        value,
-        parent: this,
-        menu: this.menu
-      });
-    })];
+    this.subMenuItems = [
+      new SettingSubOptionTitle(this.player_, {
+        label: this.options_.label,
+        menu: this.menu,
+      }),
+      ...this.entries.map(({ label, value }, index) => {
+        return new SubOptionItem(this.player_, {
+          index,
+          label,
+          value,
+          parent: this,
+          menu: this.menu,
+        });
+      }),
+    ];
   }
 
   handleClick() {
@@ -94,14 +88,12 @@ class SettingOptionItem extends SettingMenuItem {
   }
 
   update() {
-    this.subMenuItems.forEach(item => {
+    this.subMenuItems.forEach((item) => {
       item.update && item.update();
     });
   }
 
-  onChange({
-    index
-  }) {
+  onChange({ index }) {
     this.select(index);
     this.update(index);
   }
@@ -111,7 +103,6 @@ class SettingOptionItem extends SettingMenuItem {
       this.selectedValueEl.innerHTML = this.localize(this.selected.label);
     }
   }
-
 }
 
 videojs.registerComponent('SettingOptionItem', SettingOptionItem);
