@@ -33,6 +33,147 @@ import Logo from 'component/logo';
 import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
 
+const OdyseeCast = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={14}
+    height={14}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    viewBox="0 0 24 24"
+    {...props}
+  >
+    <path d="M2 8v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+    <path d="M2 16a5 5 0 0 1 5 5M2 12a9 9 0 0 1 9 9" />
+    <circle cx={2} cy={20} r={1.5} fill="currentColor" stroke="none" />
+  </svg>
+);
+
+function formatCastTime(seconds) {
+  if (!seconds || seconds < 0) return '0:00';
+  const s = Math.floor(seconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
+  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+function CastProgressBar({ castState, castActions }: { castState: any, castActions: any }) {
+  const trackRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const [hoverFrac, setHoverFrac] = useState(null);
+
+  const fraction = castState.duration > 0 ? castState.currentTime / castState.duration : 0;
+
+  const getFracFromEvent = (e) => {
+    const track = trackRef.current;
+    if (!track) return 0;
+    const rect = track.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  };
+
+  const handlePointerDown = useCallback(
+    (e) => {
+      setDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+      const f = getFracFromEvent(e);
+      castActions.seek(f * castState.duration);
+    },
+    [castActions, castState.duration]
+  );
+
+  const handlePointerMove = useCallback(
+    (e) => {
+      const f = getFracFromEvent(e);
+      setHoverFrac(f);
+      if (dragging) {
+        castActions.seek(f * castState.duration);
+      }
+    },
+    [dragging, castActions, castState.duration]
+  );
+
+  const handlePointerUp = useCallback(() => setDragging(false), []);
+  const handlePointerLeave = useCallback(() => setHoverFrac(null), []);
+
+  const displayFrac = dragging && hoverFrac !== null ? hoverFrac : fraction;
+
+  return (
+    <div
+      ref={trackRef}
+      className="media-slider media-slider--time odysee-time-slider odysee-cast-slider"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
+      style={{ cursor: 'pointer' }}
+    >
+      <div className="media-slider__track odysee-slider__track">
+        <div className="media-slider__fill odysee-slider__fill" style={{ width: `${displayFrac * 100}%` }} />
+      </div>
+      <div
+        className="media-slider__thumb odysee-slider__thumb"
+        style={{ left: `${displayFrac * 100}%`, display: 'block' }}
+      />
+      {hoverFrac !== null && (
+        <div className="odysee-slider-preview" style={{ left: `${hoverFrac * 100}%` }}>
+          <span className="odysee-slider-preview__time">{formatCastTime(hoverFrac * castState.duration)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CastVolumeSlider({ castState, castActions }: { castState: any, castActions: any }) {
+  const trackRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+
+  const getFracFromEvent = (e) => {
+    const track = trackRef.current;
+    if (!track) return 0;
+    const rect = track.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  };
+
+  const handlePointerDown = useCallback(
+    (e) => {
+      setDragging(true);
+      e.currentTarget.setPointerCapture(e.pointerId);
+      castActions.setVolume(getFracFromEvent(e));
+    },
+    [castActions]
+  );
+
+  const handlePointerMove = useCallback(
+    (e) => {
+      if (dragging) castActions.setVolume(getFracFromEvent(e));
+    },
+    [dragging, castActions]
+  );
+
+  const handlePointerUp = useCallback(() => setDragging(false), []);
+
+  return (
+    <div
+      ref={trackRef}
+      className="media-slider media-volume-slider"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      style={{ cursor: 'pointer' }}
+    >
+      <div className="media-slider__track">
+        <div className="media-slider__fill" style={{ width: `${castState.volume * 100}%` }} />
+      </div>
+      <div className="media-slider__thumb" style={{ left: `${castState.volume * 100}%`, display: 'block' }} />
+    </div>
+  );
+}
+
 const OdyseePlay = icons[ICONS.PLAY];
 const OdyseeReplay = icons[ICONS.REPLAY];
 const OdyseePlayPrevious = icons[ICONS.PLAY_PREVIOUS];
@@ -187,6 +328,7 @@ function SettingsMenuContent({
   quality,
   isFloating,
   embedded,
+  isCasting,
 }) {
   const isMobileDevice = platform.isMobile();
   const { levels, currentLevel, currentLabel, selectQuality } = quality;
@@ -438,7 +580,7 @@ function SettingsMenuContent({
         <span className="media-settings-menu__label">{__('Playback Speed')}</span>
         <span className="media-settings-menu__value">{rateLabel}</span>
       </button>
-      {levels.length > 0 && (
+      {levels.length > 0 && !isCasting && (
         <button type="button" className="media-settings-menu__item" onClick={() => setView('quality')}>
           <svg
             className="media-settings-menu__icon"
@@ -469,7 +611,7 @@ function SettingsMenuContent({
   );
 }
 
-function ClickToPlay() {
+function ClickToPlay({ onTogglePlay }) {
   const media = Player.useMedia();
   const settingsWasOpenRef = useRef(false);
   const clickTimerRef = useRef(null);
@@ -489,7 +631,6 @@ function ClickToPlay() {
   }, []);
 
   const handleClick = useCallback(() => {
-    if (!media) return;
     if (settingsWasOpenRef.current) {
       settingsWasOpenRef.current = false;
       return;
@@ -497,13 +638,17 @@ function ClickToPlay() {
     if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
     clickTimerRef.current = setTimeout(() => {
       clickTimerRef.current = null;
-      if (media.paused) {
-        media.play();
-      } else {
-        media.pause();
+      if (onTogglePlay) {
+        onTogglePlay();
+      } else if (media) {
+        if (media.paused) {
+          media.play();
+        } else {
+          media.pause();
+        }
       }
     }, 200);
-  }, [media]);
+  }, [media, onTogglePlay]);
 
   const handleDblClick = useCallback(() => {
     if (clickTimerRef.current) {
@@ -661,6 +806,8 @@ type Props = {
   castAvailable?: boolean,
   isCasting?: boolean,
   onCastToggle?: () => void,
+  castState?: any,
+  castActions?: any,
 };
 
 export default function OdyseeSkin(props: Props) {
@@ -692,6 +839,8 @@ export default function OdyseeSkin(props: Props) {
     castAvailable,
     isCasting,
     onCastToggle,
+    castState,
+    castActions,
     ...rest
   } = props;
 
@@ -710,6 +859,16 @@ export default function OdyseeSkin(props: Props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const liveTimeFormat = useLiveTimeFormat();
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
+  const castIsPaused = castState ? castState.isPaused : true;
+  const castTogglePlay = React.useCallback(() => {
+    if (!castActions) return;
+    if (castIsPaused) {
+      castActions.play();
+    } else {
+      castActions.pause();
+    }
+  }, [castIsPaused, castActions]);
+
   const [activePanel, setActivePanel] = useState(null);
 
   React.useEffect(() => {
@@ -770,7 +929,14 @@ export default function OdyseeSkin(props: Props) {
     >
       {children}
 
-      <ClickToPlay />
+      <ClickToPlay onTogglePlay={isCasting ? castTogglePlay : undefined} />
+
+      {isCasting && castState && castState.deviceName && (
+        <div className="odysee-cast-indicator">
+          <OdyseeCast />
+          <span>{__('Casting to %device%', { device: castState.deviceName })}</span>
+        </div>
+      )}
 
       <BufferingIndicator
         render={(p) => (
@@ -782,35 +948,39 @@ export default function OdyseeSkin(props: Props) {
 
       {/* Progress Bar — above the control bar */}
       <div className="odysee-progress-bar">
-        <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
-          <Slider.Track className="media-slider__track odysee-slider__track">
-            <Slider.Fill className="media-slider__fill odysee-slider__fill" />
-            <Slider.Buffer className="media-slider__buffer odysee-slider__buffer" />
-            {chapters.length > 0 && <ChapterMarkers chapters={chapters} />}
-          </Slider.Track>
-          <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
-          <Slider.Preview className="odysee-slider-preview">
-            {!isVerticalVideo ? (
-              <div className="odysee-slider-preview__thumbnail-frame">
+        {isCasting && castState ? (
+          <CastProgressBar castState={castState} castActions={castActions} />
+        ) : (
+          <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
+            <Slider.Track className="media-slider__track odysee-slider__track">
+              <Slider.Fill className="media-slider__fill odysee-slider__fill" />
+              <Slider.Buffer className="media-slider__buffer odysee-slider__buffer" />
+              {chapters.length > 0 && <ChapterMarkers chapters={chapters} />}
+            </Slider.Track>
+            <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
+            <Slider.Preview className="odysee-slider-preview">
+              {!isVerticalVideo ? (
+                <div className="odysee-slider-preview__thumbnail-frame">
+                  <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
+                </div>
+              ) : (
                 <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
-              </div>
-            ) : (
-              <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
-            )}
-            {chapters.length > 0 && (
+              )}
+              {chapters.length > 0 && (
+                <Slider.Value
+                  type="pointer"
+                  format={chapterFormatFn(chapters)}
+                  className="odysee-slider-preview__chapter"
+                />
+              )}
               <Slider.Value
                 type="pointer"
-                format={chapterFormatFn(chapters)}
-                className="odysee-slider-preview__chapter"
+                className="odysee-slider-preview__time"
+                format={isLivestream ? liveTimeFormat : undefined}
               />
-            )}
-            <Slider.Value
-              type="pointer"
-              className="odysee-slider-preview__time"
-              format={isLivestream ? liveTimeFormat : undefined}
-            />
-          </Slider.Preview>
-        </TimeSlider.Root>
+            </Slider.Preview>
+          </TimeSlider.Root>
+        )}
       </div>
 
       <Controls.Root
@@ -971,6 +1141,7 @@ export default function OdyseeSkin(props: Props) {
                     quality={quality}
                     isFloating={isFloating}
                     embedded={embedded}
+                    isCasting={isCasting}
                   />
                 </Popover.Popup>
               </Popover.Root>
@@ -978,12 +1149,16 @@ export default function OdyseeSkin(props: Props) {
 
             <div className="odysee-mobile-controls__bottom">
               <div className="media-surface odysee-mobile-controls__time">
-                <MuteButton
-                  render={(p) => (
-                    <Btn {...p} className="media-button--icon media-button--mute">
-                      <OdyseeVolumeMuted className="media-icon media-icon--volume-off" size={18} color="currentColor" />
+                {isCasting && castState ? (
+                  <Btn
+                    className="media-button--icon media-button--mute"
+                    onClick={() => castActions && castActions.toggleMute()}
+                  >
+                    {castState.isMuted ? (
+                      <OdyseeVolumeMuted className="media-icon" size={18} color="currentColor" />
+                    ) : (
                       <svg
-                        className="media-icon media-icon--volume-high"
+                        className="media-icon"
                         xmlns="http://www.w3.org/2000/svg"
                         width={18}
                         height={18}
@@ -1000,10 +1175,46 @@ export default function OdyseeSkin(props: Props) {
                           d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
                         />
                       </svg>
-                    </Btn>
-                  )}
-                />
-                {isLivestream ? (
+                    )}
+                  </Btn>
+                ) : (
+                  <MuteButton
+                    render={(p) => (
+                      <Btn {...p} className="media-button--icon media-button--mute">
+                        <OdyseeVolumeMuted
+                          className="media-icon media-icon--volume-off"
+                          size={18}
+                          color="currentColor"
+                        />
+                        <svg
+                          className="media-icon media-icon--volume-high"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width={18}
+                          height={18}
+                          fill="none"
+                          aria-hidden="true"
+                          viewBox="0 0 18 18"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                          />
+                          <path
+                            fill="currentColor"
+                            d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                          />
+                        </svg>
+                      </Btn>
+                    )}
+                  />
+                )}
+                {isCasting && castState ? (
+                  <span className="media-time">
+                    <span className="media-time__value">{formatCastTime(castState.currentTime)}</span>
+                    <span className="media-time__separator">/</span>
+                    <span className="media-time__value">{formatCastTime(castState.duration)}</span>
+                  </span>
+                ) : isLivestream ? (
                   <LiveButton />
                 ) : (
                   <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
@@ -1114,16 +1325,16 @@ export default function OdyseeSkin(props: Props) {
                   </Tooltip.Root>
                 )}
 
-                <Tooltip.Root side="top">
-                  <Tooltip.Trigger
-                    render={
-                      <PlayButton
-                        render={(p) => (
-                          <Btn {...p} className="media-button--icon media-button--play">
-                            <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
-                            <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
+                {isCasting && castState ? (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <Btn className="media-button--icon media-button--play" onClick={castTogglePlay}>
+                          {castState.isPaused ? (
+                            <OdyseePlay className="media-icon" size={18} color="currentColor" />
+                          ) : (
                             <svg
-                              className="media-icon media-icon--pause"
+                              className="media-icon"
                               xmlns="http://www.w3.org/2000/svg"
                               width={18}
                               height={18}
@@ -1134,15 +1345,45 @@ export default function OdyseeSkin(props: Props) {
                               <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
                               <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
                             </svg>
-                          </Btn>
-                        )}
-                      />
-                    }
-                  />
-                  <Tooltip.Popup className="media-tooltip">
-                    <PlayLabel />
-                  </Tooltip.Popup>
-                </Tooltip.Root>
+                          )}
+                        </Btn>
+                      }
+                    />
+                    <Tooltip.Popup className="media-tooltip">
+                      {castState.isPaused ? __('Play (space)') : __('Pause (space)')}
+                    </Tooltip.Popup>
+                  </Tooltip.Root>
+                ) : (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <PlayButton
+                          render={(p) => (
+                            <Btn {...p} className="media-button--icon media-button--play">
+                              <OdyseeReplay className="media-icon media-icon--restart" size={18} color="currentColor" />
+                              <OdyseePlay className="media-icon media-icon--play" size={18} color="currentColor" />
+                              <svg
+                                className="media-icon media-icon--pause"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={18}
+                                height={18}
+                                fill="none"
+                                aria-hidden="true"
+                                viewBox="0 0 18 18"
+                              >
+                                <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
+                                <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
+                              </svg>
+                            </Btn>
+                          )}
+                        />
+                      }
+                    />
+                    <Tooltip.Popup className="media-tooltip">
+                      <PlayLabel />
+                    </Tooltip.Popup>
+                  </Tooltip.Root>
+                )}
 
                 {!isMarkdownOrComment && canPlayNext && onPlayNext && (
                   <Tooltip.Root side="top">
@@ -1167,30 +1408,16 @@ export default function OdyseeSkin(props: Props) {
                 )}
 
                 <div className="media-volume-group">
-                  <MuteButton
-                    render={(p) => (
-                      <Btn {...p} className="media-button--icon media-button--mute">
-                        <OdyseeVolumeMuted
-                          className="media-icon media-icon--volume-off"
-                          size={18}
-                          color="currentColor"
-                        />
+                  {isCasting && castState ? (
+                    <Btn
+                      className="media-button--icon media-button--mute"
+                      onClick={() => castActions && castActions.toggleMute()}
+                    >
+                      {castState.isMuted ? (
+                        <OdyseeVolumeMuted className="media-icon" size={18} color="currentColor" />
+                      ) : (
                         <svg
-                          className="media-icon media-icon--volume-low"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width={18}
-                          height={18}
-                          fill="none"
-                          aria-hidden="true"
-                          viewBox="0 0 18 18"
-                        >
-                          <path
-                            fill="currentColor"
-                            d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
-                          />
-                        </svg>
-                        <svg
-                          className="media-icon media-icon--volume-high"
+                          className="media-icon"
                           xmlns="http://www.w3.org/2000/svg"
                           width={18}
                           height={18}
@@ -1207,24 +1434,77 @@ export default function OdyseeSkin(props: Props) {
                             d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
                           />
                         </svg>
-                      </Btn>
-                    )}
-                  />
-                  {!isShorts && (
-                    <VolumeSlider.Root
-                      className="media-slider media-volume-slider"
-                      orientation="horizontal"
-                      thumbAlignment="edge"
-                    >
-                      <Slider.Track className="media-slider__track">
-                        <Slider.Fill className="media-slider__fill" />
-                      </Slider.Track>
-                      <Slider.Thumb className="media-slider__thumb" />
-                    </VolumeSlider.Root>
+                      )}
+                    </Btn>
+                  ) : (
+                    <MuteButton
+                      render={(p) => (
+                        <Btn {...p} className="media-button--icon media-button--mute">
+                          <OdyseeVolumeMuted
+                            className="media-icon media-icon--volume-off"
+                            size={18}
+                            color="currentColor"
+                          />
+                          <svg
+                            className="media-icon media-icon--volume-low"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={18}
+                            height={18}
+                            fill="none"
+                            aria-hidden="true"
+                            viewBox="0 0 18 18"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                            />
+                          </svg>
+                          <svg
+                            className="media-icon media-icon--volume-high"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={18}
+                            height={18}
+                            fill="none"
+                            aria-hidden="true"
+                            viewBox="0 0 18 18"
+                          >
+                            <path
+                              fill="currentColor"
+                              d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                            />
+                          </svg>
+                        </Btn>
+                      )}
+                    />
                   )}
+                  {!isShorts &&
+                    (isCasting && castState ? (
+                      <CastVolumeSlider castState={castState} castActions={castActions} />
+                    ) : (
+                      <VolumeSlider.Root
+                        className="media-slider media-volume-slider"
+                        orientation="horizontal"
+                        thumbAlignment="edge"
+                      >
+                        <Slider.Track className="media-slider__track">
+                          <Slider.Fill className="media-slider__fill" />
+                        </Slider.Track>
+                        <Slider.Thumb className="media-slider__thumb" />
+                      </VolumeSlider.Root>
+                    ))}
                 </div>
 
-                {isLivestream ? (
+                {isCasting && castState ? (
+                  <span className="media-time">
+                    <span className="media-time__value">{formatCastTime(castState.currentTime)}</span>
+                    <span className="media-time__separator">/</span>
+                    <span className="media-time__value">{formatCastTime(castState.duration)}</span>
+                  </span>
+                ) : isLivestream ? (
                   <LiveButton />
                 ) : (
                   <Time.Group className="media-time" onClick={() => setShowRemaining((v) => !v)}>
@@ -1326,6 +1606,7 @@ export default function OdyseeSkin(props: Props) {
                     quality={quality}
                     isFloating={isFloating}
                     embedded={embedded}
+                    isCasting={isCasting}
                   />
                 </Popover.Popup>
               </Popover.Root>

@@ -13,6 +13,7 @@ import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
+import { isCastSessionActive } from 'component/viewers/videoViewer/internal/hooks/useChromecast';
 
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
@@ -180,6 +181,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const autoplayVideo =
       !claimLinkId &&
+      !isCastSessionActive() &&
       (autoplayEnabled || playingCollectionId) &&
       (!alreadyPlaying.current || currentUriPlaying) &&
       isPlayable;

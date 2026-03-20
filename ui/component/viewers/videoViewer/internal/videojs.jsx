@@ -20,7 +20,7 @@ import useLivestreamEdge from './hooks/useLivestreamEdge';
 import useMediaSession from './hooks/useMediaSession';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 import useAnalytics from './hooks/useAnalytics';
-import useChromecast from './hooks/useChromecast';
+import useChromecast, { isCastSessionActive } from './hooks/useChromecast';
 import MobileTouchOverlay from './components/MobileTouchOverlay';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
@@ -178,26 +178,39 @@ function VideoJsInner(props: Props) {
     playPrevious,
   });
   useAnalytics();
-  const { castAvailable, isCasting, startCast, stopCast } = useChromecast();
+  const { castAvailable, isCasting, castState, castActions } = useChromecast();
+  const castStateRef = useRef(castState);
+  castStateRef.current = castState;
 
-  const castSrc = resolvedSource?.src;
   const onCastToggle = useCallback(() => {
     if (isCasting) {
-      stopCast();
-      if (media) media.play();
-    } else {
-      if (castSrc) {
-        startCast(castSrc, title, channelTitle);
-        if (media) media.pause();
+      const resumeTime = castStateRef.current.currentTime;
+      castActions.stop();
+      if (media) {
+        media.currentTime = resumeTime;
+        media.play();
       }
+    } else {
+      const cast = window.cast;
+      const ctx = cast && cast.framework && cast.framework.CastContext && cast.framework.CastContext.getInstance();
+      if (ctx) ctx.requestSession();
     }
-  }, [isCasting, stopCast, startCast, media, castSrc, title, channelTitle]);
+  }, [isCasting, castActions, media]);
 
+  const castLoadedSrcRef = useRef(null);
+  const castSrc = resolvedSource ? resolvedSource.src : null;
   useEffect(() => {
-    if (!isCasting && media && media.paused) {
-      media.play();
+    if (isCasting && castSrc && castSrc !== castLoadedSrcRef.current) {
+      castLoadedSrcRef.current = castSrc;
+      const contentType = castSrc.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
+      castActions.loadMedia(castSrc, title, channelTitle, poster, contentType);
+      if (media) media.pause();
     }
-  }, [isCasting, media]);
+    if (!isCasting) {
+      castLoadedSrcRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCasting, castSrc]);
 
   // Initial setup when media element becomes available
   useEffect(() => {
@@ -293,6 +306,7 @@ function VideoJsInner(props: Props) {
   // Auto-play on source load
   useEffect(() => {
     if (!media || !resolvedSource) return;
+    if (isCastSessionActive()) return;
 
     const docEl = document.documentElement;
     const attemptPlay = () => {
@@ -443,6 +457,8 @@ function VideoJsInner(props: Props) {
         castAvailable={castAvailable}
         isCasting={isCasting}
         onCastToggle={onCastToggle}
+        castState={castState}
+        castActions={castActions}
       >
         {resolvedSource && (
           <Video
