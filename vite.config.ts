@@ -269,6 +269,7 @@ export default defineConfig({
     IS_WEB: JSON.stringify(true),
     __static: JSON.stringify(path.join(__dirname, 'static')),
     'process.platform': JSON.stringify('browser'),
+    global: 'globalThis',
   },
 
   resolve: {
