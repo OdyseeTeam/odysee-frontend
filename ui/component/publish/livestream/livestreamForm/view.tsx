@@ -233,16 +233,12 @@ function LivestreamForm(props: Props) {
     setCheckingLivestreams(true);
     let signedMessage;
 
-    try {
-      await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName || ''),
-      }).then((data) => {
-        signedMessage = data;
-      });
-    } catch (e) {
-      throw e;
-    }
+    await Lbry.channel_sign({
+      channel_id: channelId,
+      hexdata: toHex(channelName || ''),
+    }).then((data) => {
+      signedMessage = data;
+    });
 
     if (signedMessage) {
       const encodedChannelName = encodeURIComponent(channelName || '');

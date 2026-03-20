@@ -70,17 +70,13 @@ const getStreamData = async (channelId: string, channelName: string): Promise<St
   const channelNameHex = toHex(channelName);
   let channelSignature;
 
-  try {
-    channelSignature = await Lbry.channel_sign({
-      channel_id: channelId,
-      hexdata: channelNameHex,
-    });
+  channelSignature = await Lbry.channel_sign({
+    channel_id: channelId,
+    hexdata: channelNameHex,
+  });
 
-    if (!channelSignature || !channelSignature.signature || !channelSignature.signing_ts) {
-      throw new Error('Error getting channel signature.');
-    }
-  } catch (e) {
-    throw e;
+  if (!channelSignature || !channelSignature.signature || !channelSignature.signing_ts) {
+    throw new Error('Error getting channel signature.');
   }
 
   return {
@@ -91,17 +87,13 @@ const getStreamData = async (channelId: string, channelName: string): Promise<St
 };
 
 export const killStream = async (channelId: string, channelName: string) => {
-  try {
-    const streamData = await getStreamData(channelId, channelName);
-    const encodedChannelName = encodeURIComponent(channelName);
-    const apiData = await fetch(
-      `${LIVESTREAM_KILL}channel_claim_id=${channelId}&channel_name=${encodedChannelName}&signature_ts=${streamData.t}&signature=${streamData.s}`
-    );
-    const data = (await apiData.json()).data;
-    if (!data) throw new Error('Kill stream API failed.');
-  } catch (e) {
-    throw e;
-  }
+  const streamData = await getStreamData(channelId, channelName);
+  const encodedChannelName = encodeURIComponent(channelName);
+  const apiData = await fetch(
+    `${LIVESTREAM_KILL}channel_claim_id=${channelId}&channel_name=${encodedChannelName}&signature_ts=${streamData.t}&signature=${streamData.s}`
+  );
+  const data = (await apiData.json()).data;
+  if (!data) throw new Error('Kill stream API failed.');
 };
 export function filterActiveLivestreamUris(
   channelIds: Array<string> | null | undefined,
