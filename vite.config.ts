@@ -314,7 +314,7 @@ function ssrTemplatePlugin(): Plugin {
 export default defineConfig({
   root: __dirname,
   publicDir: 'static',
-  base: isProduction ? '/public/' : '/',
+  base: '/public/',
 
   define: {
     ...buildEnvDefines(),
