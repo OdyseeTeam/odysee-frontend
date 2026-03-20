@@ -281,6 +281,9 @@ export default defineConfig({
   },
 
   resolve: {
+    // Prefer 'module' over 'import' so @emotion's real ESM files are used
+    // instead of the broken .cjs.mjs wrappers in their exports map.
+    conditions: ['module', 'browser', 'development'],
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
     alias: {
       // Explicit aliases for things that aren't in ui/
