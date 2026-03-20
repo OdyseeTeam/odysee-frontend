@@ -67,6 +67,46 @@ type Props = {
   doClaimSearch: (arg0: any) => Promise<any>;
   doCommentById: (arg0: string, arg1: boolean) => Promise<any>;
 };
+const numStr = (n) =>
+  n.toLocaleString('en-US', {
+    minimumIntegerDigits: 2,
+    useGrouping: false,
+  });
+
+const pushParam = (params, label, value, encode = true) => {
+  if (encode) {
+    params.push(`${label}=${encodeURIComponent(value)}`);
+  } else {
+    params.push(`${label}=${value}`);
+  }
+};
+
+function isTimestampValid(timestamp: string) {
+  if (timestamp === '0') {
+    return true;
+  }
+
+  const length = timestamp.length;
+
+  if (length <= 4) {
+    return timestamp.match(/\d:[0-5]\d/);
+  } else if (length <= 5) {
+    return timestamp.match(/[0-5]\d:[0-5]\d/);
+  } else if (length <= 8) {
+    return timestamp.match(/\d{1,2}:[0-5]\d:\d\d/);
+  } else {
+    return false;
+  }
+}
+
+function includeTimestamp(claim: StreamClaim, commentId: string | null | undefined) {
+  return (
+    !commentId &&
+    claim.value_type === 'stream' &&
+    (claim.value.stream_type === 'video' || claim.value.stream_type === 'audio')
+  );
+}
+
 export default function ReportContent(props: Props) {
   const {
     activeChannelClaim,
@@ -284,32 +324,6 @@ export default function ReportContent(props: Props) {
 
   function isSubmitterDetailsAddressValid() {
     return input.street_address && input.city && input.state_or_province && input.zip_code && input.country;
-  }
-
-  function isTimestampValid(timestamp: string) {
-    if (timestamp === '0') {
-      return true;
-    }
-
-    const length = timestamp.length;
-
-    if (length <= 4) {
-      return timestamp.match(/\d:[0-5]\d/);
-    } else if (length <= 5) {
-      return timestamp.match(/[0-5]\d:[0-5]\d/);
-    } else if (length <= 8) {
-      return timestamp.match(/\d{1,2}:[0-5]\d:\d\d/);
-    } else {
-      return false;
-    }
-  }
-
-  function includeTimestamp(claim: StreamClaim, commentId: string | null | undefined) {
-    return (
-      !commentId &&
-      claim.value_type === 'stream' &&
-      (claim.value.stream_type === 'video' || claim.value.stream_type === 'audio')
-    );
   }
 
   function getActionElem() {
