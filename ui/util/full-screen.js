@@ -8,6 +8,11 @@ import { platform } from 'ui/util/platform';
 const IOS_FS_CLASS = 'ios-fullscreen';
 let iosFsElement = null;
 
+function syncViewportHeight() {
+  const docEl = document.documentElement;
+  if (docEl) docEl.style.setProperty('--ios-fs-height', window.innerHeight + 'px');
+}
+
 const prefixes = {
   exitFullscreen: ['exitFullscreen', 'msExitFullscreen', 'mozCancelFullScreen', 'webkitExitFullscreen'],
   fullscreenChange: ['fullscreenchange', 'MSFullscreenChange', 'mozfullscreenchange', 'webkitfullscreenchange'],
@@ -41,6 +46,8 @@ export const requestFullscreen = (elem) => {
     const docEl = document.documentElement;
     if (docEl) docEl.classList.add(IOS_FS_CLASS);
     iosFsElement = elem;
+    syncViewportHeight();
+    window.addEventListener('resize', syncViewportHeight);
     document.dispatchEvent(new Event('fullscreenchange'));
     elem.dispatchEvent(new Event('fullscreenchange'));
     return;
@@ -53,7 +60,11 @@ export const requestFullscreen = (elem) => {
 export const exitFullscreen = () => {
   if (platform.isIPhone() && iosFsElement) {
     const docEl = document.documentElement;
-    if (docEl) docEl.classList.remove(IOS_FS_CLASS);
+    if (docEl) {
+      docEl.classList.remove(IOS_FS_CLASS);
+      docEl.style.removeProperty('--ios-fs-height');
+    }
+    window.removeEventListener('resize', syncViewportHeight);
     iosFsElement = null;
     document.dispatchEvent(new Event('fullscreenchange'));
     return;

@@ -1865,6 +1865,7 @@ html.ios-fullscreen .player-fullscreen-target {
 }
 
 html.ios-fullscreen .player-fullscreen-target {
+  height: var(--ios-fs-height, 100dvh) !important;
   max-height: none !important;
   max-width: none !important;
   min-width: 0 !important;

@@ -705,8 +705,10 @@ export default function OdyseeSkin(props: Props) {
       const tr = trigger.getBoundingClientRect();
       const ph = popup.offsetHeight;
       const pw = popup.offsetWidth;
+      const fitsAbove = tr.top - ph - 4 >= 0;
+      const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
       popup.style.setProperty('bottom', 'auto', 'important');
-      popup.style.setProperty('top', `${tr.top - ph - 4}px`, 'important');
+      popup.style.setProperty('top', `${topPos}px`, 'important');
       popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
       popup.style.setProperty('place-self', 'normal', 'important');
       popup.style.setProperty('margin-inline-start', '0', 'important');
