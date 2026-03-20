@@ -120,13 +120,7 @@ export default function ReportContent(props: Props) {
       const m = Math.floor((seconds % 3600) / 60);
       const s = Math.floor((seconds % 3600) % 60);
 
-      const str = (n) =>
-        n.toLocaleString('en-US', {
-          minimumIntegerDigits: 2,
-          useGrouping: false,
-        });
-
-      updateInput('timestamp', str(h) + ':' + str(m) + ':' + str(s));
+      updateInput('timestamp', numStr(h) + ':' + numStr(m) + ':' + numStr(s));
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -149,14 +143,6 @@ export default function ReportContent(props: Props) {
       if (isDev) throw new Error('ReportContent::onSubmit -- null claim');
       return;
     }
-
-    const pushParam = (params, label, value, encode = true) => {
-      if (encode) {
-        params.push(`${label}=${encodeURIComponent(value)}`);
-      } else {
-        params.push(`${label}=${value}`);
-      }
-    };
 
     const params = [];
     pushParam(params, 'primary_email', input.email);
