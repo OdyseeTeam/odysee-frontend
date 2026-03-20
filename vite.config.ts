@@ -380,7 +380,7 @@ export default defineConfig({
       'redux-persist/integration/react',
       'redux-persist/lib/stateReconciler/autoMergeLevel2',
       'redux-persist-transform-compress',
-      'redux-persist-transform-filter/index.js',
+      'redux-persist-transform-filter',
       'redux-state-sync',
       'history',
       're-reselect',
