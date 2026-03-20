@@ -3,7 +3,7 @@ import LoadingScreen from 'component/common/loading-screen';
 import MarkdownPreview from 'component/common/markdown-preview';
 import CodeViewer from 'component/viewers/codeViewer';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import * as https from 'https';
+
 type Props = {
   theme: string;
   renderMode: string;
@@ -19,19 +19,15 @@ const DocumentViewer = (props: Props) => {
   const [content, setContent] = React.useState();
   React.useEffect(() => {
     if (stream) {
-      https.get(stream, (res) => {
-        if (res.statusCode === 200) {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            setContent(data);
-          });
-        } else {
-          setContent(null);
-        }
-      });
+      fetch(stream)
+        .then((res) => {
+          if (res.ok) {
+            return res.text();
+          }
+          return null;
+        })
+        .then((data) => setContent(data))
+        .catch(() => setContent(null));
     }
   }, [stream]);
 

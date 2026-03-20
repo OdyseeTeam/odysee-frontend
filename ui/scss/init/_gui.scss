@@ -276,7 +276,7 @@ img {
   margin: -1rem 0;
   padding: 0 30px;
 
-  background: url('~static/img/busy.gif') no-repeat center center;
+  background: url('/img/busy.gif') no-repeat center center;
   display: inline-block;
   vertical-align: middle;
 
@@ -844,7 +844,7 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     margin-right: 30px;
     width: 150px;
     height: 150px;
-    background-image: url('~static/img/cookie.svg');
+    background-image: url('/img/cookie.svg');
     background-size: contain;
     background-repeat: no-repeat;
   }

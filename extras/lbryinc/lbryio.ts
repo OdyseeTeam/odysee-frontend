@@ -1,6 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
-import querystring from 'querystring';
+// Use browser-native URLSearchParams instead of Node's querystring module
 import analytics from 'analytics';
 const Lbryio = {
   enabled: true,
@@ -86,7 +86,7 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
         fullParams[key] = JSON.stringify(value);
       }
     });
-    const qs = querystring.stringify(fullParams);
+    const qs = new URLSearchParams(fullParams).toString();
     let url = `${Lbryio.CONNECTION_STRING}${resource}/${action}?${qs}`;
     let options = {
       method: 'GET',

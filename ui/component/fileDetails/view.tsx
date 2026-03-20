@@ -1,7 +1,6 @@
 import { SIMPLE_SITE } from 'config';
 import React, { PureComponent } from 'react';
 import Button from 'component/button';
-import path from 'path';
 import { formatBytes } from 'util/format-bytes';
 type Props = {
   claim: StreamClaim;
@@ -26,7 +25,7 @@ class FileDetails extends PureComponent<Props> {
       metadata.source && metadata.source.size
         ? formatBytes(metadata.source.size)
         : fileInfo && fileInfo.download_path && formatBytes(fileInfo.written_bytes);
-    let downloadPath = fileInfo && fileInfo.download_path ? path.normalize(fileInfo.download_path) : null;
+    let downloadPath = fileInfo && fileInfo.download_path ? fileInfo.download_path.replace(/\\/g, '/').replace(/\/+/g, '/') : null;
     let downloadNote;
 
     // If the path is blank, file is not available. Streamed files won't have any blobs saved

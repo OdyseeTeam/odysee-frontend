@@ -63,6 +63,6 @@
       "$ui/*": ["./ui/*"]
     }
   },
-  "include": ["ui/**/*", "web/**/*", "extras/**/*", "electron/**/*", "custom/**/*", "config.ts", "env.d.ts"],
+  "include": ["ui/**/*", "web/**/*", "extras/**/*", "custom/**/*", "config.ts", "env.d.ts"],
   "exclude": ["node_modules", "web/node_modules", "web/dist", "web/dist_stage", "dist", "flow-typed", "build", "static"]
 }
