@@ -575,6 +575,8 @@ export const doArSetAuth = (status: any) => {
     });
   };
 };
+const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
+
 export const doArSend = (recipientAddress: string, amountAr: number) => {
   return async (dispatch: Dispatch) => {
     dispatch({
@@ -592,8 +594,6 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
         error: 'arweaveWallet not found.',
       };
     }
-
-    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
 
     if (!isValidArweaveAddress(recipientAddress)) {
       dispatch({

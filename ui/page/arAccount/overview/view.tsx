@@ -22,6 +22,10 @@ type Props = {
   doArSend: any;
 };
 
+const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);
+
+const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(String(address));
+
 function Overview(props: Props) {
   const { cardHeader, wallet, balance, arWalletStatus, activeArStatus, doArSend } = props;
   const [transactions, setTransactions] = React.useState(null);
@@ -104,8 +108,6 @@ function Overview(props: Props) {
               if (row.target && row.amount > 0) newTransactions.push(row);
             }
 
-            const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);
-
             setTransactions(sortByDateDesc(newTransactions));
           }
         } catch (e) {
@@ -143,8 +145,6 @@ function Overview(props: Props) {
         Number(addressCursor) - (Number(rawAddress?.length) - Number(trimmedAddress?.length))
       );
     }
-
-    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(String(address));
 
     const check =
       trimmedAmount &&

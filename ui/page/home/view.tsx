@@ -89,6 +89,29 @@ type Props = {
   watchLaterUris: Array<string> | null | undefined;
 };
 
+type SectionHeaderProps = {
+  title: string;
+  navigate?: string;
+  icon?: string;
+  help?: string;
+};
+
+const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
+  return (
+    <h1 className="claim-grid__header">
+      <Button navigate={navigate} button="link">
+        <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
+        <span className="claim-grid__title">{title}</span>
+        {help}
+      </Button>
+    </h1>
+  );
+};
+
+function resolveTitleOverride(title: string) {
+  return title === 'Recent From Following' ? 'Following' : title;
+}
+
 function HomePage(props: Props) {
   const {
     followedTags,
@@ -208,25 +231,6 @@ function HomePage(props: Props) {
     [sortedRowData]
   );
   const hasFetchedWatchLaterItemsRef = React.useRef(false);
-  type SectionHeaderProps = {
-    title: string;
-    navigate?: string;
-    icon?: string;
-    help?: string;
-  };
-
-  const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
-    return (
-      <h1 className="claim-grid__header">
-        <Button navigate={navigate} button="link">
-          <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
-          <span className="claim-grid__title">{title}</span>
-          {help}
-        </Button>
-      </h1>
-    );
-  };
-
   const CustomizeHomepage = () => {
     return (
       <Button
@@ -274,10 +278,6 @@ function HomePage(props: Props) {
         ))}
       </ul>
     );
-
-    function resolveTitleOverride(title: string) {
-      return title === 'Recent From Following' ? 'Following' : title;
-    }
 
     const claimTiles =
       id === 'WATCH_LATER' ? (

@@ -1622,11 +1622,11 @@ export function doCommentModUnBlockAsModerator(commenterUri: string, creatorUri:
     );
   };
 }
+const yieldThread = () => new Promise((resolve) => setTimeout(resolve));
+
 export function doFetchModBlockedList() {
   return async (dispatch: Dispatch, getState: GetState) => {
     const LOOP_CHUNK_SIZE = 1;
-
-    const yieldThread = () => new Promise((resolve) => setTimeout(resolve));
 
     const state = getState();
     const myChannels = selectMyChannelClaims(state);

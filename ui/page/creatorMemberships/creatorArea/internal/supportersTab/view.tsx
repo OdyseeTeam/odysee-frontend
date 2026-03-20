@@ -16,6 +16,16 @@ type Props = {
   paymentsBySubscriber: Record<string, Array<MembershipPayment>>; // payments by id { [id]: [{ paymentobj }...] }
 };
 
+const getDateOfLastPayment = (payments) => {
+  const payment = payments.toReversed().find((p) => p.status === 'submitted' || p.status === 'paid') || {};
+
+  if (payment.status === 'submitted') {
+    return payment.initiated_at;
+  } else {
+    return payment.completed_at;
+  }
+};
+
 const SupportersTab = (props: Props) => {
   const {
     channelsToList,
@@ -41,16 +51,6 @@ const SupportersTab = (props: Props) => {
   // ];
   //
   // const supportersList = sl;
-  const getDateOfLastPayment = (payments) => {
-    const payment = payments.toReversed().find((p) => p.status === 'submitted' || p.status === 'paid') || {};
-
-    if (payment.status === 'submitted') {
-      return payment.initiated_at;
-    } else {
-      return payment.completed_at;
-    }
-  };
-
   const hasAnySupporters = React.useMemo(() => {
     return Boolean(
       channelsToList &&

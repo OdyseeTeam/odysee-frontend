@@ -13,6 +13,23 @@ type Props = {
   activeArStatus: any;
 };
 
+const FiatOption = ({ fiat }: any) => {
+  return (
+    <div className="fiatOption">
+      <div
+        className="fiatOption-wrapper"
+        dangerouslySetInnerHTML={{
+          __html: fiat.icon,
+        }}
+      />
+      <div className="fiatOption-text">
+        <div className="fiatOption-symbol">{fiat.symbol}</div>
+        <div className="fiatOption-name">{fiat.name}</div>
+      </div>
+    </div>
+  );
+};
+
 function BuyAr(props: Props) {
   const { cardHeader, wallet, activeArStatus } = props;
   const fiatAmountRef = React.useRef(null);
@@ -73,23 +90,6 @@ function BuyAr(props: Props) {
   const handleSelectPaymentOption = () => {
     // $FlowIgnore
     setPaymentOption(paymentOptionRef.current.value);
-  };
-
-  const FiatOption = ({ fiat }: any) => {
-    return (
-      <div className="fiatOption">
-        <div
-          className="fiatOption-wrapper"
-          dangerouslySetInnerHTML={{
-            __html: fiat.icon,
-          }}
-        />
-        <div className="fiatOption-text">
-          <div className="fiatOption-symbol">{fiat.symbol}</div>
-          <div className="fiatOption-name">{fiat.name}</div>
-        </div>
-      </div>
-    );
   };
 
   // Credit card providers data

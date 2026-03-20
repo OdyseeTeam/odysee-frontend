@@ -73,6 +73,46 @@ type Props = {
   doToggleAppDrawer: (type: string) => void;
 };
 
+function dmcaInfo() {
+  return (
+    <section className="card--section dmca-info">
+      <p>
+        {__(
+          'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
+        )}
+      </p>
+      <p>
+        {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+          email: 'help@odysee.com',
+        })}
+      </p>
+      <div className="section__actions">
+        <Button
+          button="link"
+          href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+          label={__('Read More')}
+        />
+      </div>
+    </section>
+  );
+}
+
+function filteredInfo() {
+  return (
+    <section className="card--section dmca-info">
+      <p>{__('This content violates the terms and conditions of Odysee and has been filtered.')}</p>
+      <p>
+        {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+          email: 'help@odysee.com',
+        })}
+      </p>
+      <div className="section__actions">
+        <Button button="link" href="https://help.odysee.tv/communityguidelines/" label={__('Read More')} />
+      </div>
+    </section>
+  );
+}
+
 const StreamClaimPage = (props: Props) => {
   const {
     uri,
@@ -209,46 +249,6 @@ const StreamClaimPage = (props: Props) => {
     }
 
     return <StreamClaimRenderInline uri={uri} />;
-  }
-
-  function dmcaInfo() {
-    return (
-      <section className="card--section dmca-info">
-        <p>
-          {__(
-            'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
-          )}
-        </p>
-        <p>
-          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
-            email: 'help@odysee.com',
-          })}
-        </p>
-        <div className="section__actions">
-          <Button
-            button="link"
-            href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
-            label={__('Read More')}
-          />
-        </div>
-      </section>
-    );
-  }
-
-  function filteredInfo() {
-    return (
-      <section className="card--section dmca-info">
-        <p>{__('This content violates the terms and conditions of Odysee and has been filtered.')}</p>
-        <p>
-          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
-            email: 'help@odysee.com',
-          })}
-        </p>
-        <div className="section__actions">
-          <Button button="link" href="https://help.odysee.tv/communityguidelines/" label={__('Read More')} />
-        </div>
-      </section>
-    );
   }
 
   if (isMature) {

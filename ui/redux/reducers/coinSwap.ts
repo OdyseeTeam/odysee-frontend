@@ -12,6 +12,16 @@ function getBottomEntries(array, count) {
   }
 }
 
+const calculateLbcAmount = (pricing, exchange, fallback) => {
+  if (!exchange || !exchange.rate) {
+    return fallback || 0;
+  }
+
+  const btcAmount = pricing['bitcoin'].amount;
+  const SATOSHIS = 100000000;
+  return (btcAmount * SATOSHIS) / exchange.rate;
+};
+
 const defaultState: CoinSwapState = {
   coinSwaps: [],
 };
@@ -52,16 +62,6 @@ export default handleActions(
         exchange = action.data.Exchange;
         charge = action.data.Charge.data;
       }
-
-      const calculateLbcAmount = (pricing, exchange, fallback) => {
-        if (!exchange || !exchange.rate) {
-          return fallback || 0;
-        }
-
-        const btcAmount = pricing['bitcoin'].amount;
-        const SATOSHIS = 100000000;
-        return (btcAmount * SATOSHIS) / exchange.rate;
-      };
 
       const timeline = charge.timeline;
       const lastTimeline = timeline[timeline.length - 1];

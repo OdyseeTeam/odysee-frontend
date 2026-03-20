@@ -41,6 +41,20 @@ const csOptionsScheduled: ClaimSearchOptions = {
 // ****************************************************************************
 // HiddenContentPage
 // ****************************************************************************
+const NoAccess = () => {
+  return (
+    <Yrbl
+      type="sad"
+      title={__('Sorry, no soup for you!')}
+      actions={
+        <div className="section__actions">
+          <Button button="primary" navigate="/" label={__('Go Home')} />
+        </div>
+      }
+    />
+  );
+};
+
 function HiddenContentPage(props: Props & StateProps & DispatchProps) {
   const { user } = props;
   const canView = process.env.ENABLE_WIP_FEATURES || user?.global_mod;
@@ -71,20 +85,6 @@ function HiddenContentPage(props: Props & StateProps & DispatchProps) {
           />
         </div>
       </div>
-    );
-  };
-
-  const NoAccess = () => {
-    return (
-      <Yrbl
-        type="sad"
-        title={__('Sorry, no soup for you!')}
-        actions={
-          <div className="section__actions">
-            <Button button="primary" navigate="/" label={__('Go Home')} />
-          </div>
-        }
-      />
     );
   };
 

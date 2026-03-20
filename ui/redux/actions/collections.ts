@@ -468,16 +468,6 @@ const doFetchCollectionItems =
       return newItems;
     };
 
-    const mergeBatches = (arrayOfResults: Array<any>) => {
-      let resultItems = [];
-      arrayOfResults.forEach((result: any) => {
-        // $FlowFixMe
-        const claims = result.items || Object.values(result).map((item) => item.stream || item);
-        resultItems = resultItems.concat(claims);
-      });
-      return resultItems;
-    };
-
     try {
       const state = getState();
       const batchSize = pageSize || FETCH_BATCH_SIZE;
