@@ -2,6 +2,8 @@ import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import React, { useEffect, useState } from 'react';
+import { AppContext } from 'contexts/app';
+export { AppContext };
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
@@ -163,7 +165,6 @@ type Props = {
   doSetClientSetting: (arg0: string, arg1: any, arg2: boolean | null | undefined) => void;
   doToast: (arg0: { message: string }) => void;
 };
-export const AppContext = React.createContext<any>();
 
 function App(props: Props) {
   const {

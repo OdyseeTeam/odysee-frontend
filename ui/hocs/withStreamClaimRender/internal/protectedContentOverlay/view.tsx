@@ -2,7 +2,7 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
-import { AppContext } from 'component/app/view';
+import { AppContext } from 'contexts/app';
 import { EmbedContext } from 'contexts/embed';
 import Icon from 'component/common/icon';
 import Button from 'component/button';

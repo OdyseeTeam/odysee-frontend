@@ -6,7 +6,7 @@ import { CHANNEL_PAGE } from 'constants/urlParams';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
-import { AppContext } from 'component/app/view';
+import { AppContext } from 'contexts/app';
 const DEFAULT_PROPS = {
   button: 'alt',
   icon: ICONS.MEMBERSHIP,

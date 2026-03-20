@@ -22,7 +22,7 @@ import { StickerReviewBox, StickerActionButton } from './internal/sticker-conten
 import { TipReviewBox, TipActionButton } from './internal/tip-contents';
 import { FormChannelSelector, HelpText } from './internal/extra-contents';
 import ErrorBubble from 'component/common/error-bubble';
-import { AppContext } from 'component/app/view';
+import { AppContext } from 'contexts/app';
 import { getStripeEnvironment } from 'util/stripe';
 import { TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
