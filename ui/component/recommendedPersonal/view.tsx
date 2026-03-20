@@ -110,7 +110,7 @@ export default function RecommendedPersonal(props: Props) {
       <>
         {header}
         <ul className="claim-grid">
-          {new Array(countCollapsed).fill(1).map((x, i) => (
+          {Array.from({ length: countCollapsed }, (_, i) => (
             <ClaimPreviewTile key={i} placeholder />
           ))}
         </ul>

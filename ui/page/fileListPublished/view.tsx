@@ -391,7 +391,7 @@ function FileListPublished(props: Props) {
       <>
         {method === FILE_LIST.METHOD.CLAIM_LIST &&
           fetching &&
-          new Array(Number(pageSize)).fill(1).map((x, i) => {
+          Array.from({ length: Number(pageSize) }, (_, i) => {
             return <ClaimPreview key={i} placeholder="loading" />;
           })}
       </>

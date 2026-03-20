@@ -269,7 +269,7 @@ function HomePage(props: Props) {
 
     const tilePlaceholder = (
       <ul className="claim-grid">
-        {new Array(options.pageSize || 8).fill(1).map((x, i) => (
+        {Array.from({ length: options.pageSize || 8 }, (_, i) => (
           <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
         ))}
       </ul>

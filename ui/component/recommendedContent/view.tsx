@@ -124,7 +124,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
         <div>
           {isSearching && (
             <>
-              {new Array(20).fill(1).map((x, i) => (
+              {Array.from({ length: 20 }, (_, i) => (
                 <ClaimPreview key={i} placeholder="loading" type="small" />
               ))}
             </>

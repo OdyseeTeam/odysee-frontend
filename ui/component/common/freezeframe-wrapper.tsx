@@ -36,7 +36,7 @@ const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props)
     const img = new Image();
     img.crossOrigin = 'anonymous';
 
-    img.onload = () => {
+    img.addEventListener('load', () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const width = img.naturalWidth;

@@ -53,19 +53,19 @@ class CardVerify extends React.Component {
     this.loadPromise = (() => {
       let canceled = false;
       const promise = new Promise((resolve, reject) => {
-        script.onload = () => {
+        script.addEventListener('load', () => {
           scriptLoaded = true;
           scriptLoading = false;
           resolve();
           this.onScriptLoaded();
-        };
+        });
 
-        script.onerror = (event) => {
+        script.addEventListener('error', (event) => {
           scriptDidError = true;
           scriptLoading = false;
           reject(event);
           this.onScriptError(event);
-        };
+        });
       });
       const wrappedPromise = new Promise((resolve, reject) => {
         promise.then(() =>

@@ -266,9 +266,7 @@ function ClaimTilesDiscover(props: Props) {
               );
             }
           })
-        : new Array(pageSize)
-            .fill(1)
-            .map((x, i) => (
+        : Array.from({ length: pageSize }, (_, i) => (
               <ClaimPreviewTile
                 sectionTitle={sectionTitle}
                 showNoSourceClaims={hasNoSource || showNoSourceClaims}

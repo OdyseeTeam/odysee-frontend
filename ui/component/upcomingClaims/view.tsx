@@ -136,7 +136,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
       <Header />
       {loading && (
         <section className="claim-grid">
-          {new Array(upcomingMax).fill(1).map((x, i) => (
+          {Array.from({ length: upcomingMax }, (_, i) => (
             <ClaimPreviewTile key={i} placeholder="loading" pulse />
           ))}
         </section>

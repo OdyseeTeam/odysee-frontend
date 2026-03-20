@@ -267,18 +267,18 @@
       }
     }
 
-    xhr.onload = function () {
+    xhr.addEventListener('load', function () {
       // If HTTP status is OK or Created
       if (xhr.status === 200 || xhr.status === 201) {
         me.onFileUploadResponse(xhr);
       } else {
         me.onFileUploadError(xhr);
       }
-    };
+    });
 
-    xhr.onerror = () => {
+    xhr.addEventListener('error', () => {
       me.onFileUploadError(xhr);
-    };
+    });
 
     if (settings.beforeFileUpload(xhr) !== false) {
       xhr.send(formData);

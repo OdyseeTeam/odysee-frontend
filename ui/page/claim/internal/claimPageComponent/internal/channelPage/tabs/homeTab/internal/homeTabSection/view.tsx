@@ -460,7 +460,7 @@ function HomeTabSection(props: Props) {
           <div className="section">
             <h2 className="home-section-title">{__('Loading...')}</h2>
             <section className="claim-grid">
-              {new Array(12).fill(0).map((x, i) => (
+              {Array.from({ length: 12 }, (_, i) => (
                 <ClaimPreviewTile key={i} placeholder="loading" pulse />
               ))}
             </section>
