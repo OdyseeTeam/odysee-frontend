@@ -1515,8 +1515,8 @@ html.ios-fullscreen .player-fullscreen-target {
   }
 
   .video-fullscreen__side-panel--chat {
-    width: var(--livestream-comments-width);
-    right: calc(var(--livestream-comments-width) * -1);
+    width: calc(var(--livestream-comments-width) + var(--spacing-m));
+    right: calc((var(--livestream-comments-width) + var(--spacing-m)) * -1);
     overflow: hidden;
     position: fixed;
 
@@ -1661,11 +1661,11 @@ html.ios-fullscreen .player-fullscreen-target {
 
   &:has(.video-fullscreen__side-panel--chat.video-fullscreen__side-panel--open) {
     .content__wrapper {
-      margin-right: var(--livestream-comments-width);
+      margin-right: calc(var(--livestream-comments-width) + var(--spacing-m));
     }
 
     .video-fullscreen__actions {
-      right: calc(var(--livestream-comments-width) + 24px);
+      right: calc(var(--livestream-comments-width) + var(--spacing-m) + 24px);
     }
   }
 
