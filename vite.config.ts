@@ -308,6 +308,7 @@ export default defineConfig({
       $ui: UI_ROOT,
 
       // Web stubs for electron/fs
+      'electron-is-dev': path.resolve(WEB_ROOT, 'stubs/electron-is-dev.ts'),
       electron: path.resolve(WEB_ROOT, 'stubs/electron.ts'),
       fs: path.resolve(WEB_ROOT, 'stubs/fs.ts'),
 
