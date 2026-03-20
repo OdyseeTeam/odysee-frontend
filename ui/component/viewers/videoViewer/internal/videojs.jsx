@@ -276,7 +276,6 @@ function VideoJsInner(props: Props) {
         ? {
             liveSyncDuration: 4,
             liveMaxLatencyDuration: 10,
-            liveDurationInfinity: true,
           }
         : undefined),
     });
