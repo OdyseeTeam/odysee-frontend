@@ -1,5 +1,6 @@
 {
   "watch": ["index.js", "src/", "middleware/"],
   "ext": "js,json",
-  "ignore": ["dist/**", "*.ts"]
+  "ignore": ["dist/**", "*.ts"],
+  "signal": "SIGTERM"
 }

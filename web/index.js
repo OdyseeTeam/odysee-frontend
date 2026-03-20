@@ -109,3 +109,7 @@ function shutdown(signal) {
 
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
+// Windows: Ctrl+C in some terminals sends SIGBREAK instead of SIGINT
+if (process.platform === 'win32') {
+  process.on('SIGBREAK', () => shutdown('SIGBREAK'));
+}
