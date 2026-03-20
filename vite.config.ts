@@ -369,6 +369,9 @@ export default defineConfig({
       // Resolve via @mui/material's sibling since pnpm doesn't hoist @mui/system
       '@mui/system': path.join(path.dirname(require.resolve('@mui/material/package.json')), '..', 'system', 'esm'),
 
+      // Pre-bundled ESM buffer to work around Rolldown CJS interop chunk ordering bug
+      buffer: path.resolve(__dirname, 'web/stubs/buffer-esm.js'),
+
       // Build optimization
       'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
     },
@@ -395,16 +398,6 @@ export default defineConfig({
     sourcemap: isProduction ? true : 'inline',
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
-      output: {
-        // Prevent 'buffer' from being split into its own chunk.
-        // Rolldown rc.10 has a CJS interop bug where the __commonJS helper
-        // is emitted after the code that calls it when buffer is isolated.
-        manualChunks(id) {
-          if (id.includes('node_modules/buffer/')) {
-            return 'vendor';
-          }
-        },
-      },
     },
   },
 
