@@ -61,18 +61,33 @@ const PORT = config.WEB_SERVER_PORT || 1337;
 function killPort(port) {
   try {
     const { execSync } = require('child_process');
-    const result = execSync(`lsof -ti tcp:${port} 2>/dev/null`).toString().trim();
-    if (result) {
+    const isWin = process.platform === 'win32';
+    const cmd = isWin
+      ? `netstat -ano | findstr :${port} | findstr LISTENING`
+      : `lsof -ti tcp:${port} 2>/dev/null`;
+    const result = execSync(cmd).toString().trim();
+    if (!result) return;
+
+    if (isWin) {
+      // Parse PIDs from netstat output (last column)
+      const pids = [...new Set(result.split('\n').map((l) => l.trim().split(/\s+/).pop()).filter(Boolean))];
+      for (const pid of pids) {
+        if (Number(pid) !== process.pid) {
+          try { execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' }); } catch {}
+        }
+      }
+      if (pids.length) console.log(`Killed stale process(es) on port ${port}: ${pids.join(', ')}`);
+    } else {
       const pids = result.split('\n').filter(Boolean);
       for (const pid of pids) {
         if (Number(pid) !== process.pid) {
           try { process.kill(Number(pid), 'SIGKILL'); } catch {}
         }
       }
-      console.log(`Killed stale process(es) on port ${port}: ${pids.join(', ')}`);
+      if (pids.length) console.log(`Killed stale process(es) on port ${port}: ${pids.join(', ')}`);
     }
   } catch {
-    // No process on port, or lsof not available — that's fine
+    // No process on port, or command not available — that's fine
   }
 }
 

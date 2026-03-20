@@ -157,6 +157,8 @@ router.get('*', async (ctx, next) => {
 
   // Only set body if not already redirecting (3xx status)
   if (ctx.status < 300 || ctx.status >= 400) {
+    ctx.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    ctx.set('Content-Type', 'text/html; charset=utf-8');
     ctx.body = html;
   }
 });
