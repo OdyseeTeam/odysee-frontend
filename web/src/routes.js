@@ -1,6 +1,6 @@
 const { fetchStreamUrl } = require('./fetchStreamUrl');
 
-const config = require('../../config');
+const config = require('../../config.cjs');
 
 const { getHomepage } = require('./homepageApi');
 

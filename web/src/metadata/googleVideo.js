@@ -7,7 +7,7 @@ const { generateContentUrl } = require('../fetchStreamUrl');
 
 const { parseURI } = require('../lbryURI');
 
-const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
+const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.cjs');
 
 const { generateEmbedUrlEncoded, getThumbnailCardCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
 

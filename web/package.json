@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Odysee web server (SSR/Koa)",
   "license": "MIT",
+  "type": "commonjs",
   "main": "./index.js",
   "scripts": {
     "dev:server": "nodemon --inspect index.js",

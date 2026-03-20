@@ -1,4 +1,4 @@
-const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.js');
+const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.cjs');
 
 const { lbryProxy: Lbry } = require('../lbry');
 

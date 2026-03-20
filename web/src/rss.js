@@ -1,6 +1,6 @@
 const { lbryProxy: Lbry } = require('../lbry');
 
-const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
+const { URL, SITE_NAME, PROXY_URL } = require('../../config.cjs');
 
 const Rss = require('rss');
 

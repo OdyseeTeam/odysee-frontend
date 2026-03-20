@@ -1,4 +1,4 @@
-const { CUSTOM_HOMEPAGE } = require('../../config');
+const { CUSTOM_HOMEPAGE } = require('../../config.cjs');
 
 const { getHomepageJsonV1, getHomepageJsonV2 } = require('./getHomepageJSON');
 

@@ -10,7 +10,7 @@ const {
   SITE_NAME,
   SITE_TITLE,
   URL,
-} = require('../../config.js');
+} = require('../../config.cjs');
 
 const {
   generateEmbedUrlEncoded,

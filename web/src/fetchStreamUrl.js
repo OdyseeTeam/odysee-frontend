@@ -1,6 +1,6 @@
 const Mime = require('mime-types');
 
-const { PLAYER_SERVER } = require('../../config.js');
+const { PLAYER_SERVER } = require('../../config.cjs');
 
 const { lbryProxy: Lbry } = require('../lbry');
 

@@ -8,7 +8,7 @@ const {
   FARCASTER_SPLASH_IMAGE_URL,
   FARCASTER_SPLASH_BACKGROUND_COLOR,
   FARCASTER_HERO_IMAGE_URL,
-} = require('../../config.js');
+} = require('../../config.cjs');
 
 function getFarcasterManifest(ctx) {
   const iconUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;

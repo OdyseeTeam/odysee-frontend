@@ -1,4 +1,4 @@
-const { MINIMUM_VERSION } = require('../../config');
+const { MINIMUM_VERSION } = require('../../config.cjs');
 
 async function getMinVersion(ctx, version) {
   if (!MINIMUM_VERSION) {
