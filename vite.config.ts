@@ -323,6 +323,12 @@ export default defineConfig({
       '@emotion/styled': path.resolve(__dirname, 'node_modules/@emotion/styled/dist/emotion-styled.esm.js'),
       '@emotion/react': path.resolve(__dirname, 'node_modules/@emotion/react/dist/emotion-react.esm.js'),
 
+      // Force @mui/system to use ESM (root files are CJS, esm/ dir has proper ESM)
+      ...(() => {
+        const muiSystemDir = path.dirname(require.resolve('@mui/system/package.json'));
+        return { '@mui/system': path.join(muiSystemDir, 'esm') };
+      })(),
+
       // Build optimization
       'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
     },
@@ -361,8 +367,6 @@ export default defineConfig({
       'reselect',
       '@emotion/styled',
       '@emotion/react',
-      '@mui/material',
-      '@mui/system',
       'prop-types',
       'react-router',
       'react-router-dom',
