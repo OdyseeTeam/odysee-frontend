@@ -517,10 +517,20 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 // getHtml
 // ****************************************************************************
 let html;
+const isDev = process.env.NODE_ENV === 'development';
+const HTML_PATH = path.join(__dirname, '/../dist/public/index-web.html');
 
 async function getHtml(ctx) {
-  if (!html) {
-    html = fs.readFileSync(path.join(__dirname, '/../dist/public/index-web.html'), 'utf8');
+  // In development, always re-read so we pick up build changes immediately.
+  // In production, cache after first read.
+  if (!html || isDev) {
+    try {
+      html = fs.readFileSync(HTML_PATH, 'utf8');
+    } catch (e) {
+      // Build hasn't produced the file yet — return a loading page that auto-retries
+      return '<!doctype html><html><head><meta charset="utf-8"><title>Building...</title></head>' +
+        '<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>';
+    }
   }
 
   const query = ctx.query;

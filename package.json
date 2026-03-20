@@ -158,7 +158,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "arconnect": "^1.0.4",
     "buffer": "^6.0.3",
-    "concurrently": "^4.1.2",
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "dotenv-defaults": "^5.0.0",
     "nodemon": "^2.0.15",
