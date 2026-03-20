@@ -9,12 +9,12 @@ export const ZOOM = {
   LOAD_FROM_LOCAL_STORAGE: 'LOAD_FROM_LOCAL_STORAGE',
 };
 
-function getNextZoomFactor(curFactor, isIncreasing) {
+function getNextZoomFactor(curFactor: number, isIncreasing: boolean): number {
   const zoomTable = [0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
-  curFactor = curFactor.toPrecision(3);
+  const rounded = parseFloat(curFactor.toPrecision(3));
   let i = zoomTable.length;
 
-  while (curFactor < zoomTable[--i]) {}
+  while (rounded < zoomTable[--i]) {}
 
   if (isIncreasing) {
     return zoomTable[Math.min(zoomTable.length - 1, i + 1)];
@@ -23,7 +23,7 @@ function getNextZoomFactor(curFactor, isIncreasing) {
   }
 }
 
-export function changeZoomFactor(action) {
+export function changeZoomFactor(action: string): void {
   const ZOOM_DFLT_FACTOR = 1.0;
   const curFactor = webFrame.getZoomFactor();
   let newFactor = null;

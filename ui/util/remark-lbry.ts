@@ -1,6 +1,20 @@
 import { parseURI } from 'util/lbryURI';
 import visit from 'unist-util-visit';
 import { parseEntities as decode } from 'parse-entities';
+
+interface MdastNode {
+  type: string;
+  url?: string;
+  value?: string;
+  data?: { hProperties?: Record<string, unknown> };
+  children?: MdastNode[];
+}
+
+type EatFunction = {
+  (value: string): (node: MdastNode) => MdastNode;
+  now: () => { line: number; column: number; offset: number };
+};
+
 const protocol = 'lbry://';
 const uriRegex = /(lbry:\/\/)[^\s"]*[^)]/g;
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
@@ -9,7 +23,7 @@ const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
 const mentionRegex = /@[^\s"=?!@$%^&*;,{}<>/\\]*/gm;
 
-function handlePunctuation(value) {
+function handlePunctuation(value: string): string {
   const protocolIndex = value.indexOf('lbry://') === 0 ? protocol.length - 1 : 0;
   const channelModifierIndex =
     (value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex)) ||
@@ -30,7 +44,7 @@ function handlePunctuation(value) {
 }
 
 // Find channel mention
-function locateMention(value, fromIndex) {
+function locateMention(value: string, fromIndex: number): number {
   const index = value.indexOf(mentionToken, fromIndex);
 
   // Skip invalid mention
@@ -42,7 +56,7 @@ function locateMention(value, fromIndex) {
 }
 
 // Find claim url
-function locateURI(value, fromIndex) {
+function locateURI(value: string, fromIndex: number): number {
   var index = value.indexOf(protocol, fromIndex);
 
   // Skip invalid uri
@@ -54,7 +68,7 @@ function locateURI(value, fromIndex) {
 }
 
 // Generate a valid markdown link
-const createURI = (text, uri, embed = false) => ({
+const createURI = (text: string, uri: string, embed: boolean = false): MdastNode => ({
   type: 'link',
   url: (uri.startsWith(protocol) ? '' : protocol) + uri,
   data: {
@@ -71,7 +85,7 @@ const createURI = (text, uri, embed = false) => ({
   ],
 });
 
-const validateURI = (match, eat) => {
+const validateURI = (match: RegExpMatchArray | null, eat: EatFunction): MdastNode | undefined => {
   if (match) {
     try {
       const text = match[0];
@@ -96,7 +110,7 @@ const validateURI = (match, eat) => {
 };
 
 // Generate a markdown link from channel name
-function tokenizeMention(eat, value, silent) {
+function tokenizeMention(eat: EatFunction, value: string, silent: boolean): true | MdastNode | undefined {
   if (silent) {
     return true;
   }
@@ -106,7 +120,7 @@ function tokenizeMention(eat, value, silent) {
 }
 
 // Generate a markdown link from lbry url
-function tokenizeURI(eat, value, silent) {
+function tokenizeURI(eat: EatFunction, value: string, silent: boolean): true | MdastNode | undefined {
   if (silent) {
     return true;
   }
@@ -126,7 +140,7 @@ tokenizeMention.notInList = false;
 tokenizeMention.notInLink = true;
 tokenizeMention.notInBlock = false;
 
-const visitor = (node, index, parent) => {
+const visitor = (node: MdastNode, index: number, parent: MdastNode): void => {
   if (node.type === 'link' && parent && parent.type === 'paragraph') {
     try {
       const uri = parseURI(node.url);
@@ -156,18 +170,18 @@ const visitor = (node, index, parent) => {
 };
 
 // transform
-const transform = (tree) => {
+const transform = (tree: MdastNode): void => {
   visit(tree, ['link'], visitor);
 };
 
-export const formattedLinks = () => transform;
+export const formattedLinks = (): ((tree: MdastNode) => void) => transform;
 const URL_PROTOCOLS = ['http://', 'https://', 'mailto:'];
 const RE_WHITESPACE = /\s/;
 const TRAILING_PUNCTUATION = '.,:;"\'';
 
 // Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
 // its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
-function tokenizeUrl(eat, value, silent) {
+function tokenizeUrl(this: { options: { gfm: boolean }; enterLink: () => () => void; tokenizeInline: (value: string, position: { line: number; column: number; offset: number }) => MdastNode[] }, eat: EatFunction, value: string, silent: boolean): true | MdastNode | undefined {
   if (!this.options.gfm) return;
   let subvalue = '';
   let matchedProtocol;
@@ -246,7 +260,7 @@ function tokenizeUrl(eat, value, silent) {
   });
 }
 
-tokenizeUrl.locator = function locateUrl(value, fromIndex) {
+tokenizeUrl.locator = function locateUrl(this: { options: { gfm: boolean } }, value: string, fromIndex: number): number {
   if (!this.options.gfm) return -1;
   let min = -1;
 
@@ -260,7 +274,7 @@ tokenizeUrl.locator = function locateUrl(value, fromIndex) {
 
 tokenizeUrl.notInLink = true;
 // Main module
-export function inlineLinks() {
+export function inlineLinks(this: { Parser: { prototype: { inlineTokenizers: Record<string, Function>; inlineMethods: string[] } } }): void {
   // oxlint-disable-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;

@@ -9,7 +9,7 @@ const addLbryIfNot = (term: string) => {
   return term.startsWith('lbry://') ? term : `lbry://${term}`;
 };
 
-function removeParam(query: string, param: string) {
+function removeParam(query: string, param: string): string {
   // TODO: find a standard way to do this.
   if (query.includes(param)) {
     const a = query.indexOf(param);
@@ -176,7 +176,7 @@ export function getRecommendationSearchKey(title: string, options: {}) {
   const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
   return createNormalizedSearchKey(searchQuery);
 }
-export function tagSearchCsOptionsHook(options: any) {
+export function tagSearchCsOptionsHook(options: Record<string, unknown>): Record<string, unknown> {
   if (options.any_tags && options.any_tags.length > 0) {
     // -- When doing a specific tag search, these restrictions should be lifted to make sense.
     delete options.limit_claims_per_channel;

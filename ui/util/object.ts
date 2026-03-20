@@ -1,3 +1,3 @@
-export function isEmpty(object) {
-  return object in [null, undefined] || (object.constructor === Object && Object.entries(object).length === 0);
+export function isEmpty(object: Record<string, unknown> | null | undefined): boolean {
+  return object == null || (object.constructor === Object && Object.entries(object).length === 0);
 }

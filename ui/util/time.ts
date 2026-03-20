@@ -1,5 +1,5 @@
 import moment from 'moment';
-export function secondsToHms(seconds: number) {
+export function secondsToHms(seconds: number): string {
   seconds = Math.floor(seconds);
   var hours = Math.floor(seconds / 3600);
   var minutes = Math.floor(seconds / 60) % 60;
@@ -9,7 +9,7 @@ export function secondsToHms(seconds: number) {
     .filter((v, i) => v !== '00' || i > 0)
     .join(':');
 }
-export function secondsToDhms(seconds: number) {
+export function secondsToDhms(seconds: number): string {
   seconds = Number(seconds);
   const d = Math.floor(seconds / (3600 * 24));
   const h = Math.floor((seconds % (3600 * 24)) / 3600);
@@ -49,7 +49,7 @@ export function secondsToDhms(seconds: number) {
 
   return returnText;
 }
-export function hmsToSeconds(str: string) {
+export function hmsToSeconds(str: string): number {
   let timeParts = str.split(':'),
     seconds = 0,
     multiplier = 1;
@@ -74,7 +74,7 @@ export function hmsToSeconds(str: string) {
 // Only intended use of future dates is for claims, in case of scheduled
 // publishes or livestreams, used in util/formatAriaLabel
 export function getTimeAgoStr(
-  date: any,
+  date: Date | string | number,
   showFutureDate?: boolean,
   genericSecondsString?: boolean,
   zeroDurationStr: string = 'Just now'
@@ -107,6 +107,6 @@ export function getTimeAgoStr(
     duration,
   });
 }
-export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);
-export const formatDateToMonthAndDay = (date: any) => moment(new Date(date)).format('MMMM DD');
-export const formatDateToMonthDayAndYear = (date: any) => moment(new Date(date)).format('MMMM DD YYYY');
+export const getCurrentTimeInSec = (): number => Math.floor(Date.now() / 1000);
+export const formatDateToMonthAndDay = (date: Date | string | number): string => moment(new Date(date)).format('MMMM DD');
+export const formatDateToMonthDayAndYear = (date: Date | string | number): string => moment(new Date(date)).format('MMMM DD YYYY');

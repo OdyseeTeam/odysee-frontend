@@ -2,7 +2,7 @@ import { URL, THUMBNAIL_CARDS_CDN_URL } from 'config';
 
 const CONTINENT_COOKIE = 'continent';
 
-function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
+function generateEmbedUrl(claimUri: string, startTime?: string | number, referralLink?: string, newestType?: string, autoplay?: boolean, uriAccessKey?: UriAccessKey): string {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   let urlParams = new URLSearchParams();
 
@@ -19,7 +19,7 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
   }
 
   if (autoplay) {
-    urlParams.append('autoplay', true);
+    urlParams.append('autoplay', 'true');
   }
 
   if (uriAccessKey) {
@@ -32,7 +32,7 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
   return `${embedUrl}${embedUrlParams}`;
 }
 
-function generateEmbedUrlEncoded(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
+function generateEmbedUrlEncoded(claimUri: string, startTime?: string | number, referralLink?: string, newestType?: string, autoplay?: boolean, uriAccessKey?: UriAccessKey): string {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   const encodedUri = encodeURIComponent(uriPath).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
   return generateEmbedUrl(encodedUri, startTime, referralLink, newestType, autoplay, uriAccessKey).replace(
@@ -41,7 +41,7 @@ function generateEmbedUrlEncoded(claimUri, startTime, referralLink, newestType, 
   );
 }
 
-function generateEmbedIframeData(src) {
+function generateEmbedIframeData(src: string): { html: string } {
   const width = '100%';
   const ratio = '16 / 9';
   const html = `<iframe id="odysee-iframe" style="width:${width}; aspect-ratio:${ratio};" src="${src}" allowfullscreen></iframe>`;
@@ -50,19 +50,19 @@ function generateEmbedIframeData(src) {
   };
 }
 
-function generateDownloadUrl(claimName, claimId) {
+function generateDownloadUrl(claimName: string, claimId: string): string {
   return `${URL}/$/download/${claimName}/${claimId}`;
 }
 
-function generateDirectUrl(claimName, claimId) {
+function generateDirectUrl(claimName: string, claimId: string): string {
   return `${URL}/$/stream/${claimName}/${claimId}`;
 }
 
-function generateNewestUrl(channelName, newestType) {
+function generateNewestUrl(channelName: string, newestType: string): string {
   return `${URL}/$/${newestType}/${channelName}`;
 }
 
-function getThumbnailCardCdnUrl(url) {
+function getThumbnailCardCdnUrl(url: string | undefined): string | undefined {
   if (
     !THUMBNAIL_CARDS_CDN_URL ||
     !url ||
@@ -76,12 +76,12 @@ function getThumbnailCardCdnUrl(url) {
   }
 }
 
-function getParameterByName(name, url) {
+function getParameterByName(name: string, url: string): string | null {
   var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
-function escapeHtmlProperty(property) {
+function escapeHtmlProperty(property: string | number | undefined): string {
   return property
     ? String(property)
         .replace(/&/g, '&amp;')
@@ -92,7 +92,7 @@ function escapeHtmlProperty(property) {
     : '';
 }
 
-function unscapeHtmlProperty(property) {
+function unscapeHtmlProperty(property: string | undefined): string {
   return property
     ? String(property)
         .replace(/&amp;/g, '&')

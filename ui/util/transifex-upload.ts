@@ -1,6 +1,12 @@
 const apiBaseUrl = 'https://www.transifex.com/api/2/project';
 const resource = 'app-strings';
-export function doTransifexUpload(contents, project, token, success, fail) {
+export function doTransifexUpload(
+  contents: string,
+  project: string,
+  token: string,
+  success?: (response: Record<string, unknown> | string) => void,
+  fail?: (error: string) => void
+): void {
   const url = `${apiBaseUrl}/${project}/resources/`;
   const updateUrl = `${apiBaseUrl}/${project}/resource/${resource}/content/`;
   const headers = {
@@ -15,7 +21,7 @@ export function doTransifexUpload(contents, project, token, success, fail) {
     content: contents,
   };
 
-  function handleResponse(text) {
+  function handleResponse(text: string): void {
     let json;
 
     try {
@@ -31,7 +37,7 @@ export function doTransifexUpload(contents, project, token, success, fail) {
     }
   }
 
-  function handleError(err) {
+  function handleError(err: Error | { message?: string }): void {
     if (fail) {
       fail(err.message ? err.message : 'Could not upload strings resource to Transifex');
     }

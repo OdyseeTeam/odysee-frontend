@@ -16,7 +16,7 @@ import {
 import { isStreamPlaceholderClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
 import { TO_SECONDS } from 'util/stripe';
-export function getVideoBitrate(size, duration) {
+export function getVideoBitrate(size: number | string, duration: number | string): number {
   const s = Number(size);
   const d = Number(duration);
 
@@ -26,7 +26,13 @@ export function getVideoBitrate(size, duration) {
     return 0;
   }
 }
-export function handleBidChange(bid, amount, balance, setBidError, setParam) {
+export function handleBidChange(
+  bid: number,
+  amount: string | number,
+  balance: string | number,
+  setBidError: (error: string) => void,
+  setParam: (params: { bid: number }) => void
+): void {
   const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
   setParam({
     bid: bid,
@@ -50,7 +56,7 @@ export function handleBidChange(bid, amount, balance, setBidError, setParam) {
 }
 // TODO remove this or better decide whether app should delete languages[2+]
 // This was added because a previous update setting was duplicating language codes
-export function dedupeLanguages(languages) {
+export function dedupeLanguages(languages: string[]): string[] | undefined {
   if (languages.length <= 1) {
     return languages;
   } else if (languages.length === 2) {
@@ -69,7 +75,13 @@ export function dedupeLanguages(languages) {
     return newLangs;
   }
 }
-export function handleLanguageChange(index, code, languageParam, setParams, params) {
+export function handleLanguageChange(
+  index: number,
+  code: string,
+  languageParam: string[],
+  setParams: (params: { languages: string[] } | Record<string, unknown>) => void,
+  params?: Record<string, unknown>
+): void {
   let langs = [...languageParam];
 
   if (index === 0) {
@@ -324,7 +336,7 @@ const PAYLOAD = {
         tagSet.add(LBRY_FIRST_TAG);
       }
     },
-    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
+    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime: number, nowTime: number): void => {
       const { type, liveCreateType, liveEditType } = publishData;
       const isPlaceholderClaim =
         type === 'livestream' &&

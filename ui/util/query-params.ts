@@ -3,7 +3,7 @@ import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
-export function parseQueryParams(queryString: string) {
+export function parseQueryParams(queryString: string): Record<string, string> {
   if (queryString === '') return {};
   const parts = queryString
     .split('?')
@@ -30,7 +30,7 @@ export function updateQueryParam(uri: string, key: string, value: string) {
 }
 const isSurroundedByQuotes = (str: string) => str[0] === '"' && str[str.length - 1] === '"';
 
-export const getSearchQueryString = (query: string, options: any = {}) => {
+export const getSearchQueryString = (query: string, options: Record<string, unknown> = {}): string => {
   const encodedQuery = encodeURIComponent(query);
   const queryParams = [
     options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,

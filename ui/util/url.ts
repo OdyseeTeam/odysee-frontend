@@ -6,13 +6,13 @@ import * as PAGES from '../constants/pages';
 import { parseURI, buildURI } from '../util/lbryURI';
 import * as COLLECTIONS_CONSTS from '../constants/collections';
 
-function encodeWithSpecialCharEncode(string) {
+function encodeWithSpecialCharEncode(string: string): string {
   // encodeURIComponent doesn't encode `'` and others
   // which other services may not like
   return encodeURIComponent(string).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
 }
 
-export const formatLbryUrlForWeb = (uri) => {
+export const formatLbryUrlForWeb = (uri: string): string => {
   if (!uri) return uri;
   let newUrl = uri.replace('lbry://', '/').replace(/#/g, ':');
 
@@ -23,8 +23,8 @@ export const formatLbryUrlForWeb = (uri) => {
 
   return newUrl;
 };
-export const formatLbryChannelName = (uri) => uri && uri.replace('lbry://', '').replace(/#/g, ':');
-export const formatFileSystemPath = (path) => {
+export const formatLbryChannelName = (uri: string): string => uri && uri.replace('lbry://', '').replace(/#/g, ':');
+export const formatFileSystemPath = (path: string): string | undefined => {
   if (!path) {
     return;
   }
@@ -43,7 +43,7 @@ export const formatFileSystemPath = (path) => {
   ex: lbry://?rewards
   ex: open.lbry.com/?rewards
 */
-export const formatInAppUrl = (path) => {
+export const formatInAppUrl = (path: string): string => {
   // Determine if we need to add a leading "/$/" for app pages
   const APP_PAGE_REGEX = /(\?)([a-z]*)(.*)/;
   const appPageMatches = APP_PAGE_REGEX.exec(path);
@@ -66,7 +66,7 @@ export const formatInAppUrl = (path) => {
   // Regular claim url
   return path;
 };
-export const formatWebUrlIntoLbryUrl = (pathname, search) => {
+export const formatWebUrlIntoLbryUrl = (pathname: string, search: string): string => {
   // If there is no uri, the user is on an internal page
   // pathname will either be "/" or "/$/{page}"
   const path = pathname.startsWith('/$/') ? pathname.slice(3) : pathname.slice(1);
@@ -79,7 +79,7 @@ export const formatWebUrlIntoLbryUrl = (pathname, search) => {
 
   return appLink;
 };
-export const generateInitialUrl = (hash) => {
+export const generateInitialUrl = (hash: string): string => {
   let url = '/';
 
   if (hash) {
@@ -89,13 +89,13 @@ export const generateInitialUrl = (hash) => {
 
   return url;
 };
-export const generateLbryContentUrl = (canonicalUrl, permanentUrl) => {
+export const generateLbryContentUrl = (canonicalUrl: string, permanentUrl: string): string => {
   return canonicalUrl ? canonicalUrl.split('lbry://')[1] : permanentUrl.split('lbry://')[1];
 };
-export const generateLbryWebUrl = (lbryUrl) => {
+export const generateLbryWebUrl = (lbryUrl: string): string => {
   return lbryUrl.replace(/#/g, ':');
 };
-export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, startTime, listId) => {
+export const generateEncodedLbryURL = (domain: string, lbryWebUrl: string, includeStartTime: boolean, startTime: number, listId?: string): string => {
   let urlParams = new URLSearchParams();
 
   if (includeStartTime) {
@@ -111,15 +111,15 @@ export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, sta
   return `${domain}/${encodedPart}`;
 };
 export const generateShareUrl = (
-  domain,
-  lbryUrl,
-  referralCode,
-  rewardsApproved,
-  includeStartTime,
-  startTime,
-  listId,
+  domain: string,
+  lbryUrl: string,
+  referralCode: string,
+  rewardsApproved: boolean,
+  includeStartTime: boolean,
+  startTime: number,
+  listId: string | undefined,
   viewKeySigData: ChannelSignResponse
-) => {
+): string => {
   let urlParams = new URLSearchParams();
 
   if (referralCode && rewardsApproved) {
@@ -169,15 +169,15 @@ export const generateShareUrl = (
   return url;
 };
 export const generateShortShareUrl = async (
-  domain,
-  lbryUrl,
-  referralCode,
-  rewardsApproved,
-  includeStartTime,
-  startTime,
-  listId,
+  domain: string,
+  lbryUrl: string,
+  referralCode: string,
+  rewardsApproved: boolean,
+  includeStartTime: boolean,
+  startTime: number,
+  listId: string | undefined,
   uriAccessKey?: UriAccessKey
-) => {
+): Promise<string> => {
   type Params = Array<[string, string | null | undefined]>;
   const paramsToShorten: Params = [
     ['signature', uriAccessKey ? uriAccessKey.signature : null],
@@ -239,7 +239,7 @@ export const generateShortShareUrl = async (
   // -- Profit
   return finalUrl.toString();
 };
-export const generateRssUrl = (domain, channelClaim) => {
+export const generateRssUrl = (domain: string, channelClaim: { value_type?: string; canonical_url?: string } | null): string => {
   if (!channelClaim || channelClaim.value_type !== 'channel' || !channelClaim.canonical_url) {
     return '';
   }
@@ -247,7 +247,7 @@ export const generateRssUrl = (domain, channelClaim) => {
   const url = `${domain}/$/rss/${channelClaim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
   return url;
 };
-export const generateListSearchUrlParams = (collectionId) => {
+export const generateListSearchUrlParams = (collectionId: string): string => {
   const urlParams = new URLSearchParams();
   urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
   return `?` + urlParams.toString();
@@ -256,7 +256,7 @@ export const generateListSearchUrlParams = (collectionId) => {
 // ex: webcache.googleusercontent.com/search?q=cache:MLwN3a8fCbYJ:https://lbry.tv/%40Bombards_Body_Language:f+&cd=12&hl=en&ct=clnk&gl=us
 // Extract the lbry url and use that instead
 // Without this it will try to render lbry://search
-export function generateGoogleCacheUrl(search, path) {
+export function generateGoogleCacheUrl(search: string, path: string): void {
   const googleCacheRegex = new RegExp(`(https://${DOMAIN}/)([^+]*)`);
   const [x, y, googleCachedUrl] = search.match(googleCacheRegex); // eslint-disable-line
 
@@ -268,8 +268,8 @@ export function generateGoogleCacheUrl(search, path) {
     }
   }
 }
-export const getPathForPage = (page) => `/$/${page}/`;
-export const getModalUrlParam = (modal, modalParams = {}) => {
+export const getPathForPage = (page: string): string => `/$/${page}/`;
+export const getModalUrlParam = (modal: string, modalParams: Record<string, unknown> = {}): string => {
   const urlParams = new URLSearchParams();
   urlParams.set(URLParams.MODAL, modal);
   urlParams.set(URLParams.MODAL_PARAMS, encodeURIComponent(JSON.stringify(modalParams)));
@@ -280,7 +280,7 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 // It intentionally decodes only a small set of common entities
 // to salvage malformed URLs without breaking query parameters
 // like "&currency".
-export function htmlDecode(str) {
+export function htmlDecode(str: string): string {
   if (typeof str !== 'string' || !str.includes('&')) return str;
   return str
     .replace(/&quot;/gi, '"')

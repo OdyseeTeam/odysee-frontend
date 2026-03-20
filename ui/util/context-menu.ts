@@ -1,7 +1,25 @@
 import { clipboard, remote } from 'electron';
+
+interface MenuTemplate {
+  label?: string;
+  accelerator?: string;
+  role?: string;
+  type?: string;
+  click?: () => void;
+  enabled?: boolean;
+}
+
+interface CodeMirrorEditor {
+  doc: {
+    getValue: () => string;
+    getSelection: () => string;
+  };
+  execCommand: (command: string) => void;
+}
+
 const isDev = process.env.NODE_ENV !== 'production';
 
-function injectDevelopmentTemplate(event, templates) {
+function injectDevelopmentTemplate(event: MouseEvent, templates: MenuTemplate[]): MenuTemplate[] {
   if (!isDev) return templates;
   const { screenX, screenY } = event;
   const separator = {
@@ -25,7 +43,7 @@ function injectDevelopmentTemplate(event, templates) {
   return templates;
 }
 
-export function openContextMenu(event, templates = [], canEdit = false, selection = '') {
+export function openContextMenu(event: MouseEvent, templates: MenuTemplate[] = [], canEdit: boolean = false, selection: string = ''): void {
   const { type, value } = event.target;
   const isInput = event.target.matches('input') && (type === 'text' || type === 'number');
   const isTextField = canEdit || isInput || event.target.matches('textarea');
@@ -69,7 +87,7 @@ export function openContextMenu(event, templates = [], canEdit = false, selectio
   remote.Menu.buildFromTemplate(templates).popup({});
 }
 // This function is used for the markdown description on the publish page
-export function openEditorMenu(codeMirror, event) {
+export function openEditorMenu(codeMirror: CodeMirrorEditor, event: MouseEvent): void {
   const value = codeMirror.doc.getValue();
   const selection = codeMirror.doc.getSelection();
   const templates = [
@@ -92,7 +110,7 @@ export function openEditorMenu(codeMirror, event) {
   openContextMenu(event, templates, true, selection);
 }
 // This function is used for the CodeViewer component
-export function openSnippetMenu(codeMirror, event) {
+export function openSnippetMenu(codeMirror: CodeMirrorEditor, event: MouseEvent): void {
   const value = codeMirror.doc.getValue();
   const selection = codeMirror.doc.getSelection();
   const templates = [
