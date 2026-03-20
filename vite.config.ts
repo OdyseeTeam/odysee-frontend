@@ -318,6 +318,10 @@ export default defineConfig({
       'lodash.forin': 'lodash-es/forIn',
       'lodash.clonedeep': 'lodash-es/cloneDeep',
 
+      // Force @emotion ESM entries (their exports map 'import' points to broken .cjs.mjs wrappers)
+      '@emotion/styled': path.resolve(__dirname, 'node_modules/@emotion/styled/dist/emotion-styled.esm.js'),
+      '@emotion/react': path.resolve(__dirname, 'node_modules/@emotion/react/dist/emotion-react.esm.js'),
+
       // Build optimization
       'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
     },
