@@ -1,6 +1,6 @@
 const { CUSTOM_HOMEPAGE } = require('../../config.cjs');
 
-const { getHomepageJsonV1, getHomepageJsonV2 } = require('./getHomepageJSON.cjs');
+const { getHomepageJsonV1, getHomepageJsonV2 } = require('./getHomepageJSON');
 
 async function getHomepage(ctx, version) {
   if (!CUSTOM_HOMEPAGE) {

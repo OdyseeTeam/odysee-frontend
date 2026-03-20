@@ -10,9 +10,9 @@ const {
   escapeHtmlProperty,
 } = require('../../ui/util/web.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry.cjs');
+const { lbryProxy: Lbry } = require('../lbry');
 
-const { resolveSlashUrl } = require('./resolveSlashUrl.cjs');
+const { resolveSlashUrl } = require('./resolveSlashUrl');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 

@@ -3,9 +3,9 @@ const moment = require('moment');
 const removeMd = require('remove-markdown');
 
 // TODO: fix relative path for server
-const { generateContentUrl } = require('../fetchStreamUrl.cjs');
+const { generateContentUrl } = require('../fetchStreamUrl');
 
-const { parseURI } = require('../lbryURI.cjs');
+const { parseURI } = require('../lbryURI');
 
 const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.cjs');
 

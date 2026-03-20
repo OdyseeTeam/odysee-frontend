@@ -20,15 +20,15 @@ const {
   unscapeHtmlProperty,
 } = require('../../ui/util/web.cjs');
 
-const { fetchStreamUrl } = require('./fetchStreamUrl.cjs');
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 
-const { lbryProxy: Lbry } = require('../lbry.cjs');
+const { lbryProxy: Lbry } = require('../lbry');
 
-const { getHomepageJsonV1 } = require('./getHomepageJSON.cjs');
+const { getHomepageJsonV1 } = require('./getHomepageJSON');
 
-const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI.cjs');
+const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
 
-const { resolveSlashUrl } = require('./resolveSlashUrl.cjs');
+const { resolveSlashUrl } = require('./resolveSlashUrl');
 
 const fs = require('fs');
 
@@ -38,7 +38,7 @@ const path = require('path');
 
 const removeMd = require('remove-markdown');
 
-const { buildGoogleVideoMetadata } = require('./metadata/googleVideo.cjs');
+const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';

@@ -1,6 +1,6 @@
 const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry.cjs');
+const { lbryProxy: Lbry } = require('../lbry');
 
 const { getThumbnailCardCdnUrl } = require('../../ui/util/web.cjs');
 

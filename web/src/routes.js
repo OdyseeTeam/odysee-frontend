@@ -1,26 +1,26 @@
-const { fetchStreamUrl } = require('./fetchStreamUrl.cjs');
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 
 const config = require('../../config.cjs');
 
-const { getHomepage } = require('./homepageApi.cjs');
+const { getHomepage } = require('./homepageApi');
 
-const { getHtml } = require('./html.cjs');
+const { getHtml } = require('./html');
 
-const { getMinVersion } = require('./minVersion.cjs');
+const { getMinVersion } = require('./minVersion');
 
-const { getOEmbed } = require('./oEmbed.cjs');
+const { getOEmbed } = require('./oEmbed');
 
-const { getRss } = require('./rss.cjs');
+const { getRss } = require('./rss');
 
-const { getFarcasterManifest } = require('./farcaster.cjs');
+const { getFarcasterManifest } = require('./farcaster');
 
-const { handleFramePost } = require('./frame.cjs');
+const { handleFramePost } = require('./frame');
 
-const { getTempFile } = require('./tempfile.cjs');
+const { getTempFile } = require('./tempfile');
 
-const { getSpinnerHtml } = require('./spinner.cjs');
+const { getSpinnerHtml } = require('./spinner');
 
-const { getLlmsTxt } = require('./llms.cjs');
+const { getLlmsTxt } = require('./llms');
 
 const fetch = require('node-fetch');
 
