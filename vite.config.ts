@@ -175,6 +175,14 @@ function providePlugin(): Plugin {
       ) {
         imports.push("import { __ } from 'i18n';");
       }
+      if (
+        /\bassert\(/.test(code) &&
+        !code.includes("from 'asserts'") &&
+        !code.includes("from 'ui/asserts'") &&
+        !id.includes('/asserts.')
+      ) {
+        imports.push("import { assert } from 'asserts';");
+      }
 
       if (imports.length > 0) {
         return { code: imports.join('\n') + '\n' + code, map: null };
