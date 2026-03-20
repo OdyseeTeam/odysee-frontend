@@ -402,7 +402,7 @@ function HomePage(props: Props) {
             const bannerForPosition =
               homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
             return (
-              <React.Fragment key={id}>
+              <React.Fragment key={`${id}-${index}`}>
                 {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
                 {bannerForPosition && (
                   <CustomBanner
