@@ -19,12 +19,7 @@ import Spinner from 'component/spinner';
 import useFetched from 'effects/use-fetched';
 
 import usePrevious from 'effects/use-previous';
-import { lazyImport } from 'util/lazyImport';
 import { SHOW_TAGS_INTRO } from 'config';
-
-const YoutubeTransferStatus = lazyImport(() =>
-  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
-);
 
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
@@ -116,12 +111,13 @@ function UserSignUp(props: Props) {
   const [youtubeTransferSeen, setYoutubeTransferSeen] = React.useState(false);
   const showChannelCreation =
     hasVerifiedEmail &&
+    !youtubeTransferSeen &&
     ((balance !== undefined &&
       balance !== null &&
       balance > DEFAULT_BID_FOR_FIRST_CHANNEL &&
       channelCount === 0 &&
       !hasYoutubeChannels) ||
-      (interestedInYoutubeSync && !youtubeTransferSeen));
+      interestedInYoutubeSync);
   const showYoutubeTransfer =
     hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete && !youtubeTransferSeen;
   const youtubeSyncPendingLoad = interestedInYoutubeSync && hasVerifiedEmail && !hasYoutubeChannels;
@@ -230,17 +226,18 @@ function UserSignUp(props: Props) {
       />
     ),
     showYoutubeTransfer && (
-      <div>
-        <React.Suspense fallback={null}>
-          <YoutubeTransferStatus />
-        </React.Suspense>
-        <div
-          className="section__actions"
-          style={{ marginTop: 'var(--spacing-m)', maxWidth: '600px', margin: 'var(--spacing-m) auto 0' }}
-        >
-          <Button button="primary" label={__('Continue')} onClick={() => setYoutubeTransferSeen(true)} />
-        </div>
-      </div>
+      <YoutubeSync
+        inSignUpFlow
+        doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync}
+        transferFooter={
+          <div
+            className="section__actions"
+            style={{ marginTop: 'var(--spacing-m)', maxWidth: '600px', margin: 'var(--spacing-m) auto 0' }}
+          >
+            <Button button="primary" label={__('Continue')} onClick={() => setYoutubeTransferSeen(true)} />
+          </div>
+        }
+      />
     ),
     showLoadingSpinner && (
       <div className="main--empty">

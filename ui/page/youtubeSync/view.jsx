@@ -1,4 +1,5 @@
 // @flow
+import type { Node } from 'react';
 import { SITE_NAME, DOMAIN } from 'config';
 import * as PAGES from 'constants/pages';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
@@ -45,10 +46,11 @@ type Props = {
   doUserFetch: () => void,
   inSignUpFlow?: boolean,
   doToggleInterestedInYoutubeSync: () => void,
+  transferFooter?: Node,
 };
 
 export default function YoutubeSync(props: Props) {
-  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
+  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync, transferFooter } = props;
   const {
     location: { search, pathname },
     push,
@@ -140,9 +142,12 @@ export default function YoutubeSync(props: Props) {
     <Wrapper>
       <div className="main__channel-creation">
         {showYoutubeTransferStatus ? (
-          <React.Suspense fallback={null}>
-            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
-          </React.Suspense>
+          <>
+            <React.Suspense fallback={null}>
+              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
+            </React.Suspense>
+            {transferFooter}
+          </>
         ) : (
           <Card
             className="card--youtube-sync"
