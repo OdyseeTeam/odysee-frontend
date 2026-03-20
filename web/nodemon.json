@@ -1,3 +1,5 @@
 {
-  "ignore": ["dist/**"]
+  "watch": ["index.js", "src/", "middleware/"],
+  "ext": "js,json",
+  "ignore": ["dist/**", "*.ts"]
 }
