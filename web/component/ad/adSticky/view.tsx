@@ -17,9 +17,7 @@ type Props = {
   nagsShown: boolean;
   adBlockerFound: boolean | null | undefined;
 };
-// @ts-ignore
 const AdSticky = memo(function AdSticky(props: Props) {
-  // export default function AdSticky(props: Props) {
   const {
     provider,
     isContentClaim,

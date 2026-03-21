@@ -18,11 +18,9 @@ type StateProps = {
   // channelIdWhitelist?: ?any,
   channelId: ChannelId | null | undefined;
 };
-type DispatchProps = {};
 // ****************************************************************************
 // ****************************************************************************
-// @ts-ignore
-const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
+const Ad = memo(function Ad(props: Props & StateProps) {
   const { type, uri, tileLayout, adBlockerFound, shouldShowAds } = props;
   const provider = 'rumble'; // 'revcontent' | 'rumble'
 

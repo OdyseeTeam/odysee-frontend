@@ -15,19 +15,10 @@ export type Props = {
   shouldShowAds?: boolean;
 };
 
-/*
-type StateProps = {|
-  shouldShowAds: boolean,
-|};
-
-type DispatchProps = {||};
-*/
 // ****************************************************************************
 // Ads
 // ****************************************************************************
-// @ts-ignore
-const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props: any) {
-  // function AdTileA(props: Props & StateProps & DispatchProps) {
+const AdTileA = memo(function AdTileA(props: Props) {
   const { provider, tileLayout, shouldShowAds, noFallback } = props;
   const [iframe, setIframe] = React.useState(false);
   const primaryIframeRef = React.useRef(false);
