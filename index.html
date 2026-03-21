@@ -64,6 +64,10 @@
 
   <body>
     <div id="app"></div>
+    <script>
+      // Shim for Node packages (e.g. vfile) that reference `process` at runtime
+      window.process = window.process || { env: {}, cwd: function() { return '/'; }, platform: 'browser' };
+    </script>
     <script type="module" src="/ui/index.tsx"></script>
   </body>
 </html>
