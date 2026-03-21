@@ -5,7 +5,10 @@ const RETRY_ATTEMPTS = 5;
 
 type LazyComponentImport = () => Promise<{ default: React.ComponentType }>;
 
-function componentLoader(lazyComponent: LazyComponentImport, attemptsLeft: number): Promise<{ default: React.ComponentType }> {
+function componentLoader(
+  lazyComponent: LazyComponentImport,
+  attemptsLeft: number
+): Promise<{ default: React.ComponentType }> {
   return new Promise((resolve, reject) => {
     lazyComponent()
       .then(resolve)

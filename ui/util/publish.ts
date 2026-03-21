@@ -336,7 +336,12 @@ const PAYLOAD = {
         tagSet.add(LBRY_FIRST_TAG);
       }
     },
-    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime: number, nowTime: number): void => {
+    scheduledLivestream: (
+      tagSet: Set<string>,
+      publishData: UpdatePublishState,
+      releaseTime: number,
+      nowTime: number
+    ): void => {
       const { type, liveCreateType, liveEditType } = publishData;
       const isPlaceholderClaim =
         type === 'livestream' &&

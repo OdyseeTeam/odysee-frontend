@@ -25,7 +25,8 @@ class FileDetails extends PureComponent<Props> {
       metadata.source && metadata.source.size
         ? formatBytes(metadata.source.size)
         : fileInfo && fileInfo.download_path && formatBytes(fileInfo.written_bytes);
-    let downloadPath = fileInfo && fileInfo.download_path ? fileInfo.download_path.replace(/\\/g, '/').replace(/\/+/g, '/') : null;
+    let downloadPath =
+      fileInfo && fileInfo.download_path ? fileInfo.download_path.replace(/\\/g, '/').replace(/\/+/g, '/') : null;
     let downloadNote;
 
     // If the path is blank, file is not available. Streamed files won't have any blobs saved

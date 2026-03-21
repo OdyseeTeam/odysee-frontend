@@ -2,7 +2,14 @@ import { URL, THUMBNAIL_CARDS_CDN_URL } from 'config';
 
 const CONTINENT_COOKIE = 'continent';
 
-function generateEmbedUrl(claimUri: string, startTime?: string | number, referralLink?: string, newestType?: string, autoplay?: boolean, uriAccessKey?: UriAccessKey): string {
+function generateEmbedUrl(
+  claimUri: string,
+  startTime?: string | number,
+  referralLink?: string,
+  newestType?: string,
+  autoplay?: boolean,
+  uriAccessKey?: UriAccessKey
+): string {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   let urlParams = new URLSearchParams();
 
@@ -32,7 +39,14 @@ function generateEmbedUrl(claimUri: string, startTime?: string | number, referra
   return `${embedUrl}${embedUrlParams}`;
 }
 
-function generateEmbedUrlEncoded(claimUri: string, startTime?: string | number, referralLink?: string, newestType?: string, autoplay?: boolean, uriAccessKey?: UriAccessKey): string {
+function generateEmbedUrlEncoded(
+  claimUri: string,
+  startTime?: string | number,
+  referralLink?: string,
+  newestType?: string,
+  autoplay?: boolean,
+  uriAccessKey?: UriAccessKey
+): string {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   const encodedUri = encodeURIComponent(uriPath).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
   return generateEmbedUrl(encodedUri, startTime, referralLink, newestType, autoplay, uriAccessKey).replace(

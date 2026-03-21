@@ -71,7 +71,9 @@ function setSecondaryColor(rgb: RGB): void {
 }
 
 function getBrightness(rgb: RGB): number {
-  return Math.round((parseInt(String(rgb.r)) * 299 + parseInt(String(rgb.g)) * 587 + parseInt(String(rgb.b)) * 114) / 1000);
+  return Math.round(
+    (parseInt(String(rgb.r)) * 299 + parseInt(String(rgb.g)) * 587 + parseInt(String(rgb.b)) * 114) / 1000
+  );
 }
 
 function colorMixer(rgbA: RGB, rgbB: RGB, mix: number): RGB {

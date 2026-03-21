@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vite-plus';
+import { defineConfig } from 'vite-plus';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
@@ -18,7 +18,7 @@ const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
 
 // Resolve pnpm's nested node_modules directories for SCSS loadPaths
-function resolvePnpmNodeModules(): string[] {
+function resolvePnpmNodeModules() {
   const pnpmDir = path.resolve(__dirname, 'node_modules/.pnpm');
   if (!fs.existsSync(pnpmDir)) return [path.resolve(__dirname, 'node_modules')];
   try {
@@ -32,8 +32,8 @@ function resolvePnpmNodeModules(): string[] {
 }
 
 // Build all process.env.* replacements for the define option
-function buildEnvDefines(): Record<string, string> {
-  const defines: Record<string, string> = {};
+function buildEnvDefines() {
+  const defines = {};
   const envFile = path.resolve(__dirname, '.env.defaults');
   if (fs.existsSync(envFile)) {
     const content = fs.readFileSync(envFile, 'utf-8');
@@ -56,81 +56,73 @@ function buildEnvDefines(): Record<string, string> {
   return defines;
 }
 
+function processIfBlocks(code) {
+  const ifPattern = /\/\/\s*@if\s+/;
+  const lines = code.split('\n');
+  const blocks = [];
+  const stack = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (ifPattern.test(trimmed) && trimmed.startsWith('//')) {
+      stack.push({ line: i, condition: trimmed });
+    } else if (/\/\/\s*@endif/.test(trimmed) && stack.length > 0) {
+      const open = stack.pop();
+      if (open) {
+        blocks.push({ start: open.line, end: i, condition: open.condition });
+      }
+    }
+  }
+
+  // Process blocks from innermost to outermost (reverse order by start position to avoid index shifts)
+  blocks.sort((a, b) => b.start - a.start);
+
+  for (const block of blocks) {
+    const { start, end, condition } = block;
+    let keep = null;
+
+    // TARGET conditions
+    const targetMatch = condition.match(/@if\s+TARGET='(\w+)'/);
+    if (targetMatch) {
+      keep = targetMatch[1] === 'web'; // web build keeps web blocks, removes app blocks
+    }
+
+    // process.env conditions: @if process.env.X='val' or @if process.env.X!='val'
+    const envEqMatch = condition.match(/@if\s+process\.env\.(\w+)='([^']*)'/);
+    const envNeqMatch = condition.match(/@if\s+process\.env\.(\w+)!='([^']*)'/);
+    const envBareMatch = condition.match(/@if\s+process\.env\.(\w+)\s*$/);
+
+    if (envEqMatch) {
+      keep = (process.env[envEqMatch[1]] || '') === envEqMatch[2];
+    } else if (envNeqMatch) {
+      keep = (process.env[envNeqMatch[1]] || '') !== envNeqMatch[2];
+    } else if (envBareMatch) {
+      keep = !!process.env[envBareMatch[1]];
+    }
+
+    if (keep === null) continue; // Unknown condition, leave as-is
+
+    if (keep) {
+      // Keep content, remove @if and @endif markers
+      // Handle inline @endif (e.g., `} // @endif`)
+      lines[end] = lines[end].replace(/\/\/\s*@endif\s*$/, '').trimEnd();
+      if (lines[end].trim() === '') lines[end] = '';
+      lines[start] = ''; // Remove @if line
+    } else {
+      // Remove entire block including @if and @endif lines
+      for (let i = start; i <= end; i++) {
+        lines[i] = '';
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
 // Plugin to handle @if preprocessor directives:
 // - @if TARGET='web' / @if TARGET='app'
 // - @if process.env.VAR='value' (evaluated against actual env vars)
-function preprocessPlugin(): Plugin {
-  // Process nested @if/@endif blocks by finding matching pairs with depth tracking
-  function processIfBlocks(code: string): string {
-    const IF_RE = /\/\/\s*@if\s+/;
-    const lines = code.split('\n');
-    const blocks: Array<{ start: number; end: number; condition: string }> = [];
-    const stack: Array<{ line: number; condition: string }> = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const trimmed = lines[i].trim();
-      if (IF_RE.test(trimmed) && trimmed.startsWith('//')) {
-        stack.push({ line: i, condition: trimmed });
-      } else if (/\/\/\s*@endif/.test(trimmed)) {
-        // Also handle inline @endif like `} // @endif`
-        if (stack.length > 0) {
-          const open = stack.pop()!;
-          blocks.push({ start: open.line, end: i, condition: open.condition });
-        }
-      }
-    }
-
-    // Process blocks from innermost to outermost (reverse order by start position to avoid index shifts)
-    blocks.sort((a, b) => b.start - a.start);
-
-    for (const block of blocks) {
-      const { start, end, condition } = block;
-      let keep: boolean | null = null;
-
-      // TARGET conditions
-      const targetMatch = condition.match(/@if\s+TARGET='(\w+)'/);
-      if (targetMatch) {
-        const target = targetMatch[1];
-        keep = target === 'web'; // web build keeps web blocks, removes app blocks
-      }
-
-      // process.env conditions: @if process.env.X='val' or @if process.env.X!='val'
-      const envEqMatch = condition.match(/@if\s+process\.env\.(\w+)='([^']*)'/);
-      const envNeqMatch = condition.match(/@if\s+process\.env\.(\w+)!='([^']*)'/);
-      const envBareMatch = condition.match(/@if\s+process\.env\.(\w+)\s*$/);
-
-      if (envEqMatch) {
-        const actual = process.env[envEqMatch[1]] || '';
-        keep = actual === envEqMatch[2];
-      } else if (envNeqMatch) {
-        const actual = process.env[envNeqMatch[1]] || '';
-        keep = actual !== envNeqMatch[2];
-      } else if (envBareMatch) {
-        keep = !!process.env[envBareMatch[1]];
-      }
-
-      if (keep === null) continue; // Unknown condition, leave as-is
-
-      if (keep) {
-        // Keep content, remove @if and @endif markers
-        // Handle inline @endif (e.g., `} // @endif`)
-        lines[end] = lines[end].replace(/\/\/\s*@endif\s*$/, '').trimEnd();
-        if (lines[end].trim() === '') lines[end] = '';
-        lines[start] = ''; // Remove @if line
-      } else {
-        // Remove entire block including @if and @endif lines
-        for (let i = start; i <= end; i++) {
-          lines[i] = '';
-        }
-      }
-    }
-
-    return lines.filter((l, i) => {
-      // Remove completely empty lines that were preprocessor artifacts
-      // but keep intentional empty lines (check if line was blanked by us)
-      return true; // Keep all lines, empty ones are fine
-    }).join('\n');
-  }
+function preprocessPlugin() {
 
   return {
     name: 'preprocess-target',
@@ -167,7 +159,7 @@ function preprocessPlugin(): Plugin {
 }
 
 // Plugin to provide global variables (replaces webpack ProvidePlugin)
-function providePlugin(): Plugin {
+function providePlugin() {
   return {
     name: 'provide-globals',
     transform(code, id) {
@@ -176,7 +168,7 @@ function providePlugin(): Plugin {
       if (nid.includes('node_modules')) return null;
       if (!nid.match(/\.(tsx?|jsx?)$/)) return null;
 
-      const imports: string[] = [];
+      const imports = [];
       if (code.includes('Buffer') && !code.includes("from 'buffer'") && !code.includes('import { Buffer')) {
         imports.push("import { Buffer } from 'buffer';");
       }
@@ -207,7 +199,7 @@ function providePlugin(): Plugin {
 
 // Plugin to resolve imports from ui/ directory (like webpack resolve.modules: [UI_ROOT])
 // Only resolves path-like imports (with /) to ui/ directory, not bare module names
-function uiModuleResolverPlugin(): Plugin {
+function uiModuleResolverPlugin() {
   // These are the directories inside ui/ that can be imported as bare names
   // e.g. `import X from 'component/foo'` resolves to `ui/component/foo`
   const uiDirs = new Set(
@@ -231,7 +223,7 @@ function uiModuleResolverPlugin(): Plugin {
 
   const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
 
-  function tryResolve(basePath: string): string | null {
+  function tryResolve(basePath) {
     // Try direct file
     for (const ext of EXTENSIONS) {
       const filePath = basePath + ext;
@@ -283,7 +275,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Post-build plugin: injects Vite-built asset tags into the SSR template (index-web.html)
 // so the Koa web server can serve pages with the correct JS/CSS references.
-function ssrTemplatePlugin(): Plugin {
+function ssrTemplatePlugin() {
   return {
     name: 'ssr-template-inject',
     writeBundle: {
@@ -299,7 +291,7 @@ function ssrTemplatePlugin(): Plugin {
         const template = fs.readFileSync(templateHtml, 'utf8');
 
         // Extract all <script>, <link rel="modulepreload">, and <link rel="stylesheet"> tags from built HTML
-        const assetTags: string[] = [];
+        const assetTags = [];
         const scriptRe = /<script\b[^>]*src="[^"]*"[^>]*><\/script>/g;
         const modulepreloadRe = /<link\s+rel="modulepreload"[^>]*>/g;
         const stylesheetRe = /<link\s+rel="stylesheet"[^>]*>/g;

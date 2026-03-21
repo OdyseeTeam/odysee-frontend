@@ -17,7 +17,11 @@ interface ThrottledFunction {
 
 const getNow = (): number => new Date().getTime();
 
-export default function throttle(func: (...args: unknown[]) => unknown, wait: number, options: ThrottleOptions = {}): ThrottledFunction {
+export default function throttle(
+  func: (...args: unknown[]) => unknown,
+  wait: number,
+  options: ThrottleOptions = {}
+): ThrottledFunction {
   let timeout: ReturnType<typeof setTimeout> | null;
   let context: unknown;
   let args: unknown[] | null;

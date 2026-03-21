@@ -528,8 +528,10 @@ async function getHtml(ctx) {
       html = fs.readFileSync(HTML_PATH, 'utf8');
     } catch (e) {
       // Build hasn't produced the file yet — return a loading page that auto-retries
-      return '<!doctype html><html><head><meta charset="utf-8"><title>Building...</title></head>' +
-        '<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>';
+      return (
+        '<!doctype html><html><head><meta charset="utf-8"><title>Building...</title></head>' +
+        '<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>'
+      );
     }
   }
 

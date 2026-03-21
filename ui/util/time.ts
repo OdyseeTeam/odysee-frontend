@@ -108,5 +108,7 @@ export function getTimeAgoStr(
   });
 }
 export const getCurrentTimeInSec = (): number => Math.floor(Date.now() / 1000);
-export const formatDateToMonthAndDay = (date: Date | string | number): string => moment(new Date(date)).format('MMMM DD');
-export const formatDateToMonthDayAndYear = (date: Date | string | number): string => moment(new Date(date)).format('MMMM DD YYYY');
+export const formatDateToMonthAndDay = (date: Date | string | number): string =>
+  moment(new Date(date)).format('MMMM DD');
+export const formatDateToMonthDayAndYear = (date: Date | string | number): string =>
+  moment(new Date(date)).format('MMMM DD YYYY');

@@ -181,7 +181,16 @@ const TRAILING_PUNCTUATION = '.,:;"\'';
 
 // Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
 // its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
-function tokenizeUrl(this: { options: { gfm: boolean }; enterLink: () => () => void; tokenizeInline: (value: string, position: { line: number; column: number; offset: number }) => MdastNode[] }, eat: EatFunction, value: string, silent: boolean): true | MdastNode | undefined {
+function tokenizeUrl(
+  this: {
+    options: { gfm: boolean };
+    enterLink: () => () => void;
+    tokenizeInline: (value: string, position: { line: number; column: number; offset: number }) => MdastNode[];
+  },
+  eat: EatFunction,
+  value: string,
+  silent: boolean
+): true | MdastNode | undefined {
   if (!this.options.gfm) return;
   let subvalue = '';
   let matchedProtocol;
@@ -260,7 +269,11 @@ function tokenizeUrl(this: { options: { gfm: boolean }; enterLink: () => () => v
   });
 }
 
-tokenizeUrl.locator = function locateUrl(this: { options: { gfm: boolean } }, value: string, fromIndex: number): number {
+tokenizeUrl.locator = function locateUrl(
+  this: { options: { gfm: boolean } },
+  value: string,
+  fromIndex: number
+): number {
   if (!this.options.gfm) return -1;
   let min = -1;
 
@@ -274,7 +287,9 @@ tokenizeUrl.locator = function locateUrl(this: { options: { gfm: boolean } }, va
 
 tokenizeUrl.notInLink = true;
 // Main module
-export function inlineLinks(this: { Parser: { prototype: { inlineTokenizers: Record<string, Function>; inlineMethods: string[] } } }): void {
+export function inlineLinks(this: {
+  Parser: { prototype: { inlineTokenizers: Record<string, Function>; inlineMethods: string[] } };
+}): void {
   // oxlint-disable-next-line no-this-in-exported-function
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;

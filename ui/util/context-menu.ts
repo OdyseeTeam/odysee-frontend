@@ -43,7 +43,12 @@ function injectDevelopmentTemplate(event: MouseEvent, templates: MenuTemplate[])
   return templates;
 }
 
-export function openContextMenu(event: MouseEvent, templates: MenuTemplate[] = [], canEdit: boolean = false, selection: string = ''): void {
+export function openContextMenu(
+  event: MouseEvent,
+  templates: MenuTemplate[] = [],
+  canEdit: boolean = false,
+  selection: string = ''
+): void {
   const { type, value } = event.target;
   const isInput = event.target.matches('input') && (type === 'text' || type === 'number');
   const isTextField = canEdit || isInput || event.target.matches('textarea');

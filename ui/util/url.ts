@@ -95,7 +95,13 @@ export const generateLbryContentUrl = (canonicalUrl: string, permanentUrl: strin
 export const generateLbryWebUrl = (lbryUrl: string): string => {
   return lbryUrl.replace(/#/g, ':');
 };
-export const generateEncodedLbryURL = (domain: string, lbryWebUrl: string, includeStartTime: boolean, startTime: number, listId?: string): string => {
+export const generateEncodedLbryURL = (
+  domain: string,
+  lbryWebUrl: string,
+  includeStartTime: boolean,
+  startTime: number,
+  listId?: string
+): string => {
   let urlParams = new URLSearchParams();
 
   if (includeStartTime) {
@@ -239,7 +245,10 @@ export const generateShortShareUrl = async (
   // -- Profit
   return finalUrl.toString();
 };
-export const generateRssUrl = (domain: string, channelClaim: { value_type?: string; canonical_url?: string } | null): string => {
+export const generateRssUrl = (
+  domain: string,
+  channelClaim: { value_type?: string; canonical_url?: string } | null
+): string => {
   if (!channelClaim || channelClaim.value_type !== 'channel' || !channelClaim.canonical_url) {
     return '';
   }
