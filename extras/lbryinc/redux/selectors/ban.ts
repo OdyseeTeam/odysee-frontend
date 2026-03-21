@@ -5,7 +5,9 @@ import { createCachedSelector } from 're-reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectModerationBlockList } from 'redux/selectors/comments';
-import { selectFilteredData, selectBlackListedData } from 'lbryinc';
+// Direct imports to avoid circular dependency through lbryinc barrel
+import { selectBlackListedData } from './blacklist';
+import { selectFilteredData } from './filtered';
 import { getChannelFromClaim } from 'util/claim';
 import { isURIEqual } from 'util/lbryURI';
 const ALL_CLEAR_STATE = Object.freeze({});

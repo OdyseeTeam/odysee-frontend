@@ -7,7 +7,9 @@ import { selectShowMatureContent } from 'redux/selectors/settings';
 const selectMentionSearchResults = (state: State): Array<string> => state.search.results;
 const selectMentionQuery = (state: State): string => state.search.mentionQuery;
 import { selectUserLocale } from 'redux/selectors/user';
-import { selectBlackListedData, selectFilteredData } from 'lbryinc';
+// Direct imports to avoid circular dependency: comments -> lbryinc/index -> redux/actions/sync -> lbryinc
+import { selectBlackListedData } from 'lbryinc/redux/selectors/blacklist';
+import { selectFilteredData } from 'lbryinc/redux/selectors/filtered';
 import {
   selectClaimsById,
   selectMyClaimIdsRaw,
