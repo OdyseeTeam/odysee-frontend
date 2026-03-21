@@ -321,6 +321,7 @@ export default defineConfig({
     IS_WEB: JSON.stringify(true),
     __static: JSON.stringify(path.join(__dirname, 'static')),
     'process.platform': JSON.stringify('browser'),
+    'process.cwd': '(() => "/")',
     global: 'globalThis',
   },
 
@@ -432,6 +433,8 @@ export default defineConfig({
       'buffer',
       'proxy-polyfill',
       'tus-js-client',
+      'remark',
+      'unified',
     ],
   },
 
