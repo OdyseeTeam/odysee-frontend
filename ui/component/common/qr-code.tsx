@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import ReactQrCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 type Props = {
   value: string;
   paddingRight?: boolean;
@@ -22,7 +22,7 @@ class QRCode extends React.Component<Props> {
           'qr-code--top-padding': paddingTop,
         })}
       >
-        <ReactQrCode value={value} />
+        <QRCodeSVG value={value} />
       </div>
     );
   }

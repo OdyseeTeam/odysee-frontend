@@ -144,17 +144,17 @@ importers:
         specifier: ^15.6.2
         version: 15.8.1
       proxy-polyfill:
-        specifier: 0.1.6
-        version: 0.1.6
+        specifier: '0.3'
+        version: 0.3.2
       qrcode.react:
-        specifier: ^0.8.0
-        version: 0.8.0(react@18.3.1)
+        specifier: '4'
+        version: 4.2.0(react@18.3.1)
       rc-progress:
         specifier: ^2.0.6
         version: 2.6.1
       re-reselect:
         specifier: ^4.0.0
-        version: 4.0.1(reselect@4.1.8)
+        version: 4.0.1(reselect@5.1.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -168,8 +168,8 @@ importers:
         specifier: ^2.19.3
         version: 2.19.3(react@18.3.1)
       react-confetti:
-        specifier: ^4.0.1
-        version: 4.0.1(react@18.3.1)
+        specifier: '6'
+        version: 6.4.0(react@18.3.1)
       react-datepicker:
         specifier: ^9.1.0
         version: 9.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -189,8 +189,8 @@ importers:
         specifier: ^3.1.7
         version: 3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-paginate:
-        specifier: ^5.2.1
-        version: 5.3.1(react@18.3.1)
+        specifier: '8'
+        version: 8.3.0(react@18.3.1)
       react-plastic:
         specifier: ^1.1.1
         version: 1.1.1(typescript@5.9.3)
@@ -210,8 +210,8 @@ importers:
         specifier: ^8.0.20
         version: 8.0.27(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-top-loading-bar:
-        specifier: ^2.0.1
-        version: 2.3.1(react@18.3.1)
+        specifier: '3'
+        version: 3.0.2(react@18.3.1)
       reakit:
         specifier: ^1.0.0-beta.13
         version: 1.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -225,8 +225,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(redux-persist@5.10.0(react@18.3.1)(redux@3.7.2))
       redux-persist-transform-filter:
-        specifier: 0.0.16
-        version: 0.0.16(redux-persist@5.10.0(react@18.3.1)(redux@3.7.2))(redux@3.7.2)
+        specifier: 0.0.22
+        version: 0.0.22(redux-persist@5.10.0(react@18.3.1)(redux@3.7.2))(redux@3.7.2)
       redux-state-sync:
         specifier: ^3.1.4
         version: 3.1.4
@@ -252,17 +252,17 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       remove-markdown:
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.5.5
+        version: 0.5.5
       reselect:
-        specifier: ^4.0.0
-        version: 4.1.8
+        specifier: ^5.1.1
+        version: 5.1.1
       rss:
         specifier: ^1.2.2
         version: 1.2.2
       semver:
-        specifier: ^5.3.0
-        version: 5.7.2
+        specifier: ^7.0.0
+        version: 7.0.0
       stream-to-blob-url:
         specifier: ^2.1.1
         version: 2.1.2
@@ -291,8 +291,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       uuid:
-        specifier: ^8.3.2
-        version: 8.3.2
+        specifier: ^9.0.1
+        version: 9.0.1
       vast-client:
         specifier: ^3.1.1
         version: 3.2.0
@@ -376,8 +376,8 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       cross-env:
-        specifier: ^7.0.3
-        version: 7.0.3
+        specifier: ^10.1.0
+        version: 10.1.0
       dotenv-defaults:
         specifier: ^5.0.0
         version: 5.0.2
@@ -509,6 +509,9 @@ packages:
 
   '@emotion/weak-memoize@0.4.0':
     resolution: {integrity: sha512-snKqtPW01tN0ui7yu9rGv69aJXr/a/Ywvl11sUjNtEcRc+ng/mQriFL0wLXMef74iHa/EkftbDzU9F8iFbH+zg==}
+
+  '@epic-web/invariant@1.0.0':
+    resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
 
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
@@ -2695,9 +2698,9 @@ packages:
   create-react-class@15.7.0:
     resolution: {integrity: sha512-QZv4sFWG9S5RUvkTYWbflxeZX+JG7Cz0Tn33rQBJ+WFQTqTfUTjMjiv9tnfXazjsO5r0KhPs+AqCjyrQX6h2ng==}
 
-  cross-env@7.0.3:
-    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
-    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
+  cross-env@10.1.0:
+    resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
+    engines: {node: '>=20'}
     hasBin: true
 
   cross-spawn@5.1.0:
@@ -4742,16 +4745,6 @@ packages:
   lodash.defaults@4.2.0:
     resolution: {integrity: sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==}
 
-  lodash.forin@4.4.0:
-    resolution: {integrity: sha512-APldePP4yvGhMcplVxv9L+exdLHMRHRhH1Q9O70zRJMm9HbTm6zxaihXtNl+ICOBApeFWoH7jNmFr/L4XfWeiQ==}
-
-  lodash.get@4.4.2:
-    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
-    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
-
-  lodash.isempty@4.4.0:
-    resolution: {integrity: sha512-oKMuF3xEeqDltrGMfDxAPGIVMSSRv8tbRSODbrs4KGsRRLEhrW8N8Rd4DRgB2+621hY8A8XwwrTVhXWpxFvMzg==}
-
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
@@ -4761,12 +4754,6 @@ packages:
 
   lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
-
-  lodash.pickby@4.6.0:
-    resolution: {integrity: sha512-AZV+GsS/6ckvPOVQPXSiFFacKvKB4kOQu6ynt9wz0F3LO4R9Ij4K1ddYsIytDpSgLz88JHd9P+oaLeej5/Sl7Q==}
-
-  lodash.set@4.3.2:
-    resolution: {integrity: sha512-4hNPN5jlm/N/HLMCO43v8BXKq9Z7QdAGc/VGrRD61w8gN9g/6jF9A4L1pbUgBLCffi0w9VsXfTOij5x8iTyFvg==}
 
   lodash.template@4.5.0:
     resolution: {integrity: sha512-84vYFxIkmidUiFxidA/KjjH9pAycqW+h980j7Fuz5qxRtO9pgB7MDFTdys1N7A5mcucRiDyEq4fusljItR1T/A==}
@@ -4783,9 +4770,6 @@ packages:
 
   lodash.uniqby@4.5.0:
     resolution: {integrity: sha512-IRt7cfTtHy6f1aRVA5n7kT8rgN3N1nH6MOWLcHfpWG2SH19E3JksLK38MktLxZDhlAjCP9jpIXkOnRXlu6oByQ==}
-
-  lodash.unset@4.5.2:
-    resolution: {integrity: sha512-bwKX88k2JhCV9D1vtE8+naDKlLiGrSmf8zi/Y9ivFHwbmRfA8RxS/aVJ+sIht2XOwqoNr4xUPUkGZpc1sHFEKg==}
 
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
@@ -5677,8 +5661,8 @@ packages:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
 
-  proxy-polyfill@0.1.6:
-    resolution: {integrity: sha512-H5+iLlG3DI9TBG6+hmC8rd2u+b6s2d+ldQSf6s1dUoFD72e6FZdJAbAxtjPa2TmfCfDLNcdyKSrQQ0qTAiy5kg==}
+  proxy-polyfill@0.3.2:
+    resolution: {integrity: sha512-ENKSXOMCewnQTOyqrQXxEjIhzT6dy572mtehiItbDoIUF5Sv5UkmRUc8kowg2MFvr232Uo8rwRpNg3V5kgTKbA==}
 
   prr@1.0.1:
     resolution: {integrity: sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw==}
@@ -5710,13 +5694,10 @@ packages:
 
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
-  qr.js@0.0.0:
-    resolution: {integrity: sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==}
-
-  qrcode.react@0.8.0:
-    resolution: {integrity: sha512-16wKpuFvLwciIq2YAsfmPUCnSR8GrYPsXRK5KVdcIuX0+W/MKZbBkFhl44ttRx4TWZHqRjfztoWOxdPF0Hb9JA==}
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
     peerDependencies:
-      react: ^15.5.3 || ^16.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   qs@6.14.2:
     resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
@@ -5804,10 +5785,11 @@ packages:
     peerDependencies:
       react: ^16.3.0
 
-  react-confetti@4.0.1:
-    resolution: {integrity: sha512-uQrb1Q4p8Wg3xyxSGtsIxdd+hOd3jRNpVq5qET6m9B+fihsjF7mHbMngoiziya3DZtstaqCBPpTcyByXLu8CnQ==}
+  react-confetti@6.4.0:
+    resolution: {integrity: sha512-5MdGUcqxrTU26I2EU7ltkWPwxvucQTuqMm8dUz72z2YMqTD6s9vMcDUysk7n9jnC+lXuCPeJJ7Knf98VEYE9Rg==}
+    engines: {node: '>=16'}
     peerDependencies:
-      react: 0.14.x || ^15.0.1 || ^16.2.0
+      react: ^16.3.0 || ^17.0.1 || ^18.0.0 || ^19.0.0
 
   react-datepicker@9.1.0:
     resolution: {integrity: sha512-lOp+m5bc+ttgtB5MHEjwiVu4nlp4CvJLS/PG1OiOe5pmg9kV73pEqO8H0Geqvg2E8gjqTaL9eRhSe+ZpeKP3nA==}
@@ -5881,10 +5863,10 @@ packages:
       react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
 
-  react-paginate@5.3.1:
-    resolution: {integrity: sha512-HcRUUWPR4mwmT41OiAi8qrezq75iJPqZPjIrtaT/ebGyZHDC6hJP363e6zNNCcvlL1Wgcq4BTbwkq1fkl7Nn5g==}
+  react-paginate@8.3.0:
+    resolution: {integrity: sha512-TptZE37HPkT3R+7AszWA++LOTIsIHXcCSWMP9WW/abeF8sLpJzExFB/dVs7xbtqteJ5njF6kk+udTDC0AR3y5w==}
     peerDependencies:
-      react: ^16.0.0
+      react: ^16 || ^17 || ^18 || ^19
 
   react-plastic@1.1.1:
     resolution: {integrity: sha512-cJ6PXA8kXh1SLS1WudVBg8BTgHeVhc/E8FeLyGYPbQxrZ+IwSmk5rLgFPIqZPIb2XUzMFDVALuR8q2+IGapMIg==}
@@ -5945,11 +5927,11 @@ packages:
       react: '>= 16.8.0'
       react-dom: '>= 16.8.0'
 
-  react-top-loading-bar@2.3.1:
-    resolution: {integrity: sha512-rQk2Nm+TOBrM1C4E3e6KwT65iXyRSgBHjCkr2FNja1S51WaPulRA5nKj/xazuQ3x89wDDdGsrqkqy0RBIfd0xg==}
-    engines: {node: '>=10'}
+  react-top-loading-bar@3.0.2:
+    resolution: {integrity: sha512-hW0CHrHqKdBOBsVhms73ka0rgb9/aoiRfqo7jiS1vwIYDK7VkyMj52ypo5ewhshTQGHKE6mRvR99GZBZ+FuM/Q==}
+    engines: {node: '>=14'}
     peerDependencies:
-      react: ^16 || ^17 || ^18
+      react: ^16 || ^17 || ^18 || ^19
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -6042,11 +6024,11 @@ packages:
     peerDependencies:
       redux-persist: '>=4.0.0'
 
-  redux-persist-transform-filter@0.0.16:
-    resolution: {integrity: sha512-P7vBmrhOlGWO6Qtw1VoJ2cPzlb4PdPtJjppcJK0uSmcg5TCYxBVla27mxBZzday4CCy0wsYqDq+UI/1E84Yk9Q==}
+  redux-persist-transform-filter@0.0.22:
+    resolution: {integrity: sha512-XtGN7UQ8w7b3qaxQfdYY1UmuYULqIIemD47IWxIyM8AOF48I6C74m9XxA7gQoC2nIi+rz4URi9Mye4fIbHhZPQ==}
     peerDependencies:
       redux: '>3.0.0'
-      redux-persist: ^3.4.0 || ^4 || ^5
+      redux-persist: ^3.4.0 || ^4 || ^5 || ^6
 
   redux-persist@5.10.0:
     resolution: {integrity: sha512-sSJAzNq7zka3qVHKce1hbvqf0Vf5DuTVm7dr4GtsqQVOexnrvbV47RWFiPxQ8fscnyiuWyD2O92DOxPl0tGCRg==}
@@ -6147,8 +6129,8 @@ packages:
   remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
 
-  remove-markdown@0.3.0:
-    resolution: {integrity: sha512-5392eIuy1mhjM74739VunOlsOYKjsH82rQcTBlJ1bkICVC3dQ3ksQzTHh4jGHQFnM+1xzLzcFOMH+BofqXhroQ==}
+  remove-markdown@0.5.5:
+    resolution: {integrity: sha512-lMR8tOtDqazFT6W2bZidoXwkptMdF3pCxpri0AEokHg0sZlC2GdoLqnoaxsEj1o7/BtXV1MKtT3YviA1t7rW7g==}
 
   remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
@@ -6198,8 +6180,8 @@ packages:
   requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
 
-  reselect@4.1.8:
-    resolution: {integrity: sha512-ab9EmR80F/zQTMNeneUr4cv+jSwPJgIlvEmVwLerwrWVbpLlBuls9XHzIeTFy4cegU2NHBp3va0LKOzU5qFEYQ==}
+  reselect@5.1.1:
+    resolution: {integrity: sha512-K/BG6eIky/SBpzfHZv/dd+9JBFiS4SWV7FIujVyJRux6e45+73RaUHXLmIR1f7WOMaQ0U1km6qwklRQxpJJY0w==}
 
   resolve-dir@1.0.1:
     resolution: {integrity: sha512-R7uiTjECzvOsWSfdM0QKFNBVFcK27aHOUwdvK53BcW8zqnGdYp0Fbj82cy54+2A4P2tFM22J5kRfe1R+lM/1yg==}
@@ -7216,8 +7198,8 @@ packages:
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
     hasBin: true
 
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
   validate-npm-package-license@3.0.4:
@@ -7781,6 +7763,8 @@ snapshots:
   '@emotion/utils@1.4.2': {}
 
   '@emotion/weak-memoize@0.4.0': {}
+
+  '@epic-web/invariant@1.0.0': {}
 
   '@fastify/busboy@2.1.1': {}
 
@@ -10211,8 +10195,9 @@ snapshots:
       loose-envify: 1.4.0
       object-assign: 4.1.1
 
-  cross-env@7.0.3:
+  cross-env@10.1.0:
     dependencies:
+      '@epic-web/invariant': 1.0.0
       cross-spawn: 7.0.6
 
   cross-spawn@5.1.0:
@@ -12693,21 +12678,11 @@ snapshots:
 
   lodash.defaults@4.2.0: {}
 
-  lodash.forin@4.4.0: {}
-
-  lodash.get@4.4.2: {}
-
-  lodash.isempty@4.4.0: {}
-
   lodash.isequal@4.5.0: {}
 
   lodash.isequalwith@4.4.0: {}
 
   lodash.memoize@4.1.2: {}
-
-  lodash.pickby@4.6.0: {}
-
-  lodash.set@4.3.2: {}
 
   lodash.template@4.5.0:
     dependencies:
@@ -12726,8 +12701,6 @@ snapshots:
     dependencies:
       lodash._baseiteratee: 4.7.0
       lodash._baseuniq: 4.6.0
-
-  lodash.unset@4.5.2: {}
 
   lodash@4.17.23: {}
 
@@ -13783,7 +13756,7 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  proxy-polyfill@0.1.6: {}
+  proxy-polyfill@0.3.2: {}
 
   prr@1.0.1: {}
 
@@ -13810,12 +13783,8 @@ snapshots:
 
   q@1.5.1: {}
 
-  qr.js@0.0.0: {}
-
-  qrcode.react@0.8.0(react@18.3.1):
+  qrcode.react@4.2.0(react@18.3.1):
     dependencies:
-      prop-types: 15.8.1
-      qr.js: 0.0.0
       react: 18.3.1
 
   qs@6.14.2:
@@ -13877,9 +13846,9 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  re-reselect@4.0.1(reselect@4.1.8):
+  re-reselect@4.0.1(reselect@5.1.1):
     dependencies:
-      reselect: 4.1.8
+      reselect: 5.1.1
 
   react-async-script@1.2.0(react@18.3.1):
     dependencies:
@@ -13924,7 +13893,7 @@ snapshots:
       react: 18.3.1
       warning: 3.0.0
 
-  react-confetti@4.0.1(react@18.3.1):
+  react-confetti@6.4.0(react@18.3.1):
     dependencies:
       react: 18.3.1
       tween-functions: 1.2.0
@@ -14030,7 +13999,7 @@ snapshots:
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
-  react-paginate@5.3.1(react@18.3.1):
+  react-paginate@8.3.0(react@18.3.1):
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
@@ -14154,7 +14123,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-top-loading-bar@2.3.1(react@18.3.1):
+  react-top-loading-bar@3.0.2(react@18.3.1):
     dependencies:
       react: 18.3.1
 
@@ -14282,14 +14251,9 @@ snapshots:
       lz-string: 1.5.0
       redux-persist: 5.10.0(react@18.3.1)(redux@3.7.2)
 
-  redux-persist-transform-filter@0.0.16(redux-persist@5.10.0(react@18.3.1)(redux@3.7.2))(redux@3.7.2):
+  redux-persist-transform-filter@0.0.22(redux-persist@5.10.0(react@18.3.1)(redux@3.7.2))(redux@3.7.2):
     dependencies:
-      lodash.forin: 4.4.0
-      lodash.get: 4.4.2
-      lodash.isempty: 4.4.0
-      lodash.pickby: 4.6.0
-      lodash.set: 4.3.2
-      lodash.unset: 4.5.2
+      lodash: 4.17.23
       redux: 3.7.2
       redux-persist: 5.10.0(react@18.3.1)(redux@3.7.2)
 
@@ -14449,7 +14413,7 @@ snapshots:
 
   remove-accents@0.5.0: {}
 
-  remove-markdown@0.3.0: {}
+  remove-markdown@0.5.5: {}
 
   remove-trailing-separator@1.1.0: {}
 
@@ -14509,7 +14473,7 @@ snapshots:
 
   requires-port@1.0.0: {}
 
-  reselect@4.1.8: {}
+  reselect@5.1.1: {}
 
   resolve-dir@1.0.1:
     dependencies:
@@ -15658,7 +15622,7 @@ snapshots:
 
   uuid@3.4.0: {}
 
-  uuid@8.3.2: {}
+  uuid@9.0.1: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:
