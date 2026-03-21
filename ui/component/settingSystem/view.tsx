@@ -13,9 +13,7 @@ import SettingWalletServer from 'component/settingWalletServer';
 import Spinner from 'component/spinner';
 import { getPasswordFromCookie } from 'util/saved-passwords';
 import * as MODALS from 'constants/modal_types';
-// @if TARGET='app'
-const IS_MAC = process.platform === 'darwin';
-// @endif
+const IS_MAC = typeof process !== 'undefined' && process.platform === 'darwin';
 type Price = {
   currency: string;
   amount: number;
