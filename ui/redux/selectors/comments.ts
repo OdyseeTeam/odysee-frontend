@@ -2,7 +2,10 @@ import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { selectGeoBlockLists, selectMutedChannels } from 'redux/selectors/blocked';
 import { selectShowMatureContent } from 'redux/selectors/settings';
-import { selectMentionSearchResults, selectMentionQuery } from 'redux/selectors/search';
+// Inlined from search selectors to break circular dependency:
+// search.ts -> content.ts -> file_info.ts -> livestream.ts -> comments.ts -> search.ts
+const selectMentionSearchResults = (state: State): Array<string> => state.search.results;
+const selectMentionQuery = (state: State): string => state.search.mentionQuery;
 import { selectUserLocale } from 'redux/selectors/user';
 import { selectBlackListedData, selectFilteredData } from 'lbryinc';
 import {
