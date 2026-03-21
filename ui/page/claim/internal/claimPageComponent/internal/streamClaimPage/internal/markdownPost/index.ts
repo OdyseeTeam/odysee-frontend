@@ -16,7 +16,7 @@ const select = (state, props) => {
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, getChannelIdFromClaim(claim));
   return {
     isMature: selectClaimIsNsfwForUri(state, uri),

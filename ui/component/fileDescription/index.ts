@@ -16,7 +16,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const metadata = getClaimMetadata(claim);
   const description = metadata && metadata.description;
-  const amount = claim ? parseFloat(claim.amount) + parseFloat(pendingAmount || claim.meta.support_amount) : 0;
+  const amount = claim ? parseFloat(claim.amount) + parseFloat(pendingAmount || claim.meta?.support_amount) : 0;
   const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
   const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
   const isEmpty = !claim || !metadata;

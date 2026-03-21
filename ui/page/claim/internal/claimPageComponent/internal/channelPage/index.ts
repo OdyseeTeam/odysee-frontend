@@ -39,7 +39,7 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
-    odyseeMembership: selectUserOdyseeMembership(state, claim.claim_id),
+    odyseeMembership: selectUserOdyseeMembership(state, claim?.claim_id),
     myMembershipsFetched: selectMembershipMineFetched(state),
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),

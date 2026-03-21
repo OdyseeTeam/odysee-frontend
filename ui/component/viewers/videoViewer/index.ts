@@ -86,7 +86,7 @@ const select = (state, props) => {
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
-    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim?.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
