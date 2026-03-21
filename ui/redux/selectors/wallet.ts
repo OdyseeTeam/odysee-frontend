@@ -1,7 +1,8 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
-import { selectClaimIdsByUri } from 'redux/selectors/claims';
+// Inlined to break circular dependency: claims.ts -> wallet.ts -> claims.ts
+const selectClaimIdsByUri = (state: State) => (state.claims || {}).claimsByUri || {};
 import parseData from 'util/parse-data';
 export const selectState = (state) => state.wallet || {};
 export const selectWalletState = selectState;
