@@ -443,6 +443,7 @@ export default defineConfig({
       'tus-js-client',
       'remark',
       'unified',
+      'react-datetime-picker',
     ],
   },
 
