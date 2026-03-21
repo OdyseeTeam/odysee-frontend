@@ -18,4 +18,4 @@ const select = (state) => ({
 const perform = {
   updatePublishForm: doUpdatePublishForm,
 };
-export default connect<_, Props, _, _, _, _>(select, perform)(PublishReleaseDate);
+export default connect(select, perform)(PublishReleaseDate);

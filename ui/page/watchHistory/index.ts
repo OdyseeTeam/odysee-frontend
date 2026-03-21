@@ -16,4 +16,4 @@ const perform = {
   doResolveUris,
   doOpenModal,
 };
-export default withRouter(connect<_, Props, _, _, _, _>(select, perform)(WatchHistoryPage));
+export default withRouter(connect(select, perform)(WatchHistoryPage));

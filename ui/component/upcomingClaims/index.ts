@@ -79,7 +79,7 @@ const perform = (dispatch) => ({
   setClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
 });
 
-export default connect<_, Props, _, _, _, _>(select, perform, null, {
+export default connect(select, perform, null, {
   areStatePropsEqual: (next: any, prev: any) => {
     if (
       (prev.livestreamUris !== undefined && next.livestreamUris === undefined) ||

@@ -10,4 +10,4 @@ const perform = (dispatch) => ({
   updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
 });
 
-export default connect<_, Props, _, _, _, _>(null, perform)(ModalConfirmThumbnailUpload);
+export default connect(null, perform)(ModalConfirmThumbnailUpload);

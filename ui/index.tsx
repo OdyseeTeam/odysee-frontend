@@ -10,7 +10,7 @@ import moment from 'moment';
 import { ipcRenderer, remote, shell } from 'electron';
 // @endif
 import * as MODALS from 'constants/modal_types';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import {
   doDaemonReady,
@@ -292,4 +292,4 @@ function AppWrapper() {
   );
 }
 
-ReactDOM.render(<AppWrapper />, document.getElementById('app'));
+createRoot(document.getElementById('app')!).render(<AppWrapper />);

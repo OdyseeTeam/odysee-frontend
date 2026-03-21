@@ -75,4 +75,4 @@ const perform = {
   doFetchChannelMembershipsForChannelIds,
   doPopOutInlinePlayer,
 };
-export default connect<_, Props, _, _, _, _>(select, perform)(CommentsList);
+export default connect(select, perform)(CommentsList);

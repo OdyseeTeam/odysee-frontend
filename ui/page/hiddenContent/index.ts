@@ -7,4 +7,4 @@ const select = (state) => ({
   user: selectUser(state),
 });
 
-export default connect<_, Props, _, _, _, _>(select, {})(HiddenContentPage);
+export default connect(select, {})(HiddenContentPage);

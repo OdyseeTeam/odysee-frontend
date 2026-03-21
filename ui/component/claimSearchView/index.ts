@@ -20,4 +20,4 @@ const select = (state, props) => {
 const perform = {
   doClaimSearch,
 };
-export default connect<_, Props, _, _, _, _>(select, perform)(ClaimSearchView);
+export default connect(select, perform)(ClaimSearchView);

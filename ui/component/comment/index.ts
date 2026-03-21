@@ -61,4 +61,4 @@ const perform = {
   fetchReplies: doCommentList,
   doToast,
 };
-export default connect<_, Props, _, _, _, _>(select, perform)(CommentView);
+export default connect(select, perform)(CommentView);

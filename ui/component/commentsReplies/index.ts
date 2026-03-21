@@ -11,4 +11,4 @@ const select = (state, props) => {
   };
 };
 
-export default connect<_, Props, _, _, _, _>(select, {})(CommentsReplies);
+export default connect(select, {})(CommentsReplies);

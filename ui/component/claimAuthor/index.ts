@@ -10,4 +10,4 @@ const select = (state, props) => {
   };
 };
 
-export default connect<_, Props, _, _, _, _>(select, {})(ClaimAuthor);
+export default connect(select, {})(ClaimAuthor);
