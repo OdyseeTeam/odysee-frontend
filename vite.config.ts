@@ -142,6 +142,14 @@ function preprocessPlugin(): Plugin {
 
       let result = processIfBlocks(code);
 
+      // Handle JSX-style comments: {/* @if TARGET='web'/'app' */}...{/* @endif */}
+      result = result.replace(
+        /\{\/\*\s*@if\s+TARGET='(\w+)'\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
+        (_match, target, content) => {
+          return target === 'web' ? content : '';
+        }
+      );
+
       // Handle JSX-style comments: {/* @if process.env.VAR */}...{/* @endif */}
       result = result.replace(
         /\{\/\*\s*@if\s+process\.env\.(\w+)\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
