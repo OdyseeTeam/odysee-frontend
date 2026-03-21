@@ -1,7 +1,6 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
-import DateTimePicker from 'react-datetime-picker';
-import moment from 'moment';
+import DatePicker from 'react-datepicker';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -24,24 +23,26 @@ const PublishStreamReleaseDate = (props: Props) => {
   const [publishLater, setPublishLater] = React.useState(isScheduled);
 
   const getPlus30MinutesDate = () => {
-    return moment().add('1', 'hour').add('30', 'minutes').startOf('hour').toDate();
+    const d = new Date();
+    d.setHours(d.getHours() + 1);
+    d.setMinutes(d.getMinutes() + 30);
+    d.setMinutes(0, 0, 0); // round down to start of hour
+    return d;
   };
 
   const handleToggle = () => {
     const shouldPublishLater = !publishLater;
     setPublishLater(shouldPublishLater);
-    onDateTimePickerChanged(shouldPublishLater ? getPlus30MinutesDate() : 'DEFAULT');
+    if (shouldPublishLater) {
+      updatePublishForm({ releaseTime: dateToLinuxTimestamp(getPlus30MinutesDate()) });
+    } else {
+      updatePublishForm({ releaseTime: undefined });
+    }
   };
 
-  const onDateTimePickerChanged = (value) => {
-    if (value === 'DEFAULT') {
-      updatePublishForm({
-        releaseTime: undefined,
-      });
-    } else {
-      updatePublishForm({
-        releaseTime: dateToLinuxTimestamp(value),
-      });
+  const onDateTimePickerChanged = (value: Date | null) => {
+    if (value instanceof Date) {
+      updatePublishForm({ releaseTime: dateToLinuxTimestamp(value) });
     }
   };
 
@@ -52,6 +53,7 @@ const PublishStreamReleaseDate = (props: Props) => {
     : __(
         'Your scheduled streams will appear on your channel page and for your followers. Chat will not be active until 5 minutes before the start time.'
       );
+
   React.useEffect(() => {
     if (isScheduled) {
       // TODO: this is doPrepareEdit's responsibility, not the component's.
@@ -60,6 +62,10 @@ const PublishStreamReleaseDate = (props: Props) => {
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
   return (
     <>
       <div className="publish-row">
@@ -94,17 +100,17 @@ const PublishStreamReleaseDate = (props: Props) => {
           </div>
           {publishLater && (
             <div className="form-field-date-picker mb-0 controls md:ml-m">
-              <DateTimePicker
-                locale={appLanguage}
+              <DatePicker
+                selected={releaseTime ? linuxTimestampToDate(releaseTime) : null}
+                onChange={onDateTimePickerChanged}
+                showTimeSelect
+                dateFormat={clock24h ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd h:mm aa'}
+                timeFormat={clock24h ? 'HH:mm' : 'h:mm aa'}
                 className="date-picker-input w-full md:w-auto mt-s md:mt-0"
                 calendarClassName="form-field-calendar"
-                onChange={onDateTimePickerChanged}
-                value={releaseTime ? linuxTimestampToDate(releaseTime) : undefined}
-                format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
-                disableClock
-                clearIcon={null}
-                minDate={moment().startOf('day').toDate()}
+                minDate={todayStart}
                 maxDate={new Date(9999, 11, 31)}
+                isClearable={false}
               />
             </div>
           )}

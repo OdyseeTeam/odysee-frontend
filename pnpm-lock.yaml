@@ -170,9 +170,9 @@ importers:
       react-confetti:
         specifier: ^4.0.1
         version: 4.0.1(react@16.14.0)
-      react-datetime-picker:
-        specifier: ^3.4.3
-        version: 3.5.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-datepicker:
+        specifier: ^9.1.0
+        version: 9.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       react-dom:
         specifier: ^16.13.1
         version: 16.14.0(react@16.14.0)
@@ -528,6 +528,12 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
+
+  '@floating-ui/react@0.27.19':
+    resolution: {integrity: sha512-31B8h5mm8YxotlE7/AU/PhNAl8eWxAmjL/v2QOxroDNkTFLk3Uu82u63N3b6TXa4EGJeeZLVcd/9AlNlVqzeog==}
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
@@ -1419,9 +1425,6 @@ packages:
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
-  '@types/react-calendar@3.9.0':
-    resolution: {integrity: sha512-KpAu1MKAGFw5hNwlDnWsHWqI9i/igAB+8jH97YV7QpC2v7rlwNEU5i6VMFb73lGRacuejM/Zd2LklnEzkFV3XA==}
-
   '@types/react-dom@16.9.25':
     resolution: {integrity: sha512-ZK//eAPhwft9Ul2/Zj+6O11YR6L4JX0J2sVeBC9Ft7x7HFN7xk7yUV/zDxqV6rjvqgl6r8Dq7oQImxtyf/Mzcw==}
     peerDependencies:
@@ -1617,9 +1620,6 @@ packages:
 
   '@wanderapp/connect@0.1.13':
     resolution: {integrity: sha512-dGUGD5wztTuw236GVS7Rc8ybkKvo+3No6EreiJglXh+0ktdh+nvpHHKZvRw5ZoKxJIInM3nCQHU6Gx1nV/b5Zw==}
-
-  '@wojtekmaj/date-utils@1.5.1':
-    resolution: {integrity: sha512-+i7+JmNiE/3c9FKxzWFi2IjRJ+KzZl1QPu6QNrsgaa2MuBgXvUy4gA1TVzf/JMdIIloB76xSKikTWuyYAIVLww==}
 
   '@xmldom/xmldom@0.8.11':
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
@@ -2870,6 +2870,9 @@ packages:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
 
+  date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -2970,9 +2973,6 @@ packages:
   destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
-
-  detect-element-overflow@1.4.2:
-    resolution: {integrity: sha512-4m6cVOtvm/GJLjo7WFkPfwXoEIIbM7GQwIh4WEa4g7IsNi1YzwUsGL5ApNLrrHL29bHeNeQ+/iZhw+YHqgE2Fw==}
 
   detect-indent@4.0.0:
     resolution: {integrity: sha512-BDKtmHlOzwI7iRuEkhzsnPoi5ypEhWAJB5RvHWe1kMr06js3uK5B3734i3ui5Yd+wOJV1cpE4JnivPD283GU/A==}
@@ -3699,9 +3699,6 @@ packages:
   get-symbol-description@1.1.0:
     resolution: {integrity: sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==}
     engines: {node: '>= 0.4'}
-
-  get-user-locale@1.5.1:
-    resolution: {integrity: sha512-WiNpoFRcHn1qxP9VabQljzGwkAQDrcpqUtaP0rNBEkFxJdh4f3tik6MfZsMYZc+UgQJdGCxWEjL9wnCUlRQXag==}
 
   get-value@2.0.6:
     resolution: {integrity: sha512-Ln0UQDlxH1BapMu3GPtf7CuYNwRZf2gwCuPqbyG6pB8WfmFpzqcy4xtAaAMUhnNqjMKTiCPZG2oMT3YSx8U2NA==}
@@ -4902,9 +4899,6 @@ packages:
     resolution: {integrity: sha512-2w31R7SJtieJJnQtGc7RVL2StM2vGYVfqUOvUDxH6bC6aJTxPxTF0GnIgCyu7tjockiUWAYQRbxa7vKn34s5sQ==}
     engines: {node: '>=4'}
 
-  make-event-props@1.6.2:
-    resolution: {integrity: sha512-iDwf7mA03WPiR8QxvcVHmVWEPfMY1RZXerDVNCRYW7dUr2ppH3J58Rwb39/WG39yTZdRSxr3x+2v22tvI0VEvA==}
-
   makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
 
@@ -4988,19 +4982,8 @@ packages:
     resolution: {integrity: sha512-TNdwZs0skRlpPpCUK25StC4VH+tP5GgeY1HQOOGP+lQ2xtdkN2VtT/5tiX9k3IWpkBPV9b3LsAWXn4GGi/PrSA==}
     engines: {node: '>=0.10.0'}
 
-  merge-class-names@1.4.2:
-    resolution: {integrity: sha512-bOl98VzwCGi25Gcn3xKxnR5p/WrhWFQB59MS/aGENcmUc6iSm96yrFDF0XSNurX9qN4LbJm0R9kfvsQ17i8zCw==}
-
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
-
-  merge-refs@1.3.0:
-    resolution: {integrity: sha512-nqXPXbso+1dcKDpPCXvwZyJILz+vSLqGGOnDrYHQYE+B8n9JTCekVLC65AfCpR4ggVyA/45Y0iR9LDyS2iI+zA==}
-    peerDependencies:
-      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   merge@1.2.1:
     resolution: {integrity: sha512-VjFo4P5Whtj4vsLzsYBu5ayHhoHJ0UqNm7ibvShmbmoz7tGi0vXaoJbGdB+GmDMLUdg8DpQXEIeVDAe8MaABvQ==}
@@ -5878,18 +5861,6 @@ packages:
       react: ^16.8.5 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
 
-  react-calendar@3.9.0:
-    resolution: {integrity: sha512-g6RJCEaPovHTiV2bMhBUfm0a1YoMj4bOUpL8hQSLmR1Glhc7lgRLtZBd4mcC4jkoGsb+hv9uA/QH4pZcm5l9lQ==}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
-
-  react-clock@3.1.0:
-    resolution: {integrity: sha512-KLV3pDBcETc7lHPPqK6EpRaPS8NA3STAes+zIdfr7IY67vYgYc3brOAnGC9IcgA4X4xNPnLZwwaLJXmHrQ/MnQ==}
-    peerDependencies:
-      react: ^15.5.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^15.5.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-
   react-color@2.19.3:
     resolution: {integrity: sha512-LEeGE/ZzNLIsFWa1TMe8y5VYqr7bibneWmvJwm1pCn/eNmrabWDh659JSPn9BuaMpEfU83WTOJfnCcjDZwNQTA==}
     peerDependencies:
@@ -5905,17 +5876,15 @@ packages:
     peerDependencies:
       react: 0.14.x || ^15.0.1 || ^16.2.0
 
-  react-date-picker@8.4.0:
-    resolution: {integrity: sha512-zocntugDUyiHmV2Nq1qnsk4kDQuhBLUsDTz7akfIEJ0jVX925w0K5Ai5oZzWFNQOzXL/ITxafmDMuSbzlpBt/A==}
+  react-datepicker@9.1.0:
+    resolution: {integrity: sha512-lOp+m5bc+ttgtB5MHEjwiVu4nlp4CvJLS/PG1OiOe5pmg9kV73pEqO8H0Geqvg2E8gjqTaL9eRhSe+ZpeKP3nA==}
     peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
-
-  react-datetime-picker@3.5.0:
-    resolution: {integrity: sha512-Df5HQbzUmT+a8IlH4veVZylDgHLbUxjTS+Tv1YoWsJ7La/7K/mAycaSC++bV7myVlfMUrMUPPULavakAsiIFAQ==}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
+      date-fns-tz: ^3.0.0
+      react: ^16.9.0 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.9.0 || ^17 || ^18 || ^19 || ^19.0.0-rc
+    peerDependenciesMeta:
+      date-fns-tz:
+        optional: true
 
   react-dev-utils@3.1.3:
     resolution: {integrity: sha512-ycJvru3DaeJiCyHyHJiqp2FOBTY1PeLdWnptskgx5GiavgsvKyRYpJfrxCm3X9qMDJJmyP/+qyvCrBAsHUBfZQ==}
@@ -5945,19 +5914,6 @@ packages:
 
   react-error-overlay@1.0.10:
     resolution: {integrity: sha512-/fzpqRGPWlpDvvBwLN7vjE4FAI81ajbWowkrycY8P5RGqE49WIUMIdFjTS5htqJfzxcM599k/x1lCayaq+4qEw==}
-
-  react-fit@1.7.1:
-    resolution: {integrity: sha512-y/TYovCCBzfIwRJsbLj0rH4Es40wPQhU5GPPq9GlbdF09b0OdzTdMSkBza0QixSlgFzTm6dkM7oTFzaVvaBx+w==}
-    peerDependencies:
-      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
-      '@types/react-dom': ^16.8.0 || ^17.0.0 || ^18.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
 
   react-google-recaptcha@2.1.0:
     resolution: {integrity: sha512-K9jr7e0CWFigi8KxC3WPvNqZZ47df2RrMAta6KmRoE4RUi7Ys6NmNjytpXpg4HI/svmQJLKR+PncEPaNJ98DqQ==}
@@ -6031,12 +5987,6 @@ packages:
     peerDependencies:
       react: '>= 16.8.0'
       react-dom: '>= 16.8.0'
-
-  react-time-picker@4.5.0:
-    resolution: {integrity: sha512-06ViW8t3hGmkrwGvUtaoZ5ud/uSlQwMexn86eL3uoTV6FnIeRhKq0H944L4bA1ne4xIndO4Fro5tGUMmWUA9gw==}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.3.0 || ^17.0.0 || ^18.0.0
 
   react-top-loading-bar@2.3.1:
     resolution: {integrity: sha512-rQk2Nm+TOBrM1C4E3e6KwT65iXyRSgBHjCkr2FNja1S51WaPulRA5nKj/xazuQ3x89wDDdGsrqkqy0RBIfd0xg==}
@@ -6873,6 +6823,9 @@ packages:
   tabbable@4.0.0:
     resolution: {integrity: sha512-H1XoH1URcBOa/rZZWxLxHCtOdVUEev+9vo5YdYhC9tCY4wnybX+VQrCYuy9ubkg69fCBxCONJOSLGfw0DWMffQ==}
 
+  tabbable@6.4.0:
+    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
+
   table@3.8.3:
     resolution: {integrity: sha512-RZuzIOtzFbprLCE0AXhkI0Xi42ZJLZhCC+qkwuMLf/Vjz3maWpA8gz1qMdbmNoI9cOROT2Am/DxeRyXenrL11g==}
 
@@ -7228,9 +7181,6 @@ packages:
   upath@1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
     engines: {node: '>=4'}
-
-  update-input-width@1.4.2:
-    resolution: {integrity: sha512-/p0XLhrQQQ4bMWD7bL9duYObwYCO1qGr8R19xcMmoMSmXuQ7/1//veUnCObQ7/iW6E2pGS6rFkS4TfH4ur7e/g==}
 
   update-notifier@2.5.0:
     resolution: {integrity: sha512-gwMdhgJHGuj/+wHJJs9e6PcCszpxR1b236igrOkUofGhqJuG+amlIKwApH1IW1WWl7ovZxsX49lMBWLxSdm5Dw==}
@@ -7889,6 +7839,14 @@ snapshots:
       '@floating-ui/dom': 1.7.6
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
+
+  '@floating-ui/react@0.27.19(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.8(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@floating-ui/utils': 0.2.11
+      react: 16.14.0
+      react-dom: 16.14.0(react@16.14.0)
+      tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.11': {}
 
@@ -8639,10 +8597,6 @@ snapshots:
 
   '@types/prop-types@15.7.15': {}
 
-  '@types/react-calendar@3.9.0':
-    dependencies:
-      '@types/react': 16.14.69
-
   '@types/react-dom@16.9.25(@types/react@16.14.69)':
     dependencies:
       '@types/react': 16.14.69
@@ -8796,8 +8750,6 @@ snapshots:
   '@wanderapp/connect@0.1.13':
     dependencies:
       ts-deepmerge: 7.0.3
-
-  '@wojtekmaj/date-utils@1.5.1': {}
 
   '@xmldom/xmldom@0.8.11': {}
 
@@ -10558,6 +10510,8 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.2
 
+  date-fns@4.1.0: {}
+
   debug@2.6.9(supports-color@3.2.3):
     dependencies:
       ms: 2.0.0
@@ -10659,8 +10613,6 @@ snapshots:
       minimalistic-assert: 1.0.1
 
   destroy@1.2.0: {}
-
-  detect-element-overflow@1.4.2: {}
 
   detect-indent@4.0.0:
     dependencies:
@@ -11593,10 +11545,6 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
-
-  get-user-locale@1.5.1:
-    dependencies:
-      lodash.memoize: 4.1.2
 
   get-value@2.0.6: {}
 
@@ -12958,8 +12906,6 @@ snapshots:
     dependencies:
       pify: 3.0.0
 
-  make-event-props@1.6.2: {}
-
   makeerror@1.0.12:
     dependencies:
       tmpl: 1.0.5
@@ -13059,13 +13005,7 @@ snapshots:
       redent: 1.0.0
       trim-newlines: 1.0.0
 
-  merge-class-names@1.4.2: {}
-
   merge-descriptors@1.0.3: {}
-
-  merge-refs@1.3.0(@types/react@16.14.69):
-    optionalDependencies:
-      '@types/react': 16.14.69
 
   merge@1.2.1: {}
 
@@ -14098,24 +14038,6 @@ snapshots:
     transitivePeerDependencies:
       - react-native
 
-  react-calendar@3.9.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      '@wojtekmaj/date-utils': 1.5.1
-      get-user-locale: 1.5.1
-      merge-class-names: 1.4.2
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-
-  react-clock@3.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      '@wojtekmaj/date-utils': 1.5.1
-      get-user-locale: 1.5.1
-      merge-class-names: 1.4.2
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-
   react-color@2.19.3(react@16.14.0):
     dependencies:
       '@icons/material': 0.2.4(react@16.14.0)
@@ -14140,41 +14062,13 @@ snapshots:
       react: 16.14.0
       tween-functions: 1.2.0
 
-  react-date-picker@8.4.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  react-datepicker@9.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
     dependencies:
-      '@types/react-calendar': 3.9.0
-      '@wojtekmaj/date-utils': 1.5.1
-      get-user-locale: 1.5.1
-      make-event-props: 1.6.2
-      merge-class-names: 1.4.2
-      merge-refs: 1.3.0(@types/react@16.14.69)
-      prop-types: 15.8.1
+      '@floating-ui/react': 0.27.19(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      clsx: 2.1.1
+      date-fns: 4.1.0
       react: 16.14.0
-      react-calendar: 3.9.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
       react-dom: 16.14.0(react@16.14.0)
-      react-fit: 1.7.1(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      update-input-width: 1.4.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
-
-  react-datetime-picker@3.5.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      '@wojtekmaj/date-utils': 1.5.1
-      get-user-locale: 1.5.1
-      make-event-props: 1.6.2
-      merge-class-names: 1.4.2
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-calendar: 3.9.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      react-clock: 3.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      react-date-picker: 8.4.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      react-dom: 16.14.0(react@16.14.0)
-      react-fit: 1.7.1(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      react-time-picker: 4.5.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   react-dev-utils@3.1.3(typescript@5.9.3)(webpack@2.6.1):
     dependencies:
@@ -14238,17 +14132,6 @@ snapshots:
       - supports-color
       - typescript
       - webpack
-
-  react-fit@1.7.1(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      detect-element-overflow: 1.4.2
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-      tiny-warning: 1.0.3
-    optionalDependencies:
-      '@types/react': 16.14.69
-      '@types/react-dom': 16.9.25(@types/react@16.14.69)
 
   react-google-recaptcha@2.1.0(react@16.14.0):
     dependencies:
@@ -14400,23 +14283,6 @@ snapshots:
       prop-types: 15.8.1
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
-
-  react-time-picker@4.5.0(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
-    dependencies:
-      '@wojtekmaj/date-utils': 1.5.1
-      get-user-locale: 1.5.1
-      make-event-props: 1.6.2
-      merge-class-names: 1.4.2
-      merge-refs: 1.3.0(@types/react@16.14.69)
-      prop-types: 15.8.1
-      react: 16.14.0
-      react-clock: 3.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      react-dom: 16.14.0(react@16.14.0)
-      react-fit: 1.7.1(@types/react-dom@16.9.25(@types/react@16.14.69))(@types/react@16.14.69)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      update-input-width: 1.4.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   react-top-loading-bar@2.3.1(react@16.14.0):
     dependencies:
@@ -15485,6 +15351,8 @@ snapshots:
 
   tabbable@4.0.0: {}
 
+  tabbable@6.4.0: {}
+
   table@3.8.3:
     dependencies:
       ajv: 4.11.8
@@ -15846,8 +15714,6 @@ snapshots:
 
   upath@1.2.0:
     optional: true
-
-  update-input-width@1.4.2: {}
 
   update-notifier@2.5.0:
     dependencies:

@@ -1,9 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
-// Import the component directly to avoid CJS interop issues with the
-// package entry (which requires CSS files that break Vite's pre-bundling).
-import DateTimePicker from 'react-datetime-picker/dist/DateTimePicker';
+import DatePicker from 'react-datepicker';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -45,7 +43,6 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
   const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
   const isEdit = Boolean(claimToEdit);
-  const [forceRender, setForceRender] = React.useState(0);
   let claimDateStr;
 
   if (isEdit) {
@@ -53,7 +50,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
     claimDateStr = date.toLocaleString(appLanguage || 'en');
   }
 
-  const onDateTimePickerChanged = (value) => {
+  const onDateTimePickerChanged = (value: Date | null) => {
     if (value instanceof Date) {
       updatePublishForm({
         releaseTime: dateToLinuxTimestamp(value),
@@ -93,18 +90,6 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
     }
   }
 
-  function handleBlur(event) {
-    if (event.target.name === 'minute' || event.target.name === 'day') {
-      const validity = event?.target?.validity;
-
-      if (validity.rangeOverflow || validity.rangeUnderflow) {
-        setForceRender(Date.now());
-      } else if (releaseTimeError === event.target.name) {
-        setForceRender(Date.now());
-      }
-    }
-  }
-
   return (
     <div
       className={classnames('form-field-date-picker', {
@@ -114,19 +99,17 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
       <label>{__('Release date')}</label>
       <div className="form-field-date-picker__controls">
         {showDatePicker && (
-          <DateTimePicker
-            key={forceRender}
-            locale={appLanguage}
+          <DatePicker
+            selected={releaseTime ? linuxTimestampToDate(releaseTime) : null}
+            onChange={onDateTimePickerChanged}
+            showTimeSelect
+            dateFormat={clock24h ? 'yyyy-MM-dd HH:mm' : 'yyyy-MM-dd h:mm aa'}
+            timeFormat={clock24h ? 'HH:mm' : 'h:mm aa'}
             className="date-picker-input"
             calendarClassName="form-field-calendar"
-            onBlur={handleBlur}
-            onChange={onDateTimePickerChanged}
-            value={releaseTime ? linuxTimestampToDate(releaseTime) : undefined}
-            format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
-            disableClock
-            clearIcon={null}
             minDate={minDate}
             maxDate={new Date(9999, 11, 31)}
+            isClearable={false}
           />
         )}
         {showDatePicker && (
