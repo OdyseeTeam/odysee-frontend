@@ -1,7 +1,9 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
-import DateTimePicker from 'react-datetime-picker';
+// Import the component directly to avoid CJS interop issues with the
+// package entry (which requires CSS files that break Vite's pre-bundling).
+import DateTimePicker from 'react-datetime-picker/dist/DateTimePicker';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
