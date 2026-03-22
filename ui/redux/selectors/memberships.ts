@@ -33,20 +33,20 @@ export const selectChannelMembershipsForCreatorId = (state: State, channelId: st
 export const selectPendingBuyMembershipIds = (state: State) => selectState(state).pendingBuyIds;
 export const selectMembershipPaymentsIncoming = (state: State) => selectState(state).membershipPaymentsIncoming;
 export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) =>
-  new Set(selectPendingBuyMembershipIds(state)).has(id);
+  (selectPendingBuyMembershipIds(state) || []).includes(id);
 export const selectPendingCancelMembershipIds = (state: State) => selectState(state).pendingCancelIds;
 export const selectCancelIsPendingForMembershipId = (state: State, id: string) =>
-  new Set(selectPendingCancelMembershipIds(state)).has(id);
+  (selectPendingCancelMembershipIds(state) || []).includes(id);
 export const selectMembershipListFetchingIds = (state: State) => selectState(state).membershipListFetchingIds;
 export const selectIsMembershipListFetchingForId = (state: State, claimId: ClaimId) =>
-  new Set(selectMembershipListFetchingIds(state)).has(claimId);
+  (selectMembershipListFetchingIds(state) || []).includes(claimId);
 export const selectMembershipsListByCreatorId = (state: State) => selectState(state).membershipListByCreatorId;
 export const selectMembershipTiersForCreatorId = (state: State, creatorId: ClaimId): CreatorMemberships =>
   selectMembershipsListByCreatorId(state)[creatorId];
 export const selectClaimMembershipTiersFetchingIds = (state: State) =>
   selectState(state).claimMembershipTiersFetchingIds;
 export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
-  new Set(selectClaimMembershipTiersFetchingIds(state)).has(claimId);
+  (selectClaimMembershipTiersFetchingIds(state) || []).includes(claimId);
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectProtectedContentClaimsForId = (state: State, channelId: string) =>
   selectProtectedContentClaimsById(state)[channelId];

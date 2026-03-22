@@ -80,8 +80,10 @@ export const selectUnpublishedCollectionsList = createSelector(
   selectMyUnpublishedCollections,
   (unpublishedCollections) => Object.keys(unpublishedCollections)
 );
-export const selectCollectionSavedForId = (state: State, id: string) =>
-  new Set(selectSavedCollectionIds(state)).has(id);
+export const selectCollectionSavedForId = (state: State, id: string) => {
+  const savedIds = selectSavedCollectionIds(state);
+  return savedIds ? savedIds.includes(id) : false;
+};
 export const selectSavedCollections = createSelector(
   selectResolvedCollectionsById,
   selectSavedCollectionIds,
@@ -204,19 +206,26 @@ export const selectIsMyPublicCollectionNotEditedForId = (state: State, id: strin
   const hasEdits = selectCollectionHasEditsForId(state, id);
   return Boolean(publicCollection && !hasEdits);
 };
-export const selectAreCollectionItemsFetchingForId = (state: State, id: string) =>
-  new Set(selectCollectionItemsFetchingIds(state)).has(id);
-export const selectCollectionsById = (state: State) => {
-  const builtin = selectBuiltinCollections(state);
-  const resolved = selectResolvedCollectionsById(state);
-  const unpublished = selectMyUnpublishedCollections(state);
-  const edited = selectMyEditedCollections(state);
-  const queue = {
-    queue: selectQueueCollection(state),
-  };
-  const unsaved = selectMyCollectionsWithUnSavedChanges(state);
-  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin, ...unsaved };
+export const selectAreCollectionItemsFetchingForId = (state: State, id: string) => {
+  const fetchingIds = selectCollectionItemsFetchingIds(state);
+  return fetchingIds ? fetchingIds.includes(id) : false;
 };
+export const selectCollectionsById = createSelector(
+  selectQueueCollection,
+  selectResolvedCollectionsById,
+  selectMyEditedCollections,
+  selectMyUnpublishedCollections,
+  selectBuiltinCollections,
+  selectMyCollectionsWithUnSavedChanges,
+  (queue, resolved, edited, unpublished, builtin, unsaved) => ({
+    queue,
+    ...resolved,
+    ...edited,
+    ...unpublished,
+    ...builtin,
+    ...unsaved,
+  })
+);
 export const selectCollectionForId = createSelector(
   (state, id) => id,
   selectCollectionsById,

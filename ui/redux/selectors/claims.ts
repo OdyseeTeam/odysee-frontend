@@ -700,8 +700,10 @@ export const selectIsUriResolving = (state: State, uri: string) => {
   const resolvingUris = selectResolvingUris(state);
   return resolvingUris && resolvingUris.includes(uri);
 };
-export const selectIsResolvingForId = (state: State, claimId: ClaimId) =>
-  new Set(selectResolvingUris(state)).has(claimId);
+export const selectIsResolvingForId = (state: State, claimId: ClaimId) => {
+  const resolvingUris = selectResolvingUris(state);
+  return resolvingUris ? resolvingUris.includes(claimId) : false;
+};
 export const selectChannelClaimCounts = createSelector(
   selectState,
   (state) => state.channelClaimCounts || EMPTY_OBJECT

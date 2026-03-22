@@ -666,4 +666,4 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     </WrapperElement>
   );
 });
-export default ClaimPreview;
+export default React.memo(ClaimPreview);
