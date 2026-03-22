@@ -108,7 +108,7 @@ function isDraggingVideojsComponent(e) {
 function VideoRenderFloating(props: Props) {
   const { location } = props;
   const dispatch = useAppDispatch();
-  const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
+  const { search: routerSearch } = useLocation();
   const urlParams = new URLSearchParams(routerSearch);
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const isFloating = useAppSelector(selectIsPlayerFloating);

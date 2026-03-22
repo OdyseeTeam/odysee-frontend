@@ -12,6 +12,7 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { useLocation } from 'react-router-dom';
 const CommentsList = lazyImport(
   () =>
@@ -38,8 +39,6 @@ type Props = {
   fileInfo: FileListItem;
   isMature: boolean;
   isUriPlaying: boolean;
-  linkedCommentId?: string;
-  threadCommentId?: string;
   playingCollectionId: string | null | undefined;
   position: number;
   commentsDisabled: boolean | null | undefined;
@@ -56,8 +55,6 @@ export default function VideoPlayersPage(props: Props) {
     playingCollectionId,
     fileInfo,
     isMature,
-    linkedCommentId,
-    threadCommentId,
     videoTheaterMode,
     commentsDisabled,
     audioVideoDuration,
@@ -75,6 +72,8 @@ export default function VideoPlayersPage(props: Props) {
   const initialPlayingCol = React.useRef(playingCollectionId);
   const { search } = location;
   const urlParams = new URLSearchParams(search);
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;
   const colParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const collectionId = React.useMemo(() => {
     const startedPlayingOtherPlaylist =

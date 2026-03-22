@@ -6,17 +6,27 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import { formatDateToMonthAndDay } from 'util/time';
 import * as MODALS from 'constants/modal_types';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectIndexForCreatorMembership } from 'redux/selectors/memberships';
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
+import { doOpenModal } from 'redux/actions/app';
+
 interface IProps {
   uri: string;
   membershipSub: MembershipSub;
-  membershipIndex: number;
-  doOpenModal: (arg0: string, arg1: Record<string, any> | null | undefined) => void;
-  doOpenCancelationModalForMembership: (arg0: MembershipSub) => void;
-  tipsEnabled: boolean; // type?
 }
 
 function MembershipSubscribed(props: IProps) {
-  const { uri, tipsEnabled, membershipIndex, membershipSub, doOpenCancelationModalForMembership, doOpenModal } = props;
+  const { uri, membershipSub } = props;
+  const dispatch = useAppDispatch();
+  const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
+  const membershipId = membershipSub ? membershipSub.membership.id : undefined;
+  const membershipIndex = useAppSelector((state) =>
+    selectIndexForCreatorMembership(state, channelClaimId, membershipId)
+  );
+  const tipsEnabled = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
 
   if (!membershipSub) {
     return null;
@@ -55,7 +65,7 @@ function MembershipSubscribed(props: IProps) {
                     <MenuList className={'menu__list membership-tier' + styleIndex}>
                       <MenuItem
                         className="comment__menu-option"
-                        onSelect={() => doOpenCancelationModalForMembership(membershipSub)}
+                        onSelect={() => dispatch(doOpenCancelationModalForMembership(membershipSub))}
                       >
                         <div className="menu__link">
                           <Icon size={16} icon={ICONS.DELETE} /> {__('Cancel Membership')}
@@ -72,7 +82,7 @@ function MembershipSubscribed(props: IProps) {
                     <MenuList className={'menu__list membership-tier' + styleIndex}>
                       <MenuItem
                         className="comment__menu-option"
-                        onSelect={() => doOpenCancelationModalForMembership(membershipSub)}
+                        onSelect={() => dispatch(doOpenCancelationModalForMembership(membershipSub))}
                       >
                         <div className="menu__link">
                           <Icon size={16} icon={ICONS.REFRESH} /> {__('Restore Membership')}
@@ -122,13 +132,15 @@ function MembershipSubscribed(props: IProps) {
                             ), // tiers
                           })}
                           onClick={() => {
-                            doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-                              uri,
-                              membershipIndex: membershipIndex,
-                              passedTierIndex: membershipIndex,
-                              isChannelTab: true,
-                              isRenewal: true,
-                            });
+                            dispatch(
+                              doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                                uri,
+                                membershipIndex: membershipIndex,
+                                passedTierIndex: membershipIndex,
+                                isChannelTab: true,
+                                isRenewal: true,
+                              })
+                            );
                           }}
                           disabled={false}
                         />

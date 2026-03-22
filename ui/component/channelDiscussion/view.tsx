@@ -6,6 +6,7 @@ import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { useAppSelector } from 'redux/hooks';
+import { useLocation } from 'react-router-dom';
 
 const CommentsList = lazyImport(
   () =>
@@ -21,7 +22,7 @@ type Props = {
 function ChannelDiscussion(props: Props) {
   const { uri } = props;
 
-  const search = useAppSelector((state) => state.router?.location?.search || '');
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;

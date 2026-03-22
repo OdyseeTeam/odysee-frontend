@@ -76,12 +76,13 @@ function ContentTab(props: Props) {
     claimType,
     empty,
     activeLivestreamForChannel,
-    shortsOnly,
+    shortsOnly: shortsOnlyProp,
     excludeShorts,
     loadedCallback,
     defaultInfiniteScroll,
   } = props;
   const urlParams = new URLSearchParams(search);
+  const shortsOnly = shortsOnlyProp || urlParams.get('view') === 'shorts';
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState(urlParams.get('search') || '');
   const [isSearching, setIsSearching] = React.useState(false);

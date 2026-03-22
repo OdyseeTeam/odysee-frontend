@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { doFileGetForUri } from 'redux/actions/file';
 import {
   selectClaimIsNsfwForUri,
@@ -91,8 +90,6 @@ const selectShortsRecommendedContent = createSelector(
 
 const select = (state, props) => {
   const { uri } = props;
-  const search = state.router?.location?.search || '';
-  const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
@@ -115,8 +112,6 @@ const select = (state, props) => {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
-    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
-    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     playingCollectionId: selectPlayingCollectionId(state),
     position: selectContentPositionForUri(state, uri),
     commentsDisabled:

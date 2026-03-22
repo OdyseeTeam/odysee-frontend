@@ -11,7 +11,6 @@ import DocumentViewer from 'component/viewers/documentViewer';
 // @if TARGET='app'
 // should match
 import DocxViewer from 'component/viewers/docxViewer';
-// import ComicBookViewer from 'component/viewers/comicBookViewer';
 // import ThreeViewer from 'component/viewers/threeViewer';
 // @endif
 // const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
@@ -182,17 +181,6 @@ function StreamClaimRenderInline(props: Props) {
               }}
             />
           </React.Suspense>
-          /*
-        <ComicBookViewer
-          source={{
-            // @if TARGET='app'
-            file: (options) => fs.createReadStream(downloadPath, options),
-            // @endif
-            stream: source,
-          }}
-          theme={currentTheme}
-        />
-        */
         );
 
       case RENDER_MODES.APPLICATION:

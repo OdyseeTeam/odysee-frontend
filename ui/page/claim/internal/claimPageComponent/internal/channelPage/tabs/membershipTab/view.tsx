@@ -4,22 +4,27 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import JoinMembershipCard from 'component/joinMembershipCard';
 import MembershipSub from './internal/MembershipSub';
+import { useAppSelector } from 'redux/hooks';
+import {
+  selectMyPurchasedMembershipTierForCreatorUri,
+  selectMyPurchasedMembershipsForChannelClaimId,
+} from 'redux/selectors/memberships';
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+
 type Props = {
   uri: string;
-  myMembershipSubscriptions: Array<MembershipSub>;
-  // -- redux --
-  purchasedChannelMembership: MembershipSub;
-  doOpenCancelationModalForMembership: (membership: MembershipSub) => void;
-  navigate: (arg0: string) => void;
 };
 
 const MembershipTab = (props: Props) => {
-  const {
-    uri,
-    // -- redux --
-    myMembershipSubscriptions,
-    purchasedChannelMembership,
-  } = props;
+  const { uri } = props;
+  const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
+  const myMembershipSubscriptions = useAppSelector((state) =>
+    selectMyPurchasedMembershipsForChannelClaimId(state, channelClaimId)
+  );
+  const purchasedChannelMembership = useAppSelector((state) =>
+    selectMyPurchasedMembershipTierForCreatorUri(state, channelClaimId)
+  );
+
   const activeMemberships =
     myMembershipSubscriptions && myMembershipSubscriptions.length > 0
       ? myMembershipSubscriptions.filter((ms) => ms.subscription.is_active === true)

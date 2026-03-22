@@ -7,7 +7,7 @@ import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
 import { formatLbryUrlForWeb } from 'util/url';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -26,7 +26,7 @@ export default function SearchPage() {
   const navigate = useNavigate();
 
   const showMature = useAppSelector(selectShowMatureContent);
-  const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
+  const { search: routerSearch } = useLocation();
   const languageSetting = useAppSelector(selectLanguage);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
   const baseSearchOptions = useAppSelector(selectSearchOptions);

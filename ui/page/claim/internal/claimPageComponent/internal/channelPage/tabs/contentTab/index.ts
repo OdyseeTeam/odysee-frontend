@@ -17,13 +17,9 @@ import { getChannelIdFromClaim } from 'util/claim';
 import ContentTab from './view';
 
 const select = (state, props) => {
-  const search = state.router?.location?.search || '';
-  const urlParams = new URLSearchParams(search);
-  const page = urlParams.get('page') || 0;
+  const page = 0;
   const claim = props.uri && selectClaimForUri(state, props.uri);
   const channelClaimId = getChannelIdFromClaim(claim);
-  const viewParam = urlParams.get('view');
-  const isShorts = viewParam === 'shorts';
   return {
     pageOfClaimsInChannel: makeSelectClaimsInChannelForPage(props.uri, page)(state),
     fetching: makeSelectFetchingChannelClaims(props.uri)(state),
@@ -36,7 +32,6 @@ const select = (state, props) => {
     hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     adBlockerFound: selectAdBlockerFound(state),
-    shortsOnly: props.shortsOnly || isShorts,
   };
 };
 

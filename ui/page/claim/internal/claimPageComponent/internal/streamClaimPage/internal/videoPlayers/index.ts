@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim } from 'util/claim';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -23,8 +22,6 @@ import VideoPlayersPage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const search = state.router?.location?.search || '';
-  const urlParams = new URLSearchParams(search);
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
@@ -35,8 +32,6 @@ const select = (state, props) => {
     fileInfo: makeSelectFileInfoForUri(uri)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
-    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
-    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     playingCollectionId,
     position: selectContentPositionForUri(state, uri),
     commentsDisabled:

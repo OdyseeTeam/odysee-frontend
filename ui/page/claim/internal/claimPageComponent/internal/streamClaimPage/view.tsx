@@ -14,6 +14,8 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { useLocation, useNavigate } from 'react-router-dom';
 const CommentsList = lazyImport(
   () =>
@@ -57,17 +59,15 @@ type Props = {
     | undefined;
   thumbnail: string | null | undefined;
   isMature: boolean;
-  linkedCommentId?: string;
   renderMode: string;
   commentsDisabled: boolean | null | undefined;
-  threadCommentId?: string;
   isProtectedContent?: boolean;
   contentUnlocked: boolean;
   isLivestream: boolean;
   isClaimBlackListed: boolean;
   isClaimFiltered: boolean;
   isClaimShort: boolean;
-  disableShortsView: boolean;
+  disableShortsViewSetting: boolean;
   doSetContentHistoryItem: (uri: string) => void;
   doSetPrimaryUri: (uri: string | null | undefined) => void;
   doToggleAppDrawer: (type: string) => void;
@@ -121,10 +121,8 @@ const StreamClaimPage = (props: Props) => {
     costInfo,
     thumbnail,
     isMature,
-    linkedCommentId,
     renderMode,
     commentsDisabled,
-    threadCommentId,
     isProtectedContent,
     contentUnlocked,
     isLivestream,
@@ -134,7 +132,7 @@ const StreamClaimPage = (props: Props) => {
     doSetPrimaryUri,
     doToggleAppDrawer,
     isClaimShort,
-    disableShortsView,
+    disableShortsViewSetting,
   } = props;
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
@@ -146,6 +144,10 @@ const StreamClaimPage = (props: Props) => {
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
   const { search } = location;
   const urlParams = new URLSearchParams(search);
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;
+  const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+  const disableShortsView = !!collectionSidebarId || disableShortsViewSetting;
   const shortsView = urlParams.get('view') === 'shorts';
   const isShortVideo = isClaimShort && !disableShortsView;
   React.useEffect(() => {

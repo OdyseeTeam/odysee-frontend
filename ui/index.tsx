@@ -312,7 +312,7 @@ function AppWrapper() {
       >
         <div className="app-gate-root">
           {readyToLaunch ? (
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <RouterSyncBridge />
               <ErrorBoundary>
                 <App />

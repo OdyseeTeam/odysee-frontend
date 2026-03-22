@@ -10,6 +10,7 @@ import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
@@ -32,8 +33,6 @@ type Props = {
   isSearchingRecommendations?: boolean;
   audioVideoDuration: number | null | undefined;
   commentsListTitle: string;
-  linkedCommentId?: string;
-  threadCommentId?: string;
   position: number;
   commentsDisabled: boolean | null | undefined;
   contentUnlocked: boolean;
@@ -79,8 +78,6 @@ export default function ShortsPage(props: Props) {
     previousRecommendedShort,
     currentIndex = -1,
     isSearchingRecommendations,
-    linkedCommentId,
-    threadCommentId,
     commentsDisabled,
     commentsListTitle,
     contentUnlocked,
@@ -116,6 +113,8 @@ export default function ShortsPage(props: Props) {
   const location = useLocation();
   const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const isMobile = useIsShortsMobile();
   const shortsContainerRef = React.useRef<any>();
