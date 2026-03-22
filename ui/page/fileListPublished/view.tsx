@@ -26,7 +26,6 @@ import {
   selectIsFetchingClaimListMine,
   selectMyClaimsPage,
   selectMyClaimsPageItemCount,
-  selectFetchingMyClaimsPageError,
   selectMyChannelClaimIds,
   selectMyPublicationClaims,
   selectHasPublicationClaims,
@@ -78,7 +77,6 @@ function FileListPublished() {
   const myScheduledClaims = useAppSelector(selectMyScheduledClaims);
   const myPaidClaims = useAppSelector(selectMyPaidClaims);
   const myPaidClaimsLegacy = useAppSelector(selectMyPaidClaimsLegacy);
-  const error = useAppSelector(selectFetchingMyClaimsPageError);
   const uploadCount = useAppSelector(selectUploadCount);
   const myChannelIds = useAppSelector(selectMyChannelClaimIds);
   const isFilteringEnabled = filteringSettings.isFilteringEnabled;

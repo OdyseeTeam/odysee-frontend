@@ -32,20 +32,22 @@ export default function WatchHistoryPage() {
   );
   const { uris, page, isLoadingPage, bumpPage } = useClaimListInfiniteScroll(
     historyUris,
-    doResolveUris,
+    doResolveUrisFn,
     PAGE_SIZE,
     true
   );
 
   function clearHistory() {
-    doOpenModal(MODALS.CONFIRM, {
-      title: __('Clear History'),
-      subtitle: __('Watch history will be cleared from this device.'),
-      onConfirm: (closeModal) => {
-        doClearContentHistoryAll();
-        closeModal();
-      },
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Clear History'),
+        subtitle: __('Watch history will be cleared from this device.'),
+        onConfirm: (closeModal: () => void) => {
+          dispatch(doClearContentHistoryAll());
+          closeModal();
+        },
+      })
+    );
   }
 
   return (

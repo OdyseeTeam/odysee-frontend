@@ -12,12 +12,7 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import {
-  selectHasClaimForId,
-  selectClaimIsPendingForId,
-  selectClaimForId,
-  selectGeoRestrictionForUri,
-} from 'redux/selectors/claims';
+import { selectHasClaimForId, selectClaimForId, selectGeoRestrictionForUri } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectBrokenUrlsForCollectionId,
@@ -49,7 +44,6 @@ const CollectionPage = (props: Props) => {
   const isCollectionMine = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
   const hasPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));
   const isPrivate = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
-  const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
