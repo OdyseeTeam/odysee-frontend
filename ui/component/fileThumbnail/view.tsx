@@ -5,6 +5,9 @@ import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
+import { useAppSelector } from 'redux/hooks';
+import { selectHasResolvedClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+
 const FALLBACK = MISSING_THUMB_DEFAULT
   ? getThumbnailCdnUrl({
       thumbnail: MISSING_THUMB_DEFAULT,
@@ -12,43 +15,39 @@ const FALLBACK = MISSING_THUMB_DEFAULT
   : undefined;
 type Props = {
   uri?: string;
-  thumbnail: string | null | undefined;
-  // externally sourced image
+  secondaryUri?: string;
+  thumbnail?: string | null | undefined;
   children?: React.ReactNode;
-  allowGifs: boolean;
-  claim: StreamClaim | null | undefined;
+  allowGifs?: boolean;
+  claim?: StreamClaim | null | undefined;
   className?: string;
   small?: boolean;
-  // forcePlaceholder?: boolean,
   forceReload?: boolean;
-  // -- redux --
-  hasResolvedClaim: boolean | null | undefined;
-  // undefined if uri is not given (irrelevant); boolean otherwise.
-  thumbnailFromClaim: string | null | undefined;
-  thumbnailFromSecondaryClaim: string | null | undefined;
-  isShort: boolean; // doResolveUri: (uri: string) => void,
+  isShort?: boolean;
 };
 
 function FileThumbnail(props: Props) {
   const {
     uri,
+    secondaryUri,
     thumbnail: rawThumbnail,
     children,
     allowGifs = false,
     className,
     small,
-    // forcePlaceholder,
     forceReload,
-    // -- redux --
-    hasResolvedClaim,
-    thumbnailFromClaim,
-    thumbnailFromSecondaryClaim,
-    isShort = false, // doResolveUri,
+    isShort = false,
   } = props;
+
+  const hasResolvedClaim = useAppSelector((state) => (uri ? selectHasResolvedClaimForUri(state, uri) : undefined));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const thumbnailFromSecondaryClaim = useAppSelector((state) =>
+    secondaryUri ? selectThumbnailForUri(state, secondaryUri) : undefined
+  );
+
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const thumbnail =
-    passedThumbnail ||
-    (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
+    passedThumbnail || (thumbnailFromClaim === null && secondaryUri ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   // Show skeleton while the claim hasn't resolved yet, rather than flashing
   // the "missing thumbnail" placeholder before the real image arrives.
   const gettingThumbnail =
@@ -111,7 +110,7 @@ function FileThumbnail(props: Props) {
     <div
       className={classnames('media__thumb', className, {
         'media__thumb--resolving': !hasResolvedClaim,
-        'media__thumb--small': small, // 'media__thumb__short': isShort, This didn't seem to be necessary. Caused issues due to using short format thumbnail to shorts with no thumbnail, in non short views
+        'media__thumb--small': small,
       })}
     >
       {children}

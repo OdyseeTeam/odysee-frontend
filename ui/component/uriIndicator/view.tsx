@@ -3,14 +3,20 @@ import classnames from 'classnames';
 import Button from 'component/button';
 import MembershipBadge from 'component/membershipBadge';
 import { stripLeadingAtSign } from 'util/string';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
+
 type ChannelInfo = {
   uri: string;
   name: string;
   title: string;
 };
 type Props = {
-  channelInfo: ChannelInfo | null | undefined;
-  link: boolean | null | undefined;
+  uri?: string;
+  channelInfo?: ChannelInfo | null | undefined;
+  link?: boolean | null | undefined;
   external?: boolean;
   focusable?: boolean;
   hideAnonymous?: boolean;
@@ -18,13 +24,9 @@ type Props = {
   showAtSign?: boolean;
   className?: string;
   showMemberBadge?: boolean;
-  children: React.ReactNode | null | undefined;
-  // --- redux ---
-  claim: Claim | null | undefined;
-  isResolvingUri: boolean;
+  children?: React.ReactNode | null | undefined;
   comment?: boolean;
   showHiddenAsAnonymous?: boolean;
-  odyseeMembership: string | null | undefined;
 };
 
 function resolveState(
@@ -67,10 +69,9 @@ function resolveState(
 
 function UriIndicator(props: Props) {
   const {
+    uri,
     channelInfo,
     link,
-    isResolvingUri,
-    claim,
     children,
     inline,
     focusable = true,
@@ -81,8 +82,11 @@ function UriIndicator(props: Props) {
     comment,
     showMemberBadge = true,
     showHiddenAsAnonymous,
-    odyseeMembership,
   } = props;
+
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const isResolvingUri = useAppSelector((state) => (uri ? selectIsUriResolving(state, uri) : false));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));
 
   if (!channelInfo && !claim && !showHiddenAsAnonymous) {
     return (
