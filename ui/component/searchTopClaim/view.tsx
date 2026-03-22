@@ -10,32 +10,29 @@ import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
 import { DOMAIN } from 'config';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doResolveUris } from 'redux/actions/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { selectPendingIds, selectClaimForUri } from 'redux/selectors/claims';
+import { makeSelectWinningUriForQuery, selectIsResolvingWinningUri } from 'redux/selectors/search';
+
 type Props = {
-  doOpenModal: (arg0: string, arg1: {}) => void;
   query: string;
-  winningUri: string | null | undefined;
-  doResolveUris: (arg0: Array<string>) => void;
   hideLink?: boolean;
   setChannelActive: (arg0: boolean) => void;
-  beginPublish: (arg0: PublishType, arg1: string | null | undefined) => void;
-  pendingIds: Array<string>;
-  isResolvingWinningUri: boolean;
-  winningClaim: Claim | null | undefined;
   isSearching: boolean;
 };
+
 export default function SearchTopClaim(props: Props) {
-  const {
-    doResolveUris,
-    doOpenModal,
-    query = '',
-    winningUri,
-    winningClaim,
-    hideLink = false,
-    setChannelActive,
-    beginPublish,
-    isResolvingWinningUri,
-    isSearching,
-  } = props;
+  const { query = '', hideLink = false, setChannelActive, isSearching } = props;
+  const dispatch = useAppDispatch();
+
+  const winningUriSelector = React.useMemo(() => makeSelectWinningUriForQuery(query), [query]);
+  const winningUri = useAppSelector(winningUriSelector);
+  const winningClaim = useAppSelector((state) => (winningUri ? selectClaimForUri(state, winningUri) : undefined));
+  const isResolvingWinningUri = useAppSelector((state) => (query ? selectIsResolvingWinningUri(state, query) : false));
+
   const uriFromQuery = `lbry://${query}`;
   let name;
   let channelUriFromQuery;
@@ -74,9 +71,9 @@ export default function SearchTopClaim(props: Props) {
     }
 
     if (urisToResolve.length > 0) {
-      doResolveUris(urisToResolve);
+      dispatch(doResolveUris(urisToResolve));
     }
-  }, [doResolveUris, uriFromQuery, channelUriFromQuery]);
+  }, [dispatch, uriFromQuery, channelUriFromQuery]);
   return (
     <div className="search__header">
       {winningUri && (
@@ -118,10 +115,12 @@ export default function SearchTopClaim(props: Props) {
         <div className="card card--section help--inline">
           <I18nMessage
             tokens={{
-              repost: <Button button="link" onClick={() => doOpenModal(MODALS.REPOST, {})} label={__('Repost')} />,
+              repost: (
+                <Button button="link" onClick={() => dispatch(doOpenModal(MODALS.REPOST, {}))} label={__('Repost')} />
+              ),
               publish: (
                 <span>
-                  <Button button="link" onClick={() => beginPublish('file', name)} label={__('publish')} />
+                  <Button button="link" onClick={() => dispatch(doBeginPublish('file', name))} label={__('publish')} />
                 </span>
               ),
             }}

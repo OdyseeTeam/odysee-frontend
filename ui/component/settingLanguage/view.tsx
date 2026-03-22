@@ -4,19 +4,19 @@ import Spinner from 'component/spinner';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import LANGUAGES from 'constants/languages';
 import { getDefaultLanguage, sortLanguageMap } from 'util/default-languages';
-type Props = {
-  language: string;
-  setLanguage: (arg0: string) => Promise<any>;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doSetLanguage } from 'redux/actions/settings';
+import { selectLanguage } from 'redux/selectors/settings';
 
-function SettingLanguage(props: Props) {
-  const { language, setLanguage } = props;
+function SettingLanguage() {
+  const dispatch = useAppDispatch();
+  const language = useAppSelector(selectLanguage);
   const [changingLanguage, setChangingLanguage] = useState(false);
 
   function onLanguageChange(e) {
     const { value } = e.target;
     setChangingLanguage(true);
-    setLanguage(value).finally(() => setChangingLanguage(false));
+    dispatch(doSetLanguage(value)).finally(() => setChangingLanguage(false));
 
     if (document && document.documentElement) {
       if (LANGUAGES[value].length >= 3) {

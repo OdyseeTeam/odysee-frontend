@@ -7,43 +7,42 @@ import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
 import { useNavigate } from 'react-router-dom';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectCollectionTitleForId,
+  selectIsCollectionBuiltInForId,
+  selectPublishedCollectionNotEditedForId,
+  selectCollectionIsEmptyForId,
+  selectCollectionIsMine,
+  selectCollectionAutoPublishForId,
+  selectCollectionHasEditsForId,
+  selectCollectionPublishErrorForId,
+} from 'redux/selectors/collections';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { doEnableCollectionShuffle } from 'redux/actions/content';
+import { doSetCollectionAutoPublish, doRetryCollectionPublish } from 'redux/actions/collections';
+
 type Props = {
   inline?: boolean;
-  doOpenModal: (arg0: string, arg1: {}) => void;
-  collectionName?: string;
   collectionId: string;
-  claimId?: string | null | undefined;
-  doEnableCollectionShuffle: (params: { collectionId: string }) => void;
-  isBuiltin: boolean;
-  publishedNotEdited: boolean;
-  collectionEmpty: boolean;
-  isMyCollection: boolean;
-  autoPublish: boolean;
-  collectionHasEdits: boolean;
-  publishError?: string | null | undefined;
-  doSetCollectionAutoPublish: (collectionId: string, enabled: boolean) => void;
-  doRetryCollectionPublish: (collectionId: string) => void;
 };
 
 function CollectionMenuList(props: Props) {
-  const {
-    inline = false,
-    collectionId,
-    claimId,
-    collectionName,
-    doOpenModal,
-    doEnableCollectionShuffle,
-    isBuiltin,
-    publishedNotEdited,
-    collectionEmpty,
-    isMyCollection,
-    autoPublish,
-    collectionHasEdits,
-    publishError,
-    doSetCollectionAutoPublish,
-    doRetryCollectionPublish,
-  } = props;
+  const { inline = false, collectionId } = props;
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const collectionName = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const claimId = useAppSelector((state) => (selectClaimForClaimId(state, collectionId) || {}).claim_id);
+  const isBuiltin = useAppSelector((state) => selectIsCollectionBuiltInForId(state, collectionId));
+  const publishedNotEdited = useAppSelector((state) => selectPublishedCollectionNotEditedForId(state, collectionId));
+  const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
+
   return (
     <Menu>
       <MenuButton
@@ -75,9 +74,11 @@ function CollectionMenuList(props: Props) {
               <MenuItem
                 className="comment__menu-option"
                 onSelect={() =>
-                  doEnableCollectionShuffle({
-                    collectionId,
-                  })
+                  dispatch(
+                    doEnableCollectionShuffle({
+                      collectionId,
+                    })
+                  )
                 }
               >
                 <div className="menu__link">
@@ -114,7 +115,7 @@ function CollectionMenuList(props: Props) {
                 {claimId && (
                   <MenuItem
                     className="comment__menu-option"
-                    onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
+                    onSelect={() => dispatch(doSetCollectionAutoPublish(collectionId, !autoPublish))}
                   >
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.PUBLISH} />
@@ -123,7 +124,10 @@ function CollectionMenuList(props: Props) {
                   </MenuItem>
                 )}
                 {claimId && collectionHasEdits && publishError && (
-                  <MenuItem className="comment__menu-option" onSelect={() => doRetryCollectionPublish(collectionId)}>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => dispatch(doRetryCollectionPublish(collectionId))}
+                  >
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REFRESH} />
                       {__('Retry Publish Now')}
@@ -133,9 +137,11 @@ function CollectionMenuList(props: Props) {
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
-                    doOpenModal(MODALS.COLLECTION_DELETE, {
-                      collectionId,
-                    })
+                    dispatch(
+                      doOpenModal(MODALS.COLLECTION_DELETE, {
+                        collectionId,
+                      })
+                    )
                   }
                 >
                   <div className="menu__link">

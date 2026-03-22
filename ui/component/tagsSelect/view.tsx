@@ -6,10 +6,11 @@ import TagsSearch from 'component/tagsSearch';
 import usePersistedState from 'effects/use-persisted-state';
 import analytics from 'analytics';
 import Card from 'component/common/card';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { doToggleTagFollowDesktop as doToggleTagFollowDesktopAction } from 'redux/actions/tags';
 type Props = {
   showClose?: boolean;
-  followedTags: Array<Tag>;
-  doToggleTagFollowDesktop?: (arg0: string) => void;
   suggestMature: boolean;
   // Overrides
   // The default component is for following tags
@@ -33,8 +34,6 @@ type Props = {
 export default function TagsSelect(props: Props) {
   const {
     showClose,
-    followedTags,
-    doToggleTagFollowDesktop = null,
     title,
     help,
     tagsChosen,
@@ -49,6 +48,9 @@ export default function TagsSelect(props: Props) {
     limitSelect,
     excludedControlTags,
   } = props;
+  const dispatch = useAppDispatch();
+  const followedTags = useAppSelector(selectFollowedTags);
+  const doToggleTagFollowDesktop = (tag: string) => dispatch(doToggleTagFollowDesktopAction(tag));
   const [hasClosed, setHasClosed] = usePersistedState('tag-select:has-closed', false);
   const tagsToDisplay = tagsChosen || followedTags;
   const tagCount = tagsToDisplay.length;

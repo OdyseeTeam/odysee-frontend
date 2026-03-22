@@ -1,6 +1,7 @@
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
-import React from 'react';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Lbry from 'lbry';
 import Button from 'component/button';
 import ModalWalletUnlock from 'modal/modalWalletUnlock';
@@ -10,270 +11,239 @@ import ModalDownloading from 'modal/modalDownloading';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import 'css-doodle';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectDaemonVersionMatched, selectModal, selectSplashAnimationEnabled } from 'redux/selectors/app';
+import { doCheckDaemonVersion, doOpenModal, doHideModal, doToggleSplashAnimation } from 'redux/actions/app';
+import { doClearDaemonSetting } from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
+
 const FORTY_FIVE_SECONDS = 45 * 1000;
 const UPDATE_INTERVAL = 1000; // 1 second
-
 const MAX_WALLET_WAIT = 20; // 20 seconds for wallet to be started, but servers to be unavailable
-
 const MAX_SYNC_WAIT = 45; // 45 seconds to sync wallet, show message if taking long
 
 type Props = {
-  checkDaemonVersion: () => Promise<any>;
-  notifyUnlockWallet: (arg0: boolean | null | undefined) => Promise<any>;
-  daemonVersionMatched: boolean;
   onReadyToLaunch: () => void;
-  hideModal: () => void;
-  modal:
-    | {
-        id: string;
-      }
-    | null
-    | undefined;
-  animationHidden: boolean;
-  toggleSplashAnimation: () => void;
-  clearWalletServers: () => void;
-  doShowSnackBar: (arg0: string) => void;
 };
-type State = {
-  details: string | React.ReactNode;
-  message: string;
-  launchedModal: boolean;
-  error: boolean;
-  isRunning: boolean;
-  launchWithIncompatibleDaemon: boolean;
-  waitingForWallet: number;
-  waitingForSync: number;
-};
-export default class SplashScreen extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      details: __('Starting...'),
-      message: __('Connecting'),
-      launchedModal: false,
-      error: false,
-      launchWithIncompatibleDaemon: !process.env.NODE_ENV === 'production',
-      isRunning: false,
-      waitingForWallet: 0,
-      waitingForSync: 0,
-    };
-    (this as any).renderModals = this.renderModals.bind(this);
-    (this as any).runWithIncompatibleDaemon = this.runWithIncompatibleDaemon.bind(this);
-    this.timeout = undefined;
-  }
 
-  componentDidMount() {
-    const { checkDaemonVersion } = this.props;
-    this.adjustErrorTimeout();
-    Lbry.connect()
-      .then(checkDaemonVersion)
-      .then(() => {
-        this.updateStatus();
-      })
-      .catch(() => {
-        this.setState({
-          message: __('Connection Failure'),
-          details: __(
-            'Try closing all LBRY processes and starting again. If this still happens, your anti-virus software or firewall may be preventing LBRY from connecting. Contact hello@lbry.com if you think this is a software bug.'
-          ),
-        });
-      });
-  }
+export default function SplashScreen({ onReadyToLaunch }: Props) {
+  const dispatch = useAppDispatch();
 
-  componentDidUpdate() {
-    this.adjustErrorTimeout();
-  }
+  const modal = useAppSelector((state) => selectModal(state));
+  const daemonVersionMatched = useAppSelector((state) => selectDaemonVersionMatched(state));
+  const animationHidden = useAppSelector((state) => selectSplashAnimationEnabled(state));
 
-  componentWillUnmount() {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
+  const [details, setDetails] = useState<string | React.ReactNode>(__('Starting...'));
+  const [error, setError] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [launchedModal, setLaunchedModal] = useState(false);
+  const [launchWithIncompatibleDaemon, setLaunchWithIncompatibleDaemon] = useState(
+    !process.env.NODE_ENV === 'production'
+  );
+  const [waitingForWallet, setWaitingForWallet] = useState(0);
+  const [waitingForSync, setWaitingForSync] = useState(0);
+
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // Use refs to access latest state in async callbacks without adding them as deps
+  const isRunningRef = useRef(isRunning);
+  const launchedModalRef = useRef(launchedModal);
+  const waitingForWalletRef = useRef(waitingForWallet);
+  const waitingForSyncRef = useRef(waitingForSync);
+  const launchWithIncompatibleDaemonRef = useRef(launchWithIncompatibleDaemon);
+  const daemonVersionMatchedRef = useRef(daemonVersionMatched);
+  const modalRef = useRef(modal);
+
+  isRunningRef.current = isRunning;
+  launchedModalRef.current = launchedModal;
+  waitingForWalletRef.current = waitingForWallet;
+  waitingForSyncRef.current = waitingForSync;
+  launchWithIncompatibleDaemonRef.current = launchWithIncompatibleDaemon;
+  daemonVersionMatchedRef.current = daemonVersionMatched;
+  modalRef.current = modal;
+
+  const checkDaemonVersion = useCallback(() => dispatch(doCheckDaemonVersion()), [dispatch]);
+  const notifyUnlockWallet = useCallback(
+    (shouldTryWithBlankPassword?: boolean | null) =>
+      dispatch(doOpenModal(MODALS.WALLET_UNLOCK, { shouldTryWithBlankPassword })),
+    [dispatch]
+  );
+  const hideModal = useCallback(() => dispatch(doHideModal()), [dispatch]);
+  const toggleSplashAnimation = useCallback(() => dispatch(doToggleSplashAnimation()), [dispatch]);
+  const clearWalletServers = useCallback(
+    () => dispatch(doClearDaemonSetting(DAEMON_SETTINGS.LBRYUM_SERVERS)),
+    [dispatch]
+  );
+  const doShowSnackBar = useCallback((message: string) => dispatch(doToast({ isError: true, message })), [dispatch]);
+
+  const adjustErrorTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }
-
-  adjustErrorTimeout() {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
-
-    // Every time we make it to a new step in the daemon startup process, reset the timer
-    // If nothing changes after 1 minute, show the error message.
-    this.timeout = setTimeout(() => {
-      this.setState({
-        error: true,
-      });
+    timeoutRef.current = setTimeout(() => {
+      setError(true);
     }, FORTY_FIVE_SECONDS);
-  }
+  }, []);
 
-  updateStatus() {
-    const { modal, notifyUnlockWallet, clearWalletServers, doShowSnackBar } = this.props;
-    const { launchedModal } = this.state;
+  const continueAppLaunch = useCallback(() => {
+    if (daemonVersionMatchedRef.current) {
+      onReadyToLaunch();
+    } else if (launchWithIncompatibleDaemonRef.current && isRunningRef.current) {
+      onReadyToLaunch();
+    }
+  }, [onReadyToLaunch]);
+
+  const updateStatusCallback = useCallback(
+    (status: StatusResponse, walletStatus: WalletStatusResponse, waitingForUnlock: boolean = false) => {
+      const { wallet, startup_status: startupStatus } = status;
+
+      if (startupStatus && wallet && wallet.available_servers < 1) {
+        setWaitingForWallet((prev) => prev + UPDATE_INTERVAL / 1000);
+      } else if (status.is_running && !waitingForUnlock) {
+        Lbry.resolve({ urls: 'lbry://one' }).then(() => {
+          setIsRunning(true);
+          // We need continueAppLaunch to run after isRunning is set,
+          // but since setState is async we rely on effect below.
+        });
+        return;
+      } else if (wallet && !status.is_running && walletStatus.is_syncing) {
+        setWaitingForSync((prev) => prev + UPDATE_INTERVAL / 1000);
+
+        if (waitingForSyncRef.current < MAX_SYNC_WAIT) {
+          setDetails(__('Updating wallet data...'));
+        } else {
+          setDetails(
+            <React.Fragment>
+              <div>{__('Large account history')}</div>
+              <div>{__('Please wait...')}</div>
+            </React.Fragment>
+          );
+        }
+      } else if (wallet && !status.is_running && startupStatus.database) {
+        setDetails(__('Almost ready...'));
+      }
+
+      setTimeout(() => {
+        updateStatus();
+      }, UPDATE_INTERVAL);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- updateStatus is defined below and uses refs
+    []
+  );
+
+  const updateStatus = useCallback(() => {
     Lbry.status().then((status) => {
       const sdkStatus = status;
       const { wallet } = status;
       Lbry.wallet_status().then((walletStatus) => {
         if (sdkStatus.is_running && wallet && wallet.available_servers) {
           if (walletStatus.is_locked) {
-            // Clear the error timeout, it might sit on this step for a while until someone enters their password
-            if (this.timeout) {
-              clearTimeout(this.timeout);
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
             }
 
-            // Make sure there isn't another active modal (like INCOMPATIBLE_DAEMON)
-            this.updateStatusCallback(sdkStatus, walletStatus, true);
+            updateStatusCallback(sdkStatus, walletStatus, true);
 
-            if (!launchedModal && !modal) {
-              this.setState(
-                {
-                  launchedModal: true,
-                },
-                () => notifyUnlockWallet()
-              );
+            if (!launchedModalRef.current && !modalRef.current) {
+              setLaunchedModal(true);
+              notifyUnlockWallet();
             }
           } else {
-            this.updateStatusCallback(sdkStatus, walletStatus);
+            updateStatusCallback(sdkStatus, walletStatus);
           }
         } else if (!sdkStatus.is_running && walletStatus.is_syncing) {
-          // Clear the timeout if wallet is still syncing
-          if (this.timeout) {
-            clearTimeout(this.timeout);
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
           }
-
-          this.updateStatusCallback(sdkStatus, walletStatus);
-        } else if (this.state.waitingForWallet > MAX_WALLET_WAIT && !launchedModal && !modal) {
+          updateStatusCallback(sdkStatus, walletStatus);
+        } else if (waitingForWalletRef.current > MAX_WALLET_WAIT && !launchedModalRef.current && !modalRef.current) {
           clearWalletServers();
           doShowSnackBar(
             __(
               'The wallet server took a bit too long. Resetting defaults just in case. Shutdown (Cmd/Ctrl+Q) LBRY and restart if this continues.'
             )
           );
-          this.setState({
-            waitingForWallet: 0,
-          });
-          this.updateStatusCallback(sdkStatus, walletStatus);
+          setWaitingForWallet(0);
+          updateStatusCallback(sdkStatus, walletStatus);
         } else {
-          this.updateStatusCallback(sdkStatus, walletStatus);
+          updateStatusCallback(sdkStatus, walletStatus);
         }
       });
     });
-  }
+  }, [updateStatusCallback, notifyUnlockWallet, clearWalletServers, doShowSnackBar]);
 
-  updateStatusCallback(status: StatusResponse, walletStatus: WalletStatusResponse, waitingForUnlock: boolean = false) {
-    const { wallet, startup_status: startupStatus } = status;
+  // continueAppLaunch when isRunning changes to true
+  useEffect(() => {
+    if (isRunning) {
+      continueAppLaunch();
+    }
+  }, [isRunning, continueAppLaunch]);
 
-    // If the wallet is locked, stop doing anything and make the user input their password
-    if (startupStatus && wallet && wallet.available_servers < 1) {
-      this.setState({
-        waitingForWallet: this.state.waitingForWallet + UPDATE_INTERVAL / 1000,
-      });
-    } else if (status.is_running && !waitingForUnlock) {
-      Lbry.resolve({
-        urls: 'lbry://one',
-      }).then(() => {
-        this.setState(
-          {
-            isRunning: true,
-          },
-          () => this.continueAppLaunch()
+  // continueAppLaunch when launchWithIncompatibleDaemon changes
+  useEffect(() => {
+    if (launchWithIncompatibleDaemon && isRunningRef.current) {
+      continueAppLaunch();
+    }
+  }, [launchWithIncompatibleDaemon, continueAppLaunch]);
+
+  // adjustErrorTimeout on every render (mirrors componentDidMount + componentDidUpdate)
+  useEffect(() => {
+    adjustErrorTimeout();
+  });
+
+  // componentDidMount: connect and start status loop
+  useEffect(() => {
+    Lbry.connect()
+      .then(checkDaemonVersion)
+      .then(() => {
+        updateStatus();
+      })
+      .catch(() => {
+        setDetails(
+          __(
+            'Try closing all LBRY processes and starting again. If this still happens, your anti-virus software or firewall may be preventing LBRY from connecting. Contact hello@lbry.com if you think this is a software bug.'
+          )
         );
       });
-      return;
-    } else if (wallet && !status.is_running && walletStatus.is_syncing) {
-      this.setState({
-        waitingForSync: this.state.waitingForSync + UPDATE_INTERVAL / 1000,
-      });
 
-      if (this.state.waitingForSync < MAX_SYNC_WAIT) {
-        this.setState({
-          message: __('Loading Wallet'),
-          details: __('Updating wallet data...'),
-        });
-      } else {
-        this.setState({
-          message: __('Loading Wallet'),
-          details: (
-            <React.Fragment>
-              <div>{__('Large account history')}</div>
-              <div>{__('Please wait...')}</div>
-            </React.Fragment>
-          ),
-        });
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
-    } else if (wallet && !status.is_running && startupStatus.database) {
-      this.setState({
-        message: __('Finalizing'),
-        details: __('Almost ready...'),
-      });
-    }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
+  }, []);
 
-    setTimeout(() => {
-      this.updateStatus();
-    }, UPDATE_INTERVAL);
-  }
-
-  runWithIncompatibleDaemon() {
-    const { hideModal } = this.props;
+  const runWithIncompatibleDaemon = useCallback(() => {
     hideModal();
-    this.setState(
-      {
-        launchWithIncompatibleDaemon: true,
-      },
-      () => this.continueAppLaunch()
-    );
-  }
+    setLaunchWithIncompatibleDaemon(true);
+  }, [hideModal]);
 
-  continueAppLaunch() {
-    const { daemonVersionMatched, onReadyToLaunch } = this.props;
-    const { isRunning, launchWithIncompatibleDaemon } = this.state;
-
-    if (daemonVersionMatched) {
-      onReadyToLaunch();
-    } else if (launchWithIncompatibleDaemon && isRunning) {
-      // The user may have decided to run the app with mismatched daemons
-      // They could make this decision before the daemon is finished starting up
-      // If it isn't running, this function will be called after the daemon is started
-      onReadyToLaunch();
-    }
-  }
-
-  timeout: TimeoutID | null | undefined;
-
-  renderModals() {
-    const { modal } = this.props;
+  const renderModals = () => {
     const modalId = modal && modal.id;
-
-    if (!modalId) {
-      return null;
-    }
+    if (!modalId) return null;
 
     switch (modalId) {
       case MODALS.INCOMPATIBLE_DAEMON:
-        return <ModalIncompatibleDaemon onContinueAnyway={this.runWithIncompatibleDaemon} />;
-
+        return <ModalIncompatibleDaemon onContinueAnyway={runWithIncompatibleDaemon} />;
       case MODALS.WALLET_UNLOCK:
         return <ModalWalletUnlock />;
-
       case MODALS.UPGRADE:
         return <ModalUpgrade />;
-
       case MODALS.DOWNLOADING:
         return <ModalDownloading />;
-
       default:
         return null;
     }
-  }
+  };
 
-  render() {
-    const { error, details } = this.state;
-    const { animationHidden, toggleSplashAnimation } = this.props;
-    return (
-      <div className="splash">
-        <h1 className="splash__title">LBRY</h1>
-        <div className="splash__details">{details}</div>
+  return (
+    <div className="splash">
+      <h1 className="splash__title">LBRY</h1>
+      <div className="splash__details">{details}</div>
 
-        {!animationHidden && !error && (
-          <css-doodle class="doodle">
-            {`
+      {!animationHidden && !error && (
+        <css-doodle class="doodle">
+          {`
             --color: @p(var(--color-primary), var(--color-secondary), var(--color-focus), var(--color-nothing));
             :doodle {
               @grid: 30x1 / 18vmin;
@@ -306,57 +276,56 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
             }
           )
           `}
-          </css-doodle>
-        )}
-        {!error && (
-          <Button
-            className="splash__animation-toggle"
-            label={!animationHidden ? __('I feel woosy! Stop spinning!') : __('Spin Spin Sugar')}
-            onClick={() => toggleSplashAnimation()}
-          />
-        )}
-        {error && (
-          <Card
-            title={__('Error starting up')}
-            subtitle={
-              <React.Fragment>
-                <p>
-                  {__(
-                    'You can try refreshing to fix it. If you still have issues, your anti-virus software or firewall may be preventing startup.'
-                  )}
-                </p>
-                <p>
-                  <I18nMessage
-                    tokens={{
-                      help_link: (
-                        <Button
-                          button="link"
-                          href="https://lbry.com/faq/startup-troubleshooting"
-                          label={__('this link')}
-                        />
-                      ),
-                    }}
-                  >
-                    Reach out to hello@lbry.com for help, or check out %help_link%.
-                  </I18nMessage>
-                </p>
-              </React.Fragment>
-            }
-            actions={
-              <Button
-                button="primary"
-                icon={ICONS.REFRESH}
-                label={__('Refresh')}
-                onClick={() => window.location.reload()}
-              />
-            }
-          />
-        )}
-        {/* Temp hack: don't show any modals on splash screen daemon is running;
+        </css-doodle>
+      )}
+      {!error && (
+        <Button
+          className="splash__animation-toggle"
+          label={!animationHidden ? __('I feel woosy! Stop spinning!') : __('Spin Spin Sugar')}
+          onClick={() => toggleSplashAnimation()}
+        />
+      )}
+      {error && (
+        <Card
+          title={__('Error starting up')}
+          subtitle={
+            <React.Fragment>
+              <p>
+                {__(
+                  'You can try refreshing to fix it. If you still have issues, your anti-virus software or firewall may be preventing startup.'
+                )}
+              </p>
+              <p>
+                <I18nMessage
+                  tokens={{
+                    help_link: (
+                      <Button
+                        button="link"
+                        href="https://lbry.com/faq/startup-troubleshooting"
+                        label={__('this link')}
+                      />
+                    ),
+                  }}
+                >
+                  Reach out to hello@lbry.com for help, or check out %help_link%.
+                </I18nMessage>
+              </p>
+            </React.Fragment>
+          }
+          actions={
+            <Button
+              button="primary"
+              icon={ICONS.REFRESH}
+              label={__('Refresh')}
+              onClick={() => window.location.reload()}
+            />
+          }
+        />
+      )}
+      {/* Temp hack: don't show any modals on splash screen daemon is running;
            daemon doesn't let you quit during startup, so the "Quit" buttons
          in the modals won't work. */}
-        {this.renderModals()}
-      </div>
-    );
-  }
+      {renderModals()}
+    </div>
+  );
 }

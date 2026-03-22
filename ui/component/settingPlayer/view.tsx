@@ -5,27 +5,23 @@ import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import SettingsRow from 'component/settingsRow';
 import SettingDefaultQuality from 'component/settingDefaultQuality';
-type Props = {
-  // --- select ---
-  floatingPlayer: boolean;
-  autoplayMedia: boolean;
-  autoplayNext: boolean;
-  isFloating: boolean;
-  disableShortsView: boolean;
-  // --- perform ---
-  setClientSetting: (arg0: string, arg1: boolean | string | number) => void;
-  clearPlayingUri: () => void;
-};
-export default function SettingPlayer(props: Props) {
-  const {
-    floatingPlayer,
-    autoplayMedia,
-    autoplayNext,
-    isFloating,
-    setClientSetting,
-    clearPlayingUri,
-    disableShortsView
-  } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doClearPlayingUri } from 'redux/actions/content';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectIsPlayerFloating } from 'redux/selectors/content';
+
+export default function SettingPlayer() {
+  const dispatch = useAppDispatch();
+  const floatingPlayer = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER));
+  const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
+  const autoplayNext = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
+  const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+  const isFloating = useAppSelector(selectIsPlayerFloating);
+
+  const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
+  const clearPlayingUri = () => dispatch(doClearPlayingUri());
+
   return <>
       <Card id={SETTINGS_GRP.PLAYER} background isBodyList title={__('Player settings')} body={<>
             <SettingsRow title={__('Floating video player')} subtitle={__(HELP.FLOATING_PLAYER)}>

@@ -36,8 +36,7 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-import { useLocation } from 'react-router-dom';
-import { history as appHistory } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   selectGetSyncErrorMessage,
@@ -191,6 +190,7 @@ function App() {
   const previousRewardApproved = usePrevious(isRewardApproved);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
   const location = useLocation();
+  const navigate = useNavigate();
   const { pathname, hash, search } = location;
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
@@ -272,7 +272,7 @@ function App() {
             type="helpful"
             message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
             actionText={__('View Uploads')}
-            onClick={() => appHistory.push(`/$/${PAGES.UPLOADS}`)}
+            onClick={() => navigate(`/$/${PAGES.UPLOADS}`)}
           />
         );
       }
@@ -532,9 +532,9 @@ function App() {
   }, [hasSignedIn, hasVerifiedEmail, syncLoop]);
   useEffect(() => {
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
-      appHistory.push(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
+      navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncError, pathname, isAuthenticated]);
+  }, [syncError, pathname, isAuthenticated, navigate]);
   useEffect(() => {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       doOpenAnnouncements_();

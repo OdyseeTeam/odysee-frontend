@@ -1,30 +1,26 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyChannelClaims, selectFetchingMyChannels } from 'redux/selectors/claims';
+import { selectActiveChannelClaimId } from 'redux/selectors/app';
+import { doSetActiveChannel } from 'redux/actions/app';
+
 type Props = {
   tiny?: boolean;
   label?: string;
   injected?: Array<string> | null | undefined;
-  // --- Redux ---
-  myChannelClaims: Array<ChannelClaim> | null | undefined;
-  fetchingChannels: boolean;
-  activeChannelClaimId: string | null | undefined;
-  setActiveChannel: (claimId: string | null | undefined, override?: boolean) => void;
 };
 
 function SelectChannel(props: Props) {
-  const {
-    fetchingChannels,
-    myChannelClaims = [],
-    label,
-    injected = [],
-    tiny,
-    activeChannelClaimId,
-    setActiveChannel,
-  } = props;
+  const { label, injected = [], tiny } = props;
+  const dispatch = useAppDispatch();
+  const myChannelClaims = useAppSelector(selectMyChannelClaims) || [];
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const activeChannelClaimId = useAppSelector(selectActiveChannelClaimId);
 
   function handleChannelChange(event: React.SyntheticEvent<any>) {
-    const channelClaimId = event.target.value;
-    setActiveChannel(channelClaimId);
+    const channelClaimId = (event.target as HTMLSelectElement).value;
+    dispatch(doSetActiveChannel(channelClaimId));
   }
 
   return (

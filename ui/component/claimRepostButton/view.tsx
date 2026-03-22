@@ -3,16 +3,19 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { selectClaimForUri, selectClaimRepostedAmountForUri } from 'redux/selectors/claims';
+
 type Props = {
   uri: string;
-  // --- internal ---
-  claim: StreamClaim | null | undefined;
-  repostedAmount: number;
-  doOpenModal: (id: string, arg1: {}) => void;
 };
 
 function ClaimRepostButton(props: Props) {
-  const { uri, claim, repostedAmount, doOpenModal } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const repostedAmount = useAppSelector((state) => selectClaimRepostedAmountForUri(state, uri));
   const ss: ClaimScheduledState = getClaimScheduledState(claim);
 
   if (ss === 'scheduled') {
@@ -36,9 +39,11 @@ function ClaimRepostButton(props: Props) {
       icon={ICONS.REPOST}
       requiresChannel
       onClick={() =>
-        doOpenModal(MODALS.REPOST, {
-          uri,
-        })
+        dispatch(
+          doOpenModal(MODALS.REPOST, {
+            uri,
+          })
+        )
       }
     />
   );

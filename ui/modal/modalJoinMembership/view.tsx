@@ -1,20 +1,21 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import JoinMembershipCard from 'component/joinMembershipCard';
-type Props = {
-  // -- redux --
-  doHideModal: () => void;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 
-class ModalJoinMembership extends React.PureComponent<Props> {
-  render() {
-    const { doHideModal } = this.props;
-    return (
-      <Modal onAborted={doHideModal} isOpen type="card">
-        <JoinMembershipCard {...this.props} />
-      </Modal>
-    );
-  }
+type Props = Record<string, never>;
+
+function ModalJoinMembership(props: Props) {
+  const dispatch = useAppDispatch();
+
+  const hideModal = () => dispatch(doHideModal());
+
+  return (
+    <Modal onAborted={hideModal} isOpen type="card">
+      <JoinMembershipCard {...props} />
+    </Modal>
+  );
 }
 
 export default ModalJoinMembership;

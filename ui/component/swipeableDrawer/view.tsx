@@ -8,6 +8,9 @@ import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import * as DRAWERS from 'constants/drawer_types';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectIsDrawerOpenForType } from 'redux/selectors/app';
+import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app';
 const TRANSITION_MS = 225;
 const TRANSITION_STR = `${TRANSITION_MS}ms cubic-bezier(0, 0, 0.2, 1) 0ms`;
 type Props = {
@@ -17,12 +20,12 @@ type Props = {
   actions?: any;
   type: string;
   startOpen?: boolean;
-  // -- redux --
-  open: boolean;
-  doToggleAppDrawer: (type: string) => void;
 };
 export default function SwipeableDrawer(props: Props) {
-  const { title, hasSubtitle, children, type, startOpen, open, actions, doToggleAppDrawer } = props;
+  const { title, hasSubtitle, children, type, startOpen, actions } = props;
+  const dispatch = useAppDispatch();
+  const open = useAppSelector((state) => selectIsDrawerOpenForType(state, type));
+  const doToggleAppDrawer = (drawerType: string) => dispatch(doToggleAppDrawerAction(drawerType));
   const pullerHeight = type === DRAWERS.PLAYLIST ? 120 : 62;
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();

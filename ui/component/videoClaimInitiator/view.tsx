@@ -4,17 +4,21 @@
 import React from 'react';
 import Button from 'component/button';
 import ClaimCoverRender from 'component/claimCoverRender';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import { useAppDispatch } from 'redux/hooks';
+import { doSetMainPlayerDimension as doSetMainPlayerDimensionAction } from 'redux/actions/app';
 type Props = {
   // -- withStreamClaimRender --
   uri: string;
   children?: any;
   streamClaim: () => void;
-  // -- redux --
-  doSetMainPlayerDimension: (dimensions: { height: number; width: number }) => void;
 };
 
 const VideoClaimInitiator = (props: Props) => {
-  const { uri, children, streamClaim, doSetMainPlayerDimension } = props;
+  const { uri, children, streamClaim } = props;
+  const dispatch = useAppDispatch();
+  const doSetMainPlayerDimension = (dimensions: { height: number; width: number }) =>
+    dispatch(doSetMainPlayerDimensionAction(dimensions));
   const playerRef = React.useCallback(
     (node) => {
       if (node) {
@@ -32,4 +36,4 @@ const VideoClaimInitiator = (props: Props) => {
   );
 };
 
-export default VideoClaimInitiator;
+export default withStreamClaimRender(VideoClaimInitiator);

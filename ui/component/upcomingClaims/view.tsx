@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import classnames from 'classnames';
 import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
@@ -7,6 +8,57 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile, useIsSmallScreen, useIsLargeScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import * as SETTINGS from 'constants/settings';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { createSelector } from 'reselect';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { selectClaimSearchByQuery } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doClaimSearch as doClaimSearchAction } from 'redux/actions/claims';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
+import { SCHEDULED_TAGS } from 'constants/tags';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptHelper } from 'util/claim-search';
+import { objSelectorEqualityCheck } from 'util/redux-utils';
+
+const selectOptions = createSelector(
+  (state: any) => state.comments.moderationBlockList,
+  (state: any) => selectMutedAndBlockedChannelIds(state),
+  (_state: any, _name: string, channelIds: Array<string>) => channelIds,
+  (_state: any, _name: string, _channelIds: Array<string>, isLivestream: boolean) => isLivestream,
+  (_state: any, _name: string, _channelIds: Array<string>, _isLivestream: boolean, limitPerChannel?: number) =>
+    limitPerChannel,
+  (
+    blocked: any,
+    mutedAndBlockedIds: any,
+    channelIds: Array<string>,
+    isLivestream: boolean,
+    limitPerChannel?: number
+  ) => {
+    return {
+      page: 1,
+      page_size: 50,
+      no_totals: true,
+      claim_type: ['stream'],
+      remove_duplicates: true,
+      any_tags: isLivestream ? [SCHEDULED_TAGS.LIVE] : [SCHEDULED_TAGS.SHOW],
+      channel_ids: channelIds || [],
+      not_channel_ids: mutedAndBlockedIds,
+      not_tags: CsOptHelper.not_tags(),
+      order_by: ['^release_time'],
+      release_time: [`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`],
+      ...(isLivestream ? { has_no_source: true } : { has_source: true }),
+      ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
+    };
+  },
+  {
+    memoizeOptions: {
+      maxSize: 10,
+      resultEqualityCheck: objSelectorEqualityCheck,
+    },
+  }
+);
+
 // ****************************************************************************
 // ****************************************************************************
 export type Props = {
@@ -22,36 +74,35 @@ export type Props = {
   onLoad?: (arg0: number) => void;
   showHideSetting?: boolean;
 };
-type StateProps = {
-  livestreamUris: Array<string> | null | undefined;
-  scheduledUris: Array<string> | null | undefined;
-  livestreamOptions: ClaimSearchOptions | null | undefined;
-  scheduledOptions: ClaimSearchOptions | null | undefined;
-  hideUpcoming?: boolean;
-};
-type DispatchProps = {
-  doClaimSearch: (arg0: ClaimSearchOptions) => void;
-  setClientSetting: (arg0: string, arg1: boolean | string | number, arg2: boolean) => void;
-};
 
 // ****************************************************************************
 // UpcomingClaims
 // ****************************************************************************
-const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
+const UpcomingClaims = (props: Props) => {
   const {
+    name,
+    channelIds,
     tileLayout,
     liveUris = [],
     loading,
     isChannelPage,
-    livestreamOptions,
-    scheduledOptions,
-    livestreamUris,
-    scheduledUris,
-    doClaimSearch,
-    setClientSetting,
+    limitClaimsPerChannel,
     showHideSetting = true,
-    hideUpcoming,
   } = props;
+  const dispatch = useAppDispatch();
+  const csByQuery = useAppSelector(selectClaimSearchByQuery) || {};
+  const livestreamOptions = useAppSelector((state) =>
+    selectOptions(state, name, channelIds, true, limitClaimsPerChannel)
+  );
+  const scheduledOptions = useAppSelector((state) => selectOptions(state, name, channelIds, false));
+  const loKey = livestreamOptions ? createNormalizedClaimSearchKey(livestreamOptions) : '';
+  const soKey = scheduledOptions ? createNormalizedClaimSearchKey(scheduledOptions) : '';
+  const livestreamUris = csByQuery[loKey];
+  const scheduledUris = csByQuery[soKey];
+  const hideUpcoming = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS));
+  const doClaimSearch = (csOptions: ClaimSearchOptions) => dispatch(doClaimSearchAction(csOptions));
+  const setClientSetting = (key: string, value: boolean | string | number, pushPrefs: boolean) =>
+    dispatch(doSetClientSetting(key, value, pushPrefs));
   const isMobileScreen = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
   const isLargeScreen = useIsLargeScreen();

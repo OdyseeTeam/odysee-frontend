@@ -3,7 +3,7 @@ import * as MODALS from 'constants/modal_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
 import { COL_TYPES } from 'constants/collections';
-import { push } from 'redux/router';
+import { navigateTo } from 'redux/router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
 import { getChannelIdFromClaim, isClaimUnlisted, isClaimShort } from 'util/claim';
 import { toHex } from 'util/hex';
@@ -254,19 +254,17 @@ export const doPlayNextUri =
     const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
 
     if ((!collectionId && !isFloating) || !floatingPlayerEnabled) {
-      dispatch(
-        push({
-          pathname: formatLbryUrlForWeb(nextUri),
-          ...(isNextUriInCollection
-            ? {
-                search: generateListSearchUrlParams(nextCollectionId),
-                state: {
-                  collectionId: nextCollectionId,
-                },
-              }
-            : {}),
-        })
-      );
+      navigateTo({
+        pathname: formatLbryUrlForWeb(nextUri),
+        ...(isNextUriInCollection
+          ? {
+              search: generateListSearchUrlParams(nextCollectionId),
+              state: {
+                collectionId: nextCollectionId,
+              },
+            }
+          : {}),
+      });
     }
 
     const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
@@ -463,14 +461,12 @@ export function doPlaylistAddAndAllowPlaying({
       }
 
       const handleEdit = () =>
-        dispatch(
-          push({
-            pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`,
-            state: {
-              showEdit: true,
-            },
-          })
-        );
+        navigateTo({
+          pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`,
+          state: {
+            showEdit: true,
+          },
+        });
 
       dispatch(
         doToast({
@@ -720,16 +716,14 @@ export const doEnableCollectionShuffle =
         })
       );
       const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
-      dispatch(
-        push({
-          pathname: navigateUrl,
-          search: generateListSearchUrlParams(collectionId),
-          state: {
-            collectionId,
-            forceAutoplay: true,
-          },
-        })
-      );
+      navigateTo({
+        pathname: navigateUrl,
+        search: generateListSearchUrlParams(collectionId),
+        state: {
+          collectionId,
+          forceAutoplay: true,
+        },
+      });
     }
   };
 export const doToggleShuffleList =

@@ -5,17 +5,19 @@ import classnames from 'classnames';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Button from 'component/button';
+import { useAppDispatch } from 'redux/hooks';
+import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app';
 type Props = {
   label: any;
   icon: string;
   type: string;
   fixed?: boolean;
-  // -- redux --
-  doToggleAppDrawer: (type: string) => void;
 };
 
 function DrawerExpandButton(props: Props) {
-  const { fixed, icon, type, doToggleAppDrawer, ...buttonProps } = props;
+  const { fixed, icon, type, ...buttonProps } = props;
+  const dispatch = useAppDispatch();
+  const doToggleAppDrawer = (drawerType: string) => dispatch(doToggleAppDrawerAction(drawerType));
   return (
     <Wrapper fixed={fixed}>
       <Global

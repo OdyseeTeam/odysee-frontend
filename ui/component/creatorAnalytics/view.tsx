@@ -11,15 +11,19 @@ import Yrbl from 'component/yrbl';
 import { useNavigate } from 'react-router-dom';
 import analytics from 'analytics';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
 type Props = {
-  claim: ChannelClaim | null | undefined;
-  fetchingChannels: boolean;
-  doResolveUris: (uris: Array<string>) => void;
+  uri: string;
 };
 const UNAUTHENTICATED_ERROR = 'unauthenticated';
 const GENERIC_ERROR = 'error';
 export default function CreatorAnalytics(props: Props) {
-  const { claim, doResolveUris } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const doResolveUris = (uris: Array<string>) => dispatch(doResolveUrisAction(uris));
   const navigate = useNavigate();
   const [stats, setStats] = React.useState();
   const [error, setError] = React.useState();

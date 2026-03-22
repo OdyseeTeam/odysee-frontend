@@ -170,6 +170,12 @@ export const go = (delta: number) => createHistoryAction('go', delta);
 export const goBack = () => createHistoryAction('back');
 export const goForward = () => createHistoryAction('forward');
 
+export const navigateTo = (to: any, state?: any) => applyHistoryMethod('push', [to, state]);
+export const replaceTo = (to: any, state?: any) => applyHistoryMethod('replace', [to, state]);
+export const navigateByDelta = (delta: number) => applyHistoryMethod('go', [delta]);
+export const navigateBack = () => applyHistoryMethod('back', []);
+export const navigateForward = () => applyHistoryMethod('forward', []);
+
 const createLocationChange = (location: any, action: string): LocationChangeAction => ({
   type: LOCATION_CHANGE,
   payload: {

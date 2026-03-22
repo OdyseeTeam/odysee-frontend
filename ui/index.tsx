@@ -54,7 +54,13 @@ import { doToast } from 'redux/actions/notifications';
 import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
-import { push, setRouterNavigator, clearRouterNavigator, setRouterSnapshot, syncRouterLocation } from 'redux/router';
+import {
+  navigateTo,
+  setRouterNavigator,
+  clearRouterNavigator,
+  setRouterSnapshot,
+  syncRouterLocation,
+} from 'redux/router';
 import { useAppDispatch } from 'redux/hooks';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
@@ -159,13 +165,15 @@ ipcRenderer.on('open-uri-requested', (event, url, newSession) => {
 
   if (path.startsWith('?')) {
     const redirectUrl = formatInAppUrl(path);
-    return app.store.dispatch(push(redirectUrl));
+    navigateTo(redirectUrl);
+    return;
   }
 
   if (isURIValid(url)) {
     const formattedUrl = formatLbryUrlForWeb(url);
     analytics.event.openUrl(formattedUrl);
-    return app.store.dispatch(push(formattedUrl));
+    navigateTo(formattedUrl);
+    return;
   }
 
   // If nothing redirected before here the url must be messed up
@@ -176,7 +184,7 @@ ipcRenderer.on('language-set', (event, language) => {
 });
 ipcRenderer.on('open-menu', (event, uri) => {
   if (uri && uri.startsWith('/help')) {
-    app.store.dispatch(push('/$/help'));
+    navigateTo('/$/help');
   }
 });
 const { dock } = remote.app;

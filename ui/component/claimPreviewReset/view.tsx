@@ -6,30 +6,43 @@ import 'scss/component/claim-preview-reset.scss';
 // import { iconClasses } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimIsMineForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { doToast } from 'redux/actions/notifications';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
+
 type Props = {
-  channelId: string;
-  channelName: string;
-  claimIsMine: boolean;
-  doToast: (arg0: { message: string; isError?: boolean }) => void;
-  activeLivestreamForChannel: LivestreamActiveClaim | null | undefined;
+  uri: string;
 };
 
 const ClaimPreviewReset = (props: Props) => {
-  const { channelId, channelName, claimIsMine, doToast, activeLivestreamForChannel } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const channelName = getChannelNameFromClaim(claim);
+  const claimIsMine = useAppSelector((state) => (uri ? selectClaimIsMineForUri(state, uri) : false));
+  const activeLivestreamForChannel = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
+
   if (!claimIsMine || !activeLivestreamForChannel) return null;
 
   const handleClick = async () => {
     try {
       await killStream(channelId, channelName);
-      doToast({
-        message: __('Live stream successfully reset.'),
-        isError: false,
-      });
+      dispatch(
+        doToast({
+          message: __('Live stream successfully reset.'),
+          isError: false,
+        })
+      );
     } catch {
-      doToast({
-        message: __('There was an error resetting the live stream.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('There was an error resetting the live stream.'),
+          isError: true,
+        })
+      );
     }
   };
 

@@ -5,112 +5,117 @@ import ClaimPreview from 'component/claimPreview';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Nag from 'component/nag';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { doHideModal } from 'redux/actions/app';
+import { navigateTo } from 'redux/router';
+
 type Props = {
-  closeModal: () => void;
-  navigate: (arg0: string) => void;
   uri: string;
   isEdit: boolean;
   filePath: undefined;
   lbryFirstError: string | null | undefined;
-  claim: Claim;
 };
 
-class ModalPublishSuccess extends React.PureComponent<Props> {
-  render() {
-    const { closeModal, navigate, uri, isEdit, filePath, lbryFirstError, claim } = this.props;
-    const livestream = claim && claim.value && claim.value_type === 'stream' && !claim.value.source;
-    let contentLabel;
+function ModalPublishSuccess(props: Props) {
+  const { uri, isEdit, filePath, lbryFirstError } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
 
-    if (livestream) {
-      contentLabel = __('Livestream Created');
-    } else if (isEdit) {
-      contentLabel = __('Update published');
-    } else {
-      contentLabel = __('File published');
-    }
+  const closeModal = () => dispatch(doHideModal());
 
-    let publishMessage;
+  const livestream = claim && claim.value && claim.value_type === 'stream' && !claim.value.source;
+  let contentLabel;
 
-    if (isEdit) {
-      publishMessage = __('Your update is now pending. It will take a few minutes to appear for other users.');
-    } else if (livestream) {
-      publishMessage = __(
-        'Your livestream is now pending. You will be able to start shortly at the streaming dashboard.'
-      );
-    } else {
-      publishMessage = __('Your content will be live shortly.');
-    }
-
-    function handleClose() {
-      closeModal();
-    }
-
-    return (
-      <Modal isOpen type="card" contentLabel={__(contentLabel)} onAborted={handleClose}>
-        <Card
-          title={livestream ? __('Livestream Created') : __('Success')}
-          subtitle={publishMessage}
-          body={
-            <React.Fragment>
-              <div className="card--inline">
-                <ClaimPreview type="small" uri={uri} />
-              </div>
-              {filePath && !IS_WEB && (
-                <p className="help">
-                  <React.Fragment>
-                    {__(
-                      `Upload will continue in the background, please do not shut down immediately. Leaving the app running helps the network, thank you!`
-                    )}{' '}
-                    <Button button="link" href="https://lbry.com/faq/host-content" label={__('Learn More')} />
-                  </React.Fragment>
-                </p>
-              )}
-            </React.Fragment>
-          }
-          actions={
-            <div className="section__actions">
-              {!livestream && (
-                <Button
-                  button="primary"
-                  label={__('View My Uploads')}
-                  onClick={() => {
-                    navigate(`/$/${PAGES.UPLOADS}`);
-                    closeModal();
-                  }}
-                />
-              )}
-              {livestream && (
-                <Button
-                  button="primary"
-                  label={__('View Livestream Settings')}
-                  onClick={() => {
-                    navigate(`/$/${PAGES.LIVESTREAM}?t=Setup`);
-                    closeModal();
-                  }}
-                />
-              )}
-              <Button button="link" label={__('Close')} onClick={handleClose} />
-            </div>
-          }
-          nag={
-            lbryFirstError && (
-              <Nag
-                relative
-                type="error"
-                message={
-                  <span>
-                    {__('Your file was published to LBRY, but the YouTube upload failed.')}
-                    <br />
-                    {lbryFirstError}
-                  </span>
-                }
-              />
-            )
-          }
-        />
-      </Modal>
-    );
+  if (livestream) {
+    contentLabel = __('Livestream Created');
+  } else if (isEdit) {
+    contentLabel = __('Update published');
+  } else {
+    contentLabel = __('File published');
   }
+
+  let publishMessage;
+
+  if (isEdit) {
+    publishMessage = __('Your update is now pending. It will take a few minutes to appear for other users.');
+  } else if (livestream) {
+    publishMessage = __(
+      'Your livestream is now pending. You will be able to start shortly at the streaming dashboard.'
+    );
+  } else {
+    publishMessage = __('Your content will be live shortly.');
+  }
+
+  function handleClose() {
+    closeModal();
+  }
+
+  return (
+    <Modal isOpen type="card" contentLabel={__(contentLabel)} onAborted={handleClose}>
+      <Card
+        title={livestream ? __('Livestream Created') : __('Success')}
+        subtitle={publishMessage}
+        body={
+          <React.Fragment>
+            <div className="card--inline">
+              <ClaimPreview type="small" uri={uri} />
+            </div>
+            {filePath && !IS_WEB && (
+              <p className="help">
+                <React.Fragment>
+                  {__(
+                    `Upload will continue in the background, please do not shut down immediately. Leaving the app running helps the network, thank you!`
+                  )}{' '}
+                  <Button button="link" href="https://lbry.com/faq/host-content" label={__('Learn More')} />
+                </React.Fragment>
+              </p>
+            )}
+          </React.Fragment>
+        }
+        actions={
+          <div className="section__actions">
+            {!livestream && (
+              <Button
+                button="primary"
+                label={__('View My Uploads')}
+                onClick={() => {
+                  navigateTo(`/$/${PAGES.UPLOADS}`);
+                  closeModal();
+                }}
+              />
+            )}
+            {livestream && (
+              <Button
+                button="primary"
+                label={__('View Livestream Settings')}
+                onClick={() => {
+                  navigateTo(`/$/${PAGES.LIVESTREAM}?t=Setup`);
+                  closeModal();
+                }}
+              />
+            )}
+            <Button button="link" label={__('Close')} onClick={handleClose} />
+          </div>
+        }
+        nag={
+          lbryFirstError && (
+            <Nag
+              relative
+              type="error"
+              message={
+                <span>
+                  {__('Your file was published to LBRY, but the YouTube upload failed.')}
+                  <br />
+                  {lbryFirstError}
+                </span>
+              }
+            />
+          )
+        }
+      />
+    </Modal>
+  );
 }
 
 export default ModalPublishSuccess;

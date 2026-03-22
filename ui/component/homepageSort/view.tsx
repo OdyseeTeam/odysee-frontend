@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
+import { useAppSelector } from 'redux/hooks';
+import { selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 // prettier-ignore
 const Lazy = {
   DragDropContext: React.lazy(() => import('@hello-pangea/dnd'
@@ -110,12 +113,11 @@ type HomepageOrder = {
 };
 type Props = {
   onUpdate: (newOrder: HomepageOrder) => void;
-  // --- redux:
-  homepageData: any;
-  homepageOrder: HomepageOrder;
 };
 export default function HomepageSort(props: Props) {
-  const { onUpdate, homepageData, homepageOrder } = props;
+  const { onUpdate } = props;
+  const homepageData = useAppSelector(selectHomepageData) || {};
+  const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER));
   const { categories } = homepageData;
   const SECTIONS = { ...NON_CATEGORY, ...categories };
   const [listActive, setListActive] = useState(() => getInitialList('ACTIVE', homepageOrder, SECTIONS));

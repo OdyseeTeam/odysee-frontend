@@ -8,7 +8,7 @@ import { selectClaimForUri, selectClaimOutpointForUri, selectIsLivestreamClaimFo
 import { doAbandonClaim } from 'redux/actions/claims';
 import { batchActions } from 'util/batch-actions';
 import { doHideModal } from 'redux/actions/app';
-import { goBack } from 'redux/router';
+import { navigateBack } from 'redux/router';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doToast } from 'redux/actions/notifications';
@@ -83,7 +83,7 @@ export function doDeleteFileAndMaybeGoBack(
           if (abandonState === ABANDON_STATES.DONE) {
             if (abandonClaim) {
               if (doGoBack) {
-                dispatch(goBack());
+                navigateBack();
               }
 
               dispatch(doHideModal());

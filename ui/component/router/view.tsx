@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
 import * as SETTINGS from 'constants/settings';
 import { PAGE_TITLE } from 'constants/pageTitles';
@@ -15,7 +15,6 @@ import { buildUnseenCountStr } from 'util/notifications';
 import Spinner from 'component/spinner';
 import HomePage from 'page/home';
 import { getPathForPage, htmlDecode } from 'util/url';
-import { history as appHistory } from 'redux/router';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectHasNavigated, selectScrollStartingPosition } from 'redux/selectors/app';
@@ -582,6 +581,7 @@ function PrivateRoute(props: PrivateRouteProps) {
 
 function AppRouter(props: Props) {
   const location = useLocation();
+  const navigationType = useNavigationType();
   const { uri: passedUri } = props;
   const dispatch = useAppDispatch();
 
@@ -640,13 +640,10 @@ function AppRouter(props: Props) {
   }, [homepageData, isLargeScreen, isMediumScreen, isSmallScreen, renderLegacyPage, wildWestDisabled]);
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
-    const unlisten = appHistory.listen((nextLocation, action) => {
-      if (action === 'PUSH') {
-        if (!hasNavigated && setHasNavigated) setHasNavigated();
-      }
-    });
-    return unlisten;
-  }, [hasNavigated, setHasNavigated]);
+    if (navigationType === 'PUSH' && !hasNavigated && setHasNavigated) {
+      setHasNavigated();
+    }
+  }, [hasNavigated, navigationType, setHasNavigated]);
   useEffect(() => {
     if (channelClaimPermanentUri && !hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
       dispatch(doUserSetReferrerForUri(channelClaimPermanentUri));
@@ -693,7 +690,7 @@ function AppRouter(props: Props) {
   }, [pathname, title, uri, unseenCount, hideTitleNotificationCount]);
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
-      if (hash && appHistory.action === 'PUSH') {
+      if (hash && navigationType === 'PUSH') {
         const id = hash.replace('#', '');
         const element = document.getElementById(id);
 
@@ -706,7 +703,7 @@ function AppRouter(props: Props) {
         }, 0);
       }
     }
-  }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl]);
+  }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl, navigationType]);
   React.useEffect(() => {
     defaultChannelRef.current = hasDefaultChannel;
   }, [hasDefaultChannel]);
@@ -733,9 +730,7 @@ function AppRouter(props: Props) {
   const decodedUrl = decodeURIComponent(pathname) + search;
 
   if (decodedUrl !== pathname + search) {
-    // Use history.replace instead of <Redirect> to avoid adding extra entries.
-    appHistory.replace(decodedUrl);
-    return null;
+    return <Navigate replace to={decodedUrl} />;
   }
 
   // Try to support strange cases where url has html encoding

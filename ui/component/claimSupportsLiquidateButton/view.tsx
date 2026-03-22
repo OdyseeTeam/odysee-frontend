@@ -2,16 +2,20 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { selectClaimIsMineForUri, selectClaimHasSupportsForUri } from 'redux/selectors/claims';
+
 type Props = {
   uri: string;
-  // redux
-  claimIsMine: boolean;
-  hasSupport: boolean;
-  doOpenModal: (id: string, arg1: {}) => void;
 };
 
 function ClaimSupportsLiquidateButton(props: Props) {
-  const { uri, claimIsMine, hasSupport, doOpenModal } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
+  const hasSupport = useAppSelector((state) => selectClaimHasSupportsForUri(state, uri));
+
   if (!claimIsMine || !hasSupport) return null;
   return (
     <Button
@@ -20,9 +24,11 @@ function ClaimSupportsLiquidateButton(props: Props) {
       icon={ICONS.UNLOCK}
       aria-label={__('Unlock tips')}
       onClick={() =>
-        doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
-          uri,
-        })
+        dispatch(
+          doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
+            uri,
+          })
+        )
       }
     />
   );

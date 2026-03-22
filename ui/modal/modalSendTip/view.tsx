@@ -1,6 +1,9 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import SendTip from 'component/walletSendTip';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+
 type Props = {
   uri: string;
   claimIsMine: boolean;
@@ -8,28 +11,29 @@ type Props = {
   isTipOnly?: boolean;
   hasSelectedTab?: string;
   customText?: string;
-  doHideModal: () => void;
   setAmount?: (arg0: number) => void;
 };
 
-class ModalSendTip extends React.PureComponent<Props> {
-  render() {
-    const { uri, claimIsMine, isTipOnly, hasSelectedTab, customText, doHideModal, setAmount } = this.props;
-    return (
-      <Modal onAborted={doHideModal} isOpen type="card">
-        <SendTip
-          uri={uri}
-          claimIsMine={claimIsMine}
-          onCancel={doHideModal}
-          isTipOnly={isTipOnly}
-          hasSelectedTab={hasSelectedTab}
-          customText={customText}
-          setAmount={setAmount}
-          modalProps={this.props}
-        />
-      </Modal>
-    );
-  }
+function ModalSendTip(props: Props) {
+  const { uri, claimIsMine, isTipOnly, hasSelectedTab, customText, setAmount } = props;
+  const dispatch = useAppDispatch();
+
+  const hideModal = () => dispatch(doHideModal());
+
+  return (
+    <Modal onAborted={hideModal} isOpen type="card">
+      <SendTip
+        uri={uri}
+        claimIsMine={claimIsMine}
+        onCancel={hideModal}
+        isTipOnly={isTipOnly}
+        hasSelectedTab={hasSelectedTab}
+        customText={customText}
+        setAmount={setAmount}
+        modalProps={props}
+      />
+    </Modal>
+  );
 }
 
 export default ModalSendTip;

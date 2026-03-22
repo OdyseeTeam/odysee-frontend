@@ -10,7 +10,7 @@ import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
-import { history } from 'store';
+import { history } from 'redux/router';
 const recsysEndpoint = RECSYS_ENDPOINT;
 const DEFAULT_RECSYS_ID = 'lighthouse-v0';
 

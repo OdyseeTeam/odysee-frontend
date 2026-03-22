@@ -7,13 +7,15 @@ import Tooltip from 'component/common/tooltip';
 import Counter from 'component/counter';
 import { useNavigate } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
+import { useAppSelector } from 'redux/hooks';
+import { selectArweaveStatus } from 'redux/selectors/arwallet';
 import './style.scss';
 type Props = {
   hideBalance: boolean;
-  arweaveStatus: any;
 };
 export default function WanderButton(props: Props) {
-  const { hideBalance, arweaveStatus } = props;
+  const { hideBalance } = props;
+  const arweaveStatus = useAppSelector(selectArweaveStatus);
   const { activeArStatus } = useArStatus();
   const navigate = useNavigate();
   const [backups, setBackups] = React.useState(window?.wanderInstance?.backupInfo?.backupsNeeded || 0);

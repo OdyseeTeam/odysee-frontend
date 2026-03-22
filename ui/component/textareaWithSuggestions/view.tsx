@@ -13,6 +13,12 @@ import { parseURI } from 'util/lbryURI';
 import TextareaSuggestionsOption from './render-option';
 import TextareaSuggestionsInput from './render-input';
 import TextareaSuggestionsGroup from './render-group';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
+import { doSetMentionSearchResults as doSetMentionSearchResultsAction } from 'redux/actions/search';
+import { makeSelectWinningUriForQuery } from 'redux/selectors/search';
+import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
+import { selectChannelMentionData } from 'redux/selectors/comments';
 const SUGGESTION_REGEX = new RegExp(
   '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
   'gm'
@@ -31,21 +37,13 @@ const SUGGESTION_REGEX = new RegExp(
 const SEARCH_SIZE = 10;
 const INPUT_DEBOUNCE_MS = 1000;
 type Props = {
-  canonicalCommentors?: Array<string>;
-  canonicalCreatorUri?: string;
-  canonicalSearch?: Array<string>;
-  canonicalSubscriptions?: Array<string>;
-  canonicalTop?: string;
   className?: string;
-  commentorUris?: Array<string>;
   disabled?: boolean;
-  hasNewResolvedResults?: boolean;
   id: string;
   inputRef: any;
   isLivestream?: boolean;
   maxLength?: number;
   placeholder?: string;
-  searchQuery?: string;
   type?: string;
   uri?: string;
   value: any;
@@ -54,8 +52,6 @@ type Props = {
   spellCheck?: boolean;
   claimIsMine?: boolean;
   slimInput?: boolean;
-  doResolveUris: (uris: Array<string>, cache: boolean) => void;
-  doSetMentionSearchResults: (query: string, uris: Array<string>) => void;
   onBlur: (arg0: any) => any;
   onChange: (arg0: any) => any;
   onFocus: (arg0: any) => any;
@@ -66,30 +62,21 @@ type Props = {
 };
 export default function TextareaWithSuggestions(props: Props) {
   const {
-    canonicalCommentors,
-    canonicalCreatorUri,
-    canonicalSearch,
-    canonicalSubscriptions: canonicalSubs,
-    canonicalTop,
     className,
-    commentorUris,
     disabled,
-    hasNewResolvedResults,
     id,
     inputRef,
     isLivestream,
     maxLength,
     placeholder,
-    searchQuery,
     type,
+    uri,
     value: messageValue = '',
     autoFocus,
     submitButtonRef,
     spellCheck,
     claimIsMine,
     slimInput,
-    doResolveUris,
-    doSetMentionSearchResults,
     onBlur,
     onChange,
     onFocus,
@@ -98,6 +85,22 @@ export default function TextareaWithSuggestions(props: Props) {
     handleSubmit,
     handlePreventClick,
   } = props;
+  const dispatch = useAppDispatch();
+  const maxComments = isLivestream ? MAX_LIVESTREAM_COMMENTS : -1;
+  const mentionData = useAppSelector((state) => selectChannelMentionData(state, uri, maxComments));
+  const {
+    canonicalCommentors,
+    canonicalCreatorUri,
+    canonicalSearch,
+    canonicalSubscriptions: canonicalSubs,
+    commentorUris,
+    hasNewResolvedResults,
+    query: searchQuery,
+  } = mentionData;
+  const canonicalTop = useAppSelector((state) => makeSelectWinningUriForQuery(searchQuery)(state));
+  const doResolveUris = (uris: Array<string>, cache: boolean) => dispatch(doResolveUrisAction(uris, cache));
+  const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
+    dispatch(doSetMentionSearchResultsAction(query, uris));
   const inputDefaultProps = {
     className,
     placeholder,

@@ -2,15 +2,19 @@ import * as React from 'react';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
+import { useAppSelector } from 'redux/hooks';
+import { selectInsufficientCreditsForUri } from 'redux/selectors/content';
+import { selectClaimWasPurchasedForUri } from 'redux/selectors/claims';
+
 type Props = {
   uri: string;
   fileInfo: FileListItem;
-  isInsufficientCredits: boolean;
-  claimWasPurchased: boolean;
 };
 
 function ClaimInsufficientCredits(props: Props) {
-  const { isInsufficientCredits, fileInfo, claimWasPurchased } = props;
+  const { uri, fileInfo } = props;
+  const isInsufficientCredits = useAppSelector((state) => selectInsufficientCreditsForUri(state, uri));
+  const claimWasPurchased = useAppSelector((state) => selectClaimWasPurchasedForUri(state, uri));
 
   if (fileInfo || !isInsufficientCredits || claimWasPurchased) {
     return null;

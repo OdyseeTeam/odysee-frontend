@@ -4,21 +4,23 @@ import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import UserPhoneVerify from 'component/userPhoneVerify';
 import UserPhoneNew from 'component/userPhoneNew';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectPhoneToVerify, selectUser } from 'redux/selectors/user';
+import { doHideModal } from 'redux/actions/app';
 
-type Props = {
-  phone: number | null | undefined;
-  user: {
-    is_identity_verified: boolean;
-  };
-  closeModal: () => void;
-  history: {
-    push: (arg0: string) => void;
-  };
-};
+function ModalPhoneCollection() {
+  const dispatch = useAppDispatch();
+  const phone = useAppSelector(selectPhoneToVerify);
+  const user = useAppSelector(selectUser);
 
-class ModalPhoneCollection extends React.PureComponent<Props> {
-  renderInner() {
-    const { closeModal, phone, user } = this.props;
+  const closeModal = () => dispatch(doHideModal());
+
+  // this shouldn't happen
+  if (!user) {
+    return null;
+  }
+
+  function renderInner() {
     const cancelButton = <Button button="link" onClick={closeModal} label={__('Not Now')} />;
 
     if (!user.is_identity_verified && !phone) {
@@ -31,20 +33,11 @@ class ModalPhoneCollection extends React.PureComponent<Props> {
     return <Navigate replace to="/$/rewards" />;
   }
 
-  render() {
-    const { user, closeModal } = this.props;
-
-    // this shouldn't happen
-    if (!user) {
-      return null;
-    }
-
-    return (
-      <Modal type="card" isOpen contentLabel="Phone" onAborted={closeModal}>
-        {this.renderInner()}
-      </Modal>
-    );
-  }
+  return (
+    <Modal type="card" isOpen contentLabel="Phone" onAborted={closeModal}>
+      {renderInner()}
+    </Modal>
+  );
 }
 
 export default ModalPhoneCollection;

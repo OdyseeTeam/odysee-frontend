@@ -1,86 +1,80 @@
-import * as React from 'react';
+import React, { useState, useCallback } from 'react';
 import { FormField, Form } from 'component/common/form';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-type Props = {
-  closeModal: () => void;
-  error: string | null | undefined;
-  rewardIsPending: boolean;
-  submitRewardCode: (arg0: string) => void;
-};
-type State = {
-  rewardCode: string;
-};
+import REWARDS from 'rewards';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { makeSelectClaimRewardError, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
+import { doHideModal } from 'redux/actions/app';
+import { doClaimRewardType } from 'redux/actions/rewards';
 
-class ModalRewardCode extends React.PureComponent<Props, State> {
-  constructor() {
-    super();
-    this.state = {
-      rewardCode: '',
-    };
-    (this as any).handleSubmit = this.handleSubmit.bind(this);
-  }
+function ModalRewardCode() {
+  const dispatch = useAppDispatch();
+  const rewardIsPending = useAppSelector((state) =>
+    makeSelectIsRewardClaimPending()(state, { reward_type: REWARDS.TYPE_REWARD_CODE })
+  );
+  const error = useAppSelector((state) =>
+    makeSelectClaimRewardError()(state, { reward_type: REWARDS.TYPE_REWARD_CODE })
+  );
 
-  handleSubmit() {
-    const { rewardCode } = this.state;
-    const { submitRewardCode } = this.props;
-    submitRewardCode(rewardCode);
-  }
+  const [rewardCode, setRewardCode] = useState('');
 
-  render() {
-    const { closeModal, rewardIsPending, error } = this.props;
-    const { rewardCode } = this.state;
-    return (
-      <Modal isOpen contentLabel={__('Enter credits code')} type="card" onAborted={closeModal}>
-        <Card
-          title={__('Enter credits code')}
-          subtitle={
-            <I18nMessage
-              tokens={{
-                lbc: <LbcSymbol prefix={__('Redeem a custom credits code for')} />,
-              }}
-            >
-              %lbc%. %learn_more%.
-            </I18nMessage>
-          }
-          actions={
-            <>
-              <Form onSubmit={this.handleSubmit}>
-                <FormField
-                  autoFocus
-                  type="text"
-                  name="reward-code"
-                  inputButton={
-                    <Button
-                      button="primary"
-                      type="submit"
-                      disabled={!rewardCode || rewardIsPending}
-                      label={rewardIsPending ? __('Redeeming') : __('Redeem')}
-                    />
-                  }
-                  label={__('Code')}
-                  placeholder="0123abc"
-                  error={error}
-                  value={rewardCode}
-                  onChange={(e) =>
-                    this.setState({
-                      rewardCode: e.target.value,
-                    })
-                  }
-                />
-              </Form>
-              <div className="card__actions">
-                <Button button="link" label={__('Cancel')} onClick={closeModal} />
-              </div>
-            </>
-          }
-        />
-      </Modal>
+  const closeModal = () => dispatch(doHideModal());
+
+  const handleSubmit = useCallback(() => {
+    dispatch(
+      doClaimRewardType(REWARDS.TYPE_REWARD_CODE, {
+        params: { code: rewardCode },
+      })
     );
-  }
+  }, [dispatch, rewardCode]);
+
+  return (
+    <Modal isOpen contentLabel={__('Enter credits code')} type="card" onAborted={closeModal}>
+      <Card
+        title={__('Enter credits code')}
+        subtitle={
+          <I18nMessage
+            tokens={{
+              lbc: <LbcSymbol prefix={__('Redeem a custom credits code for')} />,
+            }}
+          >
+            %lbc%. %learn_more%.
+          </I18nMessage>
+        }
+        actions={
+          <>
+            <Form onSubmit={handleSubmit}>
+              <FormField
+                autoFocus
+                type="text"
+                name="reward-code"
+                inputButton={
+                  <Button
+                    button="primary"
+                    type="submit"
+                    disabled={!rewardCode || rewardIsPending}
+                    label={rewardIsPending ? __('Redeeming') : __('Redeem')}
+                  />
+                }
+                label={__('Code')}
+                placeholder="0123abc"
+                error={error}
+                value={rewardCode}
+                onChange={(e) => setRewardCode(e.target.value)}
+              />
+            </Form>
+            <div className="card__actions">
+              <Button button="link" label={__('Cancel')} onClick={closeModal} />
+            </div>
+          </>
+        }
+      />
+    </Modal>
+  );
 }
 
 export default ModalRewardCode;

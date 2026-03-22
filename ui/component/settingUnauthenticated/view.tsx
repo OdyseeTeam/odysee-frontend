@@ -8,17 +8,18 @@ import HomepageSelector from 'component/homepageSelector';
 import SettingLanguage from 'component/settingLanguage';
 import SettingsRow from 'component/settingsRow';
 import ThemeSelector from 'component/themeSelector';
-type Props = {
-  searchInLanguage: boolean;
-  homepageKeys: Array<string>;
-  setSearchInLanguage: (arg0: boolean) => void;
-};
-export default function SettingUnauthenticated(props: Props) {
-  const {
-    searchInLanguage,
-    homepageKeys,
-    setSearchInLanguage
-  } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import * as SETTINGS from 'constants/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { selectClientSetting, selectHomepageKeys } from 'redux/selectors/settings';
+
+export default function SettingUnauthenticated() {
+  const dispatch = useAppDispatch();
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const homepageKeys = useAppSelector(selectHomepageKeys);
+
+  const setSearchInLanguage = (value: boolean) => dispatch(doSetClientSetting(SETTINGS.SEARCH_IN_LANGUAGE, value));
+
   return <Card isBodyList body={<>
           <SettingsRow title={__('Language')} subtitle={__(HELP_LANGUAGE)}>
             <SettingLanguage />

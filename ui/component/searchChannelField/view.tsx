@@ -7,6 +7,10 @@ import Icon from 'component/common/icon';
 import TagsSearch from 'component/tagsSearch';
 import * as ICONS from 'constants/icons';
 import { getUriForSearchTerm } from 'util/search';
+import { useAppDispatch } from 'redux/hooks';
+import { doToast } from 'redux/actions/notifications';
+import { doResolveUris } from 'redux/actions/claims';
+
 type Props = {
   label: string;
   labelAddNew: string;
@@ -15,10 +19,8 @@ type Props = {
   // [ 'name#id', 'name#id' ]
   onAdd?: (channelUri: string) => void;
   onRemove?: (channelUri: string) => void;
-  // --- perform ---
-  doToast: (arg0: { message: string }) => void;
-  doResolveUris: (uris: Array<string>) => void;
 };
+
 export default function SearchChannelField(props: Props) {
   const {
     label,
@@ -27,9 +29,8 @@ export default function SearchChannelField(props: Props) {
     values,
     onAdd,
     onRemove,
-    doToast,
-    doResolveUris
   } = props;
+  const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchTermError, setSearchTermError] = React.useState('');
   const [searchUri, setSearchUri] = React.useState('');
@@ -54,12 +55,12 @@ export default function SearchChannelField(props: Props) {
         }
       }
     } else {
-      doToast({
+      dispatch(doToast({
         message: __('Invalid channel URL "%url%"', {
           url: newTags[0].name
         }),
         isError: true
-      });
+      }));
     }
   }
 
@@ -99,7 +100,7 @@ export default function SearchChannelField(props: Props) {
       }
     }
 
-    return claim => {
+    return (claim) => {
       return <Button ref={addTagRef} requiresAuth button="primary" label={labelFoundAction} onClick={() => handleFoundChannelClick(claim)} />;
     };
   }
@@ -126,7 +127,7 @@ export default function SearchChannelField(props: Props) {
           setSearchUri('');
         } else if (isChannel && channelName && isNameValid(channelName)) {
           setSearchUri(uri);
-          doResolveUris([uri]);
+          dispatch(doResolveUris([uri]));
         }
       } catch (e) {
         setSearchTermError(e.message);
@@ -144,7 +145,7 @@ export default function SearchChannelField(props: Props) {
         <FormField type="text" name="moderator_search" className="form-field--address" label={<>
               {labelAddNew}
               <Icon customTooltipText={__(HELP.CHANNEL_SEARCH)} className="icon--help" icon={ICONS.HELP} tooltip size={16} />
-            </>} placeholder={__('Enter full channel name or URL')} value={searchTerm} error={searchTermError} onKeyPress={e => handleKeyPress(e)} onChange={e => setSearchTerm(e.target.value)} />
+            </>} placeholder={__('Enter full channel name or URL')} value={searchTerm} error={searchTermError} onKeyPress={(e) => handleKeyPress(e)} onChange={(e) => setSearchTerm(e.target.value)} />
 
         {searchUri && <div className="search__channel--popup-results">
             <ClaimPreview uri={searchUri} hideMenu hideJoin hideRepostLabel disableNavigation showNullPlaceholder properties={''} renderActions={getFoundChannelRenderActionsFn()} empty={<div className="claim-preview claim-preview--inactive claim-preview--large claim-preview__empty">

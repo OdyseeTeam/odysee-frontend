@@ -2,16 +2,22 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import React from 'react';
 import MembershipBadge from 'component/membershipBadge';
 import twemoji from 'twemoji';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { formatLbryChannelName } from 'util/url';
+import { getClaimTitle, getChannelIdFromClaim } from 'util/claim';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
 type Props = {
-  claimLabel?: string;
-  claimTitle?: string;
   emote?: any;
   uri?: string;
   emoji?: string;
-  odyseeMembership: string | null | undefined;
 };
 export default function TextareaSuggestionsItem(props: Props) {
-  const { claimLabel, claimTitle, emote, uri, odyseeMembership, ...autocompleteProps } = props;
+  const { emote, uri, ...autocompleteProps } = props;
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));
+  const claimLabel = claim ? formatLbryChannelName(claim.canonical_url) : undefined;
+  const claimTitle = claim ? getClaimTitle(claim) : undefined;
 
   const Twemoji = ({ emoji }) => (
     <span

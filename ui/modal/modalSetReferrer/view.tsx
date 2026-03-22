@@ -1,93 +1,79 @@
-import * as React from 'react';
+import React, { useState, useCallback } from 'react';
 import { FormField, Form } from 'component/common/form';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import Card from 'component/common/card';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectSetReferrerError, selectSetReferrerPending } from 'redux/selectors/user';
+import { doHideModal } from 'redux/actions/app';
+import { doUserSetReferrerForUri, doUserSetReferrerReset } from 'redux/actions/user';
+
 type Props = {
-  closeModal: () => void;
-  error: string | null | undefined;
   rewardIsPending: boolean;
-  doUserSetReferrerForUri: (referrerUri: string) => void;
-  referrerSetPending: boolean;
-  referrerSetError?: string;
-  resetReferrerError: () => void;
-};
-type State = {
-  referrer: string;
 };
 
-class ModalSetReferrer extends React.PureComponent<Props, State> {
-  constructor() {
-    super();
-    this.state = {
-      referrer: '',
-    };
-    (this as any).handleSubmit = this.handleSubmit.bind(this);
-    (this as any).handleClose = this.handleClose.bind(this);
-    (this as any).handleTextChange = this.handleTextChange.bind(this);
-  }
+function ModalSetReferrer(props: Props) {
+  const { rewardIsPending } = props;
+  const dispatch = useAppDispatch();
+  const referrerSetPending = useAppSelector(selectSetReferrerPending);
+  const referrerSetError = useAppSelector(selectSetReferrerError);
 
-  handleSubmit() {
-    const { referrer } = this.state;
-    const { doUserSetReferrerForUri } = this.props;
-    doUserSetReferrerForUri(referrer);
-  }
+  const [referrer, setReferrer] = useState('');
 
-  handleClose() {
-    const { referrerSetError, resetReferrerError, closeModal } = this.props;
+  const closeModal = () => dispatch(doHideModal());
 
+  const handleSubmit = useCallback(() => {
+    dispatch(doUserSetReferrerForUri(referrer));
+  }, [dispatch, referrer]);
+
+  const handleClose = useCallback(() => {
     if (referrerSetError) {
-      resetReferrerError();
+      dispatch(doUserSetReferrerReset());
     }
-
     closeModal();
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referrerSetError, dispatch]);
 
-  handleTextChange(e: React.SyntheticEvent<any>) {
-    const { referrerSetError, resetReferrerError } = this.props;
-    this.setState({
-      referrer: e.target.value,
-    });
+  const handleTextChange = useCallback(
+    (e: React.SyntheticEvent<any>) => {
+      setReferrer((e.target as HTMLInputElement).value);
+      if (referrerSetError) {
+        dispatch(doUserSetReferrerReset());
+      }
+    },
+    [referrerSetError, dispatch]
+  );
 
-    if (referrerSetError) {
-      resetReferrerError();
-    }
-  }
-
-  render() {
-    const { closeModal, rewardIsPending, referrerSetError, referrerSetPending } = this.props;
-    const { referrer } = this.state;
-    return (
-      <Modal isOpen contentLabel={__('Enter inviter')} type="card" onAborted={closeModal}>
-        <Card
-          title={__('Enter inviter')}
-          subtitle={<React.Fragment>{__('Did someone invite you to use Odysee? Tell us who!')}</React.Fragment>}
-          actions={
-            <React.Fragment>
-              <Form onSubmit={this.handleSubmit}>
-                <FormField
-                  autoFocus
-                  type="text"
-                  name="referrer-code"
-                  inputButton={
-                    <Button button="primary" type="submit" disabled={!referrer || rewardIsPending} label={__('Set')} />
-                  }
-                  label={__('Code or channel')}
-                  placeholder="0123abc"
-                  value={referrer}
-                  onChange={this.handleTextChange}
-                  error={!referrerSetPending && referrerSetError}
-                />
-              </Form>
-              <div className="card__actions">
-                <Button button="primary" label={__('Done')} onClick={this.handleClose} />
-              </div>
-            </React.Fragment>
-          }
-        />
-      </Modal>
-    );
-  }
+  return (
+    <Modal isOpen contentLabel={__('Enter inviter')} type="card" onAborted={closeModal}>
+      <Card
+        title={__('Enter inviter')}
+        subtitle={<React.Fragment>{__('Did someone invite you to use Odysee? Tell us who!')}</React.Fragment>}
+        actions={
+          <React.Fragment>
+            <Form onSubmit={handleSubmit}>
+              <FormField
+                autoFocus
+                type="text"
+                name="referrer-code"
+                inputButton={
+                  <Button button="primary" type="submit" disabled={!referrer || rewardIsPending} label={__('Set')} />
+                }
+                label={__('Code or channel')}
+                placeholder="0123abc"
+                value={referrer}
+                onChange={handleTextChange}
+                error={!referrerSetPending && referrerSetError}
+              />
+            </Form>
+            <div className="card__actions">
+              <Button button="primary" label={__('Done')} onClick={handleClose} />
+            </div>
+          </React.Fragment>
+        }
+      />
+    </Modal>
+  );
 }
 
 export default ModalSetReferrer;

@@ -13,65 +13,53 @@ import SettingWalletServer from 'component/settingWalletServer';
 import Spinner from 'component/spinner';
 import { getPasswordFromCookie } from 'util/saved-passwords';
 import * as MODALS from 'constants/modal_types';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doWalletStatus } from 'redux/actions/wallet';
+import { selectWalletIsEncrypted } from 'redux/selectors/wallet';
+import {
+  doOpenModal,
+  doClearCache,
+  doNotifyDecryptWallet,
+  doNotifyEncryptWallet,
+  doNotifyForgetPassword,
+  doToggle3PAnalytics,
+} from 'redux/actions/app';
+import { doSetDaemonSetting, doClearDaemonSetting, doFindFFmpeg } from 'redux/actions/settings';
+import { selectAllowAnalytics } from 'redux/selectors/app';
+import { selectDaemonSettings, selectFfmpegStatus, selectFindingFFmpeg } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+
 // @if TARGET='app'
 const IS_MAC = process.platform === 'darwin';
 // @endif
+
 type Price = {
   currency: string;
   amount: number;
 };
 type SetDaemonSettingArg = boolean | string | number | Price;
-type DaemonSettings = {
-  download_dir: string;
-  share_usage_data: boolean;
-  max_key_fee?: Price;
-  max_connections_per_download?: number;
-  save_files: boolean;
-  save_blobs: boolean;
-  ffmpeg_path: string;
-};
-type Props = {
-  // --- select ---
-  daemonSettings: DaemonSettings;
-  ffmpegStatus: {
-    available: boolean;
-    which: string;
-  };
-  findingFFmpeg: boolean;
-  walletEncrypted: boolean;
-  isAuthenticated: boolean;
-  allowAnalytics: boolean;
-  // --- perform ---
-  setDaemonSetting: (arg0: string, arg1: SetDaemonSettingArg | null | undefined) => void;
-  clearDaemonSetting: (arg0: string) => void;
-  clearCache: () => Promise<any>;
-  findFFmpeg: () => void;
-  encryptWallet: () => void;
-  decryptWallet: () => void;
-  updateWalletStatus: () => void;
-  confirmForgetPassword: (arg0: {}) => void;
-  toggle3PAnalytics: (arg0: boolean) => void;
-  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
-};
-export default function SettingSystem(props: Props) {
-  const {
-    daemonSettings,
-    ffmpegStatus,
-    findingFFmpeg,
-    walletEncrypted,
-    isAuthenticated,
-    allowAnalytics,
-    setDaemonSetting,
-    clearDaemonSetting,
-    clearCache,
-    findFFmpeg,
-    encryptWallet,
-    decryptWallet,
-    updateWalletStatus,
-    confirmForgetPassword,
-    toggle3PAnalytics,
-    doOpenModal,
-  } = props;
+
+export default function SettingSystem() {
+  const dispatch = useAppDispatch();
+
+  const daemonSettings = useAppSelector(selectDaemonSettings);
+  const ffmpegStatus = useAppSelector(selectFfmpegStatus);
+  const findingFFmpeg = useAppSelector(selectFindingFFmpeg);
+  const walletEncrypted = useAppSelector(selectWalletIsEncrypted);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const allowAnalytics = useAppSelector(selectAllowAnalytics);
+
+  const setDaemonSetting = (key: string, value: SetDaemonSettingArg | null | undefined) =>
+    dispatch(doSetDaemonSetting(key, value));
+  const clearDaemonSetting = (key: string) => dispatch(doClearDaemonSetting(key));
+  const clearCache = () => dispatch(doClearCache());
+  const findFFmpeg = () => dispatch(doFindFFmpeg());
+  const encryptWallet = () => dispatch(doNotifyEncryptWallet());
+  const decryptWallet = () => dispatch(doNotifyDecryptWallet());
+  const updateWalletStatus = () => dispatch(doWalletStatus());
+  const confirmForgetPassword = (modalProps: {}) => dispatch(doNotifyForgetPassword(modalProps));
+  const toggle3PAnalytics = (allow: boolean) => dispatch(doToggle3PAnalytics(allow));
+
   const [clearingCache, setClearingCache] = React.useState(false);
   const [storedPassword, setStoredPassword] = React.useState(false);
   // @if TARGET='app'
@@ -406,7 +394,7 @@ export default function SettingSystem(props: Props) {
                 icon={ALERT}
                 label={__('Delete Account')}
                 onClick={() => {
-                  doOpenModal(MODALS.ACCOUNT_DELETE);
+                  dispatch(doOpenModal(MODALS.ACCOUNT_DELETE));
                 }}
               />
             </SettingsRow>

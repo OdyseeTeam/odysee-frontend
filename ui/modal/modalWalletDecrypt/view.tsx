@@ -1,61 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import { deleteAuthToken } from 'util/saved-passwords';
-type Props = {
-  closeModal: () => void;
-  decryptWallet: () => void;
-  updateWalletStatus: () => void;
-  walletDecryptSucceded: boolean;
-};
-type State = {
-  submitted: boolean;
-};
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectWalletDecryptSucceeded } from 'redux/selectors/wallet';
+import { doHideModal } from 'redux/actions/app';
+import { doWalletDecrypt, doWalletStatus } from 'redux/actions/wallet';
 
-class ModalWalletDecrypt extends React.PureComponent<Props, State> {
-  state = {
-    submitted: false, // Prior actions could be marked complete
-  };
+function ModalWalletDecrypt() {
+  const dispatch = useAppDispatch();
+  const walletDecryptSucceded = useAppSelector(selectWalletDecryptSucceeded);
+  const [submitted, setSubmitted] = useState(false);
 
-  componentDidUpdate() {
-    const { props, state } = this;
+  const closeModal = () => dispatch(doHideModal());
 
-    if (state.submitted && props.walletDecryptSucceded) {
+  useEffect(() => {
+    if (submitted && walletDecryptSucceded) {
       deleteAuthToken();
-      props.closeModal();
-      props.updateWalletStatus();
+      closeModal();
+      dispatch(doWalletStatus());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitted, walletDecryptSucceded]);
+
+  function submitDecryptForm() {
+    setSubmitted(true);
+    dispatch(doWalletDecrypt());
   }
 
-  submitDecryptForm() {
-    this.setState({
-      submitted: true,
-    });
-    this.props.decryptWallet();
-  }
-
-  render() {
-    const { closeModal } = this.props;
-    return (
-      <Modal
-        isOpen
-        title={__('Decrypt wallet')}
-        contentLabel={__('Decrypt wallet')}
-        type="confirm"
-        confirmButtonLabel={__('Decrypt wallet')}
-        abortButtonLabel={__('Cancel')}
-        onConfirmed={() => this.submitDecryptForm()}
-        onAborted={closeModal}
-      >
-        <p>
-          {__(
-            'Your wallet has been encrypted with a local password, performing this action will remove this password.'
-          )}{' '}
-          <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/wallet-encryption" />.
-        </p>
-      </Modal>
-    );
-  }
+  return (
+    <Modal
+      isOpen
+      title={__('Decrypt wallet')}
+      contentLabel={__('Decrypt wallet')}
+      type="confirm"
+      confirmButtonLabel={__('Decrypt wallet')}
+      abortButtonLabel={__('Cancel')}
+      onConfirmed={() => submitDecryptForm()}
+      onAborted={closeModal}
+    >
+      <p>
+        {__('Your wallet has been encrypted with a local password, performing this action will remove this password.')}{' '}
+        <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/wallet-encryption" />.
+      </p>
+    </Modal>
+  );
 }
 
 export default ModalWalletDecrypt;

@@ -3,31 +3,44 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
 import classnames from 'classnames';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doCollectionEdit } from 'redux/actions/collections';
+import { selectIndexForUrlInCollectionForId, selectUrlsForCollectionId } from 'redux/selectors/collections';
+
 type Props = {
-  collectionIndex?: number;
+  uri?: string;
+  collectionId?: string;
   altIndex?: number;
   altCollection?: any;
-  collectionUris: Array<Collection>;
   dragHandleProps?: any;
-  uri: string;
   isEditPreview?: boolean;
-  editCollection: (arg0: CollectionEditParams) => void;
-  altEditCollection: (arg0: CollectionEditParams) => void;
+  altEditCollection?: (arg0: CollectionEditParams) => void;
   doDisablePlayerDrag?: (disable: boolean) => void;
 };
+
 export default function CollectionButtons(props: Props) {
   const {
-    collectionIndex: foundIndex,
+    uri,
+    collectionId,
     altIndex,
     altCollection,
-    collectionUris,
     dragHandleProps,
-    uri,
     isEditPreview,
-    editCollection,
     altEditCollection,
     doDisablePlayerDrag,
   } = props;
+  const dispatch = useAppDispatch();
+  const foundIndex = useAppSelector((state) =>
+    collectionId && uri ? selectIndexForUrlInCollectionForId(state, collectionId, uri) : undefined
+  );
+  const collectionUris = useAppSelector((state) =>
+    collectionId ? selectUrlsForCollectionId(state, collectionId) : undefined
+  );
+
+  const editCollection = (params: CollectionEditParams) => {
+    if (collectionId) dispatch(doCollectionEdit(collectionId, params));
+  };
+
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const lastCollectionIndex = collectionUris
     ? collectionUris.length - 1
@@ -148,13 +161,13 @@ export default function CollectionButtons(props: Props) {
             title={__('Remove')}
             icon={ICONS.DELETE}
             onClick={() => {
-              if (!altCollection) {
+              if (!altCollection && uri) {
                 editCollection({
                   uris: [uri],
                   remove: true,
                   isPreview: isEditPreview,
                 });
-              } else {
+              } else if (altCollection) {
                 altEditCollection({
                   delete: {
                     index: collectionIndex,

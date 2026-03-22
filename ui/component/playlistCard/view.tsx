@@ -23,38 +23,76 @@ import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import { getLocalizedNameForCollectionId } from 'util/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectChannelNameForId,
+  selectThumbnailForUri,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
+import {
+  selectUrlsForCollectionId,
+  selectCollectionTitleForId,
+  selectCollectionIsMine,
+  selectIsCollectionPrivateForId,
+  selectIndexForUrlInCollectionForId,
+  selectCollectionLengthForId,
+  selectCollectionIsEmptyForId,
+  selectCollectionForId,
+  selectCollectionSavedForId,
+  selectCollectionHasEditsForId,
+} from 'redux/selectors/collections';
+import { selectPlayingUri } from 'redux/selectors/content';
+import {
+  doCollectionEdit as doCollectionEditAction,
+  doClearQueueList as doClearQueueListAction,
+  doToggleCollectionSavedForId as doToggleCollectionSavedForIdAction,
+} from 'redux/actions/collections';
+import { doClearPlayingCollection as doClearPlayingCollectionAction } from 'redux/actions/content';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import './style.lazy.scss';
 type Props = {
   id: string;
-  playingItemUrl: string;
-  playingCurrentPlaylist: boolean;
-  isMyCollection: boolean;
-  collectionUrls: Array<Claim>;
-  collectionName: string;
-  isPrivateCollection: boolean;
-  hasEdits: boolean;
-  publishedCollectionName: string | boolean;
-  playingItemIndex: number | null | undefined;
-  collectionLength: number;
   disableClickNavigation?: boolean;
   useDrawer?: boolean;
-  collectionEmpty: boolean;
-  hasCollectionById: boolean;
   isFloating?: boolean;
-  playingCollectionId: string | null | undefined;
-  collectionSavedForId: boolean;
-  createUnpublishedCollection: (arg0: string, arg1: Array<any>, arg2: string | null | undefined) => void;
-  doCollectionEdit: (arg0: string, arg1: CollectionEditParams) => void;
   doDisablePlayerDrag?: (disable: boolean) => void;
-  doClearPlayingCollection: () => void;
-  doOpenModal: (id: string, props: {}) => void;
-  doClearQueueList: () => void;
-  doToggleCollectionSavedForId: (id: string) => void;
-  thumbnailFromClaim: string;
 };
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
-    props;
+  const { id: collectionId, useDrawer, isFloating, disableClickNavigation, doDisablePlayerDrag } = props;
+  const dispatch = useAppDispatch();
+  const {
+    uri: playingUri,
+    collection: { collectionId: playingCollectionId },
+  } = useAppSelector(selectPlayingUri);
+  const playingCurrentPlaylist = collectionId === playingCollectionId;
+  const playingClaim = useAppSelector((state) => selectClaimForUri(state, playingUri));
+  const playingItemUrl = playingCurrentPlaylist ? playingClaim?.permanent_url : undefined;
+  const claim = useAppSelector((state) => selectClaimForClaimId(state, collectionId));
+  const collectionUri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  const collectionUrls = useAppSelector((state) => selectUrlsForCollectionId(state, collectionId));
+  const collectionName = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const isPrivateCollection = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
+  const hasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const publishedCollectionName = useAppSelector((state) => selectChannelNameForId(state, collectionId));
+  const playingItemIndex = useAppSelector((state) =>
+    selectIndexForUrlInCollectionForId(state, playingCollectionId, playingItemUrl)
+  );
+  const collectionLength = useAppSelector((state) => selectCollectionLengthForId(state, collectionId));
+  const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const hasCollectionById =
+    collectionId && Boolean(useAppSelector((state) => selectCollectionForId(state, collectionId)));
+  const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, playingItemUrl || collectionUri));
+
+  const doCollectionEdit = (id: string, params: CollectionEditParams) => dispatch(doCollectionEditAction(id, params));
+  const doClearPlayingCollection = () => dispatch(doClearPlayingCollectionAction());
+  const doClearQueueList = () => dispatch(doClearQueueListAction());
+  const doOpenModal = (id: string, modalProps: {}) => dispatch(doOpenModalAction(id, modalProps));
+  const doToggleCollectionSavedForId = (id: string) => dispatch(doToggleCollectionSavedForIdAction(id));
+
+  const id = collectionId;
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
   if (!hasCollectionById) return null;
@@ -63,7 +101,29 @@ export default function PlaylistCard(props: Props) {
     showEdit,
     setShowEdit,
     currentIndexLabel,
-    ...props,
+    id,
+    playingItemUrl,
+    playingCurrentPlaylist,
+    collectionUrls,
+    collectionName,
+    isMyCollection,
+    isPrivateCollection,
+    hasEdits,
+    publishedCollectionName,
+    playingItemIndex,
+    collectionLength,
+    disableClickNavigation,
+    collectionEmpty,
+    isFloating,
+    playingCollectionId,
+    collectionSavedForId,
+    thumbnailFromClaim,
+    doCollectionEdit,
+    doDisablePlayerDrag,
+    doClearPlayingCollection,
+    doOpenModal,
+    doClearQueueList,
+    doToggleCollectionSavedForId,
   };
 
   if (useDrawer) {
@@ -97,12 +157,36 @@ export default function PlaylistCard(props: Props) {
   // returns the full card element
   return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
 }
-type PlaylistCardProps = Props & {
+type PlaylistCardProps = {
+  id: string;
+  playingItemUrl: string | undefined;
+  playingCurrentPlaylist: boolean;
+  isMyCollection: boolean;
+  collectionUrls: Array<Claim>;
+  collectionName: string;
+  isPrivateCollection: boolean;
+  hasEdits: boolean;
+  publishedCollectionName: string | boolean;
+  playingItemIndex: number | null | undefined;
+  collectionLength: number;
+  disableClickNavigation?: boolean;
+  collectionEmpty: boolean;
+  isFloating?: boolean;
+  playingCollectionId: string | null | undefined;
+  collectionSavedForId: boolean;
+  doCollectionEdit: (arg0: string, arg1: CollectionEditParams) => void;
+  doDisablePlayerDrag?: (disable: boolean) => void;
+  doClearPlayingCollection: () => void;
+  doOpenModal: (id: string, props: {}) => void;
+  doClearQueueList: () => void;
+  doToggleCollectionSavedForId: (id: string) => void;
+  thumbnailFromClaim: string;
   titleOnly?: boolean;
   bodyOnly?: boolean;
   showEdit: boolean;
   currentIndexLabel: string;
   setShowEdit: (show: boolean) => void;
+  className?: string;
 };
 
 const PlaylistCardComponent = (props: PlaylistCardProps) => {

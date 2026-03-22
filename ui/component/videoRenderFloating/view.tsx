@@ -39,6 +39,38 @@ import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import FloatingShortsActions from './internal/floatingShortsActions';
 import FloatingReactions from './internal/floatingReactions';
 import { useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
+import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import * as SETTINGS from 'constants/settings';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import {
+  selectIsPlayerFloating,
+  selectPrimaryUri,
+  selectPlayingUri,
+  makeSelectFileRenderModeForUri,
+  selectAutoplayCountdownUri,
+  selectCanViewFileForUri,
+} from 'redux/selectors/content';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doClearQueueList as doClearQueueListAction } from 'redux/actions/collections';
+import {
+  doClearPlayingUri as doClearPlayingUriAction,
+  doClearPlayingSource as doClearPlayingSourceAction,
+  doSetShowAutoplayCountdownForUri as doSetShowAutoplayCountdownForUriAction,
+  doSetPlayingUri as doSetPlayingUriAction,
+} from 'redux/actions/content';
+import { doFetchRecommendedContent as doFetchRecommendedContentAction } from 'redux/actions/search';
+import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
+import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'redux/selectors/livestream';
+import {
+  doCommentSocketConnect as doCommentSocketConnectAction,
+  doCommentSocketDisconnect as doCommentSocketDisconnectAction,
+} from 'redux/actions/websocket';
+import { getVideoClaimAspectRatio, isClaimShort as isClaimShortUtil } from 'util/claim';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectShortsSidePanelOpen, selectShortsPlaylist } from 'redux/selectors/shorts';
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
 const CONTENT_VIEWER_CLASS = 'content__viewer';
@@ -53,60 +85,12 @@ const PlaylistCard = lazyImport(
 // ****************************************************************************
 // ****************************************************************************
 type Props = {
-  claimId: string | null | undefined;
-  channelUrl: string | null | undefined;
-  channelTitle: string | null | undefined;
-  isFloating: boolean;
-  uri: string;
-  title: string | null | undefined;
-  floatingPlayerEnabled: boolean;
-  renderMode: string;
-  playingUri: PlayingUri;
-  primaryUri: string | null | undefined;
-  videoTheaterMode: boolean;
-  collectionId: string;
-  collectionSidebarId: string | null | undefined;
-  doFetchRecommendedContent: (uri: string) => void;
-  isCurrentClaimLive?: boolean;
-  videoAspectRatio: number;
-  socketConnection: {
-    connected: boolean | null | undefined;
-  };
-  appDrawerOpen: boolean;
-  playingCollection: Collection;
-  hasClaimInQueue: boolean;
-  mainPlayerDimensions: {
-    height: number;
-    width: number;
-  };
   location?: {
     search?: string;
     state?: {
       overrideFloating?: boolean;
     };
   };
-  contentUnlocked: boolean;
-  isAutoplayCountdown: boolean | null | undefined;
-  autoplayCountdownUri: string | null | undefined;
-  canViewFile: boolean | null | undefined;
-  doCommentSocketConnect: (
-    uri: string,
-    channelName: string,
-    claimId: string,
-    subCategory: string | null | undefined
-  ) => void;
-  doCommentSocketDisconnect: (arg0: string, arg1: string) => void;
-  doClearPlayingUri: () => void;
-  doClearQueueList: () => void;
-  doOpenModal: (id: string, arg1: {}) => void;
-  doClearPlayingSource: () => void;
-  doSetShowAutoplayCountdownForUri: (params: { uri: string | null | undefined; show: boolean }) => void;
-  sidePanelOpen: boolean;
-  isClaimShort?: boolean;
-  disableShortsView?: boolean;
-  shortsPlaylist: Array<string>;
-  autoPlayNextShort: boolean;
-  doSetPlayingUri: (arg0: PlayingUri) => void;
 };
 
 function isDraggingVideojsComponent(e) {
@@ -122,47 +106,70 @@ function isDraggingVideojsComponent(e) {
 }
 
 function VideoRenderFloating(props: Props) {
+  const { location } = props;
+  const dispatch = useAppDispatch();
+  const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
+  const urlParams = new URLSearchParams(routerSearch);
+  const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+  const isFloating = useAppSelector(selectIsPlayerFloating);
+  const autoplayCountdownUri = useAppSelector(selectAutoplayCountdownUri);
+  const playingUri = useAppSelector(selectPlayingUri);
   const {
-    claimId,
-    channelUrl,
-    channelTitle,
-    uri,
-    title,
-    isFloating,
-    floatingPlayerEnabled,
-    renderMode,
-    playingUri,
-    primaryUri,
-    videoTheaterMode,
-    collectionId,
-    collectionSidebarId,
-    socketConnection,
-    doFetchRecommendedContent,
-    isCurrentClaimLive,
-    videoAspectRatio,
-    appDrawerOpen,
-    playingCollection,
-    hasClaimInQueue,
-    mainPlayerDimensions,
-    location,
-    isAutoplayCountdown,
-    autoplayCountdownUri,
-    canViewFile,
-    doCommentSocketConnect,
-    doCommentSocketDisconnect,
-    doClearPlayingUri,
-    doClearQueueList,
-    doOpenModal,
-    doClearPlayingSource,
-    doSetShowAutoplayCountdownForUri,
-    sidePanelOpen,
-    contentUnlocked,
-    isClaimShort,
-    disableShortsView,
-    shortsPlaylist,
-    autoPlayNextShort,
-    doSetPlayingUri,
-  } = props;
+    collection: { collectionId },
+  } = playingUri;
+  const uri = (!playingUri.sourceId && playingUri.uri) || autoplayCountdownUri;
+  const claim = useAppSelector((state) => uri && selectClaimForUri(state, uri));
+  const { claim_id: claimId, signing_channel: channelClaim, permanent_url } = claim || {};
+  const { canonical_url: channelUrl } = channelClaim || {};
+  const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
+  const isInlinePlayer = Boolean(playingUri.source) && !isFloating;
+  const shortsPlaylist = useAppSelector(selectShortsPlaylist);
+  const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+  const primaryUri = useAppSelector(selectPrimaryUri);
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const channelTitleFromRedux = useAppSelector((state) =>
+    channelUrl ? selectTitleForUri(state, channelUrl) : undefined
+  );
+  const channelTitle = channelTitleFromRedux || channelClaim?.name;
+  const floatingPlayerSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER));
+  const floatingPlayerEnabled = playingFromQueue || isInlinePlayer || floatingPlayerSetting;
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const playingCollection = useAppSelector((state) => selectCollectionForId(state, collectionId));
+  const isCurrentClaimLive = useAppSelector((state) => selectIsActiveLivestreamForUri(state, uri));
+  const videoAspectRatio = getVideoClaimAspectRatio(claim);
+  const socketConnection = useAppSelector((state) => selectSocketConnectionForId(state, claimId));
+  const appDrawerOpen = useAppSelector(selectHasAppDrawerOpen);
+  const hasClaimInQueue = useAppSelector((state) =>
+    permanent_url ? selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url) : false
+  );
+  const mainPlayerDimensions = useAppSelector(selectMainPlayerDimensions);
+  const contentUnlocked = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : false
+  );
+  const isAutoplayCountdown = !playingUri.uri && autoplayCountdownUri;
+  const canViewFile = useAppSelector((state) => selectCanViewFileForUri(state, uri));
+  const sidePanelOpen = useAppSelector(selectShortsSidePanelOpen);
+  const isClaimShort = typeof playingUri.isShort === 'boolean' ? playingUri.isShort : isClaimShortUtil(claim);
+  const disableShortsViewSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+  const disableShortsView = !!collectionSidebarId || disableShortsViewSetting;
+
+  const doFetchRecommendedContent = (recUri: string) => dispatch(doFetchRecommendedContentAction(recUri));
+  const doSetShowAutoplayCountdownForUri = (params: { uri: string | null | undefined; show: boolean }) =>
+    dispatch(doSetShowAutoplayCountdownForUriAction(params));
+  const doCommentSocketConnect = (
+    socketUri: string,
+    channelName: string,
+    socketClaimId: string,
+    subCategory: string | null | undefined
+  ) => dispatch(doCommentSocketConnectAction(socketUri, channelName, socketClaimId, subCategory));
+  const doCommentSocketDisconnect = (socketClaimId: string, channelName: string) =>
+    dispatch(doCommentSocketDisconnectAction(socketClaimId, channelName));
+  const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
+  const doClearQueueList = () => dispatch(doClearQueueListAction());
+  const doOpenModal = (id: string, arg1: {}) => dispatch(doOpenModalAction(id, arg1));
+  const doClearPlayingSource = () => dispatch(doClearPlayingSourceAction());
+  const doSetPlayingUri = (arg0: PlayingUri) => dispatch(doSetPlayingUriAction(arg0));
   const routeLocation = useLocation();
   const currentLocation = location || routeLocation;
   const { state } = currentLocation || {};

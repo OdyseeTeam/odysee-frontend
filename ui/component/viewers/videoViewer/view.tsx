@@ -1,7 +1,4 @@
-import { ENABLE_PREROLL_ADS } from 'config';
 import { ERR_GRP } from 'constants/errors';
-import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
 import { VJS_EVENTS } from 'constants/player';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import * as Chapters from './internal/chapters';
@@ -17,14 +14,9 @@ import useAutoplayNext from './internal/effects/use-autoplay-next';
 import useTheaterMode from './internal/effects/use-theater-mode';
 import { addPlayNextButton } from './internal/play-next';
 import { addPlayPreviousButton } from './internal/play-previous';
-import { useGetAds } from 'effects/use-get-ads';
-import Button from 'component/button';
-import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
 import { useLocation } from 'react-router-dom';
-import { getAllIds } from 'util/buildHomepage';
-import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
@@ -78,7 +70,6 @@ type Props = {
   authenticated: boolean;
   userId: number;
   internalFeature: boolean;
-  homepageData?: Record<string, HomepageCat>;
   shareTelemetry: boolean;
   doPlayNextUri: (params: { uri: string }) => void;
   collectionId: string;
@@ -135,7 +126,6 @@ function VideoViewer(props: Props) {
     toggleVideoTheaterMode,
     toggleAutoplayNext,
     setVideoPlaybackRate,
-    homepageData,
     authenticated,
     userId,
     internalFeature,
@@ -169,14 +159,12 @@ function VideoViewer(props: Props) {
   const promoteDqSetting = React.useRef<boolean>(!dqSettingPromoted && !dqSettingUsedBefore);
   const canPlayNext = Boolean(playNextUri || shouldPlayRecommended);
   const canPlayPrevious = Boolean(playPreviousUri);
-  const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
-  const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
   const channelTitle =
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
-  const { pathname, search } = useLocation();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
   const [playerControlBar, setControlBar] = useState();
@@ -186,9 +174,6 @@ function VideoViewer(props: Props) {
   const embedContext = useContext(EmbedContext);
   const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
-  const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
-  const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
-  const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
 
   /* isLoading was designed to show loading screen on first play press, rather than completely black screen, but
   breaks because some browsers (e.g. Firefox) block autoplay but leave the player.play Promise pending */
@@ -306,7 +291,6 @@ function VideoViewer(props: Props) {
   const onVideoEnded = React.useCallback(() => {
     videoEnded.current = true;
     analytics.video.videoIsPlaying(false);
-    if (adUrl) return setAdUrl(null);
 
     if (embedContext) {
       embedContext.setVideoEnded(true);
@@ -324,7 +308,7 @@ function VideoViewer(props: Props) {
       // show play button on ios if video is paused with no autoplay on
       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
-  }, [adUrl, canPlayNext, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
+  }, [canPlayNext, autoplayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
   React.useEffect(() => {
     if (playerElem) {
       playerElem.off('ended');
@@ -377,7 +361,7 @@ function VideoViewer(props: Props) {
     }
   }
 
-  const playerReadyDependencyList = [muted, uri, adUrl, isEmbedded, autoplayIfEmbedded];
+  const playerReadyDependencyList = [muted, uri, isEmbedded, autoplayIfEmbedded];
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
     // add buttons and initialize some settings for the player
     setVideoNode(videoNode);
@@ -587,40 +571,9 @@ function VideoViewer(props: Props) {
           </div>
         )}
 
-        {!isFetchingAd && adUrl && (
-          <>
-            <span className="ads__video-notify">
-              {__('Advertisement')}{' '}
-              <Button
-                className="ads__video-close"
-                icon={ICONS.REMOVE}
-                title={__('Close')}
-                onClick={() => setAdUrl(null)}
-              />
-            </span>
-            <span className="ads__video-nudge">
-              <I18nMessage
-                tokens={{
-                  sign_up: (
-                    <Button
-                      button="secondary"
-                      className="ads__video-link"
-                      label={__('Sign Up')}
-                      navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`}
-                    />
-                  ),
-                }}
-              >
-                %sign_up% to turn ads off.
-              </I18nMessage>
-            </span>
-          </>
-        )}
-
         <VideoJs
-          adUrl={adUrl}
-          source={adUrl || source}
-          sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
+          source={source}
+          sourceType={forcePlayer ? 'video/mp4' : contentType}
           isAudio={isAudio}
           poster={isAudio ? thumbnail : ''}
           onPlayerReady={onPlayerReady}
@@ -630,7 +583,6 @@ function VideoViewer(props: Props) {
           title={claim && ((claim.value && claim.value.title) || claim.name)}
           channelTitle={channelTitle}
           userId={userId}
-          allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
           internalFeatureEnabled={internalFeature}
           shareTelemetry={shareTelemetry}
           playNext={handlePlayNextUri}

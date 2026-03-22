@@ -20,12 +20,16 @@ import {
   DISABLE_SLIMES_COMMENTS_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUnfollowedTags, selectFollowedTags } from 'redux/selectors/tags';
+import {
+  doToggleTagFollowDesktop as doToggleTagFollowDesktopAction,
+  doAddTag as doAddTagAction,
+} from 'redux/actions/tags';
 type Props = {
   tagsPassedIn: Array<Tag>;
-  unfollowedTags: Array<Tag>;
-  followedTags: Array<Tag>;
-  doToggleTagFollowDesktop: (arg0: string) => void;
-  doAddTag: (arg0: string) => void;
+  unfollowedTags?: Array<Tag>;
+  followedTags?: Array<Tag>;
   onSelect?: (arg0: Tag) => void;
   hideSuggestions?: boolean;
   hideInputField?: boolean;
@@ -39,7 +43,6 @@ type Props = {
   disabled?: boolean;
   limitSelect?: number;
   limitShow?: number;
-  user: User;
   disableControlTags?: boolean;
   help?: string;
   excludedControlTags?: Array<string>;
@@ -66,10 +69,8 @@ export default function TagsSearch(props: Props) {
   const TAG_FOLLOW_MAX = 1000;
   const {
     tagsPassedIn = [],
-    unfollowedTags = [],
-    followedTags = [],
-    doToggleTagFollowDesktop,
-    doAddTag,
+    unfollowedTags: unfollowedTagsProp,
+    followedTags: followedTagsProp,
     onSelect,
     onRemove,
     hideSuggestions,
@@ -87,6 +88,13 @@ export default function TagsSearch(props: Props) {
     help,
     excludedControlTags = [],
   } = props;
+  const dispatch = useAppDispatch();
+  const reduxUnfollowedTags = useAppSelector(selectUnfollowedTags);
+  const reduxFollowedTags = useAppSelector(selectFollowedTags);
+  const unfollowedTags = unfollowedTagsProp || reduxUnfollowedTags || [];
+  const followedTags = followedTagsProp || reduxFollowedTags || [];
+  const doToggleTagFollowDesktop = (tag: string) => dispatch(doToggleTagFollowDesktopAction(tag));
+  const doAddTag = (tag: string) => dispatch(doAddTagAction(tag));
   const [newTag, setNewTag] = useState('');
 
   const doesTagMatch = (name) => {

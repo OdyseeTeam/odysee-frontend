@@ -5,6 +5,17 @@ import I18nMessage from 'component/i18nMessage';
 import * as ICONS from 'constants/icons';
 import ServerInputRow from './internal/inputRow';
 import { stringifyServerParam } from 'util/sync-settings';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectIsWalletReconnecting } from 'redux/selectors/wallet';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import {
+  doSetDaemonSetting,
+  doClearDaemonSetting,
+  doGetDaemonStatus,
+  doSaveCustomWalletServers,
+} from 'redux/actions/settings';
+import { selectSavedWalletServers, selectDaemonStatus, selectHasWalletServerPrefs } from 'redux/selectors/settings';
+
 type StatusOfServer = {
   host: string;
   port: string;
@@ -15,31 +26,20 @@ type ServerTuple = [string, string]; // ['host', 'port']
 
 type ServerStatus = Array<StatusOfServer>;
 type ServerConfig = Array<ServerTuple>;
-type DaemonStatus = {
-  wallet: any;
-};
-type Props = {
-  getDaemonStatus: () => void;
-  setCustomWalletServers: (arg0: any) => void;
-  clearWalletServers: () => void;
-  customWalletServers: ServerConfig;
-  saveServerConfig: (arg0: Array<ServerTuple>) => void;
-  hasWalletServerPrefs: boolean;
-  daemonStatus: DaemonStatus;
-  walletReconnecting: boolean;
-};
 
-function SettingWalletServer(props: Props) {
-  const {
-    daemonStatus,
-    setCustomWalletServers,
-    getDaemonStatus,
-    clearWalletServers,
-    saveServerConfig,
-    customWalletServers,
-    hasWalletServerPrefs,
-    walletReconnecting,
-  } = props;
+function SettingWalletServer() {
+  const dispatch = useAppDispatch();
+
+  const daemonStatus = useAppSelector(selectDaemonStatus);
+  const customWalletServers: ServerConfig = useAppSelector(selectSavedWalletServers);
+  const hasWalletServerPrefs = useAppSelector(selectHasWalletServerPrefs);
+  const walletReconnecting = useAppSelector(selectIsWalletReconnecting);
+
+  const setCustomWalletServers = (value: any) => dispatch(doSetDaemonSetting(DAEMON_SETTINGS.LBRYUM_SERVERS, value));
+  const clearWalletServers = () => dispatch(doClearDaemonSetting(DAEMON_SETTINGS.LBRYUM_SERVERS));
+  const getDaemonStatus = () => dispatch(doGetDaemonStatus());
+  const saveServerConfig = (servers: Array<ServerTuple>) => dispatch(doSaveCustomWalletServers(servers));
+
   const [advancedMode, setAdvancedMode] = useState(false);
   const walletStatus = daemonStatus && daemonStatus.wallet;
   const activeWalletServers: ServerStatus = (walletStatus && walletStatus.servers) || [];

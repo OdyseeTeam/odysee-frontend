@@ -2,34 +2,33 @@ import React from 'react';
 // @ts-ignore
 import { WanderConnect } from '@wanderapp/connect';
 import { LocalStorage } from 'util/storage';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  doArInit as doArInitAction,
+  doArConnect,
+  doArSetAuth as doArSetAuthAction,
+  doArUpdateBalance as doArUpdateBalanceAction,
+  doCleanTips as doCleanTipsAction,
+} from 'redux/actions/arwallet';
+import { selectArweaveWanderAuth, selectArweaveAddress, selectArweaveConnecting } from 'redux/selectors/arwallet';
+import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
+import { selectTheme } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import './style.scss';
-type Props = {
-  arweaveAddress: string;
-  connecting: boolean;
-  theme: string;
-  auth: any;
-  authenticated: any;
-  addressInUse: boolean;
-  doArInit: () => void;
-  connectArWallet: () => void;
-  doArSetAuth: (status: string) => void;
-  doArUpdateBalance: () => void;
-  doCleanTips: () => void;
-};
+type Props = {};
 export default function Wander(props: Props) {
-  const {
-    theme,
-    auth,
-    authenticated,
-    addressInUse,
-    doArInit,
-    doArSetAuth,
-    connecting,
-    connectArWallet,
-    arweaveAddress,
-    doArUpdateBalance,
-    doCleanTips,
-  } = props;
+  const dispatch = useAppDispatch();
+  const arweaveAddress = useAppSelector(selectArweaveAddress);
+  const connecting = useAppSelector(selectArweaveConnecting);
+  const theme = useAppSelector(selectTheme);
+  const auth = useAppSelector(selectArweaveWanderAuth);
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const addressInUse = useAppSelector(selectArAccountRegisteringError) === 'address already exists for another user';
+  const doArInit = () => dispatch(doArInitAction());
+  const connectArWallet = () => dispatch(doArConnect());
+  const doArSetAuth = (status: any) => dispatch(doArSetAuthAction(status));
+  const doArUpdateBalance = () => dispatch(doArUpdateBalanceAction());
+  const doCleanTips = () => dispatch(doCleanTipsAction());
   const [instance, setInstance] = React.useState(null);
   const loginTimerRef = React.useRef(null);
   const wrapperRef = React.useRef();

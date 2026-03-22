@@ -5,7 +5,7 @@ import process from 'node:process';
 const isWindows = process.platform === 'win32';
 const projectRoot = process.cwd();
 const vitePlusEntry = path.resolve(projectRoot, 'node_modules/vite-plus/bin/vp');
-const nodemonEntry = path.resolve(projectRoot, 'web/node_modules/nodemon/bin/nodemon.js');
+const webServerEntry = path.resolve(projectRoot, 'web/index.js');
 const liveChildren = new Set();
 let shuttingDown = false;
 let exitCode = 0;
@@ -16,8 +16,8 @@ function describeExit(name, code, signal) {
   return `${name} exited with code ${code ?? 0}`;
 }
 
-function spawnNodeProcess(name, entryFile, args, cwd) {
-  const child = spawn(process.execPath, [entryFile, ...args], {
+function spawnNodeProcess(name, entryFile, args, cwd, nodeArgs = []) {
+  const child = spawn(process.execPath, [...nodeArgs, entryFile, ...args], {
     cwd,
     stdio: ['ignore', 'inherit', 'inherit'],
     env: {
@@ -106,7 +106,7 @@ async function shutdown(reason, signal = 'SIGTERM') {
 }
 
 spawnNodeProcess('vite-watch', vitePlusEntry, ['build', '--watch'], projectRoot);
-spawnNodeProcess('web-server', nodemonEntry, ['--inspect', 'index.js'], path.resolve(projectRoot, 'web'));
+spawnNodeProcess('web-server', webServerEntry, [], path.resolve(projectRoot, 'web'), ['--watch', '--inspect']);
 
 process.on('SIGINT', () => {
   exitCode = 0;

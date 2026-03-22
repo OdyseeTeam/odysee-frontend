@@ -6,7 +6,7 @@
   "type": "commonjs",
   "main": "./index.js",
   "scripts": {
-    "dev:server": "nodemon --inspect index.js",
+    "dev:server": "node --watch --inspect index.js",
     "check:farcaster": "node ./src/tools/check-farcaster.js"
   },
   "dependencies": {
@@ -20,7 +20,6 @@
     "koa-static": "^5.0.0",
     "mime-types": "^3.0.2",
     "mysql": "^2.17.1",
-    "nodemon": "^2.0.15",
     "remove-markdown": "^0.3.0",
     "ua-parser-js": "^0.7.28",
     "uuid": "^8.3.0"

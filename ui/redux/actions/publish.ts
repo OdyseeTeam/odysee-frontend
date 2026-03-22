@@ -29,7 +29,7 @@ import {
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
-import { push } from 'redux/router';
+import { navigateTo } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
@@ -110,9 +110,6 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
       const { permanent_url: url } = pendingClaim;
       const actions = [];
-      // @if TARGET='app'
-      actions.push(push(`/$/${PAGES.UPLOADS}`));
-      // @endif
       actions.push({
         type: ACTIONS.PUBLISH_SUCCESS,
         data: {
@@ -143,6 +140,9 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       });
       // @endif
       dispatch(batchActions(...actions));
+      // @if TARGET='app'
+      navigateTo(`/$/${PAGES.UPLOADS}`);
+      // @endif
       dispatch(
         doOpenModal(MODALS.PUBLISH, {
           uri: url,
@@ -159,7 +159,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       // @if TARGET='web'
       if (redirectToLivestream) {
         dispatch(doClearPublish());
-        dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+        navigateTo(`/$/${PAGES.LIVESTREAM}`);
       } // @endif
     };
 
@@ -197,7 +197,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
     // from the SDK
     // @if TARGET='web'
     if (!redirectToLivestream) {
-      dispatch(push(`/$/${PAGES.UPLOADS}`));
+      navigateTo(`/$/${PAGES.UPLOADS}`);
     }
 
     // @endif
@@ -298,10 +298,10 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
     });
 
     if (customPath) {
-      dispatch(push(customPath));
+      navigateTo(customPath);
     } else {
       const path = PUBLISH_PATH_MAP[type] || PUBLISH_PATH_MAP.file;
-      dispatch(push(`/$/${path}`));
+      navigateTo(`/$/${path}`);
     }
   };
 };
@@ -820,7 +820,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       type: ACTIONS.DO_PREPARE_EDIT,
       data: publishData,
     });
-    dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));
+    navigateTo(`/$/${PUBLISH_PATH_MAP[type]}`);
   };
 };
 // ---------------------------------------------------------------------------

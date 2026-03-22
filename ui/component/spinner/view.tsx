@@ -1,91 +1,60 @@
-import React, { PureComponent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import { DARK_THEME, LIGHT_THEME } from 'constants/themes';
+import { useAppSelector } from 'redux/hooks';
+import { selectTheme } from 'redux/selectors/settings';
+
 type Props = {
   dark?: boolean;
-  // always a dark spinner
   light?: boolean;
-  // always a light spinner
-  theme?: string;
-  type: string | null | undefined;
-  delayed: boolean;
+  type?: string | null;
+  delayed?: boolean;
   text?: any;
 };
-type State = {
-  show: boolean;
-};
 
-class Spinner extends PureComponent<Props, State> {
-  static defaultProps = {
-    // We may want a dark/light spinner regardless of the current theme
-    dark: false,
-    light: false,
-    delayed: false,
-  };
+const Spinner = React.memo(function Spinner({ dark = false, light = false, type, delayed = false, text }: Props) {
+  const theme = useAppSelector((state) => selectTheme(state));
 
-  constructor() {
-    super();
-    this.state = {
-      show: false,
-    };
-    this.delayedTimeout = null;
-  }
+  const [show, setShow] = useState(!delayed);
+  const delayedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  componentDidMount() {
-    const { delayed } = this.props;
-
-    if (!delayed) {
-      // We can disable this because the default state is to render nothing so there won't be any content thrashing
-      this.setState({
-        show: true,
-      });
-    } else {
-      // If the delayed prop is passed in, wait some time before showing the loading indicator
-      // We don't want the spinner to just flash for a fraction of a second
-      this.delayedTimeout = setTimeout(() => {
-        this.setState({
-          show: true,
-        });
+  useEffect(() => {
+    if (delayed) {
+      delayedTimeoutRef.current = setTimeout(() => {
+        setShow(true);
       }, 750);
     }
+
+    return () => {
+      if (delayedTimeoutRef.current) {
+        clearTimeout(delayedTimeoutRef.current);
+        delayedTimeoutRef.current = null;
+      }
+    };
+  }, [delayed]);
+
+  if (!show) {
+    return null;
   }
 
-  componentWillUnmount() {
-    if (this.delayedTimeout) {
-      clearTimeout(this.delayedTimeout);
-      this.delayedTimeout = null;
-    }
-  }
-
-  delayedTimeout: TimeoutID | null | undefined;
-
-  render() {
-    const { dark, light, theme, type, text } = this.props;
-    const { show } = this.state;
-
-    if (!show) {
-      return null;
-    }
-
-    return (
-      <>
-        {text}
-        <div
-          className={classnames('spinner', {
-            'spinner--dark': !light && (dark || theme === LIGHT_THEME),
-            'spinner--light': !dark && (light || theme === DARK_THEME),
-            'spinner--small': type === 'small',
-          })}
-        >
-          <div className="rect rect1" />
-          <div className="rect rect2" />
-          <div className="rect rect3" />
-          <div className="rect rect4" />
-          <div className="rect rect5" />
-        </div>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      {text}
+      <div
+        className={classnames('spinner', {
+          'spinner--dark': !light && (dark || theme === LIGHT_THEME),
+          'spinner--light': !dark && (light || theme === DARK_THEME),
+          'spinner--small': type === 'small',
+        })}
+      >
+        <div className="rect rect1" />
+        <div className="rect rect2" />
+        <div className="rect rect3" />
+        <div className="rect rect4" />
+        <div className="rect rect5" />
+      </div>
+    </>
+  );
+});
 
 export default Spinner;

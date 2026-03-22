@@ -2,14 +2,17 @@ import React from 'react';
 import { getLanguageName } from 'constants/languages';
 import { FormField } from 'component/common/form';
 import { getDefaultLanguage } from 'util/default-languages';
-type Props = {
-  homepage: string;
-  homepageKeys: Array<string>;
-  setHomepage: (arg0: string) => void;
-};
+import * as SETTINGS from 'constants/settings';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting, selectHomepageKeys } from 'redux/selectors/settings';
+import { doSetHomepage } from 'redux/actions/settings';
+type Props = {};
 
 function SelectHomepage(props: Props) {
-  const { homepage, homepageKeys, setHomepage } = props;
+  const dispatch = useAppDispatch();
+  const homepage = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE));
+  const homepageKeys = useAppSelector(selectHomepageKeys);
+  const setHomepage = (value: string) => dispatch(doSetHomepage(value));
   // Don't know why bc3c56b8 resets the code to null when in English.
   const value = homepage === null ? getDefaultLanguage() : homepage;
 

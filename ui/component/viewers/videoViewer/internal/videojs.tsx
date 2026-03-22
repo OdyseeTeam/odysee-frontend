@@ -1,7 +1,3 @@
-import 'videojs-contrib-ads'; // must be loaded in this order
-
-import 'videojs-ima'; // loads directly after contrib-ads
-
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './keyboard-shortcuts-overlay.scss';
@@ -116,8 +112,6 @@ export type Player = {
   volume: (arg0: number | null | undefined) => number;
 };
 type Props = {
-  adUrl: string | null | undefined;
-  allowPreRoll: boolean | null | undefined;
   claimId: string | null | undefined;
   title: string | null | undefined;
   channelTitle: string;
@@ -183,8 +177,6 @@ properties for this component should be kept to ONLY those that if changed shoul
 
 export default React.memo<Props>(function VideoJs(props: Props) {
   const {
-    // adUrl, // TODO: this ad functionality isn't used, can be pulled out
-    // allowPreRoll,
     claimId,
     title,
     channelTitle,
