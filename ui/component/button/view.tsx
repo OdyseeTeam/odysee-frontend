@@ -293,4 +293,4 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
     </button>
   );
 });
-export default Button;
+export default React.memo(Button);
