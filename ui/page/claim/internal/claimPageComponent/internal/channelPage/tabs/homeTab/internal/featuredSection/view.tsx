@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './style.scss';
 import FileThumbnail from 'component/fileThumbnail';
-import MarkdownPreview from 'component/common/markdown-preview';
 import ClaimMenuList from 'component/claimMenuList';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
@@ -69,7 +68,9 @@ function FeaturedSection(props: Props) {
             <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
           </div>
           <div className="claim-preview-description" {...navLinkProps}>
-            <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
+            <div className="markdown-preview--description">
+              {description ? (description.length > 300 ? `${description.slice(0, 300)}...` : description) : ''}
+            </div>
           </div>
         </div>
       </div>
