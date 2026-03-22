@@ -12,7 +12,7 @@ import classnames from 'classnames';
 import Yrbl from 'component/yrbl';
 import { PURCHASES_PAGE_SIZE } from 'page/library/view';
 import Spinner from 'component/spinner';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 type Props = {
   fetchingFileList: boolean;
   downloadedUrls: Array<string>;
@@ -30,7 +30,6 @@ const ENABLE_DOWNLOADS_TAB = false;
 
 function FileListDownloaded(props: Props) {
   const navigate = useNavigate();
-  const { search } = useLocation();
   const {
     query,
     downloadedUrlsCount,
@@ -49,7 +48,7 @@ function FileListDownloaded(props: Props) {
 
     if (value !== searchQuery) {
       setSearchQuery(value);
-      navigate(`${search ? '' : ''}?query=${value}&page=1`, { replace: true });
+      navigate(`?query=${value}&page=1`, { replace: true });
     }
   }
 
