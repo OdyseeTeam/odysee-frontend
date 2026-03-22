@@ -30,6 +30,19 @@ type Props = {
 export const CollectionPageContext = React.createContext<any>();
 
 const CollectionPage = (props: Props) => {
+  const {
+    collectionId,
+    hasClaim,
+    geoRestriction,
+    collection,
+    brokenUrls,
+    isCollectionMine,
+    isPrivate,
+    hasPrivate,
+    doResolveClaimId,
+    doCollectionEdit,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
+  } = props;
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
