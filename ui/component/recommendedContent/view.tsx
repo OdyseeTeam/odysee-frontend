@@ -12,32 +12,31 @@ import RecSys from 'recsys';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import { useLocation } from 'react-router-dom';
 import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { doFetchRecommendedContent } from 'redux/actions/search';
+import { selectRecommendedContentForUri, selectIsSearching } from 'redux/selectors/search';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
 type Props = {
   uri: string;
-  recommendedContentUris: Array<string>;
-  nextRecommendedUri: string;
-  isSearching: boolean;
-  searchInLanguage: boolean;
-  doFetchRecommendedContent: (arg0: string, arg1: FypParam | null | undefined) => void;
-  claim: StreamClaim | null | undefined;
-  claimId: string;
-  metadata: any;
   location?: UrlLocation;
 };
 export default React.memo<Props>(function RecommendedContent(props: Props) {
   const routeLocation = useLocation();
-  const {
-    uri,
-    doFetchRecommendedContent,
-    recommendedContentUris,
-    nextRecommendedUri,
-    isSearching,
-    searchInLanguage,
-    claim,
-    location,
-  } = props;
+  const { uri, location } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const recommendedContentUris = useAppSelector((state) => selectRecommendedContentForUri(state, uri));
+  const nextRecommendedUri = recommendedContentUris && recommendedContentUris[0];
+  const isSearching = useAppSelector(selectIsSearching);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+
+  const doFetchRecommendedContent_ = (...args: Parameters<typeof doFetchRecommendedContent>) =>
+    dispatch(doFetchRecommendedContent(...args));
   const currentLocation = location || routeLocation;
   const claimId: string | null | undefined = claim && claim.claim_id;
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
@@ -70,8 +69,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
             uuid,
           }
         : null;
-    doFetchRecommendedContent(uri, fypParam);
-  }, [uri, doFetchRecommendedContent, fypId, search, uuid]);
+    doFetchRecommendedContent_(uri, fypParam);
+  }, [uri, doFetchRecommendedContent_, fypId, search, uuid]);
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
     if (
@@ -164,38 +163,5 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
 }, areEqual);
 
 function areEqual(prevProps: Props, nextProps: Props) {
-  const a = prevProps;
-  const b = nextProps;
-
-  if (
-    a.uri !== b.uri ||
-    a.nextRecommendedUri !== b.nextRecommendedUri ||
-    a.isSearching !== b.isSearching ||
-    (a.recommendedContentUris && !b.recommendedContentUris) ||
-    (!a.recommendedContentUris && b.recommendedContentUris) ||
-    (a.claim && !b.claim) ||
-    (!a.claim && b.claim)
-  ) {
-    return false;
-  }
-
-  if (a.claim && b.claim && a.claim.claim_id !== b.claim.claim_id) {
-    return false;
-  }
-
-  if (a.recommendedContentUris && b.recommendedContentUris) {
-    if (a.recommendedContentUris.length !== b.recommendedContentUris.length) {
-      return false;
-    }
-
-    let i = a.recommendedContentUris.length;
-
-    while (i--) {
-      if (a.recommendedContentUris[i] !== b.recommendedContentUris[i]) {
-        return false;
-      }
-    }
-  }
-
-  return true;
+  return prevProps.uri === nextProps.uri;
 }

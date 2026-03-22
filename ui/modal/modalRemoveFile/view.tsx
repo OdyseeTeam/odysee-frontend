@@ -3,27 +3,32 @@ import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectTitleForUri, makeSelectClaimForUri, makeSelectIsAbandoningClaimForUri } from 'redux/selectors/claims';
+import { doHideModal } from 'redux/actions/app';
+import { doResolveUri } from 'redux/actions/claims';
+import { doDeleteFileAndMaybeGoBack } from 'redux/actions/file';
 type Props = {
   uri: string;
-  claim: StreamClaim;
-  doResolveUri: (arg0: string) => void;
-  closeModal: () => void;
-  deleteFile: (arg0: string, arg1: boolean, arg2: boolean, arg3: boolean, arg4: any) => void;
   doGoBack: boolean;
-  title: string;
   fileInfo?: {
     outpoint: string | null | undefined;
   };
-  isAbandoning: boolean;
 };
 
 function ModalRemoveFile(props: Props) {
-  const { uri, doResolveUri, closeModal, deleteFile, doGoBack = true, title, claim, isAbandoning } = props;
+  const { uri, doGoBack = true } = props;
+  const dispatch = useAppDispatch();
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const isAbandoning = useAppSelector((state) => makeSelectIsAbandoningClaimForUri(uri)(state));
+  const closeModal = () => dispatch(doHideModal());
+
   React.useEffect(() => {
     if (uri) {
-      doResolveUri(uri);
+      dispatch(doResolveUri(uri));
     }
-  }, [uri, doResolveUri]);
+  }, [uri, dispatch]);
   return (
     <Modal isOpen contentLabel={__('Confirm File Remove')} type="card" onAborted={closeModal}>
       <Card
@@ -45,7 +50,7 @@ function ModalRemoveFile(props: Props) {
                 button="primary"
                 label={isAbandoning ? __('Removing...') : __('Remove')}
                 disabled={isAbandoning}
-                onClick={() => deleteFile(uri, false, true, doGoBack, claim)}
+                onClick={() => dispatch(doDeleteFileAndMaybeGoBack(uri, false, true, doGoBack, claim))}
               />
               <Button button="link" label={__('Cancel')} onClick={closeModal} />
             </div>

@@ -13,58 +13,58 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { useArStatus } from 'effects/use-ar-status';
 import { LocalStorage } from 'util/storage';
-type Props = {
-  clientSettings: any;
-  LBCBalance: number;
-  arStatus: any;
-  arBalance: number;
-  arUsdRate: number;
-  wanderAuth: any;
-  totalBalance: number;
-  claimsBalance: number;
-  supportsBalance: number;
-  tipsBalance: number;
-  hasSynced: boolean;
-  fetchingUtxoCounts: boolean;
-  consolidatingUtxos: boolean;
-  consolidateIsPending: boolean;
-  massClaimingTips: boolean;
-  massClaimIsPending: boolean;
-  utxoCounts: Record<string, number>;
-  fullArweaveStatus: Array<any>;
-  doOpenModal: (arg0: string) => void;
-  doFetchUtxoCounts: () => void;
-  doUtxoConsolidate: () => void;
-  doArConnect: () => void;
-  doArDisconnect: () => void;
-  activeAPIArAccountAddress: string;
-  activeAPIArAccount: any;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectBalance,
+  selectTotalBalance,
+  selectClaimsBalance,
+  selectSupportsBalance,
+  selectTipsBalance,
+  selectIsFetchingUtxoCounts,
+  selectUtxoCounts,
+  selectIsConsolidatingUtxos,
+  selectIsMassClaimingTips,
+  selectPendingConsolidateTxid,
+  selectPendingMassClaimTxid,
+} from 'redux/selectors/wallet';
+import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
+import {
+  selectArweaveStatus,
+  selectArweaveBalance,
+  selectArweaveExchangeRates,
+  selectArweaveWanderAuth,
+} from 'redux/selectors/arwallet';
+import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
+import { doOpenModal } from 'redux/actions/app';
+import { selectSyncHash } from 'redux/selectors/sync';
+import { selectClaimedRewards } from 'redux/selectors/rewards';
+import { selectClientSettings } from 'redux/selectors/settings';
+
 export const WALLET_CONSOLIDATE_UTXOS = 400;
 const LARGE_WALLET_BALANCE = 100;
 
-const WalletBalance = (props: Props) => {
-  const {
-    clientSettings,
-    LBCBalance,
-    arStatus,
-    arBalance,
-    claimsBalance,
-    totalBalance,
-    supportsBalance,
-    tipsBalance,
-    hasSynced,
-    consolidatingUtxos,
-    consolidateIsPending,
-    massClaimingTips,
-    massClaimIsPending,
-    utxoCounts,
-    doOpenModal,
-    doUtxoConsolidate,
-    doFetchUtxoCounts,
-    doArConnect,
-    doArDisconnect,
-  } = props;
+const WalletBalance = () => {
+  const dispatch = useAppDispatch();
+  const clientSettings = useAppSelector(selectClientSettings);
+  const LBCBalance = useAppSelector(selectBalance);
+  const arStatus = useAppSelector(selectArweaveStatus);
+  const arBalance = useAppSelector((state) => selectArweaveBalance(state)?.ar);
+  const totalBalance = useAppSelector(selectTotalBalance);
+  const claimsBalance = useAppSelector(selectClaimsBalance) || 0;
+  const supportsBalance = useAppSelector(selectSupportsBalance) || 0;
+  const tipsBalance = useAppSelector(selectTipsBalance) || 0;
+  const hasSynced = Boolean(useAppSelector(selectSyncHash));
+  const consolidatingUtxos = useAppSelector(selectIsConsolidatingUtxos);
+  const consolidateIsPending = useAppSelector(selectPendingConsolidateTxid);
+  const massClaimingTips = useAppSelector(selectIsMassClaimingTips);
+  const massClaimIsPending = useAppSelector(selectPendingMassClaimTxid);
+  const utxoCounts = useAppSelector(selectUtxoCounts);
+
+  const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
+  const doUtxoConsolidate_ = () => dispatch(doUtxoConsolidate());
+  const doFetchUtxoCounts_ = () => dispatch(doFetchUtxoCounts());
+  const doArConnect_ = () => dispatch(doArConnect());
+  const doArDisconnect_ = () => dispatch(doArDisconnect());
   const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection, addressInUse } = useArStatus();
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
@@ -74,13 +74,13 @@ const WalletBalance = (props: Props) => {
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
-      doFetchUtxoCounts();
+      doFetchUtxoCounts_();
     }
-  }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+  }, [doFetchUtxoCounts_, LBCBalance, detailsExpanded]);
 
   const handleSignIn = () => {
     const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
-    if (showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS);
+    if (showModal) doOpenModal_(MODALS.CRYPTO_DISCLAIMERS);
     else window.wanderInstance.open();
   };
 
@@ -146,7 +146,7 @@ const WalletBalance = (props: Props) => {
                             className="dd__button"
                             disabled={operationPending}
                             icon={ICONS.UNLOCK}
-                            onClick={() => doOpenModal(MODALS.MASS_TIP_UNLOCK)}
+                            onClick={() => doOpenModal_(MODALS.MASS_TIP_UNLOCK)}
                           />
                         )}
                         <CreditAmount amount={tipsBalance} precision={4} />
@@ -203,7 +203,7 @@ const WalletBalance = (props: Props) => {
                       now: (
                         <Button
                           button="link"
-                          onClick={() => doUtxoConsolidate()}
+                          onClick={() => doUtxoConsolidate_()}
                           disabled={operationPending}
                           label={
                             consolidateIsPending || consolidatingUtxos ? __('Consolidating...') : __('Consolidate Now')
@@ -231,7 +231,7 @@ const WalletBalance = (props: Props) => {
             ) : (
               <>
                 <Symbol token="usd" amount={arBalance * arStatus.exchangeRates.ar} precision={2} isTitle counter />
-                <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
+                <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect_()} />
               </>
             )
           }
@@ -390,7 +390,7 @@ const WalletBalance = (props: Props) => {
                     tokens={{
                       text: <p>To use AR on Odysee, the Wander wallet must be connected.</p>,
                       link: (
-                        <a className="link" onClick={() => doArConnect()}>
+                        <a className="link" onClick={() => doArConnect_()}>
                           Connect now
                         </a>
                       ),

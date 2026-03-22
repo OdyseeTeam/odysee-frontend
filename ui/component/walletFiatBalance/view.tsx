@@ -3,16 +3,17 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
-type Props = {
-  accountStatus: StripeAccountStatus | null | undefined;
-  doTipAccountStatus: (arg0: any) => void;
-};
-export default function WalletFiatBalance(props: Props) {
-  const { accountStatus, doTipAccountStatus } = props;
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectAccountStatus } from 'redux/selectors/stripe';
+import { doTipAccountStatus } from 'redux/actions/stripe';
+
+export default function WalletFiatBalance() {
+  const dispatch = useAppDispatch();
+  const accountStatus = useAppSelector(selectAccountStatus);
   const { total_tipped: totalTippedAmount } = accountStatus || {};
   React.useEffect(() => {
-    doTipAccountStatus();
-  }, [doTipAccountStatus]);
+    dispatch(doTipAccountStatus());
+  }, [dispatch]);
   return (
     <Card
       title={<>{__('Cash Balance')}</>}

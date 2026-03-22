@@ -9,6 +9,12 @@ import FormFieldDuration from 'component/formFieldDuration';
 import usePersistedState from 'effects/use-persisted-state';
 import { Modal } from 'modal/modal';
 import { getChannelFromClaim } from 'util/claim';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectModerationDelegatorsById } from 'redux/selectors/comments';
+import { doHideModal } from 'redux/actions/app';
+import { doCommentModBlock, doCommentModBlockAsAdmin, doCommentModBlockAsModerator } from 'redux/actions/comments';
 const TAB = {
   PERSONAL: 'personal',
   MODERATOR: 'moderator',
@@ -22,57 +28,18 @@ type Props = {
   contentUri: string;
   commenterUri: string;
   offendingCommentId?: string;
-  // --- redux ---
-  activeChannelClaim: ChannelClaim | null | undefined;
-  contentClaim: Claim | null | undefined;
-  contentClaimIsMine: boolean | null | undefined;
-  moderationDelegatorsById: Record<
-    string,
-    {
-      global: boolean;
-      delegators: {
-        name: string;
-        claimId: string;
-      };
-    }
-  >;
-  doHideModal: () => void;
-  doCommentModBlock: (
-    commenterUri: string,
-    offendingCommentId: string | null | undefined,
-    timeoutSec: number | null | undefined
-  ) => void;
-  doCommentModBlockAsAdmin: (
-    commenterUri: string,
-    offendingCommentId: string | null | undefined,
-    blockerId: string | null | undefined,
-    timeoutSec: number | null | undefined
-  ) => void;
-  doCommentModBlockAsModerator: (
-    commenterUri: string,
-    offendingCommentId: string | null | undefined,
-    creatorUri: string,
-    blockerId: string | null | undefined,
-    timeoutSec: number | null | undefined
-  ) => void;
 };
-function getCommenterPreview(uri) {
+function getCommenterPreview(uri: string) {
   return <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />;
 }
 
 export default function ModalBlockChannel(props: Props) {
-  const {
-    commenterUri,
-    offendingCommentId,
-    activeChannelClaim,
-    contentClaim,
-    contentClaimIsMine,
-    moderationDelegatorsById,
-    doHideModal,
-    doCommentModBlock,
-    doCommentModBlockAsAdmin,
-    doCommentModBlockAsModerator,
-  } = props;
+  const { contentUri, commenterUri, offendingCommentId } = props;
+  const dispatch = useAppDispatch();
+  const contentClaim = useAppSelector((state) => selectClaimForUri(state, contentUri));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const contentClaimIsMine = useAppSelector((state) => selectClaimIsMine(state, contentClaim));
+  const moderationDelegatorsById = useAppSelector(selectModerationDelegatorsById);
   const contentChannelClaim = getChannelFromClaim(contentClaim);
   const activeModeratorInfo = activeChannelClaim && moderationDelegatorsById[activeChannelClaim.claim_id];
   const activeChannelIsAdmin = activeChannelClaim && activeModeratorInfo && activeModeratorInfo.global;
@@ -185,17 +152,19 @@ export default function ModalBlockChannel(props: Props) {
 
     switch (tab) {
       case TAB.PERSONAL:
-        doCommentModBlock(commenterUri, offendingCommentId, duration);
+        dispatch(doCommentModBlock(commenterUri, offendingCommentId, duration));
         break;
 
       case TAB.MODERATOR:
         if (activeChannelClaim && contentChannelClaim) {
-          doCommentModBlockAsModerator(
-            commenterUri,
-            offendingCommentId,
-            contentChannelClaim.permanent_url,
-            activeChannelClaim.claim_id,
-            duration
+          dispatch(
+            doCommentModBlockAsModerator(
+              commenterUri,
+              offendingCommentId,
+              contentChannelClaim.permanent_url,
+              activeChannelClaim.claim_id,
+              duration
+            )
           );
         }
 
@@ -203,13 +172,13 @@ export default function ModalBlockChannel(props: Props) {
 
       case TAB.ADMIN:
         if (activeChannelClaim) {
-          doCommentModBlockAsAdmin(commenterUri, offendingCommentId, activeChannelClaim.claim_id, duration);
+          dispatch(doCommentModBlockAsAdmin(commenterUri, offendingCommentId, activeChannelClaim.claim_id, duration));
         }
 
         break;
     }
 
-    doHideModal();
+    dispatch(doHideModal());
   }
 
   // **************************************************************************
@@ -225,7 +194,7 @@ export default function ModalBlockChannel(props: Props) {
   }
   */
   return (
-    <Modal isOpen type="card" onAborted={doHideModal}>
+    <Modal isOpen type="card" onAborted={() => dispatch(doHideModal())}>
       <Card
         title={__('Block Channel')}
         subtitle={getCommenterPreview(commenterUri)}
@@ -264,7 +233,7 @@ export default function ModalBlockChannel(props: Props) {
             <div className="block-modal--finalize">
               <div className="section__actions">
                 <Button button="primary" label={__('Block')} onClick={handleBlock} disabled={blockButtonDisabled} />
-                <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+                <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
                 {getActiveChannelElem()}
               </div>
             </div>

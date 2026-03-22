@@ -2,21 +2,23 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import Spinner from 'component/spinner';
 import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
-type Props = {
-  activeLivestreamUris: Array<string> | null | undefined;
-  fetchingActiveLivestreams: boolean;
-  doFetchAllActiveLivestreamsForQuery: () => void;
-};
-export default function LivestreamList(props: Props) {
-  const { activeLivestreamUris, fetchingActiveLivestreams, doFetchAllActiveLivestreamsForQuery } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
+import { selectFilteredActiveLivestreamUris, selectIsFetchingActiveLivestreams } from 'redux/selectors/livestream';
+
+export default function LivestreamList() {
+  const dispatch = useAppDispatch();
+  const activeLivestreamUris = useAppSelector(selectFilteredActiveLivestreamUris);
+  const fetchingActiveLivestreams = useAppSelector(selectIsFetchingActiveLivestreams);
+
   React.useEffect(() => {
-    doFetchAllActiveLivestreamsForQuery();
+    dispatch(doFetchAllActiveLivestreamsForQuery());
     // doFetchAllActiveLivestreamsForQuery is currently limited to 5 minutes per fetch as
     // a global default. If we want more frequent updates (say, to update the
     // view count), we can either change that limit, or add a 'force' parameter
     // to doFetchAllActiveLivestreamsForQuery to override selectively.
     const fetchInterval = setInterval(
-      doFetchAllActiveLivestreamsForQuery,
+      () => dispatch(doFetchAllActiveLivestreamsForQuery()),
       FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS + 50
     );
     return () => {

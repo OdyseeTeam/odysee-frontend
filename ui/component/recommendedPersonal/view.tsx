@@ -9,6 +9,10 @@ import { useIsLargeScreen, useIsSmallScreen } from 'effects/use-screensize';
 // TODO: recsysFyp will be moved into 'RecSys', so the redux import in a jsx
 // violation is just temporary.
 import { recsysFyp } from 'redux/actions/search';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doFetchPersonalRecommendations } from 'redux/actions/search';
+import { selectPersonalRecommendations } from 'redux/selectors/search';
+import { selectUser } from 'redux/selectors/user';
 // ****************************************************************************
 // RecommendedPersonal
 // ****************************************************************************
@@ -25,18 +29,15 @@ function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isSmallScreen)
 
 type Props = {
   header: React.ReactNode;
-  onLoad: (displayed: boolean) => void;
-  // --- redux ---
-  userId: string | null | undefined;
-  personalRecommendations: {
-    gid: string;
-    uris: Array<string>;
-    fetched: boolean;
-  };
-  doFetchPersonalRecommendations: () => void;
+  onLoad?: (displayed: boolean) => void;
 };
 export default function RecommendedPersonal(props: Props) {
-  const { header, onLoad, userId, personalRecommendations, doFetchPersonalRecommendations } = props;
+  const { header, onLoad } = props;
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const userId = user && user.id;
+  const personalRecommendations = useAppSelector(selectPersonalRecommendations);
+  const doFetchPersonalRecommendations_ = () => dispatch(doFetchPersonalRecommendations());
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
@@ -100,8 +101,8 @@ export default function RecommendedPersonal(props: Props) {
   }, [userId, markedGid, personalRecommendations.gid]);
   React.useEffect(() => {
     // -- Fetch FYP
-    doFetchPersonalRecommendations();
-  }, [doFetchPersonalRecommendations]);
+    doFetchPersonalRecommendations_();
+  }, [doFetchPersonalRecommendations_]);
 
   // **************************************************************************
   // **************************************************************************

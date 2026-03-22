@@ -8,23 +8,12 @@ import ErrorText from 'component/common/error-text';
 import Button from 'component/button';
 import Nag from 'component/nag';
 import Spinner from 'component/spinner';
-type Props = {
-  user: User | null | undefined;
-  doClearEmailEntry: () => void;
-  doUserFetch: () => void;
-  doToast: (arg0: { message: string }) => void;
-  history: {
-    push: (arg0: string) => void;
-  };
-  location: {
-    search: string;
-  };
-  passwordSetPending: boolean;
-  passwordSetError: string | null | undefined;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doClearEmailEntry, doUserFetch } from 'redux/actions/user';
+import { doToast } from 'redux/actions/notifications';
 
-function UserPasswordReset(props: Props) {
-  const { doClearEmailEntry, doToast, doUserFetch } = props;
+function UserPasswordReset() {
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(location.search);
@@ -52,12 +41,14 @@ function UserPasswordReset(props: Props) {
           'post'
         )
       )
-      .then(doUserFetch)
+      .then(() => dispatch(doUserFetch()))
       .then(() => {
         setLoading(false);
-        doToast({
-          message: __('Password successfully changed!'),
-        });
+        dispatch(
+          doToast({
+            message: __('Password successfully changed!'),
+          })
+        );
         navigate(`/`);
       })
       .catch((error) => {
@@ -67,7 +58,7 @@ function UserPasswordReset(props: Props) {
   }
 
   function handleRestart() {
-    doClearEmailEntry();
+    dispatch(doClearEmailEntry());
     navigate(`/$/${PAGES.AUTH_SIGNIN}`);
   }
 

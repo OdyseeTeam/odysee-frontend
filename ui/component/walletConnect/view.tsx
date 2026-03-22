@@ -2,20 +2,21 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import Spinner from '../spinner/view';
-type Props = {
-  arweaveAddress: string;
-  connecting: boolean;
-  connectArWallet: () => void;
-  wanderAuth: () => void;
-};
-export default function WalletConnect(props: Props) {
-  const { connectArWallet, arweaveAddress, connecting, wanderAuth } = props;
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doArConnect } from 'redux/actions/arwallet';
+import { selectArweaveAddress, selectArweaveConnecting, selectArweaveWanderAuth } from 'redux/selectors/arwallet';
+
+export default function WalletConnect() {
+  const dispatch = useAppDispatch();
+  const arweaveAddress = useAppSelector(selectArweaveAddress);
+  const connecting = useAppSelector(selectArweaveConnecting);
+  const wanderAuth = useAppSelector(selectArweaveWanderAuth);
   const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding' || connecting;
 
   async function getAddress() {
     try {
       const checkPluginConnection = await window.arweaveWallet.getActiveAddress();
-      if (checkPluginConnection) connectArWallet();
+      if (checkPluginConnection) dispatch(doArConnect());
     } catch (e) {
       console.error('not connected');
     }
@@ -28,7 +29,7 @@ export default function WalletConnect(props: Props) {
   }, [arweaveAddress]);
 
   async function handleArConnect() {
-    connectArWallet();
+    dispatch(doArConnect());
   }
 
   if (!window.arweaveWallet) {

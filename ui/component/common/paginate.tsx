@@ -2,9 +2,10 @@ import React from 'react';
 import { Form, FormField } from 'component/common/form';
 import ReactPaginate from 'react-paginate';
 import { useIsMobile } from 'effects/use-screensize';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 const PAGINATE_PARAM = 'page';
+
 type Props = {
   totalPages: number;
   shouldResetPageNumber?: boolean;
@@ -14,8 +15,8 @@ type Props = {
 
 function Paginate(props: Props) {
   const { totalPages = 1, shouldResetPageNumber, onPageChange, disableHistory } = props;
-  const location = useLocation();
-  const { search } = location;
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const [textValue, setTextValue] = React.useState('');
   const urlParams = new URLSearchParams(search);
   const urlParamPage = Number(urlParams.get(PAGINATE_PARAM));
@@ -24,21 +25,27 @@ function Paginate(props: Props) {
   const isMobile = useIsMobile();
   const firstPage = 1;
 
-  function handleChangePage(newPageNumber: number) {
-    if (onPageChange) {
-      onPageChange(newPageNumber);
-    }
-
-    if (currentPage !== newPageNumber) {
-      setCurrentPage(newPageNumber);
-
-      if (!disableHistory) {
-        const params = new URLSearchParams(search);
-        params.set(PAGINATE_PARAM, newPageNumber.toString());
-        history.push('?' + params.toString());
+  const handleChangePage = React.useCallback(
+    (newPageNumber: number) => {
+      if (onPageChange) {
+        onPageChange(newPageNumber);
       }
-    }
-  }
+
+      if (currentPage !== newPageNumber) {
+        setCurrentPage(newPageNumber);
+
+        if (!disableHistory) {
+          const params = new URLSearchParams(search);
+          params.set(PAGINATE_PARAM, newPageNumber.toString());
+          navigate({
+            pathname,
+            search: `?${params.toString()}`,
+          });
+        }
+      }
+    },
+    [currentPage, disableHistory, navigate, onPageChange, pathname, search]
+  );
 
   function handlePaginateKeyUp() {
     const newPage = Number(textValue);
@@ -50,15 +57,18 @@ function Paginate(props: Props) {
     setTextValue('');
   }
 
-  if (shouldResetPageNumber && currentPage !== firstPage) {
-    handleChangePage(firstPage);
-  }
+  React.useEffect(() => {
+    if (shouldResetPageNumber && currentPage !== firstPage) {
+      handleChangePage(firstPage);
+    }
+  }, [currentPage, firstPage, handleChangePage, shouldResetPageNumber]);
 
   React.useEffect(() => {
     if (urlParamPage) {
       setCurrentPage(urlParamPage);
     }
-  }, [urlParamPage, setCurrentPage]);
+  }, [urlParamPage]);
+
   return (
     // Hide the paginate controls if we are loading or there is only one page
     // It should still be rendered to trigger the onPageChange callback
@@ -77,8 +87,8 @@ function Paginate(props: Props) {
           <ReactPaginate
             pageCount={totalPages}
             pageRangeDisplayed={2}
-            previousLabel="‹"
-            nextLabel="›"
+            previousLabel="â€¹"
+            nextLabel="â€º"
             activeClassName="pagination__item--selected"
             pageClassName="pagination__item"
             previousClassName="pagination__item pagination__item--previous"
@@ -105,4 +115,5 @@ function Paginate(props: Props) {
     </Form>
   );
 }
+
 export default Paginate;

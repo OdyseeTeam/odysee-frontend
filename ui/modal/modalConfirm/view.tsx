@@ -5,6 +5,8 @@ import Spinner from 'component/spinner';
 import { Modal } from 'modal/modal';
 import BusyIndicator from 'component/common/busy-indicator';
 import { FormField } from 'component/common/form';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
   title: string;
   subtitle?: string | React.ReactNode;
@@ -16,37 +18,26 @@ type Props = {
   checkboxLabel?: string;
   onConfirm: (closeModal: () => void, setIsBusy: (arg0: boolean) => void) => void;
   onCancel: (closeModal: () => void, setIsBusy: (arg0: boolean) => void) => void;
-  // --- perform ---
-  doHideModal: () => void;
 };
 export default function ModalConfirm(props: Props) {
-  const {
-    title,
-    subtitle,
-    body,
-    labelOk,
-    labelCancel,
-    hideCancel,
-    busyMsg,
-    checkboxLabel,
-    onConfirm,
-    onCancel,
-    doHideModal,
-  } = props;
+  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, checkboxLabel, onConfirm, onCancel } =
+    props;
+  const dispatch = useAppDispatch();
+  const hideModal = () => dispatch(doHideModal());
   const [isBusy, setIsBusy] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState(!checkboxLabel);
 
   function handleOnClick() {
     if (onConfirm) {
-      onConfirm(doHideModal, setIsBusy);
+      onConfirm(hideModal, setIsBusy);
     }
   }
 
   function handleOnCancel() {
     if (onCancel) {
-      onCancel(doHideModal, setIsBusy);
+      onCancel(hideModal, setIsBusy);
     } else {
-      doHideModal();
+      hideModal();
     }
   }
 

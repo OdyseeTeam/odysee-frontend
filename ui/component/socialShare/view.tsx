@@ -13,6 +13,22 @@ import { getClaimScheduledState, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import { generateLbryContentUrl, generateRssUrl } from 'util/url';
 import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doFetchInviteStatus } from 'redux/actions/user';
+import { doFetchUriAccessKey } from 'redux/actions/content';
+import {
+  selectClaimForUri,
+  selectTitleForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectClaimIsNsfwForUri,
+  selectIsFiatRequiredForUri,
+} from 'redux/selectors/claims';
+import { doGenerateShareUrl } from './thunk';
+import { selectUserInviteReferralCode, selectUser, selectUserInviteStatusFetched } from 'redux/selectors/user';
+import { selectContentPositionForUri } from 'redux/selectors/content';
+import { selectContentHasProtectedMembershipIds } from 'redux/selectors/memberships';
+import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
+
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || SITE_URL;
 const IOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const SUPPORTS_SHARE_API = typeof navigator.share !== 'undefined';
@@ -20,46 +36,31 @@ const SUPPORTS_SHARE_API = typeof navigator.share !== 'undefined';
 const TWITTER_INTENT_API = 'https://twitter.com/intent/tweet?';
 // ****************************************************************************
 // ****************************************************************************
-type SpinnerStateProps = {
+type SpinnerOwnProps = {
   uri: string;
-  claim: StreamClaim;
-  inviteStatusFetched: boolean;
-};
-type SpinnerDispatchProps = {
-  doFetchInviteStatus: (arg0: boolean) => void;
-  doFetchUriAccessKey: (uri: string) => Promise<UriAccessKey | null | undefined>;
-};
-type SocialShareStateProps = {
-  claim: StreamClaim;
-  title: string | null | undefined;
   webShareable: boolean;
-  referralCode: string;
-  user: any;
-  position: number;
   collectionId?: number;
-  disableDownloadButton: boolean;
-  isMature: boolean;
-  isMembershipProtected: boolean;
-  isFiatRequired: boolean;
-  uriAccessKey: UriAccessKey | null | undefined;
-  doGenerateShareUrl: (props: ShareUrlProps) => Promise<ShareUrl>;
 };
+
 // ****************************************************************************
 // withLoadingSpinner
 // ****************************************************************************
 const FETCHING_ACCESS_KEY = -1;
 
 function withSpinner(Component: (props: any) => React.ReactElement<React.ComponentProps<any>, any>) {
-  return function LoadingSpinner(props: SpinnerStateProps & SpinnerDispatchProps) {
-    const { uri, claim, inviteStatusFetched, doFetchInviteStatus, doFetchUriAccessKey } = props;
+  return function LoadingSpinner(props: SpinnerOwnProps) {
+    const { uri } = props;
+    const dispatch = useAppDispatch();
+    const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+    const inviteStatusFetched = useAppSelector(selectUserInviteStatusFetched);
     const [accessKey, setAccessKey] = React.useState(FETCHING_ACCESS_KEY);
     React.useEffect(() => {
       if (!inviteStatusFetched) {
-        doFetchInviteStatus(false);
+        dispatch(doFetchInviteStatus(false));
       }
-    }, [inviteStatusFetched, doFetchInviteStatus]);
+    }, [inviteStatusFetched, dispatch]);
     React.useEffect(() => {
-      doFetchUriAccessKey(uri)
+      dispatch(doFetchUriAccessKey(uri))
         .then((accessKey: UriAccessKey | null | undefined) => setAccessKey(accessKey))
         .catch(); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
     }, []);
@@ -82,22 +83,28 @@ function withSpinner(Component: (props: any) => React.ReactElement<React.Compone
 // ****************************************************************************
 // SocialShare
 // ****************************************************************************
-function SocialShare(props: SocialShareStateProps) {
-  const {
-    claim,
-    title,
-    referralCode,
-    user,
-    webShareable,
-    position,
-    collectionId,
-    disableDownloadButton,
-    isMature,
-    isMembershipProtected,
-    isFiatRequired,
-    uriAccessKey,
-    doGenerateShareUrl,
-  } = props;
+type SocialShareProps = SpinnerOwnProps & {
+  uriAccessKey: UriAccessKey | null | undefined;
+};
+
+function SocialShare(props: SocialShareProps) {
+  const { uri, webShareable, collectionId, uriAccessKey } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const referralCode = useAppSelector(selectUserInviteReferralCode);
+  const user = useAppSelector(selectUser);
+  const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
+  const disableDownloadButton = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state)
+  );
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const isMembershipProtected = useAppSelector(
+    (state) => claim && selectContentHasProtectedMembershipIds(state, claim.claim_id)
+  );
+  const isFiatRequired = useAppSelector((state) => selectIsFiatRequiredForUri(state, uri));
+
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
 
@@ -202,15 +209,17 @@ function SocialShare(props: SocialShareStateProps) {
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- `shareUrl` excluded
   }, [includeStartTime, startTimeSeconds]);
   React.useEffect(function initUrls() {
-    doGenerateShareUrl({
-      domain: SHARE_DOMAIN,
-      lbryURI: lbryUrl,
-      referralCode: rewardsApproved ? referralCode : '',
-      startTimeSeconds: includeStartTime && startTimeSeconds ? startTimeSeconds : null,
-      collectionId: collectionId && includeCollectionId ? collectionId : null,
-      uriAccessKey: uriAccessKey,
-      useShortUrl: Boolean(uriAccessKey), // or isUnlisted
-    })
+    dispatch(
+      doGenerateShareUrl({
+        domain: SHARE_DOMAIN,
+        lbryURI: lbryUrl,
+        referralCode: rewardsApproved ? referralCode : '',
+        startTimeSeconds: includeStartTime && startTimeSeconds ? startTimeSeconds : null,
+        collectionId: collectionId && includeCollectionId ? collectionId : null,
+        uriAccessKey: uriAccessKey,
+        useShortUrl: Boolean(uriAccessKey), // or isUnlisted
+      })
+    )
       .then((result) => setShareUrl(result))
       .catch((err) => assert(false, 'SocialShare', err)); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);

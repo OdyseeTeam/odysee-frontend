@@ -2,6 +2,9 @@ import React from 'react';
 import { Modal } from 'modal/modal';
 import { DOMAIN } from 'config';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doUploadThumbnail, doUpdatePublishForm } from 'redux/actions/publish';
 import './style.scss';
 // ****************************************************************************
 // ****************************************************************************
@@ -9,27 +12,24 @@ export type Props = {
   file: WebFile;
   cb: (arg0: string) => void;
 };
-type StateProps = {};
-type DispatchProps = {
-  closeModal: () => void;
-  upload: (arg0: WebFile, arg1: (arg0: string) => void) => void;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-};
 
 // ****************************************************************************
 // ****************************************************************************
-function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) {
-  const { file, cb, closeModal, upload, updatePublishForm } = props;
+function ModalConfirmThumbnailUpload(props: Props) {
+  const { file, cb } = props;
+  const dispatch = useAppDispatch();
   const filePath = file && (file.path || file.name);
   const [imageSrc, setImageSrc] = React.useState('');
 
   function handleConfirmed() {
     if (file) {
-      upload(file, cb);
-      updatePublishForm({
-        thumbnailPath: file.path,
-      });
-      closeModal();
+      dispatch(doUploadThumbnail('', file, null, null, file.path, cb));
+      dispatch(
+        doUpdatePublishForm({
+          thumbnailPath: file.path,
+        })
+      );
+      dispatch(doHideModal());
     }
   }
 
@@ -50,7 +50,7 @@ function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) 
       type="confirm"
       confirmButtonLabel={__('Upload')}
       onConfirmed={handleConfirmed}
-      onAborted={closeModal}
+      onAborted={() => dispatch(doHideModal())}
     >
       <label>
         {__('Are you sure you want to upload this thumbnail to %domain%', {

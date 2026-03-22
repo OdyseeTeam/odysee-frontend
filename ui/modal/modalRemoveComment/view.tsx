@@ -3,6 +3,10 @@ import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import CommentView from 'component/comment';
 import Card from 'component/common/card';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doCommentAbandon } from 'redux/actions/comments';
+import { selectCommentForCommentId } from 'redux/selectors/comments';
 type Props = {
   commentId: string;
   // sha256 digest identifying the comment
@@ -11,15 +15,6 @@ type Props = {
   creatorClaim?: Claim;
   supportAmount?: any;
   setQuickReply: (arg0: any) => void;
-  // --- redux ---
-  comment?: Comment;
-  doHideModal: () => void;
-  doCommentAbandon: (
-    arg0: string,
-    arg1: Claim,
-    arg2: boolean | null | undefined,
-    arg3: Claim | null | undefined
-  ) => void;
 };
 
 function getCommentPreview(comment: Comment | null | undefined) {
@@ -31,20 +26,12 @@ function getCommentPreview(comment: Comment | null | undefined) {
 }
 
 function ModalRemoveComment(props: Props) {
-  const {
-    commentId,
-    deleterClaim,
-    deleterIsModOrAdmin,
-    creatorClaim,
-    supportAmount,
-    setQuickReply,
-    comment,
-    doHideModal,
-    doCommentAbandon,
-  } = props;
+  const { commentId, deleterClaim, deleterIsModOrAdmin, creatorClaim, supportAmount, setQuickReply } = props;
+  const dispatch = useAppDispatch();
+  const comment = useAppSelector((state) => selectCommentForCommentId(state, commentId));
 
   return (
-    <Modal isOpen contentLabel={__('Confirm Comment Deletion')} type="card" onAborted={doHideModal}>
+    <Modal isOpen contentLabel={__('Confirm Comment Deletion')} type="card" onAborted={() => dispatch(doHideModal())}>
       <Card
         title={__('Remove Comment')}
         body={
@@ -65,15 +52,15 @@ function ModalRemoveComment(props: Props) {
                 button="primary"
                 label={__('Remove')}
                 onClick={() => {
-                  doHideModal();
-                  doCommentAbandon(commentId, deleterClaim, deleterIsModOrAdmin, creatorClaim);
+                  dispatch(doHideModal());
+                  dispatch(doCommentAbandon(commentId, deleterClaim, deleterIsModOrAdmin, creatorClaim));
 
                   if (setQuickReply) {
                     setQuickReply(undefined);
                   }
                 }}
               />
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+              <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
             </div>
           </>
         }

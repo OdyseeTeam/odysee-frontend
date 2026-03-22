@@ -7,20 +7,23 @@ import HomepageSort from 'component/homepageSort';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import { Modal } from 'modal/modal';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
+import { doOpenModal, doHideModal } from 'redux/actions/app';
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
-type Props = {
-  homepageOrder: HomepageOrder;
-  alsoApplyToSidebar: boolean;
-  doSetClientSetting: (key: string, value: any, push: boolean) => void;
-  doToast: (arg0: { message: string; isError?: boolean }) => void;
-  doOpenModal: (id: string, arg1: {}) => void;
-  doHideModal: () => void;
-};
-export default function ModalCustomizeHomepage(props: Props) {
-  const { homepageOrder, alsoApplyToSidebar, doSetClientSetting, doToast, doOpenModal, doHideModal } = props;
+
+export default function ModalCustomizeHomepage() {
+  const dispatch = useAppDispatch();
+  const homepageOrder: HomepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER));
+  const alsoApplyToSidebar: boolean = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR)
+  );
+
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
@@ -53,35 +56,41 @@ export default function ModalCustomizeHomepage(props: Props) {
           });
         }
 
-        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
+        dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true));
       } else {
         console.error('Homepage: invalid orderToSave', orderToSave); // eslint-disable-line no-console
       }
     }
 
-    doSetClientSetting(SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR, applyToSidebar, true);
-    doHideModal();
+    dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR, applyToSidebar, true));
+    dispatch(doHideModal());
   }
 
   function handleReset() {
-    doOpenModal(MODALS.CONFIRM, {
-      title: __('Reset homepage to defaults?'),
-      subtitle: __('This action is permanent and cannot be undone'),
-      onConfirm: (closeModal) => {
-        doSetClientSetting(
-          SETTINGS.HOMEPAGE_ORDER,
-          {
-            active: null,
-            hidden: null,
-          },
-          true
-        );
-        doToast({
-          message: __('Homepage restored to default.'),
-        });
-        closeModal();
-      },
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Reset homepage to defaults?'),
+        subtitle: __('This action is permanent and cannot be undone'),
+        onConfirm: (closeModal) => {
+          dispatch(
+            doSetClientSetting(
+              SETTINGS.HOMEPAGE_ORDER,
+              {
+                active: null,
+                hidden: null,
+              },
+              true
+            )
+          );
+          dispatch(
+            doToast({
+              message: __('Homepage restored to default.'),
+            })
+          );
+          closeModal();
+        },
+      })
+    );
   }
 
   return (
@@ -104,7 +113,7 @@ export default function ModalCustomizeHomepage(props: Props) {
         actions={
           <div className="modal-customize-homepage__actions section__actions">
             <Button button="primary" label={__('Save')} onClick={handleSave} />
-            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+            <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
           </div>
         }
       />

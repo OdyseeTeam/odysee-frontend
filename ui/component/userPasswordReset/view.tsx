@@ -8,29 +8,22 @@ import { EMAIL_REGEX } from 'constants/email';
 import ErrorText from 'component/common/error-text';
 import Button from 'component/button';
 import Nag from 'component/nag';
-type Props = {
-  user: User | null | undefined;
-  doToast: (arg0: { message: string }) => void;
-  doUserPasswordReset: (arg0: string) => void;
-  doClearPasswordEntry: () => void;
-  doClearEmailEntry: () => void;
-  passwordResetPending: boolean;
-  passwordResetSuccess: boolean;
-  passwordResetError: string | null | undefined;
-  emailToVerify: string | null | undefined;
-};
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import {
+  selectPasswordResetSuccess,
+  selectPasswordResetIsPending,
+  selectPasswordResetError,
+  selectEmailToVerify,
+} from 'redux/selectors/user';
+import { doUserPasswordReset, doClearPasswordEntry, doClearEmailEntry } from 'redux/actions/user';
+import { doToast } from 'redux/actions/notifications';
 
-function UserPasswordReset(props: Props) {
-  const {
-    doUserPasswordReset,
-    passwordResetPending,
-    passwordResetError,
-    passwordResetSuccess,
-    doToast,
-    doClearPasswordEntry,
-    doClearEmailEntry,
-    emailToVerify,
-  } = props;
+function UserPasswordReset() {
+  const dispatch = useAppDispatch();
+  const passwordResetSuccess = useAppSelector(selectPasswordResetSuccess);
+  const passwordResetPending = useAppSelector(selectPasswordResetIsPending);
+  const passwordResetError = useAppSelector(selectPasswordResetError);
+  const emailToVerify = useAppSelector(selectEmailToVerify);
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = React.useState(emailToVerify || '');
@@ -39,14 +32,14 @@ function UserPasswordReset(props: Props) {
 
   function handleSubmit() {
     if (email) {
-      doUserPasswordReset(email);
+      dispatch(doUserPasswordReset(email));
     }
   }
 
   function handleRestart() {
     setEmail('');
-    doClearPasswordEntry();
-    doClearEmailEntry();
+    dispatch(doClearPasswordEntry());
+    dispatch(doClearEmailEntry());
 
     if (restartAtSignInPage) {
       navigate(`/$/${PAGES.AUTH_SIGNIN}`);
@@ -57,11 +50,13 @@ function UserPasswordReset(props: Props) {
 
   React.useEffect(() => {
     if (passwordResetSuccess) {
-      doToast({
-        message: __('Email sent!'),
-      });
+      dispatch(
+        doToast({
+          message: __('Email sent!'),
+        })
+      );
     }
-  }, [passwordResetSuccess, doToast]);
+  }, [passwordResetSuccess, dispatch]);
   return (
     <section className="main__sign-in">
       <Card

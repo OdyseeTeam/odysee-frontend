@@ -6,15 +6,21 @@ import Spinner from 'component/spinner';
 import Lbry from 'lbry';
 import ErrorText from 'component/common/error-text';
 import I18nMessage from 'component/i18nMessage';
+import * as SETTINGS from 'constants/settings';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import {
+  selectGetSyncErrorMessage,
+  selectHasSyncedWallet,
+  selectGetSyncIsPending,
+  selectHashChanged,
+} from 'redux/selectors/sync';
+import { doCheckSync, doGetSync } from 'redux/actions/sync';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetWalletSyncPreference } from 'redux/actions/settings';
+import { doGetAndPopulatePreferences } from 'redux/actions/app';
 type Props = {
-  setSyncEnabled: (arg0: boolean) => void;
-  syncEnabled: boolean;
-  getSyncError: string | null | undefined;
-  getSyncPending: boolean;
-  getSync: (pw: string, cb: () => void) => void;
-  checkSync: () => void;
   closeModal: () => void;
-  updatePreferences: () => void;
   mode: string;
 };
 const ENABLE_MODE = 'enable';
@@ -63,8 +69,10 @@ const makeMergedPrefs = (alt, base) => {
 };
 
 function SyncEnableFlow(props: Props) {
-  const { setSyncEnabled, getSyncError, getSyncPending, getSync, checkSync, mode, closeModal, updatePreferences } =
-    props;
+  const { mode, closeModal } = props;
+  const dispatch = useAppDispatch();
+  const getSyncError = useAppSelector(selectGetSyncErrorMessage);
+  const getSyncPending = useAppSelector(selectGetSyncIsPending);
   const [step, setStep] = React.useState(INITIAL);
   const [prefDict, setPrefDict]: [any, (arg0: any) => void] = React.useState();
   const [error, setError] = React.useState();
@@ -93,14 +101,14 @@ function SyncEnableFlow(props: Props) {
       });
     }
 
-    await setSyncEnabled(mode === ENABLE_MODE);
-    await updatePreferences();
+    await dispatch(doSetWalletSyncPreference(mode === ENABLE_MODE));
+    await dispatch(doGetAndPopulatePreferences());
     closeModal();
   };
 
   React.useEffect(() => {
     if (mode) {
-      checkSync();
+      dispatch(doCheckSync());
 
       if (mode === ENABLE_MODE) {
         getSavedPassword().then((pw) => {
@@ -114,20 +122,22 @@ function SyncEnableFlow(props: Props) {
   }, [mode, setPassword]);
   React.useEffect(() => {
     if (step === FETCH_FOR_ENABLE) {
-      getSync(password, (e, hasChanged) => {
-        if (e) {
-          setStep(ERROR);
-          setError(e && e.message ? e.message : e);
-        } else {
-          Lbry.preference_get().then((result) => {
-            const prefs = {};
-            if (result[SHARED_KEY]) prefs[SHARED_KEY] = result[SHARED_KEY];
-            if (result[LOCAL_KEY]) prefs[LOCAL_KEY] = result[LOCAL_KEY];
-            setPrefDict(prefs);
-            setStep(CONFIRM);
-          });
-        }
-      });
+      dispatch(
+        doGetSync(password, (e, hasChanged) => {
+          if (e) {
+            setStep(ERROR);
+            setError(e && e.message ? e.message : e);
+          } else {
+            Lbry.preference_get().then((result) => {
+              const prefs = {};
+              if (result[SHARED_KEY]) prefs[SHARED_KEY] = result[SHARED_KEY];
+              if (result[LOCAL_KEY]) prefs[LOCAL_KEY] = result[LOCAL_KEY];
+              setPrefDict(prefs);
+              setStep(CONFIRM);
+            });
+          }
+        })
+      );
     }
 
     if (step === FETCH_FOR_DISABLE) {

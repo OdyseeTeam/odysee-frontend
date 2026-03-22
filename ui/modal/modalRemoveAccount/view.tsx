@@ -5,45 +5,42 @@ import Spinner from 'component/spinner';
 import { Modal } from 'modal/modal';
 import BusyIndicator from 'component/common/busy-indicator';
 import { FormField } from 'component/common/form';
-type Props = {
-  isPendingDeletion: boolean | null | undefined;
-  hasYouTubeChannels: boolean;
-  totalBalance: number;
-  totalClaimsCount: number;
-  isFetchingChannels: boolean;
-  isFetchingChannelsSuccess: boolean | null | undefined;
-  isFetchingClaims: boolean;
-  isFetchingClaimsSuccess: boolean | null | undefined;
-  isFetchingAccounts: boolean;
-  isFetchingAccountsSuccess: boolean | null | undefined;
-  isWalletMerged: boolean | null | undefined;
-  channelUrls: Array<string> | null | undefined;
-  doHideModal: () => void;
-  doRemoveAccountSequence: () => Promise<any>;
-  doFetchChannelListMine: () => void;
-  doFetchClaimListMine: (page: number, pageSize: number, resolve: boolean) => void;
-  doFetchAccountList: () => void;
-};
-export default function ModalRemoveAccount(props: Props) {
-  const {
-    isPendingDeletion,
-    hasYouTubeChannels,
-    totalBalance,
-    totalClaimsCount,
-    isFetchingChannels,
-    isFetchingChannelsSuccess,
-    isFetchingClaims,
-    isFetchingClaimsSuccess,
-    isFetchingAccounts,
-    isFetchingAccountsSuccess,
-    isWalletMerged,
-    channelUrls,
-    doHideModal,
-    doRemoveAccountSequence,
-    doFetchChannelListMine,
-    doFetchClaimListMine,
-    doFetchAccountList,
-  } = props;
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import {
+  selectMyChannelClaimUrls,
+  selectFetchingMyChannels,
+  selectFetchingMyChannelsSuccess,
+  selectIsFetchingClaimListMine,
+  selectIsFetchingClaimListMineSuccess,
+  selectMyClaimsPageItemCount,
+} from 'redux/selectors/claims';
+import {
+  selectTotalBalance,
+  selectIsFetchingAccounts,
+  selectIsWalletMerged,
+  selectIsFetchingAccountsSuccess,
+} from 'redux/selectors/wallet';
+import { selectUser, selectHasYoutubeChannels } from 'redux/selectors/user';
+import { doHideModal } from 'redux/actions/app';
+import { doFetchAccountList } from 'redux/actions/wallet';
+import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
+import { doRemoveAccountSequence } from './thunk';
+
+export default function ModalRemoveAccount() {
+  const dispatch = useAppDispatch();
+  const isPendingDeletion = useAppSelector((state) => selectUser(state)?.pending_deletion);
+  const hasYouTubeChannels = useAppSelector(selectHasYoutubeChannels);
+  const totalBalance = useAppSelector(selectTotalBalance);
+  const totalClaimsCount = useAppSelector(selectMyClaimsPageItemCount);
+  const channelUrls = useAppSelector(selectMyChannelClaimUrls);
+  const isFetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const isFetchingChannelsSuccess = useAppSelector(selectFetchingMyChannelsSuccess);
+  const isFetchingClaims = useAppSelector(selectIsFetchingClaimListMine);
+  const isFetchingClaimsSuccess = useAppSelector(selectIsFetchingClaimListMineSuccess);
+  const isFetchingAccounts = useAppSelector(selectIsFetchingAccounts);
+  const isFetchingAccountsSuccess = useAppSelector(selectIsFetchingAccountsSuccess);
+  const isWalletMerged = useAppSelector(selectIsWalletMerged);
+
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [status, setStatus] = React.useState(null);
   const [isBusy, setIsBusy] = React.useState(false);
@@ -55,25 +52,25 @@ export default function ModalRemoveAccount(props: Props) {
     !buttonClicked && (!isPendingDeletion || !isWalletEmpty) && isLoadingAccountInfoSuccess && !isLoadingAccountInfo;
   React.useEffect(() => {
     if (!isPendingDeletion || !isWalletEmpty) {
-      doFetchAccountList();
+      dispatch(doFetchAccountList());
       const page = 1,
         pageSize = 1,
         resolve = false;
-      doFetchClaimListMine(page, pageSize, resolve);
-      doFetchChannelListMine();
+      dispatch(doFetchClaimListMine(page, pageSize, resolve));
+      dispatch(doFetchChannelListMine());
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
   async function handleOnClick() {
     setButtonClicked(true);
     setIsBusy(true);
-    const status = await doRemoveAccountSequence();
+    const status = await dispatch(doRemoveAccountSequence());
     setStatus(status);
     setIsBusy(false);
   }
 
   function handleOnClose() {
-    doHideModal();
+    dispatch(doHideModal());
   }
 
   return (

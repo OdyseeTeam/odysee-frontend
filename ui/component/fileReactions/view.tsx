@@ -6,38 +6,44 @@ import * as ICONS from 'constants/icons';
 import RatioBar from 'component/ratioBar';
 import FileActionButton from 'component/common/file-action-button';
 import Counter from 'component/counter';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
+import {
+  selectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectClaimIsMine,
+  selectScheduledStateForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { DISABLE_SLIMES_VIDEO_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 type Props = {
   uri: string;
-  // redux
-  claimId?: string;
-  likeCount: number;
-  dislikeCount: number;
-  myReaction: string | null | undefined;
-  isLivestreamClaim?: boolean;
-  scheduledState: ClaimScheduledState;
-  disableSlimes: boolean;
-  doFetchReactions: (claimId: string | null | undefined) => void;
-  doReactionLike: (uri: string) => void;
-  doReactionDislike: (uri: string) => void;
 };
 export default function FileReactions(props: Props) {
-  const {
-    uri,
-    claimId,
-    myReaction,
-    likeCount,
-    dislikeCount,
-    isLivestreamClaim,
-    scheduledState,
-    disableSlimes,
-    doFetchReactions,
-    doReactionLike,
-    doReactionDislike,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim?.claim_id;
+  const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
+  const likeCount = useAppSelector((state) => selectLikeCountForUri(state, uri));
+  const dislikeCount = useAppSelector((state) => selectDislikeCountForUri(state, uri));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
+  const disableSlimes = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state)
+  );
+
+  const doFetchReactions_ = (...args: Parameters<typeof doFetchReactions>) => dispatch(doFetchReactions(...args));
+  const doReactionLike_ = (...args: Parameters<typeof doReactionLike>) => dispatch(doReactionLike(...args));
+  const doReactionDislike_ = (...args: Parameters<typeof doReactionDislike>) => dispatch(doReactionDislike(...args));
   React.useEffect(() => {
     function fetchReactions() {
-      doFetchReactions(claimId);
+      doFetchReactions_(claimId);
     }
 
     let fetchInterval;
@@ -55,7 +61,7 @@ export default function FileReactions(props: Props) {
         clearInterval(fetchInterval);
       }
     };
-  }, [claimId, doFetchReactions, isLivestreamClaim]);
+  }, [claimId, doFetchReactions_, isLivestreamClaim]);
   return (
     <div
       className={classnames('ratio-wrapper', {
@@ -63,9 +69,9 @@ export default function FileReactions(props: Props) {
         'ratio-wrapper--no-slime': disableSlimes,
       })}
     >
-      <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
+      <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike_(uri)} />
       {!disableSlimes && (
-        <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
+        <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike_(uri)} />
       )}
       <RatioBar likeCount={likeCount} dislikeCount={disableSlimes ? 0 : dislikeCount} />
     </div>

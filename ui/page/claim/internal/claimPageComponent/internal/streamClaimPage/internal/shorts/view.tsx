@@ -9,8 +9,7 @@ import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
@@ -112,7 +111,10 @@ export default function ShortsPage(props: Props) {
     doResolveUri,
     doClearPlayingUri,
   } = props;
-  const { search } = useLocation();
+  const navigate = useNavigate();
+  const navigationType = useNavigationType();
+  const location = useLocation();
+  const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
   const isMobile = useIsShortsMobile();
@@ -153,6 +155,10 @@ export default function ShortsPage(props: Props) {
   const preloadedUrisRef = React.useRef(new Set());
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
+  const latestRouteRef = React.useRef({
+    pathname,
+    search,
+  });
   const [overlayTarget, setOverlayTarget] = React.useState(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
@@ -306,16 +312,18 @@ export default function ShortsPage(props: Props) {
     }
   }, [nextThumbnail, previousThumbnail]);
   React.useEffect(() => {
-    const unlisten = history.listen((location, action) => {
-      const currentSearch = history.location?.search || '';
-      const nextSearch = location.search || '';
+    const previousRoute = latestRouteRef.current;
+
+    if (previousRoute.pathname !== pathname || previousRoute.search !== search) {
+      const currentSearch = previousRoute.search || '';
+      const nextSearch = search || '';
       const currentParams = new URLSearchParams(currentSearch);
       const nextParams = new URLSearchParams(nextSearch);
       const isCurrentlyInShortsPlayer = currentParams.get('view') === 'shorts';
       const isNavigatingToShortsPlayer = nextParams.get('view') === 'shorts';
       const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
-      const isNavigatingToHome = location.pathname === '/' && !nextSearch;
-      const isBackNavigation = action === 'POP';
+      const isNavigatingToHome = pathname === '/' && !nextSearch;
+      const isBackNavigation = navigationType === 'POP';
       const shouldCleanup =
         (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
         (isCurrentlyInShortsPlayer && isNavigatingToHome) ||
@@ -325,11 +333,18 @@ export default function ShortsPage(props: Props) {
       if (shouldCleanup) {
         doClearShortsPlaylist();
       }
-    });
+    }
+
+    latestRouteRef.current = {
+      pathname,
+      search,
+    };
+  }, [doClearShortsPlaylist, navigationType, pathname, search]);
+
+  React.useEffect(() => {
     return () => {
-      unlisten();
-      const currentUrl = history.location?.search || '';
-      const currentPath = history.location?.pathname || '/';
+      const currentUrl = latestRouteRef.current.search || '';
+      const currentPath = latestRouteRef.current.pathname || '/';
       const currentParams = new URLSearchParams(currentUrl);
       const isInShortsPlayer = currentParams.get('view') === 'shorts';
       const isInShortsTab = currentParams.get('view') === 'shortsTab';
@@ -341,7 +356,7 @@ export default function ShortsPage(props: Props) {
         doClearShortsPlaylist();
       }
     };
-  }, [history, doClearShortsPlaylist]);
+  }, [doClearShortsPlaylist]);
   React.useEffect(() => {
     let timeoutId;
 
@@ -414,11 +429,17 @@ export default function ShortsPage(props: Props) {
 
     if (urlParams.get('view') !== 'shorts') {
       urlParams.set('view', 'shorts');
-      history.replace(`${history.location.pathname}?${urlParams.toString()}`);
+      navigate(
+        {
+          pathname,
+          search: `?${urlParams.toString()}`,
+        },
+        { replace: true }
+      );
     }
 
     hasEnsuredViewParam.current = true;
-  }, [search, history]);
+  }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
     return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
   }, []);
@@ -494,7 +515,7 @@ export default function ShortsPage(props: Props) {
         if (!activeTransition) return;
         clearPosition(activeTransition.sourceUri);
         doClearPlayingUri();
-        history.replace(getShortsUrl(activeTransition.targetUri));
+        navigate(getShortsUrl(activeTransition.targetUri), { replace: true });
 
         if (activeTransition.direction === 'next' && claimId) {
           const nextClaimId =
@@ -517,11 +538,11 @@ export default function ShortsPage(props: Props) {
     uri,
     clearTransitionTimers,
     clearPosition,
-    history,
     getShortsUrl,
     claimId,
     onRecommendationClicked,
     doClearPlayingUri,
+    navigate,
   ]);
   processNextTransitionRef.current = processNextQueuedTransition;
   const queueTransition = React.useCallback((direction: ReelDirection) => {

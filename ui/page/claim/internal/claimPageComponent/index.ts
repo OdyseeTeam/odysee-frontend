@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { history } from 'redux/router';
 import {
   selectClaimForUri,
   selectIsUriResolving,
@@ -94,7 +93,7 @@ function ClaimPageComponentWithRouteProps(props) {
     isExact: true,
   };
 
-  return React.createElement(ConnectedClaimPageComponent, { ...props, history, location, match, navigate });
+  return React.createElement(ConnectedClaimPageComponent, { ...props, location, match, navigate });
 }
 
 export default withResolvedClaimRender(ClaimPageComponentWithRouteProps);

@@ -1,5 +1,5 @@
 import React, { useEffect, forwardRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
@@ -44,7 +44,6 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
-import { history } from 'redux/router';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   selectClaimForUri,
@@ -156,6 +155,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     doDisablePlayerDrag,
   } = props;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
@@ -346,7 +346,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     }
 
     if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
-      history.push({
+      navigate({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
       });

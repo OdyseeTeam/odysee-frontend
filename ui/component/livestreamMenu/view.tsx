@@ -6,7 +6,16 @@ import usePersistedState from 'effects/use-persisted-state';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import React from 'react';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
+import { doToggleLiveChatMembersOnlySettingForClaimId } from 'redux/actions/comments';
+import { selectLivestreamChatMembersOnlyForChannelId } from 'redux/selectors/comments';
+import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
+import { doToast } from 'redux/actions/notifications';
+import { getChannelFromClaim } from 'util/claim';
+
 type Props = {
+  uri: string;
   isPopoutWindow?: boolean;
   hyperchatsHidden?: boolean;
   noHyperchats?: boolean;
@@ -16,17 +25,11 @@ type Props = {
   setPopoutWindow?: (arg0: any) => void;
   toggleHyperchats?: () => void;
   toggleIsCompact?: () => void;
-  // -- redux --
-  claimId: string | null | undefined;
-  claimIsMine: boolean;
-  channelHasMembershipTiers: boolean;
-  isLivestreamChatMembersOnly?: boolean;
-  doToggleLiveChatMembersOnlySettingForClaimId: (claimId: ClaimId) => Promise<any>;
-  doToast: (arg0: { message: string }) => void;
 };
 
 const LivestreamMenu = (props: Props) => {
   const {
+    uri,
     hideChat,
     hyperchatsHidden,
     isCompact,
@@ -36,26 +39,34 @@ const LivestreamMenu = (props: Props) => {
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
-    // -- redux --
-    claimId,
-    claimIsMine,
-    channelHasMembershipTiers,
-    isLivestreamChatMembersOnly,
-    doToggleLiveChatMembersOnlySettingForClaimId,
-    doToast,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const { claim_id: channelId } = getChannelFromClaim(claim) || {};
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
+  const channelHasMembershipTiers = useAppSelector(
+    (state) => channelId && selectChannelHasMembershipTiersForId(state, channelId)
+  );
+  const isLivestreamChatMembersOnly = useAppSelector((state) =>
+    selectLivestreamChatMembersOnlyForChannelId(state, channelId)
+  );
+
   const { pathname } = useLocation();
   const initialPopoutUnload = React.useRef(false);
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
 
   function updateLivestreamMembersOnlyChat() {
     if (claimId) {
-      doToggleLiveChatMembersOnlySettingForClaimId(claimId).then(() =>
-        doToast({
-          message: __(
-            isLivestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
-          ),
-        })
+      dispatch(doToggleLiveChatMembersOnlySettingForClaimId(claimId)).then(() =>
+        dispatch(
+          doToast({
+            message: __(
+              isLivestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
+            ),
+          })
+        )
       );
     }
   }

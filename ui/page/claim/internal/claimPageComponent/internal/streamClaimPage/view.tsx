@@ -14,8 +14,7 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 const CommentsList = lazyImport(
   () =>
     import(
@@ -140,6 +139,7 @@ const StreamClaimPage = (props: Props) => {
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const location = useLocation();
+  const navigate = useNavigate();
   const isHidden = isClaimFiltered || isClaimBlackListed;
   const cost = costInfo ? costInfo.cost : null;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
@@ -178,9 +178,9 @@ const StreamClaimPage = (props: Props) => {
     } else if (!isShortVideo && shortsView) {
       urlParams.delete('view');
       const newSearch = urlParams.toString();
-      history.replace(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`);
+      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isShortVideo, shortsView, search, history]);
+  }, [isShortVideo, location.pathname, navigate, search, shortsView]);
   React.useEffect(() => {
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);

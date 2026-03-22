@@ -8,34 +8,30 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
 import withCreditCard from 'hocs/withCreditCard';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectPurchaseIsPendingForMembershipId } from 'redux/selectors/memberships';
+import { doHideModal } from 'redux/actions/app';
+import { doMembershipBuy } from 'redux/actions/memberships';
+import { doToast } from 'redux/actions/notifications';
 import './style.scss';
 type Props = {
   membership: CreatorMembership;
   price: StripePriceDetails;
-  // -- redux --
-  activeChannelClaim: ChannelClaim | null | undefined;
-  channels: Array<ChannelClaim> | null | undefined;
-  incognito: boolean;
-  purchasePending: boolean;
-  doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>;
-  doHideModal: () => void;
-  doToast: (params: { message: string }) => void;
   defaultArweaveAddress?: string;
 };
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const {
-    membership,
-    price,
-    // -- redux --
-    activeChannelClaim,
-    channels,
-    incognito,
-    purchasePending,
-    doMembershipBuy,
-    doHideModal,
-    doToast,
-    defaultArweaveAddress,
-  } = props;
+  const { membership, price, defaultArweaveAddress } = props;
+
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const channels = useAppSelector(selectMyChannelClaims);
+  const incognito = useAppSelector(selectIncognito);
+  const purchasePending = useAppSelector((state) =>
+    selectPurchaseIsPendingForMembershipId(state, membership.membership_id)
+  );
+
   const isPurchasing = React.useRef(false);
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
   const noChannelsOrIncognitoMode = incognito || !channels;
@@ -44,23 +40,27 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   function handlePurchase() {
     if (isPurchasing.current) return;
     isPurchasing.current = true;
-    doMembershipBuy({
-      source_payment_address: defaultArweaveAddress,
-      // get this from stripe|arweavestatus|currentaddress|whatever
-      channel_id: activeChannelId,
-      price_id: price.id,
-    })
+    dispatch(
+      doMembershipBuy({
+        source_payment_address: defaultArweaveAddress,
+        // get this from stripe|arweavestatus|currentaddress|whatever
+        channel_id: activeChannelId,
+        price_id: price.id,
+      })
+    )
       .then((response) => {
         isPurchasing.current = false;
 
         // this isn't the best pattern, should be passed as a callback
         if (response?.created_at) {
-          doToast({
-            message: __('Purchase was successful. Enjoy the perks and special features!'),
-          });
+          dispatch(
+            doToast({
+              message: __('Purchase was successful. Enjoy the perks and special features!'),
+            })
+          );
         }
 
-        doHideModal();
+        dispatch(doHideModal());
       })
       .catch(() => {
         isPurchasing.current = false;
@@ -74,7 +74,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       isOpen
       contentLabel={__('Confirm Membership Purchase')}
       type="card"
-      onAborted={doHideModal}
+      onAborted={() => dispatch(doHideModal())}
     >
       <Card
         className="stripe__confirm-remove-membership"
@@ -128,7 +128,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             {!purchasePending ? (
               <>
                 <SubmitPurchaseButton handlePurchase={handlePurchase} />
-                <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+                <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
               </>
             ) : (
               <BusyIndicator message={__('Completing your purchase...')} />

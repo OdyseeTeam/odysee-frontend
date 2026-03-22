@@ -7,6 +7,7 @@ import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
+import * as SETTINGS from 'constants/settings';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import LivestreamMenu from 'component/livestreamMenu';
@@ -16,6 +17,19 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
 import 'scss/component/_swipeable-drawer.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+import { selectHyperChatsForUri } from 'redux/selectors/comments';
+import { selectClientSetting } from 'redux/selectors/settings';
+import {
+  selectViewersForId,
+  selectChatCommentsDisabledForUri,
+  selectClaimIsActiveChannelLivestreamForUri,
+  selectShowScheduledLiveInfoForUri,
+  selectActiveStreamUriForClaimUri,
+} from 'redux/selectors/livestream';
+import { doClearPlayingUri } from 'redux/actions/content';
+
 const LivestreamScheduledInfo = lazyImport(
   () =>
     import(
@@ -37,32 +51,21 @@ const VIEW_MODES = {
 type Props = {
   uri: string;
   livestreamChatEnabled: boolean;
-  // -- redux --
-  activeStreamUri: boolean | string;
-  claim: StreamClaim | null | undefined;
-  chatDisabled: boolean;
-  isCurrentClaimLive: boolean;
-  showScheduledInfo: boolean;
-  superChats: Array<Comment>;
-  activeViewers?: number;
-  videoTheaterMode: boolean;
-  doClearPlayingUri: () => void;
 };
 export default function LivestreamLayout(props: Props) {
-  const {
-    uri,
-    livestreamChatEnabled,
-    // -- redux --
-    activeStreamUri,
-    claim,
-    chatDisabled,
-    isCurrentClaimLive,
-    showScheduledInfo,
-    superChats,
-    activeViewers,
-    videoTheaterMode,
-    doClearPlayingUri,
-  } = props;
+  const { uri, livestreamChatEnabled } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const chatDisabled = useAppSelector((state) => selectChatCommentsDisabledForUri(state, uri));
+  const superChats = useAppSelector((state) => selectHyperChatsForUri(state, uri));
+  const activeViewers = useAppSelector((state) => (claimId ? selectViewersForId(state, claimId) : undefined));
+  const isCurrentClaimLive = useAppSelector((state) => selectClaimIsActiveChannelLivestreamForUri(state, uri));
+  const showScheduledInfo = useAppSelector((state) => selectShowScheduledLiveInfoForUri(state, uri));
+  const activeStreamUri = useAppSelector((state) => selectActiveStreamUriForClaimUri(state, uri));
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
@@ -70,7 +73,7 @@ export default function LivestreamLayout(props: Props) {
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
   const liveStatusFetching = activeStreamUri === undefined;
   React.useEffect(() => {
-    if (!isCurrentClaimLive) doClearPlayingUri(); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+    if (!isCurrentClaimLive) dispatch(doClearPlayingUri()); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isCurrentClaimLive]);
   if (!claim || !claim.signing_channel) return null;
   const { name: channelName } = claim.signing_channel;

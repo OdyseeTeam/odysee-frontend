@@ -5,20 +5,23 @@ import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import ClaimPreview from 'component/claimPreview';
 import Icon from 'component/common/icon';
+import { useAppDispatch } from 'redux/hooks';
+import { doResolveUri } from 'redux/actions/claims';
+
 type Props = {
   title?: string;
   claimUri: string;
-  doResolveUri: (uri: string) => void;
 };
 
 const LivestreamLink = (props: Props) => {
-  const { claimUri, title = null, doResolveUri } = props;
+  const { claimUri, title = null } = props;
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   React.useEffect(() => {
     if (claimUri) {
-      doResolveUri(claimUri);
+      dispatch(doResolveUri(claimUri));
     }
-  }, [claimUri, doResolveUri]);
+  }, [claimUri, dispatch]);
   if (!claimUri) return null;
   return (
     <Card

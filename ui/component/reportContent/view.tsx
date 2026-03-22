@@ -19,7 +19,15 @@ import {
 } from 'constants/form-field';
 import * as REPORT_API from 'constants/report_content';
 import * as ICONS from 'constants/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doCommentById } from 'redux/actions/comments';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectCommentForCommentId } from 'redux/selectors/comments';
+import { doClaimSearch } from 'redux/actions/claims';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { sendContentReport } from 'services/reportContent';
+
 const PAGE_TYPE = 'page--type';
 const PAGE_CATEGORY = 'page--category';
 const PAGE_INFRINGEMENT_DETAILS = 'page--infringement-details';
@@ -54,19 +62,7 @@ const DEFAULT_INPUT_DATA = {
   relationship_to_copyrighted_content: '',
   remove_now: true,
 };
-type Props = {
-  // --- urlParams ---
-  claimId: string;
-  commentId?: string;
-  // --- internal ---
-  claim: StreamClaim;
-  comment?: Comment;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  incognito: boolean;
-  sendContentReport: SendContentReportFn;
-  doClaimSearch: (arg0: any) => Promise<any>;
-  doCommentById: (arg0: string, arg1: boolean) => Promise<any>;
-};
+
 const numStr = (n) =>
   n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
@@ -123,18 +119,18 @@ function getCommentPreviews(comment: Comment | null | undefined) {
   ) : null;
 }
 
-export default function ReportContent(props: Props) {
-  const {
-    activeChannelClaim,
-    incognito,
-    claimId,
-    commentId,
-    claim,
-    comment,
-    sendContentReport,
-    doClaimSearch,
-    doCommentById,
-  } = props;
+export default function ReportContent() {
+  const dispatch = useAppDispatch();
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const claimId = urlParams.get('claimId') || '';
+  const commentId = urlParams.get('commentId') || undefined;
+
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const incognito = useAppSelector(selectIncognito);
+  const claim = useAppSelector((state) => selectClaimForClaimId(state, claimId));
+  const comment = useAppSelector((state) => selectCommentForCommentId(state, commentId));
+
   const [input, setInput] = React.useState({ ...DEFAULT_INPUT_DATA });
   const [page, setPage] = React.useState(PAGE_TYPE);
   const [timestampInvalid, setTimestampInvalid] = React.useState(false);
@@ -147,25 +143,27 @@ export default function ReportContent(props: Props) {
   React.useEffect(() => {
     if (!claim) {
       setIsResolvingClaim(true);
-      doClaimSearch({
-        page_size: 20,
-        page: 1,
-        no_totals: true,
-        claim_ids: [claimId],
-      }).finally(() => {
+      dispatch(
+        doClaimSearch({
+          page_size: 20,
+          page: 1,
+          no_totals: true,
+          claim_ids: [claimId],
+        })
+      ).finally(() => {
         setIsResolvingClaim(false);
       });
     }
-  }, [claim, claimId, doClaimSearch]);
+  }, [claim, claimId, dispatch]);
   // Fetch comment if `commentId` is provided
   React.useEffect(() => {
     if (commentId) {
       setIsResolvingComment(true);
-      doCommentById(commentId, false).finally(() => {
+      dispatch(doCommentById(commentId, false)).finally(() => {
         setIsResolvingComment(false);
       });
     }
-  }, [commentId, doCommentById]);
+  }, [commentId, dispatch]);
   // On mount, pause player and get the timestamp, if applicable.
   React.useEffect(() => {
     if (window.player) {

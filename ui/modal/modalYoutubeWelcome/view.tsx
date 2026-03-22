@@ -5,14 +5,14 @@ import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Confetti from 'react-confetti';
 import Button from 'component/button';
-type Props = {
-  doHideModal: () => void;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 
-const YoutubeWelcome = (props: Props) => {
-  const { doHideModal } = props;
+const YoutubeWelcome = () => {
+  const dispatch = useAppDispatch();
+  const hideModal = () => dispatch(doHideModal());
   return (
-    <Modal isOpen type="card" onAborted={doHideModal}>
+    <Modal isOpen type="card" onAborted={hideModal}>
       <Confetti
         recycle={false}
         style={{
@@ -49,9 +49,9 @@ const YoutubeWelcome = (props: Props) => {
               button="primary"
               label={__('Create an Account')}
               navigate={`/$/${PAGES.AUTH}`}
-              onClick={doHideModal}
+              onClick={hideModal}
             />
-            <Button button="link" label={__('Not Yet')} onClick={doHideModal} />
+            <Button button="link" label={__('Not Yet')} onClick={hideModal} />
           </div>
         }
       />

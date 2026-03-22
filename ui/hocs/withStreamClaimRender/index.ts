@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { history } from 'redux/router';
 import * as SETTINGS from 'constants/settings';
 import {
   selectClaimForUri,
@@ -130,6 +129,6 @@ export default (Component) => {
       isExact: true,
     };
 
-    return React.createElement(ConnectedStreamClaimRender, { ...props, history, location, match, navigate });
+    return React.createElement(ConnectedStreamClaimRender, { ...props, location, match, navigate });
   };
 };

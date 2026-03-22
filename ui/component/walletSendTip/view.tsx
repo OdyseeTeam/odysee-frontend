@@ -18,6 +18,25 @@ import usePersistedState from 'effects/use-persisted-state';
 import { useArStatus } from 'effects/use-ar-status';
 import classnames from 'classnames';
 import { getStripeEnvironment } from 'util/stripe';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectTitleForUri,
+  selectClaimForUri,
+  selectClaimIsMineForUri,
+  selectFetchingMyChannels,
+} from 'redux/selectors/claims';
+import { doHideModal } from 'redux/actions/app';
+import { doSendTip } from 'redux/actions/wallet';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
+import * as SETTINGS from 'constants/settings';
+import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
+import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { doArTip } from 'redux/actions/arwallet';
+import { doToast } from 'redux/actions/notifications';
+import { selectArweaveTippingErrorForId, selectArweaveTippingStartedForId } from 'redux/selectors/arwallet';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 const stripeEnvironment = getStripeEnvironment();
 type SupportParams = {
   amount: number;
@@ -36,82 +55,45 @@ type UserParams = {
   activeChannelId: string | null | undefined;
 };
 type Props = {
-  activeChannelId?: string;
-  activeChannelName?: string;
-  balance: number;
-  claimId?: string;
-  claimType?: string;
-  channelClaimId?: string;
-  tipChannelName?: string;
-  claimIsMine: boolean;
-  fetchingChannels: boolean;
-  incognito: boolean;
-  instantTipEnabled: boolean;
-  instantTipMax: {
-    amount: number;
-    currency: string;
-  };
-  isPending: boolean;
-  isArweaveTipping: boolean;
-  arweaveTippingError: string;
-  isSupport: boolean;
-  title: string;
   uri: string;
+  isSupport?: boolean;
   isTipOnly?: boolean;
   hasSelectedTab?: string;
   customText?: string;
-  doHideModal: () => void;
-  doArTip: (
-    arg0: ArTipParams,
-    anonymous: boolean,
-    arg2: UserParams,
-    claimId: string,
-    stripeEnvironment: string | null | undefined,
-    preferredCurrency: string
-  ) => Promise<any>;
-  doSendTip: (arg0: SupportParams, arg1: boolean) => void;
-  // function that comes from lbry-redux
-  doToast: (arg0: { message: string; subMessage?: string; isError?: boolean }) => void;
   setAmount?: (arg0: number, arg1: string) => void;
   modalProps?: any;
-  canReceiveTips?: boolean;
-  arweaveTipData: ArweaveTipDataForId;
-  doTipAccountCheckForUri: (arg0: string) => void;
-  checkingAccount: boolean;
 };
 export default function WalletSendTip(props: Props) {
-  const {
-    activeChannelId,
-    activeChannelName,
-    balance,
-    claimId,
-    claimType,
-    channelClaimId,
-    tipChannelName,
-    claimIsMine,
-    fetchingChannels,
-    incognito,
-    instantTipEnabled,
-    instantTipMax,
-    isPending,
-    isArweaveTipping,
-    arweaveTippingError,
-    title,
-    uri,
-    isTipOnly,
-    hasSelectedTab,
-    customText,
-    doHideModal,
-    doSendTip,
-    setAmount,
-    modalProps,
-    canReceiveTips,
-    arweaveTipData,
-    doArTip,
-    doToast,
-    doTipAccountCheckForUri,
-    checkingAccount,
-  } = props;
+  const { uri, isTipOnly, hasSelectedTab, customText, setAmount, modalProps } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri, false));
+  const { claim_id: claimId, value_type: claimType } = claim || {};
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const tipChannelName = getChannelNameFromClaim(claim);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
+  const tipData = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+  const balance = useAppSelector(selectBalance);
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const incognito = useAppSelector(selectIncognito);
+  const instantTipEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED));
+  const instantTipMax = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX));
+  const isPending = useAppSelector(selectIsSendingSupport);
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const arweaveTipData = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
+  const isArweaveTipping = useAppSelector((state) => selectArweaveTippingStartedForId(state, claimId));
+  const arweaveTippingError = useAppSelector((state) => selectArweaveTippingErrorForId(state, claimId));
+  const checkingAccount = useAppSelector((state) => selectAccountCheckIsFetchingForId(state, claimId));
+
+  const doHideModal_ = () => dispatch(doHideModal());
+  const doSendTip_ = (...args: Parameters<typeof doSendTip>) => dispatch(doSendTip(...args));
+  const doArTip_ = (...args: Parameters<typeof doArTip>) => dispatch(doArTip(...args));
+  const doToast_ = (...args: Parameters<typeof doToast>) => dispatch(doToast(...args));
+  const doTipAccountCheckForUri_ = (...args: Parameters<typeof doTipAccountCheckForUri>) =>
+    dispatch(doTipAccountCheckForUri(...args));
   const { activeArStatus } = useArStatus();
   // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
@@ -229,8 +211,8 @@ export default function WalletSendTip(props: Props) {
         channel_id: (!incognito && activeChannelId) || undefined,
       };
       // send tip/boost
-      doSendTip(supportParams, isSupport);
-      doHideModal();
+      doSendTip_(supportParams, isSupport);
+      doHideModal_();
     }
   }
 
@@ -240,7 +222,7 @@ export default function WalletSendTip(props: Props) {
 
     if (setAmount) {
       setAmount(tipAmount, activeTab);
-      doHideModal();
+      doHideModal_();
       return;
     }
 
@@ -270,20 +252,20 @@ export default function WalletSendTip(props: Props) {
           activeChannelId,
         };
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
+        doArTip_(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
           .then((r) => {
             if (r.error) {
               throw new Error(r.error);
             }
 
-            doToast({
+            doToast_({
               message: __('Tip sent!'),
             });
-            doHideModal();
+            doHideModal_();
           })
           .catch((e) => {
             console.error(e);
-            doToast({
+            doToast_({
               message: __('Tip failed to send.'),
               subMessage: e?.message || e,
               isError: true,
@@ -313,8 +295,8 @@ export default function WalletSendTip(props: Props) {
   }
 
   React.useEffect(() => {
-    doTipAccountCheckForUri(uri);
-  }, [doTipAccountCheckForUri, uri]);
+    doTipAccountCheckForUri_(uri);
+  }, [doTipAccountCheckForUri_, uri]);
   React.useEffect(() => {
     if (!hasSelected && hasSelectedTab) {
       setActiveTab(claimIsMine ? TAB_BOOST : hasSelectedTab);

@@ -10,7 +10,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 type Props = {
   userHasVerifiedEmail: boolean | null | undefined;
   doClaimRefereeReward: () => void;
@@ -25,6 +25,8 @@ type Props = {
 };
 
 function Invited(props: Props) {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const {
     userHasVerifiedEmail,
     doClaimRefereeReward,
@@ -56,11 +58,11 @@ function Invited(props: Props) {
   const referrerCode = getReferrerCodeFromCurrentPath();
 
   function handleDone() {
-    history.push(redirectPath);
+    navigate(redirectPath);
   }
 
   function getReferrerCodeFromCurrentPath() {
-    const splitUriArray = history.location.pathname.split('/');
+    const splitUriArray = pathname.split('/');
     return splitUriArray[splitUriArray.length - 1];
   }
 

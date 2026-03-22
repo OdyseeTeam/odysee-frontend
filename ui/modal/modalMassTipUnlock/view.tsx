@@ -6,23 +6,31 @@ import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import Card from 'component/common/card';
 import { WALLET_CONSOLIDATE_UTXOS } from 'component/walletBalance/view';
-type Props = {
-  doHideModal: () => void;
-  tipsBalance: number;
-  doTipClaimMass: () => void;
-  massClaimingTips: boolean;
-  utxoCounts: Record<string, number>;
-};
-export default function ModalSupportsLiquidate(props: Props) {
-  const { doHideModal, doTipClaimMass, massClaimingTips, utxoCounts, tipsBalance } = props;
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectIsMassClaimingTips, selectUtxoCounts, selectTipsBalance } from 'redux/selectors/wallet';
+import { doHideModal } from 'redux/actions/app';
+import { doTipClaimMass } from 'redux/actions/wallet';
+
+export default function ModalSupportsLiquidate() {
+  const dispatch = useAppDispatch();
+  const massClaimingTips = useAppSelector(selectIsMassClaimingTips);
+  const utxoCounts = useAppSelector(selectUtxoCounts);
+  const tipsBalance = useAppSelector(selectTipsBalance) || 0;
+
   const { support: supportCount = 0 } = utxoCounts || {};
   React.useEffect(() => {
     if (!tipsBalance) {
-      doHideModal();
+      dispatch(doHideModal());
     }
-  }, [tipsBalance, doHideModal]);
+  }, [tipsBalance, dispatch]);
   return (
-    <Modal isOpen contentLabel={__('Unlock all tips')} type="card" confirmButtonLabel="done" onAborted={doHideModal}>
+    <Modal
+      isOpen
+      contentLabel={__('Unlock all tips')}
+      type="card"
+      confirmButtonLabel="done"
+      onAborted={() => dispatch(doHideModal())}
+    >
       <Card
         icon={ICONS.UNLOCK}
         title={__('Unlock all tips')}
@@ -59,7 +67,7 @@ export default function ModalSupportsLiquidate(props: Props) {
             <div className="section__actions">
               <Button
                 button="primary"
-                onClick={() => doTipClaimMass()}
+                onClick={() => dispatch(doTipClaimMass())}
                 disabled={massClaimingTips}
                 label={massClaimingTips ? __('Working...') : __('Unlock All')}
               />

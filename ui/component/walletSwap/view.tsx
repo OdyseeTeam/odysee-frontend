@@ -17,6 +17,14 @@ import { clipboard } from 'electron';
 import I18nMessage from 'component/i18nMessage';
 import { Navigate } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { doAddCoinSwap, doRemoveCoinSwap, doQueryCoinSwapStatus } from 'redux/actions/coinSwap';
+import { doToast } from 'redux/actions/notifications';
+import { selectCoinSwaps } from 'redux/selectors/coinSwap';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doGetNewAddress, doCheckAddressIsMine } from 'redux/actions/wallet';
+import { selectReceiveAddress } from 'redux/selectors/wallet';
 const ENABLE_ALTERNATIVE_COINS = true;
 const BTC_SATOSHIS = 100000000;
 const LBC_MAX = 21000000;
@@ -51,19 +59,6 @@ const NAG_SWAP_CALL_FAILED = 'Failed to initiate swap.';
 const NAG_SERVER_DOWN = 'The system is currently down. Come back later.';
 const NAG_RATE_CALL_FAILED = 'Unable to obtain exchange rate. Try again later.';
 const NAG_EXPIRED = 'Swap expired.';
-type Props = {
-  receiveAddress: string;
-  coinSwaps: Array<CoinSwapInfo>;
-  isAuthenticated: boolean;
-  doToast: (arg0: { message: string }) => void;
-  addCoinSwap: (arg0: CoinSwapInfo) => void;
-  removeCoinSwap: (arg0: string) => void;
-  getNewAddress: () => void;
-  checkAddressIsMine: (arg0: string) => void;
-  openModal: (arg0: string, arg1: {}) => void;
-  queryCoinSwapStatus: (arg0: string) => void;
-};
-
 function formatCoinAmountString(amount) {
   return amount === 0
     ? '---'
@@ -116,19 +111,11 @@ function getGap() {
   return <div className="confirm__value" />; // better way?
 }
 
-function WalletSwap(props: Props) {
-  const {
-    receiveAddress,
-    doToast,
-    coinSwaps,
-    isAuthenticated,
-    addCoinSwap,
-    removeCoinSwap,
-    getNewAddress,
-    checkAddressIsMine,
-    openModal,
-    queryCoinSwapStatus,
-  } = props;
+function WalletSwap() {
+  const dispatch = useAppDispatch();
+  const receiveAddress = useAppSelector(selectReceiveAddress);
+  const coinSwaps = useAppSelector(selectCoinSwaps);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const [btc, setBtc] = React.useState(0);
   const [lbcError, setLbcError] = React.useState();
   const [lbc, setLbc] = usePersistedState('swap-desired-lbc', LBC_MIN);
@@ -150,33 +137,35 @@ function WalletSwap(props: Props) {
   }
 
   function handleRemoveSwap(chargeCode) {
-    openModal(MODALS.CONFIRM, {
-      title: __('Remove Swap'),
-      subtitle: (
-        <I18nMessage
-          tokens={{
-            address: <em>{`${chargeCode}`}</em>,
-          }}
-        >
-          Remove %address%?
-        </I18nMessage>
-      ),
-      body: <p className="help--warning">{__('This process cannot be reversed.')}</p>,
-      onConfirm: (closeModal) => {
-        removeCoinSwap(chargeCode);
-        closeModal();
-      },
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Remove Swap'),
+        subtitle: (
+          <I18nMessage
+            tokens={{
+              address: <em>{`${chargeCode}`}</em>,
+            }}
+          >
+            Remove %address%?
+          </I18nMessage>
+        ),
+        body: <p className="help--warning">{__('This process cannot be reversed.')}</p>,
+        onConfirm: (closeModal) => {
+          dispatch(doRemoveCoinSwap(chargeCode));
+          closeModal();
+        },
+      })
+    );
   }
 
   // Ensure 'receiveAddress' is populated
   React.useEffect(() => {
     if (!receiveAddress) {
-      getNewAddress();
+      dispatch(doGetNewAddress());
     } else {
-      checkAddressIsMine(receiveAddress);
+      dispatch(doCheckAddressIsMine(receiveAddress));
     }
-  }, [receiveAddress, getNewAddress, checkAddressIsMine]);
+  }, [receiveAddress, dispatch]);
   // Get 'btc/rate' and calculate required BTC.
   React.useEffect(() => {
     if (isNaN(lbc) || lbc === 0) {
@@ -396,7 +385,7 @@ function WalletSwap(props: Props) {
           },
         };
         setSwap({ ...newSwap });
-        addCoinSwap({ ...newSwap });
+        dispatch(doAddCoinSwap({ ...newSwap }));
       })
       .catch((err) => {
         setNag({
@@ -419,7 +408,7 @@ function WalletSwap(props: Props) {
       // easily. Statuses don't change often, so just limit it to every 30s.
       setLastStatusQuery(now);
       coinSwaps.forEach((x) => {
-        queryCoinSwapStatus(x.chargeCode);
+        dispatch(doQueryCoinSwapStatus(x.chargeCode));
       });
     }
   }
@@ -490,9 +479,11 @@ function WalletSwap(props: Props) {
               title={sendTxId}
               onClick={() => {
                 clipboard.writeText(sendTxId);
-                doToast({
-                  message: __('Transaction ID copied.'),
-                });
+                dispatch(
+                  doToast({
+                    message: __('Transaction ID copied.'),
+                  })
+                );
               }}
             />
           )}

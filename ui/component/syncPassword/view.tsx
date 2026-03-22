@@ -7,17 +7,17 @@ import usePersistedState from 'effects/use-persisted-state';
 import I18nMessage from 'component/i18nMessage';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SITE_HELP_EMAIL } from 'config';
-type Props = {
-  getSync: (arg0: (arg0: any, arg1: boolean) => void, arg1: string | null | undefined) => void;
-  getSyncIsPending: boolean;
-  email: string;
-  passwordError: boolean;
-  signOut: () => void;
-  handleSyncComplete: (arg0: any, arg1: boolean) => void;
-};
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectGetSyncIsPending, selectSyncApplyPasswordError } from 'redux/selectors/sync';
+import { doGetSyncDesktop } from 'redux/actions/sync';
+import { selectUserEmail } from 'redux/selectors/user';
+import { doSignOut, doHandleSyncComplete } from 'redux/actions/app';
 
-function SyncPassword(props: Props) {
-  const { getSync, getSyncIsPending, email, passwordError, signOut, handleSyncComplete } = props;
+function SyncPassword() {
+  const dispatch = useAppDispatch();
+  const getSyncIsPending = useAppSelector(selectGetSyncIsPending);
+  const email = useAppSelector(selectUserEmail);
+  const passwordError = useAppSelector(selectSyncApplyPasswordError);
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -26,14 +26,16 @@ function SyncPassword(props: Props) {
   const [rememberPassword, setRememberPassword] = usePersistedState(true);
 
   function handleSubmit() {
-    getSync((error, hasDataChanged) => {
-      handleSyncComplete(error, hasDataChanged);
+    dispatch(
+      doGetSyncDesktop((error, hasDataChanged) => {
+        dispatch(doHandleSyncComplete(error, hasDataChanged));
 
-      if (!error) {
-        navigate(redirect || '/');
-        setSavedPassword(password, rememberPassword);
-      }
-    }, password);
+        if (!error) {
+          navigate(redirect || '/');
+          setSavedPassword(password, rememberPassword);
+        }
+      }, password)
+    );
   }
 
   return (
@@ -73,7 +75,7 @@ function SyncPassword(props: Props) {
                 label={getSyncIsPending ? __('Continue...') : __('Continue')}
                 disabled={getSyncIsPending}
               />
-              <Button button="link" label={__('Cancel')} onClick={signOut} />
+              <Button button="link" label={__('Cancel')} onClick={() => dispatch(doSignOut())} />
             </div>
             <p className="help">
               <I18nMessage

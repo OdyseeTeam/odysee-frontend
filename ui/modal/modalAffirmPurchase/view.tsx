@@ -8,33 +8,26 @@ import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import { isURIEqual } from 'util/lbryURI';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectInsufficientCreditsForUri, selectPlayingUri } from 'redux/selectors/content';
+import { doHideModal, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
+import { makeSelectMetadataForUri } from 'redux/selectors/claims';
+import { doPlayUri, doSetPlayingUri } from 'redux/actions/content';
 // This number is tied to transitions in scss/purchase.scss
 const ANIMATION_LENGTH = 2500;
 type Props = {
-  isInsufficientCredits: boolean;
-  closeModal: () => void;
-  loadVideo: (arg0: string, arg1: (arg0: GetResponse) => void) => void;
   uri: string;
   cancelPurchase: () => void;
-  metadata: StreamMetadata;
-  analyticsPurchaseEvent: (arg0: GetResponse) => void;
-  playingUri: PlayingUri;
-  setPlayingUri: (params: PlayingUri) => void;
   cancelCb?: () => void;
 };
 
 function ModalAffirmPurchase(props: Props) {
-  const {
-    isInsufficientCredits,
-    closeModal,
-    loadVideo,
-    metadata,
-    uri,
-    analyticsPurchaseEvent,
-    playingUri,
-    setPlayingUri,
-    cancelCb,
-  } = props;
+  const { uri, cancelCb } = props;
+  const dispatch = useAppDispatch();
+  const isInsufficientCredits = useAppSelector((state) => selectInsufficientCreditsForUri(state, uri));
+  const metadata = useAppSelector((state) => makeSelectMetadataForUri(uri)(state));
+  const playingUri = useAppSelector(selectPlayingUri);
+  const closeModal = () => dispatch(doHideModal());
   const [success, setSuccess] = React.useState(false);
   const [purchasing, setPurchasing] = React.useState(false);
 
@@ -45,20 +38,22 @@ function ModalAffirmPurchase(props: Props) {
 
   function onAffirmPurchase() {
     setPurchasing(true);
-    loadVideo(uri, (fileInfo) => {
-      setPurchasing(false);
-      setSuccess(true);
-      analyticsPurchaseEvent(fileInfo);
+    dispatch(
+      doPlayUri(uri, true, undefined, (fileInfo: GetResponse) => {
+        setPurchasing(false);
+        setSuccess(true);
+        dispatch(doAnaltyicsPurchaseEvent(fileInfo));
 
-      if (playingUri.uri !== uri) {
-        setPlayingUri({ ...playingUri, uri });
-      }
-    });
+        if (playingUri.uri !== uri) {
+          dispatch(doSetPlayingUri({ ...playingUri, uri }));
+        }
+      })
+    );
   }
 
-  function cancelPurchase() {
+  function handleCancelPurchase() {
     if (playingUri.uri && isURIEqual(uri, playingUri.uri) && !playingUri.collection.collectionId) {
-      setPlayingUri({ ...playingUri, uri: null });
+      dispatch(doSetPlayingUri({ ...playingUri, uri: null }));
     }
 
     if (cancelCb) cancelCb();
@@ -95,14 +90,14 @@ function ModalAffirmPurchase(props: Props) {
 
   if (isInsufficientCredits) {
     return (
-      <Modal type="card" isOpen onAborted={cancelPurchase}>
+      <Modal type="card" isOpen onAborted={handleCancelPurchase}>
         <Card title={__('Insufficient credits')} subtitle={<ClaimInsufficientCredits uri={uri} />} />
       </Modal>
     );
   }
 
   return (
-    <Modal type="card" isOpen contentLabel={modalTitle} onAborted={cancelPurchase}>
+    <Modal type="card" isOpen contentLabel={modalTitle} onAborted={handleCancelPurchase}>
       <Card
         title={modalTitle}
         subtitle={
@@ -153,7 +148,7 @@ function ModalAffirmPurchase(props: Props) {
               label={purchasing ? __('Purchasing...') : __('Purchase')}
               onClick={onAffirmPurchase}
             />
-            <Button button="link" label={__('Cancel')} onClick={cancelPurchase} />
+            <Button button="link" label={__('Cancel')} onClick={handleCancelPurchase} />
           </div>
         }
       />

@@ -1,23 +1,25 @@
 import React from 'react';
 import Button from 'component/button';
+import { useAppDispatch } from 'redux/hooks';
+import { doSignOut } from 'redux/actions/app';
+import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
+
 type Props = {
   button: string;
   label?: string;
-  doSignOut: () => void;
-  doClearEmailEntry: () => void;
-  doClearPasswordEntry: () => void;
 };
 
 function UserSignOutButton(props: Props) {
-  const { button = 'link', doSignOut, doClearEmailEntry, doClearPasswordEntry, label } = props;
+  const { button = 'link', label } = props;
+  const dispatch = useAppDispatch();
   return (
     <Button
       button={button}
       label={label || __('Sign Out')}
       onClick={() => {
-        doClearPasswordEntry();
-        doClearEmailEntry();
-        doSignOut();
+        dispatch(doClearPasswordEntry());
+        dispatch(doClearEmailEntry());
+        dispatch(doSignOut());
       }}
     />
   );

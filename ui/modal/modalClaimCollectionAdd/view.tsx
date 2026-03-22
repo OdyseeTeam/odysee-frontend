@@ -1,17 +1,19 @@
 import React from 'react';
 import ClaimCollectionAdd from './internal/claimCollectionAdd';
 import { Modal } from 'modal/modal';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
   uri: string;
-  // -- redux --
-  doHideModal: () => void;
 };
 
 const ModalClaimCollectionAdd = (props: Props) => {
-  const { uri, doHideModal } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const hideModal = () => dispatch(doHideModal());
   return (
-    <Modal isOpen type="card" onAborted={doHideModal}>
-      <ClaimCollectionAdd uri={uri} closeModal={doHideModal} />
+    <Modal isOpen type="card" onAborted={hideModal}>
+      <ClaimCollectionAdd uri={uri} closeModal={hideModal} />
     </Modal>
   );
 };

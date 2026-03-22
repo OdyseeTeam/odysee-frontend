@@ -4,14 +4,16 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import Spinner from 'component/spinner';
 import { Modal } from 'modal/modal';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
   pendingActions: Array<string>;
   onConfirm: () => void;
-  // --- perform ---
-  doHideModal: () => void;
 };
 export default function ModalSignOut(props: Props) {
-  const { pendingActions, onConfirm, doHideModal } = props;
+  const { pendingActions, onConfirm } = props;
+  const dispatch = useAppDispatch();
+  const hideModal = () => dispatch(doHideModal());
   const [isBusy, setIsBusy] = React.useState(false);
 
   function handleOnClick() {
@@ -47,7 +49,7 @@ export default function ModalSignOut(props: Props) {
               onClick={handleOnClick}
             />
 
-            <Button button="link" label={__('Cancel')} disabled={isBusy} onClick={doHideModal} />
+            <Button button="link" label={__('Cancel')} disabled={isBusy} onClick={hideModal} />
           </div>
         }
       />

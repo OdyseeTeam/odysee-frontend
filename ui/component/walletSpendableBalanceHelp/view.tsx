@@ -2,18 +2,22 @@ import CreditAmount from 'component/common/credit-amount';
 import Symbol from '../common/symbol';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
+import { useAppSelector } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectArweaveBalance, selectArweaveConnecting, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+
 type Props = {
-  LBCBalance: number;
-  USDCBalance: number;
-  ARBalance: number;
-  dollarsPerAr: number;
   asset?: string;
   inline?: boolean;
-  arConnecting: boolean;
 };
 
 function WalletSpendableBalanceHelp(props: Props) {
-  const { LBCBalance, USDCBalance, dollarsPerAr, ARBalance, asset = 'lbc', inline, arConnecting } = props;
+  const { asset = 'lbc', inline } = props;
+  const LBCBalance = useAppSelector(selectBalance);
+  const USDCBalance = useAppSelector(selectArweaveBalance).usdc;
+  const ARBalance = useAppSelector(selectArweaveBalance).ar;
+  const dollarsPerAr = useAppSelector(selectArweaveExchangeRates).ar;
+  const arConnecting = useAppSelector(selectArweaveConnecting);
   const dollars = ARBalance * dollarsPerAr;
   const dollarsRounded = Number(dollars.toFixed(2));
 

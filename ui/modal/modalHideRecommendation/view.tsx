@@ -4,13 +4,16 @@ import ClaimPreview from 'component/claimPreview';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form-components/form-field';
 import { Modal } from 'modal/modal';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
   uri: string;
   onConfirm: (hideChannel: boolean) => void;
-  doHideModal: () => void;
 };
 export default function ModalHideRecommendation(props: Props) {
-  const { uri, onConfirm, doHideModal } = props;
+  const { uri, onConfirm } = props;
+  const dispatch = useAppDispatch();
+  const hideModal = () => dispatch(doHideModal());
   const [hideChannel, setHideChannel] = React.useState(false);
 
   function handleOnClick() {
@@ -18,11 +21,11 @@ export default function ModalHideRecommendation(props: Props) {
       onConfirm(hideChannel);
     }
 
-    doHideModal();
+    hideModal();
   }
 
   return (
-    <Modal isOpen type="card" onAborted={doHideModal}>
+    <Modal isOpen type="card" onAborted={hideModal}>
       <Card
         title={__('Not interested')}
         body={<ClaimPreview uri={uri} hideMenu hideActions nonClickable type="inline" properties={false} />}
@@ -39,7 +42,7 @@ export default function ModalHideRecommendation(props: Props) {
             </div>
             <div className="section__actions">
               <Button button="primary" label={__('Submit')} onClick={handleOnClick} />
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+              <Button button="link" label={__('Cancel')} onClick={hideModal} />
             </div>
           </>
         }

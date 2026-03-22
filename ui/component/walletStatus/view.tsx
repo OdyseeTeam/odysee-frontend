@@ -3,12 +3,13 @@ import { NavLink } from 'react-router-dom';
 // @ts-ignore
 import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
-type Props = {
-  arweaveWallets: any;
-  doArConnect: () => void;
-};
-export default function WalletStatus(props: Props) {
-  const { arweaveWallets, doArConnect } = props;
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doArConnect } from 'redux/actions/arwallet';
+import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
+
+export default function WalletStatus() {
+  const dispatch = useAppDispatch();
+  const arweaveWallets = useAppSelector(selectFullAPIArweaveAccounts);
   const { activeArStatus } = useArStatus();
   return arweaveWallets && activeArStatus !== 'connected' ? (
     <div
@@ -42,7 +43,7 @@ export default function WalletStatus(props: Props) {
         <>
           <p>{__('To use AR on Odysee, the Wander wallet must be connected.')}</p>
           <div>
-            <a className="link" onClick={() => doArConnect()}>
+            <a className="link" onClick={() => dispatch(doArConnect())}>
               Connect now
             </a>
             <span> or </span>

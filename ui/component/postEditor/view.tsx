@@ -1,50 +1,47 @@
 import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { doPlayUri } from 'redux/actions/content';
+
 type Props = {
   uri: string | null | undefined;
   label: string | null | undefined;
   disabled: boolean | null | undefined;
-  filePath: string | WebFile;
-  fileText: string | null | undefined;
   fileMimeType: string | null | undefined;
-  streamingUrl: string | null | undefined;
-  isStillEditing: boolean;
-  fetchStreamingUrl: (arg0: string) => void;
   setPrevFileText: (arg0: string) => void;
-  updatePublishForm: (arg0: UpdatePublishState) => void; // setCurrentFileType: (string) => void,
 };
 
 function PostEditor(props: Props) {
-  const {
-    uri,
-    label,
-    disabled,
-    filePath,
-    fileText,
-    streamingUrl,
-    fileMimeType,
-    isStillEditing,
-    setPrevFileText,
-    fetchStreamingUrl,
-    updatePublishForm, // setCurrentFileType,
-  } = props;
+  const { uri, label, disabled, fileMimeType, setPrevFileText } = props;
+
+  const dispatch = useAppDispatch();
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const fileText = useAppSelector((state) => selectPublishFormValue(state, 'fileText'));
+  const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+  const isStillEditing = useAppSelector(selectIsStillEditing);
+
   const editing = isStillEditing && uri;
   const [ready, setReady] = React.useState(!editing);
   const [loading, setLoading] = React.useState(false);
   const updateFileText = React.useCallback(
     debounce((value) => {
-      updatePublishForm({
-        fileText: value,
-      });
+      dispatch(
+        doUpdatePublishForm({
+          fileText: value,
+        })
+      );
     }, 750),
     []
   );
   useEffect(() => {
     if (editing && uri) {
-      fetchStreamingUrl(uri);
+      dispatch(doPlayUri(uri));
     }
-  }, [uri, editing, fetchStreamingUrl]);
+  }, [uri, editing, dispatch]);
   // Ready to edit content
   useEffect(() => {
     if (!ready && !loading && fileText && streamingUrl) {
@@ -71,9 +68,11 @@ function PostEditor(props: Props) {
           // Store original content
           setPrevFileText(text);
           // Update text editor form
-          updatePublishForm({
-            fileText: text,
-          });
+          dispatch(
+            doUpdatePublishForm({
+              fileText: text,
+            })
+          );
         }
       } catch (error) {
         console.error(error); // eslint-disable-line
@@ -96,7 +95,7 @@ function PostEditor(props: Props) {
     fileMimeType,
     streamingUrl,
     setPrevFileText,
-    updatePublishForm, // setCurrentFileType,
+    dispatch, // setCurrentFileType,
   ]);
   return (
     <FormField

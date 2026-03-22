@@ -5,23 +5,26 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import * as PAGES from 'constants/pages';
 import { Modal } from 'modal/modal';
 import { getSimpleStrHash } from 'util/string';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doSetLastViewedAnnouncement } from 'redux/actions/content';
+import { selectLastViewedAnnouncement } from 'redux/selectors/content';
+import { selectHomepageAnnouncement } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 type Props = {
   isAutoInvoked?: boolean;
-  // --- redux ---
-  authenticated?: boolean;
-  announcement: string;
-  lastViewedHash: LastViewedAnnouncement;
-  doHideModal: () => void;
-  doSetLastViewedAnnouncement: (hash: string) => void;
 };
 export default function ModalAnnouncements(props: Props) {
-  const { authenticated, announcement, lastViewedHash, isAutoInvoked, doHideModal, doSetLastViewedAnnouncement } =
-    props;
+  const { isAutoInvoked } = props;
+  const dispatch = useAppDispatch();
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const announcement = useAppSelector(selectHomepageAnnouncement);
+  const lastViewedHash = useAppSelector(selectLastViewedAnnouncement);
   const { pathname } = useLocation();
   const [show, setShow] = React.useState(false);
   React.useEffect(() => {
     if (!authenticated || (pathname !== '/' && pathname !== `/$/${PAGES.HELP}`) || announcement === '') {
-      doHideModal();
+      dispatch(doHideModal());
       return;
     }
 
@@ -29,13 +32,13 @@ export default function ModalAnnouncements(props: Props) {
 
     if (lastViewedHash.includes(hash)) {
       if (isAutoInvoked) {
-        doHideModal();
+        dispatch(doHideModal());
       } else {
         setShow(true);
       }
     } else {
       setShow(true);
-      doSetLastViewedAnnouncement(hash);
+      dispatch(doSetLastViewedAnnouncement(hash));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
@@ -44,7 +47,7 @@ export default function ModalAnnouncements(props: Props) {
   }
 
   return (
-    <Modal type="card" isOpen onAborted={doHideModal}>
+    <Modal type="card" isOpen onAborted={() => dispatch(doHideModal())}>
       <Card
         className="announcement"
         actions={<MarkdownPreview className="markdown-preview--announcement" content={announcement} simpleLinks />}

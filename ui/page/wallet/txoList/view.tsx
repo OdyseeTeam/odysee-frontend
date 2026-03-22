@@ -12,8 +12,7 @@ import HelpLink from 'component/common/help-link';
 import FileExporter from 'component/common/file-exporter';
 import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
 import WalletFiatAccountHistory from '../walletFiatAccountHistory';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
@@ -41,6 +40,7 @@ type Delta = {
 };
 
 function TxoList(props: Props) {
+  const navigate = useNavigate();
   const { search } = useLocation();
   const {
     txoPage,
@@ -142,7 +142,7 @@ function TxoList(props: Props) {
 
   function handleChange(delta: Delta) {
     const url = updateUrl(delta);
-    history.push(url);
+    navigate(url);
   }
 
   function updateUrl(delta: Delta) {

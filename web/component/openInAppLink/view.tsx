@@ -2,8 +2,7 @@ import React from 'react';
 import { formatWebUrlIntoLbryUrl } from 'util/url';
 import Nag from 'component/nag';
 import usePersistedState from 'effects/use-persisted-state';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 const userAgent = navigator.userAgent.toLowerCase();
 const isAndroidDevice = userAgent.includes('android');
 const isDesktopDevice = typeof window.orientation === 'undefined';
@@ -18,7 +17,7 @@ type Props = {
 };
 
 function OpenInAppLink(props: Props) {
-  const { replace } = history;
+  const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const { uri, user } = props;
   const [showNag, setShowNag] = React.useState(false);
@@ -55,9 +54,9 @@ function OpenInAppLink(props: Props) {
       params.delete('src');
       const newParams = params.toString();
       const newUrl = `${pathname}?${newParams}`;
-      replace(newUrl);
+      navigate(newUrl, { replace: true });
     }
-  }, [hasSrcParam, search, pathname, replace, params]);
+  }, [hasSrcParam, navigate, pathname, params, search]);
   React.useEffect(() => {
     const isOnDeviceToPrompt = (isAndroidUser && isAndroidDevice) || (isDesktopUser && isDesktopDevice);
     const dateRightNow = Date.now();

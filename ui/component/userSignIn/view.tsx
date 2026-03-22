@@ -2,19 +2,19 @@ import React from 'react';
 import UserEmailReturning from 'component/userEmailReturning';
 import UserSignInPassword from 'component/userSignInPassword';
 import Spinner from 'component/spinner';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
-type Props = {
-  user: User | null | undefined;
-  userFetchPending: boolean;
-  doUserSignIn: (arg0: string) => void;
-  emailToVerify: string | null | undefined;
-  passwordExists: boolean;
-};
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectUser, selectUserIsPending, selectEmailToVerify, selectPasswordExists } from 'redux/selectors/user';
+import { doUserSignIn } from 'redux/actions/user';
 
-function UserSignIn(props: Props) {
+function UserSignIn() {
   const location = useLocation();
-  const { user, doUserSignIn, userFetchPending, emailToVerify, passwordExists } = props;
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const userFetchPending = useAppSelector(selectUserIsPending);
+  const emailToVerify = useAppSelector(selectEmailToVerify);
+  const passwordExists = useAppSelector(selectPasswordExists);
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const [emailOnlyLogin, setEmailOnlyLogin] = React.useState(false);
@@ -25,14 +25,14 @@ function UserSignIn(props: Props) {
   const showPassword = !showEmail && emailToVerify && passwordExists;
   React.useEffect(() => {
     if (hasVerifiedEmail || (!showEmail && !showPassword && !showLoading)) {
-      history.replace(redirect || '/');
+      navigate(redirect || '/', { replace: true });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [showEmail, showPassword, showLoading, hasVerifiedEmail]);
+  }, [hasVerifiedEmail, navigate, redirect, showEmail, showLoading, showPassword]);
   React.useEffect(() => {
     if (emailToVerify && emailOnlyLogin) {
-      doUserSignIn(emailToVerify);
+      dispatch(doUserSignIn(emailToVerify));
     }
-  }, [emailToVerify, emailOnlyLogin, doUserSignIn]);
+  }, [emailToVerify, emailOnlyLogin, dispatch]);
   return (
     <section>
       {(showEmail || showPassword) && (

@@ -6,28 +6,25 @@ import classnames from 'classnames';
 import useDragDrop from 'effects/use-drag-drop';
 import { getTree } from 'util/web-file-system';
 import Icon from 'component/common/icon';
-import { history } from 'redux/router';
-type Props = {
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  filePath: string | WebFile;
-  openModal: (
-    id: string,
-    arg1: {
-      files: Array<WebFile>;
-    }
-  ) => void;
-  doUpdateFile: (file: WebFile, clearName?: boolean) => void;
-};
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doUpdateFile } from 'redux/actions/publish';
+import { selectPublishFormValue } from 'redux/selectors/publish';
+import { selectModal } from 'redux/selectors/app';
+import { doOpenModal } from 'redux/actions/app';
+
 const HIDE_TIME_OUT = 600;
 const TARGET_TIME_OUT = 300;
 const NAVIGATE_TIME_OUT = 400;
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
-function FileDrop(props: Props) {
-  const { modal, openModal, doUpdateFile } = props;
+function FileDrop() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const modal = useAppSelector(selectModal);
+  const openModal = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
+  const doUpdateFile_ = (...args: Parameters<typeof doUpdateFile>) => dispatch(doUpdateFile(...args));
   const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
   const [error, setError] = React.useState(false);
@@ -54,10 +51,10 @@ function FileDrop(props: Props) {
   const navigateToPublish = React.useCallback(() => {
     // Navigate only if location is not publish area
     // - Prevents spam in browser history
-    if (history.location.pathname !== PUBLISH_URL) {
-      history.push(PUBLISH_URL);
+    if (location.pathname !== PUBLISH_URL) {
+      navigate(PUBLISH_URL);
     }
-  }, [history]);
+  }, [location.pathname, navigate]);
   // Delay hide and navigation for a smooth transition
   const hideDropArea = React.useCallback(() => {
     hideTimer.current = setTimeout(() => {
@@ -71,10 +68,10 @@ function FileDrop(props: Props) {
   // Handle file selection
   const handleFileSelected = React.useCallback(
     (selectedFile) => {
-      doUpdateFile(selectedFile);
+      doUpdateFile_(selectedFile);
       hideDropArea();
     },
-    [doUpdateFile, hideDropArea]
+    [doUpdateFile_, hideDropArea]
   );
   // Clear timers when unmounted
   React.useEffect(() => {

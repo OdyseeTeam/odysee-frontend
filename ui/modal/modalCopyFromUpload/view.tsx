@@ -12,6 +12,11 @@ import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/li
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { cloneDeep } from 'util/clone';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectPublishFormValues } from 'redux/selectors/publish';
+import { doHideModal, doOpenModal } from 'redux/actions/app';
+import { doPopulatePublishFormFromClaim, doSearchMyUploads, doUpdatePublishForm } from 'redux/actions/publish';
+import { doToast } from 'redux/actions/notifications';
 import './style.scss';
 const COPYABLE_FIELDS = [
   {
@@ -62,20 +67,6 @@ const FILTERS = [
   },
 ];
 const MAX_VISIBLE_RESULTS = 100;
-type Props = {
-  searchUploads: (
-    searchTerm: string,
-    filter: string
-  ) => Promise<{
-    claims: Array<StreamClaim>;
-  }>;
-  doPopulatePublishFormFromClaim: (claim: StreamClaim, fields: Array<string>) => void;
-  publishFormValues: any;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  doOpenModal: (arg0: string, arg1: {} | null | undefined) => void;
-  doToast: (arg0: { message: string; actionText?: string; action?: () => void; isError?: boolean }) => void;
-  doHideModal: () => void;
-};
 type ClaimCopyMetadata = {
   rawTags: Array<string>;
   filteredTags: Array<string>;
@@ -454,16 +445,10 @@ function getCopySummaryForClaim(claim: StreamClaim | null | undefined): ClaimCop
   };
 }
 
-export default function ModalCopyFromUpload(props: Props) {
-  const {
-    searchUploads,
-    doPopulatePublishFormFromClaim,
-    publishFormValues,
-    updatePublishForm,
-    doOpenModal,
-    doToast,
-    doHideModal,
-  } = props;
+export default function ModalCopyFromUpload() {
+  const dispatch = useAppDispatch();
+  const publishFormValues = useAppSelector(selectPublishFormValues);
+
   const [searchTerm, setSearchTerm] = React.useState('');
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   const [activeFilter, setActiveFilter] = React.useState('all');
@@ -500,7 +485,7 @@ export default function ModalCopyFromUpload(props: Props) {
       setLoadingFailed(false);
 
       try {
-        const result = await searchUploads(term, filter);
+        const result = await dispatch(doSearchMyUploads(term, filter));
         if (!isMountedRef.current || searchRequestRef.current !== reqId) return;
         setClaims(Array.isArray(result?.claims) ? result.claims : []);
       } catch {
@@ -513,7 +498,7 @@ export default function ModalCopyFromUpload(props: Props) {
         }
       }
     },
-    [searchUploads]
+    [dispatch]
   );
   React.useEffect(() => {
     runSearch(trimmedTerm, activeFilter);
@@ -570,48 +555,54 @@ export default function ModalCopyFromUpload(props: Props) {
     if (!selectedClaim || fields.length === 0) return;
     const fieldKeys = fields.map((field) => field.key);
     const undoData = getUndoDataForFields(fieldKeys, publishFormValues);
-    doPopulatePublishFormFromClaim(selectedClaim, fieldKeys);
-    doToast({
-      message: __('Copied %count% field(s).', {
-        count: fieldKeys.length,
-      }),
-      actionText: __('Undo'),
-      action: () => updatePublishForm(undoData),
-    });
-    doHideModal();
+    dispatch(doPopulatePublishFormFromClaim(selectedClaim, fieldKeys));
+    dispatch(
+      doToast({
+        message: __('Copied %count% field(s).', {
+          count: fieldKeys.length,
+        }),
+        actionText: __('Undo'),
+        action: () => dispatch(doUpdatePublishForm(undoData)),
+      })
+    );
+    dispatch(doHideModal());
   }
 
   function handleCopy() {
     if (!selectedClaim) return;
 
     if (fieldsToApply.length === 0) {
-      doToast({
-        message: __('Selected fields already match the current form values.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('Selected fields already match the current form values.'),
+          isError: true,
+        })
+      );
       return;
     }
 
     const overwriteFieldLabels = fieldsThatWouldOverwrite.map((field) => field.label);
 
     if (overwriteFieldLabels.length > 0) {
-      doOpenModal(MODALS.CONFIRM, {
-        title: __('Replace existing metadata?'),
-        subtitle: __('The selected upload will replace %count% existing field(s) in this form.', {
-          count: overwriteFieldLabels.length,
-        }),
-        body: (
-          <ul className="copy-from-upload__overwrite-list">
-            {overwriteFieldLabels.map((fieldLabel) => (
-              <li key={fieldLabel}>{__(fieldLabel)}</li>
-            ))}
-          </ul>
-        ),
-        labelOk: __('Replace Fields'),
-        onConfirm: () => {
-          applyCopy(fieldsToApply);
-        },
-      });
+      dispatch(
+        doOpenModal(MODALS.CONFIRM, {
+          title: __('Replace existing metadata?'),
+          subtitle: __('The selected upload will replace %count% existing field(s) in this form.', {
+            count: overwriteFieldLabels.length,
+          }),
+          body: (
+            <ul className="copy-from-upload__overwrite-list">
+              {overwriteFieldLabels.map((fieldLabel) => (
+                <li key={fieldLabel}>{__(fieldLabel)}</li>
+              ))}
+            </ul>
+          ),
+          labelOk: __('Replace Fields'),
+          onConfirm: () => {
+            applyCopy(fieldsToApply);
+          },
+        })
+      );
       return;
     }
 
@@ -818,7 +809,13 @@ export default function ModalCopyFromUpload(props: Props) {
   };
 
   return (
-    <Modal isOpen type="custom" width="wide" className="copy-from-upload-modal" onAborted={doHideModal}>
+    <Modal
+      isOpen
+      type="custom"
+      width="wide"
+      className="copy-from-upload-modal"
+      onAborted={() => dispatch(doHideModal())}
+    >
       <Card
         title={selectedClaim ? __('Select Fields to Copy') : __('Copy from Previous Upload')}
         subtitle={
@@ -840,7 +837,7 @@ export default function ModalCopyFromUpload(props: Props) {
                 <Button button="link" label={__('Back')} onClick={() => setSelectedClaim(null)} />
               </>
             ) : (
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+              <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
             )}
           </div>
         }

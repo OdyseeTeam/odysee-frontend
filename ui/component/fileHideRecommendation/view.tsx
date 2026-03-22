@@ -1,19 +1,20 @@
 import React from 'react';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import { useAppDispatch } from 'redux/hooks';
+import { doRemovePersonalRecommendation } from 'redux/actions/search';
 type Props = {
   uri: string;
   buttonType: string | null | undefined;
   showLabel: boolean | null | undefined;
   focusable: boolean;
-  // --- redux ---
-  doRemovePersonalRecommendation: (uri: string) => void;
 };
 export default function FileHideRecommendation(props: Props) {
-  const { uri, buttonType, showLabel = false, focusable = true, doRemovePersonalRecommendation } = props;
+  const { uri, buttonType, showLabel = false, focusable = true } = props;
+  const dispatch = useAppDispatch();
 
   function handleClick(e) {
-    doRemovePersonalRecommendation(uri);
+    dispatch(doRemovePersonalRecommendation(uri));
     e.preventDefault();
   }
 

@@ -16,6 +16,11 @@ import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import classnames from 'classnames';
 import './style.lazy.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { doOpenModal } from 'redux/actions/app';
+
 const EXPAND = {
   NONE: 'none',
   CREDIT_DETAILS: 'credit_details',
@@ -23,14 +28,17 @@ const EXPAND = {
 };
 type Props = {
   uri: string;
-  claim: StreamClaim | null | undefined;
-  claimIsMine: boolean;
-  contentUnlocked: boolean;
-  doOpenModal: (id: string, arg1: {}) => void;
 };
 
 function PostViewer(props: Props) {
-  const { uri, claim, claimIsMine, contentUnlocked, doOpenModal } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
+  const contentUnlocked = useAppSelector(
+    (state) => claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id)
+  );
+
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
   if (!claim) {
@@ -80,9 +88,11 @@ function PostViewer(props: Props) {
               icon={ICONS.UNLOCK}
               aria-label={__('Unlock tips')}
               onClick={() => {
-                doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
-                  uri,
-                });
+                dispatch(
+                  doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
+                    uri,
+                  })
+                );
               }}
             />
           )}

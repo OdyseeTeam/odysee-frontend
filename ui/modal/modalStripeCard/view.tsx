@@ -2,37 +2,42 @@ import React from 'react';
 import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
-import StripeCard from 'component/settingsStripeCard';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectHasSavedCard } from 'redux/selectors/stripe';
+import { doOpenModal, doHideModal } from 'redux/actions/app';
+
 type Props = {
   previousModal?: string;
-  // in case this modal was called from another modal
   previousProps?: any;
-  // -- redux --
-  hasSavedCard: boolean;
-  doHideModal: () => void;
-  doOpenModal: (modalType: string, props?: any) => void;
 };
 
 const ModalStripeCard = (props: Props) => {
-  const { previousModal, previousProps, hasSavedCard, doHideModal, doOpenModal } = props;
-  const [isBusy, setIsBusy] = React.useState();
+  const { previousModal, previousProps } = props;
+  const dispatch = useAppDispatch();
+  useAppSelector(selectHasSavedCard);
 
   function handleGoBack() {
-    doHideModal();
-    // makes sense to open previous and continue only on confirm,
-    // in case I give up, close/cancel will just abort
-    if (previousModal) doOpenModal(previousModal, previousProps);
+    dispatch(doHideModal());
+    if (previousModal) dispatch(doOpenModal(previousModal, previousProps));
   }
 
   return (
-    <Modal onAborted={isBusy ? undefined : doHideModal} isOpen type="card" className="modal--add-card">
+    <Modal onAborted={() => dispatch(doHideModal())} isOpen type="card" className="modal--add-card">
       <Card
-        title={hasSavedCard ? __('Card Details') : __('Add your Card')}
-        body={<StripeCard setIsBusy={setIsBusy} isModal />}
+        title={__('Payment methods retired')}
+        body={
+          <div className="card__body-actions">
+            <h3>{__('Card management has been retired.')}</h3>
+            <p>{__('This app no longer supports Stripe-based payment method management.')}</p>
+          </div>
+        }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={__('OK')} onClick={handleGoBack} disabled={isBusy || !hasSavedCard} />
-            <Button button="link" label={__('Cancel')} onClick={doHideModal} disabled={isBusy} />
+            <Button button="primary" label={__('Open Wallet')} icon={ICONS.WALLET} navigate={`/$/${PAGES.WALLET}`} />
+            <Button button="link" label={__('Back')} onClick={handleGoBack} />
+            <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
           </div>
         }
       />

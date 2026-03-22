@@ -19,6 +19,18 @@ import Confetti from 'react-confetti';
 import usePrevious from 'effects/use-previous';
 import { lazyImport } from 'util/lazyImport';
 import { SHOW_TAGS_INTRO } from 'config';
+import REWARD_TYPES from 'rewards';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectGetSyncIsPending, selectSyncHash, selectPrefsReady } from 'redux/selectors/sync';
+import { doClaimRewardType } from 'redux/actions/rewards';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { selectClaimedRewards, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
+import { selectUserIsPending, selectYoutubeChannels, selectEmailToVerify, selectUser } from 'redux/selectors/user';
+import { selectMyChannelClaims, selectFetchingMyChannels, selectCreatingChannel } from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectInterestedInYoutubeSync } from 'redux/selectors/app';
+import { doToggleInterestedInYoutubeSync } from 'redux/actions/app';
 const YoutubeTransferStatus = lazyImport(
   () =>
     import(
@@ -38,54 +50,41 @@ function setSettingAndSync(
   setClientSetting(setting, value, true);
 }
 
-type Props = {
-  user: User | null | undefined;
-  emailToVerify: string | null | undefined;
-  channels: Array<string> | null | undefined;
-  balance: number | null | undefined;
-  fetchingChannels: boolean;
-  claimingReward: boolean;
-  claimConfirmEmailReward: () => void;
-  claimNewUserReward: () => void;
-  claimedRewards: Array<Reward>;
-  youtubeChannels: Array<any>;
-  syncEnabled: boolean;
-  hasSynced: boolean;
-  syncingWallet: boolean;
-  creatingChannel: boolean;
-  setClientSetting: (arg0: string, arg1: boolean, arg2: boolean | null | undefined) => void;
-  followingAcknowledged: boolean;
-  tagsAcknowledged: boolean;
-  rewardsAcknowledged: boolean;
-  interestedInYoutubeSync: boolean;
-  doToggleInterestedInYoutubeSync: () => void;
-  prefsReady: boolean;
-};
+function UserSignUp() {
+  const dispatch = useAppDispatch();
+  const emailToVerify = useAppSelector(selectEmailToVerify);
+  const user = useAppSelector(selectUser);
+  const channels = useAppSelector(selectMyChannelClaims);
+  const claimedRewards = useAppSelector(selectClaimedRewards);
+  const claimingReward = useAppSelector((state) =>
+    makeSelectIsRewardClaimPending()(state, { reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL })
+  );
+  const balance = useAppSelector(selectBalance);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+  const userFetchPending = useAppSelector(selectUserIsPending);
+  const syncEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_SYNC));
+  const followingAcknowledged = useAppSelector((state) => selectClientSetting(state, SETTINGS.FOLLOWING_ACKNOWLEDGED));
+  const tagsAcknowledged = useAppSelector((state) => selectClientSetting(state, SETTINGS.TAGS_ACKNOWLEDGED));
+  const rewardsAcknowledged = useAppSelector((state) => selectClientSetting(state, SETTINGS.REWARDS_ACKNOWLEDGED));
+  const syncingWallet = useAppSelector(selectGetSyncIsPending);
+  const hasSynced = Boolean(useAppSelector(selectSyncHash));
+  const creatingChannel = useAppSelector(selectCreatingChannel);
+  const interestedInYoutubeSync = useAppSelector(selectInterestedInYoutubeSync);
+  const prefsReady = useAppSelector(selectPrefsReady);
 
-function UserSignUp(props: Props) {
-  const {
-    user,
-    emailToVerify,
-    channels,
-    balance,
-    fetchingChannels,
-    claimingReward,
-    claimConfirmEmailReward,
-    claimNewUserReward,
-    claimedRewards,
-    youtubeChannels,
-    syncEnabled,
-    hasSynced,
-    syncingWallet,
-    creatingChannel,
-    setClientSetting,
-    followingAcknowledged,
-    tagsAcknowledged,
-    rewardsAcknowledged,
-    interestedInYoutubeSync,
-    doToggleInterestedInYoutubeSync,
-    prefsReady,
-  } = props;
+  const claimConfirmEmailReward = React.useCallback(
+    () => dispatch(doClaimRewardType(REWARD_TYPES.TYPE_CONFIRM_EMAIL, { notifyError: false })),
+    [dispatch]
+  );
+  const claimNewUserReward = React.useCallback(
+    () => dispatch(doClaimRewardType(REWARD_TYPES.NEW_USER, { notifyError: false })),
+    [dispatch]
+  );
+  const setClientSetting = React.useCallback(
+    (setting, value, pushToPrefs) => dispatch(doSetClientSetting(setting, value, pushToPrefs)),
+    [dispatch]
+  );
   const navigate = useNavigate();
   const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -165,7 +164,7 @@ function UserSignUp(props: Props) {
     showEmail && (
       <UserEmailNew
         interestedInYoutubSync={interestedInYoutubeSync}
-        doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync}
+        doToggleInterestedInYoutubeSync={() => dispatch(doToggleInterestedInYoutubeSync())}
       />
     ),
     showEmailVerification && <UserEmailVerify />,

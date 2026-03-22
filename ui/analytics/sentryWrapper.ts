@@ -45,7 +45,6 @@ export const sentryWrapper: SentryWrapper = {
         beforeSend: handleBeforeSend,
         debug: LocalStorage.getItem('sentry_debug') === 'true',
         denyUrls: [/extensions\//i, /^chrome:\/\//i],
-        integrations: [new Sentry.BrowserTracing()],
         maxBreadcrumbs: 50,
         release: process.env.BUILD_REV,
         tracesSampleRate: 0.0,

@@ -3,7 +3,6 @@ import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import analytics from 'analytics';
 import I18nMessage from 'component/i18nMessage';
-import { history } from 'redux/router';
 // import Native from 'native';
 // import Lbry from 'lbry';
 type Props = {
@@ -56,8 +55,8 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   refresh() {
-    // use history.replace instead of history.push so the user can't click back to the errored page
-    history.replace('');
+    // Use replace so the user can't click back to the errored page.
+    window.location.replace(window.location.href);
     this.setState({
       hasError: false,
     });

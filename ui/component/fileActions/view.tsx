@@ -18,78 +18,77 @@ import ClaimShareButton from 'component/claimShareButton';
 import ClaimRepostButton from 'component/claimRepostButton';
 import ClaimPublishButton from './internal/claimPublishButton';
 import ClaimDeleteButton from './internal/claimDeleteButton';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimIsMine,
+  selectClaimForUri,
+  selectHasChannels,
+  makeSelectTagInClaimOrChannelForUri,
+  selectClaimIsNsfwForUri,
+  selectPreorderTagForUri,
+  selectProtectedContentTagForUri,
+  selectIsFiatRequiredForUri,
+  selectIsFiatPaidForUri,
+  selectPurchaseMadeForClaimId,
+  selectCostInfoForUri,
+  selectScheduledStateForUri,
+} from 'redux/selectors/claims';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { doPrepareEdit } from 'redux/actions/publish';
+import { doDownloadUri } from 'redux/actions/content';
+import { doToast } from 'redux/actions/notifications';
+import { doOpenModal } from 'redux/actions/app';
+import { makeSelectFileRenderModeForUri, selectContentStates } from 'redux/selectors/content';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { DISABLE_DOWNLOAD_BUTTON_TAG, DISABLE_REACTIONS_ALL_TAG, DISABLE_REACTIONS_VIDEO_TAG } from 'constants/tags';
+import { isStreamPlaceholderClaim } from 'util/claim';
 type Props = {
   uri: string;
   hideRepost?: boolean;
-  // redux
-  claim: StreamClaim;
-  disableFileReactions: boolean;
-  claimIsMine: boolean;
-  renderMode: string;
-  costInfo:
-    | {
-        cost: number;
-      }
-    | null
-    | undefined;
-  hasChannels: boolean;
-  uriAccessKey: UriAccessKey | null | undefined;
-  isLivestreamClaim: boolean;
-  isPostClaim?: boolean;
-  streamingUrl: string | null | undefined;
-  disableDownloadButton: boolean;
-  doOpenModal: (
-    id: string,
-    arg1: {
-      uri: string;
-      claimIsMine?: boolean;
-      isSupport?: boolean;
-    }
-  ) => void;
-  doPrepareEdit: (claim: Claim, uri: string) => void;
-  doToast: (data: { message: string }) => void;
-  doDownloadUri: (uri: string) => void;
-  isMature: boolean;
-  isAPreorder: boolean;
-  isProtectedContent: boolean;
-  isFiatRequired: boolean;
-  isFiatPaid: boolean | null | undefined;
-  isFiatPaidAsPurchase: boolean | null | undefined;
-  isTierUnlocked: boolean;
-  scheduledState: ClaimScheduledState;
 };
 
 export default function FileActions(props: Props) {
+  const { uri, hideRepost } = props;
   const navigate = useNavigate();
   const { search } = useLocation();
   const isMobile = useIsMobile();
-  const {
-    uri,
-    hideRepost,
-    claim,
-    disableFileReactions,
-    claimIsMine,
-    renderMode,
-    costInfo,
-    hasChannels,
-    uriAccessKey,
-    isLivestreamClaim,
-    isPostClaim,
-    streamingUrl,
-    disableDownloadButton,
-    doOpenModal,
-    doPrepareEdit,
-    doToast,
-    doDownloadUri,
-    isMature,
-    isAPreorder,
-    isProtectedContent,
-    isFiatRequired,
-    isFiatPaid,
-    isFiatPaidAsPurchase,
-    isTierUnlocked,
-    scheduledState,
-  } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const permanentUrl = (claim && claim.permanent_url) || '';
+  const isPostClaim = useAppSelector(
+    (state) => makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN
+  );
+  const disableFileReactions = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
+  );
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+  const costInfo = useAppSelector((state) => selectCostInfoForUri(state, uri));
+  const hasChannels = useAppSelector(selectHasChannels);
+  const uriAccessKey = useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+  const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+  const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+  const disableDownloadButton = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state)
+  );
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const isAPreorder = Boolean(useAppSelector((state) => selectPreorderTagForUri(state, uri)));
+  const isProtectedContent = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
+  const isFiatRequired = useAppSelector((state) => selectIsFiatRequiredForUri(state, uri));
+  const isFiatPaid = useAppSelector((state) => selectIsFiatPaidForUri(state, uri));
+  const isFiatPaidAsPurchase = Boolean(useAppSelector((state) => selectPurchaseMadeForClaimId(state, claim?.claim_id)));
+  const isTierUnlocked = useAppSelector(
+    (state) => claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim?.claim_id)
+  );
+  const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
+
+  const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
+  const doPrepareEdit_ = (...args: Parameters<typeof doPrepareEdit>) => dispatch(doPrepareEdit(...args));
+  const doToast_ = (...args: Parameters<typeof doToast>) => dispatch(doToast(...args));
+  const doDownloadUri_ = (...args: Parameters<typeof doDownloadUri>) => dispatch(doDownloadUri(...args));
   const [downloadClicked, setDownloadClicked] = React.useState(false);
   const { claim_id: claimId, signing_channel: signingChannel, value, meta: claimMeta } = claim || {};
   const channelName = signingChannel && signingChannel.name;
@@ -134,7 +133,7 @@ export default function FileActions(props: Props) {
 
   function handleWebDownload() {
     // doDownloadUri() causes 'streamingUrl' to be populated.
-    doDownloadUri(uri);
+    doDownloadUri_(uri);
     setDownloadClicked(true);
   }
 
@@ -147,7 +146,7 @@ export default function FileActions(props: Props) {
 
   function handleRepostClick() {
     if (!hasChannels) {
-      doToast({
+      doToast_({
         message: __('A channel is required to repost on %SITE_NAME%', {
           SITE_NAME,
         }),
@@ -155,7 +154,7 @@ export default function FileActions(props: Props) {
       return;
     }
 
-    doOpenModal(MODALS.REPOST, {
+    doOpenModal_(MODALS.REPOST, {
       uri,
     });
   }
@@ -212,7 +211,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => {
-                        doPrepareEdit(claim, editUri);
+                        doPrepareEdit_(claim, editUri);
                       }}
                     >
                       <div className="menu__link">
@@ -224,7 +223,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() =>
-                        doOpenModal(MODALS.CONFIRM_FILE_REMOVE, {
+                        doOpenModal_(MODALS.CONFIRM_FILE_REMOVE, {
                           uri,
                         })
                       }

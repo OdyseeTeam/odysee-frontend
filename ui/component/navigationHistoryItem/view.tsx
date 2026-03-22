@@ -4,7 +4,8 @@ import classnames from 'classnames';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import { formatLbryUrlForWeb } from 'util/url';
-import { history } from 'redux/router';
+import { useNavigate } from 'react-router-dom';
+
 type Props = {
   lastViewed: number;
   uri: string;
@@ -15,49 +16,47 @@ type Props = {
   slim: boolean;
 };
 
-class NavigationHistoryItem extends React.PureComponent<Props> {
-  static defaultProps = {
-    slim: false,
-  };
+function NavigationHistoryItem(props: Props) {
+  const navigate = useNavigate();
+  const { lastViewed, selected, onSelect, claim, uri, slim, resolveUri } = props;
 
-  componentDidMount() {
-    const { claim, uri, resolveUri } = this.props;
-
+  React.useEffect(() => {
     if (!claim) {
       resolveUri(uri);
     }
+  }, [claim, resolveUri, uri]);
+
+  let title;
+
+  if (claim && claim.value) {
+    ({ title } = claim.value);
   }
 
-  render() {
-    const { lastViewed, selected, onSelect, claim, uri, slim } = this.props;
-    let title;
+  const navigatePath = formatLbryUrlForWeb(uri);
+  const handleClick =
+    onSelect ||
+    function () {
+      navigate(navigatePath);
+    };
 
-    if (claim && claim.value) {
-      ({ title } = claim.value);
-    }
-
-    const navigatePath = formatLbryUrlForWeb(uri);
-
-    const onClick =
-      onSelect ||
-      function () {
-        history.push(navigatePath);
-      };
-
-    return (
-      <div
-        role="button"
-        onClick={onClick}
-        className={classnames('item-list__row', {
-          'item-list__row--selected': selected,
-        })}
-      >
-        {!slim && <FormField checked={selected} type="checkbox" onChange={onSelect} />}
-        <span className="">{moment(lastViewed).from(moment())}</span>
-        <Button className="item-list__element" button="link" label={uri} navigate={uri} />
-        <span className="item-list__element">{title}</span>
-      </div>
-    );
-  }
+  return (
+    <div
+      role="button"
+      onClick={handleClick}
+      className={classnames('item-list__row', {
+        'item-list__row--selected': selected,
+      })}
+    >
+      {!slim && <FormField checked={selected} type="checkbox" onChange={onSelect} />}
+      <span className="">{moment(lastViewed).from(moment())}</span>
+      <Button className="item-list__element" button="link" label={uri} navigate={uri} />
+      <span className="item-list__element">{title}</span>
+    </div>
+  );
 }
+
+NavigationHistoryItem.defaultProps = {
+  slim: false,
+};
+
 export default NavigationHistoryItem;

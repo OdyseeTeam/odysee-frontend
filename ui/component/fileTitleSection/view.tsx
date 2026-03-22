@@ -15,6 +15,10 @@ import FileDescription from 'component/fileDescription';
 import { ENABLE_MATURE } from 'config';
 import { useIsMobile } from 'effects/use-screensize';
 import { escapeHtmlProperty } from 'util/web';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doFetchSubCount, selectSubCountForUri } from 'lbryinc';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getClaimTitle } from 'util/claim';
 
 type Props = {
   uri: string;
@@ -22,30 +26,22 @@ type Props = {
   isNsfwBlocked: boolean;
   livestream?: boolean;
   hideDescription?: boolean;
-  // redux
-  channelClaimId?: string;
-  title?: string;
-  subCount: number;
-  doFetchSubCount: (claimId: string) => void;
   accessStatus?: string;
 };
 export default function FileTitleSection(props: Props) {
-  const {
-    uri,
-    nsfw,
-    isNsfwBlocked,
-    livestream = false,
-    hideDescription,
-    subCount,
-    channelClaimId,
-    title,
-    doFetchSubCount,
-    accessStatus,
-  } = props;
+  const { uri, nsfw, isNsfwBlocked, livestream = false, hideDescription, accessStatus } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const { signing_channel: channel } = claim || {};
+  const channelUri = channel && channel.canonical_url;
+  const channelClaimId = channel && channel.claim_id;
+  const title = getClaimTitle(claim);
+  const subCount = useAppSelector((state) => channelUri && selectSubCountForUri(state, channelUri));
+  const doFetchSubCount_ = (...args: Parameters<typeof doFetchSubCount>) => dispatch(doFetchSubCount(...args));
   const isMobile = useIsMobile();
   React.useEffect(() => {
-    if (channelClaimId) doFetchSubCount(channelClaimId);
-  }, [channelClaimId, doFetchSubCount]);
+    if (channelClaimId) doFetchSubCount_(channelClaimId);
+  }, [channelClaimId, doFetchSubCount_]);
   return (
     <Card
       isPageTitle

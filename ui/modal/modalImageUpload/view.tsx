@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import SelectAsset from 'component/selectAsset';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
-  closeModal: () => void;
   currentValue: string;
   otherValue: string | null | undefined;
   title: string;
@@ -12,7 +13,9 @@ type Props = {
 };
 
 function ModalImageUpload(props: Props) {
-  const { closeModal, currentValue, otherValue, title, assetName, helpText, onUpdate } = props;
+  const { currentValue, otherValue, title, assetName, helpText, onUpdate } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = () => dispatch(doHideModal());
   return (
     <Modal isOpen type="card" onAborted={closeModal} contentLabel={title} disableOutsideClick>
       <SelectAsset

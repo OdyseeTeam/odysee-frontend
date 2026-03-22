@@ -1,28 +1,27 @@
 import * as React from 'react';
-import { browserHistory } from 'redux/router';
+import { useBlocker } from 'react-router-dom';
 
 type Props = { when: boolean; message: string };
 
-/**
- * Confirms in-app navigation when `when` is true. Uses the same `browserHistory`
- * instance as `HistoryRouter` (unlike react-router's unstable_usePrompt, which
- * requires createBrowserRouter / RouterProvider).
- */
 export function NavigationPrompt(props: Props) {
   const { when, message } = props;
+  const blocker = useBlocker(when);
 
   React.useEffect(() => {
-    if (!when) return undefined;
-
-    const unblock = browserHistory.block((tx) => {
+    if (blocker.state === 'blocked') {
       if (window.confirm(message)) {
-        unblock();
-        tx.retry();
+        setTimeout(blocker.proceed, 0);
+      } else {
+        blocker.reset();
       }
-    });
+    }
+  }, [blocker, message]);
 
-    return unblock;
-  }, [when, message]);
+  React.useEffect(() => {
+    if (blocker.state === 'blocked' && !when) {
+      blocker.reset();
+    }
+  }, [blocker, when]);
 
   return null;
 }

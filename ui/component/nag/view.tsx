@@ -3,6 +3,9 @@ import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
 import React from 'react';
 import Button from 'component/button';
+import { useAppDispatch } from 'redux/hooks';
+import { doUpdateVisibleNagIds } from 'redux/actions/notifications';
+
 type Props = {
   message: string | React.ReactNode;
   action?: React.ReactNode;
@@ -14,8 +17,6 @@ type Props = {
   relative?: boolean;
   onClick?: () => void;
   onClose?: () => void;
-  // --- redux ---
-  doUpdateVisibleNagIds: (id: string, shown: boolean) => void;
 };
 export default function Nag(props: Props) {
   const {
@@ -29,8 +30,8 @@ export default function Nag(props: Props) {
     type,
     inline,
     relative,
-    doUpdateVisibleNagIds,
   } = props;
+  const dispatch = useAppDispatch();
   const buttonProps = onClick
     ? {
         onClick,
@@ -42,9 +43,9 @@ export default function Nag(props: Props) {
       : null;
   React.useEffect(() => {
     const id = uuid();
-    doUpdateVisibleNagIds(id, true);
+    dispatch(doUpdateVisibleNagIds(id, true));
     return () => {
-      doUpdateVisibleNagIds(id, false);
+      dispatch(doUpdateVisibleNagIds(id, false));
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
   return (

@@ -3,53 +3,53 @@ import * as MODALS from 'constants/modal_types';
 import React, { useState } from 'react';
 import Button from 'component/button';
 import { webDownloadClaim } from 'util/downloadClaim';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectContentStates } from 'redux/selectors/content';
+import {
+  makeSelectFileInfoForUri,
+  makeSelectDownloadingForUri,
+  makeSelectLoadingForUri,
+  selectStreamingUrlForUri,
+} from 'redux/selectors/file_info';
+import { doOpenModal } from 'redux/actions/app';
+import { doClearPlayingUri, doDownloadUri } from 'redux/actions/content';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 type Props = {
   uri: string;
-  claim: StreamClaim;
-  claimIsMine: boolean;
-  downloading: boolean;
-  loading: boolean;
-  focusable: boolean;
-  fileInfo: FileListItem | null | undefined;
-  openModal: (
-    id: string,
-    arg1: {
-      path: string;
-    }
-  ) => void;
-  pause: () => void;
-  download: (arg0: string) => void;
-  buttonType: string | null | undefined;
-  showLabel: boolean | null | undefined;
-  hideOpenButton: boolean;
-  hideDownloadStatus: boolean;
-  streamingUrl: string | null | undefined;
-  contentRestrictedFromUser: boolean;
-  isProtectedContent: boolean;
-  uriAccessKey: UriAccessKey | null | undefined;
+  focusable?: boolean;
+  buttonType?: string | null | undefined;
+  showLabel?: boolean | null | undefined;
+  hideOpenButton?: boolean;
+  hideDownloadStatus?: boolean;
 };
 
 function FileDownloadLink(props: Props) {
   const {
-    fileInfo,
-    downloading,
-    loading,
-    openModal,
-    pause,
-    claimIsMine,
-    download,
     uri,
-    claim,
     buttonType,
     focusable = true,
     showLabel = false,
     hideOpenButton = false,
     hideDownloadStatus = false,
-    streamingUrl,
-    contentRestrictedFromUser,
-    isProtectedContent,
-    uriAccessKey,
   } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const downloading = useAppSelector((state) => makeSelectDownloadingForUri(uri)(state));
+  const fileInfo = useAppSelector((state) => makeSelectFileInfoForUri(uri)(state));
+  const loading = useAppSelector((state) => makeSelectLoadingForUri(uri)(state));
+  const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+  const contentRestrictedFromUser = useAppSelector(
+    (state) => claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id)
+  );
+  const isProtectedContent = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
+  const uriAccessKey = useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+
+  const download = (...args: Parameters<typeof doDownloadUri>) => dispatch(doDownloadUri(...args));
+  const openModal = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
+  const pause = () => dispatch(doClearPlayingUri());
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
   // @if TARGET='web'

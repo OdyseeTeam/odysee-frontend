@@ -8,7 +8,7 @@ import { initTabStateSync } from 'redux/middleware/tab-sync';
 import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
-import { history, initRouterSync, routerMiddleware } from 'redux/router';
+import { history, routerMiddleware } from 'redux/router';
 let __pushBlocked = false;
 const _nativePush = History.prototype.pushState;
 
@@ -56,7 +56,6 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
 });
 
-initRouterSync(store);
 initTabStateSync(store);
 const persistor = persistStore(store);
 window.persistor = persistor;

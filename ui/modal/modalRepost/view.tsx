@@ -3,16 +3,19 @@ import { useLocation } from 'react-router-dom';
 import Modal from 'modal/modal';
 import RepostCreate from 'component/repostCreate';
 import useThrottle from 'effects/use-throttle';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doResolveUri } from 'redux/actions/claims';
 type Props = {
   uri?: string;
   contentName?: string;
-  // --- redux ---
-  closeModal: () => void;
-  resolveUri: (arg0: string) => void;
 };
 
 function ModalRepost(props: Props) {
-  const { uri, contentName, closeModal, resolveUri } = props;
+  const { uri, contentName } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = () => dispatch(doHideModal());
+  const resolveUri = (u: string) => dispatch(doResolveUri(u));
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const param = urlParams.get('name') || urlParams.get('q') || contentName;

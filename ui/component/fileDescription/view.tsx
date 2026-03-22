@@ -9,33 +9,36 @@ import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import FileDetails from 'component/fileDetails';
 import FileValues from 'component/fileValues';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectIsStreamPlaceholderForUri,
+  selectIsShortForUri,
+} from 'redux/selectors/claims';
+import { makeSelectPendingAmountByUri } from 'redux/selectors/wallet';
+import { doOpenModal } from 'redux/actions/app';
+import { getClaimMetadata } from 'util/claim';
 type Props = {
   uri: string;
   expandOverride: boolean;
-  // redux
-  description?: string;
-  amount: number;
-  hasSupport?: boolean;
-  isEmpty: boolean;
-  claimIsMine: boolean;
-  pendingAmount: number;
-  isShort: boolean;
-  doOpenModal: (id: string, arg1: {}) => void;
-  isLivestreamClaim: boolean;
 };
 export default function FileDescription(props: Props) {
-  const {
-    uri,
-    description,
-    amount,
-    hasSupport,
-    isEmpty,
-    isShort,
-    doOpenModal,
-    claimIsMine,
-    expandOverride,
-    isLivestreamClaim,
-  } = props;
+  const { uri, expandOverride } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const pendingAmount = useAppSelector((state) => makeSelectPendingAmountByUri(uri)(state));
+  const metadata = getClaimMetadata(claim);
+  const description = metadata && metadata.description;
+  const amount = claim ? parseFloat(claim.amount) + parseFloat(pendingAmount || claim.meta?.support_amount) : 0;
+  const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const isEmpty = !claim || !metadata;
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const isShort = useAppSelector((state) => selectIsShortForUri(state, uri));
+
+  const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
   const [expanded, setExpanded] = React.useState(isShort);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
   const formattedAmount = formatCredits(amount, 2, true);
@@ -94,7 +97,7 @@ export default function FileDescription(props: Props) {
               icon={ICONS.UNLOCK}
               aria-label={__('Unlock tips')}
               onClick={() =>
-                doOpenModal(MODALS.LIQUIDATE_SUPPORTS, {
+                doOpenModal_(MODALS.LIQUIDATE_SUPPORTS, {
                   uri,
                 })
               }

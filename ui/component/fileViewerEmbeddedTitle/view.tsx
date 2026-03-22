@@ -4,17 +4,26 @@ import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
 import { EmbedContext } from 'contexts/embed';
 import Logo from 'component/logo';
+import { useAppSelector } from 'redux/hooks';
+import { PREFERENCE_EMBED } from 'constants/tags';
+import {
+  makeSelectTagInClaimOrChannelForUri,
+  selectTitleForUri,
+  selectIsStreamPlaceholderForUri,
+} from 'redux/selectors/claims';
+import { selectContentPositionForUri, selectContentStates } from 'redux/selectors/content';
 type Props = {
   uri: string;
-  isLivestreamClaim: boolean;
-  title: string | null | undefined;
-  preferEmbed: boolean;
-  contentPosition: number;
-  uriAccessKey: UriAccessKey | null | undefined;
+  uriAccessKey?: UriAccessKey | null | undefined;
 };
 
 function FileViewerEmbeddedTitle(props: Props) {
-  const { uri, isLivestreamClaim, title, preferEmbed, contentPosition, uriAccessKey } = props;
+  const { uri } = props;
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const contentPosition = useAppSelector((state) => selectContentPositionForUri(state, uri));
+  const uriAccessKey = props.uriAccessKey || useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
   const isEmbed = React.useContext(EmbedContext);
   const urlParams = new URLSearchParams({
     ...(isEmbed

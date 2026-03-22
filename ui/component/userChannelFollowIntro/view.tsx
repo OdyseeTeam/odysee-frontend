@@ -7,18 +7,25 @@ import Card from 'component/common/card';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Nag from 'component/nag';
 import React from 'react';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doChannelSubscribe } from 'redux/actions/subscriptions';
+import { selectHomepageData, selectLanguage, selectHomepageDiscover } from 'redux/selectors/settings';
+import { selectPrefsReady } from 'redux/selectors/sync';
+import { selectSubscriptions } from 'redux/selectors/subscriptions';
+
 type Props = {
-  homepageData: any;
-  discoverData: Array<string> | null | undefined;
-  language: string;
-  prefsReady: boolean;
-  subscribedChannels: Array<Subscription>;
-  channelSubscribe: (arg0: string, arg1: string) => void;
   onContinue: () => void;
 };
 
 function UserChannelFollowIntro(props: Props) {
-  const { homepageData, discoverData, language, prefsReady, subscribedChannels, channelSubscribe, onContinue } = props;
+  const { onContinue } = props;
+  const dispatch = useAppDispatch();
+  const homepageData = useAppSelector(selectHomepageData) || {};
+  const discoverData = useAppSelector(selectHomepageDiscover);
+  const language = useAppSelector(selectLanguage);
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const subscribedChannels = useAppSelector(selectSubscriptions);
+
   const { PRIMARY_CONTENT, LATEST } = homepageData;
   const autoFollowChannels = COMMUNITY_CHANNELS[language] || COMMUNITY_CHANNELS['en'];
   const channelsToSubscribe = autoFollowChannels
@@ -53,7 +60,7 @@ function UserChannelFollowIntro(props: Props) {
             claimName = name;
           } catch (e) {}
 
-          if (claimName) channelSubscribe(claimName, channelUri);
+          if (claimName) dispatch(doChannelSubscribe({ channelName: claimName, uri: channelUri }));
         });
       };
 

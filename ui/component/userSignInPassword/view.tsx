@@ -5,22 +5,26 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import Nag from 'component/nag';
 import UserPasswordReset from 'component/userPasswordReset';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectEmailToVerify, selectEmailNewErrorMessage, selectEmailNewIsPending } from 'redux/selectors/user';
+import { doUserSignIn, doClearEmailEntry } from 'redux/actions/user';
+
 type Props = {
-  errorMessage: string | null | undefined;
-  emailToVerify: string | null | undefined;
-  doClearEmailEntry: () => void;
-  doUserSignIn: (arg0: string, arg1: string | null | undefined) => void;
   onHandleEmailOnly: () => void;
-  isPending: boolean;
 };
+
 export default function UserSignInPassword(props: Props) {
-  const { errorMessage, doUserSignIn, emailToVerify, onHandleEmailOnly, isPending } = props;
+  const { onHandleEmailOnly } = props;
+  const dispatch = useAppDispatch();
+  const emailToVerify = useAppSelector(selectEmailToVerify);
+  const errorMessage = useAppSelector(selectEmailNewErrorMessage);
+  const isPending = useAppSelector(selectEmailNewIsPending);
   const [password, setPassword] = useState('');
   const [forgotPassword, setForgotPassword] = React.useState(false);
 
   function handleSubmit() {
     if (emailToVerify) {
-      doUserSignIn(emailToVerify, password);
+      dispatch(doUserSignIn(emailToVerify, password));
     }
   }
 

@@ -7,15 +7,22 @@ import ClaimPreviewReset from 'component/claimPreviewReset';
 import LivestreamDateTime from 'component/livestreamDateTime';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectShouldShowLivestreamForUri } from 'redux/selectors/livestream';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 type Props = {
   uri: string;
-  isLivestreamClaim?: boolean;
-  isLive?: boolean;
-  contentUnlocked: boolean;
 };
 
 function FileSubtitle(props: Props) {
-  const { uri, isLivestreamClaim = false, isLive = false, contentUnlocked } = props;
+  const { uri } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const contentUnlocked = useAppSelector(
+    (state) => claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id)
+  );
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri)) || false;
+  const isLive = useAppSelector((state) => selectShouldShowLivestreamForUri(state, uri)) || false;
   return (
     <>
       <div className="media__subtitle--between">

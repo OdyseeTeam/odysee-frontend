@@ -43,10 +43,10 @@ import {
 import { doFetchUserLocale } from 'redux/actions/user';
 import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
 import rewards from 'rewards';
-import { store, persistor, history } from 'store';
+import { store, persistor } from 'store';
 import app from './app';
 import doLogWarningConsoleMessage from './logWarningConsoleMessage';
-import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { formatLbryUrlForWeb, formatInAppUrl } from 'util/url';
 import { PersistGate } from 'redux-persist/integration/react';
 import analytics from 'analytics';
@@ -54,7 +54,8 @@ import { doToast } from 'redux/actions/notifications';
 import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
-import { browserHistory, push } from 'redux/router';
+import { push, setRouterNavigator, clearRouterNavigator, setRouterSnapshot, syncRouterLocation } from 'redux/router';
+import { useAppDispatch } from 'redux/hooks';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
 // Import our app styles
@@ -215,6 +216,26 @@ document.addEventListener('drop', (event) => {
   event.preventDefault();
 });
 
+function RouterSyncBridge() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navigationType = useNavigationType();
+
+  setRouterSnapshot(location, navigationType);
+
+  useEffect(() => {
+    setRouterNavigator(navigate);
+    return () => clearRouterNavigator();
+  }, [navigate]);
+
+  useEffect(() => {
+    dispatch(syncRouterLocation(location, navigationType));
+  }, [dispatch, location, navigationType]);
+
+  return null;
+}
+
 function AppWrapper() {
   // Splash screen and sdk setup not needed on web
   const [readyToLaunch, setReadyToLaunch] = useState(IS_WEB);
@@ -283,12 +304,13 @@ function AppWrapper() {
       >
         <div className="app-gate-root">
           {readyToLaunch ? (
-            <HistoryRouter history={browserHistory}>
+            <BrowserRouter>
+              <RouterSyncBridge />
               <ErrorBoundary>
                 <App />
                 <SnackBar />
               </ErrorBoundary>
-            </HistoryRouter>
+            </BrowserRouter>
           ) : (
             <Fragment>
               <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />

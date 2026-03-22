@@ -18,31 +18,34 @@ import BidHelpText from 'component/publish/shared/publishBid/bid-help-text';
 import Spinner from 'component/spinner';
 import { REPOST_PARAMS } from 'page/repost/view';
 import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  makeSelectClaimForUri,
+  selectTitleForUri,
+  selectRepostError,
+  selectRepostLoading,
+  selectMyClaimsWithoutChannels,
+  makeSelectEffectiveAmountForUri,
+  selectIsUriResolving,
+  selectFetchingMyChannels,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import {
+  doRepost,
+  doClearRepostError,
+  doCheckPublishNameAvailability,
+  doCheckPendingClaims,
+} from 'redux/actions/claims';
+import { doToast } from 'redux/actions/notifications';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { doHideModal } from 'redux/actions/app';
+
 type Props = {
-  doToast: (arg0: { message: string }) => void;
-  doClearRepostError: () => void;
-  doRepost: (arg0: StreamRepostOptions) => Promise<any>;
-  doHideModal: () => void;
-  title: string;
-  claim?: StreamClaim;
-  enteredContentClaim?: StreamClaim;
-  balance: number;
-  doCheckPublishNameAvailability: (arg0: string) => Promise<any>;
-  error: string | null | undefined;
-  reposting: boolean;
   uri: string;
   name: string;
   contentUri: string;
   setRepostUri: (arg0: string) => void;
   setContentUri: (arg0: string) => void;
-  doCheckPendingClaims: () => void;
-  passedRepostAmount: number;
-  enteredRepostAmount: number;
-  isResolvingPassedRepost: boolean;
-  isResolvingEnteredRepost: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  fetchingMyChannels: boolean;
-  incognito: boolean;
   isRepostPage?: boolean;
 };
 
@@ -52,15 +55,6 @@ const addLbryIfNot = (term) => {
 
 function RepostCreate(props: Props) {
   const {
-    doToast,
-    doClearRepostError,
-    doRepost,
-    doHideModal,
-    claim,
-    enteredContentClaim,
-    balance,
-    reposting,
-    doCheckPublishNameAvailability,
     uri,
     // ?from
     name,
@@ -68,16 +62,29 @@ function RepostCreate(props: Props) {
     contentUri,
     setRepostUri,
     setContentUri,
-    doCheckPendingClaims,
-    enteredRepostAmount,
-    passedRepostAmount,
-    isResolvingPassedRepost,
-    isResolvingEnteredRepost,
-    activeChannelClaim,
-    fetchingMyChannels,
-    incognito,
     isRepostPage,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const passedRepostClaim = useAppSelector((state) => makeSelectClaimForUri(name, false)(state));
+  const passedRepostAmount = useAppSelector((state) => makeSelectEffectiveAmountForUri(name)(state));
+  const enteredContentClaim = useAppSelector((state) => makeSelectClaimForUri(contentUri)(state));
+  const enteredRepostClaim = useAppSelector((state) => makeSelectClaimForUri(props.name, false)(state));
+  const enteredRepostAmount = useAppSelector((state) => makeSelectEffectiveAmountForUri(props.name)(state));
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const balance = useAppSelector(selectBalance);
+  const error = useAppSelector(selectRepostError);
+  const reposting = useAppSelector(selectRepostLoading);
+  const myClaims = useAppSelector(selectMyClaimsWithoutChannels);
+  const isResolvingPassedRepost = useAppSelector((state) => name && selectIsUriResolving(state, `lbry://${name}`));
+  const isResolvingEnteredRepost = useAppSelector(
+    (state) => props.name && selectIsUriResolving(state, `lbry://${props.name}`)
+  );
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const fetchingMyChannels = useAppSelector(selectFetchingMyChannels);
+  const incognito = useAppSelector(selectIncognito);
+
   const defaultName = name || (claim && claim.name) || '';
   const contentClaimId = claim && claim.claim_id;
   const enteredClaimId = enteredContentClaim && enteredContentClaim.claim_id;
@@ -185,9 +192,9 @@ function RepostCreate(props: Props) {
 
   React.useEffect(() => {
     if (enteredRepostName && isNameValid(enteredRepostName)) {
-      doCheckPublishNameAvailability(enteredRepostName).then((r) => setAvailable(r));
+      dispatch(doCheckPublishNameAvailability(enteredRepostName)).then((r) => setAvailable(r));
     }
-  }, [enteredRepostName, doCheckPublishNameAvailability]);
+  }, [enteredRepostName, dispatch]);
   // takeover amount, bid suggestion
   React.useEffect(() => {
     const repostTakeoverAmount = Number(enteredRepostAmount)
@@ -267,27 +274,31 @@ function RepostCreate(props: Props) {
 
   function handleSubmit() {
     if (enteredRepostName && repostBid && repostClaimId) {
-      doRepost({
-        name: enteredRepostName,
-        bid: creditsToString(repostBid),
-        channel_id: activeChannelClaim && !incognito ? activeChannelClaim.claim_id : undefined,
-        claim_id: repostClaimId,
-      }).then((repostClaim: StreamClaim) => {
-        doCheckPendingClaims();
+      dispatch(
+        doRepost({
+          name: enteredRepostName,
+          bid: creditsToString(repostBid),
+          channel_id: activeChannelClaim && !incognito ? activeChannelClaim.claim_id : undefined,
+          claim_id: repostClaimId,
+        })
+      ).then((repostClaim: StreamClaim) => {
+        dispatch(doCheckPendingClaims());
         analytics.apiLog.publish(repostClaim);
-        doToast({
-          message: __('Woohoo! Successfully reposted this claim.'),
-          linkText: __('Uploads'),
-          linkTarget: '/uploads',
-        });
-        doHideModal();
+        dispatch(
+          doToast({
+            message: __('Woohoo! Successfully reposted this claim.'),
+            linkText: __('Uploads'),
+            linkTarget: '/uploads',
+          })
+        );
+        dispatch(doHideModal());
       });
     }
   }
 
   function cancelIt() {
-    doClearRepostError();
-    doHideModal();
+    dispatch(doClearRepostError());
+    dispatch(doHideModal());
   }
 
   if (fetchingMyChannels) {

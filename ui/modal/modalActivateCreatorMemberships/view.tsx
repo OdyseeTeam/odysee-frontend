@@ -4,16 +4,19 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 type Props = {
-  closeModal: () => void;
   bankAccountConfirmed: boolean;
 };
 export default function ModalRemoveCard(props: Props) {
-  const { closeModal, bankAccountConfirmed } = props;
+  const { bankAccountConfirmed } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = () => dispatch(doHideModal());
   const activateYourMembershipsText =
     'Once you activate your memberships users will be able to subscribe to your created tiers.\n' +
     '            If a user subscribes to your tier you will not be able to delete it until their subscription has been cancelled\n' +
-    '            (by them or by you), so don’t activate your memberships until you’re ready!';
+    '            (by them or by you), so don\u2019t activate your memberships until you\u2019re ready!';
   const activateMembershipsButton = (
     <Button
       button="primary"

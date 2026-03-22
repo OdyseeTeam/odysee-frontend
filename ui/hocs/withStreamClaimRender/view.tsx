@@ -10,7 +10,6 @@ import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
-import { history } from 'redux/router';
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
 const homeInitFlags: Set<string> = new Set();
@@ -132,7 +131,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const shouldClearPlayingUri = React.useRef(false);
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
-    const currentLocation = location || history.location || {};
+    const currentLocation = location || {
+      pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+      search: typeof window !== 'undefined' ? window.location.search : '',
+      href: typeof window !== 'undefined' ? window.location.href : '',
+      state:
+        typeof window !== 'undefined' && window.history && typeof window.history.state === 'object'
+          ? window.history.state?.usr || window.history.state
+          : undefined,
+    };
     const {
       search,
       href = `${currentLocation.pathname || ''}${currentLocation.search || ''}`,

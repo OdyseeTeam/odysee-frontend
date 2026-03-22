@@ -8,26 +8,24 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import { TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { getChannelIdFromClaim } from 'util/claim';
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 type Props = {
   uri: string;
   activeTab: string;
   amount: number;
-  USDCBalance: number;
-  arBalance: number;
-  claim: StreamClaim;
   customTipAmount?: number;
   exchangeRate?: any;
   fiatConversion?: boolean;
   tipError: string;
-  uri: string;
-  canReceiveFiatTips: boolean | null | undefined;
-  arweaveTipData: ArweaveTipDataForId;
   isComment?: boolean;
   onChange: (arg0: number) => void;
   setTipError: (arg0: any) => void;
-  doTipAccountCheckForUri: (uri: string) => void;
-  arExchangeRate: any;
 };
 
 const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
@@ -38,22 +36,23 @@ function WalletTipAmountSelector(props: Props) {
     uri,
     activeTab,
     amount,
-    USDCBalance,
-    arBalance,
-    claim,
     // convertedAmount,
     customTipAmount,
     exchangeRate,
     fiatConversion,
     tipError,
-    canReceiveFiatTips,
-    arweaveTipData,
     isComment,
     onChange,
     setTipError,
-    doTipAccountCheckForUri,
-    arExchangeRate,
   } = props;
+  const dispatch = useAppDispatch();
+  const USDCBalance = useAppSelector(selectArweaveBalance).usdc;
+  const arBalance = useAppSelector(selectArweaveBalance).ar;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const canReceiveFiatTips = useAppSelector((state) => selectCanReceiveFiatTipsForUri(state, uri));
+  const arweaveTipData = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
+  const arExchangeRate = useAppSelector(selectArweaveExchangeRates);
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
@@ -90,9 +89,9 @@ function WalletTipAmountSelector(props: Props) {
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
-      doTipAccountCheckForUri(uri);
+      dispatch(doTipAccountCheckForUri(uri));
     }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+  }, [canReceiveFiatTips, dispatch, uri]);
   React.useEffect(() => {
     let regexp;
 

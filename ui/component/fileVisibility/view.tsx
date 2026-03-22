@@ -2,14 +2,15 @@ import React from 'react';
 import './style.scss';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import { useAppSelector } from 'redux/hooks';
+import { selectIsUriUnlisted } from 'redux/selectors/claims';
 type Props = {
   uri: string | null | undefined;
-  // --- internal ---
-  isUnlisted: boolean;
 };
 
 function FileVisibility(props: Props) {
-  const { isUnlisted } = props;
+  const { uri } = props;
+  const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
 
   if (isUnlisted) {
     return (

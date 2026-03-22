@@ -5,21 +5,23 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { FormField } from 'component/common/form';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectHasClaimForId } from 'redux/selectors/claims';
+import { selectCollectionTitleForId, selectCollectionKeyForId } from 'redux/selectors/collections';
+import { doHideModal } from 'redux/actions/app';
+import { doCollectionDelete } from 'redux/actions/collections';
 type Props = {
   collectionId: string;
   simplify?: boolean;
-  // --- redux ---
-  hasClaim: boolean;
-  collectionName: string;
   redirect: string | null | undefined;
-  collectionKey: string | null | undefined;
-  doHideModal: () => void;
-  doCollectionDelete: (id: string, collectionKey: string | null | undefined, keepPrivate: boolean) => void;
 };
 
 function ModalRemoveCollection(props: Props) {
-  const { simplify, hasClaim, collectionId, collectionName, redirect, collectionKey, doHideModal, doCollectionDelete } =
-    props;
+  const { simplify, collectionId, redirect } = props;
+  const dispatch = useAppDispatch();
+  const hasClaim = useAppSelector((state) => selectHasClaimForId(state, collectionId));
+  const collectionName = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const collectionKey = useAppSelector((state) => selectCollectionKeyForId(state, collectionId));
   const navigate = useNavigate();
   const [confirmName, setConfirmName] = useState('');
   const [keepPrivate, setKeepPrivate] = useState(false);
@@ -70,7 +72,7 @@ function ModalRemoveCollection(props: Props) {
   }
 
   return (
-    <Modal isOpen contentLabel={__('Confirm Playlist Unpublish')} type="card" onAborted={doHideModal}>
+    <Modal isOpen contentLabel={__('Confirm Playlist Unpublish')} type="card" onAborted={() => dispatch(doHideModal())}>
       <Card
         title={__('Delete Playlist')}
         body={
@@ -87,11 +89,11 @@ function ModalRemoveCollection(props: Props) {
               disabled={!simplify && hasClaim && collectionName !== confirmName}
               onClick={() => {
                 if (redirect) navigate(redirect, { replace: true });
-                doCollectionDelete(collectionId, hasClaim ? undefined : collectionKey, keepPrivate);
-                doHideModal();
+                dispatch(doCollectionDelete(collectionId, hasClaim ? undefined : collectionKey, keepPrivate));
+                dispatch(doHideModal());
               }}
             />
-            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+            <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
           </div>
         }
       />

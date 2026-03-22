@@ -10,30 +10,25 @@ import Card from 'component/common/card';
 import Nag from 'component/nag';
 import classnames from 'classnames';
 import LoginGraphic from 'component/loginGraphic';
-type Props = {
-  user: User | null | undefined;
-  errorMessage: string | null | undefined;
-  emailToVerify: string | null | undefined;
-  emailDoesNotExist: boolean;
-  doClearEmailEntry: () => void;
-  doUserSignIn: (arg0: string, arg1: string | null | undefined) => void;
-  doUserCheckIfEmailExists: (arg0: string) => void;
-  doSetWalletSyncPreference: (arg0: boolean) => void;
-  doSetClientSetting: (arg0: string, arg1: boolean, arg2: boolean | null | undefined) => void;
-  isPending: boolean;
-};
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import {
+  selectEmailNewErrorMessage,
+  selectEmailToVerify,
+  selectEmailDoesNotExist,
+  selectEmailAlreadyExists,
+  selectUser,
+  selectEmailNewIsPending,
+} from 'redux/selectors/user';
+import { doUserCheckIfEmailExists, doClearEmailEntry } from 'redux/actions/user';
+import { doSetWalletSyncPreference } from 'redux/actions/settings';
 
-function UserEmailReturning(props: Props) {
-  const {
-    user,
-    errorMessage,
-    doUserCheckIfEmailExists,
-    emailToVerify,
-    doClearEmailEntry,
-    emailDoesNotExist,
-    doSetWalletSyncPreference,
-    isPending,
-  } = props;
+function UserEmailReturning() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const errorMessage = useAppSelector(selectEmailNewErrorMessage);
+  const emailToVerify = useAppSelector(selectEmailToVerify);
+  const emailDoesNotExist = useAppSelector(selectEmailDoesNotExist);
+  const isPending = useAppSelector(selectEmailNewIsPending);
   const navigate = useNavigate();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
@@ -48,13 +43,13 @@ function UserEmailReturning(props: Props) {
 
   function handleSubmit() {
     // @if TARGET='app'
-    doSetWalletSyncPreference(syncEnabled);
+    dispatch(doSetWalletSyncPreference(syncEnabled));
     // @endif
-    doUserCheckIfEmailExists(email);
+    dispatch(doUserCheckIfEmailExists(email));
   }
 
   function handleChangeToSignIn() {
-    doClearEmailEntry();
+    dispatch(doClearEmailEntry());
     let url = `/$/${PAGES.AUTH}`;
     const urlParams = new URLSearchParams(location.search);
     urlParams.delete('email_exists');

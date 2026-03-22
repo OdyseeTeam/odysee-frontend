@@ -1,4 +1,6 @@
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
+import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
@@ -13,37 +15,30 @@ import Nag from 'component/nag';
 import classnames from 'classnames';
 import LoginGraphic from 'component/loginGraphic';
 import { LocalStorage, LS } from 'util/storage';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doClearEmailEntry, doUserSignUp } from 'redux/actions/user';
+import {
+  selectEmailNewIsPending,
+  selectEmailNewErrorMessage,
+  selectEmailAlreadyExists,
+  selectUser,
+} from 'redux/selectors/user';
+import { doSetWalletSyncPreference, doSetDaemonSetting } from 'redux/actions/settings';
+import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
+
 type Props = {
-  errorMessage: string | null | undefined;
-  emailExists: boolean;
-  isPending: boolean;
-  syncEnabled: boolean;
-  setSync: (arg0: boolean) => void;
-  balance: number;
-  daemonSettings: {
-    share_usage_data: boolean;
-  };
-  setShareDiagnosticData: (arg0: boolean) => void;
-  doSignUp: (arg0: string, arg1: string | null | undefined) => Promise<any>;
-  clearEmailEntry: () => void;
   interestedInYoutubSync: boolean;
   doToggleInterestedInYoutubeSync: () => void;
 };
 
 function UserEmailNew(props: Props) {
-  const {
-    errorMessage,
-    isPending,
-    doSignUp,
-    setSync,
-    daemonSettings,
-    setShareDiagnosticData,
-    clearEmailEntry,
-    emailExists,
-    interestedInYoutubSync,
-    doToggleInterestedInYoutubeSync,
-  } = props;
-  const { share_usage_data: shareUsageData } = daemonSettings;
+  const { interestedInYoutubSync, doToggleInterestedInYoutubeSync } = props;
+  const dispatch = useAppDispatch();
+  const errorMessage = useAppSelector(selectEmailNewErrorMessage);
+  const isPending = useAppSelector(selectEmailNewIsPending);
+  const emailExists = useAppSelector(selectEmailAlreadyExists);
+  const daemonSettings = useAppSelector(selectDaemonSettings);
+  const { share_usage_data: shareUsageData } = daemonSettings || {};
   const navigate = useNavigate();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
@@ -61,10 +56,10 @@ function UserEmailNew(props: Props) {
 
   function handleSubmit() {
     // @if TARGET='app'
-    setSync(formSyncEnabled);
-    setShareDiagnosticData(true);
+    dispatch(doSetWalletSyncPreference(formSyncEnabled));
+    dispatch(doSetDaemonSetting(DAEMON_SETTINGS.SHARE_USAGE_DATA, true));
     // @endif
-    doSignUp(email, password === '' ? undefined : password)
+    dispatch(doUserSignUp(email, password === '' ? undefined : password))
       .then(() => {
         LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
         analytics.event.emailProvided();
@@ -73,7 +68,7 @@ function UserEmailNew(props: Props) {
   }
 
   function handleChangeToSignIn(additionalParams) {
-    clearEmailEntry();
+    dispatch(doClearEmailEntry());
     let url = `/$/${PAGES.AUTH_SIGNIN}`;
     const urlParams = new URLSearchParams(location.search);
     urlParams.delete('email');

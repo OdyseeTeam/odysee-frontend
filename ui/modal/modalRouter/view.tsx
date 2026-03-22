@@ -6,6 +6,10 @@ import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
 import { ModalContext } from 'contexts/modal';
 import { useLocation } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectModal } from 'redux/selectors/app';
+import { doOpenModal, doHideModal } from 'redux/actions/app';
+import { selectError } from 'redux/selectors/notifications';
 // prettier-ignore
 const MAP = Object.freeze({
   [MODALS.ACCOUNT_DELETE]: lazyImport(() => import('modal/modalRemoveAccount'
@@ -184,21 +188,11 @@ const MAP = Object.freeze({
   /* webpackChunkName: "modalYoutubeWelcome" */
   ))
 });
-type Props = {
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  error: {
-    message: string;
-  };
-  doOpenModal: (modalId: string, modalProps: {}) => void;
-  doHideModal: () => void;
-};
-
-function ModalRouter(props: Props) {
+function ModalRouter() {
+  const dispatch = useAppDispatch();
+  const modal = useAppSelector(selectModal);
+  const error = useAppSelector(selectError);
   const location = useLocation();
-  const { modal, error, doOpenModal, doHideModal } = props;
   const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
@@ -210,7 +204,7 @@ function ModalRouter(props: Props) {
 
     if (!modalUrlOpen.current) {
       // -- Open the modal from the URL
-      doOpenModal(modalUrlId, modalUrlParamsObj);
+      dispatch(doOpenModal(modalUrlId, modalUrlParamsObj));
       modalUrlOpen.current = true;
     } else {
       // -- Clear out the URL params
@@ -225,12 +219,12 @@ function ModalRouter(props: Props) {
         `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`
       );
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
-  }, [doOpenModal, search, modal]);
+  }, [dispatch, search, modal]);
   React.useEffect(() => {
     if (!modalUrlId) {
-      doHideModal();
+      dispatch(doHideModal());
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on pathname
-  }, [pathname, doHideModal]);
+  }, [pathname, dispatch]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
@@ -260,7 +254,7 @@ function ModalRouter(props: Props) {
           isUrlParamModal: modalUrlId === id,
         }}
       >
-        <SelectedModal {...modalProps} doHideModal={doHideModal} />
+        <SelectedModal {...modalProps} doHideModal={() => dispatch(doHideModal())} />
       </ModalContext.Provider>
     </React.Suspense>
   );

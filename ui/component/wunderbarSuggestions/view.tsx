@@ -26,7 +26,6 @@ import { doResolveUris } from 'redux/actions/claims';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { selectClaimsByUri } from 'redux/selectors/claims';
 import analytics from 'analytics';
-import { history } from 'redux/router';
 const LBRY_PROTOCOL = 'lbry://';
 const WEB_DEV_PREFIX = `${URL_DEV}/`;
 const WEB_LOCAL_PREFIX = `${URL_LOCAL}/`;
@@ -61,7 +60,7 @@ export default function WunderBarSuggestions(props: Props) {
   const subscriptionUris = useAppSelector(selectSubscriptionUris) || [];
   const navigateToSearchPage = (query: string) => {
     const encodedQuery = encodeURIComponent(query);
-    history.push({ pathname: `/$/search`, search: `?q=${encodedQuery}` });
+    navigate({ pathname: `/$/search`, search: `?q=${encodedQuery}` });
     analytics.apiLog.search();
   };
   const doShowSnackBar = (message: string) => dispatch(doToast({ isError: true, message }));

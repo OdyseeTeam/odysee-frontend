@@ -5,34 +5,40 @@ import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import FileList from 'component/common/file-list';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doUpdatePublishForm } from 'redux/actions/publish';
 type Props = {
   files: Array<WebFile>;
-  hideModal: () => void;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
 };
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 const ModalFileSelection = (props: Props) => {
-  const { files, hideModal, updatePublishForm } = props;
+  const { files } = props;
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedFile, setSelectedFile] = React.useState(null);
   const navigateToPublish = React.useCallback(() => {
     // Navigate only if location is not publish area:
     // - Prevent spam in history
-    if (history.location.pathname !== PUBLISH_URL) {
-      history.push(PUBLISH_URL);
+    if (location.pathname !== PUBLISH_URL) {
+      navigate(PUBLISH_URL);
     }
-  }, [history]);
+  }, [location.pathname, navigate]);
 
   function handleCloseModal() {
-    hideModal();
+    dispatch(doHideModal());
     setSelectedFile(null);
   }
 
   function handleSubmit() {
-    updatePublishForm({
-      filePath: selectedFile,
-    });
+    dispatch(
+      doUpdatePublishForm({
+        filePath: selectedFile,
+      })
+    );
     handleCloseModal();
     navigateToPublish();
   }

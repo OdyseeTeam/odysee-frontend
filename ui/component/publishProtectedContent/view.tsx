@@ -6,42 +6,41 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectMembershipTiersForCreatorId } from 'redux/selectors/memberships';
+import { selectPublishFormValue, selectValidTierIdsForCurrentForm } from 'redux/selectors/publish';
+import { doMembershipContentforStreamClaimId, doMembershipList } from 'redux/actions/memberships';
+
 type Props = {
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  getMembershipTiersForContentClaimId: (type: string) => void;
   claim: Claim;
-  activeChannel: ChannelClaim;
-  incognito: boolean;
-  getExistingTiers: (arg0: { channel_claim_id: string }) => Promise<CreatorMemberships>;
-  myMembershipTiers: Array<CreatorMembership>;
   isStillEditing: boolean;
-  memberRestrictionOn: boolean;
-  memberRestrictionTierIds: Array<number>;
-  validTierIds: Array<number> | null | undefined;
-  paywall: Paywall;
-  visibility: Visibility;
 };
 
 function PublishProtectedContent(props: Props) {
-  const {
-    activeChannel,
-    incognito,
-    updatePublishForm,
-    getMembershipTiersForContentClaimId,
-    claim,
-    getExistingTiers,
-    myMembershipTiers,
-    memberRestrictionOn,
-    memberRestrictionTierIds,
-    validTierIds,
-    paywall,
-    visibility,
-  } = props;
+  const { claim } = props;
+
+  const dispatch = useAppDispatch();
+  const incognito = useAppSelector(selectIncognito);
+  const activeChannel = useAppSelector((state) => {
+    const inc = selectIncognito(state);
+    return !inc && selectActiveChannelClaim(state);
+  });
+  const myMembershipTiers = useAppSelector((state) =>
+    selectMembershipTiersForCreatorId(state, activeChannel ? activeChannel.claim_id : undefined)
+  );
+  const memberRestrictionOn = useAppSelector((state) => selectPublishFormValue(state, 'memberRestrictionOn'));
+  const memberRestrictionTierIds = useAppSelector((state) => selectPublishFormValue(state, 'memberRestrictionTierIds'));
+  const validTierIds = useAppSelector(selectValidTierIdsForCurrentForm);
+  const paywall = useAppSelector((state) => selectPublishFormValue(state, 'paywall'));
+  const visibility = useAppSelector((state) => selectPublishFormValue(state, 'visibility'));
+
   const claimId = claim?.claim_id;
   // Fetch tiers for current claim
   React.useEffect(() => {
     if (claimId) {
-      getMembershipTiersForContentClaimId(claimId);
+      dispatch(doMembershipContentforStreamClaimId(claimId));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId]);
   // Remove previous selections that are no longer valid.
@@ -50,38 +49,48 @@ function PublishProtectedContent(props: Props) {
       const filteredTierIds = memberRestrictionTierIds.filter((id) => validTierIds.includes(id));
 
       if (filteredTierIds.length < memberRestrictionTierIds.length) {
-        updatePublishForm({
-          memberRestrictionTierIds: filteredTierIds,
-        });
+        dispatch(
+          doUpdatePublishForm({
+            memberRestrictionTierIds: filteredTierIds,
+          })
+        );
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-filter when validTierIds changes.
   }, [validTierIds]);
 
   function toggleMemberRestrictionOn() {
-    updatePublishForm({
-      memberRestrictionOn: !memberRestrictionOn,
-    });
+    dispatch(
+      doUpdatePublishForm({
+        memberRestrictionOn: !memberRestrictionOn,
+      })
+    );
   }
 
   function toggleMemberRestrictionTierId(id: number | void) {
     if (typeof id !== 'number') return;
 
     if (memberRestrictionTierIds.includes(id)) {
-      updatePublishForm({
-        memberRestrictionTierIds: memberRestrictionTierIds.filter((x) => x !== id),
-      });
+      dispatch(
+        doUpdatePublishForm({
+          memberRestrictionTierIds: memberRestrictionTierIds.filter((x) => x !== id),
+        })
+      );
     } else {
-      updatePublishForm({
-        memberRestrictionTierIds: memberRestrictionTierIds.concat(id),
-      });
+      dispatch(
+        doUpdatePublishForm({
+          memberRestrictionTierIds: memberRestrictionTierIds.concat(id),
+        })
+      );
     }
   }
 
   useEffect(() => {
     if (activeChannel) {
-      getExistingTiers({
-        channel_claim_id: activeChannel.claim_id,
-      });
+      dispatch(
+        doMembershipList({
+          channel_claim_id: activeChannel.claim_id,
+        })
+      );
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [activeChannel]);
   if (incognito) return null;

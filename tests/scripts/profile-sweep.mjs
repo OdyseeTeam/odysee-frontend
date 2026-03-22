@@ -65,7 +65,7 @@ async function main() {
     const data = await page.evaluate(() => ({ r: window.__PR || {}, c: window.__PC || 0 }));
     const total = Object.values(data.r).reduce((s, c) => s + c, 0);
     const top3 = Object.entries(data.r)
-      .sort((a, b) => b[1] - a[1])
+      .toSorted((a, b) => b[1] - a[1])
       .slice(0, 3);
     console.log(
       name.padEnd(24) +
@@ -100,7 +100,7 @@ async function main() {
   let data = await page.evaluate(() => ({ r: window.__PR || {}, c: window.__PC || 0 }));
   let total = Object.values(data.r).reduce((s, c) => s + c, 0);
   let top = Object.entries(data.r)
-    .sort((a, b) => b[1] - a[1])
+    .toSorted((a, b) => b[1] - a[1])
     .slice(0, 3);
   console.log(
     'watch (click)'.padEnd(24) +
@@ -122,7 +122,7 @@ async function main() {
   data = await page.evaluate(() => ({ r: window.__PR || {}, c: window.__PC || 0 }));
   total = Object.values(data.r).reduce((s, c) => s + c, 0);
   top = Object.entries(data.r)
-    .sort((a, b) => b[1] - a[1])
+    .toSorted((a, b) => b[1] - a[1])
     .slice(0, 5);
   console.log(
     'watch+comments scroll'.padEnd(24) +
@@ -152,7 +152,7 @@ async function main() {
   data = await page.evaluate(() => ({ r: window.__PR || {}, c: window.__PC || 0 }));
   total = Object.values(data.r).reduce((s, c) => s + c, 0);
   top = Object.entries(data.r)
-    .sort((a, b) => b[1] - a[1])
+    .toSorted((a, b) => b[1] - a[1])
     .slice(0, 5);
   console.log(
     'sidebar expand'.padEnd(24) +

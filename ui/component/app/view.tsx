@@ -38,6 +38,44 @@ import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation } from 'react-router-dom';
 import { history as appHistory } from 'redux/router';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectGetSyncErrorMessage,
+  selectPrefsReady,
+  selectSyncFatalError,
+  selectSyncIsLocked,
+} from 'redux/selectors/sync';
+import { doUserSetReferrerForUri } from 'redux/actions/user';
+import { doSetLastViewedAnnouncement } from 'redux/actions/content';
+import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectUnclaimedRewards } from 'redux/selectors/rewards';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import {
+  selectLanguage,
+  selectLoadedLanguages,
+  selectThemePath,
+  selectDefaultChannelClaim,
+  selectHomepageAnnouncement,
+  selectClientSetting,
+} from 'redux/selectors/settings';
+import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectUploadCount } from 'redux/selectors/publish';
+import { selectPersonalRecommendations } from 'redux/selectors/search';
+import {
+  doOpenAnnouncements,
+  doSetLanguage,
+  doSetDefaultChannel,
+  doFetchLanguage,
+  doSetClientSetting,
+} from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
+import { doSyncLoop } from 'redux/actions/sync';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import {
+  doFetchModBlockedList,
+  doFetchCommentModAmIList,
+  doCommentModListDelegatesForMyChannels,
+} from 'redux/actions/comments';
 const DebugLog = lazyImport(
   () =>
     import(
@@ -99,101 +137,51 @@ type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
-type Props = {
-  language: string;
-  languages: Array<string>;
-  theme: string;
-  user:
-    | {
-        id: string;
-        has_verified_email: boolean;
-        is_reward_approved: boolean;
-        experimental_ui: boolean;
-      }
-    | null
-    | undefined;
-  locale: LocaleInfo | null | undefined;
-  signIn: () => void;
-  setLanguage: (arg0: string) => void;
-  fetchLanguage: (arg0: string) => void;
-  reloadRequired: ReloadRequired | null | undefined;
-  uploadCount: number;
-  balance: number | null | undefined;
-  syncIsLocked: boolean;
-  syncError: string | null | undefined;
-  prefsReady: boolean;
-  rewards: Array<Reward>;
-  doUserSetReferrerForUri: (referrerUri: string) => void;
-  isAuthenticated: boolean;
-  syncLoop: (arg0: boolean | null | undefined) => void;
-  currentModal: any;
-  syncFatalError: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  myChannelClaimIds: Array<string> | null | undefined;
-  setIncognito: (arg0: boolean) => void;
-  fetchModBlockedList: () => void;
-  fetchModAmIList: () => void;
-  fetchDelegatesForMyChannels: () => void;
-  homepageFetched: boolean;
-  defaultChannelClaim: any | null | undefined;
-  nagsShown: boolean;
-  announcement: string;
-  homepageOrder: HomepageOrder;
-  isFypModalShown: boolean;
-  personalRecommendations: {
-    gid: string;
-    uris: Array<string>;
-    fetched: boolean;
-  };
-  doOpenAnnouncements: () => void;
-  doSetLastViewedAnnouncement: (hash: string) => void;
-  doSetDefaultChannel: (claimId: string) => void;
-  doSetAssignedLbrynetServer: (server: string) => void;
-  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
-  doSetClientSetting: (arg0: string, arg1: any, arg2: boolean | null | undefined) => void;
-  doToast: (arg0: { message: string }) => void;
-};
 
-function App(props: Props) {
-  const {
-    theme,
-    user,
-    locale,
-    signIn,
-    reloadRequired,
-    uploadCount,
-    syncError,
-    syncIsLocked,
-    prefsReady,
-    language,
-    languages,
-    setLanguage,
-    fetchLanguage,
-    rewards,
-    doUserSetReferrerForUri,
-    isAuthenticated,
-    syncLoop,
-    currentModal,
-    syncFatalError,
-    myChannelClaimIds,
-    activeChannelClaim,
-    setIncognito,
-    fetchModBlockedList,
-    fetchModAmIList,
-    fetchDelegatesForMyChannels,
-    defaultChannelClaim,
-    announcement,
-    homepageOrder,
-    isFypModalShown,
-    personalRecommendations,
-    doOpenAnnouncements,
-    doSetLastViewedAnnouncement,
-    doSetDefaultChannel,
-    doSetAssignedLbrynetServer,
-    doOpenModal,
-    doSetClientSetting,
-    doToast,
-  } = props;
+function App() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const locale = useAppSelector(selectUserLocale);
+  const theme = useAppSelector(selectThemePath);
+  const language = useAppSelector(selectLanguage);
+  const languages = useAppSelector(selectLoadedLanguages);
+  const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const syncIsLocked = useAppSelector(selectSyncIsLocked);
+  const uploadCount = useAppSelector(selectUploadCount);
+  const rewards = useAppSelector(selectUnclaimedRewards);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const currentModal = useAppSelector(selectModal);
+  const syncFatalError = useAppSelector(selectSyncFatalError);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const myChannelClaimIds = useAppSelector(selectMyChannelClaimIds);
+  const defaultChannelClaim = useAppSelector(selectDefaultChannelClaim);
+  const announcement = useAppSelector(selectHomepageAnnouncement);
+  const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER)) as HomepageOrder;
+  const isFypModalShown = useAppSelector((state) => selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN));
+  const personalRecommendations = useAppSelector(selectPersonalRecommendations);
+
+  const signIn = (...args: Parameters<typeof doSignIn>) => dispatch(doSignIn(...args));
+  const setLanguage = (...args: Parameters<typeof doSetLanguage>) => dispatch(doSetLanguage(...args));
+  const fetchLanguage = (...args: Parameters<typeof doFetchLanguage>) => dispatch(doFetchLanguage(...args));
+  const syncLoop = (...args: Parameters<typeof doSyncLoop>) => dispatch(doSyncLoop(...args));
+  const setIncognito = (...args: Parameters<typeof doSetIncognito>) => dispatch(doSetIncognito(...args));
+  const fetchModBlockedList = () => dispatch(doFetchModBlockedList());
+  const fetchModAmIList = () => dispatch(doFetchCommentModAmIList());
+  const fetchDelegatesForMyChannels = () => dispatch(doCommentModListDelegatesForMyChannels());
+  const doUserSetReferrerForUri_ = (...args: Parameters<typeof doUserSetReferrerForUri>) =>
+    dispatch(doUserSetReferrerForUri(...args));
+  const doOpenAnnouncements_ = () => dispatch(doOpenAnnouncements());
+  const doSetLastViewedAnnouncement_ = (...args: Parameters<typeof doSetLastViewedAnnouncement>) =>
+    dispatch(doSetLastViewedAnnouncement(...args));
+  const doSetDefaultChannel_ = (...args: Parameters<typeof doSetDefaultChannel>) =>
+    dispatch(doSetDefaultChannel(...args));
+  const doSetAssignedLbrynetServer_ = (...args: Parameters<typeof doSetAssignedLbrynetServer>) =>
+    dispatch(doSetAssignedLbrynetServer(...args));
+  const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
+  const doSetClientSetting_ = (...args: Parameters<typeof doSetClientSetting>) => dispatch(doSetClientSetting(...args));
+  const doToast_ = (...args: Parameters<typeof doToast>) => dispatch(doToast(...args));
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -381,7 +369,7 @@ function App(props: Props) {
   }, []);
   useEffect(() => {
     if (referredRewardAvailable && sanitizedReferrerParam) {
-      doUserSetReferrerForUri(sanitizedReferrerParam);
+      doUserSetReferrerForUri_(sanitizedReferrerParam);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedReferrerParam, referredRewardAvailable]);
   useEffect(() => {
@@ -400,9 +388,9 @@ function App(props: Props) {
   }, [hasMyChannels, hasNoChannels, setIncognito]);
   useEffect(() => {
     if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
-      doSetDefaultChannel(activeChannelClaim.claim_id);
+      doSetDefaultChannel_(activeChannelClaim.claim_id);
     }
-  }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel, hasMyChannels, prefsReady]);
+  }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel_, hasMyChannels, prefsReady]);
   useEffect(() => {
     if (
       isFypModalShown ||
@@ -414,7 +402,7 @@ function App(props: Props) {
       return;
     }
 
-    doOpenModal(MODALS.CONFIRM, {
+    doOpenModal_(MODALS.CONFIRM, {
       title: __('Homepage recommendations available'),
       subtitle: __(
         'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
@@ -425,9 +413,9 @@ function App(props: Props) {
         closeModal();
         const active = homepageOrder?.active || [];
         const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
-        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
-        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
-        doToast({
+        doSetClientSetting_(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting_(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        doToast_({
           message: __('Homepage recommendations enabled.'),
         });
       },
@@ -435,11 +423,19 @@ function App(props: Props) {
         closeModal();
         const hidden = homepageOrder?.hidden || [];
         const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
-        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
-        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        doSetClientSetting_(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting_(SETTINGS.FYP_MODAL_SHOWN, true, true);
       },
     });
-  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
+  }, [
+    isFypModalShown,
+    prefsReady,
+    homepageOrder,
+    personalRecommendations,
+    doSetClientSetting_,
+    doOpenModal_,
+    doToast_,
+  ]);
   useEffect(() => {
     document.documentElement.setAttribute('lang', language);
   }, [language]);
@@ -541,14 +537,14 @@ function App(props: Props) {
   }, [syncError, pathname, isAuthenticated]);
   useEffect(() => {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
-      doOpenAnnouncements();
+      doOpenAnnouncements_();
     }
-  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements]);
+  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements_]);
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
 
-      doSetLastViewedAnnouncement('clear');
+      doSetLastViewedAnnouncement_('clear');
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
   // Keep this at the end to ensure initial setup effects are run first
@@ -558,7 +554,7 @@ function App(props: Props) {
       setHasSignedIn(true);
     }
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
-  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer);
+  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer_);
   useEffect(() => {
     if (!syncIsLocked) {
       // When language is changed or translations are fetched, we render.

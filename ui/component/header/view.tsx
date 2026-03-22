@@ -17,8 +17,7 @@ import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
 import WanderButton from '../wanderButton';
-import { useLocation } from 'react-router-dom';
-import { history } from 'redux/router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
 import { doSignOut, doOpenModal } from 'redux/actions/app';
@@ -70,7 +69,7 @@ const Header = (props: Props) => {
   const signOut = () => dispatch(doSignOut());
   const openChangelog = (modalProps: {}) => dispatch(doOpenModal(MODALS.CONFIRM, modalProps));
   const { pathname, search } = useLocation();
-  const { goBack, push } = history;
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
   const isVerifyPage = pathname.includes(PAGES.AUTH_VERIFY);
@@ -119,16 +118,16 @@ const Header = (props: Props) => {
 
       if (e.type !== 'popstate') {
         if (returnPath) {
-          push(returnPath);
+          navigate(returnPath);
         } else if (hasNavigated && !backNavDefault) {
           // if not initiated by pop (back button)
-          goBack();
+          navigate(-1);
         } else {
-          push(backNavDefault || `/`);
+          navigate(backNavDefault || `/`);
         }
       }
     }, // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-    [backNavDefault, goBack, hasNavigated, push, returnPath]
+    [backNavDefault, hasNavigated, navigate, returnPath]
   );
   React.useEffect(() => {
     if (canBackout) {
@@ -312,7 +311,7 @@ const Header = (props: Props) => {
                       icon={ICONS.REMOVE}
                       onClick={() => {
                         if (isYoutubeAuthErrorPage) {
-                          push(`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`);
+                          navigate(`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`);
                           return;
                         }
 
@@ -324,9 +323,9 @@ const Header = (props: Props) => {
                         if (syncError) signOut();
 
                         if ((isSignInPage && !emailToVerify) || isSignUpPage || isPwdResetPage || iYTSyncPage) {
-                          goBack();
+                          navigate(-1);
                         } else {
-                          push('/');
+                          navigate('/');
                         }
                       }}
                     />

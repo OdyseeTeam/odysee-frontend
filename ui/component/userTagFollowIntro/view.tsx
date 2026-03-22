@@ -4,14 +4,16 @@ import TagsSelect from 'component/tagsSelect';
 import Button from 'component/button';
 import { Form } from 'component/common/form';
 import Card from 'component/common/card';
+import { useAppSelector } from 'redux/hooks';
+import { selectFollowedTags } from 'redux/selectors/tags';
+
 type Props = {
-  subscribedChannels: Array<Subscription>;
   onContinue: () => void;
-  followedTags: Array<Tag>;
 };
 
 function UserTagFollowIntro(props: Props) {
-  const { onContinue, followedTags } = props;
+  const { onContinue } = props;
+  const followedTags = useAppSelector(selectFollowedTags);
   const followingCount = (followedTags && followedTags.length) || 0;
   return (
     <Card

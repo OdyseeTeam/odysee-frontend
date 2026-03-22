@@ -32,7 +32,6 @@ import {
 import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import VideoViewer from './view';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { history } from 'redux/router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
@@ -128,7 +127,7 @@ function VideoViewerWithRouteProps(props) {
     isExact: true,
   };
 
-  return React.createElement(ConnectedVideoViewer, { ...props, history, location, match, navigate });
+  return React.createElement(ConnectedVideoViewer, { ...props, location, match, navigate });
 }
 
 export default withPlaybackUris(VideoViewerWithRouteProps);

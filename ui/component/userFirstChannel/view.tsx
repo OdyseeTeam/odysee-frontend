@@ -13,36 +13,24 @@ import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png
 import { AVATAR_DEFAULT } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PUBLISH from 'constants/publish';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { selectUser } from 'redux/selectors/user';
+import { selectCreatingChannel, selectCreateChannelError } from 'redux/selectors/claims';
+import { doCreateChannel } from 'redux/actions/claims';
+import { doOpenModal } from 'redux/actions/app';
+
 export const DEFAULT_BID_FOR_FIRST_CHANNEL = 0.01;
 type Props = {
-  createChannel: (arg0: string, arg1: number, arg2: any) => Promise<ChannelClaim>;
-  creatingChannel: boolean;
-  createChannelError: string;
-  claimingReward: boolean;
-  user: User;
+  claimingReward?: boolean;
   doToggleInterestedInYoutubeSync: () => void;
-  openModal: (
-    id: string,
-    arg1: {
-      onUpdate: (arg0: string, arg1: boolean) => void;
-      assetName: string;
-      helpText: string;
-      currentValue: string;
-      title: string;
-    }
-  ) => void;
 };
 
 function UserFirstChannel(props: Props) {
-  const {
-    createChannel,
-    creatingChannel,
-    claimingReward,
-    user,
-    createChannelError,
-    doToggleInterestedInYoutubeSync,
-    openModal,
-  } = props;
+  const { claimingReward, doToggleInterestedInYoutubeSync } = props;
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const creatingChannel = useAppSelector(selectCreatingChannel);
+  const createChannelError = useAppSelector(selectCreateChannelError);
   const { primary_email: primaryEmail } = user;
   const initialChannel = primaryEmail ? primaryEmail.split('@')[0] : '';
   const [channel, setChannel] = useState(initialChannel);
@@ -107,11 +95,13 @@ function UserFirstChannel(props: Props) {
   }
 
   function handleCreateChannel() {
-    createChannel(`@${channel}`, DEFAULT_BID_FOR_FIRST_CHANNEL, {
-      title: title,
-      thumbnailUrl: params.thumbnailUrl,
-      languages: primaryLanguage,
-    }).then((channelClaim) => {
+    dispatch(
+      doCreateChannel(`@${channel}`, DEFAULT_BID_FOR_FIRST_CHANNEL, {
+        title: title,
+        thumbnailUrl: params.thumbnailUrl,
+        languages: primaryLanguage,
+      })
+    ).then((channelClaim) => {
       if (channelClaim) {
         analytics.apiLog.publish(channelClaim);
       }
@@ -154,13 +144,15 @@ function UserFirstChannel(props: Props) {
                   button="alt"
                   title={__('Edit')}
                   onClick={() =>
-                    openModal(MODALS.IMAGE_UPLOAD, {
-                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                      title: __('Edit Thumbnail Image'),
-                      helpText: __('(1:1 ratio)'),
-                      assetName: __('Thumbnail'),
-                      currentValue: params.thumbnailUrl,
-                    })
+                    dispatch(
+                      doOpenModal(MODALS.IMAGE_UPLOAD, {
+                        onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                        title: __('Edit Thumbnail Image'),
+                        helpText: __('(1:1 ratio)'),
+                        assetName: __('Thumbnail'),
+                        currentValue: params.thumbnailUrl,
+                      })
+                    )
                   }
                   icon={ICONS.CAMERA}
                   iconSize={18}

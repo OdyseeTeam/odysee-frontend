@@ -4,24 +4,23 @@ import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
-type Props = {
-  doHideModal: () => void;
-  doSetClientSetting: (arg0: string, arg1: any) => void;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doSetClientSetting } from 'redux/actions/settings';
 
-function ModalAffirmPurchase(props: Props) {
-  const { doHideModal, doSetClientSetting } = props;
+function ModalConfirmAge() {
+  const dispatch = useAppDispatch();
   const [confirmed, setConfirmed] = React.useState(false);
 
   function handleConfirmAge() {
-    doSetClientSetting(SETTINGS.SHOW_MATURE, true);
-    doHideModal();
+    dispatch(doSetClientSetting(SETTINGS.SHOW_MATURE, true));
+    dispatch(doHideModal());
   }
 
   const title = __('Confirm Your Age');
 
   return (
-    <Modal type="card" isOpen contentLabel={title} onAborted={doHideModal}>
+    <Modal type="card" isOpen contentLabel={title} onAborted={() => dispatch(doHideModal())}>
       <Card
         title={title}
         actions={
@@ -38,7 +37,7 @@ function ModalAffirmPurchase(props: Props) {
             </div>
             <div className="section__actions">
               <Button button="primary" label={'Confirm'} onClick={handleConfirmAge} disabled={!confirmed} />
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+              <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
             </div>
           </>
         }
@@ -47,4 +46,4 @@ function ModalAffirmPurchase(props: Props) {
   );
 }
 
-export default ModalAffirmPurchase;
+export default ModalConfirmAge;
