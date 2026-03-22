@@ -50,7 +50,19 @@ type Props = {
   doSetClientSetting: (arg0: string, arg1: any, arg2: boolean | null | undefined) => void;
 };
 // Avoid prop drilling
-export const FileListContext = React.createContext<any>();
+export const FileListContext = React.createContext<any>({
+  searchText: '',
+  setSearchText: () => {},
+  isFilteringEnabled: false,
+  sortOption: {},
+  updateFilteringSetting: () => {},
+  fetching: false,
+  method: '',
+  isAllSelected: false,
+  params: {},
+  channelIdsClaimList: [],
+  setFilterParamsChanged: () => {},
+});
 
 function FileListPublished(props: Props) {
   const {

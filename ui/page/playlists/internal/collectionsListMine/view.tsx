@@ -23,7 +23,12 @@ type Props = {
   doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void;
 };
 // Avoid prop drilling
-export const CollectionsListContext = React.createContext<any>();
+export const CollectionsListContext = React.createContext<any>({
+  searchText: '',
+  setSearchText: () => {},
+  totalLength: 0,
+  filteredCollectionsLength: 0,
+});
 export default function CollectionsListMine(props: Props) {
   const {
     // -- redux --

@@ -27,7 +27,7 @@ type Props = {
   doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void;
   doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void;
 };
-export const CollectionPageContext = React.createContext<any>();
+export const CollectionPageContext = React.createContext<any>({});
 
 const CollectionPage = (props: Props) => {
   const {
