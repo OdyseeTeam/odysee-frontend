@@ -1,12 +1,12 @@
 import React from 'react';
 import Page from 'component/page';
 import StripeCard from 'component/settingsStripeCard';
-type Props = {
-  cardDetails: StripeCardDetails;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectCardDetails } from 'redux/selectors/stripe';
 
-const SettingsStripeCardPage = (props: Props) => {
-  const { cardDetails } = props;
+const SettingsStripeCardPage = () => {
+  const cardDetails = useAppSelector(selectCardDetails);
+
   return (
     <Page
       settingsPage

@@ -12,83 +12,45 @@ import Button from 'component/button';
 import usePersistedState from 'effects/use-persisted-state';
 import ChannelBlockButton from 'component/channelBlockButton';
 import ChannelMuteButton from 'component/channelMuteButton';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
+import { selectMutedChannels } from 'redux/selectors/blocked';
+import {
+  selectModerationBlockList,
+  selectAdminBlockList,
+  selectModeratorBlockList,
+  selectModeratorBlockListDelegatorsMap,
+  selectFetchingModerationBlockList,
+  selectModerationDelegatorsById,
+  selectAdminTimeoutMap,
+  selectModeratorTimeoutMap,
+  selectPersonalTimeoutMap,
+} from 'redux/selectors/comments';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import { doResolveUris } from 'redux/actions/claims';
+
 const VIEW = {
   BLOCKED: 'blocked',
   ADMIN: 'admin',
   MODERATOR: 'moderator',
   MUTED: 'muted',
 };
-type Props = {
-  mutedUris: Array<string> | null | undefined;
-  personalBlockList: Array<string> | null | undefined;
-  adminBlockList: Array<string> | null | undefined;
-  moderatorBlockList: Array<string> | null | undefined;
-  personalTimeoutMap: Record<
-    string,
-    {
-      blockedAt: string;
-      bannedFor: number;
-      banRemaining: number;
-    }
-  >;
-  adminTimeoutMap: Record<
-    string,
-    {
-      blockedAt: string;
-      bannedFor: number;
-      banRemaining: number;
-    }
-  >;
-  moderatorTimeoutMap: Record<
-    string,
-    {
-      blockedAt: string;
-      bannedFor: number;
-      banRemaining: number;
-    }
-  >;
-  moderatorBlockListDelegatorsMap: Record<string, Array<string>>;
-  fetchingModerationBlockList: boolean;
-  appLanguage: string;
-  fetchModBlockedList: () => void;
-  fetchModAmIList: () => void;
-  delegatorsById: Record<
-    string,
-    {
-      global: boolean;
-      delegators: {
-        name: string;
-        claimId: string;
-      };
-    }
-  >;
-  myChannelClaimIds: Array<string> | null | undefined;
-  doResolveUris: (uris: Array<string>) => void;
-};
 
-function isSourceListLarger(source, local) {
-  // Comparing the length of stringified is not perfect, but what are the
-  // chances of having different lists with the exact same length?
-  return source && (!local || local.length < source.length);
-}
+function ListBlocked() {
+  const dispatch = useAppDispatch();
 
-function ListBlocked(props: Props) {
-  const {
-    mutedUris,
-    personalBlockList,
-    adminBlockList,
-    moderatorBlockList,
-    personalTimeoutMap,
-    adminTimeoutMap,
-    moderatorTimeoutMap,
-    moderatorBlockListDelegatorsMap: delegatorsMap,
-    fetchingModerationBlockList,
-    fetchModBlockedList,
-    fetchModAmIList,
-    delegatorsById,
-    myChannelClaimIds,
-    doResolveUris,
-  } = props;
+  const mutedUris = useAppSelector(selectMutedChannels);
+  const personalBlockList = useAppSelector(selectModerationBlockList);
+  const adminBlockList = useAppSelector(selectAdminBlockList);
+  const moderatorBlockList = useAppSelector(selectModeratorBlockList);
+  const personalTimeoutMap = useAppSelector(selectPersonalTimeoutMap);
+  const adminTimeoutMap = useAppSelector(selectAdminTimeoutMap);
+  const moderatorTimeoutMap = useAppSelector(selectModeratorTimeoutMap);
+  const delegatorsMap = useAppSelector(selectModeratorBlockListDelegatorsMap);
+  const delegatorsById = useAppSelector(selectModerationDelegatorsById);
+  const myChannelClaimIds = useAppSelector(selectMyChannelClaimIds);
+  const fetchingModerationBlockList = useAppSelector(selectFetchingModerationBlockList);
+
   const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW.BLOCKED);
   const [localDelegatorsMap, setLocalDelegatorsMap] = React.useState(undefined);
   const stringifiedDelegatorsMap = JSON.stringify(delegatorsMap);
@@ -100,8 +62,8 @@ function ListBlocked(props: Props) {
   const list = getList(viewMode);
   // **************************************************************************
   React.useEffect(() => {
-    doResolveUris(list || []);
-  }, [list, doResolveUris]);
+    dispatch(doResolveUris(list || []));
+  }, [list, dispatch]);
 
   function getList(view) {
     switch (view) {
@@ -264,8 +226,8 @@ function ListBlocked(props: Props) {
           button="alt"
           label={__('Refresh')}
           onClick={() => {
-            fetchModBlockedList();
-            fetchModAmIList();
+            dispatch(doFetchModBlockedList());
+            dispatch(doFetchCommentModAmIList());
           }}
         />
       )
@@ -320,6 +282,12 @@ function ListBlocked(props: Props) {
       )}
     </Page>
   );
+}
+
+function isSourceListLarger(source, local) {
+  // Comparing the length of stringified is not perfect, but what are the
+  // chances of having different lists with the exact same length?
+  return source && (!local || local.length < source.length);
 }
 
 export default ListBlocked;

@@ -7,28 +7,31 @@ import BuiltinPlaylists from './internal/builtin-playlists';
 import Page from 'component/page';
 import CollectionsListMine from './internal/collectionsListMine';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectAreBuiltinCollectionsEmpty,
+  selectHasCollections,
+  selectIsFetchingMyCollections,
+} from 'redux/selectors/collections';
+import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doOpenModal } from 'redux/actions/app';
 import './style.scss';
-type Props = {
-  // -- redux --
-  areBuiltinCollectionsEmpty: boolean;
-  hasCollections: boolean;
-  isFetchingCollections: boolean | null | undefined;
-  doOpenModal: (id: string) => void;
-  doFetchCollectionListMine: () => void;
-};
 
-const PlaylistsPage = (props: Props) => {
-  const { areBuiltinCollectionsEmpty, hasCollections, isFetchingCollections, doOpenModal, doFetchCollectionListMine } =
-    props;
+const PlaylistsPage = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const areBuiltinCollectionsEmpty = useAppSelector(selectAreBuiltinCollectionsEmpty);
+  const hasCollections = useAppSelector(selectHasCollections);
+  const isFetchingCollections = useAppSelector(selectIsFetchingMyCollections);
+
   function handleCreatePlaylist() {
-    doOpenModal(MODALS.COLLECTION_CREATE);
+    dispatch(doOpenModal(MODALS.COLLECTION_CREATE));
   }
 
   React.useEffect(() => {
-    if (isFetchingCollections === undefined) doFetchCollectionListMine();
-  }, [isFetchingCollections, doFetchCollectionListMine]);
+    if (isFetchingCollections === undefined) dispatch(doFetchCollectionListMine());
+  }, [isFetchingCollections, dispatch]);
 
   if (!hasCollections) {
     if (isFetchingCollections) {

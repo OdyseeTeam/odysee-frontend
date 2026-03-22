@@ -2,20 +2,27 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
+import { useAppSelector } from 'redux/hooks';
+import { selectIsMarkdownPostForUri } from 'redux/selectors/content';
+import { selectIsStreamPlaceholderForUri, selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import Page from 'component/page';
 import ClaimPageComponent from './internal/claimPageComponent';
+
 type Props = {
   uri: string;
   latestContentPath?: boolean;
   liveContentPath?: boolean;
-  // -- redux --
-  isMarkdownPost: boolean | null | undefined;
-  isLivestreamClaim: boolean | null | undefined;
-  chatDisabled: boolean | null | undefined;
 };
 
 const ClaimPage = (props: Props) => {
-  const { uri, latestContentPath, liveContentPath, isMarkdownPost, isLivestreamClaim, chatDisabled } = props;
+  const { uri, latestContentPath, liveContentPath } = props;
+
+  const isMarkdownPost = useAppSelector((state) => selectIsMarkdownPostForUri(state, uri));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
+  const chatDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelClaimId));
+
   const { isChannel } = parseURI(uri);
   const { search, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');

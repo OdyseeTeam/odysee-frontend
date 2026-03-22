@@ -1,17 +1,18 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import * as CS from 'constants/claim_search';
-type Props = {
-  tileLayout: boolean;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
 
-function TagsFollowingPage(props: Props) {
-  const { tileLayout } = props;
+function TagsFollowingPage() {
+  const tileLayout = useAppSelector((state) => selectClientSetting(state, SETTINGS.TILE_LAYOUT));
+
   return (
     <Page noFooter fullWidthPage>
       <ClaimListDiscover

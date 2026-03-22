@@ -3,13 +3,14 @@ import UploadForm from 'component/publish/upload/uploadForm';
 import Page from 'component/page';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import Spinner from 'component/spinner';
-type Props = {
-  balance: number;
-  fetchingChannels: boolean;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectFetchingMyChannels } from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
 
-function UploadPage(props: Props) {
-  const { balance, fetchingChannels } = props;
+function UploadPage() {
+  const balance = useAppSelector(selectBalance);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+
   return (
     <Page noFooter>
       {balance < 0.01 && <YrblWalletEmpty />}

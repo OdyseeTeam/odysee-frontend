@@ -3,11 +3,11 @@ import LivestreamList from 'component/livestreamList';
 import Button from 'component/button';
 import Page from 'component/page';
 import Yrbl from 'component/yrbl';
-type Props = {
-  user: User | null | undefined;
-};
-export default function LivestreamCurrentPage(props: Props) {
-  const { user } = props;
+import { useAppSelector } from 'redux/hooks';
+import { selectUser } from 'redux/selectors/user';
+
+export default function LivestreamCurrentPage() {
+  const user = useAppSelector(selectUser);
   const canView = process.env.ENABLE_WIP_FEATURES || (user && user.global_mod);
   return (
     <Page>

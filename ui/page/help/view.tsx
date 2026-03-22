@@ -1,20 +1,23 @@
 import { SITE_NAME, SITE_HELP_EMAIL } from 'config';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { getAuthToken } from 'util/saved-passwords';
 import CopyableText from 'component/copyableText';
-import * as MODALS from 'constants/modal_types';
-type Props = {
-  announcement: string;
-  doOpenModal: (arg0: string, arg1: {} | null | undefined) => void;
-  user: any;
-};
-export default function HelpPage(props: Props) {
-  const { announcement, doOpenModal, user } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { selectHomepageAnnouncement } from 'redux/selectors/settings';
+import { selectUser } from 'redux/selectors/user';
+
+export default function HelpPage() {
+  const dispatch = useAppDispatch();
+  const announcement = useAppSelector(selectHomepageAnnouncement);
+  const user = useAppSelector(selectUser);
+
   const canViewToken = process.env.ENABLE_WIP_FEATURES || (user && user.internal_feature);
   const authToken = canViewToken && getAuthToken();
   return (
@@ -29,7 +32,7 @@ export default function HelpPage(props: Props) {
                 label={__("What's New")}
                 icon={ICONS.FEEDBACK}
                 button="secondary"
-                onClick={() => doOpenModal(MODALS.ANNOUNCEMENTS)}
+                onClick={() => dispatch(doOpenModal(MODALS.ANNOUNCEMENTS))}
               />
             </div>
           }

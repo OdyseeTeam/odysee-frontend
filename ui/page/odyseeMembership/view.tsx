@@ -2,17 +2,13 @@ import React from 'react';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
+import { useAppSelector } from 'redux/hooks';
+import { hasLegacyOdyseePremium } from 'redux/selectors/user';
 import './style.scss';
-type Props = {
-  // -- redux --
-  hasOdyseeLegacy: boolean;
-};
 
-const OdyseeMembershipPage = (props: Props) => {
-  const {
-    // -- redux --
-    hasOdyseeLegacy,
-  } = props;
+const OdyseeMembershipPage = () => {
+  const hasOdyseeLegacy = useAppSelector(hasLegacyOdyseePremium);
+
   return (
     <Page className="premium-wrapper card-stack">
       <Card title={__('Odysee Premium')} subtitle={<ChannelSelector />}>

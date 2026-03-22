@@ -3,7 +3,11 @@ import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
 import { lazyImport } from 'util/lazyImport';
+import { useAppSelector } from 'redux/hooks';
+import { selectHomepageData } from 'redux/selectors/settings';
+import { selectUser } from 'redux/selectors/user';
 import './style.scss';
+
 const Portals = lazyImport(
   () =>
     import(
@@ -11,15 +15,19 @@ const Portals = lazyImport(
       /* webpackChunkName: "portals" */
     )
 );
-type Props = {
-  portals: any;
-  homepageData: any;
-  showViews: boolean;
-};
+
 export const PortalContext = React.createContext<any>();
 
-function PortalPage(props: Props) {
-  const { portals, homepageData, showViews } = props;
+function PortalPage() {
+  const homepageData = useAppSelector(selectHomepageData) || {};
+  const user = useAppSelector(selectUser);
+
+  const { portals: portalData } = homepageData;
+  const { mainPortal } = portalData || {};
+  const portals = mainPortal?.portals;
+  const { global_mod, internal_feature } = user || {};
+  const showViews = global_mod || internal_feature;
+
   const [portal, setIndex] = React.useState(undefined);
   const [displayedTiles, setDisplayedTiles] = React.useState(0);
   let { portalName } = useParams();

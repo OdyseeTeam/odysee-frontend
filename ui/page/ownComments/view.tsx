@@ -11,6 +11,15 @@ import { COMMENT_PAGE_SIZE_TOP_LEVEL } from 'constants/comment';
 import * as ICONS from 'constants/icons';
 import useFetched from 'effects/use-fetched';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doCommentListOwn, doCommentReset } from 'redux/actions/comments';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectIsFetchingComments,
+  selectCommentsForUri,
+  selectTotalCommentsCountForUri,
+} from 'redux/selectors/comments';
+import { selectClaimsById } from 'redux/selectors/claims';
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -22,25 +31,16 @@ function scaleToDevicePixelRatio(value) {
   return Math.ceil(value * devicePixelRatio);
 }
 
-type Props = {
-  activeChannelClaim: ChannelClaim | null | undefined;
-  allComments: Array<Comment> | null | undefined;
-  totalComments: number;
-  isFetchingComments: boolean;
-  claimsById: any;
-  doCommentReset: (claimId: string) => void;
-  doCommentListOwn: (channelId: string, page: number, pageSize: number) => void;
-};
-export default function OwnComments(props: Props) {
-  const {
-    activeChannelClaim,
-    allComments,
-    totalComments,
-    isFetchingComments,
-    claimsById,
-    doCommentReset,
-    doCommentListOwn,
-  } = props;
+export default function OwnComments() {
+  const dispatch = useAppDispatch();
+
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const uri = activeChannelClaim && activeChannelClaim.canonical_url;
+  const allComments = useAppSelector((state) => selectCommentsForUri(state, uri));
+  const totalComments = useAppSelector((state) => selectTotalCommentsCountForUri(state, uri));
+  const isFetchingComments = useAppSelector(selectIsFetchingComments);
+  const claimsById = useAppSelector(selectClaimsById);
+
   const spinnerRef = React.useRef();
   const [isLoadingLong, setIsLoadingLong] = React.useState(false);
   const [page, setPage] = React.useState(0);
@@ -99,11 +99,10 @@ export default function OwnComments(props: Props) {
   // Reset comments
   React.useEffect(() => {
     if (page === 0 && activeChannelId) {
-      doCommentReset(activeChannelId);
+      dispatch(doCommentReset(activeChannelId));
       setPage(1);
     }
-  }, [page, activeChannelId]);
-  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, activeChannelId]); // eslint-disable-line react-hooks/exhaustive-deps
   // Fetch own comments
   React.useEffect(() => {
     let timeout;
@@ -115,7 +114,7 @@ export default function OwnComments(props: Props) {
         timeout = setTimeout(() => setIsLoadingLong(true), 10000);
 
         try {
-          await doCommentListOwn(activeChannelId, page, COMMENT_PAGE_SIZE_TOP_LEVEL);
+          await dispatch(doCommentListOwn(activeChannelId, page, COMMENT_PAGE_SIZE_TOP_LEVEL));
         } catch (error) {
           // Handle any errors here
         } finally {
@@ -126,8 +125,7 @@ export default function OwnComments(props: Props) {
 
     fetchData();
     return () => clearTimeout(timeout); // Ensure the timeout is cleared when the component unmounts
-  }, [page]);
-  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
   // Infinite scroll
   React.useEffect(() => {
     function shouldFetchNextPage(page, topLevelTotalPages, window, document, yPrefetchPx = 1000) {
@@ -168,8 +166,8 @@ export default function OwnComments(props: Props) {
   }, [page, spinnerRef, isFetchingComments, moreBelow, totalPages]);
   // Clear redux when leaving page (because OwnComment is sharing key with CommunityTab)
   React.useEffect(() => {
-    return () => doCommentReset(activeChannelId);
-  }, [activeChannelId, doCommentReset]);
+    return () => dispatch(doCommentReset(activeChannelId));
+  }, [activeChannelId, dispatch]);
 
   // **************************************************************************
   // **************************************************************************
