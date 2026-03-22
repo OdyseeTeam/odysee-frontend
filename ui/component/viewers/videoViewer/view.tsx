@@ -281,24 +281,26 @@ function VideoViewer(props: Props) {
   }, [doPlayNextUri, playPreviousUri, videoNode]);
   React.useEffect(() => {
     if (!playerControlBar) return;
-    const existingPlayPreviousButton = playerControlBar.getChild('PlayPreviousButton');
+    try {
+      const existingPlayPreviousButton = playerControlBar.getChild('PlayPreviousButton');
+      if (existingPlayPreviousButton) {
+        playerControlBar.removeChild('PlayPreviousButton');
+      }
 
-    if (existingPlayPreviousButton) {
-      playerControlBar.removeChild('PlayPreviousButton');
-    }
+      if (playerElem && canPlayPrevious) {
+        addPlayPreviousButton(playerElem, handlePlayPreviousUri);
+      }
 
-    if (playerElem && canPlayPrevious) {
-      addPlayPreviousButton(playerElem, handlePlayPreviousUri);
-    }
+      const existingPlayNextButton = playerControlBar.getChild('PlayNextButton');
+      if (existingPlayNextButton) {
+        playerControlBar.removeChild('PlayNextButton');
+      }
 
-    const existingPlayNextButton = playerControlBar.getChild('PlayNextButton');
-
-    if (existingPlayNextButton) {
-      playerControlBar.removeChild('PlayNextButton');
-    }
-
-    if (playerElem && canPlayNext) {
-      addPlayNextButton(playerElem, handlePlayNextUri);
+      if (playerElem && canPlayNext) {
+        addPlayNextButton(playerElem, handlePlayNextUri);
+      }
+    } catch (e) {
+      // Player control bar may be disposed during navigation
     }
   }, [canPlayNext, canPlayPrevious, handlePlayNextUri, handlePlayPreviousUri, playerControlBar, playerElem]);
   const onVideoEnded = React.useCallback(() => {
