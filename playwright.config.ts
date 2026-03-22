@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Odysee Frontend – Playwright Configuration
@@ -16,6 +17,7 @@ import path from 'path';
  *   ODYSEE_TEST_CHANNEL channel name used in channel/authenticated tests  (e.g. @mychannel)
  */
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BASE_URL = process.env.BASE_URL || 'http://localhost:1337';
 const AUTH_STATE = path.join(__dirname, 'tests/.auth/user.json');
 

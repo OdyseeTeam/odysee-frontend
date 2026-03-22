@@ -30,6 +30,7 @@
     "fmt": "vp fmt",
     "fmt:check": "vp fmt --check",
     "typecheck": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json --type-aware --type-check .",
+    "typecheck:tsc": "tsc --noEmit",
     "dev:web-server": "cross-env NODE_ENV=development concurrently --kill-others \"vp build --watch\" \"cd web && pnpm dev:server\"",
     "run:web-server": "cross-env NODE_ENV=production vp build && cd web && pnpm dev:server",
     "postinstall": "cd web && pnpm install",

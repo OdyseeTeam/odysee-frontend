@@ -143,4 +143,4 @@ function ChannelThumbnail(props: Props) {
   );
 }
 
-export default ChannelThumbnail;
+export default React.memo(ChannelThumbnail);

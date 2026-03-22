@@ -59,4 +59,4 @@ const TruncatedText = ({ text, lines, showTooltip = true, style }: Props) => {
   );
 };
 
-export default TruncatedText;
+export default React.memo(TruncatedText);

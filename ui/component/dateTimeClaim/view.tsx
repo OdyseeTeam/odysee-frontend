@@ -51,4 +51,4 @@ function DateTimeClaim(props: Props) {
   );
 }
 
-export default DateTimeClaim;
+export default React.memo(DateTimeClaim);

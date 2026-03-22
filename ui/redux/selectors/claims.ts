@@ -39,9 +39,14 @@ const selectState = (state: State) => state.claims || EMPTY_OBJECT;
 
 export const selectById = (state: State) => selectState(state).byId || EMPTY_OBJECT;
 export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || EMPTY_OBJECT;
-export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) =>
-  Object.assign({}, byId, pendingById)
-);
+export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
+  // Avoid creating a new object when there are no pending claims (the common case).
+  // Object.assign({}, byId, pendingById) was creating a new reference on every call,
+  // invalidating every downstream cached selector on every claim state change.
+  const pendingKeys = Object.keys(pendingById);
+  if (pendingKeys.length === 0) return byId;
+  return Object.assign({}, byId, pendingById);
+});
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || EMPTY_OBJECT;
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;

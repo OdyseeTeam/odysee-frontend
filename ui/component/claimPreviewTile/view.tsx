@@ -338,4 +338,4 @@ function ClaimPreviewTile(props: Props) {
   );
 }
 
-export default ClaimPreviewTile;
+export default React.memo(ClaimPreviewTile);

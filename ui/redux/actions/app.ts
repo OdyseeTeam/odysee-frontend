@@ -400,15 +400,14 @@ export function doDaemonReady() {
   };
 }
 export function doClearCache() {
-  return (dispatch: Dispatch) => {
-    // Need to update this to work with new version of redux-persist
-    // Leaving for now
-    // const reducersToClear = whiteListedReducers.filter(reducerKey => reducerKey !== 'tags');
-    // window.cacheStore.purge(reducersToClear);
+  return async (dispatch: Dispatch) => {
+    window.persistor.pause();
+    await window.persistor.flush();
+    await window.persistor.purge();
     window.sessionStorage.clear();
     dispatch(doClearSupport());
+    dispatch(doClearPublish());
     window.location.reload();
-    return dispatch(doClearPublish());
   };
 }
 export function doQuit() {

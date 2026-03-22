@@ -46,4 +46,4 @@ function FileWatchLaterLink(props: Props) {
   );
 }
 
-export default FileWatchLaterLink;
+export default React.memo(FileWatchLaterLink);

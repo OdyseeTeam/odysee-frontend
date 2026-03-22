@@ -116,4 +116,4 @@ function FileThumbnail(props: Props) {
   );
 }
 
-export default FileThumbnail;
+export default React.memo(FileThumbnail);

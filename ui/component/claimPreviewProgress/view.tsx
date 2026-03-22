@@ -4,7 +4,7 @@ type Props = {
   position: number | null | undefined;
   duration: number | null | undefined;
 };
-export default function ClaimPreviewProgress(props: Props) {
+function ClaimPreviewProgress(props: Props) {
   const { position, duration } = props;
 
   if (!position || !duration) {
@@ -22,3 +22,5 @@ export default function ClaimPreviewProgress(props: Props) {
     </div>
   );
 }
+
+export default React.memo(ClaimPreviewProgress);

@@ -11,7 +11,7 @@ type Props = {
   lang: string | null | undefined;
   user?: any;
 };
-export default function FileViewCountInline(props: Props) {
+function FileViewCountInline(props: Props) {
   const { isLivestream, claim, viewCount, lang, user } = props;
   const formattedViewCount = toCompactNotation(viewCount, lang);
   const userIsMod = user?.groups?.includes('mod') || user?.groups?.includes('admin');
@@ -42,3 +42,5 @@ export default function FileViewCountInline(props: Props) {
     </span>
   );
 }
+
+export default React.memo(FileViewCountInline);

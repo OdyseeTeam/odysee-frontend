@@ -27,7 +27,7 @@ type Props = {
   livestreamViewerCount: number | null | undefined;
   isLivestreamScheduled: boolean;
 };
-export default function PreviewOverlayProperties(props: Props) {
+function PreviewOverlayProperties(props: Props) {
   const {
     uri,
     downloaded,
@@ -121,3 +121,5 @@ export default function PreviewOverlayProperties(props: Props) {
     </div>
   );
 }
+
+export default React.memo(PreviewOverlayProperties);

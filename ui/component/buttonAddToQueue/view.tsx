@@ -105,4 +105,4 @@ function ButtonAddToQueue(props: Props) {
   );
 }
 
-export default ButtonAddToQueue;
+export default React.memo(ButtonAddToQueue);

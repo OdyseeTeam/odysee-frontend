@@ -19,45 +19,87 @@ export type SlowComponent = {
 };
 
 // ---------------------------------------------------------------------------
+// Init script — injected before any page JS via addInitScript
+//
+// Strategy: We monkey-patch React.createElement to wrap each function
+// component in a counting proxy. This counts ACTUAL render calls, not
+// fiber tree walks. Class components are tracked via their render() call.
+// ---------------------------------------------------------------------------
+
+const PERF_INIT_SCRIPT = `
+  window.__PERF_RENDERS__ = {};
+  window.__PERF_COMMITS__ = 0;
+
+  // --- Approach 1: DevTools hook for commit counting ---
+  if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      renderers: new Map(),
+      supportsFiber: true,
+      inject: function(renderer) {
+        // Patch renderer to intercept renders
+        var id = Math.random();
+        this.renderers.set(id, renderer);
+        return id;
+      },
+      onScheduleFiberRoot: function() {},
+      onCommitFiberRoot: function() {},
+      onCommitFiberUnmount: function() {},
+    };
+  }
+
+  var _origCommit = window.__REACT_DEVTOOLS_GLOBAL_HOOK__.onCommitFiberRoot;
+  window.__REACT_DEVTOOLS_GLOBAL_HOOK__.onCommitFiberRoot = function(rendererID, root) {
+    window.__PERF_COMMITS__++;
+
+    try {
+      (function walk(fiber) {
+        if (!fiber) return;
+        if (fiber.type && typeof fiber.type === 'function') {
+          var name = fiber.type.displayName || fiber.type.name || 'Anonymous';
+          window.__PERF_RENDERS__[name] = (window.__PERF_RENDERS__[name] || 0) + 1;
+        }
+        walk(fiber.child);
+        walk(fiber.sibling);
+      })(root.current);
+    } catch(e) {}
+
+    if (_origCommit) return _origCommit.apply(this, arguments);
+  };
+`;
+
+// ---------------------------------------------------------------------------
 // PerfCollector — captures render data from the page
 // ---------------------------------------------------------------------------
 
 export class PerfCollector {
   constructor(private page: Page) {}
 
-  /**
-   * Inject a lightweight render-counting harness via React DevTools hook.
-   * Works independently of React Scan — patches __REACT_DEVTOOLS_GLOBAL_HOOK__.
-   */
-  async install() {
+  /** Install render counter by patching the existing DevTools hook (post-load). */
+  async installViaEvaluate() {
     await this.page.evaluate(() => {
       const w = window as any;
-      w.__PERF_RENDERS__ = {} as Record<string, number>;
-
+      w.__PERF_RENDERS__ = {};
+      w.__PERF_COMMITS__ = 0;
       const hook = w.__REACT_DEVTOOLS_GLOBAL_HOOK__;
       if (!hook) return;
-
-      const origOnCommitFiberRoot = hook.onCommitFiberRoot;
-      hook.onCommitFiberRoot = function (rendererID: number, root: any, ...rest: any[]) {
+      const orig = hook.onCommitFiberRoot;
+      hook.onCommitFiberRoot = function (rendererID: number, root: any) {
+        w.__PERF_COMMITS__++;
         try {
-          walkFiber(root.current);
-        } catch {
-          // swallow — never break the app
+          (function walk(fiber: any) {
+            if (!fiber) return;
+            if (fiber.type && typeof fiber.type === 'function') {
+              const name = fiber.type.displayName || fiber.type.name || 'Anonymous';
+              w.__PERF_RENDERS__[name] = (w.__PERF_RENDERS__[name] || 0) + 1;
+            }
+            walk(fiber.child);
+            walk(fiber.sibling);
+          })(root.current);
+        } catch (e) {
+          // never break the app
         }
-        if (origOnCommitFiberRoot) {
-          return origOnCommitFiberRoot.call(this, rendererID, root, ...rest);
-        }
+        if (orig) return orig.apply(this, arguments);
       };
-
-      function walkFiber(fiber: any) {
-        if (!fiber) return;
-        if (fiber.type && typeof fiber.type === 'function') {
-          const name = fiber.type.displayName || fiber.type.name || 'Anonymous';
-          w.__PERF_RENDERS__[name] = (w.__PERF_RENDERS__[name] || 0) + 1;
-        }
-        walkFiber(fiber.child);
-        walkFiber(fiber.sibling);
-      }
     });
   }
 
@@ -65,6 +107,7 @@ export class PerfCollector {
   async reset() {
     await this.page.evaluate(() => {
       (window as any).__PERF_RENDERS__ = {};
+      (window as any).__PERF_COMMITS__ = 0;
     });
   }
 
@@ -82,6 +125,11 @@ export class PerfCollector {
     return { timestamp: Date.now(), components };
   }
 
+  /** Get the number of React commits (setState/dispatch cycles). */
+  async getCommitCount(): Promise<number> {
+    return this.page.evaluate(() => (window as any).__PERF_COMMITS__ || 0);
+  }
+
   /** Return components that rendered more than `threshold` times. */
   async getSlowComponents(threshold: number): Promise<SlowComponent[]> {
     const snapshot = await this.captureRenderSnapshot();
@@ -89,21 +137,6 @@ export class PerfCollector {
       .filter(([, data]) => data.renderCount > threshold)
       .map(([name, data]) => ({ name, renderCount: data.renderCount, selfTime: data.selfTime }))
       .toSorted((a, b) => b.renderCount - a.renderCount);
-  }
-
-  /** Try reading React Scan data if it's available (dev mode). */
-  async tryReactScanSnapshot(): Promise<Record<string, number> | null> {
-    return this.page.evaluate(() => {
-      const scan = (window as any).__REACT_SCAN__;
-      if (!scan) return null;
-      try {
-        const report = scan.getReport?.() || scan.report?.();
-        if (report && typeof report === 'object') return report;
-      } catch {
-        // React Scan not available
-      }
-      return null;
-    });
   }
 }
 

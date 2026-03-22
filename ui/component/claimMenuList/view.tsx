@@ -689,4 +689,4 @@ function ClaimMenuList(props: Props) {
   );
 }
 
-export default ClaimMenuList;
+export default React.memo(ClaimMenuList);

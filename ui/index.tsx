@@ -1,5 +1,13 @@
 import React, { Fragment, useState, useEffect } from 'react';
 // core-js polyfills are loaded by Vite automatically via browserslist
+import { setGlobalDevModeChecks } from 'reselect';
+
+// Reselect 5 logs a warning every time an input selector returns a new reference
+// for the same arguments. This is useful for finding perf bugs, but fires 250+
+// times on page load due to legacy selectors. Set to 'once' so each unique site
+// logs only a single warning instead of flooding the console.
+setGlobalDevModeChecks({ inputStabilityCheck: 'once' });
+
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
 import SnackBar from 'component/snackBar';

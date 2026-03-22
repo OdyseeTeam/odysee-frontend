@@ -525,7 +525,15 @@ async function getHtml(ctx) {
   // In production, cache after first read.
   if (!html || isDev) {
     try {
-      html = fs.readFileSync(HTML_PATH, 'utf8');
+      let rawHtml = fs.readFileSync(HTML_PATH, 'utf8');
+      // Inject React Scan in development for render profiling
+      if (isDev) {
+        rawHtml = rawHtml.replace(
+          '<head>',
+          '<head>\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>'
+        );
+      }
+      html = rawHtml;
     } catch (e) {
       // Build hasn't produced the file yet — return a loading page that auto-retries
       return (
