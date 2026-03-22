@@ -26,4 +26,4 @@ function FileType(props: Props) {
   return <Icon icon={ICONS.DOWNLOADABLE} />;
 }
 
-export default FileType;
+export default React.memo(FileType);

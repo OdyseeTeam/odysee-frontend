@@ -89,4 +89,4 @@ function ClaimPreviewSubtitle(props: Props) {
   );
 }
 
-export default ClaimPreviewSubtitle;
+export default React.memo(ClaimPreviewSubtitle);

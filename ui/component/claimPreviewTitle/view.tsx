@@ -20,4 +20,4 @@ function ClaimPreviewTitle(props: Props) {
   );
 }
 
-export default ClaimPreviewTitle;
+export default React.memo(ClaimPreviewTitle);

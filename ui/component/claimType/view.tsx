@@ -23,4 +23,4 @@ function ClaimType(props: Props) {
   return <Icon icon={ICONS.DOWNLOADABLE} />;
 }
 
-export default ClaimType;
+export default React.memo(ClaimType);

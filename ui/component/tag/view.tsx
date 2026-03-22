@@ -11,7 +11,7 @@ type Props = {
   onClick?: (arg0: any) => any;
   disabled?: boolean;
 };
-export default function Tag(props: Props) {
+function Tag(props: Props) {
   const { name, onClick, type = 'link', disabled = false } = props;
   const isMature = name.split(' ').some((word) => MATURE_TAGS.includes(word));
   const clickProps = onClick
@@ -55,3 +55,5 @@ export default function Tag(props: Props) {
     />
   );
 }
+
+export default React.memo(Tag);

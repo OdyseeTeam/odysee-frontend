@@ -17,4 +17,4 @@ function VideoDuration(props: Props) {
   return duration ? <span className={className}>{duration}</span> : null;
 }
 
-export default VideoDuration;
+export default React.memo(VideoDuration);

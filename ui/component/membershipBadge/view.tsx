@@ -112,4 +112,4 @@ const BadgeWrapper = (props: WrapperProps) => {
   return <Button navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>{children}</Button>;
 };
 
-export default MembershipBadge;
+export default React.memo(MembershipBadge);

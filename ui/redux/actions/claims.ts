@@ -190,21 +190,20 @@ export function doResolveUris(
           }
         }
 
-        dispatch({
-          type: ACTIONS.RESOLVE_URIS_SUCCESS,
-          data: {
-            resolveInfo,
-          },
-        });
+        // Batch synchronous actions into a single commit
+        const batchedActions: Array<any> = [{ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } }];
 
         if (costInfos.size > 0) {
           const settledCostInfosById = await Promise.all(Array.from(costInfos));
-          dispatch({
+          batchedActions.push({
             type: ACTIONS.SET_COST_INFOS_BY_ID,
             data: settledCostInfosById,
           });
         }
 
+        dispatch({ type: 'BATCH_ACTIONS', actions: batchedActions });
+
+        // Async follow-ups
         if (membersOnlyClaimIds.size > 0) {
           dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
         }
@@ -871,46 +870,51 @@ export function doClaimSearch(
           fiatClaimIds.push(stream.claim_id);
         }
       });
-      dispatch({
-        type: ACTIONS.CLAIM_SEARCH_COMPLETED,
-        data: {
-          query,
-          resolveInfo,
-          urls,
-          append: options.page && options.page !== 1,
-          page: options.page,
-          pageSize: options.page_size,
-          totalItems: data.total_items,
-          totalPages: data.total_pages,
+      // Batch all synchronous actions from this search result into a single
+      // BATCH_ACTIONS dispatch. This reduces React commit count from ~6 to 1
+      // per claim search response, dramatically cutting re-render cascades.
+      const batchedActions: Array<any> = [
+        {
+          type: ACTIONS.CLAIM_SEARCH_COMPLETED,
+          data: {
+            query,
+            resolveInfo,
+            urls,
+            append: options.page && options.page !== 1,
+            page: options.page,
+            pageSize: options.page_size,
+            totalItems: data.total_items,
+            totalPages: data.total_pages,
+          },
         },
-      });
+      ];
 
+      if (collectionResolveInfo) {
+        batchedActions.push({
+          type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED,
+          data: { resolveInfo: collectionResolveInfo },
+        });
+      }
+
+      // Resolve cost infos before batching (async)
+      let sdkPaidClaimIds: string[] = [];
       if (costInfos.size > 0) {
         const settledCostInfosById = await Promise.all(Array.from(costInfos));
-        dispatch({
+        batchedActions.push({
           type: ACTIONS.SET_COST_INFOS_BY_ID,
           data: settledCostInfosById,
         });
-        const sdkPaidClaimIds = settledCostInfosById
+        sdkPaidClaimIds = settledCostInfosById
           .filter((costInfo) => Number(costInfo.cost) > 0)
           .map((costInfo) => costInfo.claimId);
-
-        if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
-          dispatch(
-            doResolveClaimIds(sdkPaidClaimIds, false, {
-              include_purchase_receipt: true,
-            })
-          );
-        }
       }
 
-      if (collectionResolveInfo) {
-        dispatch({
-          type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED,
-          data: {
-            resolveInfo: collectionResolveInfo,
-          },
-        });
+      // Dispatch all synchronous state updates as one commit
+      dispatch({ type: 'BATCH_ACTIONS', actions: batchedActions });
+
+      // Async follow-up fetches (each dispatches its own actions)
+      if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
+        dispatch(doResolveClaimIds(sdkPaidClaimIds, false, { include_purchase_receipt: true }));
       }
 
       if (membersOnlyClaimIds.size > 0) {

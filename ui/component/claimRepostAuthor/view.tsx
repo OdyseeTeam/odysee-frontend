@@ -52,4 +52,4 @@ function ClaimRepostAuthor(props: Props) {
   );
 }
 
-export default ClaimRepostAuthor;
+export default React.memo(ClaimRepostAuthor);
