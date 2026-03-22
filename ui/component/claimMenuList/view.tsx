@@ -8,7 +8,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
-import { Menu, MenuButton, MenuList, MenuItem, useMenuButtonContext } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
 import {
@@ -430,6 +430,26 @@ function ClaimMenuList(props: Props) {
     );
   };
 
+  const [menuMounted, setMenuMounted] = React.useState(false);
+
+  if (!menuMounted) {
+    return (
+      <button
+        className={classnames('menu__button', {
+          'claim__menu-button': !inline,
+          'claim__menu-button--inline': inline,
+        })}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setMenuMounted(true);
+        }}
+      >
+        <Icon size={20} icon={ICONS.MORE_VERTICAL} />
+      </button>
+    );
+  }
+
   return (
     <Menu>
       <MenuButton
@@ -444,7 +464,7 @@ function ClaimMenuList(props: Props) {
       >
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
-      <LazyMenuList className="menu__list">
+      <MenuList className="menu__list">
         {claim.value_type === 'deleted' && collectionId ? (
           <AddToCollectionContext />
         ) : (
@@ -684,16 +704,9 @@ function ClaimMenuList(props: Props) {
             </>
           )
         )}
-      </LazyMenuList>
+      </MenuList>
     </Menu>
   );
-}
-
-// Only render MenuList children when the menu is expanded.
-// This prevents 1000+ MenuItemImpl renders across all tiles when any menu opens.
-function LazyMenuList({ children, ...props }: any) {
-  const { isExpanded } = useMenuButtonContext();
-  return <MenuList {...props}>{isExpanded ? children : null}</MenuList>;
 }
 
 export default React.memo(ClaimMenuList);
