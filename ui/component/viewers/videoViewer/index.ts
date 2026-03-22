@@ -59,8 +59,9 @@ const select = (state, props) => {
   // TODO: eventually this should be received from DB and not local state (https://github.com/lbryio/lbry-desktop/issues/6796)
   const position =
     startTime || (urlParams.get('t') !== null ? urlParams.get('t') : selectContentPositionForUri(state, uri));
-  const userId = selectUser(state) && selectUser(state).id;
-  const internalFeature = selectUser(state) && selectUser(state).internal_feature;
+  const user = selectUser(state);
+  const userId = user && user.id;
+  const internalFeature = user && user.internal_feature;
   const playingUri = selectPlayingUri(state);
   const collectionId = playingUri.collection.collectionId;
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
