@@ -466,35 +466,37 @@ const doFetchCollectionItems =
     try {
       const state = getState();
       const batchSize = pageSize || FETCH_BATCH_SIZE;
-      const uriBatches: Array<Promise<any>> = [];
-      const idBatches: Array<Promise<any>> = [];
       const totalItems = items.length;
 
+      // Build batch descriptors without dispatching yet
+      const batches: Array<{ uris: string[]; ids: string[] }> = [];
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
         const batchInitialIndex = i * batchSize;
         const batchLength = (i + 1) * batchSize;
-        // --> Filter in case null/undefined are collection items
         const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
-        const uris = new Set([]);
-        const ids = new Set([]);
+        const uris: string[] = [];
+        const ids: string[] = [];
         batchItems.forEach((item) => {
           if (item.startsWith('lbry://')) {
-            uris.add(item);
+            uris.push(item);
           } else {
-            ids.add(item);
+            ids.push(item);
           }
         });
-
-        if (uris.size > 0) {
-          uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
-        }
-
-        if (ids.size > 0) {
-          idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
-        }
+        batches.push({ uris, ids });
       }
 
-      const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
+      // Resolve batches sequentially to avoid flooding Redux with hundreds of
+      // concurrent dispatches for large playlists (200+ items). Each batch
+      // triggers RESOLVE_START/SUCCESS + membership/cost/viewcount cascades.
+      const itemsInBatches = [];
+      for (const batch of batches) {
+        const results = await Promise.all([
+          batch.uris.length > 0 ? dispatch(doResolveUris(batch.uris, true)) : null,
+          batch.ids.length > 0 ? dispatch(doResolveClaimIds(batch.ids)) : null,
+        ]);
+        results.forEach((r) => r && itemsInBatches.push(r));
+      }
       const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
       // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
       let itemsWereFetching = resultItems.length !== items.length;
