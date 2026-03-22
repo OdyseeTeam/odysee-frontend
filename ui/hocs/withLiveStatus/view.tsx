@@ -86,6 +86,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
     return null;
   };
 
+  LiveStatusWrapper.displayName = `withLiveStatus(${Component.displayName || Component.name || 'Component'})`;
   return LiveStatusWrapper;
 };
 

@@ -66,6 +66,7 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
     );
   };
 
+  CollectionItemsWrapper.displayName = `withCollectionItems(${Component.displayName || Component.name || 'Component'})`;
   return CollectionItemsWrapper;
 };
 

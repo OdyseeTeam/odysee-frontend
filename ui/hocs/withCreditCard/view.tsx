@@ -62,6 +62,7 @@ const withCreditCard = (Component: FunctionalComponentParam) => {
     return <Component {...componentProps} />;
   };
 
+  CreditCardPrompt.displayName = `withCreditCard(${Component.displayName || Component.name || 'Component'})`;
   return CreditCardPrompt;
 };
 

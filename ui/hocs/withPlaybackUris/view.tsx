@@ -67,6 +67,7 @@ const withPlaybackUris = (Component: FunctionalComponentParam) => {
     return <Component {...componentProps} uri={uri} playNextUri={playNextUri} playPreviousUri={playPreviousUri} />;
   };
 
+  PlaybackUrisWrapper.displayName = `withPlaybackUris(${Component.displayName || Component.name || 'Component'})`;
   return PlaybackUrisWrapper;
 };
 

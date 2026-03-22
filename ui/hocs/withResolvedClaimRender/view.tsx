@@ -275,6 +275,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     );
   };
 
+  ResolvedClaimRender.displayName = `withResolvedClaimRender(${Component.displayName || Component.name || 'Component'})`;
   return ResolvedClaimRender;
 };
 
