@@ -10,37 +10,38 @@ import { buildURI } from 'util/lbryURI';
 import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doClaimYoutubeChannels, doUserFetch, doCheckYoutubeTransfer } from 'redux/actions/user';
+import {
+  selectYoutubeChannels,
+  selectYouTubeImportVideosComplete,
+  selectYouTubeImportPending,
+  selectUserIsPending,
+  selectUserExperimentalUi,
+} from 'redux/selectors/user';
+import { doResolveUris } from 'redux/actions/claims';
 import './style.lazy.scss';
 type Props = {
-  youtubeChannels: Array<any>;
-  youtubeImportPending: boolean;
-  claimChannels: () => void;
-  updateUser: () => void;
-  checkYoutubeTransfer: () => void;
-  videosImported: Array<number> | null | undefined;
-  // [currentAmountImported, totalAmountToImport]
   alwaysShow: boolean;
   addNewChannel?: boolean;
   autoOpenSync?: boolean;
-  doResolveUris: (uris: Array<string>) => void;
-  experimentalUi: boolean;
 };
 const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
 const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';
 export default function YoutubeTransferStatus(props: Props) {
-  const {
-    youtubeChannels,
-    youtubeImportPending,
-    claimChannels,
-    videosImported,
-    checkYoutubeTransfer,
-    updateUser,
-    alwaysShow = false,
-    addNewChannel,
-    autoOpenSync = false,
-    doResolveUris,
-    experimentalUi,
-  } = props;
+  const { alwaysShow = false, addNewChannel, autoOpenSync = false } = props;
+  const dispatch = useAppDispatch();
+
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+  const youtubeImportPending = useAppSelector(selectYouTubeImportPending);
+  const userFetchPending = useAppSelector(selectUserIsPending);
+  const videosImported = useAppSelector(selectYouTubeImportVideosComplete);
+  const experimentalUi = useAppSelector(selectUserExperimentalUi);
+
+  const claimChannels = () => dispatch(doClaimYoutubeChannels());
+  const updateUser = () => dispatch(doUserFetch());
+  const checkYoutubeTransfer = () => dispatch(doCheckYoutubeTransfer());
+
   const hasChannels = youtubeChannels && youtubeChannels.length > 0;
   const transferEnabled = youtubeChannels.some((status) => status.transferable);
   const hasPendingTransfers = youtubeChannels.some(
@@ -117,7 +118,7 @@ export default function YoutubeTransferStatus(props: Props) {
         clearInterval(interval);
       };
     }
-  }, [hasPendingTransfers, checkYoutubeTransfer, updateUser]);
+  }, [hasPendingTransfers]); // eslint-disable-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (!autoOpenSync || hasAutoOpenedRef.current || !selfSyncLauncherUrl) {
       return;
@@ -189,7 +190,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 channelName,
                 channelClaimId: claimId,
               });
-              doResolveUris([url]);
+              dispatch(doResolveUris([url]));
               const transferState = getMessage(channel);
               const isWaitingForSync =
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_QUEUED ||

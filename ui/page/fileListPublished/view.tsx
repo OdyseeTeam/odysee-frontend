@@ -14,41 +14,35 @@ import ChannelSelector from 'component/channelSelector';
 import Page from 'component/page';
 import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
-import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
+import { PAGE_PARAM, PAGE_SIZE_PARAM, MY_CLAIMS_PAGE_SIZE } from 'constants/claim';
 import { SCHEDULED_TAGS, VISIBILITY_TAGS, PURCHASE_TAG, RENTAL_TAG } from 'constants/tags';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import ClaimListHeader from './internal/fileListHeader/index';
-type Props = {
-  uploadCount: number;
-  checkPendingPublishes: () => void;
-  doBeginPublish: (arg0: PublishType, arg1: string | null | undefined) => void;
-  fetchClaimListMine: DoFetchClaimListMine;
-  fetching: boolean;
-  urls: Array<string>;
-  urlTotal: number;
-  isAllMyClaimsFetched: boolean | null | undefined;
-  hasClaims?: boolean;
-  myClaims: Array<Claim>;
-  myStreamClaims: Array<Claim>;
-  myRepostClaims: Array<Claim>;
-  myUnlistedClaims: Array<Claim>;
-  myScheduledClaims: Array<Claim>;
-  myPaidClaims: Array<Claim>;
-  myPaidClaimsLegacy: Array<Claim>;
-  page: number;
-  pageSize: number;
-  myChannelIds: Array<ClaimId>;
-  activeChannel: Claim;
-  isFilteringEnabled: boolean;
-  sortOption: {
-    key: string;
-    value: string;
-  };
-  doClearClaimSearch: () => void;
-  doSetClientSetting: (arg0: string, arg1: any, arg2: boolean | null | undefined) => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectIsFetchingClaimListMine,
+  selectMyClaimsPage,
+  selectMyClaimsPageItemCount,
+  selectFetchingMyClaimsPageError,
+  selectMyChannelClaimIds,
+  selectMyPublicationClaims,
+  selectHasPublicationClaims,
+  selectMyStreamClaims,
+  selectMyRepostClaims,
+  selectMyUnlistedClaims,
+  selectMyScheduledClaims,
+  selectIsAllMyClaimsFetched,
+  selectMyPaidClaims,
+  selectMyPaidClaimsLegacy,
+} from 'redux/selectors/claims';
+import { selectUploadCount } from 'redux/selectors/publish';
+import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
+import { doBeginPublish } from 'redux/actions/publish';
+import { selectUploadsFilteringSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
 // Avoid prop drilling
 export const FileListContext = React.createContext<any>({
   searchText: '',
@@ -64,35 +58,31 @@ export const FileListContext = React.createContext<any>({
   setFilterParamsChanged: () => {},
 });
 
-function FileListPublished(props: Props) {
-  const {
-    uploadCount,
-    checkPendingPublishes,
-    doBeginPublish,
-    fetchClaimListMine,
-    fetching,
-    urls,
-    urlTotal,
-    isAllMyClaimsFetched,
-    hasClaims,
-    myClaims,
-    myStreamClaims,
-    myRepostClaims,
-    myUnlistedClaims,
-    myScheduledClaims,
-    myPaidClaims,
-    myPaidClaimsLegacy,
-    page,
-    pageSize,
-    myChannelIds,
-    activeChannel,
-    isFilteringEnabled,
-    sortOption,
-    doClearClaimSearch,
-    doSetClientSetting,
-  } = props;
+function FileListPublished() {
+  const dispatch = useAppDispatch();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
+  const page = Number(urlParams.get(PAGE_PARAM)) || 1;
+  const pageSize = Number(urlParams.get(PAGE_SIZE_PARAM)) || MY_CLAIMS_PAGE_SIZE;
+  const filteringSettings = useAppSelector(selectUploadsFilteringSetting);
+  const activeChannel = useAppSelector(selectActiveChannelClaim);
+  const fetching = useAppSelector(selectIsFetchingClaimListMine);
+  const urls = useAppSelector(selectMyClaimsPage);
+  const urlTotal = useAppSelector(selectMyClaimsPageItemCount);
+  const isAllMyClaimsFetched = useAppSelector(selectIsAllMyClaimsFetched);
+  const myClaims = useAppSelector(selectMyPublicationClaims);
+  const hasClaims = useAppSelector(selectHasPublicationClaims);
+  const myStreamClaims = useAppSelector(selectMyStreamClaims);
+  const myRepostClaims = useAppSelector(selectMyRepostClaims);
+  const myUnlistedClaims = useAppSelector(selectMyUnlistedClaims);
+  const myScheduledClaims = useAppSelector(selectMyScheduledClaims);
+  const myPaidClaims = useAppSelector(selectMyPaidClaims);
+  const myPaidClaimsLegacy = useAppSelector(selectMyPaidClaimsLegacy);
+  const error = useAppSelector(selectFetchingMyClaimsPageError);
+  const uploadCount = useAppSelector(selectUploadCount);
+  const myChannelIds = useAppSelector(selectMyChannelClaimIds);
+  const isFilteringEnabled = filteringSettings.isFilteringEnabled;
+  const sortOption = filteringSettings.sortOption;
   const [isAllSelected, setIsAllSelected] = React.useState(true);
   const [isLoadingLong, setIsLoadingLong] = React.useState(false);
   const sortByParam = Object.keys(FILE_LIST.SORT_VALUES).find((key) => urlParams.get(key));
@@ -398,53 +388,46 @@ function FileListPublished(props: Props) {
     );
   }
 
-  function updateFilteringSetting(isFilteringEnabled, sortOption) {
+  function updateFilteringSetting(isFilteringEnabled: boolean, sortOption: { key: string; value: string }) {
     const newParams = {
       isFilteringEnabled,
       sortOption,
     };
-    doSetClientSetting(SETTINGS.UPLOAD_PAGE_FILTERING, newParams, true);
+    dispatch(doSetClientSetting(SETTINGS.UPLOAD_PAGE_FILTERING, newParams, true));
   }
 
   useEffect(() => {
-    checkPendingPublishes();
-  }, [checkPendingPublishes]);
+    dispatch(doCheckPendingClaims());
+  }, [dispatch]);
   useEffect(() => {
     if (isFilteringEnabled) {
       return;
     }
 
     if (method === FILE_LIST.METHOD.CLAIM_LIST) {
-      fetchClaimListMine(
-        params.page,
-        params.page_size,
-        true,
-        Object.values(FILE_LIST.FILE_TYPE)
-          .find((fileType) => fileType.key === filterType)
-          .cmd.split(','),
-        true,
-        channelIdsClaimList
+      dispatch(
+        doFetchClaimListMine(
+          params.page,
+          params.page_size,
+          true,
+          Object.values(FILE_LIST.FILE_TYPE)
+            .find((fileType) => fileType.key === filterType)
+            .cmd.split(','),
+          true,
+          channelIdsClaimList
+        )
       );
     } else {
-      doClearClaimSearch();
+      dispatch(doClearClaimSearch());
     }
-  }, [
-    uploadCount,
-    params,
-    filterType,
-    fetchClaimListMine,
-    method,
-    isFilteringEnabled,
-    channelIdsClaimList,
-    doClearClaimSearch,
-  ]);
+  }, [uploadCount, params, filterType, dispatch, method, isFilteringEnabled, channelIdsClaimList]);
   useEffect(() => {
     if (!isFilteringEnabled || isAllMyClaimsFetched) {
       return;
     }
 
-    fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
-  }, [isFilteringEnabled, isAllMyClaimsFetched, fetchClaimListMine]);
+    dispatch(doFetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true));
+  }, [isFilteringEnabled, isAllMyClaimsFetched, dispatch]);
   // Always reset filterParamsChanged for the next render.
   React.useEffect(() => {
     if (filterParamsChanged) {
@@ -514,7 +497,7 @@ function FileListPublished(props: Props) {
                       <Button
                         button="primary"
                         label={__('Upload Something New')}
-                        onClick={() => doBeginPublish('file')}
+                        onClick={() => dispatch(doBeginPublish('file'))}
                       />
                     </div>
                   )

@@ -8,14 +8,15 @@ import BadgePremium from './internal/assets/badge_premium.png';
 import BadgePremiumPlus from './internal/assets/badge_premium-plus.png';
 import OdyseePremium from './internal/assets/odysee_premium.png';
 import JoinButton from './internal/joinPlanButton';
+import { useAppSelector } from 'redux/hooks';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
 type Props = {
   pageLocation: string;
-  // -- redux --
-  preferredCurrency: string;
 };
 
 const MembershipSplash = (props: Props) => {
-  const { pageLocation, preferredCurrency } = props;
+  const { pageLocation } = props;
+  const preferredCurrency = useAppSelector(selectPreferredCurrency);
   return (
     <div className="membership-splash">
       <div className="membership-splash__banner">

@@ -5,20 +5,24 @@ import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
 
 type Props = {
   lastViewed: number;
   uri: string;
-  claim: StreamClaim | null | undefined;
   selected: boolean;
   onSelect?: () => void;
-  resolveUri: (arg0: string) => void;
   slim: boolean;
 };
 
 function NavigationHistoryItem(props: Props) {
   const navigate = useNavigate();
-  const { lastViewed, selected, onSelect, claim, uri, slim, resolveUri } = props;
+  const { lastViewed, selected, onSelect, uri, slim } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector(makeSelectClaimForUri(uri));
+  const resolveUri = React.useCallback((u: string) => dispatch(doResolveUri(u)), [dispatch]);
 
   React.useEffect(() => {
     if (!claim) {

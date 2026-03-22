@@ -1,11 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doClearDebugLog } from 'redux/actions/notifications';
+import { selectDebugLog } from 'redux/selectors/notifications';
 import './style.lazy.scss';
-type Props = {
-  debugLog: Array<string | Error>;
-  doClearDebugLog: () => void;
-};
 
 function getMessageElem(info: string | Error) {
   return info instanceof Error || typeof info === 'object' ? <p>{info.message}</p> : <p>{info}</p>;
@@ -45,8 +44,10 @@ function getStackTraceElem(info: string | Error) {
   }
 }
 
-function DebugLog(props: Props) {
-  const { debugLog, doClearDebugLog } = props;
+function DebugLog() {
+  const dispatch = useAppDispatch();
+  const debugLog = useAppSelector(selectDebugLog);
+
   const [show, setShow] = React.useState(false);
   const [count, setCount] = React.useState(0);
 
@@ -70,7 +71,7 @@ function DebugLog(props: Props) {
         </div>
       ))}
       <div className="debug-log__actions">
-        <Button button="link" label={'Clear'} onClick={() => doClearDebugLog()} />
+        <Button button="link" label={'Clear'} onClick={() => dispatch(doClearDebugLog())} />
         <Button button="secondary" label={'X'} onClick={() => setShow(false)} />
       </div>
     </div>

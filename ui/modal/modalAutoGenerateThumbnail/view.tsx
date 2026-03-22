@@ -2,15 +2,22 @@ import React, { useRef } from 'react';
 import { Modal } from 'modal/modal';
 import { formatFileSystemPath } from 'util/url';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+import { doUploadThumbnail } from 'redux/actions/publish';
+import { doToast } from 'redux/actions/notifications';
+
 type Props = {
-  upload: (arg0: WebFile) => void;
   filePath: string;
-  closeModal: () => void;
-  showToast: (arg0: {}) => void;
 };
 
 function ModalAutoGenerateThumbnail(props: Props) {
-  const { closeModal, filePath, upload, showToast } = props;
+  const { filePath } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = () => dispatch(doHideModal());
+  const upload = (file: WebFile) => dispatch(doUploadThumbnail(null, file, null, null, 'Generated'));
+  const showToast = (options: {}) => dispatch(doToast(options));
+
   const playerRef = useRef();
   let videoSrc;
 

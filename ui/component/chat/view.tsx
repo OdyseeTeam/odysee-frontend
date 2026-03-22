@@ -1,5 +1,6 @@
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
+import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
@@ -15,7 +16,29 @@ import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
 import { lazyImport } from 'util/lazyImport';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { doCommentList, doHyperChatList } from 'redux/actions/comments';
+import {
+  selectTopLevelCommentsForUri,
+  selectHyperChatsForUri,
+  selectPinnedCommentsForUri,
+  selectLivestreamChatMembersOnlyForChannelId,
+} from 'redux/selectors/comments';
+import {
+  doFetchOdyseeMembershipForChannelIds,
+  doFetchChannelMembershipsForChannelIds,
+  doListAllMyMembershipTiers,
+} from 'redux/actions/memberships';
+import {
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+  selectNoRestrictionOrUserCanChatForCreatorId,
+  selectUserIsMemberOfMembersOnlyChatForCreatorId,
+} from 'redux/selectors/memberships';
+import { doResolveUris } from 'redux/actions/claims';
+import { getChannelIdFromClaim, getChannelTitleFromClaim } from 'util/claim';
 import './style.lazy.scss';
+
 export const VIEW_MODES = {
   CHAT: 'chat',
   SUPERCHAT: 'sc',
@@ -36,62 +59,47 @@ type Props = {
   isPopoutWindow?: boolean;
   setCustomViewMode?: (arg0: any) => void;
   uri: string;
-  // redux
-  channelId: string;
-  channelTitle: string;
-  claimId?: string;
-  comments: Array<Comment>;
-  doCommentList: (
-    uri: string,
-    parentId: string | null | undefined,
-    page: number,
-    pageSize: number,
-    sortBy: number | null | undefined,
-    isLivestream: boolean
-  ) => void;
-  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void;
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
-  doHyperChatList: (uri: string) => void;
-  doResolveUris: (uris: Array<string>, cache: boolean) => void;
-  pinnedComments: Array<Comment>;
   setLayoutRendered: (arg0: boolean) => void;
-  superChats: Array<Comment>;
   doUpdateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
-  myChannelClaims: any;
-  doListAllMyMembershipTiers: any;
-  contentUnlocked: boolean;
-  isLivestreamChatMembersOnly: boolean | null | undefined;
-  userHasMembersOnlyChatPerk: boolean;
-  chatUnlocked: boolean;
 };
 export default function ChatLayout(props: Props) {
   const {
-    channelId,
-    channelTitle,
-    claimId,
-    comments: commentsByChronologicalOrder,
     customViewMode,
-    doCommentList,
-    doFetchChannelMembershipsForChannelIds,
-    doFetchOdyseeMembershipForChannelIds,
-    doHyperChatList,
-    doResolveUris,
     embed,
     hideHeader,
     hyperchatsHidden,
     isPopoutWindow,
-    pinnedComments,
     setCustomViewMode,
     setLayoutRendered,
-    superChats: hyperChatsByAmount,
     uri,
-    myChannelClaims,
-    doListAllMyMembershipTiers,
-    contentUnlocked,
-    isLivestreamChatMembersOnly,
-    userHasMembersOnlyChatPerk,
-    chatUnlocked,
   } = props;
+
+  const dispatch = useAppDispatch();
+
+  // -- redux selectors --
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const channelId = getChannelIdFromClaim(claim);
+  const channelTitle = getChannelTitleFromClaim(claim);
+  const commentsByChronologicalOrder = useAppSelector((state) =>
+    selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS)
+  );
+  const pinnedComments = useAppSelector((state) => selectPinnedCommentsForUri(state, uri));
+  const hyperChatsByAmount = useAppSelector((state) => selectHyperChatsForUri(state, uri));
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const contentUnlocked = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : false
+  );
+  const isLivestreamChatMembersOnly = useAppSelector((state) =>
+    selectLivestreamChatMembersOnlyForChannelId(state, channelId)
+  );
+  const userHasMembersOnlyChatPerk = useAppSelector((state) =>
+    selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelId)
+  );
+  const chatUnlocked = useAppSelector((state) =>
+    channelId ? selectNoRestrictionOrUserCanChatForCreatorId(state, channelId) : false
+  );
+
   const isMobile = useIsMobile() && !isPopoutWindow;
   const isLimitedPopout = useIsMobile() && isPopoutWindow;
   const webElement = document.querySelector('.livestream__comments');
@@ -126,20 +134,15 @@ export default function ChatLayout(props: Props) {
     commentsByChronologicalOrder && commentsByChronologicalOrder.map(({ channel_id }) => channel_id);
   React.useEffect(() => {
     if (commenterClaimIds?.length > 0 && channelId) {
-      doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
-      doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
+      dispatch(doFetchOdyseeMembershipForChannelIds(commenterClaimIds));
+      dispatch(doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds));
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    channelId,
-    commenterClaimIds.length,
-    doFetchChannelMembershipsForChannelIds,
-    doFetchOdyseeMembershipForChannelIds,
-  ]);
+  }, [channelId, commenterClaimIds.length, dispatch]);
   React.useEffect(() => {
     if (myChannelClaims !== undefined) {
-      doListAllMyMembershipTiers();
+      dispatch(doListAllMyMembershipTiers());
     }
-  }, [doListAllMyMembershipTiers, myChannelClaims]);
+  }, [dispatch, myChannelClaims]);
   const commentsToDisplay =
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;
   const commentsLength = commentsToDisplay && commentsToDisplay.length;
@@ -184,7 +187,7 @@ export default function ChatLayout(props: Props) {
 
     if (superChatsChannelUrls && hasNewSuperchats) {
       setSuperchatsAmount(superChatsChannelUrls.length);
-      doResolveUris(superChatsChannelUrls, false);
+      dispatch(doResolveUris(superChatsChannelUrls, false));
     }
 
     setViewMode(VIEW_MODES.SUPERCHAT);
@@ -201,10 +204,10 @@ export default function ChatLayout(props: Props) {
   }, [customViewMode, viewMode]);
   React.useEffect(() => {
     if (claimId && contentUnlocked) {
-      doCommentList(uri, undefined, 1, 75, undefined, true);
-      doHyperChatList(uri);
+      dispatch(doCommentList(uri, undefined, 1, 75, undefined, true));
+      dispatch(doHyperChatList(uri));
     }
-  }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);
+  }, [claimId, contentUnlocked, dispatch, uri]);
   React.useEffect(() => {
     if (isMobile && !didInitialScroll) {
       restoreScrollPos();

@@ -2,12 +2,16 @@ import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import React from 'react';
+import { useAppSelector } from 'redux/hooks';
+import { selectTheme } from 'redux/selectors/settings';
+
 type Props = {
-  currentTheme: string;
   type: string;
 };
 export default function Logo(props: Props) {
-  const { currentTheme, type } = props;
+  const { type } = props;
+
+  const currentTheme = useAppSelector(selectTheme);
   const isMobile = useIsMobile();
   const isLightTheme = currentTheme === 'light';
 

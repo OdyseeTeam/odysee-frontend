@@ -12,35 +12,33 @@ import * as NOTIFICATIONS from 'constants/notifications';
 import useFetched from 'effects/use-fetched';
 import { RULE } from 'constants/notifications';
 import BrowserNotificationBanner from '$web/component/browserNotificationBanner';
-type Props = {
-  notifications: Array<Notification>;
-  notificationsFiltered: Array<Notification>;
-  notificationCategories: Array<NotificationCategory>;
-  fetching: boolean;
-  unreadCount: number;
-  unseenCount: number;
-  doSeeAllNotifications: () => void;
-  doReadNotifications: () => void;
-  doNotificationList: (arg0: Array<string> | null | undefined, arg1: boolean | null | undefined) => void;
-  doNotificationCategories: () => void;
-  activeChannel: ChannelClaim | null | undefined;
-  doCommentReactList: (arg0: Array<string>) => Promise<any>;
-};
-export default function NotificationsPage(props: Props) {
-  const {
-    notifications,
-    notificationsFiltered,
-    fetching,
-    unreadCount,
-    unseenCount,
-    doSeeAllNotifications,
-    doReadNotifications,
-    doNotificationList,
-    doNotificationCategories,
-    notificationCategories,
-    activeChannel,
-    doCommentReactList,
-  } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectNotifications,
+  selectNotificationsFiltered,
+  selectIsFetchingNotifications,
+  selectUnreadNotificationCount,
+  selectUnseenNotificationCount,
+  selectNotificationCategories,
+} from 'redux/selectors/notifications';
+import { doCommentReactList } from 'redux/actions/comments';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  doReadNotifications,
+  doNotificationList,
+  doSeeAllNotifications,
+  doNotificationCategories,
+} from 'redux/actions/notifications';
+
+export default function NotificationsPage() {
+  const dispatch = useAppDispatch();
+  const notifications = useAppSelector(selectNotifications);
+  const notificationsFiltered = useAppSelector(selectNotificationsFiltered);
+  const notificationCategories = useAppSelector(selectNotificationCategories);
+  const fetching = useAppSelector(selectIsFetchingNotifications);
+  const unreadCount = useAppSelector(selectUnreadNotificationCount);
+  const unseenCount = useAppSelector(selectUnseenNotificationCount);
+  const activeChannel = useAppSelector(selectActiveChannelClaim);
   const [name, setName] = usePersistedState('notifications--rule', NOTIFICATIONS.NOTIFICATION_NAME_ALL);
   const isFiltered = name !== NOTIFICATIONS.NOTIFICATION_NAME_ALL;
   const list = isFiltered ? notificationsFiltered : notifications;
@@ -70,16 +68,16 @@ export default function NotificationsPage(props: Props) {
       });
 
       if (idsForReactionFetch.length !== 0) {
-        doCommentReactList(idsForReactionFetch);
+        dispatch(doCommentReactList(idsForReactionFetch));
       }
     }
-  }, [ready, doCommentReactList, list, activeChannel, fetching]);
+  }, [ready, dispatch, list, activeChannel, fetching]);
   // Mark all as seen
   React.useEffect(() => {
     if (unseenCount > 0) {
-      doSeeAllNotifications();
+      dispatch(doSeeAllNotifications());
     }
-  }, [unseenCount, doSeeAllNotifications]);
+  }, [unseenCount, dispatch]);
   const stringifiedNotificationCategories = notificationCategories ? JSON.stringify(notificationCategories) : '';
   // Fetch filtered notifications
   React.useEffect(() => {
@@ -91,17 +89,17 @@ export default function NotificationsPage(props: Props) {
           const matchingCategory = arrayNotificationCategories.find((category) => category.name === name);
 
           if (matchingCategory) {
-            doNotificationList(matchingCategory.types, false);
+            dispatch(doNotificationList(matchingCategory.types, false));
           }
         } catch (e) {
           console.error(e); // eslint-disable-line no-console
         }
       }
     }
-  }, [name, stringifiedNotificationCategories, doNotificationList]);
+  }, [name, stringifiedNotificationCategories, dispatch]);
   React.useEffect(() => {
     if (!notificationCategories) {
-      doNotificationCategories();
+      dispatch(doNotificationCategories());
     }
   }, []);
   // eslint-disable-line react-hooks/exhaustive-deps
@@ -121,7 +119,7 @@ export default function NotificationsPage(props: Props) {
             {unreadCount > 0 && (
               <Button
                 icon={ICONS.EYE}
-                onClick={doReadNotifications}
+                onClick={() => dispatch(doReadNotifications())}
                 button="secondary"
                 label={__('Mark all as read')}
               />

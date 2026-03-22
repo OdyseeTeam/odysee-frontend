@@ -1,18 +1,1 @@
-import { connect } from 'react-redux';
-import type { Props } from './view';
-import WatchHistoryPage from './view';
-import { selectWatchHistoryUris } from 'redux/selectors/content';
-import { doOpenModal } from 'redux/actions/app';
-import { doClearContentHistoryAll } from 'redux/actions/content';
-import { doResolveUris } from 'redux/actions/claims';
-
-const select = (state) => ({
-  historyUris: selectWatchHistoryUris(state),
-});
-
-const perform = {
-  doClearContentHistoryAll,
-  doResolveUris,
-  doOpenModal,
-};
-export default connect(select, perform)(WatchHistoryPage);
+export { default } from './view';

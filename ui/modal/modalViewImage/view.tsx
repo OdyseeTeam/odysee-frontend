@@ -2,15 +2,18 @@ import React from 'react';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 
 type Props = {
   src: string;
   title: string;
-  closeModal: () => void;
 };
 
 export default function ModalViewImage(props: Props) {
-  const { src, title, closeModal } = props;
+  const { src, title } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = React.useCallback(() => dispatch(doHideModal()), [dispatch]);
 
   return (
     <Modal className="modal-view-image lb-open-lightbox" onAborted={closeModal} isOpen type="custom">

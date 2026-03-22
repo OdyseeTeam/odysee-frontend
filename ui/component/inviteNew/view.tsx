@@ -7,26 +7,32 @@ import Card from 'component/common/card';
 import analytics from 'analytics';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-type Props = {
-  errorMessage: string | null | undefined;
-  inviteNew: (arg0: string) => void;
-  isPending: boolean;
-  referralCode: string;
-  channels: Array<ChannelClaim> | null | undefined;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectUserInviteNewIsPending,
+  selectUserInviteNewErrorMessage,
+  selectUserInviteReferralCode,
+} from 'redux/selectors/user';
+import { doUserInviteNew } from 'redux/actions/user';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
 
 function lookupUrlByClaimName(name, channels) {
   const claim = channels.find((channel) => channel.name === name);
   return claim && claim.canonical_url ? claim.canonical_url.replace('lbry://', '') : name;
 }
 
-function InviteNew(props: Props) {
-  const { inviteNew, errorMessage, isPending, referralCode = '', channels } = props;
+function InviteNew() {
+  const dispatch = useAppDispatch();
+  const errorMessage = useAppSelector(selectUserInviteNewErrorMessage);
+  const referralCode = useAppSelector(selectUserInviteReferralCode) || '';
+  const isPending = useAppSelector(selectUserInviteNewIsPending);
+  const channels = useAppSelector(selectMyChannelClaims);
+
   // Email
   const [email, setEmail] = useState('');
 
   function handleSubmit() {
-    inviteNew(email);
+    dispatch(doUserInviteNew(email));
   }
 
   function handleEmailChanged(event: any) {

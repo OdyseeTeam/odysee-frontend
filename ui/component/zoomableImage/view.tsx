@@ -1,17 +1,26 @@
 import React from 'react';
 import * as MODALS from 'constants/modal_types';
+import { useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+
 type Props = {
-  openModal: (arg0: string, arg1: {}) => void;
+  src?: string;
+  title?: string;
+  alt?: string;
+  [key: string]: any;
 };
 
 function ZoomableImage(props: Props) {
-  const { openModal, ...imgProps } = props;
+  const { ...imgProps } = props;
+  const dispatch = useAppDispatch();
 
   const onClick = () => {
-    openModal(MODALS.VIEW_IMAGE, {
-      src: imgProps.src,
-      title: imgProps.title || imgProps.alt,
-    });
+    dispatch(
+      doOpenModal(MODALS.VIEW_IMAGE, {
+        src: imgProps.src,
+        title: imgProps.title || imgProps.alt,
+      })
+    );
   };
 
   return <img className="img__zoomable" {...imgProps} onClick={onClick} />;

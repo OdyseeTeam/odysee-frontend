@@ -6,25 +6,39 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectTransactionItems } from 'redux/selectors/wallet';
+import { selectHasYoutubeChannels } from 'redux/selectors/user';
+import { doHideModal } from 'redux/actions/app';
+import { doAbandonTxo, doAbandonClaim, doResolveUri } from 'redux/actions/claims';
+import { doToast } from 'redux/actions/notifications';
+
 type Props = {
-  closeModal: () => void;
-  abandonTxo: (arg0: Txo, arg1: () => void) => void;
-  abandonClaim: (arg0: Claim, arg1: (() => void) | null | undefined) => void;
   tx: Txo;
-  hasYouTubeChannels: boolean;
   claim: Claim;
   cb: () => void;
-  doResolveUri: (arg0: string) => void;
 };
+
 export default function ModalRevokeClaim(props: Props) {
-  const { tx, hasYouTubeChannels, claim, closeModal, abandonTxo, abandonClaim, cb, doResolveUri } = props;
+  const { tx, claim, cb } = props;
+  const dispatch = useAppDispatch();
+  const transactionItems = useAppSelector(selectTransactionItems);
+  const hasYouTubeChannels = useAppSelector(selectHasYoutubeChannels);
+
+  const closeModal = () => dispatch(doHideModal());
+  const abandonTxo = (txo: Txo, callback: () => void) => dispatch(doAbandonTxo(txo, callback));
+  const abandonClaim = (claimToAbandon: Claim, callback: (() => void) | null | undefined) =>
+    dispatch(doAbandonClaim(claimToAbandon, callback));
+
   const { value_type: valueType, type, normalized_name: name, is_my_input: isSupport } = tx || claim;
   const [channelName, setChannelName] = useState('');
+
   React.useEffect(() => {
     if (claim) {
-      doResolveUri(claim.permanent_url);
+      dispatch(doResolveUri(claim.permanent_url));
     }
-  }, [claim, doResolveUri]);
+  }, [claim, dispatch]);
+
   const shouldConfirmChannel =
     valueType === txnTypes.CHANNEL || type === txnTypes.CHANNEL || (type === txnTypes.UPDATE && name.startsWith('@'));
 

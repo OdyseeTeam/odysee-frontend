@@ -6,13 +6,18 @@ import Tooltip from 'component/common/tooltip';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import { parseURI } from 'util/lbryURI';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectGeoRestrictionForUri } from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
+
 type Props = {
   uri: string;
-  geoRestriction: GeoRestriction | null | undefined;
-  doOpenModal: (arg0: string, arg1: {}) => void;
 };
 export default function GeoRestrictionInfo(props: Props) {
-  const { uri, geoRestriction, doOpenModal } = props;
+  const { uri } = props;
+
+  const dispatch = useAppDispatch();
+  const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
 
   if (!geoRestriction) {
     return null;
@@ -25,12 +30,14 @@ export default function GeoRestrictionInfo(props: Props) {
   const msg = <Card title={title} subtitle={__(geoRestriction.message || '')} />;
 
   function showMsg() {
-    doOpenModal(MODALS.CONFIRM, {
-      title: title,
-      subtitle: __(geoRestriction.message || ''),
-      onConfirm: (closeModal) => closeModal(),
-      hideCancel: true,
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: title,
+        subtitle: __(geoRestriction.message || ''),
+        onConfirm: (closeModal) => closeModal(),
+        hideCancel: true,
+      })
+    );
   }
 
   return (

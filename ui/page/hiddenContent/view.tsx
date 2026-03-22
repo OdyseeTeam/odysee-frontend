@@ -7,13 +7,8 @@ import Page from 'component/page';
 import Yrbl from 'component/yrbl';
 import { MS } from 'constants/date-time';
 import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
-// ****************************************************************************
-// ****************************************************************************
-export type Props = {};
-type StateProps = {
-  user: User | null | undefined;
-};
-type DispatchProps = {};
+import { useAppSelector } from 'redux/hooks';
+import { selectUser } from 'redux/selectors/user';
 // ****************************************************************************
 // ****************************************************************************
 const FILTER = {
@@ -55,8 +50,8 @@ const NoAccess = () => {
   );
 };
 
-function HiddenContentPage(props: Props & StateProps & DispatchProps) {
-  const { user } = props;
+function HiddenContentPage() {
+  const user = useAppSelector(selectUser);
   const canView = process.env.ENABLE_WIP_FEATURES || user?.global_mod;
   const [filter, setFilter] = React.useState(FILTER.UNLISTED);
 

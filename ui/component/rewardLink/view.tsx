@@ -1,21 +1,35 @@
 import React from 'react';
 import Button from 'component/button';
 import LbcMessage from 'component/common/lbc-message';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { makeSelectRewardByClaimCode, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
+import { doClaimRewardType } from 'redux/actions/rewards';
 type Reward = {
   reward_amount: number;
   reward_range: string;
+  reward_type: string;
+  claim_code: string;
 };
 type Props = {
-  isPending: boolean;
-  label: string | null | undefined;
-  reward: Reward;
-  button: boolean | null | undefined;
-  disabled: boolean;
-  claimReward: (arg0: Reward) => void;
+  claim_code?: string;
+  reward_type?: string;
+  label?: string | null;
+  button?: boolean | null;
+  disabled?: boolean;
 };
 
 const RewardLink = (props: Props) => {
-  const { reward, claimReward, label, isPending, button, disabled = false } = props;
+  const { claim_code, label, button, disabled = false } = props;
+  const dispatch = useAppDispatch();
+  const isPending = useAppSelector((state) => makeSelectIsRewardClaimPending()(state, props));
+  const reward = useAppSelector((state) => makeSelectRewardByClaimCode()(state, claim_code));
+  const claimReward = (r: Reward) =>
+    dispatch(
+      doClaimRewardType(r.reward_type, {
+        notifyError: true,
+        params: { claim_code: r.claim_code },
+      })
+    );
   let displayLabel = label;
 
   if (isPending) {

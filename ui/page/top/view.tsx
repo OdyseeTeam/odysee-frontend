@@ -8,14 +8,16 @@ import * as CS from 'constants/claim_search';
 import Button from 'component/button';
 import * as MODALS from 'constants/modal_types';
 import { SIMPLE_SITE } from 'config';
-type Props = {
-  name: string;
-  beginPublish: (arg0: PublishType, arg1: string | null | undefined) => void;
-  doOpenModal: (arg0: string, arg1: {}) => void;
-};
+import { useLocation } from 'react-router-dom';
+import { useAppDispatch } from 'redux/hooks';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
 
-function TopPage(props: Props) {
-  const { name, beginPublish, doOpenModal } = props;
+function TopPage() {
+  const dispatch = useAppDispatch();
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const name = urlParams.get('name') || '';
   const [channelActive, setChannelActive] = React.useState(false);
   // if the query was actually '@name', still offer repost for 'name'
   const queryName = name && name[0] === '@' ? name.slice(1) : name;
@@ -38,8 +40,16 @@ function TopPage(props: Props) {
         streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
         meta={
           <div className="search__top-links">
-            <Button button="secondary" onClick={() => doOpenModal(MODALS.REPOST, {})} label={__('Repost Here')} />
-            <Button button="secondary" onClick={() => beginPublish('file', queryName)} label={__('Publish Here')} />
+            <Button
+              button="secondary"
+              onClick={() => dispatch(doOpenModal(MODALS.REPOST, {}))}
+              label={__('Repost Here')}
+            />
+            <Button
+              button="secondary"
+              onClick={() => dispatch(doBeginPublish('file', queryName))}
+              label={__('Publish Here')}
+            />
           </div>
         }
         includeSupportAction

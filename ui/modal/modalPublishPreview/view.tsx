@@ -13,6 +13,7 @@ import { COPYRIGHT, OTHER } from 'constants/licenses';
 import LbcSymbol from 'component/common/lbc-symbol';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import Icon from 'component/common/icon';
 import { NO_FILE, PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
@@ -21,48 +22,23 @@ import { TO_SECONDS } from 'util/stripe';
 import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMembershipTiersForCreatorId } from 'redux/selectors/memberships';
+import {
+  selectPublishFormValue,
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+} from 'redux/selectors/publish';
+import { selectMyChannelClaims, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectFfmpegStatus, selectClientSetting } from 'redux/selectors/settings';
+import { doHideModal } from 'redux/actions/app';
+import { doPublishDesktop } from 'redux/actions/publish';
+import { doSetClientSetting } from 'redux/actions/settings';
+
 type Props = {
   publishPayload: PublishParams;
   previewResponse: PublishResponse;
-  // --- internal ---
-  type: PublishType;
-  liveCreateType: LiveCreateType;
-  liveEditType: LiveEditType;
-  filePath: string | WebFile;
-  optimize: boolean;
-  channel: string | null | undefined;
-  bid: number | null | undefined;
-  uri: string | null | undefined;
-  paywall: Paywall;
-  fee: Price;
-  fiatPurchaseEnabled: boolean;
-  fiatPurchaseFee: Price;
-  fiatRentalEnabled: boolean;
-  fiatRentalFee: Price;
-  fiatRentalExpiration: Duration;
-  language: string;
-  releaseTime: number | null | undefined;
-  licenseType: string;
-  otherLicenseDescription: string | null | undefined;
-  licenseUrl: string | null | undefined;
-  tags: Array<Tag>;
-  isVid: boolean;
-  ffmpegStatus: any;
-  publish: DoPublishDesktop;
-  closeModal: () => void;
-  enablePublishPreview: boolean;
-  setEnablePublishPreview: (arg0: boolean) => void;
-  isStillEditing: boolean;
-  myChannels: Array<ChannelClaim> | null | undefined;
-  // publishSuccess: boolean,
-  publishing: boolean;
-  isLivestreamClaim: boolean;
-  remoteFile: string | null | undefined;
-  myMembershipTiers: Record<string, any>;
-  memberRestrictionTierIds: Array<number>;
-  memberRestrictionStatus: MemberRestrictionStatus;
-  visibility: Visibility;
-  scheduledShow: boolean;
 };
 
 function createRow(label: string, value: any, hide?: boolean) {
@@ -84,12 +60,27 @@ function truncateWithEllipsis(str, maxChars) {
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
+  const { publishPayload: payload, previewResponse } = props;
+  const dispatch = useAppDispatch();
+
+  const editingUri = useAppSelector((state) => selectPublishFormValue(state, 'editingURI'));
+  const publishFormValues = useAppSelector(selectPublishFormValues);
+  const channelId = publishFormValues.channelId;
+  const myChannels = useAppSelector(selectMyChannelClaims);
+  const isVid = useAppSelector((state) => selectPublishFormValue(state, 'fileVid'));
+  const publishing = useAppSelector((state) => selectPublishFormValue(state, 'publishing'));
+  const myMembershipTiers = useAppSelector((state) => selectMembershipTiersForCreatorId(state, channelId));
+  const memberRestrictionStatus = useAppSelector(selectMemberRestrictionStatus);
+  const isStillEditing = useAppSelector(selectIsStillEditing);
+  const ffmpegStatus = useAppSelector(selectFfmpegStatus) || {};
+  const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, editingUri));
+
   const {
-    publishPayload: payload,
-    previewResponse,
     type,
     liveCreateType,
     liveEditType,
+    filePath: formFilePath,
     optimize,
     channel,
     bid,
@@ -107,23 +98,17 @@ const ModalPublishPreview = (props: Props) => {
     otherLicenseDescription,
     licenseUrl,
     tags,
-    isVid,
-    ffmpegStatus = {},
-    enablePublishPreview,
-    setEnablePublishPreview,
-    isStillEditing,
-    myChannels,
-    // publishSuccess,
-    publishing,
-    publish,
-    closeModal,
-    isLivestreamClaim,
-    myMembershipTiers,
     memberRestrictionTierIds,
-    memberRestrictionStatus,
     visibility,
     scheduledShow,
-  } = props;
+    remoteFile,
+  } = publishFormValues;
+
+  const publish: DoPublishDesktop = (filePath, preview) => dispatch(doPublishDesktop(filePath, preview));
+  const closeModal = () => dispatch(doHideModal());
+  const setEnablePublishPreview = (value: boolean) =>
+    dispatch(doSetClientSetting(SETTINGS.ENABLE_PUBLISH_PREVIEW, value));
+
   const { description, file_path: filePath, remote_url, release_time: rtPayload, title } = payload;
   const releaseTimeInfo = React.useMemo(() => {
     return {
@@ -200,7 +185,7 @@ const ModalPublishPreview = (props: Props) => {
 
   function getLicense() {
     return licenseType === COPYRIGHT ? (
-      <p>© {otherLicenseDescription}</p>
+      <p>&copy; {otherLicenseDescription}</p>
     ) : licenseType === OTHER ? (
       <p>
         {otherLicenseDescription}

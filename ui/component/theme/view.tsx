@@ -1,10 +1,9 @@
 import React from 'react';
-type Props = {
-  themePath: string | null | undefined;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectThemePath } from 'redux/selectors/settings';
 
-const Theme = (props: Props) => {
-  const { themePath } = props;
+const Theme = () => {
+  const themePath = useAppSelector(selectThemePath);
 
   if (!themePath) {
     return null;

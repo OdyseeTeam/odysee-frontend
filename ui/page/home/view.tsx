@@ -7,6 +7,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as COLLECTIONS from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -22,6 +23,28 @@ import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import {
+  selectIsFetchingActiveLivestreams,
+  selectActiveLivestreamByCreatorId,
+  selectViewersById,
+} from 'redux/selectors/livestream';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import {
+  selectShowMatureContent,
+  selectHomepageData,
+  selectClientSetting,
+  selectHomepageMeme,
+  selectHomepageCustomBanners,
+} from 'redux/selectors/settings';
+import { selectCountForCollectionId, selectUrlsForCollectionIdNonDeleted } from 'redux/selectors/collections';
+import { selectPrefsReady } from 'redux/selectors/sync';
+
 const FeaturedBanner = lazyImport(
   () =>
     import(
@@ -36,10 +59,12 @@ const CustomBanner = lazyImport(
       /* webpackChunkName: "customBanner" */
     )
 );
+
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
+
 type CustomBanners = {
   image: {
     url: string;
@@ -57,36 +82,6 @@ type CustomBanners = {
     alt: string;
   };
   position: number;
-};
-type Props = {
-  authenticated: boolean;
-  followedTags: Array<Tag>;
-  subscribedChannelIds: Array<ClaimId>;
-  showNsfw: boolean;
-  homepageData: any;
-  homepageMeme:
-    | {
-        text: string;
-        url: string;
-      }
-    | null
-    | undefined;
-  homepageCustomBanners: Array<CustomBanners>;
-  prefsReady: boolean;
-  homepageFetched: boolean;
-  doFetchAllActiveLivestreamsForQuery: () => void;
-  doFetchItemsInCollection: (params: { collectionId: string; pageSize?: number }) => Promise<any>;
-  fetchingActiveLivestreams: boolean;
-  homepageOrder: HomepageOrder;
-  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
-  userHasOdyseeMembership: boolean | null | undefined;
-  currentTheme: string;
-  activeLivestreamByCreatorId: LivestreamByCreatorId;
-  livestreamViewersById: LivestreamViewersById;
-  hideLivestreams: boolean;
-  getActiveLivestreamUrisForIds: (arg0: Array<string>) => Array<string>;
-  watchLaterRawCount: number | null | undefined;
-  watchLaterUris: Array<string> | null | undefined;
 };
 
 type SectionHeaderProps = {
@@ -112,29 +107,32 @@ function resolveTitleOverride(title: string) {
   return title === 'Recent From Following' ? 'Following' : title;
 }
 
-function HomePage(props: Props) {
-  const {
-    followedTags,
-    subscribedChannelIds,
-    authenticated,
-    showNsfw,
-    homepageData,
-    homepageMeme,
-    homepageCustomBanners,
-    prefsReady,
-    homepageFetched,
-    doFetchAllActiveLivestreamsForQuery,
-    doFetchItemsInCollection,
-    fetchingActiveLivestreams,
-    homepageOrder,
-    doOpenModal,
-    activeLivestreamByCreatorId: al,
-    // yup, unreadable name, but we are just relaying here.
-    livestreamViewersById: lv,
-    hideLivestreams,
-    watchLaterRawCount,
-    watchLaterUris,
-  } = props;
+function HomePage() {
+  const dispatch = useAppDispatch();
+  const followedTags = useAppSelector(selectFollowedTags);
+  const subscribedChannelIds = useAppSelector(selectSubscriptionIds);
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const showNsfw = useAppSelector(selectShowMatureContent);
+  const homepageData = useAppSelector(selectHomepageData) || {};
+  const homepageMeme = useAppSelector(selectHomepageMeme);
+  const homepageFetched = useAppSelector(selectHomepageFetched);
+  const fetchingActiveLivestreams = useAppSelector(selectIsFetchingActiveLivestreams);
+  const hideLivestreams = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES)
+  );
+  const hideScheduledLivestreams = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS)
+  );
+  const homepageOrder: HomepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER));
+  const al = useAppSelector(selectActiveLivestreamByCreatorId);
+  const lv = useAppSelector(selectViewersById);
+  const homepageCustomBanners: Array<CustomBanners> = useAppSelector(selectHomepageCustomBanners);
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const watchLaterRawCount = useAppSelector((state) => selectCountForCollectionId(state, COLLECTIONS.WATCH_LATER_ID));
+  const watchLaterUris = useAppSelector((state) =>
+    selectUrlsForCollectionIdNonDeleted(state, COLLECTIONS.WATCH_LATER_ID)
+  );
+
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
@@ -236,7 +234,7 @@ function HomePage(props: Props) {
       <Button
         button="link"
         iconRight={ICONS.SETTINGS}
-        onClick={() => (authenticated ? doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE) : signupDriver())}
+        onClick={() => (authenticated ? dispatch(doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)) : signupDriver())}
         title={__('Sort and customize your homepage')}
         label={__('Customize --[Short label for "Customize Homepage"]--')}
       />
@@ -359,16 +357,18 @@ function HomePage(props: Props) {
   }
 
   React.useEffect(() => {
-    doFetchAllActiveLivestreamsForQuery(); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+    dispatch(doFetchAllActiveLivestreamsForQuery()); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
   React.useEffect(() => {
     if (authenticated && hasWatchLaterSection && !hasFetchedWatchLaterItemsRef.current) {
       hasFetchedWatchLaterItemsRef.current = true;
-      doFetchItemsInCollection({
-        collectionId: COLLECTIONS.WATCH_LATER_ID,
-      });
+      dispatch(
+        doFetchItemsInCollection({
+          collectionId: COLLECTIONS.WATCH_LATER_ID,
+        })
+      );
     }
-  }, [authenticated, doFetchItemsInCollection, hasWatchLaterSection]);
+  }, [authenticated, dispatch, hasWatchLaterSection]);
   return (
     <Page className="homePage-wrapper" fullWidthPage>
       {visibleSortedRowData.length === 0 && authenticated && homepageFetched && (

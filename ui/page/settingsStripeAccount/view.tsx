@@ -6,11 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import './style.scss';
 
-type Props = {
-  [key: string]: any;
-};
-
-const StripeAccountConnection = (_props: Props) => {
+const StripeAccountConnection = () => {
   return (
     <Page
       noFooter

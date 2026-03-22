@@ -12,13 +12,15 @@ import { Navigate } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
-type Props = {
-  osNotificationsEnabled: boolean;
-  isAuthenticated: boolean;
-  setClientSetting: (arg0: string, arg1: boolean) => void;
-};
-export default function NotificationSettingsPage(props: Props) {
-  const { osNotificationsEnabled, setClientSetting, isAuthenticated } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { selectosNotificationsEnabled } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+
+export default function NotificationSettingsPage() {
+  const dispatch = useAppDispatch();
+  const osNotificationsEnabled = useAppSelector(selectosNotificationsEnabled);
+  const isAuthenticated = Boolean(useAppSelector(selectUserVerifiedEmail));
   const [error, setError] = React.useState();
   const [tagMap, setTagMap] = React.useState({});
   const [tags, setTags] = React.useState();
@@ -179,7 +181,9 @@ export default function NotificationSettingsPage(props: Props) {
                   <FormField
                     type="checkbox"
                     name="desktopNotification"
-                    onChange={() => setClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled)}
+                    onChange={() =>
+                      dispatch(doSetClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled))
+                    }
                     checked={osNotificationsEnabled}
                   />
                 </SettingsRow>

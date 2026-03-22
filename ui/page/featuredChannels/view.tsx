@@ -3,32 +3,33 @@ import Section from 'component/channelSections/Section';
 import Page from 'component/page';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
-type Props = {
-  claimId: string | null | undefined;
-  sectionId: string | null | undefined;
-  creatorSettingsFetched: boolean;
-  fetchingCreatorSettings: boolean;
-  featuredChannels: Array<FeaturedChannelsSection> | null | undefined;
-  doFetchCreatorSettings: (channelId: string) => Promise<any>;
-};
+import { useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { CHANNEL_SECTIONS_QUERIES as CSQ } from 'constants/urlParams';
+import { doFetchCreatorSettings as doFetchCreatorSettingsAction } from 'redux/actions/comments';
+import {
+  selectFeaturedChannelsForChannelId,
+  selectFetchingCreatorSettings,
+  selectSettingsForChannelId,
+} from 'redux/selectors/comments';
 
-function FeaturedChannelsPage(props: Props) {
-  const {
-    claimId,
-    sectionId,
-    creatorSettingsFetched,
-    fetchingCreatorSettings,
-    featuredChannels,
-    doFetchCreatorSettings,
-  } = props;
+function FeaturedChannelsPage() {
+  const dispatch = useAppDispatch();
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const claimId = urlParams.get(CSQ.CLAIM_ID);
+  const sectionId = urlParams.get(CSQ.SECTION_ID);
+  const creatorSettingsFetched = useAppSelector((state) => selectSettingsForChannelId(state, claimId) !== undefined);
+  const fetchingCreatorSettings = useAppSelector(selectFetchingCreatorSettings);
+  const featuredChannels = useAppSelector((state) => selectFeaturedChannelsForChannelId(state, claimId));
   const fc: FeaturedChannelsSection | null | undefined = React.useMemo(() => {
     return featuredChannels && featuredChannels.find((x) => x.id === sectionId);
   }, [featuredChannels, sectionId]);
   React.useEffect(() => {
     if (!creatorSettingsFetched && claimId) {
-      doFetchCreatorSettings(claimId).catch(() => {});
+      dispatch(doFetchCreatorSettingsAction(claimId)).catch(() => {});
     }
-  }, [claimId, creatorSettingsFetched, doFetchCreatorSettings]);
+  }, [claimId, creatorSettingsFetched, dispatch]);
 
   // **************************************************************************
   // **************************************************************************

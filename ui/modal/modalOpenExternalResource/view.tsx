@@ -1,19 +1,23 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import { formatFileSystemPath } from 'util/url';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
 // @if TARGET='app'
 import { shell } from 'electron';
 // @endif
+
 type Props = {
   uri: string;
   isTrusted: boolean;
   path: string;
   isMine: boolean;
-  closeModal: () => void;
 };
 
-function ModalOpenExternalResource(props: Props) {
-  const { uri, isTrusted, path, isMine, closeModal } = props;
+export default function ModalOpenExternalResource(props: Props) {
+  const { uri, isTrusted, path, isMine } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = React.useCallback(() => dispatch(doHideModal()), [dispatch]);
 
   if ((uri && isTrusted) || (path && isMine)) {
     openResource();
@@ -64,5 +68,3 @@ function ModalOpenExternalResource(props: Props) {
     </Modal>
   );
 }
-
-export default ModalOpenExternalResource;

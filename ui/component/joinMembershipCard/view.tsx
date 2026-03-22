@@ -10,28 +10,36 @@ import PreviewPage from './internal/previewPage';
 import Spinner from 'component/spinner';
 import classnames from 'classnames';
 import { ModalContext } from 'contexts/modal';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectArEnabledMembershipTiersForChannelUri,
+  selectProtectedContentMembershipsForContentClaimId,
+  selectMembersOnlyChatMembershipIdsForCreatorId,
+  selectCheapestPlanForRestrictedIds,
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+  selectMyPurchasedMembershipTierForCreatorUri,
+  selectMembershipMineData,
+} from 'redux/selectors/memberships';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
+import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import {
+  selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
+} from 'redux/selectors/comments';
+import { doMembershipList, doMembershipBuy, doMembershipBuyClear } from 'redux/actions/memberships';
+import { doToast } from 'redux/actions/notifications';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import './style.scss';
+
 type Props = {
   uri: string;
+  fileUri?: string;
   doHideModal: () => void;
   membershipIndex: number;
   passedTierIndex?: number;
   shouldNavigate?: boolean;
   membersOnly?: boolean;
-  // -- redux --
-  activeChannelClaim: ChannelClaim;
-  channelName: string | null | undefined;
-  channelClaimId: string;
-  creatorMemberships: CreatorMemberships | null | undefined;
-  incognito: boolean;
-  unlockableTierIds: Array<number>;
-  cheapestMembership: CreatorMembership | null | undefined;
-  isLivestream: boolean | null | undefined;
-  purchasedChannelMembership: MembershipSub;
-  membershipMine: any;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>;
-  doToast: (params: { message: string }) => void;
   isChannelTab?: boolean;
   isRenewal?: boolean;
 };
@@ -39,28 +47,56 @@ type Props = {
 const JoinMembershipCard = (props: Props) => {
   const {
     uri,
+    fileUri,
     doHideModal,
     membershipIndex = 0,
     passedTierIndex,
     shouldNavigate,
     membersOnly,
-    // -- redux --
-    activeChannelClaim,
-    channelName,
-    channelClaimId,
-    creatorMemberships,
-    incognito,
-    unlockableTierIds,
-    cheapestMembership,
-    isLivestream,
-    purchasedChannelMembership,
-    membershipMine,
-    doMembershipList,
-    doMembershipBuy,
-    doToast,
     isChannelTab,
     isRenewal,
   } = props;
+
+  const dispatch = useAppDispatch();
+
+  // -- redux selectors --
+  const claim = useAppSelector((state) => selectClaimForUri(state, fileUri));
+  const fileClaimId = claim && claim.claim_id;
+  const channelId = getChannelIdFromClaim(claim);
+  const isLivestream = isStreamPlaceholderClaim(claim);
+
+  const isLiveMembersOnly = useAppSelector((state) =>
+    channelId ? selectLivestreamChatMembersOnlyForChannelId(state, channelId) : false
+  );
+  const areCommentsMembersOnly = useAppSelector((state) =>
+    channelId ? selectMembersOnlyCommentsForChannelId(state, channelId) : false
+  );
+
+  const contentUnlocked = useAppSelector((state) =>
+    fileClaimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, fileClaimId) : false
+  );
+  const membersOnlyDerived = contentUnlocked && (isLivestream ? isLiveMembersOnly : areCommentsMembersOnly);
+  const unlockableTierIds = useAppSelector((state) => {
+    if (membersOnlyDerived) {
+      return channelId ? selectMembersOnlyChatMembershipIdsForCreatorId(state, channelId) : undefined;
+    }
+    return fileClaimId ? selectProtectedContentMembershipsForContentClaimId(state, fileClaimId) : undefined;
+  });
+
+  const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const creatorMemberships = useAppSelector((state) => selectArEnabledMembershipTiersForChannelUri(state, uri));
+  const defaultArweaveAddress = useAppSelector(selectAPIArweaveDefaultAddress);
+  const channelName = useAppSelector((state) => selectChannelNameForUri(state, uri));
+  const incognito = useAppSelector(selectIncognito);
+  const cheapestMembership = useAppSelector((state) =>
+    unlockableTierIds ? selectCheapestPlanForRestrictedIds(state, unlockableTierIds) : undefined
+  );
+  const purchasedChannelMembership = useAppSelector((state) =>
+    selectMyPurchasedMembershipTierForCreatorUri(state, channelClaimId)
+  );
+  const membershipMine = useAppSelector(selectMembershipMineData);
+
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
   const isPurchasing = React.useRef(false);
   const navigate = useNavigate();
@@ -96,12 +132,14 @@ const JoinMembershipCard = (props: Props) => {
       });
     }
 
-    doMembershipBuy(membershipBuyParams)
+    dispatch(doMembershipBuy(membershipBuyParams))
       .then(() => {
         isPurchasing.current = false;
-        doMembershipList({
-          channel_claim_id: channelClaimId,
-        });
+        dispatch(
+          doMembershipList({
+            channel_claim_id: channelClaimId,
+          })
+        );
 
         if (doHideModal) {
           doHideModal();
@@ -110,15 +148,17 @@ const JoinMembershipCard = (props: Props) => {
           setConfirmationPage(false);
         }
 
-        doToast({
-          message: __(
-            "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
-            {
-              membership_tier_name: selectedCreatorMembership.name,
-              creator_channel_name: selectedCreatorMembership.channel_name,
-            }
-          ),
-        });
+        dispatch(
+          doToast({
+            message: __(
+              "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
+              {
+                membership_tier_name: selectedCreatorMembership.name,
+                creator_channel_name: selectedCreatorMembership.channel_name,
+              }
+            ),
+          })
+        );
         const purchasingUnlockableContentTier =
           unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
 
@@ -127,21 +167,25 @@ const JoinMembershipCard = (props: Props) => {
         }
       })
       .catch((e) => {
-        doToast({
-          message: __(e?.message || e),
-          isError: true,
-        });
+        dispatch(
+          doToast({
+            message: __(e?.message || e),
+            isError: true,
+          })
+        );
         isPurchasing.current = false;
       });
   }
 
   React.useEffect(() => {
     if (channelClaimId && channelName && !creatorMemberships) {
-      doMembershipList({
-        channel_claim_id: channelClaimId,
-      });
+      dispatch(
+        doMembershipList({
+          channel_claim_id: channelClaimId,
+        })
+      );
     }
-  }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);
+  }, [channelClaimId, channelName, creatorMemberships, dispatch]);
   const pageProps = React.useMemo(() => {
     return {
       uri,

@@ -5,18 +5,25 @@ import * as KEYCODES from 'constants/keycodes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
+import { selectCollectionForId } from 'redux/selectors/collections';
+
 type Props = {
   uri?: string;
   sourceId?: string;
   onlyCreate?: boolean;
   closeForm: (newCollectionName?: string, newCollectionId?: string) => void;
-  // -- redux --
-  sourceCollectionName?: string;
-  doPlaylistAddAndAllowPlaying: (params: { uri?: string; collectionName: string; createNew: boolean }) => void;
 };
 
 function FormNewCollection(props: Props) {
-  const { uri, sourceId, onlyCreate, closeForm, sourceCollectionName, doPlaylistAddAndAllowPlaying } = props;
+  const { uri, sourceId, onlyCreate, closeForm } = props;
+
+  const dispatch = useAppDispatch();
+  const sourceCollectionName = useAppSelector((state) =>
+    sourceId ? selectCollectionForId(state, sourceId)?.name : undefined
+  );
+
   const buttonref: ElementRef<any> = React.useRef();
   const [newCollectionName, setCollectionName] = React.useState(
     sourceCollectionName
@@ -34,17 +41,19 @@ function FormNewCollection(props: Props) {
   function handleAddCollection() {
     const name = newCollectionName.trim();
     let id;
-    doPlaylistAddAndAllowPlaying({
-      uri,
-      collectionName: name,
-      sourceId,
-      createNew: true,
-      createCb: !sourceId
-        ? undefined
-        : (newId) => {
-            id = newId;
-          },
-    });
+    dispatch(
+      doPlaylistAddAndAllowPlaying({
+        uri,
+        collectionName: name,
+        sourceId,
+        createNew: true,
+        createCb: !sourceId
+          ? undefined
+          : (newId) => {
+              id = newId;
+            },
+      })
+    );
     closeForm(name, id);
   }
 

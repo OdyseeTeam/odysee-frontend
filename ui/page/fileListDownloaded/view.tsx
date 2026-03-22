@@ -12,33 +12,35 @@ import classnames from 'classnames';
 import Yrbl from 'component/yrbl';
 import { PURCHASES_PAGE_SIZE } from 'page/library/view';
 import Spinner from 'component/spinner';
-import { useNavigate } from 'react-router-dom';
-type Props = {
-  fetchingFileList: boolean;
-  downloadedUrls: Array<string>;
-  downloadedUrlsCount: number | null | undefined;
-  query: string;
-  doPurchaseList: () => void;
-  myDownloads: Array<string>;
-  myPurchases: Array<string>;
-  myPurchasesCount: number | null | undefined;
-  fetchingMyPurchases: boolean;
-};
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppSelector } from 'redux/hooks';
+import {
+  makeSelectSearchDownloadUrlsForPage,
+  selectDownloadUrlsCount,
+  selectIsFetchingFileList,
+} from 'redux/selectors/file_info';
+import {
+  makeSelectMyPurchasesForPage,
+  selectIsFetchingMyPurchases,
+  selectMyPurchasesCount,
+} from 'redux/selectors/claims';
+
 const VIEW_DOWNLOADS = 'view_download';
 const VIEW_PURCHASES = 'view_purchases';
 const ENABLE_DOWNLOADS_TAB = false;
 
-function FileListDownloaded(props: Props) {
+function FileListDownloaded() {
   const navigate = useNavigate();
-  const {
-    query,
-    downloadedUrlsCount,
-    myPurchasesCount,
-    myPurchases,
-    myDownloads,
-    fetchingFileList,
-    fetchingMyPurchases,
-  } = props;
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const query = urlParams.get('query') || '';
+  const page = Number(urlParams.get('page')) || 1;
+  const downloadedUrlsCount = useAppSelector(selectDownloadUrlsCount);
+  const myPurchasesCount = useAppSelector(selectMyPurchasesCount);
+  const myPurchases = useAppSelector((state) => makeSelectMyPurchasesForPage(query, page)(state));
+  const myDownloads = useAppSelector((state) => makeSelectSearchDownloadUrlsForPage(query, page)(state));
+  const fetchingFileList = useAppSelector(selectIsFetchingFileList);
+  const fetchingMyPurchases = useAppSelector(selectIsFetchingMyPurchases);
   const loading = fetchingFileList || fetchingMyPurchases;
   const [viewMode, setViewMode] = usePersistedState('library-view-mode', VIEW_PURCHASES);
   const [searchQuery, setSearchQuery] = useState('');

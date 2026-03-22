@@ -2,11 +2,13 @@ import * as ICONS from 'constants/icons';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import React, { useRef } from 'react';
+import { useAppDispatch } from 'redux/hooks';
+import { doToast } from 'redux/actions/notifications';
+
 type Props = {
   copyable: string;
   onlyCopy: boolean;
   snackMessage: string | null | undefined;
-  doToast: (arg0: { message: string }) => void;
   label?: string;
   primaryButton?: boolean;
   name?: string;
@@ -20,7 +22,6 @@ export default function CopyableText(props: Props) {
   const {
     copyable,
     onlyCopy,
-    doToast,
     snackMessage,
     label,
     primaryButton = false,
@@ -30,6 +31,8 @@ export default function CopyableText(props: Props) {
     linkTo,
     hideValue,
   } = props;
+
+  const dispatch = useAppDispatch();
   const [maskInput, setMaskInput] = React.useState(enableInputMask);
   const input = useRef();
 
@@ -38,15 +41,19 @@ export default function CopyableText(props: Props) {
       navigator.clipboard
         .writeText(copyable)
         .then(() => {
-          doToast({
-            message: snackMessage || __('Text copied'),
-          });
+          dispatch(
+            doToast({
+              message: snackMessage || __('Text copied'),
+            })
+          );
         })
         .catch(() => {
-          doToast({
-            message: __('Failed to copy.'),
-            isError: true,
-          });
+          dispatch(
+            doToast({
+              message: __('Failed to copy.'),
+              isError: true,
+            })
+          );
         });
     } else {
       const topRef = input.current;
@@ -61,9 +68,11 @@ export default function CopyableText(props: Props) {
       }
 
       document.execCommand('copy');
-      doToast({
-        message: snackMessage || __('Text copied'),
-      });
+      dispatch(
+        doToast({
+          message: snackMessage || __('Text copied'),
+        })
+      );
     }
   }
 

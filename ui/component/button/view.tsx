@@ -1,10 +1,15 @@
 import React, { forwardRef, useRef } from 'react';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import * as PAGES from 'constants/pages';
 import useCombinedRefs from 'effects/use-combined-refs';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectHasChannels } from 'redux/selectors/claims';
+import { doHideModal } from 'redux/actions/app';
+
 type Props = {
   id: string | null | undefined;
   href: string | null | undefined;
@@ -31,16 +36,10 @@ type Props = {
   onClick: ((arg0: any) => any) | null | undefined;
   onMouseEnter: ((arg0: any) => any) | null | undefined;
   onMouseLeave: ((arg0: any) => any) | null | undefined;
-  pathname: string;
-  emailVerified: boolean;
   requiresAuth?: boolean;
   requiresChannel?: boolean;
-  hasChannels: boolean;
   myref: any;
-  dispatch: any;
   'aria-label'?: string;
-  user: User | null | undefined;
-  doHideModal: () => void;
 };
 // check if the link is for odysee.com
 function isAnOdyseeLink(urlString) {
@@ -71,19 +70,25 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
     iconSize,
     iconColor,
     activeClass,
-    emailVerified,
     requiresAuth,
     requiresChannel,
-    hasChannels,
     myref,
-    dispatch,
-    // <button> doesn't know what to do with dispatch
-    pathname,
-    user,
     authSrc,
-    doHideModal,
     ...otherProps
   } = props;
+
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  // Only compute auth-related state when the button actually needs it.
+  // This prevents every single button in the app from re-rendering on
+  // unrelated Redux state changes (user, router, channels).
+  const needsAuth = requiresAuth || requiresChannel;
+  const emailVerified = useAppSelector((state) => (needsAuth ? selectUserVerifiedEmail(state) : false));
+  const user = useAppSelector((state) => (needsAuth ? selectUser(state) : undefined));
+  const hasChannels = useAppSelector((state) => (needsAuth ? selectHasChannels(state) : false));
+
   const disable = disabled || (user === null && requiresAuth);
   const onClick = disabled ? undefined : onClickProp;
   const combinedClassName = classnames(
@@ -232,7 +237,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
           e.stopPropagation();
           // in case the redirect came from a modal, it will stay open on the
           // sign up page, so close it to make the sign up form seen
-          doHideModal();
+          dispatch(doHideModal());
         }}
         to={redirectUrl}
         title={title || defaultTooltip}
@@ -293,4 +298,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
     </button>
   );
 });
+
+Button.displayName = 'Button';
+
 export default React.memo(Button);

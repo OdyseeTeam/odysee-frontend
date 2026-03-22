@@ -1,14 +1,18 @@
 import React from 'react';
 import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import { selectActiveChannelId } from 'redux/selectors/app';
+import { selectDefaultChannelId } from 'redux/selectors/settings';
+
 type Props = {
   channelId?: string;
-  // -- redux --
-  defaultChannelId: string | null | undefined;
-  activeChannelId: string | null | undefined;
 };
 
 const ButtonNavigateChannelId = (props: Props) => {
-  const { channelId, defaultChannelId, activeChannelId, ...buttonProps } = props;
+  const { channelId, ...buttonProps } = props;
+
+  const defaultChannelId = useAppSelector(selectDefaultChannelId);
+  const activeChannelId = useAppSelector(selectActiveChannelId);
 
   const addWindowPendingActiveChannel = () => {
     if (channelId) {

@@ -2,23 +2,28 @@
 import React from 'react';
 import './style.scss';
 import Button from 'component/button';
-import SortableList from 'component/channelFinder/sortableList'; // ¹
+import SortableList from 'component/channelFinder/sortableList'; // 1
 
 import Card from 'component/common/card';
 import { Modal } from 'modal/modal';
-// ¹TODO: we are not supposed to grab "internal" components. SortableList is
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { selectSectionsForChannelId } from 'redux/selectors/comments';
+import { doUpdateCreatorSettings } from 'redux/actions/comments';
+import { doHideModal } from 'redux/actions/app';
+
+// 1TODO: we are not supposed to grab "internal" components. SortableList is
 // meant to be general purpose eventually.
 type Props = {
   channelId: string;
-  // --- redux ---
-  sections: Sections | null | undefined;
-  channelClaim: ChannelClaim | null | undefined;
-  // Dumb thing just to feed doUpdateCreatorSettings().
-  doUpdateCreatorSettings: (channelClaim: ChannelClaim, settings: PerChannelSettings) => void;
-  doHideModal: () => void;
 };
+
 export default function ModalFeaturedChannelsSort(props: Props) {
-  const { sections, channelClaim, doUpdateCreatorSettings, doHideModal } = props;
+  const { channelId } = props;
+  const dispatch = useAppDispatch();
+  const sections = useAppSelector((state) => selectSectionsForChannelId(state, channelId));
+  const channelClaim = useAppSelector((state) => selectClaimForClaimId(state, channelId));
+
   const entries = sections ? sections.entries : [];
   const [sectionIds, setSectionIds] = React.useState(entries.map((x) => x.id));
 
@@ -53,15 +58,17 @@ export default function ModalFeaturedChannelsSort(props: Props) {
       }
 
       const newSections = { ...sections, entries };
-      doUpdateCreatorSettings(channelClaim, {
-        channel_sections: newSections,
-      });
-      doHideModal();
+      dispatch(
+        doUpdateCreatorSettings(channelClaim, {
+          channel_sections: newSections,
+        })
+      );
+      dispatch(doHideModal());
     }
   }
 
   function handleCancel() {
-    doHideModal();
+    dispatch(doHideModal());
   }
 
   function getEntry(id: string) {
@@ -75,7 +82,7 @@ export default function ModalFeaturedChannelsSort(props: Props) {
   }
 
   return (
-    <Modal isOpen type="custom" className="modalFCSort" onAborted={doHideModal}>
+    <Modal isOpen type="custom" className="modalFCSort" onAborted={() => dispatch(doHideModal())}>
       <Card
         title={__('Sort Featured Channels')}
         body={

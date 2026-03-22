@@ -1,25 +1,54 @@
 import React from 'react';
 import LbcSymbol from 'component/common/lbc-symbol';
 import WunderbarSuggestion from 'component/wunderbarSuggestion';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  makeSelectClaimForUri,
+  selectIsUriResolving,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { doResolveUris } from 'redux/actions/claims';
+import { parseURI } from 'util/lbryURI';
+import { makeSelectWinningUriForQuery } from 'redux/selectors/search';
+import { PREFERENCE_EMBED } from 'constants/tags';
+
 type Props = {
-  winningUri: string | null | undefined;
-  doResolveUris: (arg0: Array<string>) => void;
-  uris: Array<string>;
-  resolvingUris: boolean;
-  preferEmbed: boolean;
+  query: string;
 };
 export default function WunderbarTopSuggestion(props: Props) {
-  const { uris, resolvingUris, winningUri, doResolveUris, preferEmbed } = props;
+  const { query } = props;
+  const dispatch = useAppDispatch();
+
+  const uriFromQuery = `lbry://${query}`;
+  const uris = React.useMemo(() => {
+    const result = [uriFromQuery];
+    try {
+      const { isChannel } = parseURI(uriFromQuery);
+      if (!isChannel) {
+        const channelUriFromQuery = `lbry://@${query}`;
+        result.push(channelUriFromQuery);
+      }
+    } catch (e) {}
+    return result;
+  }, [uriFromQuery, query]);
+
+  const resolvingUris = useAppSelector((state) => uris.some((uri) => selectIsUriResolving(state, uri)));
+  const winningUri = useAppSelector((state) => makeSelectWinningUriForQuery(query)(state));
+  const winningClaim = useAppSelector((state) => (winningUri ? makeSelectClaimForUri(winningUri)(state) : undefined));
+  const preferEmbed = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(winningUri, PREFERENCE_EMBED)(state)
+  );
+
   const stringifiedUris = JSON.stringify(uris);
   React.useEffect(() => {
     if (stringifiedUris) {
       const arrayUris = JSON.parse(stringifiedUris);
 
       if (arrayUris.length > 0) {
-        doResolveUris(arrayUris);
+        dispatch(doResolveUris(arrayUris));
       }
     }
-  }, [doResolveUris, stringifiedUris]);
+  }, [dispatch, stringifiedUris]);
 
   if (resolvingUris) {
     return (

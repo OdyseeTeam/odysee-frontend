@@ -8,45 +8,43 @@ import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
+import { selectFileInfosByOutpoint } from 'redux/selectors/file_info';
+import { doUpdatePublishForm, doResetThumbnailStatus } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
 import './style.lazy.scss';
 type Props = {
-  filePath: string | null | undefined;
-  fileInfos: Record<string, FileListItem>;
-  myClaimForUri: StreamClaim | null | undefined;
-  thumbnail: string | null | undefined;
-  formDisabled: boolean;
-  uploadThumbnailStatus: string;
-  thumbnailPath: string | null | undefined;
-  thumbnailError: string | null | undefined;
   thumbnailParam: string | null | undefined;
   thumbnailParamError: boolean;
   thumbnailParamStatus: string;
   optional?: boolean;
-  openModal: (id: string, arg1: {}) => void;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
   updateThumbnailParams: (arg0: {}) => void;
-  resetThumbnailStatus: () => void;
 };
 
 function SelectThumbnail(props: Props) {
+  const { thumbnailParam, thumbnailParamStatus, updateThumbnailParams, optional } = props;
+
+  const dispatch = useAppDispatch();
+  const publishFormValues = useAppSelector(selectPublishFormValues);
   const {
     filePath,
-    fileInfos,
-    myClaimForUri,
+    thumbnail: publishThumbnail,
     formDisabled,
     uploadThumbnailStatus: status,
-    openModal,
-    updatePublishForm,
-    thumbnailParam,
-    thumbnailParamStatus,
-    updateThumbnailParams,
     thumbnailPath,
-    resetThumbnailStatus,
-    optional,
-  } = props;
+    thumbnailError: publishThumbnailError,
+  } = publishFormValues;
+  const fileInfos = useAppSelector(selectFileInfosByOutpoint);
+  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
+  const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
+  const openModal = (modal: string, modalProps: {}) => dispatch(doOpenModal(modal, modalProps));
+
   const publishForm = !updateThumbnailParams;
-  const thumbnail = publishForm ? props.thumbnail : thumbnailParam;
-  const thumbnailError = publishForm ? props.thumbnailError : props.thumbnailParamError;
+  const thumbnail = publishForm ? publishThumbnail : thumbnailParam;
+  const thumbnailError = publishForm ? publishThumbnailError : props.thumbnailParamError;
   const accept = '.png, .jpg, .jpeg, .gif, .webp';
   const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;

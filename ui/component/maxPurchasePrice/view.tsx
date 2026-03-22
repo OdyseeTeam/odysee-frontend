@@ -1,25 +1,19 @@
 import React from 'react';
 import { FormField, FormFieldPrice } from 'component/common/form';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectDaemonSettings } from 'redux/selectors/settings';
+import { doSetDaemonSetting } from 'redux/actions/settings';
 type Price = {
   currency: string;
   amount: number;
 };
-type DaemonSettings = {
-  download_dir: string;
-  share_usage_data: boolean;
-  max_key_fee?: Price;
-  max_connections_per_download?: number;
-  save_files: boolean;
-  save_blobs: boolean;
-  ffmpeg_path: string;
-};
 type SetDaemonSettingArg = boolean | string | number | Price;
-type Props = {
-  daemonSettings: DaemonSettings;
-  setDaemonSetting: (arg0: string, arg1: SetDaemonSettingArg | null | undefined) => void;
-};
+type Props = Record<string, never>;
 export default function MaxPurchasePrice(props: Props) {
-  const { daemonSettings, setDaemonSetting } = props;
+  const dispatch = useAppDispatch();
+  const daemonSettings = useAppSelector(selectDaemonSettings);
+  const setDaemonSetting = (key: string, value?: SetDaemonSettingArg | null) =>
+    dispatch(doSetDaemonSetting(key, value));
   const defaultMaxKeyFee = {
     currency: 'USD',
     amount: 50,

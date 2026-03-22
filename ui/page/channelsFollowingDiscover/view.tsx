@@ -3,17 +3,16 @@ import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import * as CS from 'constants/claim_search';
 import { CUSTOM_HOMEPAGE, SIMPLE_SITE } from 'config';
+import { useAppSelector } from 'redux/hooks';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import { selectHomepageData, selectHomepageDiscover, selectHomepageDiscoverNew } from 'redux/selectors/settings';
 const MORE_CHANNELS_ANCHOR = 'MoreChannels';
-type Props = {
-  subscribedChannelIds: Array<ClaimId>;
-  blockedChannels: Array<string>;
-  homepageData: any;
-  discoverData: Array<string> | null | undefined;
-  discoverDataNew: Array<string> | null | undefined;
-};
 
-function ChannelsFollowingDiscover(props: Props) {
-  const { subscribedChannelIds, homepageData, discoverData, discoverDataNew } = props;
+function ChannelsFollowingDiscover() {
+  const subscribedChannelIds = useAppSelector(selectSubscriptionIds);
+  const homepageData = useAppSelector(selectHomepageData) || {};
+  const discoverData = useAppSelector(selectHomepageDiscover);
+  const discoverDataNew = useAppSelector(selectHomepageDiscoverNew);
   const { PRIMARY_CONTENT, LATEST } = homepageData;
   let channelIds;
 

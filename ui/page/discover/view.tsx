@@ -4,6 +4,7 @@ import { DOMAIN, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
@@ -16,34 +17,37 @@ import moment from 'moment';
 import { useLocation } from 'react-router-dom';
 import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClientSetting, selectHomepageDiscoverNew } from 'redux/selectors/settings';
+import { doResolveUri } from 'redux/actions/claims';
+
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
+
 type Props = {
   dynamicRouteProps: RowDataItem;
   location?: {
     search: string;
   };
-  followedTags: Array<Tag>;
-  repostedUri: string;
-  repostedClaim: GenericClaim | null | undefined;
-  doToggleTagFollowDesktop: (arg0: string) => void;
-  doResolveUri: (arg0: string) => void;
-  tileLayout: boolean;
-  discoverDataNew: Array<string> | null | undefined;
-  hideLivestreams: boolean;
 };
 
 function DiscoverPage(props: Props) {
   const routeLocation = useLocation();
-  const {
-    location,
-    repostedClaim,
-    repostedUri,
-    doResolveUri,
-    tileLayout,
-    dynamicRouteProps,
-    discoverDataNew,
-    hideLivestreams,
-  } = props;
+  const { location, dynamicRouteProps } = props;
+  const dispatch = useAppDispatch();
+
+  const routerSearch = location?.search || routeLocation.search;
+  const urlParamsForRepost = new URLSearchParams(routerSearch);
+  const repostedUriInUrl = urlParamsForRepost.get(CS.REPOSTED_URI_KEY);
+  const repostedUri = repostedUriInUrl ? decodeURIComponent(repostedUriInUrl) : undefined;
+
+  const repostedClaim = useAppSelector((state) => (repostedUri ? selectClaimForUri(state, repostedUri, false) : null));
+  const tileLayout = useAppSelector((state) => selectClientSetting(state, SETTINGS.TILE_LAYOUT));
+  const discoverDataNew = useAppSelector(selectHomepageDiscoverNew);
+  const hideLivestreams = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES)
+  );
+
   const { search } = location || routeLocation;
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
   const isExplore = dynamicRouteProps && dynamicRouteProps.id === 'EXPLORABLE_CHANNEL';
@@ -197,9 +201,9 @@ function DiscoverPage(props: Props) {
   // **************************************************************************
   React.useEffect(() => {
     if (repostedUri && !repostedClaimIsResolved) {
-      doResolveUri(repostedUri);
+      dispatch(doResolveUri(repostedUri));
     }
-  }, [repostedUri, repostedClaimIsResolved, doResolveUri]);
+  }, [repostedUri, repostedClaimIsResolved, dispatch]);
   // **************************************************************************
   // **************************************************************************
   return (

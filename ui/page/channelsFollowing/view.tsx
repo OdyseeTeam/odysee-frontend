@@ -1,6 +1,7 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
 import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
@@ -14,31 +15,30 @@ import { tagSearchCsOptionsHook } from 'util/search';
 import UpcomingClaims from 'component/upcomingClaims';
 import useComponentDidMount from 'effects/use-component-did-mount';
 import usePersistedState from 'effects/use-persisted-state';
-type Props = {
-  channelIds: Array<string>;
-  tileLayout: boolean;
-  activeLivestreamByCreatorId: LivestreamByCreatorId;
-  livestreamViewersById: LivestreamViewersById;
-  doFetchAllActiveLivestreamsForQuery: () => void;
-  fetchingActiveLivestreams: boolean;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectIsFetchingActiveLivestreams,
+  selectActiveLivestreamByCreatorId,
+  selectViewersById,
+} from 'redux/selectors/livestream';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doFetchAllActiveLivestreamsForQuery as doFetchAllActiveLivestreamsForQueryAction } from 'redux/actions/livestream';
 
-function ChannelsFollowingPage(props: Props) {
-  const {
-    channelIds,
-    tileLayout,
-    activeLivestreamByCreatorId: al,
-    livestreamViewersById: lv,
-    doFetchAllActiveLivestreamsForQuery,
-    fetchingActiveLivestreams,
-  } = props;
+function ChannelsFollowingPage() {
+  const dispatch = useAppDispatch();
+  const channelIds = useAppSelector(selectSubscriptionIds);
+  const tileLayout = useAppSelector((state) => selectClientSetting(state, SETTINGS.TILE_LAYOUT));
+  const fetchingActiveLivestreams = useAppSelector(selectIsFetchingActiveLivestreams);
+  const al = useAppSelector(selectActiveLivestreamByCreatorId);
+  const lv = useAppSelector(selectViewersById);
   const hasSubscribedChannels = channelIds.length > 0;
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
   const activeLivestreamUris = React.useMemo(() => {
     return filterActiveLivestreamUris(channelIds, null, al, lv);
   }, [channelIds, lv, al]);
   useComponentDidMount(() => {
-    doFetchAllActiveLivestreamsForQuery();
+    dispatch(doFetchAllActiveLivestreamsForQueryAction());
   });
   return !hasSubscribedChannels ? (
     <ChannelsFollowingDiscoverPage />

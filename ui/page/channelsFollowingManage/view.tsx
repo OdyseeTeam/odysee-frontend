@@ -11,9 +11,13 @@ import * as ICONS from 'constants/icons';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import useComponentDidMount from 'effects/use-component-did-mount';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResolveUris } from 'redux/actions/claims';
+import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
+import { selectLastActiveSubscriptions, selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import './style.scss';
 
-function getFilteredUris(uris, filterQuery) {
+function getFilteredUris(uris: Array<string>, filterQuery: string) {
   if (filterQuery) {
     const filterQueryLowerCase = filterQuery.toLowerCase();
     return uris.filter((uri) => uri.toLowerCase().includes(filterQueryLowerCase));
@@ -26,25 +30,28 @@ function getFilteredUris(uris, filterQuery) {
 // ChannelsFollowingManage
 // ****************************************************************************
 const FOLLOW_PAGE_SIZE = 30;
-type Props = {
-  subscribedChannelUris: Array<string>;
-  lastActiveSubs: Array<Subscription> | null | undefined;
-  doResolveUris: (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => void;
-  doFetchLastActiveSubs: (force?: boolean, count?: number) => void;
-};
-export default function ChannelsFollowingManage(props: Props) {
-  const { subscribedChannelUris, lastActiveSubs, doResolveUris, doFetchLastActiveSubs } = props;
+export default function ChannelsFollowingManage() {
+  const dispatch = useAppDispatch();
+  const subscribedChannelUris = useAppSelector(selectSubscriptionUris);
+  const lastActiveSubs = useAppSelector(selectLastActiveSubscriptions);
+
+  const doResolveUrisFn = React.useCallback(
+    (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => {
+      dispatch(doResolveUris(uris, returnCachedClaims, resolveReposts));
+    },
+    [dispatch]
+  );
   const { uris, page, isLoadingPage, bumpPage } = useClaimListInfiniteScroll(
     subscribedChannelUris,
-    doResolveUris,
+    doResolveUrisFn,
     FOLLOW_PAGE_SIZE
   );
   // Filtered query and their uris.
   const [filterQuery, setFilterQuery] = React.useState('');
   const [filteredUris, setFilteredUris] = React.useState(null);
 
-  async function resolveUris(uris) {
-    return doResolveUris(uris, true, false);
+  async function resolveUris(uris: Array<string>) {
+    return doResolveUrisFn(uris, true, false);
   }
 
   React.useEffect(() => {
@@ -57,7 +64,7 @@ export default function ChannelsFollowingManage(props: Props) {
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- Only need to respond to 'filterQuery'
   }, [filterQuery]);
   useComponentDidMount(() => {
-    doFetchLastActiveSubs(true);
+    dispatch(doFetchLastActiveSubs(true));
   });
   return (
     <Page noFooter>

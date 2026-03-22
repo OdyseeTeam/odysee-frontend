@@ -11,6 +11,30 @@ import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import { useIsShortsMobile } from 'effects/use-screensize';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
+import {
+  selectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectClaimIsMine,
+  selectScheduledStateForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectIsUriUnlisted,
+  selectPermanentUrlForUri,
+  selectChannelForClaimUri,
+  selectChannelTitleForUri,
+} from 'redux/selectors/claims';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
+import {
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+} from 'constants/tags';
+import { doOpenModal } from 'redux/actions/app';
+
 type Props = {
   hasPlaylist: boolean;
   onNext: () => void;
@@ -21,47 +45,15 @@ type Props = {
   autoPlayNextShort: boolean;
   doToggleShortsAutoplay: () => void;
   uri: string;
-  // redux
-  claimId?: string;
-  likeCount: number;
-  dislikeCount: number;
-  myReaction: string | null | undefined;
-  isLivestreamClaim?: boolean;
-  scheduledState: ClaimScheduledState;
-  disableSlimes: boolean;
-  disableReactions: boolean;
-  doFetchReactions: (claimId: string | null | undefined) => void;
-  doReactionLike: (uri: string) => void;
-  doReactionDislike: (uri: string) => void;
   onCommentsClick: () => void;
-  webShareable: boolean;
   collectionId?: string;
-  isUnlisted: boolean | null | undefined;
   handleShareClick: () => void;
   onInfoClick: () => void;
-  channelUrl: string | null | undefined;
-  channelTitle: string | null | undefined;
-  isSubscribed: boolean;
-  channelPermanentUrl: string | null | undefined;
-  doChannelSubscribe: (sub: {}) => void;
-  doChannelUnsubscribe: (sub: {}) => void;
-  doOpenModal: (id: string, arg1: {}) => void;
 };
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 const ShortsActions = React.memo<Props>(
   ({
     uri,
-    claimId,
-    myReaction,
-    likeCount,
-    dislikeCount,
-    isLivestreamClaim,
-    scheduledState,
-    disableSlimes,
-    disableReactions,
-    doFetchReactions,
-    doReactionLike,
-    doReactionDislike,
     hasPlaylist,
     onNext,
     onPrevious,
@@ -71,17 +63,40 @@ const ShortsActions = React.memo<Props>(
     autoPlayNextShort,
     onCommentsClick,
     doToggleShortsAutoplay,
-    isUnlisted,
     handleShareClick,
     onInfoClick,
-    channelUrl,
-    channelTitle,
-    isSubscribed,
-    channelPermanentUrl,
-    doChannelSubscribe,
-    doChannelUnsubscribe,
-    doOpenModal,
   }: Props) => {
+    const dispatch = useAppDispatch();
+
+    const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+    const claimId = claim?.claim_id;
+    const channelUrl = uri ? useAppSelector((state) => selectChannelForClaimUri(state, uri, true)) : undefined;
+
+    const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
+    const likeCount = useAppSelector((state) => selectLikeCountForUri(state, uri));
+    const dislikeCount = useAppSelector((state) => selectDislikeCountForUri(state, uri));
+    const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+    const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
+    const disableSlimes = useAppSelector(
+      (state) =>
+        makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+        makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state)
+    );
+    const disableReactions = useAppSelector(
+      (state) =>
+        makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+        makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
+    );
+    const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
+    const isSubscribed = useAppSelector((state) => (channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false));
+    const channelPermanentUrl = useAppSelector((state) =>
+      channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined
+    );
+    const channelTitle = useAppSelector((state) =>
+      channelUrl ? selectChannelTitleForUri(state, channelUrl) : undefined
+    );
+
     const [avatarHover, setAvatarHover] = React.useState(false);
     const followRef = React.useRef(null);
     const [countersZeroed, setCountersZeroed] = React.useState(false);
@@ -120,7 +135,7 @@ const ShortsActions = React.memo<Props>(
     }, [claimId]);
     React.useEffect(() => {
       function fetchReactions() {
-        doFetchReactions(claimId);
+        dispatch(doFetchReactions(claimId));
       }
 
       let fetchInterval;
@@ -138,7 +153,7 @@ const ShortsActions = React.memo<Props>(
           clearInterval(fetchInterval);
         }
       };
-    }, [claimId, doFetchReactions, isLivestreamClaim]);
+    }, [claimId, dispatch, isLivestreamClaim]);
     const isMobile = useIsShortsMobile();
     const content = (
       <div
@@ -213,7 +228,7 @@ const ShortsActions = React.memo<Props>(
                     });
                   }
 
-                  doReactionLike(uri);
+                  dispatch(doReactionLike(uri));
                 }}
                 icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
                 iconSize={16}
@@ -292,7 +307,7 @@ const ShortsActions = React.memo<Props>(
                     });
                   }
 
-                  doReactionDislike(uri);
+                  dispatch(doReactionDislike(uri));
                 }}
               />
               {countersZeroed ? (
@@ -344,18 +359,20 @@ const ShortsActions = React.memo<Props>(
                 }
 
                 if (isSubscribed) {
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Unfollow %channel%?', {
-                      channel: channelTitle || sub.channelName,
-                    }),
-                    onConfirm: (closeModal) => {
-                      doChannelUnsubscribe(sub);
-                      closeModal();
-                    },
-                    labelOk: __('Unfollow'),
-                  });
+                  dispatch(
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Unfollow %channel%?', {
+                        channel: channelTitle || sub.channelName,
+                      }),
+                      onConfirm: (closeModal) => {
+                        dispatch(doChannelUnsubscribe(sub));
+                        closeModal();
+                      },
+                      labelOk: __('Unfollow'),
+                    })
+                  );
                 } else {
-                  doChannelSubscribe(sub);
+                  dispatch(doChannelSubscribe(sub));
                 }
               }}
             >
@@ -411,9 +428,11 @@ const ShortsActions = React.memo<Props>(
                 <Button
                   className="shorts-page__actions-button"
                   onClick={() =>
-                    doOpenModal(MODALS.REPOST, {
-                      uri,
-                    })
+                    dispatch(
+                      doOpenModal(MODALS.REPOST, {
+                        uri,
+                      })
+                    )
                   }
                   icon={ICONS.REPOST}
                   iconSize={16}

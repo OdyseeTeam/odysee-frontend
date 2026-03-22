@@ -5,14 +5,20 @@ import Card from 'component/common/card';
 import { FormField } from 'component/common/form-components/form-field';
 import FormFieldDuration from 'component/formFieldDuration';
 import { Modal } from 'modal/modal';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+
 const CHANNEL_AGE_LIMIT_MIN_DATE = new Date('February 8, 2022 00:00:00');
 const LIMITATION_WARNING = 'The minimum duration must not exceed Feb 8th, 2022.';
+
 type Props = {
   onConfirm: (limitInMinutes: number, closeModal: () => void) => void;
-  doHideModal: () => void;
 };
+
 export default function ModalMinChannelAge(props: Props) {
-  const { onConfirm, doHideModal } = props;
+  const { onConfirm } = props;
+  const dispatch = useAppDispatch();
+  const hideModal = React.useCallback(() => dispatch(doHideModal()), [dispatch]);
   const [showLimitationWarning, setShowLimitationWarning] = React.useState('');
   const [limitDisabled, setLimitDisabled] = React.useState(false);
   const [minChannelAgeInput, setMinChannelAgeInput] = React.useState('');
@@ -21,7 +27,7 @@ export default function ModalMinChannelAge(props: Props) {
 
   function handleOnClick() {
     if (onConfirm) {
-      onConfirm(limitDisabled ? 0 : minChannelAgeMinutes, doHideModal);
+      onConfirm(limitDisabled ? 0 : minChannelAgeMinutes, hideModal);
     }
   }
 
@@ -37,7 +43,7 @@ export default function ModalMinChannelAge(props: Props) {
   }
 
   return (
-    <Modal isOpen type="card" onAborted={doHideModal}>
+    <Modal isOpen type="card" onAborted={hideModal}>
       <Card
         title={__('Set minimum channel age')}
         body={
@@ -62,7 +68,7 @@ export default function ModalMinChannelAge(props: Props) {
         actions={
           <div className="section__actions">
             <Button button="primary" label={__('OK')} onClick={handleOnClick} disabled={!inputOk} />
-            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+            <Button button="link" label={__('Cancel')} onClick={hideModal} />
           </div>
         }
       />

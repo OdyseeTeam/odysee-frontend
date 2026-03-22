@@ -4,45 +4,52 @@ import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectHasClaimForId,
+  selectClaimIsPendingForId,
+  selectClaimForId,
+  selectGeoRestrictionForUri,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionForId,
+  selectBrokenUrlsForCollectionId,
+  selectCollectionIsMine,
+  selectHasPrivateCollectionForId,
+  selectIsCollectionPrivateForId,
+} from 'redux/selectors/collections';
+import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
+import {
+  doCollectionEdit as doCollectionEditAction,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId as doRemoveUnsavedAction,
+} from 'redux/actions/collections';
 import '../playlists/style.scss';
+
 type Props = {
-  // -- path match --
-  collectionId: string;
-  // -- redux --
-  hasClaim: boolean | null | undefined;
-  geoRestriction: GeoRestriction | null | undefined;
-  collection: Collection;
-  brokenUrls: Array<any> | null | undefined;
-  isCollectionMine: boolean;
-  isPrivate: boolean;
-  hasPrivate: boolean;
-  doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void;
-  doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void;
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void;
+  collectionId?: string;
 };
 export const CollectionPageContext = React.createContext<any>({});
 
 const CollectionPage = (props: Props) => {
-  const {
-    collectionId,
-    hasClaim,
-    geoRestriction,
-    collection,
-    brokenUrls,
-    isCollectionMine,
-    isPrivate,
-    hasPrivate,
-    doResolveClaimId,
-    doCollectionEdit,
-    doRemoveFromUnsavedChangesCollectionsForCollectionId,
-  } = props;
+  const dispatch = useAppDispatch();
+  const { collectionId: routeCollectionId = '' } = useParams();
+  const collectionId = props.collectionId || routeCollectionId;
+  const claim = useAppSelector((state) => selectClaimForId(state, collectionId));
+  const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, claim?.permanent_url));
+  const hasClaim = useAppSelector((state) => selectHasClaimForId(state, collectionId));
+  const collection = useAppSelector((state) => selectCollectionForId(state, collectionId));
+  const brokenUrls = useAppSelector((state) => selectBrokenUrlsForCollectionId(state, collectionId));
+  const isCollectionMine = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const hasPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));
+  const isPrivate = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
+  const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
@@ -69,24 +76,28 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
-    doCollectionEdit(collectionId, {
-      isPreview: false,
-    });
+    dispatch(
+      doCollectionEditAction(collectionId, {
+        isPreview: false,
+      })
+    );
     setShowEdit(false);
   }
 
   function clearChanges() {
-    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+    dispatch(doRemoveUnsavedAction(collectionId));
     setShowEdit(false);
   }
 
   React.useEffect(() => {
     if (!isPrivate) {
-      doResolveClaimId(collectionId, true, {
-        include_is_my_output: true,
-      });
+      dispatch(
+        doResolveClaimIdAction(collectionId, true, {
+          include_is_my_output: true,
+        })
+      );
     }
-  }, [collectionId, doResolveClaimId, isPrivate]);
+  }, [collectionId, dispatch, isPrivate]);
 
   if (geoRestriction) {
     return (

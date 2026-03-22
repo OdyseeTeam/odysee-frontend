@@ -1,42 +1,64 @@
 /* eslint-disable no-undef */
 
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import { selectUserEmail } from 'redux/selectors/user';
+
 let scriptLoading = false;
 let scriptLoaded = false;
-let scriptDidError = false; // Flow does not like the way this stripe plugin works
-// Disabled because it was a huge pain
-// type Props = {
-//   disabled: boolean,
-//   label: ?string,
-//   email: string,
-//   // =====================================================
-//   // Required by stripe
-//   // see Stripe docs for more info:
-//   //   https://stripe.com/docs/checkout#integration-custom
-//   // =====================================================
-//   // Your publishable key (test or live).
-//   // can't use "key" as a prop in react, so have to change the keyname
-//   stripeKey: string,
-//   // The callback to invoke when the Checkout process is complete.
-//   //   function(token)
-//   //     token is the token object created.
-//   //     token.id can be used to create a charge or customer.
-//   //     token.email contains the email address entered by the user.
-//   token: string,
-// };
+let scriptDidError = false;
+let stripeHandler: any = null;
 
-class CardVerify extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-      scriptFailedToLoad: false,
-    };
-  }
+type Props = {
+  disabled?: boolean;
+  label?: string;
+  stripeKey: string;
+  token: string;
+};
 
-  componentDidMount() {
+function CardVerify(props: Props) {
+  const { disabled, label, stripeKey, token } = props;
+
+  const email = useAppSelector(selectUserEmail);
+
+  const [open, setOpen] = useState(false);
+  const [scriptFailedToLoad, setScriptFailedToLoad] = useState(false);
+  const hasPendingClick = useRef(false);
+  const loadPromiseRef = useRef<{ promise: Promise<void>; reject: () => void } | null>(null);
+
+  const showStripeDialog = useCallback(() => {
+    setOpen(true);
+    stripeHandler.open({
+      allowRememberMe: false,
+      closed: () => setOpen(false),
+      description: __('Confirm Identity'),
+      email,
+      locale: 'auto',
+      panelLabel: 'Verify',
+      token,
+      zipCode: true,
+    });
+  }, [email, token]);
+
+  const onScriptLoaded = useCallback(() => {
+    if (!stripeHandler) {
+      stripeHandler = StripeCheckout.configure({
+        key: stripeKey,
+      });
+
+      if (hasPendingClick.current) {
+        showStripeDialog();
+      }
+    }
+  }, [stripeKey, showStripeDialog]);
+
+  const onScriptError = useCallback(() => {
+    setScriptFailedToLoad(true);
+  }, []);
+
+  useEffect(() => {
     if (scriptLoaded) {
       return;
     }
@@ -50,24 +72,22 @@ class CardVerify extends React.Component {
     script.src = 'https://checkout.stripe.com/checkout.js';
     script.async = true;
 
-    this.loadPromise = (() => {
+    const loadPromise = (() => {
       let canceled = false;
-      const promise = new Promise((resolve, reject) => {
+      const promise = new Promise<void>((resolve, reject) => {
         script.addEventListener('load', () => {
           scriptLoaded = true;
           scriptLoading = false;
           resolve();
-          this.onScriptLoaded();
         });
 
         script.addEventListener('error', (event) => {
           scriptDidError = true;
           scriptLoading = false;
           reject(event);
-          this.onScriptError(event);
         });
       });
-      const wrappedPromise = new Promise((resolve, reject) => {
+      const wrappedPromise = new Promise<void>((resolve, reject) => {
         promise.then(() =>
           canceled
             ? reject({
@@ -85,108 +105,66 @@ class CardVerify extends React.Component {
       });
       return {
         promise: wrappedPromise,
-
         reject() {
           canceled = true;
         },
       };
     })();
 
-    this.loadPromise.promise.then(this.onScriptLoaded).catch(this.onScriptError);
+    loadPromiseRef.current = loadPromise;
+    loadPromise.promise.then(onScriptLoaded).catch(onScriptError);
     document.body.appendChild(script);
-  }
 
-  componentDidUpdate() {
-    if (!scriptLoading) {
-      this.updateStripeHandler();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.loadPromise) {
-      this.loadPromise.reject();
-    }
-
-    if (CardVerify.stripeHandler && this.state.open) {
-      CardVerify.stripeHandler.close();
-    }
-  }
-
-  onScriptLoaded = () => {
-    if (!CardVerify.stripeHandler) {
-      CardVerify.stripeHandler = StripeCheckout.configure({
-        key: this.props.stripeKey,
-      });
-
-      if (this.hasPendingClick) {
-        this.showStripeDialog();
+    return () => {
+      if (loadPromiseRef.current) {
+        loadPromiseRef.current.reject();
       }
-    }
-  };
-  onScriptError = (...args) => {
-    this.setState({
-      scriptFailedToLoad: true,
-    });
-  };
-  onClosed = () => {
-    this.setState({
-      open: false,
-    });
-  };
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run on mount
+  }, []);
 
-  updateStripeHandler() {
-    if (!CardVerify.stripeHandler) {
-      CardVerify.stripeHandler = StripeCheckout.configure({
-        key: this.props.stripeKey,
+  useEffect(() => {
+    if (!scriptLoading && !stripeHandler) {
+      stripeHandler = StripeCheckout.configure({
+        key: stripeKey,
       });
     }
-  }
+  });
 
-  showStripeDialog() {
-    this.setState({
-      open: true,
-    });
-    CardVerify.stripeHandler.open({
-      allowRememberMe: false,
-      closed: this.onClosed,
-      description: __('Confirm Identity'),
-      email: this.props.email,
-      locale: 'auto',
-      panelLabel: 'Verify',
-      token: this.props.token,
-      zipCode: true,
-    });
-  }
+  useEffect(() => {
+    return () => {
+      if (stripeHandler && open) {
+        stripeHandler.close();
+      }
+    };
+  }, [open]);
 
-  onClick = () => {
+  const handleClick = () => {
     if (scriptDidError) {
       try {
         throw new Error('Tried to call onClick, but StripeCheckout failed to load');
       } catch (x) {}
-    } else if (CardVerify.stripeHandler) {
-      this.showStripeDialog();
+    } else if (stripeHandler) {
+      showStripeDialog();
     } else {
-      this.hasPendingClick = true;
+      hasPendingClick.current = true;
     }
   };
 
-  render() {
-    const { scriptFailedToLoad } = this.props;
-    return (
-      <div>
-        {scriptFailedToLoad && (
-          <div className="error__text">There was an error connecting to Stripe. Please try again later.</div>
-        )}
+  return (
+    <div>
+      {scriptFailedToLoad && (
+        <div className="error__text">There was an error connecting to Stripe. Please try again later.</div>
+      )}
 
-        <Button
-          button="primary"
-          label={this.props.label}
-          disabled={this.props.disabled || this.state.open || this.hasPendingClick}
-          onClick={this.onClick.bind(this)}
-        />
-      </div>
-    );
-  }
+      <Button
+        button="primary"
+        label={label}
+        disabled={disabled || open || hasPendingClick.current}
+        onClick={handleClick}
+      />
+    </div>
+  );
 }
 
 export default CardVerify;

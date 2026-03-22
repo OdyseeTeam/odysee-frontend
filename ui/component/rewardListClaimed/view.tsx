@@ -3,6 +3,8 @@ import ButtonTransaction from 'component/common/transaction-link';
 import moment from 'moment';
 import LbcSymbol from 'component/common/lbc-symbol';
 import Card from 'component/common/card';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimedRewards } from 'redux/selectors/rewards';
 type Reward = {
   id: string;
   reward_title: string;
@@ -10,12 +12,10 @@ type Reward = {
   transaction_id: string;
   created_at: string;
 };
-type Props = {
-  rewards: Array<Reward>;
-};
+type Props = Record<string, never>;
 
 const RewardListClaimed = (props: Props) => {
-  const { rewards } = props;
+  const rewards: Array<Reward> = useAppSelector(selectClaimedRewards);
 
   if (!rewards || !rewards.length) {
     return null;

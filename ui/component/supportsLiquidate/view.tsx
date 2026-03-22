@@ -6,21 +6,39 @@ import { Form, FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import ErrorText from 'component/common/error-text';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectBalance,
+  selectTotalBalance,
+  selectClaimsBalance,
+  selectSupportsBalance,
+  selectTipsBalance,
+  selectAbandonClaimSupportError,
+} from 'redux/selectors/wallet';
+import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { doSupportAbandonForClaim } from 'redux/actions/wallet';
+
 type Props = {
-  balance: number;
-  totalBalance: number;
-  claimsBalance: number;
-  supportsBalance: number;
-  tipsBalance: number;
-  claim: any;
+  uri: string;
   handleClose: () => void;
-  abandonSupportForClaim: (arg0: string, arg1: string, arg2: boolean | string, arg3: boolean) => any;
-  abandonClaimError: string | null | undefined;
 };
 
 const SupportsLiquidate = (props: Props) => {
   const defaultAmountPercent = 25;
-  const { claim, abandonSupportForClaim, handleClose, abandonClaimError } = props;
+  const { uri, handleClose } = props;
+
+  const dispatch = useAppDispatch();
+  const balance = useAppSelector(selectBalance);
+  const totalBalance = useAppSelector(selectTotalBalance);
+  const claimsBalance = useAppSelector(selectClaimsBalance) || undefined;
+  const supportsBalance = useAppSelector(selectSupportsBalance) || undefined;
+  const tipsBalance = useAppSelector(selectTipsBalance) || undefined;
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const abandonClaimError = useAppSelector(selectAbandonClaimSupportError);
+
+  const abandonSupportForClaim = (claimId: string, type: string, keep: boolean | string, preview: boolean) =>
+    dispatch(doSupportAbandonForClaim(claimId, type, keep, preview));
+
   const [previewBalance, setPreviewBalance] = useState(undefined);
   const [amount, setAmount] = useState(-1);
   const [sliderPosition, setSliderPosition] = useState(defaultAmountPercent);
@@ -42,7 +60,7 @@ const SupportsLiquidate = (props: Props) => {
         setPreviewBalance(r.total_input);
       });
     }
-  }, [abandonSupportForClaim, claimId, type, setPreviewBalance]);
+  }, [claimId, type, setPreviewBalance]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSubmit() {
     abandonSupportForClaim(claimId, type, keep, false).then((r) => {

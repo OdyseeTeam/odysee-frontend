@@ -8,21 +8,21 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 import { cloneDeep } from 'util/clone';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelId } from 'redux/selectors/app';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectSettingsByChannelId } from 'redux/selectors/comments';
+import { doFetchCreatorSettings, doUpdateCreatorSettings } from 'redux/actions/comments';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { doToast } from 'redux/actions/notifications';
+import { doHideModal } from 'redux/actions/app';
 import './style.scss';
+
 type TemplateEntry = UploadTemplate & {
   channelId: string;
   channelName: string;
 };
-type Props = {
-  defaultChannelId: string | null | undefined;
-  myChannelClaims: Array<ChannelClaim>;
-  settingsByChannelId: Record<string, PerChannelSettings | null | undefined>;
-  fetchCreatorSettings: (arg0: string) => Promise<any> | any;
-  updatePublishForm: (arg0: any) => void;
-  doUpdateCreatorSettings: (arg0: ChannelClaim, arg1: any) => void;
-  doToast: (arg0: { message: string; isError?: boolean }) => void;
-  doHideModal: () => void;
-};
+
 const TEMPLATE_SEARCH_THRESHOLD = 6;
 
 function makeDuplicateTemplateName(name: string, existingTemplates: Array<UploadTemplate>): string {
@@ -221,17 +221,18 @@ function getTemplateSearchText(template: TemplateEntry): string {
   return `${template.name || ''} ${template.channelName || ''} ${previewFieldValues}`.toLowerCase();
 }
 
-export default function ModalUploadTemplates(props: Props) {
-  const {
-    defaultChannelId,
-    myChannelClaims,
-    settingsByChannelId,
-    fetchCreatorSettings,
-    updatePublishForm,
-    doUpdateCreatorSettings,
-    doToast,
-    doHideModal,
-  } = props;
+export default function ModalUploadTemplates() {
+  const dispatch = useAppDispatch();
+  const defaultChannelId = useAppSelector(selectActiveChannelId) || '';
+  const myChannelClaims = useAppSelector(selectMyChannelClaims) || [];
+  const settingsByChannelId = useAppSelector(selectSettingsByChannelId) || {};
+
+  const fetchCreatorSettings = React.useCallback(
+    (channelId: string) => dispatch(doFetchCreatorSettings(channelId)),
+    [dispatch]
+  );
+  const updatePublishForm = React.useCallback((values: any) => dispatch(doUpdatePublishForm(values)), [dispatch]);
+
   const [requestedSettingsByChannelId, setRequestedSettingsByChannelId] = React.useState<Record<string, boolean>>({});
   const [editingTemplateKey, setEditingTemplateKey] = React.useState<string | null | undefined>(null);
   const [editName, setEditName] = React.useState('');
@@ -419,15 +420,17 @@ export default function ModalUploadTemplates(props: Props) {
           : existingTemplate
       )
     );
-    doToast({
-      message: template.isPinned
-        ? __('Template "%name%" unpinned', {
-            name: template.name,
-          })
-        : __('Template "%name%" pinned', {
-            name: template.name,
-          }),
-    });
+    dispatch(
+      doToast({
+        message: template.isPinned
+          ? __('Template "%name%" unpinned', {
+              name: template.name,
+            })
+          : __('Template "%name%" pinned', {
+              name: template.name,
+            }),
+      })
+    );
   }
 
   function handleDuplicate(template: TemplateEntry) {
@@ -443,11 +446,13 @@ export default function ModalUploadTemplates(props: Props) {
       data: cloneDeep(template.data || {}),
     };
     updateTemplatesForChannel(template.channelId, (existingTemplates) => [duplicateTemplate, ...existingTemplates]);
-    doToast({
-      message: __('Template "%name%" duplicated', {
-        name: createdName,
-      }),
-    });
+    dispatch(
+      doToast({
+        message: __('Template "%name%" duplicated', {
+          name: createdName,
+        }),
+      })
+    );
   }
 
   function handleConfirmRename(template: TemplateEntry) {
@@ -459,12 +464,14 @@ export default function ModalUploadTemplates(props: Props) {
     );
 
     if (duplicateTemplate) {
-      doToast({
-        message: __('A template named "%name%" already exists in this channel.', {
-          name: normalizedName,
-        }),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('A template named "%name%" already exists in this channel.', {
+            name: normalizedName,
+          }),
+          isError: true,
+        })
+      );
       return;
     }
 
@@ -478,24 +485,28 @@ export default function ModalUploadTemplates(props: Props) {
 
   function handlePrefillNow(template: TemplateEntry) {
     if (!template.data || Object.keys(template.data).length === 0) {
-      doToast({
-        message: __('This template has no prefill data.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('This template has no prefill data.'),
+          isError: true,
+        })
+      );
       return;
     }
 
     updatePublishForm({ ...template.data });
-    doToast({
-      message: __('Template "%name%" prefilled', {
-        name: template.name,
-      }),
-    });
+    dispatch(
+      doToast({
+        message: __('Template "%name%" prefilled', {
+          name: template.name,
+        }),
+      })
+    );
   }
 
   function handleSave() {
     if (!hasChanges) {
-      doHideModal();
+      dispatch(doHideModal());
       return;
     }
 
@@ -504,36 +515,44 @@ export default function ModalUploadTemplates(props: Props) {
       const channelClaim = channelClaimById[channelId];
       if (!channelClaim) return;
       savedChannelCount += 1;
-      doUpdateCreatorSettings(channelClaim, {
-        upload_templates: templatesByChannelId[channelId] || [],
-      });
+      dispatch(
+        doUpdateCreatorSettings(channelClaim, {
+          upload_templates: templatesByChannelId[channelId] || [],
+        })
+      );
     });
 
     if (savedChannelCount === 0) {
-      doToast({
-        message: __('Unable to save template changes.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('Unable to save template changes.'),
+          isError: true,
+        })
+      );
       return;
     }
 
     if (savedChannelCount === 1) {
-      doToast({
-        message: __('Upload templates updated'),
-      });
+      dispatch(
+        doToast({
+          message: __('Upload templates updated'),
+        })
+      );
     } else {
-      doToast({
-        message: __('Upload templates updated for %count% channels', {
-          count: savedChannelCount,
-        }),
-      });
+      dispatch(
+        doToast({
+          message: __('Upload templates updated for %count% channels', {
+            count: savedChannelCount,
+          }),
+        })
+      );
     }
 
-    doHideModal();
+    dispatch(doHideModal());
   }
 
   return (
-    <Modal isOpen type="custom" width="wide" onAborted={doHideModal}>
+    <Modal isOpen type="custom" width="wide" onAborted={() => dispatch(doHideModal())}>
       <Card
         title={__('Manage Upload Templates')}
         subtitle={__('Preview what each template fills, prefill instantly, or rename and delete templates.')}
@@ -762,7 +781,7 @@ export default function ModalUploadTemplates(props: Props) {
         actions={
           <div className="section__actions">
             <Button button="primary" label={__('Save Changes')} onClick={handleSave} disabled={!hasChanges} />
-            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+            <Button button="link" label={__('Cancel')} onClick={() => dispatch(doHideModal())} />
           </div>
         }
       />

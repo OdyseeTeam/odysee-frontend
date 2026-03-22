@@ -3,29 +3,30 @@ import * as SETTINGS from 'constants/settings';
 import Button from 'component/button';
 import { FormField } from 'component/common/form-components/form-field';
 import { Modal } from 'modal/modal';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSettings } from 'redux/selectors/settings';
+import { doHideModal } from 'redux/actions/app';
+import { doSetClientSetting } from 'redux/actions/settings';
 import './style.scss';
-type Props = {
-  clientSettings: any;
-  doHideModal: () => void;
-  doSetClientSetting: (arg0: string, arg1: boolean, arg2: boolean | null | undefined) => void;
-};
-export default function ModalCryptoDisclaimers(props: Props) {
-  const { clientSettings, doHideModal, doSetClientSetting } = props;
+
+export default function ModalCryptoDisclaimers() {
+  const dispatch = useAppDispatch();
+  const clientSettings = useAppSelector(selectClientSettings);
   const showDisclaimersLS = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
   const [showDisclaimers, setShowDisclaimers] = React.useState(showDisclaimersLS);
 
   const handleShowDisclaimers = () => {
-    doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers, true);
+    dispatch(doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers, true));
     setShowDisclaimers(!showDisclaimers);
   };
 
   const handleSignIn = () => {
     window.wanderInstance.open();
-    doHideModal();
+    dispatch(doHideModal());
   };
 
   return (
-    <Modal className="cryptoDisclaimersModal" type="card" isOpen onAborted={doHideModal}>
+    <Modal className="cryptoDisclaimersModal" type="card" isOpen onAborted={() => dispatch(doHideModal())}>
       <h2>Disclaimers & Important Information</h2>
       <ul>
         <li>
@@ -92,7 +93,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
       <FormField
         type="checkbox"
         name="show_crypto_disclaimers"
-        label={__('Don’t show me this message again')}
+        label={__("Don't show me this message again")}
         checked={!showDisclaimers}
         onChange={handleShowDisclaimers}
       />

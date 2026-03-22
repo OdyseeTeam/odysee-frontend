@@ -3,14 +3,16 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
+import { useAppSelector } from 'redux/hooks';
+import { selectUnclaimedRewardValue } from 'redux/selectors/rewards';
 type Props = {
-  balance: number;
-  totalRewardValue: number;
+  balance?: number;
   title?: string;
 };
 
 function RewardAuthIntro(props: Props) {
   const { title } = props;
+  const totalRewardValue = useAppSelector(selectUnclaimedRewardValue);
   return (
     <Card
       title={

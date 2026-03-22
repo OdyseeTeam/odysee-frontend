@@ -6,17 +6,17 @@ import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import './style.lazy.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting as doSetClientSettingAction } from 'redux/actions/settings';
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
 type Props = {
   homepageData: any;
-  homepageOrder: HomepageOrder;
-  authenticated: boolean;
-  activePortal: number;
-  // --- perform ---
-  doSetClientSetting: (key: string, value: any, push: boolean) => void;
+  authenticated?: boolean;
+  activePortal?: number;
 };
 function getInitialList(listId, savedOrder, homepageSections) {
   const savedActiveOrder = savedOrder.active || [];
@@ -44,7 +44,11 @@ function getInitialList(listId, savedOrder, homepageSections) {
 }
 
 export default function Portals(props: Props) {
-  const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
+  const { homepageData, authenticated, activePortal } = props;
+  const dispatch = useAppDispatch();
+  const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER));
+  const doSetClientSetting = (key: string, value: any, push: boolean) =>
+    dispatch(doSetClientSettingAction(key, value, push));
   const { portals, categories } = homepageData;
   const mainPortal = portals?.mainPortal;
   const mainPortals = mainPortal?.portals || [];

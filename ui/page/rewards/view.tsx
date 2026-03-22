@@ -1,5 +1,5 @@
 import * as PAGES from 'constants/pages';
-import React, { PureComponent } from 'react';
+import React, { useEffect } from 'react';
 import BusyIndicator from 'component/common/busy-indicator';
 import RewardListClaimed from 'component/rewardListClaimed';
 import RewardTile from 'component/rewardTile';
@@ -11,40 +11,30 @@ import RewardAuthIntro from 'component/rewardAuthIntro';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { SITE_HELP_EMAIL, SITE_NAME } from 'config';
-type Props = {
-  doAuth: () => void;
-  fetchRewards: () => void;
-  fetchUser: () => void;
-  fetching: boolean;
-  rewards: Array<Reward>;
-  claimed: Array<Reward>;
-  user:
-    | {
-        is_identity_verified: boolean;
-        is_reward_approved: boolean;
-        primary_email: string;
-        has_verified_email: boolean;
-      }
-    | null
-    | undefined;
-  daemonSettings: {
-    share_usage_data: boolean;
-  };
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUser } from 'redux/selectors/user';
+import { selectFetchingRewards, selectUnclaimedRewards, selectClaimedRewards } from 'redux/selectors/rewards';
+import { doUserFetch } from 'redux/actions/user';
+import { doRewardList } from 'redux/actions/rewards';
+import { selectDaemonSettings } from 'redux/selectors/settings';
 
-class RewardsPage extends PureComponent<Props> {
-  componentDidMount() {
-    const { user, fetchUser, fetchRewards } = this.props;
+function RewardsPage() {
+  const dispatch = useAppDispatch();
+  const daemonSettings = useAppSelector(selectDaemonSettings);
+  const fetching = useAppSelector(selectFetchingRewards);
+  const rewards = useAppSelector(selectUnclaimedRewards);
+  const claimed = useAppSelector(selectClaimedRewards);
+  const user = useAppSelector(selectUser);
+
+  useEffect(() => {
     const rewardsApproved = user && user.is_reward_approved;
-    fetchRewards();
-
+    dispatch(doRewardList());
     if (!rewardsApproved) {
-      fetchUser();
+      dispatch(doUserFetch());
     }
-  }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  renderPageHeader() {
-    const { user, daemonSettings, fetchUser } = this.props;
+  function renderPageHeader() {
     const rewardsEnabled = IS_WEB || (daemonSettings && daemonSettings.share_usage_data);
 
     if (user && !user.is_reward_approved && rewardsEnabled) {
@@ -91,7 +81,7 @@ class RewardsPage extends PureComponent<Props> {
           actions={
             <div className="section__actions">
               <Button navigate="/" button="primary" label="Return Home" />
-              <Button onClick={() => fetchUser()} button="link" label="Refresh" />
+              <Button onClick={() => dispatch(doUserFetch())} button="link" label="Refresh" />
             </div>
           }
         />
@@ -101,8 +91,7 @@ class RewardsPage extends PureComponent<Props> {
     return null;
   }
 
-  renderCustomRewardCode() {
-    const { user } = this.props;
+  function renderCustomRewardCode() {
     const isNotEligible = !user || !user.primary_email || !user.has_verified_email || !user.is_reward_approved;
     return (
       <RewardTile
@@ -119,9 +108,7 @@ class RewardsPage extends PureComponent<Props> {
     );
   }
 
-  renderUnclaimedRewards() {
-    const { fetching, rewards, user, daemonSettings, claimed } = this.props;
-
+  function renderUnclaimedRewards() {
     if (!IS_WEB && daemonSettings && !daemonSettings.share_usage_data) {
       return (
         <section className="card card--section">
@@ -171,20 +158,18 @@ class RewardsPage extends PureComponent<Props> {
         {rewards.map((reward) => (
           <RewardTile disabled={isNotEligible} key={reward.claim_code} reward={reward} />
         ))}
-        {this.renderCustomRewardCode()}
+        {renderCustomRewardCode()}
       </div>
     );
   }
 
-  render() {
-    return (
-      <Page>
-        {this.renderPageHeader()}
-        <div className="section">{this.renderUnclaimedRewards()}</div>
-        <RewardListClaimed />
-      </Page>
-    );
-  }
+  return (
+    <Page>
+      {renderPageHeader()}
+      <div className="section">{renderUnclaimedRewards()}</div>
+      <RewardListClaimed />
+    </Page>
+  );
 }
 
 export default RewardsPage;

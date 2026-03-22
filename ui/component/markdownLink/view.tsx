@@ -8,6 +8,8 @@ import ChannelTitle from 'component/channelTitle';
 import ClaimLink from 'component/claimLink';
 import { Menu, MenuButton } from 'component/common/menu';
 import { useIsMobile } from 'effects/use-screensize';
+import { useAppSelector } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
 type Props = {
   href: string;
   title?: string;
@@ -16,7 +18,6 @@ type Props = {
   children: React.ReactNode;
   parentCommentId?: string;
   simpleLinks?: boolean;
-  activeChannelClaim: any;
   setUserMention?: (arg0: boolean) => void;
   isComment?: boolean;
 };
@@ -36,8 +37,8 @@ function MarkdownLink(props: Props) {
     simpleLinks = false,
     setUserMention,
     isComment,
-    activeChannelClaim,
   } = props;
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const isMobile = useIsMobile();
   let decodedUri;
 

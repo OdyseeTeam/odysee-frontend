@@ -3,10 +3,12 @@ import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import React, { useRef } from 'react';
 import { generateEmbedUrlEncoded, generateEmbedIframeData } from 'util/web';
+import { useAppDispatch } from 'redux/hooks';
+import { doToast } from 'redux/actions/notifications';
+
 type Props = {
   copyable: string;
   snackMessage: string | null | undefined;
-  doToast: (arg0: { message: string }) => void;
   label?: string;
   claim: Claim;
   includeStartTime: boolean;
@@ -16,8 +18,9 @@ type Props = {
   uriAccessKey?: UriAccessKey;
 };
 export default function EmbedTextArea(props: Props) {
-  const { doToast, snackMessage, label, claim, includeStartTime, startTime, referralCode, newestType, uriAccessKey } =
-    props;
+  const { snackMessage, label, claim, includeStartTime, startTime, referralCode, newestType, uriAccessKey } = props;
+
+  const dispatch = useAppDispatch();
   const [embedAutoplay, setEmbedAutoplay] = React.useState(false);
   const isChannel = claim && claim.value_type === 'channel';
   const isCollection = claim && claim.value_type === 'collection';
@@ -40,9 +43,11 @@ export default function EmbedTextArea(props: Props) {
     if (topRef && topRef.input && topRef.input.current) {
       topRef.input.current.select();
       document.execCommand('copy');
-      doToast({
-        message: snackMessage || 'Embed link copied',
-      });
+      dispatch(
+        doToast({
+          message: snackMessage || 'Embed link copied',
+        })
+      );
     }
   }
 

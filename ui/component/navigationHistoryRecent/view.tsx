@@ -1,15 +1,15 @@
 import React from 'react';
 import Button from 'component/button';
 import NavigationHistoryItem from 'component/navigationHistoryItem';
+import { useAppSelector } from 'redux/hooks';
+import { selectRecentHistory } from 'redux/selectors/content';
 type HistoryItem = {
   uri: string;
   lastViewed: number;
 };
-type Props = {
-  history: Array<HistoryItem>;
-};
+type Props = Record<string, never>;
 export default function NavigationHistoryRecent(props: Props) {
-  const { history = [] } = props;
+  const history: Array<HistoryItem> = useAppSelector(selectRecentHistory) || [];
   return history.length ? (
     <div className="card item-list">
       {history.map(({ lastViewed, uri }) => (

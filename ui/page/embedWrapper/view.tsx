@@ -3,13 +3,21 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { lazyImport } from 'util/lazyImport';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import { EmbedContext } from 'contexts/embed';
 import Spinner from 'component/spinner';
 import { buildURI, normalizeURI, parseURI } from 'util/lbryURI';
 import { formatLbryUrlForWeb } from 'util/url';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from 'redux/selectors/claims';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
+import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
+import { doFetchItemsInCollection as doFetchItemsInCollectionAction } from 'redux/actions/collections';
+
 const ClaimPage = lazyImport(
   () =>
     import(
@@ -31,56 +39,82 @@ const EmbedClaimComponent = lazyImport(
       /* webpackChunkName: "embedClaimComponent" */
     )
 );
-// Keep uri derivation logic here and delegate full rendering to existing pages
-type Props = {
-  uri?: string;
-  collectionId?: string;
-  collectionFirstItemUri?: string;
-  isCollection?: boolean;
-  renderMode?: string;
-  doFetchItemsInCollection?: (arg0: { collectionId: string }) => void;
-};
 
-const EmbedWrapperPage = (props: Props) => {
+const EmbedWrapperPage = () => {
+  const dispatch = useAppDispatch();
   const [videoEnded, setVideoEnded] = React.useState(false);
-  const {
-    uri: incomingUri,
-    collectionId,
-    collectionFirstItemUri,
-    isCollection,
-    renderMode,
-    doFetchItemsInCollection,
-  } = props;
-  const { search, pathname } = useLocation();
+  const { search, pathname, hash: locationHash } = useLocation();
   const params = useParams();
-  const match = React.useMemo(() => ({ params }), [params]);
+  const { claimName = '', claimId: routeClaimId = '' } = params;
+  const match = React.useMemo(() => ({ params: { claimName, claimId: routeClaimId } }), [claimName, routeClaimId]);
+
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
   const latestContentPath = featureParam === PAGES.LATEST;
   const liveContentPath = featureParam === PAGES.LIVE_NOW;
-  // Detect if this is a playlist page URL
   const isPlaylistPath = pathname && pathname.includes('/playlist/');
-  // For live/latest content, use the URI from selector (which resolves to the actual stream)
-  // Otherwise, try to derive from match first
-  let uri;
 
+  // Build URI from route match
+  const matchedPath = buildMatchWithHash(match, locationHash);
+  const matchUri = getUriFromMatch(matchedPath);
+
+  // Resolve claim for the matched URI
+  const matchedClaim = useAppSelector((state) => (matchUri ? selectClaimForUri(state, matchUri) : undefined));
+  const canonicalUrl = matchedClaim?.canonical_url;
+  const matchedClaimId = matchedClaim?.claim_id;
+  const channelClaim = getChannelFromClaim(matchedClaim);
+  const channelClaimId = getChannelIdFromClaim(matchedClaim);
+
+  // Latest/live resolution
+  const latestContentClaim = useAppSelector((state) =>
+    featureParam === PAGES.LIVE_NOW
+      ? selectLatestLiveClaimForChannel(state, channelClaimId)
+      : selectLatestClaimForUri(state, canonicalUrl)
+  );
+  const latestClaimUrl = useAppSelector((state) =>
+    featureParam === PAGES.LIVE_NOW
+      ? selectLatestLiveUriForChannel(state, channelClaimId)
+      : latestContentClaim?.canonical_url || null
+  );
+
+  // Determine final URI
+  let uri: string;
   if (liveContentPath || latestContentPath) {
-    uri = incomingUri;
+    uri = latestClaimUrl || matchUri;
   } else {
-    const matchedPath = buildMatchWithHash(match, window?.location?.hash);
-    uri = getUriFromMatch(matchedPath);
-    if (!uri) uri = incomingUri;
+    uri = matchUri;
   }
 
+  // Detect playlist collection
+  let playlistCollectionId: string | null = null;
+  const playlistMatch = pathname && pathname.match(/\/\$\/(?:embed\/)?playlist\/([a-f0-9]{40})/i);
+  if (playlistMatch) {
+    playlistCollectionId = playlistMatch[1];
+  }
+
+  let detectedCollectionId = playlistCollectionId;
+  if (!detectedCollectionId && uri && typeof uri === 'string' && uri.toLowerCase().includes('/playlist')) {
+    const collectionIdMatch = uri.match(/[#:/]([0-9a-f]{40})/i);
+    if (collectionIdMatch) detectedCollectionId = collectionIdMatch[1];
+  }
+
+  const isCollection = (matchedClaim && matchedClaim.value_type === 'collection') || Boolean(detectedCollectionId);
+  const collectionId =
+    matchedClaim && matchedClaim.value_type === 'collection' ? matchedClaim.claim_id : detectedCollectionId;
+  const collectionFirstItemUri = useAppSelector((state) =>
+    collectionId ? selectFirstItemUrlForCollection(state, collectionId) : null
+  );
+
+  const renderMode = useAppSelector((state) => (uri ? makeSelectFileRenderModeForUri(uri)(state) : undefined));
+
   const embedLightBackground = urlParams.get('embedBackgroundLight');
+
   // Fetch collection items when we have a collectionId
   React.useEffect(() => {
-    if (collectionId && doFetchItemsInCollection) {
-      doFetchItemsInCollection({
-        collectionId,
-      });
+    if (collectionId) {
+      dispatch(doFetchItemsInCollectionAction({ collectionId }));
     }
-  }, [collectionId, doFetchItemsInCollection]);
+  }, [collectionId, dispatch]);
 
   // For playlist URLs in embed mode, redirect to first item with lid parameter
   if (isPlaylistPath && collectionId && collectionFirstItemUri) {
@@ -139,17 +173,9 @@ const EmbedWrapperPage = (props: Props) => {
   );
 };
 
-EmbedWrapperPage.propTypes = {
-  uri: PropTypes.string,
-  collectionId: PropTypes.string,
-  collectionFirstItemUri: PropTypes.string,
-  isCollection: PropTypes.bool,
-  renderMode: PropTypes.string,
-  doFetchItemsInCollection: PropTypes.func,
-};
 export default EmbedWrapperPage;
 
-function getUriFromMatch(match) {
+function getUriFromMatch(match: { params?: { claimName?: string; claimId?: string } }) {
   if (match) {
     const { claimName, claimId } = match.params || {};
 
@@ -182,8 +208,10 @@ function getUriFromMatch(match) {
   return '';
 }
 
-function buildMatchWithHash(match, hash) {
-  const matchedPath = Object.assign({}, match || {});
+function buildMatchWithHash(match: { params?: { claimName?: string; claimId?: string } }, hash: string | undefined) {
+  const matchedPath: { params: { claimName?: string; claimId?: string } } = {
+    params: { ...match?.params },
+  };
 
   // if a claim is using the hash canonical format ("lbry://@chanelName#channelClaimId/streamName#streamClaimId"
   // instead of "lbry://@chanelName:channelClaimId/streamName:streamClaimId")

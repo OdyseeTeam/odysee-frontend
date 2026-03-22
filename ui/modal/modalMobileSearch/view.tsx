@@ -1,15 +1,21 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import WunderbarSuggestions from 'component/wunderbarSuggestions';
+import { useAppDispatch } from 'redux/hooks';
+import { doHideModal } from 'redux/actions/app';
+
 type Props = {
-  closeModal: () => void;
   channelsOnly?: boolean;
   noTopSuggestion?: boolean;
   noBottomLinks?: boolean;
   customSelectAction?: (arg0: string) => void;
 };
+
 export default function ModalMobileSearch(props: Props) {
-  const { closeModal, channelsOnly, noTopSuggestion, noBottomLinks, customSelectAction } = props;
+  const { channelsOnly, noTopSuggestion, noBottomLinks, customSelectAction } = props;
+  const dispatch = useAppDispatch();
+  const closeModal = React.useCallback(() => dispatch(doHideModal()), [dispatch]);
+
   return (
     <Modal onAborted={closeModal} isOpen type="card">
       <WunderbarSuggestions

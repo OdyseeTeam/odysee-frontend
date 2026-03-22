@@ -19,39 +19,33 @@ import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectHasChannels, selectFetchingMyChannels } from 'redux/selectors/claims';
+import { doClearPublish } from 'redux/actions/publish';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { doFetchNoSourceClaimsForChannelId } from 'redux/actions/claims';
+import { selectUser } from 'redux/selectors/user';
+import {
+  makeSelectPendingLivestreamsForChannelId,
+  makeSelectLivestreamsForChannelId,
+} from 'redux/selectors/livestream';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectPublishFormValues } from 'redux/selectors/publish';
 import './style.scss';
-type Props = {
-  hasChannels: boolean;
-  fetchingChannels: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  pendingClaims: Array<Claim>;
-  doNewLivestream: (arg0: string) => void;
-  fetchNoSourceClaims: (arg0: string) => void;
-  clearPublish: () => void;
-  myLivestreamClaims: Array<StreamClaim>;
-  channelId: string | null | undefined;
-  channelName: string | null | undefined;
-  user: User | null | undefined;
-  balance: number;
-  editingURI: string | null | undefined;
-};
-export default function LivestreamSetupPage(props: Props) {
+
+export default function LivestreamSetupPage() {
   const LIVESTREAM_CLAIM_POLL_IN_MS = 60000;
-  const {
-    hasChannels,
-    fetchingChannels,
-    activeChannelClaim,
-    pendingClaims,
-    doNewLivestream,
-    fetchNoSourceClaims,
-    clearPublish,
-    myLivestreamClaims,
-    channelId,
-    channelName,
-    user,
-    balance,
-    editingURI,
-  } = props;
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const { claim_id: channelId, name: channelName } = activeChannelClaim || {};
+  const publishFormValues = useAppSelector(selectPublishFormValues);
+  const editingURI = publishFormValues?.editingURI;
+  const hasChannels = useAppSelector(selectHasChannels);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const myLivestreamClaims = useAppSelector((state) => makeSelectLivestreamsForChannelId(channelId)(state));
+  const pendingClaims = useAppSelector((state) => makeSelectPendingLivestreamsForChannelId(channelId)(state));
+  const user = useAppSelector(selectUser);
+  const balance = useAppSelector(selectBalance);
   const isMobile = useIsMobile();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -115,7 +109,7 @@ export default function LivestreamSetupPage(props: Props) {
 
   function createNewLivestream() {
     setTab('Publish');
-    doNewLivestream(`/$/${PAGES.UPLOAD}`);
+    dispatch(doClearPublish());
   }
 
   React.useEffect(() => {
@@ -141,8 +135,11 @@ export default function LivestreamSetupPage(props: Props) {
     if (!channelId) return;
 
     if (!checkClaimsInterval) {
-      fetchNoSourceClaims(channelId);
-      checkClaimsInterval = setInterval(() => fetchNoSourceClaims(channelId), LIVESTREAM_CLAIM_POLL_IN_MS);
+      dispatch(doFetchNoSourceClaimsForChannelId(channelId));
+      checkClaimsInterval = setInterval(
+        () => dispatch(doFetchNoSourceClaimsForChannelId(channelId)),
+        LIVESTREAM_CLAIM_POLL_IN_MS
+      );
     }
 
     return () => {
@@ -150,7 +147,7 @@ export default function LivestreamSetupPage(props: Props) {
         clearInterval(checkClaimsInterval);
       }
     };
-  }, [channelId, pendingLength, fetchNoSourceClaims]);
+  }, [channelId, pendingLength, dispatch]);
 
   const filterPending = (claims: Array<StreamClaim>) => {
     return claims.filter((claim) => {
@@ -232,7 +229,7 @@ export default function LivestreamSetupPage(props: Props) {
   };
 
   function resetForm() {
-    clearPublish();
+    dispatch(doClearPublish());
     setTab('Publish');
   }
 
@@ -350,7 +347,7 @@ export default function LivestreamSetupPage(props: Props) {
                                     check_again: (
                                       <Button
                                         button="link"
-                                        onClick={() => fetchNoSourceClaims(channelId)}
+                                        onClick={() => dispatch(doFetchNoSourceClaimsForChannelId(channelId))}
                                         label={__('Check again')}
                                       />
                                     ),
@@ -382,7 +379,7 @@ export default function LivestreamSetupPage(props: Props) {
                           <Button
                             button="alt"
                             onClick={() => {
-                              fetchNoSourceClaims(channelId);
+                              dispatch(doFetchNoSourceClaimsForChannelId(channelId));
                             }}
                             label={__('Check again...')}
                           />

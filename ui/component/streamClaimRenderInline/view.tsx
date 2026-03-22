@@ -4,8 +4,8 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as KEYCODES from 'constants/keycodes';
+import * as SETTINGS from 'constants/settings';
 import { webDownloadClaim } from 'util/downloadClaim';
-// import fs from 'fs';
 import analytics from 'analytics';
 import DocumentViewer from 'component/viewers/documentViewer';
 // @if TARGET='app'
@@ -36,80 +36,77 @@ const PdfViewer = lazyImport(
       /* webpackChunkName: "pdfViewer" */
     )
 );
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { makeSelectDownloadPathForUri, selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import {
+  makeSelectClaimForUri,
+  selectThumbnailForUri,
+  makeSelectContentTypeForUri,
+  makeSelectFileExtensionForUri,
+} from 'redux/selectors/claims';
+import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doAnalyticsViewForUri } from 'redux/actions/app';
+import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
+
 type Props = {
   uri: string;
-  streamingUrl: string;
   embedded?: boolean;
-  contentType: string;
-  claim: StreamClaim;
-  currentTheme: string;
-  downloadPath: string;
-  fileExtension: string;
-  autoplay: boolean;
-  renderMode: string;
-  thumbnail: string;
   className?: string;
-  doAnalyticsViewForUri: (arg0: string) => any;
-  claimRewards: () => void;
-};
-type State = {
-  prevUri?: string;
 };
 
-class StreamClaimRenderInline extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    (this as any).escapeListener = this.escapeListener.bind(this);
-    this.state = {
-      prevUri: undefined,
-    };
-  }
+function StreamClaimRenderInline(props: Props) {
+  const { uri, embedded, className } = props;
+  const dispatch = useAppDispatch();
 
-  componentDidMount() {
-    const { renderMode, embedded, doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
+  const autoplay = useAppSelector((state) => (embedded ? false : selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)));
+  const currentTheme = useAppSelector(selectTheme);
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const contentType = useAppSelector((state) => makeSelectContentTypeForUri(uri)(state));
+  const downloadPath = useAppSelector((state) => makeSelectDownloadPathForUri(uri)(state));
+  const fileExtension = useAppSelector((state) => makeSelectFileExtensionForUri(uri)(state));
+  const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+
+  const prevUriRef = React.useRef<string | undefined>(undefined);
+
+  React.useEffect(() => {
     analytics.event.playerLoaded(renderMode, embedded);
 
     if (uri && streamingUrl) {
-      this.setState({
-        prevUri: uri,
-      });
-      doAnalyticsViewForUri(uri).then(claimRewards);
+      prevUriRef.current = uri;
+      dispatch(doAnalyticsViewForUri(uri)).then(() => dispatch(doClaimEligiblePurchaseRewards()));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // @if TARGET='app'
-    window.addEventListener('keydown', this.escapeListener, true); // @endif
-  }
-
-  componentWillUnmount() {
-    // @if TARGET='app'
-    window.removeEventListener('keydown', this.escapeListener, true); // @endif
-  }
-
-  componentDidUpdate() {
-    const { doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
-
-    if (uri && streamingUrl && uri !== this.state.prevUri) {
-      this.setState({
-        prevUri: uri,
-      });
-      doAnalyticsViewForUri(uri).then(claimRewards);
+  React.useEffect(() => {
+    if (uri && streamingUrl && uri !== prevUriRef.current) {
+      prevUriRef.current = uri;
+      dispatch(doAnalyticsViewForUri(uri)).then(() => dispatch(doClaimEligiblePurchaseRewards()));
     }
-  }
+  }, [uri, streamingUrl, dispatch]);
 
-  escapeListener(e: React.KeyboardEvent<any>) {
-    if (e.keyCode === KEYCODES.ESCAPE) {
-      e.preventDefault();
-      this.exitFullscreen();
-      return false;
-    }
-  }
+  // @if TARGET='app'
+  React.useEffect(() => {
+    const escapeListener = (e: KeyboardEvent) => {
+      if (e.keyCode === KEYCODES.ESCAPE) {
+        e.preventDefault();
+        remote.getCurrentWindow().setFullScreen(false);
+        return false;
+      }
+    };
 
-  exitFullscreen() {
-    remote.getCurrentWindow().setFullScreen(false);
-  }
+    window.addEventListener('keydown', escapeListener, true);
+    return () => {
+      window.removeEventListener('keydown', escapeListener, true);
+    };
+  }, []);
+  // @endif
 
-  renderViewer() {
-    const { currentTheme, contentType, downloadPath, streamingUrl, uri, renderMode, thumbnail } = this.props;
+  function renderViewer() {
     const source = streamingUrl;
 
     switch (renderMode) {
@@ -240,19 +237,16 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
     return null;
   }
 
-  render() {
-    const { embedded, renderMode, className } = this.props;
-    return (
-      <div
-        className={classnames('file-render', className, {
-          'file-render--document': RENDER_MODES.TEXT_MODES.includes(renderMode) && !embedded,
-          'file-render--embed': embedded,
-        })}
-      >
-        {this.renderViewer()}
-      </div>
-    );
-  }
+  return (
+    <div
+      className={classnames('file-render', className, {
+        'file-render--document': RENDER_MODES.TEXT_MODES.includes(renderMode) && !embedded,
+        'file-render--embed': embedded,
+      })}
+    >
+      {renderViewer()}
+    </div>
+  );
 }
 
-export default StreamClaimRenderInline;
+export default withStreamClaimRender(StreamClaimRenderInline);

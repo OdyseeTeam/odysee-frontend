@@ -6,13 +6,14 @@ import Button from 'component/button';
 import CreatorAnalytics from 'component/creatorAnalytics';
 import ChannelSelector from 'component/channelSelector';
 import Yrbl from 'component/yrbl';
-type Props = {
-  hasChannels: boolean;
-  fetchingChannels: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-};
-export default function CreatorDashboardPage(props: Props) {
-  const { hasChannels, fetchingChannels, activeChannelClaim } = props;
+import { useAppSelector } from 'redux/hooks';
+import { selectHasChannels, selectFetchingMyChannels } from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+
+export default function CreatorDashboardPage() {
+  const hasChannels = useAppSelector(selectHasChannels);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   return (
     <Page>
       {fetchingChannels && (

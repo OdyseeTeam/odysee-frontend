@@ -4,13 +4,11 @@ import { ipcRenderer } from 'electron';
 // @endif
 import { Modal } from 'modal/modal';
 import LastReleaseChanges from 'component/lastReleaseChanges';
-type Props = {
-  closeModal: (arg0: any) => any;
-  declineAutoUpdate: () => any;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doAutoUpdateDeclined, doHideModal } from 'redux/actions/app';
 
-const ModalAutoUpdateDownloaded = (props: Props) => {
-  const { closeModal, declineAutoUpdate } = props;
+const ModalAutoUpdateDownloaded = () => {
+  const dispatch = useAppDispatch();
   const [disabled, setDisabled] = useState(false);
 
   const handleConfirm = () => {
@@ -19,8 +17,8 @@ const ModalAutoUpdateDownloaded = (props: Props) => {
   };
 
   const handleAbort = () => {
-    declineAutoUpdate();
-    closeModal();
+    dispatch(doAutoUpdateDeclined());
+    dispatch(doHideModal());
   };
 
   return (

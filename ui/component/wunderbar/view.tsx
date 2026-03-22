@@ -1,7 +1,11 @@
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { useIsMobile } from 'effects/use-screensize';
+import { useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+
 const Button = lazyImport(
   () =>
     import(
@@ -24,14 +28,15 @@ const WunderbarSuggestions = lazyImport(
     )
 );
 type Props = {
-  doOpenMobileSearch: (arg0: any) => void;
   channelsOnly?: boolean;
   noTopSuggestion?: boolean;
   noBottomLinks?: boolean;
   customSelectAction?: (arg0: string) => void;
 };
 export default function WunderBar(props: Props) {
-  const { doOpenMobileSearch, channelsOnly, noTopSuggestion, noBottomLinks, customSelectAction } = props;
+  const { channelsOnly, noTopSuggestion, noBottomLinks, customSelectAction } = props;
+  const dispatch = useAppDispatch();
+  const doOpenMobileSearch = (searchProps: any) => dispatch(doOpenModal(MODALS.MOBILE_SEARCH, searchProps));
   const isMobile = useIsMobile();
   return isMobile ? (
     <React.Suspense fallback={null}>

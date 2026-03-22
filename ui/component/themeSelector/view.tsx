@@ -1,6 +1,10 @@
 import React from 'react';
 import * as SETTINGS from 'constants/settings';
 import { FormField } from 'component/common/form';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting, doSetDarkTime } from 'redux/actions/settings';
+
 type SetDaemonSettingArg = boolean | string | number;
 type DarkModeTimes = {
   from: {
@@ -18,15 +22,7 @@ type OptionTimes = {
   fromTo: string;
   time: string;
 };
-type Props = {
-  currentTheme: string;
-  themes: Array<string>;
-  automaticDarkModeEnabled: boolean;
-  darkModeTimes: DarkModeTimes;
-  clock24h: boolean;
-  setClientSetting: (arg0: string, arg1: SetDaemonSettingArg) => void;
-  setDarkTime: (arg0: string, arg1: {}) => void;
-};
+
 function formatHour(time: string, clock24h: boolean) {
   if (clock24h) {
     return `${time}:00`;
@@ -39,9 +35,21 @@ function formatHour(time: string, clock24h: boolean) {
   });
 }
 
-export default function ThemeSelector(props: Props) {
-  const { currentTheme, themes, automaticDarkModeEnabled, darkModeTimes, clock24h, setClientSetting, setDarkTime } =
-    props;
+export default function ThemeSelector() {
+  const dispatch = useAppDispatch();
+
+  const currentTheme = useAppSelector((state) => selectClientSetting(state, SETTINGS.THEME));
+  // Temporarily hardcoding themes here, otherwise user needs to log out and reload to get the changes in clientSettings.
+  const themes = ['dark', 'light', 'system'];
+  const automaticDarkModeEnabled = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED)
+  );
+  const darkModeTimes = useAppSelector((state) => selectClientSetting(state, SETTINGS.DARK_MODE_TIMES));
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+
+  const setClientSetting = (key: string, value: SetDaemonSettingArg) => dispatch(doSetClientSetting(key, value));
+  const setDarkTime = (time: string, options: {}) => dispatch(doSetDarkTime(time, options));
+
   const startHours = ['18', '19', '20', '21'];
   const endHours = ['5', '6', '7', '8'];
 

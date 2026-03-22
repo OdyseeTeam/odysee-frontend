@@ -6,15 +6,21 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import FileProperties from 'component/previewOverlayProperties';
 import ClaimProperties from 'component/claimProperties';
 import MembershipBadge from 'component/membershipBadge';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri, selectGeoRestrictionForUri, selectIsUriResolving } from 'redux/selectors/claims';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
+
 type Props = {
-  claim: Claim | null | undefined;
   uri: string;
-  isResolvingUri: boolean;
-  geoRestriction: GeoRestriction | null | undefined;
-  odyseeMembership: string | null | undefined;
 };
 export default function WunderbarSuggestion(props: Props) {
-  const { claim, uri, isResolvingUri, geoRestriction, odyseeMembership } = props;
+  const { uri } = props;
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));
+  const isResolvingUri = useAppSelector((state) => selectIsUriResolving(state, uri));
+  const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
 
   if (isResolvingUri) {
     return (

@@ -2,18 +2,21 @@ import React from 'react';
 import Page from 'component/page';
 import Invited from './internal/invited';
 import Spinner from 'component/spinner';
-type Props = {
-  uri: string;
-  referrerUri: string | null | undefined;
-  doResolveUri: (uri: string) => void;
-};
-export default function ReferredPage(props: Props) {
-  const { uri, referrerUri, doResolveUri } = props;
+import { useParams } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectPermanentUrlForUri } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
+
+export default function ReferredPage() {
+  const dispatch = useAppDispatch();
+  const { referrer = '' } = useParams();
+  const uri = `lbry://${referrer}`;
+  const referrerUri = useAppSelector((state) => selectPermanentUrlForUri(state, uri));
   React.useEffect(() => {
     if (referrerUri === undefined) {
-      doResolveUri(uri);
+      dispatch(doResolveUri(uri));
     }
-  }, [doResolveUri, referrerUri, uri]);
+  }, [dispatch, referrerUri, uri]);
   return (
     <Page authPage>
       {referrerUri === undefined ? (

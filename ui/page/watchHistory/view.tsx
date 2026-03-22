@@ -9,24 +9,27 @@ import * as MODALS from 'constants/modal_types';
 import { YRBL_SAD_IMG_URL } from 'config';
 import Tooltip from 'component/common/tooltip';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectWatchHistoryUris } from 'redux/selectors/content';
+import { doOpenModal } from 'redux/actions/app';
+import { doClearContentHistoryAll } from 'redux/actions/content';
+import { doResolveUris } from 'redux/actions/claims';
 import './style.scss';
 export const PAGE_SIZE = 30;
 // ****************************************************************************
-// ****************************************************************************
-export type Props = {};
-type StateProps = {
-  historyUris: Array<string>;
-};
-type DispatchProps = {
-  doClearContentHistoryAll: () => void;
-  doResolveUris: (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => void;
-  doOpenModal: (id: any, modalProps: any) => void;
-}; // ****************************************************************************
 // WatchHistoryPage
 // ****************************************************************************
 
-export default function WatchHistoryPage(props: Props & StateProps & DispatchProps) {
-  const { historyUris, doClearContentHistoryAll, doResolveUris, doOpenModal } = props;
+export default function WatchHistoryPage() {
+  const dispatch = useAppDispatch();
+  const historyUris = useAppSelector(selectWatchHistoryUris);
+
+  const doResolveUrisFn = React.useCallback(
+    (uris: Array<string>, returnCachedClaims: boolean, resolveReposts: boolean) => {
+      dispatch(doResolveUris(uris, returnCachedClaims, resolveReposts));
+    },
+    [dispatch]
+  );
   const { uris, page, isLoadingPage, bumpPage } = useClaimListInfiniteScroll(
     historyUris,
     doResolveUris,

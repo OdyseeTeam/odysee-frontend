@@ -14,15 +14,14 @@ import ArWallets from './arWallets';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 import Overview from './overview';
-type Props = {
-  arweaveWallets: any;
-  arWalletStatus: any;
-  balance: number;
-  fetching: boolean;
-  theme: string;
-  doArDisconnect: () => void;
-  doArUpdateBalance: () => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectArweaveConnected, selectArweaveBalance, selectArweaveFetching } from 'redux/selectors/arwallet';
+import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import {
+  doArDisconnect as doArDisconnectAction,
+  doArUpdateBalance as doArUpdateBalanceAction,
+} from 'redux/actions/arwallet';
+import { selectThemePath } from 'redux/selectors/settings';
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
@@ -34,16 +33,13 @@ const TABS = {
   TRANSACTION_HISTORY: 'transaction-history',
 };
 
-function disconnectPaymentWallet(doArDisconnect: () => void) {
-  doArDisconnect();
-}
-
-function updatePaymentBalance(doArUpdateBalance: () => void) {
-  doArUpdateBalance();
-}
-
-function PaymentAccountPage(props: Props) {
-  const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
+function PaymentAccountPage() {
+  const dispatch = useAppDispatch();
+  const arweaveWallets = useAppSelector(selectAPIArweaveActiveAccounts);
+  const arWalletStatus = useAppSelector(selectArweaveConnected);
+  const balance = useAppSelector((state) => selectArweaveBalance(state).usdc || 0);
+  const fetching = useAppSelector(selectArweaveFetching);
+  const theme = useAppSelector(selectThemePath);
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -85,17 +81,13 @@ function PaymentAccountPage(props: Props) {
       <>
         <Symbol token="usdc" amount={balance} precision={2} isTitle />
         <div
-          onClick={() => updatePaymentBalance(doArUpdateBalance)}
+          onClick={() => dispatch(doArUpdateBalanceAction())}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
         >
           <Icon icon={ICONS.REFRESH} />
         </div>
         {arWalletStatus && (
-          <Button
-            button="alt"
-            label={__('Disconnect Wallet')}
-            onClick={() => disconnectPaymentWallet(doArDisconnect)}
-          />
+          <Button button="alt" label={__('Disconnect Wallet')} onClick={() => dispatch(doArDisconnectAction())} />
         )}
       </>
     );

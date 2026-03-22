@@ -1,15 +1,18 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
+import { useAppDispatch } from 'redux/hooks';
+import { doMembershipClearData } from 'redux/actions/memberships';
+
 const isDev = process.env.NODE_ENV !== 'production';
 type Props = {
   purchasedMemberships?: any | null | undefined;
-  // -- redux --
-  doMembershipClearData: () => void;
 };
 
 const ClearMembershipDataButton = (props: Props) => {
-  const { purchasedMemberships, doMembershipClearData } = props;
+  const { purchasedMemberships } = props;
+  const dispatch = useAppDispatch();
+
   return (
     isDev &&
     (!purchasedMemberships || purchasedMemberships?.length > 0) && (
@@ -28,7 +31,7 @@ const ClearMembershipDataButton = (props: Props) => {
             label="Clear Membership Data"
             icon={ICONS.SETTINGS}
             className="membership_button"
-            onClick={doMembershipClearData}
+            onClick={() => dispatch(doMembershipClearData())}
           />
         </div>
       </>

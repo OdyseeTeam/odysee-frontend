@@ -5,27 +5,27 @@ import React from 'react';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import { Modal } from 'modal/modal';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doHideModal, doOpenModal } from 'redux/actions/app';
+import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
+import {
+  selectAPIArweaveDefaultAddress,
+  selectArAccountRegistering,
+  selectArAccountRegisteringError,
+  selectFullAPIArweaveStatus,
+} from 'redux/selectors/stripe';
+import {
+  doRegisterArweaveAddress,
+  doRegisterArweaveAddressClear,
+  doUpdateArweaveAddressDefault,
+} from 'redux/actions/stripe';
+import { selectArweaveConnecting } from 'redux/selectors/arwallet';
+
 type Props = {
-  doHideModal: () => void;
-  doOpenModal: (arg0: string, arg1: any) => void;
-  doArDisconnect: () => void;
-  doRegisterArweaveAddressClear: () => void;
-  doRegisterArweaveAddress: (arg0: string, arg1: boolean) => Promise<any>;
-  doUpdateArweaveAddressDefault: (arg0: number) => void;
-  activeApiAddresses: string[];
-  defaultApiAddress: string;
-  fullAPIArweaveStatus: any;
-  // [ {status: 'active', address: '0x1234'}, ...]
-  walletAddress: string;
-  walletBalance: any;
-  isArAccountRegistering: boolean;
-  arAccountRegisteringError?: '';
   previousModal?: {
     id: string;
     modalProps: any;
   };
-  isConnecting: boolean;
-  fullArweaveStatusArray: Array<any>;
 };
 const ConnectingCard = () => {
   return (
@@ -38,22 +38,17 @@ const ConnectingCard = () => {
 };
 
 export default function ModalAnnouncements(props: Props) {
-  const {
-    doHideModal,
-    doOpenModal,
-    doArDisconnect,
-    doRegisterArweaveAddressClear,
-    fullAPIArweaveStatus,
-    defaultApiAddress,
-    walletAddress,
-    // walletBalance,
-    doRegisterArweaveAddress,
-    doUpdateArweaveAddressDefault,
-    isArAccountRegistering,
-    arAccountRegisteringError,
-    previousModal,
-    isConnecting, // fullArweaveStatusArray,
-  } = props;
+  const { previousModal } = props;
+  const dispatch = useAppDispatch();
+
+  const defaultApiAddress = useAppSelector(selectAPIArweaveDefaultAddress);
+  const fullAPIArweaveStatus = useAppSelector(selectFullAPIArweaveStatus);
+  const walletAddress = useAppSelector((state) => state.arwallet.address);
+  const walletBalance = useAppSelector((state) => state.arwallet.balance);
+  const isArAccountRegistering = useAppSelector(selectArAccountRegistering);
+  const arAccountRegisteringError = useAppSelector(selectArAccountRegisteringError);
+  const isConnecting = useAppSelector(selectArweaveConnecting);
+
   const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
   const id = apiEntryWithAddress ? apiEntryWithAddress.id : null;
   // const usdcBalance = walletBalance ? walletBalance.usdc : 0;
@@ -61,17 +56,17 @@ export default function ModalAnnouncements(props: Props) {
   React.useEffect(() => {
     // automatically register first address if there isn't one
     if (!hasArweaveEntry && walletAddress) {
-      doRegisterArweaveAddress(walletAddress, true)
+      dispatch(doRegisterArweaveAddress(walletAddress, true))
         .then(() => {
-          doHideModal();
+          dispatch(doHideModal());
         })
         .catch((e) => {
           if (e?.message === 'address already exists for another user') {
-            doHideModal();
+            dispatch(doHideModal());
           }
         });
     }
-  }, [walletAddress, doRegisterArweaveAddress, doHideModal, hasArweaveEntry, apiEntryWithAddress]);
+  }, [walletAddress, dispatch, hasArweaveEntry, apiEntryWithAddress]);
 
   // if connected address is not registered at all
   const RegisterCard = () => {
@@ -91,7 +86,7 @@ export default function ModalAnnouncements(props: Props) {
               button="primary"
               label={__('Register')}
               disabled={isArAccountRegistering}
-              onClick={() => doRegisterArweaveAddress(walletAddress, true)}
+              onClick={() => dispatch(doRegisterArweaveAddress(walletAddress, true))}
             />
             <Button
               button="alt"
@@ -108,21 +103,21 @@ export default function ModalAnnouncements(props: Props) {
   // if address is found, but not default
   const handleMakeDefault = () => {
     if (id !== null) {
-      doUpdateArweaveAddressDefault(id);
+      dispatch(doUpdateArweaveAddressDefault(id));
     }
 
-    doHideModal();
+    dispatch(doHideModal());
   };
 
   const handleDisconnect = () => {
-    doArDisconnect();
+    dispatch(doArDisconnect());
 
     if (previousModal) {
-      doRegisterArweaveAddressClear();
-      doOpenModal(previousModal.id, previousModal.modalProps);
+      dispatch(doRegisterArweaveAddressClear());
+      dispatch(doOpenModal(previousModal.id, previousModal.modalProps));
     } else {
-      doRegisterArweaveAddressClear();
-      doHideModal();
+      dispatch(doRegisterArweaveAddressClear());
+      dispatch(doHideModal());
     }
   };
 
@@ -193,9 +188,9 @@ export default function ModalAnnouncements(props: Props) {
 
   const handleCloseModal = () => {
     if (previousModal) {
-      doOpenModal(previousModal.id, previousModal.modalProps);
+      dispatch(doOpenModal(previousModal.id, previousModal.modalProps));
     } else {
-      doHideModal();
+      dispatch(doHideModal());
     }
   };
 
@@ -218,7 +213,7 @@ export default function ModalAnnouncements(props: Props) {
 
   // if you don't already have
   return (
-    <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
+    <Modal type="card" isOpen onAborted={() => dispatch(doHideModal())} disableOutsideClick>
       {showConnecting && <ConnectingCard />}
       {/* don't bother showing register unless you're showing a 2nd+ address */}
       {showRegister && <RegisterCard />}

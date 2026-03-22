@@ -9,18 +9,51 @@ import SearchTopClaim from 'component/searchTopClaim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useNavigate } from 'react-router-dom';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
-type Props = {
-  urlQuery: string;
-  searchOptions: SearchOptions;
-  search: (arg0: string, arg1: SearchOptions) => void;
-  isSearching: boolean;
-  uris: Array<string>;
-  isAuthenticated: boolean;
-  hasReachedMaxResultsLength: boolean;
-};
-export default function SearchPage(props: Props) {
-  const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
+import * as SETTINGS from 'constants/settings';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doSearch } from 'redux/actions/search';
+import {
+  selectIsSearching,
+  makeSelectSearchUrisForQuery,
+  selectSearchOptions,
+  makeSelectHasReachedMaxResultsLength,
+} from 'redux/selectors/search';
+import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import { getSearchQueryString } from 'util/query-params';
+
+export default function SearchPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const showMature = useAppSelector(selectShowMatureContent);
+  const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
+  const languageSetting = useAppSelector(selectLanguage);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const baseSearchOptions = useAppSelector(selectSearchOptions);
+  const isSearching = useAppSelector(selectIsSearching);
+
+  const urlParams = new URLSearchParams(routerSearch);
+  let urlQuery = urlParams.get('q') || null;
+
+  if (urlQuery) {
+    urlQuery = urlQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+  }
+
+  const searchOptions = {
+    ...baseSearchOptions,
+    isBackgroundSearch: false,
+    nsfw: showMature,
+    ...(searchInLanguage
+      ? {
+          language: languageSetting,
+        }
+      : {}),
+  };
+
+  const query = getSearchQueryString(urlQuery, searchOptions);
+  const uris = useAppSelector((state) => makeSelectSearchUrisForQuery(query)(state));
+  const hasReachedMaxResultsLength = useAppSelector((state) => makeSelectHasReachedMaxResultsLength(query)(state));
+
   const [from, setFrom] = React.useState(0);
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
   const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
@@ -66,9 +99,9 @@ export default function SearchPage(props: Props) {
   useEffect(() => {
     if (currentUrlQuery) {
       const searchOptions = JSON.parse(stringifiedSearchOptions);
-      search(currentUrlQuery, { ...searchOptions, from: from });
+      dispatch(doSearch(currentUrlQuery, { ...searchOptions, from: from }));
     }
-  }, [search, currentUrlQuery, stringifiedSearchOptions, from]);
+  }, [dispatch, currentUrlQuery, stringifiedSearchOptions, from]);
   useEffect(() => {
     resetPage();
     setCurrentUrlQuery(urlQuery);

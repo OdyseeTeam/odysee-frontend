@@ -1,4 +1,5 @@
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import Icon from 'component/common/icon';
 import RewardLink from 'component/rewardLink';
@@ -6,9 +7,10 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import rewards from 'rewards';
 import LbcMessage from 'component/common/lbc-message';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUser } from 'redux/selectors/user';
+import { doOpenModal } from 'redux/actions/app';
 type Props = {
-  openRewardCodeModal: () => void;
-  openSetReferrerModal: () => void;
   reward: {
     id: string;
     reward_title: string;
@@ -20,12 +22,15 @@ type Props = {
     reward_type: string;
     claim_code: string;
   };
-  user: User;
-  disabled: boolean;
+  disabled?: boolean;
 };
 
 const RewardTile = (props: Props) => {
-  const { reward, openRewardCodeModal, openSetReferrerModal, user, disabled = false } = props;
+  const { reward, disabled = false } = props;
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const openRewardCodeModal = () => dispatch(doOpenModal(MODALS.REWARD_GENERATED_CODE));
+  const openSetReferrerModal = () => dispatch(doOpenModal(MODALS.SET_REFERRER));
   const referrerSet = user && user.invited_by_id;
   const claimed = !!reward.transaction_id;
   const customActionsRewards = [rewards.TYPE_REFERRAL, rewards.TYPE_REFEREE];
