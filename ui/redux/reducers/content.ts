@@ -86,14 +86,9 @@ const contentSlice = createSlice({
         }
       })
       .addCase(ACTIONS.SET_RECSYS_ENTRIES, (state, action: any) => {
-        // Deep clone: the recsys module mutates its entries (and nested objects
-        // like events arrays) directly outside of Redux. Immer deep-freezes state,
-        // so we must clone the entire tree to prevent "object is not extensible" errors.
-        try {
-          state.recsysEntries = JSON.parse(JSON.stringify(action.data));
-        } catch {
-          state.recsysEntries = {};
-        }
+        // action.data is already deep-cloned in recsys.saveEntries() to prevent
+        // Immer from freezing the live recsys.entries object.
+        state.recsysEntries = action.data;
       })
       .addCase(ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, (state, action: any) => {
         const { uri, show } = action.data;

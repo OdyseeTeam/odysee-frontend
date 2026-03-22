@@ -219,6 +219,7 @@ function VideoRenderFloating(props: Props) {
   const slimeEffectTimeout = React.useRef(null);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
+  const draggableNodeRef = React.useRef(null);
   const noPlayerHeight = fileViewerRect?.height === 0;
   const draggable = !isMobile && isFloating;
   // allows displaying overlays like membership/paid/rental for restrictions even when floating
@@ -575,6 +576,7 @@ function VideoRenderFloating(props: Props) {
 
       {wasDragging && <div className="floating-player__drag-backdrop" />}
       <Draggable
+        nodeRef={draggableNodeRef}
         onDrag={handleDragMove}
         onStart={handleDragStart}
         onStop={handleDragStop}
@@ -593,6 +595,7 @@ function VideoRenderFloating(props: Props) {
         disabled={noFloatingPlayer || forceDisable}
       >
         <div
+          ref={draggableNodeRef}
           id="abcd"
           className={classnames({
             [CONTENT_VIEWER_CLASS]: !isShortVideo,

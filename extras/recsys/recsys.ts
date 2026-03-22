@@ -43,10 +43,16 @@ const recsys: Recsys = {
    */
   saveEntries: function () {
     if (window && window.store) {
-      window.store.dispatch({
-        type: ACTIONS.SET_RECSYS_ENTRIES,
-        data: recsys.entries,
-      });
+      // Deep clone before dispatching: Immer freezes action.data when assigned
+      // to state, which would freeze the live recsys.entries object.
+      try {
+        window.store.dispatch({
+          type: ACTIONS.SET_RECSYS_ENTRIES,
+          data: JSON.parse(JSON.stringify(recsys.entries)),
+        });
+      } catch (e) {
+        // Non-serializable data; skip persistence
+      }
     }
   },
 
@@ -196,7 +202,12 @@ const recsys: Recsys = {
         console.warn('RECSYS: sendEntries() called on non-empty state. Data will be overwritten.'); // eslint-disable-line no-console
       }
 
-      recsys.entries = entries;
+      // Deep clone: entries may come from frozen Immer/Redux state on rehydration.
+      try {
+        recsys.entries = JSON.parse(JSON.stringify(entries));
+      } catch (e) {
+        recsys.entries = {};
+      }
     }
 
     Object.keys(recsys.entries).forEach((claimId) => {
