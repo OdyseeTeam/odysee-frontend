@@ -11,21 +11,18 @@ type Props = {
 };
 
 const Thumb = (props: Props) => {
-  const { thumb, fallback, children, className, small, forceReload } = props;
+  const { thumb, fallback, children, className, small } = props;
   const thumbnailRef = React.useRef(null);
-  useLazyLoading(thumbnailRef, fallback || '', undefined, [thumb]);
+  const srcLoaded = useLazyLoading(thumbnailRef, fallback || '', undefined, [thumb]);
   return (
     <div
       ref={thumbnailRef}
       data-background-image={thumb}
-      style={
-        forceReload && {
-          backgroundImage: 'url(' + String(thumb) + ')',
-        }
-      }
+      style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
       className={classnames('media__thumb', {
         className,
         'media__thumb--small': small,
+        'media__thumb--loaded': srcLoaded,
       })}
     >
       {children}

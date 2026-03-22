@@ -49,7 +49,10 @@ function FileThumbnail(props: Props) {
   const thumbnail =
     passedThumbnail ||
     (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
-  const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
+  // Show skeleton while the claim hasn't resolved yet, rather than flashing
+  // the "missing thumbnail" placeholder before the real image arrives.
+  const gettingThumbnail =
+    passedThumbnail === undefined && (thumbnailFromClaim === null || (!thumbnail && !hasResolvedClaim));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   if (!allowGifs && isGif) {
