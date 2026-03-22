@@ -34,9 +34,7 @@ test.describe('Shorts feed', () => {
 
   test('active short has a visible title', async ({ shortsPage, page }) => {
     // Title may be overlaid on the video or below it
-    const titleLocator = page
-      .locator('[class*="shorts__title"], [class*="fileTitle"], .claim-preview__title')
-      .first();
+    const titleLocator = page.locator('[class*="shorts__title"], [class*="fileTitle"], .claim-preview__title').first();
 
     // If not found with overlay selectors, the feed may render titles differently –
     // just assert the slide itself is visible (player confirmed above).
@@ -155,9 +153,7 @@ test.describe('Shorts feed', () => {
 
   test('active short displays a channel link or thumbnail', async ({ shortsPage, page }) => {
     const channelLocator = page
-      .locator(
-        '[class*="shorts__channel"], [class*="channel-thumbnail"], .claim-author, [class*="claimAuthor"]'
-      )
+      .locator('[class*="shorts__channel"], [class*="channel-thumbnail"], .claim-author, [class*="claimAuthor"]')
       .first();
 
     // Channel info may or may not be visible depending on layout
@@ -177,11 +173,7 @@ test.describe('Shorts feed', () => {
   // ── Share ─────────────────────────────────────────────────────────────────
 
   test('share button is visible or accessible in actions panel', async ({ shortsPage, page }) => {
-    const shareBtn = page
-      .locator(
-        '[aria-label*="Share" i], [class*="share"], button:has-text("Share")'
-      )
-      .first();
+    const shareBtn = page.locator('[aria-label*="Share" i], [class*="share"], button:has-text("Share")').first();
     // The share button may be in the side panel or behind a more-menu
     const visible = await shareBtn.isVisible({ timeout: 5_000 }).catch(() => false);
     // Just log – share button UI placement varies; don't hard-fail
@@ -195,9 +187,7 @@ test.describe('Shorts feed', () => {
   test('like button prompts sign-in when unauthenticated', async ({ shortsPage, page }) => {
     test.skip(!!optionalAuthToken(), 'Skipping – user is authenticated');
 
-    const likeBtn = page
-      .locator('[aria-label*="Like" i], [class*="like-button"], [class*="likeButton"]')
-      .first();
+    const likeBtn = page.locator('[aria-label*="Like" i], [class*="like-button"], [class*="likeButton"]').first();
 
     const visible = await likeBtn.isVisible({ timeout: 5_000 }).catch(() => false);
     if (!visible) {
@@ -216,10 +206,7 @@ test.describe('Shorts feed', () => {
     const onSignInPage = page.url().includes('/$/signin');
     const promptVisible = await signInPrompt.isVisible({ timeout: 5_000 }).catch(() => false);
 
-    expect(
-      onSignInPage || promptVisible,
-      'Expected like button to prompt sign-in for unauthenticated user'
-    ).toBe(true);
+    expect(onSignInPage || promptVisible, 'Expected like button to prompt sign-in for unauthenticated user').toBe(true);
   });
 
   test.describe('authenticated actions', () => {

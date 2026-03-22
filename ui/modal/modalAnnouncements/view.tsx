@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Card from 'component/common/card';
 import MarkdownPreview from 'component/common/markdown-preview';
 import * as PAGES from 'constants/pages';
@@ -17,9 +17,7 @@ type Props = {
 export default function ModalAnnouncements(props: Props) {
   const { authenticated, announcement, lastViewedHash, isAutoInvoked, doHideModal, doSetLastViewedAnnouncement } =
     props;
-  const {
-    location: { pathname },
-  } = useHistory();
+  const { pathname } = useLocation();
   const [show, setShow] = React.useState(false);
   React.useEffect(() => {
     if (!authenticated || (pathname !== '/' && pathname !== `/$/${PAGES.HELP}`) || announcement === '') {

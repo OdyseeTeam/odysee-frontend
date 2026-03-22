@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
-export const selectState = (state) => state.user || {};
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
+
+export const selectState = (state) => state.user || EMPTY_OBJECT;
 export const hasLegacyOdyseePremium = (state) => selectState(state).hasLegacyOdyseePremium;
 export const selectAuthenticationIsPending = (state) => selectState(state).authenticationIsPending;
 export const selectUserIsPending = (state) => selectState(state).userIsPending;

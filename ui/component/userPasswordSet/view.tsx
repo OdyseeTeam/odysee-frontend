@@ -1,7 +1,7 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import { Lbryio } from 'lbryinc';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Card from 'component/common/card';
 import { Form, FormField } from 'component/common/form';
 import ErrorText from 'component/common/error-text';
@@ -25,7 +25,8 @@ type Props = {
 
 function UserPasswordReset(props: Props) {
   const { doClearEmailEntry, doToast, doUserFetch } = props;
-  const { location, push } = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(location.search);
   const email = urlParams.get('email');
   const authToken = urlParams.get('auth_token');
@@ -57,7 +58,7 @@ function UserPasswordReset(props: Props) {
         doToast({
           message: __('Password successfully changed!'),
         });
-        push(`/`);
+        navigate(`/`);
       })
       .catch((error) => {
         setLoading(false);
@@ -67,7 +68,7 @@ function UserPasswordReset(props: Props) {
 
   function handleRestart() {
     doClearEmailEntry();
-    push(`/$/${PAGES.AUTH_SIGNIN}`);
+    navigate(`/$/${PAGES.AUTH_SIGNIN}`);
   }
 
   return (

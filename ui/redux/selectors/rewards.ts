@@ -1,8 +1,9 @@
 import { createSelector } from 'reselect';
 import REWARDS from 'rewards';
 import { selectUser } from 'redux/selectors/user';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state) => state.rewards || {};
+const selectState = (state) => state.rewards || EMPTY_OBJECT;
 
 export const selectUnclaimedRewardsByType = (state) => selectState(state).unclaimedRewardsByType;
 export const selectClaimedRewardsById = (state) => selectState(state).claimedRewardsById;

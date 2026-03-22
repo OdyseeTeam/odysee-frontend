@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
@@ -91,8 +90,9 @@ const selectShortsRecommendedContent = createSelector(
 );
 
 const select = (state, props) => {
-  const { uri, location } = props;
-  const urlParams = new URLSearchParams(location.search);
+  const { uri } = props;
+  const search = state.router?.location?.search || '';
+  const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
@@ -182,5 +182,4 @@ const perform = (dispatch) => ({
   doOpenModal: (id, modalProps) => dispatch(doOpenModal(id, modalProps)),
   doResolveUri: (uri) => dispatch(doResolveUri(uri)),
 });
-
-export default withRouter(connect(select, perform)(ShortsPage));
+export default connect(select, perform)(ShortsPage);

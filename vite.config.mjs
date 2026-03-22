@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite-plus';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
@@ -16,7 +16,6 @@ const __dirname = path.dirname(__filename);
 
 const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
-
 // Resolve pnpm's nested node_modules directories for SCSS loadPaths
 function resolvePnpmNodeModules() {
   const pnpmDir = path.resolve(__dirname, 'node_modules/.pnpm');
@@ -123,7 +122,6 @@ function processIfBlocks(code) {
 // - @if TARGET='web' / @if TARGET='app'
 // - @if process.env.VAR='value' (evaluated against actual env vars)
 function preprocessPlugin() {
-
   return {
     name: 'preprocess-target',
     enforce: 'pre',
@@ -333,6 +331,7 @@ export default defineConfig({
       config: path.resolve(__dirname, 'config.ts'),
       lbryinc: path.resolve(__dirname, 'extras/lbryinc'),
       recsys: path.resolve(__dirname, 'extras/recsys'),
+      '__router-dom-real__': path.resolve(__dirname, 'node_modules/react-router-dom/dist/index.js'),
       homepage: path.resolve(UI_ROOT, 'util/homepage'),
       homepages:
         process.env.CUSTOM_HOMEPAGE === 'true'
@@ -387,7 +386,27 @@ export default defineConfig({
     },
   },
 
-  plugins: [uiModuleResolverPlugin(), preprocessPlugin(), providePlugin(), react(), ssrTemplatePlugin()],
+  plugins: [
+    uiModuleResolverPlugin(),
+    preprocessPlugin(),
+    providePlugin(),
+    // Inject React Scan only during development
+    {
+      name: 'react-scan-dev',
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html, ctx) {
+          if (!ctx.server) return html;
+          return html.replace(
+            '<head>',
+            '<head>\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>'
+          );
+        },
+      },
+    },
+    react(),
+    ssrTemplatePlugin(),
+  ],
 
   server: {
     port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),
@@ -409,13 +428,13 @@ export default defineConfig({
       'react-dom',
       'react-redux',
       'redux',
+      '@reduxjs/toolkit',
       'reselect',
       '@emotion/styled',
       '@emotion/react',
       'prop-types',
       'react-router',
       'react-router-dom',
-      'connected-react-router',
       'react-top-loading-bar',
       'classnames',
       'moment',

@@ -5,7 +5,7 @@ import React from 'react';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import IncognitoSelector from './internal/incognito-selector';
 import LoadingSelector from './internal/loading-selector';
 import ChannelListItem from './internal/channelListItem';
@@ -40,10 +40,12 @@ type Props = {
 
 function ChannelSelector(props: Props) {
   const {
+    selectedChannelUrl,
     channelIds,
+    onChannelSelect,
+    hideAnon,
     activeChannelClaim,
     doSetActiveChannel,
-    onChannelSelect,
     incognito,
     doSetIncognito,
     storeSelection,
@@ -58,35 +60,13 @@ function ChannelSelector(props: Props) {
     doFetchOdyseeMembershipForChannelIds,
     hideCreateNew,
   } = props;
-  const hideAnon = Boolean(props.hideAnon || storeSelection);
-  const showAllOption = Boolean(allOptionProps && channelIds && channelIds.length > 1);
-  const {
-    push,
-    location: { pathname },
-  } = useHistory();
+  const showAllOption = Boolean(allOptionProps);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const noActiveChannel = activeChannelUrl === null;
   const pendingChannelFetch = !noActiveChannel && channelIds === undefined;
-
-  function handleChannelSelect(channelId) {
-    doSetIncognito(false);
-    doSetActiveChannel(channelId);
-
-    if (storeSelection) {
-      doSetDefaultChannel(channelId);
-    }
-  }
-
-  function handleSelectOption(channelId) {
-    if (channelId) {
-      handleChannelSelect(channelId);
-    } else {
-      doSetIncognito(true);
-    }
-
-    if (onChannelSelect) onChannelSelect(channelId);
-  }
 
   React.useEffect(() => {
     if (!autoSet) return;
@@ -144,18 +124,40 @@ function ChannelSelector(props: Props) {
 
             {channelIds &&
               channelIds.map((channelId) => (
-                <MenuItem key={channelId} onSelect={() => handleSelectOption(channelId)}>
+                <MenuItem
+                  key={channelId}
+                  onSelect={() => {
+                    doSetIncognito(false);
+                    doSetActiveChannel(channelId);
+
+                    if (storeSelection) {
+                      doSetDefaultChannel(channelId);
+                    }
+
+                    if (onChannelSelect) {
+                      onChannelSelect(channelId);
+                    }
+                  }}
+                >
                   <ChannelListItem channelId={channelId} />
                 </MenuItem>
               ))}
 
             {!hideAnon && (
-              <MenuItem onSelect={() => handleSelectOption(null)}>
+              <MenuItem
+                onSelect={() => {
+                  doSetIncognito(true);
+
+                  if (onChannelSelect) {
+                    onChannelSelect(null);
+                  }
+                }}
+              >
                 <IncognitoSelector />
               </MenuItem>
             )}
             {!hideCreateNew && (
-              <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
+              <MenuItem onSelect={() => navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
                 <div className="channel-selector__item">
                   <Icon sectionIcon icon={ICONS.CHANNEL} />
                   <div className="channel-selector__text">{__('Create a new channel')}</div>

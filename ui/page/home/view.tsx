@@ -21,7 +21,7 @@ import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 const FeaturedBanner = lazyImport(
   () =>
     import(
@@ -141,7 +141,7 @@ function HomePage(props: Props) {
   const isSmallScreen = useIsSmallScreen();
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
     const rowData: Array<RowDataItem> = GetLinksData(
       homepageData,
@@ -244,7 +244,7 @@ function HomePage(props: Props) {
   };
 
   function signupDriver() {
-    push(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+    navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {

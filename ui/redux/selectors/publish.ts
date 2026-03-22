@@ -22,8 +22,9 @@ import {
 import { selectActiveChannelClaimId, selectIncognito } from 'redux/selectors/app';
 import { selectMembershipsListByCreatorId } from 'redux/selectors/memberships';
 import { filterMembershipTiersWithPerk, getRestrictivePerkName } from 'util/memberships';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state) => state.publish || {};
+const selectState = (state) => state.publish || EMPTY_OBJECT;
 
 export const selectIsStillEditing = createSelector(selectState, (publishState) => {
   const { editingURI, uri } = publishState;

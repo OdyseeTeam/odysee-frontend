@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Button from 'component/button';
 import { SIMPLE_SITE } from 'config';
 import * as PAGES from 'constants/pages';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import classnames from 'classnames';
 export default function Footer() {
   useEffect(() => {
@@ -23,9 +23,7 @@ export default function Footer() {
 
     checkForOneTrust();
   }, []);
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const isShorts = urlParams.get('view') === 'shorts';
 

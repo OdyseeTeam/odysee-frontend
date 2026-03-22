@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import ErrorText from 'component/common/error-text';
@@ -18,7 +18,7 @@ export default function SettingAccountPassword(props: Props) {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const hasPassword = user && user.password_set;
-  const { goBack } = useHistory();
+  const navigate = useNavigate();
   const title = hasPassword ? __('Update Your Password') : __('Add A Password');
   const subtitle = hasPassword ? '' : __('You do not currently have a password set.');
 
@@ -28,7 +28,7 @@ export default function SettingAccountPassword(props: Props) {
 
   React.useEffect(() => {
     if (passwordSetSuccess) {
-      goBack();
+      navigate(-1);
       doToast({
         message: __('Password updated successfully.'),
       });
@@ -62,7 +62,7 @@ export default function SettingAccountPassword(props: Props) {
           {hasPassword ? (
             <Button button="link" label={__('Forgot Password?')} navigate={`/$/${PAGES.AUTH_PASSWORD_RESET}`} />
           ) : (
-            <Button button="link" label={__('Cancel')} onClick={() => goBack()} />
+            <Button button="link" label={__('Cancel')} onClick={() => navigate(-1)} />
           )}
         </div>
       </Form>

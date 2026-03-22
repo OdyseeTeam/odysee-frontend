@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Button from 'component/button';
-import { Portal } from '@mui/base/Portal';
 type Props = {
   label: any;
   icon: string;
@@ -51,8 +50,8 @@ type WrapperProps = {
 };
 
 const Wrapper = (props: WrapperProps) => {
-  const { fixed, children } = props;
-  return fixed ? <Portal>{children}</Portal> : children;
+  const { children } = props;
+  return children;
 };
 
 export default DrawerExpandButton;

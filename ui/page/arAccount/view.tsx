@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -32,12 +32,20 @@ const TABS = {
   WALLETS: 'wallets',
 };
 
+function disconnectArWallet(doArDisconnect: () => void, navigate: (path: string) => void) {
+  window.wanderInstance.authInfo.authType = undefined;
+  doArDisconnect();
+  navigate(`/$/${PAGES.WALLET}`);
+}
+
+function updateArBalance(doArUpdateBalance: () => void) {
+  doArUpdateBalance();
+}
+
 function ArAccountPage(props: Props) {
   const { arweaveWallets, arWalletStatus, balance, fetching, exchangeRate, doArDisconnect, doArUpdateBalance } = props;
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const { activeArStatus } = useArStatus();
   const activeWallet = arweaveWallets.find((x) => x.default);
   const urlParams = new URLSearchParams(search);
@@ -58,28 +66,23 @@ function ArAccountPage(props: Props) {
       break;
   }
 
-  const handleArConnectDisconnect = () => {
-    window.wanderInstance.authInfo.authType = undefined;
-    doArDisconnect();
-    push(`/$/${PAGES.WALLET}`);
-  };
-
-  const handleUpdateBalance = () => {
-    doArUpdateBalance();
-  };
-
   function cardHeader() {
     return (
       <>
         <Symbol token="usd" amount={balance.ar * exchangeRate.ar} precision={2} />
         <div
-          onClick={handleUpdateBalance}
+          onClick={() => updateArBalance(doArUpdateBalance)}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
         >
           <Icon icon={ICONS.REFRESH} />
         </div>
         {arWalletStatus && (
-          <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={handleArConnectDisconnect} />
+          <Button
+            button="alt"
+            icon={ICONS.WANDER}
+            label={__('Disconnect')}
+            onClick={() => disconnectArWallet(doArDisconnect, navigate)}
+          />
         )}
       </>
     );
@@ -98,7 +101,7 @@ function ArAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   return (

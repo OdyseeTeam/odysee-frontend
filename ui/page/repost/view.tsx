@@ -1,6 +1,6 @@
 import React from 'react';
 import Page from 'component/page';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import RepostCreate from 'component/repostCreate';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import useThrottle from 'effects/use-throttle';
@@ -17,9 +17,7 @@ type Props = {
 
 function RepostPage(props: Props) {
   const { balance, resolveUri } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const [contentUri, setContentUri] = React.useState('');
   const [repostUri, setRepostUri] = React.useState('');
   const urlParams = new URLSearchParams(search);

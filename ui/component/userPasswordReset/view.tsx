@@ -1,6 +1,6 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Card from 'component/common/card';
 import Spinner from 'component/spinner';
 import { Form, FormField } from 'component/common/form';
@@ -31,7 +31,8 @@ function UserPasswordReset(props: Props) {
     doClearEmailEntry,
     emailToVerify,
   } = props;
-  const { location, push, goBack } = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState(emailToVerify || '');
   const valid = email.match(EMAIL_REGEX);
   const restartAtSignInPage = location.pathname === `/$/${PAGES.AUTH_SIGNIN}`;
@@ -48,9 +49,9 @@ function UserPasswordReset(props: Props) {
     doClearEmailEntry();
 
     if (restartAtSignInPage) {
-      push(`/$/${PAGES.AUTH_SIGNIN}`);
+      navigate(`/$/${PAGES.AUTH_SIGNIN}`);
     } else {
-      goBack();
+      navigate(-1);
     }
   }
 

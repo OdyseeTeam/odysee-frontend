@@ -2,7 +2,7 @@ import React from 'react';
 import Nag from 'component/nag';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/component/button';
 type Props = {
   email?: User;
@@ -10,11 +10,11 @@ type Props = {
 };
 export default function NagSunset(props: Props) {
   const { email, onClose } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const handleOnClick = () => {
     onClose();
-    push(`/$/${PAGES.AUTH_SIGNIN}`);
+    navigate(`/$/${PAGES.AUTH_SIGNIN}`);
   };
 
   return (

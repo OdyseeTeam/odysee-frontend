@@ -1,8 +1,9 @@
 import { createSelector } from 'reselect';
 import { Container } from 'util/container';
 import { parseURI } from 'util/lbryURI';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.blocked || {};
+const selectState = (state: State) => state.blocked || EMPTY_OBJECT;
 
 export const selectMutedChannels = (state: State) => selectState(state).blockedChannels;
 export const selectGeoBlockLists = (state: State) => selectState(state).geoBlockedList;

@@ -38,7 +38,7 @@ import rewards from 'rewards';
 import { store, persistor, history } from 'store';
 import app from './app';
 import doLogWarningConsoleMessage from './logWarningConsoleMessage';
-import { ConnectedRouter, push } from 'connected-react-router';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
 import { formatLbryUrlForWeb, formatInAppUrl } from 'util/url';
 import { PersistGate } from 'redux-persist/integration/react';
 import analytics from 'analytics';
@@ -46,6 +46,7 @@ import { doToast } from 'redux/actions/notifications';
 import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
+import { browserHistory, push } from 'redux/router';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
 // Import our app styles
@@ -272,24 +273,35 @@ function AppWrapper() {
         onBeforeLift={() => setPersistDone(true)}
         loading={<div className="main--launching" />}
       >
-        <Fragment>
+        <div className="app-gate-root">
           {readyToLaunch ? (
-            <ConnectedRouter history={history}>
+            <HistoryRouter history={browserHistory}>
               <ErrorBoundary>
                 <App />
                 <SnackBar />
               </ErrorBoundary>
-            </ConnectedRouter>
+            </HistoryRouter>
           ) : (
             <Fragment>
               <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />
               <SnackBar />
             </Fragment>
           )}
-        </Fragment>
+        </div>
       </PersistGate>
     </Provider>
   );
 }
 
-createRoot(document.getElementById('app')!).render(<AppWrapper />);
+const appMount = document.getElementById('app');
+if (!appMount) {
+  throw new Error('#app mount node not found');
+}
+const reactRoot = createRoot(appMount);
+reactRoot.render(<AppWrapper />);
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    reactRoot.unmount();
+  });
+}

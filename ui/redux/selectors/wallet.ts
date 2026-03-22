@@ -1,10 +1,11 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 // Inlined to break circular dependency: claims.ts -> wallet.ts -> claims.ts
-const selectClaimIdsByUri = (state: State) => (state.claims || {}).claimsByUri || {};
+const selectClaimIdsByUri = (state: State) => (state.claims || EMPTY_OBJECT).claimsByUri || EMPTY_OBJECT;
 import parseData from 'util/parse-data';
-export const selectState = (state) => state.wallet || {};
+export const selectState = (state) => state.wallet || EMPTY_OBJECT;
 export const selectWalletState = selectState;
 export const selectWalletIsEncrypted = (state) => selectState(state).walletIsEncrypted;
 export const selectWalletEncryptPending = (state) => selectState(state).walletEncryptPending;
@@ -35,8 +36,8 @@ export const selectReservedBalance = (state) => selectState(state).reservedBalan
 export const selectClaimsBalance = (state) => selectState(state).claimsBalance;
 export const selectSupportsBalance = (state) => selectState(state).supportsBalance;
 export const selectTipsBalance = (state) => selectState(state).tipsBalance;
-export const selectTransactionsById = createSelector(selectState, (state) => state.transactions || {});
-export const selectSupportsByOutpoint = createSelector(selectState, (state) => state.supports || {});
+export const selectTransactionsById = createSelector(selectState, (state) => state.transactions || EMPTY_OBJECT);
+export const selectSupportsByOutpoint = createSelector(selectState, (state) => state.supports || EMPTY_OBJECT);
 export const selectTotalSupports = createSelector(selectSupportsByOutpoint, (byOutpoint) => {
   let total = parseFloat('0.0');
   Object.values(byOutpoint).forEach((support) => {
@@ -173,7 +174,7 @@ export const selectTransactionsFile = createSelector(selectTransactionItems, (tr
 export const selectIsSendingSupport = (state) => selectState(state).sendingSupport;
 export const selectReceiveAddress = (state) => selectState(state).receiveAddress;
 export const selectGettingNewAddress = (state) => selectState(state).gettingNewAddress;
-export const selectDraftTransaction = createSelector(selectState, (state) => state.draftTransaction || {});
+export const selectDraftTransaction = createSelector(selectState, (state) => state.draftTransaction || EMPTY_OBJECT);
 export const selectDraftTransactionAmount = createSelector(selectDraftTransaction, (draft) => draft.amount);
 export const selectDraftTransactionAddress = createSelector(selectDraftTransaction, (draft) => draft.address);
 export const selectDraftTransactionError = createSelector(selectDraftTransaction, (draft) => draft.error);

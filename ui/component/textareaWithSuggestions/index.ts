@@ -4,7 +4,6 @@ import { doSetMentionSearchResults } from 'redux/actions/search';
 import { makeSelectWinningUriForQuery } from 'redux/selectors/search';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { selectChannelMentionData } from 'redux/selectors/comments';
-import { withRouter } from 'react-router';
 import TextareaWithSuggestions from './view';
 
 const select = (state, props) => {
@@ -36,4 +35,4 @@ const perform = {
   doResolveUris,
   doSetMentionSearchResults,
 };
-export default withRouter(connect(select, perform)(TextareaWithSuggestions));
+export default connect(select, perform)(TextareaWithSuggestions);

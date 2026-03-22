@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router';
 import Page from 'component/page';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import I18nMessage from 'component/i18nMessage';
 import Card from 'component/common/card';
+import { useLocation } from 'react-router-dom';
 type Props = {
-  history: {
-    push: (arg0: string) => void;
-    location: {
-      search: string;
-    };
-  };
   doToast: (arg0: {}) => void;
 };
 // Guard against parents remounting. We don't want to send multi api calls.
@@ -22,10 +16,8 @@ let verificationApiHistory = {
 };
 
 function SignInVerifyPage(props: Props) {
-  const {
-    history: { push, location },
-    doToast,
-  } = props;
+  const { doToast } = props;
+  const location = useLocation();
   const [isAuthenticationSuccess, setIsAuthenticationSuccess] = useState(verificationApiHistory.successful);
   const [showCaptchaMessage, setShowCaptchaMessage] = useState(false);
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
@@ -48,7 +40,7 @@ function SignInVerifyPage(props: Props) {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
+  }, [authToken, userSubmittedEmail, verificationToken, doToast]);
   React.useEffect(() => {
     if (!needsRecaptcha && !isAuthenticationSuccess && !verificationApiHistory.called) {
       verifyUser();
@@ -162,4 +154,4 @@ function SignInVerifyPage(props: Props) {
   );
 }
 
-export default withRouter(SignInVerifyPage);
+export default SignInVerifyPage;

@@ -2,7 +2,7 @@ import * as PAGES from 'constants/pages';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
-import { useHistory, Redirect } from 'react-router';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { lazyImport } from 'util/lazyImport';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -51,10 +51,9 @@ const EmbedWrapperPage = (props: Props) => {
     renderMode,
     doFetchItemsInCollection,
   } = props;
-  const {
-    location: { search, pathname },
-    match,
-  } = useHistory();
+  const { search, pathname } = useLocation();
+  const params = useParams();
+  const match = React.useMemo(() => ({ params }), [params]);
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
   const latestContentPath = featureParam === PAGES.LATEST;
@@ -87,7 +86,7 @@ const EmbedWrapperPage = (props: Props) => {
   if (isPlaylistPath && collectionId && collectionFirstItemUri) {
     const firstItemPath = formatLbryUrlForWeb(collectionFirstItemUri);
     const redirectUrl = `/$/embed${firstItemPath}?${COLLECTIONS_CONSTS.COLLECTION_ID}=${collectionId}`;
-    return <Redirect to={redirectUrl} />;
+    return <Navigate replace to={redirectUrl} />;
   }
 
   // Show loading while waiting for collection first item

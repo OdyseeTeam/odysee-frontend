@@ -1,34 +1,41 @@
+import { createSlice } from '@reduxjs/toolkit';
 import * as ACTIONS from 'constants/action_types';
-import { handleActions } from 'util/redux-utils';
-const defaultState = {
+
+const initialState = {
   sidePanelOpen: false,
   viewMode: 'related',
   autoplayNextShort: false,
-  playlist: [],
+  playlist: [] as string[],
 };
-export default handleActions(
-  {
-    [ACTIONS.TOGGLE_SHORTS_SIDE_PANEL]: (state) => {
-      return { ...state, sidePanelOpen: !state.sidePanelOpen };
-    },
-    [ACTIONS.SET_SHORTS_SIDE_PANEL]: (state, action) => {
-      return { ...state, sidePanelOpen: action.data.isOpen };
-    },
-    [ACTIONS.SET_SHORTS_PLAYLIST]: (state, action) => {
-      return { ...state, playlist: action.data.uris };
-    },
-    [ACTIONS.CLEAR_SHORTS_PLAYLIST]: (state) => {
-      return { ...state, playlist: [] };
-    },
-    [ACTIONS.SET_SHORTS_VIEW_MODE]: (state, action) => {
-      return { ...state, viewMode: action.data };
-    },
-    [ACTIONS.TOGGLE_SHORTS_AUTOPLAY]: (state) => {
-      return { ...state, autoplayNextShort: !state.autoplayNextShort };
-    },
-    [ACTIONS.SET_SHORTS_AUTOPLAY]: (state, action) => {
-      return { ...state, autoplayNextShort: action.data };
-    },
+
+const shortsSlice = createSlice({
+  name: 'shorts',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(ACTIONS.TOGGLE_SHORTS_SIDE_PANEL, (state) => {
+        state.sidePanelOpen = !state.sidePanelOpen;
+      })
+      .addCase(ACTIONS.SET_SHORTS_SIDE_PANEL, (state, action: any) => {
+        state.sidePanelOpen = action.data.isOpen;
+      })
+      .addCase(ACTIONS.SET_SHORTS_PLAYLIST, (state, action: any) => {
+        state.playlist = action.data.uris;
+      })
+      .addCase(ACTIONS.CLEAR_SHORTS_PLAYLIST, (state) => {
+        state.playlist = [];
+      })
+      .addCase(ACTIONS.SET_SHORTS_VIEW_MODE, (state, action: any) => {
+        state.viewMode = action.data;
+      })
+      .addCase(ACTIONS.TOGGLE_SHORTS_AUTOPLAY, (state) => {
+        state.autoplayNextShort = !state.autoplayNextShort;
+      })
+      .addCase(ACTIONS.SET_SHORTS_AUTOPLAY, (state, action: any) => {
+        state.autoplayNextShort = action.data;
+      });
   },
-  defaultState
-);
+});
+
+export default shortsSlice.reducer;

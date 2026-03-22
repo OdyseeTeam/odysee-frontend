@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -34,12 +34,18 @@ const TABS = {
   TRANSACTION_HISTORY: 'transaction-history',
 };
 
+function disconnectPaymentWallet(doArDisconnect: () => void) {
+  doArDisconnect();
+}
+
+function updatePaymentBalance(doArUpdateBalance: () => void) {
+  doArUpdateBalance();
+}
+
 function PaymentAccountPage(props: Props) {
   const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
   let tabIndex;
@@ -74,25 +80,23 @@ function PaymentAccountPage(props: Props) {
       break;
   }
 
-  const handleArConnectDisconnect = () => {
-    doArDisconnect();
-  };
-
-  const handleUpdateBalance = () => {
-    doArUpdateBalance();
-  };
-
   function cardHeader() {
     return (
       <>
         <Symbol token="usdc" amount={balance} precision={2} isTitle />
         <div
-          onClick={handleUpdateBalance}
+          onClick={() => updatePaymentBalance(doArUpdateBalance)}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
         >
           <Icon icon={ICONS.REFRESH} />
         </div>
-        {arWalletStatus && <Button button="alt" label={__('Disconnect Wallet')} onClick={handleArConnectDisconnect} />}
+        {arWalletStatus && (
+          <Button
+            button="alt"
+            label={__('Disconnect Wallet')}
+            onClick={() => disconnectPaymentWallet(doArDisconnect)}
+          />
+        )}
       </>
     );
   }
@@ -116,7 +120,7 @@ function PaymentAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   return (

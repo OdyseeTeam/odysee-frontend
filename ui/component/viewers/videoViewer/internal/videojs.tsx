@@ -36,7 +36,7 @@ import { platform } from 'util/platform';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 const stripeEnvironment = getStripeEnvironment();
 
 import chromecast from '@silvermine/videojs-chromecast';
@@ -233,9 +233,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const volumePanelScrollHandlerRef = useRef();
   const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIOS();
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
 
   const toggleKeyboardShortcutsOverlay = (forceState?: boolean) => {
     if (playerRef.current && typeof playerRef.current.toggleKeyboardShortcutsOverlay === 'function') {

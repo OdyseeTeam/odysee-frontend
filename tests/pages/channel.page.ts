@@ -72,12 +72,8 @@ export class ChannelPage extends BasePage {
     // ── Channel header ────────────────────────────────────────────────────────
     this.channelBanner = page.locator('.channel-cover__custom, .claim-cover__wrapper').first();
     this.channelAvatar = page.locator('.channel-thumbnail, .claim-thumbnail--channel').first();
-    this.channelName = page
-      .locator('.channel-name, .claim-preview__title h1, [class*="channelTitle"]')
-      .first();
-    this.subscriberCount = page
-      .locator('.subscribers, [class*="subscriber"], [class*="sub-count"]')
-      .first();
+    this.channelName = page.locator('.channel-name, .claim-preview__title h1, [class*="channelTitle"]').first();
+    this.subscriberCount = page.locator('.subscribers, [class*="subscriber"], [class*="sub-count"]').first();
 
     // ── Follow / Subscribe ────────────────────────────────────────────────────
     // Odysee renders follow as a button whose label toggles between
@@ -123,9 +119,7 @@ export class ChannelPage extends BasePage {
 
     // ── Content grid ──────────────────────────────────────────────────────────
     this.contentSection = page.locator('.channel__content, [class*="channelContent"]').first();
-    this.claimTiles = page.locator(
-      '.claim-preview--tile, .media__thumb, [class*="claimPreview--tile"]'
-    );
+    this.claimTiles = page.locator('.claim-preview--tile, .media__thumb, [class*="claimPreview--tile"]');
     this.claimThumbnails = page.locator('.claim-preview__title a').first();
 
     // ── Sort / filter controls ────────────────────────────────────────────────
@@ -138,19 +132,13 @@ export class ChannelPage extends BasePage {
 
     // ── About section ─────────────────────────────────────────────────────────
     this.aboutSection = page.locator('.channel-about, [class*="channelAbout"]').first();
-    this.aboutDescription = page
-      .locator('.channel-about__description, [class*="channelAbout__description"]')
-      .first();
+    this.aboutDescription = page.locator('.channel-about__description, [class*="channelAbout__description"]').first();
     this.aboutEmail = page.locator('.channel-about__email, [class*="channelAbout__email"]').first();
-    this.aboutWebsite = page
-      .locator('.channel-about__website, [class*="channelAbout__website"]')
-      .first();
+    this.aboutWebsite = page.locator('.channel-about__website, [class*="channelAbout__website"]').first();
 
     // ── Membership section ────────────────────────────────────────────────────
     this.membershipSection = page.locator('[class*="membership"], .creator-memberships').first();
-    this.joinMembershipButton = page
-      .getByRole('button', { name: /join|become a member/i })
-      .first();
+    this.joinMembershipButton = page.getByRole('button', { name: /join|become a member/i }).first();
 
     // ── Discussion / comments ──────────────────────────────────────────────────
     this.discussionSection = page.locator('.channel-discussion, [class*="channelDiscussion"]').first();
@@ -187,11 +175,9 @@ export class ChannelPage extends BasePage {
   async waitForChannelLoad(timeout = 20_000): Promise<void> {
     await this.waitForApp(timeout);
     // Wait for the spinner to disappear if it was showing
-    await this.spinner
-      .waitFor({ state: 'hidden', timeout: 10_000 })
-      .catch(() => {
-        // Spinner might not appear at all — that's fine
-      });
+    await this.spinner.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => {
+      // Spinner might not appear at all — that's fine
+    });
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -201,7 +187,7 @@ export class ChannelPage extends BasePage {
   /** Click the Content tab and wait for content to render. */
   async switchToContentTab(): Promise<void> {
     await this.tabContent.click();
-    await this.page.waitForURL(/[?&]tab=content|\/\@[^/]+$/, { timeout: 8_000 }).catch(() => {});
+    await this.page.waitForURL(/[?&]tab=content|\/@[^/]+$/, { timeout: 8_000 }).catch(() => {});
     await this.waitForChannelLoad();
   }
 
@@ -272,7 +258,10 @@ export class ChannelPage extends BasePage {
    * Returns the number of claim tiles currently visible in the content grid.
    */
   async getContentTileCount(): Promise<number> {
-    await this.claimTiles.first().waitFor({ state: 'visible', timeout: 12_000 }).catch(() => {});
+    await this.claimTiles
+      .first()
+      .waitFor({ state: 'visible', timeout: 12_000 })
+      .catch(() => {});
     return this.claimTiles.count();
   }
 

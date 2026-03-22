@@ -129,11 +129,7 @@ test.describe('Channel page – public channel', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Channel page – navigate from search', () => {
-  test('finding a channel in search and clicking opens its page', async ({
-    searchPage,
-    channelPage,
-    page,
-  }) => {
+  test('finding a channel in search and clicking opens its page', async ({ searchPage, channelPage, page }) => {
     // Search for "Odysee" (should surface the official channel)
     await searchPage.searchFor('Odysee', { type: 'channel' });
     await searchPage.waitForResults();
@@ -158,16 +154,12 @@ test.describe('Channel page – navigate from search', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Channel page – tab deep-links', () => {
-  test('navigating directly to ?tab=about shows the about section', async ({
-    channelPage,
-  }) => {
+  test('navigating directly to ?tab=about shows the about section', async ({ channelPage }) => {
     await channelPage.gotoChannel(PUBLIC_CHANNEL, 'about');
     await expect(channelPage.aboutSection).toBeVisible({ timeout: 12_000 });
   });
 
-  test('navigating directly to ?tab=content shows the content grid', async ({
-    channelPage,
-  }) => {
+  test('navigating directly to ?tab=content shows the content grid', async ({ channelPage }) => {
     await channelPage.gotoChannel(PUBLIC_CHANNEL, 'content');
     await channelPage.assertHasContent();
   });
@@ -253,17 +245,17 @@ test.describe('Own channel page', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('Channel page – not found', () => {
-  test('visiting a non-existent channel shows a 404 or error state', async ({
-    channelPage,
-    page,
-  }) => {
+  test('visiting a non-existent channel shows a 404 or error state', async ({ channelPage, page }) => {
     // Use a clearly non-existent channel name
     await page.goto('/@this-channel-absolutely-does-not-exist-xyz-12345');
     await channelPage.waitForApp();
 
     // The page should either show a 404 / not-found state, OR redirect to home.
     // Either is acceptable behaviour – we just assert the app did not crash.
-    const is404 = await page.getByText(/not found|404|does not exist/i).isVisible().catch(() => false);
+    const is404 = await page
+      .getByText(/not found|404|does not exist/i)
+      .isVisible()
+      .catch(() => false);
     const isHome = new URL(page.url()).pathname === '/';
 
     expect(is404 || isHome, 'Expected either a 404 message or a home redirect').toBe(true);

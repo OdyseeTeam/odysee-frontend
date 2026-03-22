@@ -6,8 +6,9 @@ import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectHomepageDiscoverNew } from 'redux/selectors/settings';
 import DiscoverPage from './view';
 
-const select = (state, props) => {
-  const urlParams = new URLSearchParams(props.location.search);
+const select = (state) => {
+  const search = state.router?.location?.search || '';
+  const urlParams = new URLSearchParams(search);
   const repostedUriInUrl = urlParams.get(CS.REPOSTED_URI_KEY);
   const repostedUri = repostedUriInUrl ? decodeURIComponent(repostedUriInUrl) : undefined;
   const discoverDataNew = selectHomepageDiscoverNew(state);

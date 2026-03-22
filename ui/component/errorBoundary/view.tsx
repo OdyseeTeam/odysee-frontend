@@ -1,16 +1,13 @@
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
-import { withRouter } from 'react-router';
 import analytics from 'analytics';
 import I18nMessage from 'component/i18nMessage';
+import { history } from 'redux/router';
 // import Native from 'native';
 // import Lbry from 'lbry';
 type Props = {
   children: React.ReactNode;
-  history: {
-    replace: (arg0: string) => void;
-  };
 };
 type State = {
   hasError: boolean;
@@ -59,7 +56,6 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   refresh() {
-    const { history } = this.props;
     // use history.replace instead of history.push so the user can't click back to the errored page
     history.replace('');
     this.setState({
@@ -125,5 +121,4 @@ class ErrorBoundary extends React.Component<Props, State> {
     return this.props.children;
   }
 }
-
-export default withRouter(ErrorBoundary);
+export default ErrorBoundary;

@@ -2,7 +2,7 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import { SETTINGS_GRP } from 'constants/settings';
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 import Button from 'component/button';
 // @if TARGET='app'
@@ -63,7 +63,8 @@ export default function SettingsSideNavigation() {
   const isSmallScreen = useIsSmallScreen();
   const isAbsolute = isSmallScreen;
   const microNavigation = !sidebarOpen || isSmallScreen;
-  const { location, goBack } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   function getOnClickHandler(section) {
     if (section) {
@@ -71,7 +72,7 @@ export default function SettingsSideNavigation() {
         return () => scrollToSection(section);
       } else if (location.pathname.startsWith(`/$/${PAGES.SETTINGS}/`)) {
         return () => {
-          goBack();
+          navigate(-1);
           setTimeout(() => scrollToSection(section), 5);
         };
       }

@@ -1,6 +1,6 @@
 import React from 'react';
 import PaymentRow from './internal/paymentRow';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import Paginate from 'component/common/paginate';
 interface IProps {
   doMembershipFetchIncomingPayments: () => void;

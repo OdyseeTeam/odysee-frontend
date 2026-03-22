@@ -2,7 +2,7 @@ import { COL_TYPES } from 'constants/collections';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import FileReactions from 'component/fileReactions';
 import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
@@ -42,9 +42,7 @@ function CollectionActions(props: Props) {
     collectionType, // doOpenModal,
     // doToggleCollectionSavedForId,
   } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const isMobile = useIsMobile();
   const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;
   const urlParams = new URLSearchParams(search);

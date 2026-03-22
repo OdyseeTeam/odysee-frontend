@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import {
   selectClaimForUri,
   selectPreorderTagForUri,
@@ -58,4 +57,4 @@ const perform = {
   doCheckIfPurchasedClaimId,
   doPlayUri,
 };
-export default withRouter(connect(select, perform)(PreorderAndPurchaseContent));
+export default connect(select, perform)(PreorderAndPurchaseContent);

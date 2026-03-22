@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { doTipAccountStatus, doTipAccountRemove } from 'redux/actions/stripe';
 import { doOpenModal } from 'redux/actions/app';
 import {
@@ -22,4 +21,4 @@ const perform = {
   doOpenModal,
   doTipAccountRemove,
 };
-export default withRouter(connect(select, perform)(StripeAccountConnection));
+export default connect(select, perform)(StripeAccountConnection);

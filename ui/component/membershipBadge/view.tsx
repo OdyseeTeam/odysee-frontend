@@ -7,7 +7,7 @@ import React from 'react';
 import CommentBadge from 'component/common/comment-badge';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { parseURI, buildURI } from 'util/lbryURI';
 import Button from 'component/button';
 const BADGE_ICONS = {
@@ -80,7 +80,7 @@ type WrapperProps = {
 
 const BadgeWrapper = (props: WrapperProps) => {
   const { linkPage, children, badgeToShow, doOpenModal, validUserMembershipForChannel, uri } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   if (!linkPage) return children;
 
   if (badgeToShow === 'Creator' && uri) {
@@ -95,7 +95,7 @@ const BadgeWrapper = (props: WrapperProps) => {
       <Button
         onClick={() =>
           validUserMembershipForChannel
-            ? push({
+            ? navigate({
                 pathname: formatLbryUrlForWeb(channelUri),
                 search: urlParams.toString(),
               })

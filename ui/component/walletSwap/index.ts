@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import WalletSwap from './view';
 import { doOpenModal } from 'redux/actions/app';
 import { doAddCoinSwap, doRemoveCoinSwap, doQueryCoinSwapStatus } from 'redux/actions/coinSwap';
@@ -24,5 +23,4 @@ const perform = (dispatch) => ({
   checkAddressIsMine: (address) => dispatch(doCheckAddressIsMine(address)),
   queryCoinSwapStatus: (sendAddress) => dispatch(doQueryCoinSwapStatus(sendAddress)),
 });
-
-export default withRouter(connect(select, perform)(WalletSwap));
+export default connect(select, perform)(WalletSwap);

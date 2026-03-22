@@ -1,13 +1,13 @@
 import React from 'react';
 import UserVerify from 'component/userVerify';
 import Page from 'component/page';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function RewardsVerifyPage() {
-  const { goBack } = useHistory();
+  const navigate = useNavigate();
   return (
     <Page>
-      <UserVerify onSkip={() => goBack()} />
+      <UserVerify onSkip={() => navigate(-1)} />
     </Page>
   );
 }

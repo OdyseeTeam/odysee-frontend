@@ -4,17 +4,17 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 // prettier-ignore
 const Lazy = {
-  DragDropContext: React.lazy(() => import('react-beautiful-dnd'
+  DragDropContext: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.DragDropContext
   }))),
-  Droppable: React.lazy(() => import('react-beautiful-dnd'
+  Droppable: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.Droppable
   }))),
-  Draggable: React.lazy(() => import('react-beautiful-dnd'
+  Draggable: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.Draggable

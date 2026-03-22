@@ -7,7 +7,8 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+
 type Props = {
   errorMessage: string | null | undefined;
   isPending: boolean;
@@ -52,7 +53,7 @@ class UserVerify extends React.PureComponent<Props> {
     const state = this.state;
 
     if (state && state.shouldRedirect) {
-      return <Redirect to="/$/rewards" />;
+      return <Navigate replace to="/$/rewards" />;
     }
 
     return (

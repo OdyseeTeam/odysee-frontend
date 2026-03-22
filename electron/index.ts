@@ -43,6 +43,12 @@ let tray; // eslint-disable-line
 
 let daemon;
 let lbryFirst;
+
+function formatRc(ver) {
+  // Adds dash if needed to make RC suffix SemVer friendly
+  return ver.replace(/([^-])rc/, '$1-rc');
+}
+
 const appState = {};
 const PROTOCOL = 'lbry';
 
@@ -304,11 +310,6 @@ ipcMain.on('autoUpdateAccepted', () => {
   autoUpdater.quitAndInstall();
 });
 ipcMain.on('version-info-requested', () => {
-  function formatRc(ver) {
-    // Adds dash if needed to make RC suffix SemVer friendly
-    return ver.replace(/([^-])rc/, '$1-rc');
-  }
-
   const localVersion = pjson.version;
   let result = '';
 

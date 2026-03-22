@@ -12,6 +12,7 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
+import { useLocation } from 'react-router-dom';
 const CommentsList = lazyImport(
   () =>
     import(
@@ -39,9 +40,6 @@ type Props = {
   isUriPlaying: boolean;
   linkedCommentId?: string;
   threadCommentId?: string;
-  location: {
-    search: string;
-  };
   playingCollectionId: string | null | undefined;
   position: number;
   commentsDisabled: boolean | null | undefined;
@@ -65,12 +63,12 @@ export default function VideoPlayersPage(props: Props) {
     audioVideoDuration,
     commentsListTitle,
     isUriPlaying,
-    location,
     position,
     contentUnlocked,
     isAutoplayCountdownForUri,
     clearPosition,
   } = props;
+  const location = useLocation();
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();

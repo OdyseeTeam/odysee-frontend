@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormField, Form } from 'component/common/form';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FileListContext } from 'page/fileListPublished/view';
 import * as FILE_LIST from 'constants/file_list';
 import * as KEYCODES from 'constants/keycodes';
@@ -10,10 +10,8 @@ import Icon from 'component/common/icon';
 const RightSideActions = () => {
   const { searchText, setSearchText, isFilteringEnabled, sortOption, updateFilteringSetting, setFilterParamsChanged } =
     React.useContext(FileListContext);
-  const history = useHistory();
-  const {
-    location: { search },
-  } = history;
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   function handleSearchTextChange(value) {
@@ -27,7 +25,7 @@ const RightSideActions = () => {
     }
 
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   function escapeListener(e: React.KeyboardEvent<any>) {
@@ -52,7 +50,7 @@ const RightSideActions = () => {
     updateFilteringSetting(isFilteringEnabled, sortObj);
     setFilterParamsChanged(true);
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   //

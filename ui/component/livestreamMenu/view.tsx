@@ -1,7 +1,7 @@
 // @ts-expect-error
 import { Global } from '@emotion/react';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import usePersistedState from 'effects/use-persisted-state';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -44,9 +44,7 @@ const LivestreamMenu = (props: Props) => {
     doToggleLiveChatMembersOnlySettingForClaimId,
     doToast,
   } = props;
-  const {
-    location: { pathname },
-  } = useHistory();
+  const { pathname } = useLocation();
   const initialPopoutUnload = React.useRef(false);
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
 

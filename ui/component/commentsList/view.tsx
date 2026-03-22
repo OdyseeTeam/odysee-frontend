@@ -18,7 +18,7 @@ import Empty from 'component/common/empty';
 import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CommentListMenu from './internal/commentListMenu';
 import { lazyImport } from 'util/lazyImport';
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
@@ -98,47 +98,43 @@ type DispatchProps = {
 // ****************************************************************************
 
 export default function CommentList(props: Props & StateProps & DispatchProps) {
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const {
-    allCommentIds,
     uri,
-    pinnedComments,
+    linkedCommentId,
+    commentsAreExpanded,
+    threadCommentId,
     topLevelComments,
+    pinnedComments,
+    allCommentIds,
+    threadComment,
+    totalComments,
     topLevelTotalPages,
+    threadCommentAncestors,
+    linkedCommentAncestors,
+    myReactsByCommentId,
+    othersReactsById,
+    commentsEnabledSetting,
     claimId,
     channelId,
     claimIsMine,
+    activeChannelId,
     isFetchingComments,
     isFetchingTopLevelComments,
     isFetchingReacts,
-    linkedCommentId,
-    totalComments,
     fetchingChannels,
-    myReactsByCommentId,
-    othersReactsById,
-    activeChannelId,
-    commentsEnabledSetting,
-    commentsAreExpanded,
-    threadCommentId,
-    threadComment,
-    notInDrawer,
-    threadCommentAncestors,
-    linkedCommentAncestors,
+    chatCommentsRestrictedToChannelMembers,
+    isAChannelMember,
+    scheduledState,
     fetchTopLevelComments,
     fetchComment,
     fetchReacts,
     resetComments,
     doFetchOdyseeMembershipForChannelIds,
-    doPopOutInlinePlayer,
     doFetchChannelMembershipsForChannelIds,
-    chatCommentsRestrictedToChannelMembers,
-    isAChannelMember,
-    scheduledState,
+    doPopOutInlinePlayer,
   } = props;
-  const threadRedirect = React.useRef(false);
-  const {
-    push,
-    location: { pathname, search },
-  } = useHistory();
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
   const urlParams = new URLSearchParams(search);
@@ -232,14 +228,14 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     ) {
       const urlParams = new URLSearchParams(search);
       urlParams.set(THREAD_COMMENT_QUERY_PARAM, linkedCommentId);
-      push({
+      navigate({
         pathname,
         search: urlParams.toString(),
       });
       // to do it only once
       threadRedirect.current = true;
     }
-  }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
+  }, [linkedCommentAncestors, linkedCommentId, navigate, pathname, search, threadCommentId, threadDepthLevel]);
   // TODO: still have to change this to use the new check
   const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
   // set new page on scroll debounce and avoid setting the page after navigated uris
@@ -620,10 +616,8 @@ type ThreadLinkProps = {
 
 const ThreadLinkButton = (props: ThreadLinkProps) => {
   const { label, isViewAll, threadCommentParent, threadCommentId } = props;
-  const {
-    push,
-    location: { pathname, search },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   return (
     <Button
       button="link"
@@ -645,7 +639,7 @@ const ThreadLinkButton = (props: ThreadLinkProps) => {
         }
 
         window.pendingLinkedCommentScroll = true;
-        push({
+        navigate({
           pathname,
           search: urlParams.toString(),
         });

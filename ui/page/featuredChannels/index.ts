@@ -8,8 +8,9 @@ import {
   selectSettingsForChannelId,
 } from 'redux/selectors/comments';
 
-const select = (state, props) => {
-  const urlParams = new URLSearchParams(props.location.search);
+const select = (state) => {
+  const search = state.router?.location?.search || '';
+  const urlParams = new URLSearchParams(search);
   const claimId = urlParams.get(CSQ.CLAIM_ID);
   const sectionId = urlParams.get(CSQ.SECTION_ID);
   return {

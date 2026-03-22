@@ -1,5 +1,5 @@
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Icon from 'component/common/icon';
@@ -56,7 +56,7 @@ export default function NotificationHeaderButton(props: Props) {
     doGetMembershipSupportersList,
   } = props;
   const list = notifications.slice(0, 20);
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
@@ -101,7 +101,7 @@ export default function NotificationHeaderButton(props: Props) {
   };
 
   function handleMenuClick() {
-    push(`/$/${PAGES.NOTIFICATIONS}`);
+    navigate(`/$/${PAGES.NOTIFICATIONS}`);
   }
 
   function handleNotificationDelete(e, id) {

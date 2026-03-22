@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { doSearch } from 'redux/actions/search';
 import {
   selectIsSearching,
@@ -12,9 +11,10 @@ import { getSearchQueryString } from 'util/query-params';
 import SearchPage from './view';
 import * as SETTINGS from 'constants/settings';
 
-const select = (state, props) => {
+const select = (state) => {
   const showMature = selectShowMatureContent(state);
-  const urlParams = new URLSearchParams(props.location.search);
+  const search = state.router?.location?.search || '';
+  const urlParams = new URLSearchParams(search);
   const languageSetting = selectLanguage(state);
   const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
   let urlQuery = urlParams.get('q') || null;
@@ -49,4 +49,4 @@ const perform = (dispatch) => ({
   search: (query, options) => dispatch(doSearch(query, options)),
 });
 
-export default withRouter(connect(select, perform)(SearchPage));
+export default connect(select, perform)(SearchPage);

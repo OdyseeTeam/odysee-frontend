@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { history } from 'redux/router';
 import {
   selectClaimForUri,
   selectIsUriResolving,
@@ -9,6 +10,7 @@ import {
   selectLatestClaimForUri,
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
+import React from 'react';
 import {
   selectCollectionForId,
   selectFirstItemUrlForCollection,
@@ -79,4 +81,20 @@ const perform = {
   doFetchCreatorSettings,
   doFetchItemsInCollection,
 };
-export default withResolvedClaimRender(withRouter(connect(select, perform)(ClaimPageComponent)));
+const ConnectedClaimPageComponent = connect(select, perform)(ClaimPageComponent);
+
+function ClaimPageComponentWithRouteProps(props) {
+  const location = useLocation();
+  const params = useParams();
+  const navigate = useNavigate();
+  const match = {
+    params,
+    path: location.pathname,
+    url: location.pathname,
+    isExact: true,
+  };
+
+  return React.createElement(ConnectedClaimPageComponent, { ...props, history, location, match, navigate });
+}
+
+export default withResolvedClaimRender(ClaimPageComponentWithRouteProps);

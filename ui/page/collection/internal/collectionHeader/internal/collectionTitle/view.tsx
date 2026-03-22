@@ -2,7 +2,7 @@ import React from 'react';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { CollectionPageContext } from 'page/collection/context';
 import Icon from 'component/common/icon';
@@ -19,11 +19,8 @@ type Props = {
 };
 
 const CollectionTitle = (props: Props) => {
-  const { collectionId, noIcon, collectionTitle, collectionHasEdits, isMyCollection, collectionType } = props;
-  const {
-    push,
-    location: { search },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const { togglePublicCollection } = React.useContext(CollectionPageContext);
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const urlParams = new URLSearchParams(search);
@@ -75,7 +72,7 @@ const CollectionTitle = (props: Props) => {
               className="button-toggle"
               icon={ICONS.EDIT}
               onClick={() =>
-                push(
+                navigate(
                   `/$/${PAGES.PLAYLIST}/${collectionId}?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`
                 )
               }

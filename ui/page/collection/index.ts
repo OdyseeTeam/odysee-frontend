@@ -15,11 +15,11 @@ import {
 import { doResolveClaimId } from 'redux/actions/claims';
 import { doCollectionEdit, doRemoveFromUnsavedChangesCollectionsForCollectionId } from 'redux/actions/collections';
 import CollectionPage from './view';
+import { useParams } from 'react-router-dom';
+import React from 'react';
 
 const select = (state, props) => {
-  const collectionIdFromProp = props && props.collectionId;
-  const collectionIdFromMatch = props && props.match && props.match.params && props.match.params.collectionId;
-  const collectionId = collectionIdFromProp || collectionIdFromMatch;
+  const collectionId = props?.collectionId;
   const claim = selectClaimForId(state, collectionId);
   return {
     collectionId,
@@ -39,4 +39,9 @@ const perform = {
   doCollectionEdit,
   doRemoveFromUnsavedChangesCollectionsForCollectionId,
 };
-export default connect(select, perform)(CollectionPage);
+const ConnectedCollectionPage = connect(select, perform)(CollectionPage);
+
+export default function CollectionRoute(props) {
+  const { collectionId = '' } = useParams();
+  return React.createElement(ConnectedCollectionPage, { ...props, collectionId: props.collectionId || collectionId });
+}

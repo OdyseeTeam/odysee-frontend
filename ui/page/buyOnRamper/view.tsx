@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ENABLE_ARCONNECT } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -22,11 +22,8 @@ type Props = {
 };
 export default function BuyPage(props: Props) {
   const { arWalletStatus, theme, balance, experimentalUi, doArDisconnect } = props;
-  // const [targetWallet, setTargetWallet] = React.useState(undefined);
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const root = document?.documentElement ?? undefined;
   if (!(root instanceof Element)) return;
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -149,7 +146,7 @@ export default function BuyPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.BUY}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   React.useEffect(() => {

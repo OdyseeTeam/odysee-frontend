@@ -18,9 +18,10 @@ import { selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/members
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/claim';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 const RECENT_HISTORY_AMOUNT = 10;
 const HISTORY_ITEMS_PER_PAGE = 50;
-export const selectState = (state: State) => state.content || {};
+export const selectState = (state: State) => state.content || EMPTY_OBJECT;
 export function selectContentStates(state: State): ContentState {
   return state.content;
 }

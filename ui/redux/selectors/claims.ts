@@ -7,6 +7,7 @@ import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
@@ -31,17 +32,17 @@ import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
 export function selectClaimsStates(state: State) {
-  return state.claims || {};
+  return state.claims || EMPTY_OBJECT;
 }
 
-const selectState = (state: State) => state.claims || {};
+const selectState = (state: State) => state.claims || EMPTY_OBJECT;
 
-export const selectById = (state: State) => selectState(state).byId || {};
-export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || {};
+export const selectById = (state: State) => selectState(state).byId || EMPTY_OBJECT;
+export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || EMPTY_OBJECT;
 export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) =>
   Object.assign({}, byId, pendingById)
 );
-export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
+export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || EMPTY_OBJECT;
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;
 export const selectRepostLoading = (state: State) => selectState(state).repostLoading;
@@ -112,7 +113,10 @@ export const selectClaimUriForId = (state: State, claimId: string) => {
 };
 export const selectChannelPermanentUriForUri = (state: State, uri: string) =>
   getChannelPermanentUrlFromClaim(selectClaimForUri(state, uri));
-export const selectAllClaimsByChannel = createSelector(selectState, (state) => state.paginatedClaimsByChannel || {});
+export const selectAllClaimsByChannel = createSelector(
+  selectState,
+  (state) => state.paginatedClaimsByChannel || EMPTY_OBJECT
+);
 export const selectPendingIds = createSelector(selectState, (state) => Object.keys(state.pendingById) || []);
 export const selectPendingClaims = createSelector(selectPendingClaimsById, (pendingById) => Object.values(pendingById));
 export const selectClaimIsPendingForId = (state: State, claimId: string) => {
@@ -254,7 +258,7 @@ export const selectMyClaimsRaw = createSelector(selectState, selectClaimsById, (
   });
   return claims;
 });
-export const selectAbandoningById = (state: State) => selectState(state).abandoningById || {};
+export const selectAbandoningById = (state: State) => selectState(state).abandoningById || EMPTY_OBJECT;
 export const selectAbandoningIds = createSelector(selectAbandoningById, (abandoningById) =>
   Object.keys(abandoningById)
 );
@@ -366,7 +370,10 @@ export const makeSelectMyPurchasesForPage = (query: string | null | undefined, p
 export const selectClaimWasPurchasedForUri = createSelector(selectClaimForUri, (claim) =>
   Boolean(claim?.purchase_receipt !== undefined)
 );
-export const selectAllFetchingChannelClaims = createSelector(selectState, (state) => state.fetchingChannelClaims || {});
+export const selectAllFetchingChannelClaims = createSelector(
+  selectState,
+  (state) => state.fetchingChannelClaims || EMPTY_OBJECT
+);
 export const makeSelectFetchingChannelClaims = (uri: string) =>
   createSelector(selectAllFetchingChannelClaims, (fetching) => fetching && fetching[uri]);
 export const makeSelectClaimsInChannelForPage = (uri: string, page?: number) =>
@@ -690,7 +697,10 @@ export const selectIsUriResolving = (state: State, uri: string) => {
 };
 export const selectIsResolvingForId = (state: State, claimId: ClaimId) =>
   new Set(selectResolvingUris(state)).has(claimId);
-export const selectChannelClaimCounts = createSelector(selectState, (state) => state.channelClaimCounts || {});
+export const selectChannelClaimCounts = createSelector(
+  selectState,
+  (state) => state.channelClaimCounts || EMPTY_OBJECT
+);
 export const makeSelectPendingClaimForUri = (uri: string) =>
   createSelector(selectPendingClaimsById, (pendingById) => {
     let uriStreamName;
@@ -885,17 +895,21 @@ export const selectPreorderContentClaimIdForUri = createCachedSelector(
     if (matchingTag) return matchingTag.slice(12);
   }
 )((state, uri) => String(uri));
-export const selectFetchingClaimSearchByQuery = (state: State) => selectState(state).fetchingClaimSearchByQuery || {};
+export const selectFetchingClaimSearchByQuery = (state: State) =>
+  selectState(state).fetchingClaimSearchByQuery || EMPTY_OBJECT;
 export const selectIsFetchingClaimSearchForQuery = (state: State, query: string) =>
   selectFetchingClaimSearchByQuery(state)[query] || false;
 export const selectFetchingClaimSearch = createSelector(
   selectFetchingClaimSearchByQuery,
   (fetchingClaimSearchByQuery) => Boolean(Object.keys(fetchingClaimSearchByQuery).length)
 );
-export const selectClaimSearchByQuery = createSelector(selectState, (state) => state.claimSearchByQuery || {});
+export const selectClaimSearchByQuery = createSelector(
+  selectState,
+  (state) => state.claimSearchByQuery || EMPTY_OBJECT
+);
 export const selectClaimSearchByQueryLastPageReached = createSelector(
   selectState,
-  (state) => state.claimSearchByQueryLastPageReached || {}
+  (state) => state.claimSearchByQueryLastPageReached || EMPTY_OBJECT
 );
 export const selectShortUrlForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);

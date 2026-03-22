@@ -22,7 +22,7 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
@@ -176,9 +176,7 @@ function VideoViewer(props: Props) {
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
-  const {
-    location: { pathname, search },
-  } = useHistory();
+  const { pathname, search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
   const [playerControlBar, setControlBar] = useState();

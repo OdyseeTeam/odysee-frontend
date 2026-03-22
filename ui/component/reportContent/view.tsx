@@ -19,7 +19,7 @@ import {
 } from 'constants/form-field';
 import * as REPORT_API from 'constants/report_content';
 import * as ICONS from 'constants/icons';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 const PAGE_TYPE = 'page--type';
 const PAGE_CATEGORY = 'page--category';
 const PAGE_INFRINGEMENT_DETAILS = 'page--infringement-details';
@@ -142,7 +142,7 @@ export default function ReportContent(props: Props) {
   const [isResolvingComment, setIsResolvingComment] = React.useState(false);
   const [isReporting, setIsReporting] = React.useState();
   const [error, setError] = React.useState();
-  const { goBack } = useHistory();
+  const navigate = useNavigate();
   // Resolve claim if URL is entered directly or if page is reloaded.
   React.useEffect(() => {
     if (!claim) {
@@ -784,7 +784,7 @@ export default function ReportContent(props: Props) {
             <div className="section">{body}</div>
             <div className="section__actions">
               {error && <Button button="alt" label={__('Back')} onClick={() => setPage(PAGE_CONFIRM)} />}
-              <Button button="primary" label={__('Close')} disabled={isReporting} onClick={() => goBack()} />
+              <Button button="primary" label={__('Close')} disabled={isReporting} onClick={() => navigate(-1)} />
             </div>
           </>
         );

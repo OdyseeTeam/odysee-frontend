@@ -5,7 +5,7 @@ import Card from 'component/common/card';
 import { setSavedPassword } from 'util/saved-passwords';
 import usePersistedState from 'effects/use-persisted-state';
 import I18nMessage from 'component/i18nMessage';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { SITE_HELP_EMAIL } from 'config';
 type Props = {
   getSync: (arg0: (arg0: any, arg1: boolean) => void, arg1: string | null | undefined) => void;
@@ -17,11 +17,9 @@ type Props = {
 };
 
 function SyncPassword(props: Props) {
-  const { getSync, getSyncIsPending, email, signOut, passwordError, handleSyncComplete } = props;
-  const {
-    push,
-    location: { search },
-  } = useHistory();
+  const { getSync, getSyncIsPending, email, passwordError, signOut, handleSyncComplete } = props;
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const redirect = urlParams.get('redirect');
   const [password, setPassword] = React.useState('');
@@ -32,7 +30,7 @@ function SyncPassword(props: Props) {
       handleSyncComplete(error, hasDataChanged);
 
       if (!error) {
-        push(redirect || '/');
+        navigate(redirect || '/');
         setSavedPassword(password, rememberPassword);
       }
     }, password);

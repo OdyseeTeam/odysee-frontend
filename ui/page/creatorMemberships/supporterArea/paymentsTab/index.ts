@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import PaymentsTab from './view';
 import { doMembershipFetchOutgoingPayments } from 'redux/actions/memberships';
 import {
@@ -17,4 +16,4 @@ const select = (state) => ({
 const perform = {
   doMembershipFetchOutgoingPayments,
 };
-export default withRouter(connect(select, perform)(PaymentsTab));
+export default connect(select, perform)(PaymentsTab);

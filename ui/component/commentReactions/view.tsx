@@ -6,7 +6,7 @@ import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsMobile } from 'effects/use-screensize';
 type Props = {
   myReacts: Array<string>;
@@ -24,26 +24,39 @@ type Props = {
   hideCreatorLike: boolean;
   resolve: (arg0: string) => void;
 };
+
+function getCountForReaction(type: string, othersReacts: any, myReacts: Array<string>) {
+  let count = 0;
+
+  if (othersReacts && othersReacts[type]) {
+    count += othersReacts[type];
+  }
+
+  if (myReacts && myReacts.includes(type)) {
+    count += 1;
+  }
+
+  return count;
+}
+
 export default function CommentReactions(props: Props) {
   const {
     myReacts,
     disableReactions,
     disableSlimes,
     othersReacts,
-    commentId,
     react,
+    commentId,
     claimIsMine,
+    activeChannelId,
     uri,
     claim,
-    activeChannelId,
     doToast,
     hideCreatorLike,
     resolve,
   } = props;
-  const {
-    push,
-    location: { pathname },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const isMobile = useIsMobile();
   React.useEffect(() => {
     if (!claim) {
@@ -61,22 +74,8 @@ export default function CommentReactions(props: Props) {
       ? claim.canonical_url
       : claim && claim.signing_channel && claim.signing_channel.canonical_url;
 
-  const getCountForReact = (type) => {
-    let count = 0;
-
-    if (othersReacts && othersReacts[type]) {
-      count += othersReacts[type];
-    }
-
-    if (myReacts && myReacts.includes(type)) {
-      count += 1;
-    }
-
-    return count;
-  };
-
   const shouldHide = !canCreatorReact && hideCreatorLike;
-  const creatorLiked = getCountForReact(REACTION_TYPES.CREATOR_LIKE) > 0;
+  const creatorLiked = getCountForReaction(REACTION_TYPES.CREATOR_LIKE, othersReacts, myReacts) > 0;
   const likeIcon = SIMPLE_SITE
     ? myReacts && myReacts.includes(REACTION_TYPES.LIKE)
       ? ICONS.FIRE_ACTIVE
@@ -105,7 +104,7 @@ export default function CommentReactions(props: Props) {
   }
 
   function promptForChannel() {
-    push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}&lc=${commentId}`);
+    navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}&lc=${commentId}`);
     doToast({
       message: __('A channel is required to throw fire and slime'),
     });
@@ -124,7 +123,11 @@ export default function CommentReactions(props: Props) {
               'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.LIKE),
             })}
             onClick={handleCommentLike}
-            label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.LIKE)}</span>}
+            label={
+              <span className="comment__reaction-count">
+                {getCountForReaction(REACTION_TYPES.LIKE, othersReacts, myReacts)}
+              </span>
+            }
           />
           {!disableSlimes && (
             <Button
@@ -136,7 +139,11 @@ export default function CommentReactions(props: Props) {
                 'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.DISLIKE),
               })}
               onClick={handleCommentDislike}
-              label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.DISLIKE)}</span>}
+              label={
+                <span className="comment__reaction-count">
+                  {getCountForReaction(REACTION_TYPES.DISLIKE, othersReacts, myReacts)}
+                </span>
+              }
             />
           )}
         </>

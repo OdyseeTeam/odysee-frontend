@@ -1,7 +1,7 @@
 import { lazyImport } from 'util/lazyImport';
 import { MAIN_CLASS } from 'constants/classnames';
 import { parseURI } from 'util/lbryURI';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import classnames from 'classnames';
 import Header from 'component/header';
@@ -61,9 +61,7 @@ function Page(props: Props) {
     videoTheaterMode,
     isPopoutWindow,
   } = props;
-  const {
-    location: { pathname, hash, search },
-  } = useHistory();
+  const { pathname, hash, search } = useLocation();
   const theaterMode =
     renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;
   const isSmallScreen = useIsSmallScreen();

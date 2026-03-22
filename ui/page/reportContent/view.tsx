@@ -1,9 +1,9 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import Page from 'component/page';
 import ReportContent from 'component/reportContent';
 export default function ReportContentPage(props: any) {
-  const { location } = useHistory();
+  const location = useLocation();
   return (
     <Page
       noSideNavigation

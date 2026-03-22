@@ -29,7 +29,7 @@ import {
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
-import { push } from 'connected-react-router';
+import { push } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';

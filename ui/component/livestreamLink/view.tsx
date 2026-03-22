@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
@@ -13,7 +13,7 @@ type Props = {
 
 const LivestreamLink = (props: Props) => {
   const { claimUri, title = null, doResolveUri } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   React.useEffect(() => {
     if (claimUri) {
       doResolveUri(claimUri);
@@ -29,7 +29,7 @@ const LivestreamLink = (props: Props) => {
           <label>{title || __('Live stream in progress')}</label>
         </h1>
       }
-      onClick={() => push(formatLbryUrlForWeb(claimUri))}
+      onClick={() => navigate(formatLbryUrlForWeb(claimUri))}
     >
       <ClaimPreview uri={claimUri} type="inline" hideMenu />
     </Card>

@@ -3,7 +3,7 @@ import Button from 'component/button';
 import * as COLS from 'constants/collections';
 import classnames from 'classnames';
 import { FormField } from 'component/common/form';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import RightSideActions from './internal/rightSideActions';
 import FilteredTextLabel from './internal/filtered-text-label';
 type Props = {
@@ -18,10 +18,8 @@ type Props = {
 };
 export default function CollectionsListMine(props: Props) {
   const { filterType, isTruncated, sortOption, setFilterType, setSortOption } = props;
-  const history = useHistory();
-  const {
-    location: { search },
-  } = history;
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   function handleChange(sortObj) {
@@ -30,14 +28,14 @@ export default function CollectionsListMine(props: Props) {
     urlParams.set(sortObj.key, sortObj.value);
     setSortOption(sortObj);
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   function handleFilterTypeChange(value) {
     urlParams.set(COLS.FILTER_TYPE_KEY, value);
     setFilterType(value);
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   return (

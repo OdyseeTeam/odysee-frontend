@@ -18,7 +18,7 @@ import {
   generateShortShareUrl,
   formatLbryUrlForWeb,
 } from 'util/url';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { EmbedContext } from 'contexts/embed';
@@ -128,7 +128,7 @@ function ClaimMenuList(props: Props) {
   } = props;
   const isEmbed = React.useContext(EmbedContext);
   const isChannelPage = React.useContext(ChannelPageContext);
-  const { push, replace } = useHistory();
+  const navigate = useNavigate();
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
@@ -216,7 +216,7 @@ function ClaimMenuList(props: Props) {
       prepareEdit(claim, editUri);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
-      push(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);
+      navigate(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);
     }
   }
 
@@ -235,7 +235,7 @@ function ClaimMenuList(props: Props) {
     } else {
       openModal(MODALS.CONFIRM_CLAIM_REVOKE, {
         claim,
-        cb: isChannel && (() => replace(`/$/${PAGES.CHANNELS}`)),
+        cb: isChannel && (() => navigate(`/$/${PAGES.CHANNELS}`), { replace: true }),
       });
     }
   }
@@ -308,7 +308,7 @@ function ClaimMenuList(props: Props) {
 
   function handleReportContent() {
     const claimId = contentClaim?.claim_id;
-    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
+    navigate(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
 
   const AddToCollectionContext = () => {
@@ -467,7 +467,7 @@ function ClaimMenuList(props: Props) {
                 {/* COLLECTION OPERATIONS */}
                 {collectionId && isCollectionClaim ? (
                   <>
-                    <MenuItem className="comment__menu-option" onSelect={() => push(collectionNavigateUrl)}>
+                    <MenuItem className="comment__menu-option" onSelect={() => navigate(collectionNavigateUrl)}>
                       {defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW ? (
                         <a className="menu__link" href={collectionNavigateUrl}>
                           <Icon aria-hidden icon={ICONS.VIEW} />
@@ -501,7 +501,7 @@ function ClaimMenuList(props: Props) {
                           <MenuItem
                             className="comment__menu-option"
                             onSelect={() =>
-                              push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
+                              navigate(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
                             }
                           >
                             <div className="menu__link">
@@ -513,7 +513,7 @@ function ClaimMenuList(props: Props) {
                         <MenuItem
                           className="comment__menu-option"
                           onSelect={() =>
-                            push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)
+                            navigate(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)
                           }
                         >
                           <div className="menu__link">
@@ -673,9 +673,7 @@ function ClaimMenuList(props: Props) {
                 >
                   <NavLink
                     className="menu__link"
-                    to={{
-                      pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '',
-                    }}
+                    to={contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : ''}
                     target={isEmbed && '_blank'}
                   >
                     <Icon aria-hidden icon={ICONS.REPORT} />

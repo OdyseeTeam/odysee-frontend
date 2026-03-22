@@ -37,8 +37,8 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
-import { useHistory } from 'react-router';
-import { Prompt } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationPrompt } from 'component/common/navigation-prompt';
 import CommentMenuList from 'component/commentMenuList';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
@@ -173,11 +173,8 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   const lastThreadLevel = threadDepthLevel - 1;
   // Mobile: 0, 1, 2 -> new thread....., so each 3 comments
   const openNewThread = threadLevel > 0 && threadLevel % lastThreadLevel === 0;
-  const {
-    push,
-    replace,
-    location: { pathname, search },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const isLinkedComment = linkedCommentId && linkedCommentId === commentId;
   const isThreadComment = threadCommentId && threadCommentId === commentId;
@@ -287,7 +284,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   function handleCommentReply() {
     if (!hasChannels) {
-      push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`);
+      navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`);
       doToast({
         message: __('A channel is required to comment on %SITE_NAME%', {
           SITE_NAME,
@@ -302,13 +299,13 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   function handleTimeClick() {
     urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
-    replace(`${pathname}?${urlParams.toString()}`);
+    navigate(`${pathname}?${urlParams.toString()}`, { replace: true });
   }
 
   function handleOpenNewThread() {
     urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
-    push({
+    navigate({
       pathname,
       search: urlParams.toString(),
     });
@@ -456,7 +453,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
           <div>
             {isEditing ? (
               <Form onSubmit={handleSubmit}>
-                <Prompt
+                <NavigationPrompt
                   when={isEditing}
                   message={__('You are still editing this message, are you sure you want to leave?')}
                 />

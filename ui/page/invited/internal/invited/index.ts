@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import { selectUserVerifiedEmail, selectReferrer, selectSetReferrerError } from 'redux/selectors/user';
 import { doClaimRefereeReward } from 'redux/actions/rewards';
 import { selectHasUnclaimedRefereeReward } from 'redux/selectors/rewards';
@@ -26,4 +25,4 @@ const perform = {
   doUserSetReferrerForUri,
   doChannelSubscribe,
 };
-export default withRouter(connect(select, perform)(Invited));
+export default connect(select, perform)(Invited);

@@ -227,7 +227,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
 
     return (
       <NavLink
-        exact
+        end
         onClick={(e) => {
           e.stopPropagation();
           // in case the redirect came from a modal, it will stay open on the
@@ -237,8 +237,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         to={redirectUrl}
         title={title || defaultTooltip}
         disabled={disable}
-        className={combinedClassName}
-        activeClassName={activeClass}
+        className={({ isActive }) => classnames(combinedClassName, isActive && activeClass)}
         aria-label={ariaLabel}
         ref={combinedRef}
         {...otherProps}
@@ -250,7 +249,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
 
   return path ? (
     <NavLink
-      exact
+      end
       to={path}
       title={title || defaultTooltip}
       disabled={disable}
@@ -267,8 +266,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
           onClick();
         }
       }}
-      className={combinedClassName}
-      activeClassName={activeClass}
+      className={({ isActive }) => classnames(combinedClassName, isActive && activeClass)}
       aria-label={ariaLabel}
       ref={combinedRef}
       {...otherProps}

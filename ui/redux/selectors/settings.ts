@@ -7,15 +7,16 @@ import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
 import { selectClaimForId } from 'redux/selectors/claims';
 import { selectUserLocale } from 'redux/selectors/user';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state) => state.settings || {};
+const selectState = (state) => state.settings || EMPTY_OBJECT;
 
 export const selectDaemonSettings = (state) => selectState(state).daemonSettings;
 export const selectDaemonStatus = (state) => selectState(state).daemonStatus;
 export const selectFfmpegStatus = createSelector(selectDaemonStatus, (status) => status.ffmpeg_status);
 export const selectFindingFFmpeg = (state) => selectState(state).findingFFmpeg || false;
-export const selectClientSettings = (state) => selectState(state).clientSettings || {};
-export const selectLoadedLanguages = (state) => selectState(state).loadedLanguages || {};
+export const selectClientSettings = (state) => selectState(state).clientSettings || EMPTY_OBJECT;
+export const selectLoadedLanguages = (state) => selectState(state).loadedLanguages || EMPTY_OBJECT;
 export const selectClientSetting = (state, setting) => {
   const clientSettings = selectClientSettings(state);
   return clientSettings ? clientSettings[setting] : undefined;

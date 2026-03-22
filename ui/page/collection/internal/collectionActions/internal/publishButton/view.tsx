@@ -1,5 +1,5 @@
 import * as ICONS from 'constants/icons';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
@@ -17,7 +17,7 @@ type Props = {
 function CollectionPublishButton(props: Props) {
   const { showEdit, collectionHasEdits, claimIsPending, collectionLength, autoPublish, isPublishing, publishError } =
     props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   if (collectionLength === 0) return null;
   if (autoPublish && !collectionHasEdits && !isPublishing && !publishError) return null;
   const label = isPublishing
@@ -34,7 +34,7 @@ function CollectionPublishButton(props: Props) {
       title={label}
       label={label}
       className={collectionHasEdits ? 'button--warning' : ''}
-      onClick={() => push(`?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)}
+      onClick={() => navigate(`?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)}
       icon={ICONS.PUBLISH}
       iconSize={18}
       disabled={claimIsPending || showEdit || isPublishing}

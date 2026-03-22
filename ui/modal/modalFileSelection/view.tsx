@@ -2,25 +2,19 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import { Modal } from 'modal/modal';
-import { withRouter } from 'react-router';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import FileList from 'component/common/file-list';
+import { history } from 'redux/router';
 type Props = {
   files: Array<WebFile>;
   hideModal: () => void;
   updatePublishForm: (arg0: UpdatePublishState) => void;
-  history: {
-    location: {
-      pathname: string;
-    };
-    push: (arg0: string) => void;
-  };
 };
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 const ModalFileSelection = (props: Props) => {
-  const { history, files, hideModal, updatePublishForm } = props;
+  const { files, hideModal, updatePublishForm } = props;
   const [selectedFile, setSelectedFile] = React.useState(null);
   const navigateToPublish = React.useCallback(() => {
     // Navigate only if location is not publish area:
@@ -73,5 +67,4 @@ const ModalFileSelection = (props: Props) => {
     </Modal>
   );
 };
-
-export default withRouter(ModalFileSelection);
+export default ModalFileSelection;

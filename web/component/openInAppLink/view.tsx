@@ -1,8 +1,9 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { formatWebUrlIntoLbryUrl } from 'util/url';
 import Nag from 'component/nag';
 import usePersistedState from 'effects/use-persisted-state';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 const userAgent = navigator.userAgent.toLowerCase();
 const isAndroidDevice = userAgent.includes('android');
 const isDesktopDevice = typeof window.orientation === 'undefined';
@@ -12,29 +13,17 @@ const addDaysToMs = (initialNumberInMs: number, daysToAdd: number) => {
 };
 
 type Props = {
-  history: {
-    replace: (arg0: string) => void;
-    push: (arg0: string) => void;
-  };
-  location: {
-    search: string;
-    pathname: string;
-  };
   uri: string;
   user: User | null | undefined;
 };
 
 function OpenInAppLink(props: Props) {
-  const {
-    history: { replace },
-    location,
-    uri,
-    user,
-  } = props;
+  const { replace } = history;
+  const { pathname, search } = useLocation();
+  const { uri, user } = props;
   const [showNag, setShowNag] = React.useState(false);
   const [closeNagClicksCount, setCloseNagClicksCount] = usePersistedState('open-in-app-close-count', 0);
   const [closeNagLastDate, setCloseNagLastDate] = usePersistedState('open-in-app-close-date', 0);
-  const { pathname, search } = location;
   let params = new URLSearchParams(search);
   const hasSrcParam = params.get('src');
   let isAndroidUser = false;
@@ -99,4 +88,4 @@ function OpenInAppLink(props: Props) {
   );
 }
 
-export default withRouter(OpenInAppLink);
+export default OpenInAppLink;

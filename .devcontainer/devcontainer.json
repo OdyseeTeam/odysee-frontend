@@ -1,33 +1,33 @@
 {
-    "name": "Odysee dev w/ node.js 22 (Bullseye)",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bullseye",
-    "features": {
-        "ghcr.io/devcontainers/features/sshd:1": {
-            "version": "latest"
-        }
-    },
-    "appPort": [1337, 1338, 5173],
-    "forwardPorts": [1337, 1338, 5173],
-    "portsAttributes": {
-        "1337": {
-            "label": "Web Server",
-            "onAutoForward": "openBrowser"
-        },
-        "1338": {
-            "label": "Vite Dev",
-            "onAutoForward": "notify"
-        },
-        "5173": {
-            "label": "Vite HMR",
-            "onAutoForward": "notify"
-        }
-    },
-    "postCreateCommand": "nvm install 22 && nvm alias default 22 && nvm use 22 && corepack enable && corepack prepare pnpm@latest --activate",
-    "customizations": {
-        "vscode": {
-            "settings": {
-                "terminal.integrated.defaultProfile.linux": "bash"
-            }
-        }
+  "name": "Odysee dev w/ node.js 22 (Bullseye)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
     }
+  },
+  "appPort": [1337, 1338, 5173],
+  "forwardPorts": [1337, 1338, 5173],
+  "portsAttributes": {
+    "1337": {
+      "label": "Web Server",
+      "onAutoForward": "openBrowser"
+    },
+    "1338": {
+      "label": "Vite Dev",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Vite HMR",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "nvm install 22 && nvm alias default 22 && nvm use 22 && corepack enable && corepack prepare pnpm@latest --activate",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
 }

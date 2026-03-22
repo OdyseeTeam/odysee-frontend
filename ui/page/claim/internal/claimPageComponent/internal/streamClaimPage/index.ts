@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri } from 'redux/actions/content';
-import { withRouter } from 'react-router-dom';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import {
   selectClaimIsNsfwForUri,
@@ -25,7 +24,7 @@ import StreamClaimPage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const { search } = location;
+  const search = state.router?.location?.search || '';
   const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
@@ -59,4 +58,4 @@ const perform = {
   doSetPrimaryUri,
   doToggleAppDrawer,
 };
-export default withRouter(connect(select, perform)(StreamClaimPage));
+export default connect(select, perform)(StreamClaimPage);

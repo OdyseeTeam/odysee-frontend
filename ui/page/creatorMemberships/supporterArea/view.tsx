@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
 import HelpHub from 'component/common/help-hub';
@@ -38,22 +38,8 @@ type Props = {
 };
 
 const SupporterArea = (props: Props) => {
-  const {
-    // -- redux --
-    activeChannelClaim,
-    myChannelClaims,
-    doListAllMyMembershipTiers,
-    myChannelIds,
-  } = props;
-  React.useEffect(() => {
-    if (myChannelClaims !== undefined) {
-      doListAllMyMembershipTiers();
-    }
-  }, [doListAllMyMembershipTiers, myChannelClaims]);
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const [allSelected, setAllSelected] = React.useState(true);
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
@@ -97,7 +83,7 @@ const SupporterArea = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   return (

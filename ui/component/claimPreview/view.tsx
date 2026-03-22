@@ -1,5 +1,5 @@
 import React, { useEffect, forwardRef } from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
@@ -42,6 +42,7 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import { history } from 'redux/router';
 const AbandonedChannelPreview = lazyImport(
   () =>
     import(
@@ -62,13 +63,6 @@ type Props = {
   // fxme
   resolveUri: (arg0: string) => void;
   isResolvingUri: boolean;
-  history: {
-    push: (arg0: string | any) => void;
-    location: {
-      pathname: string;
-      search: string;
-    };
-  };
   title: string;
   nsfw: boolean;
   placeholder: string;
@@ -149,8 +143,6 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     mediaDuration,
     // user properties
     hasVisitedUri,
-    // component
-    history,
     wrapperElement,
     type,
     nonClickable,
@@ -208,9 +200,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   } = props;
   const isEmbed = React.useContext(EmbedContext);
   const isMobile = useIsMobile();
-  const {
-    location: { pathname, search },
-  } = history;
+  const { pathname, search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
   const isCollection = claim && claim.value_type === 'collection';
@@ -676,4 +666,4 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     </WrapperElement>
   );
 });
-export default withRouter(ClaimPreview);
+export default ClaimPreview;

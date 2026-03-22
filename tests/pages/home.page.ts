@@ -118,10 +118,7 @@ export class HomePage extends BasePage {
    */
   async waitForContent(timeout = 20_000): Promise<void> {
     // Either tiles or list-style previews are acceptable
-    await this.page
-      .locator('.claim-preview--tile, .claim-preview')
-      .first()
-      .waitFor({ state: 'visible', timeout });
+    await this.page.locator('.claim-preview--tile, .claim-preview').first().waitFor({ state: 'visible', timeout });
   }
 
   /**

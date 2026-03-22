@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-expect-error
 import { Global } from '@emotion/react';
 import { Form } from 'component/common/form';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import Card from 'component/common/card';
 import ConfirmationPage from './internal/confirmationPage';
@@ -63,7 +63,7 @@ const JoinMembershipCard = (props: Props) => {
   } = props;
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
   const isPurchasing = React.useRef(false);
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const skipToConfirmation = Number.isInteger(passedTierIndex);
   const cheapestPlanIndex = React.useMemo(() => {
     if (cheapestMembership) {
@@ -123,7 +123,7 @@ const JoinMembershipCard = (props: Props) => {
           unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
 
         if (shouldNavigate && purchasingUnlockableContentTier) {
-          push(formatLbryUrlForWeb(uri));
+          navigate(formatLbryUrlForWeb(uri));
         }
       })
       .catch((e) => {

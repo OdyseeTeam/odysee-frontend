@@ -8,8 +8,6 @@ import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import Card from 'component/common/card';
-// @ts-expect-error
-import Plastic from 'react-plastic';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import './style.scss';
@@ -152,12 +150,12 @@ const SettingsStripeCard = (props: Props) => {
           title={isModal ? undefined : __('Card Details')}
           body={
             <>
-              <Plastic
-                type={cardDetails.brand}
-                name={cardDetails.cardName}
-                expiry={cardDetails.expiryMonth + '/' + cardDetails.expiryYear}
-                number={'____________' + cardDetails.lastFour}
-              />
+              <div className="card-meta">
+                <div>{cardDetails.brand}</div>
+                <div>{cardDetails.cardName}</div>
+                <div>{`**** **** **** ${cardDetails.lastFour}`}</div>
+                <div>{`${cardDetails.expiryMonth}/${cardDetails.expiryYear}`}</div>
+              </div>
               <div className="card-meta">
                 <Button
                   button="secondary"

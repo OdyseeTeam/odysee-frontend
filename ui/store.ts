@@ -1,8 +1,5 @@
+import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-import { createBrowserHistory } from 'history';
-import { routerMiddleware } from 'connected-react-router';
 import createRootReducer from './reducers';
 import { createAnalyticsMiddleware } from 'redux/middleware/analytics';
 import { populateAuthTokenHeader } from 'redux/middleware/auth-token';
@@ -11,6 +8,7 @@ import { initTabStateSync } from 'redux/middleware/tab-sync';
 import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
+import { history, initRouterSync, routerMiddleware } from 'redux/router';
 let __pushBlocked = false;
 const _nativePush = History.prototype.pushState;
 
@@ -23,25 +21,42 @@ History.prototype.pushState = function (state, title, url) {
   return _nativePush.call(this, state, title, url);
 };
 
-const browserHistory = createBrowserHistory();
-const history = browserHistory;
-const rootReducer = createRootReducer(history);
+const rootReducer = createRootReducer();
 const persistedReducer = persistReducer(persistOptions, rootReducer);
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const middleware = [
-  sharedStateMiddleware,
-  populateAuthTokenHeader,
-  routerMiddleware(history),
-  thunk,
-  createBulkThunkMiddleware(), // BATCH_ACTIONS support
-  createAnalyticsMiddleware(),
-  tabStateSyncMiddleware,
+
+const PERSIST_ACTION_TYPES = [
+  'persist/FLUSH',
+  'persist/REHYDRATE',
+  'persist/PAUSE',
+  'persist/PERSIST',
+  'persist/PURGE',
+  'persist/REGISTER',
 ];
-const store = createStore(
-  enableBatching(persistedReducer),
-  {}, // initial state
-  composeEnhancers(applyMiddleware(...middleware))
-);
+
+const store = configureStore({
+  reducer: enableBatching(persistedReducer),
+  preloadedState: {},
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // persist/PERSIST carries function refs (rehydrate, register);
+        // BATCH_ACTIONS carries an array of action objects/thunks.
+        ignoredActions: [...PERSIST_ACTION_TYPES, 'BATCH_ACTIONS'],
+        ignoredActionPaths: ['register', 'rehydrate', 'payload.register', 'payload.rehydrate', 'actions'],
+        ignoredPaths: ['_persist'],
+      },
+      // Many legacy reducers use Object.assign spread patterns that are
+      // mutation-safe but still trip the check. Enable once the remaining
+      // reducers are converted to createSlice / Immer.
+      immutableCheck: false,
+    })
+      .prepend(sharedStateMiddleware, populateAuthTokenHeader, routerMiddleware())
+      // RTK already includes thunk in getDefaultMiddleware()
+      .concat(createBulkThunkMiddleware(), createAnalyticsMiddleware(), tabStateSyncMiddleware),
+  devTools: process.env.NODE_ENV !== 'production',
+});
+
+initRouterSync(store);
 initTabStateSync(store);
 const persistor = persistStore(store);
 window.persistor = persistor;

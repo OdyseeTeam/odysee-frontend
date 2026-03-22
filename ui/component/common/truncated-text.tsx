@@ -22,8 +22,7 @@ type Props = {
   emoji?: any;
 };
 
-const TruncatedText = (props: Props) => {
-  const { text, lines, showTooltip, style } = props;
+const TruncatedText = ({ text, lines, showTooltip = true, style }: Props) => {
   const tooltip = showTooltip ? text : '';
   // const RE_EMOJI = /:\+1:|:-1:|:[\w-]+:/g;
 
@@ -60,7 +59,4 @@ const TruncatedText = (props: Props) => {
   );
 };
 
-TruncatedText.defaultProps = {
-  showTooltip: true,
-};
 export default TruncatedText;

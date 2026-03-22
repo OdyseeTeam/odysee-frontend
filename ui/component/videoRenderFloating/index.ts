@@ -20,7 +20,6 @@ import {
   doSetPlayingUri,
 } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
-import { withRouter } from 'react-router';
 import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
 import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'redux/selectors/livestream';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
@@ -31,8 +30,7 @@ import VideoRenderFloating from './view';
 import { selectShortsSidePanelOpen, selectShortsPlaylist } from '../../redux/selectors/shorts';
 
 const select = (state, props) => {
-  const { location } = props;
-  const { search } = location;
+  const search = state.router?.location?.search || '';
   const urlParams = new URLSearchParams(search);
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const isFloating = selectIsPlayerFloating(state);
@@ -95,4 +93,4 @@ const perform = {
   doClearPlayingSource,
   doSetPlayingUri,
 };
-export default withRouter(connect(select, perform)(VideoRenderFloating));
+export default connect(select, perform)(VideoRenderFloating);

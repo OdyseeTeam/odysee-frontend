@@ -147,20 +147,14 @@ export class BasePage {
    * Fails with a clear message if not.
    */
   async assertSignedIn(): Promise<void> {
-    await expect(
-      this.logInButton,
-      'Expected to be signed in, but the "Log In" button is visible'
-    ).not.toBeVisible();
+    await expect(this.logInButton, 'Expected to be signed in, but the "Log In" button is visible').not.toBeVisible();
   }
 
   /**
    * Assert that the current session is NOT authenticated.
    */
   async assertSignedOut(): Promise<void> {
-    await expect(
-      this.logInButton,
-      'Expected to be signed out, but the "Log In" button is not visible'
-    ).toBeVisible();
+    await expect(this.logInButton, 'Expected to be signed out, but the "Log In" button is not visible').toBeVisible();
   }
 
   // ──────────────────────────────────────────────────────────────────────────

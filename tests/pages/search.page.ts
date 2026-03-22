@@ -158,7 +158,12 @@ export class SearchPage extends BasePage {
     const count = await titleLocators.count();
     const titles: string[] = [];
     for (let i = 0; i < count; i++) {
-      titles.push(await titleLocators.nth(i).innerText().catch(() => ''));
+      titles.push(
+        await titleLocators
+          .nth(i)
+          .innerText()
+          .catch(() => '')
+      );
     }
     return titles.filter(Boolean);
   }

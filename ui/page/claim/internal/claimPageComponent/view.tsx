@@ -2,7 +2,8 @@ import { DOMAIN } from 'config';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+
 import Spinner from 'component/spinner';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI } from 'util/lbryURI';
@@ -150,7 +151,7 @@ const ClaimPageComponent = (props: Props) => {
   if (!isEmbed) {
     if (isNewestPath && latestClaimUrl) {
       const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
-      return <Redirect to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
+      return <Navigate replace to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
     }
 
     // Don't navigate directly to repost urls
@@ -158,7 +159,7 @@ const ClaimPageComponent = (props: Props) => {
     // Also redirect to channel page (uri) when on a non-existing latest path (live or content)
     if (claim && (claim.repost_url === uri || (isNewestPath && latestClaimUrl === null))) {
       const newUrl = formatLbryUrlForWeb(canonicalUrl);
-      return <Redirect to={newUrl} />;
+      return <Navigate replace to={newUrl} />;
     }
 
     if (claim && isCollection && collectionFirstItemUri) {
@@ -167,11 +168,11 @@ const ClaimPageComponent = (props: Props) => {
         case COL_TYPES.PLAYLIST: {
           urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
           const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
-          return <Redirect to={newUrl} />;
+          return <Navigate replace to={newUrl} />;
         }
 
         case COL_TYPES.FEATURED_CHANNELS:
-          return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
+          return <Navigate replace to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
 
         default:
           // Do nothing

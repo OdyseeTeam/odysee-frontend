@@ -38,6 +38,7 @@ import { lazyImport } from 'util/lazyImport';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import FloatingShortsActions from './internal/floatingShortsActions';
 import FloatingReactions from './internal/floatingReactions';
+import { useLocation } from 'react-router-dom';
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
 const CONTENT_VIEWER_CLASS = 'content__viewer';
@@ -78,8 +79,8 @@ type Props = {
     height: number;
     width: number;
   };
-  location: {
-    search: string;
+  location?: {
+    search?: string;
     state?: {
       overrideFloating?: boolean;
     };
@@ -162,7 +163,9 @@ function VideoRenderFloating(props: Props) {
     autoPlayNextShort,
     doSetPlayingUri,
   } = props;
-  const { state } = location;
+  const routeLocation = useLocation();
+  const currentLocation = location || routeLocation;
+  const { state } = currentLocation || {};
   const { overrideFloating } = state || {};
   const isShortVideo = Boolean(isClaimShort && (!disableShortsView || isFloating));
   const isShortsFloating = isFloating && isShortVideo;

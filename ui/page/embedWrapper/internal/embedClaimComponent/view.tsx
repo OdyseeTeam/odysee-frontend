@@ -2,7 +2,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 import MarkdownPreview from 'component/common/markdown-preview';
@@ -73,9 +73,7 @@ const EmbedClaimComponent = (props) => {
     doFetchItemsInCollection,
     doFetchChannelIsLiveForId,
   } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
   const { isChannel, channelName } = parseURI(uri);

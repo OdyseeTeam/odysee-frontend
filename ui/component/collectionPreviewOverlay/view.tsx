@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import FileThumbnail from 'component/fileThumbnail';
 type Props = {
   // redux
@@ -34,4 +33,4 @@ function CollectionPreviewOverlay(props: Props) {
   );
 }
 
-export default withRouter(CollectionPreviewOverlay);
+export default CollectionPreviewOverlay;

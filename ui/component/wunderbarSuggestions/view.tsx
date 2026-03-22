@@ -13,7 +13,7 @@ import { Form } from 'component/common/form';
 import Button from 'component/button';
 import WunderbarTopSuggestion from 'component/wunderbarTopSuggestion';
 import WunderbarSuggestion from 'component/wunderbarSuggestion';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import Yrbl from 'component/yrbl';
 import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
@@ -51,33 +51,32 @@ type Props = {
 const isRefFocused = (ref) => ref && ref.current && ref.current === document.activeElement;
 
 export default function WunderBarSuggestions(props: Props) {
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const {
-    navigateToSearchPage,
-    doShowSnackBar,
-    showMature,
-    claimsByUri,
-    subscriptionUris,
     isMobile,
-    doCloseMobileSearch,
     channelsOnly,
-    noTopSuggestion,
-    noBottomLinks,
     customSelectAction,
     searchInLanguage,
     languageSetting,
+    showMature,
+    claimsByUri,
+    subscriptionUris,
+    navigateToSearchPage,
+    doShowSnackBar,
+    doCloseMobileSearch,
     doResolveUris,
+    subscriptions,
+    noTopSuggestion,
+    noBottomLinks,
+    onSearch,
   } = props;
-  const inputRef: ElementRef<any> = React.useRef();
-  const viewResultsRef: ElementRef<any> = React.useRef();
-  const exploreTagRef: ElementRef<any> = React.useRef();
-
-  const isFocused = isRefFocused(inputRef) || isRefFocused(viewResultsRef) || isRefFocused(exploreTagRef);
-  const {
-    push,
-    location: { search },
-  } = useHistory();
   const urlParams = new URLSearchParams(search);
   const queryFromUrl = urlParams.get('q') || '';
+  const inputRef = React.useRef<ElementRef<typeof ComboboxInput> | null>(null);
+  const viewResultsRef = React.useRef<ElementRef<typeof Button> | null>(null);
+  const exploreTagRef = React.useRef<ElementRef<typeof Button> | null>(null);
+  const isFocused = isRefFocused(inputRef) || isRefFocused(viewResultsRef) || isRefFocused(exploreTagRef);
   const [term, setTerm] = React.useState(queryFromUrl);
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   const searchSize = isMobile ? 20 : 5;
@@ -157,7 +156,7 @@ export default function WunderBarSuggestions(props: Props) {
           const lbryUrl = `lbry://${query}`;
           parseURI(lbryUrl);
           const formattedLbryUrl = formatLbryUrlForWeb(lbryUrl);
-          push(formattedLbryUrl);
+          navigate(formattedLbryUrl);
           return;
         } catch (e) {}
       }
@@ -165,7 +164,7 @@ export default function WunderBarSuggestions(props: Props) {
 
     if (value.startsWith(TAG_SEARCH_PREFIX)) {
       const tag = value.slice(TAG_SEARCH_PREFIX.length);
-      push(`/$/${PAGES.DISCOVER}?t=${tag}`);
+      navigate(`/$/${PAGES.DISCOVER}?t=${tag}`);
     } else if (!isLbryUrl) {
       navigateToSearchPage(value);
     } else {
@@ -175,7 +174,7 @@ export default function WunderBarSuggestions(props: Props) {
         if (isURIValid(query)) {
           const uri = normalizeURI(query);
           const normalizedWebUrl = formatLbryUrlForWeb(uri);
-          push(normalizedWebUrl);
+          navigate(normalizedWebUrl);
         } else {
           doShowSnackBar(INVALID_URL_ERROR);
         }

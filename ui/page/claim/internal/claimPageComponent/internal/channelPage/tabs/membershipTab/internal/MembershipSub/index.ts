@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectIndexForCreatorMembership } from 'redux/selectors/memberships';
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
-import { push } from 'connected-react-router';
+import { push } from 'redux/router';
 import MembershipSub from './view';
 import { doOpenModal } from 'redux/actions/app';
 import { selectArweaveTipDataForId } from 'redux/selectors/stripe';

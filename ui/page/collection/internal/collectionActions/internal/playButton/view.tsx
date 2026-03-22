@@ -1,7 +1,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import FileActionButton from 'component/common/file-action-button';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 type ButtonProps = {
   uri: string | null | undefined;
@@ -10,11 +10,11 @@ type ButtonProps = {
 
 const PlayButton = (props: ButtonProps) => {
   const { uri, collectionId } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   if (!uri) return null;
 
   function handlePlay() {
-    push({
+    navigate({
       pathname: formatLbryUrlForWeb(uri),
       search: generateListSearchUrlParams(collectionId),
       state: {

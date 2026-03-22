@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { SEARCH_IN_LANGUAGE } from 'constants/hashes';
 import { SETTINGS_GRP } from 'constants/settings';
 import React from 'react';
@@ -30,11 +30,7 @@ export default function SettingAppearance(props: Props) {
     setClientSetting,
     setSearchInLanguage
   } = props;
-  const {
-    location: {
-      hash
-    }
-  } = useHistory();
+  const { hash } = useLocation();
   const highlightSearchInLanguage = hash === `#${SEARCH_IN_LANGUAGE}`;
   return <>
       <Card id={SETTINGS_GRP.APPEARANCE} title={__('Appearance')} background isBodyList body={<>

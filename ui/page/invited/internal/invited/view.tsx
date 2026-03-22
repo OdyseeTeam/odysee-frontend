@@ -10,6 +10,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
+import { history } from 'redux/router';
 type Props = {
   userHasVerifiedEmail: boolean | null | undefined;
   doClaimRefereeReward: () => void;
@@ -17,12 +18,6 @@ type Props = {
   referrerSet: string | null | undefined;
   referrerSetError: string;
   doChannelSubscribe: (sub: Subscription) => void;
-  history: {
-    push: (arg0: string) => void;
-    location: {
-      pathname: string;
-    };
-  };
   hasUnclaimedRefereeReward: boolean;
   referrerUri: string | null | undefined;
   isSubscribed: boolean;
@@ -37,7 +32,6 @@ function Invited(props: Props) {
     referrerSet,
     referrerSetError,
     doChannelSubscribe,
-    history,
     hasUnclaimedRefereeReward,
     referrerUri,
     isSubscribed,

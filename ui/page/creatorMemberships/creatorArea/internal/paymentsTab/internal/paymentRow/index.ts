@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import PaymentRow from './view';
 import { selectClaimForClaimId } from 'redux/selectors/claims';
 import { selectMembershipForId } from 'redux/selectors/memberships';
@@ -16,5 +15,4 @@ const select = (state, props) => {
   };
 };
 
-const perform = {};
-export default withRouter(connect(select, perform)(PaymentRow));
+export default connect(select)(PaymentRow);

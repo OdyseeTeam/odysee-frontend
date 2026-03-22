@@ -1,5 +1,6 @@
 import React from 'react';
-import { NavLink, useHistory } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
@@ -79,7 +80,7 @@ function CollectionPreview(props: Props) {
     autoPublish,
     autoPublishScheduledAt,
   } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   if (collectionType === 'featuredChannels') return null;
   const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
   const optimizedPreviewThumbnail = previewThumbnail
@@ -97,7 +98,7 @@ function CollectionPreview(props: Props) {
 
   function handleClick(e) {
     if (navigateUrl) {
-      push(navigateUrl);
+      navigate(navigateUrl);
     }
   }
 
@@ -223,7 +224,7 @@ function CollectionPreview(props: Props) {
                   button="alt"
                   icon={ICONS.PLAY}
                   onClick={() =>
-                    push({
+                    navigate({
                       pathname: firstItemPath,
                       search: generateListSearchUrlParams(collectionId),
                       state: {

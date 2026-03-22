@@ -11,7 +11,6 @@ import {
   selectTxoPageNumber,
   selectTxoItemCount,
 } from 'redux/selectors/wallet';
-import { withRouter } from 'react-router';
 import TxoList from './view';
 
 const select = (state) => ({
@@ -32,4 +31,4 @@ const perform = {
   doCustomerListPaymentHistory,
   doListAccountTransactions,
 };
-export default withRouter(connect(select, perform)(TxoList));
+export default connect(select, perform)(TxoList);

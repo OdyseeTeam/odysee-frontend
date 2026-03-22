@@ -12,13 +12,23 @@ import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { useParams } from 'react-router-dom';
+import React from 'react';
 
 const select = (state, props) => {
   const { search, hash } = state.router.location;
-  const { match } = props || {};
   const { pathname } = state.router.location || {};
-  const matchedPath = match ? buildMatchWithHash(match, hash) : buildMatchFromPath(pathname);
-  let uri = getUriFromMatch(matchedPath);
+  const matchedPath = buildMatchWithHash(
+    {
+      params: {
+        claimName: props?.claimName,
+        claimId: props?.claimId,
+      },
+    },
+    hash
+  );
+  const normalizedMatch = matchedPath.params?.claimName ? matchedPath : buildMatchFromPath(pathname);
+  let uri = getUriFromMatch(normalizedMatch);
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
   // Detect playlist page URLs (e.g., /$/playlist/:collectionId or /$/embed/playlist/:collectionId)
@@ -82,7 +92,12 @@ const perform = {
   doFetchLatestClaimForChannel,
   doFetchItemsInCollection,
 };
-export default connect(select, perform)(EmbedWrapperPage);
+const ConnectedEmbedWrapperPage = connect(select, perform)(EmbedWrapperPage);
+
+export default function EmbedWrapperRoute(props) {
+  const { claimName = '', claimId = '' } = useParams();
+  return React.createElement(ConnectedEmbedWrapperPage, { ...props, claimName, claimId });
+}
 
 function getUriFromMatch(match) {
   if (match && match.params) {

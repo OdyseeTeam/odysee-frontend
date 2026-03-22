@@ -17,8 +17,9 @@ import {
 } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.memberships || {};
+const selectState = (state: State) => state.memberships || EMPTY_OBJECT;
 
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMineByCreatorId;
 export const selectMembershipMineFetching = (state: State) => selectState(state).membershipMineFetching;

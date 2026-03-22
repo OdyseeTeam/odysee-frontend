@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { history } from 'redux/router';
 import * as SETTINGS from 'constants/settings';
 import {
   selectClaimForUri,
@@ -13,6 +14,7 @@ import {
   selectScheduledStateForUri, // selectClaimWasPurchasedForUri,
   // selectIsFiatPaidForUri,
 } from 'redux/selectors/claims';
+import React from 'react';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   makeSelectFileRenderModeForUri,
@@ -112,9 +114,22 @@ const perform = {
   doMembershipList,
   doClearPlayingUri,
 };
-export default (Component) =>
-  withRouter(
-    connect(select, perform, null, {
-      areStatePropsEqual,
-    })(withStreamClaimRender(Component))
-  );
+export default (Component) => {
+  const ConnectedStreamClaimRender = connect(select, perform, null, {
+    areStatePropsEqual,
+  })(withStreamClaimRender(Component));
+
+  return function WithStreamClaimRenderRouteProps(props) {
+    const location = useLocation();
+    const params = useParams();
+    const navigate = useNavigate();
+    const match = {
+      params,
+      path: location.pathname,
+      url: location.pathname,
+      isExact: true,
+    };
+
+    return React.createElement(ConnectedStreamClaimRender, { ...props, history, location, match, navigate });
+  };
+};

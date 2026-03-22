@@ -9,7 +9,8 @@ import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 import * as MODALS from 'constants/modal_types';
 import { FYP_ID } from 'constants/urlParams';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
@@ -111,12 +112,9 @@ export default function ShortsPage(props: Props) {
     doResolveUri,
     doClearPlayingUri,
   } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
-  const history = useHistory();
   const isMobile = useIsShortsMobile();
   const shortsContainerRef = React.useRef<any>();
   const fypId = urlParams.get(FYP_ID);

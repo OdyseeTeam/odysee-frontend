@@ -3,8 +3,8 @@ import moment from 'moment';
 import classnames from 'classnames';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
-import { withRouter } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
+import { history } from 'redux/router';
 type Props = {
   lastViewed: number;
   uri: string;
@@ -13,9 +13,6 @@ type Props = {
   onSelect?: () => void;
   resolveUri: (arg0: string) => void;
   slim: boolean;
-  history: {
-    push: (arg0: string) => void;
-  };
 };
 
 class NavigationHistoryItem extends React.PureComponent<Props> {
@@ -32,7 +29,7 @@ class NavigationHistoryItem extends React.PureComponent<Props> {
   }
 
   render() {
-    const { lastViewed, selected, onSelect, claim, uri, slim, history } = this.props;
+    const { lastViewed, selected, onSelect, claim, uri, slim } = this.props;
     let title;
 
     if (claim && claim.value) {
@@ -63,5 +60,4 @@ class NavigationHistoryItem extends React.PureComponent<Props> {
     );
   }
 }
-
-export default withRouter(NavigationHistoryItem);
+export default NavigationHistoryItem;

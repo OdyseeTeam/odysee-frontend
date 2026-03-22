@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { LocalStorage } from 'util/storage';
 import { selectArweaveWanderAuth, selectArweaveStatus } from 'redux/selectors/arwallet';
 import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
 import { useIsMobile } from 'effects/use-screensize';
 import { doArConnect } from 'redux/actions/arwallet';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 export const useArStatus = () => {
-  const wanderAuth = useSelector(selectArweaveWanderAuth);
-  const arStatus = useSelector(selectArweaveStatus);
-  const reduxAddressInUse = useSelector(selectArAccountRegisteringError) === 'address already exists for another user';
+  const wanderAuth = useAppSelector(selectArweaveWanderAuth);
+  const arStatus = useAppSelector(selectArweaveStatus);
+  const reduxAddressInUse =
+    useAppSelector(selectArAccountRegisteringError) === 'address already exists for another user';
   const addressInUse = reduxAddressInUse || LocalStorage.getItem('AR_ADDRESS_IN_USE') === 'true';
   const isMobile = useIsMobile();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [walletType, setWalletType] = useState(
     LocalStorage.getItem('WALLET_TYPE') === 'NATIVE_WALLET' ? 'extension' : 'embedded'
   );

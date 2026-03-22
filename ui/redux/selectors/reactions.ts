@@ -1,14 +1,15 @@
 import * as REACTION_TYPES from 'constants/reactions';
 import { selectClaimForUri } from 'redux/selectors/claims';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state) => state.reactions || {};
+const selectState = (state) => state.reactions || EMPTY_OBJECT;
 
 export const selectReactionsById = (state) => selectState(state).reactionsById;
 export const selectFetchingReactions = (state) => selectState(state).fetchingReactions;
 export const selectReactionsForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const reactionsById = selectReactionsById(state);
-  return claim ? reactionsById[claim.claim_id] : {};
+  return claim ? reactionsById[claim.claim_id] : EMPTY_OBJECT;
 };
 export const selectMyReactionForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);

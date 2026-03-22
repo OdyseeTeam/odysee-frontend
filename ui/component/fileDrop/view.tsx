@@ -5,8 +5,8 @@ import * as MODALS from 'constants/modal_types';
 import classnames from 'classnames';
 import useDragDrop from 'effects/use-drag-drop';
 import { getTree } from 'util/web-file-system';
-import { withRouter } from 'react-router';
 import Icon from 'component/common/icon';
+import { history } from 'redux/router';
 type Props = {
   modal: {
     id: string;
@@ -20,18 +20,6 @@ type Props = {
     }
   ) => void;
   doUpdateFile: (file: WebFile, clearName?: boolean) => void;
-  // React router
-  history: {
-    entities: {}[];
-    goBack: () => void;
-    goForward: () => void;
-    index: number;
-    length: number;
-    location: {
-      pathname: string;
-    };
-    push: (arg0: string) => void;
-  };
 };
 const HIDE_TIME_OUT = 600;
 const TARGET_TIME_OUT = 300;
@@ -39,7 +27,7 @@ const NAVIGATE_TIME_OUT = 400;
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 function FileDrop(props: Props) {
-  const { modal, history, openModal, doUpdateFile } = props;
+  const { modal, openModal, doUpdateFile } = props;
   const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
   const [error, setError] = React.useState(false);
@@ -164,5 +152,4 @@ function FileDrop(props: Props) {
     </div>
   );
 }
-
-export default withRouter(FileDrop);
+export default FileDrop;

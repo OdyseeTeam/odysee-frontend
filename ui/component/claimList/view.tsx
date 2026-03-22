@@ -10,11 +10,11 @@ import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import type { HomepageTitles } from 'util/buildHomepage';
 const Draggable = React.lazy(() =>
   import(
-    'react-beautiful-dnd'
+    '@hello-pangea/dnd'
     /* webpackChunkName: "dnd" */
   ).then((module) => ({
     default: module.Draggable,
@@ -131,7 +131,7 @@ export default function ClaimList(props: Props) {
     sectionTitle,
   } = props;
   const isMobile = useIsMobile();
-  const { location } = useHistory();
+  const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const isShorts = queryParams.get('view') === 'shortsTab';
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -298,20 +298,16 @@ export default function ClaimList(props: Props) {
     [droppableProvided, setListRef]
   );
   const listItemCb = React.useCallback(
-    ({ node, isActive, draggableProvidedRef }) => {
+    ({ node, isActive, draggableProvidedRef, itemId }) => {
       if (node) {
         if (draggableProvidedRef) draggableProvidedRef(node);
 
         // currentActiveItem.current !== node prevents re-scrolling during the same render
         // so it should only auto scroll when the active item switches, the button to scroll is clicked
         // or the list itself changes (switch between floating player vs file page)
-        if (
-          isActive &&
-          setActiveListItemRef &&
-          currentActiveItem.current !== node.getAttribute('data-rbd-draggable-id')
-        ) {
+        if (isActive && setActiveListItemRef && currentActiveItem.current !== itemId) {
           setActiveListItemRef(node);
-          currentActiveItem.current = node.getAttribute('data-rbd-draggable-id');
+          currentActiveItem.current = itemId;
         }
       }
     },
@@ -459,6 +455,7 @@ export default function ClaimList(props: Props) {
                               node,
                               isActive,
                               draggableProvidedRef: draggableProvided.innerRef,
+                              itemId: uri,
                             })
                           }
                           {...draggableProvided.draggableProps}

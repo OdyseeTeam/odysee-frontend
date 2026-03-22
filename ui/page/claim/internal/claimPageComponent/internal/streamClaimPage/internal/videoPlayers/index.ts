@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import * as SETTINGS from 'constants/settings';
 import * as TAGS from 'constants/tags';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -24,7 +23,7 @@ import VideoPlayersPage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const { search } = location;
+  const search = state.router?.location?.search || '';
   const urlParams = new URLSearchParams(search);
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
@@ -51,4 +50,4 @@ const select = (state, props) => {
 const perform = {
   clearPosition,
 };
-export default withRouter(connect(select, perform)(VideoPlayersPage));
+export default connect(select, perform)(VideoPlayersPage);

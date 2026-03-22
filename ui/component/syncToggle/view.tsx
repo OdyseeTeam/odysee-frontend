@@ -2,16 +2,11 @@ import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import Button from 'component/button';
 import SettingsRow from 'component/settingsRow';
-import { withRouter } from 'react-router';
 import { FormField } from 'component/common/form';
 type Props = {
   setSyncEnabled: (arg0: boolean) => void;
   syncEnabled: boolean;
   verifiedEmail: string | null | undefined;
-  history: {
-    push: (arg0: string) => void;
-  };
-  location: UrlLocation;
   getSyncError: string | null | undefined;
   disabled: boolean;
   openModal: (arg0: string, arg1: any) => void;
@@ -50,5 +45,4 @@ function SyncToggle(props: Props) {
     </SettingsRow>
   );
 }
-
-export default withRouter(SyncToggle);
+export default SyncToggle;

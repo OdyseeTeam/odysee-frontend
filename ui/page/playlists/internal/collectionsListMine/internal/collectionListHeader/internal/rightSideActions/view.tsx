@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormField, Form } from 'component/common/form';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CollectionsListContext } from 'page/playlists/internal/collectionsListMine/view';
 import * as COLS from 'constants/collections';
 import * as MODALS from 'constants/modal_types';
@@ -16,10 +16,8 @@ type Props = {
 const RightSideActions = (props: Props) => {
   const { doOpenModal } = props;
   const { searchText, setSearchText } = React.useContext(CollectionsListContext);
-  const history = useHistory();
-  const {
-    location: { search },
-  } = history;
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   function handleCreatePlaylist() {
@@ -36,7 +34,7 @@ const RightSideActions = (props: Props) => {
     }
 
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   function escapeListener(e: React.KeyboardEvent<any>) {

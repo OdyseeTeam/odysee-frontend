@@ -1,5 +1,4 @@
-import { combineReducers } from 'redux';
-import { connectRouter } from 'connected-react-router';
+import { combineReducers } from '@reduxjs/toolkit';
 import { blacklistReducer, filteredReducer, statsReducer } from 'lbryinc';
 import { claimsReducer } from 'redux/reducers/claims';
 import { fileInfoReducer } from 'redux/reducers/file_info';
@@ -25,9 +24,10 @@ import searchReducer from 'redux/reducers/search';
 import reactionsReducer from 'redux/reducers/reactions';
 import syncReducer from 'redux/reducers/sync';
 import shortsReducer from 'redux/reducers/shorts';
-export default (history) =>
+import { routerReducer } from 'redux/router';
+export default () =>
   combineReducers({
-    router: connectRouter(history),
+    router: routerReducer,
     app: appReducer,
     blacklist: blacklistReducer,
     filtered: filteredReducer,

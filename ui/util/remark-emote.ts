@@ -1,49 +1,56 @@
 import { EMOTES_48px as EMOTES, TWEMOTEARRAY } from 'constants/emotes';
-import visit from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
+
 const EMOTE_NODE_TYPE = 'emote';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
-// ***************************************************************************
-// Tokenize emote
-// ***************************************************************************
-function findNextEmote(value, fromIndex, strictlyFromIndex) {
+type MdastNode = {
+  type: string;
+  value?: string;
+  url?: string;
+  title?: string;
+  alt?: string;
+  data?: { hProperties?: Record<string, unknown> };
+  children?: MdastNode[];
+};
+
+function findNextEmote(value: string, fromIndex: number, strictlyFromIndex: boolean) {
   let begin = 0;
 
   while (begin < value.length) {
     const match = value.substring(begin).match(RE_EMOTE);
-    if (!match) return null;
-    match.index += begin;
+
+    if (!match) {
+      return null;
+    }
+
+    match.index = (match.index || 0) + begin;
 
     if (strictlyFromIndex && match.index !== fromIndex) {
       if (match.index > fromIndex) {
-        // Already gone past desired index. Skip the rest.
         return null;
-      } else {
-        // Next match might fit 'fromIndex'.
-        begin = match.index + match[0].length;
-        continue;
       }
-    }
 
-    if (fromIndex > 0 && fromIndex > match.index && fromIndex < match.index + match[0].length) {
-      // Skip previously-rejected word
-      // This assumes that a non-zero 'fromIndex' means that a previous lookup has failed.
       begin = match.index + match[0].length;
       continue;
     }
 
-    const str = match[0];
+    if (fromIndex > 0 && fromIndex > match.index && fromIndex < match.index + match[0].length) {
+      begin = match.index + match[0].length;
+      continue;
+    }
 
-    if (EMOTES.some(({ name }) => str === name) || TWEMOTEARRAY.some(({ name }) => str === name)) {
-      // Profit!
+    const text = match[0];
+
+    if (EMOTES.some(({ name }) => text === name) || TWEMOTEARRAY.some(({ name }) => text === name)) {
       return {
-        text: str,
+        text,
         index: match.index,
       };
     }
 
     if (strictlyFromIndex && match.index >= fromIndex) {
-      return null; // Since it failed and we've gone past the desired index, skip the rest.
+      return null;
     }
 
     begin = match.index + match[0].length;
@@ -52,82 +59,78 @@ function findNextEmote(value, fromIndex, strictlyFromIndex) {
   return null;
 }
 
-function locateEmote(value, fromIndex) {
-  const emote = findNextEmote(value, fromIndex, false);
-  return emote ? emote.index : -1;
+function createTextNode(value: string): MdastNode {
+  return {
+    type: 'text',
+    value,
+  };
 }
 
-// Generate 'emote' markdown node
-const createEmoteNode = (text) => ({
-  type: EMOTE_NODE_TYPE,
-  value: text,
-  children: [
-    {
-      type: 'text',
-      value: text,
-    },
-  ],
-});
+function createEmoteNode(text: string): MdastNode {
+  const emote = EMOTES.find(({ name }) => text === name) || TWEMOTEARRAY.find(({ name }) => text === name);
 
-// Generate a markdown image from emote
-function tokenizeEmote(eat, value, silent) {
-  if (silent) return true;
-  const emote = findNextEmote(value, 0, true);
-
-  if (emote) {
-    try {
-      const text = emote.text;
-      return eat(text)(createEmoteNode(text));
-    } catch (e) {}
+  if (!emote) {
+    return createTextNode(text);
   }
-}
 
-tokenizeEmote.locator = locateEmote;
-export function inlineEmote() {
-  // oxlint-disable-next-line no-this-in-exported-function
-  const Parser = this.Parser;
-  const tokenizers = Parser.prototype.inlineTokenizers;
-  const methods = Parser.prototype.inlineMethods;
-  // Add an inline tokenizer (defined in the following example).
-  tokenizers.emote = tokenizeEmote;
-  // Run it just before `text`.
-  methods.splice(methods.indexOf('text'), 0, 'emote');
-}
-
-// ***************************************************************************
-// Format emote
-// ***************************************************************************
-const transformer = (node, index, parent) => {
-  if (node.type === EMOTE_NODE_TYPE && parent && parent.type === 'paragraph') {
-    const emoteStr = node.value;
-    const emote = EMOTES.find(({ name }) => emoteStr === name) || TWEMOTEARRAY.find(({ name }) => emoteStr === name);
-    node.type = 'image';
-    node.url = emote.url;
-    node.title = emoteStr;
-    node.children = [
+  return {
+    type: 'image',
+    url: emote.url,
+    title: text,
+    alt: text,
+    children: [
       {
         type: 'text',
-        value: emoteStr,
+        value: text,
       },
-    ];
-
-    if (!node.data || !node.data.hProperties) {
-      // Create new node data
-      node.data = {
-        hProperties: {
-          emote: true,
-        },
-      };
-    } else if (node.data.hProperties) {
-      // Don't overwrite current attributes
-      node.data.hProperties = {
+    ],
+    data: {
+      hProperties: {
         emote: true,
-        ...node.data.hProperties,
-      };
+      },
+    },
+  };
+}
+
+function splitTextNode(value: string): MdastNode[] {
+  const nodes: MdastNode[] = [];
+  let index = 0;
+
+  while (index < value.length) {
+    const emote = findNextEmote(value, index, false);
+
+    if (!emote) {
+      nodes.push(createTextNode(value.slice(index)));
+      break;
     }
+
+    if (emote.index > index) {
+      nodes.push(createTextNode(value.slice(index, emote.index)));
+    }
+
+    nodes.push(createEmoteNode(emote.text));
+    index = emote.index + emote.text.length;
   }
+
+  return nodes.length ? nodes : [createTextNode(value)];
+}
+
+const transform = (tree) => {
+  visit(tree, 'text', (node: MdastNode, index: number | undefined, parent: MdastNode | undefined) => {
+    if (typeof index !== 'number' || !parent || parent.type !== 'paragraph' || !node.value) {
+      return undefined;
+    }
+
+    const nextChildren = splitTextNode(node.value);
+
+    if (nextChildren.length === 1 && nextChildren[0].type === 'text' && nextChildren[0].value === node.value) {
+      return undefined;
+    }
+
+    parent.children?.splice(index, 1, ...nextChildren);
+    return index + nextChildren.length;
+  });
 };
 
-const transform = (tree) => visit(tree, [EMOTE_NODE_TYPE], transformer);
-
+export const inlineEmote = () => transform;
 export const formattedEmote = () => transform;

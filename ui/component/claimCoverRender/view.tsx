@@ -6,7 +6,7 @@ import { EmbedContext } from 'contexts/embed';
 import useGetPoster from 'effects/use-get-poster';
 import Button from 'component/button';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 type Props = {
   children: any;
   passedRef: any;
@@ -52,9 +52,7 @@ const ClaimCoverRender = (props: Props) => {
     autoplayMedia,
   } = props;
   const isEmbed = React.useContext(EmbedContext);
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
   const isMobile = useIsMobile();

@@ -2,7 +2,6 @@ import React from 'react';
 import Button from 'component/button';
 import { getSavedPassword } from 'util/saved-passwords';
 import Card from 'component/common/card';
-import { withRouter } from 'react-router';
 import Spinner from 'component/spinner';
 import Lbry from 'lbry';
 import ErrorText from 'component/common/error-text';
@@ -236,4 +235,4 @@ function SyncEnableFlow(props: Props) {
   );
 }
 
-export default withRouter(SyncEnableFlow);
+export default SyncEnableFlow;

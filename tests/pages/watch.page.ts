@@ -107,9 +107,7 @@ export class WatchPage extends BasePage {
     this.commentsList = page.locator('.comments__list, [class*="commentsList"]').first();
     this.commentItems = page.locator('.comment, [class*="comment__body"]');
     this.commentInput = page.locator('.comment-create__input textarea, [class*="commentCreate"] textarea').first();
-    this.commentSubmitButton = page
-      .getByRole('button', { name: /^post$|^submit comment/i })
-      .first();
+    this.commentSubmitButton = page.getByRole('button', { name: /^post$|^submit comment/i }).first();
     this.commentChannelSelector = page.locator('.comment-create__channel-selector, [class*="channelSelector"]').first();
 
     // ── Recommended ───────────────────────────────────────────────────────────
@@ -120,9 +118,7 @@ export class WatchPage extends BasePage {
 
     // ── Floating player ───────────────────────────────────────────────────────
     this.floatingPlayer = page.locator('.content__viewer--floating, [class*="videoRenderFloating"]').first();
-    this.floatingPlayerCloseButton = page
-      .locator('.content__floating-close, [class*="floatingClose"]')
-      .first();
+    this.floatingPlayerCloseButton = page.locator('.content__floating-close, [class*="floatingClose"]').first();
   }
 
   // ──────────────────────────────────────────────────────────────────────────

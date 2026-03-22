@@ -3,7 +3,7 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import { NavLink } from 'react-router-dom';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -70,7 +70,7 @@ export default function Notification(props: Props) {
     doGetMembershipSupportersList,
   } = props;
   const { notification_rule, notification_parameters, is_read } = notification;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const [isReplying, setReplying] = React.useState(false);
   const [quickReply, setQuickReply] = React.useState();
   const isCommentNotification =
@@ -144,7 +144,7 @@ export default function Notification(props: Props) {
 
   function handleNotificationClick() {
     if (!is_read) doReadNotifications([notification.id]);
-    if (menuButton && notificationLink) push(notificationLink);
+    if (menuButton && notificationLink) navigate(notificationLink);
     if (notificationAction) notificationAction();
   }
 

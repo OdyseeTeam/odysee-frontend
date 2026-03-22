@@ -8,18 +8,15 @@ import { PAGE_SIZE } from 'constants/claim';
 import { Form } from 'component/common/form-components/form';
 import Icon from 'component/common/icon';
 import { FormField } from 'component/common/form-components/form-field';
-import { withRouter } from 'react-router';
 import classnames from 'classnames';
 import Yrbl from 'component/yrbl';
 import { PURCHASES_PAGE_SIZE } from 'page/library/view';
 import Spinner from 'component/spinner';
+import { history } from 'redux/router';
 type Props = {
   fetchingFileList: boolean;
   downloadedUrls: Array<string>;
   downloadedUrlsCount: number | null | undefined;
-  history: {
-    replace: (arg0: string) => void;
-  };
   query: string;
   doPurchaseList: () => void;
   myDownloads: Array<string>;
@@ -33,7 +30,6 @@ const ENABLE_DOWNLOADS_TAB = false;
 
 function FileListDownloaded(props: Props) {
   const {
-    history,
     query,
     downloadedUrlsCount,
     myPurchasesCount,
@@ -139,5 +135,4 @@ function FileListDownloaded(props: Props) {
     </>
   );
 }
-
-export default withRouter(FileListDownloaded);
+export default FileListDownloaded;

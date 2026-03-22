@@ -17,7 +17,7 @@ import Tooltip from 'component/common/tooltip';
 import NotificationHeaderButton from 'component/headerNotificationButton';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useIsMobile } from 'effects/use-screensize';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 type HeaderMenuButtonProps = {
   currentTheme: string;
   automaticDarkModeEnabled: boolean;
@@ -55,7 +55,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
     requiresAuth: !authenticated,
   };
   const isMobile = useIsMobile();
-  const { location } = useHistory();
+  const location = useLocation();
   const isShortsPage = new URLSearchParams(location.search).get('view') === 'shorts';
 
   const handleClickAway = () => {

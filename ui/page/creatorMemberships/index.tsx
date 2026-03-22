@@ -6,13 +6,13 @@ import Button from 'component/button';
 import Page from 'component/page';
 import HelpHub from 'component/common/help-hub';
 import './style.scss';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const MembershipsLandingPage = () => {
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   function handleNavigateToPage(page: string) {
-    push(page);
+    navigate(page);
   }
 
   return (

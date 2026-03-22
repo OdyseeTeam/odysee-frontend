@@ -8,7 +8,7 @@ import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import analytics from 'analytics';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
 type Props = {
@@ -20,7 +20,7 @@ const UNAUTHENTICATED_ERROR = 'unauthenticated';
 const GENERIC_ERROR = 'error';
 export default function CreatorAnalytics(props: Props) {
   const { claim, doResolveUris } = props;
-  const history = useHistory();
+  const navigate = useNavigate();
   const [stats, setStats] = React.useState();
   const [error, setError] = React.useState();
   const [fetchingStats, setFetchingStats] = React.useState(false);
@@ -100,7 +100,7 @@ export default function CreatorAnalytics(props: Props) {
                         button="primary"
                         label={__('Upload Something')}
                         onClick={() => {
-                          history.push(`/$/${PAGES.UPLOAD}`);
+                          navigate(`/$/${PAGES.UPLOAD}`);
                         }}
                       />
                     </div>
@@ -118,7 +118,7 @@ export default function CreatorAnalytics(props: Props) {
                       <Button
                         button="primary"
                         label={__('Upload Something')}
-                        onClick={() => history.push(`/$/${PAGES.UPLOAD}`)}
+                        onClick={() => navigate(`/$/${PAGES.UPLOAD}`)}
                       />
                     </div>
                   }
@@ -207,7 +207,7 @@ export default function CreatorAnalytics(props: Props) {
                     button="primary"
                     icon={ICONS.PUBLISH}
                     label={__('Upload')}
-                    onClick={() => history.push(`/$/${PAGES.UPLOAD}`)}
+                    onClick={() => navigate(`/$/${PAGES.UPLOAD}`)}
                   />
                 </div>
               }

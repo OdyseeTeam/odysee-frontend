@@ -5,7 +5,7 @@ import * as ICONS from 'constants/icons';
 import { useArStatus } from 'effects/use-ar-status';
 import Tooltip from 'component/common/tooltip';
 import Counter from 'component/counter';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
 import './style.scss';
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 export default function WanderButton(props: Props) {
   const { hideBalance, arweaveStatus } = props;
   const { activeArStatus } = useArStatus();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [backups, setBackups] = React.useState(window?.wanderInstance?.backupInfo?.backupsNeeded || 0);
   React.useEffect(() => {
     if (!window?.wanderInstance?.backupInfo) setBackups(0);
@@ -24,7 +24,7 @@ export default function WanderButton(props: Props) {
 
   const handleWalletClick = () => {
     if (backups > 0) window.wanderInstance.open('backup');
-    else history.push(`/$/${PAGES.WALLET}`);
+    else navigate(`/$/${PAGES.WALLET}`);
   };
 
   return (

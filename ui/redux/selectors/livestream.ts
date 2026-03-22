@@ -15,8 +15,9 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.livestream || {};
+const selectState = (state: State) => state.livestream || EMPTY_OBJECT;
 
 // -- selectState(state) --
 export const selectLivestreamInfoByCreatorId = (state: State) => selectState(state).livestreamInfoByCreatorId;

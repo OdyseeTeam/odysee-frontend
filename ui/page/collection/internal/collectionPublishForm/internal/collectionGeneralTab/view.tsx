@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -40,9 +40,7 @@ function CollectionGeneralTab(props: Props) {
     collectionChannelName,
   } = props;
   const { updateFormErrors } = React.useContext(FormContext);
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const { tags } = formParams;
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;

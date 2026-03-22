@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import Modal from 'modal/modal';
 import RepostCreate from 'component/repostCreate';
 import useThrottle from 'effects/use-throttle';
@@ -13,9 +13,7 @@ type Props = {
 
 function ModalRepost(props: Props) {
   const { uri, contentName, closeModal, resolveUri } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const param = urlParams.get('name') || urlParams.get('q') || contentName;
   const repostTo = param && (param[0] === '@' ? param.slice(1) : param.replace(/\s/g, '')); // remove spaces

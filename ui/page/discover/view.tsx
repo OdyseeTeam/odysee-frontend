@@ -13,12 +13,13 @@ import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
+import { useLocation } from 'react-router-dom';
 import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 type Props = {
   dynamicRouteProps: RowDataItem;
-  location: {
+  location?: {
     search: string;
   };
   followedTags: Array<Tag>;
@@ -32,8 +33,9 @@ type Props = {
 };
 
 function DiscoverPage(props: Props) {
+  const routeLocation = useLocation();
   const {
-    location: { search },
+    location,
     repostedClaim,
     repostedUri,
     doResolveUri,
@@ -42,6 +44,7 @@ function DiscoverPage(props: Props) {
     discoverDataNew,
     hideLivestreams,
   } = props;
+  const { search } = location || routeLocation;
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
   const isExplore = dynamicRouteProps && dynamicRouteProps.id === 'EXPLORABLE_CHANNEL';
   const exploreChannelsIds = isExplore && discoverDataNew && discoverDataNew.length > 0 ? discoverDataNew : undefined;

@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 type Props = {
   inline?: boolean;
@@ -43,7 +43,7 @@ function CollectionMenuList(props: Props) {
     doSetCollectionAutoPublish,
     doRetryCollectionPublish,
   } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   return (
     <Menu>
       <MenuButton
@@ -62,7 +62,10 @@ function CollectionMenuList(props: Props) {
       <MenuList className="menu__list">
         {collectionId && collectionName && (
           <>
-            <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}>
+            <MenuItem
+              className="comment__menu-option"
+              onSelect={() => navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`)}
+            >
               <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
                 <Icon aria-hidden icon={ICONS.VIEW} />
                 {__('Open')}
@@ -89,7 +92,9 @@ function CollectionMenuList(props: Props) {
                 {!collectionEmpty && (
                   <MenuItem
                     className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)}
+                    onSelect={() =>
+                      navigate(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
+                    }
                   >
                     <div className="menu__link">
                       <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
@@ -99,7 +104,7 @@ function CollectionMenuList(props: Props) {
                 )}
                 <MenuItem
                   className="comment__menu-option"
-                  onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
+                  onSelect={() => navigate(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
                 >
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.EDIT} />

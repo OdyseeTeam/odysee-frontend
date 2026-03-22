@@ -1,4 +1,6 @@
-const selectState = (state) => state.sync || {};
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
+
+const selectState = (state) => state.sync || EMPTY_OBJECT;
 
 export const selectHasSyncedWallet = (state) => selectState(state).hasSyncedWallet;
 export const selectSyncHash = (state) => selectState(state).syncHash;

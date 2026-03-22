@@ -7,7 +7,7 @@ import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
 import { formatLbryUrlForWeb } from 'util/url';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
 type Props = {
   urlQuery: string;
@@ -20,7 +20,7 @@ type Props = {
 };
 export default function SearchPage(props: Props) {
   const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const [from, setFrom] = React.useState(0);
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
   const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
@@ -56,7 +56,7 @@ export default function SearchPage(props: Props) {
         if (res.items && res.items.length) {
           const claim = res.items[0];
           const url = formatLbryUrlForWeb(claim.canonical_url);
-          push(url);
+          navigate(url);
         }
       });
     } catch (e) {}

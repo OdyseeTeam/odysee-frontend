@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.tags || {};
+const selectState = (state: State) => state.tags || EMPTY_OBJECT;
 
 export const selectKnownTagsByName = (state: State): KnownTags => selectState(state).knownTags;
 export const selectFollowedTagsList = (state: State) => selectState(state).followedTags;

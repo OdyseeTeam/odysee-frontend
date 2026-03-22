@@ -6,7 +6,7 @@ import * as ICONS from 'constants/icons';
 import { FileListContext } from 'page/fileListPublished/view';
 import classnames from 'classnames';
 import { FormField } from 'component/common/form';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import RightSideActions from './internal/rightSideActions/view';
 type Props = {
   filterType: string;
@@ -26,10 +26,8 @@ export default function ClaimListHeader(props: Props) {
     updateFilteringSetting,
     setFilterParamsChanged,
   } = React.useContext(FileListContext);
-  const history = useHistory();
-  const {
-    location: { search },
-  } = history;
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   function handleFilterTypeChange(value) {
@@ -37,7 +35,7 @@ export default function ClaimListHeader(props: Props) {
     setFilterType(value);
     setFilterParamsChanged(true);
     const url = `?${urlParams.toString()}`;
-    history.push(url);
+    navigate(url);
   }
 
   return (

@@ -1,6 +1,6 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 import Page from 'component/page';
@@ -53,9 +53,7 @@ export default function LivestreamSetupPage(props: Props) {
     editingURI,
   } = props;
   const isMobile = useIsMobile();
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
   const [sigData, setSigData] = React.useState({

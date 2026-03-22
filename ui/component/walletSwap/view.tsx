@@ -15,7 +15,8 @@ import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import { clipboard } from 'electron';
 import I18nMessage from 'component/i18nMessage';
-import { Redirect, useHistory } from 'react-router';
+import { Navigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 const ENABLE_ALTERNATIVE_COINS = true;
 const BTC_SATOSHIS = 100000000;
 const LBC_MAX = 21000000;
@@ -137,12 +138,11 @@ function WalletSwap(props: Props) {
   const [isFetchingRate, setIsFetchingRate] = React.useState(false);
   const [isSwapping, setIsSwapping] = React.useState(false);
   const [isRefreshingStatus, setIsRefreshingStatus] = React.useState(false);
-  const { location } = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [swap, setSwap] = React.useState({});
   const [coin, setCoin] = React.useState('bitcoin');
   const [lastStatusQuery, setLastStatusQuery] = React.useState();
-  const { goBack } = useHistory();
-
   function returnToMainAction() {
     setIsSwapping(false);
     setAction(ACTION_MAIN);
@@ -509,7 +509,7 @@ function WalletSwap(props: Props) {
   function getCloseButton() {
     return (
       <>
-        <Button autoFocus button="primary" label={__('Close')} onClick={() => goBack()} />
+        <Button autoFocus button="primary" label={__('Close')} onClick={() => navigate(-1)} />
         <Icon
           className="icon--help"
           icon={ICONS.HELP}
@@ -757,7 +757,7 @@ function WalletSwap(props: Props) {
   );
 
   if (!isAuthenticated) {
-    return <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
+    return <Navigate replace to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
   }
 
   return (

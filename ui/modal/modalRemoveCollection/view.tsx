@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -20,7 +20,7 @@ type Props = {
 function ModalRemoveCollection(props: Props) {
   const { simplify, hasClaim, collectionId, collectionName, redirect, collectionKey, doHideModal, doCollectionDelete } =
     props;
-  const { replace } = useHistory();
+  const navigate = useNavigate();
   const [confirmName, setConfirmName] = useState('');
   const [keepPrivate, setKeepPrivate] = useState(false);
 
@@ -86,7 +86,7 @@ function ModalRemoveCollection(props: Props) {
               label={__('Delete')}
               disabled={!simplify && hasClaim && collectionName !== confirmName}
               onClick={() => {
-                if (redirect) replace(redirect);
+                if (redirect) navigate(redirect, { replace: true });
                 doCollectionDelete(collectionId, hasClaim ? undefined : collectionKey, keepPrivate);
                 doHideModal();
               }}

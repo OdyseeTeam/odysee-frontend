@@ -1,11 +1,11 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
 import * as URL from 'constants/urlParams';
 import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
 import { ModalContext } from 'contexts/modal';
+import { useLocation } from 'react-router-dom';
 // prettier-ignore
 const MAP = Object.freeze({
   [MODALS.ACCOUNT_DELETE]: lazyImport(() => import('modal/modalRemoveAccount'
@@ -192,16 +192,13 @@ type Props = {
   error: {
     message: string;
   };
-  location: {
-    pathname: string;
-    search: string;
-  };
   doOpenModal: (modalId: string, modalProps: {}) => void;
   doHideModal: () => void;
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, location, doOpenModal, doHideModal } = props;
+  const location = useLocation();
+  const { modal, error, doOpenModal, doHideModal } = props;
   const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
@@ -222,7 +219,11 @@ function ModalRouter(props: Props) {
       newUrlParams.delete(URL.MODAL_PARAMS);
       const newUrlParamsStr = newUrlParams.toString();
       // -- Use history.replaceState so user won't be able to navigate back to the modal
-      history.replaceState(history.state, '', `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`);
+      window.history.replaceState(
+        window.history.state,
+        '',
+        `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`
+      );
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
   }, [doOpenModal, search, modal]);
   React.useEffect(() => {
@@ -264,5 +265,4 @@ function ModalRouter(props: Props) {
     </React.Suspense>
   );
 }
-
-export default withRouter(ModalRouter);
+export default ModalRouter;

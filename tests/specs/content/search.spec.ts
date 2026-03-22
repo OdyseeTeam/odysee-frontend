@@ -37,9 +37,7 @@ test.describe('Search', () => {
       expect(title.toLowerCase()).toContain('search');
     });
 
-    test('displays a top channel suggestion when the query matches a channel handle', async ({
-      searchPage,
-    }) => {
+    test('displays a top channel suggestion when the query matches a channel handle', async ({ searchPage }) => {
       // "@Odysee" is a known channel; a top suggestion card should appear.
       await searchPage.searchFor('@Odysee');
       // Not every query produces a top suggestion – soft assert
@@ -76,10 +74,7 @@ test.describe('Search', () => {
   // ── Wunderbar (header search) ──────────────────────────────────────────────
 
   test.describe('Wunderbar header search', () => {
-    test('navigates to search results page when query is submitted', async ({
-      searchPage,
-      page,
-    }) => {
+    test('navigates to search results page when query is submitted', async ({ searchPage, page }) => {
       // Start from home so the header is available
       await page.goto(ROUTES.home);
       await searchPage.waitForApp();
@@ -211,10 +206,7 @@ test.describe('Search', () => {
   // ── Result interaction ─────────────────────────────────────────────────────
 
   test.describe('Result interaction', () => {
-    test('clicking a result navigates away from the search page', async ({
-      searchPage,
-      page,
-    }) => {
+    test('clicking a result navigates away from the search page', async ({ searchPage, page }) => {
       await searchPage.searchFor('music');
       await searchPage.assertHasResults(1);
 
@@ -245,10 +237,7 @@ test.describe('Search', () => {
   // ── Multiple queries (query param changes) ─────────────────────────────────
 
   test.describe('Query parameter behaviour', () => {
-    test('changing the query param on the same page updates results', async ({
-      searchPage,
-      page,
-    }) => {
+    test('changing the query param on the same page updates results', async ({ searchPage, page }) => {
       await searchPage.searchFor('cats');
       const firstCount = await searchPage.getResultCount();
 

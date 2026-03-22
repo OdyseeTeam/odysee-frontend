@@ -14,7 +14,8 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 const CommentsList = lazyImport(
   () =>
     import(
@@ -138,12 +139,12 @@ const StreamClaimPage = (props: Props) => {
   } = props;
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
-  const history = useHistory();
+  const location = useLocation();
   const isHidden = isClaimFiltered || isClaimBlackListed;
   const cost = costInfo ? costInfo.cost : null;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
-  const { search } = history.location;
+  const { search } = location;
   const urlParams = new URLSearchParams(search);
   const shortsView = urlParams.get('view') === 'shorts';
   const isShortVideo = isClaimShort && !disableShortsView;
@@ -177,7 +178,7 @@ const StreamClaimPage = (props: Props) => {
     } else if (!isShortVideo && shortsView) {
       urlParams.delete('view');
       const newSearch = urlParams.toString();
-      history.replace(`${history.location.pathname}${newSearch ? `?${newSearch}` : ''}`);
+      history.replace(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShortVideo, shortsView, search, history]);
   React.useEffect(() => {

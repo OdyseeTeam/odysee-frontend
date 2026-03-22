@@ -10,7 +10,7 @@ import { Form, FormField } from 'component/common/form';
 import { INVALID_NAME_ERROR } from 'constants/claim';
 import { isNameValid } from 'util/lbryURI';
 import { Lbryio } from 'lbryinc';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Nag from 'component/nag';
 import { lazyImport } from 'util/lazyImport';
 import { getDefaultLanguage, sortLanguageMap } from 'util/default-languages';
@@ -41,6 +41,17 @@ function isTruthyQueryValue(value: string | null | undefined): boolean {
   return normalizedValue !== '0' && normalizedValue !== 'false' && normalizedValue !== 'no';
 }
 
+function YoutubeSyncWrapper(props: { children: React.ReactNode; inSignUpFlow?: boolean }) {
+  const { children, inSignUpFlow } = props;
+  return inSignUpFlow ? (
+    <>{children}</>
+  ) : (
+    <Page noSideNavigation authPage>
+      {children}
+    </Page>
+  );
+}
+
 type Props = {
   youtubeChannels:
     | Array<{
@@ -54,12 +65,8 @@ type Props = {
   doToggleInterestedInYoutubeSync: () => void;
 };
 export default function YoutubeSync(props: Props) {
-  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
-  const {
-    location: { search, pathname },
-    push,
-    replace,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
   const statusToken = urlParams.get(STATUS_TOKEN_PARAM);
   const hasErrorParam = urlParams.get(ERROR_PARAM) === 'true';
@@ -89,7 +96,7 @@ export default function YoutubeSync(props: Props) {
       urlParamsInEffect.append('reset_scroll', 'youtube');
     }
 
-    replace(`?${urlParamsInEffect.toString()}`); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+    navigate(`?${urlParamsInEffect.toString()}`, { replace: true }); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [pathname, search]);
   React.useEffect(() => {
     if (statusToken && !hasYoutubeChannels) {
@@ -126,22 +133,12 @@ export default function YoutubeSync(props: Props) {
 
   function handleNewChannel() {
     urlParams.set('new_channel', 'true');
-    push(`${pathname}?${urlParams.toString()}`);
+    navigate(`${pathname}?${urlParams.toString()}`);
     setAddingNewChannel(true);
   }
 
-  const Wrapper = (props: { children: any }) => {
-    return inSignUpFlow ? (
-      <>{props.children}</>
-    ) : (
-      <Page noSideNavigation authPage>
-        {props.children}
-      </Page>
-    );
-  };
-
   return (
-    <Wrapper>
+    <YoutubeSyncWrapper inSignUpFlow={inSignUpFlow}>
       <div className="main__channel-creation">
         {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
@@ -274,6 +271,6 @@ export default function YoutubeSync(props: Props) {
           />
         )}
       </div>
-    </Wrapper>
+    </YoutubeSyncWrapper>
   );
 }

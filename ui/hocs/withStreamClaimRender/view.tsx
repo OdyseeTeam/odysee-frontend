@@ -10,6 +10,7 @@ import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
+import { history } from 'redux/router';
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
 const homeInitFlags: Set<string> = new Set();
@@ -19,10 +20,10 @@ type Props = {
   embedded?: boolean;
   claimLinkId?: string;
   isMarkdownPost?: boolean;
-  location: {
+  location?: {
     search: string | null | undefined;
     pathname: string;
-    href: string;
+    href?: string;
     state:
       | {
           forceAutoplay?: boolean;
@@ -131,7 +132,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const shouldClearPlayingUri = React.useRef(false);
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
-    const { search, href, state: locationState, pathname } = location;
+    const currentLocation = location || history.location || {};
+    const {
+      search,
+      href = `${currentLocation.pathname || ''}${currentLocation.search || ''}`,
+      state: locationState,
+      pathname = '',
+    } = currentLocation;
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
     const urlParams = search ? new URLSearchParams(search) : null;

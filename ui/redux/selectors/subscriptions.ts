@@ -12,9 +12,10 @@ import {
 import { swapKeyAndValue } from 'util/swap-json';
 import { getChannelFromClaim, isChannelClaim } from 'util/claim';
 import { Container } from 'util/container';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
 // Returns the entire subscriptions state
-const selectState = (state) => state.subscriptions || {};
+const selectState = (state) => state.subscriptions || EMPTY_OBJECT;
 
 // Returns the list of channel uris a user is subscribed to
 export const selectSubscriptions = createSelector(

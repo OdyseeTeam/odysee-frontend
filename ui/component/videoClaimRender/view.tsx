@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import VideoViewer from 'component/viewers/videoViewer';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 type Props = {
   uri: string;
   className?: string;
@@ -17,9 +17,7 @@ type Props = {
 const VideoRender = (props: Props) => {
   const { uri, className, streamingUrl, contentType, embedded, streamClaim, isShortsContext, isFloatingContext } =
     props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
   const isShortsMode = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam;

@@ -1,9 +1,8 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getChannelFromClaim } from 'util/claim';
 import { MenuList, MenuItem } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
 import { URL } from 'config';
-import { useHistory } from 'react-router';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
@@ -113,10 +112,8 @@ function CommentMenuList(props: Props) {
     handleDismissPin,
   } = props;
   const isMobile = useIsMobile();
-  const {
-    location: { pathname, search },
-  } = useHistory();
-  const history = useHistory();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const contentChannelClaim = getChannelFromClaim(claim);
   const contentChannelPermanentUrl = contentChannelClaim && contentChannelClaim.permanent_url;
   const delegates = moderationDelegatesById[contentChannelClaim?.claim_id];
@@ -359,7 +356,7 @@ function CommentMenuList(props: Props) {
           <MenuItem
             className="comment__menu-option"
             onSelect={() =>
-              history.push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claim ? claim.claim_id : ''}&commentId=${commentId}`)
+              navigate(`/$/${PAGES.REPORT_CONTENT}?claimId=${claim ? claim.claim_id : ''}&commentId=${commentId}`)
             }
           >
             <div className="menu__link">

@@ -6,7 +6,7 @@ import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimShareButton from 'component/claimShareButton';
 // import { ENABLE_FILE_REACTIONS } from 'config';
@@ -63,9 +63,7 @@ function CollectionHeaderActions(props: Props) {
     doSetCollectionAutoPublish,
     doRetryCollectionPublish, // doSortCollectionByKey,
   } = props;
-  const {
-    push, // location: { search },
-  } = useHistory();
+  const navigate = useNavigate();
   const isNotADefaultList = collectionId !== 'watchlater' && collectionId !== 'favorites';
   return (
     <>
@@ -123,7 +121,7 @@ function CollectionHeaderActions(props: Props) {
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
-                    push(
+                    navigate(
                       `/$/${PAGES.PLAYLIST}/${collectionId}?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`
                     )
                   }
@@ -202,7 +200,7 @@ function CollectionHeaderActions(props: Props) {
               {!isMyCollection && claimId && (
                 <MenuItem
                   className="comment__menu-option"
-                  onSelect={() => push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
+                  onSelect={() => navigate(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
                 >
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.REPORT} />

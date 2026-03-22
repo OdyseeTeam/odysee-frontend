@@ -8,7 +8,7 @@ import { YOUTUBE_STATUSES } from 'lbryinc';
 import SubscribeButton from 'component/subscribeButton';
 import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button from 'component/button';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
@@ -89,13 +89,18 @@ type Props = {
 };
 
 function ChannelPage(props: Props) {
+  const navigate = useNavigate();
+  const { search, pathname } = useLocation();
   const {
     uri,
     claim,
     title,
     coverUrl,
+    thumbnail,
+    match,
     channelIsMine,
     isSubscribed,
+    channelIsBlocked,
     fetchSubCount,
     subCount,
     pending,
@@ -114,11 +119,6 @@ function ChannelPage(props: Props) {
     isGlobalMod,
     hideShorts,
   } = props;
-  const {
-    push,
-    goBack,
-    location: { search, pathname },
-  } = useHistory();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;
@@ -329,7 +329,7 @@ function ChannelPage(props: Props) {
     const currentFullUrl = `${pathname}${search}`;
 
     if (newFullUrl !== currentFullUrl) {
-      push(newFullUrl);
+      navigate(newFullUrl);
     }
   }
 
@@ -357,12 +357,12 @@ function ChannelPage(props: Props) {
       const baseUrl = formatLbryUrlForWeb(uri);
       const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
       const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
-      push(`${url}${search}`);
+      navigate(`${url}${search}`);
     }
-  }, [hideShorts, currentView, uri, push, isEmbedPath]);
+  }, [hideShorts, currentView, uri, navigate, isEmbedPath]);
 
   if (editing) {
-    return <ChannelEdit uri={uri} onDone={() => goBack()} />;
+    return <ChannelEdit uri={uri} onDone={() => navigate(-1)} />;
   }
 
   function handleViewMore(section) {
@@ -405,7 +405,7 @@ function ChannelPage(props: Props) {
         break;
 
       case 'playlist':
-        push(`/$/playlist/${section.claim_id}`);
+        navigate(`/$/playlist/${section.claim_id}`);
         break;
 
       case 'playlists':
@@ -487,7 +487,7 @@ function ChannelPage(props: Props) {
                     <Button
                       button="alt"
                       title={__('Edit')}
-                      onClick={() => push(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
+                      onClick={() => navigate(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
                       icon={ICONS.EDIT}
                       iconSize={18}
                       disabled={pending}

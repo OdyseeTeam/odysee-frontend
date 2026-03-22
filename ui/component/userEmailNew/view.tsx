@@ -6,7 +6,7 @@ import Button from 'component/button';
 import analytics from 'analytics';
 import { EMAIL_REGEX } from 'constants/email';
 import I18nMessage from 'component/i18nMessage';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Card from 'component/common/card';
 import ErrorText from 'component/common/error-text';
 import Nag from 'component/nag';
@@ -44,7 +44,8 @@ function UserEmailNew(props: Props) {
     doToggleInterestedInYoutubeSync,
   } = props;
   const { share_usage_data: shareUsageData } = daemonSettings;
-  const { push, location } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const emailFromUrl = urlParams.get('email');
   const defaultEmail = emailFromUrl ? decodeURIComponent(emailFromUrl) : '';
@@ -87,7 +88,7 @@ function UserEmailNew(props: Props) {
       urlParams.set('email_exists', '1');
     }
 
-    push(`${url}?${urlParams.toString()}`);
+    navigate(`${url}?${urlParams.toString()}`);
   }
 
   React.useEffect(() => {

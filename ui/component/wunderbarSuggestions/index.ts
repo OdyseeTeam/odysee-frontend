@@ -2,29 +2,27 @@ import { connect } from 'react-redux';
 import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
 import { doToast } from 'redux/actions/notifications';
 import { doHideModal } from 'redux/actions/app';
-import { withRouter } from 'react-router';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { selectClaimsByUri } from 'redux/selectors/claims';
 import analytics from 'analytics';
 import Wunderbar from './view';
 import * as SETTINGS from 'constants/settings';
+import { history } from 'redux/router';
 
-const select = (state, props) => {
-  return {
-    languageSetting: selectLanguage(state),
-    searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-    showMature: selectShowMatureContent(state),
-    claimsByUri: selectClaimsByUri(state),
-    subscriptionUris: selectSubscriptionUris(state) || [],
-  };
-};
+const select = (state) => ({
+  languageSetting: selectLanguage(state),
+  searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
+  showMature: selectShowMatureContent(state),
+  claimsByUri: selectClaimsByUri(state),
+  subscriptionUris: selectSubscriptionUris(state) || [],
+});
 
-const perform = (dispatch, ownProps) => ({
+const perform = (dispatch) => ({
   doResolveUris: (uris) => dispatch(doResolveUris(uris)),
   navigateToSearchPage: (query) => {
-    let encodedQuery = encodeURIComponent(query);
-    ownProps.history.push({
+    const encodedQuery = encodeURIComponent(query);
+    history.push({
       pathname: `/$/search`,
       search: `?q=${encodedQuery}`,
     });
@@ -39,5 +37,4 @@ const perform = (dispatch, ownProps) => ({
     ),
   doCloseMobileSearch: () => dispatch(doHideModal()),
 });
-
-export default withRouter(connect(select, perform)(Wunderbar));
+export default connect(select, perform)(Wunderbar);

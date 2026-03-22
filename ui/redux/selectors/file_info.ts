@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 import {
   selectClaimOutpointForUri,
   selectIsFetchingClaimListMine,
@@ -13,8 +14,8 @@ import { buildURI } from 'util/lbryURI';
 import { getChannelFromClaim } from 'util/claim';
 import Lbry from 'lbry';
 import { PAGE_SIZE } from 'constants/claim';
-export const selectState = (state) => state.fileInfo || {};
-export const selectFileInfosByOutpoint = createSelector(selectState, (state) => state.byOutpoint || {});
+export const selectState = (state) => state.fileInfo || EMPTY_OBJECT;
+export const selectFileInfosByOutpoint = createSelector(selectState, (state) => state.byOutpoint || EMPTY_OBJECT);
 export const selectIsFetchingFileList = (state) => selectState(state).isFetchingFileList;
 export const selectFetchingOutpoints = (state) => selectState(state).fetchingOutpoints;
 export const selectIsFetchingFileListDownloadedOrPublished = createSelector(
@@ -28,7 +29,10 @@ export const selectFileInfoForUri = (state, uri) => {
   return selectFileInfosByOutpoint(state)[outpoint];
 };
 export const makeSelectFileInfoForUri = (uri) => (state) => selectFileInfoForUri(state, uri);
-export const selectDownloadingByOutpoint = createSelector(selectState, (state) => state.downloadingByOutpoint || {});
+export const selectDownloadingByOutpoint = createSelector(
+  selectState,
+  (state) => state.downloadingByOutpoint || EMPTY_OBJECT
+);
 export const makeSelectDownloadingForUri = (uri) =>
   createSelector(selectDownloadingByOutpoint, makeSelectFileInfoForUri(uri), (byOutpoint, fileInfo) => {
     if (!fileInfo) return false;
@@ -39,7 +43,7 @@ export const selectOutpointFetchingForUri = (state, uri) => {
   if (!outpoint) return false;
   return selectFetchingOutpoints(state).includes(outpoint);
 };
-export const selectUrisLoading = createSelector(selectState, (state) => state.urisLoading || {});
+export const selectUrisLoading = createSelector(selectState, (state) => state.urisLoading || EMPTY_OBJECT);
 export const makeSelectLoadingForUri = (uri) =>
   createSelector(selectUrisLoading, makeSelectClaimForUri(uri), (fetchingByOutpoint, claim) => {
     if (!claim) {
@@ -82,7 +86,7 @@ export const selectTotalDownloadProgress = createSelector(selectDownloadingFileI
   if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
   return -1;
 });
-export const selectFileInfoErrors = createSelector(selectState, (state) => state.errors || {});
+export const selectFileInfoErrors = createSelector(selectState, (state) => state.errors || EMPTY_OBJECT);
 export const selectFileListPublishedSort = (state) => selectState(state).fileListPublishedSort;
 export const selectFileListDownloadedSort = (state) => selectState(state).fileListDownloadedSort;
 export const selectDownloadedUris = createSelector(

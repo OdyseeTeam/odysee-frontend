@@ -22,12 +22,10 @@ const { getSpinnerHtml } = require('./spinner');
 
 const { getLlmsTxt } = require('./llms');
 
-const fetch = require('node-fetch');
-
 const Router = require('@koa/router');
 
 // So any code from 'lbry-redux'/'lbryinc' that uses `fetch` can be run on the server
-global.fetch = fetch;
+global.fetch = globalThis.fetch;
 const router = new Router();
 
 async function getStreamUrl(ctx) {

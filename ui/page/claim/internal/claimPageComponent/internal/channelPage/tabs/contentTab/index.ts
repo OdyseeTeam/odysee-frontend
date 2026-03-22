@@ -10,7 +10,6 @@ import {
 import { doResolveUris } from 'redux/actions/claims';
 import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
-import { withRouter } from 'react-router';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
@@ -18,7 +17,7 @@ import { getChannelIdFromClaim } from 'util/claim';
 import ContentTab from './view';
 
 const select = (state, props) => {
-  const { search } = props.location;
+  const search = state.router?.location?.search || '';
   const urlParams = new URLSearchParams(search);
   const page = urlParams.get('page') || 0;
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -44,4 +43,4 @@ const select = (state, props) => {
 const perform = {
   doResolveUris,
 };
-export default withRouter(connect(select, perform)(ContentTab));
+export default connect(select, perform)(ContentTab);

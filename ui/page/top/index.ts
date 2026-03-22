@@ -3,8 +3,8 @@ import TopPage from './view';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 
-const select = (state, props) => {
-  const { search } = props.location;
+const select = (state) => {
+  const search = state.router?.location?.search || '';
   const urlParams = new URLSearchParams(search);
   const name = urlParams.get('name');
   return {

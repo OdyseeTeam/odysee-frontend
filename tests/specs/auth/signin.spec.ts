@@ -59,9 +59,7 @@ test.describe('Sign-in page', () => {
       // Expect some validation feedback – either a field error or a browser
       // native validation (which prevents submit).  We accept either.
       const hasError = await signInPage.hasError();
-      const emailInvalid = await signInPage.emailInput.evaluate(
-        (el: HTMLInputElement) => !el.validity.valid
-      );
+      const emailInvalid = await signInPage.emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
       expect(hasError || emailInvalid, 'Expected validation feedback for empty email').toBe(true);
     });
 
@@ -71,15 +69,11 @@ test.describe('Sign-in page', () => {
       await signInPage.emailContinueButton.click();
 
       const hasError = await signInPage.hasError();
-      const emailInvalid = await signInPage.emailInput.evaluate(
-        (el: HTMLInputElement) => !el.validity.valid
-      );
+      const emailInvalid = await signInPage.emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
       expect(hasError || emailInvalid, 'Expected validation error for malformed email').toBe(true);
     });
 
-    test('email field accepts a valid email format without immediate validation error', async ({
-      signInPage,
-    }) => {
+    test('email field accepts a valid email format without immediate validation error', async ({ signInPage }) => {
       await signInPage.gotoSignIn();
       await signInPage.emailInput.fill('valid@example.com');
       // No error should appear just from typing
@@ -93,10 +87,7 @@ test.describe('Sign-in page', () => {
     // response or on the UI advancing to the password step regardless.
     // Adjust the test email to match whatever the app does locally.
 
-    test('reveals the password input after a valid-looking email is submitted', async ({
-      signInPage,
-      page,
-    }) => {
+    test('reveals the password input after a valid-looking email is submitted', async ({ signInPage, page }) => {
       await signInPage.gotoSignIn();
 
       // Use an address that is syntactically valid; the app may redirect to
@@ -119,10 +110,7 @@ test.describe('Sign-in page', () => {
       ).toBe(true);
     });
 
-    test('Forgot password link is reachable from the sign-in page', async ({
-      signInPage,
-      page,
-    }) => {
+    test('Forgot password link is reachable from the sign-in page', async ({ signInPage, page }) => {
       await signInPage.gotoSignIn();
 
       // Navigate directly to the password reset page (the link may only appear
@@ -199,9 +187,7 @@ test.describe('Sign-in page', () => {
       await signInPage.gotoSignUp();
 
       // There should be a way to switch to the sign-in flow
-      const signInLink = page
-        .getByRole('link', { name: /log in|sign in|already have an account/i })
-        .first();
+      const signInLink = page.getByRole('link', { name: /log in|sign in|already have an account/i }).first();
       await expect(signInLink).toBeVisible({ timeout: 8_000 });
     });
   });

@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
 import {
   selectClaimSearchByQuery,
   selectFetchingClaimSearchByQuery,
@@ -28,6 +27,7 @@ const select = (state, props) => {
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = selectMutedAndBlockedChannelIds(state);
   const hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  const search = state.router?.location?.search || '';
   // TODO: memoize these 2 function calls. Lots of params, though; might not be feasible.
   const options = resolveSearchOptions({
     showNsfw,
@@ -37,6 +37,7 @@ const select = (state, props) => {
     mutedAndBlockedChannelIds,
     hideShorts,
     pageSize: 8,
+    search,
     ...props,
   });
   const searchKey = createNormalizedClaimSearchKey(options);
@@ -58,7 +59,7 @@ const perform = {
   doResolveClaimIds,
   doResolveUris,
 };
-export default withRouter(connect(select, perform)(ClaimListDiscover)); // ****************************************************************************
+export default connect(select, perform)(ClaimListDiscover);
 // ****************************************************************************
 
 function resolveSearchOptions(props) {
@@ -69,7 +70,7 @@ function resolveSearchOptions(props) {
     hideMembersOnly,
     mutedAndBlockedChannelIds,
     hideShorts,
-    location,
+    search,
     pageSize,
     claimType,
     tags,
@@ -89,7 +90,7 @@ function resolveSearchOptions(props) {
     contentAspectRatio,
     excludeShorts,
   } = props;
-  const urlParams = new URLSearchParams(location.search);
+  const urlParams = new URLSearchParams(search);
   const feeAmountInUrl = urlParams.get('fee_amount');
   const feeAmountParam = feeAmountInUrl || feeAmount;
   const notTagInput: NotTagInput = {

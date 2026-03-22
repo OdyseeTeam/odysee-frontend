@@ -2,7 +2,7 @@ import * as PAGES from 'constants/pages';
 import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import classnames from 'classnames';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import UserEmailNew from 'component/userEmailNew';
 import UserEmailVerify from 'component/userEmailVerify';
 import UserFirstChannel from 'component/userFirstChannel';
@@ -29,6 +29,15 @@ const YoutubeTransferStatus = lazyImport(
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
 const STEP_PARAM = 'step';
+
+function setSettingAndSync(
+  setClientSetting: (setting: string, value: boolean, sync: boolean | null | undefined) => void,
+  setting: string,
+  value: boolean
+) {
+  setClientSetting(setting, value, true);
+}
+
 type Props = {
   user: User | null | undefined;
   emailToVerify: string | null | undefined;
@@ -55,32 +64,30 @@ type Props = {
 
 function UserSignUp(props: Props) {
   const {
-    emailToVerify,
     user,
-    claimingReward,
-    claimedRewards,
+    emailToVerify,
     channels,
+    balance,
+    fetchingChannels,
+    claimingReward,
     claimConfirmEmailReward,
     claimNewUserReward,
-    balance,
+    claimedRewards,
     youtubeChannels,
     syncEnabled,
-    syncingWallet,
     hasSynced,
-    fetchingChannels,
+    syncingWallet,
     creatingChannel,
+    setClientSetting,
     followingAcknowledged,
     tagsAcknowledged,
     rewardsAcknowledged,
-    setClientSetting,
     interestedInYoutubeSync,
     doToggleInterestedInYoutubeSync,
     prefsReady,
   } = props;
-  const {
-    location: { search, pathname },
-    replace,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
   const redirect = urlParams.get(REDIRECT_PARAM);
   const step = urlParams.get(STEP_PARAM);
@@ -130,13 +137,9 @@ function UserSignUp(props: Props) {
   const showLoadingSpinner =
     canHijackSignInFlowWithSpinner && (isCurrentlyFetchingSomething || isWaitingForSomethingToFinish);
 
-  function setSettingAndSync(setting, value) {
-    setClientSetting(setting, value, true);
-  }
-
   React.useEffect(() => {
     if (previousHasVerifiedEmail === false && hasVerifiedEmail && prefsReady) {
-      setSettingAndSync(SETTINGS.FIRST_RUN_STARTED, true);
+      setSettingAndSync(setClientSetting, SETTINGS.FIRST_RUN_STARTED, true);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [hasVerifiedEmail, previousHasVerifiedEmail, prefsReady]);
   React.useEffect(() => {
@@ -169,7 +172,7 @@ function UserSignUp(props: Props) {
     showUserVerification && (
       <UserVerify
         onSkip={() => {
-          setSettingAndSync(SETTINGS.REWARDS_ACKNOWLEDGED, true);
+          setSettingAndSync(setClientSetting, SETTINGS.REWARDS_ACKNOWLEDGED, true);
         }}
       />
     ),
@@ -188,8 +191,8 @@ function UserSignUp(props: Props) {
           }
 
           urlParams.delete(STEP_PARAM);
-          setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, true);
-          replace(`${pathname}?${urlParams.toString()}`);
+          setSettingAndSync(setClientSetting, SETTINGS.FOLLOWING_ACKNOWLEDGED, true);
+          navigate(`${pathname}?${urlParams.toString()}`, { replace: true });
         }}
         onBack={() => {
           if (urlParams.get('reset_scroll')) {
@@ -197,8 +200,8 @@ function UserSignUp(props: Props) {
             urlParams.append('reset_scroll', '3');
           }
 
-          setSettingAndSync(SETTINGS.FOLLOWING_ACKNOWLEDGED, false);
-          replace(`${pathname}?${urlParams.toString()}`);
+          setSettingAndSync(setClientSetting, SETTINGS.FOLLOWING_ACKNOWLEDGED, false);
+          navigate(`${pathname}?${urlParams.toString()}`, { replace: true });
         }}
       />
     ),
@@ -215,8 +218,8 @@ function UserSignUp(props: Props) {
             url += `&${REDIRECT_IMMEDIATELY_PARAM}=true`;
           }
 
-          replace(url);
-          setSettingAndSync(SETTINGS.TAGS_ACKNOWLEDGED, true);
+          navigate(url, { replace: true });
+          setSettingAndSync(setClientSetting, SETTINGS.TAGS_ACKNOWLEDGED, true);
         }}
       />
     ),
@@ -252,7 +255,7 @@ function UserSignUp(props: Props) {
           if (!initialSignInStep) {
             setInitialSignInStep(i);
           } else if (i !== initialSignInStep && i !== SIGN_IN_FLOW.length - 1) {
-            replace(redirect);
+            navigate(redirect, { replace: true });
           }
         }
 
@@ -273,7 +276,7 @@ function UserSignUp(props: Props) {
   }, [componentToRender, claimNewUserReward]);
 
   if (!componentToRender) {
-    replace(redirect || '/');
+    navigate(redirect || '/', { replace: true });
   }
 
   return (

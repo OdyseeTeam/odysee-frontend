@@ -1,9 +1,10 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
 import UserPhoneVerify from 'component/userPhoneVerify';
 import UserPhoneNew from 'component/userPhoneNew';
-import { Redirect } from 'react-router';
+
 type Props = {
   phone: number | null | undefined;
   user: {
@@ -27,7 +28,7 @@ class ModalPhoneCollection extends React.PureComponent<Props> {
     }
 
     closeModal();
-    return <Redirect to="/$/rewards" />;
+    return <Navigate replace to="/$/rewards" />;
   }
 
   render() {

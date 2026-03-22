@@ -1,6 +1,7 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MenuLink, MenuItem } from '@reach/menu-button';
 import MuiMenuItem from '@mui/material/MenuItem';
 import MuiLink from '@mui/material/Link';
@@ -14,7 +15,7 @@ type Props = {
 };
 export default function HeaderMenuLink(props: Props) {
   const { icon, name, page, requiresAuth, useMui } = props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   if (useMui) {
     return (
@@ -24,7 +25,7 @@ export default function HeaderMenuLink(props: Props) {
         href={`/$/${page}`}
         onClick={(e) => {
           e.preventDefault();
-          push(`/$/${page}`);
+          navigate(`/$/${page}`);
         }}
       >
         <Icon aria-hidden icon={icon} />
@@ -35,7 +36,7 @@ export default function HeaderMenuLink(props: Props) {
 
   if (requiresAuth) {
     return (
-      <MenuItem className="menu__link" onSelect={() => push(`/$/${PAGES.AUTH}`)}>
+      <MenuItem className="menu__link" onSelect={() => navigate(`/$/${PAGES.AUTH}`)}>
         <Icon aria-hidden icon={icon} />
         {name}
       </MenuItem>

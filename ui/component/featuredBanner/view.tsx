@@ -3,7 +3,7 @@ import { useOnResize } from 'effects/use-on-resize';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { NavLink } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import './style.lazy.scss';
 type Props = {
   homepageData: any;
@@ -40,7 +40,7 @@ export default function FeaturedBanner(props: Props) {
   const wrapper = React.useRef(null);
   const menuRef = React.useRef<HTMLDivElement | null | undefined>(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
-  const { push } = useHistory();
+  const navigate = useNavigate();
   React.useEffect(() => {
     if (featured && width) {
       const interval = setInterval(
@@ -96,7 +96,7 @@ export default function FeaturedBanner(props: Props) {
         behavior: 'smooth',
       });
     } else {
-      push('$/portal/adventureaddict');
+      navigate('$/portal/adventureaddict');
     }
   }
 

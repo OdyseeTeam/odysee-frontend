@@ -1,6 +1,5 @@
 import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
-import { withRouter } from 'react-router';
 import * as TXO from 'constants/txo_list';
 import TransactionListTable from '../transactionListTable';
 import Paginate from 'component/common/paginate';
@@ -13,6 +12,8 @@ import HelpLink from 'component/common/help-link';
 import FileExporter from 'component/common/file-exporter';
 import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
 import WalletFiatAccountHistory from '../walletFiatAccountHistory';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
@@ -22,12 +23,6 @@ const DEFAULT_TAB_PARAM = 'fiat-payment-history';
 const DEFAULT_FIAT_TYPE_PARAM = 'incoming';
 const DEFAULT_TRANSACTION_TYPE_PARAM = 'tip';
 type Props = {
-  search: string;
-  history: {
-    action: string;
-    push: (arg0: string) => void;
-    replace: (arg0: string) => void;
-  };
   txoPage: Array<Transaction>;
   txoPageNumber: string;
   txoItemCount: number;
@@ -46,14 +41,13 @@ type Delta = {
 };
 
 function TxoList(props: Props) {
+  const { search } = useLocation();
   const {
-    search,
     txoPage,
     txoItemCount,
     fetchTxoPage,
     fetchTransactions,
     updateTxoPageParams,
-    history,
     isFetchingTransactions,
     transactionsFile,
     doCustomerListPaymentHistory,
@@ -459,5 +453,4 @@ function TxoList(props: Props) {
     />
   );
 }
-
-export default withRouter(TxoList);
+export default TxoList;

@@ -23,10 +23,11 @@ import { selectActiveChannelId } from 'redux/selectors/app';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.comments || {};
+const selectState = (state: State) => state.comments || EMPTY_OBJECT;
 
-export const selectCommentsById = (state: State) => selectState(state).commentById || {};
+export const selectCommentsById = (state: State) => selectState(state).commentById || EMPTY_OBJECT;
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;
 export const selectIsFetchingComments = (state: State) => selectState(state).isLoading;
 export const selectIsFetchingCommentsByParentId = (state: State) => selectState(state).isLoadingByParentId;
@@ -103,7 +104,7 @@ export const selectHasAdminChannel = createSelector(selectState, (state) => {
   // return Object.values(state.moderationDelegatorsById).some((x) => x.global);
 });
 export const selectCommentsByClaimId = createSelector(selectState, selectCommentsById, (state, byId) => {
-  const byClaimId = state.byId || {};
+  const byClaimId = state.byId || EMPTY_OBJECT;
   const comments = {};
   // replace every comment_id in the list with the actual comment object
   Object.keys(byClaimId).forEach((claimId: string) => {
@@ -121,7 +122,7 @@ export const selectTopLevelCommentsByClaimId = createSelector(
   (state) => selectState(state).topLevelCommentsById,
   selectCommentsById,
   (topLevelCommentsById, byId) => {
-    const byClaimId = topLevelCommentsById || {};
+    const byClaimId = topLevelCommentsById || EMPTY_OBJECT;
     const comments = {};
     // replace every comment_id in the list with the actual comment object
     Object.keys(byClaimId).forEach((claimId) => {

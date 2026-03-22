@@ -1,7 +1,7 @@
 /**
  * Wrapper to enable drag-and-drop sorting on any list of elements.
  *
- * Encapsulates the complexity of 'react-beautiful-dnd' for clients that just
+ * Encapsulates the complexity of the drag-and-drop library for clients that just
  * want the ability to drag and sort items.
  *
  * It is parked under ChannelFinder for now, but it is meant to be a generic/
@@ -15,17 +15,17 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 // prettier-ignore
 const Lazy = {
-  DragDropContext: React.lazy(() => import('react-beautiful-dnd'
+  DragDropContext: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.DragDropContext
   }))),
-  Droppable: React.lazy(() => import('react-beautiful-dnd'
+  Droppable: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.Droppable
   }))),
-  Draggable: React.lazy(() => import('react-beautiful-dnd'
+  Draggable: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.Draggable

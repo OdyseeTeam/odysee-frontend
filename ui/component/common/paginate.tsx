@@ -1,24 +1,20 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { Form, FormField } from 'component/common/form';
 import ReactPaginate from 'react-paginate';
 import { useIsMobile } from 'effects/use-screensize';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 const PAGINATE_PARAM = 'page';
 type Props = {
   totalPages: number;
   shouldResetPageNumber?: boolean;
-  location: {
-    search: string;
-  };
-  history: {
-    push: (arg0: string) => void;
-  };
   onPageChange?: (arg0: number) => void;
   disableHistory?: boolean; // Disables the use of '&page=' param and history stack.
 };
 
 function Paginate(props: Props) {
-  const { totalPages = 1, shouldResetPageNumber, location, history, onPageChange, disableHistory } = props;
+  const { totalPages = 1, shouldResetPageNumber, onPageChange, disableHistory } = props;
+  const location = useLocation();
   const { search } = location;
   const [textValue, setTextValue] = React.useState('');
   const urlParams = new URLSearchParams(search);
@@ -109,5 +105,4 @@ function Paginate(props: Props) {
     </Form>
   );
 }
-
-export default withRouter(Paginate);
+export default Paginate;

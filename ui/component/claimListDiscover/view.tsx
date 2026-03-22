@@ -2,7 +2,6 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as CS from 'constants/claim_search';
 import * as TAGS from 'constants/tags';
 import React from 'react';
-import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
 import { createNormalizedClaimSearchKey } from 'util/claim';
@@ -20,6 +19,8 @@ import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
 import type { HomepageTitles } from 'util/buildHomepage';
 import * as SETTINGS from 'constants/settings';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 type Props = {
   uris: Array<string>;
   prefixUris?: Array<string>;
@@ -89,15 +90,6 @@ type Props = {
   renderProperties?: (arg0: Claim) => React.ReactNode;
   csOptionsHook?: (options: any) => any;
   // Final client-side tweak of Claim Search options.
-  history: {
-    action: string;
-    push: (arg0: string) => void;
-    replace: (arg0: string) => void;
-  };
-  location: {
-    search: string;
-    pathname: string;
-  };
   expandFilters: boolean;
   // --- select ---
   followedTags?: Array<Tag>;
@@ -213,8 +205,6 @@ function ClaimListDiscover(props: Props) {
     showNsfw,
     hideReposts,
     fetchViewCount,
-    history,
-    location,
     hiddenNsfwMessage,
     defaultOrderBy,
     sortBy,
@@ -278,6 +268,8 @@ function ClaimListDiscover(props: Props) {
     excludeShortsAspectRatio,
     hideShorts,
   } = props;
+  const location = useLocation();
+  const { pathname, search } = location;
   const hasPins = pins && (pins.claimIds || pins.urls);
   const resolvedPinUris = React.useMemo(() => {
     if (!hasPins) return undefined;
@@ -300,7 +292,6 @@ function ClaimListDiscover(props: Props) {
     return resolvedPinUris;
   }, [claimsById, hasPins, pins]);
   const didNavigateForward = history.action === 'PUSH';
-  const { search } = location;
   const prevUris = React.useRef();
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState();
@@ -359,9 +350,9 @@ function ClaimListDiscover(props: Props) {
   }
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION.ALL], 'durUser', null);
-  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
-  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
-  const [hideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${pathname}`, null);
+  const [hideAnonymous] = usePersistedState(`hideAnonymous-${pathname}`, false);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
@@ -888,4 +879,4 @@ function ClaimListDiscover(props: Props) {
   );
 }
 
-export default withRouter(ClaimListDiscover);
+export default ClaimListDiscover;

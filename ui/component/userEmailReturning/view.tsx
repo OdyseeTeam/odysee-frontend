@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import { EMAIL_REGEX } from 'constants/email';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import UserEmailVerify from 'component/userEmailVerify';
 import Card from 'component/common/card';
 import Nag from 'component/nag';
@@ -34,7 +34,8 @@ function UserEmailReturning(props: Props) {
     doSetWalletSyncPreference,
     isPending,
   } = props;
-  const { push, location } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const emailFromUrl = urlParams.get('email');
   const emailExistsFromUrl = urlParams.get('email_exists');
@@ -63,7 +64,7 @@ function UserEmailReturning(props: Props) {
       urlParams.set('email', encodeURIComponent(email));
     }
 
-    push(`${url}?${urlParams.toString()}`);
+    navigate(`${url}?${urlParams.toString()}`);
   }
 
   return (

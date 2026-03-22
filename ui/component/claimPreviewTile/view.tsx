@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { NavLink, withRouter } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChannelPageContext } from 'contexts/channel';
 import * as COLLECTIONS from 'constants/collections';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
@@ -28,7 +28,6 @@ import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
 import { isClaimShort } from 'util/claim';
 import type { HomepageTitles } from 'util/buildHomepage';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 type Props = {
   uri: string;
   date?: any;
@@ -36,9 +35,6 @@ type Props = {
   mediaDuration?: string;
   isResolvingUri: boolean;
   claimIsMine: boolean;
-  history: {
-    push: (arg0: string) => void;
-  };
   title: string;
   placeholder: boolean;
   banState: {
@@ -75,7 +71,6 @@ type Props = {
 // preview image cards used in related video functionality, channel overview page and homepage
 function ClaimPreviewTile(props: Props) {
   const {
-    history,
     uri,
     date,
     isResolvingUri,
@@ -110,7 +105,8 @@ function ClaimPreviewTile(props: Props) {
     disableShortsView,
   } = props;
   const isEmbed = React.useContext(EmbedContext);
-  const pageHistory = useHistory();
+  const { search } = useLocation();
+  const navigate = useNavigate();
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
@@ -138,7 +134,7 @@ function ClaimPreviewTile(props: Props) {
       onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
     },
   };
-  const queryParams = new URLSearchParams(pageHistory.location.search);
+  const queryParams = new URLSearchParams(search);
   const signingChannel = claim && claim.signing_channel;
   const isChannel = claim && claim.value_type === 'channel';
   const channelUri = !isChannel ? signingChannel && signingChannel.permanent_url : claim && claim.permanent_url;
@@ -180,7 +176,7 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
   function handleClick() {
     if (navigateUrl && !isEmbed) {
-      history.push(navigateUrl);
+      navigate(navigateUrl);
     }
   }
 
@@ -243,7 +239,7 @@ function ClaimPreviewTile(props: Props) {
             if (isEmbed) {
               window.open(navigateUrl, '_blank');
             } else {
-              pageHistory.push(navigateUrl);
+              navigate(navigateUrl);
             }
           }
         }}
@@ -342,4 +338,4 @@ function ClaimPreviewTile(props: Props) {
   );
 }
 
-export default withRouter(ClaimPreviewTile);
+export default ClaimPreviewTile;

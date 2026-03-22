@@ -1,7 +1,6 @@
 import 'scss/component/_header.scss';
 import { formatCredits } from 'util/format-credits';
 import { useIsMobile } from 'effects/use-screensize';
-import { withRouter } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
@@ -16,6 +15,8 @@ import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
 import WanderButton from '../wanderButton';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 type Props = {
   authenticated: boolean;
   authHeader: boolean;
@@ -32,15 +33,6 @@ type Props = {
   hasNavigated: boolean;
   hideBalance: boolean;
   hideCancel: boolean;
-  history: {
-    goBack: () => void;
-    location: {
-      pathname: string;
-      search: string;
-    };
-    push: (arg0: string) => void;
-    replace: (arg0: string) => void;
-  };
   isAbsoluteSideNavHidden: boolean;
   sidebarOpen: boolean;
   syncError: string | null | undefined;
@@ -70,7 +62,6 @@ const Header = (props: Props) => {
     hasNavigated,
     hideBalance,
     hideCancel,
-    history,
     isAbsoluteSideNavHidden,
     sidebarOpen,
     syncError,
@@ -87,11 +78,8 @@ const Header = (props: Props) => {
     setSidebarOpen,
     signOut,
   } = props;
-  const {
-    location: { pathname, search },
-    goBack,
-    push,
-  } = history;
+  const { pathname, search } = useLocation();
+  const { goBack, push } = history;
   const isMobile = useIsMobile();
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
   const isVerifyPage = pathname.includes(PAGES.AUTH_VERIFY);
@@ -287,7 +275,7 @@ const Header = (props: Props) => {
               </Button>
 
               {/* @if process.env.DEV_CHANGELOG */}
-              {history.location.pathname === '/' && (
+              {pathname === '/' && (
                 <Button
                   title="Changelog"
                   className="badge--alert"
@@ -360,4 +348,4 @@ const Header = (props: Props) => {
   );
 };
 
-export default withRouter(Header);
+export default Header;

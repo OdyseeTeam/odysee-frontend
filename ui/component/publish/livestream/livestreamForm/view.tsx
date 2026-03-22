@@ -10,7 +10,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -152,9 +152,7 @@ function LivestreamForm(props: Props) {
     remoteFileUrl,
     memberRestrictionStatus,
   } = props;
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const createTypeShortcut = urlParams.get('s');
   const isMobile = useIsMobile();

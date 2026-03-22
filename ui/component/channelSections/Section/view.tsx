@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import classnames from 'classnames';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelTitle from 'component/channelTitle';
 import Icon from 'component/common/icon';
@@ -31,7 +31,8 @@ const ContextMenuItem = (props: { label: string; icon: string; onSelect: any }) 
 
 export default function Section(props: Props) {
   const { id, title, uris, channelId, isChannelMine, doOpenModal, doDeleteChannelSection } = props;
-  const { push, location } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // **************************************************************************
   // **************************************************************************
@@ -50,7 +51,7 @@ export default function Section(props: Props) {
                 label={'View'}
                 icon={ICONS.EYE}
                 onSelect={() =>
-                  push(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)
+                  navigate(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)
                 }
               />
             )}
@@ -102,7 +103,7 @@ export default function Section(props: Props) {
               <div
                 key={uri}
                 className="channel-section-card__item"
-                onClick={() => push(formatLbryUrlForWeb(uri) + '?view=home')}
+                onClick={() => navigate(formatLbryUrlForWeb(uri) + '?view=home')}
               >
                 <ChannelThumbnail uri={uri} />
                 <ChannelTitle uri={uri} />

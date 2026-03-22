@@ -47,33 +47,23 @@ export class SignInPage extends BasePage {
 
     // ── Email step ──────────────────────────────────────────────────────────
     this.emailInput = page.locator('input[type="email"], input[name="email"]').first();
-    this.emailContinueButton = page
-      .getByRole('button', { name: /continue|next|submit/i })
-      .first();
+    this.emailContinueButton = page.getByRole('button', { name: /continue|next|submit/i }).first();
 
     // ── Password step ───────────────────────────────────────────────────────
     this.passwordInput = page.locator('input[type="password"]').first();
-    this.passwordSubmitButton = page
-      .getByRole('button', { name: /log in|sign in|continue|submit/i })
-      .first();
+    this.passwordSubmitButton = page.getByRole('button', { name: /log in|sign in|continue|submit/i }).first();
     this.forgotPasswordLink = page.getByRole('link', { name: /forgot|reset password/i }).first();
 
     // ── Sign-up ─────────────────────────────────────────────────────────────
     this.signUpEmailInput = page.locator('input[type="email"]').first();
     this.signUpPasswordInput = page.locator('input[type="password"]').first();
-    this.signUpSubmitButton = page
-      .getByRole('button', { name: /sign up|create account|register/i })
-      .first();
+    this.signUpSubmitButton = page.getByRole('button', { name: /sign up|create account|register/i }).first();
 
     // ── Shared ──────────────────────────────────────────────────────────────
-    this.errorMessage = page.locator(
-      '.error-msg, .form-field__error, [class*="error"], .alert--error'
-    ).first();
+    this.errorMessage = page.locator('.error-msg, .form-field__error, [class*="error"], .alert--error').first();
     this.fieldError = page.locator('.form-field__error').first();
     this.loadingSpinner = page.locator('.spinner, [class*="spinner"]').first();
-    this.toggleAuthModeLink = page
-      .getByRole('link', { name: /sign up|log in|already have an account/i })
-      .first();
+    this.toggleAuthModeLink = page.getByRole('link', { name: /sign up|log in|already have an account/i }).first();
     this.backButton = page
       .getByRole('button', { name: /back|cancel/i })
       .or(page.getByRole('link', { name: /back|cancel/i }))
@@ -171,10 +161,7 @@ export class SignInPage extends BasePage {
 
   /** Assert the password input step is visible (after email confirmation). */
   async assertPasswordStepVisible(): Promise<void> {
-    await expect(
-      this.passwordInput,
-      'Password input should appear after email step'
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(this.passwordInput, 'Password input should appear after email step').toBeVisible({ timeout: 10_000 });
   }
 
   /**

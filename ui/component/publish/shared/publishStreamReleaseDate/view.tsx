@@ -10,6 +10,14 @@ function dateToLinuxTimestamp(date: Date) {
   return Number(Math.round(date.getTime() / 1000));
 }
 
+function getPlus30MinutesDate() {
+  const d = new Date();
+  d.setHours(d.getHours() + 1);
+  d.setMinutes(d.getMinutes() + 30);
+  d.setMinutes(0, 0, 0); // round down to start of hour
+  return d;
+}
+
 type Props = {
   isScheduled: boolean;
   releaseTime: number | null | undefined;
@@ -21,14 +29,6 @@ type Props = {
 const PublishStreamReleaseDate = (props: Props) => {
   const { isScheduled, releaseTime, clock24h, appLanguage, updatePublishForm } = props;
   const [publishLater, setPublishLater] = React.useState(isScheduled);
-
-  const getPlus30MinutesDate = () => {
-    const d = new Date();
-    d.setHours(d.getHours() + 1);
-    d.setMinutes(d.getMinutes() + 30);
-    d.setMinutes(0, 0, 0); // round down to start of hour
-    return d;
-  };
 
   const handleToggle = () => {
     const shouldPublishLater = !publishLater;

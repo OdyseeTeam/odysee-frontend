@@ -1,17 +1,11 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import UserEmailReturning from 'component/userEmailReturning';
 import UserSignInPassword from 'component/userSignInPassword';
 import Spinner from 'component/spinner';
+import { useLocation } from 'react-router-dom';
+import { history } from 'redux/router';
 type Props = {
   user: User | null | undefined;
-  history: {
-    push: (arg0: string) => void;
-    replace: (arg0: string) => void;
-  };
-  location: {
-    search: string;
-  };
   userFetchPending: boolean;
   doUserSignIn: (arg0: string) => void;
   emailToVerify: string | null | undefined;
@@ -19,7 +13,8 @@ type Props = {
 };
 
 function UserSignIn(props: Props) {
-  const { user, location, history, doUserSignIn, userFetchPending, emailToVerify, passwordExists } = props;
+  const location = useLocation();
+  const { user, doUserSignIn, userFetchPending, emailToVerify, passwordExists } = props;
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const [emailOnlyLogin, setEmailOnlyLogin] = React.useState(false);
@@ -54,5 +49,4 @@ function UserSignIn(props: Props) {
     </section>
   );
 }
-
-export default withRouter(UserSignIn);
+export default UserSignIn;

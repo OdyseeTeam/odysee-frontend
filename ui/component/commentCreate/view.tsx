@@ -5,8 +5,8 @@ import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'con
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
 import { SIMPLE_SITE } from 'config';
-import { useHistory } from 'react-router';
-import { Prompt } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationPrompt } from 'component/common/navigation-prompt';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as PAGES from 'constants/pages';
@@ -29,6 +29,27 @@ import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 import { BeforeUnload } from 'util/beforeUnload';
 const stripeEnvironment = getStripeEnvironment();
+
+function getCommentsMembersOnlyRestriction(
+  claimId: string | undefined,
+  channelClaimId: string | undefined,
+  isLivestream: boolean | undefined,
+  doFetchCreatorSettings: (channelId: string) => Promise<any>
+) {
+  const isAnonymous = claimId && !channelClaimId;
+
+  if (isAnonymous) {
+    return false;
+  }
+
+  return (
+    channelClaimId &&
+    doFetchCreatorSettings(channelClaimId)
+      .then((cs: SettingsResponse) => (isLivestream ? cs.livestream_chat_members_only : cs.comments_members_only))
+      .catch(() => undefined)
+  );
+}
+
 type TipParams = {
   tipAmount: number;
   tipChannelName: string;
@@ -112,47 +133,48 @@ type Props = {
 };
 export function CommentCreate(props: Props) {
   const {
-    // chatCommentsRestrictedToChannelMembers,
     activeChannelClaimId,
     activeChannelName,
     activeChannelUrl,
     bottom,
-    recipientArweaveTipInfo,
-    canReceiveTips,
-    channelClaimId,
-    claimId,
-    claimIsMine,
-    disableInput,
-    doCommentById,
-    doCommentCreate,
-    doFetchCreatorSettings,
-    doFetchMyCommentedChannels,
-    doOpenModal,
-    doSendCashTip,
-    doArTip,
-    doTipAccountCheckForUri,
-    doToast,
-    embed,
     hasChannels,
+    claimId,
+    channelClaimId,
+    tipChannelName,
+    claimIsMine,
+    embed,
     isFetchingChannels,
     isFetchingCreatorSettings,
-    isLivestream,
     isNested,
     isReply,
-    myChannelClaimIds,
-    myCommentedChannelIds,
-    onCancelReplying,
-    onDoneReplying,
-    onSlimInputClose,
+    isLivestream,
     parentId,
-    preferredCurrency,
-    setQuickReply,
     channelSettings,
     shouldFetchComment,
     supportDisabled,
-    textInjection,
-    tipChannelName,
     uri,
+    disableInput,
+    recipientArweaveTipInfo,
+    canReceiveTips,
+    onSlimInputClose,
+    setQuickReply,
+    onCancelReplying,
+    onDoneReplying,
+    doCommentCreate,
+    doFetchCreatorSettings,
+    doToast,
+    doCommentById,
+    doSendCashTip,
+    doArTip,
+    doOpenModal,
+    preferredCurrency,
+    myChannelClaimIds,
+    myCommentedChannelIds,
+    doFetchMyCommentedChannels,
+    doTipAccountCheckForUri,
+    textInjection,
+    chatCommentsRestrictedToChannelMembers,
+    isAChannelMember,
     commentSettingDisabled,
     userHasMembersOnlyChatPerk,
     isLivestreamChatMembersOnly,
@@ -160,16 +182,12 @@ export function CommentCreate(props: Props) {
     hasPremiumPlus,
     arweaveTippingError,
   } = props;
-  const { activeArStatus } = useArStatus();
-  const fileUri = React.useContext(AppContext)?.uri;
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const isMobile = useIsMobile();
-  const formFieldRef: ElementRef<any> = React.useRef();
-  const buttonRef: ElementRef<any> = React.useRef();
-  const slimInputButtonRef: ElementRef<any> = React.useRef();
-  const {
-    push,
-    location: { pathname },
-  } = useHistory();
+  const formFieldRef = React.useRef<InstanceType<typeof FormField> | null>(null);
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+  const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setSubmitting] = React.useState(false);
   const [commentFailure, setCommentFailure] = React.useState(false);
   const [successTip, setSuccessTip] = React.useState({
@@ -297,21 +315,6 @@ export function CommentCreate(props: Props) {
   // **************************************************************************
   // Functions
   // **************************************************************************
-  function isRestrictedToMembersOnly() {
-    const isAnonymous = claimId && !channelClaimId;
-
-    if (isAnonymous) {
-      return false;
-    }
-
-    return (
-      channelClaimId &&
-      doFetchCreatorSettings(channelClaimId)
-        .then((cs: SettingsResponse) => (isLivestream ? cs.livestream_chat_members_only : cs.comments_members_only))
-        .catch(() => undefined)
-    );
-  }
-
   function handleJoinMembersOnlyChat() {
     return doOpenModal(MODALS.JOIN_MEMBERSHIP, {
       uri,
@@ -417,7 +420,12 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
+    const commentsAreMembersOnly = await getCommentsMembersOnlyRestriction(
+      claimId,
+      channelClaimId,
+      isLivestream,
+      doFetchCreatorSettings
+    );
 
     if (commentsAreMembersOnly === undefined) {
       doToast({
@@ -617,7 +625,12 @@ export function CommentCreate(props: Props) {
   async function handleCreateComment(txid, payment_intent_id, payment_tx_id, environment, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
+    const commentsAreMembersOnly = await getCommentsMembersOnlyRestriction(
+      claimId,
+      channelClaimId,
+      isLivestream,
+      doFetchCreatorSettings
+    );
 
     if (commentsAreMembersOnly === undefined) {
       doToast({
@@ -824,7 +837,7 @@ export function CommentCreate(props: Props) {
               if (isLivestream) {
                 window.open(pathPlusRedirect);
               } else {
-                push(pathPlusRedirect);
+                navigate(pathPlusRedirect);
               }
 
               closeModal();
@@ -863,7 +876,7 @@ export function CommentCreate(props: Props) {
         />
       )}
 
-      <Prompt
+      <NavigationPrompt
         when={charCount > 0}
         message={__('You have not submitted your comment yet, are you sure you want to leave?')}
       />

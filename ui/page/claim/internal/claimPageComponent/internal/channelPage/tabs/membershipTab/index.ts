@@ -4,7 +4,7 @@ import {
   selectMyPurchasedMembershipsForChannelClaimId,
 } from 'redux/selectors/memberships';
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
-import { push } from 'connected-react-router';
+import { push } from 'redux/router';
 import MembershipTab from './view';
 
 const select = (state, props) => {

@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "node"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "settings": {
+    "react": {
+      "version": "18.3.1"
+    }
+  },
+  "ignorePatterns": ["node_modules", "web/dist", "dist", "build", "static", "flow-typed", "web/stubs/buffer-esm.js"],
+  "rules": {
+    "no-unused-vars": "off",
+    "no-shadow": "off",
+    "no-unused-expressions": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/no-did-mount-set-state": "off",
+    "react/jsx-key": "off"
+  }
+}

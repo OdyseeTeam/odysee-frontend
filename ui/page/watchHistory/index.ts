@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import type { Props } from './view';
 import WatchHistoryPage from './view';
 import { selectWatchHistoryUris } from 'redux/selectors/content';
@@ -16,4 +15,4 @@ const perform = {
   doResolveUris,
   doOpenModal,
 };
-export default withRouter(connect(select, perform)(WatchHistoryPage));
+export default connect(select, perform)(WatchHistoryPage);

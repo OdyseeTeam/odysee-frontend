@@ -8,7 +8,7 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { lazyImport } from 'util/lazyImport';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 const YoutubeTransferStatus = lazyImport(
   () =>
     import(
@@ -45,7 +45,7 @@ export default function ChannelsPage(props: Props) {
       doFetchChannelListMine();
     }
   }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds]);
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   if (!hasChannels && !hasYoutubeChannels) {
     return (
@@ -115,7 +115,7 @@ export default function ChannelsPage(props: Props) {
                   label={__('Analytics')}
                   onClick={() => {
                     doSetActiveChannel(claim.claim_id);
-                    push(`/$/${PAGES.CREATOR_DASHBOARD}`);
+                    navigate(`/$/${PAGES.CREATOR_DASHBOARD}`);
                   }}
                 />
               </div>

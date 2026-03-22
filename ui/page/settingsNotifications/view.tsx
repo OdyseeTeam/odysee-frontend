@@ -7,8 +7,8 @@ import { FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import SettingsRow from 'component/settingsRow';
 import { Lbryio } from 'lbryinc';
-import { useHistory } from 'react-router';
-import { Redirect } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
@@ -23,7 +23,7 @@ export default function NotificationSettingsPage(props: Props) {
   const [tagMap, setTagMap] = React.useState({});
   const [tags, setTags] = React.useState();
   const [enabledEmails, setEnabledEmails] = React.useState();
-  const { location } = useHistory();
+  const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const verificationToken = urlParams.get('verification_token');
   const lbryIoParams = verificationToken
@@ -103,7 +103,7 @@ export default function NotificationSettingsPage(props: Props) {
   }
 
   if (!isAuthenticated && !verificationToken) {
-    return <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
+    return <Navigate replace to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
   }
 
   return (

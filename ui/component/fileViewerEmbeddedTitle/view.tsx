@@ -2,7 +2,6 @@ import React from 'react';
 import Button from 'component/button';
 import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
-import { withRouter } from 'react-router';
 import { EmbedContext } from 'contexts/embed';
 import Logo from 'component/logo';
 type Props = {
@@ -69,5 +68,4 @@ function FileViewerEmbeddedTitle(props: Props) {
     </div>
   );
 }
-
-export default withRouter(FileViewerEmbeddedTitle);
+export default FileViewerEmbeddedTitle;

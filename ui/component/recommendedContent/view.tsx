@@ -10,6 +10,7 @@ import { FYP_ID } from 'constants/urlParams';
 import classnames from 'classnames';
 import RecSys from 'recsys';
 import LangFilterIndicator from 'component/langFilterIndicator';
+import { useLocation } from 'react-router-dom';
 import './style.scss';
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
@@ -23,9 +24,10 @@ type Props = {
   claim: StreamClaim | null | undefined;
   claimId: string;
   metadata: any;
-  location: UrlLocation;
+  location?: UrlLocation;
 };
 export default React.memo<Props>(function RecommendedContent(props: Props) {
+  const routeLocation = useLocation();
   const {
     uri,
     doFetchRecommendedContent,
@@ -36,6 +38,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     claim,
     location,
   } = props;
+  const currentLocation = location || routeLocation;
   const claimId: string | null | undefined = claim && claim.claim_id;
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -48,12 +51,12 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   // the search param directly. Otherwise, the parent component would need to
   // pass it.
   // @see https://www.notion.so/FYP-Design-Notes-727782dde2cb485290c530ae96a34285
-  const { search } = location;
+  const { search } = currentLocation;
   const urlParams = new URLSearchParams(search);
   const fypId = urlParams.get(FYP_ID);
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
   React.useEffect(() => {
-    const { search } = location;
+    const { search } = currentLocation;
     const urlParams = new URLSearchParams(search);
     const isInShortsMode = urlParams.get('view') === 'shorts';
 
@@ -69,7 +72,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
           }
         : null;
     doFetchRecommendedContent(uri, fypParam);
-  }, [uri, doFetchRecommendedContent, fypId, uuid, location]);
+  }, [uri, doFetchRecommendedContent, fypId, uuid, currentLocation]);
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
     if (

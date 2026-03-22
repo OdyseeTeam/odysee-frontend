@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
@@ -54,48 +54,8 @@ type Props = {
 };
 
 const CreatorArea = (props: Props) => {
-  const {
-    activeChannelClaim,
-    myChannelClaims,
-    supportersList,
-    doListAllMyMembershipTiers,
-    doGetMembershipSupportersList,
-    monetizationEnabled,
-    myChannelIds,
-  } = props;
-
-  const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.');
-
-  const [allSelected, setAllSelected] = React.useState(true);
-  const [ackInfo, setAckArweavePaymentsInfo] = React.useState(
-    LocalStorage.getItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK) || false
-  );
-
-  const handleAckArPaymentsInfo = (acked: boolean) => {
-    LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, String(acked));
-    setAckArweavePaymentsInfo(acked);
-  };
-
-  const channelsToList = React.useMemo(() => {
-    if (!myChannelClaims) return myChannelClaims;
-    if (!activeChannelClaim) return activeChannelClaim;
-    if (allSelected) return myChannelClaims;
-    return [activeChannelClaim];
-  }, [activeChannelClaim, allSelected, myChannelClaims]);
-  React.useEffect(() => {
-    if (myChannelClaims !== undefined) {
-      doListAllMyMembershipTiers();
-    }
-  }, [doListAllMyMembershipTiers, myChannelClaims]);
-  React.useEffect(() => {
-    if (supportersList === undefined) {
-      doGetMembershipSupportersList();
-    }
-  }, [doGetMembershipSupportersList, supportersList]);
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   // if tiers are saved, then go to balance, otherwise go to tiers
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
@@ -133,7 +93,7 @@ const CreatorArea = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   const onChannelOverviewSelect = () => {

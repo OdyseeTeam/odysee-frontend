@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import usePersistedState from 'effects/use-persisted-state';
 /**
  * Resolves and provides persistence for a user param.
@@ -23,7 +23,8 @@ export default function usePersistentUserParam(
   keyBase: string,
   keyDefaultValue: string | null | undefined
 ) {
-  const { action, location } = useHistory();
+  const action = useNavigationType();
+  const location = useLocation();
   const [stashed, setStashed] = usePersistedState(`${keyBase}-${location.pathname}`, keyDefaultValue);
   const [stashedOnEntry, setStashedOnEntry] = usePersistedState(
     `${keyBase}-entry-${location.pathname}`,

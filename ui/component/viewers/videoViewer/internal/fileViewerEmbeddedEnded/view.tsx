@@ -2,7 +2,6 @@ import React from 'react';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import { formatLbryUrlForWeb } from 'util/url';
-import { withRouter } from 'react-router';
 import { URL as APP_URL, SITE_NAME } from 'config';
 import Logo from 'component/logo';
 const DEFAULT_PROMPTS = {
@@ -90,4 +89,4 @@ function FileViewerEmbeddedEnded(props: Props) {
   );
 }
 
-export default withRouter(FileViewerEmbeddedEnded);
+export default FileViewerEmbeddedEnded;

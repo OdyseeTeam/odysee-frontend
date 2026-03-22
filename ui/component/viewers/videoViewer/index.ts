@@ -8,6 +8,7 @@ import {
   selectProtectedContentTagForUri,
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
+import React from 'react';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectNextUriForUriInPlayingCollectionForId } from 'redux/selectors/collections';
@@ -30,7 +31,8 @@ import {
 } from 'redux/actions/content';
 import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import VideoViewer from './view';
-import { withRouter } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { history } from 'redux/router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
@@ -112,4 +114,20 @@ const perform = (dispatch) => ({
   doSetVideoSourceLoaded: (uri) => dispatch(doSetVideoSourceLoaded(uri)),
 });
 
-export default withPlaybackUris(withRouter(connect(select, perform)(VideoViewer)));
+const ConnectedVideoViewer = connect(select, perform)(VideoViewer);
+
+function VideoViewerWithRouteProps(props) {
+  const location = useLocation();
+  const params = useParams();
+  const navigate = useNavigate();
+  const match = {
+    params,
+    path: location.pathname,
+    url: location.pathname,
+    isExact: true,
+  };
+
+  return React.createElement(ConnectedVideoViewer, { ...props, history, location, match, navigate });
+}
+
+export default withPlaybackUris(VideoViewerWithRouteProps);

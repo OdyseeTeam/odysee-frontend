@@ -1,6 +1,6 @@
 import React from 'react';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 type Props = {
   uri: string;
@@ -26,9 +26,7 @@ const ShortsVideoPlayer = React.memo<Props>(
     onSwipePrevious,
     enableSwipe,
   }: Props) => {
-    const {
-      location: { search },
-    } = useHistory();
+    const { search } = useLocation();
     const urlParams = new URLSearchParams(search);
     const isShortVideo = urlParams.get('view') === 'shorts';
     React.useEffect(() => {

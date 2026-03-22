@@ -3,12 +3,12 @@ import ClaimList from 'component/claimList';
 import withCollectionItems from 'hocs/withCollectionItems';
 // prettier-ignore
 const Lazy = {
-  DragDropContext: React.lazy(() => import('react-beautiful-dnd'
+  DragDropContext: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.DragDropContext
   }))),
-  Droppable: React.lazy(() => import('react-beautiful-dnd'
+  Droppable: React.lazy(() => import('@hello-pangea/dnd'
   /* webpackChunkName: "dnd" */
   ).then(module => ({
     default: module.Droppable

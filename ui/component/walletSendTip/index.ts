@@ -5,12 +5,12 @@ import {
   selectClaimIsMineForUri,
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
+import React from 'react';
 import { doHideModal } from 'redux/actions/app';
 import { doSendTip } from 'redux/actions/wallet';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
-import { withRouter } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
@@ -61,4 +61,4 @@ const perform = {
   doToast,
   doTipAccountCheckForUri,
 };
-export default withRouter(connect(select, perform)(WalletSendTip));
+export default connect(select, perform)(WalletSendTip);

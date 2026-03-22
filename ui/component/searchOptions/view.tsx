@@ -1,7 +1,7 @@
 import { SEARCH_OPTIONS, SEARCH_PAGE_SIZE } from 'constants/search';
 import * as ICONS from 'constants/icons';
 import React, { useMemo } from 'react';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { Form, FormField } from 'component/common/form';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
@@ -68,7 +68,7 @@ const OBJ_TO_OPTION_ELEM = (obj) => {
 const SearchOptions = (props: Props) => {
   const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
     props;
-  const { location } = useHistory();
+  const location = useLocation();
   const stringifiedOptions = JSON.stringify(options);
   const isFilteringByChannel = useMemo(() => {
     const jsonOptions = JSON.parse(stringifiedOptions);

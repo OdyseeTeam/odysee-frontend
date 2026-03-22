@@ -1,6 +1,6 @@
 import React from 'react';
 import * as MODALS from 'constants/modal_types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
 import BuiltinPlaylists from './internal/builtin-playlists';
@@ -20,7 +20,7 @@ type Props = {
 const PlaylistsPage = (props: Props) => {
   const { areBuiltinCollectionsEmpty, hasCollections, isFetchingCollections, doOpenModal, doFetchCollectionListMine } =
     props;
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
@@ -52,7 +52,7 @@ const PlaylistsPage = (props: Props) => {
             subtitle={__('Do you want to find some content to save for later, or create a brand new playlist?')}
             actions={
               <div className="section__actions">
-                <Button button="secondary" label={__('Explore!')} onClick={() => push('/')} />
+                <Button button="secondary" label={__('Explore!')} onClick={() => navigate('/')} />
                 <Button button="primary" label={__('New Playlist')} onClick={handleCreatePlaylist} />
               </div>
             }

@@ -23,8 +23,9 @@ import {
 } from 'redux/selectors/content';
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.collections || {};
+const selectState = (state: State) => state.collections || EMPTY_OBJECT;
 
 const selectRouterSearchString = (state: State) =>
   (state.router && state.router.location && state.router.location.search) || '';
@@ -51,13 +52,13 @@ export const selectIsFetchingMyCollections = (state: State) => selectState(state
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
 export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
   selectState(state).thumbnailClaimsFetchingCollectionIds;
-export const selectCollectionAutoPublishMap = (state: State) => selectState(state).autoPublishById || {};
-export const selectCollectionPublishingMap = (state: State) => selectState(state).publishingById || {};
-export const selectCollectionPublishErrorMap = (state: State) => selectState(state).publishErrorById || {};
+export const selectCollectionAutoPublishMap = (state: State) => selectState(state).autoPublishById || EMPTY_OBJECT;
+export const selectCollectionPublishingMap = (state: State) => selectState(state).publishingById || EMPTY_OBJECT;
+export const selectCollectionPublishErrorMap = (state: State) => selectState(state).publishErrorById || EMPTY_OBJECT;
 export const selectCollectionAutoPublishForId = (state: State, id: string) =>
   Boolean(selectCollectionAutoPublishMap(state)[id]);
 export const selectCollectionAutoPublishScheduledAtMap = (state: State) =>
-  selectState(state).autoPublishScheduledAtById || {};
+  selectState(state).autoPublishScheduledAtById || EMPTY_OBJECT;
 export const selectCollectionAutoPublishScheduledAtForId = (state: State, id: string) =>
   selectCollectionAutoPublishScheduledAtMap(state)[id] || null;
 export const selectCollectionIsPublishingForId = (state: State, id: string) =>

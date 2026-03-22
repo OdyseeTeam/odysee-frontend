@@ -83,7 +83,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: ['**/authenticated/**'],
+      testIgnore: ['**/authenticated/**', '**/perf/**'],
     },
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -118,6 +118,15 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
       testIgnore: ['**/authenticated/**'],
+    },
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 6. Performance – render-count baselines (opt-in via --project=perf)
+    // ─────────────────────────────────────────────────────────────────────────
+    {
+      name: 'perf',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ['**/perf/**'],
     },
   ],
 });

@@ -1,8 +1,9 @@
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
-const selectState = (state: State) => state.stripe || {};
+const selectState = (state: State) => state.stripe || EMPTY_OBJECT;
 
-export const selectCanReceiveFiatTipsById = (state: State) => selectState(state).canReceiveFiatTipsById || {};
+export const selectCanReceiveFiatTipsById = (state: State) => selectState(state).canReceiveFiatTipsById || EMPTY_OBJECT;
 export const selectAccountCheckFetchingIds = (state: State) => selectState(state).accountCheckFetchingIds;
 export const selectAccountLinkResponse = (state: State) => selectState(state).accountLinkResponse;
 export const selectPaymentHistory = (state: State) => selectState(state).accountPaymentHistory;

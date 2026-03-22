@@ -1,9 +1,10 @@
 import { createSelector } from 'reselect';
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
 import { SHOW_ADS } from 'config';
 import { selectClaimForId, selectMyChannelClaims, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
 import { hasLegacyOdyseePremium, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
 import { selectDefaultChannelClaim } from 'redux/selectors/settings';
-export const selectState = (state) => state.app || {};
+export const selectState = (state) => state.app || EMPTY_OBJECT;
 export const selectPlatform = (state) => selectState(state).platform;
 export const selectUpdateUrl = createSelector(selectPlatform, (platform) => {
   switch (platform) {

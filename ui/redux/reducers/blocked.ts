@@ -1,46 +1,45 @@
+import { createSlice } from '@reduxjs/toolkit';
 import * as ACTIONS from 'constants/action_types';
-import { handleActions } from 'util/redux-utils';
 import { getOldFormatForLbryUri } from 'util/lbryURI';
-const defaultState: BlocklistState = {
+
+const initialState: BlocklistState = {
   blockedChannels: [],
   geoBlockedList: undefined,
   gblFetchFailed: false,
 };
-export default handleActions(
-  {
-    [ACTIONS.TOGGLE_BLOCK_CHANNEL]: (state: BlocklistState, action: BlocklistAction): BlocklistState => {
-      const { blockedChannels } = state;
-      const { uri } = action.data;
-      let newBlockedChannels = blockedChannels.slice();
 
-      if (newBlockedChannels.includes(uri)) {
-        newBlockedChannels = newBlockedChannels.filter((id) => id !== uri);
-      } else {
-        newBlockedChannels.unshift(uri);
-      }
-
-      return { ...state, blockedChannels: newBlockedChannels };
-    },
-    [ACTIONS.FETCH_GBL_DONE]: (state: BlocklistState, action: any): BlocklistState => {
-      return { ...state, gblFetchFailed: false, geoBlockedList: action.data };
-    },
-    [ACTIONS.FETCH_GBL_FAILED]: (state: BlocklistState, action: any): BlocklistState => {
-      return { ...state, gblFetchFailed: true };
-    },
-    [ACTIONS.USER_STATE_POPULATE]: (
-      state: BlocklistState,
-      action: {
-        data: {
-          blocked: Array<string> | null | undefined;
-        };
-      }
-    ) => {
-      const { blocked } = action.data;
-      const sanitizedBlocked = blocked && blocked.filter((e) => typeof e === 'string');
-      const parsedBlocked =
-        sanitizedBlocked && Array.from(new Set(sanitizedBlocked.map((uri) => getOldFormatForLbryUri(uri))));
-      return { ...state, blockedChannels: parsedBlocked || state.blockedChannels };
-    },
+const blockedSlice = createSlice({
+  name: 'blocked',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(ACTIONS.TOGGLE_BLOCK_CHANNEL, (state, action: any) => {
+        const { uri } = action.data;
+        const idx = state.blockedChannels.indexOf(uri);
+        if (idx !== -1) {
+          state.blockedChannels.splice(idx, 1);
+        } else {
+          state.blockedChannels.unshift(uri);
+        }
+      })
+      .addCase(ACTIONS.FETCH_GBL_DONE, (state, action: any) => {
+        state.gblFetchFailed = false;
+        state.geoBlockedList = action.data;
+      })
+      .addCase(ACTIONS.FETCH_GBL_FAILED, (state) => {
+        state.gblFetchFailed = true;
+      })
+      .addCase(ACTIONS.USER_STATE_POPULATE, (state, action: any) => {
+        const { blocked } = action.data;
+        const sanitizedBlocked = blocked && blocked.filter((e: any) => typeof e === 'string');
+        const parsedBlocked =
+          sanitizedBlocked && Array.from(new Set(sanitizedBlocked.map((uri: string) => getOldFormatForLbryUri(uri))));
+        if (parsedBlocked) {
+          state.blockedChannels = parsedBlocked;
+        }
+      });
   },
-  defaultState
-);
+});
+
+export default blockedSlice.reducer;

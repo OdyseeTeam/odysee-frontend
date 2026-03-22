@@ -1,7 +1,7 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import Nag from 'component/nag';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 type Props = {
   followingAcknowledged: boolean;
   firstRunStarted: boolean;
@@ -9,15 +9,13 @@ type Props = {
   syncSetttings: () => void;
 };
 export default function NagContinueFirstRun(props: Props) {
-  const { firstRunStarted, followingAcknowledged } = props;
-  const {
-    location: { pathname },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { followingAcknowledged, firstRunStarted } = props;
   const isOnFirstRun = pathname.includes(PAGES.AUTH);
 
   function handleContinue() {
-    push(`/$/${PAGES.AUTH}`);
+    navigate(`/$/${PAGES.AUTH}`);
   }
 
   if (isOnFirstRun || !firstRunStarted || followingAcknowledged) {

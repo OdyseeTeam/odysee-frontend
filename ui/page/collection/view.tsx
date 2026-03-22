@@ -4,7 +4,7 @@ import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
@@ -30,25 +30,8 @@ type Props = {
 export const CollectionPageContext = React.createContext<any>();
 
 const CollectionPage = (props: Props) => {
-  const {
-    // -- path match --
-    collectionId,
-    // -- redux --
-    geoRestriction,
-    hasClaim,
-    collection,
-    brokenUrls,
-    isCollectionMine,
-    isPrivate,
-    hasPrivate,
-    doResolveClaimId,
-    doCollectionEdit,
-    doRemoveFromUnsavedChangesCollectionsForCollectionId,
-  } = props;
-  const {
-    push,
-    location: { search, state, pathname },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search, state, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { showEdit: pageShowEdit } = state || {};
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
@@ -64,12 +47,12 @@ const CollectionPage = (props: Props) => {
 
   function togglePublicCollection() {
     if (isOnPublicView) {
-      return push(`/$/${PAGES.PLAYLIST}/${collectionId}`);
+      return navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`);
     }
 
     const newUrlParams = new URLSearchParams();
     newUrlParams.append(COLLECTION_PAGE.QUERIES.VIEW, COLLECTION_PAGE.VIEWS.PUBLIC);
-    push(`/$/${PAGES.PLAYLIST}/${collectionId}?${newUrlParams.toString()}`);
+    navigate(`/$/${PAGES.PLAYLIST}/${collectionId}?${newUrlParams.toString()}`);
   }
 
   function saveChanges() {
@@ -126,7 +109,7 @@ const CollectionPage = (props: Props) => {
   if (publishPage && !isBuiltin && isCollectionMine) {
     const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
 
-    const doReturnForId = (id) => push(getPagePath(id));
+    const doReturnForId = (id) => navigate(getPagePath(id));
 
     return (
       <Page

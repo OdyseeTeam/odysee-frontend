@@ -3,7 +3,7 @@ import * as MODALS from 'constants/modal_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
 import { COL_TYPES } from 'constants/collections';
-import { push } from 'connected-react-router';
+import { push } from 'redux/router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
 import { getChannelIdFromClaim, isClaimUnlisted, isClaimShort } from 'util/claim';
 import { toHex } from 'util/hex';

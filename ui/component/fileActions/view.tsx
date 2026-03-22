@@ -9,7 +9,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import FileReactions from 'component/fileReactions';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
@@ -58,16 +58,20 @@ type Props = {
   isTierUnlocked: boolean;
   scheduledState: ClaimScheduledState;
 };
+
 export default function FileActions(props: Props) {
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const isMobile = useIsMobile();
   const {
     uri,
-    claimIsMine,
+    hideRepost,
     claim,
     disableFileReactions,
-    costInfo,
+    claimIsMine,
     renderMode,
+    costInfo,
     hasChannels,
-    hideRepost,
     uriAccessKey,
     isLivestreamClaim,
     isPostClaim,
@@ -86,11 +90,6 @@ export default function FileActions(props: Props) {
     isTierUnlocked,
     scheduledState,
   } = props;
-  const {
-    push,
-    location: { search },
-  } = useHistory();
-  const isMobile = useIsMobile();
   const [downloadClicked, setDownloadClicked] = React.useState(false);
   const { claim_id: claimId, signing_channel: signingChannel, value, meta: claimMeta } = claim || {};
   const channelName = signingChannel && signingChannel.name;
@@ -131,11 +130,7 @@ export default function FileActions(props: Props) {
     editUri = buildURI(uriObject);
   }
 
-  function isAllowedToReact() {
-    const restrictionsCleared = (!isFiatRequired || isFiatPaid) && isTierUnlocked; // should it be OR instead?
-
-    return claimIsMine || restrictionsCleared;
-  }
+  const canReactToFile = claimIsMine || ((!isFiatRequired || isFiatPaid) && isTierUnlocked); // should it be OR instead?
 
   function handleWebDownload() {
     // doDownloadUri() causes 'streamingUrl' to be populated.
@@ -167,7 +162,7 @@ export default function FileActions(props: Props) {
 
   return (
     <div className="media__actions">
-      {ENABLE_FILE_REACTIONS && !disableFileReactions && isAllowedToReact() && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && !disableFileReactions && canReactToFile && <FileReactions uri={uri} />}
 
       {!isAPreorder && !isFiatRequired && <ClaimSupportButton uri={uri} fileAction />}
 
@@ -257,7 +252,7 @@ export default function FileActions(props: Props) {
             {!claimIsMine && (
               <MenuItem
                 className="comment__menu-option"
-                onSelect={() => push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
+                onSelect={() => navigate(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
               >
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.REPORT} />

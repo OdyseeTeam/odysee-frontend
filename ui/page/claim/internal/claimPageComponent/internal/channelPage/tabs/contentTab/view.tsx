@@ -5,7 +5,7 @@ import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
 import React, { Fragment } from 'react';
 import GeoRestrictionInfo from 'component/geoRestictionInfo';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Icon from 'component/common/icon';
@@ -57,16 +57,17 @@ type Props = {
 };
 
 function ContentTab(props: Props) {
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const {
     uri,
     fetching,
-    channelIsMine,
     channelIsBlocked,
-    channelIsBlackListed,
+    channelIsMine,
     filters,
+    channelIsBlackListed,
+    defaultPageSize,
     claim,
-    defaultPageSize = CS.PAGE_SIZE,
-    defaultInfiniteScroll = true,
     showMature,
     tileLayout,
     hideShorts,
@@ -76,13 +77,10 @@ function ContentTab(props: Props) {
     empty,
     activeLivestreamForChannel,
     shortsOnly,
-    loadedCallback,
     excludeShorts,
+    loadedCallback,
+    defaultInfiniteScroll,
   } = props;
-  const {
-    push,
-    location: { pathname, search },
-  } = useHistory();
   const urlParams = new URLSearchParams(search);
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState(urlParams.get('search') || '');
@@ -126,7 +124,7 @@ function ContentTab(props: Props) {
     const { value } = e.target;
     const newUrlParams = new URLSearchParams(search);
     newUrlParams.set('search', value);
-    push(`${pathname}?${newUrlParams.toString()}`);
+    navigate(`${pathname}?${newUrlParams.toString()}`);
     setSearchQuery(value);
   }
 

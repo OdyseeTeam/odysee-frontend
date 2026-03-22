@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Icon from 'component/common/icon';
 import WalletBalance from 'component/walletBalance';
 import Page from 'component/page';
@@ -34,11 +34,8 @@ type Props = {
 };
 
 const WalletPage = (props: Props) => {
-  const { doTipAccountStatus } = props;
-  const {
-    location: { search },
-    push,
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   // @if TARGET='web'
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
@@ -88,7 +85,7 @@ const WalletPage = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     }
 
-    push(url);
+    navigate(url);
   }
 
   // @endif

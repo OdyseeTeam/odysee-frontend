@@ -1,13 +1,12 @@
 import { connect } from 'react-redux';
 import InvitedPage from './view';
 import { selectPermanentUrlForUri } from 'redux/selectors/claims';
-import { withRouter } from 'react-router';
 import { doResolveUri } from 'redux/actions/claims';
+import { useParams } from 'react-router-dom';
+import React from 'react';
 
 const select = (state, props) => {
-  const { match } = props;
-  const { params } = match;
-  const { referrer } = params;
+  const { referrer } = props;
   const uri = `lbry://${referrer}`;
   return {
     uri,
@@ -18,4 +17,9 @@ const select = (state, props) => {
 const perform = {
   doResolveUri,
 };
-export default withRouter(connect(select, perform)(InvitedPage));
+const ConnectedInvitedPage = connect(select, perform)(InvitedPage);
+
+export default function InvitedRoute(props) {
+  const { referrer = '' } = useParams();
+  return React.createElement(ConnectedInvitedPage, { ...props, referrer });
+}

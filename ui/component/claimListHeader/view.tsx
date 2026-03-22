@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
-import { useHistory } from 'react-router';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import { toCapitalCase } from 'util/string';
@@ -73,7 +73,8 @@ function ClaimListHeader(props: Props) {
   } = props;
   const isMobile = useIsMobile();
   const filterCtx = React.useContext(ClaimSearchFilterContext);
-  const { push, location } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { search, pathname } = location;
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
   const urlParams = new URLSearchParams(search);
@@ -142,7 +143,7 @@ function ClaimListHeader(props: Props) {
   function handleChange(change) {
     const url = buildUrl(change);
     setPage(1);
-    push(url);
+    navigate(url);
   }
 
   function handleAdvancedReset() {
@@ -150,7 +151,7 @@ function ClaimListHeader(props: Props) {
     newUrlParams.delete('claim_type');
     newUrlParams.delete('channel_ids');
     const newSearch = `?${newUrlParams.toString()}`;
-    push(newSearch);
+    navigate(newSearch);
   }
 
   function buildUrl(delta) {

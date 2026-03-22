@@ -240,6 +240,7 @@ export default function OnRamper(props: Props) {
               src={iframeUri}
               title="Onramper Widget"
               allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+              sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation"
             />
           </div>
         )

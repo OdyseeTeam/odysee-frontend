@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
-export const selectState = (state) => state.notifications || {};
+import { EMPTY_OBJECT } from 'redux/selectors/empty';
+
+export const selectState = (state) => state.notifications || EMPTY_OBJECT;
 export const selectNotifications = (state) => selectState(state).notifications;
 export const selectNotificationsFiltered = (state) => selectState(state).notificationsFiltered;
 export const selectNotificationCategories = (state) => selectState(state).notificationCategories;

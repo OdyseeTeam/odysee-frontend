@@ -3,7 +3,7 @@ import analytics from 'analytics';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { Form, Submit, FormErrors } from 'component/common/form';
 import { COLLECTION_PAGE } from 'constants/urlParams';
@@ -44,30 +44,8 @@ type Props = {
 export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
-  const {
-    // uri,
-    collectionId,
-    onDoneForId,
-    // -- redux -
-    hasClaim,
-    collectionParams,
-    isClaimPending,
-    activeChannelClaim,
-    collectionHasEdits,
-    collectionHasUnSavedEdits,
-    hasUnavailableClaims,
-    doCollectionPublish,
-    doCollectionEdit,
-    doClearEditsForCollectionId,
-    doOpenModal,
-    doRemoveFromUnsavedChangesCollectionsForCollectionId,
-  } = props;
-  const initialParams = React.useRef(collectionParams);
-  const collectionResetPending = React.useRef(false);
-  const {
-    goBack,
-    location: { search },
-  } = useHistory();
+  const navigate = useNavigate();
+  const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -109,7 +87,7 @@ const CollectionPublishForm = (props: Props) => {
   }
 
   function handleSubmitForm() {
-    if (!hasChanges) return goBack();
+    if (!hasChanges) return navigate(-1);
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
     setFormParams(trimmedParams);
@@ -137,7 +115,7 @@ const CollectionPublishForm = (props: Props) => {
 
   function handleCancelButton() {
     doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
-    goBack();
+    navigate(-1);
   }
 
   function onTabChange(newTabIndex) {

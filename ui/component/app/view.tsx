@@ -16,7 +16,6 @@ import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import VideoRenderFloating from 'component/videoRenderFloating';
-import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
 import Wander from 'component/wander';
@@ -37,6 +36,8 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
+import { useLocation } from 'react-router-dom';
+import { history as appHistory } from 'redux/router';
 const DebugLog = lazyImport(
   () =>
     import(
@@ -112,19 +113,6 @@ type Props = {
     | null
     | undefined;
   locale: LocaleInfo | null | undefined;
-  location: {
-    pathname: string;
-    hash: string;
-    search: string;
-    reload: () => void;
-  };
-  history: {
-    push: (arg0: string) => void;
-    location: {
-      pathname: string;
-    };
-    replace: (arg0: string) => void;
-  };
   signIn: () => void;
   setLanguage: (arg0: string) => void;
   fetchLanguage: (arg0: string) => void;
@@ -171,11 +159,9 @@ function App(props: Props) {
     theme,
     user,
     locale,
-    location,
     signIn,
     reloadRequired,
     uploadCount,
-    history,
     syncError,
     syncIsLocked,
     prefsReady,
@@ -216,6 +202,7 @@ function App(props: Props) {
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
+  const location = useLocation();
   const { pathname, hash, search } = location;
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
@@ -286,10 +273,10 @@ function App(props: Props) {
     // Only 1 nag is possible, so show the most important:
     // Active uploads warning (show globally so users know why the browser prompts on leave)
     if (uploadCount > 0 && !embedPath) {
-      const pathname = location && location.pathname;
+      const uploadPathname = location && location.pathname;
       const onUploadPage =
-        (pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
-        (pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`));
+        (uploadPathname && uploadPathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (uploadPathname && uploadPathname.startsWith(`/$/${PAGES.UPLOADS}`));
 
       if (!onUploadPage) {
         return (
@@ -297,7 +284,7 @@ function App(props: Props) {
             type="helpful"
             message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
             actionText={__('View Uploads')}
-            onClick={() => history.push(`/$/${PAGES.UPLOADS}`)}
+            onClick={() => appHistory.push(`/$/${PAGES.UPLOADS}`)}
           />
         );
       }
@@ -549,7 +536,7 @@ function App(props: Props) {
   }, [hasSignedIn, hasVerifiedEmail, syncLoop]);
   useEffect(() => {
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
-      history.push(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
+      appHistory.push(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncError, pathname, isAuthenticated]);
   useEffect(() => {
@@ -639,4 +626,4 @@ function App(props: Props) {
   );
 }
 
-export default withRouter(App);
+export default App;

@@ -1,70 +1,56 @@
+import { createSlice } from '@reduxjs/toolkit';
 import * as ACTIONS from 'constants/action_types';
 import { DEFAULT_KNOWN_TAGS, DEFAULT_FOLLOWED_TAGS } from 'constants/tags';
-import { handleActions } from 'util/redux-utils';
 
 function getDefaultKnownTags() {
-  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce((tagsMap, tag) => {
-    tagsMap[tag] = {
-      name: tag,
-    };
-    return tagsMap;
-  }, {});
+  return DEFAULT_FOLLOWED_TAGS.concat(DEFAULT_KNOWN_TAGS).reduce(
+    (tagsMap, tag) => {
+      tagsMap[tag] = { name: tag };
+      return tagsMap;
+    },
+    {} as Record<string, { name: string }>
+  );
 }
 
-const defaultState: TagState = {
+const initialState: TagState = {
   followedTags: [],
   knownTags: getDefaultKnownTags(),
 };
-export default handleActions(
-  {
-    [ACTIONS.TOGGLE_TAG_FOLLOW]: (state: TagState, action: TagAction): TagState => {
-      const { followedTags } = state;
-      const { name } = action.data;
-      let newFollowedTags = followedTags.slice();
 
-      if (newFollowedTags.includes(name)) {
-        newFollowedTags = newFollowedTags.filter((tag) => tag !== name);
-      } else {
-        newFollowedTags.push(name);
-      }
-
-      return { ...state, followedTags: newFollowedTags };
-    },
-    [ACTIONS.TAG_ADD]: (state: TagState, action: TagAction) => {
-      const { knownTags } = state;
-      const { name } = action.data;
-      let newKnownTags = { ...knownTags };
-      newKnownTags[name] = {
-        name,
-      };
-      return { ...state, knownTags: newKnownTags };
-    },
-    [ACTIONS.TAG_DELETE]: (state: TagState, action: TagAction) => {
-      const { knownTags, followedTags } = state;
-      const { name } = action.data;
-      let newKnownTags = { ...knownTags };
-      delete newKnownTags[name];
-      const newFollowedTags = followedTags.filter((tag) => tag !== name);
-      return { ...state, knownTags: newKnownTags, followedTags: newFollowedTags };
-    },
-    [ACTIONS.USER_STATE_POPULATE]: (
-      state: TagState,
-      action: {
-        data: {
-          tags: Array<string> | null | undefined;
-        };
-      }
-    ) => {
-      const { tags } = action.data;
-
-      if (Array.isArray(tags)) {
-        const next = tags.filter((tag) => typeof tag === 'string');
-        return { ...state, followedTags: next || [] };
-      }
-
-      // Purge 'followedTags'
-      return { ...state };
-    },
+const tagsSlice = createSlice({
+  name: 'tags',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(ACTIONS.TOGGLE_TAG_FOLLOW, (state, action: any) => {
+        const { name } = action.data;
+        const idx = state.followedTags.indexOf(name);
+        if (idx !== -1) {
+          state.followedTags.splice(idx, 1);
+        } else {
+          state.followedTags.push(name);
+        }
+      })
+      .addCase(ACTIONS.TAG_ADD, (state, action: any) => {
+        const { name } = action.data;
+        state.knownTags[name] = { name };
+      })
+      .addCase(ACTIONS.TAG_DELETE, (state, action: any) => {
+        const { name } = action.data;
+        delete state.knownTags[name];
+        const idx = state.followedTags.indexOf(name);
+        if (idx !== -1) {
+          state.followedTags.splice(idx, 1);
+        }
+      })
+      .addCase(ACTIONS.USER_STATE_POPULATE, (state, action: any) => {
+        const { tags } = action.data;
+        if (Array.isArray(tags)) {
+          state.followedTags = tags.filter((tag: any) => typeof tag === 'string');
+        }
+      });
   },
-  defaultState
-);
+});
+
+export default tagsSlice.reducer;

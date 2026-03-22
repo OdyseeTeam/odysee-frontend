@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 import * as COLS from 'constants/collections';
 import { useIsMobile } from 'effects/use-screensize';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { getTitleForCollection } from 'util/collections';
 import CollectionPreview from './internal/collectionPreview';
 import SectionLabel from './internal/label';

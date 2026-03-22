@@ -5,7 +5,7 @@ import * as FILE_LIST from 'constants/file_list';
 import * as SETTINGS from 'constants/settings';
 import * as CS from 'constants/claim_search';
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
@@ -37,10 +37,6 @@ type Props = {
   myScheduledClaims: Array<Claim>;
   myPaidClaims: Array<Claim>;
   myPaidClaimsLegacy: Array<Claim>;
-  history: {
-    replace: (arg0: string) => void;
-    push: (arg0: string) => void;
-  };
   page: number;
   pageSize: number;
   myChannelIds: Array<ClaimId>;
