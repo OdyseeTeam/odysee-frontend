@@ -1,7 +1,9 @@
 import React from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
 import { ExpandableContext } from 'contexts/expandable';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
@@ -10,6 +12,39 @@ import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectIsFetchingPurchases,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+  selectIsStreamPlaceholderForUri,
+  selectPendingFiatPaymentForUri,
+  selectSdkFeePendingForUri,
+  selectScheduledStateForUri,
+} from 'redux/selectors/claims';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import {
+  makeSelectFileRenderModeForUri,
+  selectPlayingUri,
+  selectPlayingCollectionId,
+  selectCanViewFileForUri,
+} from 'redux/selectors/content';
+import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
+import {
+  selectIsActiveLivestreamForUri,
+  selectIsActiveLivestreamForClaimId,
+  selectActiveLivestreamForChannel,
+  selectChannelIsLiveFetchedForUri,
+} from 'redux/selectors/livestream';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
+import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
+import { doFileGetForUri } from 'redux/actions/file';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
+import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
+
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
 const homeInitFlags: Set<string> = new Set();
@@ -19,50 +54,7 @@ type Props = {
   embedded?: boolean;
   claimLinkId?: string;
   isMarkdownPost?: boolean;
-  location?: {
-    search: string | null | undefined;
-    pathname: string;
-    href?: string;
-    state:
-      | {
-          forceAutoplay?: boolean;
-          forceDisableAutoplay?: boolean;
-        }
-      | null
-      | undefined;
-  };
   parentCommentId?: string;
-  // -- redux --
-  channelName: string;
-  channelClaimId: string;
-  claimId: string;
-  myMembershipsFetched: boolean;
-  preorderTag: number;
-  purchaseTag: number;
-  rentalTag: string;
-  autoplay: boolean;
-  autoplayNextShort: boolean;
-  isFetchingPurchases: boolean | null | undefined;
-  renderMode: string;
-  streamingUrl: any;
-  isCollectionClaim: boolean | null | undefined;
-  isLivestreamClaim: boolean | null | undefined;
-  isCurrentClaimLive: boolean | null | undefined;
-  scheduledState: ClaimScheduledState;
-  playingUri: PlayingUri;
-  playingCollectionId: string | null | undefined;
-  pendingFiatPayment: boolean | null | undefined;
-  sdkFeePending: boolean | null | undefined;
-  pendingUnlockedRestrictions: boolean | null | undefined;
-  canViewFile: boolean | null | undefined;
-  channelLiveFetched: boolean;
-  sourceLoaded: boolean;
-  doCheckIfPurchasedClaimId: (claimId: string) => void;
-  doFileGetForUri: (uri: string, opt?: FileGetOptions | null) => void;
-  doMembershipMine: () => void;
-  doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  doClearPlayingUri: () => void;
   onSwipeNext?: () => void;
   onSwipePrevious?: () => void;
   enableSwipe?: boolean;
@@ -86,39 +78,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       embedded,
       claimLinkId,
       isMarkdownPost,
-      location,
       parentCommentId,
-      // -- redux --
-      channelName,
-      channelClaimId,
-      claimId,
-      myMembershipsFetched,
-      preorderTag,
-      purchaseTag,
-      rentalTag,
-      autoplay,
-      autoplayNextShort,
-      isFetchingPurchases,
-      renderMode,
-      streamingUrl,
-      isCollectionClaim,
-      isLivestreamClaim,
-      isCurrentClaimLive,
-      scheduledState,
-      playingUri,
-      playingCollectionId,
-      pendingFiatPayment,
-      sdkFeePending,
-      pendingUnlockedRestrictions,
-      canViewFile,
-      channelLiveFetched,
-      sourceLoaded,
-      doCheckIfPurchasedClaimId,
-      doFileGetForUri,
-      doMembershipMine,
-      doStartFloatingPlayingUri,
-      doMembershipList,
-      doClearPlayingUri,
       onSwipeNext,
       onSwipePrevious,
       enableSwipe,
@@ -126,6 +86,51 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       isFloatingContext,
       forceRenderStream,
     } = props;
+
+    // -- Route props (previously injected by index.ts wrapper) --
+    const location = useLocation();
+    const params = useParams();
+    const navigate = useNavigate();
+    const match = {
+      params,
+      path: location.pathname,
+      url: location.pathname,
+      isExact: true,
+    };
+
+    // -- Redux --
+    const dispatch = useAppDispatch();
+    const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+    const { claim_id: claimId, signing_channel: channelClaim, value_type: valueType } = claim || {};
+    const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
+
+    const myMembershipsFetched = useAppSelector(selectMembershipMineFetched);
+    const preorderTag = useAppSelector((state) => selectPreorderTagForUri(state, uri));
+    const purchaseTag = useAppSelector((state) => selectPurchaseTagForUri(state, uri));
+    const rentalTag = useAppSelector((state) => selectRentalTagForUri(state, uri));
+    const autoplay = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
+    const autoplayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+    const isFetchingPurchases = useAppSelector(selectIsFetchingPurchases);
+    const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+    const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+    const isCollectionClaim = valueType === 'collection';
+    const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+    const isCurrentClaimLive = useAppSelector(
+      (state) =>
+        selectIsActiveLivestreamForUri(state, uri) ||
+        selectIsActiveLivestreamForClaimId(state, claimId) ||
+        Boolean(selectActiveLivestreamForChannel(state, channelClaimId))
+    );
+    const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
+    const playingUri = useAppSelector(selectPlayingUri);
+    const playingCollectionId = useAppSelector(selectPlayingCollectionId);
+    const pendingFiatPayment = useAppSelector((state) => selectPendingFiatPaymentForUri(state, uri));
+    const sdkFeePending = useAppSelector((state) => selectSdkFeePendingForUri(state, uri));
+    const pendingUnlockedRestrictions = useAppSelector((state) => selectPendingUnlockedRestrictionsForUri(state, uri));
+    const canViewFile = useAppSelector((state) => selectCanViewFileForUri(state, uri));
+    const channelLiveFetched = useAppSelector((state) => selectChannelIsLiveFetchedForUri(state, uri));
+    const sourceLoaded = useAppSelector((state) => selectVideoSourceLoadedForUri(state, uri));
+
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
     const shouldClearPlayingUri = React.useRef(false);
@@ -200,28 +205,29 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
-        doMembershipList({
-          channel_claim_id: channelClaimId,
-        });
+        dispatch(
+          doMembershipList({
+            channel_claim_id: channelClaimId,
+          })
+        );
       }
-    }, [channelClaimId, channelName, doMembershipList]);
+    }, [channelClaimId, channelName, dispatch]);
     React.useEffect(() => {
       if (!myMembershipsFetched) {
-        doMembershipMine();
+        dispatch(doMembershipMine());
       }
-    }, [doMembershipMine, myMembershipsFetched]);
+    }, [dispatch, myMembershipsFetched]);
     React.useEffect(() => {
       if (isAPurchaseOrPreorder && isFetchingPurchases === undefined) {
-        doCheckIfPurchasedClaimId(claimId);
+        dispatch(doCheckIfPurchasedClaimId(claimId));
       }
-    }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
+    }, [claimId, dispatch, isAPurchaseOrPreorder, isFetchingPurchases]);
     const streamClaim = React.useCallback(() => {
       updateClaim('callback'); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     }, [
       claimLinkId,
       collectionId,
-      doFileGetForUri,
-      doStartFloatingPlayingUri,
+      dispatch,
       embedded,
       isLivestreamClaim,
       isMarkdownPost,
@@ -294,7 +300,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // Ensure non-video embeds (e.g. markdown) fetch their source in embed mode
     React.useEffect(() => {
       if (canViewFile && renderMode === 'md' && !streamingUrl) {
-        doFileGetForUri(uri, fileGetOptions);
+        dispatch(doFileGetForUri(uri, fileGetOptions));
       } // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [canViewFile, renderMode, streamingUrl, uri]);
 
@@ -322,11 +328,11 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
 
       if (!isLivestreamClaim && !isCollectionClaim && !streamingUrl) {
-        doFileGetForUri(uri, fileGetOptions);
+        dispatch(doFileGetForUri(uri, fileGetOptions));
       }
 
       if (shouldStartFloating || !check) {
-        doStartFloatingPlayingUri(playingOptions);
+        dispatch(doStartFloatingPlayingUri(playingOptions));
       }
 
       analytics.event.playerLoaded(renderMode, embedded);
@@ -342,7 +348,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     React.useEffect(() => {
       return () => {
         if (shouldClearPlayingUri.current) {
-          doClearPlayingUri();
+          dispatch(doClearPlayingUri());
         }
       }; // -- only on unmount
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -418,7 +424,38 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded && !forceRenderStream ? (
           <LoadingScreen />
         ) : (
-          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+          <StreamClaimComponent
+            {...props}
+            uri={uri}
+            streamClaim={streamClaim}
+            channelName={channelName}
+            channelClaimId={channelClaimId}
+            claimId={claimId}
+            myMembershipsFetched={myMembershipsFetched}
+            preorderTag={preorderTag}
+            purchaseTag={purchaseTag}
+            rentalTag={rentalTag}
+            autoplay={autoplay}
+            autoplayNextShort={autoplayNextShort}
+            isFetchingPurchases={isFetchingPurchases}
+            renderMode={renderMode}
+            streamingUrl={streamingUrl}
+            isCollectionClaim={isCollectionClaim}
+            isLivestreamClaim={isLivestreamClaim}
+            isCurrentClaimLive={isCurrentClaimLive}
+            scheduledState={scheduledState}
+            playingUri={playingUri}
+            playingCollectionId={playingCollectionId}
+            pendingFiatPayment={pendingFiatPayment}
+            sdkFeePending={sdkFeePending}
+            pendingUnlockedRestrictions={pendingUnlockedRestrictions}
+            canViewFile={canViewFile}
+            channelLiveFetched={channelLiveFetched}
+            sourceLoaded={sourceLoaded}
+            location={location}
+            match={match}
+            navigate={navigate}
+          />
         )}
       </>
     );

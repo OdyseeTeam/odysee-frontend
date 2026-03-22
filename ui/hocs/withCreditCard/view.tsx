@@ -3,13 +3,14 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import { ModalContext } from 'contexts/modal';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectHasSavedCard } from 'redux/selectors/stripe';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doOpenModal } from 'redux/actions/app';
+import { doGetCustomerStatus } from 'redux/actions/stripe';
+
 type Props = {
   modalState: any;
-  // -- redux --
-  hasSavedCard: boolean | null | undefined;
-  isAuthenticated: boolean | null | undefined;
-  doOpenModal: (modalId: string, modalProps: {}) => void;
-  doGetCustomerStatus: () => void;
 };
 
 /**
@@ -21,26 +22,30 @@ type Props = {
  */
 const withCreditCard = (Component: FunctionalComponentParam) => {
   const CreditCardPrompt = (props: Props) => {
-    // eslint-disable-next-line react/prop-types
-    const { hasSavedCard, isAuthenticated, doOpenModal, doGetCustomerStatus, modalState, ...componentProps } = props;
+    const { modalState, ...componentProps } = props;
+    const dispatch = useAppDispatch();
+    const hasSavedCard = useAppSelector(selectHasSavedCard);
+    const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
     const fetchPending = isAuthenticated && hasSavedCard === undefined;
     const modal = React.useContext(ModalContext)?.modal;
     React.useEffect(() => {
       if (fetchPending) {
-        doGetCustomerStatus();
+        dispatch(doGetCustomerStatus());
       }
-    }, [doGetCustomerStatus, fetchPending]);
+    }, [dispatch, fetchPending]);
 
     if (!hasSavedCard) {
       const handleOpenAddCardModal = () =>
-        doOpenModal(
-          MODALS.ADD_CARD,
-          modal
-            ? {
-                previousModal: modal.id,
-                previousProps: { ...modal.modalProps, ...modalState },
-              }
-            : {}
+        dispatch(
+          doOpenModal(
+            MODALS.ADD_CARD,
+            modal
+              ? {
+                  previousModal: modal.id,
+                  previousProps: { ...modal.modalProps, ...modalState },
+                }
+              : {}
+          )
         );
 
       return (

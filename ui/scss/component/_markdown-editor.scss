@@ -1,133 +1,119 @@
-.CodeMirror {
-  border: 1px solid var(--color-input-border);
-  border-bottom-left-radius: var(--border-radius);
-  border-bottom-right-radius: var(--border-radius);
-  background: rgba(var(--color-header-background-base), 1);
-  color: var(--color-input);
-
-  .CodeMirror-placeholder {
-    opacity: 0.5;
-  }
-  .CodeMirror-hscrollbar {
-    display: none !important;
-  }
-}
-
-.CodeMirror-wrap {
-  overflow: hidden;
-}
-
-.editor-toolbar {
-  background-color: var(--color-border);
-  border: none;
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-  // border-right: 1px solid var(--color-input-border);
-  // border-top: 1px solid var(--color-input-border);
-  // border-left: 1px solid var(--color-input-border);
-
-  opacity: 1; // ?
-
-  &:hover {
-    opacity: 1; // ?
-  }
-
-  &.disabled-for-preview a:not(.no-disable) {
-    border-color: transparent;
-    opacity: 0.3;
-  }
-
-  &.fullscreen {
-    &::before,
-    &::after {
-      display: none;
-    }
-  }
-
-  button {
-    color: var(--color-header-link);
-    border-color: transparent;
-    transition: opacity 0.3s ease;
-  }
-
-  i.separator {
-    border: none;
-  }
-}
-
-.editor-statusbar {
-  .editor-statusbar__upload-hint {
-    display: block;
-    float: left;
-    margin-left: 0;
-  }
-}
-
 .form-field--SimpleMDE {
   margin-top: 4px;
 
   #create__comment-wrapper {
     margin-top: var(--spacing-xxxxs);
   }
+}
 
-  .cm-s-easymde {
-    border-color: var(--color-input-border);
+.markdown-editor {
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--border-radius);
+  background: rgba(var(--color-header-background-base), 1);
+  color: var(--color-input);
+  overflow: hidden;
+}
+
+.markdown-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-s);
+  flex-wrap: wrap;
+  padding: var(--spacing-xs);
+  background-color: var(--color-border);
+  border-bottom: 1px solid var(--color-input-border);
+}
+
+.markdown-editor__toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  flex-wrap: wrap;
+}
+
+.markdown-editor__toolbar-button {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--border-radius);
+  border: none;
+  background: transparent;
+  color: var(--color-header-link);
+  font-size: var(--font-xsmall);
+  font-weight: var(--font-weight-bold);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-header-link-active);
+    background-color: rgba(var(--color-primary-dynamic), 0.08);
   }
 
-  .cm-s-easymde .CodeMirror-cursor {
-    border-left: 1px solid var(--color-editor-cursor);
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+.markdown-editor__toolbar-button--preview {
+  min-width: 4.75rem;
+}
+
+.markdown-editor__textarea,
+.markdown-editor__preview {
+  width: 100%;
+  min-height: 14rem;
+  background: transparent;
+  color: var(--color-input);
+}
+
+.markdown-editor__textarea {
+  border: none;
+  resize: vertical;
+  padding: var(--spacing-s);
+  line-height: 1.55;
+
+  &::placeholder {
+    color: var(--color-input-placeholder);
+    opacity: 0.5;
   }
 
-  .cm-s-easymde .CodeMirror-selected {
-    background: var(--color-editor-selected);
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
   }
+}
 
-  .cm-s-easymde .cm-hr {
-    color: var(--color-editor-tag);
+.markdown-editor__textarea--hidden {
+  display: none;
+}
+
+.markdown-editor__preview {
+  overflow: auto;
+  padding: var(--spacing-s);
+
+  .markdown-preview {
+    min-height: 100%;
   }
+}
 
-  .cm-s-easymde .cm-tag {
-    color: var(--color-editor-tag);
-  }
+.markdown-editor__preview--hidden {
+  display: none;
+}
 
-  .cm-s-easymde .cm-attribute {
-    color: var(--color-editor-attr);
-  }
+.markdown-editor__statusbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-s);
+  flex-wrap: wrap;
+  padding: var(--spacing-xs) var(--spacing-s);
+  border-top: 1px solid var(--color-input-border);
+  background-color: rgba(var(--color-header-background-base), 0.5);
+  font-size: var(--font-xsmall);
+  color: var(--color-input-label);
 
-  .cm-s-easymde .cm-string {
-    color: var(--color-editor-string);
-  }
-
-  .cm-s-easymde .cm-comment {
-    background: var(--color-editor-inline-code-bg);
-    padding: 3px 0px; // @todo: should fill up line-spacing instead of harcoded.
-  }
-
-  .cm-s-easymde .cm-link {
-    color: var(--color-editor-link);
-  }
-
-  .cm-s-easymde .cm-url {
-    color: var(--color-editor-url);
-    font-style: italic;
-  }
-
-  .cm-s-easymde .cm-quote {
-    color: var(--color-editor-quote);
-    font-style: italic;
-  }
-
-  // Overriding the lbry/components form styling
-  .editor-toolbar {
-    button:not(.button) {
-      padding-right: 0;
-      padding-left: 0;
-      background-color: transparent !important;
-      border: transparent;
-
-      &:hover {
-        color: var(--color-header-link-active);
-      }
-    }
+  .editor-statusbar__upload-hint {
+    margin-right: auto;
   }
 }

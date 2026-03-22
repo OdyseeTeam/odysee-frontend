@@ -64,7 +64,6 @@
     "css-doodle": "^0.7.1",
     "dat.gui": "^0.7.2",
     "dom-scroll-into-view": "^1.2.1",
-    "easymde": "^2.20.0",
     "emoji-dictionary": "^1.0.11",
     "global": "^4.4.0",
     "hast-util-sanitize": "^3.0.2",
@@ -103,7 +102,6 @@
     "react-redux": "^9.2.0",
     "react-router": "^6.30.3",
     "react-router-dom": "^6.30.3",
-    "react-simplemde-editor": "^4.1.3",
     "react-spring": "^8.0.20",
     "react-top-loading-bar": "3",
     "redux": "^5.0.0",
@@ -135,8 +133,7 @@
     "videojs-contrib-quality-levels": "^2.0.9",
     "videojs-event-tracking": "^1.0.1",
     "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails",
-    "wavesurfer.js": "^2.2.1"
+    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

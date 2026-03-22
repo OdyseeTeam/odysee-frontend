@@ -1,51 +1,51 @@
 import React from 'react';
 import Spinner from 'component/spinner';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectHasPrivateCollectionForId,
+  selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
+  selectClaimIdsForCollectionId,
+  selectCollectionHasItemsResolvedForId,
+} from 'redux/selectors/collections';
+import { doResolveClaimId } from 'redux/actions/claims';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+
 type Props = {
   collectionId: string;
   useIds?: boolean;
-  // -- redux --
-  isPrivate: boolean | null | undefined;
-  collectionUrls: Array<string> | null | undefined;
-  collectionIds: Array<string> | null | undefined;
-  collectionHasItemsResolved: boolean;
-  doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void;
-  doFetchItemsInCollection: (params: { collectionId: string }) => void;
 };
 
-/**
- * HigherOrderComponent for collections to resolve it and its items
- *
- * @param Component: FunctionalComponentParam
- * @returns {FunctionalComponent}
- */
 const withCollectionItems = (Component: FunctionalComponentParam) => {
-  const CreditCardPrompt = (props: Props) => {
-    const {
-      collectionId,
-      useIds,
-      isPrivate,
-      collectionUrls,
-      collectionIds,
-      collectionHasItemsResolved,
-      doResolveClaimId,
-      doFetchItemsInCollection,
-    } = props;
+  const CollectionItemsWrapper = (props: Props) => {
+    const { collectionId, useIds } = props;
+    const dispatch = useAppDispatch();
+    const isPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));
+    const collectionUrls = useAppSelector((state) =>
+      collectionId === COLLECTIONS_CONSTS.WATCH_LATER_ID
+        ? selectUrlsForCollectionIdNonDeleted(state, collectionId)
+        : selectUrlsForCollectionId(state, collectionId)
+    );
+    const collectionIds = useAppSelector((state) => selectClaimIdsForCollectionId(state, collectionId));
+    const collectionHasItemsResolved = useAppSelector((state) =>
+      selectCollectionHasItemsResolvedForId(state, collectionId)
+    );
+
     const collectionItems = useIds ? collectionIds : collectionUrls;
     const shouldFetchCollectionItems = collectionItems === undefined || !collectionHasItemsResolved;
+
     React.useEffect(() => {
       if (!isPrivate) {
-        doResolveClaimId(collectionId, true, {
-          include_is_my_output: true,
-        });
+        dispatch(doResolveClaimId(collectionId, true, { include_is_my_output: true }));
       }
-    }, [collectionId, doResolveClaimId, isPrivate]);
+    }, [collectionId, dispatch, isPrivate]);
+
     React.useEffect(() => {
       if (shouldFetchCollectionItems) {
-        doFetchItemsInCollection({
-          collectionId,
-        });
+        dispatch(doFetchItemsInCollection({ collectionId }));
       }
-    }, [collectionId, doFetchItemsInCollection, shouldFetchCollectionItems]);
+    }, [collectionId, dispatch, shouldFetchCollectionItems]);
 
     if (collectionItems === undefined) {
       return (
@@ -55,10 +55,18 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
       );
     }
 
-    return <Component {...props} />;
+    return (
+      <Component
+        {...props}
+        isPrivate={isPrivate}
+        collectionUrls={collectionUrls}
+        collectionIds={collectionIds}
+        collectionHasItemsResolved={collectionHasItemsResolved}
+      />
+    );
   };
 
-  return CreditCardPrompt;
+  return CollectionItemsWrapper;
 };
 
 export default withCollectionItems;

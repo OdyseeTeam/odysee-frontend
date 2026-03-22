@@ -1,12 +1,18 @@
 import React from 'react';
+import * as SETTINGS from 'constants/settings';
+import { useAppSelector } from 'redux/hooks';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import {
+  selectNextUriForUriInPlayingCollectionForId,
+  selectPreviousUriForUriInPlayingCollectionForId,
+  selectIndexForUriInPlayingCollectionForId,
+} from 'redux/selectors/collections';
+import { selectPlayingCollectionId } from 'redux/selectors/content';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectNextRecommendedContentForUri } from 'redux/selectors/search';
+
 type Props = {
-  // -- redux --
-  nextPlaylistUri: string;
-  previousListUri: string;
-  autoplayNext: boolean;
-  nextRecommendedUri: string | null | undefined;
-  currentPlaylistItemIndex: number | null | undefined;
-  isLivestreamClaim: boolean | null | undefined;
+  uri: string;
 };
 
 /**
@@ -18,16 +24,22 @@ type Props = {
  */
 const withPlaybackUris = (Component: FunctionalComponentParam) => {
   const PlaybackUrisWrapper = (props: Props) => {
-    const {
-      // -- redux --
-      nextPlaylistUri,
-      previousListUri,
-      autoplayNext,
-      nextRecommendedUri,
-      currentPlaylistItemIndex,
-      isLivestreamClaim,
-      ...componentProps
-    } = props;
+    const { uri, ...componentProps } = props;
+
+    const playingCollectionId = useAppSelector(selectPlayingCollectionId);
+    const nextPlaylistUri = useAppSelector((state) =>
+      playingCollectionId ? selectNextUriForUriInPlayingCollectionForId(state, playingCollectionId, uri) : undefined
+    );
+    const previousListUri = useAppSelector((state) =>
+      playingCollectionId ? selectPreviousUriForUriInPlayingCollectionForId(state, playingCollectionId, uri) : undefined
+    );
+    const autoplayNext = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
+    const nextRecommendedUri = useAppSelector((state) => selectNextRecommendedContentForUri(state, uri));
+    const currentPlaylistItemIndex = useAppSelector((state) =>
+      playingCollectionId ? selectIndexForUriInPlayingCollectionForId(state, playingCollectionId, uri) : undefined
+    );
+    const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+
     const playNextUriRef = React.useRef(nextPlaylistUri || (autoplayNext && nextRecommendedUri));
     const playNextUri = React.useMemo(() => {
       if (nextPlaylistUri) {
@@ -52,7 +64,7 @@ const withPlaybackUris = (Component: FunctionalComponentParam) => {
         return playPreviousUriRef.current;
       }
     }, [currentPlaylistItemIndex, previousListUri]);
-    return <Component {...componentProps} playNextUri={playNextUri} playPreviousUri={playPreviousUri} />;
+    return <Component {...componentProps} uri={uri} playNextUri={playNextUri} playPreviousUri={playPreviousUri} />;
   };
 
   return PlaybackUrisWrapper;

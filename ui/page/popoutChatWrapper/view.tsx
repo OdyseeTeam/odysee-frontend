@@ -1,9 +1,21 @@
 import { getChannelIdFromClaim } from 'util/claim';
 import { formatLbryChannelName } from 'util/url';
+import { buildURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
+import { useParams } from 'react-router-dom';
 import Page from 'component/page';
 import React from 'react';
 import Yrbl from 'component/yrbl';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import {
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+  selectIsProtectedContentLockedFromUserForId,
+} from 'redux/selectors/memberships';
+import { doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter } from 'redux/actions/websocket';
+import { doResolveUri } from 'redux/actions/claims';
+import { doMembershipList } from 'redux/actions/memberships';
+
 const ChatLayout = lazyImport(
   () =>
     import(
@@ -11,67 +23,55 @@ const ChatLayout = lazyImport(
       /* webpackChunkName: "chat" */
     )
 );
-type Props = {
-  claim: StreamClaim;
-  uri: string;
-  doCommentSocketConnectAsCommenter: (
-    arg0: string,
-    arg1: string,
-    arg2: string,
-    arg3: boolean | null | undefined
-  ) => void;
-  doCommentSocketDisconnectAsCommenter: (arg0: string, arg1: string) => void;
-  doResolveUri: (arg0: string, arg1: boolean) => void;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  isProtectedContent: boolean;
-  contentUnlocked: boolean;
-  contentRestrictedFromUser: boolean;
-};
-export default function PopoutChatPage(props: Props) {
-  const {
-    claim,
-    uri,
-    doCommentSocketConnectAsCommenter,
-    doCommentSocketDisconnectAsCommenter,
-    doResolveUri,
-    doMembershipList,
-    isProtectedContent,
-    contentUnlocked,
-    contentRestrictedFromUser,
-  } = props;
+
+export default function PopoutChatPage() {
+  const params = useParams();
+  const { channelName, streamName } = params;
+  const uri =
+    buildURI({
+      channelName: channelName ? channelName.replace(':', '#') : '',
+      streamName: streamName ? streamName.replace(':', '#') : '',
+    }) || '';
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const isProtectedContent = useAppSelector((state) => Boolean(selectProtectedContentTagForUri(state, uri)));
+  const contentUnlocked = useAppSelector((state) =>
+    claim ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id) : false
+  );
+  const contentRestrictedFromUser = useAppSelector((state) =>
+    claim ? selectIsProtectedContentLockedFromUserForId(state, claim.claim_id) : false
+  );
+
   React.useEffect(() => {
-    if (!claim) doResolveUri(uri, true);
-  }, [claim, doResolveUri, uri]);
+    if (!claim) dispatch(doResolveUri(uri, true));
+  }, [claim, dispatch, uri]);
   React.useEffect(() => {
     if (!claim) return;
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
-    const channelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
+    const claimChannelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
     const reversedClaimId = claimId.split('').toReversed().join('');
     const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
 
-    if (claimId && channelName && contentUnlocked) {
-      doCommentSocketConnectAsCommenter(uri, channelName, claimIdToUse, isProtectedContent);
+    if (claimId && claimChannelName && contentUnlocked) {
+      dispatch(doCommentSocketConnectAsCommenter(uri, claimChannelName, claimIdToUse, isProtectedContent));
     }
 
     return () => {
-      if (claimId && channelName && contentUnlocked) doCommentSocketDisconnectAsCommenter(claimIdToUse, channelName);
+      if (claimId && claimChannelName && contentUnlocked)
+        dispatch(doCommentSocketDisconnectAsCommenter(claimIdToUse, claimChannelName));
     };
-  }, [
-    claim,
-    contentUnlocked,
-    doCommentSocketConnectAsCommenter,
-    doCommentSocketDisconnectAsCommenter,
-    isProtectedContent,
-    uri,
-  ]);
+  }, [claim, contentUnlocked, dispatch, isProtectedContent, uri]);
   React.useEffect(() => {
     if (claim) {
       const channelId = getChannelIdFromClaim(claim) || 'invalid';
-      doMembershipList({
-        channel_claim_id: channelId,
-      });
+      dispatch(
+        doMembershipList({
+          channel_claim_id: channelId,
+        })
+      );
     }
-  }, [claim, doMembershipList]);
+  }, [claim, dispatch]);
 
   if (contentRestrictedFromUser) {
     return (

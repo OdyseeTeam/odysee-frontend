@@ -554,7 +554,7 @@ $thumbnailWidthSmall: 2rem;
 .comment__char-count-mde {
   align-self: flex-end;
   font-size: var(--font-xsmall);
-  padding-right: var(--spacing-xs); // Align with SimpleMDE's status bar
+  padding-right: var(--spacing-xs); // Align with the markdown editor status bar
   padding-bottom: 0;
 }
 

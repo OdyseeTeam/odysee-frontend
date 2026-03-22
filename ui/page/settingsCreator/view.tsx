@@ -13,53 +13,49 @@ import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import {
+  doCommentBlockWords,
+  doCommentUnblockWords,
+  doCommentModAddDelegate,
+  doCommentModRemoveDelegate,
+  doCommentModListDelegates,
+  doFetchCreatorSettings,
+  doUpdateCreatorSettings,
+} from 'redux/actions/comments';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectSettingsByChannelId,
+  selectFetchingCreatorSettings,
+  selectFetchingBlockedWords,
+  selectModerationDelegatesById,
+  selectMembersOnlyCommentsForChannelId,
+} from 'redux/selectors/comments';
+import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
+import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+
 const DEBOUNCE_REFRESH_MS = 1000;
 // ****************************************************************************
 // ****************************************************************************
-type Props = {
-  activeChannelClaim: ChannelClaim;
-  settingsByChannelId: Record<string, PerChannelSettings>;
-  fetchingCreatorSettings: boolean;
-  fetchingBlockedWords: boolean;
-  moderationDelegatesById: Record<
-    string,
-    Array<{
-      channelId: string;
-      channelName: string;
-    }>
-  >;
-  commentBlockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
-  commentUnblockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
-  commentModAddDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
-  commentModRemoveDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
-  commentModListDelegates: (arg0: ChannelClaim) => void;
-  fetchCreatorSettings: (channelId: string) => void;
-  updateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
-  doToast: (arg0: { message: string }) => void;
-  doOpenModal: (id: string, arg1: {}) => void;
-  myChannelClaims: any;
-  listAllMyMembershipTiers: any;
-  channelHasMembershipTiers: any;
-  areCommentsMembersOnly: boolean;
-};
-export default function SettingsCreatorPage(props: Props) {
-  const {
-    activeChannelClaim,
-    settingsByChannelId,
-    moderationDelegatesById,
-    commentBlockWords,
-    commentUnblockWords,
-    commentModAddDelegate,
-    commentModRemoveDelegate,
-    commentModListDelegates,
-    fetchCreatorSettings,
-    updateCreatorSettings,
-    doOpenModal,
-    channelHasMembershipTiers,
-    listAllMyMembershipTiers,
-    myChannelClaims,
-    areCommentsMembersOnly
-  } = props;
+
+export default function SettingsCreatorPage() {
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const activeChannelId = activeChannelClaim?.claim_id;
+  const channelHasMembershipTiers = useAppSelector((state) =>
+    selectChannelHasMembershipTiersForId(state, activeChannelId)
+  );
+  const fetchingBlockedWords = useAppSelector(selectFetchingBlockedWords);
+  const fetchingCreatorSettings = useAppSelector(selectFetchingCreatorSettings);
+  const moderationDelegatesById = useAppSelector(selectModerationDelegatesById);
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const settingsByChannelId = useAppSelector(selectSettingsByChannelId);
+  const areCommentsMembersOnly = useAppSelector((state) =>
+    selectMembersOnlyCommentsForChannelId(state, activeChannelId)
+  );
+
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
@@ -126,14 +122,14 @@ export default function SettingsCreatorPage(props: Props) {
 
   function setSettings(newSettings: PerChannelSettings) {
     settingsToStates(newSettings, false);
-    updateCreatorSettings(activeChannelClaim, newSettings);
+    dispatch(doUpdateCreatorSettings(activeChannelClaim, newSettings));
     setLastUpdated(Date.now());
   }
 
-  function pushSlowModeMin(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, {
+  function pushSlowModeMin(value: number, channelClaim: ChannelClaim) {
+    dispatch(doUpdateCreatorSettings(channelClaim, {
       slow_mode_min_gap: value
-    });
+    }));
   }
 
   function parseModUri(uri) {
@@ -149,7 +145,7 @@ export default function SettingsCreatorPage(props: Props) {
     const parsedUri = parseModUri(channelUri);
 
     if (parsedUri && parsedUri.claimId && parsedUri.claimName) {
-      commentModAddDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim);
+      dispatch(doCommentModAddDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim));
       setLastUpdated(Date.now());
     }
   }
@@ -159,7 +155,7 @@ export default function SettingsCreatorPage(props: Props) {
     const parsedUri = parseModUri(channelUri);
 
     if (parsedUri && parsedUri.claimId && parsedUri.claimName) {
-      commentModRemoveDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim);
+      dispatch(doCommentModRemoveDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim));
       setLastUpdated(Date.now());
     }
   }
@@ -174,7 +170,7 @@ export default function SettingsCreatorPage(props: Props) {
 
     if (validatedNewTags.length !== 0) {
       setMutedWordTags([...mutedWordTags, ...validatedNewTags]);
-      commentBlockWords(activeChannelClaim, validatedNewTags.map(x => x.name));
+      dispatch(doCommentBlockWords(activeChannelClaim, validatedNewTags.map(x => x.name)));
       setLastUpdated(Date.now());
     }
   }
@@ -182,7 +178,7 @@ export default function SettingsCreatorPage(props: Props) {
   function removeMutedWord(tagToRemove: Tag) {
     const newMutedWordTags = mutedWordTags.slice().filter(t => t.name !== tagToRemove.name);
     setMutedWordTags(newMutedWordTags);
-    commentUnblockWords(activeChannelClaim, ['', tagToRemove.name]);
+    dispatch(doCommentUnblockWords(activeChannelClaim, ['', tagToRemove.name]));
     setLastUpdated(Date.now());
   }
 
@@ -190,13 +186,13 @@ export default function SettingsCreatorPage(props: Props) {
   // **************************************************************************
   // Update local moderator states with data from API.
   React.useEffect(() => {
-    commentModListDelegates(activeChannelClaim);
-  }, [activeChannelClaim, commentModListDelegates]);
+    dispatch(doCommentModListDelegates(activeChannelClaim));
+  }, [activeChannelClaim, dispatch]);
   React.useEffect(() => {
     if (myChannelClaims !== undefined) {
-      listAllMyMembershipTiers();
+      dispatch(doListAllMyMembershipTiers());
     }
-  }, [listAllMyMembershipTiers, myChannelClaims]);
+  }, [dispatch, myChannelClaims]);
   React.useEffect(() => {
     if (activeChannelClaim) {
       const delegates = moderationDelegatesById[activeChannelClaim.claim_id];
@@ -224,11 +220,11 @@ export default function SettingsCreatorPage(props: Props) {
   React.useEffect(() => {
     if (lastUpdated && activeChannelClaim) {
       const timer = setTimeout(() => {
-        fetchCreatorSettings(activeChannelClaim.claim_id);
+        dispatch(doFetchCreatorSettings(activeChannelClaim.claim_id));
       }, DEBOUNCE_REFRESH_MS);
       return () => clearTimeout(timer);
     }
-  }, [lastUpdated, activeChannelClaim, fetchCreatorSettings]);
+  }, [lastUpdated, activeChannelClaim, dispatch]);
   // **************************************************************************
   // **************************************************************************
   const isBusy = !activeChannelClaim || !settingsByChannelId || settingsByChannelId[activeChannelClaim.claim_id] === undefined;
@@ -280,15 +276,15 @@ export default function SettingsCreatorPage(props: Props) {
                       <FormField name="time_since_first_comment" className="form-field--copyable" disabled={minChannelAgeMinutes <= 0} type="text" readOnly value={minChannelAgeMinutes > 0 ? humanizeDuration(minChannelAgeMinutes * 60 * 1000, {
                 round: true
               }) : __('No limit')} inputButton={<Button button="secondary" icon={ICONS.EDIT} title={__('Change')} onClick={() => {
-                doOpenModal(MODALS.MIN_CHANNEL_AGE, {
+                dispatch(doOpenModal(MODALS.MIN_CHANNEL_AGE, {
                   onConfirm: (limitInMinutes: number, closeModal: () => void) => {
                     setMinChannelAgeMinutes(limitInMinutes);
-                    updateCreatorSettings(activeChannelClaim, {
+                    dispatch(doUpdateCreatorSettings(activeChannelClaim, {
                       time_since_first_comment: limitInMinutes
-                    });
+                    }));
                     closeModal();
                   }
-                });
+                }));
               }} />} />
                     </div>
                   </SettingsRow>

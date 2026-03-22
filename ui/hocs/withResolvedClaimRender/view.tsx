@@ -1,4 +1,5 @@
 import React from 'react';
+import Comments from 'comments';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -7,27 +8,27 @@ import { parseURI } from 'util/lbryURI';
 import * as MODALS from 'constants/modal_types';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import useIsVisibilityRestricted from 'effects/use-is-visibility-restricted';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
+import { selectGblAvailable } from 'redux/selectors/blocked';
+import {
+  selectClaimForUri,
+  selectHasClaimForUri,
+  selectClaimIsMine,
+  selectGeoRestrictionForUri,
+  selectIsUriUnlisted,
+} from 'redux/selectors/claims';
+import { selectContentStates } from 'redux/selectors/content';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doResolveUri } from 'redux/actions/claims';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
+
 type Props = {
   uri: string;
   delayed?: boolean;
   Wrapper?: any;
   ClaimRenderWrapper?: any;
-  // -- redux --
-  claim: StreamClaim | null | undefined;
-  hasClaim: boolean | null | undefined;
-  isClaimBlackListed: boolean;
-  isClaimFiltered: boolean;
-  claimIsMine: boolean | null | undefined;
-  isUnlisted: boolean;
-  isAuthenticated: boolean;
-  isGlobalMod: boolean;
-  uriAccessKey: UriAccessKey | null | undefined;
-  geoRestriction: GeoRestriction | null | undefined;
-  gblAvailable: boolean;
-  verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>;
-  doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void;
-  doBeginPublish: (type: PublishType, name: string | null | undefined) => void;
-  doOpenModal: (arg0: string, arg1: {}) => void;
 };
 
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
@@ -37,27 +38,26 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       delayed,
       Wrapper = React.Fragment,
       ClaimRenderWrapper: ClaimWrapperComponent = React.Fragment,
-      // -- redux --
-      claim,
-      hasClaim,
-      isClaimBlackListed,
-      isClaimFiltered,
-      claimIsMine,
-      isUnlisted,
-      isGlobalMod,
-      isAuthenticated,
-      uriAccessKey,
-      geoRestriction,
-      gblAvailable,
-      verifyClaimSignature,
-      doResolveUri,
-      doBeginPublish,
-      doOpenModal,
       ...otherProps
     } = props;
+
+    const dispatch = useAppDispatch();
+    const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+    const hasClaim = useAppSelector((state) => selectHasClaimForUri(state, uri));
+    const isClaimBlackListed = useAppSelector((state) => Boolean(selectBlackListedDataForUri(state, uri)));
+    const filterData = useAppSelector((state) => selectFilteredDataForUri(state, uri));
+    const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
+    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+    const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
+    const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+    const isGlobalMod = useAppSelector((state) => Boolean(selectUser(state)?.global_mod));
+    const uriAccessKey = useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+    const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
+    const gblAvailable = useAppSelector(selectGblAvailable);
+    const verifyClaimSignature = Comments.verify_claim_signature;
+
     const {
       streamName,
-
       /* channelName, */
       isChannel,
     } = parseURI(uri);
@@ -85,18 +85,20 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     );
     const resolveClaim = React.useCallback(
       () =>
-        doResolveUri(
-          uri,
-          false,
-          true,
-          isAuthenticated
-            ? {
-                include_is_my_output: true,
-                include_purchase_receipt: true,
-              }
-            : {}
+        dispatch(
+          doResolveUri(
+            uri,
+            false,
+            true,
+            isAuthenticated
+              ? {
+                  include_is_my_output: true,
+                  include_purchase_receipt: true,
+                }
+              : {}
+          )
         ),
-      [doResolveUri, isAuthenticated, uri]
+      [dispatch, isAuthenticated, uri]
     );
     React.useEffect(() => {
       const resolveKey = `${uri}:${String(isAuthenticated)}:${claim?.claim_id || 'none'}:${String(claim?.purchase_receipt)}`;
@@ -128,7 +130,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
                     <Button
                       button="primary" // label={__(isChannel ? 'Claim this handle' : 'Publish Something')} -- only support non-channels for now
                       label={__('Publish Something')}
-                      onClick={() => doBeginPublish(PUBLISH_TYPES.FILE, streamName)}
+                      onClick={() => dispatch(doBeginPublish(PUBLISH_TYPES.FILE, streamName))}
                     />
                   )}
 
@@ -137,9 +139,11 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
                       button="secondary"
                       label={__('Repost Something')}
                       onClick={() =>
-                        doOpenModal(MODALS.REPOST, {
-                          streamName,
-                        })
+                        dispatch(
+                          doOpenModal(MODALS.REPOST, {
+                            streamName,
+                          })
+                        )
                       }
                     />
                   )}
