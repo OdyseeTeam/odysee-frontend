@@ -8,8 +8,12 @@ import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectTotalBalance } from 'redux/selectors/wallet';
+import { doTipAccountStatus } from 'redux/actions/stripe';
 import TxoList from './txoList';
 import './style.scss';
+
 const TAB_QUERY = 'tab';
 const CURRENCY_QUERY_PARAM = 'currency';
 const CREDITS_QUERY_PARAM_VALUE = 'credits';
@@ -19,21 +23,11 @@ const TABS = {
   ACCOUNT_HISTORY: 'fiat-account-history',
   PAYMENT_HISTORY: 'fiat-payment-history',
 };
-type Props = {
-  history: {
-    action: string;
-    push: (arg0: string) => void;
-    replace: (arg0: string) => void;
-  };
-  location: {
-    search: string;
-    pathname: string;
-  };
-  totalBalance: number | null | undefined;
-  doTipAccountStatus: () => void;
-};
 
-const WalletPage = (props: Props) => {
+const WalletPage = () => {
+  const dispatch = useAppDispatch();
+  const totalBalance = useAppSelector(selectTotalBalance);
+
   const navigate = useNavigate();
   const { search } = useLocation();
   // @if TARGET='web'
@@ -67,7 +61,7 @@ const WalletPage = (props: Props) => {
   }
 
   React.useEffect(() => {
-    doTipAccountStatus(); // eslint-disable-next-line react-hooks/exhaustive-deps
+    dispatch(doTipAccountStatus()); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onTabChange(newTabIndex) {
@@ -89,7 +83,6 @@ const WalletPage = (props: Props) => {
   }
 
   // @endif
-  const { totalBalance } = props;
   const showIntro = totalBalance === 0;
   const loading = totalBalance === undefined;
   return (

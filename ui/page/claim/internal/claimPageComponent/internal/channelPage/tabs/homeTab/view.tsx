@@ -27,34 +27,36 @@ function HomeTab(props: Props) {
     if (!rawHomepageSettings) return null;
     return Array.isArray(rawHomepageSettings) ? rawHomepageSettings : rawHomepageSettings.sections || null;
   }, [rawHomepageSettings]);
-  const homeTemplate = [
-    {
-      type: 'featured',
-      file_type: undefined,
-      order_by: CS.ORDER_BY_TOP_VALUE,
-      claim_id: undefined,
-      rows: 1,
-    },
-    {
-      type: 'content',
-      file_type: CS.FILE_TYPES,
-      order_by: CS.ORDER_BY_NEW_VALUE,
-      claim_id: undefined,
-      rows: 2,
-    },
-  ];
+  const homeTemplate = React.useMemo(
+    () => [
+      {
+        type: 'featured',
+        file_type: undefined,
+        order_by: CS.ORDER_BY_TOP_VALUE,
+        claim_id: undefined,
+        rows: 1,
+      },
+      {
+        type: 'content',
+        file_type: CS.FILE_TYPES,
+        order_by: CS.ORDER_BY_NEW_VALUE,
+        claim_id: undefined,
+        rows: 2,
+      },
+    ],
+    []
+  );
   const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const topContentGridIndex = 1;
   React.useEffect(() => {
-    if (settingsByChannelId && Object.keys(settingsByChannelId).includes(claim.claim_id)) {
-      if (homepageSections) {
-        setHome(homepageSections);
-      } else {
-        setHome(homeTemplate);
-      }
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [homepageSections, settingsByChannelId]);
+    if (edit || !claimId || !settingsByChannelId?.[claimId]) {
+      return;
+    }
+
+    const nextHome = homepageSections || homeTemplate;
+    setHome((prevHome) => (JSON.stringify(prevHome) === JSON.stringify(nextHome) ? prevHome : nextHome));
+  }, [claimId, edit, homeTemplate, homepageSections, settingsByChannelId]);
 
   function handleEditCollection(e, index) {
     let newHome = [...home];

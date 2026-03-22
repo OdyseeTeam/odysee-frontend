@@ -2,13 +2,16 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Icon from 'component/common/icon';
 import * as COL from 'constants/collections';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
 type Props = {
-  claim: Claim;
+  uri: string;
   small: boolean;
 };
 
 function ClaimType(props: Props) {
-  const { claim, small } = props;
+  const { uri, small } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const { value_type: claimType } = claim || {};
   const size = small ? COL.ICON_SIZE : undefined;
 

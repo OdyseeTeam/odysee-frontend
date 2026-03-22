@@ -3,14 +3,14 @@ import React from 'react';
 import moment from 'moment';
 import { formatDateStr } from './helper';
 import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import { useAppSelector } from 'redux/hooks';
+import { selectTagsRawForUri, selectTimestampsForUri } from 'redux/selectors/claims';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 type Props = {
   uri: string | null | undefined;
   format?: 'date-only';
   disableFromNowFormat?: boolean;
-  // --- Internal ---
-  claimTsList: ClaimTsList;
-  clock24h: boolean | null | undefined;
-  tags: Array<string> | null | undefined;
 };
 
 function isDatePassed(date: Date | null | undefined) {
@@ -18,7 +18,10 @@ function isDatePassed(date: Date | null | undefined) {
 }
 
 function DateTimeClaim(props: Props) {
-  const { claimTsList, clock24h, disableFromNowFormat, format, tags } = props;
+  const { uri, disableFromNowFormat, format } = props;
+  const claimTsList = useAppSelector((state) => selectTimestampsForUri(state, uri));
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+  const tags = useAppSelector((state) => selectTagsRawForUri(state, uri));
   const date: Date | null | undefined = resolveDate(tags, claimTsList);
   const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
   const title = moment(date).format(`LL ${clockFormat}`);

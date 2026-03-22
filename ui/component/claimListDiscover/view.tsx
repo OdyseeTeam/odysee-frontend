@@ -121,23 +121,11 @@ type Props = {
   excludeShortsAspectRatio?: boolean;
 };
 
-// Returns true if the change in 'options' indicate that we are simply scrolling
-// down to a new page; false otherwise.
-function isJustScrollingToNewPage(prevOptions, options) {
-  if (!prevOptions) {
-    // It's a new search, or we just popped back from a different view.
-    return false;
-  }
-
-  // Compare every field except for 'page' and 'release_time'.
-  // There might be better ways to achieve this.
-  let tmpPrevOptions = { ...prevOptions };
-  tmpPrevOptions.page = -1;
-  tmpPrevOptions.release_time = '';
-  let tmpOptions = { ...options };
-  tmpOptions.page = -1;
-  tmpOptions.release_time = '';
-  return JSON.stringify(tmpOptions) === JSON.stringify(tmpPrevOptions);
+function getNonPaginationOptionsKey(options) {
+  const normalizedOptions = { ...options };
+  normalizedOptions.page = -1;
+  normalizedOptions.release_time = '';
+  return JSON.stringify(normalizedOptions);
 }
 
 function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
@@ -561,25 +549,21 @@ function ClaimListDiscover(props: Props) {
   //     }
   //     claimSearchResult.splice(2, 0, fixUri);
   //   }
-  const [prevOptions, setPrevOptions] = React.useState(null);
+  const prevOptionsKeyRef = React.useRef<string | null>(null);
+  const nonPaginationOptionsKey = getNonPaginationOptionsKey(options);
+  const didSearchCriteriaChange =
+    prevOptionsKeyRef.current !== null && prevOptionsKeyRef.current !== nonPaginationOptionsKey;
+  let effectivePage = page;
 
-  if (!isJustScrollingToNewPage(prevOptions, options)) {
-    // --- New search, or search options changed.
-    setPrevOptions(options);
-
+  if (didSearchCriteriaChange) {
     if (didNavigateForward) {
-      // --- Reset the page.
-      options.page = 1;
-      setPage(options.page);
+      effectivePage = 1;
     } else if (claimSearchResult) {
-      // --- Update 'page' based on retrieved 'claimSearchResult'.
-      options.page = Math.ceil(claimSearchResult.length / dynamicPageSize);
-
-      if (options.page !== page) {
-        setPage(options.page);
-      }
+      effectivePage = Math.max(1, Math.ceil(claimSearchResult.length / dynamicPageSize));
     }
   }
+
+  options.page = effectivePage;
 
   const shouldPerformSearch = // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
     hasPins && !channelIdsParam
@@ -625,6 +609,15 @@ function ClaimListDiscover(props: Props) {
   );
   // **************************************************************************
   // **************************************************************************
+  React.useEffect(() => {
+    if (prevOptionsKeyRef.current !== nonPaginationOptionsKey) {
+      prevOptionsKeyRef.current = nonPaginationOptionsKey;
+    }
+
+    if (effectivePage !== page) {
+      setPage(effectivePage);
+    }
+  }, [effectivePage, nonPaginationOptionsKey, page]);
   React.useEffect(() => {
     if (!hasPins) return;
 

@@ -10,6 +10,9 @@ import { CHANNEL_PAGE } from 'constants/urlParams';
 import { useNavigate } from 'react-router-dom';
 import { parseURI, buildURI } from 'util/lbryURI';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUserValidMembershipForChannelUri } from 'redux/selectors/memberships';
+import { doOpenModal } from 'redux/actions/app';
 const BADGE_ICONS = {
   [MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM]: ICONS.PREMIUM,
   [MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS]: ICONS.PREMIUM_PLUS,
@@ -22,8 +25,6 @@ type Props = {
   className?: string;
   hideTooltip?: boolean;
   uri?: string;
-  validUserMembershipForChannel: boolean | null | undefined;
-  doOpenModal: (modalId: string, arg1: {}) => void;
 };
 
 function getBadgeToShow(membershipName) {
@@ -38,16 +39,9 @@ function getBadgeToShow(membershipName) {
 }
 
 function MembershipBadge(props: Props) {
-  const {
-    membershipName,
-    linkPage,
-    placement,
-    className,
-    hideTooltip,
-    uri,
-    validUserMembershipForChannel,
-    doOpenModal,
-  } = props;
+  const { membershipName, linkPage, placement, className, hideTooltip, uri } = props;
+  const dispatch = useAppDispatch();
+  const validUserMembershipForChannel = useAppSelector((state) => selectUserValidMembershipForChannelUri(state, uri));
   const badgeToShow = getBadgeToShow(membershipName);
   if (!membershipName) return null;
   const badgeProps = {
@@ -60,7 +54,7 @@ function MembershipBadge(props: Props) {
     <BadgeWrapper
       linkPage={linkPage}
       badgeToShow={badgeToShow}
-      doOpenModal={doOpenModal}
+      dispatch={dispatch}
       uri={uri}
       validUserMembershipForChannel={validUserMembershipForChannel}
     >
@@ -75,11 +69,11 @@ type WrapperProps = {
   badgeToShow: string;
   uri?: string;
   validUserMembershipForChannel: boolean | null | undefined;
-  doOpenModal: (modalId: string, arg1: {}) => void;
+  dispatch: ReturnType<typeof useAppDispatch>;
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const { linkPage, children, badgeToShow, doOpenModal, validUserMembershipForChannel, uri } = props;
+  const { linkPage, children, badgeToShow, dispatch, validUserMembershipForChannel, uri } = props;
   const navigate = useNavigate();
   if (!linkPage) return children;
 
@@ -99,9 +93,11 @@ const BadgeWrapper = (props: WrapperProps) => {
                 pathname: formatLbryUrlForWeb(channelUri),
                 search: urlParams.toString(),
               })
-            : doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-                uri: channelUri,
-              })
+            : dispatch(
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                  uri: channelUri,
+                })
+              )
         }
       >
         {children}

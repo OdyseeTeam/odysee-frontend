@@ -6,13 +6,15 @@ import classnames from 'classnames';
 import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { isChannelClaim, isClaimShort } from 'util/claim';
+import { isChannelClaim, isClaimNsfw, isClaimShort, isStreamPlaceholderClaim } from 'util/claim';
 import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { toCompactNotation } from 'util/string';
+import formatMediaDuration from 'util/formatMediaDuration';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
@@ -43,6 +45,27 @@ import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { history } from 'redux/router';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectIsUriResolving,
+  selectClaimIsMine,
+  makeSelectClaimIsPending,
+  makeSelectReflectingClaimForUri,
+  selectTitleForUri,
+  selectDateForUri,
+  selectGeoRestrictionForUri,
+  selectThumbnailForUri,
+} from 'redux/selectors/claims';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
+import { doResolveUri } from 'redux/actions/claims';
+import { doFileGetForUri } from 'redux/actions/file';
+import { selectBanStateForUri } from 'lbryinc';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectLanguage, selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
+import { makeSelectHasVisitedUri } from 'redux/selectors/content';
+import { doClearContentHistoryUri, doPlayNextUri } from 'redux/actions/content';
 const AbandonedChannelPreview = lazyImport(
   () =>
     import(
@@ -53,36 +76,16 @@ const AbandonedChannelPreview = lazyImport(
 // preview images used on the landing page and on the channel page
 type Props = {
   uri: string;
-  claim: Claim | null | undefined;
   active: boolean;
-  obscureNsfw: boolean;
   showUserBlocked: boolean;
-  claimIsMine: boolean;
-  pending?: boolean;
-  reflectingProgress?: any;
-  // fxme
-  resolveUri: (arg0: string) => void;
-  isResolvingUri: boolean;
-  title: string;
-  nsfw: boolean;
   placeholder: string;
   type: string;
   nonClickable?: boolean;
-  banState: {
-    blacklisted?: boolean;
-    filtered?: boolean;
-    muted?: boolean;
-    blocked?: boolean;
-  };
-  geoRestriction: GeoRestriction | null | undefined;
-  hasVisitedUri: boolean;
   blockedUris: Array<string>;
   actions: boolean | React.ReactNode | string | number;
   properties: boolean | React.ReactNode | string | number | ((arg0: Claim) => React.ReactNode);
   empty?: React.ReactNode;
   onClick?: (e: any, claim?: Claim | null, index?: number) => any;
-  streamingUrl: string | null | undefined;
-  getFile: (arg0: string) => void;
   customShouldHide?: (arg0: Claim) => boolean;
   searchParams?: Record<string, string>;
   showUnresolvedClaim?: boolean;
@@ -95,18 +98,12 @@ type Props = {
   hideRepostLabel?: boolean;
   repostUrl?: string;
   hideMenu?: boolean;
-  isLivestream?: boolean;
-  isLivestreamActive: boolean;
   collectionId?: string;
-  isCollectionMine: boolean;
   disableNavigation?: boolean;
   // DEPRECATED - use 'nonClickable'. Remove this when channel-finder is consolidated (#810)
-  mediaDuration?: string;
-  date?: any;
   indexInContainer?: number;
   // The index order of this component within 'containerId'.
   channelSubCount?: number;
-  lang: string;
   showEdit?: boolean;
   isEditPreview?: boolean;
   dragHandleProps?: any;
@@ -116,49 +113,22 @@ type Props = {
   showIndexes?: boolean;
   playItemsOnClick?: boolean;
   disableClickNavigation?: boolean;
-  firstCollectionItemUrl: string | null | undefined;
-  doClearContentHistoryUri: (uri: string) => void;
-  doPlayNextUri: (params: { uri: string }) => void;
   doDisablePlayerDrag?: (disable: boolean) => void;
-  thumbnailFromClaim: string;
-  defaultCollectionAction: string;
-  disableShortsView: boolean;
 };
 const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   const {
     // core
     uri,
-    claim,
-    isResolvingUri,
-    // core actions
-    getFile,
-    resolveUri,
-    // claim properties
-    // is the claim consider nsfw?
-    nsfw,
-    date,
-    title,
-    claimIsMine,
-    streamingUrl,
-    mediaDuration,
-    // user properties
-    hasVisitedUri,
     wrapperElement,
     type,
     nonClickable,
     placeholder,
-    // pending
-    reflectingProgress,
-    pending,
     empty,
     // modifiers
     active,
     customShouldHide,
     searchParams,
     showNullPlaceholder,
-    // value from show mature content user setting
-    // true if the user doesn't wanna see nsfw content
-    obscureNsfw,
     showUserBlocked,
     showUnresolvedClaim,
     hideRepostLabel = false,
@@ -166,21 +136,14 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     properties,
     onClick,
     actions,
-    banState,
-    geoRestriction,
     includeSupportAction,
     renderActions,
     hideMenu = false,
     hideJoin = false,
-    // repostUrl,
-    isLivestream,
-    isLivestreamActive,
     collectionId,
-    isCollectionMine,
     disableNavigation,
     indexInContainer,
     channelSubCount,
-    lang,
     showEdit,
     isEditPreview,
     dragHandleProps,
@@ -190,20 +153,45 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     showIndexes,
     playItemsOnClick,
     disableClickNavigation,
-    firstCollectionItemUrl,
-    doClearContentHistoryUri,
-    doPlayNextUri,
     doDisablePlayerDrag,
-    thumbnailFromClaim,
-    defaultCollectionAction,
-    disableShortsView,
   } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const media = claim && claim.value && (claim.value.video || claim.value.audio);
+  const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
+  const isLivestream = isStreamPlaceholderClaim(claim);
+  const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
+  const isCollection = claim && claim.value_type === 'collection';
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
+  const claimIsMine = useAppSelector((state) => (uri ? selectClaimIsMine(state, claim) : false));
+  const date = useAppSelector((state) => (uri ? selectDateForUri(state, uri) : undefined));
+  const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
+  const hasVisitedUri = useAppSelector((state) => (uri ? makeSelectHasVisitedUri(uri)(state) : false));
+  const isCollectionMine = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const isLivestreamActive = useAppSelector((state) => isLivestream && selectIsActiveLivestreamForUri(state, uri));
+  const isResolvingUri = useAppSelector((state) => (uri ? selectIsUriResolving(state, uri) : false));
+  const lang = useAppSelector(selectLanguage);
+  const nsfw = claim ? isClaimNsfw(claim) : false;
+  const obscureNsfw = useAppSelector((state) => selectShowMatureContent(state) === false);
+  const pending = useAppSelector((state) => (uri ? makeSelectClaimIsPending(uri)(state) : false));
+  const reflectingProgress = useAppSelector((state) => (uri ? makeSelectReflectingClaimForUri(uri)(state) : undefined));
+  const streamingUrl = useAppSelector((state) =>
+    repostSrcUri || uri ? selectStreamingUrlForUri(state, repostSrcUri || uri) : undefined
+  );
+  const title = useAppSelector((state) => (uri ? selectTitleForUri(state, uri) : ''));
+  const firstCollectionItemUrl = useAppSelector((state) =>
+    claim && isCollection ? selectFirstItemUrlForCollection(state, claim.claim_id) : undefined
+  );
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const defaultCollectionAction = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION)
+  );
+  const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
   const isEmbed = React.useContext(EmbedContext);
   const isMobile = useIsMobile();
   const { pathname, search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
-  const isCollection = claim && claim.value_type === 'collection';
   const isCollectionOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
@@ -281,9 +269,11 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
 
   const handleNavLinkClick = (e) => {
     if (playItemsOnClick && claim) {
-      doPlayNextUri({
-        uri: claim?.canonical_url || uri,
-      });
+      dispatch(
+        doPlayNextUri({
+          uri: claim?.canonical_url || uri,
+        })
+      );
     }
 
     if (onClick) {
@@ -339,6 +329,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   // **************************************************************************
   // Weird placement warning
   // Make sure this happens after we figure out if this claim needs to be hidden
+  const getFile = React.useCallback((fileUri: string) => dispatch(doFileGetForUri(fileUri)), [dispatch]);
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, shouldHide);
 
   function handleOnClick(e) {
@@ -347,9 +338,11 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     }
 
     if (playItemsOnClick && claim) {
-      return doPlayNextUri({
-        uri: claim?.canonical_url || uri,
-      });
+      return dispatch(
+        doPlayNextUri({
+          uri: claim?.canonical_url || uri,
+        })
+      );
     }
 
     if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
@@ -362,16 +355,16 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
 
   function removeFromHistory(e, uri) {
     e.stopPropagation();
-    doClearContentHistoryUri(uri);
+    dispatch(doClearContentHistoryUri(uri));
   }
 
   useEffect(() => {
     if (!isResolvingUri && shouldFetch && uri) {
       if (isURIValid(uri, false)) {
-        resolveUri(uri);
+        dispatch(doResolveUri(uri));
       }
     }
-  }, [uri, isResolvingUri, shouldFetch, resolveUri]);
+  }, [uri, isResolvingUri, shouldFetch, dispatch]);
   const JoinButton = React.useMemo(
     () => () =>
       isChannelUri &&

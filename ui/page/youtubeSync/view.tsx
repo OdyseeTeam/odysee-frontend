@@ -14,6 +14,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Nag from 'component/nag';
 import { lazyImport } from 'util/lazyImport';
 import { getDefaultLanguage, sortLanguageMap } from 'util/default-languages';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectYoutubeChannels } from 'redux/selectors/user';
+import { doUserFetch } from 'redux/actions/user';
+
 const YoutubeTransferStatus = lazyImport(
   () =>
     import(
@@ -53,18 +57,15 @@ function YoutubeSyncWrapper(props: { children: React.ReactNode; inSignUpFlow?: b
 }
 
 type Props = {
-  youtubeChannels:
-    | Array<{
-        transfer_state: string;
-        sync_status: string;
-      }>
-    | null
-    | undefined;
-  doUserFetch: () => void;
   inSignUpFlow?: boolean;
-  doToggleInterestedInYoutubeSync: () => void;
+  doToggleInterestedInYoutubeSync?: () => void;
 };
+
 export default function YoutubeSync(props: Props) {
+  const { inSignUpFlow, doToggleInterestedInYoutubeSync } = props;
+  const dispatch = useAppDispatch();
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+
   const navigate = useNavigate();
   const { search, pathname } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -100,9 +101,9 @@ export default function YoutubeSync(props: Props) {
   }, [pathname, search]);
   React.useEffect(() => {
     if (statusToken && !hasYoutubeChannels) {
-      doUserFetch();
+      dispatch(doUserFetch());
     }
-  }, [statusToken, hasYoutubeChannels, doUserFetch]);
+  }, [statusToken, hasYoutubeChannels, dispatch]);
   React.useEffect(() => {
     setAddingNewChannel(Boolean(newChannelParam));
   }, [newChannelParam]);
@@ -120,7 +121,7 @@ export default function YoutubeSync(props: Props) {
     });
   }
 
-  function handleChannelChange(e) {
+  function handleChannelChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { value } = e.target;
     setChannel(value);
 

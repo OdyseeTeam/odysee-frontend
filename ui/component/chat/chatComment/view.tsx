@@ -1,6 +1,6 @@
 import 'scss/component/_livestream-comment.scss';
 import { getStickerUrl } from 'util/comments';
-import { Menu, MenuButton } from '@reach/menu-button';
+import { Menu, MenuButton } from 'component/common/menu';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';

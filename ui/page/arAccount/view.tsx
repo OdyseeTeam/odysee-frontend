@@ -9,22 +9,20 @@ import Symbol from 'component/common/symbol';
 import WalletStatus from 'component/walletStatus';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useArStatus } from 'effects/use-ar-status';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectArweaveConnected,
+  selectArweaveBalance,
+  selectArweaveFetching,
+  selectArweaveExchangeRates,
+} from 'redux/selectors/arwallet';
+import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
+import { doArDisconnect, doArUpdateBalance } from 'redux/actions/arwallet';
 import BuyAr from './buyAr';
 import Overview from './overview';
 import ArWallets from './arWallets';
 import './style.scss';
-type Props = {
-  arweaveWallets: any;
-  arWalletStatus: any;
-  balance: any;
-  fetching: boolean;
-  theme: string;
-  exchangeRate: {
-    ar: number;
-  };
-  doArDisconnect: () => void;
-  doArUpdateBalance: () => void;
-};
+
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
@@ -32,22 +30,28 @@ const TABS = {
   WALLETS: 'wallets',
 };
 
-function disconnectArWallet(doArDisconnect: () => void, navigate: (path: string) => void) {
+function disconnectArWallet(dispatchArDisconnect: () => void, navigate: (path: string) => void) {
   window.wanderInstance.authInfo.authType = undefined;
-  doArDisconnect();
+  dispatchArDisconnect();
   navigate(`/$/${PAGES.WALLET}`);
 }
 
-function updateArBalance(doArUpdateBalance: () => void) {
-  doArUpdateBalance();
+function updateArBalance(dispatchArUpdateBalance: () => void) {
+  dispatchArUpdateBalance();
 }
 
-function ArAccountPage(props: Props) {
-  const { arweaveWallets, arWalletStatus, balance, fetching, exchangeRate, doArDisconnect, doArUpdateBalance } = props;
+function ArAccountPage() {
+  const dispatch = useAppDispatch();
+  const arweaveWallets = useAppSelector(selectFullAPIArweaveAccounts);
+  const arWalletStatus = useAppSelector(selectArweaveConnected);
+  const balance = useAppSelector((state) => selectArweaveBalance(state) || { ar: 0 });
+  const fetching = useAppSelector(selectArweaveFetching);
+  const exchangeRate = useAppSelector(selectArweaveExchangeRates);
+
   const navigate = useNavigate();
   const { search } = useLocation();
   const { activeArStatus } = useArStatus();
-  const activeWallet = arweaveWallets.find((x) => x.default);
+  const activeWallet = arweaveWallets.find((x: any) => x.default);
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
   let tabIndex;
@@ -71,7 +75,7 @@ function ArAccountPage(props: Props) {
       <>
         <Symbol token="usd" amount={balance.ar * exchangeRate.ar} precision={2} />
         <div
-          onClick={() => updateArBalance(doArUpdateBalance)}
+          onClick={() => updateArBalance(() => dispatch(doArUpdateBalance()))}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
         >
           <Icon icon={ICONS.REFRESH} />
@@ -81,14 +85,14 @@ function ArAccountPage(props: Props) {
             button="alt"
             icon={ICONS.WANDER}
             label={__('Disconnect')}
-            onClick={() => disconnectArWallet(doArDisconnect, navigate)}
+            onClick={() => disconnectArWallet(() => dispatch(doArDisconnect()), navigate)}
           />
         )}
       </>
     );
   }
 
-  function onTabChange(newTabIndex) {
+  function onTabChange(newTabIndex: number) {
     let url = `/$/${PAGES.ARACCOUNT}?`;
 
     if (newTabIndex === 0) {

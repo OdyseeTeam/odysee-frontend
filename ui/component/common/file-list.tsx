@@ -1,24 +1,13 @@
 import React from 'react';
-import { useRadioState, Radio, RadioGroup } from 'reakit/Radio';
+
 type Props = {
   files: Array<WebFile>;
   onChange: (arg0: WebFile | void) => void;
 };
-type RadioProps = {
-  id: string;
-  label: string;
-};
-// Same as FormField type="radio" but it works with reakit:
-const ForwardedRadio = React.forwardRef((props: RadioProps, ref) => (
-  <span className="radio">
-    <input {...props} type="radio" ref={ref} />
-    <label htmlFor={props.id}>{props.label}</label>
-  </span>
-));
 
 function FileList(props: Props) {
   const { files, onChange } = props;
-  const radio = useRadioState();
+  const [selectedName, setSelectedName] = React.useState<string | undefined>();
 
   const getFile = (value?: string) => {
     if (files && files.length) {
@@ -27,43 +16,43 @@ function FileList(props: Props) {
   };
 
   React.useEffect(() => {
-    if (radio.stops?.length) {
-      if (!radio.currentId) {
-        radio.first();
-      } else {
-        const first = radio.stops[0].ref.current;
+    if (!files.length) {
+      setSelectedName(undefined);
+      onChange();
+      return;
+    }
 
-        // First auto-selection
-        if (first && first.id === radio.currentId && !radio.state) {
-          const file = getFile(first.value);
-          // Update state and select new file
-          onChange(file);
-          radio.setState(first.value);
-        }
+    if (!selectedName || !files.some((file) => file.name === selectedName)) {
+      const firstFile = files[0];
+      setSelectedName(firstFile.name);
+      onChange(firstFile);
+    }
+  }, [files, onChange, selectedName]);
 
-        if (radio.state) {
-          // Find selected element
-          const stop = radio.stops.find((item) => item.id === radio.currentId);
-          const element = stop && stop.ref.current;
-
-          // Only update state if new item is selected
-          if (element && element.value !== radio.state) {
-            const file = getFile(element.value);
-            // Sselect new file and update state
-            onChange(file);
-            radio.setState(element.value);
-          }
-        }
-      }
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [radio, onChange]);
   return (
-    <div className={'file-list'}>
-      <RadioGroup {...radio} aria-label="files">
+    <div className="file-list">
+      <div aria-label="files" role="radiogroup">
         {files.map(({ name }) => {
-          return <Radio key={name} {...radio} value={name} label={name} as={ForwardedRadio} />;
+          const id = `file-list-${name}`;
+
+          return (
+            <span className="radio" key={name}>
+              <input
+                checked={selectedName === name}
+                id={id}
+                name="file-list"
+                type="radio"
+                value={name}
+                onChange={() => {
+                  setSelectedName(name);
+                  onChange(getFile(name));
+                }}
+              />
+              <label htmlFor={id}>{name}</label>
+            </span>
+          );
         })}
-      </RadioGroup>
+      </div>
     </div>
   );
 }

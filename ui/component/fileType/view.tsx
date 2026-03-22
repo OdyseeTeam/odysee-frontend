@@ -2,15 +2,18 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Icon from 'component/common/icon';
 import * as COL from 'constants/collections';
+import { useAppSelector } from 'redux/hooks';
+import { makeSelectMediaTypeForUri } from 'redux/selectors/file_info';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 type Props = {
   uri: string;
-  mediaType: string;
-  isLivestream: boolean;
   small: boolean;
 };
 
 function FileType(props: Props) {
-  const { mediaType, isLivestream, small } = props;
+  const { uri, small } = props;
+  const mediaType = useAppSelector((state) => makeSelectMediaTypeForUri(uri)(state));
+  const isLivestream = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
   const size = small ? COL.ICON_SIZE : undefined;
 
   if (mediaType === 'image') {

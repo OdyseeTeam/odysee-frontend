@@ -80,7 +80,7 @@ export default function VideoPlayersPage(props: Props) {
     const startedPlayingOtherPlaylist =
       (isUriPlaying || playingCollectionId === null) &&
       playingCollectionId !== undefined &&
-      !initialPlayingCol.current !== playingCollectionId;
+      initialPlayingCol.current !== playingCollectionId;
     return startedPlayingOtherPlaylist ? playingCollectionId : colParam;
   }, [colParam, isUriPlaying, playingCollectionId]);
   const rightSideProps = React.useMemo(

@@ -1,6 +1,6 @@
 import * as ICONS from 'constants/icons';
 import React from 'react';
-import { MenuItem } from '@reach/menu-button';
+import { MenuItem } from 'component/common/menu';
 import { parseURI } from 'util/lbryURI';
 import Icon from 'component/common/icon';
 type Props = {

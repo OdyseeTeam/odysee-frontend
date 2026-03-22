@@ -1,6 +1,6 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { getChannelFromClaim } from 'util/claim';
-import { MenuList, MenuItem } from '@reach/menu-button';
+import { MenuList, MenuItem } from 'component/common/menu';
 import { parseURI } from 'util/lbryURI';
 import { URL } from 'config';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';

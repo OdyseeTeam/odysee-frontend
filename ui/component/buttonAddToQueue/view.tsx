@@ -2,57 +2,62 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { MenuItem } from '@reach/menu-button';
+import * as SETTINGS from 'constants/settings';
+import { MenuItem } from 'component/common/menu';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doCollectionEdit } from 'redux/actions/collections';
+import { selectCollectionForIdHasClaimUrl, selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { doToast } from 'redux/actions/notifications';
+import { doStartFloatingPlayingUri, doSetPlayingUri } from 'redux/actions/content';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doResolveUri } from 'redux/actions/claims';
+import { doFileGetForUri } from 'redux/actions/file';
 type Props = {
   uri: string;
   focusable: boolean;
   menuItem?: boolean;
-  // -- redux --
-  autoplayMedia: boolean;
-  hasClaimInQueue: boolean;
-  hasPlayingUriInQueue: boolean;
-  playingUri: PlayingUri;
-  playingUrl: string | null | undefined;
-  playingCollectionUrls: Array<string> | null | undefined;
-  doToast: (props: { message: string }) => void;
-  doCollectionEdit: (id: string, arg1: CollectionEditParams) => void;
-  doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void;
-  doSetPlayingUri: (props: any) => void;
-  doResolveUri: (uri: string, returnCachedClaims?: boolean) => Promise<any>;
-  doFileGetForUri: (uri: string) => void;
 };
 
 function ButtonAddToQueue(props: Props) {
-  const {
-    uri,
-    focusable = true,
-    menuItem,
-    autoplayMedia,
-    hasClaimInQueue,
-    hasPlayingUriInQueue,
-    playingUri,
-    playingUrl,
-    playingCollectionUrls,
-    doToast,
-    doCollectionEdit,
-    doStartFloatingPlayingUri,
-    doSetPlayingUri,
-    doResolveUri,
-    doFileGetForUri,
-  } = props;
+  const { uri, focusable = true, menuItem } = props;
+  const dispatch = useAppDispatch();
+  const playingUri = useAppSelector(selectPlayingUri);
+  const { collectionId: playingCollectionId } = playingUri.collection || {};
+  const playingUrl = useAppSelector((state) => selectClaimForUri(state, playingUri.uri))?.permanent_url;
+  const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
+  const hasClaimInQueue = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri)
+  );
+  const hasPlayingUriInQueue = Boolean(
+    useAppSelector(
+      (state) => playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
+    )
+  );
+  const playingCollectionUrls = useAppSelector(
+    (state) =>
+      playingCollectionId &&
+      playingCollectionId !== COLLECTIONS_CONSTS.QUEUE_ID &&
+      selectUrlsForCollectionId(state, playingCollectionId)
+  );
 
   async function handleQueue(e) {
     if (e) e.preventDefault();
-    doToast({
-      message: hasClaimInQueue ? __('Item removed from Queue') : __('Item added to Queue'),
-    });
+    dispatch(
+      doToast({
+        message: hasClaimInQueue ? __('Item removed from Queue') : __('Item added to Queue'),
+      })
+    );
     const itemsToAdd = playingCollectionUrls || [playingUrl];
-    doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
-      uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
-      remove: hasClaimInQueue,
-      type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,
-    });
+    dispatch(
+      doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
+        uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
+        remove: hasClaimInQueue,
+        type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,
+      })
+    );
 
     if (!hasClaimInQueue) {
       const paramsToAdd = {
@@ -64,15 +69,17 @@ function ButtonAddToQueue(props: Props) {
 
       if (playingUrl) {
         // adds the queue collection id to the playingUri data so it can be used and updated by other components
-        if (!hasPlayingUriInQueue && autoplayMedia) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
+        if (!hasPlayingUriInQueue && autoplayMedia) dispatch(doSetPlayingUri({ ...playingUri, ...paramsToAdd }));
       } else if (autoplayMedia) {
         // Resolve claim fully, fetch streaming URL, then start floating player
-        await doResolveUri(uri, false);
-        doFileGetForUri(uri);
-        doStartFloatingPlayingUri({
-          uri,
-          ...paramsToAdd,
-        });
+        await dispatch(doResolveUri(uri, false));
+        dispatch(doFileGetForUri(uri));
+        dispatch(
+          doStartFloatingPlayingUri({
+            uri,
+            ...paramsToAdd,
+          })
+        );
       }
     }
   }

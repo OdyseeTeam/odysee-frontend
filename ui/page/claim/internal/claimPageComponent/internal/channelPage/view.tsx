@@ -139,7 +139,6 @@ function ChannelPage(props: Props) {
     currentView = hideAboutTab ? CHANNEL_PAGE.VIEWS.DISCUSSION : CHANNEL_PAGE.VIEWS.ABOUT;
   }
 
-  const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = currentView === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
   const { permanent_url: permanentUrl } = claim;
@@ -160,13 +159,7 @@ function ChannelPage(props: Props) {
         return true;
       }
     });
-  const showDiscussion = React.useMemo(() => {
-    if (discussionWasMounted && currentView !== CHANNEL_PAGE.VIEWS.DISCUSSION) {
-      setDiscussionWasMounted(false);
-    }
-
-    return discussionWasMounted && currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
-  }, [discussionWasMounted, currentView]);
+  const showDiscussion = currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
   const [hasShorts, setHasShorts] = React.useState(true);
@@ -335,11 +328,6 @@ function ChannelPage(props: Props) {
     }
   }
 
-  React.useEffect(() => {
-    if (currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) {
-      setDiscussionWasMounted(true);
-    }
-  }, [currentView]);
   // Fetch each load? doMembershipContentForStreamClaimIds([claim.claim_id])
   // React.useEffect(() => {
   //   if (claim) getMembershipTiersForChannel(claim.claim_id);

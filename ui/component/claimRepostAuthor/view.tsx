@@ -2,14 +2,16 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import UriIndicator from 'component/uriIndicator';
 import Icon from 'component/common/icon';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
 type Props = {
   uri: string;
-  claim: Claim | null | undefined;
   short: boolean;
 };
 
 function ClaimRepostAuthor(props: Props) {
-  const { claim, short } = props;
+  const { uri, short } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const repostChannelUrl = claim && claim.repost_channel_url;
   const repostUrl = claim && claim.repost_url;
 

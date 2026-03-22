@@ -2,7 +2,7 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import { SORT_ORDER, SORT_KEYS } from 'constants/collections';
 import FileActionButton from 'component/common/file-action-button';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 type ButtonProps = {
   collectionId: string;
   // redux

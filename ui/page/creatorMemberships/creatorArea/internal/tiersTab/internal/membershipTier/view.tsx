@@ -1,6 +1,6 @@
 import React from 'react';
 import Symbol from 'component/common/symbol';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Icon from 'component/common/icon';

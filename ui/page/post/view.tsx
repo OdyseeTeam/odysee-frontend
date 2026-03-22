@@ -3,13 +3,13 @@ import PostForm from 'component/publish/post/postForm';
 import Page from 'component/page';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import Spinner from 'component/spinner';
-type Props = {
-  balance: number;
-  fetchingChannels: boolean;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectFetchingMyChannels } from 'redux/selectors/claims';
 
-function PostPage(props: Props) {
-  const { balance, fetchingChannels } = props;
+function PostPage() {
+  const balance = useAppSelector(selectBalance);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
   return (
     <Page noFooter>
       {balance < 0.01 && <YrblWalletEmpty />}

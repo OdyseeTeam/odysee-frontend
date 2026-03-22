@@ -3,34 +3,38 @@ import DateTime from 'component/dateTime';
 import { LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 import moment from 'moment';
 import I18nMessage from 'component/i18nMessage';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectMomentReleaseTimeForUri,
+  selectChannelClaimIdForUri,
+  selectClaimReleaseInFutureForUri,
+} from 'redux/selectors/claims';
+import {
+  selectActiveLivestreamForChannel,
+  selectClaimIsActiveChannelLivestreamForUri,
+  selectLivestreamInfoAlreadyFetchedForCreatorId,
+} from 'redux/selectors/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 type Props = {
   uri: string;
-  // -- redux --
-  channelClaimId: string | null | undefined;
-  releaseTime: any;
-  activeLivestream: any;
-  isCurrentClaimLive: boolean | null | undefined;
-  releaseInFuture: boolean | null | undefined;
-  alreadyFetched: boolean | null | undefined;
-  doFetchChannelIsLiveForId: (channelClaimId: string) => void;
 };
 
 const LivestreamDateTime = (props: Props) => {
-  const {
-    uri,
-    channelClaimId,
-    releaseTime,
-    activeLivestream,
-    isCurrentClaimLive,
-    releaseInFuture,
-    alreadyFetched,
-    doFetchChannelIsLiveForId,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
+  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelClaimId));
+  const isCurrentClaimLive = useAppSelector((state) => selectClaimIsActiveChannelLivestreamForUri(state, uri));
+  const releaseInFuture = useAppSelector((state) => selectClaimReleaseInFutureForUri(state, uri));
+  const alreadyFetched = useAppSelector((state) =>
+    selectLivestreamInfoAlreadyFetchedForCreatorId(state, channelClaimId)
+  );
   React.useEffect(() => {
     if (!alreadyFetched && channelClaimId) {
-      doFetchChannelIsLiveForId(channelClaimId);
+      dispatch(doFetchChannelIsLiveForId(channelClaimId));
     }
-  }, [alreadyFetched, channelClaimId, doFetchChannelIsLiveForId]);
+  }, [alreadyFetched, channelClaimId, dispatch]);
 
   if (activeLivestream && isCurrentClaimLive) {
     return (

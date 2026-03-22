@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import React from 'react';

@@ -6,17 +6,17 @@ import { Lbryio } from 'lbryinc';
 import I18nMessage from 'component/i18nMessage';
 import Card from 'component/common/card';
 import { useLocation } from 'react-router-dom';
-type Props = {
-  doToast: (arg0: {}) => void;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doToast } from 'redux/actions/notifications';
+
 // Guard against parents remounting. We don't want to send multi api calls.
 let verificationApiHistory = {
   called: false,
   successful: false,
 };
 
-function SignInVerifyPage(props: Props) {
-  const { doToast } = props;
+function SignInVerifyPage() {
+  const dispatch = useAppDispatch();
   const location = useLocation();
   const [isAuthenticationSuccess, setIsAuthenticationSuccess] = useState(verificationApiHistory.successful);
   const [showCaptchaMessage, setShowCaptchaMessage] = useState(false);
@@ -29,25 +29,27 @@ function SignInVerifyPage(props: Props) {
   const [verificationTried, setVerificationTried] = useState(needsRecaptcha || verificationApiHistory.called);
   const successful = isAuthenticationSuccess || verificationApiHistory.successful;
 
-  function onAuthError(message) {
-    doToast({
-      message: message || __('Authentication failure.'),
-      isError: true,
-    });
+  function onAuthError(message?: string) {
+    dispatch(
+      doToast({
+        message: message || __('Authentication failure.'),
+        isError: true,
+      })
+    );
   }
 
   React.useEffect(() => {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [authToken, userSubmittedEmail, verificationToken, doToast]);
+  }, [authToken, userSubmittedEmail, verificationToken, dispatch]);
   React.useEffect(() => {
     if (!needsRecaptcha && !isAuthenticationSuccess && !verificationApiHistory.called) {
       verifyUser();
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount only
   }, []);
   React.useEffect(() => {
-    let captchaTimeout;
+    let captchaTimeout: ReturnType<typeof setTimeout> | undefined;
 
     if (needsRecaptcha && !captchaLoaded) {
       captchaTimeout = setTimeout(() => {
@@ -62,15 +64,15 @@ function SignInVerifyPage(props: Props) {
     };
   }, [needsRecaptcha, captchaLoaded]);
 
-  function onCaptchaChange(value) {
-    verifyUser(value);
+  function onCaptchaChange(value: string | null) {
+    verifyUser(value ?? undefined);
   }
 
   function onCaptchaReady() {
     setCaptchaLoaded(true);
   }
 
-  function verifyUser(captchaValue) {
+  function verifyUser(captchaValue?: string) {
     verificationApiHistory.called = true;
     Lbryio.call('user_email', 'confirm', {
       auth_token: authToken,

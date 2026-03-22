@@ -6,7 +6,7 @@ import Button from 'component/button';
 import CommentMenuList from 'component/commentMenuList';
 import ChannelTitle from 'component/channelTitle';
 import ClaimLink from 'component/claimLink';
-import { Menu, MenuButton } from '@reach/menu-button';
+import { Menu, MenuButton } from 'component/common/menu';
 import { useIsMobile } from 'effects/use-screensize';
 type Props = {
   href: string;

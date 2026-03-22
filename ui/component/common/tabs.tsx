@@ -1,119 +1,137 @@
-import React, { Fragment, useState, useRef, useContext, useLayoutEffect, createContext } from 'react';
-import {
-  Tabs as ReachTabs,
-  Tab as ReachTab,
-  TabList as ReachTabList,
-  TabPanels as ReachTabPanels,
-  TabPanel as ReachTabPanel,
-} from '@reach/tabs';
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useOnResize } from 'effects/use-on-resize';
-// Tabs are a compound component
-// The components are used individually, but they will still interact and share state
-// When using, at a minimum you must arrange the components in this pattern
-// When the <Tab> at index 0 is active, the TabPanel at index 0 will be displayed
-//
-// <Tabs onChange={...} index={...}>
-//   <TabList>
-//     <Tab>Tab label 1</Tab>
-//     <Tab>Tab label 2</Tab>
-//     ...
-//   </TabList>
-//   <TabPanels>
-//     <TabPanel>Content for Tab 1</TabPanel>
-//     <TabPanel>Content for Tab 2</TabPanel>
-//     ...
-//   </TabPanels>
-// </Tabs>
-//
-// the base @reach/tabs components handle all the focus/accessibility labels
-// We're just adding some styling
+
 type TabsProps = {
   index?: number;
   onChange?: (arg0: number) => void;
-  children: Array<React.ReactNode>;
+  children: React.ReactNode;
+  className?: string;
 };
-// Use context so child TabPanels can set the active tab, which is kept in Tabs' state
-const AnimatedContext = createContext<any>();
 
 function Tabs(props: TabsProps) {
-  // Store the position of the selected Tab so we can animate the "active" bar to its position
   const [selectedRect, setSelectedRect] = useState(null);
-  const [tabsRect, setTabsRect] = React.useState();
-  // Create a ref of the parent element so we can measure the relative "left" for the bar for the child Tab's
-  const tabsRef = useRef<Element | void | null>();
-  // Recalculate "Rect" on window resize
-  const handleResize = React.useCallback(() => {
-    if (tabsRef.current) {
-      setTabsRect(tabsRef.current.getBoundingClientRect());
+  const [tabsRect, setTabsRect] = React.useState<DOMRect | null>(null);
+  const [internalIndex, setInternalIndex] = React.useState(0);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
+  const { children, className, index, onChange } = props;
+  const selectedIndex = index === undefined ? internalIndex : index;
+
+  const handleSelectTab = React.useCallback(
+    (nextIndex: number) => {
+      if (index === undefined) {
+        setInternalIndex(nextIndex);
+      }
+
+      onChange?.(nextIndex);
+    },
+    [index, onChange]
+  );
+
+  const measureTabs = React.useCallback(() => {
+    if (!tabsRef.current) {
+      return;
+    }
+
+    const list = tabsRef.current.querySelector('[data-reach-tab-list]');
+    const selectedTab = tabsRef.current.querySelector(`[data-tab-index="${selectedIndex}"]`);
+
+    if (list instanceof HTMLElement) {
+      setTabsRect(list.getBoundingClientRect());
+    }
+
+    if (selectedTab instanceof HTMLElement) {
+      setSelectedRect(selectedTab.getBoundingClientRect());
     }
   }, []);
-  useOnResize(handleResize);
-  const tabLabels = props.children[0];
-  const tabContent = props.children[1];
+
+  useOnResize(measureTabs);
+  useLayoutEffect(() => {
+    measureTabs();
+  }, [measureTabs, selectedIndex, children]);
+
+  const clonedChildren = React.Children.map(children, (child) => {
+    if (!React.isValidElement(child)) {
+      return child;
+    }
+
+    if (child.type === TabList) {
+      return React.cloneElement(child, {
+        selectedIndex,
+        onSelectTab: handleSelectTab,
+      });
+    }
+
+    if (child.type === TabPanels) {
+      return React.cloneElement(child, {
+        selectedIndex,
+      });
+    }
+
+    return child;
+  });
+
   return (
-    <AnimatedContext.Provider value={setSelectedRect}>
-      <ReachTabs className="tabs" {...props} ref={tabsRef}>
-        {tabLabels}
+    <div className={classnames('tabs', className)} data-reach-tabs="" ref={tabsRef}>
+      {clonedChildren}
 
-        <div
-          className="tab__divider"
-          style={{
-            left: selectedRect && tabsRect && selectedRect.left - tabsRect.left,
-            width: selectedRect && selectedRect.width,
-          }}
-        />
-
-        {tabContent}
-      </ReachTabs>
-    </AnimatedContext.Provider>
+      <div
+        className="tab__divider"
+        style={{
+          left: selectedRect && tabsRect ? selectedRect.left - tabsRect.left : undefined,
+          width: selectedRect ? selectedRect.width : undefined,
+        }}
+      />
+    </div>
   );
 }
 
-//
-// The wrapper for the list of tab labels that users can click
 type TabListProps = {
+  children?: React.ReactNode;
   className?: string;
+  onSelectTab?: (index: number) => void;
+  selectedIndex?: number;
 };
 
 function TabList(props: TabListProps) {
-  const { className, ...rest } = props;
-  return <ReachTabList className={classnames('tabs__list', className)} {...rest} />;
+  const { children, className, onSelectTab, selectedIndex } = props;
+  const tabs = React.Children.map(children, (child, index) => {
+    if (!React.isValidElement(child)) {
+      return child;
+    }
+
+    return React.cloneElement(child, {
+      index,
+      isSelected: selectedIndex === index,
+      onSelectTab,
+    });
+  });
+
+  return (
+    <div className={classnames('tabs__list', className)} data-reach-tab-list="" role="tablist">
+      {tabs}
+    </div>
+  );
 }
 
-//
-// The links that users click
-// Accesses `setSelectedRect` from context to set itself as active if needed
-// Flow doesn't understand we don't have to pass it in ourselves
 type TabProps = {
+  children?: React.ReactNode;
+  index?: number;
   isSelected?: boolean;
   className?: string;
+  onSelectTab?: (index: number) => void;
 };
 
 function Tab(props: TabProps) {
-  // @reach/tabs provides an `isSelected` prop
-  // We could also useContext to read it manually
-  const { isSelected, className, ...rest } = props;
-  const [rect, setRect] = React.useState();
-  // Recalculate "Rect" on window resize
-  const handleResize = React.useCallback(() => {
-    if (ref.current) {
-      setRect(ref.current.getBoundingClientRect());
-    }
-  }, []);
-  useOnResize(handleResize);
-  // Each tab measures itself
-  const ref = useRef<Element | void | null>();
-  // and calls up to the parent when it becomes selected
-  // we useLayoutEffect to avoid flicker
-  const setSelectedRect = useContext(AnimatedContext);
-  useLayoutEffect(() => {
-    if (isSelected) setSelectedRect(rect);
-  }, [isSelected, rect, setSelectedRect]);
+  const { children, className, index = 0, isSelected, onSelectTab, ...rest } = props;
   return (
-    <ReachTab
-      ref={ref}
+    <button
       {...rest}
+      type="button"
+      role="tab"
+      aria-selected={Boolean(isSelected)}
+      data-reach-tab=""
+      data-tab-index={index}
       className={classnames(
         'tab',
         {
@@ -121,31 +139,62 @@ function Tab(props: TabProps) {
         },
         className
       )}
-      type="button"
-    />
+      onClick={() => onSelectTab?.(index)}
+    >
+      {children}
+    </button>
   );
 }
 
-//
-// The wrapper for TabPanel
 type TabPanelsProps = {
+  children?: React.ReactNode;
   header?: React.ReactNode;
+  selectedIndex?: number;
 };
 
 function TabPanels(props: TabPanelsProps) {
-  const { header, ...rest } = props;
+  const { children, header, selectedIndex } = props;
+  const panels = React.Children.map(children, (child, index) => {
+    if (!React.isValidElement(child)) {
+      return child;
+    }
+
+    return React.cloneElement(child, {
+      index,
+      isSelected: selectedIndex === index,
+    });
+  });
+
   return (
     <Fragment>
       {header}
-      <ReachTabPanels {...rest} />
+      <div data-reach-tab-panels="">{panels}</div>
     </Fragment>
   );
 }
 
-//
-// The wrapper for content when it's associated Tab is selected
-function TabPanel(props: any) {
-  return <ReachTabPanel className="tab__panel" {...props} />;
+type TabPanelProps = {
+  children?: React.ReactNode;
+  className?: string;
+  index?: number;
+  isSelected?: boolean;
+};
+
+function TabPanel(props: TabPanelProps) {
+  const { children, className, index = 0, isSelected, ...rest } = props;
+
+  return (
+    <div
+      {...rest}
+      role="tabpanel"
+      hidden={!isSelected}
+      data-reach-tab-panel=""
+      data-tab-panel-index={index}
+      className={classnames('tab__panel', className)}
+    >
+      {children}
+    </div>
+  );
 }
 
 export { Tabs, TabList, Tab, TabPanels, TabPanel };

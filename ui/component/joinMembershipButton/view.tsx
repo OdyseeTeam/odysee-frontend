@@ -7,37 +7,34 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import { AppContext } from 'contexts/app';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { doMembershipList } from 'redux/actions/memberships';
+import {
+  selectUserValidMembershipForChannelUri,
+  selectCreatorHasMembershipsByUri,
+  selectArEnabledMembershipTiersForChannelUri,
+} from 'redux/selectors/memberships';
+import { selectIsClaimOdyseeChannelForUri, selectClaimForUri } from 'redux/selectors/claims';
 const DEFAULT_PROPS = {
   button: 'alt',
   icon: ICONS.MEMBERSHIP,
 };
 type Props = {
   uri: string;
-  // -- redux --
-  validUserMembershipForChannel: any | null | undefined;
-  creatorHasMemberships: boolean;
-  creatorMembershipsFetched: boolean;
-  creatorTiers: CreatorMemberships | null | undefined;
-  isOdyseeChannel: boolean;
-  channelName: string | null | undefined;
-  channelClaimId: string | null | undefined;
-  doOpenModal: (id: string, arg1: {}) => void;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
 };
 
 const JoinMembershipButton = (props: Props) => {
-  const {
-    uri,
-    validUserMembershipForChannel,
-    creatorHasMemberships,
-    creatorMembershipsFetched,
-    isOdyseeChannel,
-    channelName,
-    channelClaimId,
-    doOpenModal,
-    doMembershipList,
-    creatorTiers,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const channelClaim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelName = channelClaim?.name;
+  const channelClaimId = channelClaim?.claim_id;
+  const validUserMembershipForChannel = useAppSelector((state) => selectUserValidMembershipForChannelUri(state, uri));
+  const creatorHasMemberships = useAppSelector((state) => selectCreatorHasMembershipsByUri(state, uri));
+  const creatorMembershipsFetched = useAppSelector((state) => selectArEnabledMembershipTiersForChannelUri(state, uri));
+  const creatorTiers = useAppSelector((state) => selectArEnabledMembershipTiersForChannelUri(state, uri));
+  const isOdyseeChannel = useAppSelector((state) => selectIsClaimOdyseeChannelForUri(state, uri));
   const fileUri = React.useContext(AppContext)?.uri;
   const isChannelPage = React.useContext(ChannelPageContext);
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
@@ -73,11 +70,13 @@ const JoinMembershipButton = (props: Props) => {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
-      doMembershipList({
-        channel_claim_id: channelClaimId,
-      }).catch((e) => {});
+      dispatch(
+        doMembershipList({
+          channel_claim_id: channelClaimId,
+        })
+      ).catch((e) => {});
     }
-  }, [channelClaimId, channelName, creatorMembershipsFetched, doMembershipList]);
+  }, [channelClaimId, channelName, creatorMembershipsFetched, dispatch]);
   if (isOdyseeChannel) return null;
 
   if (userIsActiveMember && creatorTiers && creatorTiers.length) {
@@ -138,14 +137,16 @@ const JoinMembershipButton = (props: Props) => {
             deadline: getDeadline(),
           })}
           onClick={() =>
-            doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-              uri,
-              fileUri,
-              isRenew: true,
-              membershipIndex: membershipIndex,
-              membershipId: validUserMembershipForChannel?.membership?.id,
-              passedTierIndex: membershipIndex,
-            })
+            dispatch(
+              doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                uri,
+                fileUri,
+                isRenew: true,
+                membershipIndex: membershipIndex,
+                membershipId: validUserMembershipForChannel?.membership?.id,
+                passedTierIndex: membershipIndex,
+              })
+            )
           }
           style={{
             filter: !creatorHasMemberships ? 'brightness(50%)' : undefined,
@@ -177,10 +178,12 @@ const JoinMembershipButton = (props: Props) => {
       label={__('Join')}
       title={__('Become A Member')}
       onClick={() =>
-        doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-          uri,
-          fileUri,
-        })
+        dispatch(
+          doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+            uri,
+            fileUri,
+          })
+        )
       }
       style={{
         filter: !creatorHasMemberships ? 'brightness(50%)' : undefined,

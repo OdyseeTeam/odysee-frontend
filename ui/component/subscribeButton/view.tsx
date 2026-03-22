@@ -11,40 +11,31 @@ import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { EmbedContext } from 'contexts/embed';
 import { formatLbryUrlForWeb } from 'util/url';
 import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
-type SubscriptionArgs = {
-  channelName: string;
-  uri: string;
-  notificationsDisabled?: boolean;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
+import { selectIsSubscribedForUri, makeSelectNotificationsDisabled } from 'redux/selectors/subscriptions';
+import {
+  selectPermanentUrlForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectChannelTitleForUri,
+} from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { selectUser } from 'redux/selectors/user';
+import { doToast } from 'redux/actions/notifications';
+import { PREFERENCE_EMBED } from 'constants/tags';
 type Props = {
-  permanentUrl: string | null | undefined;
-  isSubscribed: boolean;
-  doChannelSubscribe: (arg0: SubscriptionArgs, arg1: boolean) => void;
-  doChannelUnsubscribe: (arg0: SubscriptionArgs, arg1: boolean) => void;
-  doToast: (arg0: { message: string }) => void;
-  doOpenModal: (id: string, arg1: {}) => void;
-  shrinkOnMobile: boolean;
-  notificationsDisabled: boolean;
-  user: User | null | undefined;
   uri: string;
-  preferEmbed: boolean;
-  channelTitle: string | null | undefined;
+  shrinkOnMobile: boolean;
 };
 export default function SubscribeButton(props: Props) {
-  const {
-    permanentUrl,
-    doChannelSubscribe,
-    doChannelUnsubscribe,
-    isSubscribed,
-    doToast,
-    doOpenModal,
-    shrinkOnMobile = false,
-    notificationsDisabled,
-    user,
-    uri,
-    preferEmbed,
-    channelTitle,
-  } = props;
+  const { uri, shrinkOnMobile = false } = props;
+  const dispatch = useAppDispatch();
+  const isSubscribed = useAppSelector((state) => selectIsSubscribedForUri(state, uri));
+  const permanentUrl = useAppSelector((state) => selectPermanentUrlForUri(state, uri));
+  const notificationsDisabled = useAppSelector((state) => makeSelectNotificationsDisabled(uri)(state));
+  const user = useAppSelector(selectUser);
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
+  const channelTitle = useAppSelector((state) => selectChannelTitleForUri(state, uri));
   const isEmbed = React.useContext(EmbedContext);
   const buttonRef = useRef();
   const bellRef = useRef();
@@ -122,23 +113,27 @@ export default function SubscribeButton(props: Props) {
             !isEmbed
               ? (e) => {
                   e.stopPropagation();
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Unfollow %channel%?', {
-                      channel: channelTitle || '@' + rawChannelName,
-                    }),
-                    onConfirm: (closeModal) => {
-                      doChannelUnsubscribe(
-                        {
-                          channelName: '@' + rawChannelName,
-                          uri: uri,
-                          notificationsDisabled: true,
-                        },
-                        true
-                      );
-                      closeModal();
-                    },
-                    labelOk: __('Unfollow'),
-                  });
+                  dispatch(
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Unfollow %channel%?', {
+                        channel: channelTitle || '@' + rawChannelName,
+                      }),
+                      onConfirm: (closeModal) => {
+                        dispatch(
+                          doChannelUnsubscribe(
+                            {
+                              channelName: '@' + rawChannelName,
+                              uri: uri,
+                              notificationsDisabled: true,
+                            },
+                            true
+                          )
+                        );
+                        closeModal();
+                      },
+                      labelOk: __('Unfollow'),
+                    })
+                  );
                 }
               : undefined
           }
@@ -226,31 +221,37 @@ export default function SubscribeButton(props: Props) {
                 }
 
                 if (isSubscribed) {
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Unfollow %channel%?', {
-                      channel: channelTitle || claimName,
-                    }),
-                    onConfirm: (closeModal) => {
-                      doChannelUnsubscribe(
-                        {
-                          channelName: claimName,
-                          uri: permanentUrl,
-                          notificationsDisabled: true,
-                        },
-                        true
-                      );
-                      closeModal();
-                    },
-                    labelOk: __('Unfollow'),
-                  });
+                  dispatch(
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Unfollow %channel%?', {
+                        channel: channelTitle || claimName,
+                      }),
+                      onConfirm: (closeModal) => {
+                        dispatch(
+                          doChannelUnsubscribe(
+                            {
+                              channelName: claimName,
+                              uri: permanentUrl,
+                              notificationsDisabled: true,
+                            },
+                            true
+                          )
+                        );
+                        closeModal();
+                      },
+                      labelOk: __('Unfollow'),
+                    })
+                  );
                 } else {
-                  doChannelSubscribe(
-                    {
-                      channelName: claimName,
-                      uri: permanentUrl,
-                      notificationsDisabled: true,
-                    },
-                    true
+                  dispatch(
+                    doChannelSubscribe(
+                      {
+                        channelName: claimName,
+                        uri: permanentUrl,
+                        notificationsDisabled: true,
+                      },
+                      true
+                    )
                   );
                 }
               }
@@ -272,24 +273,28 @@ export default function SubscribeButton(props: Props) {
                 once: true,
               });
               const newNotificationsDisabled = !notificationsDisabled;
-              doChannelSubscribe(
-                {
-                  channelName: claimName,
-                  uri: permanentUrl,
-                  notificationsDisabled: newNotificationsDisabled,
-                },
-                false
-              );
-              doToast({
-                message: __(
-                  newNotificationsDisabled
-                    ? 'Notifications turned off for %channel%'
-                    : 'Notifications turned on for %channel%!',
+              dispatch(
+                doChannelSubscribe(
                   {
-                    channel: claimName,
-                  }
-                ),
-              });
+                    channelName: claimName,
+                    uri: permanentUrl,
+                    notificationsDisabled: newNotificationsDisabled,
+                  },
+                  false
+                )
+              );
+              dispatch(
+                doToast({
+                  message: __(
+                    newNotificationsDisabled
+                      ? 'Notifications turned off for %channel%'
+                      : 'Notifications turned on for %channel%!',
+                    {
+                      channel: claimName,
+                    }
+                  ),
+                })
+              );
 
               if (!newNotificationsDisabled && pushSupported && !pushEnabled) {
                 pushRequest();

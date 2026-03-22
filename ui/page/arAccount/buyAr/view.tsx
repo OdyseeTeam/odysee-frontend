@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import CopyableText from 'component/copyableText';

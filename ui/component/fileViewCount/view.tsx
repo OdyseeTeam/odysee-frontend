@@ -4,20 +4,26 @@ import { SIMPLE_SITE } from 'config';
 import HelpLink from 'component/common/help-link';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimIdForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectViewersForId, selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectLanguage } from 'redux/selectors/settings';
+import { doFetchViewCount, selectViewCountForUri } from 'lbryinc';
 type Props = {
-  // --- redux ---
-  claimId: string | null | undefined;
-  isLivestreamClaim?: boolean;
-  isLivestreamActive: boolean | null | undefined;
-  fetchViewCount: (arg0: string) => void;
   uri: string;
-  viewCount: number | null | undefined;
-  activeViewers?: number;
-  lang: string;
 };
 
 function FileViewCount(props: Props) {
-  const { claimId, isLivestreamClaim, isLivestreamActive, fetchViewCount, viewCount, activeViewers, lang } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claimId = useAppSelector((state) => selectClaimIdForUri(state, uri));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const viewCount = useAppSelector((state) => selectViewCountForUri(state, uri));
+  const activeViewers = useAppSelector((state) =>
+    isLivestreamClaim && claimId ? selectViewersForId(state, claimId) : undefined
+  );
+  const lang = useAppSelector(selectLanguage);
+  const isLivestreamActive = useAppSelector((state) => isLivestreamClaim && selectIsActiveLivestreamForUri(state, uri));
   const count = isLivestreamClaim ? activeViewers || 0 : viewCount;
   const countCompact = Number.isInteger(count) ? toCompactNotation(count, lang, 10000) : null;
   const countFullResolution = Number(count).toLocaleString();
@@ -48,9 +54,9 @@ function FileViewCount(props: Props) {
 
   React.useEffect(() => {
     if (claimId) {
-      fetchViewCount(claimId);
+      dispatch(doFetchViewCount(claimId));
     }
-  }, [claimId]);
+  }, [claimId, dispatch]);
   // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Tooltip title={countFullResolution} followCursor placement="top">

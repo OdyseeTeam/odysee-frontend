@@ -7,33 +7,32 @@ import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import OptimizedImage from 'component/optimizedImage';
 import { AVATAR_DEFAULT } from 'config';
 import MembershipBadge from 'component/membershipBadge';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectThumbnailForUri, selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
 type Props = {
-  thumbnail: string | null | undefined;
   uri: string;
   className?: string;
-  thumbnailPreview: string | null | undefined;
+  thumbnailPreview?: string | null | undefined;
   obscure?: boolean;
   small?: boolean;
   xsmall?: boolean;
   xxsmall?: boolean;
   allowGifs?: boolean;
-  claim: ChannelClaim | null | undefined;
-  doResolveUri: (arg0: string) => void;
-  isResolving: boolean;
   noLazyLoad?: boolean;
   hideStakedIndicator?: boolean;
   hideTooltip?: boolean;
-  setThumbUploadError: (arg0: boolean) => void;
-  ThumbUploadError: boolean;
+  setThumbUploadError?: (arg0: boolean) => void;
+  ThumbUploadError?: boolean;
   showMemberBadge?: boolean;
   isChannel?: boolean;
-  odyseeMembership: string | null | undefined;
   tooltipTitle?: string;
 };
 
 function ChannelThumbnail(props: Props) {
   const {
-    thumbnail: rawThumbnail,
     uri,
     className,
     thumbnailPreview: rawThumbnailPreview,
@@ -42,18 +41,19 @@ function ChannelThumbnail(props: Props) {
     xsmall = false,
     xxsmall = false,
     allowGifs = false,
-    claim,
-    doResolveUri,
-    isResolving,
     noLazyLoad,
     hideTooltip,
     setThumbUploadError,
     ThumbUploadError,
     showMemberBadge,
     isChannel,
-    odyseeMembership,
     tooltipTitle,
   } = props;
+  const dispatch = useAppDispatch();
+  const rawThumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const isResolving = useAppSelector((state) => selectIsUriResolving(state, uri));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
   const thumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
@@ -92,9 +92,9 @@ function ChannelThumbnail(props: Props) {
 
   React.useEffect(() => {
     if (shouldResolve && uri) {
-      doResolveUri(uri);
+      dispatch(doResolveUri(uri));
     }
-  }, [doResolveUri, shouldResolve, uri]);
+  }, [dispatch, shouldResolve, uri]);
 
   if (stableFreezeUrlRef.current) {
     return (

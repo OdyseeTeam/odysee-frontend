@@ -12,16 +12,23 @@ import WalletConnect from 'component/walletConnect';
 import ReceiveUsdc from '../paymentAccount/receiveUsdc/view'; // huh?
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { useAppSelector } from 'redux/hooks';
+import { selectArweaveConnected, selectArweaveBalance } from 'redux/selectors/arwallet';
+import { selectThemePath } from 'redux/selectors/settings';
+import { selectUserExperimentalUi } from 'redux/selectors/user';
 import './style.scss';
+
 type Props = {
-  arWalletStatus: any;
-  theme: string;
-  balance: number;
-  experimentalUi: boolean;
   doArDisconnect: () => void;
 };
+
 export default function BuyPage(props: Props) {
-  const { arWalletStatus, theme, balance, experimentalUi, doArDisconnect } = props;
+  const { doArDisconnect } = props;
+  const arWalletStatus = useAppSelector(selectArweaveConnected);
+  const theme = useAppSelector(selectThemePath);
+  const balance = useAppSelector((state) => selectArweaveBalance(state).usdc);
+  const experimentalUi = useAppSelector(selectUserExperimentalUi);
+
   const navigate = useNavigate();
   const { search } = useLocation();
   const root = document?.documentElement ?? undefined;

@@ -30,7 +30,7 @@ import Expandable from 'component/common/expandable';
 import MarkdownPreview from 'component/common/markdown-preview';
 import CommentBadge from 'component/common/comment-badge';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { Menu, MenuButton } from '@reach/menu-button';
+import { Menu, MenuButton } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import { FormField, Form } from 'component/common/form';
 import classnames from 'classnames';

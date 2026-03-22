@@ -1,13 +1,16 @@
 import React from 'react';
 import FileThumbnail from 'component/fileThumbnail';
+import { useAppSelector } from 'redux/hooks';
+import { selectThumbnailForId } from 'redux/selectors/claims';
+import { selectUrlsForCollectionId } from 'redux/selectors/collections';
 type Props = {
-  // redux
-  collectionItemUrls: Array<string> | null | undefined;
-  collectionThumbnail: string | null | undefined;
+  collectionId: string;
 };
 
 function CollectionPreviewOverlay(props: Props) {
-  const { collectionItemUrls, collectionThumbnail } = props;
+  const { collectionId } = props;
+  const collectionItemUrls = useAppSelector((state) => selectUrlsForCollectionId(state, collectionId, 3));
+  const collectionThumbnail = useAppSelector((state) => selectThumbnailForId(state, collectionId));
 
   if (
     !collectionItemUrls ||

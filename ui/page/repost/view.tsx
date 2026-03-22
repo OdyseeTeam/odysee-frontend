@@ -4,19 +4,21 @@ import { useLocation } from 'react-router-dom';
 import RepostCreate from 'component/repostCreate';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import useThrottle from 'effects/use-throttle';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResolveUri } from 'redux/actions/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+
 export const REPOST_PARAMS = {
   FROM: 'from',
   TO: 'to',
   REDIRECT: 'redirect',
 };
-type Props = {
-  // --redux--
-  balance: number;
-  resolveUri: (arg0: string) => void;
-};
 
-function RepostPage(props: Props) {
-  const { balance, resolveUri } = props;
+function RepostPage() {
+  const dispatch = useAppDispatch();
+  const balance = useAppSelector(selectBalance);
+  const resolveUri = React.useCallback((uri: string) => dispatch(doResolveUri(uri)), [dispatch]);
+
   const { search } = useLocation();
   const [contentUri, setContentUri] = React.useState('');
   const [repostUri, setRepostUri] = React.useState('');

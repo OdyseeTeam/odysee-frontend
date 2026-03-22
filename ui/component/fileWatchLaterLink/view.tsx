@@ -4,26 +4,33 @@ import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { getLocalizedNameForCollectionId } from 'util/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 type Props = {
   uri: string;
   focusable: boolean;
-  hasClaimInWatchLater: boolean;
-  doPlaylistAddAndAllowPlaying: (params: { uri: string; collectionName: string; collectionId: string }) => void;
 };
 
 function FileWatchLaterLink(props: Props) {
-  const { uri, hasClaimInWatchLater, focusable = true, doPlaylistAddAndAllowPlaying } = props;
+  const { uri, focusable = true } = props;
+  const dispatch = useAppDispatch();
+  const hasClaimInWatchLater = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.WATCH_LATER_ID, uri)
+  );
   const buttonRef = useRef();
   let isHovering = useHover(buttonRef);
 
   function handleWatchLater(e) {
     if (e) e.preventDefault();
     const collectionId = COLLECTIONS_CONSTS.WATCH_LATER_ID;
-    doPlaylistAddAndAllowPlaying({
-      uri,
-      collectionName: getLocalizedNameForCollectionId(collectionId) || COLLECTIONS_CONSTS.WATCH_LATER_NAME,
-      collectionId,
-    });
+    dispatch(
+      doPlaylistAddAndAllowPlaying({
+        uri,
+        collectionName: getLocalizedNameForCollectionId(collectionId) || COLLECTIONS_CONSTS.WATCH_LATER_NAME,
+        collectionId,
+      })
+    );
   }
 
   // text that will show if you keep cursor over button

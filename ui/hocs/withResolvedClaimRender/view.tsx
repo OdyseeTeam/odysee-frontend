@@ -64,6 +64,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
     const resolveRequired =
       claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated);
+    const lastResolveKeyRef = React.useRef<string | undefined>();
     const isVisibilityRestricted = useIsVisibilityRestricted(
       claim,
       claimIsMine,
@@ -98,10 +99,18 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       [doResolveUri, isAuthenticated, uri]
     );
     React.useEffect(() => {
-      if (resolveRequired) {
+      const resolveKey = `${uri}:${String(isAuthenticated)}:${claim?.claim_id || 'none'}:${String(claim?.purchase_receipt)}`;
+
+      if (!resolveRequired) {
+        lastResolveKeyRef.current = undefined;
+        return;
+      }
+
+      if (lastResolveKeyRef.current !== resolveKey) {
+        lastResolveKeyRef.current = resolveKey;
         resolveClaim();
       }
-    }, [resolveRequired, resolveClaim]);
+    }, [claim?.claim_id, claim?.purchase_receipt, isAuthenticated, resolveRequired, resolveClaim, uri]);
 
     if (!hasClaim) {
       if (hasClaim === undefined) {

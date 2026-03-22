@@ -25,6 +25,7 @@ const SORT_NEW = 'new';
 const SORT_OLD = 'old';
 const INITIAL_VISIBLE_COUNT = 50;
 const LOAD_MORE_COUNT = 50;
+const ACTIVE_ITEM_BUFFER = Math.round(INITIAL_VISIBLE_COUNT / 2);
 type Props = {
   uris: Array<string>;
   prefixUris?: Array<string>;
@@ -159,14 +160,24 @@ export default function ClaimList(props: Props) {
   // -- Progressive rendering for large lists (#3206) --
   const isLargeList = droppableProvided && sortedUris.length > INITIAL_VISIBLE_COUNT;
   const activeIndex = isLargeList && activeUri ? sortedUris.indexOf(activeUri) : 0;
-  const initialCount = isLargeList
-    ? Math.min(sortedUris.length, Math.max(INITIAL_VISIBLE_COUNT, activeIndex + Math.round(INITIAL_VISIBLE_COUNT / 2)))
+  const desiredVisibleCount = isLargeList
+    ? Math.min(sortedUris.length, Math.max(INITIAL_VISIBLE_COUNT, activeIndex + ACTIVE_ITEM_BUFFER))
     : sortedUris.length;
+  const initialCount = isLargeList ? Math.min(INITIAL_VISIBLE_COUNT, desiredVisibleCount) : desiredVisibleCount;
   const [visibleCount, setVisibleCount] = React.useState(initialCount);
   React.useEffect(() => {
     // Reset visible count when URIs change (e.g., switching playlists)
     setVisibleCount(initialCount);
   }, [collectionId, initialCount]);
+  React.useEffect(() => {
+    if (!isLargeList || visibleCount >= desiredVisibleCount) return;
+
+    const timer = setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, desiredVisibleCount));
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [desiredVisibleCount, isLargeList, visibleCount]);
   React.useEffect(() => {
     if (!isLargeList || visibleCount >= sortedUris.length) return;
     const scrollNode = scrollableListRef.current;

@@ -9,6 +9,13 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { lazyImport } from 'util/lazyImport';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyChannelClaimUrls, selectMyChannelClaimIds, selectFetchingMyChannels } from 'redux/selectors/claims';
+import { selectHasYoutubeChannels } from 'redux/selectors/user';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import { doFetchChannelListMine } from 'redux/actions/claims';
+import { doSetActiveChannel } from 'redux/actions/app';
+
 const YoutubeTransferStatus = lazyImport(
   () =>
     import(
@@ -16,35 +23,22 @@ const YoutubeTransferStatus = lazyImport(
       /* webpackChunkName: "youtubeTransferStatus" */
     )
 );
-type Props = {
-  // -- redux --
-  channelUrls: Array<string>;
-  channelIds: ClaimIds | null | undefined;
-  fetchingChannels: boolean;
-  hasYoutubeChannels: boolean;
-  doFetchChannelListMine: () => void;
-  doSetActiveChannel: (arg0: string) => void;
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
-};
-export default function ChannelsPage(props: Props) {
-  const {
-    // -- redux --
-    channelUrls,
-    channelIds,
-    fetchingChannels,
-    hasYoutubeChannels,
-    doFetchChannelListMine,
-    doSetActiveChannel,
-    doFetchOdyseeMembershipForChannelIds,
-  } = props;
+
+export default function ChannelsPage() {
+  const dispatch = useAppDispatch();
+  const channelUrls = useAppSelector(selectMyChannelClaimUrls);
+  const channelIds = useAppSelector(selectMyChannelClaimIds);
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const hasYoutubeChannels = useAppSelector(selectHasYoutubeChannels);
+
   const hasChannels = Number.isInteger(channelIds?.length);
   React.useEffect(() => {
     if (channelIds) {
-      doFetchOdyseeMembershipForChannelIds(channelIds);
+      dispatch(doFetchOdyseeMembershipForChannelIds(channelIds));
     } else {
-      doFetchChannelListMine();
+      dispatch(doFetchChannelListMine());
     }
-  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds]);
+  }, [channelIds, dispatch]);
   const navigate = useNavigate();
 
   if (!hasChannels && !hasYoutubeChannels) {
@@ -114,7 +108,7 @@ export default function ChannelsPage(props: Props) {
                   icon={ICONS.ANALYTICS}
                   label={__('Analytics')}
                   onClick={() => {
-                    doSetActiveChannel(claim.claim_id);
+                    dispatch(doSetActiveChannel(claim.claim_id));
                     navigate(`/$/${PAGES.CREATOR_DASHBOARD}`);
                   }}
                 />

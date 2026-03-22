@@ -8,44 +8,44 @@ import LivestreamDateTime from 'component/livestreamDateTime';
 import FileType from 'component/fileType';
 import ClaimType from 'component/claimType';
 import * as COL from 'constants/collections';
+import { useAppSelector } from 'redux/hooks';
+import { SCHEDULED_TAGS } from 'constants/tags';
+import {
+  selectClaimIsMine,
+  selectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectIsUriUnlisted,
+} from 'redux/selectors/claims';
+import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
+import { makeSelectFilePartlyDownloaded } from 'redux/selectors/file_info';
+import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import { claimContainsTag } from 'util/claim';
 type Props = {
   uri: string;
   pending?: boolean;
-  downloaded: boolean;
-  claimIsMine: boolean;
   isSubscribed: boolean;
   small: boolean;
-  claim: Claim;
   properties?: (arg0: Claim) => React.ReactNode | null | undefined;
   iconOnly: boolean;
-  hasEdits: Collection;
   xsmall?: boolean;
   isLivestream?: boolean;
-  // -- redux --
-  isLivestreamActive: boolean | null | undefined;
-  isUnlisted: boolean;
-  livestreamViewerCount: number | null | undefined;
-  isLivestreamScheduled: boolean;
 };
 function PreviewOverlayProperties(props: Props) {
-  const {
-    uri,
-    downloaded,
-    claimIsMine,
-    small = false,
-    properties,
-    pending,
-    claim,
-    iconOnly,
-    hasEdits,
-    xsmall,
-    isLivestream,
-    // -- redux --
-    isLivestreamActive,
-    isUnlisted,
-    livestreamViewerCount,
-    isLivestreamScheduled,
-  } = props;
+  const { uri, small = false, properties, pending, iconOnly, xsmall, isLivestream } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const hasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, claimId));
+  const downloaded = useAppSelector((state) => makeSelectFilePartlyDownloaded(uri)(state));
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const isLivestreamActive = useAppSelector((state) =>
+    isLivestreamClaim ? selectIsActiveLivestreamForUri(state, uri) : false
+  );
+  const isLivestreamScheduled = claimContainsTag(claim, SCHEDULED_TAGS.LIVE);
+  const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
+  const livestreamViewerCount = useAppSelector((state) =>
+    isLivestreamClaim && claim ? selectViewersForId(state, claim.claim_id) : undefined
+  );
   const isCollection = claim && claim.value_type === 'collection';
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;
   const isStream = claim && claim.value_type === 'stream';

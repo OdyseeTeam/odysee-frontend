@@ -1,7 +1,7 @@
 import 'scss/component/_header.scss';
 // @ts-expect-error
 import { Global } from '@emotion/react';
-import { Menu } from '@reach/menu-button';
+import { Menu } from 'component/common/menu';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';

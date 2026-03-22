@@ -1,33 +1,41 @@
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { getChannelFromClaim } from 'util/claim';
+import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import {
+  selectUserIsMemberOfProtectedContentForId,
+  selectPriceOfCheapestPlanForClaimId,
+  selectProtectedContentMembershipsForContentClaimId,
+} from 'redux/selectors/memberships';
+import { doMembershipList } from 'redux/actions/memberships';
 type Props = {
-  channel: ChannelClaim | null | undefined;
-  cheapestPlanPrice: number | null | undefined;
-  claimIsMine: boolean;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  hasProtectedContentTag: boolean;
-  protectedMembershipIds: Array<number>;
-  userIsAMember: boolean;
+  uri: string;
 };
 
 const PreviewOverlayProtectedContent = (props: Props) => {
-  const {
-    protectedMembershipIds,
-    claimIsMine,
-    userIsAMember,
-    cheapestPlanPrice,
-    channel,
-    doMembershipList,
-    hasProtectedContentTag,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const channel = getChannelFromClaim(claim);
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const protectedMembershipIds = useAppSelector(
+    (state) => claimId && selectProtectedContentMembershipsForContentClaimId(state, claimId)
+  );
+  const userIsAMember = useAppSelector((state) => selectUserIsMemberOfProtectedContentForId(state, claimId));
+  const cheapestPlanPrice = useAppSelector((state) => selectPriceOfCheapestPlanForClaimId(state, claimId));
+  const hasProtectedContentTag = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
-      doMembershipList({
-        channel_claim_id: channel.claim_id,
-      });
+      dispatch(
+        doMembershipList({
+          channel_claim_id: channel.claim_id,
+        })
+      );
     }
-  }, [channel, cheapestPlanPrice, doMembershipList, protectedMembershipIds]);
+  }, [channel, cheapestPlanPrice, dispatch, protectedMembershipIds]);
 
   if (userIsAMember || (protectedMembershipIds && claimIsMine)) {
     return (

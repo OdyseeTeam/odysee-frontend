@@ -1,11 +1,15 @@
 import React from 'react';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectContentPositionForUri } from 'redux/selectors/content';
 type Props = {
   uri: string;
-  position: number | null | undefined;
-  duration: number | null | undefined;
 };
 function ClaimPreviewProgress(props: Props) {
-  const { position, duration } = props;
+  const { uri } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
+  const duration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
 
   if (!position || !duration) {
     return null;

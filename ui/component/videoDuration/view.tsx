@@ -1,12 +1,15 @@
 import React from 'react';
 import formatMediaDuration from 'util/formatMediaDuration';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
 type Props = {
-  claim: StreamClaim | null | undefined;
+  uri: string;
   className?: string;
 };
 
 function VideoDuration(props: Props) {
-  const { claim, className } = props;
+  const { uri, className } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   let duration;
 

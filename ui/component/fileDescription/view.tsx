@@ -39,6 +39,16 @@ export default function FileDescription(props: Props) {
   const [expanded, setExpanded] = React.useState(isShort);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
   const formattedAmount = formatCredits(amount, 2, true);
+  const shouldRenderFullDescription = expanded || expandOverride || isLivestreamClaim;
+  const previewDescription = React.useMemo(() => {
+    if (!description) return description;
+    if (shouldRenderFullDescription) return description;
+
+    const MAX_COLLAPSED_DESCRIPTION_LENGTH = 4000;
+    return description.length > MAX_COLLAPSED_DESCRIPTION_LENGTH
+      ? `${description.slice(0, MAX_COLLAPSED_DESCRIPTION_LENGTH)}...`
+      : description;
+  }, [description, shouldRenderFullDescription]);
 
   if (isEmpty) {
     return <span className="empty">{__('Empty claim or metadata info.')}</span>;
@@ -53,8 +63,13 @@ export default function FileDescription(props: Props) {
         })}
       >
         <div className="mediaInfo__description">
-          {description && (
-            <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
+          {previewDescription && (
+            <MarkdownPreview
+              className="markdown-preview--description"
+              content={previewDescription}
+              simpleLinks
+              strip={!shouldRenderFullDescription}
+            />
           )}
           <ClaimTags uri={uri} type="large" />
           {expanded && <FileDetails uri={uri} />}

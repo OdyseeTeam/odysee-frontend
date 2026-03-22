@@ -2,7 +2,7 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { MenuLink, MenuItem } from '@reach/menu-button';
+import { MenuLink, MenuItem } from 'component/common/menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import MuiLink from '@mui/material/Link';
 import Icon from 'component/common/icon';

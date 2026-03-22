@@ -2,17 +2,21 @@ import React from 'react';
 import 'scss/component/_view_count.scss';
 import * as PAGES from 'constants/pages';
 import { toCompactNotation } from 'util/string';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectViewCountForUri } from 'lbryinc';
+import { selectLanguage } from 'redux/selectors/settings';
+import { selectState as selectUserState } from 'redux/selectors/user';
 type Props = {
   uri: string;
   isLivestream?: boolean;
-  // --- redux ---
-  claim: StreamClaim | null | undefined;
-  viewCount: string;
-  lang: string | null | undefined;
-  user?: any;
 };
 function FileViewCountInline(props: Props) {
-  const { isLivestream, claim, viewCount, lang, user } = props;
+  const { uri, isLivestream } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const viewCount = useAppSelector((state) => selectViewCountForUri(state, uri));
+  const lang = useAppSelector((state) => selectLanguage(state));
+  const user = useAppSelector((state) => selectUserState(state)?.user);
   const formattedViewCount = toCompactNotation(viewCount, lang);
   const userIsMod = user?.groups?.includes('mod') || user?.groups?.includes('admin');
   // Limit the view-count visibility to specific pages for now. We'll eventually

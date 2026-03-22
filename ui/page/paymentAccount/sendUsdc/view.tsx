@@ -2,7 +2,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import Card from 'component/common/card';
 import Button from 'component/button';

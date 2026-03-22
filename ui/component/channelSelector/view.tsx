@@ -3,7 +3,7 @@ import * as PAGES from 'constants/pages';
 import classnames from 'classnames';
 import React from 'react';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import { useLocation, useNavigate } from 'react-router-dom';
 import IncognitoSelector from './internal/incognito-selector';

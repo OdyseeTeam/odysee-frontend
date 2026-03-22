@@ -1,5 +1,4 @@
-import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from '@reach/combobox';
-// import '@reach/combobox/styles.css'; --> 'scss/third-party.scss'
+import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from 'component/common/combobox';
 import { matchSorter } from 'match-sorter';
 import React from 'react';
 import classnames from 'classnames';

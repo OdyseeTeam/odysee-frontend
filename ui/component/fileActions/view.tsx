@@ -11,7 +11,7 @@ import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FileReactions from 'component/fileReactions';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import { webDownloadClaim } from 'util/downloadClaim';
 import ClaimShareButton from 'component/claimShareButton';

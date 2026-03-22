@@ -1,5 +1,5 @@
 import { lazyImport } from 'util/lazyImport';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
 import { NavLink } from 'react-router-dom';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
