@@ -13,7 +13,7 @@ type Props = {
 const Thumb = (props: Props) => {
   const { thumb, fallback, children, className, small, forceReload } = props;
   const thumbnailRef = React.useRef(null);
-  useLazyLoading(thumbnailRef, fallback || '');
+  useLazyLoading(thumbnailRef, fallback || '', undefined, [thumb]);
   return (
     <div
       ref={thumbnailRef}
