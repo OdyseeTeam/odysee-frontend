@@ -147,9 +147,6 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
-      react-awesome-lightbox:
-        specifier: ^1.7.3
-        version: 1.8.1(react@18.3.1)
       react-color:
         specifier: ^2.19.3
         version: 2.19.3(react@18.3.1)
@@ -3056,11 +3053,6 @@ packages:
     resolution: {integrity: sha512-bCpkbm9JiAuMGhkqoAiC0lLkb40DJ0HOEJIku+9JDjxX3Rcs+ztEOG13wbrOskt3n2DTrjshhaQ/iay+SnGg5Q==}
     peerDependencies:
       react: '>=16.4.1'
-
-  react-awesome-lightbox@1.8.1:
-    resolution: {integrity: sha512-E/0Y+D1PaD3blNtzsjwEE0WNo+Zu6V0x0kpuM2eR8XdHh+7Iz783UP47jA1m/XxaCpO7xuvzRiV8mbUceCij6g==}
-    peerDependencies:
-      react: ^16||^17
 
   react-color@2.19.3:
     resolution: {integrity: sha512-LEeGE/ZzNLIsFWa1TMe8y5VYqr7bibneWmvJwm1pCn/eNmrabWDh659JSPn9BuaMpEfU83WTOJfnCcjDZwNQTA==}
@@ -6563,10 +6555,6 @@ snapshots:
     dependencies:
       hoist-non-react-statics: 3.3.2
       prop-types: 15.8.1
-      react: 18.3.1
-
-  react-awesome-lightbox@1.8.1(react@18.3.1):
-    dependencies:
       react: 18.3.1
 
   react-color@2.19.3(react@18.3.1):
