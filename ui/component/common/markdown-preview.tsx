@@ -247,17 +247,15 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
 
   // Strip all content and just render text
   if (strip) {
+    // Use plain text extraction instead of running the full remark pipeline
+    // synchronously. The remark strip path (processSync) can hang indefinitely
+    // on certain content patterns (many URLs, timestamps, special characters).
     const strippedText = content
-      ? remark()
-          .use(remarkGfm)
-          .use(formattedLinks)
-          .use(disableTimestamps || isMarkdownPost ? undefined : formattedTimestamp)
-          .use(formattedEmote)
-          .use(remarkEmoji)
-          .use(remarkFrontMatter, ['yaml'])
-          .use(remarkStrip)
-          .processSync(content)
-          .toString()
+      ? content
+          .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // remove images
+          .replace(/\[[^\]]*\]\([^)]*\)/g, (m) => m.replace(/\[([^\]]*)\]\([^)]*\)/, '$1')) // extract link text
+          .replace(/[#*_~`>]/g, '') // remove markdown formatting
+          .replace(/\n+/g, ' ') // collapse newlines
           .replace(/\s+/g, ' ')
           .trim()
       : '';
