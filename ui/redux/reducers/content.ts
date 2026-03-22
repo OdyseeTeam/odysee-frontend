@@ -86,7 +86,9 @@ const contentSlice = createSlice({
         }
       })
       .addCase(ACTIONS.SET_RECSYS_ENTRIES, (state, action: any) => {
-        state.recsysEntries = action.data;
+        // Shallow copy: the recsys module mutates its entries object directly
+        // outside of Redux, so we must not let Immer freeze the original reference.
+        state.recsysEntries = { ...action.data };
       })
       .addCase(ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, (state, action: any) => {
         const { uri, show } = action.data;
