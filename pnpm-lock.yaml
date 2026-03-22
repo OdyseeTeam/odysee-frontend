@@ -6,6 +6,7 @@ settings:
 
 overrides:
   video.js: 7.21.4
+  react-is: ^18.3.1
 
 importers:
 
@@ -188,6 +189,9 @@ importers:
       react-image-crop:
         specifier: ^11.0.6
         version: 11.0.10(react@18.3.1)
+      react-is:
+        specifier: 18.3.1
+        version: 18.3.1
       react-modal:
         specifier: ^3.1.7
         version: 3.16.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -341,7 +345,7 @@ importers:
         version: 0.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@reach/menu-button':
         specifier: 0.18.0
-        version: 0.18.0(react-dom@18.3.1(react@18.3.1))(react-is@19.2.4)(react@18.3.1)
+        version: 0.18.0(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)
       '@reach/rect':
         specifier: ^0.18.0
         version: 0.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1104,7 +1108,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || 17.x
       react-dom: ^16.8.0 || 17.x
-      react-is: ^16.8.0 || 17.x
+      react-is: ^18.3.1
 
   '@reach/observe-rect@1.2.0':
     resolution: {integrity: sha512-Ba7HmkFgfQxZqqaeIWWkNK0rEhpxVQHIoVyW1YDSkGsGIXzcaW4deC8B0pZrNSSyLTdIk7y+5olKt5+g0GmFIQ==}
@@ -5866,14 +5870,8 @@ packages:
     peerDependencies:
       react: '>=16.13.1'
 
-  react-is@16.13.1:
-    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
-
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
-
-  react-is@19.2.4:
-    resolution: {integrity: sha512-W+EWGn2v0ApPKgKKCy/7s7WHXkboGcsrXE+2joLyVxkbyVQfO3MUEaUQDHoSmb8TFFrSKYa9mw64WZHNHSDzYA==}
 
   react-lifecycles-compat@3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
@@ -7883,7 +7881,7 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-is: 19.2.4
+      react-is: 18.3.1
       react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.28)(react@18.3.1)
@@ -7939,7 +7937,7 @@ snapshots:
       clsx: 2.1.1
       prop-types: 15.8.1
       react: 18.3.1
-      react-is: 19.2.4
+      react-is: 18.3.1
     optionalDependencies:
       '@types/react': 18.3.28
 
@@ -7951,7 +7949,7 @@ snapshots:
       clsx: 2.1.1
       prop-types: 15.8.1
       react: 18.3.1
-      react-is: 19.2.4
+      react-is: 18.3.1
     optionalDependencies:
       '@types/react': 18.3.28
 
@@ -8224,7 +8222,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@reach/menu-button@0.18.0(react-dom@18.3.1(react@18.3.1))(react-is@19.2.4)(react@18.3.1)':
+  '@reach/menu-button@0.18.0(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)':
     dependencies:
       '@reach/dropdown': 0.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@reach/polymorphic': 0.18.0(react@18.3.1)
@@ -8232,7 +8230,7 @@ snapshots:
       '@reach/utils': 0.18.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-is: 19.2.4
+      react-is: 18.3.1
 
   '@reach/observe-rect@1.2.0': {}
 
@@ -11659,7 +11657,7 @@ snapshots:
 
   hoist-non-react-statics@3.3.2:
     dependencies:
-      react-is: 16.13.1
+      react-is: 18.3.1
 
   home-or-tmp@2.0.0:
     dependencies:
@@ -13781,7 +13779,7 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
-      react-is: 16.13.1
+      react-is: 18.3.1
 
   proper-lockfile@2.0.1:
     dependencies:
@@ -14018,11 +14016,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  react-is@16.13.1: {}
-
   react-is@18.3.1: {}
-
-  react-is@19.2.4: {}
 
   react-lifecycles-compat@3.0.4: {}
 
@@ -14105,7 +14099,7 @@ snapshots:
       loose-envify: 1.4.0
       prop-types: 15.8.1
       react: 18.3.1
-      react-is: 16.13.1
+      react-is: 18.3.1
       redux: 4.2.1
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
@@ -14145,7 +14139,7 @@ snapshots:
       path-to-regexp: 1.9.0
       prop-types: 15.8.1
       react: 18.3.1
-      react-is: 16.13.1
+      react-is: 18.3.1
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
