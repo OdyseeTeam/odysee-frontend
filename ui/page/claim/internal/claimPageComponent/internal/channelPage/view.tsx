@@ -324,12 +324,14 @@ function ChannelPage(props: Props) {
         break;
     }
 
-    // Only push if the URL is actually changing to avoid duplicate history entries
+    // Replace instead of push to avoid flooding browser history when tabs
+    // change programmatically (e.g., from @reach/tabs onChange firing on
+    // index prop changes during render).
     const newFullUrl = `${url}${newSearch}`;
     const currentFullUrl = `${pathname}${search}`;
 
     if (newFullUrl !== currentFullUrl) {
-      navigate(newFullUrl);
+      navigate(newFullUrl, { replace: true });
     }
   }
 
