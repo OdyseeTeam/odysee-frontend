@@ -1,3 +1,8 @@
+# Playwright
+tests/.auth/*.json
+test-results/
+playwright-report/
+
 ### macOS ###
 # General
 .DS_Store
@@ -43,3 +48,17 @@ analyzeResults*.html
 ecosystem.config.js
 
 .claude/settings.local.json
+
+### Local tooling ###
+.pnpm-store/
+pnpm-debug.log*
+.zed/
+
+### Local env ###
+.env.test
+
+### Generated test artifacts ###
+blob-report/
+
+### Generated native build artifacts ###
+/extras/youtube-proxy/desktop-app/src-tauri/target/
