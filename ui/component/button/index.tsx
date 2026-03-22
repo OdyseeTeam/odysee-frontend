@@ -25,5 +25,12 @@ const mapStateToProps = (state: any, ownProps: any) => {
 const perform = {
   doHideModal,
 };
+
 const ConnectedButton = connect(mapStateToProps, perform)(Button);
-export default forwardRef((props, ref) => <ConnectedButton {...props} myref={ref} />);
+
+const ForwardedButton = forwardRef<unknown, any>(function ForwardedButton(props, ref) {
+  return <ConnectedButton {...props} myref={ref} />;
+});
+ForwardedButton.displayName = 'Button';
+
+export default ForwardedButton;

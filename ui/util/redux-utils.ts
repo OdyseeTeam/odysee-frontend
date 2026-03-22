@@ -7,8 +7,11 @@ export const handleActions =
     const handler = actionMap[action.type];
 
     if (handler) {
-      const newState = handler(state, action);
-      return Object.assign({}, state, newState);
+      // Handlers are expected to return the full new state (typically via
+      // spread: `{ ...state, key: value }`). We return the result directly
+      // instead of merging with Object.assign, which was double-allocating
+      // and preventing keys from being removed.
+      return handler(state, action);
     }
 
     // just return the original state if no handler

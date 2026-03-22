@@ -8,8 +8,7 @@ export const handleActions =
     const handler = actionMap[action.type];
 
     if (handler) {
-      const newState = handler(state, action);
-      return Object.assign({}, state, newState);
+      return handler(state, action);
     }
 
     // just return the original state if no handler

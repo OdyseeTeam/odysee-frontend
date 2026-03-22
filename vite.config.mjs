@@ -440,7 +440,6 @@ export default defineConfig({
       'moment',
       'uuid',
       'localforage',
-      'redux-thunk',
       'redux-persist',
       'redux-persist/integration/react',
       'redux-persist/lib/stateReconciler/autoMergeLevel2',
