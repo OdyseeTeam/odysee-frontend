@@ -9,27 +9,21 @@ import HomepageSelector from 'component/homepageSelector';
 import SettingLanguage from 'component/settingLanguage';
 import SettingsRow from 'component/settingsRow';
 import ThemeSelector from 'component/themeSelector';
-type Props = {
-  clock24h: boolean;
-  searchInLanguage: boolean;
-  homepageKeys: Array<string>;
-  isAuthenticated: boolean;
-  hideBalance: boolean;
-  hideTitleNotificationCount: boolean;
-  setClientSetting: (arg0: string, arg1: boolean | string | number) => void;
-  setSearchInLanguage: (arg0: boolean) => void;
-};
-export default function SettingAppearance(props: Props) {
-  const {
-    clock24h,
-    searchInLanguage,
-    homepageKeys,
-    isAuthenticated,
-    hideBalance,
-    hideTitleNotificationCount,
-    setClientSetting,
-    setSearchInLanguage
-  } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting, selectHomepageKeys } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doSetClientSetting } from 'redux/actions/settings';
+
+export default function SettingAppearance() {
+  const dispatch = useAppDispatch();
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const homepageKeys = useAppSelector(selectHomepageKeys);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const hideBalance = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_BALANCE));
+  const hideTitleNotificationCount = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT));
+  const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
+  const setSearchInLanguage = (value: boolean) => dispatch(doSetClientSetting(SETTINGS.SEARCH_IN_LANGUAGE, value));
   const { hash } = useLocation();
   const highlightSearchInLanguage = hash === `#${SEARCH_IN_LANGUAGE}`;
   return <>

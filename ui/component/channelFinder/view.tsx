@@ -10,6 +10,12 @@ import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
 import useLighthouse from 'effects/use-lighthouse';
 import { getUriForSearchTerm } from 'util/search';
 import { isNameValid, parseURI } from 'util/lbryURI';
+import { doResolveUris } from 'redux/actions/claims';
+import { doSetMentionSearchResults } from 'redux/actions/search';
+import { selectClaimsByUri, selectResolvingUris } from 'redux/selectors/claims';
+import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
   selectedUris: Array<string>;
   onSelectedUrisChanged: (
@@ -22,12 +28,6 @@ type Props = {
   ) => void;
   label?: Node;
   placeholder?: string;
-  // --- redux ---
-  claimsByUri: Record<string, Claim>;
-  resolvingUris: Array<string>;
-  subscriptionUris: Array<string>;
-  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>;
-  doSetMentionSearchResults: (query: string, uris: Array<string>) => void;
 };
 
 const CenteredSpinner = (props: {}) => (
@@ -45,17 +45,12 @@ function handleKeyPress(e) {
 }
 
 export default function ChannelFinder(props: Props) {
-  const {
-    label,
-    placeholder,
-    selectedUris,
-    onSelectedUrisChanged,
-    claimsByUri,
-    resolvingUris,
-    subscriptionUris,
-    doResolveUris,
-    doSetMentionSearchResults,
-  } = props;
+  const { label, placeholder, selectedUris, onSelectedUrisChanged } = props;
+
+  const dispatch = useAppDispatch();
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const resolvingUris = useAppSelector(selectResolvingUris);
+  const subscriptionUris = useAppSelector(selectSubscriptionUris) || [];
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchTermDebounced, setSearchTermDebounced] = React.useState('');
   // --- URL/SDK search ---
@@ -186,8 +181,8 @@ export default function ChannelFinder(props: Props) {
     const uris = lighthouseResponse.results;
 
     if (searchTermDebounced && uris && uris.length > 0) {
-      doResolveUris(uris, true);
-      doSetMentionSearchResults(searchTermDebounced, uris);
+      dispatch(doResolveUris(uris, true));
+      dispatch(doSetMentionSearchResults(searchTermDebounced, uris));
     } // 1. urisStringified covers 'lighthouseResponse.results' (should be in sync).
     // 2. Ignore functions as they won't change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,7 +210,7 @@ export default function ChannelFinder(props: Props) {
           } else if (isChannel && channelName && isNameValid(channelName)) {
             setUriSearchTerm(uri);
             setIsResolvingUri(true);
-            doResolveUris([uri], true).finally(() => setIsResolvingUri(false));
+            dispatch(doResolveUris([uri], true)).finally(() => setIsResolvingUri(false));
           }
         } catch (e) {
           setUriSearchTermError(e.message);
@@ -225,7 +220,7 @@ export default function ChannelFinder(props: Props) {
   }, [isUrl, searchTermDebounced]);
   // --- Resolve subscriptions
   React.useEffect(() => {
-    doResolveUris(subscriptionUris, true); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+    dispatch(doResolveUris(subscriptionUris, true)); // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
   // **************************************************************************

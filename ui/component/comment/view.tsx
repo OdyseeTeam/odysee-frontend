@@ -49,6 +49,31 @@ import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 import { lazyImport } from 'util/lazyImport';
 import { BeforeUnload } from 'util/beforeUnload';
+import {
+  selectStakedLevelForChannelUri,
+  selectClaimForUri,
+  selectHasChannels,
+  selectMyClaimIdsRaw,
+  selectTitleForUri,
+  selectDateForUri,
+} from 'redux/selectors/claims';
+import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
+import { doToast } from 'redux/actions/notifications';
+import { doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
+import {
+  selectFetchedCommentAncestors,
+  selectOthersReactsForComment,
+  makeSelectTotalReplyPagesForParentId,
+  selectIsFetchingCommentsForParentId,
+  selectRepliesForParentId,
+} from 'redux/selectors/comments';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { getChannelIdFromClaim } from 'util/claim';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 const CommentCreate = lazyImport(
   () =>
     import(
@@ -75,86 +100,56 @@ export type Props = {
   disabled?: boolean;
   updateUiFilteredComments?: (commentIds: Array<string>) => void;
 };
-type StateProps = {
-  fetchedReplies: Array<Comment>;
-  othersReacts:
-    | {
-        like: number;
-        dislike: number;
-      }
-    | null
-    | undefined;
-  linkedCommentAncestors: Record<string, Array<string>>;
-  totalReplyPages: number;
-  repliesFetching: boolean;
-  claim: StreamClaim;
-  authorTitle: string | null | undefined;
-  channelAge?: any;
-  myChannelIds: Array<string> | null | undefined;
-  hasChannels: boolean;
-  odyseeMembership: string | null | undefined;
-  creatorMembership: string | null | undefined;
-  commentingEnabled: boolean;
-  playingUri: PlayingUri;
-  stakedLevel: number;
-  isCommenterChannelDeleted: boolean;
-};
-type DispatchProps = {
-  doClearPlayingUri: () => void;
-  doClearPlayingSource: () => void;
-  updateComment: (arg0: string, arg1: string) => void;
-  fetchReplies: (arg0: string, arg1: string, arg2: number, arg3: number, arg4: number) => void;
-  doToast: (arg0: ToastParams) => void;
-};
 
 // ****************************************************************************
 // Comment
 // ****************************************************************************
-function CommentView(props: Props & StateProps & DispatchProps) {
+function CommentView(props: Props) {
   const {
     comment,
-    myChannelIds,
     forceDisplayDeadComment = false,
-    doClearPlayingUri,
-    claim,
     uri,
-    updateComment,
-    fetchReplies,
-    totalReplyPages,
     linkedCommentId,
     threadCommentId,
-    linkedCommentAncestors,
-    commentingEnabled,
-    hasChannels,
-    doToast,
     isTopLevel,
     hideActions,
     hideContextMenu,
-    othersReacts,
-    playingUri,
-    stakedLevel,
-    isCommenterChannelDeleted,
     supportDisabled,
     setQuickReply,
     quickReply,
-    odyseeMembership,
-    creatorMembership,
-    fetchedReplies,
-    repliesFetching,
     threadLevel = 0,
     threadDepthLevel = 0,
-    doClearPlayingSource,
-    authorTitle,
-    channelAge,
     disabled,
     updateUiFilteredComments,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const { comment_id: commentId, channel_url: channelUrl, channel_id: channelId } = comment || {};
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const creatorId = getChannelIdFromClaim(claim);
+  const channelAge = useAppSelector((state) => selectDateForUri(state, channelUrl));
+  const myChannelIds = useAppSelector(selectMyClaimIdsRaw);
+  const commentingEnabled = Boolean(useAppSelector(selectUserVerifiedEmail));
+  const othersReacts = useAppSelector((state) => selectOthersReactsForComment(state, reactionKey));
+  const hasChannels = useAppSelector(selectHasChannels);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const stakedLevel = useAppSelector((state) => selectStakedLevelForChannelUri(state, channelUrl));
+  const isCommenterChannelDeleted = useAppSelector((state) => selectClaimForUri(state, channelUrl) === null);
+  const linkedCommentAncestors = useAppSelector(selectFetchedCommentAncestors);
+  const totalReplyPages = useAppSelector((state) => makeSelectTotalReplyPagesForParentId(commentId)(state));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, channelId)) || '';
+  const creatorMembership =
+    useAppSelector((state) => selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channelId)) || '';
+  const repliesFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, commentId));
+  const fetchedReplies = useAppSelector((state) => selectRepliesForParentId(state, commentId));
+  const authorTitle = useAppSelector((state) => (channelUrl ? selectTitleForUri(state, channelUrl) : null));
   const commentElemRef = React.useRef();
   const {
     channel_url: authorUri,
     channel_name: author,
-    channel_id: channelId,
-    comment_id: commentId,
     comment: message,
     is_fiat: isFiat,
     is_global_mod: isGlobalMod,
@@ -253,9 +248,9 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   }, [isEditing]);
   useEffect(() => {
     if (uri && page > 0) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
+      dispatch(doCommentList(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST));
     }
-  }, [page, uri, commentId, fetchReplies]);
+  }, [page, uri, commentId, dispatch]);
 
   function handleEditMessageChanged(event) {
     setCommentValue(!SIMPLE_SITE && advancedEditor ? event : event.target.value);
@@ -266,9 +261,9 @@ function CommentView(props: Props & StateProps & DispatchProps) {
       const claimLink = commentElemRef.current.querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
 
       if (isEditing && playingUri.sourceId === claimLink?.id) {
-        doClearPlayingUri();
+        dispatch(doClearPlayingUri());
       } else {
-        doClearPlayingSource();
+        dispatch(doClearPlayingSource());
       }
     }
 
@@ -276,25 +271,27 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   }
 
   function handleSubmit() {
-    updateComment(commentId, editedMessage);
+    dispatch(doCommentUpdate(commentId, editedMessage));
     if (setQuickReply) setQuickReply({ ...quickReply, comment_id: commentId, comment: editedMessage });
     setEditing(false);
-    doClearPlayingSource();
+    dispatch(doClearPlayingSource());
   }
 
   function handleCommentReply() {
     if (!hasChannels) {
       navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`);
-      doToast({
-        message: __('A channel is required to comment on %SITE_NAME%', {
-          SITE_NAME,
-        }),
-      });
+      dispatch(
+        doToast({
+          message: __('A channel is required to comment on %SITE_NAME%', {
+            SITE_NAME,
+          }),
+        })
+      );
     } else {
       setReplying(!isReplying);
     }
 
-    doClearPlayingSource();
+    dispatch(doClearPlayingSource());
   }
 
   function handleTimeClick() {

@@ -28,6 +28,43 @@ import { TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 import { BeforeUnload } from 'util/beforeUnload';
+import { hasLegacyOdyseePremium } from 'redux/selectors/user';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectHasChannels,
+  selectFetchingMyChannels,
+  makeSelectTagInClaimOrChannelForUri,
+  selectMyChannelClaimIds,
+  selectedRestrictedCommentsChatTagForUri,
+} from 'redux/selectors/claims';
+import { DISABLE_SUPPORT_TAG } from 'constants/tags';
+import {
+  doCommentCreate as doCommentCreateAction,
+  doFetchCreatorSettings as doFetchCreatorSettingsAction,
+  doCommentById as doCommentByIdAction,
+  doFetchMyCommentedChannels as doFetchMyCommentedChannelsAction,
+} from 'redux/actions/comments';
+import { doSendTip, doSendCashTip as doSendCashTipAction } from 'redux/actions/wallet';
+import { doToast as doToastAction } from 'redux/actions/notifications';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectMyCommentedChannelIdsForId,
+  selectCommentsDisabledSettingForChannelId,
+  selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
+  selectFetchingCreatorSettings,
+} from 'redux/selectors/comments';
+import { getChannelIdFromClaim } from 'util/claim';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri as doTipAccountCheckForUriAction } from 'redux/actions/stripe';
+import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from 'redux/selectors/memberships';
+import { doArTip as doArTipAction } from 'redux/actions/arwallet';
+import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 const stripeEnvironment = getStripeEnvironment();
 
 function getCommentsMembersOnlyRestriction(
@@ -67,121 +104,131 @@ type UserParams = {
   activeChannelId: string | null | undefined;
 };
 type Props = {
-  activeChannelClaimId?: string;
-  activeChannelName?: string;
-  activeChannelUrl?: string;
   bottom: boolean;
-  hasChannels: boolean;
-  claimId?: string;
-  channelClaimId?: string;
-  tipChannelName?: string;
-  claimIsMine: boolean;
   embed?: boolean;
-  isFetchingChannels: boolean;
-  isFetchingCreatorSettings: boolean;
   isNested: boolean;
   isReply: boolean;
   isLivestream?: boolean;
   parentId: string;
-  channelSettings: PerChannelSettings | null | undefined;
   shouldFetchComment: boolean;
-  supportDisabled: boolean;
   uri: string;
   disableInput?: boolean;
-  recipientArweaveTipInfo: any;
-  canReceiveTips: boolean;
   onSlimInputClose?: () => void;
   setQuickReply: (arg0: any) => void;
   onCancelReplying?: () => void;
   onDoneReplying?: () => void;
-  // redux
-  doCommentCreate: (uri: string, isLivestream: boolean | undefined, params: CommentSubmitParams) => Promise<any>;
-  doFetchCreatorSettings: (channelId: string) => Promise<any>;
-  doToast: (arg0: { message: string }) => void;
-  doCommentById: (commentId: string, toastIfNotFound: boolean) => Promise<any>;
-  doSendCashTip: (
-    arg0: TipParams,
-    anonymous: boolean,
-    arg2: UserParams,
-    claimId: string,
-    stripe: string | null | undefined,
-    preferredCurrency: string,
-    arg6: (arg0: any) => void
-  ) => string;
-  doArTip: (
-    arg0: ArTipParams,
-    anonymous: boolean,
-    arg2: UserParams,
-    claimId: string,
-    stripe: string | null | undefined
-  ) => Promise<any>;
-  doOpenModal: (id: string, arg1: any) => void;
-  preferredCurrency: string;
-  myChannelClaimIds: Array<string> | null | undefined;
-  myCommentedChannelIds: Array<string> | null | undefined;
-  doFetchMyCommentedChannels: (claimId: string | null | undefined) => void;
-  doTipAccountCheckForUri: (uri: string) => void;
   textInjection?: string;
-  chatCommentsRestrictedToChannelMembers: boolean;
-  isAChannelMember: boolean;
-  commentSettingDisabled: boolean | null | undefined;
-  userHasMembersOnlyChatPerk: boolean;
-  isLivestreamChatMembersOnly: boolean;
-  areCommentsMembersOnly: boolean;
-  hasPremiumPlus: boolean;
-  arweaveTippingError: string;
+  supportDisabled?: boolean;
 };
 export function CommentCreate(props: Props) {
   const {
-    activeChannelClaimId,
-    activeChannelName,
-    activeChannelUrl,
     bottom,
-    hasChannels,
-    claimId,
-    channelClaimId,
-    tipChannelName,
-    claimIsMine,
     embed,
-    isFetchingChannels,
-    isFetchingCreatorSettings,
     isNested,
     isReply,
     isLivestream,
     parentId,
-    channelSettings,
     shouldFetchComment,
-    supportDisabled,
     uri,
     disableInput,
-    recipientArweaveTipInfo,
-    canReceiveTips,
     onSlimInputClose,
     setQuickReply,
     onCancelReplying,
     onDoneReplying,
-    doCommentCreate,
-    doFetchCreatorSettings,
-    doToast,
-    doCommentById,
-    doSendCashTip,
-    doArTip,
-    doOpenModal,
-    preferredCurrency,
-    myChannelClaimIds,
-    myCommentedChannelIds,
-    doFetchMyCommentedChannels,
-    doTipAccountCheckForUri,
     textInjection,
-    chatCommentsRestrictedToChannelMembers,
-    isAChannelMember,
-    commentSettingDisabled,
-    userHasMembersOnlyChatPerk,
-    isLivestreamChatMembersOnly,
-    areCommentsMembersOnly,
-    hasPremiumPlus,
-    arweaveTippingError,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const supportDisabled = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state)
+  );
+  const { claim_id: claimId, name, signing_channel: channel } = claim || {};
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const tipChannelName = channel ? channel.name : name;
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const {
+    claim_id: activeChannelClaimId,
+    name: activeChannelName,
+    canonical_url: activeChannelUrl,
+  } = activeChannelClaim || {};
+  const tipData = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+  const hasChannels = useAppSelector(selectHasChannels);
+  const isFetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const isFetchingCreatorSettings = useAppSelector(selectFetchingCreatorSettings);
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const myChannelClaimIds = useAppSelector(selectMyChannelClaimIds);
+  const myCommentedChannelIds = useAppSelector((state) => selectMyCommentedChannelIdsForId(state, claim?.claim_id));
+  const preferredCurrency = useAppSelector(selectPreferredCurrency);
+  const channelSettings = useAppSelector((state) => state.comments.settingsByChannelId[channelClaimId]);
+  const chatCommentsRestrictedToChannelMembers = Boolean(
+    useAppSelector((state) => selectedRestrictedCommentsChatTagForUri(state, uri))
+  );
+  const userHasMembersOnlyChatPerk = useAppSelector((state) =>
+    selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId)
+  );
+  const commentSettingDisabled = useAppSelector((state) =>
+    selectCommentsDisabledSettingForChannelId(state, channelClaimId)
+  );
+  const isLivestreamChatMembersOnly = Boolean(
+    useAppSelector((state) => selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId))
+  );
+  const areCommentsMembersOnly = Boolean(
+    useAppSelector((state) => selectMembersOnlyCommentsForChannelId(state, channelClaimId))
+  );
+  const hasPremiumPlus = useAppSelector(hasLegacyOdyseePremium);
+  const recipientArweaveTipInfo = useAppSelector((state) => selectArweaveTipDataForId(state, channelClaimId));
+  const arweaveTippingError = useAppSelector((state) => selectArweaveTippingErrorForId(state, channelClaimId));
+
+  const doCommentCreate = React.useCallback(
+    (uri: string, isLivestream: boolean | undefined, params: CommentSubmitParams) =>
+      dispatch(doCommentCreateAction(uri, isLivestream, params)),
+    [dispatch]
+  );
+  const doFetchCreatorSettings = React.useCallback(
+    (channelId: string) => dispatch(doFetchCreatorSettingsAction(channelId)),
+    [dispatch]
+  );
+  const doToast = React.useCallback((params: { message: string }) => dispatch(doToastAction(params)), [dispatch]);
+  const doCommentById = React.useCallback(
+    (commentId: string, toastIfNotFound: boolean) => dispatch(doCommentByIdAction(commentId, toastIfNotFound)),
+    [dispatch]
+  );
+  const doSendCashTip = React.useCallback(
+    (
+      tipParams: TipParams,
+      anonymous: boolean,
+      userParams: UserParams,
+      claimId: string,
+      stripe: string | null | undefined,
+      preferredCurrency: string,
+      cb: (arg0: any) => void
+    ) => dispatch(doSendCashTipAction(tipParams, anonymous, userParams, claimId, stripe, preferredCurrency, cb)),
+    [dispatch]
+  );
+  const doArTip = React.useCallback(
+    (
+      tipParams: ArTipParams,
+      anonymous: boolean,
+      userParams: UserParams,
+      claimId: string,
+      stripe: string | null | undefined
+    ) => dispatch(doArTipAction(tipParams, anonymous, userParams, claimId, stripe)),
+    [dispatch]
+  );
+  const doOpenModal = React.useCallback(
+    (id: string, modalProps: any) => dispatch(doOpenModalAction(id, modalProps)),
+    [dispatch]
+  );
+  const doFetchMyCommentedChannels = React.useCallback(
+    (claimId: string | null | undefined) => dispatch(doFetchMyCommentedChannelsAction(claimId)),
+    [dispatch]
+  );
+  const doTipAccountCheckForUri = React.useCallback(
+    (uri: string) => dispatch(doTipAccountCheckForUriAction(uri)),
+    [dispatch]
+  );
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
@@ -1107,3 +1154,5 @@ export function CommentCreate(props: Props) {
     </>
   );
 }
+
+export default CommentCreate;

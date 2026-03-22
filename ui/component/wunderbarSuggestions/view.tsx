@@ -2,6 +2,7 @@ import type { ElementRef } from 'react';
 import { URL, URL_LOCAL, URL_DEV, KNOWN_APP_DOMAINS } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
@@ -17,6 +18,15 @@ import { formatLbryUrlForWeb } from 'util/url';
 import Yrbl from 'component/yrbl';
 import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import { doToast } from 'redux/actions/notifications';
+import { doHideModal } from 'redux/actions/app';
+import { doResolveUris } from 'redux/actions/claims';
+import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
+import { selectClaimsByUri } from 'redux/selectors/claims';
+import analytics from 'analytics';
+import { history } from 'redux/router';
 const LBRY_PROTOCOL = 'lbry://';
 const WEB_DEV_PREFIX = `${URL_DEV}/`;
 const WEB_LOCAL_PREFIX = `${URL_LOCAL}/`;
@@ -36,40 +46,27 @@ type Props = {
   noBottomLinks?: boolean;
   subscriptions: Array<Subscription>;
   customSelectAction?: (arg0: string) => void;
-  // --- redux ---
-  searchInLanguage: boolean;
-  languageSetting: string;
-  showMature: boolean;
-  claimsByUri: Record<string, Claim>;
-  subscriptionUris: Array<string>;
-  navigateToSearchPage: (arg0: string) => void;
-  doShowSnackBar: (arg0: string) => void;
-  doCloseMobileSearch: () => void;
-  doResolveUris: (uris: Array<string>) => Promise<any>;
 };
 const isRefFocused = (ref) => ref && ref.current && ref.current === document.activeElement;
 
 export default function WunderBarSuggestions(props: Props) {
   const navigate = useNavigate();
   const { search } = useLocation();
-  const {
-    isMobile,
-    channelsOnly,
-    customSelectAction,
-    searchInLanguage,
-    languageSetting,
-    showMature,
-    claimsByUri,
-    subscriptionUris,
-    navigateToSearchPage,
-    doShowSnackBar,
-    doCloseMobileSearch,
-    doResolveUris,
-    subscriptions,
-    noTopSuggestion,
-    noBottomLinks,
-    onSearch,
-  } = props;
+  const { isMobile, channelsOnly, customSelectAction, subscriptions, noTopSuggestion, noBottomLinks, onSearch } = props;
+  const dispatch = useAppDispatch();
+  const languageSetting = useAppSelector(selectLanguage);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const showMature = useAppSelector(selectShowMatureContent);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const subscriptionUris = useAppSelector(selectSubscriptionUris) || [];
+  const navigateToSearchPage = (query: string) => {
+    const encodedQuery = encodeURIComponent(query);
+    history.push({ pathname: `/$/search`, search: `?q=${encodedQuery}` });
+    analytics.apiLog.search();
+  };
+  const doShowSnackBar = (message: string) => dispatch(doToast({ isError: true, message }));
+  const doCloseMobileSearch = () => dispatch(doHideModal());
+  const doResolveUrisAction = (uris: Array<string>) => dispatch(doResolveUris(uris));
   const urlParams = new URLSearchParams(search);
   const queryFromUrl = urlParams.get('q') || '';
   const inputRef = React.useRef<ElementRef<typeof ComboboxInput> | null>(null);
@@ -312,10 +309,10 @@ export default function WunderBarSuggestions(props: Props) {
       const arrayResults = JSON.parse(stringifiedResults);
 
       if (arrayResults && arrayResults.length > 0) {
-        doResolveUris(arrayResults);
+        doResolveUrisAction(arrayResults);
       }
     }
-  }, [doResolveUris, stringifiedResults]);
+  }, [doResolveUrisAction, stringifiedResults]);
   const [subscriptionResults, setSubscriptionResults] = React.useState([]);
   React.useEffect(() => {
     if (subscriptionUris && term && term.length > 1) {

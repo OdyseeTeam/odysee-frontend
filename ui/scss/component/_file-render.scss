@@ -417,10 +417,98 @@
 .file-render__viewer--comic {
   position: relative;
   overflow: hidden;
+
   .comic-viewer {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: calc(100vh - var(--header-height) - var(--spacing-m) * 2);
     max-height: var(--inline-player-max-height);
+    border-radius: var(--border-radius);
+    background-color: var(--color-background);
+  }
+
+  .comic-viewer--dark {
+    background: linear-gradient(180deg, rgba(9, 11, 15, 0.98), rgba(15, 18, 24, 0.94));
+    color: var(--color-white);
+  }
+
+  .comic-viewer--light {
+    background: linear-gradient(180deg, rgba(248, 249, 252, 0.98), rgba(240, 243, 247, 0.98));
+  }
+
+  .comic-viewer__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-s);
+    padding: var(--spacing-s);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .comic-viewer__toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  .comic-viewer__status,
+  .comic-viewer__zoom {
+    min-width: 4.5rem;
+    font-size: var(--font-small);
+    white-space: nowrap;
+  }
+
+  .comic-viewer__status {
+    min-width: 8.5rem;
+  }
+
+  .comic-viewer__stage {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: auto;
+    padding: var(--spacing-s);
+  }
+
+  .comic-viewer__image {
+    width: auto;
+    height: auto;
+    max-width: min(100%, 1000px);
+    max-height: none;
+    object-fit: contain;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .comic-viewer {
+      height: calc(100vh - var(--header-height));
+      max-height: unset;
+      border-radius: 0;
+    }
+
+    .comic-viewer__toolbar {
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs);
+    }
+
+    .comic-viewer__toolbar-group {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .comic-viewer__status {
+      min-width: unset;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .comic-viewer__zoom {
+      min-width: 3.5rem;
+      text-align: center;
+    }
   }
 }
 

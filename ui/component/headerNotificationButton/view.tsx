@@ -19,17 +19,16 @@ import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
 import { NavLink } from 'react-router-dom';
-type Props = {
-  notifications: Array<Notification>;
-  unseenCount: number;
-  user: User | null | undefined;
-  authenticated: boolean;
-  readNotification: (arg0: Array<number>) => void;
-  seeNotification: (arg0: Array<number>) => void;
-  deleteNotification: (arg0: number) => void;
-  doSeeAllNotifications: () => void;
-  doGetMembershipSupportersList: () => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectNotifications, selectUnseenNotificationCount } from 'redux/selectors/notifications';
+import {
+  doReadNotifications,
+  doSeeNotifications,
+  doDeleteNotification,
+  doSeeAllNotifications as doSeeAllNotificationsAction,
+} from 'redux/actions/notifications';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } from 'redux/actions/memberships';
 const creatorIcon = (channelUrl, channelThumbnail) => (
   <UriIndicator
     uri={channelUrl}
@@ -43,18 +42,17 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
   </UriIndicator>
 );
 
-export default function NotificationHeaderButton(props: Props) {
-  const {
-    notifications,
-    unseenCount,
-    user,
-    authenticated,
-    readNotification,
-    seeNotification,
-    deleteNotification,
-    doSeeAllNotifications,
-    doGetMembershipSupportersList,
-  } = props;
+export default function NotificationHeaderButton() {
+  const dispatch = useAppDispatch();
+  const notifications = useAppSelector(selectNotifications);
+  const unseenCount = useAppSelector(selectUnseenNotificationCount);
+  const user = useAppSelector(selectUser);
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const readNotification = (ids: Array<number>) => dispatch(doReadNotifications(ids));
+  const seeNotification = (ids: Array<number>) => dispatch(doSeeNotifications(ids));
+  const deleteNotification = (id: number) => dispatch(doDeleteNotification(id));
+  const doSeeAllNotifications = () => dispatch(doSeeAllNotificationsAction());
+  const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
   const list = notifications.slice(0, 20);
   const navigate = useNavigate();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));

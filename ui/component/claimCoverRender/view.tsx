@@ -1,13 +1,21 @@
 import React from 'react';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
+import * as SETTINGS from 'constants/settings';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import useGetPoster from 'effects/use-get-poster';
 import Button from 'component/button';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import { useLocation } from 'react-router-dom';
+import { useAppSelector } from 'redux/hooks';
+import { getThumbnailFromClaim, isClaimShort } from 'util/claim';
+import { selectShortsSidePanelOpen } from 'redux/selectors/shorts';
+import { selectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectFileRenderModeForUri, selectPlayingUri } from 'redux/selectors/content';
 type Props = {
+  uri: string;
   children: any;
   passedRef: any;
   href?: string;
@@ -18,19 +26,12 @@ type Props = {
   enableSwipe?: boolean;
   isShortsContext?: boolean;
   isFloatingContext?: boolean;
-  // -- redux --
-  claimThumbnail?: string;
-  isShortClaim: boolean;
-  isCurrentlyPlaying: boolean;
   obscurePreview: boolean;
-  renderMode: string;
-  videoTheaterMode: boolean;
-  sidePanelOpen: boolean;
-  autoplayMedia: boolean;
 };
 
 const ClaimCoverRender = (props: Props) => {
   const {
+    uri,
     children,
     passedRef,
     href,
@@ -41,16 +42,19 @@ const ClaimCoverRender = (props: Props) => {
     enableSwipe,
     isShortsContext,
     isFloatingContext,
-    // -- redux --
-    claimThumbnail,
-    isShortClaim,
-    isCurrentlyPlaying,
     obscurePreview,
-    renderMode,
-    videoTheaterMode,
-    sidePanelOpen,
-    autoplayMedia,
   } = props;
+  // -- redux --
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimThumbnail = getThumbnailFromClaim(claim);
+  const isShortClaim = isClaimShort(claim);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const isCurrentlyPlaying = playingUri && playingUri.uri === uri;
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const renderMode = useAppSelector((state) => selectFileRenderModeForUri(state, uri));
+  const sidePanelOpen = useAppSelector(selectShortsSidePanelOpen);
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
   const isEmbed = React.useContext(EmbedContext);
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);

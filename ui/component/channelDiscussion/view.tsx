@@ -1,6 +1,12 @@
 import React from 'react';
 import Empty from 'component/common/empty';
 import { lazyImport } from 'util/lazyImport';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { getChannelIdFromClaim } from 'util/claim';
+import { useAppSelector } from 'redux/hooks';
+
 const CommentsList = lazyImport(
   () =>
     import(
@@ -10,13 +16,18 @@ const CommentsList = lazyImport(
 );
 type Props = {
   uri: string;
-  linkedCommentId?: string;
-  threadCommentId?: string;
-  commentSettingDisabled: boolean | null | undefined;
 };
 
 function ChannelDiscussion(props: Props) {
-  const { uri, linkedCommentId, threadCommentId, commentSettingDisabled } = props;
+  const { uri } = props;
+
+  const search = useAppSelector((state) => state.router?.location?.search || '');
+  const urlParams = new URLSearchParams(search);
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
 
   if (commentSettingDisabled) {
     return <Empty text={__('The creator of this content has disabled comments.')} />;

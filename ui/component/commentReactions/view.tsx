@@ -8,21 +8,24 @@ import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsMobile } from 'effects/use-screensize';
+import { selectClaimIsMine, selectClaimForUri, makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
+import { doToast } from 'redux/actions/notifications';
+import { selectMyReactsForComment, selectOthersReactsForComment } from 'redux/selectors/comments';
+import { doCommentReact } from 'redux/actions/comments';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_SLIMES_COMMENTS_TAG,
+  DISABLE_REACTIONS_COMMENTS_TAG,
+} from 'constants/tags';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
-  myReacts: Array<string>;
-  disableReactions: boolean;
-  disableSlimes: boolean;
-  othersReacts: any;
-  react: (arg0: string, arg1: string) => void;
   commentId: string;
-  pendingCommentReacts: Array<string>;
-  claimIsMine: boolean;
-  activeChannelId: string | null | undefined;
   uri: string;
-  claim: ChannelClaim | null | undefined;
-  doToast: (arg0: { message: string }) => void;
   hideCreatorLike: boolean;
-  resolve: (arg0: string) => void;
 };
 
 function getCountForReaction(type: string, othersReacts: any, myReacts: Array<string>) {
@@ -40,29 +43,34 @@ function getCountForReaction(type: string, othersReacts: any, myReacts: Array<st
 }
 
 export default function CommentReactions(props: Props) {
-  const {
-    myReacts,
-    disableReactions,
-    disableSlimes,
-    othersReacts,
-    react,
-    commentId,
-    claimIsMine,
-    activeChannelId,
-    uri,
-    claim,
-    doToast,
-    hideCreatorLike,
-    resolve,
-  } = props;
+  const { commentId, uri, hideCreatorLike } = props;
+
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const disableReactions = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_COMMENTS_TAG)(state)
+  );
+  const disableSlimes = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_COMMENTS_TAG)(state)
+  );
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const myReacts = useAppSelector((state) => selectMyReactsForComment(state, reactionKey));
+  const othersReacts = useAppSelector((state) => selectOthersReactsForComment(state, reactionKey));
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
   React.useEffect(() => {
     if (!claim) {
-      resolve(uri);
+      dispatch(doResolveUri(uri));
     }
-  }, [claim, resolve, uri]);
+  }, [claim, dispatch, uri]);
   const canCreatorReact =
     claim &&
     claimIsMine &&
@@ -89,7 +97,7 @@ export default function CommentReactions(props: Props) {
 
   function handleCommentLike() {
     if (activeChannelId) {
-      react(commentId, REACTION_TYPES.LIKE);
+      dispatch(doCommentReact(commentId, REACTION_TYPES.LIKE));
     } else {
       promptForChannel();
     }
@@ -97,7 +105,7 @@ export default function CommentReactions(props: Props) {
 
   function handleCommentDislike() {
     if (activeChannelId) {
-      react(commentId, REACTION_TYPES.DISLIKE);
+      dispatch(doCommentReact(commentId, REACTION_TYPES.DISLIKE));
     } else {
       promptForChannel();
     }
@@ -105,9 +113,11 @@ export default function CommentReactions(props: Props) {
 
   function promptForChannel() {
     navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}&lc=${commentId}`);
-    doToast({
-      message: __('A channel is required to throw fire and slime'),
-    });
+    dispatch(
+      doToast({
+        message: __('A channel is required to throw fire and slime'),
+      })
+    );
   }
 
   return (
@@ -156,7 +166,7 @@ export default function CommentReactions(props: Props) {
           title={claimIsMine ? __('You loved this') : __('Creator loved this')}
           icon={creatorLiked ? ICONS.CREATOR_LIKE : ICONS.SUBSCRIBE}
           className={classnames('comment__action comment__action--creator-like')}
-          onClick={() => react(commentId, REACTION_TYPES.CREATOR_LIKE)}
+          onClick={() => dispatch(doCommentReact(commentId, REACTION_TYPES.CREATOR_LIKE))}
         >
           {creatorLiked && (
             <ChannelThumbnail xsmall uri={authorUri} hideStakedIndicator className="comment__creator-like" allowGifs />

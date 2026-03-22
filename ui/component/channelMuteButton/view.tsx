@@ -1,21 +1,24 @@
 import React from 'react';
 import Button from 'component/button';
+import { doChannelMute, doChannelUnmute } from 'redux/actions/blocked';
+import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
   uri: string;
-  isMuted: boolean;
-  channelClaim: ChannelClaim | null | undefined;
-  doChannelMute: (arg0: string, arg1: boolean) => void;
-  doChannelUnmute: (arg0: string, arg1: boolean) => void;
 };
 
 function ChannelMuteButton(props: Props) {
-  const { uri, doChannelMute, doChannelUnmute, isMuted } = props;
+  const { uri } = props;
+
+  const dispatch = useAppDispatch();
+  const isMuted = useAppSelector((state) => makeSelectChannelIsMuted(uri)(state));
 
   function handleClick() {
     if (isMuted) {
-      doChannelUnmute(uri, false);
+      dispatch(doChannelUnmute(uri, false));
     } else {
-      doChannelMute(uri, false);
+      dispatch(doChannelMute(uri, false));
     }
   }
 

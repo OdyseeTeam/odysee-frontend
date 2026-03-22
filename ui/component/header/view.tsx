@@ -2,7 +2,9 @@ import 'scss/component/_header.scss';
 import { formatCredits } from 'util/format-credits';
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
 import Button from 'component/button';
 import classnames from 'classnames';
 import HeaderMenuButtons from 'component/headerMenuButtons';
@@ -17,8 +19,19 @@ import WunderBar from 'component/wunderbar';
 import WanderButton from '../wanderButton';
 import { useLocation } from 'react-router-dom';
 import { history } from 'redux/router';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
+import { doSignOut, doOpenModal } from 'redux/actions/app';
+import { doClearClaimSearch as doClearClaimSearchAction } from 'redux/actions/claims';
+import { doRemoveFromUnsavedChangesCollectionsForCollectionId as doRemoveUnsavedAction } from 'redux/actions/collections';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectGetSyncErrorMessage, selectPrefsReady } from 'redux/selectors/sync';
+import { selectHasNavigated } from 'redux/selectors/app';
+import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
+import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
+import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectIsPlayerFloating } from 'redux/selectors/content';
 type Props = {
-  authenticated: boolean;
   authHeader: boolean;
   authRedirect?: string;
   // Redirects to '/' by default.
@@ -28,56 +41,34 @@ type Props = {
     title: string;
     simpleTitle: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   };
-  balance: number;
-  emailToVerify?: string;
-  hasNavigated: boolean;
-  hideBalance: boolean;
   hideCancel: boolean;
   isAbsoluteSideNavHidden: boolean;
   sidebarOpen: boolean;
-  syncError: string | null | undefined;
-  totalBalance?: number;
-  user: User | null | undefined;
-  prefsReady: boolean;
-  arweaveAccounts: any;
-  isFloatingPlayerOpen: boolean;
-  doClearClaimSearch: () => void;
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void;
-  clearEmailEntry: () => void;
-  clearPasswordEntry: () => void;
-  openChangelog: (arg0: {}) => void;
   setSidebarOpen: (arg0: boolean) => void;
-  signOut: () => void;
   hideSidebarToggle?: boolean;
 };
 
 const Header = (props: Props) => {
-  const {
-    authenticated,
-    authHeader,
-    authRedirect,
-    backout,
-    balance,
-    emailToVerify,
-    hasNavigated,
-    hideBalance,
-    hideCancel,
-    isAbsoluteSideNavHidden,
-    sidebarOpen,
-    syncError,
-    totalBalance,
-    user,
-    prefsReady,
-    arweaveAccounts,
-    isFloatingPlayerOpen,
-    doClearClaimSearch,
-    doRemoveFromUnsavedChangesCollectionsForCollectionId,
-    clearEmailEntry,
-    clearPasswordEntry,
-    openChangelog,
-    setSidebarOpen,
-    signOut,
-  } = props;
+  const { authHeader, authRedirect, backout, hideCancel, isAbsoluteSideNavHidden, sidebarOpen, setSidebarOpen } = props;
+  const dispatch = useAppDispatch();
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const balance = useAppSelector(selectBalance);
+  const emailToVerify = useAppSelector(selectEmailToVerify);
+  const hasNavigated = useAppSelector(selectHasNavigated);
+  const hideBalance = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_BALANCE));
+  const totalBalance = useAppSelector(selectTotalBalance);
+  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const user = useAppSelector(selectUser);
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const arweaveAccounts = useAppSelector(selectAPIArweaveActiveAccounts);
+  const isFloatingPlayerOpen = useAppSelector(selectIsPlayerFloating);
+  const doClearClaimSearch = () => dispatch(doClearClaimSearchAction());
+  const doRemoveFromUnsavedChangesCollectionsForCollectionId = (collectionId: string) =>
+    dispatch(doRemoveUnsavedAction(collectionId));
+  const clearEmailEntry = () => dispatch(doClearEmailEntry());
+  const clearPasswordEntry = () => dispatch(doClearPasswordEntry());
+  const signOut = () => dispatch(doSignOut());
+  const openChangelog = (modalProps: {}) => dispatch(doOpenModal(MODALS.CONFIRM, modalProps));
   const { pathname, search } = useLocation();
   const { goBack, push } = history;
   const isMobile = useIsMobile();

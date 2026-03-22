@@ -16,6 +16,9 @@ import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
+import { doSetClientSetting as doSetClientSettingAction } from 'redux/actions/settings';
 type Props = {
   defaultTags: string;
   freshness?: string;
@@ -38,10 +41,6 @@ type Props = {
   contentType: string;
   meta?: React.ReactNode;
   setPage: (arg0: number) => void;
-  // --- redux ---
-  doSetClientSetting: (arg0: string, arg1: boolean, arg2: boolean | null | undefined) => void;
-  searchInLanguage: boolean;
-  languageSetting: string;
 };
 
 function ClaimListHeader(props: Props) {
@@ -62,15 +61,20 @@ function ClaimListHeader(props: Props) {
     hiddenNsfwMessage,
     channelIds,
     tileLayout,
-    doSetClientSetting,
     contentType,
     meta,
     setPage,
     hideFilters,
-    searchInLanguage,
-    languageSetting,
     scrollAnchor,
   } = props;
+  const dispatch = useAppDispatch();
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const languageSetting = useAppSelector(selectLanguage);
+  const doSetClientSetting = React.useCallback(
+    (key: string, value: boolean, pushPrefs?: boolean | null) =>
+      dispatch(doSetClientSettingAction(key, value, pushPrefs)),
+    [dispatch]
+  );
   const isMobile = useIsMobile();
   const filterCtx = React.useContext(ClaimSearchFilterContext);
   const navigate = useNavigate();

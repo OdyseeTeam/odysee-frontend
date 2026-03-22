@@ -1,5 +1,6 @@
 import { SEARCH_OPTIONS, SEARCH_PAGE_SIZE } from 'constants/search';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Form, FormField } from 'component/common/form';
@@ -9,6 +10,12 @@ import classnames from 'classnames';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doUpdateSearchOptions } from 'redux/actions/search';
+import { selectSearchOptions } from 'redux/selectors/search';
+import { doToggleSearchExpanded } from 'redux/actions/app';
+import { selectSearchOptionsExpanded } from 'redux/selectors/app';
+import { selectClientSetting } from 'redux/selectors/settings';
 const CLAIM_TYPES = {
   [SEARCH_OPTIONS.INCLUDE_FILES]: 'Files',
   [SEARCH_OPTIONS.INCLUDE_CHANNELS]: 'Channels',
@@ -35,12 +42,8 @@ const SORT_BY = {
   [SEARCH_OPTIONS.SORT_ASCENDING]: 'Oldest first',
 };
 type Props = {
-  setSearchOption: (arg0: string, arg1: boolean | string | number) => void;
-  options: {};
   simple: boolean;
-  expanded: boolean;
-  searchInLanguage: boolean;
-  toggleSearchExpanded: () => void;
+  additionalOptions?: {};
   onSearchOptionsChanged: (arg0: string) => void;
 };
 
@@ -66,8 +69,14 @@ const OBJ_TO_OPTION_ELEM = (obj) => {
 };
 
 const SearchOptions = (props: Props) => {
-  const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
-    props;
+  const { simple, additionalOptions = {}, onSearchOptionsChanged } = props;
+  const dispatch = useAppDispatch();
+  const options = useAppSelector(selectSearchOptions);
+  const expanded = useAppSelector(selectSearchOptionsExpanded);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const setSearchOption = (option: string, value: boolean | string | number) =>
+    dispatch(doUpdateSearchOptions({ [option]: value }, additionalOptions));
+  const toggleSearchExpanded = () => dispatch(doToggleSearchExpanded());
   const location = useLocation();
   const stringifiedOptions = JSON.stringify(options);
   const isFilteringByChannel = useMemo(() => {

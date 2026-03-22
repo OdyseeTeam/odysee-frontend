@@ -21,6 +21,28 @@ import type { HomepageTitles } from 'util/buildHomepage';
 import * as SETTINGS from 'constants/settings';
 import { useLocation } from 'react-router-dom';
 import { history } from 'redux/router';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectById,
+  selectClaimsByUri,
+  selectClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
+  selectFetchingClaimSearch,
+} from 'redux/selectors/claims';
+import {
+  doClaimSearch as doClaimSearchAction,
+  doResolveClaimIds as doResolveClaimIdsAction,
+  doResolveUris as doResolveUrisAction,
+} from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForCollectionIdsAction } from 'redux/actions/collections';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChannelIdsAction } from 'redux/actions/memberships';
+import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
+
+function resolveHideMembersOnly(global: any, override: any) {
+  return override === undefined || override === null ? global : override;
+}
 type Props = {
   uris: Array<string>;
   prefixUris?: Array<string>;
@@ -91,25 +113,6 @@ type Props = {
   csOptionsHook?: (options: any) => any;
   // Final client-side tweak of Claim Search options.
   expandFilters: boolean;
-  // --- select ---
-  followedTags?: Array<Tag>;
-  claimSearchByQuery: Record<string, Array<string>>;
-  claimSearchByQueryLastPageReached: Record<string, boolean>;
-  claimsByUri: Record<string, any>;
-  claimsById: Record<string, any>;
-  loading: boolean;
-  showNsfw: boolean;
-  hideReposts: boolean;
-  hideShorts: boolean;
-  languageSetting: string;
-  searchInLanguage: boolean;
-  mutedAndBlockedChannelIds: Array<ClaimId>;
-  // --- perform ---
-  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void;
-  doClaimSearch: (arg0: ClaimSearchOptions, arg1: DoClaimSearchSettings | null | undefined) => void;
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
-  doResolveClaimIds: (arg0: Array<string>) => Promise<any>;
-  doResolveUris: (arg0: Array<string>, arg1: boolean) => Promise<any>;
   hideLayoutButton?: boolean;
   loadedCallback?: (arg0: number) => void;
   maxClaimRender?: number;
@@ -176,22 +179,16 @@ function filterExcludedUris(uris: any, excludeUris: any) {
 
 function ClaimListDiscover(props: Props) {
   const {
-    doClaimSearch,
-    claimSearchByQuery,
     showHeader = true,
     type,
     duration,
-    claimSearchByQueryLastPageReached,
     tags,
     notTags,
     defaultTags,
-    loading,
     meta,
     subSection,
     channelIds,
     excludedChannelIds,
-    showNsfw,
-    hideReposts,
     fetchViewCount,
     hiddenNsfwMessage,
     defaultOrderBy,
@@ -212,9 +209,7 @@ function ClaimListDiscover(props: Props) {
     includeSupportAction,
     repostedClaimId,
     hideAdvancedFilter,
-    hideMembersOnly,
     infiniteScroll = true,
-    followedTags,
     injectedItem,
     feeAmount,
     uris,
@@ -225,11 +220,8 @@ function ClaimListDiscover(props: Props) {
     claimIds,
     maxPages,
     hideRepostsOverride,
-    languageSetting,
     searchLanguages,
-    searchInLanguage,
     ignoreSearchInLanguage,
-    mutedAndBlockedChannelIds,
     limitClaimsPerChannel,
     releaseTime,
     scrollAnchor,
@@ -239,23 +231,56 @@ function ClaimListDiscover(props: Props) {
     isChannel = false,
     showNoSourceClaims,
     empty,
-    claimsByUri,
-    claimsById,
     hideLayoutButton = false,
     loadedCallback,
     maxClaimRender,
     useSkeletonScreen = true,
     excludeUris = [],
-    doFetchOdyseeMembershipForChannelIds,
-    doFetchThumbnailClaimsForCollectionIds,
-    doResolveUris,
-    doResolveClaimIds,
     isShortFromChannelPage,
     sectionTitle,
     contentAspectRatio,
     excludeShortsAspectRatio,
-    hideShorts,
   } = props;
+
+  const dispatch = useAppDispatch();
+  // -- redux selectors --
+  const followedTags = useAppSelector(selectFollowedTags);
+  const claimSearchByQuery = useAppSelector(selectClaimSearchByQuery);
+  const claimSearchByQueryLastPageReached = useAppSelector(selectClaimSearchByQueryLastPageReached);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const claimsById = useAppSelector(selectById);
+  const loading = props.loading !== undefined ? props.loading : useAppSelector(selectFetchingClaimSearch);
+  const showNsfw = useAppSelector(selectShowMatureContent);
+  const hideMembersOnly = resolveHideMembersOnly(
+    useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT)),
+    props.hideMembersOnly
+  );
+  const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const languageSetting = useAppSelector(selectLanguage);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  // -- dispatch --
+  const doClaimSearch = React.useCallback(
+    (o: ClaimSearchOptions, s?: DoClaimSearchSettings | null) => dispatch(doClaimSearchAction(o, s)),
+    [dispatch]
+  );
+  const doFetchOdyseeMembershipForChannelIds = React.useCallback(
+    (ids: ClaimIds) => dispatch(doFetchOdyseeMembershipForChannelIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveClaimIds = React.useCallback(
+    (ids: Array<string>) => dispatch(doResolveClaimIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveUris = React.useCallback(
+    (u: Array<string>, returnCached: boolean) => dispatch(doResolveUrisAction(u, returnCached)),
+    [dispatch]
+  );
+  const doFetchThumbnailClaimsForCollectionIds = React.useCallback(
+    (params: { collectionIds: Array<string> }) => dispatch(doFetchThumbnailClaimsForCollectionIdsAction(params)),
+    [dispatch]
+  );
   const location = useLocation();
   const { pathname, search } = location;
   const hasPins = pins && (pins.claimIds || pins.urls);

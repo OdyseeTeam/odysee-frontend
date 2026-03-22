@@ -12,18 +12,19 @@ import ChannelListItem from './internal/channelListItem';
 import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import AllSelector from './internal/all-selector';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import { doSetDefaultChannel } from 'redux/actions/settings';
+import { selectDefaultChannelClaim } from 'redux/selectors/settings';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
   selectedChannelUrl: string;
-  // currently selected channel
-  channelIds: ClaimIds | null | undefined;
   onChannelSelect?: (id: string | null | undefined) => void;
   hideAnon?: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  doSetActiveChannel: (claimId: string | null | undefined, override?: boolean) => void;
-  incognito: boolean;
-  doSetIncognito: (arg0: boolean) => void;
   storeSelection?: boolean;
-  doSetDefaultChannel: (claimId: string) => void;
   isHeaderMenu?: boolean;
   isPublishMenu?: boolean;
   isTabHeader?: boolean;
@@ -34,22 +35,15 @@ type Props = {
     onSelectAll: () => void;
     isSelected: boolean;
   };
-  doFetchOdyseeMembershipForChannelIds: (channelIds: ClaimIds) => void;
   hideCreateNew?: boolean;
 };
 
 function ChannelSelector(props: Props) {
   const {
     selectedChannelUrl,
-    channelIds,
     onChannelSelect,
     hideAnon,
-    activeChannelClaim,
-    doSetActiveChannel,
-    incognito,
-    doSetIncognito,
     storeSelection,
-    doSetDefaultChannel,
     isHeaderMenu,
     isPublishMenu,
     isTabHeader,
@@ -57,9 +51,17 @@ function ChannelSelector(props: Props) {
     channelToSet,
     disabled,
     allOptionProps,
-    doFetchOdyseeMembershipForChannelIds,
     hideCreateNew,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const channelIds = useAppSelector(selectMyChannelClaimIds);
+  const activeChannelClaim = useAppSelector((state) => {
+    const activeClaim = selectActiveChannelClaim(state);
+    const defaultClaim = selectDefaultChannelClaim(state);
+    return storeSelection ? defaultClaim : activeClaim;
+  });
+  const incognito = useAppSelector(selectIncognito);
   const showAllOption = Boolean(allOptionProps);
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -72,17 +74,17 @@ function ChannelSelector(props: Props) {
     if (!autoSet) return;
 
     if (channelToSet) {
-      doSetActiveChannel(channelToSet);
-      doSetIncognito(false);
+      dispatch(doSetActiveChannel(channelToSet));
+      dispatch(doSetIncognito(false));
     } else if (!channelToSet) {
-      doSetIncognito(true);
+      dispatch(doSetIncognito(true));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount if we get to autoSet a channel, set it.
   }, []);
   React.useEffect(() => {
     if (channelIds) {
-      doFetchOdyseeMembershipForChannelIds(channelIds);
+      dispatch(doFetchOdyseeMembershipForChannelIds(channelIds));
     }
-  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
+  }, [channelIds, dispatch]);
   return (
     <>
       <div
@@ -127,11 +129,11 @@ function ChannelSelector(props: Props) {
                 <MenuItem
                   key={channelId}
                   onSelect={() => {
-                    doSetIncognito(false);
-                    doSetActiveChannel(channelId);
+                    dispatch(doSetIncognito(false));
+                    dispatch(doSetActiveChannel(channelId));
 
                     if (storeSelection) {
-                      doSetDefaultChannel(channelId);
+                      dispatch(doSetDefaultChannel(channelId));
                     }
 
                     if (onChannelSelect) {
@@ -146,7 +148,7 @@ function ChannelSelector(props: Props) {
             {!hideAnon && (
               <MenuItem
                 onSelect={() => {
-                  doSetIncognito(true);
+                  dispatch(doSetIncognito(true));
 
                   if (onChannelSelect) {
                     onChannelSelect(null);

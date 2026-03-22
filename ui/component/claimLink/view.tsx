@@ -2,20 +2,43 @@ import React from 'react';
 import Button from 'component/button';
 import UriIndicator from 'component/uriIndicator';
 import ClaimLinkPreview from './internal/preview';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { punctuationMarks } from 'util/remark-lbry';
+import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
+import { doResolveUri as doResolveUriAction } from 'redux/actions/claims';
 type Props = {
   uri: string;
   parentCommentId?: string;
   children: any;
   allowPreview: boolean;
-  // -- redux --
-  claim: StreamClaim;
-  fullUri: string;
-  isResolvingUri: boolean;
-  doResolveUri: (arg0: string, arg1: boolean) => void;
 };
 
 const ClaimLink = (props: Props) => {
-  const { uri, parentCommentId, children, allowPreview, claim, fullUri, isResolvingUri, doResolveUri } = props;
+  const { uri: inputUri, parentCommentId, children, allowPreview } = props;
+  const dispatch = useAppDispatch();
+  // Resolve valid URI stripping trailing punctuation if claim not found
+  const { resolvedUri, claim } = useAppSelector((state) => {
+    let testUri = inputUri;
+    let resolvedClaim: any;
+    function getValidClaim(u: string) {
+      if (u.replace('lbry://', '').length <= 1) return;
+      resolvedClaim = selectClaimForUri(state, u);
+      if (resolvedClaim === null && punctuationMarks.includes(u.charAt(u.length - 1))) {
+        getValidClaim(u.substring(0, u.length - 1));
+      } else {
+        testUri = u;
+      }
+    }
+    getValidClaim(testUri);
+    return { resolvedUri: testUri, claim: resolvedClaim };
+  });
+  const uri = resolvedUri;
+  const fullUri = inputUri;
+  const isResolvingUri = useAppSelector((state) => selectIsUriResolving(state, uri));
+  const doResolveUri = React.useCallback(
+    (u: string, returnCachedClaims: boolean) => dispatch(doResolveUriAction(u, returnCachedClaims)),
+    [dispatch]
+  );
   React.useEffect(() => {
     if (claim === undefined && uri) {
       doResolveUri(uri, true);

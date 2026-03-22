@@ -5,16 +5,23 @@ import Button from 'component/button';
 import ErrorText from 'component/common/error-text';
 import SettingsRow from 'component/settingsRow';
 import * as PAGES from 'constants/pages';
-type Props = {
-  user: User | null | undefined;
-  doToast: (arg0: { message: string }) => void;
-  doUserPasswordSet: (arg0: string, arg1: string | null | undefined) => void;
-  doClearPasswordEntry: () => void;
-  passwordSetSuccess: boolean;
-  passwordSetError: string | null | undefined;
-};
-export default function SettingAccountPassword(props: Props) {
-  const { user, doToast, doUserPasswordSet, passwordSetSuccess, passwordSetError, doClearPasswordEntry } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUser, selectPasswordSetSuccess, selectPasswordSetError } from 'redux/selectors/user';
+import {
+  doUserPasswordSet as doUserPasswordSetAction,
+  doClearPasswordEntry as doClearPasswordEntryAction,
+} from 'redux/actions/user';
+import { doToast as doToastAction } from 'redux/actions/notifications';
+
+export default function SettingAccountPassword() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const passwordSetSuccess = useAppSelector(selectPasswordSetSuccess);
+  const passwordSetError = useAppSelector(selectPasswordSetError);
+  const doToast = (params: { message: string }) => dispatch(doToastAction(params));
+  const doUserPasswordSet = (newPassword: string, oldPassword: string | null | undefined) =>
+    dispatch(doUserPasswordSetAction(newPassword, oldPassword));
+  const doClearPasswordEntry = () => dispatch(doClearPasswordEntryAction());
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const hasPassword = user && user.password_set;
@@ -36,7 +43,7 @@ export default function SettingAccountPassword(props: Props) {
       setOldPassword('');
       setNewPassword('');
     }
-  }, [passwordSetSuccess, setOldPassword, setNewPassword, doClearPasswordEntry, doToast, goBack]);
+  }, [passwordSetSuccess, setOldPassword, setNewPassword, doClearPasswordEntry, doToast, navigate]);
   return (
     <SettingsRow title={title} subtitle={subtitle} multirow>
       <Form onSubmit={handleSubmit} className="section">

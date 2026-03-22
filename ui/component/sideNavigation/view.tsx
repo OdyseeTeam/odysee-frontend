@@ -1,10 +1,12 @@
 import React from 'react';
+import { createSelector } from 'reselect';
 import type { HomepageCat } from 'util/buildHomepage';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
+import * as SETTINGS from 'constants/settings';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import Button from 'component/button';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
@@ -17,7 +19,83 @@ import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import MembershipBadge from 'component/membershipBadge';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
+import {
+  selectLastActiveSubscriptions,
+  selectSubscriptionUris,
+  selectSubscriptions,
+} from 'redux/selectors/subscriptions';
+import { doClearClaimSearch } from 'redux/actions/claims';
+import { doClearPurchasedUriSuccess } from 'redux/actions/file';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectUserVerifiedEmail, selectUser, hasLegacyOdyseePremium } from 'redux/selectors/user';
+import { selectClientSettings, selectHomepageData } from 'redux/selectors/settings';
+import { doOpenModal, doSignOut } from 'redux/actions/app';
+import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
+import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
+import { GetLinksData } from 'util/buildHomepage';
+import { getSortedRowData } from 'page/home/helper';
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
+
+// ****************************************************************************
+// selectSidebarCategories
+// ****************************************************************************
+const selectSidebarCategories = createSelector(
+  selectHomepageData,
+  selectClientSettings,
+  selectUserVerifiedEmail,
+  hasLegacyOdyseePremium,
+  (homepageData, clientSettings, email, hasMembership) => {
+    const applyHomepageOrderToSidebar = clientSettings[SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR];
+    const homepageOrder = clientSettings[SETTINGS.HOMEPAGE_ORDER];
+    const isSmallScreen = false;
+    const isMediumScreen = false;
+    const isLargeScreen = false;
+    const rowData = GetLinksData(homepageData || {}, isSmallScreen, isMediumScreen, isLargeScreen);
+    let categories = rowData;
+
+    if (applyHomepageOrderToSidebar) {
+      const sortedRowData = getSortedRowData(Boolean(email), homepageOrder, homepageData, rowData);
+      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
+    }
+
+    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
+  }
+);
+
+// ****************************************************************************
+// doGetDisplayedSubs
+// ****************************************************************************
+function doGetDisplayedSubs(filter: string) {
+  return async (dispatch: any, getState: any) => {
+    const state = getState();
+    const claimsByUriLocal = selectClaimsByUri(state);
+    const subs = selectSubscriptions(state);
+    const lastActiveSubs = selectLastActiveSubscriptions(state);
+    let filteredSubs: Array<Subscription> = [];
+
+    if (subs) {
+      if (filter) {
+        const f = filter.toLowerCase();
+        subs.forEach((sub) => {
+          const claim = claimsByUriLocal[sub?.uri];
+
+          if (claim) {
+            if (claim.name.toLowerCase().includes(f) || claim.value?.title?.toLowerCase().includes(f)) {
+              filteredSubs.push(sub);
+            }
+          }
+        });
+      } else {
+        filteredSubs = lastActiveSubs?.length > 0 ? lastActiveSubs : subs.slice(0, SIDEBAR_SUBS_DISPLAYED);
+      }
+    }
+
+    return filteredSubs;
+  };
+}
 type SideNavLink = {
   title: string;
   icon: string;
@@ -129,30 +207,10 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // prettier-ignore
 type SidebarCat = Omit<HomepageCat, 'id' | 'pinnedUrls' | 'pinnedClaimIds' | 'hideSort' | 'hideByDefault'>;
 type Props = {
-  uploadCount: number;
   sidebarOpen: boolean;
   isMediumScreen: boolean;
   isOnFilePage: boolean;
   setSidebarOpen: (arg0: boolean) => void;
-  // --- select ---
-  sidebarCategories: Array<SidebarCat>;
-  lastActiveSubs: Array<Subscription> | null | undefined;
-  followedTags: Array<Tag>;
-  email: string | null | undefined;
-  purchaseSuccess: boolean;
-  unseenCount: number;
-  user: User | null | undefined;
-  hasMembership: boolean | null | undefined;
-  subscriptionUris: Array<string>;
-  // --- perform ---
-  doClearClaimSearch: () => void;
-  doSignOut: () => void;
-  doFetchLastActiveSubs: (force?: boolean, count?: number) => void;
-  doClearPurchasedUriSuccess: () => void;
-  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
-  doGetDisplayedSubs: (filter: string) => Promise<Array<Subscription>>;
-  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>;
-  doBeginPublish: (arg0: PublishType) => void;
 };
 
 function getCategoryLink(props: SidebarCat) {
@@ -177,46 +235,35 @@ function getCategoryLink(props: SidebarCat) {
 }
 
 function SideNavigation(props: Props) {
-  const {
-    sidebarOpen,
-    setSidebarOpen,
-    isMediumScreen,
-    isOnFilePage,
-    sidebarCategories: categories,
-    lastActiveSubs,
-    followedTags,
-    email,
-    purchaseSuccess,
-    unseenCount,
-    user,
-    hasMembership,
-    subscriptionUris,
-    doClearClaimSearch,
-    doSignOut,
-    doFetchLastActiveSubs,
-    doClearPurchasedUriSuccess,
-    doOpenModal,
-    doGetDisplayedSubs,
-    doBeginPublish,
-  } = props;
+  const { sidebarOpen, setSidebarOpen, isMediumScreen, isOnFilePage } = props;
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector(selectSidebarCategories);
+  const lastActiveSubs = useAppSelector(selectLastActiveSubscriptions);
+  const followedTags = useAppSelector(selectFollowedTags);
+  const email = useAppSelector(selectUserVerifiedEmail);
+  const purchaseSuccess = useAppSelector(selectPurchaseUriSuccess);
+  const unseenCount = useAppSelector(selectUnseenNotificationCount);
+  const user = useAppSelector(selectUser);
+  const hasMembership = useAppSelector(hasLegacyOdyseePremium);
+  const subscriptionUris = useAppSelector(selectSubscriptionUris) || [];
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
       title: 'Upload',
       icon: ICONS.PUBLISH,
       hideForUnauth: true,
-      onClick: () => doBeginPublish('file'),
+      onClick: () => dispatch(doBeginPublish('file')),
     },
     {
       title: 'Go Live',
       icon: ICONS.GOLIVE,
       hideForUnauth: true,
-      onClick: () => doBeginPublish('livestream'),
+      onClick: () => dispatch(doBeginPublish('livestream')),
     },
     {
       title: 'Post',
       icon: ICONS.POST,
       hideForUnauth: true,
-      onClick: () => doBeginPublish('post'),
+      onClick: () => dispatch(doBeginPublish('post')),
     },
   ];
   const MOBILE_LINKS: Array<SideNavLink> = [
@@ -276,7 +323,7 @@ function SideNavigation(props: Props) {
     },
     {
       title: 'Sign Out',
-      onClick: doSignOut,
+      onClick: () => dispatch(doSignOut()),
       icon: ICONS.SIGN_OUT,
       hideForUnauth: true,
     },
@@ -431,11 +478,11 @@ function SideNavigation(props: Props) {
       setPulseLibrary(true);
       let timeout = setTimeout(() => {
         setPulseLibrary(false);
-        doClearPurchasedUriSuccess();
+        dispatch(doClearPurchasedUriSuccess());
       }, 2500);
       return () => clearTimeout(timeout);
     }
-  }, [setPulseLibrary, purchaseSuccess, doClearPurchasedUriSuccess]);
+  }, [setPulseLibrary, purchaseSuccess, dispatch]);
   React.useEffect(() => {
     function handleKeydown(e: React.KeyboardEvent<any>) {
       if (e.keyCode === KEYCODES.ESCAPE && isAbsolute) {
@@ -501,15 +548,15 @@ function SideNavigation(props: Props) {
   }, [hideMenuFromView, menuInitialized]);
   React.useEffect(() => {
     if (sidebarOpen) {
-      doFetchLastActiveSubs();
+      dispatch(doFetchLastActiveSubs());
     }
-  }, [doFetchLastActiveSubs, sidebarOpen]);
+  }, [dispatch, sidebarOpen]);
   React.useEffect(() => {
     if (showSubsSection) {
       // Done this way to avoid over-render from claimsByUris[].
-      doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
+      dispatch(doGetDisplayedSubs(subscriptionFilter)).then((result) => setDisplayedSubs(result));
     }
-  }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
+  }, [subscriptionFilter, showSubsSection, dispatch]);
   // **************************************************************************
   // **************************************************************************
   type SectionHeaderProps = {
@@ -610,7 +657,7 @@ function SideNavigation(props: Props) {
                 'navigation-links--absolute': shouldRenderLargeMenu,
               })}
             >
-              {getLink(getHomeButton(doClearClaimSearch))}
+              {getLink(getHomeButton(() => dispatch(doClearClaimSearch())))}
               {getLink(RECENT_FROM_FOLLOWING)}
               {showMicroMenu && getLink(WATCH_LATER)}
               {!hasMembership && getLink(PREMIUM)}
@@ -642,7 +689,7 @@ function SideNavigation(props: Props) {
                   {!showMicroMenu && (
                     <SectionHeader
                       title={__('Categories')}
-                      onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)}
+                      onClick={() => dispatch(doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE))}
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}

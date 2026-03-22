@@ -2,6 +2,9 @@ import Button from 'component/button';
 import CommentView from 'component/comment';
 import React from 'react';
 import Spinner from 'component/spinner';
+import { selectIsFetchingCommentsForParentId, selectRepliesForParentId } from 'redux/selectors/comments';
+import { useAppSelector } from 'redux/hooks';
+
 // ****************************************************************************
 // ****************************************************************************
 export type Props = {
@@ -18,18 +21,15 @@ export type Props = {
   threadLevel: number;
   updateUiFilteredComments?: (commentIds: Array<string>) => void;
 };
-type StateProps = {
-  fetchedReplies: Array<Comment>;
-  isFetching: boolean;
-};
-type DispatchProps = {}; // ****************************************************************************
+
+// ****************************************************************************
 // CommentsReplies
 // ****************************************************************************
 
-export default function CommentsReplies(props: Props & StateProps & DispatchProps) {
+export default function CommentsReplies(props: Props) {
   const {
+    parentId,
     uri,
-    fetchedReplies,
     linkedCommentId,
     threadCommentId,
     numDirectReplies,
@@ -38,9 +38,11 @@ export default function CommentsReplies(props: Props & StateProps & DispatchProp
     threadDepthLevel,
     onShowMore,
     threadLevel,
-    isFetching,
     updateUiFilteredComments,
   } = props;
+
+  const fetchedReplies = useAppSelector((state) => selectRepliesForParentId(state, parentId));
+  const isFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, parentId));
   return !numDirectReplies ? null : (
     <div className="comment__replies-container">
       <ul className="comment__replies">

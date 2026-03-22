@@ -26,74 +26,75 @@ import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
 import Icon from 'component/common/icon';
+import {
+  selectTitleForUri,
+  selectThumbnailForUri,
+  makeSelectCoverForUri,
+  makeSelectMetadataItemForUri,
+  makeSelectAmountForUri,
+  makeSelectClaimForUri,
+  selectUpdateChannelError,
+  selectUpdatingChannel,
+  selectCreateChannelError,
+  selectCreatingChannel,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import { doUpdateChannel, doCreateChannel, doClearChannelErrors } from 'redux/actions/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { doUpdateBlockListForPublishedChannel } from 'redux/actions/comments';
+import { doClaimInitialRewards } from 'redux/actions/rewards';
+import { selectIsClaimingInitialRewards, selectHasClaimedInitialRewards } from 'redux/selectors/rewards';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 const MAX_TAG_SELECT = 5;
 type Props = {
   uri: string;
   onDone: () => void;
   disabled: boolean;
-  openModal: (
-    id: string,
-    arg1: {
-      onUpdate: (arg0: string, arg1: boolean) => void;
-      assetName: string;
-      helpText: string;
-      currentValue: string;
-      title: string;
-    }
-  ) => void;
-  // --- redux ---
-  claim: ChannelClaim;
-  title: string;
-  amount: number;
-  coverUrl: string;
-  thumbnailUrl: string;
-  description: string;
-  website: string;
-  email: string;
-  balance: number;
-  tags: Array<string>;
-  locations: Array<string>;
-  languages: Array<string>;
-  updateChannel: (arg0: any) => Promise<any>;
-  updatingChannel: boolean;
-  updateError: string;
-  createChannel: (arg0: any) => Promise<any>;
-  createError: string;
-  creatingChannel: boolean;
-  clearChannelErrors: () => void;
-  claimInitialRewards: () => void;
-  isClaimingInitialRewards: boolean;
-  hasClaimedInitialRewards: boolean;
 };
 
 function ChannelForm(props: Props) {
-  const {
-    uri,
-    claim,
-    amount,
-    title,
-    description,
-    website,
-    email,
-    thumbnailUrl,
-    coverUrl,
-    tags,
-    locations,
-    languages = [],
-    onDone,
-    updateChannel,
-    updateError,
-    updatingChannel,
-    createChannel,
-    creatingChannel,
-    createError,
-    clearChannelErrors,
-    claimInitialRewards,
-    openModal,
-    disabled,
-    isClaimingInitialRewards,
-    hasClaimedInitialRewards,
-  } = props;
+  const { uri, onDone, disabled } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const thumbnailUrl = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const coverUrl = useAppSelector((state) => makeSelectCoverForUri(uri)(state));
+  const description = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'description')(state));
+  const website = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'website_url')(state));
+  const email = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'email')(state));
+  const tags = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'tags')(state));
+  const locations = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'locations')(state));
+  const languages: Array<string> =
+    useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'languages')(state)) || [];
+  const amount = useAppSelector((state) => makeSelectAmountForUri(uri)(state));
+  const updateError = useAppSelector(selectUpdateChannelError);
+  const updatingChannel = useAppSelector(selectUpdatingChannel);
+  const createError = useAppSelector(selectCreateChannelError);
+  const creatingChannel = useAppSelector(selectCreatingChannel);
+  const balance = useAppSelector(selectBalance);
+  const isClaimingInitialRewards = useAppSelector(selectIsClaimingInitialRewards);
+  const hasClaimedInitialRewards = useAppSelector(selectHasClaimedInitialRewards);
+
+  const openModal = React.useCallback(
+    (id: string, modalProps: any) => dispatch(doOpenModal(id, modalProps)),
+    [dispatch]
+  );
+  const updateChannel = React.useCallback((params: any) => dispatch(doUpdateChannel(params)), [dispatch]);
+  const createChannel = React.useCallback(
+    (params: any) => {
+      const { name, amount: amt, ...optionalParams } = params;
+      return dispatch(
+        doCreateChannel('@' + name, amt, optionalParams, (channelClaim) => {
+          dispatch(doUpdateBlockListForPublishedChannel(channelClaim));
+        })
+      );
+    },
+    [dispatch]
+  );
+  const clearChannelErrors = React.useCallback(() => dispatch(doClearChannelErrors()), [dispatch]);
+  const claimInitialRewards = React.useCallback(() => dispatch(doClaimInitialRewards()), [dispatch]);
   const [nameError, setNameError] = React.useState(undefined);
   const [bidError, setBidError] = React.useState('');
   const [isUpload, setIsUpload] = React.useState({
@@ -195,7 +196,6 @@ function ChannelForm(props: Props) {
   }
 
   function handleBidChange(bid: number) {
-    const { balance, amount } = props;
     const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
     setParams({ ...params, amount: bid });
 

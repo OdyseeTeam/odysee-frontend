@@ -50,3 +50,10 @@ declare module '*.frag' {
   const content: string;
   export default content;
 }
+
+declare module 'libarchive.js/main.js' {
+  export const Archive: {
+    init: (options?: { workerUrl?: string }) => unknown;
+    open: (file: File, options?: object | null) => Promise<any>;
+  };
+}

@@ -17,6 +17,9 @@ import UriIndicator from 'component/uriIndicator';
 import { getNotificationLink, getNotificationTarget } from './helpers/target';
 import { generateNotificationTitle } from './helpers/title';
 import { generateNotificationText } from './helpers/text';
+import { useAppDispatch } from 'redux/hooks';
+import { doReadNotifications, doDeleteNotification as doDeleteNotificationAction } from 'redux/actions/notifications';
+import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } from 'redux/actions/memberships';
 const CommentCreate = lazyImport(
   () =>
     import(
@@ -41,10 +44,6 @@ const CommentsReplies = lazyImport(
 type Props = {
   menuButton: boolean;
   notification: WebNotification;
-  // -- redux --
-  doDeleteNotification: (id: number) => void;
-  doReadNotifications: (ids: Array<number>) => void;
-  doGetMembershipSupportersList: () => void;
 };
 const creatorIcon = (channelUrl, channelThumbnail) => (
   <UriIndicator
@@ -61,14 +60,11 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
 );
 
 export default function Notification(props: Props) {
-  const {
-    menuButton = false,
-    notification,
-    // -- redux --
-    doReadNotifications,
-    doDeleteNotification,
-    doGetMembershipSupportersList,
-  } = props;
+  const { menuButton = false, notification } = props;
+  const dispatch = useAppDispatch();
+  const doReadNotificationsAction = (ids: Array<number>) => dispatch(doReadNotifications(ids));
+  const doDeleteNotification = (id: number) => dispatch(doDeleteNotificationAction(id));
+  const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
   const { notification_rule, notification_parameters, is_read } = notification;
   const navigate = useNavigate();
   const [isReplying, setReplying] = React.useState(false);
@@ -143,7 +139,7 @@ export default function Notification(props: Props) {
   };
 
   function handleNotificationClick() {
-    if (!is_read) doReadNotifications([notification.id]);
+    if (!is_read) doReadNotificationsAction([notification.id]);
     if (menuButton && notificationLink) navigate(notificationLink);
     if (notificationAction) notificationAction();
   }
@@ -207,7 +203,7 @@ export default function Notification(props: Props) {
                 className="notification__markSeen"
                 onClick={(e) => {
                   e.stopPropagation();
-                  doReadNotifications([notification.id]);
+                  doReadNotificationsAction([notification.id]);
                 }}
               />
             )}

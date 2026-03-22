@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChannelPageContext } from 'contexts/channel';
 import * as COLLECTIONS from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
@@ -26,89 +27,94 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
 import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
-import { isClaimShort } from 'util/claim';
+import { isClaimNsfw, isClaimShort, isStreamPlaceholderClaim } from 'util/claim';
+import formatMediaDuration from 'util/formatMediaDuration';
 import type { HomepageTitles } from 'util/buildHomepage';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectIsUriResolving,
+  selectTitleForUri,
+  selectDateForUri,
+  selectGeoRestrictionForUri,
+  selectClaimIsMine,
+  selectIsShortForUri,
+} from 'redux/selectors/claims';
+import { doFileGetForUri } from 'redux/actions/file';
+import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
+import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 type Props = {
   uri: string;
-  date?: any;
-  claim: Claim | null | undefined;
-  mediaDuration?: string;
-  isResolvingUri: boolean;
-  claimIsMine: boolean;
-  title: string;
   placeholder: boolean;
-  banState: {
-    blacklisted?: boolean;
-    filtered?: boolean;
-    muted?: boolean;
-    blocked?: boolean;
-  };
-  geoRestriction: GeoRestriction | null | undefined;
-  getFile: (arg0: string) => void;
-  streamingUrl: string;
-  isMature: boolean;
-  showMature: boolean;
   showHiddenByUser?: boolean;
   showNoSourceClaims?: boolean;
   showUnresolvedClaims?: boolean;
   properties?: (arg0: Claim) => void;
   collectionId?: string;
   fypId?: string;
-  isLivestream: boolean;
-  viewCount: string | null | undefined;
-  isLivestreamActive: boolean;
   pulse?: boolean;
-  firstCollectionItemUrl: string | null | undefined;
-  defaultCollectionAction: string;
   onlyThumb?: boolean;
   onClickHandledByParent?: boolean;
-  isShort?: boolean;
   isShortFromChannelPage?: boolean;
   sectionTitle?: HomepageTitles;
-  disableShortsView?: boolean;
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
 function ClaimPreviewTile(props: Props) {
   const {
     uri,
-    date,
-    isResolvingUri,
-    claimIsMine,
-    title,
-    claim,
     placeholder,
-    banState,
-    geoRestriction,
-    getFile,
-    streamingUrl,
-    isMature,
-    showMature,
     showHiddenByUser,
     properties,
     showNoSourceClaims,
     showUnresolvedClaims,
-    isLivestream,
-    isLivestreamActive,
     collectionId,
     fypId,
-    mediaDuration,
-    viewCount,
     pulse,
-    firstCollectionItemUrl,
-    defaultCollectionAction,
     onlyThumb,
     onClickHandledByParent,
-    isShort,
     isShortFromChannelPage,
     sectionTitle,
-    disableShortsView,
   } = props;
+  const dispatch = useAppDispatch();
+  // -- redux selectors --
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const media = claim && claim.value && (claim.value.video || claim.value.audio);
+  const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
+  const isLivestream = isStreamPlaceholderClaim(claim);
+  const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
+  const isCollection = claim && claim.value_type === 'collection';
+  const date = useAppSelector((state) => (uri ? selectDateForUri(state, uri) : undefined));
+  const isResolvingUri = useAppSelector((state) => (uri ? selectIsUriResolving(state, uri) : false));
+  const claimIsMine = useAppSelector((state) => (uri ? selectClaimIsMine(state, claim) : false));
+  const title = useAppSelector((state) => (uri ? selectTitleForUri(state, uri) : ''));
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
+  const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
+  const streamingUrl = useAppSelector((state) =>
+    repostSrcUri || uri ? selectStreamingUrlForUri(state, repostSrcUri || uri) : undefined
+  );
+  const showMature = useAppSelector(selectShowMatureContent);
+  const isMature = claim ? isClaimNsfw(claim) : false;
+  const isLivestreamActive = useAppSelector((state) =>
+    isLivestream && uri ? selectIsActiveLivestreamForUri(state, uri) : false
+  );
+  const viewCount = useAppSelector((state) => selectViewCountForUri(state, uri));
+  const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+  const firstCollectionItemUrl = useAppSelector((state) =>
+    claim && isCollection ? selectFirstItemUrlForCollection(state, claim.claim_id) : undefined
+  );
+  const defaultCollectionAction = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION)
+  );
+  const isShort = useAppSelector((state) => selectIsShortForUri(state, uri));
+  const getFile = React.useCallback((u: string) => dispatch(doFileGetForUri(u)), [dispatch]);
   const isEmbed = React.useContext(EmbedContext);
   const { search } = useLocation();
   const navigate = useNavigate();
   const isRepost = claim && claim.repost_channel_url;
-  const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
   const isAbandoned = !isResolvingUri && !claim;
   const showCollectionContext = isClaimAllowedForCollection(claim);

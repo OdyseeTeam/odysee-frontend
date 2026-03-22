@@ -6,6 +6,25 @@ import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 import classNames from 'classnames';
 import type { HomepageTitles } from 'util/buildHomepage';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
+} from 'redux/selectors/claims';
+import {
+  doClaimSearch as doClaimSearchAction,
+  doResolveClaimIds as doResolveClaimIdsAction,
+  doResolveUris as doResolveUrisAction,
+} from 'redux/actions/claims';
+import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChannelIdsAction } from 'redux/actions/memberships';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptHelper } from 'util/claim-search';
+import * as CS from 'constants/claim_search';
 const SHOW_TIMEOUT_MSG = false;
 
 function urisEqual(prev: Array<string> | null | undefined, next: Array<string> | null | undefined) {
@@ -52,27 +71,10 @@ type Props = {
   hasSource?: boolean;
   hasNoSource?: boolean;
   forceShowReposts?: boolean;
-  // overrides SETTINGS.HIDE_REPOSTS
   hideMembersOnly?: boolean;
-  // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
   loading: boolean;
   duration?: string;
   contentAspectRatio?: string;
-  // --- select ---
-  location: {
-    search: string;
-  };
-  claimSearchResults: Array<string>;
-  claimSearchLastPageReached: boolean | null | undefined;
-  fetchingClaimSearch: boolean;
-  showNsfw: boolean;
-  hideReposts: boolean;
-  optionsStringified: string;
-  // --- perform ---
-  doClaimSearch: (arg0: ClaimSearchOptions, arg1: DoClaimSearchSettings | null | undefined) => void;
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
-  doResolveClaimIds: (arg0: Array<string>) => Promise<any>;
-  doResolveUris: (arg0: Array<string>, arg1: boolean) => Promise<any>;
   excludeShorts?: boolean;
   sectionTitle?: HomepageTitles;
   isShorts?: boolean;
@@ -102,29 +104,204 @@ function injectPinUrls(uris, pins, resolvedPinUris) {
   }
 }
 
+function resolveHideMembersOnly(global: any, override: any) {
+  return override === undefined || override === null ? global : override;
+}
+
+function resolveSearchOptions(resolveProps: any) {
+  const {
+    showNsfw,
+    hideReposts,
+    forceShowReposts,
+    hideMembersOnly,
+    mutedAndBlockedChannelIds,
+    hideShorts,
+    search,
+    pageSize,
+    claimType,
+    tags,
+    notTags,
+    languages,
+    channelIds,
+    orderBy,
+    streamTypes,
+    hasNoSource,
+    hasSource,
+    releaseTime,
+    feeAmount,
+    limitClaimsPerChannel,
+    timestamp,
+    claimIds,
+    duration,
+    contentAspectRatio,
+    excludeShorts,
+  } = resolveProps;
+  const urlParams = new URLSearchParams(search);
+  const feeAmountInUrl = urlParams.get('fee_amount');
+  const feeAmountParam = feeAmountInUrl || feeAmount;
+  const notTagInput: NotTagInput = {
+    notTags,
+    showNsfw,
+    hideMembersOnly,
+  };
+  let streamTypesParam;
+
+  if (streamTypes) {
+    streamTypesParam = streamTypes;
+  } else if (SIMPLE_SITE && !hasNoSource && streamTypes !== null) {
+    streamTypesParam = undefined;
+  }
+
+  const options: ClaimSearchOptions = {
+    page: 1,
+    page_size: pageSize,
+    claim_type: claimType || ['stream', 'repost', 'channel'],
+    no_totals: true,
+    any_tags: tags || [],
+    not_tags: CsOptHelper.not_tags(notTagInput),
+    any_languages: languages,
+    channel_ids: channelIds || [],
+    not_channel_ids: mutedAndBlockedChannelIds,
+    order_by: resolveOrderByOption(orderBy),
+    stream_types: streamTypesParam,
+    remove_duplicates: true,
+    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
+  };
+
+  function resolveOrderByOption(ob: string | Array<string>) {
+    let order_by;
+    switch (ob) {
+      case CS.ORDER_BY_TRENDING:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+        break;
+      case CS.ORDER_BY_NEW:
+        order_by = CS.ORDER_BY_NEW_VALUE;
+        break;
+      case CS.ORDER_BY_NEW_ASC:
+        order_by = CS.ORDER_BY_NEW_ASC_VALUE;
+        break;
+      case CS.ORDER_BY_NAME_ASC:
+        order_by = CS.ORDER_BY_NAME_ASC_VALUE;
+        break;
+      default:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+    }
+    return order_by;
+  }
+
+  if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
+    options.has_no_source = true;
+  } else if (hasSource || (!ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream'))) {
+    options.has_source = true;
+  }
+
+  if (releaseTime) {
+    options.release_time = releaseTime;
+  }
+
+  if (feeAmountParam) {
+    options.fee_amount = feeAmountParam;
+  }
+
+  if (limitClaimsPerChannel) {
+    options.limit_claims_per_channel = limitClaimsPerChannel;
+  }
+
+  if (hideReposts && !forceShowReposts) {
+    if (Array.isArray(options.claim_type)) {
+      options.claim_type = options.claim_type.filter((ct) => ct !== 'repost');
+    } else {
+      options.claim_type = ['stream', 'channel'];
+    }
+  }
+
+  if (claimType) {
+    options.claim_type = claimType;
+  }
+
+  if (timestamp) {
+    options.timestamp = timestamp;
+  }
+
+  if (claimIds) {
+    options.claim_ids = claimIds;
+  }
+
+  if (hideShorts || excludeShorts) {
+    options.exclude_shorts = true;
+  }
+
+  if (!hideShorts) {
+    if (duration) {
+      options.duration = duration;
+    }
+    if (contentAspectRatio) {
+      options.content_aspect_ratio = contentAspectRatio;
+    }
+  }
+
+  return options;
+}
+
 function ClaimTilesDiscover(props: Props) {
   const {
-    doClaimSearch,
-    claimSearchResults,
-    claimSearchLastPageReached,
     fetchViewCount,
-    fetchingClaimSearch,
     hasNoSource,
-    // forceShowReposts = false,
     renderProperties,
     pins,
     prefixUris,
     injectedItem,
     showNoSourceClaims,
     pageSize = 8,
-    optionsStringified,
     channelIds,
-    doFetchOdyseeMembershipForChannelIds,
-    doResolveClaimIds,
-    doResolveUris,
     loading,
     sectionTitle,
   } = props;
+  const dispatch = useAppDispatch();
+  // -- redux selectors --
+  const showNsfw = useAppSelector(selectShowMatureContent);
+  const hmocSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT));
+  const hideMembersOnly = resolveHideMembersOnly(hmocSetting, props.hideMembersOnly);
+  const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
+  const forceShowReposts = props.forceShowReposts;
+  const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const routerSearch = useAppSelector((state) => (state as any).router?.location?.search || '');
+  const options = resolveSearchOptions({
+    showNsfw,
+    hideMembersOnly,
+    hideReposts,
+    forceShowReposts,
+    mutedAndBlockedChannelIds,
+    hideShorts,
+    pageSize: 8,
+    search: routerSearch,
+    ...props,
+  });
+  const searchKey = createNormalizedClaimSearchKey(options);
+  const claimSearchResults = useAppSelector((state) => selectClaimSearchByQuery(state)[searchKey]);
+  const claimSearchLastPageReached = useAppSelector(
+    (state) => selectClaimSearchByQueryLastPageReached(state)[searchKey]
+  );
+  const fetchingClaimSearch = useAppSelector((state) => selectFetchingClaimSearchByQuery(state)[searchKey]);
+  const optionsStringified = JSON.stringify(options);
+  // -- dispatch --
+  const doClaimSearch = React.useCallback(
+    (o: ClaimSearchOptions, s?: DoClaimSearchSettings | null) => dispatch(doClaimSearchAction(o, s)),
+    [dispatch]
+  );
+  const doFetchOdyseeMembershipForChannelIds = React.useCallback(
+    (ids: ClaimIds) => dispatch(doFetchOdyseeMembershipForChannelIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveClaimIds = React.useCallback(
+    (ids: Array<string>) => dispatch(doResolveClaimIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveUris = React.useCallback(
+    (uris: Array<string>, returnCached: boolean) => dispatch(doResolveUrisAction(uris, returnCached)),
+    [dispatch]
+  );
   const listRef = React.useRef();
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);

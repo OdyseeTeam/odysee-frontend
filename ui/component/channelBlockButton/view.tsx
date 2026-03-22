@@ -1,55 +1,65 @@
 import React from 'react';
 import Button from 'component/button';
 import { BLOCK_LEVEL } from 'constants/comment';
+import { selectClaimIdForUri } from 'redux/selectors/claims';
+import {
+  doCommentModUnBlock,
+  doCommentModBlock,
+  doCommentModBlockAsAdmin,
+  doCommentModUnBlockAsAdmin,
+  doCommentModUnBlockAsModerator,
+  doCommentModBlockAsModerator,
+} from 'redux/actions/comments';
+import {
+  makeSelectChannelIsBlocked,
+  makeSelectChannelIsAdminBlocked,
+  makeSelectChannelIsModeratorBlockedForCreator,
+  makeSelectUriIsBlockingOrUnBlocking,
+  makeSelectIsTogglingForDelegator,
+} from 'redux/selectors/comments';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
   uri: string;
   blockLevel?: string;
   creatorUri?: string;
-  isBlocked: boolean;
-  isBlockingOrUnBlocking: boolean;
-  isToggling: boolean;
-  doCommentModUnBlock: (arg0: string, arg1: boolean) => void;
-  doCommentModBlock: (
-    arg0: string,
-    arg1: string | null | undefined,
-    arg2: number | null | undefined,
-    arg3: boolean
-  ) => void;
-  doCommentModUnBlockAsAdmin: (arg0: string, arg1: string) => void;
-  doCommentModBlockAsAdmin: (arg0: string, arg1: string | null | undefined, arg2: string | null | undefined) => void;
-  doCommentModUnBlockAsModerator: (arg0: string, arg1: string, arg2: string) => void;
-  doCommentModBlockAsModerator: (
-    arg0: string,
-    arg1: string | null | undefined,
-    arg2: string,
-    arg3: string | null | undefined
-  ) => void;
 };
 
 function ChannelBlockButton(props: Props) {
-  const {
-    uri,
-    blockLevel,
-    creatorUri,
-    doCommentModUnBlock,
-    doCommentModBlock,
-    doCommentModUnBlockAsAdmin,
-    doCommentModBlockAsAdmin,
-    doCommentModUnBlockAsModerator,
-    doCommentModBlockAsModerator,
-    isBlocked,
-    isBlockingOrUnBlocking,
-    isToggling,
-  } = props;
+  const { uri, blockLevel, creatorUri } = props;
+
+  const dispatch = useAppDispatch();
+
+  const isBlocked = useAppSelector((state) => {
+    switch (blockLevel) {
+      default:
+      case BLOCK_LEVEL.SELF:
+        return makeSelectChannelIsBlocked(uri)(state);
+      case BLOCK_LEVEL.MODERATOR:
+        return makeSelectChannelIsModeratorBlockedForCreator(uri, creatorUri)(state);
+      case BLOCK_LEVEL.ADMIN:
+        return makeSelectChannelIsAdminBlocked(uri)(state);
+    }
+  });
+
+  const isToggling = useAppSelector((state) => {
+    if (blockLevel === BLOCK_LEVEL.MODERATOR) {
+      return makeSelectIsTogglingForDelegator(uri, creatorUri)(state);
+    }
+    return false;
+  });
+
+  const isBlockingOrUnBlocking = useAppSelector((state) => makeSelectUriIsBlockingOrUnBlocking(uri)(state));
+  const creatorId = useAppSelector((state) => selectClaimIdForUri(state, creatorUri));
 
   function handleClick() {
     switch (blockLevel) {
       default:
       case BLOCK_LEVEL.SELF:
         if (isBlocked) {
-          doCommentModUnBlock(uri, false);
+          dispatch(doCommentModUnBlock(uri, false));
         } else {
-          doCommentModBlock(uri, undefined, undefined, false);
+          dispatch(doCommentModBlock(uri, undefined, undefined, false));
         }
 
         break;
@@ -57,9 +67,9 @@ function ChannelBlockButton(props: Props) {
       case BLOCK_LEVEL.MODERATOR:
         if (creatorUri) {
           if (isBlocked) {
-            doCommentModUnBlockAsModerator(uri, creatorUri, '');
+            dispatch(doCommentModUnBlockAsModerator(uri, creatorUri, ''));
           } else {
-            doCommentModBlockAsModerator(uri, undefined, creatorUri, undefined);
+            dispatch(doCommentModBlockAsModerator(uri, undefined, creatorUri, undefined));
           }
         }
 
@@ -67,9 +77,9 @@ function ChannelBlockButton(props: Props) {
 
       case BLOCK_LEVEL.ADMIN:
         if (isBlocked) {
-          doCommentModUnBlockAsAdmin(uri, '');
+          dispatch(doCommentModUnBlockAsAdmin(uri, ''));
         } else {
-          doCommentModBlockAsAdmin(uri, undefined, undefined);
+          dispatch(doCommentModBlockAsAdmin(uri, undefined, undefined));
         }
 
         break;

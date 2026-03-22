@@ -1,6 +1,11 @@
 import React from 'react';
 import ClaimList from 'component/claimList';
 import withCollectionItems from 'hocs/withCollectionItems';
+import { doCollectionEdit } from 'redux/actions/collections';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { selectUrlsForCollectionId, selectUrlsForCollectionIdNonDeleted } from 'redux/selectors/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 // prettier-ignore
 const Lazy = {
   DragDropContext: React.lazy(() => import('@hello-pangea/dnd'
@@ -17,26 +22,32 @@ const Lazy = {
 type Props = {
   collectionId: string;
   isEditPreview?: boolean;
-  // -- redux --
-  collectionUrls: Array<string> | null | undefined;
-  doCollectionEdit: (id: string, params: CollectionEditParams) => void;
 };
 
 const CollectionItemsList = (props: Props) => {
-  const { collectionId, isEditPreview, collectionUrls, doCollectionEdit, ...claimListProps } = props;
+  const { collectionId, isEditPreview, ...claimListProps } = props;
+
+  const dispatch = useAppDispatch();
+  const collectionUrls = useAppSelector((state) =>
+    collectionId === COLLECTIONS_CONSTS.WATCH_LATER_ID
+      ? selectUrlsForCollectionIdNonDeleted(state, collectionId)
+      : selectUrlsForCollectionId(state, collectionId)
+  );
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
     if (!destination) return;
     const { index: from } = source;
     const { index: to } = destination;
-    doCollectionEdit(collectionId, {
-      order: {
-        from,
-        to,
-      },
-      isPreview: isEditPreview,
-    });
+    dispatch(
+      doCollectionEdit(collectionId, {
+        order: {
+          from,
+          to,
+        },
+        isPreview: isEditPreview,
+      })
+    );
   }
 
   return (

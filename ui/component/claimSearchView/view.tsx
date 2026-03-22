@@ -27,6 +27,10 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimsStates, selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
+import { doClaimSearch as doClaimSearchAction } from 'redux/actions/claims';
+import { createNormalizedClaimSearchKey } from 'util/claim';
 // ****************************************************************************
 // ****************************************************************************
 export type Props = {
@@ -35,28 +39,20 @@ export type Props = {
   header?: string | React.ReactNode;
   layout?: 'tile' | 'list';
 };
-type StateProps = {
-  csResults: Array<string> | null | undefined;
-  csResultsMiscInfo: ClaimSearchResultsInfo | null | undefined;
-  isFetching: boolean;
-};
-type DispatchProps = {
-  doClaimSearch: (options: ClaimSearchOptions, settings?: DoClaimSearchSettings) => void;
-};
 
 // ****************************************************************************
 // ****************************************************************************
-function ClaimSearchView(props: Props & StateProps & DispatchProps) {
-  const {
-    csOptions,
-    pagination = 'infinite',
-    header,
-    layout = 'tile',
-    csResults,
-    csResultsMiscInfo,
-    isFetching,
-    doClaimSearch,
-  } = props;
+function ClaimSearchView(props: Props) {
+  const { csOptions, pagination = 'infinite', header, layout = 'tile' } = props;
+  const dispatch = useAppDispatch();
+  const query = createNormalizedClaimSearchKey(csOptions);
+  const csResults = useAppSelector((state) => selectClaimSearchByQuery(state)[query]);
+  const csResultsMiscInfo = useAppSelector((state) => selectClaimsStates(state).claimSearchByQueryMiscInfo[query]);
+  const isFetching = useAppSelector((state) => selectFetchingClaimSearchByQuery(state)[query]);
+  const doClaimSearch = React.useCallback(
+    (options: ClaimSearchOptions, settings?: DoClaimSearchSettings) => dispatch(doClaimSearchAction(options, settings)),
+    [dispatch]
+  );
   type ScrollInfo = {
     isFetching: boolean;
     csResults: Array<string> | null | undefined;

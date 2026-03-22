@@ -5,6 +5,7 @@ import { Menu } from 'component/common/menu';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import HeaderMenuLink from 'component/common/header-menu-link';
@@ -18,29 +19,31 @@ import NotificationHeaderButton from 'component/headerNotificationButton';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation } from 'react-router-dom';
-type HeaderMenuButtonProps = {
-  currentTheme: string;
-  automaticDarkModeEnabled: boolean;
-  handleThemeToggle: (arg0: boolean, arg1: string, arg2: boolean) => void;
-  user: User | null | undefined;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  authenticated: boolean;
-  email: string | null | undefined;
-  signOut: () => void;
-};
-export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
-  const {
-    // Theme
-    currentTheme,
-    automaticDarkModeEnabled,
-    handleThemeToggle,
-    // User
-    user,
-    activeChannelClaim,
-    authenticated,
-    email,
-    signOut,
-  } = props;
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doSignOut } from 'redux/actions/app';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectUser, selectUserEmail, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+
+export default function HeaderProfileMenuButton() {
+  const dispatch = useAppDispatch();
+  const currentTheme = useAppSelector(selectTheme);
+  const automaticDarkModeEnabled = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED)
+  );
+  const user = useAppSelector(selectUser);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const email = useAppSelector(selectUserEmail);
+
+  const handleThemeToggle = () => {
+    if (automaticDarkModeEnabled) {
+      dispatch(doSetClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, false, authenticated));
+    }
+    dispatch(doSetClientSetting(SETTINGS.THEME, currentTheme === 'dark' ? 'light' : 'dark', authenticated));
+  };
+  const signOut = () => dispatch(doSignOut());
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
@@ -107,10 +110,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         {!isMobile && (
           <Menu>
             <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
-              <Button
-                className="header__navigationItem--icon"
-                onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme, authenticated)}
-              >
+              <Button className="header__navigationItem--icon" onClick={handleThemeToggle}>
                 <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
               </Button>
             </Tooltip>

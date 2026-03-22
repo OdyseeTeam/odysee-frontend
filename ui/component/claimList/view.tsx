@@ -12,6 +12,9 @@ import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation } from 'react-router-dom';
 import type { HomepageTitles } from 'util/buildHomepage';
+import { useAppSelector } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 const Draggable = React.lazy(() =>
   import(
     '@hello-pangea/dnd'
@@ -51,7 +54,6 @@ type Props = {
   injectedItem?: ListInjectedItem;
   timedOutMessage?: React.ReactNode;
   tileLayout?: boolean;
-  searchInLanguage: boolean;
   hideMenu?: boolean;
   hideJoin?: boolean;
   claimSearchByQuery: Record<string, Array<string>>;
@@ -104,7 +106,6 @@ export default function ClaimList(props: Props) {
     tileLayout = false,
     renderActions,
     renderProperties,
-    searchInLanguage,
     hideMenu,
     hideJoin,
     collectionId,
@@ -131,6 +132,7 @@ export default function ClaimList(props: Props) {
     isShortFromChannelPage,
     sectionTitle,
   } = props;
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
   const isMobile = useIsMobile();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);

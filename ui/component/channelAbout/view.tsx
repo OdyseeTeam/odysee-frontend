@@ -8,14 +8,12 @@ import * as PAGES from 'constants/pages';
 import DateTime from 'component/dateTime';
 import YoutubeBadge from 'component/youtubeBadge';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import { makeSelectMetadataItemForUri, makeSelectClaimForUri } from 'redux/selectors/claims';
+import { selectUser } from 'redux/selectors/user';
+import { useAppSelector } from 'redux/hooks';
+
 type Props = {
-  claim: ChannelClaim;
   uri: string;
-  description: string | null | undefined;
-  email: string | null | undefined;
-  website: string | null | undefined;
-  languages: Array<string>;
-  user: User | null | undefined;
 };
 
 const formatEmail = (email: string) => {
@@ -29,7 +27,14 @@ const formatEmail = (email: string) => {
 };
 
 function ChannelAbout(props: Props) {
-  const { claim, uri, description, email, website, languages, user } = props;
+  const { uri } = props;
+
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const description = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'description')(state));
+  const website = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'website_url')(state));
+  const email = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'email')(state));
+  const languages = useAppSelector((state) => makeSelectMetadataItemForUri(uri, 'languages')(state));
+  const user = useAppSelector(selectUser);
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
   return (

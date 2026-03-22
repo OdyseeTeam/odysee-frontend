@@ -13,53 +13,35 @@ import classnames from 'classnames';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import { formatLbryUrlForWeb } from 'util/url';
+import { doChannelMute } from 'redux/actions/blocked';
+import { doCommentPin, doCommentModAddDelegate, doCommentModRemoveDelegate } from 'redux/actions/comments';
+import { doOpenModal, doSetActiveChannel } from 'redux/actions/app';
+import { doClearPlayingUri } from 'redux/actions/content';
+import { doToast } from 'redux/actions/notifications';
+import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectModerationDelegatorsById, selectModerationDelegatesById } from 'redux/selectors/comments';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 type Props = {
   uri: string | null | undefined;
   authorUri: string;
-  // full LBRY Channel URI: lbry://@channel#123...
   commentId: string;
-  // sha256 digest identifying the comment
   isTopLevel: boolean;
   isPinned: boolean;
   commentIsMine: boolean;
-  // if this comment was signed by an owned channel
   channelIsMine: boolean;
   disableEdit?: boolean;
   disableRemove?: boolean;
   supportAmount?: any;
   isLiveComment: boolean;
   isUserLabel: boolean;
-  // --- select ---
-  claim: Claim | null | undefined;
-  claimIsMine: boolean;
-  isAuthenticated: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  playingUri: PlayingUri;
-  moderationDelegatorsById: Record<
-    string,
-    {
-      global: boolean;
-      delegators: {
-        name: string;
-        claimId: string;
-      };
-    }
-  >;
-  moderationDelegatesById: { [key in string | null | undefined]?: Array<Record<string, any>> | null | undefined };
-  authorCanonicalUri: string | null | undefined;
-  authorId: string;
-  // --- perform ---
-  doToast: (arg0: { message: string }) => void;
   handleEditComment: () => void;
-  openModal: (id: string, arg1: {}) => void;
-  clearPlayingUri: () => void;
-  muteChannel: (arg0: string) => void;
-  doSetActiveChannel: (arg0: string) => void;
-  pinComment: (arg0: string, arg1: string, arg2: boolean) => Promise<any>;
-  commentModAddDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
-  commentModRemoveDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
   setQuickReply: (arg0: any) => void;
   handleDismissPin?: () => void;
+  className?: string;
 };
 
 function reduceUriToChannelName(uri: string | null | undefined, fallback: string | null | undefined) {
@@ -79,38 +61,33 @@ function reduceUriToChannelName(uri: string | null | undefined, fallback: string
 function CommentMenuList(props: Props) {
   const {
     uri,
-    claim,
-    claimIsMine,
     authorUri,
-    authorId,
     commentIsMine,
     channelIsMine,
     commentId,
-    activeChannelClaim,
     isTopLevel,
     isPinned,
-    playingUri,
-    moderationDelegatorsById,
-    moderationDelegatesById,
-    authorCanonicalUri,
-    isAuthenticated,
     disableEdit,
     disableRemove,
     supportAmount,
     isLiveComment,
     isUserLabel,
-    doToast,
     handleEditComment,
-    openModal,
-    clearPlayingUri,
-    muteChannel,
-    doSetActiveChannel,
-    pinComment,
-    commentModAddDelegate,
-    commentModRemoveDelegate,
     setQuickReply,
     handleDismissPin,
   } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const authorClaim = useAppSelector((state) => selectClaimForUri(state, authorUri));
+  const authorCanonicalUri = (authorClaim && authorClaim.canonical_url) || '';
+  const authorId = (authorClaim && authorClaim.claim_id) || '';
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const moderationDelegatorsById = useAppSelector(selectModerationDelegatorsById);
+  const moderationDelegatesById = useAppSelector(selectModerationDelegatesById);
   const isMobile = useIsMobile();
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
@@ -132,30 +109,34 @@ function CommentMenuList(props: Props) {
 
   function handleDeleteComment() {
     if (playingUri.source === 'comment') {
-      clearPlayingUri();
+      dispatch(doClearPlayingUri());
     }
 
-    openModal(MODALS.CONFIRM_REMOVE_COMMENT, {
-      commentId,
-      deleterClaim: activeChannelClaim,
-      deleterIsModOrAdmin: activeChannelIsAdmin || activeChannelIsModerator,
-      creatorClaim: commentIsMine ? undefined : contentChannelClaim,
-      supportAmount,
-      setQuickReply,
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM_REMOVE_COMMENT, {
+        commentId,
+        deleterClaim: activeChannelClaim,
+        deleterIsModOrAdmin: activeChannelIsAdmin || activeChannelIsModerator,
+        creatorClaim: commentIsMine ? undefined : contentChannelClaim,
+        supportAmount,
+        setQuickReply,
+      })
+    );
   }
 
   function assignAsModerator() {
     if (activeChannelClaim && authorUri) {
       const { channelName, channelClaimId } = parseURI(authorUri);
-      if (channelName && channelClaimId) commentModAddDelegate(channelClaimId, channelName, activeChannelClaim);
+      if (channelName && channelClaimId)
+        dispatch(doCommentModAddDelegate(channelClaimId, channelName, activeChannelClaim, true));
     }
   }
 
   function removeModerator() {
     if (activeChannelClaim && authorUri) {
       const { channelName, channelClaimId } = parseURI(authorUri);
-      if (channelName && channelClaimId) commentModRemoveDelegate(channelClaimId, channelName, activeChannelClaim);
+      if (channelName && channelClaimId)
+        dispatch(doCommentModRemoveDelegate(channelClaimId, channelName, activeChannelClaim, true));
     }
   }
 
@@ -216,9 +197,11 @@ function CommentMenuList(props: Props) {
     urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
     urlParams.append(LINKED_COMMENT_QUERY_PARAM, commentId);
     navigator.clipboard.writeText(`${URL}${pathname}?${urlParams.toString()}`).then(() =>
-      doToast({
-        message: __('Link copied.'),
-      })
+      dispatch(
+        doToast({
+          message: __('Link copied.'),
+        })
+      )
     );
   }
 
@@ -264,7 +247,7 @@ function CommentMenuList(props: Props) {
       {activeChannelIsCreator && isTopLevel && (
         <MenuItem
           className="comment__menu-option menu__link"
-          onSelect={() => pinComment(commentId, claim ? claim.claim_id : '', isPinned)}
+          onSelect={() => dispatch(doCommentPin(commentId, claim ? claim.claim_id : '', isPinned))}
         >
           <span className={'button__content'}>
             <Icon aria-hidden icon={ICONS.PIN} className={'icon'} />
@@ -335,16 +318,18 @@ function CommentMenuList(props: Props) {
           <MenuItem
             className="comment__menu-option"
             onSelect={() =>
-              openModal(MODALS.BLOCK_CHANNEL, {
-                contentUri: uri,
-                commenterUri: authorUri,
-                offendingCommentId: commentId,
-              })
+              dispatch(
+                doOpenModal(MODALS.BLOCK_CHANNEL, {
+                  contentUri: uri,
+                  commenterUri: authorUri,
+                  offendingCommentId: commentId,
+                })
+              )
             }
           >
             {getBlockOptionElem()}
           </MenuItem>
-          <MenuItem className="comment__menu-option" onSelect={() => muteChannel(authorUri)}>
+          <MenuItem className="comment__menu-option" onSelect={() => dispatch(doChannelMute(authorUri))}>
             <div className="menu__link">
               <Icon aria-hidden icon={ICONS.EYE_OFF} />
               {__('Hide')}
@@ -367,7 +352,7 @@ function CommentMenuList(props: Props) {
         </>
       )}
       {isLiveComment && !commentIsMine && channelIsMine && (
-        <MenuItem className="comment__menu-option" onSelect={() => doSetActiveChannel(authorId)}>
+        <MenuItem className="comment__menu-option" onSelect={() => dispatch(doSetActiveChannel(authorId))}>
           <div className="menu__link">
             <Icon aria-hidden icon={ICONS.REFRESH} />
             {__('Switch channel')}

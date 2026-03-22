@@ -21,6 +21,39 @@ import usePersistedState from 'effects/use-persisted-state';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CommentListMenu from './internal/commentListMenu';
 import { lazyImport } from 'util/lazyImport';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectFetchingMyChannels,
+  selectScheduledStateForUri,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
+import {
+  selectTopLevelCommentsForUri,
+  selectTopLevelTotalPagesForUri,
+  selectIsFetchingComments,
+  selectIsFetchingTopLevelComments,
+  selectIsFetchingReacts,
+  selectTotalCommentsCountForUri,
+  selectOthersReacts,
+  selectMyReacts,
+  selectCommentIdsForUri,
+  selectCommentsEnabledSettingForChannelId,
+  selectPinnedCommentsForUri,
+  selectCommentForCommentId,
+  selectCommentAncestorsForId,
+} from 'redux/selectors/comments';
+import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
+import { doPopOutInlinePlayer } from 'redux/actions/content';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { getChannelIdFromClaim } from 'util/claim';
+import {
+  doFetchOdyseeMembershipForChannelIds,
+  doFetchChannelMembershipsForChannelIds,
+} from 'redux/actions/memberships';
+import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/memberships';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 const CommentCreate = lazyImport(
   () =>
@@ -49,92 +82,43 @@ export type Props = {
   threadCommentId: string | null | undefined;
   notInDrawer?: boolean;
 };
-type StateProps = {
-  topLevelComments: Array<Comment>;
-  pinnedComments: Array<Comment>;
-  allCommentIds: Array<CommentId>;
-  threadComment: Comment | null | undefined;
-  // comment object for 'threadCommentId'
-  totalComments: number;
-  topLevelTotalPages: number;
-  threadCommentAncestors: Array<string> | null | undefined;
-  linkedCommentAncestors: Array<string> | null | undefined;
-  myReactsByCommentId: Record<string, Array<string>> | null | undefined;
-  // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
-  othersReactsById:
-    | Record<string, { [key in REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]?: number }>
-    | null
-    | undefined;
-  commentsEnabledSetting: boolean | null | undefined;
-  claimId: string | null | undefined;
-  channelId: string | null | undefined;
-  claimIsMine: boolean | null | undefined;
-  activeChannelId: string | null | undefined;
-  isFetchingComments: boolean;
-  isFetchingTopLevelComments: boolean;
-  isFetchingReacts: boolean;
-  fetchingChannels: boolean;
-  chatCommentsRestrictedToChannelMembers: boolean;
-  isAChannelMember: boolean;
-  scheduledState: ClaimScheduledState;
-};
-type DispatchProps = {
-  fetchTopLevelComments: (
-    uri: string,
-    parentId: string | null | undefined,
-    page: number,
-    pageSize: number,
-    sortBy: number,
-    isLivestream?: boolean
-  ) => void;
-  fetchComment: (arg0: CommentId) => void;
-  fetchReacts: (arg0: Array<CommentId>) => Promise<any>;
-  resetComments: (arg0: ClaimId) => void;
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void;
-  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void;
-  doPopOutInlinePlayer: (param: { source: string }) => void;
-}; // ****************************************************************************
+
+// ****************************************************************************
 // CommentList
 // ****************************************************************************
 
-export default function CommentList(props: Props & StateProps & DispatchProps) {
+export default function CommentList(props: Props) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
-  const {
-    uri,
-    linkedCommentId,
-    commentsAreExpanded,
-    threadCommentId,
-    topLevelComments,
-    pinnedComments,
-    allCommentIds,
-    threadComment,
-    totalComments,
-    topLevelTotalPages,
-    threadCommentAncestors,
-    linkedCommentAncestors,
-    myReactsByCommentId,
-    othersReactsById,
-    commentsEnabledSetting,
-    claimId,
-    channelId,
-    claimIsMine,
-    activeChannelId,
-    isFetchingComments,
-    isFetchingTopLevelComments,
-    isFetchingReacts,
-    fetchingChannels,
-    chatCommentsRestrictedToChannelMembers,
-    isAChannelMember,
-    scheduledState,
-    fetchTopLevelComments,
-    fetchComment,
-    fetchReacts,
-    resetComments,
-    doFetchOdyseeMembershipForChannelIds,
-    doFetchChannelMembershipsForChannelIds,
-    doPopOutInlinePlayer,
-  } = props;
+  const { uri, linkedCommentId, commentsAreExpanded, threadCommentId, notInDrawer } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const threadComment = useAppSelector((state) => selectCommentForCommentId(state, threadCommentId));
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const allCommentIds = useAppSelector((state) => selectCommentIdsForUri(state, uri));
+  const chatCommentsRestrictedToChannelMembers = Boolean(
+    useAppSelector((state) => selectProtectedContentTagForUri(state, uri))
+  );
+  const claimId = claim && claim.claim_id;
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const fetchingChannels = useAppSelector(selectFetchingMyChannels);
+  const isAChannelMember = useAppSelector((state) => selectUserHasValidMembershipForCreatorId(state, channelId));
+  const isFetchingComments = useAppSelector(selectIsFetchingComments);
+  const isFetchingReacts = useAppSelector(selectIsFetchingReacts);
+  const isFetchingTopLevelComments = useAppSelector(selectIsFetchingTopLevelComments);
+  const linkedCommentAncestors = useAppSelector((state) => selectCommentAncestorsForId(state, linkedCommentId));
+  const commentsEnabledSetting = useAppSelector((state) => selectCommentsEnabledSettingForChannelId(state, channelId));
+  const myReactsByCommentId = useAppSelector(selectMyReacts);
+  const othersReactsById = useAppSelector(selectOthersReacts);
+  const pinnedComments = useAppSelector((state) => selectPinnedCommentsForUri(state, uri));
+  const threadCommentAncestors = useAppSelector((state) => selectCommentAncestorsForId(state, threadCommentId));
+  const topLevelComments = useAppSelector((state) => selectTopLevelCommentsForUri(state, uri));
+  const topLevelTotalPages = useAppSelector((state) => selectTopLevelTotalPagesForUri(state, uri));
+  const totalComments = useAppSelector((state) => selectTotalCommentsCountForUri(state, uri));
+  const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
   const urlParams = new URLSearchParams(search);
@@ -142,6 +126,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const spinnerRef = React.useRef();
   const commentListRef = React.useRef();
+  const threadRedirect = React.useRef(false);
   const DEFAULT_SORT = ENABLE_COMMENT_REACTIONS ? SORT_BY.POPULARITY : SORT_BY.NEWEST;
   const [sort, setSort] = usePersistedState('comment-sort-by', DEFAULT_SORT);
   const [page, setPage] = React.useState(currentFetchedPage > 0 ? currentFetchedPage : 1);
@@ -182,37 +167,36 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   }, [topLevelComments]);
   React.useEffect(() => {
     if (commenterClaimIds.length > 0 && channelId) {
-      doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
-      doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
+      dispatch(doFetchOdyseeMembershipForChannelIds(commenterClaimIds));
+      dispatch(doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds));
     } // todo: investigate why topLevelComments triggers a re-render even though the comments are the same
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keep commenterClaimIds.length instead
-  }, [
-    channelId,
-    commenterClaimIds.length,
-    doFetchChannelMembershipsForChannelIds,
-    doFetchOdyseeMembershipForChannelIds,
-  ]);
+  }, [channelId, commenterClaimIds.length, dispatch]);
   const handleReset = React.useCallback(() => {
-    if (claimId) resetComments(claimId);
+    if (claimId) dispatch(doCommentReset(claimId));
     setPage(1);
-  }, [claimId, resetComments]);
+  }, [claimId, dispatch]);
 
   function refreshComments() {
-    fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
+    dispatch(doCommentList(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false));
     setPage(1);
-    doPopOutInlinePlayer({
-      source: 'comment',
-    });
+    dispatch(
+      doPopOutInlinePlayer({
+        source: 'comment',
+      })
+    );
   }
 
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
-      fetchTopLevelComments(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, newSort, false);
+      dispatch(doCommentList(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, newSort, false));
       setPage(1);
-      doPopOutInlinePlayer({
-        source: 'comment',
-      });
+      dispatch(
+        doPopOutInlinePlayer({
+          source: 'comment',
+        })
+      );
     }
   }
 
@@ -264,13 +248,13 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   // Fetch linked/thread comment independently of pagination state
   useEffect(() => {
     if (threadCommentId) {
-      fetchComment(threadCommentId);
+      dispatch(doCommentById(threadCommentId));
     }
 
     if (linkedCommentId) {
-      fetchComment(linkedCommentId);
+      dispatch(doCommentById(linkedCommentId));
     }
-  }, [fetchComment, linkedCommentId, threadCommentId]);
+  }, [dispatch, linkedCommentId, threadCommentId]);
   // Fetch top-level comments
   useEffect(() => {
     const isInitialFetch = currentFetchedPage === 0;
@@ -280,9 +264,9 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     const hasRightFetchPage = Number(isInitialFetch) ^ Number(isNewPage);
 
     if (page !== 0 && hasRightFetchPage) {
-      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
+      dispatch(doCommentList(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false));
     }
-  }, [currentFetchedPage, fetchTopLevelComments, page, sort, uri]);
+  }, [currentFetchedPage, dispatch, page, sort, uri]);
   React.useEffect(() => {
     if (threadCommentId) {
       refreshComments();
@@ -303,7 +287,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       }
 
       if (idsForReactionFetch.length !== 0) {
-        fetchReacts(idsForReactionFetch)
+        dispatch(doCommentReactList(idsForReactionFetch))
           .then(() => {
             setReadyToDisplayComments(true);
           })
@@ -313,7 +297,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   }, [
     activeChannelId,
     allCommentIds,
-    fetchReacts,
+    dispatch,
     fetchingChannels,
     isFetchingReacts,
     myReactsByCommentId,

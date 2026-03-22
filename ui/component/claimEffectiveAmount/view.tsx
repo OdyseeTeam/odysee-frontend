@@ -1,12 +1,14 @@
 import React from 'react';
 import CreditAmount from 'component/common/credit-amount';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
 type Props = {
   uri: string;
-  claim: Claim | null | undefined;
 };
 
 function ClaimEffectiveAmount(props: Props) {
-  const { claim } = props;
+  const { uri } = props;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri, true));
 
   if (!claim) {
     return null;

@@ -10,6 +10,11 @@ import Wallpaper from 'component/wallpaper';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
 import SideNavigation from 'component/sideNavigation';
 import usePersistedState from 'effects/use-persisted-state';
+import { useAppSelector } from 'redux/hooks';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectPrimaryUri } from 'redux/selectors/content';
+import * as SETTINGS from 'constants/settings';
 const Footer = lazyImport(
   () =>
     import(
@@ -37,8 +42,6 @@ type Props = {
   noHeader: boolean;
   noSideNavigation: boolean;
   settingsPage?: boolean;
-  renderMode: string;
-  videoTheaterMode: boolean;
   isPopoutWindow?: boolean;
 };
 
@@ -57,10 +60,11 @@ function Page(props: Props) {
     noHeader = false,
     noSideNavigation = false,
     settingsPage,
-    renderMode,
-    videoTheaterMode,
     isPopoutWindow,
   } = props;
+  const primaryUri = useAppSelector(selectPrimaryUri);
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(primaryUri)(state));
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
   const { pathname, hash, search } = useLocation();
   const theaterMode =
     renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;

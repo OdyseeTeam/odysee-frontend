@@ -8,15 +8,18 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { doBeginPublish as doBeginPublishAction } from 'redux/actions/publish';
 type HeaderMenuButtonProps = {
-  activeChannelStakedLevel: number;
-  authenticated: boolean;
-  user: User | null | undefined;
   authRedirect?: string;
-  doBeginPublish: (arg0: PublishType, arg1: string | null | undefined) => void;
 };
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
-  const { authenticated, user, authRedirect, doBeginPublish } = props;
+  const { authRedirect } = props;
+  const dispatch = useAppDispatch();
+  const authenticated = useAppSelector(selectUserVerifiedEmail);
+  const user = useAppSelector(selectUser);
+  const doBeginPublish = (type: PublishType) => dispatch(doBeginPublishAction(type));
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
   const uploadProps = {

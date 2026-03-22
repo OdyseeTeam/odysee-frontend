@@ -6,6 +6,8 @@ import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
+import * as RENDER_MODES from 'constants/file_render_modes';
 import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
@@ -19,11 +21,52 @@ import {
   formatLbryUrlForWeb,
 } from 'util/url';
 import { useNavigate } from 'react-router-dom';
-import { getChannelIdFromClaim } from 'util/claim';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 import { isClaimAllowedForCollection } from 'util/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux/selectors/claims';
+import { doPrepareEdit } from 'redux/actions/publish';
+import { doRemovePersonalRecommendation } from 'redux/actions/search';
+import {
+  selectCollectionForIdHasClaimUrl,
+  selectCollectionIsMine,
+  selectCollectionHasEditsForId,
+  selectCollectionIsEmptyForId,
+  makeSelectClaimMenuCollectionsForUrl,
+} from 'redux/selectors/collections';
+import { selectFileInfoForUri } from 'redux/selectors/file_info';
+import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
+import { doChannelMute as doChannelMuteAction, doChannelUnmute as doChannelUnmuteAction } from 'redux/actions/blocked';
+import { doOpenModal } from 'redux/actions/app';
+import {
+  doCommentModBlock as doCommentModBlockAction,
+  doCommentModUnBlock as doCommentModUnBlockAction,
+  doCommentModBlockAsAdmin as doCommentModBlockAsAdminAction,
+  doCommentModUnBlockAsAdmin as doCommentModUnBlockAsAdminAction,
+} from 'redux/actions/comments';
+import {
+  selectHasAdminChannel,
+  makeSelectChannelIsBlocked,
+  makeSelectChannelIsAdminBlocked,
+} from 'redux/selectors/comments';
+import { doToast as doToastAction } from 'redux/actions/notifications';
+import {
+  doChannelSubscribe as doChannelSubscribeAction,
+  doChannelUnsubscribe as doChannelUnsubscribeAction,
+} from 'redux/actions/subscriptions';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectFileRenderModeForUri } from 'redux/selectors/content';
+import {
+  doEnableCollectionShuffle as doEnableCollectionShuffleAction,
+  doFetchUriAccessKey as doFetchUriAccessKeyAction,
+  doPlaylistAddAndAllowPlaying as doPlaylistAddAndAllowPlayingAction,
+} from 'redux/actions/content';
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 type SubscriptionArgs = {
   channelName: string;
@@ -32,100 +75,109 @@ type SubscriptionArgs = {
 };
 type Props = {
   uri: string;
-  claim: Claim;
-  isRepost: boolean;
-  contentClaim: Claim | null | undefined;
-  contentSigningChannel: Claim | null | undefined;
-  contentChannelUri: string;
-  openModal: (id: string, arg1: {}) => void;
   inline?: boolean;
-  channelIsMuted: boolean;
-  channelIsBlocked: boolean;
-  channelIsAdminBlocked: boolean;
-  isAdmin: boolean;
-  doChannelMute: (arg0: string) => void;
-  doChannelUnmute: (arg0: string) => void;
-  doCommentModBlock: (arg0: string) => void;
-  doCommentModUnBlock: (arg0: string) => void;
-  doCommentModBlockAsAdmin: (
-    commenterUri: string,
-    offendingCommentId: string | null | undefined,
-    blockerId: string | null | undefined
-  ) => void;
-  doCommentModUnBlockAsAdmin: (arg0: string, arg1: string) => void;
-  hasClaimInWatchLater: boolean;
-  hasClaimInFavorites: boolean;
-  claimInCollection: boolean;
   collectionId: string;
-  isMyCollection: boolean;
-  isUnlisted: boolean;
   fypId?: string;
-  doToast: (arg0: { message: string; isError?: boolean; linkText?: string; linkTarget?: string }) => void;
-  claimIsMine: boolean;
-  // settingsByChannelId: boolean,
-  fileInfo: FileListItem;
-  prepareEdit: (arg0: {}, arg1: string) => void;
-  isSubscribed: boolean;
-  doChannelSubscribe: (arg0: SubscriptionArgs) => void;
-  doChannelUnsubscribe: (arg0: SubscriptionArgs) => void;
-  hasEdits: Collection;
-  isAuthenticated: boolean;
-  doEnableCollectionShuffle: (params: { collectionId: string }) => void;
-  lastUsedCollections: Array<any> | null | undefined;
-  doRemovePersonalRecommendation: (uri: string) => void;
-  collectionEmpty: boolean;
-  doPlaylistAddAndAllowPlaying: (params: { uri: string; collectionName: string; collectionId: string }) => void;
-  isContentProtectedAndLocked: boolean;
-  defaultCollectionAction: string;
-  doFetchUriAccessKey: (uri: string) => Promise<UriAccessKey | null | undefined>;
+  channelUri?: string;
 };
 
 function ClaimMenuList(props: Props) {
-  const {
-    uri,
-    claim,
-    isRepost,
-    contentClaim,
-    contentSigningChannel,
-    contentChannelUri,
-    openModal,
-    inline = false,
-    doChannelMute,
-    doChannelUnmute,
-    channelIsMuted,
-    channelIsBlocked,
-    channelIsAdminBlocked,
-    isAdmin,
-    claimInCollection,
-    doCommentModBlock,
-    doCommentModUnBlock,
-    doCommentModBlockAsAdmin,
-    doCommentModUnBlockAsAdmin,
-    hasClaimInWatchLater,
-    hasClaimInFavorites,
-    collectionId,
-    isMyCollection,
-    isUnlisted,
-    fypId,
-    doToast,
-    claimIsMine,
-    // settingsByChannelId,
-    fileInfo,
-    prepareEdit,
-    isSubscribed,
-    doChannelSubscribe,
-    doChannelUnsubscribe,
-    hasEdits,
-    isAuthenticated,
-    doEnableCollectionShuffle,
-    lastUsedCollections,
-    doRemovePersonalRecommendation,
-    collectionEmpty,
-    doPlaylistAddAndAllowPlaying,
-    isContentProtectedAndLocked,
-    defaultCollectionAction,
-    doFetchUriAccessKey,
-  } = props;
+  const { uri, inline = false, collectionId, fypId } = props;
+  const dispatch = useAppDispatch();
+
+  // -- selectors --
+  const placeholderForDeletedClaim = React.useMemo(
+    () => ({ canonical_url: uri, permanent_url: uri, value_type: 'deleted' as const }),
+    [uri]
+  );
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri, false)) || placeholderForDeletedClaim;
+  const repostedClaim = claim?.reposted_claim;
+  const isRepost = Boolean(claim?.reposted_claim || claim?.value?.claim_hash);
+  const contentClaim = repostedClaim || claim;
+  const contentSigningChannel = contentClaim && contentClaim.signing_channel;
+  const contentPermanentUri = contentClaim && contentClaim.permanent_url;
+  const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
+  const selectLastUsedCollections = React.useMemo(() => makeSelectClaimMenuCollectionsForUrl(), []);
+  const lastUsedCollections = useAppSelector((state) => selectLastUsedCollections(state, contentPermanentUri));
+  const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+  const permanentUrl = (claim && claim.permanent_url) || '';
+  const isPostClaim =
+    useAppSelector((state) => selectFileRenderModeForUri(state, permanentUrl)) === RENDER_MODES.MARKDOWN;
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const hasClaimInWatchLater = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.WATCH_LATER_ID, contentPermanentUri)
+  );
+  const hasClaimInFavorites = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.FAVORITES_ID, contentPermanentUri)
+  );
+  const channelIsMuted = useAppSelector((state) =>
+    contentChannelUri ? makeSelectChannelIsMuted(contentChannelUri)(state) : false
+  );
+  const channelIsBlocked = useAppSelector((state) =>
+    contentChannelUri ? makeSelectChannelIsBlocked(contentChannelUri)(state) : false
+  );
+  const fileInfo = useAppSelector((state) =>
+    contentPermanentUri ? selectFileInfoForUri(state, contentPermanentUri) : undefined
+  );
+  const isSubscribed = useAppSelector((state) =>
+    contentChannelUri ? selectIsSubscribedForUri(state, contentChannelUri) : false
+  );
+  const channelIsAdminBlocked = useAppSelector((state) => (uri ? makeSelectChannelIsAdminBlocked(uri)(state) : false));
+  const isAdmin = useAppSelector(selectHasAdminChannel);
+  const claimInCollection = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, collectionId, contentPermanentUri)
+  );
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
+  const hasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const isAuthenticated = Boolean(useAppSelector(selectUserVerifiedEmail));
+  const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const isContentProtectedAndLocked = useAppSelector((state) =>
+    contentClaim ? selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id) : false
+  );
+  const defaultCollectionAction = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION)
+  );
+
+  // -- dispatch helpers --
+  const openModal = React.useCallback((id: string, params: {}) => dispatch(doOpenModal(id, params)), [dispatch]);
+  const prepareEdit = React.useCallback((c: {}, editUri: string) => dispatch(doPrepareEdit(c, editUri)), [dispatch]);
+  const doToast = React.useCallback((params: any) => dispatch(doToastAction(params)), [dispatch]);
+  const doChannelMute = React.useCallback((u: string) => dispatch(doChannelMuteAction(u)), [dispatch]);
+  const doChannelUnmute = React.useCallback((u: string) => dispatch(doChannelUnmuteAction(u)), [dispatch]);
+  const doCommentModBlock = React.useCallback((u: string) => dispatch(doCommentModBlockAction(u)), [dispatch]);
+  const doCommentModUnBlock = React.useCallback((u: string) => dispatch(doCommentModUnBlockAction(u)), [dispatch]);
+  const doCommentModBlockAsAdmin = React.useCallback(
+    (commenterUri: string, offendingCommentId?: string | null, blockerId?: string | null) =>
+      dispatch(doCommentModBlockAsAdminAction(commenterUri, offendingCommentId, blockerId)),
+    [dispatch]
+  );
+  const doCommentModUnBlockAsAdmin = React.useCallback(
+    (u: string, blockerId: string) => dispatch(doCommentModUnBlockAsAdminAction(u, blockerId)),
+    [dispatch]
+  );
+  const doChannelSubscribe = React.useCallback(
+    (sub: SubscriptionArgs) => dispatch(doChannelSubscribeAction(sub)),
+    [dispatch]
+  );
+  const doChannelUnsubscribe = React.useCallback(
+    (sub: SubscriptionArgs) => dispatch(doChannelUnsubscribeAction(sub)),
+    [dispatch]
+  );
+  const doEnableCollectionShuffle = React.useCallback(
+    (params: { collectionId: string }) => dispatch(doEnableCollectionShuffleAction(params)),
+    [dispatch]
+  );
+  const doRemovePersonalRecommendationCb = React.useCallback(
+    (u: string) => dispatch(doRemovePersonalRecommendation(u)),
+    [dispatch]
+  );
+  const doPlaylistAddAndAllowPlaying = React.useCallback(
+    (params: { uri: string; collectionName: string; collectionId: string }) =>
+      dispatch(doPlaylistAddAndAllowPlayingAction(params)),
+    [dispatch]
+  );
+  const doFetchUriAccessKey = React.useCallback((u: string) => dispatch(doFetchUriAccessKeyAction(u)), [dispatch]);
   const isEmbed = React.useContext(EmbedContext);
   const isChannelPage = React.useContext(ChannelPageContext);
   const navigate = useNavigate();
@@ -473,7 +525,7 @@ function ClaimMenuList(props: Props) {
               {/* FYP */}
               {fypId && (
                 <>
-                  <MenuItem className="comment__menu-option" onSelect={() => doRemovePersonalRecommendation(uri)}>
+                  <MenuItem className="comment__menu-option" onSelect={() => doRemovePersonalRecommendationCb(uri)}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REMOVE} />
                       {__('Not interested')}

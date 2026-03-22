@@ -1,15 +1,18 @@
 import React from 'react';
+import { selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
+import { useAppSelector } from 'redux/hooks';
+
 type Props = {
   uri: string | null | undefined;
   isComment?: boolean;
   fallback?: any;
-  // --- redux ---
-  claim: ChannelClaim | null | undefined;
-  title: string | null | undefined;
 };
 
 function ChannelTitle(props: Props) {
-  const { title, claim, isComment, fallback } = props;
+  const { uri, isComment, fallback } = props;
+
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
 
   if (isComment) {
     if (!title) {

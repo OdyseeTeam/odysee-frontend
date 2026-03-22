@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
 import { PAGE_TITLE } from 'constants/pageTitles';
 import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
@@ -15,6 +16,15 @@ import Spinner from 'component/spinner';
 import HomePage from 'page/home';
 import { getPathForPage, htmlDecode } from 'util/url';
 import { history as appHistory } from 'redux/router';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectHasNavigated, selectScrollStartingPosition } from 'redux/selectors/app';
+import { selectClientSetting, selectHomepageData, selectWildWestDisabled } from 'redux/selectors/settings';
+import { selectTitleForUri, selectChannelPermanentUriForUri, selectClaimUriForId } from 'redux/selectors/claims';
+import { doSetHasNavigated, doSetActiveChannel } from 'redux/actions/app';
+import { doUserSetReferrerForUri } from 'redux/actions/user';
+import { selectHasUnclaimedRefereeReward } from 'redux/selectors/rewards';
+import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
 const Code2257Page = lazyImport(
   () =>
@@ -549,22 +559,7 @@ if ('scrollRestoration' in history) {
 }
 
 type Props = {
-  currentScroll: number;
-  isAuthenticated: boolean;
   uri: string;
-  channelClaimPermanentUri: string | null | undefined;
-  title: string;
-  hasNavigated: boolean;
-  setHasNavigated: () => void;
-  doUserSetReferrerForUri: (referrerPermanentUri: string) => void;
-  hasUnclaimedRefereeReward: boolean;
-  homepageData: any;
-  wildWestDisabled: boolean;
-  unseenCount: number;
-  hideTitleNotificationCount: boolean;
-  hasDefaultChannel: boolean;
-  doSetActiveChannel: (claimId: string | null | undefined, override?: boolean) => void;
-  isGlobalMod: boolean;
 };
 type PrivateRouteProps = {
   component: any;
@@ -587,24 +582,37 @@ function PrivateRoute(props: PrivateRouteProps) {
 
 function AppRouter(props: Props) {
   const location = useLocation();
-  const {
-    currentScroll,
-    isAuthenticated,
-    uri,
-    channelClaimPermanentUri,
-    title,
-    hasNavigated,
-    setHasNavigated,
-    hasUnclaimedRefereeReward,
-    doUserSetReferrerForUri,
-    homepageData,
-    wildWestDisabled,
-    unseenCount,
-    hideTitleNotificationCount,
-    hasDefaultChannel,
-    doSetActiveChannel,
-    isGlobalMod,
-  } = props;
+  const { uri: passedUri } = props;
+  const dispatch = useAppDispatch();
+
+  // Derive the effective URI (handle playlist pages)
+  const { pathname: currentPathname } = location;
+  const playlistCollectionId = currentPathname.startsWith(PLAYLIST_PATH)
+    ? currentPathname.replace(PLAYLIST_PATH, '')
+    : undefined;
+  const playlistClaimUri = useAppSelector((state) =>
+    playlistCollectionId ? selectClaimUriForId(state, playlistCollectionId) : undefined
+  );
+  const uri = passedUri;
+  const effectiveUri = playlistClaimUri || passedUri;
+
+  const currentScroll = useAppSelector(selectScrollStartingPosition);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
+  const hasNavigated = useAppSelector(selectHasNavigated);
+  const hasUnclaimedRefereeReward = useAppSelector(selectHasUnclaimedRefereeReward);
+  const homepageData = useAppSelector(selectHomepageData);
+  const wildWestDisabled = useAppSelector(selectWildWestDisabled);
+  const unseenCount = useAppSelector(selectUnseenNotificationCount);
+  const hideTitleNotificationCount = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT)
+  );
+  const hasDefaultChannel = Boolean(
+    useAppSelector((state) => selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM))
+  );
+  const channelClaimPermanentUri = useAppSelector((state) => selectChannelPermanentUriForUri(state, effectiveUri));
+  const title = useAppSelector((state) => selectTitleForUri(state, effectiveUri));
+  const setHasNavigated = () => dispatch(doSetHasNavigated());
   const { pathname, search, hash } = location;
   const defaultChannelRef = React.useRef(hasDefaultChannel);
   const urlParams = new URLSearchParams(search);
@@ -641,9 +649,9 @@ function AppRouter(props: Props) {
   }, [hasNavigated, setHasNavigated]);
   useEffect(() => {
     if (channelClaimPermanentUri && !hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
-      doUserSetReferrerForUri(channelClaimPermanentUri);
+      dispatch(doUserSetReferrerForUri(channelClaimPermanentUri));
     }
-  }, [channelClaimPermanentUri, doUserSetReferrerForUri, hasNavigated, hasUnclaimedRefereeReward, isAuthenticated]);
+  }, [channelClaimPermanentUri, dispatch, hasNavigated, hasUnclaimedRefereeReward, isAuthenticated]);
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
       let pageTitle = '';
@@ -704,7 +712,7 @@ function AppRouter(props: Props) {
   }, [hasDefaultChannel]);
   React.useEffect(() => {
     if (window.pendingActiveChannel) {
-      doSetActiveChannel(window.pendingActiveChannel);
+      dispatch(doSetActiveChannel(window.pendingActiveChannel));
       delete window.pendingActiveChannel;
     } else if (
       defaultChannelRef.current &&
@@ -716,7 +724,7 @@ function AppRouter(props: Props) {
       pathname !== `/$/${PAGES.LIVESTREAM}`
     ) {
       // has a default channel selected, clear the current active channel
-      doSetActiveChannel(null, true);
+      dispatch(doSetActiveChannel(null, true));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'pathname' change
   }, [pathname]);
   // react-router doesn't decode pathanmes before doing the route matching check

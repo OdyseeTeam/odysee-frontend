@@ -11,22 +11,23 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doSetPreferredCurrency as doSetPreferredCurrencyAction } from 'redux/actions/settings';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectCustomerStatusFetching, selectCardDetails } from 'redux/selectors/stripe';
+import { selectUserEmail } from 'redux/selectors/user';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import {
+  doGetCustomerStatus as doGetCustomerStatusAction,
+  doRemoveCardForPaymentMethodId as doRemoveCardAction,
+  doCustomerSetup as doCustomerSetupAction,
+} from 'redux/actions/stripe';
+import { doToast as doToastAction } from 'redux/actions/notifications';
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 const CARD_NAME_REGEX = /[0-9!@#$%^&*()_+=[\]{};:"\\|,<>?~]/;
 type WrapperProps = {
   isModal: boolean;
   setIsBusy: (isBusy: boolean) => void;
-  // -- redux --
-  email: string | null | undefined;
-  preferredCurrency: string;
-  customerStatusFetching: boolean | null | undefined;
-  cardDetails: StripeCardDetails;
-  doSetPreferredCurrency: (value: string) => void;
-  doGetCustomerStatus: () => void;
-  doToast: (params: { message: string }) => void;
-  doOpenModal: (modalId: string, arg1: {}) => void;
-  doRemoveCardForPaymentMethodId: (paymentMethodId: string) => Promise<any>;
-  doCustomerSetup: () => Promise<StripeCustomerSetupResponse>;
 };
 type Props = WrapperProps & {
   promisePending: boolean | null | undefined;
@@ -35,24 +36,18 @@ type Props = WrapperProps & {
 };
 
 const SettingsStripeCard = (props: Props) => {
-  const {
-    isModal,
-    promisePending,
-    stripeError,
-    reloadForm,
-    setIsBusy,
-    // -- redux --
-    email,
-    preferredCurrency,
-    customerStatusFetching,
-    cardDetails,
-    doSetPreferredCurrency,
-    doGetCustomerStatus,
-    doToast,
-    doOpenModal,
-    doRemoveCardForPaymentMethodId,
-    doCustomerSetup,
-  } = props;
+  const { isModal, promisePending, stripeError, reloadForm, setIsBusy } = props;
+  const dispatch = useAppDispatch();
+  const email = useAppSelector(selectUserEmail);
+  const preferredCurrency = useAppSelector(selectPreferredCurrency);
+  const customerStatusFetching = useAppSelector(selectCustomerStatusFetching);
+  const cardDetails = useAppSelector(selectCardDetails);
+  const doSetPreferredCurrency = (value: string) => dispatch(doSetPreferredCurrencyAction(value));
+  const doGetCustomerStatus = () => dispatch(doGetCustomerStatusAction());
+  const doToast = (params: { message: string }) => dispatch(doToastAction(params));
+  const doOpenModal = (modalId: string, modalProps: {}) => dispatch(doOpenModalAction(modalId, modalProps));
+  const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => dispatch(doRemoveCardAction(paymentMethodId));
+  const doCustomerSetup = () => dispatch(doCustomerSetupAction());
   const stripe = useStripe();
   const elements = useElements();
   const [cardNameValue, setCardNameValue] = React.useState('');
