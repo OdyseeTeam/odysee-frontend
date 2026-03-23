@@ -193,12 +193,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, className, isSelected } = props;
 
   return (
-    <div
-      data-reach-tab-panel=""
-      role="tabpanel"
-      className={className}
-      hidden={!isSelected}
-    >
+    <div data-reach-tab-panel="" role="tabpanel" className={classnames('tab__panel', className)} hidden={!isSelected}>
       {isSelected ? children : null}
     </div>
   );

@@ -56,9 +56,14 @@ reach-portal {
   }
 }
 
-// Override MUI Paper default white background
+// Override MUI defaults: Paper background + List padding
 .MuiPaper-root.MuiMenu-paper {
   background-color: var(--color-background) !important;
+}
+
+.MuiList-root.MuiMenu-list {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 [data-reach-menu-list],
