@@ -79,6 +79,7 @@ type Props = {
   collectionId: string;
   fypId?: string;
   channelUri?: string;
+  autoOpen?: boolean;
 };
 
 function ClaimMenuList(props: Props) {
@@ -103,12 +104,13 @@ function ClaimMenuList(props: Props) {
     );
   }
 
-  return <ClaimMenuListInner {...props} />;
+  return <ClaimMenuListInner {...props} autoOpen />;
 }
 
 function ClaimMenuListInner(props: Props) {
-  const { uri, inline = false, collectionId, fypId } = props;
+  const { uri, inline = false, collectionId, fypId, autoOpen } = props;
   const dispatch = useAppDispatch();
+  const autoOpenRef = React.useRef<HTMLButtonElement>(null);
 
   // -- selectors --
   const placeholderForDeletedClaim = React.useMemo(
@@ -507,9 +509,16 @@ function ClaimMenuListInner(props: Props) {
     );
   };
 
+  React.useEffect(() => {
+    if (autoOpen && autoOpenRef.current) {
+      autoOpenRef.current.click();
+    }
+  }, [autoOpen]);
+
   return (
     <Menu>
       <MenuButton
+        ref={autoOpenRef}
         className={classnames('menu__button', {
           'claim__menu-button': !inline,
           'claim__menu-button--inline': inline,
