@@ -501,7 +501,7 @@ export default defineConfig({
 
   server: {
     port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),
-    open: true,
+    open: false,
   },
 
   build: {
@@ -540,13 +540,11 @@ export default defineConfig({
       'redux-persist-transform-compress',
       'redux-persist-transform-filter',
       'redux-state-sync',
-      'history',
       're-reselect',
       'buffer',
       'proxy-polyfill',
       'tus-js-client',
       'remark',
-      'unified',
       'react-datepicker',
     ],
   },

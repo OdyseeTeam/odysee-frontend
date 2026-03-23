@@ -1,6 +1,16 @@
-import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useOnResize } from 'effects/use-on-resize';
+
+type TabsContextValue = {
+  selectedIndex: number;
+  onSelectTab: (index: number) => void;
+};
+
+const TabsContext = React.createContext<TabsContextValue>({
+  selectedIndex: 0,
+  onSelectTab: () => {},
+});
 
 type TabsProps = {
   index?: number;
@@ -50,59 +60,46 @@ function Tabs(props: TabsProps) {
     measureTabs();
   }, [measureTabs, selectedIndex, children]);
 
-  const clonedChildren = React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) {
-      return child;
-    }
-
-    if (child.type === TabList) {
-      return React.cloneElement(child, {
-        selectedIndex,
-        onSelectTab: handleSelectTab,
-      });
-    }
-
-    if (child.type === TabPanels) {
-      return React.cloneElement(child, {
-        selectedIndex,
-      });
-    }
-
-    return child;
-  });
+  const contextValue = React.useMemo(
+    () => ({ selectedIndex, onSelectTab: handleSelectTab }),
+    [selectedIndex, handleSelectTab]
+  );
 
   return (
-    <div className={classnames('tabs', className)} data-reach-tabs="" ref={tabsRef}>
-      {clonedChildren}
+    <TabsContext.Provider value={contextValue}>
+      <div className={classnames('tabs', className)} data-reach-tabs="" ref={tabsRef}>
+        {children}
 
-      <div
-        className="tab__divider"
-        style={{
-          left: selectedRect && tabsRect ? selectedRect.left - tabsRect.left : undefined,
-          width: selectedRect ? selectedRect.width : undefined,
-        }}
-      />
-    </div>
+        <div
+          className="tab__divider"
+          style={{
+            left: selectedRect && tabsRect ? selectedRect.left - tabsRect.left : undefined,
+            width: selectedRect ? selectedRect.width : undefined,
+          }}
+        />
+      </div>
+    </TabsContext.Provider>
   );
 }
 
 type TabListProps = {
   children?: React.ReactNode;
   className?: string;
-  onSelectTab?: (index: number) => void;
-  selectedIndex?: number;
 };
 
 function TabList(props: TabListProps) {
-  const { children, className, onSelectTab, selectedIndex } = props;
-  const tabs = React.Children.map(children, (child, index) => {
+  const { children, className } = props;
+  const { selectedIndex, onSelectTab } = React.useContext(TabsContext);
+  let tabIndex = 0;
+  const tabs = React.Children.map(children, (child) => {
     if (!React.isValidElement(child)) {
       return child;
     }
 
+    const currentIndex = tabIndex++;
     return React.cloneElement(child, {
-      index,
-      isSelected: selectedIndex === index,
+      index: currentIndex,
+      isSelected: selectedIndex === currentIndex,
       onSelectTab,
     });
   });
@@ -120,6 +117,7 @@ type TabProps = {
   isSelected?: boolean;
   className?: string;
   onSelectTab?: (index: number) => void;
+  [key: string]: any;
 };
 
 function Tab(props: TabProps) {
@@ -149,50 +147,46 @@ function Tab(props: TabProps) {
 type TabPanelsProps = {
   children?: React.ReactNode;
   header?: React.ReactNode;
-  selectedIndex?: number;
 };
 
 function TabPanels(props: TabPanelsProps) {
-  const { children, header, selectedIndex } = props;
+  const { children, header } = props;
+  const { selectedIndex } = React.useContext(TabsContext);
   const panels = React.Children.map(children, (child, index) => {
     if (!React.isValidElement(child)) {
       return child;
     }
 
     return React.cloneElement(child, {
-      index,
       isSelected: selectedIndex === index,
     });
   });
 
   return (
-    <Fragment>
+    <div data-reach-tab-panels="">
       {header}
-      <div data-reach-tab-panels="">{panels}</div>
-    </Fragment>
+      {panels}
+    </div>
   );
 }
 
 type TabPanelProps = {
   children?: React.ReactNode;
-  className?: string;
-  index?: number;
   isSelected?: boolean;
+  className?: string;
 };
 
 function TabPanel(props: TabPanelProps) {
-  const { children, className, index = 0, isSelected, ...rest } = props;
+  const { children, className, isSelected } = props;
 
   return (
     <div
-      {...rest}
-      role="tabpanel"
-      hidden={!isSelected}
       data-reach-tab-panel=""
-      data-tab-panel-index={index}
-      className={classnames('tab__panel', className)}
+      role="tabpanel"
+      className={className}
+      hidden={!isSelected}
     >
-      {children}
+      {isSelected ? children : null}
     </div>
   );
 }

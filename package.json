@@ -20,7 +20,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
+    "dev": "pnpm dev:web-server",
+    "dev:vite": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
     "check": "vp check",
