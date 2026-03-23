@@ -57,9 +57,16 @@ export default function WatchHistoryPage(props: Props & StateProps & DispatchPro
     true
   );
 
+  // Re-fetch remote history when visiting the page, but only if we haven't fetched recently (5 min cooldown)
+  const REFETCH_COOLDOWN_MS = 5 * 60 * 1000;
   React.useEffect(() => {
     if (isAuthenticated) {
-      doFetchViewHistory();
+      const store = window.store;
+      const state = store && store.getState();
+      const lastFetched = state && state.content && state.content.remoteHistoryLastFetched;
+      if (!lastFetched || Date.now() - lastFetched > REFETCH_COOLDOWN_MS) {
+        doFetchViewHistory();
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -112,6 +119,14 @@ export default function WatchHistoryPage(props: Props & StateProps & DispatchPro
             )}
           </div>
         </div>
+        {isAuthenticated && uris.length > 0 && (
+          <div className="watch-history__sync-notice">
+            <Icon icon={ICONS.INFO} size={16} />
+            <span>
+              {__('Synced history is available for the last 30 days. Older history is only stored on this device.')}
+            </span>
+          </div>
+        )}
         {uris.length > 0 && (
           <ClaimList
             uris={uris.slice(0, (page + 1) * PAGE_SIZE)}

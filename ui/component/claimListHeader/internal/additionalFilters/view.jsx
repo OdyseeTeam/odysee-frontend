@@ -15,6 +15,10 @@ function AdditionalFilters(props: Props) {
     return null;
   }
 
+  const hasActiveFilter =
+    (filterCtx?.repost && filterCtx.repost.hideReposts) ||
+    (filterCtx?.membersOnly && filterCtx.membersOnly.hideMembersOnly);
+
   return (
     <div className="additional-filters">
       <fieldset>
@@ -46,6 +50,9 @@ function AdditionalFilters(props: Props) {
             </div>
           )}
         </div>
+        {hasActiveFilter && (
+          <span className="additional-filters__notice">{__('These filters apply to all channel pages.')}</span>
+        )}
       </fieldset>
     </div>
   );
