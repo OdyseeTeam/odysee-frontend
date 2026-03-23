@@ -10,16 +10,17 @@ import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import { CHANNEL_SECTIONS_QUERIES as CSQ } from 'constants/urlParams';
 import { formatLbryUrlForWeb } from 'util/url';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { doDeleteChannelSection } from 'redux/actions/comments';
+import { selectClaimIsMineForId } from 'redux/selectors/claims';
 import './style.scss';
+
 type Props = {
   id: string;
   title: string;
   uris: Array<string>;
   channelId: ClaimId;
-  // --- redux ---
-  isChannelMine: boolean;
-  doOpenModal: (id: string, arg1: {} | null | undefined) => void;
-  doDeleteChannelSection: (channelId: string, sectionId: string) => void;
 };
 
 const ContextMenuItem = (props: { label: string; icon: string; onSelect: any }) => (
@@ -30,7 +31,9 @@ const ContextMenuItem = (props: { label: string; icon: string; onSelect: any }) 
 );
 
 export default function Section(props: Props) {
-  const { id, title, uris, channelId, isChannelMine, doOpenModal, doDeleteChannelSection } = props;
+  const { id, title, uris, channelId } = props;
+  const dispatch = useAppDispatch();
+  const isChannelMine = useAppSelector((state) => selectClaimIsMineForId(state, channelId));
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -66,26 +69,30 @@ export default function Section(props: Props) {
   // **************************************************************************
   // **************************************************************************
   function handleSectionEdit() {
-    doOpenModal(MODALS.FEATURED_CHANNELS_EDIT, {
-      channelId,
-      sectionId: id,
-    });
+    dispatch(
+      doOpenModal(MODALS.FEATURED_CHANNELS_EDIT, {
+        channelId,
+        sectionId: id,
+      })
+    );
   }
 
   function handleSectionDelete() {
-    doOpenModal(MODALS.CONFIRM, {
-      title: title
-        ? __('Delete "%list_name%"?', {
-            list_name: title.slice(0, 50),
-          })
-        : __('Delete featured channels?'),
-      subtitle: __('This action is permanent and cannot be undone.'),
-      labelOk: __('Delete'),
-      onConfirm: (closeModal) => {
-        doDeleteChannelSection(channelId, id);
-        closeModal();
-      },
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: title
+          ? __('Delete "%list_name%"?', {
+              list_name: title.slice(0, 50),
+            })
+          : __('Delete featured channels?'),
+        subtitle: __('This action is permanent and cannot be undone.'),
+        labelOk: __('Delete'),
+        onConfirm: (closeModal) => {
+          dispatch(doDeleteChannelSection(channelId, id));
+          closeModal();
+        },
+      })
+    );
   }
 
   // **************************************************************************

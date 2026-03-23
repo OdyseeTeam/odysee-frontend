@@ -3,14 +3,15 @@ import * as ICONS from 'constants/icons';
 import { SORT_ORDER, SORT_KEYS } from 'constants/collections';
 import FileActionButton from 'component/common/file-action-button';
 import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
+import { useAppDispatch } from 'redux/hooks';
+import { doSortCollectionByKey } from 'redux/actions/collections';
 type ButtonProps = {
   collectionId: string;
-  // redux
-  doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void;
 };
 
 const SortButton = (props: ButtonProps) => {
-  const { collectionId, doSortCollectionByKey } = props;
+  const { collectionId } = props;
+  const dispatch = useAppDispatch();
   return (
     <div className="section__actions">
       <div className="sort-menu__button">
@@ -28,7 +29,7 @@ const SortButton = (props: ButtonProps) => {
             <MenuItem
               className="comment__menu-option"
               onSelect={() => {
-                doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.ASC);
+                dispatch(doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.ASC));
               }}
             >
               <div className="menu__link">{__('Newest first')}</div>
@@ -36,7 +37,7 @@ const SortButton = (props: ButtonProps) => {
             <MenuItem
               className="comment__menu-option"
               onSelect={() => {
-                doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.DESC);
+                dispatch(doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.DESC));
               }}
             >
               <div className="menu__link">{__('Oldest first')}</div>
@@ -44,7 +45,7 @@ const SortButton = (props: ButtonProps) => {
             <MenuItem
               className="comment__menu-option"
               onSelect={() => {
-                doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.DESC);
+                dispatch(doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.DESC));
               }}
             >
               <div className="menu__link">{__('A-Z')}</div>
@@ -52,7 +53,7 @@ const SortButton = (props: ButtonProps) => {
             <MenuItem
               className="comment__menu-option"
               onSelect={() => {
-                doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.ASC);
+                dispatch(doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.ASC));
               }}
             >
               <div className="menu__link">{__('Z-A')}</div>

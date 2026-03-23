@@ -6,35 +6,42 @@ import { AppContext } from 'contexts/app';
 import { EmbedContext } from 'contexts/embed';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { getChannelTitleFromClaim } from 'util/claim';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectProtectedContentTagForUri,
+  selectScheduledStateForUri,
+} from 'redux/selectors/claims';
+import {
+  selectMyProtectedContentMembershipForId,
+  selectUserIsMemberOfProtectedContentForId,
+  selectPriceOfCheapestPlanForClaimId,
+  selectCheapestProtectedContentMembershipForId,
+} from 'redux/selectors/memberships';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 type Props = {
   fileUri?: string;
-  channelName: string | null | undefined;
-  claimIsMine: boolean;
-  isProtected: boolean;
   uri: string;
-  scheduledState: ClaimScheduledState;
-  userIsAMember: boolean;
-  myMembership: CreatorMembership | null | undefined;
-  cheapestPlanPrice: CreatorMembership | null | undefined;
-  joinEnabled: boolean;
   passClickPropsToParent?: (props?: { href?: string; onClick?: () => void }) => void;
-  doOpenModal: (arg0: string, arg1: {}) => void;
 };
 
 const ProtectedContentOverlay = (props: Props) => {
-  const {
-    channelName,
-    claimIsMine,
-    uri,
-    isProtected,
-    myMembership,
-    scheduledState,
-    userIsAMember,
-    cheapestPlanPrice,
-    joinEnabled,
-    passClickPropsToParent,
-    doOpenModal,
-  } = props;
+  const { uri, passClickPropsToParent } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const claimId = claim && claim.claim_id;
+  const cheapestPlan = useAppSelector((state) => selectCheapestProtectedContentMembershipForId(state, claimId));
+  const joinEnabled = cheapestPlan && cheapestPlan.prices.some((p: any) => p.address);
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const channelName = getChannelTitleFromClaim(claim);
+  const isProtected = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
+  const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
+  const userIsAMember = useAppSelector((state) => selectUserIsMemberOfProtectedContentForId(state, claimId));
+  const myMembership = useAppSelector((state) => selectMyProtectedContentMembershipForId(state, claimId));
+  const cheapestPlanPrice = useAppSelector((state) => selectPriceOfCheapestPlanForClaimId(state, claimId));
+  const doOpenModal = (id: string, params: {}) => dispatch(doOpenModalAction(id, params));
   const appFileUri = React.useContext(AppContext)?.uri;
   const fileUri = props.fileUri || appFileUri;
   const isEmbed = React.useContext(EmbedContext);

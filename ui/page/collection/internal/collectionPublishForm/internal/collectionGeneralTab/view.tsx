@@ -12,6 +12,8 @@ import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
 import { lazyImport } from 'util/lazyImport';
+import { useAppSelector } from 'redux/hooks';
+import { selectHasClaimForId, selectNameForClaimId } from 'redux/selectors/claims';
 import './style.scss';
 const SelectThumbnail = lazyImport(
   () =>
@@ -22,29 +24,21 @@ const SelectThumbnail = lazyImport(
 );
 const TAGS_LIMIT = 5;
 type Props = {
+  collectionId: string;
   formParams: any;
   setThumbnailError: (error: string | null | undefined) => void;
   updateFormParams: (obj: any) => void;
-  // -- redux --
-  hasClaim: boolean;
-  collectionChannelName: string | null | undefined;
 };
 
 function CollectionGeneralTab(props: Props) {
-  const {
-    formParams,
-    setThumbnailError,
-    updateFormParams,
-    // -- redux --
-    hasClaim,
-    collectionChannelName,
-  } = props;
+  const { collectionId, formParams, setThumbnailError, updateFormParams } = props;
+  const { channel_id: collectionChannelId, name, title, description, thumbnail_url: thumbnailUrl, tags } = formParams;
+  const hasClaim = useAppSelector((state) => selectHasClaimForId(state, collectionId));
+  const collectionChannelName = useAppSelector((state) => selectNameForClaimId(state, collectionChannelId));
   const { updateFormErrors } = React.useContext(FormContext);
   const { search } = useLocation();
-  const { tags } = formParams;
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
-  const { channel_id: collectionChannelId, name, title, description, thumbnail_url: thumbnailUrl } = formParams;
   const [thumbStatus, setThumbStatus] = React.useState();
   const [thumbError, setThumbError] = React.useState();
 

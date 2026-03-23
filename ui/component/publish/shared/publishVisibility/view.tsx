@@ -5,16 +5,16 @@ import { FormField } from 'component/common/form';
 import PublishReleaseDate from 'component/publish/shared/publishReleaseDate';
 import { MS } from 'constants/date-time';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
-type Props = {
-  visibility: Visibility;
-  scheduledShow: boolean;
-  isNonPublicAllowed: boolean;
-  claimToEdit: StreamClaim | null | undefined;
-  doUpdatePublishForm: (data: UpdatePublishState) => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectIsNonPublicVisibilityAllowed, selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
 
-const PublishVisibility = (props: Props) => {
-  const { visibility, scheduledShow, isNonPublicAllowed, claimToEdit: ce, doUpdatePublishForm } = props;
+const PublishVisibility = () => {
+  const dispatch = useAppDispatch();
+  const visibility: Visibility = useAppSelector((state) => selectPublishFormValue(state, 'visibility'));
+  const scheduledShow: boolean = useAppSelector((state) => selectPublishFormValue(state, 'scheduledShow'));
+  const ce: StreamClaim | null | undefined = useAppSelector((state) => selectPublishFormValue(state, 'claimToEdit'));
+  const isNonPublicAllowed = useAppSelector(selectIsNonPublicVisibilityAllowed);
   let showEditWarning = false;
 
   if (ce) {
@@ -27,7 +27,7 @@ const PublishVisibility = (props: Props) => {
     const change: UpdatePublishState = {
       visibility,
     };
-    doUpdatePublishForm(change);
+    dispatch(doUpdatePublishForm(change));
   }
 
   return (
@@ -86,9 +86,11 @@ const PublishVisibility = (props: Props) => {
                   label={__("Show this on my channel's Upcoming section.")}
                   checked={scheduledShow}
                   onChange={() =>
-                    doUpdatePublishForm({
-                      scheduledShow: !scheduledShow,
-                    })
+                    dispatch(
+                      doUpdatePublishForm({
+                        scheduledShow: !scheduledShow,
+                      })
+                    )
                   }
                 />
                 <PublishReleaseDate minDate={new Date(Date.now() + 30 * MS.MINUTE)} />

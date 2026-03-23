@@ -4,6 +4,15 @@ import { useIsMobile } from 'effects/use-screensize';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMembershipOdyseePerks } from 'redux/selectors/memberships';
+import {
+  doMembershipAddTier as doMembershipAddTierAction,
+  doMembershipUpdateTier as doMembershipUpdateTierAction,
+  doMembershipList as doMembershipListAction,
+} from 'redux/actions/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
@@ -15,41 +24,19 @@ type Props = {
   hasSubscribers: boolean | null | undefined;
   removeEditing: () => void;
   onCancel: () => void;
-  // -- redux --
-  membershipOdyseePerks: MembershipOdyseePerks;
-  // the perks the server knows about, stored in state
-  activeChannelClaim: ChannelClaim;
-  doMembershipAddTier: (params: MembershipAddTierParams) => Promise<{
-    response: MembershipCreateResponse;
-    error: string;
-  }>;
-  doMembershipUpdateTier: (params: MembershipUpdateTierParams) => Promise<{
-    response: MembershipCreateResponse;
-    error: string;
-  }>;
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>;
-  doMembershipList: (
-    params: MembershipListParams,
-    forceUpdate: boolean | null | undefined
-  ) => Promise<CreatorMemberships>;
-  apiArweaveAddress: string;
 };
 
 function MembershipEditTier(props: Props) {
-  const {
-    membership,
-    hasSubscribers,
-    removeEditing,
-    onCancel,
-    // -- redux --
-    membershipOdyseePerks,
-    activeChannelClaim,
-    doMembershipAddTier,
-    doMembershipUpdateTier,
-    addChannelMembership,
-    doMembershipList,
-    apiArweaveAddress,
-  } = props;
+  const { membership, hasSubscribers, removeEditing, onCancel, addChannelMembership } = props;
+  const dispatch = useAppDispatch();
+  const membershipOdyseePerks = useAppSelector(selectMembershipOdyseePerks);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const apiArweaveAddress = useAppSelector(selectAPIArweaveDefaultAddress);
+  const doMembershipAddTier = (params: MembershipAddTierParams) => dispatch(doMembershipAddTierAction(params));
+  const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => dispatch(doMembershipUpdateTierAction(params));
+  const doMembershipList = (params: MembershipListParams, forceUpdate?: boolean | null) =>
+    dispatch(doMembershipListAction(params, forceUpdate));
   console.log('perk props', props);
   console.log('membershipOdyseePerks', membershipOdyseePerks);
   const isCreatingAMembership = typeof membership.membership_id === 'string';

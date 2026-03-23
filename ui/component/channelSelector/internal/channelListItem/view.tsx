@@ -5,15 +5,20 @@ import Icon from 'component/common/icon';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelTitle from 'component/channelTitle';
 import MembershipBadge from 'component/membershipBadge';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimUriForId } from 'redux/selectors/claims';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
+
 type Props = {
+  channelId: string;
   isSelected?: boolean;
-  // -- redux --
-  uri: string;
-  odyseeMembership: string | null | undefined;
 };
 
 const ChannelListItem = (props: Props) => {
-  const { uri, odyseeMembership, isSelected = false } = props;
+  const { channelId, isSelected = false } = props;
+
+  const uri = useAppSelector((state) => selectClaimUriForId(state, channelId));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, channelId));
   return (
     <div
       className={classnames('channel-selector__item', {

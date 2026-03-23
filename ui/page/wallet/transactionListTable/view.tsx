@@ -3,29 +3,29 @@ import React from 'react';
 import Spinner from 'component/spinner';
 import LbcSymbol from 'component/common/lbc-symbol';
 import TxoListItem from '../transactionListTableItem';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimedRewardsByTransactionId } from 'redux/selectors/rewards';
+import { doOpenModal } from 'redux/actions/app';
+import { selectIsFetchingTxos } from 'redux/selectors/wallet';
 type Props = {
-  emptyMessage: string | null | undefined;
-  loading: boolean;
-  openModal: (
-    id: string,
-    arg1: {
-      tx: Txo;
-      cb: (arg0: string) => void;
-    }
-  ) => void;
-  rewards: {};
+  emptyMessage?: string | null | undefined;
   txos: Array<Txo>;
 };
 
 function TransactionListTable(props: Props) {
-  const { emptyMessage, rewards, loading, txos } = props;
+  const { emptyMessage, txos } = props;
+  const dispatch = useAppDispatch();
+  const rewards = useAppSelector(selectClaimedRewardsByTransactionId);
+  const loading = useAppSelector(selectIsFetchingTxos);
   const REVOCABLE_TYPES = ['channel', 'stream', 'repost', 'support', 'claim', 'collection'];
 
   function revokeClaim(tx: any, cb: (arg0: string) => void) {
-    props.openModal(MODALS.CONFIRM_CLAIM_REVOKE, {
-      tx,
-      cb,
-    });
+    dispatch(
+      doOpenModal(MODALS.CONFIRM_CLAIM_REVOKE, {
+        tx,
+        cb,
+      })
+    );
   }
 
   return (

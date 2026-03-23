@@ -6,15 +6,16 @@ import CopyableText from 'component/copyableText';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 import TruncatedText from 'component/common/truncated-text';
+import { useAppSelector } from 'redux/hooks';
+import { selectSupportersAmountForChannelId, selectMonthlyIncomeForChannelId } from 'redux/selectors/memberships';
 type Props = {
   channelClaim: ChannelClaim;
-  // -- redux --
-  supportersAmount: number;
-  monthlyIncome: number;
 };
 
 const ChannelOverview = (props: Props) => {
-  const { channelClaim, supportersAmount, monthlyIncome } = props;
+  const { channelClaim } = props;
+  const supportersAmount = useAppSelector((state) => selectSupportersAmountForChannelId(state, channelClaim.claim_id));
+  const monthlyIncome = useAppSelector((state) => selectMonthlyIncomeForChannelId(state, channelClaim.claim_id));
   return (
     <>
       <td className="channelThumbnail">

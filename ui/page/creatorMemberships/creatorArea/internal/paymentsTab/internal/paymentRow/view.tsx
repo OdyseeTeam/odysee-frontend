@@ -7,18 +7,25 @@ import CopyableText from 'component/copyableText';
 import Tooltip from 'component/common/tooltip';
 import { toCapitalCase } from 'util/string';
 import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { selectMembershipForId } from 'redux/selectors/memberships';
 interface IProps {
   transaction: MembershipPayment;
-  recipientChannel?: ChannelClaim;
-  senderChannel?: ChannelClaim;
-  membership: CreatorMembership;
   longList: boolean;
 }
 
 // takes a claimId, selects the claim for it
 // renders the name, thumb, etc, waits for it
 function View(props: IProps) {
-  const { longList, membership, transaction, recipientChannel, senderChannel } = props;
+  const { longList, transaction } = props;
+  const recipientChannel = useAppSelector((state) =>
+    selectClaimForClaimId(state, transaction?.creator_channel_claim_id)
+  );
+  const senderChannel = useAppSelector((state) =>
+    selectClaimForClaimId(state, transaction?.subscriber_channel_claim_id)
+  );
+  const membership = useAppSelector((state) => selectMembershipForId(state, transaction.membership_id));
   const { name: recipientName, claim_id: recipientClaimId } = recipientChannel || {};
   const { name: senderName, claim_id: senderClaimId } = senderChannel || {};
   const recipientUri = recipientChannel

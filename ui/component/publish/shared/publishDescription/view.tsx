@@ -4,15 +4,18 @@ import React from 'react';
 import { FormField } from 'component/common/form';
 import usePersistedState from 'effects/use-persisted-state';
 import Card from 'component/common/card';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
 type Props = {
   disabled: boolean;
-  // --- redux ---
-  description: string | null | undefined;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
 };
 
 function PublishDescription(props: Props) {
-  const { description, updatePublishForm, disabled } = props;
+  const { disabled } = props;
+  const dispatch = useAppDispatch();
+  const description = useAppSelector((state) => selectPublishFormValue(state, 'description'));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [advancedEditor, setAdvancedEditor] = usePersistedState('publish-form-description-mode', false);
 
   function toggleMarkdown() {

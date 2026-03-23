@@ -32,6 +32,30 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishTemplateButton from 'component/publish/shared/publishTemplateButton';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
+import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
+import {
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import * as SETTINGS from 'constants/settings';
+import { doClaimInitialRewards } from 'redux/actions/rewards';
+import {
+  selectUnclaimedRewardValue,
+  selectIsClaimingInitialRewards,
+  selectHasClaimedInitialRewards,
+} from 'redux/selectors/rewards';
+import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
 const SelectThumbnail = lazyImport(
   () =>
     import(
@@ -48,109 +72,66 @@ const PublishPrice = lazyImport(
 );
 type Props = {
   disabled: boolean;
-  tags: Array<Tag>;
-  publish: DoPublishDesktop;
-  filePath: string | File;
-  fileSizeTooBig: boolean;
-  prevFileSizeTooBig: boolean;
-  fileText: string;
-  fileBitrate: number;
-  bid: number | null | undefined;
-  bidError: string | null | undefined;
-  editingURI: string | null | undefined;
-  title: string | null | undefined;
-  thumbnail: string | null | undefined;
-  thumbnailError: boolean | null | undefined;
-  uploadThumbnailStatus: string;
-  thumbnailPath: string | null | undefined;
-  description: string | null | undefined;
-  language: string;
-  releaseTimeError: string | null | undefined;
-  nsfw: boolean;
-  fee: {
-    amount: string;
-    currency: string;
-  };
-  channelId?: string;
-  name: string | null | undefined;
-  nameError: string | null | undefined;
-  winningBidForClaimUri: number;
-  myClaimForUri: StreamClaim | null | undefined;
-  licenseType: string;
-  otherLicenseDescription: string | null | undefined;
-  licenseUrl: string | null | undefined;
-  useLBRYUploader: boolean | null | undefined;
-  publishing: boolean;
-  publishSuccess: boolean;
-  publishError?: boolean;
-  balance: number;
-  isStillEditing: boolean;
-  claimToEdit: Claim | null | undefined;
-  clearPublish: () => void;
-  resolveUri: (arg0: string) => void;
-  resetThumbnailStatus: () => void;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  checkAvailability: (arg0: string) => void;
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  enablePublishPreview: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  incognito: boolean;
-  permanentUrl: string | null | undefined;
-  remoteUrl: string | null | undefined;
-  isClaimingInitialRewards: boolean;
-  claimInitialRewards: () => void;
-  hasClaimedInitialRewards: boolean;
-  memberRestrictionStatus: MemberRestrictionStatus;
-  fetchCreatorSettings: (arg0: string) => void;
 };
 
 function UploadForm(props: Props) {
-  // Detect upload type from query in URL
+  const { disabled = false } = props;
+  const dispatch = useAppDispatch();
+
+  // -- selectors --
+  const publishFormValues = useAppSelector(selectPublishFormValues);
+  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+  const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
+  const isPostClaim = useAppSelector(
+    (state) => makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN
+  );
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, permanentUrl));
+  const isStillEditing = useAppSelector(selectIsStillEditing);
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const fileSizeTooBig = useAppSelector((state) => selectPublishFormValue(state, 'fileSizeTooBig'));
+  const prevFileSizeTooBig = useAppSelector(selectPrevFileSizeTooBig);
+  const remoteUrl = useAppSelector((state) => selectPublishFormValue(state, 'remoteFileUrl'));
+  const publishSuccess = useAppSelector((state) => selectPublishFormValue(state, 'publishSuccess'));
+  const memberRestrictionStatus = useAppSelector(selectMemberRestrictionStatus);
+  const totalRewardValue = useAppSelector(selectUnclaimedRewardValue);
+  const modal = useAppSelector(selectModal);
+  const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const incognito = useAppSelector(selectIncognito);
+  const isClaimingInitialRewards = useAppSelector(selectIsClaimingInitialRewards);
+  const hasClaimedInitialRewards = useAppSelector(selectHasClaimedInitialRewards);
+
   const {
-    activeChannelClaim,
+    tags,
     bid,
     bidError,
-    checkAvailability,
-    channelId,
-    claimInitialRewards,
-    clearPublish,
-    description,
-    disabled = false,
     editingURI,
-    enablePublishPreview,
-    filePath,
-    fileSizeTooBig,
-    prevFileSizeTooBig,
-    fileText,
-    fileBitrate,
-    hasClaimedInitialRewards,
-    incognito,
-    isClaimingInitialRewards,
-    isStillEditing,
-    modal,
-    myClaimForUri,
-    name,
-    permanentUrl,
-    publish,
-    publishError,
-    publishSuccess,
-    publishing,
-    releaseTimeError,
-    remoteUrl,
-    resetThumbnailStatus,
-    resolveUri,
-    tags,
+    title,
     thumbnail,
     thumbnailError,
-    title,
-    updatePublishForm,
     uploadThumbnailStatus,
-    memberRestrictionStatus,
-    fetchCreatorSettings,
-  } = props;
+    description,
+    fileText,
+    fileBitrate,
+    name,
+    channelId,
+    publishing,
+    publishError,
+    releaseTimeError,
+  } = publishFormValues;
+
+  // -- dispatch wrappers --
+  const updatePublishForm = React.useCallback((v: UpdatePublishState) => dispatch(doUpdatePublishForm(v)), [dispatch]);
+  const clearPublish = React.useCallback(() => dispatch(doClearPublish()), [dispatch]);
+  const resolveUri = React.useCallback((uri: string) => dispatch(doResolveUri(uri)), [dispatch]);
+  const publish: DoPublishDesktop = React.useCallback(
+    (fp, preview) => dispatch(doPublishDesktop(fp, preview)),
+    [dispatch]
+  );
+  const resetThumbnailStatus = React.useCallback(() => dispatch(doResetThumbnailStatus()), [dispatch]);
+  const checkAvailability = React.useCallback((n: string) => dispatch(doCheckPublishNameAvailability(n)), [dispatch]);
+  const claimInitialRewards = React.useCallback(() => dispatch(doClaimInitialRewards()), [dispatch]);
+  const fetchCreatorSettings = React.useCallback((cid: string) => dispatch(doFetchCreatorSettings(cid)), [dispatch]);
   const inEditMode = Boolean(editingURI);
   const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
   const mode = PUBLISH_MODES.FILE;

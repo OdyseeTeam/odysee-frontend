@@ -4,6 +4,11 @@ import * as ICONS from 'constants/icons';
 import { formatLbryUrlForWeb } from 'util/url';
 import { URL as APP_URL, SITE_NAME } from 'config';
 import Logo from 'component/logo';
+import { useAppSelector } from 'redux/hooks';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
+import { selectContentStates } from 'redux/selectors/content';
+import { PREFERENCE_EMBED } from 'constants/tags';
 const DEFAULT_PROMPTS = {
   bigtech: 'Together, we can take back control from big tech',
   discuss: `Continue the discussion on ${SITE_NAME}`,
@@ -13,14 +18,13 @@ const DEFAULT_PROMPTS = {
 type Props = {
   uri: string;
   doReplay: () => void;
-  // -- redux --
-  isAuthenticated: boolean;
-  preferEmbed: boolean;
-  uriAccessKey: UriAccessKey | null | undefined;
 };
 
 function FileViewerEmbeddedEnded(props: Props) {
-  const { uri, doReplay, isAuthenticated, preferEmbed, uriAccessKey } = props;
+  const { uri, doReplay } = props;
+  const isAuthenticated = useAppSelector((state) => selectUserVerifiedEmail(state));
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
+  const uriAccessKey = useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
   const prompts = isAuthenticated
     ? { ...DEFAULT_PROMPTS, tip_auth: 'Always tip your creators' }
     : {

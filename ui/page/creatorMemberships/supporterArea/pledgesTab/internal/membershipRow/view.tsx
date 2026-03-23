@@ -6,20 +6,29 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import JoinMembershipButton from 'component/joinMembershipButton';
 import { toCapitalCase } from 'util/string';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectClaimForId } from 'redux/selectors/claims';
+import { selectIndexForCreatorMembership } from 'redux/selectors/memberships';
+import { doMembershipList } from 'redux/actions/memberships';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import moment from 'moment';
 import { getFormattedRenewBy } from 'util/memberships';
 type Props = {
   membershipSub: MembershipSub;
-  creatorChannelClaim: Claim;
-  activeChannelClaim: Claim;
-  doMembershipList: (params: MembershipListParams) => void;
-  membershipIndex: number;
-  creatorChannelUri: string;
 };
 export default function MembershipRow(props: Props) {
-  const { membershipSub, creatorChannelClaim, activeChannelClaim, membershipIndex, doMembershipList } = props;
+  const { membershipSub } = props;
+  const dispatch = useAppDispatch();
+  const creatorChannelClaim = useAppSelector((state) =>
+    selectClaimForId(state, membershipSub.membership.channel_claim_id)
+  );
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const membershipId = membershipSub ? membershipSub.membership.id : undefined;
+  const membershipIndex = useAppSelector((state) =>
+    selectIndexForCreatorMembership(state, creatorChannelClaim?.claim_id, membershipId)
+  );
   const memberChannelName = activeChannelClaim?.name || '';
   const creatorChannelId = membershipSub.membership.channel_claim_id;
   const creatorChannelUri = creatorChannelClaim
@@ -56,11 +65,13 @@ export default function MembershipRow(props: Props) {
         });
   React.useEffect(() => {
     if (membershipIndex === -1) {
-      doMembershipList({
-        channel_claim_id: creatorChannelId,
-      });
+      dispatch(
+        doMembershipList({
+          channel_claim_id: creatorChannelId,
+        })
+      );
     }
-  }, [creatorChannelId, doMembershipList, membershipIndex]);
+  }, [creatorChannelId, dispatch, membershipIndex]);
 
   // TODO refactor status content
   // let buttonContent;

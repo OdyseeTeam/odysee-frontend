@@ -18,6 +18,21 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
 import { lazyImport } from 'util/lazyImport';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { PAGE_SIZE } from 'constants/claim';
+import {
+  makeSelectClaimsInChannelForPage,
+  makeSelectFetchingChannelClaims,
+  selectClaimIsMine,
+  makeSelectTotalPagesInChannelSearch,
+  selectClaimForUri,
+} from 'redux/selectors/claims';
+import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
+import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
+import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectAdBlockerFound } from 'redux/selectors/app';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { getChannelIdFromClaim } from 'util/claim';
 const HiddenNsfwClaims = lazyImport(
   () =>
     import(
@@ -28,29 +43,13 @@ const HiddenNsfwClaims = lazyImport(
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 type Props = {
   uri: string;
-  totalPages: number;
-  fetching: boolean;
-  params: {
-    page: number;
-  };
-  pageOfClaimsInChannel: Array<StreamClaim>;
-  channelIsBlocked: boolean;
-  channelIsMine: boolean;
   filters: any;
-  fetchClaims: (arg0: string, arg1: number) => void;
   channelIsBlackListed: boolean;
   defaultPageSize?: number;
   defaultInfiniteScroll?: boolean;
-  claim: Claim;
-  isAuthenticated: boolean;
-  showMature: boolean;
-  tileLayout: boolean;
-  hideShorts: boolean;
   viewHiddenChannels: boolean;
-  doResolveUris: (arg0: Array<string>, arg1: boolean) => void;
   claimType: string;
   empty?: string;
-  activeLivestreamForChannel: LivestreamActiveClaim | null | undefined;
   shortsOnly?: boolean;
   excludeShorts?: boolean;
   loadedCallback?: (arg0: number) => void;
@@ -61,26 +60,28 @@ function ContentTab(props: Props) {
   const { pathname, search } = useLocation();
   const {
     uri,
-    fetching,
-    channelIsBlocked,
-    channelIsMine,
     filters,
     channelIsBlackListed,
     defaultPageSize,
-    claim,
-    showMature,
-    tileLayout,
-    hideShorts,
     viewHiddenChannels,
-    doResolveUris,
     claimType,
     empty,
-    activeLivestreamForChannel,
     shortsOnly: shortsOnlyProp,
     excludeShorts,
     loadedCallback,
     defaultInfiniteScroll,
   } = props;
+  const dispatch = useAppDispatch();
+  const claim = uri ? useAppSelector((state) => selectClaimForUri(state, uri)) : undefined;
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const fetching = useAppSelector((state) => makeSelectFetchingChannelClaims(uri)(state));
+  const channelIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const channelIsBlocked = useAppSelector((state) => makeSelectChannelIsMuted(uri)(state));
+  const showMature = useAppSelector(selectShowMatureContent);
+  const tileLayout = useAppSelector((state) => selectClientSetting(state, SETTINGS.TILE_LAYOUT));
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const activeLivestreamForChannel = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelClaimId));
+  const doResolveUris = (uris: Array<string>, doReplay?: boolean) => dispatch(doResolveUrisAction(uris, doReplay));
   const urlParams = new URLSearchParams(search);
   const shortsOnly = shortsOnlyProp || urlParams.get('view') === 'shorts';
   const claimsInChannel = 9999;

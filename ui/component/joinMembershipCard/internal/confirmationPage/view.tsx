@@ -7,51 +7,46 @@ import ErrorBubble from 'component/common/error-bubble';
 import I18nMessage from 'component/i18nMessage';
 import { Submit } from 'component/common/form';
 import Symbol from 'component/common/symbol';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectChannelNameForUri } from 'redux/selectors/claims';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectIncognito } from 'redux/selectors/app';
+import { selectMembershipBuyError, selectPurchaseIsPendingForMembershipId } from 'redux/selectors/memberships';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import { doArConnect } from 'redux/actions/arwallet';
+import { doMembershipBuyClear } from 'redux/actions/memberships';
+
 type Props = {
+  uri: string;
   selectedCreatorMembership: CreatorMembership;
   selectedMembershipIndex: number;
   onCancel: () => void;
-  // -- redux --
-  channelName: string;
-  purchasePending: boolean;
-  preferredCurrency: string | null | undefined;
-  incognito: boolean;
   isRenewal?: boolean;
-  balance: WalletBalance;
-  exchangeRate: {
-    ar: number;
-  };
-  doArConnect: () => void;
-  membershipBuyError: string;
-  doMembershipBuyClear: () => void;
 };
 
 const ConfirmationPage = (props: Props) => {
-  const {
-    selectedCreatorMembership,
-    selectedMembershipIndex,
-    onCancel,
-    channelName,
-    purchasePending,
-    preferredCurrency,
-    incognito,
-    isRenewal = false,
-    balance,
-    exchangeRate,
-    doArConnect,
-    membershipBuyError,
-    doMembershipBuyClear,
-  } = props;
+  const { uri, selectedCreatorMembership, selectedMembershipIndex, onCancel, isRenewal = false } = props;
+  const dispatch = useAppDispatch();
+
+  const channelName = useAppSelector((state) => selectChannelNameForUri(state, uri));
+  const purchasePending = useAppSelector((state) =>
+    selectPurchaseIsPendingForMembershipId(state, selectedCreatorMembership?.membership_id)
+  );
+  const preferredCurrency = useAppSelector(selectPreferredCurrency);
+  const incognito = useAppSelector(selectIncognito);
+  const balance = useAppSelector(selectArweaveBalance) || { ar: 0 };
+  const exchangeRate = useAppSelector(selectArweaveExchangeRates);
+  const membershipBuyError = useAppSelector(selectMembershipBuyError);
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
   React.useEffect(() => {
-    doArConnect();
-  }, [doArConnect]);
+    dispatch(doArConnect());
+  }, [dispatch]);
   React.useEffect(() => {
     return () => {
-      doMembershipBuyClear();
+      dispatch(doMembershipBuyClear());
     };
-  }, [doMembershipBuyClear]);
+  }, [dispatch]);
   const total = Number((Number(selectedCreatorMembership.prices[0].amount) / 100).toFixed(2));
   return (
     <div className="confirm__wrapper">

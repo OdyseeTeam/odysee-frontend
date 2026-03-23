@@ -2,6 +2,11 @@ import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
 import DatePicker from 'react-datepicker';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import * as SETTINGS from 'constants/settings';
+import { selectMyClaimForUri, selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -17,29 +22,17 @@ const RESET_TO_ORIGINAL = 'reset-to-original';
 export type Props = {
   minDate?: Date;
 };
-type StateProps = {
-  claimToEdit: StreamClaim | null | undefined;
-  releaseTime: number | null | undefined;
-  releaseTimeDisabled: boolean;
-  releaseTimeError: string | null | undefined;
-  clock24h: boolean;
-  appLanguage: string | null | undefined;
-};
-type DispatchProps = {
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-};
 
-const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
-  const {
-    minDate,
-    claimToEdit,
-    releaseTime,
-    releaseTimeDisabled,
-    releaseTimeError,
-    clock24h,
-    appLanguage,
-    updatePublishForm,
-  } = props;
+const PublishReleaseDate = (props: Props) => {
+  const { minDate } = props;
+  const dispatch = useAppDispatch();
+  const claimToEdit = useAppSelector((state) => selectMyClaimForUri(state));
+  const releaseTime = useAppSelector((state) => selectPublishFormValue(state, 'releaseTime'));
+  const releaseTimeDisabled = useAppSelector((state) => selectPublishFormValue(state, 'releaseTimeDisabled'));
+  const releaseTimeError = useAppSelector((state) => selectPublishFormValue(state, 'releaseTimeError'));
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+  const appLanguage = useAppSelector((state) => selectLanguage(state));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
   const isEdit = Boolean(claimToEdit);

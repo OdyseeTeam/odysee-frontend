@@ -3,27 +3,41 @@ import classnames from 'classnames';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as REACTION_TYPES from 'constants/reactions';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyReactionForUri } from 'redux/selectors/reactions';
+import {
+  doFetchReactions as doFetchReactionsAction,
+  doReactionLike as doReactionLikeAction,
+  doReactionDislike as doReactionDislikeAction,
+} from 'redux/actions/reactions';
+import { makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
+import {
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+} from 'constants/tags';
 type Props = {
   uri: string;
   claimId: string | null | undefined;
-  myReaction: string | null | undefined;
-  disableSlimes: boolean;
-  disableReactions: boolean;
-  doFetchReactions: (claimId: string) => void;
-  doReactionLike: (uri: string) => void;
-  doReactionDislike: (uri: string) => void;
 };
 
-const FloatingReactions = ({
-  uri,
-  claimId,
-  myReaction,
-  disableSlimes,
-  disableReactions,
-  doFetchReactions,
-  doReactionLike,
-  doReactionDislike,
-}: Props) => {
+const FloatingReactions = ({ uri, claimId }: Props) => {
+  const dispatch = useAppDispatch();
+  const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
+  const disableSlimes = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state)
+  );
+  const disableReactions = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
+  );
+  const doFetchReactions = (claimId: string) => dispatch(doFetchReactionsAction(claimId));
+  const doReactionLike = (uri: string) => dispatch(doReactionLikeAction(uri));
+  const doReactionDislike = (uri: string) => dispatch(doReactionDislikeAction(uri));
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
   const fireButtonGlowTimeout = React.useRef(null);

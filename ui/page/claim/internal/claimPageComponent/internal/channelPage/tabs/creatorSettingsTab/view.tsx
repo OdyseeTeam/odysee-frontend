@@ -12,6 +12,27 @@ import { FormField } from 'component/common/form-components/form-field';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import {
+  doCommentBlockWords,
+  doCommentUnblockWords,
+  doCommentModAddDelegate,
+  doCommentModRemoveDelegate,
+  doCommentModListDelegates,
+  doFetchCreatorSettings,
+  doUpdateCreatorSettings,
+} from 'redux/actions/comments';
+import {
+  selectSettingsByChannelId,
+  selectFetchingCreatorSettings,
+  selectFetchingBlockedWords,
+  selectModerationDelegatesById,
+  selectMembersOnlyCommentsForChannelId,
+} from 'redux/selectors/comments';
+import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
+import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
 const DEBOUNCE_REFRESH_MS = 1000;
 const FIELD_NAMES = {
   MIN_TIP: 'minTip',
@@ -24,48 +45,24 @@ const FIELD_NAMES = {
 // ****************************************************************************
 type Props = {
   activeChannelClaim: ChannelClaim;
-  settingsByChannelId: Record<string, PerChannelSettings>;
-  fetchingCreatorSettings: boolean;
-  fetchingBlockedWords: boolean;
-  moderationDelegatesById: Record<
-    string,
-    Array<{
-      channelId: string;
-      channelName: string;
-    }>
-  >;
-  commentBlockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
-  commentUnblockWords: (arg0: ChannelClaim, arg1: Array<string>) => void;
-  commentModAddDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
-  commentModRemoveDelegate: (arg0: string, arg1: string, arg2: ChannelClaim) => void;
-  commentModListDelegates: (arg0: ChannelClaim) => void;
-  fetchCreatorSettings: (channelId: string) => void;
-  updateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
-  doToast: (arg0: { message: string }) => void;
-  doOpenModal: (id: string, arg1: {}) => void;
-  myChannelClaims: any;
-  listAllMyMembershipTiers: any;
-  channelHasMembershipTiers: any;
-  areCommentsMembersOnly: boolean;
 };
 export default function CreatorSettingsTab(props: Props) {
-  const {
-    activeChannelClaim,
-    settingsByChannelId,
-    moderationDelegatesById,
-    commentBlockWords,
-    commentUnblockWords,
-    commentModAddDelegate,
-    commentModRemoveDelegate,
-    commentModListDelegates,
-    fetchCreatorSettings,
-    updateCreatorSettings,
-    doOpenModal,
-    channelHasMembershipTiers,
-    listAllMyMembershipTiers,
-    myChannelClaims,
-    areCommentsMembersOnly
-  } = props;
+  const { activeChannelClaim } = props;
+  const dispatch = useAppDispatch();
+  const channelHasMembershipTiers = useAppSelector((state) => selectChannelHasMembershipTiersForId(state, activeChannelClaim.claim_id));
+  const settingsByChannelId = useAppSelector(selectSettingsByChannelId);
+  const moderationDelegatesById = useAppSelector(selectModerationDelegatesById);
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const areCommentsMembersOnly = useAppSelector((state) => selectMembersOnlyCommentsForChannelId(state, activeChannelClaim.claim_id));
+  const commentBlockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentBlockWords(channelClaim, words));
+  const commentUnblockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentUnblockWords(channelClaim, words));
+  const fetchCreatorSettings = (channelClaimId: string) => dispatch(doFetchCreatorSettings(channelClaimId));
+  const updateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) => dispatch(doUpdateCreatorSettings(channelClaim, settings));
+  const commentModAddDelegate = (modChanId: string, modChanName: string, creatorChannelClaim: ChannelClaim) => dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim));
+  const commentModRemoveDelegate = (modChanId: string, modChanName: string, creatorChannelClaim: ChannelClaim) => dispatch(doCommentModRemoveDelegate(modChanId, modChanName, creatorChannelClaim));
+  const commentModListDelegates = (creatorChannelClaim: ChannelClaim) => dispatch(doCommentModListDelegates(creatorChannelClaim));
+  const doOpenModal = (modal: string, modalProps: {}) => dispatch(doOpenModalAction(modal, modalProps));
+  const listAllMyMembershipTiers = () => dispatch(doListAllMyMembershipTiers());
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);

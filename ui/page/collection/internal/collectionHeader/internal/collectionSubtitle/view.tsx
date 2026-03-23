@@ -12,23 +12,32 @@ import FileValues from 'component/fileValues';
 import FileDetails from 'component/fileDetails';
 import ClaimTags from 'component/claimTags';
 import ClaimSupportsLiquidateButton from 'component/claimSupportsLiquidateButton';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForId, selectHasClaimForId, selectTotalStakedAmountForUri } from 'redux/selectors/claims';
+import {
+  selectCollectionDescriptionForId,
+  selectCountForCollectionId,
+  selectCollectionHasEditsForId,
+  selectSourceIdForCollectionId,
+} from 'redux/selectors/collections';
 const EXPAND = {
   NONE: 'none',
   CREDIT_DETAILS: 'credit_details',
   FILE_DETAILS: 'file_details',
 };
 type Props = {
-  // -- redux --
-  uri?: string;
-  collectionDescription?: string;
-  collectionCount?: number;
-  sourceId: string | null | undefined;
-  hasClaim: boolean;
-  claimAmount: number;
+  collectionId: string;
 };
 
 const CollectionTitle = (props: Props) => {
-  const { uri, collectionDescription, collectionCount, sourceId, hasClaim, claimAmount } = props;
+  const { collectionId } = props;
+  const claim = useAppSelector((state) => collectionId && selectClaimForId(state, collectionId));
+  const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  const collectionDescription = useAppSelector((state) => selectCollectionDescriptionForId(state, collectionId));
+  const collectionCount = useAppSelector((state) => selectCountForCollectionId(state, collectionId));
+  const sourceId = useAppSelector((state) => selectSourceIdForCollectionId(state, collectionId));
+  const hasClaim = useAppSelector((state) => selectHasClaimForId(state, collectionId));
+  const claimAmount = useAppSelector((state) => selectTotalStakedAmountForUri(state, uri));
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
   function handleExpand(newExpand) {

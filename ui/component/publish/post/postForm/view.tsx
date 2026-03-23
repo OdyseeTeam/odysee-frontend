@@ -27,6 +27,29 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
+import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
+import {
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+} from 'redux/selectors/publish';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import * as SETTINGS from 'constants/settings';
+import { doClaimInitialRewards } from 'redux/actions/rewards';
+import {
+  selectUnclaimedRewardValue,
+  selectIsClaimingInitialRewards,
+  selectHasClaimedInitialRewards,
+} from 'redux/selectors/rewards';
+import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectUser } from 'redux/selectors/user';
 const SelectThumbnail = lazyImport(
   () =>
     import(
@@ -43,101 +66,49 @@ const PublishPrice = lazyImport(
 );
 type Props = {
   disabled: boolean;
-  tags: Array<Tag>;
-  publish: DoPublishDesktop;
-  filePath: string | WebFile;
-  fileText: string;
-  bid: number | null | undefined;
-  bidError: string | null | undefined;
-  editingURI: string | null | undefined;
-  title: string | null | undefined;
-  thumbnail: string | null | undefined;
-  thumbnailError: boolean | null | undefined;
-  uploadThumbnailStatus: string | null | undefined;
-  thumbnailPath: string | null | undefined;
-  description: string | null | undefined;
-  language: string;
-  nsfw: boolean;
-  fee: {
-    amount: string;
-    currency: string;
-  };
-  name: string | null | undefined;
-  nameError: string | null | undefined;
-  winningBidForClaimUri: number;
-  myClaimForUri: StreamClaim | null | undefined;
-  licenseType: string;
-  otherLicenseDescription: string | null | undefined;
-  licenseUrl: string | null | undefined;
-  useLBRYUploader: boolean | null | undefined;
-  publishing: boolean;
-  publishSuccess: boolean;
-  publishError: boolean;
-  balance: number;
-  releaseTimeError: string | null | undefined;
-  isStillEditing: boolean;
-  claimToEdit: Claim | null | undefined;
-  clearPublish: () => void;
-  resolveUri: (arg0: string) => void;
-  resetThumbnailStatus: () => void;
-  // Add back type
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  checkAvailability: (arg0: string) => void;
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  enablePublishPreview: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  incognito: boolean;
-  user: User | null | undefined;
-  permanentUrl: string | null | undefined;
-  remoteUrl: string | null | undefined;
-  isClaimingInitialRewards: boolean;
-  claimInitialRewards: () => void;
-  hasClaimedInitialRewards: boolean;
-  memberRestrictionStatus: MemberRestrictionStatus;
 };
 
 function PostForm(props: Props) {
-  // Detect upload type from query in URL
+  const { disabled = false } = props;
+
+  const dispatch = useAppDispatch();
+  const formValues = useAppSelector((state) => selectPublishFormValues(state));
   const {
-    thumbnail,
-    thumbnailError,
-    name,
-    editingURI,
-    myClaimForUri,
-    resolveUri,
-    title,
+    tags,
+    filePath: formFilePath,
+    fileText,
     bid,
     bidError,
-    releaseTimeError,
+    editingURI,
+    title,
+    thumbnail,
+    thumbnailError,
     uploadThumbnailStatus,
-    resetThumbnailStatus,
-    updatePublishForm,
-    filePath,
-    fileText,
+    releaseTimeError,
+    name,
     publishing,
-    publishSuccess,
-    publishError,
-    clearPublish,
-    isStillEditing,
-    tags,
-    publish,
-    disabled = false,
-    checkAvailability,
-    modal,
-    enablePublishPreview,
-    activeChannelClaim,
-    incognito,
-    // user,
-    permanentUrl,
-    // remoteUrl,
-    isClaimingInitialRewards,
-    claimInitialRewards,
-    hasClaimedInitialRewards,
-    memberRestrictionStatus,
-  } = props;
+  } = formValues;
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
+  const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
+  const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const publishSuccess = useAppSelector((state) => selectPublishFormValue(state, 'publishSuccess'));
+  const publishError = useAppSelector((state) => selectPublishFormValue(state, 'publishError'));
+  const modal = useAppSelector((state) => selectModal(state));
+  const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
+  const activeChannelClaim = useAppSelector((state) => selectActiveChannelClaim(state));
+  const incognito = useAppSelector((state) => selectIncognito(state));
+  const isClaimingInitialRewards = useAppSelector((state) => selectIsClaimingInitialRewards(state));
+  const hasClaimedInitialRewards = useAppSelector((state) => selectHasClaimedInitialRewards(state));
+  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state));
+
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
+  const clearPublish = () => dispatch(doClearPublish());
+  const resolveUri = (uri: string) => dispatch(doResolveUri(uri));
+  const publish: DoPublishDesktop = (fp, preview) => dispatch(doPublishDesktop(fp, preview));
+  const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
+  const checkAvailability = (n: string) => dispatch(doCheckPublishNameAvailability(n));
+  const claimInitialRewards = () => dispatch(doClaimInitialRewards());
   const inEditMode = Boolean(editingURI);
   const mode = PUBLISH_MODES.POST;
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);

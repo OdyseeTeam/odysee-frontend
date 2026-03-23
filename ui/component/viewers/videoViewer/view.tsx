@@ -16,7 +16,6 @@ import { addPlayNextButton } from './internal/play-next';
 import { addPlayPreviousButton } from './internal/play-previous';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
-import { useLocation } from 'react-router-dom';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
@@ -25,6 +24,47 @@ import { parseURI } from 'util/lbryURI';
 import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectThumbnailForUri,
+  selectPurchaseTagForUri,
+  selectPurchaseMadeForClaimId,
+  selectRentalTagForUri,
+  selectProtectedContentTagForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { selectNextUriForUriInPlayingCollectionForId } from 'redux/selectors/collections';
+import * as SETTINGS from 'constants/settings';
+import * as TAGS from 'constants/tags';
+import {
+  doChangeVolume,
+  doChangeMute,
+  doAnalyticsBuffer,
+  doAnalyticsViewForUri,
+  doSetVideoSourceLoaded,
+} from 'redux/actions/app';
+import { selectVolume, selectMute } from 'redux/selectors/app';
+import {
+  savePosition as savePositionAction,
+  clearPosition as clearPositionAction,
+  doPlayNextUri,
+  doSetContentHistoryItem,
+  doSetShowAutoplayCountdownForUri,
+} from 'redux/actions/content';
+import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
+import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
+import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
+import {
+  toggleVideoTheaterMode as toggleVideoTheaterModeAction,
+  toggleAutoplayNext as toggleAutoplayNextAction,
+  doSetClientSetting,
+} from 'redux/actions/settings';
+import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectRecommendedContentForUri } from 'redux/selectors/search';
+import { doToast as doToastAction } from 'redux/actions/notifications';
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
@@ -47,52 +87,10 @@ type Props = {
   source: string;
   contentType: string;
   embedded: boolean;
+  location: { search: string; pathname: string; hash: string };
   // -- withPlaybackUris HOC --
   playNextUri: string | null | undefined;
   playPreviousUri?: string;
-  // -- redux --
-  position: number;
-  changeVolume: (arg0: number) => void;
-  changeMute: (arg0: boolean) => void;
-  thumbnail: string;
-  claim: StreamClaim;
-  muted: boolean;
-  videoPlaybackRate: number;
-  volume: number;
-  autoplayNext: boolean;
-  autoplayIfEmbedded: boolean;
-  doAnalyticsBuffer: (arg0: string, arg1: any) => void;
-  savePosition: (arg0: string, arg1: number) => void;
-  clearPosition: (arg0: string) => void;
-  toggleVideoTheaterMode: () => void;
-  toggleAutoplayNext: () => void;
-  setVideoPlaybackRate: (arg0: number) => void;
-  authenticated: boolean;
-  userId: number;
-  internalFeature: boolean;
-  shareTelemetry: boolean;
-  doPlayNextUri: (params: { uri: string }) => void;
-  collectionId: string;
-  recomendedContent: any;
-  nextPlaylistUri: string;
-  videoTheaterMode: boolean;
-  isMarkdownOrComment: boolean;
-  doAnalyticsViewForUri: (arg0: string) => void;
-  claimRewards: () => void;
-  isLivestreamClaim: boolean;
-  activeLivestreamForChannel: LivestreamActiveClaim | null | undefined;
-  defaultQuality: string | null | undefined;
-  doToast: (arg0: { message: string; linkText: string; linkTarget: string }) => void;
-  doSetContentHistoryItem: (uri: string) => void;
-  doClearContentHistoryUri: (uri: string) => void;
-  isPurchasableContent: boolean;
-  isRentableContent: boolean;
-  purchaseMadeForClaimId: boolean;
-  isProtectedContent: boolean;
-  isDownloadDisabled: boolean;
-  doSetShowAutoplayCountdownForUri: (params: { uri: string | null | undefined; show: boolean }) => void;
-  doSetVideoSourceLoaded: (uri: string) => void;
-  autoPlayNextShort: boolean;
 };
 
 /*
@@ -100,55 +98,80 @@ codesandbox of idealized/clean videojs and react 16+
 https://codesandbox.io/s/71z2lm4ko6
  */
 function VideoViewer(props: Props) {
-  const {
-    uri,
-    playNextUri,
-    playPreviousUri,
-    source,
-    contentType,
-    embedded,
-    // -- redux --
-    changeVolume,
-    changeMute,
-    videoPlaybackRate,
-    thumbnail,
-    position,
-    claim,
-    muted,
-    volume,
-    autoplayNext,
-    autoplayIfEmbedded,
-    doAnalyticsBuffer,
-    doAnalyticsViewForUri,
-    claimRewards,
-    savePosition,
-    clearPosition,
-    toggleVideoTheaterMode,
-    toggleAutoplayNext,
-    setVideoPlaybackRate,
-    authenticated,
-    userId,
-    internalFeature,
-    shareTelemetry,
-    doPlayNextUri,
-    collectionId,
-    recomendedContent,
-    nextPlaylistUri,
-    videoTheaterMode,
-    isMarkdownOrComment,
-    isLivestreamClaim,
-    activeLivestreamForChannel,
-    defaultQuality,
-    doToast,
-    doSetContentHistoryItem,
-    isPurchasableContent,
-    isRentableContent,
-    isProtectedContent,
-    isDownloadDisabled,
-    doSetShowAutoplayCountdownForUri,
-    doSetVideoSourceLoaded,
-    autoPlayNextShort,
-  } = props;
+  const { uri, playNextUri, playPreviousUri, source, contentType, embedded, location: routeLocation } = props;
+
+  const dispatch = useAppDispatch();
+
+  // -- selectors --
+  const { search: routeSearch, pathname: routePathname, hash: routeHash } = routeLocation;
+  const urlParams = new URLSearchParams(routeSearch);
+  const autoplayParam = urlParams.get('autoplay');
+  const urlPath = `lbry://${(routePathname + routeHash).slice(1)}`;
+  let startTime: number | undefined;
+  try {
+    ({ startTime } = parseURI(urlPath));
+  } catch (e) {}
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const position =
+    startTime ||
+    (urlParams.get('t') !== null
+      ? urlParams.get('t')
+      : useAppSelector((state) => selectContentPositionForUri(state, uri)));
+  const user = useAppSelector((state) => selectUser(state));
+  const userId = user && user.id;
+  const internalFeature = user && user.internal_feature;
+  const playingUri = useAppSelector((state) => selectPlayingUri(state));
+  const collectionId = playingUri.collection.collectionId;
+  const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
+  const nextPlaylistUri = useAppSelector(
+    (state) => collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri)
+  );
+  const autoplayIfEmbedded = Boolean(autoplayParam);
+  const autoplayNext = useAppSelector(
+    (state) => !isMarkdownOrComment && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT)
+  );
+  const volume = useAppSelector((state) => selectVolume(state));
+  const muted = useAppSelector((state) => selectMute(state));
+  const videoPlaybackRate = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE));
+  const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const homepageData = useAppSelector((state) => selectHomepageData(state)) || {};
+  const authenticated = useAppSelector((state) => selectUserVerifiedEmail(state));
+  const shareTelemetry = IS_WEB || useAppSelector((state) => selectDaemonSettings(state)?.share_usage_data);
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const activeLivestreamForChannel = useAppSelector((state) =>
+    selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim))
+  );
+  const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+  const defaultQuality = useAppSelector((state) => selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY));
+  const isPurchasableContent = Boolean(useAppSelector((state) => selectPurchaseTagForUri(state, uri)));
+  const isRentableContent = Boolean(useAppSelector((state) => selectRentalTagForUri(state, uri)));
+  const purchaseMadeForClaimId = useAppSelector((state) => selectPurchaseMadeForClaimId(state, claim?.claim_id));
+  const isProtectedContent = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
+  const isDownloadDisabled = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state)
+  );
+  const recomendedContent = useAppSelector((state) => selectRecommendedContentForUri(state, uri));
+  const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+
+  // -- dispatchers (keep original names used in body) --
+  const changeVolume = (vol: number) => dispatch(doChangeVolume(vol));
+  const savePosition = (uriArg: string, pos: number) => dispatch(savePositionAction(uriArg, pos));
+  const clearPosition = (uriArg: string) => dispatch(clearPositionAction(uriArg));
+  const changeMute = (m: boolean) => dispatch(doChangeMute(m));
+  const doAnalyticsBufferFn = (uriArg: string, bufferData: any) => dispatch(doAnalyticsBuffer(uriArg, bufferData));
+  const toggleVideoTheaterMode = () => dispatch(toggleVideoTheaterModeAction());
+  const toggleAutoplayNext = () => dispatch(toggleAutoplayNextAction());
+  const setVideoPlaybackRate = (rate: number) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate));
+  const doPlayNextUriFn = (params: { uri: string }) => dispatch(doPlayNextUri(params));
+  const doAnalyticsViewForUriFn = (uriArg: string) => dispatch(doAnalyticsViewForUri(uriArg));
+  const claimRewards = () => dispatch(doClaimEligiblePurchaseRewards());
+  const doToast = (toastProps: { message: string; linkText: string; linkTarget: string }) =>
+    dispatch(doToastAction(toastProps));
+  const doSetContentHistoryItemFn = (uriArg: string) => dispatch(doSetContentHistoryItem(uriArg));
+  const doSetShowAutoplayCountdownForUriFn = (params: { uri: string | null | undefined; show: boolean }) =>
+    dispatch(doSetShowAutoplayCountdownForUri(params));
+  const doSetVideoSourceLoadedFn = (uriArg: string) => dispatch(doSetVideoSourceLoaded(uriArg));
   const videoEnded = React.useRef(false);
   const isMobile = useIsMobile();
   const shouldPlayRecommended = !nextPlaylistUri && playNextUri && autoplayNext;
@@ -164,8 +187,6 @@ function VideoViewer(props: Props) {
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
-  const { search } = useLocation();
-  const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
   const [playerControlBar, setControlBar] = useState();
   const [playerElem, setPlayer] = useState();
@@ -195,7 +216,7 @@ function VideoViewer(props: Props) {
   React.useEffect(() => {
     if (isPlaying) {
       // save the updated watch time
-      doSetContentHistoryItem(claim.permanent_url);
+      doSetContentHistoryItemFn(claim.permanent_url);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isPlaying]);
   useEffect(() => {
@@ -240,30 +261,30 @@ function VideoViewer(props: Props) {
       if (IS_IOS) {
         // Safari doesn't like it when there is an async action between click
         // and `player.play()`. Chrome allows it. Skip the countdown for now.
-        doPlayNextUri({
+        doPlayNextUriFn({
           uri: playNextUri,
         });
       } else {
-        doSetShowAutoplayCountdownForUri({
+        doSetShowAutoplayCountdownForUriFn({
           uri,
           show: true,
         });
       }
     } else if (playNextUri) {
-      doPlayNextUri({
+      doPlayNextUriFn({
         uri: playNextUri,
       });
     }
-  }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
+  }, [doPlayNextUriFn, doSetShowAutoplayCountdownForUriFn, playNextUri, shouldPlayRecommended, uri]);
   const handlePlayPreviousUri = React.useCallback(() => {
     if (videoNode && videoNode.currentTime > 5) {
       videoNode.currentTime = 0;
     } else if (playPreviousUri) {
-      doPlayNextUri({
+      doPlayNextUriFn({
         uri: playPreviousUri,
       });
     }
-  }, [doPlayNextUri, playPreviousUri, videoNode]);
+  }, [doPlayNextUriFn, playPreviousUri, videoNode]);
   React.useEffect(() => {
     if (!playerControlBar) return;
     try {
@@ -327,7 +348,7 @@ function VideoViewer(props: Props) {
       } catch (error) {}
     }
 
-    doSetShowAutoplayCountdownForUri({
+    doSetShowAutoplayCountdownForUriFn({
       uri,
       show: false,
     });
@@ -559,7 +580,7 @@ function VideoViewer(props: Props) {
                     onClick={() => {
                       i === 4 && isMobile
                         ? replay()
-                        : doPlayNextUri({
+                        : doPlayNextUriFn({
                             uri: url,
                           });
                     }}
@@ -590,8 +611,8 @@ function VideoViewer(props: Props) {
           embedded={isEmbedded}
           embeddedInternal={isMarkdownOrComment}
           claimValues={claim.value}
-          doAnalyticsViewForUri={doAnalyticsViewForUri}
-          doAnalyticsBuffer={doAnalyticsBuffer}
+          doAnalyticsViewForUri={doAnalyticsViewForUriFn}
+          doAnalyticsBuffer={doAnalyticsBufferFn}
           claimRewards={claimRewards}
           uri={uri}
           userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
@@ -604,7 +625,7 @@ function VideoViewer(props: Props) {
           isProtectedContent={isProtectedContent}
           isDownloadDisabled={isDownloadDisabled}
           isUnlisted={isClaimUnlisted(claim)}
-          doSetVideoSourceLoaded={doSetVideoSourceLoaded}
+          doSetVideoSourceLoaded={doSetVideoSourceLoadedFn}
           autoPlayNextShort={autoPlayNextShort}
         />
 

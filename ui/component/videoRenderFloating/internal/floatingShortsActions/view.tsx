@@ -6,30 +6,38 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as REACTION_TYPES from 'constants/reactions';
 import { formatNumberWithCommas } from 'util/number';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import {
+  doFetchReactions as doFetchReactionsAction,
+  doReactionLike as doReactionLikeAction,
+  doReactionDislike as doReactionDislikeAction,
+} from 'redux/actions/reactions';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { toggleAutoplayNextShort } from 'redux/actions/settings';
+import { doSetShortsSidePanel as doSetShortsSidePanelAction } from 'redux/actions/shorts';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import {
+  doChannelSubscribe as doChannelSubscribeAction,
+  doChannelUnsubscribe as doChannelUnsubscribeAction,
+} from 'redux/actions/subscriptions';
+import { selectPermanentUrlForUri, makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
+import * as SETTINGS from 'constants/settings';
+import {
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+} from 'constants/tags';
 type Props = {
   uri: string;
   claimId: string;
   navigateUrl: string;
   onPrevious: (() => void) | null | undefined;
   onNext: (() => void) | null | undefined;
-  likeCount: number;
-  dislikeCount: number;
-  myReaction: string | null | undefined;
-  doFetchReactions: (claimId: string) => void;
-  doReactionLike: (uri: string) => void;
-  doReactionDislike: (uri: string) => void;
-  autoPlayNextShort: boolean;
-  doToggleShortsAutoplay: () => void;
-  doSetShortsSidePanel: (isOpen: boolean) => void;
   channelUrl: string | null | undefined;
-  isSubscribed: boolean;
-  channelPermanentUrl: string | null | undefined;
-  doChannelSubscribe: (sub: {}) => void;
-  doChannelUnsubscribe: (sub: {}) => void;
   onFireGlow?: () => void;
   onSlimeEffect?: () => void;
-  disableSlimes: boolean;
-  disableReactions: boolean;
 };
 
 const FloatingShortsActions = ({
@@ -38,25 +46,36 @@ const FloatingShortsActions = ({
   navigateUrl,
   onPrevious,
   onNext,
-  likeCount,
-  dislikeCount,
-  myReaction,
-  doFetchReactions,
-  doReactionLike,
-  doReactionDislike,
-  autoPlayNextShort,
-  doToggleShortsAutoplay,
-  doSetShortsSidePanel,
   channelUrl,
-  isSubscribed,
-  channelPermanentUrl,
-  doChannelSubscribe,
-  doChannelUnsubscribe,
   onFireGlow,
   onSlimeEffect,
-  disableSlimes,
-  disableReactions,
 }: Props) => {
+  const dispatch = useAppDispatch();
+  const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
+  const likeCount = useAppSelector((state) => selectLikeCountForUri(state, uri));
+  const dislikeCount = useAppSelector((state) => selectDislikeCountForUri(state, uri));
+  const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
+  const isSubscribed = useAppSelector((state) => (channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false));
+  const channelPermanentUrl = useAppSelector((state) =>
+    channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined
+  );
+  const disableSlimes = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state)
+  );
+  const disableReactions = useAppSelector(
+    (state) =>
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
+  );
+  const doFetchReactions = (claimId: string) => dispatch(doFetchReactionsAction(claimId));
+  const doReactionLike = (uriArg: string) => dispatch(doReactionLikeAction(uriArg));
+  const doReactionDislike = (uriArg: string) => dispatch(doReactionDislikeAction(uriArg));
+  const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShort());
+  const doSetShortsSidePanel = (isOpen: boolean) => dispatch(doSetShortsSidePanelAction(isOpen));
+  const doChannelSubscribe = (sub: {}) => dispatch(doChannelSubscribeAction(sub));
+  const doChannelUnsubscribe = (sub: {}) => dispatch(doChannelUnsubscribeAction(sub));
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
   const fireButtonGlowTimeout = React.useRef(null);

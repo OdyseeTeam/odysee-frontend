@@ -10,13 +10,10 @@ import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
-import Router from 'component/router/index';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import usePrevious from 'effects/use-previous';
-import Nag from 'component/nag';
-import Wander from 'component/wander';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
@@ -24,7 +21,6 @@ import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
-import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
   useDegradedPerformance,
   STATUS_OK,
@@ -87,6 +83,20 @@ const FileDrop = lazyImport(
       /* webpackChunkName: "fileDrop" */
     )
 );
+const Router = lazyImport(
+  () =>
+    import(
+      'component/router/index'
+      /* webpackChunkName: "router" */
+    )
+);
+const Nag = lazyImport(
+  () =>
+    import(
+      'component/nag'
+      /* webpackChunkName: "nag" */
+    )
+);
 const NagContinueFirstRun = lazyImport(
   () =>
     import(
@@ -134,6 +144,20 @@ const VideoRenderFloating = lazyImport(
     import(
       'component/videoRenderFloating'
       /* webpackChunkName: "videoRenderFloating" */
+    )
+);
+const Wander = lazyImport(
+  () =>
+    import(
+      'component/wander'
+      /* webpackChunkName: "wander" */
+    )
+);
+const YoutubeWelcome = lazyImport(
+  () =>
+    import(
+      'web/component/youtubeReferralWelcome'
+      /* webpackChunkName: "youtubeReferralWelcome" */
     )
 );
 // ****************************************************************************
@@ -613,8 +637,16 @@ function App() {
             uri,
           }}
         >
-          <Router uri={uri} />
-          <Wander />
+          <React.Suspense
+            fallback={
+              <div className="main--empty">
+                <Spinner delayed />
+              </div>
+            }
+          >
+            <Router uri={uri} />
+          </React.Suspense>
+          <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
           <React.Suspense fallback={null}>
             <ModalRouter />
           </React.Suspense>
@@ -622,7 +654,7 @@ function App() {
           <React.Suspense fallback={null}>{!embedPath && <VideoRenderFloating />}</React.Suspense>
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
-            <YoutubeWelcome />
+            {!hasVerifiedEmail && <YoutubeWelcome />}
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />

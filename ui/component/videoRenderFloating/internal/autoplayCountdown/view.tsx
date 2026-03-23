@@ -4,6 +4,12 @@ import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
 import debounce from 'util/debounce';
 import * as ICONS from 'constants/icons';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectTitleForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectModal } from 'redux/selectors/app';
+import { selectIsPlayerFloating, selectCanPlaybackFileForUri, selectHasUriPlaying } from 'redux/selectors/content';
+import { doPlayNextUri, doSetShowAutoplayCountdownForUri } from 'redux/actions/content';
+
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
 
@@ -15,18 +21,6 @@ type Props = {
   // -- withPlaybackUris HOC --
   playNextUri: string | null | undefined;
   playPreviousUri?: string;
-  // -- redux --
-  playNextClaimTitle: string | null | undefined;
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  isMature: boolean;
-  isFloating: boolean;
-  canPlayback: boolean | null | undefined;
-  hasUriPlaying: boolean;
-  doPlayNextUri: (params: { uri: string }) => void;
-  doSetShowAutoplayCountdownForUri: (params: { uri: string | null | undefined; show: boolean }) => void;
 };
 
 function isAnyInputFocused() {
@@ -42,16 +36,15 @@ function AutoplayCountdown(props: Props) {
     // -- withPlaybackUris HOC --
     playNextUri,
     playPreviousUri,
-    // -- redux --
-    playNextClaimTitle,
-    modal,
-    isMature,
-    isFloating,
-    canPlayback,
-    hasUriPlaying,
-    doPlayNextUri,
-    doSetShowAutoplayCountdownForUri,
   } = props;
+  const dispatch = useAppDispatch();
+
+  const playNextClaimTitle = useAppSelector((state) => selectTitleForUri(state, playNextUri));
+  const modal = useAppSelector(selectModal);
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const isFloating = useAppSelector(selectIsPlayerFloating);
+  const canPlayback = useAppSelector((state) => selectCanPlaybackFileForUri(state, uri));
+  const hasUriPlaying = useAppSelector((state) => selectHasUriPlaying(state, uri));
   const [timer, setTimer] = React.useState(COUNTDOWN_TIME);
   const [timerCanceled, setTimerCanceled] = React.useState(false);
   const [timerPaused, setTimerPaused] = React.useState(false);
@@ -63,19 +56,23 @@ function AutoplayCountdown(props: Props) {
   }, [onCancel]);
   const handleCloseCountdown = React.useCallback(() => {
     handleStopCountdown();
-    doSetShowAutoplayCountdownForUri({
-      uri,
-      show: false,
-    });
-  }, [doSetShowAutoplayCountdownForUri, handleStopCountdown, uri]);
+    dispatch(
+      doSetShowAutoplayCountdownForUri({
+        uri,
+        show: false,
+      })
+    );
+  }, [dispatch, handleStopCountdown, uri]);
   const handlePlayNext = React.useCallback(
     (uri: string) => {
       handleStopCountdown();
-      doPlayNextUri({
-        uri,
-      });
+      dispatch(
+        doPlayNextUri({
+          uri,
+        })
+      );
     },
-    [doPlayNextUri, handleStopCountdown]
+    [dispatch, handleStopCountdown]
   );
 
   function shouldPauseAutoplay() {
@@ -181,10 +178,12 @@ function AutoplayCountdown(props: Props) {
                   // Don't close the floating player when cancelling an auto-skip unplayable countdown
                   // so that it can still be used for navigation
                   if (!isFloating || canPlayback) {
-                    doSetShowAutoplayCountdownForUri({
-                      uri,
-                      show: false,
-                    });
+                    dispatch(
+                      doSetShowAutoplayCountdownForUri({
+                        uri,
+                        show: false,
+                      })
+                    );
                   }
                 }}
               />

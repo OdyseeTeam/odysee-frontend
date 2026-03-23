@@ -2,28 +2,34 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
 import { COL_TYPES } from 'constants/collections';
+import { useAppDispatch } from 'redux/hooks';
+import { doCollectionEdit } from 'redux/actions/collections';
+import { doToast } from 'redux/actions/notifications';
+
 type Props = {
   uri: string;
   collectionId: string;
   focusable: boolean;
-  // -- redux --
-  doToast: (props: { message: string }) => void;
-  doCollectionEdit: (id: string, arg1: CollectionEditParams) => void;
 };
 
 function ButtonAddToQueue(props: Props) {
-  const { uri, collectionId, focusable = true, doToast, doCollectionEdit } = props;
+  const { uri, collectionId, focusable = true } = props;
+  const dispatch = useAppDispatch();
 
   function handleRemove(e) {
     if (e) e.preventDefault();
-    doToast({
-      message: __('Item removed'),
-    });
-    doCollectionEdit(collectionId, {
-      uris: [uri],
-      remove: true,
-      type: COL_TYPES.PLAYLIST,
-    });
+    dispatch(
+      doToast({
+        message: __('Item removed'),
+      })
+    );
+    dispatch(
+      doCollectionEdit(collectionId, {
+        uris: [uri],
+        remove: true,
+        type: COL_TYPES.PLAYLIST,
+      })
+    );
   }
 
   return (

@@ -2,15 +2,18 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
 import classnames from 'classnames';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectListIsLoopedForId } from 'redux/selectors/content';
+import { doToggleLoopList } from 'redux/actions/content';
+
 type Props = {
   id: string;
-  // -- redux --
-  loop: boolean;
-  doToggleLoopList: (params: { collectionId: string }) => void;
 };
 
 const LoopButton = (props: Props) => {
-  const { id, loop, doToggleLoopList } = props;
+  const { id } = props;
+  const dispatch = useAppDispatch();
+  const loop = useAppSelector((state) => selectListIsLoopedForId(state, id));
   return (
     <Button
       button="alt"
@@ -20,9 +23,11 @@ const LoopButton = (props: Props) => {
       title={__('Loop')}
       icon={ICONS.REPEAT}
       onClick={() =>
-        doToggleLoopList({
-          collectionId: id,
-        })
+        dispatch(
+          doToggleLoopList({
+            collectionId: id,
+          })
+        )
       }
     />
   );

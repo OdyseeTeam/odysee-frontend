@@ -8,20 +8,27 @@ import { CollectionPageContext } from 'page/collection/context';
 import Icon from 'component/common/icon';
 import Skeleton from '@mui/material/Skeleton';
 import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import {
+  selectCollectionTitleForId,
+  selectCollectionHasEditsForId,
+  selectCollectionIsMine,
+  selectCollectionTypeForId,
+} from 'redux/selectors/collections';
 type Props = {
   collectionId: string;
   noIcon?: boolean;
-  // -- redux --
-  collectionTitle?: string;
-  collectionHasEdits: boolean;
-  isMyCollection: boolean;
-  collectionType: string | null | undefined;
 };
 
 const CollectionTitle = (props: Props) => {
+  const { collectionId, noIcon } = props;
   const navigate = useNavigate();
   const { search } = useLocation();
   const { togglePublicCollection } = React.useContext(CollectionPageContext);
+  const collectionTitle = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const collectionType = useAppSelector((state) => selectCollectionTypeForId(state, collectionId));
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const urlParams = new URLSearchParams(search);
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;

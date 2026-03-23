@@ -3,20 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimIsPendingForId } from 'redux/selectors/claims';
+import {
+  selectCollectionHasEditsForId,
+  selectCollectionLengthForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+} from 'redux/selectors/collections';
 type Props = {
+  collectionId: string;
   showEdit?: boolean;
-  // redux
-  collectionHasEdits: boolean;
-  claimIsPending: boolean;
-  collectionLength: number;
-  autoPublish: boolean;
-  isPublishing: boolean;
-  publishError?: string | null | undefined;
 };
 
 function CollectionPublishButton(props: Props) {
-  const { showEdit, collectionHasEdits, claimIsPending, collectionLength, autoPublish, isPublishing, publishError } =
-    props;
+  const { collectionId, showEdit } = props;
+  const claimIsPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const collectionLength = useAppSelector((state) => selectCollectionLengthForId(state, collectionId));
+  const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
+  const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
+  const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
   const navigate = useNavigate();
   if (collectionLength === 0) return null;
   if (autoPublish && !collectionHasEdits && !isPublishing && !publishError) return null;

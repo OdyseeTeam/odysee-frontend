@@ -2,6 +2,16 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import MembershipDetails from '../membershipDetails';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectHasCanceledMembershipForMembershipId,
+  selectHasMembershipForMembershipId,
+  selectHasPendingMembershipForMembershipId,
+  selectMembershipMineForCreatorIdForMembershipId,
+  selectTierIndexForCreatorIdAndMembershipId,
+} from 'redux/selectors/memberships';
+import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
+
 type Props = {
   membership: CreatorMembership;
   disabled?: boolean;
@@ -9,14 +19,8 @@ type Props = {
   length?: number;
   isChannelTab?: boolean;
   handleSelect: () => void;
-  isActive: boolean;
-  isPending: boolean;
-  isCanceled: boolean;
   isOwnChannel: boolean;
   userHasCreatorMembership: boolean;
-  // here
-  doOpenCancelationModalForMembership: (arg0: Membership, arg1: boolean | null | undefined) => void;
-  thisMembership: Membership;
 };
 
 function getHasPayment(membership) {
@@ -46,21 +50,26 @@ function getHasPayment(membership) {
 }
 
 const MembershipTier = (props: Props) => {
-  const {
-    membership,
-    index,
-    length,
-    disabled,
-    isChannelTab,
-    isOwnChannel,
-    handleSelect,
-    isActive,
-    isPending,
-    isCanceled,
-    userHasCreatorMembership,
-    doOpenCancelationModalForMembership,
-    thisMembership,
-  } = props;
+  const { membership, index, length, disabled, isChannelTab, isOwnChannel, handleSelect, userHasCreatorMembership } =
+    props;
+  const dispatch = useAppDispatch();
+  const creatorId = membership.channel_claim_id;
+
+  const tierIndex = useAppSelector((state) =>
+    selectTierIndexForCreatorIdAndMembershipId(state, creatorId, membership.membership_id)
+  );
+  const isActive = useAppSelector((state) =>
+    selectHasMembershipForMembershipId(state, creatorId, membership.membership_id)
+  );
+  const isPending = useAppSelector((state) =>
+    selectHasPendingMembershipForMembershipId(state, creatorId, membership.membership_id)
+  );
+  const isCanceled = useAppSelector((state) =>
+    selectHasCanceledMembershipForMembershipId(state, creatorId, membership.membership_id)
+  );
+  const thisMembership = useAppSelector((state) =>
+    selectMembershipMineForCreatorIdForMembershipId(state, creatorId, membership.membership_id)
+  );
 
   // TODO: develop getMembershipStatus(membershipSub) util function:
 
@@ -101,7 +110,7 @@ const MembershipTier = (props: Props) => {
           icon={ICONS.MEMBERSHIP}
           button="primary"
           label={__('Uncancel')}
-          onClick={() => doOpenCancelationModalForMembership(thisMembership, true)}
+          onClick={() => dispatch(doOpenCancelationModalForMembership(thisMembership, true))}
           disabled={disabled}
         />
       );

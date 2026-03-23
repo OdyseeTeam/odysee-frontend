@@ -10,21 +10,26 @@ import ButtonAddToQueue from 'component/buttonAddToQueue';
 import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { getClaimMetadata } from 'util/claim';
+import { selectClaimForUri, selectGeoRestrictionForUri } from 'redux/selectors/claims';
+import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
+import { doFetchViewCount as doFetchViewCountAction } from 'lbryinc';
 type Props = {
   uri: string;
   claimId: string;
   section: any;
-  description: string;
-  // --- select ---
-  claim: ChannelClaim;
-  geoRestriction: boolean;
-  // ---perform ---
-  doResolveClaimId: (claimId: string) => void;
-  doFetchViewCount: (claimIdCsv: string) => void;
 };
 
 function FeaturedSection(props: Props) {
-  const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
+  const { uri, claimId } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const metadata = getClaimMetadata(claim);
+  const description = metadata && metadata.description;
+  const geoRestriction = Boolean(useAppSelector((state) => selectGeoRestrictionForUri(state, uri)));
+  const doResolveClaimId = (id: string) => dispatch(doResolveClaimIdAction(id));
+  const doFetchViewCount = (claimIdCsv: string) => dispatch(doFetchViewCountAction(claimIdCsv));
   const showCollectionContext = isClaimAllowedForCollection(claim);
   React.useEffect(() => {
     if (!uri && claimId) {

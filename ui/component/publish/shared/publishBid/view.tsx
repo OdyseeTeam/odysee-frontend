@@ -5,18 +5,26 @@ import BidHelpText from './bid-help-text';
 import Card from 'component/common/card';
 import LbcSymbol from 'component/common/lbc-symbol';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-type Props = {
-  name: string;
-  bid: number;
-  balance: number;
-  myClaimForUri: StreamClaim | null | undefined;
-  isResolvingUri: boolean;
-  amountNeededForTakeover: number;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import {
+  selectPublishFormValue,
+  selectMyClaimForUri,
+  selectIsResolvingPublishUris,
+  selectTakeOverAmount,
+} from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+type Props = {};
 
 function PublishBid(props: Props) {
-  const { name, myClaimForUri, bid, isResolvingUri, amountNeededForTakeover, updatePublishForm, balance } = props;
+  const dispatch = useAppDispatch();
+  const name = useAppSelector((state) => selectPublishFormValue(state, 'name'));
+  const bid = useAppSelector((state) => selectPublishFormValue(state, 'bid'));
+  const isResolvingUri = useAppSelector((state) => selectIsResolvingPublishUris(state));
+  const balance = useAppSelector((state) => selectBalance(state));
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
+  const amountNeededForTakeover = useAppSelector((state) => selectTakeOverAmount(state));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [bidError, setBidError] = useState(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
   const [bidHasExceededDefaultAmount] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);

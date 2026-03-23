@@ -33,6 +33,30 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
+import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
+import {
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+} from 'redux/selectors/publish';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import * as RENDER_MODES from 'constants/file_render_modes';
+import * as SETTINGS from 'constants/settings';
+import { doClaimInitialRewards } from 'redux/actions/rewards';
+import {
+  selectUnclaimedRewardValue,
+  selectIsClaimingInitialRewards,
+  selectHasClaimedInitialRewards,
+} from 'redux/selectors/rewards';
+import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectUser } from 'redux/selectors/user';
+import { selectBalance } from 'redux/selectors/wallet';
 const SelectThumbnail = lazyImport(
   () =>
     import(
@@ -50,108 +74,57 @@ const PublishPrice = lazyImport(
 type Props = {
   liveCreateType: LiveCreateType;
   liveEditType: LiveEditType;
-  tags: Array<Tag>;
-  publish: DoPublishDesktop;
-  filePath: string | WebFile;
-  fileText: string;
-  fileBitrate: number;
-  bid: number | null | undefined;
-  bidError: string | null | undefined;
-  editingURI: string | null | undefined;
-  title: string | null | undefined;
-  thumbnail: string | null | undefined;
-  thumbnailError: boolean | null | undefined;
-  uploadThumbnailStatus: string | null | undefined;
-  releaseTimeError: string | null | undefined;
-  thumbnailPath: string | null | undefined;
-  description: string | null | undefined;
-  language: string;
-  nsfw: boolean;
-  fee: {
-    amount: string;
-    currency: string;
-  };
-  name: string | null | undefined;
-  nameError: string | null | undefined;
-  winningBidForClaimUri: number;
-  myClaimForUri: StreamClaim | null | undefined;
-  licenseType: string;
-  otherLicenseDescription: string | null | undefined;
-  licenseUrl: string | null | undefined;
-  // useLBRYUploader: ?boolean,
-  publishing: boolean;
-  publishSuccess: boolean;
-  publishError?: boolean;
-  balance: number;
-  isStillEditing: boolean;
-  claimToEdit: Claim | null | undefined;
-  clearPublish: () => void;
-  resolveUri: (arg0: string) => void;
-  resetThumbnailStatus: () => void;
-  // Add back type
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  checkAvailability: (arg0: string) => void;
-  modal: {
-    id: string;
-    modalProps: {};
-  };
-  enablePublishPreview: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  user: User | null | undefined;
-  isLivestreamClaim: boolean;
-  isPostClaim: boolean;
-  permanentUrl: string | null | undefined;
-  isClaimingInitialRewards: boolean;
-  claimInitialRewards: () => void;
-  hasClaimedInitialRewards: boolean;
   setClearStatus: (arg0: boolean) => void;
-  // disabled?: boolean,
-  remoteFileUrl?: string;
-  memberRestrictionStatus: MemberRestrictionStatus;
 };
 
 function LivestreamForm(props: Props) {
-  // Detect upload type from query in URL
+  const { liveCreateType, liveEditType, setClearStatus } = props;
+
+  const dispatch = useAppDispatch();
+  const formValues = useAppSelector((state) => selectPublishFormValues(state));
   const {
-    liveCreateType,
-    liveEditType,
-    thumbnail,
-    thumbnailError,
-    releaseTimeError,
-    name,
-    editingURI,
-    myClaimForUri,
-    resolveUri,
-    title,
+    tags,
+    filePath: formFilePath,
+    fileText,
+    fileBitrate,
     bid,
     bidError,
+    editingURI,
+    title,
+    thumbnail,
+    thumbnailError,
     uploadThumbnailStatus,
-    resetThumbnailStatus,
-    updatePublishForm,
-    filePath,
-    fileBitrate,
-    publishing,
-    publishSuccess,
-    publishError,
-    clearPublish,
-    isStillEditing,
-    tags,
-    publish,
-    checkAvailability,
-    modal,
-    enablePublishPreview,
-    activeChannelClaim,
+    releaseTimeError,
     description,
-    // user,
-    balance,
-    permanentUrl,
-    isClaimingInitialRewards,
-    claimInitialRewards,
-    hasClaimedInitialRewards,
-    setClearStatus,
-    remoteFileUrl,
-    memberRestrictionStatus,
-  } = props;
+    name,
+    publishing,
+  } = formValues;
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
+  const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, permanentUrl));
+  const isPostClaim =
+    useAppSelector((state) => makeSelectFileRenderModeForUri(permanentUrl)(state)) === RENDER_MODES.MARKDOWN;
+  const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const remoteFileUrl = useAppSelector((state) => selectPublishFormValue(state, 'remoteFileUrl'));
+  const publishSuccess = useAppSelector((state) => selectPublishFormValue(state, 'publishSuccess'));
+  const publishError = useAppSelector((state) => selectPublishFormValue(state, 'publishError'));
+  const modal = useAppSelector((state) => selectModal(state));
+  const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
+  const activeChannelClaim = useAppSelector((state) => selectActiveChannelClaim(state));
+  const user = useAppSelector((state) => selectUser(state));
+  const isClaimingInitialRewards = useAppSelector((state) => selectIsClaimingInitialRewards(state));
+  const hasClaimedInitialRewards = useAppSelector((state) => selectHasClaimedInitialRewards(state));
+  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state));
+  const balance = useAppSelector((state) => selectBalance(state));
+
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
+  const clearPublish = () => dispatch(doClearPublish());
+  const resolveUri = (uri: string) => dispatch(doResolveUri(uri));
+  const publish: DoPublishDesktop = (fp, preview) => dispatch(doPublishDesktop(fp, preview));
+  const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
+  const checkAvailability = (n: string) => dispatch(doCheckPublishNameAvailability(n));
+  const claimInitialRewards = () => dispatch(doClaimInitialRewards());
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const createTypeShortcut = urlParams.get('s');

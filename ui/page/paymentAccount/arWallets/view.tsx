@@ -1,16 +1,18 @@
 import React from 'react';
 import Card from 'component/common/card';
 import ButtonToggle from 'component/buttonToggle';
+import { useAppSelector } from 'redux/hooks';
+import { selectArweaveAddress } from 'redux/selectors/arwallet';
 import './style.scss';
 type Props = {
   cardHeader: () => React.ReactNode;
   arweaveWallets: any;
   arWalletStatus: any;
-  activeAddress: string;
 };
 
 function ArWallets(props: Props) {
-  const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
+  const { cardHeader, arweaveWallets, arWalletStatus } = props;
+  const activeAddress = useAppSelector(selectArweaveAddress);
   return (
     <Card
       className={!arWalletStatus ? `card--arwalllets card--disabled` : `card--arwalllets`}

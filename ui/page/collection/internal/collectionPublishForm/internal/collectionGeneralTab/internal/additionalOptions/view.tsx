@@ -10,19 +10,14 @@ import { CollectionFormContext } from 'page/collection/internal/collectionPublis
 import Button from 'component/button';
 import Card from 'component/common/card';
 import PublishBidTab from 'component/publishBidField';
-type Props = {
-  // -- redux --
-  amount: number;
-  balance: number;
-};
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimBidAmountForId } from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
 
-function CollectionPublishAdditionalOptions(props: Props) {
-  const {
-    // -- redux --
-    amount,
-    balance,
-  } = props;
-  const { formParams, updateFormParams } = React.useContext(CollectionFormContext);
+function CollectionPublishAdditionalOptions() {
+  const { collectionId, formParams, updateFormParams } = React.useContext(CollectionFormContext);
+  const amount = useAppSelector((state) => selectClaimBidAmountForId(state, collectionId));
+  const balance = useAppSelector(selectBalance);
   const { formErrors, updateFormErrors } = React.useContext(FormContext);
   const [hideSection, setHideSection] = React.useState(true);
   const [bidError, setBidError] = React.useState('');

@@ -34,7 +34,30 @@ import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
 import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimIsMine,
+  selectTitleForUri,
+  makeSelectCoverForUri,
+  selectClaimForUri,
+  selectIsClaimOdyseeChannelForUri,
+  makeSelectClaimIsPending,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
+import { doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
+import { selectYoutubeChannels, selectUser } from 'redux/selectors/user';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectModerationBlockList } from 'redux/selectors/comments';
+import { selectMutedChannels } from 'redux/selectors/blocked';
+import { doOpenModal } from 'redux/actions/app';
+import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
+import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
+import { doMembershipMine as doMembershipMineAction } from 'redux/actions/memberships';
+import { PREFERENCE_EMBED } from 'constants/tags';
 const HiddenNsfwClaims = lazyImport(
   () =>
     import(
@@ -50,75 +73,41 @@ const TABS_FOR_CHANNELS_WITH_CONTENT = [
 ];
 type Props = {
   uri: string;
-  claim: ChannelClaim;
-  title: string | null | undefined;
-  coverUrl: string | null | undefined;
-  thumbnail: string | null | undefined;
   match: {
     params: {
       attribute: string | null | undefined;
     };
   };
-  channelIsMine: boolean;
-  isSubscribed: boolean;
-  channelIsBlocked: boolean;
-  fetchSubCount: (arg0: string) => void;
-  subCount: number;
-  pending: boolean;
-  youtubeChannels:
-    | Array<{
-        channel_claim_id: string;
-        sync_status: string;
-        transfer_state: string;
-      }>
-    | null
-    | undefined;
-  blockedChannels: Array<string>;
-  mutedChannels: Array<string>;
-  unpublishedCollections: CollectionGroup;
-  lang: string;
-  odyseeMembership: string | null | undefined;
-  doMembershipMine: () => void;
-  myMembershipsFetched: boolean;
-  isOdyseeChannel: boolean;
-  preferEmbed: boolean;
-  banState: any;
-  isMature: boolean;
-  isGlobalMod: boolean;
-  hideShorts: boolean;
 };
 
 function ChannelPage(props: Props) {
   const navigate = useNavigate();
   const { search, pathname } = useLocation();
-  const {
-    uri,
-    claim,
-    title,
-    coverUrl,
-    thumbnail,
-    match,
-    channelIsMine,
-    isSubscribed,
-    channelIsBlocked,
-    fetchSubCount,
-    subCount,
-    pending,
-    youtubeChannels,
-    blockedChannels,
-    mutedChannels,
-    unpublishedCollections,
-    lang,
-    odyseeMembership,
-    doMembershipMine,
-    myMembershipsFetched,
-    isOdyseeChannel,
-    preferEmbed,
-    banState,
-    isMature,
-    isGlobalMod,
-    hideShorts,
-  } = props;
+  const { uri, match } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const thumbnail = getThumbnailFromClaim(claim);
+  const coverUrl = useAppSelector((state) => makeSelectCoverForUri(uri)(state));
+  const channelIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const isSubscribed = useAppSelector((state) => selectIsSubscribedForUri(state, uri));
+  const subCount = useAppSelector((state) => selectSubCountForUri(state, uri));
+  const pending = useAppSelector((state) => makeSelectClaimIsPending(uri)(state));
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+  const blockedChannels = useAppSelector(selectModerationBlockList);
+  const mutedChannels = useAppSelector(selectMutedChannels);
+  const unpublishedCollections = useAppSelector(selectMyUnpublishedCollections);
+  const lang = useAppSelector(selectLanguage);
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, claim?.claim_id));
+  const myMembershipsFetched = useAppSelector(selectMembershipMineFetched);
+  const isOdyseeChannel = useAppSelector((state) => selectIsClaimOdyseeChannelForUri(state, uri));
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
+  const isMature = claim ? isClaimNsfw(claim) : false;
+  const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const fetchSubCount = (claimId: string) => dispatch(doFetchSubCount(claimId));
+  const doMembershipMine = () => dispatch(doMembershipMineAction());
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;

@@ -18,6 +18,17 @@ import React from 'react';
 import MembershipBadge from 'component/membershipBadge';
 import usePersistedState from 'effects/use-persisted-state';
 import { Lbryio } from 'lbryinc';
+import { useAppSelector } from 'redux/hooks';
+import {
+  selectStakedLevelForChannelUri,
+  selectClaimForUri,
+  selectTitleForUri,
+  selectDateForUri,
+} from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
+
 type Props = {
   comment: Comment;
   forceUpdate?: any;
@@ -28,15 +39,6 @@ type Props = {
   handleCommentClick: (arg0: any) => void;
   handleDismissPin?: () => void;
   hidePinLabel?: boolean;
-  // --- redux:
-  claim: StreamClaim;
-  stakedLevel: number;
-  claimsByUri: Record<string, any>;
-  odyseeMembership: string | null | undefined;
-  creatorMembership: string | null | undefined;
-  activeChannelClaim?: any;
-  authorTitle: string;
-  channelAge?: any;
 };
 export const ChatCommentContext = React.createContext<any>();
 export default function ChatComment(props: Props) {
@@ -44,23 +46,17 @@ export default function ChatComment(props: Props) {
     comment,
     forceUpdate,
     uri,
-    claim,
-    // myChannelIds,
-    stakedLevel,
     isMobile,
     handleDismissPin,
     hidePinLabel,
     restoreScrollPos,
     handleCommentClick,
-    odyseeMembership,
-    creatorMembership,
-    authorTitle,
-    activeChannelClaim,
-    channelAge,
     isCompact,
   } = props;
+
   const {
     channel_url: authorUri,
+    channel_id: channelId,
     comment_id: commentId,
     comment: message,
     is_fiat: isFiat,
@@ -71,6 +67,16 @@ export default function ChatComment(props: Props) {
     support_amount: supportAmount,
     timestamp,
   } = comment;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const stakedLevel = useAppSelector((state) => selectStakedLevelForChannelUri(state, authorUri));
+  const authorTitle = useAppSelector((state) => selectTitleForUri(state, authorUri));
+  const channelAge = useAppSelector((state) => selectDateForUri(state, authorUri));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const creatorId = getChannelIdFromClaim(claim);
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, channelId));
+  const creatorMembership = useAppSelector((state) =>
+    selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channelId)
+  );
   const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
   const [exchangeRate, setExchangeRate] = React.useState(0);
   React.useEffect(() => {

@@ -13,6 +13,19 @@ import FileExporter from 'component/common/file-exporter';
 import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
 import WalletFiatAccountHistory from '../walletFiatAccountHistory';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { doFetchTxoPage, doFetchTransactions, doUpdateTxoPageParams } from 'redux/actions/wallet';
+import { doCustomerListPaymentHistory, doListAccountTransactions } from 'redux/actions/stripe';
+import {
+  selectIsFetchingTxos,
+  selectIsFetchingTransactions,
+  selectFetchingTxosError,
+  selectTransactionsFile,
+  selectTxoPage,
+  selectTxoPageNumber,
+  selectTxoItemCount,
+} from 'redux/selectors/wallet';
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
@@ -21,46 +34,35 @@ const DEFAULT_CURRENCY_PARAM = 'credits';
 const DEFAULT_TAB_PARAM = 'fiat-payment-history';
 const DEFAULT_FIAT_TYPE_PARAM = 'incoming';
 const DEFAULT_TRANSACTION_TYPE_PARAM = 'tip';
-type Props = {
-  txoPage: Array<Transaction>;
-  txoPageNumber: string;
-  txoItemCount: number;
-  fetchTxoPage: () => void;
-  fetchTransactions: () => void;
-  isFetchingTransactions: boolean;
-  transactionsFile: string;
-  updateTxoPageParams: (arg0: any) => void;
-  toast: (arg0: string, arg1: boolean) => void;
-  doCustomerListPaymentHistory: () => void;
-  doListAccountTransactions: () => void;
-};
 type Delta = {
   changedParameterKey: string;
   value: string;
 };
 
-function TxoList(props: Props) {
+function TxoList() {
   const navigate = useNavigate();
   const { search } = useLocation();
-  const {
-    txoPage,
-    txoItemCount,
-    fetchTxoPage,
-    fetchTransactions,
-    updateTxoPageParams,
-    isFetchingTransactions,
-    transactionsFile,
-    doCustomerListPaymentHistory,
-    doListAccountTransactions,
-  } = props;
+  const dispatch = useAppDispatch();
+
+  const txoFetchError = useAppSelector(selectFetchingTxosError);
+  const txoPage = useAppSelector(selectTxoPage);
+  const txoPageNumber = useAppSelector(selectTxoPageNumber);
+  const txoItemCount = useAppSelector(selectTxoItemCount);
+  const loading = useAppSelector(selectIsFetchingTxos);
+  const isFetchingTransactions = useAppSelector(selectIsFetchingTransactions);
+  const transactionsFile = useAppSelector(selectTransactionsFile);
+
+  const fetchTxoPage = React.useCallback(() => dispatch(doFetchTxoPage()), [dispatch]);
+  const fetchTransactions = React.useCallback(() => dispatch(doFetchTransactions()), [dispatch]);
+  const updateTxoPageParams = React.useCallback((p: any) => dispatch(doUpdateTxoPageParams(p)), [dispatch]);
   // calculate account transactions section
   React.useEffect(() => {
-    doCustomerListPaymentHistory();
-  }, [doCustomerListPaymentHistory]);
+    dispatch(doCustomerListPaymentHistory());
+  }, [dispatch]);
   // populate customer payment data
   React.useEffect(() => {
-    doListAccountTransactions();
-  }, [doListAccountTransactions]);
+    dispatch(doListAccountTransactions());
+  }, [dispatch]);
   const urlParams = new URLSearchParams(search);
   const page = urlParams.get(TXO.PAGE) || String(1);
   const pageSize = urlParams.get(TXO.PAGE_SIZE) || String(TXO.PAGE_SIZE_DEFAULT);

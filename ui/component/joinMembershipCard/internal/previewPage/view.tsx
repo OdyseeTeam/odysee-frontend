@@ -13,6 +13,23 @@ import MembershipDetails from './internal/membershipDetails';
 import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectArweaveTipDataForId,
+  selectCanReceiveFiatTipsForUri,
+  selectFullAPIArweaveAccounts,
+} from 'redux/selectors/stripe';
+import {
+  selectCheapestProtectedContentMembershipForId,
+  selectIsMembershipListFetchingForId,
+  selectArEnabledMembershipTiersForChannelUri,
+  selectUserHasValidNonCanceledMembershipForCreatorId,
+} from 'redux/selectors/memberships';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
+import { getChannelFromClaim, getChannelTitleFromClaim, getChannelIdFromClaim } from 'util/claim';
+
 type Props = {
   uri: string;
   selectedCreatorMembership: CreatorMembership;
@@ -23,23 +40,6 @@ type Props = {
   isLivestream: boolean | null | undefined;
   setMembershipIndex: (index: number) => void;
   handleSelect: () => void;
-  // -- redux --
-  channelId: string;
-  canReceiveFiatTips: boolean | null | undefined;
-  canReceiveArweaveTips: boolean | null | undefined;
-  channelIsMine: boolean;
-  creatorMemberships: CreatorMemberships;
-  doTipAccountCheckForUri: (uri: string) => void;
-  channelTitle: string;
-  channelUri: string;
-  channelName: string;
-  doOpenModal: (id: string, props: {}) => void;
-  joinEnabled: boolean;
-  cheapestPlan: CreatorMembership;
-  arweaveWallets: any;
-  arweaveStatus: any;
-  isFetchingMemberships: boolean;
-  paymentsEnabled: boolean;
 };
 
 const PreviewPage = (props: Props) => {
@@ -53,31 +53,33 @@ const PreviewPage = (props: Props) => {
     isLivestream,
     setMembershipIndex,
     handleSelect,
-    // -- redux --
-    channelId,
-    canReceiveFiatTips,
-    canReceiveArweaveTips,
-    channelIsMine,
-    creatorMemberships,
-    doTipAccountCheckForUri,
-    channelTitle,
-    channelUri,
-    channelName,
-    doOpenModal,
-    joinEnabled,
-    cheapestPlan,
-    isFetchingMemberships,
-    paymentsEnabled,
   } = props;
+  const dispatch = useAppDispatch();
+
+  const { claim_id: claimId } = useAppSelector((state) => selectClaimForUri(state, uri)) || {};
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelTitle = getChannelTitleFromClaim(claim);
+  const channelIdFromClaim = getChannelIdFromClaim(claim);
+  const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
+  const cheapestPlan = useAppSelector((state) => selectCheapestProtectedContentMembershipForId(state, claimId));
+  const joinEnabled = cheapestPlan && cheapestPlan.prices.some((p) => p.address);
+  const paymentsEnabled = useAppSelector((state) => selectArweaveTipDataForId(state, channelIdFromClaim));
+  const canReceiveFiatTips = useAppSelector((state) => selectCanReceiveFiatTipsForUri(state, uri));
+  const canReceiveArweaveTips = !!useAppSelector((state) => selectArweaveTipDataForId(state, channelIdFromClaim));
+  const creatorMemberships = useAppSelector((state) => selectArEnabledMembershipTiersForChannelUri(state, uri));
+  const channelIsMine = useAppSelector((state) => selectIsChannelMineForClaimId(state, claimId));
+  const isFetchingMemberships = useAppSelector((state) => selectIsMembershipListFetchingForId(state, claimId));
+  const channelId = claimId;
+  const channelName = claim?.name;
   const { activeArStatus } = useArStatus();
   const isChannelTab = React.useContext(ChannelPageContext);
   const creatorHasEnabledMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
-      doTipAccountCheckForUri(uri);
+      dispatch(doTipAccountCheckForUri(uri));
     }
-  }, [canReceiveFiatTips, canReceiveArweaveTips, doTipAccountCheckForUri, uri]);
+  }, [canReceiveFiatTips, canReceiveArweaveTips, dispatch, uri]);
 
   if (isFetchingMemberships) {
     return (
@@ -202,13 +204,15 @@ const PreviewPage = (props: Props) => {
                 membership={membership}
                 handleSelect={() => {
                   setMembershipIndex(index);
-                  doOpenModal(MODALS.JOIN_MEMBERSHIP, {
-                    uri,
-                    membershipIndex: index,
-                    membershipId: membership.membership_id,
-                    passedTierIndex: index,
-                    isChannelTab: isChannelTab,
-                  });
+                  dispatch(
+                    doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                      uri,
+                      membershipIndex: index,
+                      membershipId: membership.membership_id,
+                      passedTierIndex: index,
+                      isChannelTab: isChannelTab,
+                    })
+                  );
                 }}
                 index={index}
                 length={creatorMemberships.length}

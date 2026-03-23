@@ -14,6 +14,28 @@ import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
 import { ModalContext } from 'contexts/modal';
 import { useArStatus } from 'effects/use-ar-status';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+  selectCostInfoForUri,
+  selectClaimIsMine,
+  selectClaimWasPurchasedForUri,
+  selectIsFiatRequiredForUri,
+  selectIsFetchingPurchases,
+  selectSdkFeePendingForUri,
+  selectPendingPurchaseForUri,
+  selectCanReceiveTipsForUri,
+} from 'redux/selectors/claims';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doPlayUri } from 'redux/actions/content';
+import { doHideModal } from 'redux/actions/app';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
+import { doPurchaseClaimForUri } from 'redux/actions/wallet';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 import './style.scss';
 type RentalTagParams = {
   price: number;
@@ -41,50 +63,27 @@ const STRINGS = {
 };
 type Props = {
   uri: string;
-  // -- redux --
-  claimId: string;
-  canReceiveTips: boolean;
-  preferredCurrency: string;
-  preorderTag: number;
-  purchaseTag: number | null | undefined;
-  rentalTag: RentalTagParams;
-  balance: WalletBalance;
-  exchangeRate: {
-    ar: number;
-  };
-  costInfo: any;
-  fiatRequired: boolean;
-  isFetchingPurchases: boolean;
-  isAuthenticated: boolean;
-  pendingSdkPayment: boolean;
-  pendingPurchase: boolean;
-  doHideModal: () => void;
-  doPurchaseClaimForUri: (params: { uri: string; type: string }) => void;
-  doCheckIfPurchasedClaimId: (claimId: string) => void;
-  doPlayUri: (uri: string, skipCostCheck: boolean, saveFileOverride?: boolean, cb?: () => void) => void;
 };
 export default function PreorderAndPurchaseContentCard(props: Props) {
-  const {
-    uri,
-    claimId,
-    canReceiveTips,
-    preferredCurrency,
-    rentalTag,
-    purchaseTag,
-    preorderTag,
-    balance,
-    exchangeRate,
-    costInfo,
-    fiatRequired,
-    isFetchingPurchases,
-    isAuthenticated,
-    pendingSdkPayment,
-    pendingPurchase,
-    doHideModal,
-    doPurchaseClaimForUri,
-    doCheckIfPurchasedClaimId,
-    doPlayUri,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri, false));
+  const claimId = claim?.claim_id || '';
+  const costInfo = useAppSelector((state) => selectCostInfoForUri(state, uri));
+  const canReceiveTips = useAppSelector((state) => selectCanReceiveTipsForUri(state, uri));
+  const preferredCurrency = useAppSelector(selectPreferredCurrency);
+  const preorderTag = useAppSelector((state) => selectPreorderTagForUri(state, uri));
+  const purchaseTag = useAppSelector((state) => selectPurchaseTagForUri(state, uri));
+  const rentalTag = useAppSelector((state) => selectRentalTagForUri(state, uri));
+  const fiatRequired = useAppSelector((state) => selectIsFiatRequiredForUri(state, uri));
+  const isFetchingPurchases = useAppSelector(selectIsFetchingPurchases);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const sdkFeePending = useAppSelector((state) => selectSdkFeePendingForUri(state, uri));
+  const pendingSdkPayment = costInfo?.feeCurrency === 'LBC' ? sdkFeePending : undefined;
+  const pendingPurchase = useAppSelector((state) => selectPendingPurchaseForUri(state, uri));
+  const balance = useAppSelector(selectArweaveBalance) || { ar: 0 };
+  const exchangeRate = useAppSelector(selectArweaveExchangeRates);
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
   const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag;
@@ -138,29 +137,31 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     if (forceRental) transactionType = 'rental';
 
     async function checkIfFinished() {
-      await doCheckIfPurchasedClaimId(claimId);
-      doHideModal();
+      await dispatch(doCheckIfPurchasedClaimId(claimId));
+      dispatch(doHideModal());
     }
 
     setWaitingForBackend(true);
-    doPurchaseClaimForUri({
-      uri,
-      transactionType,
-    }).then(checkIfFinished);
+    dispatch(
+      doPurchaseClaimForUri({
+        uri,
+        transactionType,
+      })
+    ).then(checkIfFinished);
   }
 
   React.useEffect(() => {
     // -- fetch for modal url param --
     if (isUrlParamModal && isAuthenticated && claimId && fiatRequired && isFetchingPurchases === undefined) {
-      doCheckIfPurchasedClaimId(claimId);
+      dispatch(doCheckIfPurchasedClaimId(claimId));
     }
-  }, [claimId, doCheckIfPurchasedClaimId, fiatRequired, isAuthenticated, isFetchingPurchases, isUrlParamModal]);
+  }, [claimId, dispatch, fiatRequired, isAuthenticated, isFetchingPurchases, isUrlParamModal]);
   React.useEffect(() => {
     // -- close modal when already purchased --
     if (isUrlParamModal && claimId && !pendingPurchase && (!fiatRequired || !isFetchingPurchases)) {
-      doHideModal();
+      dispatch(doHideModal());
     }
-  }, [claimId, doHideModal, fiatRequired, isFetchingPurchases, isUrlParamModal, pendingPurchase]);
+  }, [claimId, dispatch, fiatRequired, isFetchingPurchases, isUrlParamModal, pendingPurchase]);
 
   if (isUrlParamModal && (!pendingPurchase || (pendingSdkPayment && costInfo === undefined))) {
     // -- hide modal until a pendingPurchase condition is found to show it --
@@ -213,8 +214,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 preorderDisabled={cantAffordPreorder}
                 uri={uri}
                 setWaitingForBackend={setWaitingForBackend}
-                doPlayUri={doPlayUri}
-                doHideModal={doHideModal}
+                doPlayUri={(u, s, o, cb) => dispatch(doPlayUri(u, s, o, cb))}
+                doHideModal={() => dispatch(doHideModal())}
               />
             )}
             <p className="help">

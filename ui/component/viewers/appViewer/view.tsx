@@ -1,10 +1,11 @@
 import React from 'react';
 import Yrbl from 'component/yrbl';
+import { useAppSelector } from 'redux/hooks';
+import { makeSelectClaimForUri, makeSelectContentTypeForUri } from 'redux/selectors/claims';
 // import LoadingScreen from 'component/common/loading-screen';
 type Props = {
   source: string;
-  claim: StreamClaim;
-  contentType: string;
+  uri: string;
 };
 
 // const SANDBOX_TYPES = ['application/x-lbry', 'application/x-ext-lbry'];
@@ -12,6 +13,9 @@ type Props = {
 // const SANDBOX_SET_BASE_URL = 'http://localhost:5278/set/';
 // const SANDBOX_CONTENT_BASE_URL = 'http://localhost:5278';
 function AppViewer(props: Props) {
+  const { uri } = props;
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const contentType = useAppSelector((state) => makeSelectContentTypeForUri(uri)(state));
   // const { claim, contentType } = props;
   // const [loading, setLoading] = useState(true);
   // const [appUrl, setAppUrl] = useState(false);

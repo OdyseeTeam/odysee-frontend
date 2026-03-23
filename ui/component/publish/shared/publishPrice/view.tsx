@@ -11,6 +11,14 @@ import { PAYWALL } from 'constants/publish';
 import usePersistedState from 'effects/use-persisted-state';
 import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMemberRestrictionStatus, selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import {
+  doCustomerPurchaseCost as doCustomerPurchaseCostAction,
+  doTipAccountStatus as doTipAccountStatusAction,
+} from 'redux/actions/stripe';
+import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
 const FEE = {
   MIN: 0,
   MAX: 999.99,
@@ -19,21 +27,6 @@ const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until curren
 
 type Props = {
   disabled: boolean;
-  // --- redux ---
-  fiatPurchaseEnabled: boolean;
-  fiatPurchaseFee: Price;
-  fiatRentalEnabled: boolean;
-  fiatRentalFee: Price;
-  fiatRentalExpiration: Duration;
-  paywall: Paywall;
-  fee: Fee;
-  memberRestrictionStatus: MemberRestrictionStatus;
-  chargesEnabled: boolean | null | undefined;
-  monetizationStatus: boolean;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  doTipAccountStatus: () => Promise<StripeAccountStatus>;
-  doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>;
-  visibility: Visibility;
 };
 
 function clamp(value, min, max) {
@@ -63,26 +56,22 @@ function getTncRow() {
 }
 
 function PublishPrice(props: Props) {
-  const {
-    // Purchase
-    fiatPurchaseEnabled,
-    fiatPurchaseFee,
-    // Rental
-    fiatRentalEnabled,
-    fiatRentalFee,
-    fiatRentalExpiration,
-    // SDK-LBC
-    paywall = PAYWALL.FREE,
-    fee,
-    memberRestrictionStatus,
-    chargesEnabled,
-    monetizationStatus,
-    updatePublishForm,
-    doTipAccountStatus,
-    doCustomerPurchaseCost,
-    disabled,
-    visibility,
-  } = props;
+  const { disabled } = props;
+  const dispatch = useAppDispatch();
+  const paywall = useAppSelector((state) => selectPublishFormValue(state, 'paywall')) || PAYWALL.FREE;
+  const fiatPurchaseEnabled = useAppSelector((state) => selectPublishFormValue(state, 'fiatPurchaseEnabled'));
+  const fiatPurchaseFee = useAppSelector((state) => selectPublishFormValue(state, 'fiatPurchaseFee'));
+  const fiatRentalEnabled = useAppSelector((state) => selectPublishFormValue(state, 'fiatRentalEnabled'));
+  const fiatRentalFee = useAppSelector((state) => selectPublishFormValue(state, 'fiatRentalFee'));
+  const fiatRentalExpiration = useAppSelector((state) => selectPublishFormValue(state, 'fiatRentalExpiration'));
+  const fee = useAppSelector((state) => selectPublishFormValue(state, 'fee'));
+  const chargesEnabled = useAppSelector((state) => selectAccountChargesEnabled(state));
+  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state));
+  const visibility = useAppSelector((state) => selectPublishFormValue(state, 'visibility'));
+  const monetizationStatus = useAppSelector((state) => selectArweaveDefaultAccountMonetizationEnabled(state));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
+  const doTipAccountStatus = () => dispatch(doTipAccountStatusAction());
+  const doCustomerPurchaseCost = (cost: number) => dispatch(doCustomerPurchaseCostAction(cost));
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [hadSDKPaywallSelected] = React.useState(paywall === PAYWALL.SDK);
   const paymentDisallowed = visibility !== 'public';

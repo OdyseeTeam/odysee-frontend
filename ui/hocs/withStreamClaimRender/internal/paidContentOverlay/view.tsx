@@ -9,6 +9,19 @@ import { EmbedContext } from 'contexts/embed';
 import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
 import I18nMessage from 'component/i18nMessage';
 import Symbol from 'component/common/symbol';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectPreorderTagForUri,
+  selectPreorderContentClaimIdForUri,
+  selectClaimForId,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+  selectCostInfoForUri,
+  selectCanReceiveTipsForUri,
+} from 'redux/selectors/claims';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 type RentalTagParams = {
   price: number;
   expirationTimeInSeconds: number;
@@ -16,37 +29,20 @@ type RentalTagParams = {
 type Props = {
   uri: string;
   passClickPropsToParent?: (props: { href?: string; onClick?: () => void }) => void;
-  // --- redux ---
-  preferredCurrency: string;
-  preorderContentClaim: Claim;
-  canReceiveTips: boolean;
-  preorderTag: number;
-  purchaseTag: string;
-  rentalTag: RentalTagParams;
-  costInfo: any;
-  exchangeRate: {
-    ar: number;
-  };
-  doOpenModal: (arg0: string, arg1: {}) => void;
 };
 export default function PaidContentOvelay(props: Props) {
-  const {
-    uri,
-    passClickPropsToParent,
-    // --- redux ---
-    preferredCurrency,
-    preorderContentClaim,
-    // populates after doResolveClaimIds
-    canReceiveTips,
-    preorderTag,
-    // the price of the preorder
-    purchaseTag,
-    // the price of the purchase
-    rentalTag,
-    costInfo,
-    exchangeRate,
-    doOpenModal,
-  } = props;
+  const { uri, passClickPropsToParent } = props;
+  const dispatch = useAppDispatch();
+  const preorderContentClaimId = useAppSelector((state) => selectPreorderContentClaimIdForUri(state, uri));
+  const preferredCurrency = useAppSelector((state) => selectPreferredCurrency(state));
+  const preorderContentClaim = useAppSelector((state) => selectClaimForId(state, preorderContentClaimId));
+  const canReceiveTips = useAppSelector((state) => selectCanReceiveTipsForUri(state, uri));
+  const preorderTag = useAppSelector((state) => selectPreorderTagForUri(state, uri));
+  const purchaseTag = useAppSelector((state) => selectPurchaseTagForUri(state, uri));
+  const rentalTag = useAppSelector((state) => selectRentalTagForUri(state, uri));
+  const costInfo = useAppSelector((state) => selectCostInfoForUri(state, uri));
+  const exchangeRate = useAppSelector((state) => selectArweaveExchangeRates(state));
+  const doOpenModal = (id: string, params: {}) => dispatch(doOpenModalAction(id, params));
   const isEmbed = React.useContext(EmbedContext);
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
   const sdkFeeRequired = costInfo && costInfo.cost > 0 && costInfo.feeCurrency === 'LBC';

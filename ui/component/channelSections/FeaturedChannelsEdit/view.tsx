@@ -7,28 +7,30 @@ import Button from 'component/button';
 import ChannelFinder from 'component/channelFinder';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doUpdateCreatorSettings } from 'redux/actions/comments';
+import { doToast } from 'redux/actions/notifications';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { selectFeaturedChannelsForChannelId, selectSectionsForChannelId } from 'redux/selectors/comments';
+
+const DEFAULT_SECTION = {
+  version: '1.0',
+  entries: [],
+};
+
 type Props = {
   channelId: string;
-  // The section's owner ID.
   sectionId?: string;
-  // null = create new list; edit otherwise
   onSave?: () => void;
-  // Notifies parent that the list was saved.
   onCancel?: () => void;
-  // Notifies parent that changes were canceled.
-  // --- redux ---
-  sections: Sections | null | undefined;
-  // All sections for the given 'channelId'.
-  featuredChannels: Array<FeaturedChannelsSection> | null | undefined;
-  // Sorted featured channels for 'channelId'.
-  channelClaim: ChannelClaim | null | undefined;
-  // Dumb thing just to feed doUpdateCreatorSettings().
-  doUpdateCreatorSettings: (channelClaim: ChannelClaim, settings: PerChannelSettings) => void;
-  doToast: (arg0: { message: string; isError?: boolean; linkText?: string; linkTarget?: string }) => void;
 };
 export default function FeaturedChannelsEdit(props: Props) {
-  const { sectionId, onSave, onCancel, sections, featuredChannels, channelClaim, doUpdateCreatorSettings, doToast } =
-    props;
+  const { channelId, sectionId, onSave, onCancel } = props;
+  const dispatch = useAppDispatch();
+
+  const sections = useAppSelector((state) => selectSectionsForChannelId(state, channelId)) || DEFAULT_SECTION;
+  const featuredChannels = useAppSelector((state) => selectFeaturedChannelsForChannelId(state, channelId));
+  const channelClaim = useAppSelector((state) => selectClaimForClaimId(state, channelId));
   const isEditing = Boolean(sectionId);
   const fc: FeaturedChannelsSection | null | undefined = React.useMemo(() => {
     return featuredChannels && featuredChannels.find((x) => x.id === sectionId);
@@ -40,12 +42,14 @@ export default function FeaturedChannelsEdit(props: Props) {
   // **************************************************************************
   // **************************************************************************
   function showFailureToast() {
-    doToast({
-      message: __('Failed to update the list.'),
-      subMessage: __('Try refreshing the page and edit again. Sorry :('),
-      isError: true,
-      duration: 'long',
-    });
+    dispatch(
+      doToast({
+        message: __('Failed to update the list.'),
+        subMessage: __('Try refreshing the page and edit again. Sorry :('),
+        isError: true,
+        duration: 'long',
+      })
+    );
   }
 
   function handleSave() {
@@ -84,9 +88,11 @@ export default function FeaturedChannelsEdit(props: Props) {
 
     const newSections = { ...sections, entries };
     // $FlowIgnore²
-    doUpdateCreatorSettings(channelClaim, {
-      channel_sections: newSections,
-    });
+    dispatch(
+      doUpdateCreatorSettings(channelClaim, {
+        channel_sections: newSections,
+      })
+    );
 
     if (onSave) {
       onSave();

@@ -6,16 +6,18 @@ import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  doCustomerListPaymentHistory as doCustomerListPaymentHistoryAction,
+  doGetCustomerStatus as doGetCustomerStatusAction,
+} from 'redux/actions/stripe';
+import { selectPaymentHistory } from 'redux/selectors/stripe';
 type Props = {
   page: number;
   pageSize: number;
   fetchDataOnMount?: boolean;
   // Option to fetch it ourselves, or not if parent or someone else has done it
-  // --- redux ---
-  paymentHistory: StripeTransactions;
   lastFour: any | null | undefined;
-  doCustomerListPaymentHistory: () => void;
-  doGetCustomerStatus: () => void;
   transactionType: 'tips' | 'rentals-purchases';
 };
 
@@ -78,15 +80,11 @@ function getTipAmount(transaction) {
 }
 
 const WalletFiatPaymentHistory = (props: Props) => {
-  const {
-    page = 1,
-    pageSize = 5,
-    fetchDataOnMount,
-    paymentHistory,
-    doCustomerListPaymentHistory,
-    doGetCustomerStatus,
-    transactionType,
-  } = props;
+  const { page = 1, pageSize = 5, fetchDataOnMount, transactionType } = props;
+  const dispatch = useAppDispatch();
+  const paymentHistory = useAppSelector(selectPaymentHistory);
+  const doCustomerListPaymentHistory = () => dispatch(doCustomerListPaymentHistoryAction());
+  const doGetCustomerStatus = () => dispatch(doGetCustomerStatusAction());
   const transactionsRaw = paymentHistory
     ? paymentHistory.filter((s: StripeTransaction) => {
         switch (transactionType) {

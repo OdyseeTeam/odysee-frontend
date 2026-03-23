@@ -12,6 +12,8 @@ import Spinner from 'component/spinner';
 import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
 import I18nMessage from 'component/i18nMessage';
 import { LocalStorage } from 'util/storage';
+import { useAppDispatch } from 'redux/hooks';
+import { doArSend } from 'redux/actions/arwallet';
 import './style.scss';
 type Props = {
   cardHeader: any;
@@ -19,7 +21,6 @@ type Props = {
   balance: any;
   arWalletStatus: any;
   activeArStatus: any;
-  doArSend: any;
 };
 
 const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);
@@ -27,7 +28,8 @@ const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);
 const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(String(address));
 
 function Overview(props: Props) {
-  const { cardHeader, wallet, balance, arWalletStatus, activeArStatus, doArSend } = props;
+  const { cardHeader, wallet, balance, arWalletStatus, activeArStatus } = props;
+  const dispatch = useAppDispatch();
   const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true');
@@ -163,7 +165,7 @@ function Overview(props: Props) {
     const recipientAddress = inputReceivingAddressRef.current?.value?.trim();
     const amountAr = Number(inputAmountRef?.current?.value);
     if (!recipientAddress || !amountAr) return;
-    doArSend(recipientAddress, amountAr);
+    dispatch(doArSend(recipientAddress, amountAr));
   };
 
   return (

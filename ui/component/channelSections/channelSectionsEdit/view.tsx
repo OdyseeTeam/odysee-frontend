@@ -6,16 +6,21 @@ import Gerbil from 'component/channelThumbnail/gerbil.png';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'component/common/tabs';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import { parseURI } from 'util/lbryURI';
+import { useAppSelector } from 'redux/hooks';
+import { makeSelectCoverForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { getClaimTitle, getThumbnailFromClaim } from 'util/claim';
+
 type Props = {
   uri: string;
   disabled?: boolean;
-  // --- redux ---
-  title: string | null | undefined;
-  coverUrl: string | null | undefined;
-  thumbnailUrl: string | null | undefined;
 };
 export default function ChannelSectionsEdit(props: Props) {
-  const { uri, title, thumbnailUrl, coverUrl, disabled } = props;
+  const { uri, disabled } = props;
+
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const title = getClaimTitle(claim);
+  const thumbnailUrl = getThumbnailFromClaim(claim);
+  const coverUrl = useAppSelector((state) => makeSelectCoverForUri(uri)(state));
   // @todo: anything need to handle with 'creatingChannel' and 'updatingChannel' (i.e. while channel is being created)
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);

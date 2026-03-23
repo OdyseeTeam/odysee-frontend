@@ -8,6 +8,11 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import Counter from 'component/counter';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectPermanentUrlForUri, selectChannelForClaimUri } from 'redux/selectors/claims';
+import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
+
 type Props = {
   uri: string;
   likeCount: number;
@@ -22,33 +27,30 @@ type Props = {
   autoPlayNextShort: boolean;
   doToggleShortsAutoplay: () => void;
   isUnlisted: boolean | null | undefined;
-  channelUrl: string | null | undefined;
-  isSubscribed: boolean;
-  channelPermanentUrl: string | null | undefined;
-  doChannelSubscribe: (sub: {}) => void;
-  doChannelUnsubscribe: (sub: {}) => void;
 };
 
-const MobileActions = ({
-  uri,
-  likeCount,
-  dislikeCount,
-  myReaction,
-  doReactionLike,
-  doReactionDislike,
-  onCommentsClick,
-  onShareClick,
-  onInfoButtonClick,
-  doOpenModal,
-  autoPlayNextShort,
-  doToggleShortsAutoplay,
-  isUnlisted,
-  channelUrl,
-  isSubscribed,
-  channelPermanentUrl,
-  doChannelSubscribe,
-  doChannelUnsubscribe,
-}: Props) => {
+const MobileActions = (props: Props) => {
+  const {
+    uri,
+    likeCount,
+    dislikeCount,
+    myReaction,
+    doReactionLike,
+    doReactionDislike,
+    onCommentsClick,
+    onShareClick,
+    onInfoButtonClick,
+    doOpenModal,
+    autoPlayNextShort,
+    doToggleShortsAutoplay,
+    isUnlisted,
+  } = props;
+  const dispatch = useAppDispatch();
+  const channelUrl = useAppSelector((state) => (uri ? selectChannelForClaimUri(state, uri, true) : undefined));
+  const isSubscribed = useAppSelector((state) => (channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false));
+  const channelPermanentUrl = useAppSelector((state) =>
+    channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined
+  );
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
   const fireButtonGlowTimeout = React.useRef(null);
@@ -202,9 +204,9 @@ const MobileActions = ({
               };
 
               if (isSubscribed) {
-                doChannelUnsubscribe(sub);
+                dispatch(doChannelUnsubscribe(sub));
               } else {
-                doChannelSubscribe(sub);
+                dispatch(doChannelSubscribe(sub));
               }
             }}
           >

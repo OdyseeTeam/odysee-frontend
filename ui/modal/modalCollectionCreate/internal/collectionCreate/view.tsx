@@ -2,15 +2,16 @@ import React from 'react';
 import * as PAGES from 'constants/pages';
 import Card from 'component/common/card';
 import FormNewCollection from 'component/formNewCollection';
+import { useAppDispatch } from 'redux/hooks';
+import { doToast } from 'redux/actions/notifications';
 type Props = {
   sourceId?: string;
   closeModal: () => void;
-  // -- redux --
-  doToast: (params: { message: string }) => void;
 };
 
 const CollectionCreate = (props: Props) => {
-  const { sourceId, closeModal, doToast } = props;
+  const { sourceId, closeModal } = props;
+  const dispatch = useAppDispatch();
 
   function handleClose(newCollectionName: string, newCollectionId: string) {
     closeModal();
@@ -23,12 +24,14 @@ const CollectionCreate = (props: Props) => {
       };
     }
 
-    doToast({
-      message: __('Successfully created "%playlist_name%"', {
-        playlist_name: newCollectionName,
-      }),
-      ...linkParams,
-    });
+    dispatch(
+      doToast({
+        message: __('Successfully created "%playlist_name%"', {
+          playlist_name: newCollectionName,
+        }),
+        ...linkParams,
+      })
+    );
   }
 
   return (

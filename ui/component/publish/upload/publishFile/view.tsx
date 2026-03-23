@@ -16,48 +16,38 @@ import * as PAGES from 'constants/pages';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import {
+  selectIsStillEditing,
+  selectPublishFormValue,
+  selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
+import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
 type Props = {
   uri: string | null | undefined;
   mode: string | null | undefined;
   disabled: boolean;
-  // --- redux ---
-  name: string | null | undefined;
-  title: string | null | undefined;
-  filePath: string | WebFile;
-  fileBitrate: number;
-  fileSizeTooBig: boolean;
-  isStillEditing: boolean;
-  prevFileSizeTooBig: boolean;
-  balance: number;
-  duration: number;
-  isVid: boolean;
   fileSource: string;
-  myClaimForUri: StreamClaim | null | undefined;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  doUpdateTitle: (arg0: string, arg1: boolean) => void;
-  doUpdateFile: (file: WebFile, clearName: boolean) => void;
 };
 
 function PublishFile(props: Props) {
-  const {
-    uri,
-    name,
-    title,
-    balance,
-    filePath,
-    fileBitrate,
-    fileSizeTooBig,
-    isStillEditing,
-    prevFileSizeTooBig,
-    doUpdateTitle,
-    doUpdateFile,
-    disabled,
-    duration,
-    isVid,
-    fileSource,
-    myClaimForUri,
-    activeChannelClaim,
-  } = props;
+  const { uri, disabled, fileSource } = props;
+  const dispatch = useAppDispatch();
+  const name = useAppSelector((state) => selectPublishFormValue(state, 'name'));
+  const title = useAppSelector((state) => selectPublishFormValue(state, 'title'));
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const fileBitrate = useAppSelector((state) => state.publish.fileBitrate);
+  const fileSizeTooBig = useAppSelector((state) => state.publish.fileSizeTooBig);
+  const isStillEditing = useAppSelector(selectIsStillEditing);
+  const balance = useAppSelector(selectBalance);
+  const duration = useAppSelector((state) => selectPublishFormValue(state, 'fileDur'));
+  const isVid = useAppSelector((state) => selectPublishFormValue(state, 'fileVid'));
+  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+  const prevFileSizeTooBig = useAppSelector(selectPrevFileSizeTooBig);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
@@ -239,7 +229,7 @@ function PublishFile(props: Props) {
   }
 
   function handleTitleChange(event) {
-    doUpdateTitle(event.target.value, urlChangedManually);
+    dispatch(doUpdateTitle(event.target.value, urlChangedManually));
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
@@ -247,7 +237,7 @@ function PublishFile(props: Props) {
       titleInput.current.input.current.focus();
     }
 
-    doUpdateFile(file, clearName);
+    dispatch(doUpdateFile(file, clearName));
   }
 
   const titleInput = React.createRef();

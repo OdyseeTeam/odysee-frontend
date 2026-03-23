@@ -15,54 +15,39 @@ import CollectionPublishButton from 'page/collection/internal/collectionActions/
 // import CollectionSubtitle from '../collectionSubtitle';
 import Tooltip from 'component/common/tooltip';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import {
+  selectCollectionIsMine,
+  selectCollectionAutoPublishForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+  selectCollectionHasEditsForId,
+} from 'redux/selectors/collections';
+import { doOpenModal } from 'redux/actions/app';
+import {
+  doToggleCollectionSavedForId,
+  doSetCollectionAutoPublish,
+  doRetryCollectionPublish,
+} from 'redux/actions/collections';
 type Props = {
   uri: string;
-  claimId?: string;
-  isMyCollection: boolean;
   collectionId: string;
   showEdit: boolean;
-  // isHeader: boolean,
   setShowEdit: (arg0: boolean) => void;
   isBuiltin: boolean;
   claimIsPending: boolean;
-  autoPublish: boolean;
-  isPublishing: boolean;
-  publishError?: string | null | undefined;
-  collectionHasEdits: boolean;
-  // collectionSavedForId: boolean,
-  // collectionEmpty: boolean,
-  // collectionType: string,
-  doOpenModal: (id: string, props: {}) => void;
-  // doEnableCollectionShuffle: (params: { collectionId: string }) => void,
-  doToggleCollectionSavedForId: (id: string) => void;
-  doSetCollectionAutoPublish: (collectionId: string, enabled: boolean) => void;
-  doRetryCollectionPublish: (collectionId: string) => void; // doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void,
 };
 
 function CollectionHeaderActions(props: Props) {
-  const {
-    uri,
-    claimId,
-    isMyCollection,
-    collectionId,
-    isBuiltin,
-    claimIsPending,
-    autoPublish,
-    isPublishing,
-    publishError,
-    collectionHasEdits,
-    showEdit,
-    // isHeader,
-    setShowEdit,
-    // collectionSavedForId,
-    // collectionEmpty,
-    // collectionType,
-    doOpenModal,
-    // doEnableCollectionShuffle,
-    doToggleCollectionSavedForId,
-    doSetCollectionAutoPublish,
-    doRetryCollectionPublish, // doSortCollectionByKey,
-  } = props;
+  const { uri, collectionId, isBuiltin, claimIsPending, showEdit, setShowEdit } = props;
+  const dispatch = useAppDispatch();
+  const claimId = useAppSelector((state) => selectClaimForUri(state, uri))?.claim_id;
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
+  const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
+  const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
   const navigate = useNavigate();
   const isNotADefaultList = collectionId !== 'watchlater' && collectionId !== 'favorites';
   return (
@@ -135,7 +120,7 @@ function CollectionHeaderActions(props: Props) {
               {isMyCollection && !isBuiltin && claimId && (
                 <MenuItem
                   className="comment__menu-option"
-                  onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
+                  onSelect={() => dispatch(doSetCollectionAutoPublish(collectionId, !autoPublish))}
                 >
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.PUBLISH} />
@@ -144,7 +129,10 @@ function CollectionHeaderActions(props: Props) {
                 </MenuItem>
               )}
               {isMyCollection && !isBuiltin && claimId && collectionHasEdits && publishError && (
-                <MenuItem className="comment__menu-option" onSelect={() => doRetryCollectionPublish(collectionId)}>
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() => dispatch(doRetryCollectionPublish(collectionId))}
+                >
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.REFRESH} />
                     {__('Retry Publish Now')}
@@ -152,7 +140,10 @@ function CollectionHeaderActions(props: Props) {
                 </MenuItem>
               )}
               {!isMyCollection && claimId && (
-                <MenuItem className="comment__menu-option" onSelect={() => doToggleCollectionSavedForId(claimId)}>
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() => dispatch(doToggleCollectionSavedForId(claimId))}
+                >
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
                     {__('Save')}
@@ -170,9 +161,11 @@ function CollectionHeaderActions(props: Props) {
               <MenuItem
                 className="comment__menu-option"
                 onSelect={() =>
-                  doOpenModal(MODALS.COLLECTION_CREATE, {
-                    sourceId: collectionId,
-                  })
+                  dispatch(
+                    doOpenModal(MODALS.COLLECTION_CREATE, {
+                      sourceId: collectionId,
+                    })
+                  )
                 }
               >
                 <div className="menu__link">
@@ -184,11 +177,13 @@ function CollectionHeaderActions(props: Props) {
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
-                    doOpenModal(MODALS.COLLECTION_DELETE, {
-                      uri,
-                      collectionId,
-                      redirect: `/$/${PAGES.PLAYLISTS}`,
-                    })
+                    dispatch(
+                      doOpenModal(MODALS.COLLECTION_DELETE, {
+                        uri,
+                        collectionId,
+                        redirect: `/$/${PAGES.PLAYLISTS}`,
+                      })
+                    )
                   }
                 >
                   <div className="menu__link">

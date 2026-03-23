@@ -4,6 +4,12 @@ import classnames from 'classnames';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
 import MobileActions from '../shortsMobileActions';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
+import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
+import { doOpenModal } from 'redux/actions/app';
+
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 type Props = {
   uri?: string;
@@ -19,18 +25,8 @@ type Props = {
   doToggleShortsAutoplay?: () => void;
   onCommentsClick?: () => void;
   onInfoButtonClick?: () => void;
-  likeCount: number;
-  dislikeCount: number;
-  myReaction: string | null | undefined;
-  doReactionLike: (uri: string) => void;
-  doReactionDislike: (uri: string) => void;
-  isUnlisted: boolean | null | undefined;
-  doOpenModal: (id: string, props: any) => void;
   webShareable?: boolean;
   collectionId?: string;
-  claimId?: string;
-  isLivestreamClaim?: boolean;
-  doFetchReactions?: (claimId: string | null | undefined) => void;
   handleShareClick?: () => void;
 };
 const SwipeNavigationPortal = React.memo<Props>(
@@ -48,24 +44,22 @@ const SwipeNavigationPortal = React.memo<Props>(
     autoPlayNextShort,
     doToggleShortsAutoplay,
     onCommentsClick,
-    likeCount,
-    dislikeCount,
-    myReaction,
-    doReactionLike,
-    doReactionDislike,
     webShareable,
-    isUnlisted,
     collectionId,
-    doOpenModal,
-    claimId,
-    isLivestreamClaim,
-    doFetchReactions,
     handleShareClick,
   }: Props) => {
+    const dispatch = useAppDispatch();
+    const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : null));
+    const claimId = claim?.claim_id;
+    const myReaction = useAppSelector((state) => (uri ? selectMyReactionForUri(state, uri) : null));
+    const likeCount = useAppSelector((state) => (uri ? selectLikeCountForUri(state, uri) : 0));
+    const dislikeCount = useAppSelector((state) => (uri ? selectDislikeCountForUri(state, uri) : 0));
+    const isLivestreamClaim = useAppSelector((state) => (uri ? selectIsStreamPlaceholderForUri(state, uri) : false));
+    const isUnlisted = useAppSelector((state) => (uri ? selectIsUriUnlisted(state, uri) : false));
     const wheelLockRef = React.useRef(false);
     React.useEffect(() => {
       function fetchReactions() {
-        if (doFetchReactions) doFetchReactions(claimId);
+        if (claimId) dispatch(doFetchReactions(claimId));
       }
 
       let fetchInterval;
@@ -83,7 +77,7 @@ const SwipeNavigationPortal = React.memo<Props>(
           clearInterval(fetchInterval);
         }
       };
-    }, [claimId, doFetchReactions, isLivestreamClaim]);
+    }, [claimId, dispatch, isLivestreamClaim]);
     const handlePlayPause = React.useCallback(() => {
       const videoElement: any = document.querySelector('.vjs-tech');
 
@@ -193,8 +187,8 @@ const SwipeNavigationPortal = React.memo<Props>(
           likeCount={likeCount}
           dislikeCount={dislikeCount}
           myReaction={myReaction}
-          doReactionLike={doReactionLike}
-          doReactionDislike={doReactionDislike}
+          doReactionLike={(u) => dispatch(doReactionLike(u))}
+          doReactionDislike={(u) => dispatch(doReactionDislike(u))}
           onCommentsClick={onCommentsClick}
           onInfoButtonClick={onInfoButtonClick}
           autoPlayNextShort={autoPlayNextShort}
@@ -202,7 +196,7 @@ const SwipeNavigationPortal = React.memo<Props>(
           isUnlisted={isUnlisted}
           webShareable={webShareable}
           collectionId={collectionId}
-          doOpenModal={doOpenModal}
+          doOpenModal={(id, p) => dispatch(doOpenModal(id, p))}
           onShareClick={handleShareClick}
         />
 

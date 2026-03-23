@@ -22,64 +22,83 @@ import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
 import Spinner from 'component/spinner';
 import AutoPublishCountdown from './internal/autoPublishCountdown';
+import { useAppSelector } from 'redux/hooks';
+import {
+  selectIsResolvingForId,
+  selectTitleForUri,
+  selectClaimIdForUri,
+  selectClaimForClaimId,
+  selectThumbnailForUri,
+  selectClaimIsPendingForId,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionTitleForId,
+  selectCountForCollectionId,
+  selectAreCollectionItemsFetchingForId,
+  selectFirstItemUrlForCollection,
+  selectFirstPlayableUrlForCollectionId,
+  selectUpdatedAtForCollectionId,
+  selectCreatedAtForCollectionId,
+  selectIsCollectionBuiltInForId,
+  selectThumbnailForCollectionId,
+  selectCollectionIsEmptyForId,
+  selectCollectionTypeForId,
+  selectCollectionHasEditsForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
+} from 'redux/selectors/collections';
+import { getChannelFromClaim } from 'util/claim';
 type Props = {
-  uri: string;
-  collectionId: string;
-  // -- redux --
-  collectionCount: number;
-  collectionName: string;
-  collectionType: string | null | undefined;
-  claimIsPending: boolean;
-  isFetchingItems: boolean;
-  isResolvingCollection: boolean;
-  title?: string;
-  channel: any | null | undefined;
-  channelTitle?: string;
-  hasClaim: boolean;
-  firstCollectionItemUrl: string | null | undefined;
-  firstPlayableCollectionItemUrl: string | null | undefined;
-  collectionUpdatedAt: number;
-  collectionCreatedAt: number | null | undefined;
-  isBuiltin: boolean;
-  thumbnail: string | null | undefined;
-  isEmpty: boolean;
-  thumbnailFromClaim: string;
-  thumbnailFromSecondaryClaim: string;
-  collectionHasEdits: boolean;
-  isPublishing: boolean;
-  publishError?: string | null | undefined;
-  autoPublish: boolean;
-  autoPublishScheduledAt: number | null | undefined;
+  uri?: string;
+  collectionId?: string;
 };
 
 function CollectionPreview(props: Props) {
-  const {
-    uri,
-    collectionId,
-    collectionCount,
-    collectionName,
-    claimIsPending,
-    isFetchingItems,
-    isResolvingCollection,
-    collectionType,
-    hasClaim,
-    firstCollectionItemUrl,
-    firstPlayableCollectionItemUrl,
-    channel,
-    channelTitle,
-    collectionUpdatedAt,
-    collectionCreatedAt,
-    isBuiltin,
-    thumbnail,
-    isEmpty,
-    thumbnailFromClaim,
-    thumbnailFromSecondaryClaim,
-    collectionHasEdits,
-    isPublishing,
-    publishError,
-    autoPublish,
-    autoPublishScheduledAt,
-  } = props;
+  const { uri: propUri, collectionId: propCollectionId } = props;
+  const claimIdFromUri = useAppSelector((state) => (propUri ? selectClaimIdForUri(state, propUri) : undefined));
+  const collectionId = propCollectionId || claimIdFromUri || '';
+  const claim = useAppSelector((state) => selectClaimForClaimId(state, collectionId));
+  const channel = getChannelFromClaim(claim);
+  const uri = propUri || (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  let channelTitle: string | null = null;
+  if (channel) {
+    const { value, name } = channel;
+    if (value && value.title) {
+      channelTitle = value.title;
+    } else {
+      channelTitle = name;
+    }
+  }
+  const firstCollectionItemUrl = useAppSelector((state) => selectFirstItemUrlForCollection(state, collectionId));
+  const firstPlayableCollectionItemUrl = useAppSelector((state) =>
+    selectFirstPlayableUrlForCollectionId(state, collectionId)
+  );
+  const collectionCount = useAppSelector((state) => selectCountForCollectionId(state, collectionId));
+  const collectionName = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const collectionType = useAppSelector((state) => selectCollectionTypeForId(state, collectionId));
+  const isFetchingItems = useAppSelector((state) => selectAreCollectionItemsFetchingForId(state, collectionId));
+  const isResolvingCollection = useAppSelector((state) => selectIsResolvingForId(state, collectionId));
+  const claimIsPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
+  const title = useAppSelector((state) => (uri ? selectTitleForUri(state, uri) : undefined));
+  const hasClaim = Boolean(claim);
+  const collectionUpdatedAt = useAppSelector((state) => selectUpdatedAtForCollectionId(state, collectionId));
+  const collectionCreatedAt = useAppSelector((state) => selectCreatedAtForCollectionId(state, collectionId));
+  const isBuiltin = useAppSelector((state) => selectIsCollectionBuiltInForId(state, collectionId));
+  const thumbnail = useAppSelector((state) => selectThumbnailForCollectionId(state, collectionId));
+  const isEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const thumbnailFromClaim = useAppSelector((state) => (uri ? selectThumbnailForUri(state, uri) : ''));
+  const thumbnailFromSecondaryClaim = useAppSelector((state) =>
+    firstCollectionItemUrl ? selectThumbnailForUri(state, firstCollectionItemUrl, true) : ''
+  );
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
+  const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
+  const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
+  const autoPublishScheduledAt = useAppSelector((state) =>
+    selectCollectionAutoPublishScheduledAtForId(state, collectionId)
+  );
   const navigate = useNavigate();
   if (collectionType === 'featuredChannels') return null;
   const previewThumbnail = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;

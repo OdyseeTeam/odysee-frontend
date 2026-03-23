@@ -2,13 +2,18 @@ import React from 'react';
 import Lbry from 'lbry';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doCheckReflectingFiles } from 'redux/actions/publish';
+import { makeSelectReflectingClaimForUri } from 'redux/selectors/claims';
 type Props = {
-  reflectingInfo?: ReflectingUpdate;
-  checkReflecting: () => void;
+  uri?: string;
 };
 
 const PublishPending = (props: Props) => {
-  const { reflectingInfo = {}, checkReflecting } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const reflectingInfo = useAppSelector((state) => (uri ? makeSelectReflectingClaimForUri(uri)(state) : {})) || {};
+  const checkReflecting = () => dispatch(doCheckReflectingFiles());
   const { fileListItem, progress, stalled } = reflectingInfo;
   const sdHash = fileListItem && fileListItem.sd_hash;
   const reflecting = Object.keys(reflectingInfo).length;

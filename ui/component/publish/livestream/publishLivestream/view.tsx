@@ -13,28 +13,20 @@ import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
+import {
+  doUpdateFile,
+  doUpdatePublishForm as doUpdatePublishFormAction,
+  doUpdateTitle as doUpdateTitleAction,
+} from 'redux/actions/publish';
 type Props = {
   uri: string | null | undefined;
   disabled: boolean;
   livestreamData: Array<LivestreamReplayItem>;
   isCheckingLivestreams: boolean;
   inEditMode: boolean;
-  // --- redux ---
-  title: string | null | undefined;
-  filePath: string | WebFile;
-  fileBitrate: number;
-  fileSizeTooBig: boolean;
-  isStillEditing: boolean;
-  liveCreateType: LiveCreateType;
-  liveEditType: LiveEditType;
-  balance: number;
-  publishing: boolean;
-  duration: number;
-  isVid: boolean;
-  doUpdatePublishForm: (arg0: UpdatePublishState) => void;
-  doUpdateTitle: (arg0: string, arg1: boolean) => void;
-  doUpdateFile: (file: WebFile, clearName: boolean) => void;
-  doToast: (arg0: { message: string; isError?: boolean }) => void;
 };
 
 const normalizeUrlForProtocol = (url) => {
@@ -50,26 +42,22 @@ const normalizeUrlForProtocol = (url) => {
 };
 
 function PublishLivestream(props: Props) {
-  const {
-    uri,
-    title,
-    balance,
-    filePath,
-    fileBitrate,
-    fileSizeTooBig,
-    liveCreateType,
-    liveEditType,
-    isStillEditing,
-    doUpdatePublishForm: updatePublishForm,
-    doUpdateTitle,
-    doUpdateFile,
-    duration,
-    isVid,
-    disabled,
-    livestreamData,
-    isCheckingLivestreams,
-    inEditMode,
-  } = props;
+  const { uri, disabled, livestreamData, isCheckingLivestreams, inEditMode } = props;
+  const dispatch = useAppDispatch();
+  const title = useAppSelector((state) => selectPublishFormValue(state, 'title'));
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
+  const fileBitrate = useAppSelector((state) => state.publish.fileBitrate);
+  const fileSizeTooBig = useAppSelector((state) => state.publish.fileSizeTooBig);
+  const liveCreateType = useAppSelector((state) => state.publish.liveCreateType);
+  const liveEditType = useAppSelector((state) => state.publish.liveEditType);
+  const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
+  const balance = useAppSelector((state) => selectBalance(state));
+  const publishing = useAppSelector((state) => selectPublishFormValue(state, 'publishing'));
+  const duration = useAppSelector((state) => selectPublishFormValue(state, 'fileDur'));
+  const isVid = useAppSelector((state) => selectPublishFormValue(state, 'fileVid'));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishFormAction(value));
+  const doUpdateTitle = (t: string, manual: boolean) => dispatch(doUpdateTitleAction(t, manual));
+  const doUpdateFileFn = (file: WebFile, clearName: boolean) => dispatch(doUpdateFile(file, clearName));
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
@@ -110,7 +98,7 @@ function PublishLivestream(props: Props) {
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
-    doUpdateFile(file, clearName);
+    doUpdateFileFn(file, clearName);
   }
 
   function getUploadMessage() {

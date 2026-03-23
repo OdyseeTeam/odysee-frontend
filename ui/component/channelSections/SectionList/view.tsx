@@ -6,29 +6,38 @@ import Section from 'component/channelSections/Section';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { selectClaimIdForUri } from 'redux/selectors/claims';
+import { selectFeaturedChannelsForChannelId, selectFetchingCreatorSettings } from 'redux/selectors/comments';
+
 type Props = {
   uri: string;
   editMode?: boolean;
-  // --- redux ---
-  claimId: string | null | undefined;
-  featuredChannels: Array<FeaturedChannelsSection> | null | undefined;
-  fetchingCreatorSettings: boolean;
-  doOpenModal: (id: string, props: {}) => void;
 };
 export default function SectionList(props: Props) {
-  const { editMode, claimId, featuredChannels, fetchingCreatorSettings, doOpenModal } = props;
+  const { uri, editMode } = props;
+  const dispatch = useAppDispatch();
+
+  const claimId = useAppSelector((state) => selectClaimIdForUri(state, uri));
+  const featuredChannels = useAppSelector((state) => selectFeaturedChannelsForChannelId(state, claimId));
+  const fetchingCreatorSettings = useAppSelector(selectFetchingCreatorSettings);
   const sectionCount = featuredChannels ? featuredChannels.length : 0;
 
   function handleAddFeaturedChannels() {
-    doOpenModal(MODALS.FEATURED_CHANNELS_EDIT, {
-      channelId: claimId,
-    });
+    dispatch(
+      doOpenModal(MODALS.FEATURED_CHANNELS_EDIT, {
+        channelId: claimId,
+      })
+    );
   }
 
   function handleSort() {
-    doOpenModal(MODALS.FEATURED_CHANNELS_SORT, {
-      channelId: claimId,
-    });
+    dispatch(
+      doOpenModal(MODALS.FEATURED_CHANNELS_SORT, {
+        channelId: claimId,
+      })
+    );
   }
 
   return (

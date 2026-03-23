@@ -2,13 +2,14 @@ import React from 'react';
 import Card from 'component/common/card';
 import './style.scss';
 import { Lbryio } from 'lbryinc';
+import { useAppSelector } from 'redux/hooks';
+import { selectAPIArweaveDefaultAccount } from 'redux/selectors/stripe';
 type Props = {
   cardHeader: () => React.ReactNode;
   mode: string;
   arWalletStatus: any;
   theme: string;
   balance: number;
-  arweaveAccount: any;
 };
 const rgbaToHex = (rgba) => {
   const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
@@ -84,7 +85,8 @@ function arrangeStringAlphabetically(inputString: string): string {
 }
 
 export default function OnRamper(props: Props) {
-  const { cardHeader, arWalletStatus, theme, mode, arweaveAccount } = props;
+  const { cardHeader, arWalletStatus, theme, mode } = props;
+  const arweaveAccount = useAppSelector(selectAPIArweaveDefaultAccount);
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;
 

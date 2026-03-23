@@ -9,38 +9,28 @@ import Card from 'component/common/card';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
 import PublishBid from '../publishBid';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectPublishFormValues } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { selectUser } from 'redux/selectors/user';
 // @if TARGET='app'
 // import ErrorText from 'component/common/error-text';
 // import { LbryFirst } from 'lbry-redux';
 // import { ipcRenderer } from 'electron';
 // @endif
 type Props = {
-  user: User | null | undefined;
-  language: string | null | undefined;
-  name: string | null | undefined;
-  licenseType: string | null | undefined;
-  otherLicenseDescription: string | null | undefined;
-  licenseUrl: string | null | undefined;
   disabled: boolean;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-  useLBRYUploader: boolean;
-  needsYTAuth: boolean;
   showSchedulingOptions: boolean;
-  visibility: Visibility;
+  isLivestream?: boolean;
 };
 
 function PublishAdditionalOptions(props: Props) {
-  const {
-    language,
-    name,
-    licenseType,
-    otherLicenseDescription,
-    licenseUrl,
-    updatePublishForm,
-    showSchedulingOptions,
-    disabled,
-    visibility,
-  } = props;
+  const { showSchedulingOptions, disabled } = props;
+  const dispatch = useAppDispatch();
+  const formValues = useAppSelector((state) => selectPublishFormValues(state));
+  const { language, name, licenseType, otherLicenseDescription, licenseUrl, visibility } = formValues;
+  const user = useAppSelector((state) => selectUser(state));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [hideSection, setHideSection] = useState(disabled);
   const showReleaseDate = !showSchedulingOptions && visibility === 'public';
 

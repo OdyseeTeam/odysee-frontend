@@ -13,6 +13,15 @@ import TabWrapper from './internal/tabWrapper';
 import './style.scss';
 import { LocalStorage } from '../../../util/storage';
 import { SETTINGS } from 'constants/icons';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMyChannelClaimIds, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectMySupportersList } from 'redux/selectors/memberships';
+import {
+  doListAllMyMembershipTiers as doListAllMyMembershipTiersAction,
+  doGetMembershipSupportersList as doGetMembershipSupportersListAction,
+} from 'redux/actions/memberships';
+import { selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
 const OverviewTab = lazyImport(
   () =>
     import(
@@ -42,18 +51,17 @@ const TABS = {
   TIERS: 'tiers',
   PAYMENTS: 'payments',
 };
-type Props = {
-  // -- redux --
-  activeChannelClaim: ChannelClaim | null | undefined;
-  myChannelClaims: Array<ChannelClaim> | null | undefined;
-  supportersList: SupportersList | null | undefined;
-  doListAllMyMembershipTiers: () => Promise<CreatorMemberships>;
-  doGetMembershipSupportersList: () => void;
-  monetizationEnabled: boolean;
-  myChannelIds: Array<string>;
-};
+type Props = {};
 
 const CreatorArea = (props: Props) => {
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const myChannelIds = useAppSelector(selectMyChannelClaimIds);
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const supportersList = useAppSelector(selectMySupportersList);
+  const monetizationEnabled = useAppSelector(selectArweaveDefaultAccountMonetizationEnabled);
+  const doListAllMyMembershipTiers = () => dispatch(doListAllMyMembershipTiersAction());
+  const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);

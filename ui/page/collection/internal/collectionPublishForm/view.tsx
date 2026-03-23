@@ -201,6 +201,7 @@ const CollectionPublishForm = (props: Props) => {
     >
       <CollectionFormContext.Provider
         value={{
+          collectionId,
           formParams,
           updateFormParams,
         }}

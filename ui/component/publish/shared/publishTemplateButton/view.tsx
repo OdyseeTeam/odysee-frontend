@@ -8,22 +8,19 @@ import { FormField } from 'component/common/form';
 import { v4 as uuid } from 'uuid';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 import { cloneDeep } from 'util/clone';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelClaim, selectActiveChannelId } from 'redux/selectors/app';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectPublishFormValues } from 'redux/selectors/publish';
+import { selectSettingsByChannelId } from 'redux/selectors/comments';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { doFetchCreatorSettings, doUpdateCreatorSettings } from 'redux/actions/comments';
+import { doOpenModal } from 'redux/actions/app';
+import { doToast } from 'redux/actions/notifications';
 import './style.scss';
 type TemplateEntry = UploadTemplate & {
   channelId: string;
   channelName: string;
-};
-type Props = {
-  defaultChannelId: string | null | undefined;
-  myChannelClaims: Array<ChannelClaim>;
-  settingsByChannelId: Record<string, PerChannelSettings | null | undefined>;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  publishFormValues: any;
-  openModal: (arg0: string, arg1: {} | null | undefined) => void;
-  fetchCreatorSettings: (arg0: string) => Promise<any> | any;
-  updatePublishForm: (arg0: any) => void;
-  doUpdateCreatorSettings: (arg0: ChannelClaim, arg1: any) => void;
-  doToast: (arg0: { message: string; actionText?: string; action?: () => void; isError?: boolean }) => void;
 };
 // Fields to extract from the publish form for template data
 const TEMPLATE_FIELDS = [
@@ -158,19 +155,20 @@ function getDefaultTemplateDataForComparison(publishFormValues: any): UploadTemp
   };
 }
 
-export default function PublishTemplateButton(props: Props) {
-  const {
-    defaultChannelId,
-    myChannelClaims,
-    settingsByChannelId,
-    activeChannelClaim,
-    publishFormValues,
-    openModal,
-    fetchCreatorSettings,
-    updatePublishForm,
-    doUpdateCreatorSettings,
-    doToast,
-  } = props;
+export default function PublishTemplateButton() {
+  const dispatch = useAppDispatch();
+  const publishFormValues = useAppSelector(selectPublishFormValues);
+  const activeChannelId = useAppSelector(selectActiveChannelId);
+  const defaultChannelId = publishFormValues.channelId || activeChannelId;
+  const myChannelClaims = useAppSelector(selectMyChannelClaims) || [];
+  const settingsByChannelId = useAppSelector(selectSettingsByChannelId);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const openModal = React.useCallback((id: string, props?: {} | null) => dispatch(doOpenModal(id, props)), [dispatch]);
+  const fetchCreatorSettings = React.useCallback(
+    (channelId: string) => dispatch(doFetchCreatorSettings(channelId)),
+    [dispatch]
+  );
+  const updatePublishForm = React.useCallback((data: any) => dispatch(doUpdatePublishForm(data)), [dispatch]);
   const [showSaveInput, setShowSaveInput] = React.useState(false);
   const [templateName, setTemplateName] = React.useState('');
   const [templateInputName, setTemplateInputName] = React.useState(`template_name_${uuid()}`);
@@ -382,9 +380,11 @@ export default function PublishTemplateButton(props: Props) {
     if (!channelClaim || !channelClaim.claim_id) return;
     const channelId = channelClaim.claim_id;
     setOptimisticTemplatesByChannelId((prev) => ({ ...prev, [channelId]: templatesToSave }));
-    doUpdateCreatorSettings(channelClaim, {
-      upload_templates: templatesToSave,
-    });
+    dispatch(
+      doUpdateCreatorSettings(channelClaim, {
+        upload_templates: templatesToSave,
+      })
+    );
   }
 
   function handleSaveTemplate() {
@@ -393,10 +393,12 @@ export default function PublishTemplateButton(props: Props) {
     const templateData = extractTemplateDataFromPublishForm(publishFormValues);
 
     if (Object.keys(templateData).length === 0) {
-      doToast({
-        message: __('Cannot save an empty template.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('Cannot save an empty template.'),
+          isError: true,
+        })
+      );
       return;
     }
 
@@ -410,11 +412,13 @@ export default function PublishTemplateButton(props: Props) {
           : template
       );
       persistTemplatesForChannel(saveTargetChannelClaim, updatedTemplates);
-      doToast({
-        message: __('Template "%name%" updated', {
-          name: normalizedTemplateName,
-        }),
-      });
+      dispatch(
+        doToast({
+          message: __('Template "%name%" updated', {
+            name: normalizedTemplateName,
+          }),
+        })
+      );
       closeSaveInput();
       return;
     }
@@ -428,11 +432,13 @@ export default function PublishTemplateButton(props: Props) {
     };
     const updatedTemplates = [...saveTargetTemplates, newTemplate];
     persistTemplatesForChannel(saveTargetChannelClaim, updatedTemplates);
-    doToast({
-      message: __('Template "%name%" saved', {
-        name: newTemplate.name,
-      }),
-    });
+    dispatch(
+      doToast({
+        message: __('Template "%name%" saved', {
+          name: newTemplate.name,
+        }),
+      })
+    );
     closeSaveInput();
   }
 
@@ -457,23 +463,27 @@ export default function PublishTemplateButton(props: Props) {
       persistTemplatesForChannel(ownerChannelClaim, updatedTemplates);
     }
 
-    doToast({
-      message: __('Template "%name%" applied', {
-        name: template.name,
-      }),
-      actionText: __('Undo'),
-      action: () => updatePublishForm(undoData),
-    });
+    dispatch(
+      doToast({
+        message: __('Template "%name%" applied', {
+          name: template.name,
+        }),
+        actionText: __('Undo'),
+        action: () => updatePublishForm(undoData),
+      })
+    );
   }
 
   function handleToggleTemplatePin(template: TemplateEntry) {
     const ownerChannelClaim = orderedChannelClaims.find((channelClaim) => channelClaim.claim_id === template.channelId);
 
     if (!ownerChannelClaim) {
-      doToast({
-        message: __('Unable to find template owner channel.'),
-        isError: true,
-      });
+      dispatch(
+        doToast({
+          message: __('Unable to find template owner channel.'),
+          isError: true,
+        })
+      );
       return;
     }
 
@@ -484,15 +494,17 @@ export default function PublishTemplateButton(props: Props) {
         : existingTemplate
     );
     persistTemplatesForChannel(ownerChannelClaim, updatedTemplates);
-    doToast({
-      message: template.isPinned
-        ? __('Template "%name%" unpinned', {
-            name: template.name,
-          })
-        : __('Template "%name%" pinned', {
-            name: template.name,
-          }),
-    });
+    dispatch(
+      doToast({
+        message: template.isPinned
+          ? __('Template "%name%" unpinned', {
+              name: template.name,
+            })
+          : __('Template "%name%" pinned', {
+              name: template.name,
+            }),
+      })
+    );
   }
 
   function handleUpdateSelectedTemplate() {
@@ -509,10 +521,12 @@ export default function PublishTemplateButton(props: Props) {
         );
 
         if (!ownerChannelClaim) {
-          doToast({
-            message: __('Unable to find template owner channel.'),
-            isError: true,
-          });
+          dispatch(
+            doToast({
+              message: __('Unable to find template owner channel.'),
+              isError: true,
+            })
+          );
           closeModal();
           return;
         }
@@ -520,10 +534,12 @@ export default function PublishTemplateButton(props: Props) {
         const templateData = extractTemplateDataFromPublishForm(publishFormValues);
 
         if (Object.keys(templateData).length === 0) {
-          doToast({
-            message: __('Cannot update with an empty publish form.'),
-            isError: true,
-          });
+          dispatch(
+            doToast({
+              message: __('Cannot update with an empty publish form.'),
+              isError: true,
+            })
+          );
           closeModal();
           return;
         }
@@ -535,11 +551,13 @@ export default function PublishTemplateButton(props: Props) {
         );
         persistTemplatesForChannel(ownerChannelClaim, updatedTemplates);
         setSelectedTemplateBaselineData(templateData);
-        doToast({
-          message: __('Template "%name%" updated', {
-            name: selectedTemplate.name,
-          }),
-        });
+        dispatch(
+          doToast({
+            message: __('Template "%name%" updated', {
+              name: selectedTemplate.name,
+            }),
+          })
+        );
         closeModal();
       },
     });

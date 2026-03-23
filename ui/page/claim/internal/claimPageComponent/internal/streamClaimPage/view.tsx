@@ -6,6 +6,8 @@ import { lazyImport } from 'util/lazyImport';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
+import * as SETTINGS from 'constants/settings';
+import * as TAGS from 'constants/tags';
 import FileTitleSection from 'component/fileTitleSection';
 import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
@@ -17,6 +19,27 @@ import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  doSetContentHistoryItem as doSetContentHistoryItemAction,
+  doSetPrimaryUri as doSetPrimaryUriAction,
+} from 'redux/actions/content';
+import {
+  selectClaimIsNsfwForUri,
+  selectClaimForUri,
+  selectProtectedContentTagForUri,
+  selectIsStreamPlaceholderForUri,
+  selectCostInfoForUri,
+  selectThumbnailForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { getChannelIdFromClaim, isClaimShort } from 'util/claim';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 const CommentsList = lazyImport(
   () =>
     import(
@@ -48,29 +71,6 @@ const LivestreamPage = lazyImport(
 const ShortsPage = lazyImport(() => import('./internal/shorts'));
 type Props = {
   uri: string;
-  // -- redux --
-  commentsListTitle: string;
-  costInfo:
-    | {
-        includesData: boolean;
-        cost: number;
-      }
-    | null
-    | undefined;
-  thumbnail: string | null | undefined;
-  isMature: boolean;
-  renderMode: string;
-  commentsDisabled: boolean | null | undefined;
-  isProtectedContent?: boolean;
-  contentUnlocked: boolean;
-  isLivestream: boolean;
-  isClaimBlackListed: boolean;
-  isClaimFiltered: boolean;
-  isClaimShort: boolean;
-  disableShortsViewSetting: boolean;
-  doSetContentHistoryItem: (uri: string) => void;
-  doSetPrimaryUri: (uri: string | null | undefined) => void;
-  doToggleAppDrawer: (type: string) => void;
 };
 
 function dmcaInfo() {
@@ -114,26 +114,33 @@ function filteredInfo() {
 }
 
 const StreamClaimPage = (props: Props) => {
-  const {
-    uri,
-    // -- redux --
-    commentsListTitle,
-    costInfo,
-    thumbnail,
-    isMature,
-    renderMode,
-    commentsDisabled,
-    isProtectedContent,
-    contentUnlocked,
-    isLivestream,
-    isClaimBlackListed,
-    isClaimFiltered,
-    doSetContentHistoryItem,
-    doSetPrimaryUri,
-    doToggleAppDrawer,
-    isClaimShort,
-    disableShortsViewSetting,
-  } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const claimId = claim?.claim_id;
+  const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
+  const filterData = useAppSelector((state) => selectFilteredDataForUri(state, uri));
+  const isClaimFilteredValue = filterData && filterData.tag_name !== 'internal-hide-trending';
+  const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
+  const costInfo = useAppSelector((state) => selectCostInfoForUri(state, uri));
+  const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+  const commentsDisabled =
+    commentSettingDisabled ||
+    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
+  const isProtectedContent = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
+  const contentUnlocked =
+    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const isLivestream = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const isClaimBlackListed = Boolean(useAppSelector((state) => selectBlackListedDataForUri(state, uri)));
+  const disableShortsViewSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+  const isClaimFiltered = isClaimFilteredValue;
+  const isClaimShortValue = isClaimShort(claim);
+  const doSetContentHistoryItem = (u: string) => dispatch(doSetContentHistoryItemAction(u));
+  const doSetPrimaryUri = (u: string | null | undefined) => dispatch(doSetPrimaryUriAction(u));
+  const doToggleAppDrawer = (type: string) => dispatch(doToggleAppDrawerAction(type));
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const location = useLocation();
@@ -149,7 +156,7 @@ const StreamClaimPage = (props: Props) => {
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const disableShortsView = !!collectionSidebarId || disableShortsViewSetting;
   const shortsView = urlParams.get('view') === 'shorts';
-  const isShortVideo = isClaimShort && !disableShortsView;
+  const isShortVideo = isClaimShortValue && !disableShortsView;
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
       doToggleAppDrawer(DRAWERS.CHAT);
@@ -158,7 +165,7 @@ const StreamClaimPage = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   React.useEffect(() => {
-    if (!isClaimShort && shortsView) {
+    if (!isClaimShortValue && shortsView) {
       const urlParams = new URLSearchParams(search);
       urlParams.delete('view');
       const newSearch = urlParams.toString();
@@ -167,7 +174,7 @@ const StreamClaimPage = (props: Props) => {
       window.history.replaceState({}, '', newUrl);
       window.location.reload();
     }
-  }, [isClaimShort, shortsView, search]);
+  }, [isClaimShortValue, shortsView, search]);
   React.useEffect(() => {
     const urlParams = new URLSearchParams(search);
 

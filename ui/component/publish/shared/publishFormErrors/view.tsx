@@ -4,47 +4,37 @@ import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { isNameValid } from 'util/lbryURI';
 import { INVALID_NAME_ERROR } from 'constants/claim';
 import { BITRATE } from 'constants/publish';
+import { useAppSelector } from 'redux/hooks';
+import {
+  selectPublishFormValue,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+  selectPrevFileSizeTooBig,
+} from 'redux/selectors/publish';
 type Props = {
   waitForFile: boolean;
   missingRequiredFile?: boolean;
-  // --- redux ---
-  title: string | null | undefined;
-  name: string | null | undefined;
-  bid: string | null | undefined;
-  bidError: string | null | undefined;
-  editingURI: string | null | undefined;
-  filePath: undefined | WebFile;
-  fileBitrate: number;
-  fileSizeTooBig: boolean;
-  isStillEditing: boolean;
-  prevFileSizeTooBig: boolean;
-  uploadThumbnailStatus: string;
-  thumbnail: string;
-  thumbnailError: boolean;
-  releaseTimeError: string | null | undefined;
-  memberRestrictionStatus: MemberRestrictionStatus;
+  title?: string | null | undefined;
+  mode?: string;
 };
 
 function PublishFormErrors(props: Props) {
-  const {
-    name,
-    title,
-    bid,
-    bidError,
-    editingURI,
-    filePath,
-    isStillEditing,
-    uploadThumbnailStatus,
-    thumbnail,
-    thumbnailError,
-    releaseTimeError,
-    memberRestrictionStatus,
-    waitForFile,
-    missingRequiredFile,
-    fileBitrate,
-    fileSizeTooBig,
-    prevFileSizeTooBig,
-  } = props;
+  const { waitForFile, missingRequiredFile } = props;
+  const bid = useAppSelector((state) => selectPublishFormValue(state, 'bid'));
+  const name = useAppSelector((state) => selectPublishFormValue(state, 'name'));
+  const title = useAppSelector((state) => selectPublishFormValue(state, 'title'));
+  const bidError = useAppSelector((state) => selectPublishFormValue(state, 'bidError'));
+  const fileBitrate = useAppSelector((state) => selectPublishFormValue(state, 'fileBitrate'));
+  const fileSizeTooBig = useAppSelector((state) => selectPublishFormValue(state, 'fileSizeTooBig'));
+  const editingURI = useAppSelector((state) => selectPublishFormValue(state, 'editingURI'));
+  const uploadThumbnailStatus = useAppSelector((state) => selectPublishFormValue(state, 'uploadThumbnailStatus'));
+  const thumbnail = useAppSelector((state) => selectPublishFormValue(state, 'thumbnail'));
+  const thumbnailError = useAppSelector((state) => selectPublishFormValue(state, 'thumbnailError'));
+  const releaseTimeError = useAppSelector((state) => selectPublishFormValue(state, 'releaseTimeError'));
+  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state));
+  const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
+  const prevFileSizeTooBig = useAppSelector((state) => selectPrevFileSizeTooBig(state));
+  const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
   // These are extra help
   // If there is an error it will be presented as an inline error as well
   const isUploadingThumbnail = uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS;

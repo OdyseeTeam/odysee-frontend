@@ -8,25 +8,31 @@ import * as COLS from 'constants/collections';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Spinner from 'component/spinner';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectMyPublishedCollections,
+  selectMyUnpublishedCollections,
+  selectIsFetchingMyCollections,
+} from 'redux/selectors/collections';
+import { doFetchCollectionListMine } from 'redux/actions/collections';
 type Props = {
   uri: string;
   closeModal: () => void;
-  // -- redux --
-  published: CollectionList;
-  unpublished: CollectionList;
-  fetchingMine: boolean | null | undefined;
-  doFetchCollectionListMine: () => void;
 };
 
 const ClaimCollectionAdd = (props: Props) => {
-  const { uri, closeModal, published, unpublished, fetchingMine, doFetchCollectionListMine } = props;
+  const { uri, closeModal } = props;
+  const dispatch = useAppDispatch();
+  const published = useAppSelector(selectMyPublishedCollections);
+  const unpublished = useAppSelector(selectMyUnpublishedCollections);
+  const fetchingMine = useAppSelector(selectIsFetchingMyCollections);
   const [addNewCollection, setAddNewCollection] = React.useState(false);
   const [searchText, setSearchText] = React.useState('');
   React.useEffect(() => {
     if (fetchingMine === undefined) {
-      doFetchCollectionListMine();
+      dispatch(doFetchCollectionListMine());
     }
-  }, [doFetchCollectionListMine, fetchingMine]);
+  }, [dispatch, fetchingMine]);
   const normalizedSearchText = searchText.trim().toLowerCase();
 
   const matchName = (name) =>

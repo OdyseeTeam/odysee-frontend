@@ -2,6 +2,9 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
+import { useAppSelector } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMyChannelClaimIds, selectMyChannelClaims } from 'redux/selectors/claims';
 import HelpHub from 'component/common/help-hub';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -29,18 +32,16 @@ const TABS = {
   OVERVIEW: 'overview',
   PAYMENTS: 'payments',
 };
-type Props = {
-  // -- redux --
-  activeChannelClaim: ChannelClaim | null | undefined;
-  myChannelClaims: Array<ChannelClaim> | null | undefined;
-  doListAllMyMembershipTiers: () => Promise<CreatorMemberships>;
-  myChannelIds: Array<string>;
-};
 
-const SupporterArea = (props: Props) => {
+const SupporterArea = () => {
   const navigate = useNavigate();
   const { search } = useLocation();
   const [allSelected, setAllSelected] = React.useState(true);
+
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const myChannelIds = useAppSelector(selectMyChannelClaimIds);
+
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
     if (!activeChannelClaim) return activeChannelClaim;

@@ -2,22 +2,26 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
+import { useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+
 type Props = {
   uri: string;
-  // redux
-  doOpenModal: (id: string, arg1: {}) => void;
 };
 
 function ClaimDeleteButton(props: Props) {
-  const { uri, doOpenModal } = props;
+  const { uri } = props;
+  const dispatch = useAppDispatch();
   return (
     <FileActionButton
       title={__('Remove from your library')}
       icon={ICONS.DELETE}
       onClick={() =>
-        doOpenModal(MODALS.CONFIRM_FILE_REMOVE, {
-          uri,
-        })
+        dispatch(
+          doOpenModal(MODALS.CONFIRM_FILE_REMOVE, {
+            uri,
+          })
+        )
       }
     />
   );

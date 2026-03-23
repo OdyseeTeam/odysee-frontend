@@ -6,15 +6,15 @@ import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doListAccountTransactions as doListAccountTransactionsAction } from 'redux/actions/stripe';
+import { selectAccountTransactions } from 'redux/selectors/stripe';
 type Props = {
   page: number;
   pageSize: number;
   fetchDataOnMount?: boolean;
   // Option to fetch it ourselves, or not if parent or someone else has done it
-  // --- redux ---
-  incomingHistory: StripeTransactions;
   transactionType: string;
-  doListAccountTransactions: () => void;
 };
 
 function createColumn(value: any) {
@@ -69,14 +69,10 @@ function getTransactionTx(transaction) {
 }
 
 const WalletFiatAccountHistory = (props: Props) => {
-  const {
-    page = 1,
-    pageSize = 5,
-    fetchDataOnMount,
-    incomingHistory,
-    transactionType,
-    doListAccountTransactions,
-  } = props;
+  const { page = 1, pageSize = 5, fetchDataOnMount, transactionType } = props;
+  const dispatch = useAppDispatch();
+  const incomingHistory = useAppSelector(selectAccountTransactions);
+  const doListAccountTransactions = () => dispatch(doListAccountTransactionsAction());
   const transactionsRaw = incomingHistory ? incomingHistory.filter((x) => typeFilterCb(x)) : [];
   const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
   const totalPages = Math.ceil(transactionsRaw.length / pageSize);

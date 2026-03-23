@@ -7,18 +7,30 @@ import HomeTabSection from './internal/homeTabSection';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import LivestreamLink from 'component/livestreamLink';
 import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectClaimSearchByQuery,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { doResolveUris } from 'redux/actions/claims';
+import { selectSettingsByChannelId } from 'redux/selectors/comments';
+import { doUpdateCreatorSettings as doUpdateCreatorSettingsAction } from 'redux/actions/comments';
+import { PREFERENCE_EMBED } from 'constants/tags';
 type Props = {
   uri: string;
-  preferEmbed: boolean;
-  claim: any;
   editMode: boolean;
-  settingsByChannelId: Record<string, PerChannelSettings>;
   handleViewMore: (arg0: any) => void;
-  doUpdateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
 };
 
 function HomeTab(props: Props) {
-  const { preferEmbed, claim, editMode, settingsByChannelId, handleViewMore, doUpdateCreatorSettings } = props;
+  const { uri, editMode, handleViewMore } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => uri && selectClaimForUri(state, uri));
+  const settingsByChannelId = useAppSelector(selectSettingsByChannelId);
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
+  const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) =>
+    dispatch(doUpdateCreatorSettingsAction(channelClaim, settings));
   const claimId = claim && claim.claim_id;
   const rawHomepageSettings =
     settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;

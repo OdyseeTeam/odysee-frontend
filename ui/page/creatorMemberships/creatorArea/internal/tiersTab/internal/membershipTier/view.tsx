@@ -4,36 +4,31 @@ import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Icon from 'component/common/icon';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import {
+  doDeactivateMembershipForId as doDeactivateMembershipForIdAction,
+  doMembershipList as doMembershipListAction,
+} from 'redux/actions/memberships';
+import { doToast as doToastAction } from 'redux/actions/notifications';
+import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 type Props = {
   membership: CreatorMembership;
   index: number;
   hasSubscribers: boolean | null | undefined;
   addEditingId: () => void;
   removeMembership: () => void;
-  // -- redux --
-  doOpenModal: (modalId: string, arg1: {}) => void;
-  doToast: (params: { message: string }) => void;
-  doDeactivateMembershipForId: (membershipId: number | null | undefined) => Promise<Membership>;
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>;
-  exchangeRate: {
-    ar: number;
-  };
 };
 
 function MembershipTier(props: Props) {
-  const {
-    membership,
-    index,
-    hasSubscribers,
-    addEditingId,
-    removeMembership,
-    // -- redux --
-    doOpenModal,
-    doToast,
-    doDeactivateMembershipForId,
-    doMembershipList,
-    exchangeRate,
-  } = props;
+  const { membership, index, hasSubscribers, addEditingId, removeMembership } = props;
+  const dispatch = useAppDispatch();
+  const exchangeRate = useAppSelector(selectArweaveExchangeRates);
+  const doOpenModal = (modalId: string, modalProps: {}) => dispatch(doOpenModalAction(modalId, modalProps));
+  const doToast = (params: { message: string }) => dispatch(doToastAction(params));
+  const doDeactivateMembershipForId = (membershipId: number | null | undefined) =>
+    dispatch(doDeactivateMembershipForIdAction(membershipId));
+  const doMembershipList = (params: MembershipListParams) => dispatch(doMembershipListAction(params));
   return (
     <>
       <div className="membership-tier__header">

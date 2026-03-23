@@ -6,6 +6,17 @@ import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 import { LivestreamContext } from 'contexts/livestream';
 import LivestreamLayout from 'component/livestreamLayout';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import * as SETTINGS from 'constants/settings';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectSocketConnectionForId, selectChatCommentsDisabledForUri } from 'redux/selectors/livestream';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import {
+  doCommentSocketConnect as doCommentSocketConnectAction,
+  doCommentSocketDisconnect as doCommentSocketDisconnectAction,
+} from 'redux/actions/websocket';
 const ChatLayout = lazyImport(
   () =>
     import(
@@ -15,36 +26,27 @@ const ChatLayout = lazyImport(
 );
 type Props = {
   uri: string;
-  // -- redux --
-  chatDisabled: boolean;
-  claim: StreamClaim;
-  socketConnection: {
-    connected: boolean | null | undefined;
-  };
-  isStreamPlaying: boolean;
-  theaterMode?: boolean;
-  contentUnlocked: boolean;
-  doCommentSocketConnect: (
-    uri: string,
-    channelName: string,
-    claimId: string,
-    subCategory: string | null | undefined
-  ) => void;
-  doCommentSocketDisconnect: (claimId: string, channelName: string) => void;
 };
 export default function LivestreamPage(props: Props) {
-  const {
-    uri,
-    // -- redux --
-    chatDisabled,
-    claim,
-    socketConnection,
-    isStreamPlaying,
-    theaterMode,
-    contentUnlocked,
-    doCommentSocketConnect,
-    doCommentSocketDisconnect,
-  } = props;
+  const { uri: propUri } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, propUri));
+  const { claim_id: claimId, canonical_url } = claim || {};
+  const uri = canonical_url || '';
+  const chatDisabled = useAppSelector((state) => selectChatCommentsDisabledForUri(state, propUri));
+  const isStreamPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, propUri));
+  const socketConnection = useAppSelector((state) => selectSocketConnectionForId(state, claimId));
+  const theaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const contentUnlocked =
+    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const doCommentSocketConnect = (
+    u: string,
+    channelName: string,
+    cId: string,
+    subCategory: string | null | undefined
+  ) => dispatch(doCommentSocketConnectAction(u, channelName, cId, subCategory));
+  const doCommentSocketDisconnect = (cId: string, channelName: string) =>
+    dispatch(doCommentSocketDisconnectAction(cId, channelName));
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const streamPlayingRef = React.useRef();

@@ -4,19 +4,23 @@ import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import PublishName from 'component/publish/shared/publishName';
 import classnames from 'classnames';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectPublishFormValue } from 'redux/selectors/publish';
+import { doUpdatePublishForm, doUpdateTitle as doUpdateTitleAction } from 'redux/actions/publish';
 type Props = {
   uri: string | null | undefined;
   fileMimeType: string | null | undefined;
   disabled: boolean;
   setPrevFileText: (arg0: string) => void;
-  // --- redux ---
-  title: string | null | undefined;
-  balance: number;
-  doUpdateTitle: (arg0: string, arg1: boolean) => void;
 };
 
 function PublishPost(props: Props) {
-  const { uri, title, balance, fileMimeType, doUpdateTitle, disabled, setPrevFileText } = props;
+  const { uri, fileMimeType, disabled, setPrevFileText } = props;
+  const dispatch = useAppDispatch();
+  const title = useAppSelector((state) => selectPublishFormValue(state, 'title'));
+  const balance = useAppSelector((state) => selectBalance(state));
+  const doUpdateTitle = (t: string, manual: boolean) => dispatch(doUpdateTitleAction(t, manual));
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
 
   function handleTitleChange(event) {

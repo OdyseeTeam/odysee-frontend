@@ -1,23 +1,26 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import FileActionButton from 'component/common/file-action-button';
+import { useAppDispatch } from 'redux/hooks';
+import { doEnableCollectionShuffle } from 'redux/actions/content';
 type ButtonProps = {
   collectionId: string;
-  // redux
-  doEnableCollectionShuffle: (params: { collectionId: string }) => void;
 };
 
 const ShuffleButton = (props: ButtonProps) => {
-  const { collectionId, doEnableCollectionShuffle } = props;
+  const { collectionId } = props;
+  const dispatch = useAppDispatch();
   return (
     <FileActionButton
       icon={ICONS.SHUFFLE}
       title={__('Play in Shuffle mode')}
       label={__('Shuffle')}
       onClick={() =>
-        doEnableCollectionShuffle({
-          collectionId,
-        })
+        dispatch(
+          doEnableCollectionShuffle({
+            collectionId,
+          })
+        )
       }
     />
   );

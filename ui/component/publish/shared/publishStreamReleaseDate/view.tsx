@@ -1,6 +1,11 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
 import DatePicker from 'react-datepicker';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import * as SETTINGS from 'constants/settings';
+import { selectPublishFormValue, selectIsScheduled } from 'redux/selectors/publish';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -18,16 +23,15 @@ function getPlus30MinutesDate() {
   return d;
 }
 
-type Props = {
-  isScheduled: boolean;
-  releaseTime: number | null | undefined;
-  clock24h: boolean;
-  appLanguage: string | null | undefined;
-  updatePublishForm: (arg0: UpdatePublishState) => void;
-};
+type Props = {};
 
 const PublishStreamReleaseDate = (props: Props) => {
-  const { isScheduled, releaseTime, clock24h, appLanguage, updatePublishForm } = props;
+  const dispatch = useAppDispatch();
+  const isScheduled = useAppSelector((state) => selectIsScheduled(state));
+  const releaseTime = useAppSelector((state) => selectPublishFormValue(state, 'releaseTime'));
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+  const appLanguage = useAppSelector((state) => selectLanguage(state));
+  const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [publishLater, setPublishLater] = React.useState(isScheduled);
 
   const handleToggle = () => {

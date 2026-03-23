@@ -4,6 +4,8 @@ import { lazyImport } from 'util/lazyImport';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
+import * as TAGS from 'constants/tags';
 import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
@@ -14,6 +16,24 @@ import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { useLocation } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { getChannelIdFromClaim } from 'util/claim';
+import {
+  selectClaimIsNsfwForUri,
+  selectClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
+import { selectClientSetting } from 'redux/selectors/settings';
+import {
+  selectContentPositionForUri,
+  selectPlayingCollectionId,
+  selectIsUriCurrentlyPlaying,
+  selectIsAutoplayCountdownForUri,
+} from 'redux/selectors/content';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { clearPosition as clearPositionAction } from 'redux/actions/content';
 const CommentsList = lazyImport(
   () =>
     import(
@@ -33,38 +53,28 @@ export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 type Props = {
   uri: string;
   accessStatus: string | null | undefined;
-  // -- redux --
-  audioVideoDuration: number | null | undefined;
-  commentsListTitle: string;
-  fileInfo: FileListItem;
-  isMature: boolean;
-  isUriPlaying: boolean;
-  playingCollectionId: string | null | undefined;
-  position: number;
-  commentsDisabled: boolean | null | undefined;
-  videoTheaterMode: boolean;
-  contentUnlocked: boolean;
-  isAutoplayCountdownForUri: boolean | null | undefined;
-  clearPosition: (uri: string) => void;
 };
 export default function VideoPlayersPage(props: Props) {
-  const {
-    uri,
-    accessStatus,
-    // -- redux --
-    playingCollectionId,
-    fileInfo,
-    isMature,
-    videoTheaterMode,
-    commentsDisabled,
-    audioVideoDuration,
-    commentsListTitle,
-    isUriPlaying,
-    position,
-    contentUnlocked,
-    isAutoplayCountdownForUri,
-    clearPosition,
-  } = props;
+  const { uri, accessStatus } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const claimId = claim?.claim_id;
+  const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
+  const playingCollectionId = useAppSelector(selectPlayingCollectionId);
+  const fileInfo = useAppSelector((state) => makeSelectFileInfoForUri(uri)(state));
+  const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
+  const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
+  const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
+  const commentsDisabled =
+    commentSettingDisabled ||
+    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const contentUnlocked =
+    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const isAutoplayCountdownForUri = useAppSelector((state) => selectIsAutoplayCountdownForUri(state, uri));
+  const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
+  const clearPosition = (u: string) => dispatch(clearPositionAction(u));
   const location = useLocation();
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen() && !isMobile;

@@ -11,6 +11,29 @@ import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { Container } from 'util/container';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  doClaimSearch as doClaimSearchAction,
+  doResolveClaimId as doResolveClaimIdAction,
+  doResolveUris as doResolveUrisAction,
+} from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForCollectionIdsAction } from 'redux/actions/collections';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimUriForId,
+} from 'redux/selectors/claims';
+import {
+  selectUrlsForCollectionId,
+  selectCollectionTitleForId,
+  selectMyPublishedCollections,
+  selectClaimIdsForCollectionId,
+} from 'redux/selectors/collections';
+import { SECTION_TAGS } from 'constants/collections';
+import { selectFeaturedChannelsForChannelId } from 'redux/selectors/comments';
+import { CsOptHelper } from 'util/claim-search';
 type Props = {
   channelClaimId: any;
   index: number;
@@ -20,50 +43,81 @@ type Props = {
   hasFeaturedContent: boolean;
   handleEditCollection: (arg0: any) => void;
   handleViewMore: (arg0: any) => void;
-  // --- select ---
-  claimSearchResults: Array<string>;
-  collectionUrls: Array<string>;
-  collectionClaimIds: Array<string> | null | undefined;
-  collectionName: string;
-  optionsStringified: string;
-  requiresSearch: boolean;
-  fetchingClaimSearch: boolean;
-  publishedCollections: CollectionGroup;
-  singleClaimUri: string;
-  featuredChannels: any;
-  activeLivestreamUri: ClaimUri | null | undefined;
-  // --- perform ---
-  doClaimSearch: (arg0: ClaimSearchOptions, arg1: DoClaimSearchSettings | null | undefined) => Promise<any>;
-  doResolveClaimId: (claimId: string) => void;
-  doResolveUris: (arg0: Array<string>) => Promise<any>;
-  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void;
 };
 
 function HomeTabSection(props: Props) {
-  const {
-    channelClaimId,
-    index,
-    section,
-    editMode,
-    hasFeaturedContent,
-    handleEditCollection,
-    handleViewMore,
-    claimSearchResults,
-    collectionUrls,
-    collectionClaimIds,
-    collectionName,
-    optionsStringified,
-    requiresSearch,
-    fetchingClaimSearch,
-    publishedCollections,
-    singleClaimUri,
-    featuredChannels,
-    activeLivestreamUri,
-    doClaimSearch,
-    doResolveClaimId,
-    doResolveUris,
-    doFetchThumbnailClaimsForCollectionIds,
-  } = props;
+  const { channelClaimId, index, section, editMode, hasFeaturedContent, handleEditCollection, handleViewMore } = props;
+  const dispatch = useAppDispatch();
+
+  // Build search options (mirrors old index.ts logic)
+  const stream_types =
+    section.file_type && Array.isArray(section.file_type)
+      ? section.file_type
+      : section.file_type
+        ? [section.file_type]
+        : undefined;
+  const claimType = section.type === 'playlists' ? 'collection' : section.type === 'reposts' ? 'repost' : 'stream';
+  const options = React.useMemo(
+    () => ({
+      page_size: section.type !== 'featured' ? 12 : 1,
+      page: 1,
+      channel_ids: [channelClaimId],
+      stream_types: section.type !== 'reposts' ? stream_types : undefined,
+      claim_type: claimType,
+      order_by: section.order_by || ['effective_amount'],
+      not_tags:
+        section.type === 'playlists'
+          ? CsOptHelper.not_tags({ notTags: [SECTION_TAGS.FEATURED_CHANNELS] })
+          : CsOptHelper.not_tags(),
+      any_tags: section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
+      no_totals: true,
+      index,
+      has_source: true,
+      duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
+    }),
+    [channelClaimId, section.type, section.order_by, section.file_type, index, stream_types, claimType]
+  );
+  const searchKey = createNormalizedClaimSearchKey(options);
+  const requiresSearch =
+    section.type === 'content' ||
+    section.type === 'playlists' ||
+    section.type === 'reposts' ||
+    (section.type === 'featured' && !section.claim_id);
+  const fetchingClaimSearch = requiresSearch
+    ? useAppSelector((state) => selectFetchingClaimSearchByQuery(state)[searchKey])
+    : undefined;
+  const claimSearchResults =
+    requiresSearch && !section.claim_id
+      ? useAppSelector((state) => selectClaimSearchByQuery(state)[searchKey])
+      : undefined;
+  const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelClaimId));
+  const activeLivestreamUri = activeLivestream?.uri;
+  const optionsStringified = JSON.stringify(options);
+  const collectionUrls =
+    section.type === 'playlist' && section.claim_id
+      ? useAppSelector((state) => selectUrlsForCollectionId(state, section.claim_id))
+      : undefined;
+  const collectionClaimIds =
+    section.type === 'playlist' && section.claim_id
+      ? useAppSelector((state) => selectClaimIdsForCollectionId(state, section.claim_id))
+      : undefined;
+  const collectionName =
+    section.type === 'playlist'
+      ? useAppSelector((state) => selectCollectionTitleForId(state, section.claim_id))
+      : undefined;
+  const publishedCollections = useAppSelector(selectMyPublishedCollections);
+  const singleClaimUri =
+    section.type === 'featured' &&
+    section.claim_id &&
+    useAppSelector((state) => selectClaimUriForId(state, section.claim_id));
+  const featuredChannels = useAppSelector((state) => selectFeaturedChannelsForChannelId(state, channelClaimId));
+
+  const doClaimSearch = (searchOptions: ClaimSearchOptions, settings?: DoClaimSearchSettings | null) =>
+    dispatch(doClaimSearchAction(searchOptions, settings));
+  const doResolveClaimId = (id: string) => dispatch(doResolveClaimIdAction(id));
+  const doResolveUris = (uris: Array<string>) => dispatch(doResolveUrisAction(uris));
+  const doFetchThumbnailClaimsForCollectionIds = (params: { collectionIds: Array<string> }) =>
+    dispatch(doFetchThumbnailClaimsForCollectionIdsAction(params));
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
     !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls && section;

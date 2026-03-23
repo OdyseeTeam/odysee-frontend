@@ -8,19 +8,23 @@ import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import withLiveStatus from 'hocs/withLiveStatus';
+import { useAppSelector } from 'redux/hooks';
+import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectPlayingUri, selectFileRenderModeForUri } from 'redux/selectors/content';
+
 type Props = {
   uri: string;
   title: string;
   channel: string;
   parentCommentId?: string;
-  // -- redux --
-  playingUri: PlayingUri;
-  renderMode: string;
-  isLivestreamClaim: boolean | null | undefined;
 };
 
 const ClaimLinkPreview = (props: Props) => {
-  const { uri, title, channel, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
+  const { uri, title, channel, parentCommentId } = props;
+
+  const playingUri = useAppSelector(selectPlayingUri);
+  const renderMode = useAppSelector((state) => selectFileRenderModeForUri(state, uri));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
   const cleanUri = uri.includes('lbry://') ? 'lbry://' + uri.slice(7).replace(/:/g, '#') : uri;
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());

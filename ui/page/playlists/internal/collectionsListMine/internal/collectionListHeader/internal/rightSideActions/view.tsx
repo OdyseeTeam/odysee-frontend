@@ -8,20 +8,18 @@ import * as KEYCODES from 'constants/keycodes';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
-type Props = {
-  // -- redux --
-  doOpenModal: (id: string) => void;
-};
+import { useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
 
-const RightSideActions = (props: Props) => {
-  const { doOpenModal } = props;
+const RightSideActions = () => {
+  const dispatch = useAppDispatch();
   const { searchText, setSearchText } = React.useContext(CollectionsListContext);
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   function handleCreatePlaylist() {
-    doOpenModal(MODALS.COLLECTION_CREATE);
+    dispatch(doOpenModal(MODALS.COLLECTION_CREATE));
   }
 
   function handleSearchTextChange(value) {

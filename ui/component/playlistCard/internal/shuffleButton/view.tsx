@@ -2,16 +2,19 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
 import classnames from 'classnames';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectListIsShuffledForId } from 'redux/selectors/content';
+import { doToggleShuffleList } from 'redux/actions/content';
+
 type Props = {
   url: string;
   id: string;
-  // -- redux --
-  shuffle: boolean;
-  doToggleShuffleList: (params: { currentUri?: string; collectionId: string; hideToast?: boolean }) => void;
 };
 
 const ShuffleButton = (props: Props) => {
-  const { url, id, shuffle, doToggleShuffleList } = props;
+  const { url, id } = props;
+  const dispatch = useAppDispatch();
+  const shuffle = useAppSelector((state) => selectListIsShuffledForId(state, id));
   return (
     <Button
       button="alt"
@@ -21,10 +24,12 @@ const ShuffleButton = (props: Props) => {
       title={__('Shuffle')}
       icon={ICONS.SHUFFLE}
       onClick={() =>
-        doToggleShuffleList({
-          currentUri: url,
-          collectionId: id,
-        })
+        dispatch(
+          doToggleShuffleList({
+            currentUri: url,
+            collectionId: id,
+          })
+        )
       }
     />
   );
