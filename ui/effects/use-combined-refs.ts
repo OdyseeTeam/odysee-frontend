@@ -1,20 +1,17 @@
 import React from 'react';
 export default function useCombinedRefs(...refs) {
-  const targetRef = React.useRef();
-  React.useEffect(() => {
-    refs.forEach((ref) => {
-      if (!ref) return;
+  // Store refs in a mutable ref so the callback is stable
+  const refsRef = React.useRef(refs);
+  refsRef.current = refs;
 
+  return React.useCallback((node) => {
+    refsRef.current.forEach((ref) => {
+      if (!ref) return;
       if (typeof ref === 'function') {
-        ref(targetRef.current);
+        ref(node);
       } else {
-        ref.current = targetRef.current;
+        ref.current = node;
       }
     });
-  }, [refs]);
-  return targetRef;
+  }, []);
 }
-/*
-Problem described in
-https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
- */

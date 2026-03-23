@@ -9,7 +9,6 @@ import { useIsMobile, useIsSmallScreen, useIsLargeScreen } from 'effects/use-scr
 import Button from 'component/button';
 import * as SETTINGS from 'constants/settings';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { createSelector } from 'reselect';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { selectClaimSearchByQuery } from 'redux/selectors/claims';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -19,45 +18,33 @@ import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 import { SCHEDULED_TAGS } from 'constants/tags';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
-import { objSelectorEqualityCheck } from 'util/redux-utils';
 
-const selectOptions = createSelector(
-  (state: any) => state.comments.moderationBlockList,
-  (state: any) => selectMutedAndBlockedChannelIds(state),
-  (_state: any, _name: string, channelIds: Array<string>) => channelIds,
-  (_state: any, _name: string, _channelIds: Array<string>, isLivestream: boolean) => isLivestream,
-  (_state: any, _name: string, _channelIds: Array<string>, _isLivestream: boolean, limitPerChannel?: number) =>
-    limitPerChannel,
-  (
-    blocked: any,
-    mutedAndBlockedIds: any,
-    channelIds: Array<string>,
-    isLivestream: boolean,
-    limitPerChannel?: number
-  ) => {
-    return {
-      page: 1,
-      page_size: 50,
-      no_totals: true,
-      claim_type: ['stream'],
-      remove_duplicates: true,
-      any_tags: isLivestream ? [SCHEDULED_TAGS.LIVE] : [SCHEDULED_TAGS.SHOW],
-      channel_ids: channelIds || [],
-      not_channel_ids: mutedAndBlockedIds,
-      not_tags: CsOptHelper.not_tags(),
-      order_by: ['^release_time'],
-      release_time: [`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`],
-      ...(isLivestream ? { has_no_source: true } : { has_source: true }),
-      ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
-    };
-  },
-  {
-    memoizeOptions: {
-      maxSize: 10,
-      resultEqualityCheck: objSelectorEqualityCheck,
-    },
-  }
-);
+function getUpcomingReleaseTime() {
+  return `>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`;
+}
+
+function buildUpcomingOptions(
+  mutedAndBlockedIds: any,
+  channelIds: Array<string>,
+  isLivestream: boolean,
+  limitPerChannel?: number
+) {
+  return {
+    page: 1,
+    page_size: 50,
+    no_totals: true,
+    claim_type: ['stream'],
+    remove_duplicates: true,
+    any_tags: isLivestream ? [SCHEDULED_TAGS.LIVE] : [SCHEDULED_TAGS.SHOW],
+    channel_ids: channelIds || [],
+    not_channel_ids: mutedAndBlockedIds,
+    not_tags: CsOptHelper.not_tags(),
+    order_by: ['^release_time'],
+    release_time: [getUpcomingReleaseTime()],
+    ...(isLivestream ? { has_no_source: true } : { has_source: true }),
+    ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
+  };
+}
 
 // ****************************************************************************
 // ****************************************************************************
@@ -91,18 +78,24 @@ const UpcomingClaims = (props: Props) => {
   } = props;
   const dispatch = useAppDispatch();
   const csByQuery = useAppSelector(selectClaimSearchByQuery) || {};
-  const livestreamOptions = useAppSelector((state) =>
-    selectOptions(state, name, channelIds, true, limitClaimsPerChannel)
+  const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  const livestreamOptions = React.useMemo(
+    () => buildUpcomingOptions(mutedAndBlockedChannelIds, channelIds, true, limitClaimsPerChannel),
+    [mutedAndBlockedChannelIds, channelIds, limitClaimsPerChannel]
   );
-  const scheduledOptions = useAppSelector((state) => selectOptions(state, name, channelIds, false));
+  const scheduledOptions = React.useMemo(
+    () => buildUpcomingOptions(mutedAndBlockedChannelIds, channelIds, false),
+    [mutedAndBlockedChannelIds, channelIds]
+  );
   const loKey = livestreamOptions ? createNormalizedClaimSearchKey(livestreamOptions) : '';
   const soKey = scheduledOptions ? createNormalizedClaimSearchKey(scheduledOptions) : '';
   const livestreamUris = csByQuery[loKey];
   const scheduledUris = csByQuery[soKey];
   const hideUpcoming = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS));
-  const doClaimSearch = (csOptions: ClaimSearchOptions) => dispatch(doClaimSearchAction(csOptions));
-  const setClientSetting = (key: string, value: boolean | string | number, pushPrefs: boolean) =>
-    dispatch(doSetClientSetting(key, value, pushPrefs));
+  const doClaimSearch = React.useCallback(
+    (csOptions: ClaimSearchOptions) => dispatch(doClaimSearchAction(csOptions)),
+    [dispatch]
+  );
   const isMobileScreen = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
   const isLargeScreen = useIsLargeScreen();
@@ -129,7 +122,7 @@ const UpcomingClaims = (props: Props) => {
   }, [liveUris, livestreamUris, scheduledUris, upcomingMax]);
 
   const hideScheduled = (e) => {
-    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, e, true);
+    dispatch(doSetClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, e, true));
   };
 
   const Header = () => {

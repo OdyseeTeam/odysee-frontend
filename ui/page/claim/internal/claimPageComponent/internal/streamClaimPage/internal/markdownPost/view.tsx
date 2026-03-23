@@ -43,11 +43,14 @@ export default function MarkdownPostPage(props: Props) {
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
-  const contentUnlocked =
-    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
-  const commentsDisabled =
-    commentSettingDisabled ||
-    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
+  const contentUnlockedValue = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const contentUnlocked = claimId && contentUnlockedValue;
+  const commentsDisabledTag = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+  );
+  const commentsDisabled = commentSettingDisabled || commentsDisabledTag;
 
   if (isMature) {
     return (

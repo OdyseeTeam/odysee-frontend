@@ -478,16 +478,19 @@ export default defineConfig({
     uiModuleResolverPlugin(),
     preprocessPlugin(),
     providePlugin(),
-    // Inject React Scan only during development
+    // React Scan: always loaded in dev, but paused by default to avoid render amplification.
+    // Click the toolbar button to start scanning, or set REACT_SCAN=1 to auto-start.
     {
       name: 'react-scan-dev',
       transformIndexHtml: {
         order: 'pre',
         handler(html, ctx) {
           if (!ctx.server) return html;
+          const autoStart = !!process.env.REACT_SCAN;
           return html.replace(
             '<head>',
-            '<head>\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>'
+            `<head>\n    <script>window.__REACT_SCAN__ = { enabled: ${autoStart}, showToolbar: true };</script>` +
+            `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`
           );
         },
       },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './style.scss';
 import FileThumbnail from 'component/fileThumbnail';
 import ClaimMenuList from 'component/claimMenuList';
@@ -28,58 +28,53 @@ function FeaturedSection(props: Props) {
   const metadata = getClaimMetadata(claim);
   const description = metadata && metadata.description;
   const geoRestriction = Boolean(useAppSelector((state) => selectGeoRestrictionForUri(state, uri)));
-  const doResolveClaimId = (id: string) => dispatch(doResolveClaimIdAction(id));
-  const doFetchViewCount = (claimIdCsv: string) => dispatch(doFetchViewCountAction(claimIdCsv));
   const showCollectionContext = isClaimAllowedForCollection(claim);
   React.useEffect(() => {
     if (!uri && claimId) {
-      doResolveClaimId(claimId);
-      doFetchViewCount(claimId);
+      dispatch(doResolveClaimIdAction(claimId));
+      dispatch(doFetchViewCountAction(claimId));
     }
-  }, [uri, claimId, doResolveClaimId, doFetchViewCount]);
+  }, [dispatch, uri, claimId]);
 
   if (geoRestriction) {
     return null;
   }
 
+  const navigate = useNavigate();
   const navigateUrl = formatLbryUrlForWeb(uri || '/');
-  const navLinkProps = {
-    to: navigateUrl,
-    onClick: (e) => {
-      if (e.target.className === 'button__label') {
-        e.stopPropagation();
-      }
-    },
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking a link/button inside (e.g. channel name)
+    const target = e.target as HTMLElement;
+    if (target.closest('a, button, [role="button"]') && !target.closest('.claim-preview-featured')) return;
+    navigate(navigateUrl);
   };
   return claim ? (
-    <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
-      <div className="claim-preview claim-preview-featured">
-        <FileThumbnail uri={uri} thumbnail={claim.value.thumbnail?.url} forceReload>
-          {showCollectionContext && (
-            <div className="claim-preview__hover-actions-grid">
-              <FileWatchLaterLink focusable={false} uri={uri} />
-              <ButtonAddToQueue focusable={false} uri={uri} />
-            </div>
-          )}
-          <PreviewOverlayProperties uri={uri} small={false} xsmall={false} />
-        </FileThumbnail>
-        <div className="claim-preview__text">
-          <ClaimMenuList uri={uri} />
-          <div className="claim-preview-info">
-            <div className="claim-preview__title">{claim.value.title}</div>
+    <div className="claim-preview claim-preview-featured" onClick={handleClick} style={{ cursor: 'pointer' }}>
+      <FileThumbnail uri={uri} thumbnail={claim.value.thumbnail?.url} forceReload>
+        {showCollectionContext && (
+          <div className="claim-preview__hover-actions-grid">
+            <FileWatchLaterLink focusable={false} uri={uri} />
+            <ButtonAddToQueue focusable={false} uri={uri} />
           </div>
-          <div className="claim-preview-author">
-            <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
-            <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
-          </div>
-          <div className="claim-preview-description" {...navLinkProps}>
-            <div className="markdown-preview--description">
-              {description ? (description.length > 300 ? `${description.slice(0, 300)}...` : description) : ''}
-            </div>
+        )}
+        <PreviewOverlayProperties uri={uri} small={false} xsmall={false} />
+      </FileThumbnail>
+      <div className="claim-preview__text">
+        <ClaimMenuList uri={uri} />
+        <div className="claim-preview-info">
+          <div className="claim-preview__title">{claim.value.title}</div>
+        </div>
+        <div className="claim-preview-author">
+          <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
+          <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
+        </div>
+        <div className="claim-preview-description">
+          <div className="markdown-preview--description">
+            {description ? (description.length > 300 ? `${description.slice(0, 300)}...` : description) : ''}
           </div>
         </div>
       </div>
-    </NavLink>
+    </div>
   ) : (
     <div className="claim-preview claim-preview-featured claim-preview-featured-placeholder">
       <div className="media__thumb" />

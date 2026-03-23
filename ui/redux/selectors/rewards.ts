@@ -27,22 +27,41 @@ export const selectClaimsPendingByType = (state) => selectState(state).claimPend
 const selectIsClaimRewardPending = (state, props) => selectClaimsPendingByType(state, props)[props.reward_type];
 
 export const makeSelectIsRewardClaimPending = () =>
-  createSelector(selectIsClaimRewardPending, (isClaiming) => isClaiming);
+  createSelector(
+    selectClaimsPendingByType,
+    (state, props) => props.reward_type,
+    (claimsPendingByType, rewardType) => claimsPendingByType[rewardType]
+  );
 export const selectClaimErrorsByType = (state) => selectState(state).claimErrorsByType;
 
 const selectClaimRewardError = (state, props) => selectClaimErrorsByType(state, props)[props.reward_type];
 
-export const makeSelectClaimRewardError = () => createSelector(selectClaimRewardError, (errorMessage) => errorMessage);
+export const makeSelectClaimRewardError = () =>
+  createSelector(
+    selectClaimErrorsByType,
+    (state, props) => props.reward_type,
+    (claimErrorsByType, rewardType) => claimErrorsByType[rewardType]
+  );
 
 const selectRewardByType = (state, rewardType) =>
   selectUnclaimedRewards(state).find((reward) => reward.reward_type === rewardType);
 
-export const makeSelectRewardByType = () => createSelector(selectRewardByType, (reward) => reward);
+export const makeSelectRewardByType = () =>
+  createSelector(
+    selectUnclaimedRewards,
+    (state, rewardType) => rewardType,
+    (unclaimedRewards, rewardType) => unclaimedRewards.find((reward) => reward.reward_type === rewardType)
+  );
 
 const selectRewardByClaimCode = (state, claimCode) =>
   selectUnclaimedRewards(state).find((reward) => reward.claim_code === claimCode);
 
-export const makeSelectRewardByClaimCode = () => createSelector(selectRewardByClaimCode, (reward) => reward);
+export const makeSelectRewardByClaimCode = () =>
+  createSelector(
+    selectUnclaimedRewards,
+    (state, claimCode) => claimCode,
+    (unclaimedRewards, claimCode) => unclaimedRewards.find((reward) => reward.claim_code === claimCode)
+  );
 export const makeSelectRewardAmountByType = () =>
   createSelector(selectRewardByType, (reward) => (reward ? reward.reward_amount : 0));
 export const selectRewardContentClaimIds = createSelector(selectState, (state) => state.rewardedContentClaimIds);

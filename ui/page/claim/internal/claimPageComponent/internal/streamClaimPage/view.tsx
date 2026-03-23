@@ -127,12 +127,15 @@ const StreamClaimPage = (props: Props) => {
   const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
-  const commentsDisabled =
-    commentSettingDisabled ||
-    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
+  const commentsDisabledTag = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+  );
+  const commentsDisabled = commentSettingDisabled || commentsDisabledTag;
   const isProtectedContent = Boolean(useAppSelector((state) => selectProtectedContentTagForUri(state, uri)));
-  const contentUnlocked =
-    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const contentUnlockedValue = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const contentUnlocked = claimId && contentUnlockedValue;
   const isLivestream = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
   const isClaimBlackListed = Boolean(useAppSelector((state) => selectBlackListedDataForUri(state, uri)));
   const disableShortsViewSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));

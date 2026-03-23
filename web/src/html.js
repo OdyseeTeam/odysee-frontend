@@ -528,9 +528,11 @@ async function getHtml(ctx) {
       let rawHtml = fs.readFileSync(HTML_PATH, 'utf8');
       // Inject React Scan in development for render profiling
       if (isDev) {
+        const autoStart = !!process.env.REACT_SCAN;
         rawHtml = rawHtml.replace(
           '<head>',
-          '<head>\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>'
+          `<head>\n    <script>window.__REACT_SCAN__ = { enabled: ${autoStart}, showToolbar: true };</script>` +
+          `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`
         );
       }
       html = rawHtml;

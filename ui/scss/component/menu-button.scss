@@ -23,12 +23,20 @@ reach-portal {
   }
 }
 
+// Legacy @reach/menu-button popover positioning (no longer used)
 [data-reach-menu] {
   display: block;
   position: absolute;
   z-index: 999999;
   font-size: var(--font-body);
   max-width: calc(100% - var(--height-button) - var(--spacing-xs));
+}
+
+// New MUI-based Menu wrapper — inherits parent layout
+.menu__wrapper {
+  display: inline;
+  position: relative;
+  font-size: var(--font-body);
 }
 
 .MuiMenuItem-root {

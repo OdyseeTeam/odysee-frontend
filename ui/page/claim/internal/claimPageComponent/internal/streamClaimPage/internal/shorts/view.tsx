@@ -60,57 +60,60 @@ import { toggleAutoplayNextShort } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent as doFetchShortsRecommendedContentAction } from 'redux/actions/search';
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 
-const selectShortsRecommendedContent = createSelector(
-  [
-    selectShortsPlaylist,
-    selectShortsViewMode,
-    (state: any, props: any) => {
-      if (!props?.uri) return [];
-      const claim = selectClaimForUri(state, props.uri);
-      if (!claim?.value?.title) return [];
-      const searchResults = state.search.resultsByQuery;
-      const titleEncoded = encodeURIComponent(claim.value.title);
+const EMPTY_ARRAY: string[] = [];
 
-      for (const queryKey in searchResults) {
-        if (
-          queryKey.includes(`s=${titleEncoded}`) &&
-          queryKey.includes(`max_aspect_ratio=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`)
-        ) {
-          return searchResults[queryKey]?.uris || [];
-        }
-      }
+const selectShortsRelatedUris = (state: any, uri: string) => {
+  if (!uri) return EMPTY_ARRAY;
+  const claim = selectClaimForUri(state, uri);
+  if (!claim?.value?.title) return EMPTY_ARRAY;
+  const searchResults = state.search.resultsByQuery;
+  const titleEncoded = encodeURIComponent(claim.value.title);
 
-      return [];
-    },
-    (state: any, props: any) => {
-      if (!props?.uri) return [];
-      const claim = selectClaimForUri(state, props.uri);
-      const channelId = getChannelIdFromClaim(claim);
-      if (!channelId) return [];
-      const claimSearchByQuery = selectClaimSearchByQuery(state);
-      const searchKey = createNormalizedClaimSearchKey({
-        channel_ids: [channelId],
-        duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
-        content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
-        order_by: ['release_time'],
-        page_size: 50,
-        page: 1,
-        claim_type: ['stream'],
-        has_source: true,
-      });
-      return claimSearchByQuery[searchKey]
-        ? claimSearchByQuery[searchKey].map((u: string) => {
-            const c = selectClaimForUri(state, u);
-            return c?.permanent_url;
-          })
-        : [];
-    },
-  ],
-  (shortsPlaylist, viewMode, relatedUris, channelUris) => {
-    if (shortsPlaylist.length > 0) return shortsPlaylist.slice();
-    return viewMode === 'channel' ? channelUris : relatedUris;
+  for (const queryKey in searchResults) {
+    if (
+      queryKey.includes(`s=${titleEncoded}`) &&
+      queryKey.includes(`max_aspect_ratio=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`)
+    ) {
+      return searchResults[queryKey]?.uris || EMPTY_ARRAY;
+    }
+  }
+
+  return EMPTY_ARRAY;
+};
+
+const selectShortsChannelUris = createSelector(
+  (state: any, uri: string) => {
+    const claim = selectClaimForUri(state, uri);
+    const channelId = getChannelIdFromClaim(claim);
+    if (!channelId) return undefined;
+    const searchKey = createNormalizedClaimSearchKey({
+      channel_ids: [channelId],
+      duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
+      content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
+      order_by: ['release_time'],
+      page_size: 50,
+      page: 1,
+      claim_type: ['stream'],
+      has_source: true,
+    });
+    return selectClaimSearchByQuery(state)[searchKey];
+  },
+  (state: any) => state,
+  (claimSearchResults, state) => {
+    if (!claimSearchResults) return EMPTY_ARRAY;
+    return claimSearchResults.map((u: string) => {
+      const c = selectClaimForUri(state, u);
+      return c?.permanent_url;
+    });
   }
 );
+
+const selectShortsRecommendedContent = (state: any, uri: string) => {
+  const shortsPlaylist = selectShortsPlaylist(state);
+  if (shortsPlaylist.length > 0) return shortsPlaylist;
+  const viewMode = selectShortsViewMode(state);
+  return viewMode === 'channel' ? selectShortsChannelUris(state, uri) : selectShortsRelatedUris(state, uri);
+};
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 const REEL_TRANSITION_MS = 320;
 const REEL_NAVIGATION_FALLBACK_MS = 1200;
@@ -127,7 +130,7 @@ export default function ShortsPage(props: Props) {
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
   const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
-  const shortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, { uri }));
+  const shortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
   const currentIndex = shortsRecommendedUris.findIndex((shortUri: string) => shortUri === uri);
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
@@ -137,20 +140,27 @@ export default function ShortsPage(props: Props) {
       ? shortsRecommendedUris[currentIndex + 1]
       : null;
   const prevShortUri = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
-  const nextShortClaim = nextShortUri ? useAppSelector((state) => selectClaimForUri(state, nextShortUri)) : null;
-  const prevShortClaim = prevShortUri ? useAppSelector((state) => selectClaimForUri(state, prevShortUri)) : null;
-  const nextThumbnail = nextShortClaim?.value?.thumbnail?.url || null;
-  const previousThumbnail = prevShortClaim?.value?.thumbnail?.url || null;
+  const nextShortClaimValue = useAppSelector((state) =>
+    nextShortUri ? selectClaimForUri(state, nextShortUri) : null
+  );
+  const prevShortClaimValue = useAppSelector((state) =>
+    prevShortUri ? selectClaimForUri(state, prevShortUri) : null
+  );
+  const nextThumbnail = nextShortClaimValue?.value?.thumbnail?.url || null;
+  const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
   const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
   const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
-  const commentsDisabled =
-    commentSettingDisabled ||
-    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
-  const contentUnlocked =
-    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const commentsDisabledTag = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+  );
+  const commentsDisabled = commentSettingDisabled || commentsDisabledTag;
+  const contentUnlockedValue = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const contentUnlocked = claimId && contentUnlockedValue;
   const isAutoplayCountdownForUri = useAppSelector((state) => selectIsAutoplayCountdownForUri(state, uri));
   const sidePanelOpen = useAppSelector(selectShortsSidePanelOpen);
   const nextRecommendedShort =

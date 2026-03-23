@@ -205,18 +205,23 @@ export const selectIsMyPublicCollectionNotEditedForId = (state: State, id: strin
   return Boolean(publicCollection && !hasEdits);
 };
 export const selectAreCollectionItemsFetchingForId = (state: State, id: string) =>
-  new Set(selectCollectionItemsFetchingIds(state)).has(id);
-export const selectCollectionsById = (state: State) => {
-  const builtin = selectBuiltinCollections(state);
-  const resolved = selectResolvedCollectionsById(state);
-  const unpublished = selectMyUnpublishedCollections(state);
-  const edited = selectMyEditedCollections(state);
-  const queue = {
-    queue: selectQueueCollection(state),
-  };
-  const unsaved = selectMyCollectionsWithUnSavedChanges(state);
-  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin, ...unsaved };
-};
+  selectCollectionItemsFetchingIds(state).includes(id);
+export const selectCollectionsById = createSelector(
+  selectBuiltinCollections,
+  selectResolvedCollectionsById,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectQueueCollection,
+  selectMyCollectionsWithUnSavedChanges,
+  (builtin, resolved, unpublished, edited, queue, unsaved) => ({
+    queue,
+    ...resolved,
+    ...edited,
+    ...unpublished,
+    ...builtin,
+    ...unsaved,
+  })
+);
 export const selectCollectionForId = createSelector(
   (state, id) => id,
   selectCollectionsById,
@@ -304,17 +309,23 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
   );
 export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) =>
   Boolean(selectCollectionForIdClaimForUriItem(state, id, uri));
-export const selectItemsForCollectionId = (state: State, id: string) => {
-  const collection = selectCollectionForId(state, id);
+export const selectItemsForCollectionId = createCachedSelector(
+  (state: State, id: string) => {
+    const collection = selectCollectionForId(state, id);
+    return collection?.items;
+  },
   // -- sanitize -- > in case non-urls got added into a collection: only select string types
   // to avoid general app errors trying to use its uri
-  return collection && collection.items && collection.items.filter((item) => typeof item === 'string');
-};
-export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
-  const collection = selectCollectionForId(state, id);
+  (items) => items && items.filter((item) => typeof item === 'string')
+)((state, id) => String(id));
+export const selectBrokenUrlsForCollectionId = createCachedSelector(
+  (state: State, id: string) => {
+    const collection = selectCollectionForId(state, id);
+    return collection?.items;
+  },
   // Allows removing non-standard uris from a collection
-  return collection && collection.items && collection.items.filter((item) => typeof item !== 'string');
-};
+  (items) => items && items.filter((item) => typeof item !== 'string')
+)((state, id) => String(id));
 export const selectFirstItemUrlForCollection = (state: State, id: string) => {
   const items = selectItemsForCollectionId(state, id);
   const firstItem = items && items[0];
@@ -491,11 +502,11 @@ export const selectUrlsForCollectionIdNonDeleted = createCachedSelector(
 export const selectCountForCollectionIdNonDeleted = createCachedSelector(selectUrlsForCollectionIdNonDeleted, (uris) =>
   uris ? uris.length : uris
 )((state, collectionId) => String(collectionId));
-export const selectCollectionForIdClaimForUriItem = createSelector(
+export const selectCollectionForIdClaimForUriItem = createCachedSelector(
   (state: State, id: string, uri: string) => uri,
   (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
-  selectUrlsForCollectionId,
-  selectItemsForCollectionId,
+  (state: State, id: string) => selectUrlsForCollectionId(state, id),
+  (state: State, id: string) => selectItemsForCollectionId(state, id),
   (uri, claim, collectionUrls, collectionItems) => {
     const items = collectionUrls || collectionItems;
     if (!items) return items;
@@ -513,7 +524,7 @@ export const selectCollectionForIdClaimForUriItem = createSelector(
 
     return false;
   }
-);
+)((state, id, uri) => `${id}:${uri}`);
 export const selectCollectionTypeForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.type;
@@ -538,18 +549,18 @@ export const selectFirstPlayingCollectionIndexForId = (state: State, collectionI
   const urls = playingCollectionShuffleUrls || collectionUrls;
   return urls && urls[0];
 };
-export const selectIndexForUrlInCollectionForId = createSelector(
+export const selectIndexForUrlInCollectionForId = createCachedSelector(
   selectCollectionForIdClaimForUriItem,
-  selectUrlsForCollectionId,
+  (state: State, id: string) => selectUrlsForCollectionId(state, id),
   (uriItem, collectionUrls) => {
     const index = collectionUrls && collectionUrls.findIndex((uri) => uri === uriItem);
     if (index > -1) return index;
     return null;
   }
-);
-export const selectIndexForUriInPlayingCollectionForId = createSelector(
+)((state, id, uri) => `${id}:${uri}`);
+export const selectIndexForUriInPlayingCollectionForId = createCachedSelector(
   selectCollectionForIdClaimForUriItem,
-  selectUrlsForCollectionId,
+  (state: State, id: string) => selectUrlsForCollectionId(state, id),
   selectCollectionForIdIsPlayingShuffle,
   (uriItem, collectionUrls, playingCollectionShuffleUrls) => {
     const uris = playingCollectionShuffleUrls || collectionUrls;
@@ -557,7 +568,7 @@ export const selectIndexForUriInPlayingCollectionForId = createSelector(
     if (index > -1) return index;
     return null;
   }
-);
+)((state, id, uri) => `${id}:${uri}`);
 export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
   const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
   const length = selectCollectionLengthForId(state, collectionId);

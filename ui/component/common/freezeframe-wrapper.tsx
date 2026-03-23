@@ -34,7 +34,6 @@ const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props)
   useEffect(() => {
     if (!canvasRef.current || !fullSrc || imageDataCache.has(fullSrc)) return;
     const img = new Image();
-    img.crossOrigin = 'anonymous';
 
     img.addEventListener('load', () => {
       const canvas = canvasRef.current;

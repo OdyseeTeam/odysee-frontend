@@ -1,7 +1,6 @@
 import 'scss/component/_header.scss';
 // @ts-expect-error
 import { Global } from '@emotion/react';
-import { Menu } from 'component/common/menu';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -108,13 +107,11 @@ export default function HeaderProfileMenuButton() {
 
       <div className="header__buttons">
         {!isMobile && (
-          <Menu>
-            <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
-              <Button className="header__navigationItem--icon" onClick={handleThemeToggle}>
-                <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
-              </Button>
-            </Tooltip>
-          </Menu>
+          <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
+            <Button className="header__navigationItem--icon" onClick={handleThemeToggle}>
+              <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
+            </Button>
+          </Tooltip>
         )}
         {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
 

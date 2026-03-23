@@ -16,9 +16,6 @@ function replaceLbcWithCredits(str: string) {
 export function generateNotificationText(rule: string, notificationParams: any) {
   switch (rule) {
     default:
-      console.log(`TEXT: Unhandled notification_rule:%c ${rule}`, 'color:yellow');
-
-    // eslint-disable-line
     // eslint-disable-next-line no-fallthrough -- Intended fallthrough from 'default'
     case RULE.NEW_CONTENT:
     case RULE.NEW_LIVESTREAM:

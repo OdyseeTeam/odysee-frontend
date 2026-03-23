@@ -1,27 +1,27 @@
 import * as React from 'react';
-import { useBlocker } from 'react-router-dom';
 
 type Props = { when: boolean; message: string };
 
+/**
+ * Warns the user before navigating away when `when` is true.
+ * Uses `beforeunload` for tab close/refresh (browser shows its own dialog).
+ * For in-app navigation, we don't block because `<BrowserRouter>` doesn't
+ * support `useBlocker` (that requires a data router). The beforeunload
+ * handler still catches accidental tab closes while editing.
+ */
 export function NavigationPrompt(props: Props) {
   const { when, message } = props;
-  const blocker = useBlocker(when);
 
   React.useEffect(() => {
-    if (blocker.state === 'blocked') {
-      if (window.confirm(message)) {
-        setTimeout(blocker.proceed, 0);
-      } else {
-        blocker.reset();
-      }
-    }
-  }, [blocker, message]);
+    if (!when) return;
 
-  React.useEffect(() => {
-    if (blocker.state === 'blocked' && !when) {
-      blocker.reset();
-    }
-  }, [blocker, when]);
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [when, message]);
 
   return null;
 }

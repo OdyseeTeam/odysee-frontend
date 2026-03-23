@@ -3,11 +3,11 @@ import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as STRIPE from 'constants/stripe';
 import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 import { createSelector } from 'reselect';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
 import { selectClaimForId } from 'redux/selectors/claims';
 import { selectUserLocale } from 'redux/selectors/user';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
 
 const selectState = (state) => state.settings || EMPTY_OBJECT;
 
@@ -98,7 +98,7 @@ export const selectHomepageDb = (state) => {
  * e.g. "['en', 'es', 'ru']"
  */
 export const selectHomepageKeys = (state) => {
-  const db = selectHomepageDb(state) || {};
+  const db = selectHomepageDb(state) || EMPTY_OBJECT;
   return Object.keys(db);
 };
 
@@ -108,7 +108,7 @@ export const selectHomepageKeys = (state) => {
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
-  return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
+  return homepages ? homepages[homepageCode] || homepages['en'] || EMPTY_OBJECT : undefined;
 };
 export const selectHomepageCategoryChannelIds = createSelector(selectHomepageData, (homepage) => {
   let channels = [];
@@ -139,7 +139,7 @@ export const selectHomepageMeme = (state) => {
     }
   }
 
-  return homepages ? homepages['en']?.meme || {} : {};
+  return homepages ? homepages['en']?.meme || EMPTY_OBJECT : EMPTY_OBJECT;
 };
 export const selectHomepageCustomBanners = (state) => {
   const homepageCode = selectHomepageCode(state);
@@ -153,7 +153,7 @@ export const selectHomepageCustomBanners = (state) => {
     }
   }
 
-  return homepages ? homepages['en']?.customBanners || {} : {};
+  return homepages ? homepages['en']?.customBanners || EMPTY_ARRAY : EMPTY_ARRAY;
 };
 export const selectHomepageDiscover = (state) => {
   const homepageCode = selectHomepageCode(state);
@@ -167,7 +167,7 @@ export const selectHomepageDiscover = (state) => {
     }
   }
 
-  return homepages ? homepages['en'].discover || [] : [];
+  return homepages ? homepages['en'].discover || EMPTY_ARRAY : EMPTY_ARRAY;
 };
 export const selectHomepageDiscoverNew = (state) => {
   const homepageCode = selectHomepageCode(state);
@@ -181,7 +181,7 @@ export const selectHomepageDiscoverNew = (state) => {
     }
   }
 
-  return homepages ? homepages['en']?.discoverNew || [] : [];
+  return homepages ? homepages['en']?.discoverNew || EMPTY_ARRAY : EMPTY_ARRAY;
 };
 export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
@@ -205,10 +205,7 @@ export const selectWildWestDisabled = (state) => {
 };
 export const selectosNotificationsEnabled = (state) => selectClientSetting(state, SETTINGS.OS_NOTIFICATIONS_ENABLED);
 export const selectDefaultChannelId = (state) => selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM);
-export const selectDefaultChannelClaim = createSelector(
-  (state) => selectClaimForId(state, selectDefaultChannelId(state)),
-  (defaultChannelClaim) => defaultChannelClaim
-);
+export const selectDefaultChannelClaim = (state: State) => selectClaimForId(state, selectDefaultChannelId(state));
 export const selectPreferredCurrency = (state: State) => {
   const preferredCurrencySetting = selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY);
   const locale = selectUserLocale(state);

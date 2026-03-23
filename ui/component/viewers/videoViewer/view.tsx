@@ -137,7 +137,8 @@ function VideoViewer(props: Props) {
   const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
   const homepageData = useAppSelector((state) => selectHomepageData(state)) || {};
   const authenticated = useAppSelector((state) => selectUserVerifiedEmail(state));
-  const shareTelemetry = IS_WEB || useAppSelector((state) => selectDaemonSettings(state)?.share_usage_data);
+  const shareTelemetryFromSettings = useAppSelector((state) => selectDaemonSettings(state)?.share_usage_data);
+  const shareTelemetry = IS_WEB || shareTelemetryFromSettings;
   const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
   const activeLivestreamForChannel = useAppSelector((state) =>
     selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim))

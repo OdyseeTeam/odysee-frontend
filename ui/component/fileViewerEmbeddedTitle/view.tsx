@@ -22,7 +22,8 @@ function FileViewerEmbeddedTitle(props: Props) {
   const title = useAppSelector((state) => selectTitleForUri(state, uri));
   const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
   const contentPosition = useAppSelector((state) => selectContentPositionForUri(state, uri));
-  const uriAccessKey = props.uriAccessKey || useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+  const uriAccessKeyFromState = useAppSelector((state) => selectContentStates(state).uriAccessKeys[uri]);
+  const uriAccessKey = props.uriAccessKey || uriAccessKeyFromState;
   const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
   const isEmbed = React.useContext(EmbedContext);
   const urlParams = new URLSearchParams({

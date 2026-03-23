@@ -374,20 +374,23 @@ export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChan
 export const selectAllMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
 
+const EMPTY_TIERS: any[] = [];
 const filterArEnabledMembershipTiers = (tiers: CreatorMemberships) => {
-  if (!tiers) return [];
-  return tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled);
+  if (tiers === undefined) return undefined;
+  if (!tiers || tiers.length === 0) return EMPTY_TIERS;
+  const filtered = tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled);
+  return filtered.length === 0 ? EMPTY_TIERS : filtered;
 };
+
+// select enabled, monetized memberships (joinable)
+export const selectArEnabledMembershipTiersForCreatorId = createCachedSelector(
+  (state: State, channelId: string) => selectMembershipTiersForCreatorId(state, channelId),
+  (tiers) => filterArEnabledMembershipTiers(tiers)
+)((state, channelId) => String(channelId));
 
 // select enabled, monetized memberships (joinable)
 export const selectArEnabledMembershipTiersForChannelUri = (state: State, uri: string) => {
   return selectArEnabledMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
-};
-// select enabled, monetized memberships (joinable)
-export const selectArEnabledMembershipTiersForCreatorId = (state: State, channelId: string) => {
-  const tiers = selectMembershipTiersForCreatorId(state, channelId);
-  if (!tiers) return null;
-  return filterArEnabledMembershipTiers(tiers);
 };
 export const selectTierIndexForCreatorIdAndMembershipId = (
   state: State,

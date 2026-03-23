@@ -145,8 +145,6 @@ export function generateNotificationTitle(
       return __(notificationParams.device.title);
 
     default:
-      console.log(`TITLE: Unhandled notification_rule:%c ${rule}`, 'color:yellow'); // eslint-disable-line
-
       return __(notificationParams.device.title);
   }
 }

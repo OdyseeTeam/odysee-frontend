@@ -135,7 +135,8 @@ export const selectContentPositionForUri = (state: State, uri: string) => {
 
   return null;
 };
-export const selectHistory = (state: State) => selectState(state).history || [];
+const EMPTY_HISTORY: Array<any> = [];
+export const selectHistory = (state: State) => selectState(state).history || EMPTY_HISTORY;
 export const selectHistoryPageCount = createSelector(selectHistory, (history) =>
   Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE)
 );

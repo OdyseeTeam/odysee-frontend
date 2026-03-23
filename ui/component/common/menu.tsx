@@ -30,7 +30,7 @@ function Menu(props: MenuProps) {
 
   return (
     <MenuContext.Provider value={value}>
-      <div data-reach-menu="">{children}</div>
+      <div className="menu__wrapper">{children}</div>
     </MenuContext.Provider>
   );
 }
@@ -72,6 +72,18 @@ type MenuListProps = {
   onClick?: React.MouseEventHandler<HTMLUListElement>;
 };
 
+function flattenFragments(children: React.ReactNode): React.ReactNode[] {
+  const result: React.ReactNode[] = [];
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child) && child.type === React.Fragment) {
+      result.push(...flattenFragments(child.props.children));
+    } else {
+      result.push(child);
+    }
+  });
+  return result;
+}
+
 function MenuList(props: MenuListProps) {
   const { children, className, onClick } = props;
   const menu = React.useContext(MenuContext);
@@ -100,7 +112,7 @@ function MenuList(props: MenuListProps) {
         },
       }}
     >
-      {children}
+      {flattenFragments(children)}
     </MUIRawMenu>
   );
 }

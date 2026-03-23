@@ -250,6 +250,7 @@
   width: 100%;
   height: 100%;
   max-height: var(--desktop-portrait-player-max-height);
+  overflow: visible;
 
   .content__cover,
   .content__loading {

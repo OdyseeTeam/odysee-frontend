@@ -39,9 +39,10 @@ const selectState = (state: State) => state.claims || EMPTY_OBJECT;
 
 export const selectById = (state: State) => selectState(state).byId || EMPTY_OBJECT;
 export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || EMPTY_OBJECT;
-export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) =>
-  Object.assign({}, byId, pendingById)
-);
+export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
+  const hasPending = pendingById && Object.keys(pendingById).length > 0;
+  return hasPending ? Object.assign({}, byId, pendingById) : byId;
+});
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || EMPTY_OBJECT;
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;

@@ -461,7 +461,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     );
   };
 
-  StreamClaimWrapper.displayName = `withStreamClaimRender(${Component.displayName || Component.name || 'Component'})`;
+  StreamClaimWrapper.displayName = `withStreamClaimRender(${StreamClaimComponent.displayName || StreamClaimComponent.name || 'Component'})`;
   return StreamClaimWrapper;
 };
 

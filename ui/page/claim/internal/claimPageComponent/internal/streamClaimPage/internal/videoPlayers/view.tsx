@@ -66,12 +66,15 @@ export default function VideoPlayersPage(props: Props) {
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
   const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
-  const commentsDisabled =
-    commentSettingDisabled ||
-    useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state));
+  const commentsDisabledTag = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+  );
+  const commentsDisabled = commentSettingDisabled || commentsDisabledTag;
   const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
-  const contentUnlocked =
-    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const contentUnlockedValue = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const contentUnlocked = claimId && contentUnlockedValue;
   const isAutoplayCountdownForUri = useAppSelector((state) => selectIsAutoplayCountdownForUri(state, uri));
   const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
   const clearPosition = (u: string) => dispatch(clearPositionAction(u));
@@ -101,14 +104,12 @@ export default function VideoPlayersPage(props: Props) {
     [collectionId, isSmallScreen, uri]
   );
   const videoPlayedEnoughToResetPosition = React.useMemo(() => {
-    // I've never seen 'fileInfo' contain metadata lately, but retaining as historical fallback.
     const durationInSecs =
-      audioVideoDuration ||
-      (fileInfo && fileInfo.metadata && fileInfo.metadata.video ? fileInfo.metadata.video.duration : 0);
+      fileInfo && fileInfo.metadata && fileInfo.metadata.video ? fileInfo.metadata.video.duration : 0;
     const isVideoTooShort = durationInSecs <= 45;
     const almostFinishedPlaying = position / durationInSecs >= VIDEO_ALMOST_FINISHED_THRESHOLD;
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
-  }, [audioVideoDuration, fileInfo, position]);
+  }, [fileInfo, position]);
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
     // this could probably be refactored into more direct components now

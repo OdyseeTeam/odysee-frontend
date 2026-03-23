@@ -197,26 +197,10 @@ function App() {
   const isFypModalShown = useAppSelector((state) => selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN));
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
 
-  const signIn = (...args: Parameters<typeof doSignIn>) => dispatch(doSignIn(...args));
-  const setLanguage = (...args: Parameters<typeof doSetLanguage>) => dispatch(doSetLanguage(...args));
-  const fetchLanguage = (...args: Parameters<typeof doFetchLanguage>) => dispatch(doFetchLanguage(...args));
-  const syncLoop = (...args: Parameters<typeof doSyncLoop>) => dispatch(doSyncLoop(...args));
-  const setIncognito = (...args: Parameters<typeof doSetIncognito>) => dispatch(doSetIncognito(...args));
-  const fetchModBlockedList = () => dispatch(doFetchModBlockedList());
-  const fetchModAmIList = () => dispatch(doFetchCommentModAmIList());
-  const fetchDelegatesForMyChannels = () => dispatch(doCommentModListDelegatesForMyChannels());
-  const doUserSetReferrerForUri_ = (...args: Parameters<typeof doUserSetReferrerForUri>) =>
-    dispatch(doUserSetReferrerForUri(...args));
-  const doOpenAnnouncements_ = () => dispatch(doOpenAnnouncements());
-  const doSetLastViewedAnnouncement_ = (...args: Parameters<typeof doSetLastViewedAnnouncement>) =>
-    dispatch(doSetLastViewedAnnouncement(...args));
-  const doSetDefaultChannel_ = (...args: Parameters<typeof doSetDefaultChannel>) =>
-    dispatch(doSetDefaultChannel(...args));
-  const doSetAssignedLbrynetServer_ = (...args: Parameters<typeof doSetAssignedLbrynetServer>) =>
-    dispatch(doSetAssignedLbrynetServer(...args));
-  const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
-  const doSetClientSetting_ = (...args: Parameters<typeof doSetClientSetting>) => dispatch(doSetClientSetting(...args));
-  const doToast_ = (...args: Parameters<typeof doToast>) => dispatch(doToast(...args));
+  const doSetAssignedLbrynetServer_ = React.useCallback(
+    (...args: Parameters<typeof doSetAssignedLbrynetServer>) => dispatch(doSetAssignedLbrynetServer(...args)),
+    [dispatch]
+  );
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -332,7 +316,7 @@ function App() {
             message={__('Failed to synchronize settings. Wait a while before retrying.')}
             actionText={__('Retry')}
             onClick={() => {
-              syncLoop(true);
+              dispatch(doSyncLoop(true));
               setRetryingSync(true);
               setTimeout(() => setRetryingSync(false), 4000);
             }}
@@ -405,7 +389,7 @@ function App() {
   }, []);
   useEffect(() => {
     if (referredRewardAvailable && sanitizedReferrerParam) {
-      doUserSetReferrerForUri_(sanitizedReferrerParam);
+      dispatch(doUserSetReferrerForUri(sanitizedReferrerParam));
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedReferrerParam, referredRewardAvailable]);
   useEffect(() => {
@@ -413,20 +397,20 @@ function App() {
   }, [theme]);
   useEffect(() => {
     if (hasNoChannels) {
-      setIncognito(true);
+      dispatch(doSetIncognito(true));
     }
 
     if (hasMyChannels) {
-      fetchModBlockedList();
-      fetchModAmIList();
-      fetchDelegatesForMyChannels();
+      dispatch(doFetchModBlockedList());
+      dispatch(doFetchCommentModAmIList());
+      dispatch(doCommentModListDelegatesForMyChannels());
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMyChannels, hasNoChannels, setIncognito]);
+  }, [dispatch, hasMyChannels, hasNoChannels]);
   useEffect(() => {
     if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
-      doSetDefaultChannel_(activeChannelClaim.claim_id);
+      dispatch(doSetDefaultChannel(activeChannelClaim.claim_id));
     }
-  }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel_, hasMyChannels, prefsReady]);
+  }, [dispatch, activeChannelClaim, defaultChannelClaim, hasMyChannels, prefsReady]);
   useEffect(() => {
     if (
       isFypModalShown ||
@@ -438,7 +422,7 @@ function App() {
       return;
     }
 
-    doOpenModal_(MODALS.CONFIRM, {
+    dispatch(doOpenModal(MODALS.CONFIRM, {
       title: __('Homepage recommendations available'),
       subtitle: __(
         'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
@@ -449,35 +433,33 @@ function App() {
         closeModal();
         const active = homepageOrder?.active || [];
         const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
-        doSetClientSetting_(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
-        doSetClientSetting_(SETTINGS.FYP_MODAL_SHOWN, true, true);
-        doToast_({
+        dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+        dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
+        dispatch(doToast({
           message: __('Homepage recommendations enabled.'),
-        });
+        }));
       },
       onCancel: (closeModal) => {
         closeModal();
         const hidden = homepageOrder?.hidden || [];
         const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
-        doSetClientSetting_(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
-        doSetClientSetting_(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+        dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
       },
-    });
+    }));
   }, [
+    dispatch,
     isFypModalShown,
     prefsReady,
     homepageOrder,
     personalRecommendations,
-    doSetClientSetting_,
-    doOpenModal_,
-    doToast_,
   ]);
   useEffect(() => {
     document.documentElement.setAttribute('lang', language);
   }, [language]);
   useEffect(() => {
     if (!languages.includes(language)) {
-      fetchLanguage(language);
+      dispatch(doFetchLanguage(language));
 
       if (document && document.documentElement && LANGUAGES[language] && LANGUAGES[language].length >= 3) {
         document.documentElement.dir = LANGUAGES[language][2];
@@ -486,16 +468,16 @@ function App() {
   }, [language, languages]);
   useEffect(() => {
     if (shouldMigrateLanguage) {
-      setLanguage(shouldMigrateLanguage);
+      dispatch(doSetLanguage(shouldMigrateLanguage));
     }
-  }, [shouldMigrateLanguage, setLanguage]);
+  }, [dispatch, shouldMigrateLanguage]);
   useEffect(() => {
     // Check that previousHasVerifiedEmail was not undefined instead of just not truthy
     // This ensures we don't fire the emailVerified event on the initial user fetch
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
       analytics.event.emailVerified();
     }
-  }, [previousHasVerifiedEmail, hasVerifiedEmail, signIn]);
+  }, [previousHasVerifiedEmail, hasVerifiedEmail]);
   useEffect(() => {
     if (previousRewardApproved === false && isRewardApproved) {
       analytics.event.rewardEligible();
@@ -537,8 +519,9 @@ function App() {
     }
 
     const secondScript = document.createElement('script');
-    // OneTrust asks to add this
-    secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
+    // OneTrust asks to add this. Guard missing callback in local/dev environments.
+    secondScript.innerHTML =
+      'function OptanonWrapper() { if (typeof window.gdprCallback === "function") { window.gdprCallback() } }';
     document.head.appendChild(script);
     document.head.appendChild(secondScript);
     return () => {
@@ -554,18 +537,18 @@ function App() {
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
     // signInSyncPref is cleared after sharedState loop.
-    const syncLoopWithoutInterval = () => syncLoop(true);
+    const syncLoopWithoutInterval = () => dispatch(doSyncLoop(true));
 
     if (hasSignedIn && hasVerifiedEmail) {
       // In case we are syncing.
-      syncLoop();
+      dispatch(doSyncLoop());
       window.addEventListener('focus', syncLoopWithoutInterval);
     }
 
     return () => {
       window.removeEventListener('focus', syncLoopWithoutInterval);
     };
-  }, [hasSignedIn, hasVerifiedEmail, syncLoop]);
+  }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
@@ -573,23 +556,23 @@ function App() {
   }, [syncError, pathname, isAuthenticated, navigate]);
   useEffect(() => {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
-      doOpenAnnouncements_();
+      dispatch(doOpenAnnouncements());
     }
-  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements_]);
+  }, [dispatch, announcement, isAuthenticated, pathname, prefsReady]);
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
 
-      doSetLastViewedAnnouncement_('clear');
+      dispatch(doSetLastViewedAnnouncement('clear'));
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
   // Keep this at the end to ensure initial setup effects are run first
   useEffect(() => {
     if (!hasSignedIn && hasVerifiedEmail) {
-      signIn();
+      dispatch(doSignIn());
       setHasSignedIn(true);
     }
-  }, [hasVerifiedEmail, signIn, hasSignedIn]);
+  }, [dispatch, hasVerifiedEmail, hasSignedIn]);
   useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer_);
   useEffect(() => {
     if (!syncIsLocked) {

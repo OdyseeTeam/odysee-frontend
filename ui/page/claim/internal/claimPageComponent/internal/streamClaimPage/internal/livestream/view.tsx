@@ -37,8 +37,10 @@ export default function LivestreamPage(props: Props) {
   const isStreamPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, propUri));
   const socketConnection = useAppSelector((state) => selectSocketConnectionForId(state, claimId));
   const theaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
-  const contentUnlocked =
-    claimId && useAppSelector((state) => selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId));
+  const contentUnlockedValue = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const contentUnlocked = claimId && contentUnlockedValue;
   const doCommentSocketConnect = (
     u: string,
     channelName: string,

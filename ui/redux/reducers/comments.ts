@@ -951,10 +951,10 @@ export default handleActions(
     }),
     [ACTIONS.COMMENT_MODERATION_AM_I_LIST_FAILED]: (state: CommentsState, action: any) => ({
       ...state,
-      fetchingModerationDelegators: true,
+      fetchingModerationDelegators: false,
     }),
     [ACTIONS.COMMENT_MODERATION_AM_I_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      return { ...state, fetchingModerationDelegators: true, moderationDelegatorsById: action.data };
+      return { ...state, fetchingModerationDelegators: false, moderationDelegatorsById: action.data };
     },
     [ACTIONS.COMMENT_FETCH_SETTINGS_STARTED]: (state: CommentsState, action: any) => ({
       ...state,

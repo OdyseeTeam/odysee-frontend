@@ -47,9 +47,10 @@ export const selectPastLivestreamsForCreatorId = (state: State, creatorId: strin
 export const selectFilteredActiveLivestreamUris = createCachedSelector(
   (state, channelIds, excludedChannelIds, query) =>
     query ? selectActiveLivestreamsForQuery(state, query) : selectActiveLivestreamByCreatorId(state),
-  (state, channelIds, excludedChannelIds) => [channelIds, excludedChannelIds],
+  (state, channelIds) => channelIds,
+  (state, channelIds, excludedChannelIds) => excludedChannelIds,
   selectViewersById,
-  (activeLivestreamByCreatorId, [channelIds, excludedChannelIds], viewersById) => {
+  (activeLivestreamByCreatorId, channelIds, excludedChannelIds, viewersById) => {
     if (!activeLivestreamByCreatorId) return activeLivestreamByCreatorId;
     const filteredLivestreams = [];
 
