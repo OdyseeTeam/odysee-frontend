@@ -40,6 +40,7 @@ type Props = {
   embeddedInternal: boolean,
   isAudio: boolean,
   poster: ?string,
+  thumbnail: ?string,
   shareTelemetry: boolean,
   source: string,
   sourceType: string,
@@ -87,6 +88,7 @@ function VideoJsInner(props: Props) {
     embeddedInternal,
     isAudio,
     poster,
+    thumbnail,
     shareTelemetry,
     source,
     sourceType,
@@ -203,7 +205,8 @@ function VideoJsInner(props: Props) {
     if (isCasting && castSrc && castSrc !== castLoadedSrcRef.current) {
       castLoadedSrcRef.current = castSrc;
       const contentType = castSrc.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
-      castActions.loadMedia(castSrc, title, channelTitle, poster, contentType);
+      const currentTime = media ? media.currentTime : 0;
+      castActions.loadMedia(castSrc, title, channelTitle, poster, contentType, currentTime);
       if (media) media.pause();
     }
     if (!isCasting) {
@@ -460,6 +463,8 @@ function VideoJsInner(props: Props) {
         castState={castState}
         castActions={castActions}
       >
+        {isCasting && thumbnail && <img src={thumbnail} className="odysee-cast-thumbnail" alt="" />}
+
         {resolvedSource && (
           <Video
             ref={videoRef}

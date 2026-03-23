@@ -114,13 +114,19 @@ function CastProgressBar({ castState, castActions }: { castState: any, castActio
     >
       <div className="media-slider__track odysee-slider__track">
         <div className="media-slider__fill odysee-slider__fill" style={{ width: `${displayFrac * 100}%` }} />
+        {hoverFrac !== null && (
+          <div className="odysee-cast-slider__hover-fill" style={{ width: `${hoverFrac * 100}%` }} />
+        )}
       </div>
       <div
         className="media-slider__thumb odysee-slider__thumb"
         style={{ left: `${displayFrac * 100}%`, display: 'block' }}
       />
       {hoverFrac !== null && (
-        <div className="odysee-slider-preview" style={{ left: `${hoverFrac * 100}%` }}>
+        <div
+          className="odysee-slider-preview"
+          style={{ position: 'absolute', left: `${hoverFrac * 100}%`, transform: 'translateX(-50%)' }}
+        >
           <span className="odysee-slider-preview__time">{formatCastTime(hoverFrac * castState.duration)}</span>
         </div>
       )}
@@ -924,7 +930,9 @@ export default function OdyseeSkin(props: Props) {
 
   return (
     <Player.Container
-      className={`media-default-skin media-default-skin--video odysee-skin ${className || ''}`}
+      className={`media-default-skin media-default-skin--video odysee-skin ${isCasting ? 'odysee-skin--casting' : ''} ${
+        className || ''
+      }`}
       {...rest}
     >
       {children}
@@ -933,8 +941,14 @@ export default function OdyseeSkin(props: Props) {
 
       {isCasting && castState && castState.deviceName && (
         <div className="odysee-cast-indicator">
-          <OdyseeCast />
-          <span>{__('Casting to %device%', { device: castState.deviceName })}</span>
+          <span className="odysee-cast-indicator__label">
+            <OdyseeCast />
+            <span>{__('Casting to')}</span>
+          </span>
+          <span className="odysee-cast-indicator__device">{castState.deviceName}</span>
+          <button type="button" className="odysee-cast-indicator__stop" onClick={onCastToggle}>
+            {__('End Casting')}
+          </button>
         </div>
       )}
 

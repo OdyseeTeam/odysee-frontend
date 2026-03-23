@@ -130,7 +130,7 @@ export default function useChromecast() {
   }, [startRemoteSync, stopRemoteSync]);
 
   const loadMedia = useCallback(
-    (src: string, title: ?string, subtitle: ?string, poster: ?string, contentType: ?string) => {
+    (src: string, title: ?string, subtitle: ?string, poster: ?string, contentType: ?string, startTime: ?number) => {
       const ctx = contextRef.current;
       if (!ctx) return;
       const session = ctx.getCurrentSession();
@@ -146,6 +146,9 @@ export default function useChromecast() {
       }
 
       const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
+      if (startTime && startTime > 0) {
+        request.currentTime = startTime;
+      }
       session.loadMedia(request).then(
         () => updateCastState(),
         () => {}
