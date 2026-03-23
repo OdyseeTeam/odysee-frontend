@@ -1,10 +1,18 @@
 import React from 'react';
 import classnames from 'classnames';
-import VideoViewer from 'component/viewers/videoViewer';
+import { lazyImport } from 'util/lazyImport';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector } from 'redux/hooks';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { makeSelectContentTypeForUri } from 'redux/selectors/claims';
+
+const VideoViewer = lazyImport(
+  () =>
+    import(
+      'component/viewers/videoViewer'
+      /* webpackChunkName: "videoViewer" */
+    )
+);
 type Props = {
   uri: string;
   className?: string;
@@ -34,13 +42,15 @@ const VideoRender = (props: Props) => {
         className
       )}
     >
-      <VideoViewer
-        uri={uri}
-        source={streamingUrl}
-        contentType={contentType}
-        streamClaim={streamClaim}
-        embedded={embedded}
-      />
+      <React.Suspense fallback={null}>
+        <VideoViewer
+          uri={uri}
+          source={streamingUrl}
+          contentType={contentType}
+          streamClaim={streamClaim}
+          embedded={embedded}
+        />
+      </React.Suspense>
     </div>
   );
 };

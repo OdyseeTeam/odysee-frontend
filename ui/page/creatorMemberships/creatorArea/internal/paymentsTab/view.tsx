@@ -2,26 +2,32 @@ import React from 'react';
 import PaymentRow from './internal/paymentRow';
 import { useLocation } from 'react-router-dom';
 import Paginate from 'component/common/paginate';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doMembershipFetchIncomingPayments } from 'redux/actions/memberships';
+import {
+  selectMembershipTxIncoming,
+  selectMembershipTxIncomingFetching,
+  selectMembershipTxIncomingError,
+} from 'redux/selectors/memberships';
 interface IProps {
-  doMembershipFetchIncomingPayments: () => void;
-  txsFetching: boolean;
-  channelsToList?: [];
-  transactions: Array<any>;
   channelsToList?: Array<any>;
 }
 const PAGINATE_PARAM = 'page';
 const PAGE_SIZE = 25;
 
 function PaymentsTab(props: IProps) {
-  const { doMembershipFetchIncomingPayments, transactions, txsFetching, channelsToList } = props;
+  const { channelsToList } = props;
+  const dispatch = useAppDispatch();
+  const transactions = useAppSelector(selectMembershipTxIncoming);
+  const txsFetching = useAppSelector(selectMembershipTxIncomingFetching);
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlParamPage = Number(urlParams.get(PAGINATE_PARAM)) || 1;
   const pageStart = (urlParamPage - 1) * PAGE_SIZE;
   const pageEnd = urlParamPage * PAGE_SIZE;
   React.useEffect(() => {
-    doMembershipFetchIncomingPayments();
-  }, [doMembershipFetchIncomingPayments]);
+    dispatch(doMembershipFetchIncomingPayments());
+  }, [dispatch]);
   const channelIdsToList = channelsToList && channelsToList.map((c) => c.claim_id);
   const transactionsToList = (
     channelIdsToList && channelIdsToList.length

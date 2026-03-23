@@ -6,14 +6,17 @@ import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
 import UriIndicator from 'component/uriIndicator';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectMySupportersList,
+  selectMembershipTiersForCreatorId,
+  selectIncomingPaymentsBySubscriber,
+} from 'redux/selectors/memberships';
+import { doResolveClaimIds } from 'redux/actions/claims';
 type Props = {
   channelsToList: Array<ChannelClaim> | null | undefined;
   switchToTiersTab: () => void;
-  // -- redux --
-  supportersList: SupportersList | null | undefined;
-  channelMembershipTiers: CreatorMemberships | null | undefined;
-  doResolveClaimIds: (claimIds: Array<string>) => void;
-  paymentsBySubscriber: Record<string, Array<MembershipPayment>>; // payments by id { [id]: [{ paymentobj }...] }
 };
 
 const getDateOfLastPayment = (payments) => {
@@ -27,15 +30,14 @@ const getDateOfLastPayment = (payments) => {
 };
 
 const SupportersTab = (props: Props) => {
-  const {
-    channelsToList,
-    switchToTiersTab,
-    // -- redux --
-    supportersList,
-    channelMembershipTiers,
-    doResolveClaimIds,
-    paymentsBySubscriber,
-  } = props;
+  const { channelsToList, switchToTiersTab } = props;
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const channelMembershipTiers = useAppSelector((state) =>
+    activeChannelClaim ? selectMembershipTiersForCreatorId(state, activeChannelClaim.claim_id) : null
+  );
+  const supportersList = useAppSelector(selectMySupportersList);
+  const paymentsBySubscriber = useAppSelector(selectIncomingPaymentsBySubscriber);
 
   // const sl = [
   //   {
@@ -65,9 +67,9 @@ const SupportersTab = (props: Props) => {
   React.useEffect(() => {
     if (supportersList) {
       const supportersClaimIds = supportersList.map((channel) => channel.subscriber_channel_claim_id);
-      doResolveClaimIds(supportersClaimIds);
+      dispatch(doResolveClaimIds(supportersClaimIds));
     }
-  }, [supportersList, doResolveClaimIds]);
+  }, [supportersList, dispatch]);
 
   if (isViewingSingleChannel && !channelMembershipTiers) {
     return (

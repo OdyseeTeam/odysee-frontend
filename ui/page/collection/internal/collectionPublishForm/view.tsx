@@ -17,6 +17,28 @@ import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
 import withCollectionItems from 'hocs/withCollectionItems';
 import ErrorBubble from 'component/common/error-bubble';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectHasClaimForId,
+  selectClaimBidAmountForId,
+  selectClaimIsPendingForId,
+  selectClaimUriForId,
+} from 'redux/selectors/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
+import {
+  selectCollectionHasEditsForId,
+  selectHasUnavailableClaimIdsForCollectionId,
+  selectCollectionHasUnsavedEditsForId,
+} from 'redux/selectors/collections';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  doCollectionPublish,
+  doCollectionEdit,
+  doClearEditsForCollectionId,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
+} from 'redux/actions/collections';
+import { doOpenModal } from 'redux/actions/app';
 import './style.scss';
 export const PAGE_TAB_QUERY = `tab`;
 const TAB = {
@@ -26,26 +48,25 @@ const TAB = {
 type Props = {
   collectionId: string;
   onDoneForId: (arg0: string) => void;
-  // -- redux -
-  // uri: ?string,
-  hasClaim: boolean;
-  collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams;
-  isClaimPending: boolean;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  collectionHasEdits: boolean;
-  collectionHasUnSavedEdits: boolean;
-  hasUnavailableClaims: boolean;
-  doCollectionPublish: (arg0: CollectionPublishCreateParams, arg1: string) => Promise<any>;
-  doCollectionEdit: (id: string, params: CollectionEditParams) => void;
-  doClearEditsForCollectionId: (id: string) => void;
-  doOpenModal: (id: string, props: {}) => void;
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void;
 };
 export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
+  const { collectionId, onDoneForId } = props;
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { search } = useLocation();
+  const hasClaim = useAppSelector((state) => selectHasClaimForId(state, collectionId));
+  const collectionParams = useAppSelector((state) => selectCollectionClaimUploadParamsForId(state, collectionId));
+  const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const collectionHasUnSavedEdits = useAppSelector((state) =>
+    selectCollectionHasUnsavedEditsForId(state, collectionId)
+  );
+  const hasUnavailableClaims = useAppSelector((state) =>
+    selectHasUnavailableClaimIdsForCollectionId(state, collectionId)
+  );
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -81,7 +102,7 @@ const CollectionPublishForm = (props: Props) => {
       }
     };
 
-    doCollectionPublish(params, collectionId)
+    dispatch(doCollectionPublish(params, collectionId))
       .then(successCb)
       .catch(() => setPublishPending(false));
   }
@@ -93,28 +114,30 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams(trimmedParams);
 
     if (editing) {
-      doCollectionEdit(collectionId, trimmedParams);
+      dispatch(doCollectionEdit(collectionId, trimmedParams));
       return onDoneForId(collectionId);
     }
 
     if (hasUnavailableClaims) {
-      doOpenModal(MODALS.CONFIRM, {
-        title: __('Confirm Publish'),
-        subtitle: __(
-          'You are about to publish this playlist with unavailable items that will be removed (all other items will be unaffected). This action is permanent and cannot be undone.'
-        ),
-        onConfirm: (closeModal) => {
-          handlePublish(trimmedParams);
-          closeModal();
-        },
-      });
+      dispatch(
+        doOpenModal(MODALS.CONFIRM, {
+          title: __('Confirm Publish'),
+          subtitle: __(
+            'You are about to publish this playlist with unavailable items that will be removed (all other items will be unaffected). This action is permanent and cannot be undone.'
+          ),
+          onConfirm: (closeModal) => {
+            handlePublish(trimmedParams);
+            closeModal();
+          },
+        })
+      );
     } else {
       handlePublish(trimmedParams);
     }
   }
 
   function handleCancelButton() {
-    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+    dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
     navigate(-1);
   }
 
@@ -244,17 +267,19 @@ const CollectionPublishForm = (props: Props) => {
                 icon={ICONS.REFRESH}
                 label={__('Clear Updates')}
                 onClick={() =>
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Clear Updates'),
-                    subtitle: __(
-                      "Are you sure you want to delete all edits from this published playlist? (You won't be able to undo this action later)"
-                    ),
-                    onConfirm: (closeModal) => {
-                      doClearEditsForCollectionId(collectionId);
-                      collectionResetPending.current = true;
-                      closeModal();
-                    },
-                  })
+                  dispatch(
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Clear Updates'),
+                      subtitle: __(
+                        "Are you sure you want to delete all edits from this published playlist? (You won't be able to undo this action later)"
+                      ),
+                      onConfirm: (closeModal) => {
+                        dispatch(doClearEditsForCollectionId(collectionId));
+                        collectionResetPending.current = true;
+                        closeModal();
+                      },
+                    })
+                  )
                 }
               />
             </Tooltip>

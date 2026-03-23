@@ -1,4 +1,3 @@
-import type { DoFetchClaimListMine } from 'redux/actions/claims';
 import React from 'react';
 import Button from 'component/button';
 import * as FILE_LIST from 'constants/file_list';
@@ -8,14 +7,16 @@ import classnames from 'classnames';
 import { FormField } from 'component/common/form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import RightSideActions from './internal/rightSideActions/view';
+import { useAppDispatch } from 'redux/hooks';
+import { doClearClaimSearch, doFetchClaimListMine } from 'redux/actions/claims';
 type Props = {
   filterType: string;
   setFilterType: (type: string) => void;
-  fetchClaimListMine: DoFetchClaimListMine;
-  doClearClaimSearch: () => void;
 };
 export default function ClaimListHeader(props: Props) {
-  const { filterType, setFilterType, fetchClaimListMine, doClearClaimSearch } = props;
+  const { filterType, setFilterType } = props;
+  const dispatch = useAppDispatch();
+  const fetchClaimListMine: typeof doFetchClaimListMine = (...args) => dispatch(doFetchClaimListMine(...args));
   const {
     fetching,
     method,
@@ -87,7 +88,7 @@ export default function ClaimListHeader(props: Props) {
                           channelIdsClaimList
                         );
                       } else {
-                        doClearClaimSearch();
+                        dispatch(doClearClaimSearch());
                       }
                     }}
                   />{' '}

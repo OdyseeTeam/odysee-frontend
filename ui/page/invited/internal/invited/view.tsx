@@ -11,34 +11,29 @@ import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelP
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectUserVerifiedEmail, selectReferrer, selectSetReferrerError } from 'redux/selectors/user';
+import { doClaimRefereeReward } from 'redux/actions/rewards';
+import { selectHasUnclaimedRefereeReward } from 'redux/selectors/rewards';
+import { doUserSetReferrerForUri } from 'redux/actions/user';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectChannelTitleForUri } from 'redux/selectors/claims';
+import { doChannelSubscribe } from 'redux/actions/subscriptions';
 type Props = {
-  userHasVerifiedEmail: boolean | null | undefined;
-  doClaimRefereeReward: () => void;
-  doUserSetReferrerForUri: (referrerUri: string) => void;
-  referrerSet: string | null | undefined;
-  referrerSetError: string;
-  doChannelSubscribe: (sub: Subscription) => void;
-  hasUnclaimedRefereeReward: boolean;
   referrerUri: string | null | undefined;
-  isSubscribed: boolean;
-  channelTitle: string;
 };
 
 function Invited(props: Props) {
+  const { referrerUri } = props;
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const {
-    userHasVerifiedEmail,
-    doClaimRefereeReward,
-    doUserSetReferrerForUri,
-    referrerSet,
-    referrerSetError,
-    doChannelSubscribe,
-    hasUnclaimedRefereeReward,
-    referrerUri,
-    isSubscribed,
-    channelTitle,
-  } = props;
+  const userHasVerifiedEmail = useAppSelector(selectUserVerifiedEmail);
+  const referrerSet = useAppSelector(selectReferrer);
+  const referrerSetError = useAppSelector(selectSetReferrerError);
+  const hasUnclaimedRefereeReward = useAppSelector(selectHasUnclaimedRefereeReward);
+  const isSubscribed = useAppSelector((state) => selectIsSubscribedForUri(state, referrerUri));
+  const channelTitle = useAppSelector((state) => selectChannelTitleForUri(state, referrerUri));
   const {
     isChannel: referrerIsChannel,
     channelName: referrerChannelName,
@@ -77,25 +72,27 @@ function Invited(props: Props) {
       } catch (e) {}
 
       if (channelName) {
-        doChannelSubscribe({
-          channelName: channelName,
-          uri: referrerUri,
-        });
+        dispatch(
+          doChannelSubscribe({
+            channelName: channelName,
+            uri: referrerUri,
+          })
+        );
       }
     }
-  }, [referrerUri, isSubscribed, doChannelSubscribe, userHasVerifiedEmail, referrerIsChannel]);
+  }, [referrerUri, isSubscribed, dispatch, userHasVerifiedEmail, referrerIsChannel]);
   React.useEffect(() => {
     if (referrerSet === undefined && userHasVerifiedEmail) {
-      doClaimRefereeReward();
+      dispatch(doClaimRefereeReward());
     }
-  }, [doClaimRefereeReward, userHasVerifiedEmail, referrerSet]);
+  }, [dispatch, userHasVerifiedEmail, referrerSet]);
   React.useEffect(() => {
     const referrer = referrerUri || referrerCode;
 
     if (referrerSet === undefined && referrer) {
-      doUserSetReferrerForUri(referrer);
+      dispatch(doUserSetReferrerForUri(referrer));
     }
-  }, [referrerUri, referrerCode, doUserSetReferrerForUri, referrerSet]);
+  }, [referrerUri, referrerCode, dispatch, referrerSet]);
   const cardProps = React.useMemo(
     () => ({
       body: <ClaimPreview uri={referrerUri} type="small" />,

@@ -1,29 +1,29 @@
 import React from 'react';
 import HelpHub from 'component/common/help-hub';
 import ChannelOverview from './internal/channelOverview';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import {
+  selectMyTotalSupportersAmount,
+  selectMyTotalMonthlyIncome,
+  selectPreviousMonthlyIncome,
+} from 'redux/selectors/memberships';
+import { doSetActiveChannel } from 'redux/actions/app';
 import './style.scss';
 type Props = {
   onChannelSelect: () => void;
-  // -- redux --
-  myChannelClaims: Array<ChannelClaim>;
-  totalSupportersAmount: number;
-  totalMonthlyIncome: number;
-  previousMonthlyIncome: number;
-  doSetActiveChannel: (claimId: string | null | undefined, override?: boolean) => void;
 };
 
 function OverviewTab(props: Props) {
-  const {
-    onChannelSelect,
-    myChannelClaims,
-    totalSupportersAmount,
-    totalMonthlyIncome,
-    previousMonthlyIncome,
-    doSetActiveChannel,
-  } = props;
+  const { onChannelSelect } = props;
+  const dispatch = useAppDispatch();
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const totalSupportersAmount = useAppSelector(selectMyTotalSupportersAmount);
+  const totalMonthlyIncome = useAppSelector(selectMyTotalMonthlyIncome);
+  const previousMonthlyIncome = useAppSelector(selectPreviousMonthlyIncome);
 
   function selectChannel(channelClaim) {
-    doSetActiveChannel(channelClaim.claim_id, true);
+    dispatch(doSetActiveChannel(channelClaim.claim_id, true));
     onChannelSelect();
   }
 

@@ -4,22 +4,23 @@ import Spinner from 'component/spinner';
 import MembershipRow from './internal/membershipRow';
 import ButtonSort from 'component/buttonSort';
 import { getRenewByMoment } from 'util/memberships';
-type Props = {
-  // -- redux --
-  myMembershipSubs: Array<MembershipSub>;
-  isFetchingMembershipSubs: boolean;
-  doMembershipMine: () => Promise<MembershipSub>;
-  activeChannelClaim: ChannelClaim;
-  doResolveClaimIds: (claimIds: Array<string>) => Promise<any>;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectMembershipMineFetching, selectMyPurchasedMembershipsFromCreators } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { doMembershipMine } from 'redux/actions/memberships';
+import { doResolveClaimIds } from 'redux/actions/claims';
+type Props = {};
 
 function PledgesTab(props: Props) {
-  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine, doResolveClaimIds } = props;
+  const dispatch = useAppDispatch();
+  const myMembershipSubs = useAppSelector(selectMyPurchasedMembershipsFromCreators);
+  const isFetchingMembershipSubs = useAppSelector(selectMembershipMineFetching);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   React.useEffect(() => {
     if (myMembershipSubs === undefined) {
-      doMembershipMine();
+      dispatch(doMembershipMine());
     }
-  }, [doMembershipMine, myMembershipSubs]);
+  }, [dispatch, myMembershipSubs]);
   const subChannelIds = React.useMemo(() => {
     return myMembershipSubs ? myMembershipSubs.map((sub) => sub.membership.channel_claim_id) : [];
   }, [myMembershipSubs]);
@@ -27,9 +28,9 @@ function PledgesTab(props: Props) {
   React.useEffect(() => {
     if (!resolved && subChannelIds && subChannelIds.length) {
       setResolved(true);
-      doResolveClaimIds(subChannelIds);
+      dispatch(doResolveClaimIds(subChannelIds));
     }
-  }, [subChannelIds, doResolveClaimIds, resolved]);
+  }, [subChannelIds, dispatch, resolved]);
   const [sortKey, setSortKey] = React.useState(null);
   const [order, setOrder] = React.useState('desc');
   const RENEW_KEY = 'renewBy';

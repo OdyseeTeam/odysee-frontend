@@ -3,34 +3,29 @@ import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { userHasMembershipTiers, selectMySupportersList } from 'redux/selectors/memberships';
+import { doTipAccountStatus } from 'redux/actions/stripe';
 type Props = {
   component: any;
   switchToTiersTab?: () => void;
-  // -- redux --
-  myChannelClaims: Array<ChannelClaim> | null | undefined;
-  bankAccountConfirmed: boolean | null | undefined;
-  hasTiers?: boolean;
-  supportersList: SupportersList | null | undefined;
-  doTipAccountStatus: () => Promise<StripeAccountStatus>;
 };
 
 const TabWrapper = (props: Props) => {
-  const {
-    component,
-    switchToTiersTab,
-    // -- redux --
-    myChannelClaims,
-    bankAccountConfirmed,
-    hasTiers,
-    supportersList,
-    doTipAccountStatus,
-  } = props;
+  const { component, switchToTiersTab } = props;
+  const dispatch = useAppDispatch();
+  const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const bankAccountConfirmed = useAppSelector(selectAccountChargesEnabled);
+  const hasTiers = useAppSelector(userHasMembershipTiers);
+  const supportersList = useAppSelector(selectMySupportersList);
   const isOnTiersTab = !switchToTiersTab;
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
-      doTipAccountStatus();
+      dispatch(doTipAccountStatus());
     }
-  }, [bankAccountConfirmed, doTipAccountStatus]);
+  }, [bankAccountConfirmed, dispatch]);
 
   if (
     myChannelClaims === undefined ||

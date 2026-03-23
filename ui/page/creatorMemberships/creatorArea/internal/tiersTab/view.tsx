@@ -6,25 +6,25 @@ import Button from 'component/button';
 import MembershipTier from './internal/membershipTier';
 import EditingTier from './internal/editingTier';
 import HelpHub from 'component/common/help-hub';
-type Props = {
-  // -- redux --
-  bankAccountConfirmed: boolean;
-  channelMemberships: CreatorMemberships;
-  activeChannelClaim: ChannelClaim | null | undefined;
-  membershipOdyseePermanentPerks: MembershipOdyseePerks;
-  doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>;
-  exchangeRate: Record<string, number>;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
+import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+import { selectMembershipTiersForCreatorId, selectMembershipOdyseePermanentPerks } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { doGetMembershipPerks, doDeactivateMembershipForId } from 'redux/actions/memberships';
+import { doToast } from 'redux/actions/notifications';
+import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+type Props = {};
 
 function TiersTab(props: Props) {
-  const {
-    // -- redux --
-    channelMemberships: fetchedMemberships,
-    activeChannelClaim,
-    membershipOdyseePermanentPerks,
-    doGetMembershipPerks,
-    exchangeRate,
-  } = props;
+  const dispatch = useAppDispatch();
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const bankAccountConfirmed = useAppSelector(selectAccountChargesEnabled);
+  const fetchedMemberships = useAppSelector((state) =>
+    activeChannelClaim ? selectMembershipTiersForCreatorId(state, activeChannelClaim.claim_id) : null
+  );
+  const membershipOdyseePermanentPerks = useAppSelector(selectMembershipOdyseePermanentPerks);
+  const exchangeRate = useAppSelector(selectArweaveExchangeRates);
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
   const [editingIds, setEditingIds] = React.useState(() => []);
   const [channelMemberships, setChannelMemberships] = React.useState<any>(fetchedMemberships || []);
@@ -65,12 +65,14 @@ function TiersTab(props: Props) {
 
   React.useEffect(() => {
     if (activeChannelClaim) {
-      doGetMembershipPerks({
-        channel_name: activeChannelClaim.name,
-        channel_claim_id: activeChannelClaim.claim_id,
-      });
+      dispatch(
+        doGetMembershipPerks({
+          channel_name: activeChannelClaim.name,
+          channel_claim_id: activeChannelClaim.claim_id,
+        })
+      );
     }
-  }, [activeChannelClaim, doGetMembershipPerks]);
+  }, [activeChannelClaim, dispatch]);
   React.useEffect(() => {
     const fetchedMemberships = fetchedMembershipsStr && JSON.parse(fetchedMembershipsStr);
     setChannelMemberships((previousMemberships) => {

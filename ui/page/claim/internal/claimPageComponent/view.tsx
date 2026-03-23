@@ -2,7 +2,7 @@ import { DOMAIN } from 'config';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import Spinner from 'component/spinner';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -10,6 +10,34 @@ import { parseURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import PAGES from 'constants/pages';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectIsUriResolving,
+  selectClaimIsMine,
+  makeSelectClaimIsPending,
+  selectGeoRestrictionForUri,
+  selectLatestClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionForId,
+  selectFirstItemUrlForCollection,
+  selectAreCollectionItemsFetchingForId,
+} from 'redux/selectors/collections';
+import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { doBeginPublish } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
+import { getChannelIdFromClaim } from 'util/claim';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
+import { selectSettingsForChannelId } from 'redux/selectors/comments';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { PREFERENCE_EMBED } from 'constants/tags';
+import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
 const ChannelPage = lazyImport(
   () =>
     import(
@@ -29,46 +57,31 @@ type Props = {
   uri: string;
   latestContentPath?: boolean;
   liveContentPath?: boolean;
-  // -- redux --
-  claim: StreamClaim;
-  channelClaimId: string | null | undefined;
-  location: UrlLocation;
-  collectionId: string;
-  collection: Collection;
-  collectionFirstItemUri: string | null | undefined;
-  latestClaimUrl: string | null | undefined;
-  creatorSettings: Record<string, PerChannelSettings>;
-  doFetchCreatorSettings: (channelId: string) => Promise<any>;
-  doFetchLatestClaimForChannel: (uri: string) => void;
-  doFetchChannelIsLiveForId: (channelId: string) => void;
-  doFetchItemsInCollection: (params: { collectionId: string }) => void;
 };
 
 const ClaimPageComponent = (props: Props) => {
-  const {
-    uri,
-    latestContentPath,
-    liveContentPath,
-    // -- redux --
-    claim,
-    channelClaimId,
-    location,
-    collectionId,
-    collection,
-    collectionFirstItemUri,
-    latestClaimUrl,
-    creatorSettings,
-    doFetchCreatorSettings,
-    doFetchLatestClaimForChannel,
-    doFetchChannelIsLiveForId,
-    doFetchItemsInCollection,
-  } = props;
+  const { uri, latestContentPath, liveContentPath } = props;
+  const dispatch = useAppDispatch();
+  const location = useLocation();
   const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const { canonical_url: canonicalUrl, claim_id: claimId } = claim || {};
+  const collectionId =
+    urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) ||
+    (claim && claim.value_type === 'collection' && claim.claim_id) ||
+    null;
+  const latestContentClaim = useAppSelector((state) =>
+    liveContentPath ? selectLatestLiveClaimForChannel(state, claimId) : selectLatestClaimForUri(state, canonicalUrl)
+  );
+  const latestLiveUri = useAppSelector((state) => selectLatestLiveUriForChannel(state, claimId));
+  const latestClaimUrl = liveContentPath ? latestLiveUri : latestContentClaim && latestContentClaim.canonical_url;
+  const collection = useAppSelector((state) => selectCollectionForId(state, collectionId));
+  const collectionFirstItemUri = useAppSelector((state) => selectFirstItemUrlForCollection(state, collectionId));
+  const creatorSettings = useAppSelector((state) => selectSettingsForChannelId(state, channelClaimId));
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
-  const canonicalUrl = claim && claim.canonical_url;
-  const claimId = claim && claim.claim_id;
   const isNewestPath = latestContentPath || liveContentPath;
   const isCollection = claim && claim.value_type === 'collection';
   const isEmbed = pathname && pathname.startsWith('/$/embed');
@@ -77,14 +90,14 @@ const ClaimPageComponent = (props: Props) => {
   const { isChannel } = parseURI(effectiveUri);
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
-      doFetchChannelIsLiveForId(claimId);
+      dispatch(doFetchChannelIsLiveForId(claimId));
     }
-  }, [claimId, doFetchChannelIsLiveForId, latestClaimUrl, liveContentPath]);
+  }, [claimId, dispatch, latestClaimUrl, liveContentPath]);
   useEffect(() => {
     if (!latestClaimUrl && latestContentPath && canonicalUrl) {
-      doFetchLatestClaimForChannel(canonicalUrl);
+      dispatch(doFetchLatestClaimForChannel(canonicalUrl));
     }
-  }, [canonicalUrl, doFetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
+  }, [canonicalUrl, dispatch, latestClaimUrl, latestContentPath]);
   useEffect(() => {
     // Preserve /$/embed/... URLs; do not rewrite to canonical when embedded
     if (isEmbed) return;
@@ -127,16 +140,18 @@ const ClaimPageComponent = (props: Props) => {
   }, [canonicalUrl, pathname, hash, search, isEmbed]);
   React.useEffect(() => {
     if (creatorSettings === undefined && channelClaimId) {
-      doFetchCreatorSettings(channelClaimId).catch(() => {});
+      dispatch(doFetchCreatorSettings(channelClaimId)).catch(() => {});
     }
-  }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
+  }, [channelClaimId, creatorSettings, dispatch]);
   React.useEffect(() => {
     if (claim && collectionId) {
-      doFetchItemsInCollection({
-        collectionId,
-      });
+      dispatch(
+        doFetchItemsInCollection({
+          collectionId,
+        })
+      );
     }
-  }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
+  }, [claim, collectionFirstItemUri, collectionId, dispatch, isCollection]);
 
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
@@ -195,4 +210,4 @@ const ClaimPageComponent = (props: Props) => {
   );
 };
 
-export default ClaimPageComponent;
+export default withResolvedClaimRender(ClaimPageComponent);

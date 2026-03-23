@@ -11,11 +11,9 @@ import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
 import Router from 'component/router/index';
-import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
-import VideoRenderFloating from 'component/videoRenderFloating';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
 import Wander from 'component/wander';
@@ -122,6 +120,20 @@ const SyncFatalError = lazyImport(
     import(
       'component/syncFatalError'
       /* webpackChunkName: "syncFatalError" */
+    )
+);
+const ModalRouter = lazyImport(
+  () =>
+    import(
+      'modal/modalRouter'
+      /* webpackChunkName: "modalRouter" */
+    )
+);
+const VideoRenderFloating = lazyImport(
+  () =>
+    import(
+      'component/videoRenderFloating'
+      /* webpackChunkName: "videoRenderFloating" */
     )
 );
 // ****************************************************************************
@@ -603,9 +615,11 @@ function App() {
         >
           <Router uri={uri} />
           <Wander />
-          <ModalRouter />
+          <React.Suspense fallback={null}>
+            <ModalRouter />
+          </React.Suspense>
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-          {!embedPath && <VideoRenderFloating />}
+          <React.Suspense fallback={null}>{!embedPath && <VideoRenderFloating />}</React.Suspense>
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
             <YoutubeWelcome />

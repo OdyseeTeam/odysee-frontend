@@ -9,39 +9,34 @@ import { ENABLE_FILE_REACTIONS } from 'config';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
 import SortButton from './internal/sortButton';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForUri, makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
+import {
+  selectCollectionIsMine,
+  selectCollectionIsEmptyForId,
+  selectCollectionSavedForId,
+  selectCollectionTypeForId,
+} from 'redux/selectors/collections';
+import { DISABLE_REACTIONS_VIDEO_TAG } from 'constants/tags';
 type Props = {
   uri: string;
-  claimId?: string;
-  isMyCollection: boolean;
-  disableFileReactions: boolean;
   collectionId: string;
   showEdit: boolean;
-  isHeader: boolean;
-  setShowEdit: (arg0: boolean) => void;
+  isHeader?: boolean;
+  setShowEdit?: (arg0: boolean) => void;
   isBuiltin: boolean;
-  collectionEmpty: boolean;
-  collectionSavedForId: boolean;
-  collectionType: string;
-  doOpenModal: (id: string, props: {}) => void;
-  doToggleCollectionSavedForId: (id: string) => void;
 };
 
 function CollectionActions(props: Props) {
-  const {
-    uri,
-    // claimId,
-    // isMyCollection,
-    disableFileReactions,
-    collectionId,
-    isBuiltin,
-    showEdit,
-    // isHeader,
-    // setShowEdit,
-    // collectionSavedForId,
-    collectionEmpty,
-    collectionType, // doOpenModal,
-    // doToggleCollectionSavedForId,
-  } = props;
+  const { uri, collectionId, isBuiltin, showEdit } = props;
+  const claimId = useAppSelector((state) => selectClaimForUri(state, uri))?.claim_id;
+  const disableFileReactions = useAppSelector((state) =>
+    makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
+  );
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
+  const collectionType = useAppSelector((state) => selectCollectionTypeForId(state, collectionId));
   const { search } = useLocation();
   const isMobile = useIsMobile();
   const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;

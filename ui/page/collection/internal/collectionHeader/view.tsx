@@ -15,49 +15,43 @@ import ClaimAuthor from 'component/claimAuthor';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
 import AutoPublishCountdown from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/autoPublishCountdown';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimIsPendingForId, selectClaimForId } from 'redux/selectors/claims';
+import {
+  selectCountForCollectionId,
+  selectCollectionHasEditsForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
+  selectCollectionIsPublishingForId,
+} from 'redux/selectors/collections';
 import './style.scss';
 type Props = {
-  collection: any;
-  showEdit: boolean;
-  hasClaim: boolean;
-  unavailableUris: Array<string>;
-  setShowEdit: (show: boolean) => void;
-  setUnavailable: (uris: Array<string>) => void;
-  collectionThumbnail: string;
-  // -- redux --
-  uri: string;
   collection: Collection;
-  claimIsPending: boolean;
-  collectionHasEdits: boolean;
-  autoPublish: boolean;
-  autoPublishScheduledAt: number | null | undefined;
-  isPublishing: boolean;
-  doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void;
+  showEdit: boolean;
+  unavailableUris?: Array<string>;
+  setShowEdit: (show: boolean) => void;
+  setUnavailable?: (uris: Array<string>) => void;
+  collectionThumbnail?: string;
 };
 
 const CollectionHeader = (props: Props) => {
-  const {
-    collection,
-    showEdit,
-    hasClaim,
-    // unavailableUris,
-    setShowEdit,
-    // setUnavailable,
-    // collectionThumbnail,
-    // -- redux --
-    uri,
-    claimIsPending,
-    collectionHasEdits,
-    autoPublish,
-    autoPublishScheduledAt,
-    isPublishing, // doCollectionEdit,
-  } = props;
+  const { collection, showEdit, setShowEdit } = props;
+  const collectionId = collection?.id;
+  const claim = useAppSelector((state) => collectionId && selectClaimForId(state, collectionId));
+  const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  const hasClaim = Boolean(claim);
+  const claimIsPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
+  const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
+  const autoPublishScheduledAt = useAppSelector((state) =>
+    selectCollectionAutoPublishScheduledAtForId(state, collectionId)
+  );
+  const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
   const isNotADefaultList = collection.id !== 'watchlater' && collection.id !== 'favorites';
   const backgroundImage =
     collection && collection.thumbnail && collection.thumbnail.url
       ? 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url
       : undefined;
-  const { id: collectionId } = collection;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
   if (collection?.type === COL_TYPES.FEATURED_CHANNELS) {

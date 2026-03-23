@@ -309,6 +309,94 @@ function ssrTemplatePlugin() {
   };
 }
 
+function getManualChunkName(id) {
+  const normalizedId = id.replace(/\\/g, '/');
+
+  if (!normalizedId.includes('/node_modules/')) {
+    return null;
+  }
+
+  if (
+    normalizedId.includes('/node_modules/react/') ||
+    normalizedId.includes('/node_modules/react-dom/') ||
+    normalizedId.includes('/node_modules/react-router/') ||
+    normalizedId.includes('/node_modules/react-router-dom/')
+  ) {
+    return 'vendor-react';
+  }
+
+  if (
+    normalizedId.includes('/node_modules/redux/') ||
+    normalizedId.includes('/node_modules/react-redux/') ||
+    normalizedId.includes('/node_modules/@reduxjs/toolkit/') ||
+    normalizedId.includes('/node_modules/reselect/') ||
+    normalizedId.includes('/node_modules/re-reselect/') ||
+    normalizedId.includes('/node_modules/redux-persist/') ||
+    normalizedId.includes('/node_modules/redux-state-sync/')
+  ) {
+    return 'vendor-state';
+  }
+
+  if (
+    normalizedId.includes('/node_modules/react-markdown/') ||
+    normalizedId.includes('/node_modules/remark/') ||
+    normalizedId.includes('/node_modules/remark-') ||
+    normalizedId.includes('/node_modules/rehype-') ||
+    normalizedId.includes('/node_modules/hast-util-sanitize/') ||
+    normalizedId.includes('/node_modules/unist-util-visit/') ||
+    normalizedId.includes('/node_modules/parse-entities/') ||
+    normalizedId.includes('/node_modules/strip-markdown/') ||
+    normalizedId.includes('/node_modules/remove-markdown/')
+  ) {
+    return 'vendor-markdown';
+  }
+
+  if (normalizedId.includes('/node_modules/video.js/')) {
+    return 'vendor-video-core';
+  }
+
+  if (
+    normalizedId.includes('/node_modules/@videojs/') ||
+    normalizedId.includes('/node_modules/mux.js/') ||
+    normalizedId.includes('/node_modules/m3u8-parser/') ||
+    normalizedId.includes('/node_modules/mpd-parser/') ||
+    normalizedId.includes('/node_modules/aes-decrypter/') ||
+    normalizedId.includes('/node_modules/videojs-vtt.js/')
+  ) {
+    return 'vendor-video-streaming';
+  }
+
+  if (
+    normalizedId.includes('/node_modules/videojs-vtt-thumbnails/') ||
+    normalizedId.includes('/node_modules/videojs-contrib-quality-levels/') ||
+    normalizedId.includes('/node_modules/videojs-event-tracking/')
+  ) {
+    return 'vendor-video-plugins';
+  }
+
+  if (normalizedId.includes('/node_modules/@silvermine/') || normalizedId.includes('/node_modules/player.js/')) {
+    return 'vendor-video-cast';
+  }
+
+  if (normalizedId.includes('/node_modules/videojs-')) {
+    return 'vendor-video-plugins';
+  }
+
+  if (normalizedId.includes('/node_modules/codemirror/') || normalizedId.includes('/node_modules/@codemirror/')) {
+    return 'vendor-codemirror';
+  }
+
+  if (normalizedId.includes('/node_modules/@mui/') || normalizedId.includes('/node_modules/@emotion/')) {
+    return 'vendor-ui';
+  }
+
+  if (normalizedId.includes('/node_modules/@hello-pangea/dnd/')) {
+    return 'vendor-dnd';
+  }
+
+  return null;
+}
+
 export default defineConfig({
   root: __dirname,
   publicDir: 'static',
@@ -419,6 +507,9 @@ export default defineConfig({
     minify: isProduction,
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
+      output: {
+        manualChunks: getManualChunkName,
+      },
     },
   },
 

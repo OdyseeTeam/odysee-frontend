@@ -12,6 +12,17 @@ import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import Spinner from 'component/spinner';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectShowScheduledLiveInfoForUri, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { doFileGetForUri } from 'redux/actions/file';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
 const LivestreamScheduledInfo = lazyImport(
   () =>
     import(
@@ -57,22 +68,22 @@ const ClaimList = lazyImport(
 
 // Note: Prop types are inferred from connected component; avoid TS/Flow in this file to satisfy linters
 const EmbedClaimComponent = (props) => {
-  const {
-    uri,
-    latestClaimUrl,
-    collectionId,
-    // -- redux --
-    renderMode,
-    isLivestreamClaim,
-    showScheduledInfo,
-    channelClaimId,
-    isCollection,
-    streamingUrl,
-    doFileGetForUri,
-    collectionUrls,
-    doFetchItemsInCollection,
-    doFetchChannelIsLiveForId,
-  } = props;
+  const { uri, collectionId } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const isCollection = claim?.value_type === 'collection';
+  const isChannelClaim = claim?.value_type === 'channel';
+  const latestClaimUrl = useAppSelector((state) =>
+    isChannelClaim && channelClaimId ? selectLatestLiveUriForChannel(state, channelClaimId) : undefined
+  );
+  const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
+  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
+  const showScheduledInfo = useAppSelector((state) => selectShowScheduledLiveInfoForUri(state, uri));
+  const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
+  const collectionUrls = useAppSelector((state) =>
+    collectionId ? selectUrlsForCollectionId(state, collectionId) : null
+  );
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
@@ -84,18 +95,20 @@ const EmbedClaimComponent = (props) => {
   );
   // Fetch collection items - must be before any conditional returns
   React.useEffect(() => {
-    if (isCollection && collectionId && doFetchItemsInCollection) {
-      doFetchItemsInCollection({
-        collectionId,
-      });
+    if (isCollection && collectionId) {
+      dispatch(
+        doFetchItemsInCollection({
+          collectionId,
+        })
+      );
     }
-  }, [isCollection, collectionId, doFetchItemsInCollection]);
+  }, [isCollection, collectionId, dispatch]);
   // Fetch livestream status for embedded livestreams and channel embeds with feature=livenow
   React.useEffect(() => {
-    if ((isLivestreamClaim || isChannel) && channelClaimId && doFetchChannelIsLiveForId) {
-      doFetchChannelIsLiveForId(channelClaimId);
+    if ((isLivestreamClaim || isChannel) && channelClaimId) {
+      dispatch(doFetchChannelIsLiveForId(channelClaimId));
     }
-  }, [isLivestreamClaim, isChannel, channelClaimId, doFetchChannelIsLiveForId]);
+  }, [isLivestreamClaim, isChannel, channelClaimId, dispatch]);
 
   if (isChannel) {
     // For feature=livenow, show the latest livestream if available
@@ -249,13 +262,12 @@ const EmbedClaimComponent = (props) => {
 
   // Posts (Markdown) embed
   if (renderMode === RENDER_MODES.MARKDOWN) {
-    return <EmbeddedMarkdown uri={uri} streamingUrl={streamingUrl} doFileGetForUri={doFileGetForUri} />;
+    return <EmbeddedMarkdown uri={uri} streamingUrl={streamingUrl} />;
   }
 
   return <EmbeddedClaim uri={uri} />;
 };
 
-// eslint-disable-next-line react/prop-types
 const EmbeddedVideoClaimComponent = ({ uri, streamClaim }) => (
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
@@ -267,14 +279,14 @@ EmbeddedVideoClaimComponent.propTypes = {
 };
 
 // Minimal Markdown Embed Viewer: fetch content and render markdown
-// eslint-disable-next-line react/prop-types
-const EmbeddedMarkdown = ({ uri, streamingUrl, doFileGetForUri }) => {
+const EmbeddedMarkdown = ({ uri, streamingUrl }) => {
+  const mdDispatch = useAppDispatch();
   const [content, setContent] = React.useState();
   React.useEffect(() => {
-    if (!streamingUrl && doFileGetForUri) {
-      doFileGetForUri(uri);
+    if (!streamingUrl) {
+      mdDispatch(doFileGetForUri(uri));
     }
-  }, [uri, streamingUrl, doFileGetForUri]);
+  }, [uri, streamingUrl, mdDispatch]);
   React.useEffect(() => {
     let cancelled = false;
 
@@ -316,7 +328,6 @@ const EmbeddedMarkdown = ({ uri, streamingUrl, doFileGetForUri }) => {
 EmbeddedMarkdown.propTypes = {
   uri: PropTypes.string.isRequired,
   streamingUrl: PropTypes.string,
-  doFileGetForUri: PropTypes.func,
 };
 
 const EmbeddedClaimComponent = ({ uri }) => <ClaimPreviewTile uri={uri} onlyThumb />;
@@ -325,19 +336,8 @@ const EmbeddedClaim = withStreamClaimRender(EmbeddedClaimComponent);
 EmbeddedClaimComponent.propTypes = {
   uri: PropTypes.string.isRequired,
 };
-export default EmbedClaimComponent;
+export default withResolvedClaimRender(EmbedClaimComponent);
 EmbedClaimComponent.propTypes = {
   uri: PropTypes.string.isRequired,
-  latestClaimUrl: PropTypes.string,
   collectionId: PropTypes.string,
-  renderMode: PropTypes.string,
-  isLivestreamClaim: PropTypes.bool,
-  showScheduledInfo: PropTypes.bool,
-  channelClaimId: PropTypes.string,
-  isCollection: PropTypes.bool,
-  streamingUrl: PropTypes.string,
-  doFileGetForUri: PropTypes.func,
-  collectionUrls: PropTypes.array,
-  doFetchItemsInCollection: PropTypes.func,
-  doFetchChannelIsLiveForId: PropTypes.func,
 };

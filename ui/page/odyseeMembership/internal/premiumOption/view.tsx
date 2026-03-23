@@ -4,14 +4,15 @@ import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import MembershipBadge from 'component/membershipBadge';
+import { useAppDispatch } from 'redux/hooks';
+import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 type Props = {
   membershipView?: MembershipSub;
-  // -- redux --
-  doOpenCancelationModalForMembership: (membership: MembershipSub) => void;
 };
 
 const PremiumOption = (props: Props) => {
-  const { membershipView, doOpenCancelationModalForMembership } = props;
+  const { membershipView } = props;
+  const dispatch = useAppDispatch();
 
   //   if (membershipPurchase) {
   //     const membership = membershipPurchase;
@@ -57,7 +58,7 @@ const PremiumOption = (props: Props) => {
           <Button
             button="alt"
             membership-id={Membership.membership_id}
-            onClick={() => doOpenCancelationModalForMembership(membership)}
+            onClick={() => dispatch(doOpenCancelationModalForMembership(membership))}
             className="cancel-membership-button"
             label={__('Cancel membership')}
             icon={ICONS.FINANCE}

@@ -1,8 +1,22 @@
 import React from 'react';
 import LoadingScreen from 'component/common/loading-screen';
-import MarkdownPreview from 'component/common/markdown-preview';
-import CodeViewer from 'component/viewers/codeViewer';
+import { lazyImport } from 'util/lazyImport';
 import * as RENDER_MODES from 'constants/file_render_modes';
+
+const MarkdownPreview = lazyImport(
+  () =>
+    import(
+      'component/common/markdown-preview'
+      /* webpackChunkName: "markdown-preview" */
+    )
+);
+const CodeViewer = lazyImport(
+  () =>
+    import(
+      'component/viewers/codeViewer'
+      /* webpackChunkName: "codeViewer" */
+    )
+);
 
 type Props = {
   theme: string;
@@ -46,7 +60,11 @@ const DocumentViewer = (props: Props) => {
   return (
     <div className="file-viewer file-viewer--document">
       {content === null && <LoadingScreen transparent status={__("Sorry, looks like we can't load the document.")} />}
-      {content && getRenderDocument(stream, content, theme, renderMode, contentType)}
+      {content && (
+        <React.Suspense fallback={<LoadingScreen transparent />}>
+          {getRenderDocument(stream, content, theme, renderMode, contentType)}
+        </React.Suspense>
+      )}
     </div>
   );
 };

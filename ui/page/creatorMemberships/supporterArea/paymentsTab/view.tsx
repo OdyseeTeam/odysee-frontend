@@ -1,16 +1,23 @@
 import React from 'react';
 import PaymentRow from './internal/paymentRow';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doMembershipFetchOutgoingPayments } from 'redux/actions/memberships';
+import {
+  selectMembershipTxOutgoing,
+  selectMembershipTxOutgoingFetching,
+  selectMembershipTxOutgoingError,
+} from 'redux/selectors/memberships';
 interface IProps {
-  doMembershipFetchOutgoingPayments: () => void;
-  transactions: Array<any>;
   channelsToList?: Array<Claim>;
 }
 
 function PaymentsTab(props: IProps) {
-  const { doMembershipFetchOutgoingPayments, transactions, channelsToList } = props;
+  const { channelsToList } = props;
+  const dispatch = useAppDispatch();
+  const transactions = useAppSelector(selectMembershipTxOutgoing);
   React.useEffect(() => {
-    doMembershipFetchOutgoingPayments();
-  }, [doMembershipFetchOutgoingPayments]);
+    dispatch(doMembershipFetchOutgoingPayments());
+  }, [dispatch]);
   const channelIdsToList = channelsToList && channelsToList.map((c) => c.claim_id);
   const transactionsToList = (
     channelIdsToList && channelIdsToList.length

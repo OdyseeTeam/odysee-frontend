@@ -10,18 +10,20 @@ import CollectionListHeader from './internal/collectionListHeader/index';
 import Paginate from 'component/common/paginate';
 import usePersistedState from 'effects/use-persisted-state';
 import PageItemsLabel from './internal/page-items-label';
-type Props = {
-  // -- redux --
-  publishedCollections: CollectionGroup;
-  unpublishedCollections: CollectionGroup;
-  editedCollections: CollectionGroup;
-  updatedCollections: CollectionGroup;
-  savedCollections: CollectionGroup;
-  savedCollectionIds: ClaimIds;
-  collectionsById: Record<string, Collection>;
-  doResolveClaimIds: (collectionIds: ClaimIds) => void;
-  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void;
-};
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectIsFetchingMyCollections,
+  selectMyPublishedCollections,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectMyUpdatedCollections,
+  selectSavedCollectionIds,
+  selectSavedCollections,
+  selectCollectionsById,
+} from 'redux/selectors/collections';
+import { doResolveClaimIds } from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
+type Props = {};
 // Avoid prop drilling
 export const CollectionsListContext = React.createContext<any>({
   searchText: '',
@@ -30,18 +32,15 @@ export const CollectionsListContext = React.createContext<any>({
   filteredCollectionsLength: 0,
 });
 export default function CollectionsListMine(props: Props) {
-  const {
-    // -- redux --
-    publishedCollections,
-    unpublishedCollections,
-    editedCollections,
-    updatedCollections,
-    savedCollections,
-    savedCollectionIds,
-    collectionsById,
-    doResolveClaimIds,
-    doFetchThumbnailClaimsForCollectionIds,
-  } = props;
+  const dispatch = useAppDispatch();
+  const publishedCollections = useAppSelector(selectMyPublishedCollections);
+  const unpublishedCollections = useAppSelector(selectMyUnpublishedCollections);
+  const editedCollections = useAppSelector(selectMyEditedCollections);
+  const updatedCollections = useAppSelector(selectMyUpdatedCollections);
+  const savedCollections = useAppSelector(selectSavedCollections);
+  const savedCollectionIds = useAppSelector(selectSavedCollectionIds);
+  const collectionsById = useAppSelector(selectCollectionsById);
+  const isFetchingCollections = useAppSelector(selectIsFetchingMyCollections);
   const isMobile = useIsMobile();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -177,18 +176,20 @@ export default function CollectionsListMine(props: Props) {
   const paginatedCollectionsStr = JSON.stringify(paginatedCollections);
   React.useEffect(() => {
     if (savedCollectionIds.length > 0) {
-      doResolveClaimIds(savedCollectionIds);
+      dispatch(doResolveClaimIds(savedCollectionIds));
     }
-  }, [doResolveClaimIds, savedCollectionIds]);
+  }, [dispatch, savedCollectionIds]);
   React.useEffect(() => {
     const paginatedCollections = JSON.parse(paginatedCollectionsStr);
 
     if (paginatedCollections.length > 0) {
-      doFetchThumbnailClaimsForCollectionIds({
-        collectionIds: [...COLS.BUILTIN_PLAYLISTS_NO_QUEUE, ...paginatedCollections],
-      });
+      dispatch(
+        doFetchThumbnailClaimsForCollectionIds({
+          collectionIds: [...COLS.BUILTIN_PLAYLISTS_NO_QUEUE, ...paginatedCollections],
+        })
+      );
     }
-  }, [doFetchThumbnailClaimsForCollectionIds, paginatedCollectionsStr]);
+  }, [dispatch, paginatedCollectionsStr]);
   const firstUpdate = React.useRef(true);
   React.useLayoutEffect(() => {
     if (firstUpdate.current) {
