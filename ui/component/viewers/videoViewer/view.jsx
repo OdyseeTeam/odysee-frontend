@@ -508,6 +508,10 @@ function VideoViewer(props: Props) {
       setShowRecommendationOverlay(false);
     }
 
+    function onSeeked() {
+      handlePosition(player, true);
+    }
+
     function onQualityChanged() {
       if (promoteDqSetting.current && !isEmbedded) {
         promoteDqSetting.current = false;
@@ -532,6 +536,7 @@ function VideoViewer(props: Props) {
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
     player.on('seeking', onSeeking);
+    player.on('seeked', onSeeked);
     player.on('hlsQualitySelector:changed:user', onQualityChanged);
     player.one('loadedmetadata', moveToPosition);
 
@@ -548,6 +553,7 @@ function VideoViewer(props: Props) {
       player.off(VJS_EVENTS.PLAYER_CLOSED, cancelOldEvents);
       player.off('loadedmetadata', moveToPosition);
       player.off('seeking', onSeeking);
+      player.off('seeked', onSeeked);
     };
 
     // turn off old events to prevent duplicate runs
