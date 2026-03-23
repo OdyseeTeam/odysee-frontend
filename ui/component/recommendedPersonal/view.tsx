@@ -37,7 +37,6 @@ export default function RecommendedPersonal(props: Props) {
   const user = useAppSelector(selectUser);
   const userId = user && user.id;
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
-  const doFetchPersonalRecommendations_ = () => dispatch(doFetchPersonalRecommendations());
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
@@ -101,8 +100,10 @@ export default function RecommendedPersonal(props: Props) {
   }, [userId, markedGid, personalRecommendations.gid]);
   React.useEffect(() => {
     // -- Fetch FYP
-    doFetchPersonalRecommendations_();
-  }, [doFetchPersonalRecommendations_]);
+    if (!personalRecommendations.fetched) {
+      dispatch(doFetchPersonalRecommendations());
+    }
+  }, [dispatch, personalRecommendations.fetched]);
 
   // **************************************************************************
   // **************************************************************************

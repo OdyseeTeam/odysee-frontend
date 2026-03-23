@@ -107,7 +107,7 @@ const selectShortsRecommendedContent = createSelector(
     },
   ],
   (shortsPlaylist, viewMode, relatedUris, channelUris) => {
-    if (shortsPlaylist.length > 0) return shortsPlaylist;
+    if (shortsPlaylist.length > 0) return shortsPlaylist.slice();
     return viewMode === 'channel' ? channelUris : relatedUris;
   }
 );
