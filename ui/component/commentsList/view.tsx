@@ -174,10 +174,12 @@ export default function CommentList(props: Props) {
   }, [channelId, commenterClaimIds.length, dispatch]);
   const handleReset = React.useCallback(() => {
     if (claimId) dispatch(doCommentReset(claimId));
+    setInitialPageFetch(false);
     setPage(1);
   }, [claimId, dispatch]);
 
   function refreshComments() {
+    setInitialPageFetch(false);
     dispatch(doCommentList(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false));
     setPage(1);
     dispatch(
@@ -190,6 +192,7 @@ export default function CommentList(props: Props) {
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
+      setInitialPageFetch(false);
       dispatch(doCommentList(uri, undefined, 1, COMMENT_PAGE_SIZE_TOP_LEVEL, newSort, false));
       setPage(1);
       dispatch(
@@ -237,6 +240,7 @@ export default function CommentList(props: Props) {
   }, [handleReset, page]);
   // Set page back to 1 on every claim switch
   useEffect(() => {
+    setInitialPageFetch(false);
     return () => setPage(1); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);
   // When navigating to a new claim, the page will be 1 due to the above
@@ -257,7 +261,7 @@ export default function CommentList(props: Props) {
   }, [dispatch, linkedCommentId, threadCommentId]);
   // Fetch top-level comments
   useEffect(() => {
-    const isInitialFetch = currentFetchedPage === 0;
+    const isInitialFetch = page === 1 && !didInitialPageFetch;
     const isNewPage = page !== 1 && page !== currentFetchedPage;
     // only one or the other should be true, if both are true it means
     // it will fetch the wrong page initially. needs Number so it's 0 or 1
@@ -265,8 +269,11 @@ export default function CommentList(props: Props) {
 
     if (page !== 0 && hasRightFetchPage) {
       dispatch(doCommentList(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false));
+      if (page === 1) {
+        setInitialPageFetch(true);
+      }
     }
-  }, [currentFetchedPage, dispatch, page, sort, uri]);
+  }, [currentFetchedPage, didInitialPageFetch, dispatch, page, sort, uri]);
   React.useEffect(() => {
     if (threadCommentId) {
       refreshComments();

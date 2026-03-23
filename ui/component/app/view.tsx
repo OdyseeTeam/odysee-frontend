@@ -422,38 +422,36 @@ function App() {
       return;
     }
 
-    dispatch(doOpenModal(MODALS.CONFIRM, {
-      title: __('Homepage recommendations available'),
-      subtitle: __(
-        'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
-      ),
-      labelOk: __('Yes!'),
-      labelCancel: __('Later'),
-      onConfirm: (closeModal) => {
-        closeModal();
-        const active = homepageOrder?.active || [];
-        const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
-        dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
-        dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
-        dispatch(doToast({
-          message: __('Homepage recommendations enabled.'),
-        }));
-      },
-      onCancel: (closeModal) => {
-        closeModal();
-        const hidden = homepageOrder?.hidden || [];
-        const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
-        dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
-        dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
-      },
-    }));
-  }, [
-    dispatch,
-    isFypModalShown,
-    prefsReady,
-    homepageOrder,
-    personalRecommendations,
-  ]);
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Homepage recommendations available'),
+        subtitle: __(
+          'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
+        ),
+        labelOk: __('Yes!'),
+        labelCancel: __('Later'),
+        onConfirm: (closeModal) => {
+          closeModal();
+          const active = homepageOrder?.active || [];
+          const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
+          dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+          dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
+          dispatch(
+            doToast({
+              message: __('Homepage recommendations enabled.'),
+            })
+          );
+        },
+        onCancel: (closeModal) => {
+          closeModal();
+          const hidden = homepageOrder?.hidden || [];
+          const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
+          dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+          dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
+        },
+      })
+    );
+  }, [dispatch, isFypModalShown, prefsReady, homepageOrder, personalRecommendations]);
   useEffect(() => {
     document.documentElement.setAttribute('lang', language);
   }, [language]);
@@ -507,16 +505,18 @@ function App() {
     }
 
     if (inIframe()) return;
-    const useProductionOneTrust = process.env.NODE_ENV === 'production' && window?.location?.hostname === 'odysee.com';
+
+    const hostname = window?.location?.hostname || '';
+    const useProductionOneTrust =
+      process.env.NODE_ENV === 'production' && (hostname === 'odysee.com' || hostname.endsWith('.odysee.com'));
+
+    if (!useProductionOneTrust) return;
+
     const script = document.createElement('script');
     script.src = oneTrustScriptSrc;
     script.setAttribute('charset', 'UTF-8');
 
-    if (useProductionOneTrust) {
-      script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606');
-    } else {
-      script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606-test');
-    }
+    script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606');
 
     const secondScript = document.createElement('script');
     // OneTrust asks to add this. Guard missing callback in local/dev environments.

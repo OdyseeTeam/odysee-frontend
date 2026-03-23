@@ -156,11 +156,39 @@ export const doPopOutInlinePlayer =
       return dispatch(doClearPlayingUri());
     }
   };
-export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) =>
-  dispatch({
+export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const currentPlayingUri = selectPlayingUri(state);
+
+  const normalizePlayingUriForCompare = (value: PlayingUri | null | undefined) => ({
+    uri: value?.uri || null,
+    source: value?.source || null,
+    sourceId: value?.sourceId || null,
+    commentId: value?.commentId || null,
+    isShort: typeof value?.isShort === 'boolean' ? value.isShort : null,
+    location: {
+      pathname: value?.location?.pathname || '',
+      search: value?.location?.search || '',
+    },
+    collection: {
+      collectionId: value?.collection?.collectionId || null,
+      loop: Boolean(value?.collection?.loop),
+      shuffle: Boolean(value?.collection?.shuffle),
+    },
+  });
+
+  const nextSnapshot = normalizePlayingUriForCompare(playingUri);
+  const currentSnapshot = normalizePlayingUriForCompare(currentPlayingUri);
+
+  if (JSON.stringify(nextSnapshot) === JSON.stringify(currentSnapshot)) {
+    return Promise.resolve();
+  }
+
+  return dispatch({
     type: ACTIONS.SET_PLAYING_URI,
     data: playingUri,
   });
+};
 export const doChangePlayingUri = (newPlayingUri: PlayingUri) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const playingUri = selectPlayingUri(state);

@@ -15,19 +15,32 @@
     <link rel="preload" href="/public/font/v1/700.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/public/font/v1/700i.woff" as="font" type="font/woff" crossorigin />
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BB8DNPB73F"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-      });
-      gtag('js', new Date());
-      gtag('config', 'G-BB8DNPB73F');
+      (function () {
+        var isProductionHost =
+          window.location.hostname === 'odysee.com' || window.location.hostname.endsWith('.odysee.com');
+
+        if (!isProductionHost) {
+          return;
+        }
+
+        var gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-BB8DNPB73F';
+        document.head.appendChild(gtagScript);
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag('consent', 'default', {
+          ad_storage: 'denied',
+          analytics_storage: 'denied',
+        });
+        window.gtag('js', new Date());
+        window.gtag('config', 'G-BB8DNPB73F');
+      })();
     </script>
 
     <link rel="shortcut icon" href="/public/favicon_128.png" />

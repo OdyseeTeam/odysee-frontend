@@ -20,7 +20,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "pnpm dev:web-server",
+    "dev": "cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "dev:vite": "vp dev",
     "build": "vp build",
     "preview": "vp preview",

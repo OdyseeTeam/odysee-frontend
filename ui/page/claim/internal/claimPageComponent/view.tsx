@@ -120,11 +120,10 @@ const ClaimPageComponent = (props: Props) => {
       } catch (e) {}
 
       const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':');
-      // replaceState will fail if on a different domain (like webcache.googleusercontent.com)
-      const hostname = isDev ? 'localhost' : DOMAIN;
       let replaceUrl = canonicalUrlPath;
+      const shouldCanonicalize = !isDev && window.location.hostname === DOMAIN;
 
-      if (canonicalUrlPath !== urlPath && hostname === window.location.hostname) {
+      if (canonicalUrlPath !== urlPath && shouldCanonicalize) {
         const urlParams = new URLSearchParams(search || queryString);
 
         if (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) {

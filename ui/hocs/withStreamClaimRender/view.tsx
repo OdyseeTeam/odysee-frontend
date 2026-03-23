@@ -48,6 +48,13 @@ import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
 const homeInitFlags: Set<string> = new Set();
+
+function isLocalDevHost() {
+  if (typeof window === 'undefined') return false;
+
+  const { hostname } = window.location;
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local');
+}
 type Props = {
   uri: string;
   children?: any;
@@ -239,6 +246,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       uri,
     ]);
     React.useEffect(() => {
+      if (isLocalDevHost() && !embedded && !claimLinkId && !forceRenderStream) {
+        return;
+      }
+
       const uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
@@ -296,7 +307,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           updateClaim('!uriIsActive & !playingUriIsActive & sourceLoaded');
         }
       } // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
-    }, [pathname, sourceLoaded, canViewFile, uri]);
+    }, [pathname, sourceLoaded, canViewFile, uri, embedded, claimLinkId, forceRenderStream]);
     // Ensure non-video embeds (e.g. markdown) fetch their source in embed mode
     React.useEffect(() => {
       if (canViewFile && renderMode === 'md' && !streamingUrl) {

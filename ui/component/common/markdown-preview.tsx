@@ -235,15 +235,21 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
         return iframeHtml;
       })
     : '';
-  const remarkPlugins = [
-    remarkGfm,
-    formattedLinks,
-    ...(disableTimestamps || isMarkdownPost ? [] : [formattedTimestamp]),
-    formattedEmote,
-    remarkEmoji,
-    remarkBreaks,
-    [remarkFrontMatter, ['yaml']],
-  ];
+  // Comments use a lighter plugin chain to avoid CPU hangs on pages with many comments.
+  // The full pipeline (remarkGfm, formattedTimestamp, remarkFrontMatter) is expensive
+  // and can lock up pages with 50+ comments containing URLs/timestamps.
+  const isCommentBody = Boolean(parentCommentId);
+  const remarkPlugins = isCommentBody
+    ? [formattedLinks, formattedEmote, remarkEmoji, remarkBreaks]
+    : [
+        remarkGfm,
+        formattedLinks,
+        ...(disableTimestamps || isMarkdownPost ? [] : [formattedTimestamp]),
+        formattedEmote,
+        remarkEmoji,
+        remarkBreaks,
+        [remarkFrontMatter, ['yaml']],
+      ];
 
   // Strip all content and just render text
   if (strip) {

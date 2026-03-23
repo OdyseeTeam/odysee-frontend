@@ -81,7 +81,7 @@ export const selectUnpublishedCollectionsList = createSelector(
   (unpublishedCollections) => Object.keys(unpublishedCollections)
 );
 export const selectCollectionSavedForId = (state: State, id: string) =>
-  new Set(selectSavedCollectionIds(state)).has(id);
+  Boolean(selectSavedCollectionIds(state)?.includes(id));
 export const selectSavedCollections = createSelector(
   selectResolvedCollectionsById,
   selectSavedCollectionIds,

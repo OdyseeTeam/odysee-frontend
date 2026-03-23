@@ -72,12 +72,8 @@ export const selectModerationBlockList = createSelector(
     return moderationBlockList || EMPTY_ARRAY;
   }
 );
-export const selectAdminBlockList = createSelector(selectState, (state) =>
-  state.adminBlockList || EMPTY_ARRAY
-);
-export const selectModeratorBlockList = createSelector(selectState, (state) =>
-  state.moderatorBlockList || EMPTY_ARRAY
-);
+export const selectAdminBlockList = createSelector(selectState, (state) => state.adminBlockList || EMPTY_ARRAY);
+export const selectModeratorBlockList = createSelector(selectState, (state) => state.moderatorBlockList || EMPTY_ARRAY);
 export const selectPersonalTimeoutMap = (state: State) => selectState(state).personalTimeoutMap;
 export const selectAdminTimeoutMap = (state: State) => selectState(state).adminTimeoutMap;
 export const selectModeratorTimeoutMap = (state: State) => selectState(state).moderatorTimeoutMap;
@@ -198,7 +194,7 @@ export const selectUploadTemplatesForChannelId = (state: State, channelId: Claim
 };
 export const selectUploadTemplatesForActiveChannel = (state: State): Array<UploadTemplate> => {
   const activeChannelId = selectActiveChannelId(state);
-  if (!activeChannelId) return [];
+  if (!activeChannelId) return EMPTY_ARRAY as Array<UploadTemplate>;
   return selectUploadTemplatesForChannelId(state, activeChannelId);
 };
 
@@ -239,7 +235,7 @@ export const selectTopLevelCommentsForUri = createCachedSelector(
     if (comments) {
       return filterComments(maxCount > 0 ? comments.slice(0, maxCount) : comments, claimId, filterInputs);
     } else {
-      return [];
+      return EMPTY_ARRAY;
     }
   }
 )((state, uri, maxCount = -1) => `${String(uri)}:${maxCount}`);
@@ -254,8 +250,8 @@ export const selectRepliesForParentId = createCachedSelector(
   ...Object.values(filterCommentsDepOnList),
   (id, repliesByParentId, commentsById, ...filterInputs) => {
     // const claimId = byUri[uri]; // just parentId (id)
-    const replyIdsForParent = repliesByParentId[id] || [];
-    if (!replyIdsForParent.length) return [];
+    const replyIdsForParent = repliesByParentId[id] || EMPTY_ARRAY;
+    if (!replyIdsForParent.length) return EMPTY_ARRAY;
     const comments = [];
     replyIdsForParent.forEach((cid) => {
       comments.push(commentsById[cid]);
@@ -369,7 +365,7 @@ const filterComments = (comments: Array<Comment>, claimId: string | undefined, f
 
         return !mutedChannels.includes(comment.channel_url);
       })
-    : [];
+    : EMPTY_ARRAY;
 };
 
 export const makeSelectTotalReplyPagesForParentId = (parentId: string) =>
