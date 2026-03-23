@@ -163,10 +163,10 @@ function TabPanels(props: TabPanelsProps) {
   });
 
   return (
-    <div data-reach-tab-panels="">
+    <>
       {header}
       {panels}
-    </div>
+    </>
   );
 }
 

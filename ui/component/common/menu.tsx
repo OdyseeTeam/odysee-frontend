@@ -52,7 +52,7 @@ const MenuButton = React.forwardRef<HTMLButtonElement, MenuButtonProps>((props, 
       onClick={(event) => {
         onClick?.(event);
 
-        if (!menu || event.defaultPrevented) {
+        if (!menu) {
           return;
         }
 
