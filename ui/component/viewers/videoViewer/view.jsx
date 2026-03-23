@@ -37,6 +37,7 @@ import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
+const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
 
@@ -106,6 +107,7 @@ type Props = {
   isDownloadDisabled: boolean,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   doSetVideoSourceLoaded: (uri: string) => void,
+  doSyncLastPosition: (uri: string, position: number) => void,
   autoPlayNextShort: boolean,
 };
 
@@ -163,6 +165,7 @@ function VideoViewer(props: Props) {
     isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
+    doSyncLastPosition,
     autoPlayNextShort,
   } = props;
 
@@ -369,20 +372,32 @@ function VideoViewer(props: Props) {
 
   function onPause(event, player) {
     setIsPlaying(false);
-    handlePosition(player);
+    handlePosition(player, true);
     analytics.video.videoIsPlaying(false, player);
   }
 
   function onPlayerClosed(event, player) {
     setShowRecommendationOverlay(false);
-    handlePosition(player);
+    handlePosition(player, true);
     analytics.video.videoIsPlaying(false, player);
   }
 
-  function handlePosition(player) {
+  const lastSyncTimeRef = React.useRef(0);
+
+  function handlePosition(player, forceSync) {
     try {
       if (!isLivestreamClaim && uri && savePosition && player) {
-        savePosition(uri, player.currentTime());
+        const currentTime = player.currentTime();
+        savePosition(uri, currentTime);
+
+        // Sync position to server periodically or on pause/close
+        if (doSyncLastPosition && currentTime > 0) {
+          const now = Date.now();
+          if (forceSync || now - lastSyncTimeRef.current > POSITION_SYNC_INTERVAL_MS) {
+            lastSyncTimeRef.current = now;
+            doSyncLastPosition(uri, currentTime);
+          }
+        }
       }
     } catch (error) {}
   }
@@ -493,6 +508,10 @@ function VideoViewer(props: Props) {
       setShowRecommendationOverlay(false);
     }
 
+    function onSeeked() {
+      handlePosition(player, true);
+    }
+
     function onQualityChanged() {
       if (promoteDqSetting.current && !isEmbedded) {
         promoteDqSetting.current = false;
@@ -517,6 +536,7 @@ function VideoViewer(props: Props) {
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
     player.on('seeking', onSeeking);
+    player.on('seeked', onSeeked);
     player.on('hlsQualitySelector:changed:user', onQualityChanged);
     player.one('loadedmetadata', moveToPosition);
 
@@ -533,6 +553,7 @@ function VideoViewer(props: Props) {
       player.off(VJS_EVENTS.PLAYER_CLOSED, cancelOldEvents);
       player.off('loadedmetadata', moveToPosition);
       player.off('seeking', onSeeking);
+      player.off('seeked', onSeeked);
     };
 
     // turn off old events to prevent duplicate runs
