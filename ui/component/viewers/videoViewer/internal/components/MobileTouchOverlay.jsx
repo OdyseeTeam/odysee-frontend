@@ -18,13 +18,20 @@ type Props = {
   onPlayPrevious?: () => void,
   canPlayNext?: boolean,
   canPlayPrevious?: boolean,
+  isCasting?: boolean,
+  castState?: any,
+  castActions?: any,
 };
 
 export default function MobileTouchOverlay(props: Props) {
-  const { onPlayNext, onPlayPrevious, canPlayNext, canPlayPrevious } = props;
+  const { onPlayNext, onPlayPrevious, canPlayNext, canPlayPrevious, isCasting, castState, castActions } = props;
   const store = Player.usePlayer();
-  const paused = Player.usePlayer((s) => Boolean(s.paused));
-  const ended = Player.usePlayer((s) => Boolean(s.ended));
+  const localPaused = Player.usePlayer((s) => Boolean(s.paused));
+  const localEnded = Player.usePlayer((s) => Boolean(s.ended));
+  const paused = isCasting && castState ? castState.isPaused : localPaused;
+  const ended = isCasting ? false : localEnded;
+  const castBuffering =
+    isCasting && castState && castState.playerState !== 'PLAYING' && castState.playerState !== 'PAUSED';
   const lastTapRef = useRef(0);
   const lastTapSideRef = useRef(null);
   const tapTimerRef = useRef(null);
@@ -33,7 +40,7 @@ export default function MobileTouchOverlay(props: Props) {
   const quickHideRef = useRef(false);
   const mountedRef = useRef(false);
   const settingsOpenOnTouchRef = useRef(false);
-  const [showControls, setShowControls] = useState(false);
+  const [showControls, setShowControls] = useState(!!isCasting);
 
   const getControlsEl = useCallback(() => {
     const el = overlayRef.current;
@@ -68,6 +75,7 @@ export default function MobileTouchOverlay(props: Props) {
   }, [showControls, getControlsEl]);
 
   const scheduleAutoHide = useCallback(() => {
+    if (isCasting) return;
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       if (document.querySelector('.media-button--settings-open')) {
@@ -76,9 +84,14 @@ export default function MobileTouchOverlay(props: Props) {
       }
       setShowControls(false);
     }, AUTO_HIDE_DELAY);
-  }, []);
+  }, [isCasting]);
 
   useEffect(() => {
+    if (isCasting) {
+      setShowControls(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      return;
+    }
     if (!mountedRef.current) {
       mountedRef.current = true;
       return;
@@ -99,7 +112,7 @@ export default function MobileTouchOverlay(props: Props) {
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
-  }, [showControls, paused, scheduleAutoHide]);
+  }, [isCasting, showControls, paused, scheduleAutoHide]);
 
   useEffect(() => {
     return () => {
@@ -154,12 +167,20 @@ export default function MobileTouchOverlay(props: Props) {
             return;
           }
           if (showControls) {
-            const s = store.state;
-            if (s.paused) {
-              quickHideRef.current = true;
-              s.play();
+            if (isCasting && castActions) {
+              if (castState && castState.isPaused) {
+                castActions.play();
+              } else {
+                castActions.pause();
+              }
             } else {
-              s.pause();
+              const s = store.state;
+              if (s.paused) {
+                quickHideRef.current = true;
+                s.play();
+              } else {
+                s.pause();
+              }
             }
           } else {
             setShowControls(true);
@@ -167,21 +188,29 @@ export default function MobileTouchOverlay(props: Props) {
         }, DOUBLE_TAP_THRESHOLD_MS);
       }
     },
-    [store, showControls]
+    [store, showControls, isCasting, castActions, castState]
   );
 
   const handlePlayPause = useCallback(
     (e) => {
       e.stopPropagation();
-      const s = store.state;
-      if (s.paused) {
-        quickHideRef.current = true;
-        s.play();
+      if (isCasting && castActions) {
+        if (castState && castState.isPaused) {
+          castActions.play();
+        } else {
+          castActions.pause();
+        }
       } else {
-        s.pause();
+        const s = store.state;
+        if (s.paused) {
+          quickHideRef.current = true;
+          s.play();
+        } else {
+          s.pause();
+        }
       }
     },
-    [store]
+    [store, isCasting, castActions, castState]
   );
 
   const handlePrev = useCallback(
@@ -213,7 +242,9 @@ export default function MobileTouchOverlay(props: Props) {
           </button>
 
           <button type="button" className="odysee-mobile-play-btn" onClick={handlePlayPause}>
-            {ended ? (
+            {castBuffering ? (
+              <div className="odysee-cast-spinner odysee-cast-spinner--mobile" />
+            ) : ended ? (
               <ReplayIcon size={48} color="currentColor" />
             ) : paused ? (
               <PlayIcon className="odysee-mobile-play-icon" size={48} color="currentColor" />

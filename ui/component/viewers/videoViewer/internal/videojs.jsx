@@ -491,6 +491,9 @@ function VideoJsInner(props: Props) {
             onPlayPrevious={playPrevious}
             canPlayNext={canPlayNext}
             canPlayPrevious={canPlayPrevious}
+            isCasting={isCasting}
+            castState={castState}
+            castActions={castActions}
           />
         )}
       </OdyseeSkin>

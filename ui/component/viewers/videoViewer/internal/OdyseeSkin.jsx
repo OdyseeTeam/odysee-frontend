@@ -939,18 +939,26 @@ export default function OdyseeSkin(props: Props) {
 
       <ClickToPlay onTogglePlay={isCasting ? castTogglePlay : undefined} />
 
-      {isCasting && castState && castState.deviceName && (
-        <div className="odysee-cast-indicator">
-          <span className="odysee-cast-indicator__label">
+      {isCasting &&
+        castState &&
+        castState.deviceName &&
+        (isMobileDevice ? (
+          <div className="odysee-cast-indicator odysee-cast-indicator--mobile">
             <OdyseeCast />
-            <span>{__('Casting to')}</span>
-          </span>
-          <span className="odysee-cast-indicator__device">{castState.deviceName}</span>
-          <button type="button" className="odysee-cast-indicator__stop" onClick={onCastToggle}>
-            {__('End Casting')}
-          </button>
-        </div>
-      )}
+            <span>{castState.deviceName}</span>
+          </div>
+        ) : (
+          <div className="odysee-cast-indicator">
+            <span className="odysee-cast-indicator__label">
+              <OdyseeCast />
+              <span>{__('Casting to')}</span>
+            </span>
+            <span className="odysee-cast-indicator__device">{castState.deviceName}</span>
+            <button type="button" className="odysee-cast-indicator__stop" onClick={onCastToggle}>
+              {__('End Casting')}
+            </button>
+          </div>
+        ))}
 
       <BufferingIndicator
         render={(p) => (
@@ -1239,36 +1247,35 @@ export default function OdyseeSkin(props: Props) {
                 )}
               </div>
 
-              {castAvailable && onCastToggle && (
-                <Btn
-                  className={`media-button--icon media-button--cast ${isCasting ? 'media-button--cast-active' : ''}`}
-                  aria-label={isCasting ? 'Stop casting' : 'Cast'}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCastToggle();
-                  }}
-                >
-                  <svg
-                    className="media-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={19}
-                    height={19}
-                    fill="none"
-                    stroke="#fff"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M2 8v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
-                    <path d="M2 16a5 5 0 0 1 5 5M2 12a9 9 0 0 1 9 9" />
-                    <circle cx={2} cy={20} r={1.5} fill="#fff" stroke="none" />
-                  </svg>
-                </Btn>
-              )}
-
               <div className="media-surface odysee-mobile-controls__fs">
+                {castAvailable && onCastToggle && (
+                  <Btn
+                    className={`media-button--icon media-button--cast ${isCasting ? 'media-button--cast-active' : ''}`}
+                    aria-label={isCasting ? 'Stop casting' : 'Cast'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCastToggle();
+                    }}
+                  >
+                    <svg
+                      className="media-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={19}
+                      height={19}
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M2 8v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+                      <path d="M2 16a5 5 0 0 1 5 5M2 12a9 9 0 0 1 9 9" />
+                      <circle cx={2} cy={20} r={1.5} fill="#fff" stroke="none" />
+                    </svg>
+                  </Btn>
+                )}
                 <Btn
                   type="button"
                   className="media-button--icon media-button--fullscreen"
@@ -1340,33 +1347,39 @@ export default function OdyseeSkin(props: Props) {
                 )}
 
                 {isCasting && castState ? (
-                  <Tooltip.Root side="top">
-                    <Tooltip.Trigger
-                      render={
-                        <Btn className="media-button--icon media-button--play" onClick={castTogglePlay}>
-                          {castState.isPaused ? (
-                            <OdyseePlay className="media-icon" size={18} color="currentColor" />
-                          ) : (
-                            <svg
-                              className="media-icon"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width={18}
-                              height={18}
-                              fill="none"
-                              aria-hidden="true"
-                              viewBox="0 0 18 18"
-                            >
-                              <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
-                              <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
-                            </svg>
-                          )}
-                        </Btn>
-                      }
-                    />
-                    <Tooltip.Popup className="media-tooltip">
-                      {castState.isPaused ? __('Play (space)') : __('Pause (space)')}
-                    </Tooltip.Popup>
-                  </Tooltip.Root>
+                  castState.playerState !== 'PLAYING' && castState.playerState !== 'PAUSED' ? (
+                    <Btn className="media-button--icon media-button--play">
+                      <div className="odysee-cast-spinner" />
+                    </Btn>
+                  ) : (
+                    <Tooltip.Root side="top">
+                      <Tooltip.Trigger
+                        render={
+                          <Btn className="media-button--icon media-button--play" onClick={castTogglePlay}>
+                            {castState.isPaused ? (
+                              <OdyseePlay className="media-icon" size={18} color="currentColor" />
+                            ) : (
+                              <svg
+                                className="media-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={18}
+                                height={18}
+                                fill="none"
+                                aria-hidden="true"
+                                viewBox="0 0 18 18"
+                              >
+                                <rect width={4} height={12} x={3} y={3} fill="currentColor" rx={1.75} />
+                                <rect width={4} height={12} x={11} y={3} fill="currentColor" rx={1.75} />
+                              </svg>
+                            )}
+                          </Btn>
+                        }
+                      />
+                      <Tooltip.Popup className="media-tooltip">
+                        {castState.isPaused ? __('Play (space)') : __('Pause (space)')}
+                      </Tooltip.Popup>
+                    </Tooltip.Root>
+                  )
                 ) : (
                   <Tooltip.Root side="top">
                     <Tooltip.Trigger

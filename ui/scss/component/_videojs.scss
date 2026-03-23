@@ -48,7 +48,6 @@ $control-bar-height-mobile: 44px;
     opacity: 1 !important;
     scale: 1 !important;
     filter: none !important;
-    pointer-events: auto !important;
     transition-delay: 0ms !important;
   }
 
@@ -84,6 +83,44 @@ $control-bar-height-mobile: 44px;
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
     pointer-events: none;
+  }
+}
+
+.odysee-cast-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: odysee-cast-spin 0.6s linear infinite;
+
+  &--mobile {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+}
+
+.odysee-mobile-cast-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: auto;
+  color: #fff;
+
+  &__btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
+@keyframes odysee-cast-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -159,6 +196,17 @@ img.odysee-cast-thumbnail {
   }
   z-index: 5;
   white-space: nowrap;
+
+  &--mobile {
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    padding: 6px 12px;
+    font-size: 13px;
+    gap: 6px;
+    pointer-events: none;
+  }
 }
 
 .odysee-cast-slider {

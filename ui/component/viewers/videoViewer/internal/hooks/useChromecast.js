@@ -89,43 +89,74 @@ export default function useChromecast() {
   }, []);
 
   useEffect(() => {
+    var chromeCastRetryId = null;
+
+    const setupContext = (ctx) => {
+      ctx.setOptions({
+        receiverApplicationId: window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+        autoJoinPolicy: window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+      });
+      contextRef.current = ctx;
+      setCastAvailable(true);
+
+      ctx.addEventListener(window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED, () => {
+        const session = ctx.getCurrentSession();
+        const active = isSessionActive(session);
+        setIsCasting(active);
+        if (active) {
+          startRemoteSync();
+        } else {
+          stopRemoteSync();
+        }
+      });
+
+      if (isSessionActive(ctx.getCurrentSession())) {
+        setIsCasting(true);
+        startRemoteSync();
+      }
+    };
+
     const initCast = (isAvailable) => {
       if (!isAvailable) return;
       try {
         const ctx = window.cast.framework.CastContext.getInstance();
-        ctx.setOptions({
-          receiverApplicationId: window.chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-          autoJoinPolicy: window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
-        });
-        contextRef.current = ctx;
-        setCastAvailable(true);
-
-        ctx.addEventListener(window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED, () => {
-          const session = ctx.getCurrentSession();
-          const active = isSessionActive(session);
-          setIsCasting(active);
-          if (active) {
-            startRemoteSync();
-          } else {
-            stopRemoteSync();
-          }
-        });
-
-        if (isSessionActive(ctx.getCurrentSession())) {
-          setIsCasting(true);
-          startRemoteSync();
+        if (window.chrome && window.chrome.cast) {
+          setupContext(ctx);
+        } else {
+          chromeCastRetryId = setInterval(function () {
+            if (window.chrome && window.chrome.cast) {
+              clearInterval(chromeCastRetryId);
+              chromeCastRetryId = null;
+              try {
+                setupContext(ctx);
+              } catch (e) {}
+            }
+          }, 500);
         }
       } catch (e) {}
     };
 
-    if (window.cast && window.cast.framework && window.cast.framework.CastContext) {
+    var retryCleanup = null;
+    var castReady = window.cast && window.cast.framework && window.cast.framework.CastContext;
+    if (castReady) {
       initCast(true);
     } else {
       window.__onGCastApiAvailable = initCast;
+      var retryId = setInterval(function () {
+        if (window.cast && window.cast.framework && window.cast.framework.CastContext) {
+          clearInterval(retryId);
+          initCast(true);
+        }
+      }, 500);
+      retryCleanup = function () {
+        clearInterval(retryId);
+      };
     }
 
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
+      if (chromeCastRetryId) clearInterval(chromeCastRetryId);
+      if (retryCleanup) retryCleanup();
     };
   }, [startRemoteSync, stopRemoteSync]);
 
