@@ -154,7 +154,6 @@ function VideoRenderFloating(props: Props) {
   const disableShortsViewSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
   const disableShortsView = !!collectionSidebarId || disableShortsViewSetting;
 
-  const doFetchRecommendedContent = (recUri: string) => dispatch(doFetchRecommendedContentAction(recUri));
   const doSetShowAutoplayCountdownForUri = (params: { uri: string | null | undefined; show: boolean }) =>
     dispatch(doSetShowAutoplayCountdownForUriAction(params));
   const doCommentSocketConnect = (
@@ -168,7 +167,6 @@ function VideoRenderFloating(props: Props) {
   const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
   const doClearQueueList = () => dispatch(doClearQueueListAction());
   const doOpenModal = (id: string, arg1: {}) => dispatch(doOpenModalAction(id, arg1));
-  const doClearPlayingSource = () => dispatch(doClearPlayingSourceAction());
   const doSetPlayingUri = (arg0: PlayingUri) => dispatch(doSetPlayingUriAction(arg0));
   const routeLocation = useLocation();
   const currentLocation = location || routeLocation;
@@ -188,22 +186,22 @@ function VideoRenderFloating(props: Props) {
   const hasNextShort = playlistIndex >= 0 && playlistIndex < playlist.length - 1;
   const goToPreviousShort = React.useCallback(() => {
     if (hasPreviousShort) {
-      doSetPlayingUri({
+      dispatch(doSetPlayingUriAction({
         uri: playlist[playlistIndex - 1],
         collection: {},
         isShort: true,
-      });
+      }));
     }
-  }, [hasPreviousShort, playlist, playlistIndex, doSetPlayingUri]);
+  }, [hasPreviousShort, playlist, playlistIndex, dispatch]);
   const goToNextShort = React.useCallback(() => {
     if (hasNextShort) {
-      doSetPlayingUri({
+      dispatch(doSetPlayingUriAction({
         uri: playlist[playlistIndex + 1],
         collection: {},
         isShort: true,
-      });
+      }));
     }
-  }, [hasNextShort, playlist, playlistIndex, doSetPlayingUri]);
+  }, [hasNextShort, playlist, playlistIndex, dispatch]);
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
@@ -374,12 +372,12 @@ function VideoRenderFloating(props: Props) {
       // When the player begins floating, remove the comment source
       // so that it doesn't try to resize again in case of going back
       // to the origin's comment section and fail to position correctly
-      doClearPlayingSource();
+      dispatch(doClearPlayingSourceAction());
     }
-  }, [doClearPlayingSource, isComment, isFloating]);
+  }, [dispatch, isComment, isFloating]);
   React.useEffect(() => {
-    if (isFloating && !isShortVideo) doFetchRecommendedContent(uri);
-  }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
+    if (isFloating && !isShortVideo) dispatch(doFetchRecommendedContentAction(uri));
+  }, [dispatch, isFloating, uri, isShortVideo]);
   React.useEffect(() => {
     if (!isShortsFloating) {
       setIsShortsFloatingPaused(false);
@@ -502,9 +500,9 @@ function VideoRenderFloating(props: Props) {
   }, [uri]);
   React.useEffect(() => {
     if (primaryUri && uri && !collectionId && primaryUri !== uri && !overrideFloating && !floatingPlayerEnabled) {
-      doClearPlayingUri();
+      dispatch(doClearPlayingUriAction());
     }
-  }, [collectionId, doClearPlayingUri, floatingPlayerEnabled, overrideFloating, primaryUri, uri]);
+  }, [collectionId, dispatch, floatingPlayerEnabled, overrideFloating, primaryUri, uri]);
 
   if (!uri || (isFloating && noFloatingPlayer)) {
     return null;

@@ -169,9 +169,10 @@ export default function ShortsPage(props: Props) {
       : null;
   const previousRecommendedShort = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
   const channelName = claim?.signing_channel?.name;
-  const channelDisplayName = channelUri
-    ? useAppSelector((state) => selectTitleForUri(state, channelUri)) || claim?.signing_channel?.name
-    : claim?.signing_channel?.name;
+  const channelTitleFromState = useAppSelector((state) =>
+    channelUri ? selectTitleForUri(state, channelUri) : undefined
+  );
+  const channelDisplayName = (channelUri && channelTitleFromState) || claim?.signing_channel?.name;
   const isSearchingRecommendations = useAppSelector(selectIsSearching);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS_CONST.SEARCH_IN_LANGUAGE));
   const reduxViewMode = useAppSelector(selectShortsViewMode);
@@ -182,30 +183,7 @@ export default function ShortsPage(props: Props) {
 
   const clearPosition = (u: string) => dispatch(clearPositionAction(u));
   const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
-  const doSetShortsSidePanel = (isOpen: boolean) => dispatch(doSetShortsSidePanelAction(isOpen));
-  const doFetchShortsRecommendedContent = (u: string, fypParam?: FypParam | null) =>
-    dispatch(doFetchShortsRecommendedContentAction(u, fypParam));
-  const doFetchChannelShorts = (chId: string) => {
-    return dispatch(
-      doClaimSearchAction({
-        channel_ids: [chId],
-        duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
-        content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
-        order_by: ['release_time'],
-        page_size: 50,
-        page: 1,
-        claim_type: ['stream'],
-        has_source: true,
-      })
-    );
-  };
-  const doFileGetForUri = (u: string) => dispatch(doFileGetForUriAction(u));
-  const doSetShortsPlaylist = (uris: Array<string>) => dispatch(doSetShortsPlaylistAction(uris));
-  const doSetShortsViewMode = (mode: string) => dispatch(doSetShortsViewModeAction(mode));
   const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShort());
-  const doClearShortsPlaylist = () => dispatch(doClearShortsPlaylistAction());
-  const doOpenModal = (id: string, modalProps: any) => dispatch(doOpenModalAction(id, modalProps));
-  const doResolveUri = (u: string) => dispatch(doResolveUriAction(u));
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const location = useLocation();
@@ -303,60 +281,68 @@ export default function ShortsPage(props: Props) {
           : null;
 
       if (mode === 'channel' && channelId) {
-        doFetchChannelShorts(channelId);
+        dispatch(doClaimSearchAction({
+          channel_ids: [channelId],
+          duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
+          content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
+          order_by: ['release_time'],
+          page_size: 50,
+          page: 1,
+          claim_type: ['stream'],
+          has_source: true,
+        }));
       } else {
-        doFetchShortsRecommendedContent(uri, fypParam);
+        dispatch(doFetchShortsRecommendedContentAction(uri, fypParam));
       }
     },
-    [channelId, uri, uuid, fypId, doFetchChannelShorts, doFetchShortsRecommendedContent]
+    [channelId, uri, uuid, fypId, dispatch]
   );
   const handleViewModeChange = React.useCallback(
     (mode) => {
       setLocalViewMode(mode);
-      doSetShortsViewMode(mode);
-      doSetShortsPlaylist([]);
+      dispatch(doSetShortsViewModeAction(mode));
+      dispatch(doSetShortsPlaylistAction([]));
       fetchForMode(mode);
     },
-    [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode, setLocalViewMode]
+    [dispatch, fetchForMode, setLocalViewMode]
   );
   const handleShareClick = React.useCallback(() => {
-    doOpenModal(MODALS.SOCIAL_SHARE, {
+    dispatch(doOpenModalAction(MODALS.SOCIAL_SHARE, {
       uri,
       webShareable,
       collectionId,
-    });
-  }, [doOpenModal, uri, webShareable, collectionId]);
+    }));
+  }, [dispatch, uri, webShareable, collectionId]);
   const handleCommentsClick = React.useCallback(() => {
     if (sidePanelOpen && panelMode === 'comments') {
-      doSetShortsSidePanel(false);
+      dispatch(doSetShortsSidePanelAction(false));
     } else {
       setPanelMode('comments');
-      doSetShortsSidePanel(true);
+      dispatch(doSetShortsSidePanelAction(true));
     }
-  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [dispatch, sidePanelOpen, panelMode]);
   const handleInfoButtonClick = React.useCallback(() => {
     if (sidePanelOpen && panelMode === 'info') {
-      doSetShortsSidePanel(false);
+      dispatch(doSetShortsSidePanelAction(false));
     } else {
       setPanelMode('info');
-      doSetShortsSidePanel(true);
+      dispatch(doSetShortsSidePanelAction(true));
     }
-  }, [doSetShortsSidePanel, sidePanelOpen, panelMode]);
+  }, [dispatch, sidePanelOpen, panelMode]);
   const handleClosePanel = React.useCallback(() => {
-    doSetShortsSidePanel(false);
-  }, [doSetShortsSidePanel]);
+    dispatch(doSetShortsSidePanelAction(false));
+  }, [dispatch]);
   const handledLinkedCommentIdRef = React.useRef(null);
   React.useEffect(() => {
     if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
       handledLinkedCommentIdRef.current = linkedCommentId;
       setPanelMode('comments');
-      doSetShortsSidePanel(true);
+      dispatch(doSetShortsSidePanelAction(true));
     }
-  }, [linkedCommentId, isMobile, doSetShortsSidePanel]);
+  }, [linkedCommentId, isMobile, dispatch]);
   React.useEffect(() => {
     if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
     if (currentIndex < 0) return;
-    if (!doFileGetForUri) return;
     const currentBatch = Math.floor(currentIndex / PRELOAD_BATCH_SIZE);
     const nextBatchStart = (currentBatch + 1) * PRELOAD_BATCH_SIZE;
     const preloadEndIndex = Math.min(nextBatchStart + PRELOAD_BATCH_SIZE, shortsRecommendedUris.length);
@@ -373,22 +359,22 @@ export default function ShortsPage(props: Props) {
 
     urisToPreload.forEach((preloadUri, index) => {
       setTimeout(() => {
-        doFileGetForUri(preloadUri);
+        dispatch(doFileGetForUriAction(preloadUri));
       }, index * 100);
     });
-  }, [currentIndex, shortsRecommendedUris, doFileGetForUri]);
+  }, [currentIndex, shortsRecommendedUris, dispatch]);
   React.useEffect(() => {
     preloadedUrisRef.current.clear();
   }, [uri]);
   React.useEffect(() => {
     if (nextRecommendedShort && !nextThumbnail) {
-      doResolveUri(nextRecommendedShort);
+      dispatch(doResolveUriAction(nextRecommendedShort));
     }
 
     if (previousRecommendedShort && !previousThumbnail) {
-      doResolveUri(previousRecommendedShort);
+      dispatch(doResolveUriAction(previousRecommendedShort));
     }
-  }, [nextRecommendedShort, previousRecommendedShort, nextThumbnail, previousThumbnail, doResolveUri]);
+  }, [nextRecommendedShort, previousRecommendedShort, nextThumbnail, previousThumbnail, dispatch]);
   React.useEffect(() => {
     if (nextThumbnail) {
       const img = new Image();
@@ -428,7 +414,7 @@ export default function ShortsPage(props: Props) {
         (isCurrentlyInShortsPlayer && isNavigatingToShortsTab);
 
       if (shouldCleanup) {
-        doClearShortsPlaylist();
+        dispatch(doClearShortsPlaylistAction());
       }
     }
 
@@ -436,7 +422,7 @@ export default function ShortsPage(props: Props) {
       pathname,
       search,
     };
-  }, [doClearShortsPlaylist, navigationType, pathname, search]);
+  }, [dispatch, navigationType, pathname, search]);
 
   React.useEffect(() => {
     return () => {
@@ -450,10 +436,10 @@ export default function ShortsPage(props: Props) {
         (!isInShortsPlayer && !isInShortsTab) || (!isInShortsPlayer && isInShortsTab) || isHomePage;
 
       if (shouldCleanupOnUnmount) {
-        doClearShortsPlaylist();
+        dispatch(doClearShortsPlaylistAction());
       }
     };
-  }, [doClearShortsPlaylist]);
+  }, [dispatch]);
   React.useEffect(() => {
     let timeoutId;
 
@@ -482,12 +468,12 @@ export default function ShortsPage(props: Props) {
       hasInitializedRef.current = true;
 
       if (isShortFromChannelPage) {
-        doSetShortsViewMode('channel');
+        dispatch(doSetShortsViewModeAction('channel'));
       }
 
       fetchForMode(localViewMode);
     }
-  }, [fetchForMode, localViewMode, doSetShortsViewMode, isShortFromChannelPage]);
+  }, [fetchForMode, localViewMode, dispatch, isShortFromChannelPage]);
   React.useEffect(() => {
     if (hasInitializedRef.current && reduxViewMode !== localViewMode) {
       setLocalViewMode(reduxViewMode);
@@ -504,10 +490,10 @@ export default function ShortsPage(props: Props) {
 
       if (!currentUriInPlaylist) {
         const playlistUris = [uri, ...shortsRecommendedUris];
-        doSetShortsPlaylist(playlistUris);
+        dispatch(doSetShortsPlaylistAction(playlistUris));
       }
     }
-  }, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
+  }, [shortsRecommendedUris, uri, dispatch]);
   React.useEffect(() => {
     if (!entryUrlRef.current) {
       const urlParams = new URLSearchParams(search);

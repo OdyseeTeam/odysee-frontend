@@ -69,7 +69,6 @@ const FloatingShortsActions = ({
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
   );
-  const doFetchReactions = (claimId: string) => dispatch(doFetchReactionsAction(claimId));
   const doReactionLike = (uriArg: string) => dispatch(doReactionLikeAction(uriArg));
   const doReactionDislike = (uriArg: string) => dispatch(doReactionDislikeAction(uriArg));
   const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShort());
@@ -83,8 +82,8 @@ const FloatingShortsActions = ({
   const slimeButtonGlowTimeout = React.useRef(null);
   const [avatarHover, setAvatarHover] = React.useState(false);
   React.useEffect(() => {
-    if (claimId) doFetchReactions(claimId);
-  }, [claimId, doFetchReactions]);
+    if (claimId) dispatch(doFetchReactionsAction(claimId));
+  }, [claimId, dispatch]);
   React.useEffect(() => {
     setOptimisticReaction(undefined);
   }, [myReaction]);

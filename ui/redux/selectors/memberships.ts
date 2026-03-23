@@ -17,7 +17,7 @@ import {
 } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 
 const selectState = (state: State) => state.memberships || EMPTY_OBJECT;
 
@@ -32,21 +32,29 @@ export const selectChannelMembershipsForCreatorId = (state: State, channelId: st
   selectChannelMembershipsByCreatorId(state)[channelId];
 export const selectPendingBuyMembershipIds = (state: State) => selectState(state).pendingBuyIds;
 export const selectMembershipPaymentsIncoming = (state: State) => selectState(state).membershipPaymentsIncoming;
-export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) =>
-  (selectPendingBuyMembershipIds(state) || []).includes(id);
+export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) => {
+  const ids = selectPendingBuyMembershipIds(state);
+  return ids ? ids.includes(id) : false;
+};
 export const selectPendingCancelMembershipIds = (state: State) => selectState(state).pendingCancelIds;
-export const selectCancelIsPendingForMembershipId = (state: State, id: string) =>
-  (selectPendingCancelMembershipIds(state) || []).includes(id);
+export const selectCancelIsPendingForMembershipId = (state: State, id: string) => {
+  const ids = selectPendingCancelMembershipIds(state);
+  return ids ? ids.includes(id) : false;
+};
 export const selectMembershipListFetchingIds = (state: State) => selectState(state).membershipListFetchingIds;
-export const selectIsMembershipListFetchingForId = (state: State, claimId: ClaimId) =>
-  (selectMembershipListFetchingIds(state) || []).includes(claimId);
+export const selectIsMembershipListFetchingForId = (state: State, claimId: ClaimId) => {
+  const ids = selectMembershipListFetchingIds(state);
+  return ids ? ids.includes(claimId) : false;
+};
 export const selectMembershipsListByCreatorId = (state: State) => selectState(state).membershipListByCreatorId;
 export const selectMembershipTiersForCreatorId = (state: State, creatorId: ClaimId): CreatorMemberships =>
   selectMembershipsListByCreatorId(state)[creatorId];
 export const selectClaimMembershipTiersFetchingIds = (state: State) =>
   selectState(state).claimMembershipTiersFetchingIds;
-export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
-  (selectClaimMembershipTiersFetchingIds(state) || []).includes(claimId);
+export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) => {
+  const ids = selectClaimMembershipTiersFetchingIds(state);
+  return ids ? ids.includes(claimId) : false;
+};
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectProtectedContentClaimsForId = (state: State, channelId: string) =>
   selectProtectedContentClaimsById(state)[channelId];
@@ -180,13 +188,15 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
   return validMembershipsById;
 });
 // -- From Creators = Removes Odysee memberships
-export const selectMyPurchasedMembershipsFromCreatorsById = (state: State) => {
-  const purchasedMembershipsById = selectMembershipMineData(state);
-  if (!purchasedMembershipsById) return purchasedMembershipsById;
-  const purchasedMembershipsFromCreatorsById = Object.assign({}, purchasedMembershipsById);
-  delete purchasedMembershipsFromCreatorsById[ODYSEE_CHANNEL.ID];
-  return purchasedMembershipsFromCreatorsById;
-};
+export const selectMyPurchasedMembershipsFromCreatorsById = createSelector(
+  selectMembershipMineData,
+  (purchasedMembershipsById) => {
+    if (!purchasedMembershipsById) return purchasedMembershipsById;
+    const purchasedMembershipsFromCreatorsById = Object.assign({}, purchasedMembershipsById);
+    delete purchasedMembershipsFromCreatorsById[ODYSEE_CHANNEL.ID];
+    return purchasedMembershipsFromCreatorsById;
+  }
+);
 export const selectMyPurchasedMembershipsFromCreators = createSelector(
   selectMyPurchasedMembershipsFromCreatorsById,
   (myPurchasedCreatorMemberships) =>

@@ -97,10 +97,7 @@ export const selectHomepageDb = (state) => {
  * Returns an array of homepage codes that we currently support.
  * e.g. "['en', 'es', 'ru']"
  */
-export const selectHomepageKeys = (state) => {
-  const db = selectHomepageDb(state) || EMPTY_OBJECT;
-  return Object.keys(db);
-};
+export const selectHomepageKeys = createSelector(selectHomepageDb, (db) => Object.keys(db || EMPTY_OBJECT));
 
 /**
  * Returns the data for the currently-selected homepage.

@@ -106,8 +106,6 @@ function ChannelPage(props: Props) {
   const isMature = claim ? isClaimNsfw(claim) : false;
   const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
-  const fetchSubCount = (claimId: string) => dispatch(doFetchSubCount(claimId));
-  const doMembershipMine = () => dispatch(doMembershipMineAction());
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { meta } = claim;
   const { claims_in_channel } = meta;
@@ -324,13 +322,13 @@ function ChannelPage(props: Props) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [claim]);
   React.useEffect(() => {
-    fetchSubCount(claimId);
-  }, [uri, fetchSubCount, claimId]);
+    dispatch(doFetchSubCount(claimId));
+  }, [uri, dispatch, claimId]);
   React.useEffect(() => {
     if (!myMembershipsFetched) {
-      doMembershipMine();
+      dispatch(doMembershipMineAction());
     }
-  }, [doMembershipMine, myMembershipsFetched]);
+  }, [dispatch, myMembershipsFetched]);
   React.useEffect(() => {
     if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
       const baseUrl = formatLbryUrlForWeb(uri);

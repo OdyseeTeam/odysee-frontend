@@ -52,10 +52,10 @@ function PublishBid(props: Props) {
     }
 
     setBidError(bidError);
-    updatePublishForm({
+    dispatch(doUpdatePublishForm({
       bidError: bidError,
-    });
-  }, [bid, previousBidAmount, balance, updatePublishForm]);
+    }));
+  }, [bid, previousBidAmount, balance, dispatch]);
   return bidHasExceededDefaultAmount ? (
     <Card
       className={!name ? 'disabled' : ''}

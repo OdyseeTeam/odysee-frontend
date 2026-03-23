@@ -15,7 +15,6 @@ function ModalRepost(props: Props) {
   const { uri, contentName } = props;
   const dispatch = useAppDispatch();
   const closeModal = () => dispatch(doHideModal());
-  const resolveUri = (u: string) => dispatch(doResolveUri(u));
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const param = urlParams.get('name') || urlParams.get('q') || contentName;
@@ -27,19 +26,19 @@ function ModalRepost(props: Props) {
   const throttledRepostValue = useThrottle(repostUri, 500);
   React.useEffect(() => {
     if (throttledContentValue) {
-      resolveUri(throttledContentValue);
+      dispatch(doResolveUri(throttledContentValue));
     }
-  }, [throttledContentValue, resolveUri]);
+  }, [throttledContentValue, dispatch]);
   React.useEffect(() => {
     if (throttledRepostValue) {
-      resolveUri(throttledRepostValue);
+      dispatch(doResolveUri(throttledRepostValue));
     }
-  }, [throttledRepostValue, resolveUri]);
+  }, [throttledRepostValue, dispatch]);
   React.useEffect(() => {
     if (repostTo) {
-      resolveUri(repostTo);
+      dispatch(doResolveUri(repostTo));
     }
-  }, [repostTo, resolveUri]);
+  }, [repostTo, dispatch]);
   return (
     <Modal onAborted={closeModal} isOpen type="card">
       <RepostCreate

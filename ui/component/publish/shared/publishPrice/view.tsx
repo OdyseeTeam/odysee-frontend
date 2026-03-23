@@ -326,9 +326,9 @@ function PublishPrice(props: Props) {
 
   React.useEffect(() => {
     if (bankAccountNotFetched) {
-      doTipAccountStatus();
+      dispatch(doTipAccountStatusAction());
     }
-  }, [bankAccountNotFetched, doTipAccountStatus]);
+  }, [bankAccountNotFetched, dispatch]);
 
   if (paymentDisallowed) {
     return (

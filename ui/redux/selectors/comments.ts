@@ -23,7 +23,7 @@ import { selectActiveChannelId } from 'redux/selectors/app';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 
 const selectState = (state: State) => state.comments || EMPTY_OBJECT;
 
@@ -69,14 +69,14 @@ export const selectPinnedCommentsForUri = createCachedSelector(
 export const selectModerationBlockList = createSelector(
   (state) => selectState(state).moderationBlockList,
   (moderationBlockList) => {
-    return moderationBlockList ? moderationBlockList.toReversed() : [];
+    return moderationBlockList || EMPTY_ARRAY;
   }
 );
 export const selectAdminBlockList = createSelector(selectState, (state) =>
-  state.adminBlockList ? state.adminBlockList.toReversed() : []
+  state.adminBlockList || EMPTY_ARRAY
 );
 export const selectModeratorBlockList = createSelector(selectState, (state) =>
-  state.moderatorBlockList ? state.moderatorBlockList.toReversed() : []
+  state.moderatorBlockList || EMPTY_ARRAY
 );
 export const selectPersonalTimeoutMap = (state: State) => selectState(state).personalTimeoutMap;
 export const selectAdminTimeoutMap = (state: State) => selectState(state).adminTimeoutMap;

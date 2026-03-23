@@ -69,9 +69,9 @@ export default function LivestreamPage(props: Props) {
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
     if (claimId && channelName && !socketConnection?.connected && contentUnlocked) {
-      doCommentSocketConnect(uri, channelName, claimId, undefined);
+      dispatch(doCommentSocketConnectAction(uri, channelName, claimId, undefined));
     }
-  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri, contentUnlocked]);
+  }, [channelUrl, claim, dispatch, socketConnection, uri, contentUnlocked]);
   React.useEffect(() => {
     // use for unmount case without triggering render
     streamPlayingRef.current = isStreamPlaying;

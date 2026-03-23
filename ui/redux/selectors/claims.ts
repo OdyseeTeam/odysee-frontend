@@ -7,7 +7,7 @@ import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
@@ -588,10 +588,10 @@ export const makeSelectAvatarForUri = (uri: string) =>
   });
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;
 export const selectIsFetchingClaimListMineSuccess = (state: State) => selectState(state).isFetchingClaimListMineSuccess;
-export const selectMyClaimsPage = createSelector(selectState, (state) => state.myClaimsPageResults || []);
+export const selectMyClaimsPage = createSelector(selectState, (state) => state.myClaimsPageResults || EMPTY_ARRAY);
 export const selectMyClaimsPageNumber = createSelector(
   selectState,
-  (state) => (state.claimListMinePage && state.claimListMinePage.items) || [],
+  (state) => (state.claimListMinePage && state.claimListMinePage.items) || EMPTY_ARRAY,
   (state) => (state.txoPage && state.txoPage.page) || 1
 );
 export const selectMyClaimsPageItemCount = (state: State) => selectState(state).myClaimsPageTotalResults || 0;

@@ -84,7 +84,6 @@ const WalletFiatPaymentHistory = (props: Props) => {
   const dispatch = useAppDispatch();
   const paymentHistory = useAppSelector(selectPaymentHistory);
   const doCustomerListPaymentHistory = () => dispatch(doCustomerListPaymentHistoryAction());
-  const doGetCustomerStatus = () => dispatch(doGetCustomerStatusAction());
   const transactionsRaw = paymentHistory
     ? paymentHistory.filter((s: StripeTransaction) => {
         switch (transactionType) {
@@ -106,8 +105,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }, []);
   // eslint-disable-line react-hooks/exhaustive-deps
   React.useEffect(() => {
-    doGetCustomerStatus();
-  }, [doGetCustomerStatus]);
+    dispatch(doGetCustomerStatusAction());
+  }, [dispatch]);
   return (
     <>
       <div className="section card-stack">

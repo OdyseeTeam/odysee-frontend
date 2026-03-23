@@ -92,8 +92,6 @@ export default function WalletSendTip(props: Props) {
   const doSendTip_ = (...args: Parameters<typeof doSendTip>) => dispatch(doSendTip(...args));
   const doArTip_ = (...args: Parameters<typeof doArTip>) => dispatch(doArTip(...args));
   const doToast_ = (...args: Parameters<typeof doToast>) => dispatch(doToast(...args));
-  const doTipAccountCheckForUri_ = (...args: Parameters<typeof doTipAccountCheckForUri>) =>
-    dispatch(doTipAccountCheckForUri(...args));
   const { activeArStatus } = useArStatus();
   // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
@@ -295,8 +293,8 @@ export default function WalletSendTip(props: Props) {
   }
 
   React.useEffect(() => {
-    doTipAccountCheckForUri_(uri);
-  }, [doTipAccountCheckForUri_, uri]);
+    dispatch(doTipAccountCheckForUri(uri));
+  }, [dispatch, uri]);
   React.useEffect(() => {
     if (!hasSelected && hasSelectedTab) {
       setActiveTab(claimIsMine ? TAB_BOOST : hasSelectedTab);

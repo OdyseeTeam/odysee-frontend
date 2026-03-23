@@ -38,12 +38,11 @@ export default function FileReactions(props: Props) {
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state)
   );
 
-  const doFetchReactions_ = (...args: Parameters<typeof doFetchReactions>) => dispatch(doFetchReactions(...args));
   const doReactionLike_ = (...args: Parameters<typeof doReactionLike>) => dispatch(doReactionLike(...args));
   const doReactionDislike_ = (...args: Parameters<typeof doReactionDislike>) => dispatch(doReactionDislike(...args));
   React.useEffect(() => {
     function fetchReactions() {
-      doFetchReactions_(claimId);
+      dispatch(doFetchReactions(claimId));
     }
 
     let fetchInterval;
@@ -61,7 +60,7 @@ export default function FileReactions(props: Props) {
         clearInterval(fetchInterval);
       }
     };
-  }, [claimId, doFetchReactions_, isLivestreamClaim]);
+  }, [claimId, dispatch, isLivestreamClaim]);
   return (
     <div
       className={classnames('ratio-wrapper', {

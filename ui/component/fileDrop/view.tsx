@@ -23,7 +23,6 @@ function FileDrop() {
   const navigate = useNavigate();
   const location = useLocation();
   const modal = useAppSelector(selectModal);
-  const openModal = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
   const doUpdateFile_ = (...args: Parameters<typeof doUpdateFile>) => dispatch(doUpdateFile(...args));
   const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
@@ -125,9 +124,9 @@ function FileDrop() {
     if (!drag && files.length) {
       // Handle multiple files selection
       if (files.length > 1) {
-        openModal(MODALS.FILE_SELECTION, {
+        dispatch(doOpenModal(MODALS.FILE_SELECTION, {
           files: files,
-        });
+        }));
         setFiles([]);
       } else if (files.length === 1) {
         // Handle single file selection
@@ -135,7 +134,7 @@ function FileDrop() {
         handleFileSelected(files[0]);
       }
     }
-  }, [drag, files, error, openModal, handleFileSelected]);
+  }, [drag, files, error, dispatch, handleFileSelected]);
   // Show icon based on file type
   const icon = target ? getFileIcon(target.type) : ICONS.PUBLISH;
   // Show drop area when files are dragged over or processing dropped file

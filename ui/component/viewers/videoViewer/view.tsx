@@ -262,30 +262,30 @@ function VideoViewer(props: Props) {
       if (IS_IOS) {
         // Safari doesn't like it when there is an async action between click
         // and `player.play()`. Chrome allows it. Skip the countdown for now.
-        doPlayNextUriFn({
+        dispatch(doPlayNextUri({
           uri: playNextUri,
-        });
+        }));
       } else {
-        doSetShowAutoplayCountdownForUriFn({
+        dispatch(doSetShowAutoplayCountdownForUri({
           uri,
           show: true,
-        });
+        }));
       }
     } else if (playNextUri) {
-      doPlayNextUriFn({
+      dispatch(doPlayNextUri({
         uri: playNextUri,
-      });
+      }));
     }
-  }, [doPlayNextUriFn, doSetShowAutoplayCountdownForUriFn, playNextUri, shouldPlayRecommended, uri]);
+  }, [dispatch, playNextUri, shouldPlayRecommended, uri]);
   const handlePlayPreviousUri = React.useCallback(() => {
     if (videoNode && videoNode.currentTime > 5) {
       videoNode.currentTime = 0;
     } else if (playPreviousUri) {
-      doPlayNextUriFn({
+      dispatch(doPlayNextUri({
         uri: playPreviousUri,
-      });
+      }));
     }
-  }, [doPlayNextUriFn, playPreviousUri, videoNode]);
+  }, [dispatch, playPreviousUri, videoNode]);
   React.useEffect(() => {
     if (!playerControlBar) return;
     try {
@@ -324,13 +324,13 @@ function VideoViewer(props: Props) {
       }
     }
 
-    clearPosition(uri);
+    dispatch(clearPositionAction(uri));
 
     if (IS_IOS && !autoplayNext) {
       // show play button on ios if video is paused with no autoplay on
       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
-  }, [canPlayNext, autoplayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
+  }, [canPlayNext, autoplayNext, dispatch, embedContext, handlePlayNextUri, uri]);
   React.useEffect(() => {
     if (playerElem) {
       playerElem.off('ended');

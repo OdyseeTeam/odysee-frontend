@@ -70,7 +70,7 @@ const ShortsActions = React.memo<Props>(
 
     const claim = useAppSelector((state) => selectClaimForUri(state, uri));
     const claimId = claim?.claim_id;
-    const channelUrl = uri ? useAppSelector((state) => selectChannelForClaimUri(state, uri, true)) : undefined;
+    const channelUrl = useAppSelector((state) => (uri ? selectChannelForClaimUri(state, uri, true) : undefined));
 
     const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
     const likeCount = useAppSelector((state) => selectLikeCountForUri(state, uri));

@@ -18,10 +18,8 @@ export default function SettingAccountPassword() {
   const user = useAppSelector(selectUser);
   const passwordSetSuccess = useAppSelector(selectPasswordSetSuccess);
   const passwordSetError = useAppSelector(selectPasswordSetError);
-  const doToast = (params: { message: string }) => dispatch(doToastAction(params));
   const doUserPasswordSet = (newPassword: string, oldPassword: string | null | undefined) =>
     dispatch(doUserPasswordSetAction(newPassword, oldPassword));
-  const doClearPasswordEntry = () => dispatch(doClearPasswordEntryAction());
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const hasPassword = user && user.password_set;
@@ -36,14 +34,14 @@ export default function SettingAccountPassword() {
   React.useEffect(() => {
     if (passwordSetSuccess) {
       navigate(-1);
-      doToast({
+      dispatch(doToastAction({
         message: __('Password updated successfully.'),
-      });
-      doClearPasswordEntry();
+      }));
+      dispatch(doClearPasswordEntryAction());
       setOldPassword('');
       setNewPassword('');
     }
-  }, [passwordSetSuccess, setOldPassword, setNewPassword, doClearPasswordEntry, doToast, navigate]);
+  }, [passwordSetSuccess, setOldPassword, setNewPassword, dispatch, navigate]);
   return (
     <SettingsRow title={title} subtitle={subtitle} multirow>
       <Form onSubmit={handleSubmit} className="section">

@@ -114,9 +114,9 @@ export default function VideoPlayersPage(props: Props) {
     // always refresh file info when entering file page to see if we have the file
     // this could probably be refactored into more direct components now
     if (fileInfo && videoPlayedEnoughToResetPosition) {
-      clearPosition(uri);
+      dispatch(clearPositionAction(uri));
     }
-  }, [clearPosition, fileInfo, uri, videoPlayedEnoughToResetPosition]);
+  }, [dispatch, fileInfo, uri, videoPlayedEnoughToResetPosition]);
 
   if (isMature) {
     return (

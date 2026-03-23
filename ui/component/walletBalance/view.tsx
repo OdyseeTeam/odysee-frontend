@@ -62,7 +62,6 @@ const WalletBalance = () => {
 
   const doOpenModal_ = (...args: Parameters<typeof doOpenModal>) => dispatch(doOpenModal(...args));
   const doUtxoConsolidate_ = () => dispatch(doUtxoConsolidate());
-  const doFetchUtxoCounts_ = () => dispatch(doFetchUtxoCounts());
   const doArConnect_ = () => dispatch(doArConnect());
   const doArDisconnect_ = () => dispatch(doArDisconnect());
   const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection, addressInUse } = useArStatus();
@@ -74,9 +73,9 @@ const WalletBalance = () => {
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
-      doFetchUtxoCounts_();
+      dispatch(doFetchUtxoCounts());
     }
-  }, [doFetchUtxoCounts_, LBCBalance, detailsExpanded]);
+  }, [dispatch, LBCBalance, detailsExpanded]);
 
   const handleSignIn = () => {
     const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];

@@ -65,7 +65,6 @@ export default function WunderBarSuggestions(props: Props) {
   };
   const doShowSnackBar = (message: string) => dispatch(doToast({ isError: true, message }));
   const doCloseMobileSearch = () => dispatch(doHideModal());
-  const doResolveUrisAction = (uris: Array<string>) => dispatch(doResolveUris(uris));
   const urlParams = new URLSearchParams(search);
   const queryFromUrl = urlParams.get('q') || '';
   const inputRef = React.useRef<ElementRef<typeof ComboboxInput> | null>(null);
@@ -308,10 +307,10 @@ export default function WunderBarSuggestions(props: Props) {
       const arrayResults = JSON.parse(stringifiedResults);
 
       if (arrayResults && arrayResults.length > 0) {
-        doResolveUrisAction(arrayResults);
+        dispatch(doResolveUris(arrayResults));
       }
     }
-  }, [doResolveUrisAction, stringifiedResults]);
+  }, [dispatch, stringifiedResults]);
   const [subscriptionResults, setSubscriptionResults] = React.useState([]);
   React.useEffect(() => {
     if (subscriptionUris && term && term.length > 1) {

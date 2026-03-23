@@ -26,7 +26,6 @@ export default function Wander(props: Props) {
   const addressInUse = useAppSelector(selectArAccountRegisteringError) === 'address already exists for another user';
   const doArInit = () => dispatch(doArInitAction());
   const connectArWallet = () => dispatch(doArConnect());
-  const doArSetAuth = (status: any) => dispatch(doArSetAuthAction(status));
   const doArUpdateBalance = () => dispatch(doArUpdateBalanceAction());
   const doCleanTips = () => dispatch(doCleanTipsAction());
   const [instance, setInstance] = React.useState(null);
@@ -166,10 +165,10 @@ export default function Wander(props: Props) {
       LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
     }
 
-    doArSetAuth(instance.authInfo);
+    dispatch(doArSetAuthAction(instance.authInfo));
 
     const onArweaveWalletLoaded = () => {
-      doArSetAuth(instance.authInfo);
+      dispatch(doArSetAuthAction(instance.authInfo));
     };
 
     const onMessage = (event) => {
@@ -192,7 +191,7 @@ export default function Wander(props: Props) {
                 }
 
                 window.wanderInstance.close();
-                doArSetAuth(data.data);
+                dispatch(doArSetAuthAction(data.data));
 
                 if (data.data.authStatus === 'authenticated') {
                   // Signed in & has backup, clear Interval
@@ -211,7 +210,7 @@ export default function Wander(props: Props) {
                 }, 1000);
               }
             } else if (data.data.authStatus === 'not-authenticated') {
-              doArSetAuth(data.data);
+              dispatch(doArSetAuthAction(data.data));
             }
           } else if (data.type === 'embedded_request') {
             if (window.wanderInstance.pendingRequests !== 0) {
@@ -244,6 +243,6 @@ export default function Wander(props: Props) {
       clearInterval(balanceUpdate);
       clearInterval(loginTimerRef.current);
     }; // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instance, doArSetAuth]);
+  }, [instance, dispatch]);
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

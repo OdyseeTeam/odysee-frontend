@@ -37,11 +37,10 @@ export default function FileTitleSection(props: Props) {
   const channelClaimId = channel && channel.claim_id;
   const title = getClaimTitle(claim);
   const subCount = useAppSelector((state) => channelUri && selectSubCountForUri(state, channelUri));
-  const doFetchSubCount_ = (...args: Parameters<typeof doFetchSubCount>) => dispatch(doFetchSubCount(...args));
   const isMobile = useIsMobile();
   React.useEffect(() => {
-    if (channelClaimId) doFetchSubCount_(channelClaimId);
-  }, [channelClaimId, doFetchSubCount_]);
+    if (channelClaimId) dispatch(doFetchSubCount(channelClaimId));
+  }, [channelClaimId, dispatch]);
   return (
     <Card
       isPageTitle

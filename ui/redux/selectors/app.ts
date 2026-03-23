@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 import { SHOW_ADS } from 'config';
 import { selectClaimForId, selectMyChannelClaims, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
 import { hasLegacyOdyseePremium, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
@@ -120,7 +120,7 @@ export const selectIncognito = (state) => selectState(state).incognito;
 export const selectGdprConsentList = (state) => selectState(state).gdprConsentList;
 export const selectIsAdAllowedPerGdpr = (state) => {
   const locale: LocaleInfo | null | undefined = selectUserLocale(state);
-  const list: Array<string> = selectGdprConsentList(state) || [];
+  const list: Array<string> = selectGdprConsentList(state) || EMPTY_ARRAY;
   // --------------------------------------------------------------------------
   // C0001: Strictly necessary cookies -- the website needs these cookies in order to function properly (example: identify items placed into a shopping cart).
   // C0002: Performance cookies -- get information about how site visitors are using the website (example: Google analytics).

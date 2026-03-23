@@ -156,9 +156,9 @@ function PostForm(props: Props) {
   const isClear = !title && !name && !thumbnail;
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
-      claimInitialRewards();
+      dispatch(doClaimInitialRewards());
     }
-  }, [hasClaimedInitialRewards, claimInitialRewards]);
+  }, [hasClaimedInitialRewards, dispatch]);
   useEffect(() => {
     if (!modal) {
       const timer = setTimeout(() => {
@@ -198,14 +198,14 @@ function PostForm(props: Props) {
   // if you enter the page and it is stuck in publishing, "stop it."
   useEffect(() => {
     if (publishing || publishSuccess) {
-      clearPublish();
+      dispatch(doClearPublish());
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearPublish]);
+  }, [dispatch]);
   useEffect(() => {
     if (!thumbnail) {
-      resetThumbnailStatus();
+      dispatch(doResetThumbnailStatus());
     }
-  }, [thumbnail, resetThumbnailStatus]);
+  }, [thumbnail, dispatch]);
   // Save previous name of the editing claim
   useEffect(() => {
     if (isStillEditing && (!prevName || !prevName.trim() === '')) {
@@ -248,39 +248,39 @@ function PostForm(props: Props) {
           },
           true
         );
-        resolveUri(uriLessChannel);
+        dispatch(doResolveUri(uriLessChannel));
       } catch (e) {}
     }
 
     const isValid = uri && isURIValid(uri);
 
-    if (uri && isValid && checkAvailability && name) {
-      resolveUri(uri);
-      checkAvailability(name);
-      updatePublishForm({
+    if (uri && isValid && name) {
+      dispatch(doResolveUri(uri));
+      dispatch(doCheckPublishNameAvailability(name));
+      dispatch(doUpdatePublishForm({
         uri,
-      });
+      }));
     }
-  }, [name, activeChannelName, resolveUri, updatePublishForm, checkAvailability]);
+  }, [name, activeChannelName, dispatch]);
   // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
   useEffect(() => {
     if (editingURI) {
-      resolveUri(editingURI);
+      dispatch(doResolveUri(editingURI));
     }
-  }, [editingURI, resolveUri]);
+  }, [editingURI, dispatch]);
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({
+      dispatch(doUpdatePublishForm({
         channel: undefined,
         channelId: undefined,
-      });
+      }));
     } else if (activeChannelName) {
-      updatePublishForm({
+      dispatch(doUpdatePublishForm({
         channel: activeChannelName,
         channelId: activeChannelId,
-      });
+      }));
     }
-  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
+  }, [activeChannelName, activeChannelId, incognito, dispatch]);
 
   // @if TARGET='web'
   function createWebFile() {

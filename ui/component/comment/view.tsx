@@ -330,12 +330,14 @@ function CommentView(props: Props) {
     [ROUGH_HEADER_HEIGHT, isMobile]
   );
 
-  if (isCommenterChannelDeleted) {
-    if (updateUiFilteredComments) {
+  useEffect(() => {
+    if (isCommenterChannelDeleted && updateUiFilteredComments) {
       const fetchedReplyIds = fetchedReplies.map((r) => r.comment_id);
       updateUiFilteredComments([...fetchedReplyIds, commentId]);
     }
+  }, [isCommenterChannelDeleted, updateUiFilteredComments, fetchedReplies, commentId]);
 
+  if (isCommenterChannelDeleted) {
     return null;
   }
 

@@ -35,8 +35,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isSearching = useAppSelector(selectIsSearching);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
 
-  const doFetchRecommendedContent_ = (...args: Parameters<typeof doFetchRecommendedContent>) =>
-    dispatch(doFetchRecommendedContent(...args));
   const currentLocation = location || routeLocation;
   const claimId: string | null | undefined = claim && claim.claim_id;
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
@@ -69,8 +67,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
             uuid,
           }
         : null;
-    doFetchRecommendedContent_(uri, fypParam);
-  }, [uri, doFetchRecommendedContent_, fypId, search, uuid]);
+    dispatch(doFetchRecommendedContent(uri, fypParam));
+  }, [uri, dispatch, fypId, search, uuid]);
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
     if (

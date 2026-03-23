@@ -98,9 +98,6 @@ export default function TextareaWithSuggestions(props: Props) {
     query: searchQuery,
   } = mentionData;
   const canonicalTop = useAppSelector((state) => makeSelectWinningUriForQuery(searchQuery)(state));
-  const doResolveUris = (uris: Array<string>, cache: boolean) => dispatch(doResolveUrisAction(uris, cache));
-  const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
-    dispatch(doSetMentionSearchResultsAction(query, uris));
   const inputDefaultProps = {
     className,
     placeholder,
@@ -343,14 +340,14 @@ export default function TextareaWithSuggestions(props: Props) {
     const arrayResults = JSON.parse(stringifiedResults);
 
     if (debouncedTerm && arrayResults && arrayResults.length > 0) {
-      doResolveUris([debouncedTerm, ...arrayResults], true);
-      doSetMentionSearchResults(debouncedTerm, arrayResults);
+      dispatch(doResolveUrisAction([debouncedTerm, ...arrayResults], true));
+      dispatch(doSetMentionSearchResultsAction(debouncedTerm, arrayResults));
     }
-  }, [debouncedTerm, doResolveUris, doSetMentionSearchResults, stringifiedResults, suggestionTerm]);
+  }, [debouncedTerm, dispatch, stringifiedResults, suggestionTerm]);
   // Only resolve commentors on Livestreams when first trying to mention/looking for it
   React.useEffect(() => {
-    if (isLivestream && commentorUris && suggestionTerm) doResolveUris(commentorUris, true);
-  }, [commentorUris, doResolveUris, isLivestream, suggestionTerm]);
+    if (isLivestream && commentorUris && suggestionTerm) dispatch(doResolveUrisAction(commentorUris, true));
+  }, [commentorUris, dispatch, isLivestream, suggestionTerm]);
   // Allow selecting with TAB key
   React.useEffect(() => {
     if (!suggestionTerm) return; // only if there is a term, or else can't tab to navigate page

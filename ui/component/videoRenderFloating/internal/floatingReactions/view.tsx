@@ -35,7 +35,6 @@ const FloatingReactions = ({ uri, claimId }: Props) => {
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
       makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO_TAG)(state)
   );
-  const doFetchReactions = (claimId: string) => dispatch(doFetchReactionsAction(claimId));
   const doReactionLike = (uri: string) => dispatch(doReactionLikeAction(uri));
   const doReactionDislike = (uri: string) => dispatch(doReactionDislikeAction(uri));
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
@@ -44,8 +43,8 @@ const FloatingReactions = ({ uri, claimId }: Props) => {
   const [slimeButtonGlow, setSlimeButtonGlow] = React.useState(false);
   const slimeButtonGlowTimeout = React.useRef(null);
   React.useEffect(() => {
-    if (claimId) doFetchReactions(claimId);
-  }, [claimId, doFetchReactions]);
+    if (claimId) dispatch(doFetchReactionsAction(claimId));
+  }, [claimId, dispatch]);
   React.useEffect(() => {
     setOptimisticReaction(undefined);
   }, [myReaction]);

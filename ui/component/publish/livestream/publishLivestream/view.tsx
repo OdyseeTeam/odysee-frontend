@@ -83,11 +83,11 @@ function PublishLivestream(props: Props) {
     const livestreamData = JSON.parse(livestreamDataStr);
 
     if (selectedFileIndex !== null && livestreamData && livestreamData.length) {
-      updatePublishForm({
+      dispatch(doUpdatePublishFormAction({
         remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
-      });
+      }));
     }
-  }, [selectedFileIndex, updatePublishForm, livestreamDataStr]);
+  }, [selectedFileIndex, dispatch, livestreamDataStr]);
 
   function handlePaginateReplays(page) {
     setCurrentPage(page);
@@ -164,7 +164,7 @@ function PublishLivestream(props: Props) {
     if (liveEditType !== 'use_replay') {
       setSelectedFileIndex(null);
     }
-  }, [liveEditType, updatePublishForm]);
+  }, [liveEditType, dispatch]);
   return (
     <Card
       className={classnames({

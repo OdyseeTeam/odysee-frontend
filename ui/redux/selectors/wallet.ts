@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import * as TRANSACTIONS from 'constants/transaction_types';
 import { PAGE_SIZE, LATEST_PAGE_SIZE } from 'constants/transaction_list';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 // Inlined to break circular dependency: claims.ts -> wallet.ts -> claims.ts
 const selectClaimIdsByUri = (state: State) => (state.claims || EMPTY_OBJECT).claimsByUri || EMPTY_OBJECT;
 import parseData from 'util/parse-data';
@@ -191,7 +191,7 @@ export const selectFilteredTransactions = createSelector(
   }
 );
 export const selectTxoPageParams = (state) => selectState(state).txoFetchParams;
-export const selectTxoPage = createSelector(selectState, (state) => (state.txoPage && state.txoPage.items) || []);
+export const selectTxoPage = createSelector(selectState, (state) => (state.txoPage && state.txoPage.items) || EMPTY_ARRAY);
 export const selectTxoPageNumber = createSelector(selectState, (state) => (state.txoPage && state.txoPage.page) || 1);
 export const selectTxoItemCount = createSelector(
   selectState,

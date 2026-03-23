@@ -72,7 +72,7 @@ function ContentTab(props: Props) {
     defaultInfiniteScroll,
   } = props;
   const dispatch = useAppDispatch();
-  const claim = uri ? useAppSelector((state) => selectClaimForUri(state, uri)) : undefined;
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const channelClaimId = getChannelIdFromClaim(claim);
   const fetching = useAppSelector((state) => makeSelectFetchingChannelClaims(uri)(state));
   const channelIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));

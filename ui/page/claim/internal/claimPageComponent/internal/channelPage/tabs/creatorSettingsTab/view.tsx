@@ -250,13 +250,13 @@ export default function CreatorSettingsTab(props: Props) {
   // **************************************************************************
   // Update local moderator states with data from API.
   React.useEffect(() => {
-    commentModListDelegates(activeChannelClaim);
-  }, [activeChannelClaim, commentModListDelegates]);
+    dispatch(doCommentModListDelegates(activeChannelClaim));
+  }, [activeChannelClaim, dispatch]);
   React.useEffect(() => {
     if (myChannelClaims !== undefined) {
-      listAllMyMembershipTiers();
+      dispatch(doListAllMyMembershipTiers());
     }
-  }, [listAllMyMembershipTiers, myChannelClaims]);
+  }, [dispatch, myChannelClaims]);
   React.useEffect(() => {
     if (activeChannelClaim) {
       const delegates = moderationDelegatesById[activeChannelClaim.claim_id];
@@ -284,11 +284,11 @@ export default function CreatorSettingsTab(props: Props) {
   React.useEffect(() => {
     if (lastUpdated && activeChannelClaim) {
       const timer = setTimeout(() => {
-        fetchCreatorSettings(activeChannelClaim.claim_id);
+        dispatch(doFetchCreatorSettings(activeChannelClaim.claim_id));
       }, DEBOUNCE_REFRESH_MS);
       return () => clearTimeout(timer);
     }
-  }, [lastUpdated, activeChannelClaim, fetchCreatorSettings]);
+  }, [lastUpdated, activeChannelClaim, dispatch]);
   // **************************************************************************
   // **************************************************************************
   const isBusy = !activeChannelClaim || !settingsByChannelId || settingsByChannelId[activeChannelClaim.claim_id] === undefined;

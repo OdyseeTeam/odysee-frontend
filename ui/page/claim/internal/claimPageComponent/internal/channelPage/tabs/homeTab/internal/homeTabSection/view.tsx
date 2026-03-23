@@ -83,33 +83,29 @@ function HomeTabSection(props: Props) {
     section.type === 'playlists' ||
     section.type === 'reposts' ||
     (section.type === 'featured' && !section.claim_id);
-  const fetchingClaimSearch = requiresSearch
-    ? useAppSelector((state) => selectFetchingClaimSearchByQuery(state)[searchKey])
-    : undefined;
-  const claimSearchResults =
-    requiresSearch && !section.claim_id
-      ? useAppSelector((state) => selectClaimSearchByQuery(state)[searchKey])
-      : undefined;
+  const fetchingClaimSearch = useAppSelector((state) =>
+    requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined
+  );
+  const claimSearchResults = useAppSelector((state) =>
+    requiresSearch && !section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined
+  );
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelClaimId));
   const activeLivestreamUri = activeLivestream?.uri;
   const optionsStringified = JSON.stringify(options);
-  const collectionUrls =
-    section.type === 'playlist' && section.claim_id
-      ? useAppSelector((state) => selectUrlsForCollectionId(state, section.claim_id))
-      : undefined;
-  const collectionClaimIds =
-    section.type === 'playlist' && section.claim_id
-      ? useAppSelector((state) => selectClaimIdsForCollectionId(state, section.claim_id))
-      : undefined;
-  const collectionName =
-    section.type === 'playlist'
-      ? useAppSelector((state) => selectCollectionTitleForId(state, section.claim_id))
-      : undefined;
+  const collectionUrls = useAppSelector((state) =>
+    section.type === 'playlist' && section.claim_id ? selectUrlsForCollectionId(state, section.claim_id) : undefined
+  );
+  const collectionClaimIds = useAppSelector((state) =>
+    section.type === 'playlist' && section.claim_id ? selectClaimIdsForCollectionId(state, section.claim_id) : undefined
+  );
+  const collectionName = useAppSelector((state) =>
+    section.type === 'playlist' ? selectCollectionTitleForId(state, section.claim_id) : undefined
+  );
   const publishedCollections = useAppSelector(selectMyPublishedCollections);
-  const singleClaimUri =
-    section.type === 'featured' &&
-    section.claim_id &&
-    useAppSelector((state) => selectClaimUriForId(state, section.claim_id));
+  const singleClaimUriFromState = useAppSelector((state) =>
+    section.type === 'featured' && section.claim_id ? selectClaimUriForId(state, section.claim_id) : undefined
+  );
+  const singleClaimUri = section.type === 'featured' && section.claim_id && singleClaimUriFromState;
   const featuredChannels = useAppSelector((state) => selectFeaturedChannelsForChannelId(state, channelClaimId));
 
   const doClaimSearch = (searchOptions: ClaimSearchOptions, settings?: DoClaimSearchSettings | null) =>
@@ -141,17 +137,17 @@ function HomeTabSection(props: Props) {
           viewCount: true,
         },
       };
-      doClaimSearch(searchOptions, searchSettings).then((res) => {
+      dispatch(doClaimSearchAction(searchOptions, searchSettings)).then((res) => {
         if (section.type === 'playlists' && res) {
           const streams = Object.values(res);
           const claimIds = streams.map((s) => s?.stream?.claim_id);
-          doFetchThumbnailClaimsForCollectionIds({
+          dispatch(doFetchThumbnailClaimsForCollectionIdsAction({
             collectionIds: claimIds,
-          });
+          }));
         }
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- DOESN'T FEEL RIGHT WITHOUT optionsStringified
-  }, [doClaimSearch, shouldPerformSearch]);
+  }, [dispatch, shouldPerformSearch]);
   React.useEffect(() => {
     if (section.claim_id) {
       doResolveClaimId(section.claim_id);

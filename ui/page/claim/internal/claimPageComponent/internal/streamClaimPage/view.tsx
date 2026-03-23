@@ -141,8 +141,6 @@ const StreamClaimPage = (props: Props) => {
   const disableShortsViewSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
   const isClaimFiltered = isClaimFilteredValue;
   const isClaimShortValue = isClaimShort(claim);
-  const doSetContentHistoryItem = (u: string) => dispatch(doSetContentHistoryItemAction(u));
-  const doSetPrimaryUri = (u: string | null | undefined) => dispatch(doSetPrimaryUriAction(u));
   const doToggleAppDrawer = (type: string) => dispatch(doToggleAppDrawerAction(type));
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
@@ -194,10 +192,10 @@ const StreamClaimPage = (props: Props) => {
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShortVideo, location.pathname, navigate, search, shortsView]);
   React.useEffect(() => {
-    doSetContentHistoryItem(uri);
-    doSetPrimaryUri(uri);
-    return () => doSetPrimaryUri(null);
-  }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
+    dispatch(doSetContentHistoryItemAction(uri));
+    dispatch(doSetPrimaryUriAction(uri));
+    return () => dispatch(doSetPrimaryUriAction(null));
+  }, [dispatch, uri]);
 
   if (!isHidden && isMarkdown) {
     return (
