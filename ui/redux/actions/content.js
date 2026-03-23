@@ -56,7 +56,7 @@ import {
   selectIsPlayableForUri,
   selectCanPlaybackFileForUri,
 } from 'redux/selectors/content';
-import { doResolveUri } from 'redux/actions/claims';
+import { doResolveUri, doResolveClaimIds } from 'redux/actions/claims';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -548,6 +548,112 @@ export function doClearContentHistoryUri(uri: string) {
 export function doClearContentHistoryAll() {
   return (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.CLEAR_CONTENT_HISTORY_ALL });
+  };
+}
+
+export function doDeleteRemoteViewHistory(claimId?: string) {
+  return () => {
+    const params = claimId ? { claim_id: claimId } : {};
+    return Lbryio.call('user', 'view_history/delete', params, 'post').catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('Failed to delete remote view history', err);
+    });
+  };
+}
+
+const REMOTE_HISTORY_BATCH_SIZE = 200;
+let fetchViewHistoryInProgress = false;
+
+export function doFetchViewHistory() {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    if (fetchViewHistoryInProgress) return;
+    fetchViewHistoryInProgress = true;
+
+    dispatch({ type: ACTIONS.FETCH_VIEW_HISTORY_STARTED });
+
+    try {
+      // Fetch all pages of remote history (up to 30 days)
+      let allItems: Array<ViewHistoryItem> = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await Lbryio.call('user', 'view_history', { page, page_size: 500 }, 'post');
+
+        // Lbryio.call returns response.data, which should be {items, page, has_more}
+        const items = response?.items || (Array.isArray(response) ? response : []);
+        if (items.length > 0) {
+          allItems = allItems.concat(items);
+          hasMore = response?.has_more === true;
+          page += 1;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      if (allItems.length === 0) {
+        dispatch({
+          type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
+          data: { remoteHistory: [], remotePositions: {} },
+        });
+        return;
+      }
+
+      // Resolve claim IDs to get canonical URLs
+      const claimIds = allItems.map((item) => item.claim_id);
+
+      // Resolve claim IDs (doResolveClaimIds handles auto-pagination for >50)
+      const resolveResponse = await dispatch(doResolveClaimIds(claimIds, true));
+
+      // Build claim_id -> canonical_url map from resolved claims
+      const claimIdToUri = {};
+      if (resolveResponse) {
+        Object.values(resolveResponse).forEach((resolvedObj: any) => {
+          const claim = resolvedObj?.stream || resolvedObj?.channel;
+          if (claim && claim.claim_id && claim.canonical_url) {
+            claimIdToUri[claim.claim_id] = claim.canonical_url;
+          }
+        });
+      }
+
+      // Convert remote items to WatchHistory format
+      const remoteHistory: Array<WatchHistory> = [];
+      for (const item of allItems) {
+        const uri = claimIdToUri[item.claim_id];
+        if (uri) {
+          remoteHistory.push({
+            uri,
+            lastViewed: new Date(item.updated_at).getTime(),
+          });
+        }
+      }
+
+      // Batch fetch last positions
+      const remotePositions = {};
+      for (let i = 0; i < claimIds.length; i += REMOTE_HISTORY_BATCH_SIZE) {
+        const batch = claimIds.slice(i, i + REMOTE_HISTORY_BATCH_SIZE);
+        try {
+          const posResponse = await Lbryio.call('file', 'last_positions', { claim_ids: batch.join(',') }, 'post');
+          if (posResponse) {
+            Object.assign(remotePositions, posResponse);
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to fetch last positions batch', err);
+        }
+      }
+
+      dispatch({
+        type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
+        data: { remoteHistory, remotePositions },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to fetch remote view history', err);
+      dispatch({ type: ACTIONS.FETCH_VIEW_HISTORY_FAILED });
+    } finally {
+      fetchViewHistoryInProgress = false;
+    }
   };
 }
 

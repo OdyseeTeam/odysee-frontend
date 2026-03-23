@@ -6,6 +6,8 @@ declare type ContentState = {|
   uriAccessKeys: { [uri: string]: ?UriAccessKey }, // Verified access keys for unlisted uris.
   positions: { [claimId: string]: { [outpoint: string]: number } },
   history: Array<WatchHistory>,
+  fetchingRemoteHistory: boolean,
+  remoteHistoryLastFetched: ?number, // timestamp of last successful fetch
   // -- Outliers; should move to another slice --------------------------------
   lastViewedAnnouncement: ?LastViewedAnnouncement, // undefined = not seen in wallet.
   recsysEntries: { [ClaimId]: RecsysEntry }, // Persistent shadow copy. The main one resides in RecSys.
@@ -45,6 +47,20 @@ declare type PlayingCollection = {
   collectionId?: ?string,
   loop?: ?boolean,
   shuffle?: ?{ newUrls: Array<string> },
+};
+
+declare type ViewHistoryItem = {
+  claim_id: string,
+  claim_name: string,
+  last_position: number,
+  created_at: string,
+  updated_at: string,
+};
+
+declare type ViewHistoryResponse = {
+  items: Array<ViewHistoryItem>,
+  page: number,
+  has_more: boolean,
 };
 
 declare type VideojsClientState = {|

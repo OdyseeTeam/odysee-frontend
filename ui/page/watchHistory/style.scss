@@ -52,3 +52,24 @@
     }
   }
 }
+
+.watch-history__syncing {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-text-subtitle);
+  font-size: var(--font-small);
+  margin-right: var(--spacing-s);
+}
+
+.watch-history__sync-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-s);
+  margin-bottom: var(--spacing-s);
+  color: var(--color-text-subtitle);
+  font-size: var(--font-xsmall);
+  background: var(--color-header-background);
+  border-radius: var(--border-radius);
+}

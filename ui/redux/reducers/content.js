@@ -13,6 +13,8 @@ const defaultState: ContentState = {
   uriAccessKeys: {},
   positions: {},
   history: [],
+  fetchingRemoteHistory: false,
+  remoteHistoryLastFetched: null,
   lastViewedAnnouncement: [],
   recsysEntries: {},
   autoplayCountdownUri: null,
@@ -112,6 +114,65 @@ reducers[ACTIONS.CLEAR_CONTENT_HISTORY_URI] = (state, action) => {
 };
 
 reducers[ACTIONS.CLEAR_CONTENT_HISTORY_ALL] = (state) => ({ ...state, history: [] });
+
+reducers[ACTIONS.FETCH_VIEW_HISTORY_STARTED] = (state) => ({
+  ...state,
+  fetchingRemoteHistory: true,
+});
+
+reducers[ACTIONS.FETCH_VIEW_HISTORY_COMPLETED] = (state, action) => {
+  const { remoteHistory, remotePositions } = action.data;
+  const { history, positions } = state;
+
+  // Build a map of existing local history URIs for dedup
+  const localUriSet = new Set(history.map((h) => h.uri));
+
+  // Merge: remote entries not already in local get appended after local entries
+  const newEntries = [];
+  for (const entry of remoteHistory) {
+    if (!localUriSet.has(entry.uri)) {
+      newEntries.push(entry);
+    }
+  }
+
+  // For entries that exist in both, update lastViewed if remote is more recent
+  const updatedHistory = history.map((localEntry) => {
+    const remoteEntry = remoteHistory.find((r) => r.uri === localEntry.uri);
+    if (remoteEntry && remoteEntry.lastViewed > localEntry.lastViewed) {
+      return { ...localEntry, lastViewed: remoteEntry.lastViewed };
+    }
+    return localEntry;
+  });
+
+  // Combine: local (possibly updated) + new remote entries, sorted by lastViewed desc
+  const mergedHistory = updatedHistory.concat(newEntries);
+  mergedHistory.sort((a, b) => b.lastViewed - a.lastViewed);
+
+  // Merge remote positions: only fill in where local has no position
+  const mergedPositions = { ...positions };
+  if (remotePositions) {
+    for (const claimId of Object.keys(remotePositions)) {
+      const remotePos = remotePositions[claimId];
+      if (remotePos > 0 && !mergedPositions[claimId]) {
+        // Store under a 'remote' key since we don't have the outpoint
+        mergedPositions[claimId] = { ...(mergedPositions[claimId] || {}), remote: remotePos };
+      }
+    }
+  }
+
+  return {
+    ...state,
+    history: mergedHistory,
+    positions: mergedPositions,
+    fetchingRemoteHistory: false,
+    remoteHistoryLastFetched: Date.now(),
+  };
+};
+
+reducers[ACTIONS.FETCH_VIEW_HISTORY_FAILED] = (state) => ({
+  ...state,
+  fetchingRemoteHistory: false,
+});
 
 reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
   // Since homepages fall back to English if undefined, use an array instead of

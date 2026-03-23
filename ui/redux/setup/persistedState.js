@@ -25,6 +25,7 @@ const FILTERS = {
   content: createFilter('content', [
     'positions',
     'history',
+    'remoteHistoryLastFetched',
     'lastViewedAnnouncement',
     'recsysEntries',
     'uriAccessKeys',
