@@ -384,7 +384,7 @@ export function doPlaylistAddAndAllowPlaying({
         if (playingUrl) {
           // adds the queue collection id to the playingUri data so it can be used and updated by other components
           if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
-        } else if (uri && selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA)) {
+        } else if (uri) {
           // Ensure claim is fully resolved so isPlayable check passes
           await dispatch(doResolveUri(uri, false));
           dispatch(doFileGetForUri(uri));

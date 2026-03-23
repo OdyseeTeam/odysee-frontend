@@ -11,7 +11,6 @@ type Props = {
   focusable: boolean,
   menuItem?: boolean,
   // -- redux --
-  autoplayMedia: boolean,
   hasClaimInQueue: boolean,
   hasPlayingUriInQueue: boolean,
   playingUri: PlayingUri,
@@ -30,7 +29,6 @@ function ButtonAddToQueue(props: Props) {
     uri,
     focusable = true,
     menuItem,
-    autoplayMedia,
     hasClaimInQueue,
     hasPlayingUriInQueue,
     playingUri,
@@ -66,8 +64,8 @@ function ButtonAddToQueue(props: Props) {
 
       if (playingUrl) {
         // adds the queue collection id to the playingUri data so it can be used and updated by other components
-        if (!hasPlayingUriInQueue && autoplayMedia) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
-      } else if (autoplayMedia) {
+        if (!hasPlayingUriInQueue) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
+      } else {
         // Resolve claim fully, fetch streaming URL, then start floating player
         await doResolveUri(uri, false);
         doFileGetForUri(uri);
