@@ -529,6 +529,21 @@ export function doAnalyticsViewForUri(uri: string) {
   };
 }
 
+export function doSyncLastPosition(uri: string, position: number) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    if (!claim) return;
+
+    const { txid, nout, claim_id: claimId } = claim;
+    const claimIsMine = selectClaimIsMineForUri(state, uri);
+    if (claimIsMine) return;
+
+    const outpoint = `${txid}:${nout}`;
+    analytics.apiLog.view(uri, outpoint, claimId, position);
+  };
+}
+
 export function doAnalyticsBuffer(uri: string, bufferData: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     const isLivestream = bufferData.isLivestream;
