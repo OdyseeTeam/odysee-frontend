@@ -82,6 +82,31 @@ type Props = {
 };
 
 function ClaimMenuList(props: Props) {
+  const { uri, inline = false } = props;
+  const [menuMounted, setMenuMounted] = React.useState(false);
+
+  if (!menuMounted) {
+    return (
+      <button
+        className={classnames('menu__button', {
+          'claim__menu-button': !inline,
+          'claim__menu-button--inline': inline,
+        })}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setMenuMounted(true);
+        }}
+      >
+        <Icon size={20} icon={ICONS.MORE_VERTICAL} />
+      </button>
+    );
+  }
+
+  return <ClaimMenuListInner {...props} />;
+}
+
+function ClaimMenuListInner(props: Props) {
   const { uri, inline = false, collectionId, fypId } = props;
   const dispatch = useAppDispatch();
 
@@ -481,26 +506,6 @@ function ClaimMenuList(props: Props) {
       </>
     );
   };
-
-  const [menuMounted, setMenuMounted] = React.useState(false);
-
-  if (!menuMounted) {
-    return (
-      <button
-        className={classnames('menu__button', {
-          'claim__menu-button': !inline,
-          'claim__menu-button--inline': inline,
-        })}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          setMenuMounted(true);
-        }}
-      >
-        <Icon size={20} icon={ICONS.MORE_VERTICAL} />
-      </button>
-    );
-  }
 
   return (
     <Menu>
