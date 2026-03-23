@@ -14,13 +14,6 @@ import { history } from 'redux/router';
 const recsysEndpoint = RECSYS_ENDPOINT;
 const DEFAULT_RECSYS_ID = 'lighthouse-v0';
 
-const isLocalDevHost = () => {
-  if (typeof window === 'undefined') return false;
-
-  const { hostname } = window.location;
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local');
-};
-
 const getClaimIdsFromUris = (uris) => {
   return uris
     ? uris.map((uri) => {
@@ -175,8 +168,7 @@ const recsys: Recsys = {
    */
   sendRecsysEntry: function (claimId, isTentative) {
     const shareTelemetry =
-      !isLocalDevHost() &&
-      (IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data));
+      IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
 
     if (recsys.entries[claimId] && shareTelemetry) {
       // Exclude `events` in the submission https://github.com/OdyseeTeam/odysee-frontend/issues/1317

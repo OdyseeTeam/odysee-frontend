@@ -69,13 +69,6 @@ const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
 
-function isLocalDevHost() {
-  if (typeof window === 'undefined') return false;
-
-  const { hostname } = window.location;
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.local');
-}
-
 function isSameClaimUri(firstUri: string | null | undefined, secondUri: string | null | undefined): boolean {
   if (!firstUri || !secondUri) return false;
   if (firstUri === secondUri) return true;
@@ -145,7 +138,7 @@ function VideoViewer(props: Props) {
   const homepageData = useAppSelector((state) => selectHomepageData(state)) || {};
   const authenticated = useAppSelector((state) => selectUserVerifiedEmail(state));
   const shareTelemetryFromSettings = useAppSelector((state) => selectDaemonSettings(state)?.share_usage_data);
-  const shareTelemetry = !isLocalDevHost() && (IS_WEB || shareTelemetryFromSettings);
+  const shareTelemetry = IS_WEB || shareTelemetryFromSettings;
   const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
   const activeLivestreamForChannel = useAppSelector((state) =>
     selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim))
