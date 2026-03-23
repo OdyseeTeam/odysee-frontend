@@ -258,17 +258,30 @@ function App() {
   let uri;
 
   try {
+    // Ensure the path is fully decoded (React Router v7 may leave some
+    // multi-byte characters like emoji URL-encoded in certain cases).
+    let decodedPath = path;
+    try {
+      decodedPath = decodeURIComponent(path);
+    } catch {}
+
     // here queryString and startTime are "removed" from the buildURI process
     // to build only the uri itself
-    const { queryString, startTime, ...parsedUri } = parseURI(path);
+    const { queryString, startTime, ...parsedUri } = parseURI(decodedPath);
     uri = buildURI({ ...parsedUri }, true);
   } catch (e) {
-    const match = path.match(/[#/:]/);
+    // If parsing failed, try with the raw (non-decoded) path
+    try {
+      const { queryString, startTime, ...parsedUri } = parseURI(path);
+      uri = buildURI({ ...parsedUri }, true);
+    } catch {
+      const match = path.match(/[#/:]/);
 
-    if (!path.startsWith('$/') && match && match.index) {
-      uri = `lbry://${path.slice(0, match.index)}`;
-    } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
-      uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
+      if (!path.startsWith('$/') && match && match.index) {
+        uri = `lbry://${path.slice(0, match.index)}`;
+      } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
+        uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
+      }
     }
   }
 

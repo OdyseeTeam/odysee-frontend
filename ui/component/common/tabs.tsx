@@ -65,10 +65,21 @@ function Tabs(props: TabsProps) {
     [selectedIndex, handleSelectTab]
   );
 
+  // Separate TabPanels from other children so panels render outside the tabs div
+  const tabListChildren: React.ReactNode[] = [];
+  const panelChildren: React.ReactNode[] = [];
+  React.Children.forEach(children, (child) => {
+    if (React.isValidElement(child) && child.type === TabPanels) {
+      panelChildren.push(child);
+    } else {
+      tabListChildren.push(child);
+    }
+  });
+
   return (
     <TabsContext.Provider value={contextValue}>
       <div className={classnames('tabs', className)} data-reach-tabs="" ref={tabsRef}>
-        {children}
+        {tabListChildren}
 
         <div
           className="tab__divider"
@@ -78,6 +89,7 @@ function Tabs(props: TabsProps) {
           }}
         />
       </div>
+      {panelChildren}
     </TabsContext.Provider>
   );
 }
