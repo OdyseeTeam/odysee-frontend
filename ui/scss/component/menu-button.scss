@@ -57,8 +57,10 @@ reach-portal {
 }
 
 // Override MUI defaults: Paper background + List padding
-.MuiPaper-root.MuiMenu-paper {
+.MuiPaper-root.MuiMenu-paper,
+.menu__paper {
   background-color: var(--color-background) !important;
+  overflow: hidden;
 }
 
 .MuiList-root.MuiMenu-list {
@@ -66,8 +68,7 @@ reach-portal {
   padding-bottom: 0 !important;
 }
 
-[data-reach-menu-list],
-.MuiMenu-list--paper {
+[data-reach-menu-list] {
   display: block;
   white-space: nowrap;
   outline: none;
@@ -153,7 +154,7 @@ reach-portal {
   padding: var(--spacing-xs) 0;
 
   [data-reach-menu-item] {
-    margin: 0 var(--spacing-xxs);
+    margin: 0;
   }
 
   &.membership-tier1 {
@@ -268,9 +269,7 @@ reach-portal {
 
 .MuiList-root {
   .menu__link:hover {
-    color: white;
-    background-color: var(--color-navigation-hover);
-    border-radius: var(--border-radius);
+    color: inherit;
   }
 }
 

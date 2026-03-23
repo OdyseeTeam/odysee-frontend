@@ -34,6 +34,7 @@ import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
+import { SEARCH_OPTIONS } from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import './style.scss';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -57,6 +58,7 @@ import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
 import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doMembershipMine as doMembershipMineAction } from 'redux/actions/memberships';
+import { lighthouse } from 'redux/actions/search';
 import { PREFERENCE_EMBED } from 'constants/tags';
 const HiddenNsfwClaims = lazyImport(
   () =>
@@ -149,8 +151,12 @@ function ChannelPage(props: Props) {
   const showDiscussion = currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
-  const [hasShorts, setHasShorts] = React.useState(true);
+  const [hasShorts, setHasShorts] = React.useState(currentView === CHANNEL_PAGE.VIEWS.SHORTS);
+  const [displayView, setDisplayView] = React.useState(currentView);
   const [legacyHeader, setLegacyHeader] = React.useState(false);
+  React.useEffect(() => {
+    setDisplayView(currentView);
+  }, [currentView]);
   React.useEffect(() => {
     const image = new Image();
 
@@ -183,6 +189,44 @@ function ChannelPage(props: Props) {
   const handleShortsLoaded = React.useCallback((count) => {
     setHasShorts(count > 0);
   }, []);
+  React.useEffect(() => {
+    let cancelled = false;
+
+    if (!showClaims || hideShorts || !claimId) {
+      setHasShorts(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+      setHasShorts(true);
+    }
+
+    lighthouse
+      .search(
+        `channel_id=${encodeURIComponent(claimId)}` +
+          `&size=1` +
+          `&nsfw=false` +
+          `&${SEARCH_OPTIONS.MEDIA_TYPE}=${SEARCH_OPTIONS.MEDIA_VIDEO}` +
+          `&${SEARCH_OPTIONS.MAX_DURATION}=${SETTINGS.SHORTS_DURATION_LTE}` +
+          `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
+      )
+      .then(({ body }) => {
+        if (!cancelled) {
+          setHasShorts(Array.isArray(body) && body.length > 0);
+        }
+      })
+      .catch(() => {
+        if (!cancelled && currentView !== CHANNEL_PAGE.VIEWS.SHORTS) {
+          setHasShorts(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [claimId, currentView, hideShorts, showClaims]);
   let collectionEmpty;
 
   if (channelIsMine) {
@@ -210,9 +254,10 @@ function ChannelPage(props: Props) {
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
   // We don't want to use links here because we can't animate the tab change and using links
   // would alter the Tab label's role attribute, which should stay role="tab" to work with keyboards/screen readers.
+  const activeView = displayView;
   let tabIndex;
 
-  switch (currentView) {
+  switch (activeView) {
     case CHANNEL_PAGE.VIEWS.HOME:
       tabIndex = 0;
       break;
@@ -258,51 +303,63 @@ function ChannelPage(props: Props) {
     const baseUrl = formatLbryUrlForWeb(uri);
     const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
     let newSearch = '';
+    let nextView = CHANNEL_PAGE.VIEWS.HOME;
     if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
+        nextView = CHANNEL_PAGE.VIEWS.HOME;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
         break;
 
       case 1:
+        nextView = CHANNEL_PAGE.VIEWS.CONTENT;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
 
       case 2:
+        nextView = CHANNEL_PAGE.VIEWS.SHORTS;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
         break;
 
       case 3:
+        nextView = CHANNEL_PAGE.VIEWS.PLAYLISTS;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
 
       case 4:
+        nextView = CHANNEL_PAGE.VIEWS.CHANNELS;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
 
       case 5:
         if (!isOdyseeChannel) {
+          nextView = CHANNEL_PAGE.VIEWS.MEMBERSHIP;
           newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         }
 
         break;
 
       case 6:
+        nextView = CHANNEL_PAGE.VIEWS.DISCUSSION;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
         break;
 
       case 7:
         if (!hideAboutTab) {
+          nextView = CHANNEL_PAGE.VIEWS.ABOUT;
           newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
         }
 
         break;
 
       case 8:
+        nextView = CHANNEL_PAGE.VIEWS.SETTINGS;
         newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
+
+    setDisplayView(nextView);
 
     // Replace instead of push to avoid flooding browser history when tabs
     // change programmatically (e.g., from @reach/tabs onChange firing on
@@ -577,12 +634,12 @@ function ChannelPage(props: Props) {
 
           <TabPanels>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.HOME && (
+              {activeView === CHANNEL_PAGE.VIEWS.HOME && (
                 <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
               )}
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
+              {activeView === CHANNEL_PAGE.VIEWS.CONTENT && (
                 <ContentTab
                   uri={uri}
                   channelIsBlackListed={channelIsBlackListed}
@@ -597,7 +654,7 @@ function ChannelPage(props: Props) {
             <TabPanel>
               <div
                 style={{
-                  display: currentView === CHANNEL_PAGE.VIEWS.SHORTS ? 'block' : 'none',
+                  display: activeView === CHANNEL_PAGE.VIEWS.SHORTS ? 'block' : 'none',
                 }}
               >
                 <ContentTab
@@ -613,7 +670,7 @@ function ChannelPage(props: Props) {
               </div>
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
+              {activeView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
                 <ContentTab
                   claimType={'collection'}
                   uri={uri}
@@ -624,21 +681,21 @@ function ChannelPage(props: Props) {
               )}
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
+              {activeView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
+              {activeView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
             </TabPanel>
             <TabPanel>
-              {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
+              {(showDiscussion || activeView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
             </TabPanel>
             <TabPanel>
-              {!hideAboutTab && currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
+              {!hideAboutTab && activeView === CHANNEL_PAGE.VIEWS.ABOUT && (
                 <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
               )}
             </TabPanel>
             <TabPanel>
-              {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
+              {channelIsMine && activeView === CHANNEL_PAGE.VIEWS.SETTINGS && (
                 <CreatorSettingsTab activeChannelClaim={claim} />
               )}
             </TabPanel>

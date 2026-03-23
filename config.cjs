@@ -1,6 +1,12 @@
 // Server-side config (CJS) - used by web/index.ts, web/src/*.ts, electron/*.ts
 // Client-side code uses config.ts (ESM) via Vite alias
-require('dotenv-defaults').config({ silent: false });
+const path = require('path');
+
+require('dotenv-defaults').config({
+  silent: false,
+  path: path.resolve(__dirname, '.env'),
+  defaults: path.resolve(__dirname, '.env.defaults'),
+});
 
 const config = {
   MINIMUM_VERSION: process.env.MINIMUM_VERSION,

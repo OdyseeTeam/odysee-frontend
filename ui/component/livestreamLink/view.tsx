@@ -27,10 +27,10 @@ const LivestreamLink = (props: Props) => {
     <Card
       className="livestream__channel-link claim-preview__wrapper--live"
       title={
-        <h1 className="page__title">
+        <div className="page__title">
           <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
-          <label>{title || __('Live stream in progress')}</label>
-        </h1>
+          <span>{title || __('Live stream in progress')}</span>
+        </div>
       }
       onClick={() => navigate(formatLbryUrlForWeb(claimUri))}
     >

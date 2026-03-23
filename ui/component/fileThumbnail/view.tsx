@@ -48,10 +48,14 @@ function FileThumbnail(props: Props) {
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const thumbnail =
     passedThumbnail || (thumbnailFromClaim === null && secondaryUri ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
-  // Show skeleton while the claim hasn't resolved yet, rather than flashing
-  // the "missing thumbnail" placeholder before the real image arrives.
+  // Once we've shown a real thumbnail, remember it so we never flash back to skeleton.
+  const shownThumbnailRef = React.useRef<string | null>(null);
+  if (thumbnail) shownThumbnailRef.current = thumbnail;
+  // Show skeleton only on first load before any thumbnail has been seen.
   const gettingThumbnail =
-    passedThumbnail === undefined && (thumbnailFromClaim === null || (!thumbnail && !hasResolvedClaim));
+    !shownThumbnailRef.current &&
+    passedThumbnail === undefined &&
+    (thumbnailFromClaim === null || (!thumbnail && !hasResolvedClaim));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   if (!allowGifs && isGif) {
@@ -74,10 +78,11 @@ function FileThumbnail(props: Props) {
     );
   }
 
-  let url = thumbnail;
+  // Use remembered thumbnail if current is temporarily null (prevents flash)
+  let url = thumbnail || shownThumbnailRef.current;
 
   // Pass image urls through a compression proxy
-  if (thumbnail) {
+  if (url) {
     if (isGif) {
       url = getImageProxyUrl(thumbnail); // Note: the '!allowGifs' case is handled in Freezeframe above.
     } else {

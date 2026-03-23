@@ -92,16 +92,34 @@ function MenuList(props: MenuListProps) {
     return null;
   }
 
+  function handleClose(event?: Event | React.SyntheticEvent) {
+    if (event) {
+      if ('preventDefault' in event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+
+      if ('stopPropagation' in event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+    }
+
+    menu.closeMenu();
+  }
+
   return (
     <MUIRawMenu
       anchorEl={menu.anchorEl}
       open={menu.open}
-      onClose={menu.closeMenu}
+      onClose={(_, __) => handleClose(_)}
       disableScrollLock
       slotProps={{
+        backdrop: {
+          onClick: handleClose,
+        },
         paper: {
-          className,
+          className: 'menu__paper',
           'data-reach-menu-popover': '',
+          onClick: (event) => event.stopPropagation(),
         },
         list: {
           className,

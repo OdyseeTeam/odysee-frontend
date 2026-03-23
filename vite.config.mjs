@@ -30,21 +30,30 @@ function resolvePnpmNodeModules() {
   }
 }
 
-// Build all process.env.* replacements for the define option
+function readEnvKeys(filePath) {
+  if (!fs.existsSync(filePath)) return [];
+
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.match(/^[A-Z_][A-Z0-9_]*=/) && !line.startsWith('#'))
+    .map((line) => line.split('=')[0]);
+}
+
+// Build all process.env.* replacements for the define option.
+// Root `.env` keys should be injectable even if they are not mirrored in `.env.defaults`.
 function buildEnvDefines() {
   const defines = {};
-  const envFile = path.resolve(__dirname, '.env.defaults');
-  if (fs.existsSync(envFile)) {
-    const content = fs.readFileSync(envFile, 'utf-8');
-    const keys = content
-      .split('\n')
-      .filter((line) => line.match(/^[A-Z_]+=/) && !line.startsWith('#'))
-      .map((line) => line.split('=')[0]);
+  const envKeys = new Set([
+    ...readEnvKeys(path.resolve(__dirname, '.env.defaults')),
+    ...readEnvKeys(path.resolve(__dirname, '.env')),
+  ]);
 
-    for (const key of keys) {
-      defines[`process.env.${key}`] = JSON.stringify(process.env[key] ?? '');
-    }
+  for (const key of envKeys) {
+    defines[`process.env.${key}`] = JSON.stringify(process.env[key] ?? '');
   }
+
   defines['process.env.NODE_ENV'] = JSON.stringify(process.env.NODE_ENV || 'development');
   defines['process.env.COMMIT_ID'] = JSON.stringify(process.env.COMMIT_ID || '');
   defines['process.env.SENTRY_AUTH_TOKEN'] = JSON.stringify(process.env.SENTRY_AUTH_TOKEN || '');

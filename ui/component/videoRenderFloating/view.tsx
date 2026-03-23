@@ -186,20 +186,24 @@ function VideoRenderFloating(props: Props) {
   const hasNextShort = playlistIndex >= 0 && playlistIndex < playlist.length - 1;
   const goToPreviousShort = React.useCallback(() => {
     if (hasPreviousShort) {
-      dispatch(doSetPlayingUriAction({
-        uri: playlist[playlistIndex - 1],
-        collection: {},
-        isShort: true,
-      }));
+      dispatch(
+        doSetPlayingUriAction({
+          uri: playlist[playlistIndex - 1],
+          collection: {},
+          isShort: true,
+        })
+      );
     }
   }, [hasPreviousShort, playlist, playlistIndex, dispatch]);
   const goToNextShort = React.useCallback(() => {
     if (hasNextShort) {
-      dispatch(doSetPlayingUriAction({
-        uri: playlist[playlistIndex + 1],
-        collection: {},
-        isShort: true,
-      }));
+      dispatch(
+        doSetPlayingUriAction({
+          uri: playlist[playlistIndex + 1],
+          collection: {},
+          isShort: true,
+        })
+      );
     }
   }, [hasNextShort, playlist, playlistIndex, dispatch]);
   const isMobile = useIsMobile();
@@ -272,7 +276,24 @@ function VideoRenderFloating(props: Props) {
       initialPlayerHeight.current = heightForRect;
     }
 
-    setFileViewerRect({ ...objectRect, windowOffset: window.pageYOffset }); // force re-calculate when sourceId changes (playing a new claimLink on the same page)
+    const nextRect = { ...objectRect, windowOffset: window.pageYOffset };
+    setFileViewerRect((prevRect) => {
+      if (
+        prevRect &&
+        prevRect.top === nextRect.top &&
+        prevRect.right === nextRect.right &&
+        prevRect.bottom === nextRect.bottom &&
+        prevRect.left === nextRect.left &&
+        prevRect.width === nextRect.width &&
+        prevRect.height === nextRect.height &&
+        prevRect.x === nextRect.x &&
+        prevRect.windowOffset === nextRect.windowOffset
+      ) {
+        return prevRect;
+      }
+
+      return nextRect;
+    }); // force re-calculate when sourceId changes (playing a new claimLink on the same page)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId, mainPlayerDimensions]);
   const restoreToRelativePosition = React.useCallback(() => {
@@ -334,7 +355,7 @@ function VideoRenderFloating(props: Props) {
     if (noPlayerHeight) {
       handleResize();
     }
-  }, [fileViewerRect, noPlayerHeight, handleResize]);
+  }, [noPlayerHeight, handleResize]);
   // Listen to main-window resizing and adjust the floating player position accordingly:
   React.useEffect(() => {
     // intended to only run once: when floating player switches between true - false

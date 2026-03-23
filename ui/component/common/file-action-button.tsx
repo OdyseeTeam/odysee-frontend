@@ -1,6 +1,5 @@
 import React from 'react';
 import Button from 'component/button';
-import Tooltip from 'component/common/tooltip';
 import classnames from 'classnames';
 type Props = {
   title: string;
@@ -15,20 +14,19 @@ type Props = {
 function FileActionButton(props: Props) {
   const { title, iconSize, noStyle, className, ...buttonProps } = props;
   return (
-    <Tooltip title={title} arrow={false} enterDelay={100}>
-      <Button
-        button={noStyle ? 'alt' : undefined}
-        className={
-          noStyle
-            ? className || undefined
-            : classnames('button--file-action', {
-                [className || '']: Boolean(className),
-              })
-        }
-        iconSize={iconSize || 16}
-        {...buttonProps}
-      />
-    </Tooltip>
+    <Button
+      button={noStyle ? 'alt' : undefined}
+      title={title}
+      className={
+        noStyle
+          ? className || undefined
+          : classnames('button--file-action', {
+              [className || '']: Boolean(className),
+            })
+      }
+      iconSize={iconSize || 16}
+      {...buttonProps}
+    />
   );
 }
 
