@@ -16,6 +16,7 @@ type Props = {
   setHoverLock: (boolean) => void,
   handleCommentClick?: (string) => void,
   isCompact: string,
+  discussionRef?: any,
   // redux
   fetchingComments: boolean,
   resolvingSuperchats: boolean,
@@ -31,6 +32,7 @@ export default function ChatComments(props: Props) {
     setHoverLock,
     handleCommentClick,
     isCompact,
+    discussionRef,
     fetchingComments,
     resolvingSuperchats,
   } = props;
@@ -77,7 +79,7 @@ export default function ChatComments(props: Props) {
     const commentProps = { uri, forceUpdate };
 
     return isMobile ? (
-      <div className="livestream__comments--mobile">
+      <div ref={discussionRef} className="livestream__comments--mobile">
         {comments
           .slice(0)
           .reverse()
@@ -95,6 +97,7 @@ export default function ChatComments(props: Props) {
       </div>
     ) : (
       <div
+        ref={discussionRef}
         className="livestream__comments"
         onMouseEnter={() => setHoverLock(true)}
         onMouseLeave={() => setHoverLock(false)}

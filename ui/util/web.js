@@ -44,9 +44,7 @@ function generateEmbedUrlEncoded(claimUri, startTime, referralLink, newestType, 
 }
 
 function generateEmbedIframeData(src) {
-  const width = '100%';
-  const ratio = '16 / 9';
-  const html = `<iframe id="odysee-iframe" style="width:${width}; aspect-ratio:${ratio};" src="${src}" allowfullscreen></iframe>`;
+  const html = `<iframe id="odysee-iframe" width="560" height="315" src="${src}" frameborder="0" allowfullscreen></iframe>`;
 
   return { html };
 }

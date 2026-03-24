@@ -8,5 +8,4 @@ export const RESTRICTED_CONTENT_PUBLISHING_FAILED = 'There was a network error, 
 
 export const ERR_GRP = {
   TUS: 'publish-v2',
-  VIDEOJS: 'video.js',
 };

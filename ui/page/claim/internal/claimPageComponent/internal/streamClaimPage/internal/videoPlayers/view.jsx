@@ -2,20 +2,19 @@
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
-import * as ICONS from 'constants/icons';
-import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
+import parseChapters from 'util/parse-chapters';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
+const ChaptersCard = lazyImport(() => import('component/chaptersCard' /* webpackChunkName: "chaptersCard" */));
 
 export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
@@ -38,6 +37,7 @@ type Props = {
   videoTheaterMode: boolean,
   contentUnlocked: boolean,
   isAutoplayCountdownForUri: ?boolean,
+  description: ?string,
   clearPosition: (uri: string) => void,
 };
 
@@ -54,12 +54,12 @@ export default function VideoPlayersPage(props: Props) {
     videoTheaterMode,
     commentsDisabled,
     audioVideoDuration,
-    commentsListTitle,
     isUriPlaying,
     location,
     position,
     contentUnlocked,
     isAutoplayCountdownForUri,
+    description,
     clearPosition,
   } = props;
 
@@ -105,6 +105,9 @@ export default function VideoPlayersPage(props: Props) {
     }
   }, [clearPosition, fileInfo, uri, videoPlayedEnoughToResetPosition]);
 
+  const chapters = React.useMemo(() => parseChapters(description), [description]);
+  const hasChapters = chapters.length > 0;
+
   if (isMature) {
     return (
       <>
@@ -118,13 +121,66 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
+        {isSmallScreen && <ChaptersCard uri={uri} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
   }
 
+  const isMobilePortrait = isMobile && !isLandscapeRotated;
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
+
+  if (isMobilePortrait) {
+    const infoContent = (
+      <section className="file-page__media-actions">
+        <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+      </section>
+    );
+
+    const commentsContent =
+      contentUnlocked && !commentsDisabled ? (
+        <React.Suspense fallback={null}>
+          <CommentsList {...commentsListProps} notInDrawer />
+        </React.Suspense>
+      ) : (
+        <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
+      );
+
+    const chaptersContent = hasChapters ? (
+      <React.Suspense fallback={null}>
+        <ChaptersCard uri={uri} visible setVisible={() => {}} />
+      </React.Suspense>
+    ) : undefined;
+
+    const playlistContent = collectionId ? (
+      <React.Suspense fallback={null}>
+        <PlaylistCard id={collectionId} uri={uri} />
+      </React.Suspense>
+    ) : undefined;
+
+    const relatedContent = <RightSideContent {...rightSideProps} />;
+
+    return (
+      <>
+        <div className="section card-stack file-page__video">
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            <VideoClaimInitiator uri={uri} />
+          </div>
+
+          <MobileTabView
+            infoContent={infoContent}
+            chaptersContent={chaptersContent}
+            playlistContent={playlistContent}
+            commentsContent={commentsContent}
+            relatedContent={relatedContent}
+            initialTab={linkedCommentId ? 1 : 0}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="section card-stack file-page__video">
@@ -134,23 +190,14 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
+            {isSmallScreen && <ChaptersCard uri={uri} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
             {contentUnlocked &&
               (commentsDisabled ? (
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
-              ) : isMobile && !isLandscapeRotated ? (
-                <React.Fragment>
-                  <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
-                    <React.Suspense fallback={null}>
-                      <CommentsList {...commentsListProps} />
-                    </React.Suspense>
-                  </SwipeableDrawer>
-
-                  <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
-                </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
                   <CommentsList {...commentsListProps} notInDrawer />
@@ -180,7 +227,8 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
 
   return (
     <div className="card-stack--spacing-m">
-      {!isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+      {!isSmallScreen && !isMobile && <PlaylistCard id={collectionId} uri={uri} />}
+      {!isMobile && <ChaptersCard uri={uri} />}
       <RecommendedContent uri={uri} />
     </div>
   );

@@ -64,6 +64,16 @@ const EmbedWrapperPage = (props: Props) => {
   }
   const embedLightBackground = urlParams.get('embedBackgroundLight');
 
+  React.useEffect(() => {
+    // $FlowFixMe
+    if (!document.querySelector('meta[name="darkreader-lock"]') && document.head) {
+      const meta = document.createElement('meta');
+      meta.name = 'darkreader-lock';
+      // $FlowFixMe
+      document.head.appendChild(meta);
+    }
+  }, []);
+
   // Fetch collection items when we have a collectionId
   React.useEffect(() => {
     if (collectionId && doFetchItemsInCollection) {

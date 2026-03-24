@@ -30,6 +30,9 @@ export const TextareaWrapper = (wrapperProps: TextareaWrapperProps) => {
     closeSelector,
   } = wrapperProps;
 
+  // $FlowFixMe
+  const fullscreenEl = document.fullscreenElement;
+
   function handleCloseAll() {
     toggleDrawer();
     if (closeSelector) closeSelector();
@@ -47,9 +50,7 @@ export const TextareaWrapper = (wrapperProps: TextareaWrapperProps) => {
         anchor="bottom"
         open
         onClose={handleCloseAll}
-        // The Modal tries to enforce focus when open and doesn't allow clicking or changing any
-        // other input boxes, so in this case it is disabled when trying to type in a custom tip
-        ModalProps={{ disableEnforceFocus: tipModalOpen }}
+        ModalProps={{ disableEnforceFocus: tipModalOpen, ...(fullscreenEl ? { container: fullscreenEl } : {}) }}
       >
         {children}
 

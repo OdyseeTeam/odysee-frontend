@@ -40,6 +40,7 @@
     "lint": "eslint ui/**/*.{js,jsx} && eslint 'extras/**/*.{js,jsx}' && eslint 'web/**/*.{js,jsx}' && flow",
     "lint-fix": "eslint --fix --quiet 'ui/**/*.{js,jsx}' && eslint --fix --quiet 'extras/**/*.{js,jsx}' && eslint --fix --quiet 'web/**/*.{js,jsx}' && eslint --fix --quiet 'electron/**/*.js'",
     "format": "prettier 'src/**/*.{js,jsx,scss,json}' --write",
+    
     "flow-defs": "flow-typed install",
     "preinstall": "",
     "postinstall": "cd web && yarn && cd .. && if-env NODE_ENV=production && yarn postinstall:warning || if-env APP_ENV=web && echo 'Done installing deps' || yarn postinstall:electron",
@@ -54,8 +55,7 @@
     "@permaweb/aoconnect": "^0.0.63",
     "@sentry/react": "^7.48.0",
     "@sentry/types": "^7.48.0",
-    "@silvermine/videojs-airplay": "^1.1.0",
-    "@silvermine/videojs-chromecast": "^1.3.3",
+    "@videojs/react": "10.0.0-beta.3",
     "@stripe/react-stripe-js": "^1.10.0",
     "@stripe/stripe-js": "^1.35.0",
     "@ungap/from-entries": "^0.2.1",
@@ -73,7 +73,6 @@
     "match-sorter": "^6.3.0",
     "moment": "^2.29.4",
     "parse-duration": "^1.0.0",
-    "player.js": "^0.1.0",
     "postcss": "^8.4.21",
     "proxy-polyfill": "0.1.6",
     "re-reselect": "^4.0.0",
@@ -91,11 +90,7 @@
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
     "util": "^0.12.5",
-    "videojs-contrib-ads": "^6.9.0",
-    "videojs-ima": "^1.11.0",
-    "videojs-ima-player": "^0.5.6",
-    "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
+    "hls.js": "^1.6.7"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -112,7 +107,6 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@exponent/electron-cookies": "^2.0.0",
-    "@hot-loader/react-dom": "16.13",
     "@reach/auto-id": "^0.13.0",
     "@reach/combobox": "^0.12.1",
     "@reach/menu-button": "0.8.6",
@@ -203,13 +197,12 @@
     "qrcode.react": "^0.8.0",
     "raw-loader": "^4.0.2",
     "rc-progress": "^2.0.6",
-    "react": "^16.13.1",
+    "react": "^18.2.0",
     "react-awesome-lightbox": "^1.7.3",
     "react-confetti": "^4.0.1",
-    "react-dom": "^16.13.1",
+    "react-dom": "^18.2.0",
     "react-draggable": "^4.4.4",
     "react-google-recaptcha": "^2.0.1",
-    "react-hot-loader": "^4.11.1",
     "react-modal": "^3.1.7",
     "react-paginate": "^5.2.1",
     "react-redux": "7.2.0",
@@ -243,9 +236,6 @@
     "unist-util-visit": "^2.0.3",
     "uuid": "^8.3.2",
     "vast-client": "^3.1.1",
-    "video.js": "^7.19.2",
-    "videojs-contrib-quality-levels": "^2.0.9",
-    "videojs-event-tracking": "^1.0.1",
     "villain-react": "^1.0.9",
     "wavesurfer.js": "^2.2.1",
     "webpack": "^5.76.0",
@@ -261,11 +251,10 @@
     "y18n": "^4.0.1",
     "yarnhook": "^0.2.0"
   },
-  "resolutions": {
-    "video.js": "7.21.4"
-  },
+  "resolutions": {},
   "engines": {
-    "node": "^18.14",
+    "node": "24.x",
+    "npm": "11.x",
     "yarn": "^1.3"
   },
   "husky": {

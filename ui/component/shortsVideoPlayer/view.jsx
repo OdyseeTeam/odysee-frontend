@@ -16,6 +16,7 @@ type Props = {
   onSwipeNext: () => void,
   onSwipePrevious?: () => void,
   enableSwipe?: boolean,
+  panelOpen?: boolean,
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
@@ -29,6 +30,7 @@ const ShortsVideoPlayer = React.memo<Props>(
     onSwipeNext,
     onSwipePrevious,
     enableSwipe,
+    panelOpen,
   }: Props) => {
     const {
       location: { search },
@@ -36,66 +38,48 @@ const ShortsVideoPlayer = React.memo<Props>(
     const urlParams = new URLSearchParams(search);
     const isShortVideo = urlParams.get('view') === 'shorts';
 
+    const autoPlayRef = React.useRef({ autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen });
+    autoPlayRef.current = { autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen };
+
     React.useEffect(() => {
-      let cleanupFn = null;
-      let lastVideoElement = null;
+      let videoEl = null;
+      let pollId = null;
 
-      const attachListener = () => {
-        const videoElement: any = document.querySelector('.vjs-tech');
-
-        if (!videoElement || videoElement === lastVideoElement) {
-          return lastVideoElement !== null;
-        }
-        if (cleanupFn) {
-          cleanupFn();
-          cleanupFn = null;
-        }
-
-        const handleEnded = () => {
-          if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
-            setTimeout(() => {
-              onSwipeNext();
-            }, 500);
-          } else {
-            setTimeout(() => {
-              videoElement.currentTime = 0;
-              videoElement.play().catch((error) => {
-                // eslint-disable-next-line no-console
-                console.error(error);
-              });
-            }, 100);
-          }
-        };
-
-        videoElement.addEventListener('ended', handleEnded);
-        lastVideoElement = videoElement;
-        cleanupFn = () => {
-          videoElement.removeEventListener('ended', handleEnded);
-          lastVideoElement = null;
-        };
-        return true;
+      const shouldAutoAdvance = () => {
+        const { autoPlayNextShort: ap, nextRecommendedShort: next, isAtEnd: end, panelOpen: po } = autoPlayRef.current;
+        return ap && next && !end && !po;
       };
-      attachListener();
-      const interval = setInterval(() => {
-        attachListener();
-      }, 100);
 
-      const handlePlaying = () => {
-        attachListener();
+      const handleEnded = () => {
+        if (shouldAutoAdvance()) {
+          const { onSwipeNext: swipe } = autoPlayRef.current;
+          window.__shortsAutoPlayNext = true;
+          const docEl = document.documentElement;
+          if (docEl) docEl.setAttribute('data-shorts-transitioning', '');
+          swipe();
+        } else if (videoEl) {
+          videoEl.currentTime = 0;
+          videoEl.play();
+        }
       };
-      document.addEventListener('playing', handlePlaying, true);
 
-      const timeout = setTimeout(() => {
-        clearInterval(interval);
-      }, 10000);
+      const tryAttach = () => {
+        const el: any = document.querySelector('video');
+        if (el && el !== videoEl) {
+          if (videoEl) videoEl.removeEventListener('ended', handleEnded);
+          videoEl = el;
+          el.addEventListener('ended', handleEnded);
+        }
+      };
+
+      pollId = setInterval(tryAttach, 200);
+      tryAttach();
 
       return () => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-        document.removeEventListener('playing', handlePlaying, true);
-        if (cleanupFn) cleanupFn();
+        clearInterval(pollId);
+        if (videoEl) videoEl.removeEventListener('ended', handleEnded);
       };
-    }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, uri]);
+    }, [uri]);
 
     return (
       <div className="shorts-page__video-section">

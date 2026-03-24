@@ -4,7 +4,6 @@ import * as React from 'react';
 import Button from 'component/button';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
-import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import FileTitleSection from 'component/fileTitleSection';
@@ -12,8 +11,7 @@ import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
 import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 import { useHistory } from 'react-router';
 
@@ -50,7 +48,6 @@ const StreamClaimPage = (props: Props) => {
   const {
     uri,
     // -- redux --
-    commentsListTitle,
     costInfo,
     thumbnail,
     isMature,
@@ -86,8 +83,10 @@ const StreamClaimPage = (props: Props) => {
   const shortsView = urlParams.get('view') === 'shorts';
   const isShortVideo = isClaimShort && !disableShortsView;
 
+  const isMobilePortrait = isMobile && !isLandscapeRotated;
+
   React.useEffect(() => {
-    if ((linkedCommentId || threadCommentId) && isMobile) {
+    if ((linkedCommentId || threadCommentId) && isMobile && !isMobilePortrait) {
       doToggleAppDrawer(DRAWERS.CHAT);
     }
     // only on mount, otherwise clicking on a comments timestamp and linking it
@@ -247,6 +246,41 @@ const StreamClaimPage = (props: Props) => {
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const emptyMsgProps = { padded: !isMobile };
 
+  if (isMobilePortrait) {
+    const infoContent = (
+      <>
+        <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+      </>
+    );
+
+    const commentsContent =
+      contentUnlocked && !commentsDisabled ? (
+        <React.Suspense fallback={null}>
+          <CommentsList {...commentsListProps} notInDrawer />
+        </React.Suspense>
+      ) : (
+        <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
+      );
+
+    const relatedContent = <RecommendedContent uri={uri} />;
+
+    return (
+      <>
+        <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
+          {!isHidden && renderClaimLayout()}
+          {(isClaimBlackListed && dmcaInfo()) || (isClaimFiltered && filteredInfo())}
+
+          <MobileTabView
+            infoContent={infoContent}
+            commentsContent={commentsContent}
+            relatedContent={relatedContent}
+            initialTab={linkedCommentId ? 1 : 0}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
@@ -261,14 +295,6 @@ const StreamClaimPage = (props: Props) => {
               <React.Suspense fallback={null}>
                 {commentsDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : isMobile && !isLandscapeRotated ? (
-                  <React.Fragment>
-                    <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
-                      <CommentsList {...commentsListProps} />
-                    </SwipeableDrawer>
-
-                    <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
-                  </React.Fragment>
                 ) : (
                   <CommentsList {...commentsListProps} notInDrawer />
                 )}

@@ -12,7 +12,6 @@ import LivestreamMenu from 'component/livestreamMenu';
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
-import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
 import { lazyImport } from 'util/lazyImport';
@@ -28,7 +27,6 @@ const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpa
 type Props = {
   customViewMode?: string,
   embed?: boolean,
-  hideHeader?: boolean,
   hyperchatsHidden?: boolean,
   isPopoutWindow?: boolean,
   setCustomViewMode?: (any) => void,
@@ -75,7 +73,6 @@ export default function ChatLayout(props: Props) {
     doHyperChatList,
     doResolveUris,
     embed,
-    hideHeader,
     hyperchatsHidden,
     isPopoutWindow,
     pinnedComments,
@@ -94,19 +91,20 @@ export default function ChatLayout(props: Props) {
   const isMobile = useIsMobile() && !isPopoutWindow;
   const isLimitedPopout = useIsMobile() && isPopoutWindow;
 
-  const webElement = document.querySelector('.livestream__comments');
-  const mobileElement = document.querySelector('.livestream__comments--mobile');
-  const discussionElement = isMobile ? mobileElement : webElement;
-  const allCommentsElem = document.querySelectorAll('.livestream__comment');
+  const [discussionElement, setDiscussionElement] = React.useState(null);
+  const discussionRef = React.useCallback((node) => {
+    if (node) setDiscussionElement(node);
+  }, []);
+  const allCommentsElem = discussionElement && discussionElement.querySelectorAll('.livestream__comment');
   const lastCommentElem = allCommentsElem && allCommentsElem[allCommentsElem.length - 1];
 
   const [viewMode, setViewMode] = React.useState(VIEW_MODES.CHAT);
   const [scrollPos, setScrollPos] = React.useState(0);
   const [showPinned, setShowPinned] = React.useState(true);
-  const [resolvingSuperChats, setResolvingSuperChats] = React.useState(false);
+  const [resolvingSuperChats] = React.useState(false);
   const [openedPopoutWindow, setPopoutWindow] = React.useState(undefined);
   const [chatHidden, setChatHidden] = React.useState(false);
-  const [didInitialScroll, setDidInitialScroll] = React.useState(false);
+
   const [minScrollHeight, setMinScrollHeight] = React.useState(0);
   const [keyboardOpened, setKeyboardOpened] = React.useState(false);
   const [superchatsAmount, setSuperchatsAmount] = React.useState(false);
@@ -163,7 +161,7 @@ export default function ChatLayout(props: Props) {
       if (isMobile) {
         const pos = lastCommentElem && discussionElement.scrollTop - lastCommentElem.getBoundingClientRect().height;
 
-        if (!minScrollHeight || minScrollHeight !== pos) {
+        if (pos && (!minScrollHeight || minScrollHeight !== pos)) {
           setMinScrollHeight(pos);
         }
       }
@@ -213,13 +211,6 @@ export default function ChatLayout(props: Props) {
       doHyperChatList(uri);
     }
   }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);
-
-  React.useEffect(() => {
-    if (isMobile && !didInitialScroll) {
-      restoreScrollPos();
-      setDidInitialScroll(true);
-    }
-  }, [didInitialScroll, isMobile, restoreScrollPos, viewMode]);
 
   React.useEffect(() => {
     if (discussionElement && !openedPopoutWindow) setChatElement(discussionElement);
@@ -357,45 +348,43 @@ export default function ChatLayout(props: Props) {
 
   return (
     <div className={classnames('chat__wrapper', { 'livestream__chat--popout': isPopoutWindow })}>
-      {!hideHeader && (
-        <div className="chat__header">
-          <div className="chat__toggle-mode">
-            {/* the superchats in chronological order button */}
+      <div className="chat__header">
+        <div className="chat__toggle-mode">
+          {/* the superchats in chronological order button */}
+          <ChatContentToggle
+            {...toggleProps}
+            toggleMode={VIEW_MODES.CHAT}
+            label={!isLimitedPopout ? __('Livestream Chat') : __('Chat')}
+          />
+
+          {/* the button to show superchats listed by most to least support amount */}
+          {hyperChatsByAmount && (
             <ChatContentToggle
               {...toggleProps}
-              toggleMode={VIEW_MODES.CHAT}
-              label={!isLimitedPopout ? __('Livestream Chat') : __('Chat')}
+              toggleMode={VIEW_MODES.SUPERCHAT}
+              label={
+                <>
+                  <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
+                  <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
+                </>
+              }
             />
-
-            {/* the button to show superchats listed by most to least support amount */}
-            {hyperChatsByAmount && (
-              <ChatContentToggle
-                {...toggleProps}
-                toggleMode={VIEW_MODES.SUPERCHAT}
-                label={
-                  <>
-                    <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
-                    <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
-                  </>
-                }
-              />
-            )}
-          </div>
-
-          <LivestreamMenu
-            uri={uri}
-            isPopoutWindow={isPopoutWindow}
-            hideChat={() => setChatHidden(true)}
-            setPopoutWindow={(v) => setPopoutWindow(v)}
-            isMobile={isMobile}
-            toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
-            toggleIsCompact={() => setIsCompact(!isCompact)}
-            isCompact={isCompact}
-            hyperchatsHidden={hideHyperchats}
-            noHyperchats={!hyperChatsByAmount}
-          />
+          )}
         </div>
-      )}
+
+        <LivestreamMenu
+          uri={uri}
+          isPopoutWindow={isPopoutWindow}
+          hideChat={() => setChatHidden(true)}
+          setPopoutWindow={(v) => setPopoutWindow(v)}
+          isMobile={isMobile}
+          toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
+          toggleIsCompact={() => setIsCompact(!isCompact)}
+          isCompact={isCompact}
+          hyperchatsHidden={hideHyperchats}
+          noHyperchats={!hyperChatsByAmount}
+        />
+      </div>
 
       <div className="livestream-comments__wrapper">
         <div
@@ -425,76 +414,37 @@ export default function ChatLayout(props: Props) {
             />
           )}
 
-          {pinnedComment &&
-            !selectedHyperchat &&
-            viewMode === VIEW_MODES.CHAT &&
-            (isMobile ? (
-              <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
-                <div className="livestream-pinned__wrapper--mobile">
-                  <ChatComment
-                    comment={pinnedComment}
-                    key={pinnedComment.comment_id}
-                    uri={uri}
-                    handleDismissPin={() => setShowPinned(false)}
-                    isMobile
-                    setResolvingSuperChats={setResolvingSuperChats}
-                  />
-                </div>
-              </Slide>
-            ) : (
-              showPinned && (
-                <div className="livestream-pinned__wrapper">
-                  <ChatComment
-                    comment={pinnedComment}
-                    key={pinnedComment.comment_id}
-                    uri={uri}
-                    hidePinLabel
-                    handleDismissPin={() => setShowPinned(false)}
-                  />
-                </div>
-              )
-            ))}
+          {pinnedComment && !selectedHyperchat && viewMode === VIEW_MODES.CHAT && showPinned && (
+            <div className="livestream-pinned__wrapper">
+              <ChatComment
+                comment={pinnedComment}
+                key={pinnedComment.comment_id}
+                uri={uri}
+                hidePinLabel
+                handleDismissPin={() => setShowPinned(false)}
+              />
+            </div>
+          )}
         </div>
 
         {/* Hyperchat */}
-        {selectedHyperchat &&
-          viewMode === VIEW_MODES.CHAT &&
-          (isMobile ? (
-            <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
-              <div className="livestream-pinned__wrapper--mobile">
-                <ChatComment
-                  comment={selectedHyperchat}
-                  key={selectedHyperchat.comment_id}
-                  uri={uri}
-                  handleDismissPin={() => setSelectedHyperchat(null)}
-                  isMobile
-                  setResolvingSuperChats={setResolvingSuperChats}
-                />
-                <Button
-                  title={__('Dismiss pinned comment')}
-                  button="inverse"
-                  className="close-button"
-                  onClick={() => setSelectedHyperchat(null)}
-                  icon={ICONS.REMOVE}
-                />
-              </div>
-            </Slide>
-          ) : (
-            <div className="livestream-pinned__wrapper">
-              <ChatComment
-                comment={selectedHyperchat}
-                key={selectedHyperchat.comment_id}
-                uri={uri}
-                handleDismissPin={() => setSelectedHyperchat(null)}
-              />
-            </div>
-          ))}
+        {selectedHyperchat && viewMode === VIEW_MODES.CHAT && (
+          <div className="livestream-pinned__wrapper">
+            <ChatComment
+              comment={selectedHyperchat}
+              key={selectedHyperchat.comment_id}
+              uri={uri}
+              handleDismissPin={() => setSelectedHyperchat(null)}
+            />
+          </div>
+        )}
 
         <ChatComments
           uri={uri}
           viewMode={viewMode}
           comments={commentsToDisplay}
           isMobile={isMobile}
+          discussionRef={discussionRef}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
           isCompact={isCompact}

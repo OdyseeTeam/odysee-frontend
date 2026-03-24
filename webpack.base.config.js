@@ -58,8 +58,16 @@ let baseConfig = {
         },
       },
       {
+        test: /\.css$/,
+        include: /node_modules/,
+        use: [
+          'style-loader',
+          'css-loader',
+        ],
+      },
+      {
         test: /\.s?css$/,
-        exclude: /style\.lazy\.scss/,
+        exclude: [/style\.lazy\.scss/, /node_modules\/.*\.css$/],
         use: [
           // MiniCssExtractPlugin.loader,
           'style-loader',
@@ -110,7 +118,6 @@ let baseConfig = {
       'lodash.isempty': 'lodash-es/isEmpty',
       'lodash.forin': 'lodash-es/forIn',
       'lodash.clonedeep': 'lodash-es/cloneDeep',
-      ...ifProduction({}, { 'react-dom': '@hot-loader/react-dom' }),
     },
     symlinks: false,
   },
