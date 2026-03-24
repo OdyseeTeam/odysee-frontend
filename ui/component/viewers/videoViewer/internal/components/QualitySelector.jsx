@@ -37,7 +37,6 @@ export default function QualitySelector({
 
     updateLevels();
 
-    // hls.js events
     if (hls.on) {
       hls.on('hlsManifestParsed', updateLevels);
       hls.on('hlsLevelSwitched', () => setCurrentLevel(hls.currentLevel));
