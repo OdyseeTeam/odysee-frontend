@@ -451,16 +451,16 @@ function VideoRenderFloating(props: Props) {
     };
   }, []);
 
-  const prevPathnameRef = React.useRef(location.pathname);
+  const prevPathnameRef = React.useRef(currentLocation.pathname);
   React.useLayoutEffect(() => {
-    if (prevPathnameRef.current !== location.pathname) {
+    if (prevPathnameRef.current !== currentLocation.pathname) {
       const fsEl = getFullscreenElement();
       if (fsEl && !fsEl.classList.contains('player-fullscreen-target')) {
         exitFullscreen();
       }
-      prevPathnameRef.current = location.pathname;
+      prevPathnameRef.current = currentLocation.pathname;
     }
-  }, [location.pathname]);
+  }, [currentLocation.pathname]);
 
   React.useEffect(() => {
     if (isFloating && isComment) {
