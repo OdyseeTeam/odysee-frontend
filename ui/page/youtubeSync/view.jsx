@@ -1,4 +1,5 @@
 // @flow
+import type { Node } from 'react';
 import { SITE_NAME, DOMAIN } from 'config';
 import * as PAGES from 'constants/pages';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
@@ -45,10 +46,11 @@ type Props = {
   doUserFetch: () => void,
   inSignUpFlow?: boolean,
   doToggleInterestedInYoutubeSync: () => void,
+  transferFooter?: Node,
 };
 
 export default function YoutubeSync(props: Props) {
-  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
+  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync, transferFooter } = props;
   const {
     location: { search, pathname },
     push,
@@ -141,7 +143,10 @@ export default function YoutubeSync(props: Props) {
       <div className="main__channel-creation">
         {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
-            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
+            <>
+              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
+              {transferFooter}
+            </>
           </React.Suspense>
         ) : (
           <Card
@@ -237,28 +242,33 @@ export default function YoutubeSync(props: Props) {
                   )}
                 </div>
                 <div className="help--card-actions">
-                  <I18nMessage
-                    tokens={{
-                      learn_more: (
-                        <Button
-                          button="link"
-                          label={__('Learn more')}
-                          href="https://help.odysee.tv/category-syncprogram/"
-                        />
-                      ),
-                      community_guidelines: (
-                        <Button
-                          button="link"
-                          label={__('Community Guidelines')}
-                          href="https://help.odysee.tv/communityguidelines/"
-                        />
-                      ),
-                    }}
-                  >
-                    Enrollment in the Odysee Sync Program is based on a manual assessment which requires a channel to
-                    have at least 50,000 monthly views on YouTube, and to be in compliance with Odysee's
-                    %community_guidelines%. %learn_more%.
-                  </I18nMessage>
+                  <p>
+                    {__(
+                      'Automated syncing by Odysee is available for channels with 50,000+ monthly views on YouTube. All other channels can use the Odysee Self Sync Tool to transfer their content.'
+                    )}
+                  </p>
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        download_sync_tool: (
+                          <Button
+                            button="link"
+                            label={__('Download the Self Sync Tool')}
+                            href="https://sync.odysee.tv/"
+                          />
+                        ),
+                        learn_more: (
+                          <Button
+                            button="link"
+                            label={__('Learn more')}
+                            href="https://help.odysee.tv/category-syncprogram/"
+                          />
+                        ),
+                      }}
+                    >
+                      %download_sync_tool% • %learn_more%
+                    </I18nMessage>
+                  </p>
                 </div>
               </Form>
             }

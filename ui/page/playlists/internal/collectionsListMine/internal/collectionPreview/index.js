@@ -22,6 +22,8 @@ import {
   selectCollectionHasEditsForId,
   selectCollectionIsPublishingForId,
   selectCollectionPublishErrorForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishScheduledAtForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -69,6 +71,8 @@ const select = (state, props) => {
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     isPublishing: selectCollectionIsPublishingForId(state, collectionId),
     publishError: selectCollectionPublishErrorForId(state, collectionId),
+    autoPublish: selectCollectionAutoPublishForId(state, collectionId),
+    autoPublishScheduledAt: selectCollectionAutoPublishScheduledAtForId(state, collectionId),
   };
 };
 
