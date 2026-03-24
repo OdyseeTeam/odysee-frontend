@@ -362,7 +362,7 @@ function VideoViewer(props) {
           playPrevious={handlePlayPreviousUri}
           embedded={isEmbedded}
           embeddedInternal={isMarkdownOrComment}
-          claimValues={claim.value}
+          claimValues={claim?.value}
           doAnalyticsViewForUri={doAnalyticsViewForUri}
           doAnalyticsBuffer={doAnalyticsBuffer}
           claimRewards={claimRewards}
