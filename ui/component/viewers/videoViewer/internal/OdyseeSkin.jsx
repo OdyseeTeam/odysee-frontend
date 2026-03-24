@@ -306,16 +306,13 @@ function useQualityLevels() {
     [media]
   );
 
+  const autoLabel = activeHeight > 0 ? `${__('Auto')} (${snapHeight(activeHeight)}p)` : __('Auto');
   const currentLabel =
-    currentLevel === -1
-      ? __('Auto')
-      : levels[currentLevel]
-      ? `${snapHeight(levels[currentLevel].height)}p`
-      : __('Auto');
+    currentLevel === -1 ? autoLabel : levels[currentLevel] ? `${snapHeight(levels[currentLevel].height)}p` : autoLabel;
 
   const isHD = activeHeight >= 720;
 
-  return { levels, currentLevel, currentLabel, selectQuality, isHD };
+  return { levels, currentLevel, currentLabel, selectQuality, isHD, activeHeight };
 }
 
 function SettingsMenuContent({
