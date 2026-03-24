@@ -6,7 +6,6 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as REACTION_TYPES from 'constants/reactions';
-import { formatNumberWithCommas } from 'util/number';
 
 type Props = {
   uri: string,
@@ -137,9 +136,6 @@ const FloatingShortsActions = ({
               ) : null
             }
           />
-          {Number.isInteger(likeCount) && (
-            <span className="shorts-floating-action__count">{formatNumberWithCommas(likeCount, 0)}</span>
-          )}
         </div>
 
         <div
@@ -178,9 +174,6 @@ const FloatingShortsActions = ({
               ) : null
             }
           />
-          {Number.isInteger(dislikeCount) && (
-            <span className="shorts-floating-action__count">{formatNumberWithCommas(dislikeCount, 0)}</span>
-          )}
         </div>
 
         {channelUrl && (
