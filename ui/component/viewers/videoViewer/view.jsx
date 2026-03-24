@@ -13,7 +13,7 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { getAllIds } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
@@ -102,9 +102,7 @@ function VideoViewer(props) {
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
 
-  const {
-    location: { pathname, search },
-  } = useHistory();
+  const { pathname, search } = useLocation();
 
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
