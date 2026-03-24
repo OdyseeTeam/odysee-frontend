@@ -18,8 +18,8 @@ import { doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 import VideoFullscreenActions from './view';
 
 const select = (state, props) => {
-  const { uri, location } = props;
-  const { search } = location;
+  const { uri } = props;
+  const search = window.location.search || '';
   const urlParams = new URLSearchParams(search);
 
   const claim = uri && selectClaimForUri(state, uri);
