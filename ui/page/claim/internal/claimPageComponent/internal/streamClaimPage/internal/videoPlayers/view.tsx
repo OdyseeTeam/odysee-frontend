@@ -57,6 +57,7 @@ export default function VideoPlayersPage(props: Props) {
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
+  const description = claim?.value?.description;
   const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
   const fileInfo = useAppSelector((state) => makeSelectFileInfoForUri(uri)(state));
