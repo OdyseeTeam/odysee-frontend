@@ -32,6 +32,7 @@ import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } 
 const creatorIcon = (channelUrl, channelThumbnail) => (
   <UriIndicator
     uri={channelUrl}
+    link
     showAtSign
     channelInfo={{
       uri: channelUrl,

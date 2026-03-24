@@ -32,6 +32,7 @@ export default function ChatComments(props: Props) {
     isCompact,
   } = props;
 
+  const discussionRef = React.useRef<HTMLDivElement>(null);
   const fetchingComments = useAppSelector(selectIsFetchingComments);
   const resolvingSuperchats = useAppSelector((state) =>
     Boolean(
