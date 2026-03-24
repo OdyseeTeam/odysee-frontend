@@ -27,18 +27,18 @@ async function sendAndResetWatchmanData() {
   if (videoType === 'application/x-mpegURL' && !isLivestream) {
     protocol = 'hls';
     // get bandwidth if it exists from the texttrack (so it's accurate if user changes quality)
-    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = videoPlayer.tech?.(true)?.vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
   } else if (isLivestream) {
     protocol = 'lvs';
-    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = videoPlayer.tech?.(true)?.vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
   } else {
     protocol = 'stb';
   }
 
   // current position in video in MS
-  const positionInVideo = isLivestream ? 0 : videoPlayer && Math.round(videoPlayer.currentTime()) * 1000;
+  const positionInVideo = isLivestream ? 0 : videoPlayer?.currentTime ? Math.round(videoPlayer.currentTime()) * 1000 : 0;
   // get the duration marking the time in the video for relative position calculation
-  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer && Math.round(videoPlayer.duration());
+  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer?.duration ? Math.round(videoPlayer.duration()) : 0;
   // temp: if buffering over the interval, the duration doesn't reset since we don't get an event
   if (amountOfBufferTimeInMS > timeSinceLastIntervalSend) amountOfBufferTimeInMS = timeSinceLastIntervalSend;
   // build object for watchman backend
