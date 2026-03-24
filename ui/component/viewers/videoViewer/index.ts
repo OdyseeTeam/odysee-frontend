@@ -135,9 +135,13 @@ function VideoViewerWithRedux(props: any) {
     autoPlayNextShort,
     isFloating,
     floatingPlayer,
-    setFloatingPlayer: (v: boolean) => dispatch(doSetClientSetting(SETTINGS.FLOATING_PLAYER, v)),
+    setFloatingPlayer: (v: boolean) => {
+      dispatch(doSetClientSetting(SETTINGS.FLOATING_PLAYER, v));
+    },
     autoplayMedia,
-    setAutoplayMedia: (v: boolean) => dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, v)),
+    setAutoplayMedia: (v: boolean) => {
+      dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, v));
+    },
     doSyncLastPosition: (u: string, p: number) => {}, // TODO: wire to sync action
     doClearContentHistoryUri: (u: string) => {}, // TODO: wire to content action
     changeVolume: (v: number) => dispatch(doChangeVolume(v)),
