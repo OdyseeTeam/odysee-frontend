@@ -39,6 +39,8 @@ const transformLivestreamClaimData = (data: LivestreamClaimResponse): Livestream
   releaseTime: data.ReleaseTime,
 });
 
+const getPreferredLivestreamVideoUrl = (livestream: any) => livestream.VideoURLLLHLS || livestream.VideoURL;
+
 export const transformNewLivestreamData = (data: LivestreamAllResponse): LivestreamInfoByCreatorIds =>
   data.reduce((acc, curr) => {
     acc[curr.ChannelClaimID] = {
@@ -48,7 +50,7 @@ export const transformNewLivestreamData = (data: LivestreamAllResponse): Livestr
       creatorId: curr.ChannelClaimID,
       activeClaim: {
         ...transformLivestreamClaimData(curr.ActiveClaim),
-        videoUrl: curr.VideoURL,
+        videoUrl: getPreferredLivestreamVideoUrl(curr),
         startedStreaming: moment(curr.Start),
       },
       ...(curr.PastClaims

@@ -5,8 +5,9 @@ import React from 'react';
 import Button from 'component/button';
 import ClaimCoverRender from 'component/claimCoverRender';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
-import { useAppDispatch } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { doSetMainPlayerDimension as doSetMainPlayerDimensionAction } from 'redux/actions/app';
+import { selectMainPlayerDimensions } from 'redux/selectors/app';
 type Props = {
   // -- withStreamClaimRender --
   uri: string;
@@ -17,16 +18,22 @@ type Props = {
 const VideoClaimInitiator = (props: Props) => {
   const { uri, children, streamClaim } = props;
   const dispatch = useAppDispatch();
-  const doSetMainPlayerDimension = (dimensions: { height: number; width: number }) =>
-    dispatch(doSetMainPlayerDimensionAction(dimensions));
+  const mainPlayerDimensions = useAppSelector(selectMainPlayerDimensions);
   const playerRef = React.useCallback(
     (node) => {
       if (node) {
         const rect = node.getBoundingClientRect();
-        doSetMainPlayerDimension(rect);
+
+        if (
+          !mainPlayerDimensions ||
+          mainPlayerDimensions.width !== rect.width ||
+          mainPlayerDimensions.height !== rect.height
+        ) {
+          dispatch(doSetMainPlayerDimensionAction(rect));
+        }
       }
     },
-    [doSetMainPlayerDimension]
+    [dispatch, mainPlayerDimensions]
   );
   return (
     <ClaimCoverRender uri={uri} onClick={streamClaim} passedRef={playerRef}>
