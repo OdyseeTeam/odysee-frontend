@@ -18,8 +18,14 @@ import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
+import { useHistory } from 'react-router';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
+import {
+  fullscreenElement as getFullscreenElement,
+  exitFullscreen,
+  onFullscreenChange as onFsChange,
+} from 'util/full-screen';
 import { isURIEqual } from 'util/lbryURI';
 import AutoplayCountdown from './internal/autoplayCountdown';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
@@ -36,6 +42,7 @@ import {
 } from 'util/window';
 import { lazyImport } from 'util/lazyImport';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import VideoFullscreenActions from 'component/videoFullscreenActions';
 import FloatingShortsActions from './internal/floatingShortsActions';
 import FloatingReactions from './internal/floatingReactions';
 import { useLocation } from 'react-router-dom';
@@ -297,6 +304,8 @@ function VideoRenderFloating(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId, mainPlayerDimensions]);
   const restoreToRelativePosition = React.useCallback(() => {
+    if (getFullscreenElement()) return;
+
     const SCROLL_BAR_PX = 12; // root: --body-scrollbar-width
 
     const screenW = getScreenWidth() - SCROLL_BAR_PX;
@@ -388,6 +397,71 @@ function VideoRenderFloating(props: Props) {
     // Initial update for relativePosRef:
     relativePosRef.current = calculateRelativePos(position.x, position.y); // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on mount
   }, []);
+  React.useEffect(() => {
+    window.__playerFullscreenTarget = fullscreenTargetRef.current;
+    return () => {
+      delete window.__playerFullscreenTarget;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const handler = () => {
+      const docEl = document.documentElement;
+      if (docEl) {
+        docEl.classList.add('fullscreen-transitioning');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            docEl.classList.remove('fullscreen-transitioning');
+          });
+        });
+      }
+    };
+    onFsChange(document, 'add', handler);
+    return () => onFsChange(document, 'remove', handler);
+  }, []);
+
+  // $FlowFixMe
+  React.useEffect(() => {
+    const body = document.body;
+    if (!body) return;
+    const origAppend = body.appendChild.bind(body);
+    const origRemove = body.removeChild.bind(body);
+
+    // $FlowFixMe
+    body.appendChild = function (node) {
+      const fsEl = getFullscreenElement();
+      if (node && node.nodeName === 'REACH-PORTAL' && fsEl) {
+        // $FlowFixMe
+        return fsEl.appendChild(node);
+      }
+      return origAppend(node);
+    };
+
+    // $FlowFixMe
+    body.removeChild = function (node) {
+      if (node && node.nodeName === 'REACH-PORTAL' && node.parentNode && node.parentNode !== body) {
+        return node.parentNode.removeChild(node);
+      }
+      return origRemove(node);
+    };
+
+    return () => {
+      delete body.appendChild;
+      delete body.removeChild;
+    };
+  }, []);
+
+  const prevPathnameRef = React.useRef(location.pathname);
+  React.useLayoutEffect(() => {
+    if (prevPathnameRef.current !== location.pathname) {
+      const fsEl = getFullscreenElement();
+      if (fsEl && !fsEl.classList.contains('player-fullscreen-target')) {
+        exitFullscreen();
+      }
+      prevPathnameRef.current = location.pathname;
+    }
+  }, [location.pathname]);
+
   React.useEffect(() => {
     if (isFloating && isComment) {
       // When the player begins floating, remove the comment source
@@ -542,10 +616,6 @@ function VideoRenderFloating(props: Props) {
   }
 
   function handleDragMove(e, ui) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-
     const { x, y } = position;
     const newX = ui.x;
     const newY = ui.y;
@@ -557,10 +627,6 @@ function VideoRenderFloating(props: Props) {
   }
 
   function handleDragStop(e, ui) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-
     // Always clear drag click-shield after drag end.
     setWasDragging(false);
     const { x, y } = ui;
@@ -694,6 +760,8 @@ function VideoRenderFloating(props: Props) {
               />
             )}
 
+            {isFloating && isMobile && !isShortsFloating && <MiniPlayerPlayButton />}
+
             {autoplayCountdownUri && !showStreamPlaceholder && (
               <div
                 className={classnames('content__autoplay-countdown', {
@@ -713,6 +781,15 @@ function VideoRenderFloating(props: Props) {
                 isShortsContext={isShortVideo}
                 isFloatingContext={isFloating}
                 forceRenderStream={isFloating}
+              />
+            )}
+
+            {isFloating && isMobile && !isShortsFloating && navigateUrl && (
+              <div
+                role="button"
+                tabIndex={0}
+                style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
+                onClick={() => history.push(navigateUrl)}
               />
             )}
 
@@ -818,6 +895,21 @@ function VideoRenderFloating(props: Props) {
               </div>
             )}
           </div>
+
+          {uri && (
+            <VideoFullscreenActions
+              uri={uri}
+              isShort={isShortVideo}
+              isLivestreamClaim={isCurrentClaimLive}
+              onNext={hasNextShort ? goToNextShort : undefined}
+              onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
+              isAtStart={!hasPreviousShort}
+              isAtEnd={!hasNextShort}
+              hasPlaylist={!!playingCollection}
+              autoPlayNextShort={autoPlayNextShort}
+              doToggleShortsAutoplay={doToggleShortsAutoplay}
+            />
+          )}
         </div>
       </Draggable>
     </VideoRenderFloatingContext.Provider>
@@ -895,8 +987,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
       }
 
       const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
-      const videoNode = document.querySelector('.vjs-tech');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const videoNode = document.querySelector('.video-js-parent video');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
 
       if (rootEl && viewer) {
         const scrollTop = window.pageYOffset || rootEl.scrollTop;
@@ -921,7 +1013,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => {
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
       window.removeEventListener('scroll', handleScroll);
     };
@@ -948,17 +1040,17 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     if (isMobile && isFloating) {
       const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
       if (viewer) viewer.removeAttribute('style');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
       if (videoNode) videoNode.removeAttribute('style');
     }
   }, [amountNeededToCenter, appDrawerOpen, isFloating, isMobile, isMobilePlayer, videoGreaterThanLandscape]);
   React.useEffect(() => {
     if (isTabletLandscape) {
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
       if (videoNode) videoNode.removeAttribute('style');
-      const touchOverlay = document.querySelector('.vjs-touch-overlay');
+      const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
     }
   }, [isTabletLandscape]);
@@ -984,7 +1076,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         },
         '.file-render--video': { ...transparentBackground, ...maxHeight, video: maxHeight },
         '.content__wrapper': transparentBackground,
-        '.video-js': {
+        '.video-js-parent': {
           ...transparentBackground,
           '.vjs-touch-overlay': {
             maxHeight: isTabletLandscape ? 'var(--desktop-portrait-player-max-height) !important' : undefined,
@@ -992,8 +1084,10 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         },
         '.vjs-fullscreen': {
           video: {
-            top: 'unset !important',
-            height: '100% !important',
+            opacity: '1',
+            height: '100%',
+            position: 'absolute',
+            top: isFloating ? '0px !important' : undefined,
           },
           '.vjs-touch-overlay': {
             height: '100% !important',
@@ -1011,7 +1105,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
             (!forceDefaults || isLandscapeRotated) && (!isMobile || isMobilePlayer)
               ? `${heightResult} !important`
               : undefined,
-          ...maxHeight,
+          ...(isTabletLandscape ? { maxHeight: 'none !important' } : maxHeight),
         },
         '.content__autoplay-countdown': {
           height:

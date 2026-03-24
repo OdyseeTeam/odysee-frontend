@@ -1,4 +1,4 @@
-// @flow
+
 import React from 'react';
 import classnames from 'classnames';
 import Card from 'component/common/card';
@@ -7,14 +7,8 @@ import * as ICONS from 'constants/icons';
 import parseChapters from 'util/parse-chapters';
 import './style.lazy.scss';
 
-type Props = {
-  uri: string,
-  description: ?string,
-  visible: boolean,
-  setVisible: (boolean) => void,
-};
 
-export default function ChaptersCard(props: Props) {
+export default function ChaptersCard(props) {
   const { description, visible, setVisible } = props;
 
   const chapters = React.useMemo(() => parseChapters(description), [description]);
@@ -109,7 +103,9 @@ export default function ChaptersCard(props: Props) {
       title={
         <span className="chapters-card__title">
           {__('Chapters')}
-          <span className="chapters-card__count">{chapters.length}</span>
+          <span className="chapters-card__count">
+            {activeIndex >= 0 ? activeIndex + 1 : 0}/{chapters.length}
+          </span>
         </span>
       }
       titleActions={<Button className="button-toggle" icon={ICONS.REMOVE} onClick={() => setVisible(false)} />}

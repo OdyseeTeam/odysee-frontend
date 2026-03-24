@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import Player from '../player';
 import * as QUALITY_OPTIONS from 'constants/player';

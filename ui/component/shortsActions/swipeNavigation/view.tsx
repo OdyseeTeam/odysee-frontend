@@ -4,11 +4,7 @@ import classnames from 'classnames';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import './style.scss';
 import MobileActions from '../shortsMobileActions';
-import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
-import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
-import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
-import { doOpenModal } from 'redux/actions/app';
+import { fullscreenElement as getFullscreenElement } from 'util/full-screen';
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 type Props = {
@@ -79,8 +75,7 @@ const SwipeNavigationPortal = React.memo<Props>(
       };
     }, [claimId, dispatch, isLivestreamClaim]);
     const handlePlayPause = React.useCallback(() => {
-      const videoElement: any = document.querySelector('.vjs-tech');
-
+      const videoElement: any = document.querySelector('video');
       if (videoElement) {
         if (videoElement.paused) {
           videoElement.play();
@@ -129,6 +124,7 @@ const SwipeNavigationPortal = React.memo<Props>(
       [onNext, onPrevious, isEnabled]
     );
     React.useEffect(() => {
+      // $FlowFixMe - overlayRef is a callback ref, not a ref object
       const overlay = overlayRef.current;
       if (!overlay || !isEnabled) return;
 
@@ -147,16 +143,31 @@ const SwipeNavigationPortal = React.memo<Props>(
         window.removeEventListener('keydown', handleKeyDown);
       };
     }, [isMobile, isEnabled, handleWheel, handleKeyDown, overlayRef]);
+
+    const [isFullscreen, setIsFullscreen] = React.useState(!!getFullscreenElement());
+
+    React.useEffect(() => {
+      const onChange = () => setIsFullscreen(!!getFullscreenElement());
+      document.addEventListener('fullscreenchange', onChange);
+      return () => document.removeEventListener('fullscreenchange', onChange);
+    }, []);
+
     const targetContainer = React.useMemo(() => {
+      if (isFullscreen) {
+        const fsTarget = document.querySelector('.player-fullscreen-target');
+        if (fsTarget) return fsTarget;
+      }
       if (containerSelector) {
         return document.querySelector(containerSelector);
       }
 
       return document.body;
-    }, [containerSelector]);
+    }, [containerSelector, isFullscreen]);
+
     if (!targetContainer) return null;
     return createPortal(
       <div
+        key={isFullscreen ? 'fs' : 'default'}
         onClick={(e) => {
           e.currentTarget.style.pointerEvents = 'none';
           const el = document.elementFromPoint(e.clientX, e.clientY);
@@ -167,9 +178,22 @@ const SwipeNavigationPortal = React.memo<Props>(
 
             if (
               link &&
-              link.closest('.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play')
+              link.closest(
+                '.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play, .shorts-page__navigation'
+              )
             ) {
               if (link instanceof HTMLElement) link.click();
+              return;
+            }
+            const touchOverlay = el.closest('.odysee-touch-overlay');
+            if (touchOverlay) {
+              touchOverlay.dispatchEvent(
+                new MouseEvent('click', {
+                  bubbles: true,
+                  clientX: e.clientX,
+                  clientY: e.clientY,
+                })
+              );
               return;
             }
           }

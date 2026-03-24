@@ -98,7 +98,9 @@ export default function FileTitleSection(props: Props) {
         ) : (
           <>
             <ClaimAuthor channelSubCount={subCount} uri={uri} />
-            {!hideDescription && <FileDescription expandOverride={isMobile && livestream} uri={uri} />}
+            {!hideDescription && (
+              <FileDescription expandOverride={expandOverrideProp || (isMobile && livestream)} uri={uri} />
+            )}
           </>
         )
       }

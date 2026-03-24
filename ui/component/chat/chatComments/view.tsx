@@ -78,7 +78,7 @@ export default function ChatComments(props: Props) {
       forceUpdate,
     };
     return isMobile ? (
-      <div className="livestream__comments--mobile">
+      <div ref={discussionRef} className="livestream__comments--mobile">
         {comments
           .slice(0)
           .toReversed()
@@ -96,6 +96,7 @@ export default function ChatComments(props: Props) {
       </div>
     ) : (
       <div
+        ref={discussionRef}
         className="livestream__comments"
         onMouseEnter={() => setHoverLock(true)}
         onMouseLeave={() => setHoverLock(false)}

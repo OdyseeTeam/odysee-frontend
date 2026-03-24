@@ -387,6 +387,7 @@ export default function CommentList(props: Props) {
     sort,
     changeSort,
     handleRefresh: refreshComments,
+    isMobile,
   };
 
   if (scheduledState === 'scheduled') {
@@ -397,12 +398,10 @@ export default function CommentList(props: Props) {
   return (
     <Card
       className="card--enable-overflow comment__list"
-      title={(!isMobile || notInDrawer) && title}
+      title={title}
       titleActions={<CommentActionButtons {...actionButtonsProps} />}
       actions={
         <>
-          {isMobile && !notInDrawer && <CommentActionButtons {...actionButtonsProps} />}
-
           <CommentCreate uri={uri} />
 
           {threadCommentId && threadComment && (
@@ -543,8 +542,8 @@ const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
   };
   return (
     <div className="comment__actions">
-      {totalUnfilteredComments > 1 && ENABLE_COMMENT_REACTIONS && (
-        <span className="comment__sort">
+      {(canSort || isMobile) && ENABLE_COMMENT_REACTIONS && (
+        <span className={`comment__sort ${!canSort ? 'comment__sort--disabled' : ''}`}>
           <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
           <SortButton
             {...sortButtonProps}

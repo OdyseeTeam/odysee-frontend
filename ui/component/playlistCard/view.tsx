@@ -6,7 +6,6 @@ import CollectionItemsList from 'component/collectionItemsList';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
-import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
@@ -16,8 +15,6 @@ import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
 import ShuffleButton from './internal/shuffleButton';
 import LoopButton from './internal/loopButton';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
@@ -126,35 +123,6 @@ export default function PlaylistCard(props: Props) {
     doToggleCollectionSavedForId,
   };
 
-  if (useDrawer) {
-    return (
-      <>
-        <DrawerExpandButton
-          fixed
-          icon={ICONS.PLAYLIST_PLAYBACK}
-          label={
-            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
-          }
-          type={DRAWERS.PLAYLIST}
-        />
-
-        <SwipeableDrawer
-          startOpen={!collectionEmpty}
-          type={DRAWERS.PLAYLIST}
-          title={
-            // returns the card title element
-            <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />
-          }
-          hasSubtitle
-        >
-          {/* returns the card body element */}
-          <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" bodyOnly />
-        </SwipeableDrawer>
-      </>
-    );
-  }
-
-  // returns the full card element
   return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
 }
 type PlaylistCardProps = {
@@ -219,6 +187,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doToggleCollectionSavedForId,
     collectionSavedForId,
     thumbnailFromClaim,
+    onClose,
     ...cardProps
   } = props;
   const isMobile = useIsMobile();
@@ -541,10 +510,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 )}
 
                 <Button
-                  title={__('Close Playlist')}
+                  title={onClose ? __('Close') : __('Close Playlist')}
                   className="button-toggle"
                   icon={ICONS.REMOVE}
-                  onClick={closePlaylist}
+                  onClick={onClose || closePlaylist}
                 />
               </>
             )

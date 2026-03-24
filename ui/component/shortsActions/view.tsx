@@ -155,6 +155,10 @@ const ShortsActions = React.memo<Props>(
       };
     }, [claimId, dispatch, isLivestreamClaim]);
     const isMobile = useIsShortsMobile();
+    const isMobileDevice = platform.isMobile();
+
+    if (isMobileDevice) return null;
+
     const content = (
       <div
         className={classnames('shorts-page__navigation', {
@@ -168,7 +172,6 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.INFO}
             iconSize={20}
             title={__('Show Details')}
-            disabled={!hasPlaylist}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--previous"
@@ -179,7 +182,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.UP}
             iconSize={24}
             title={__('Previous Short')}
-            disabled={isAtStart || !hasPlaylist}
+            disabled={isAtStart}
           />
           <Button
             className="shorts-page__actions-button shorts-page__actions-button--next"
@@ -190,7 +193,7 @@ const ShortsActions = React.memo<Props>(
             icon={ICONS.DOWN}
             iconSize={24}
             title={__('Next Short')}
-            disabled={isAtEnd || !hasPlaylist}
+            disabled={isAtEnd}
           />
           <div
             className={classnames('shorts-page__ratings', {
@@ -233,7 +236,6 @@ const ShortsActions = React.memo<Props>(
                 icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
                 iconSize={16}
                 title={__('I Like This')}
-                disabled={!hasPlaylist}
                 requiresAuth
                 authSrc="filereaction_like"
                 className={classnames('shorts-page__actions-button button--file-action button-like', {
@@ -283,7 +285,6 @@ const ShortsActions = React.memo<Props>(
                 className={classnames('shorts-page__actions-button button--file-action button-dislike', {
                   'button--slime': myReaction === REACTION_TYPES.DISLIKE,
                 })}
-                disabled={!hasPlaylist}
                 label={
                   <>
                     {myReaction === REACTION_TYPES.DISLIKE && (
@@ -413,7 +414,6 @@ const ShortsActions = React.memo<Props>(
               icon={ICONS.COMMENTS_LIST}
               iconSize={16}
               title={__('Comments')}
-              disabled={!hasPlaylist}
             />
             <p>{__('Comments')}</p>
           </div>
@@ -437,7 +437,6 @@ const ShortsActions = React.memo<Props>(
                   icon={ICONS.REPOST}
                   iconSize={16}
                   title={__('Repost this content')}
-                  disabled={!hasPlaylist}
                   requiresChannel
                 />
                 <p>{__('Repost')}</p>
@@ -452,7 +451,6 @@ const ShortsActions = React.memo<Props>(
                 icon={ICONS.SHARE}
                 iconSize={16}
                 title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-                disabled={!hasPlaylist}
               />
               <p>{__('Share')}</p>
             </div>
@@ -465,7 +463,7 @@ const ShortsActions = React.memo<Props>(
                 onClick={doToggleShortsAutoplay}
                 icon={ICONS.AUTOPLAY_NEXT}
                 iconSize={16}
-                disabled={isLoading || !hasPlaylist}
+                disabled={isLoading}
               />
               <p>{__('Auto Next')}</p>
             </div>

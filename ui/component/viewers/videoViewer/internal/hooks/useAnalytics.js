@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Player from '../player';
 import analytics from 'analytics';

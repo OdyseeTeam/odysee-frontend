@@ -23,22 +23,24 @@ async function sendAndResetWatchmanData() {
   let timeSinceLastIntervalSend = new Date() - lastSentTime;
   lastSentTime = new Date();
   let protocol;
-
+  const hls = videoPlayer.engine || videoPlayer._hls;
   if (videoType === 'application/x-mpegURL' && !isLivestream) {
     protocol = 'hls';
-    // get bandwidth if it exists from the texttrack (so it's accurate if user changes quality)
-    bitrateAsBitsPerSecond = videoPlayer.tech?.(true)?.vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = hls?.levels?.[hls.currentLevel]?.bitrate;
   } else if (isLivestream) {
     protocol = 'lvs';
-    bitrateAsBitsPerSecond = videoPlayer.tech?.(true)?.vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = hls?.levels?.[hls.currentLevel]?.bitrate;
   } else {
     protocol = 'stb';
   }
 
-  // current position in video in MS
-  const positionInVideo = isLivestream ? 0 : videoPlayer?.currentTime ? Math.round(videoPlayer.currentTime()) * 1000 : 0;
-  // get the duration marking the time in the video for relative position calculation
-  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer?.duration ? Math.round(videoPlayer.duration()) : 0;
+  const currentTime =
+    typeof videoPlayer.currentTime === 'function' ? videoPlayer.currentTime() : videoPlayer.currentTime;
+  const duration = typeof videoPlayer.duration === 'function' ? videoPlayer.duration() : videoPlayer.duration;
+
+  const positionInVideo = isLivestream ? 0 : videoPlayer && Math.round(currentTime) * 1000;
+  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer && Math.round(duration);
+
   // temp: if buffering over the interval, the duration doesn't reset since we don't get an event
   if (amountOfBufferTimeInMS > timeSinceLastIntervalSend) amountOfBufferTimeInMS = timeSinceLastIntervalSend;
   // build object for watchman backend
@@ -143,8 +145,8 @@ export const watchman: Watchman = {
 
     // have to use this because videojs pauses/unpauses during seek
     // sometimes the seeking function isn't populated yet so check for it as well
-    if (passedPlayer && passedPlayer.seeking) {
-      playerIsSeeking = passedPlayer.seeking();
+    if (passedPlayer && passedPlayer.seeking !== undefined) {
+      playerIsSeeking = typeof passedPlayer.seeking === 'function' ? passedPlayer.seeking() : passedPlayer.seeking;
     }
 
     // if being paused, and not seeking, send existing data and stop interval
@@ -182,7 +184,10 @@ export const watchman: Watchman = {
     claimUrl = canonicalUrl;
     playerPoweredBy = poweredBy;
     isLivestream = isLivestreamClaim;
-    videoType = passedPlayer.currentSource().type;
+    videoType =
+      typeof passedPlayer.currentSource === 'function'
+        ? passedPlayer.currentSource().type
+        : passedPlayer.currentSrc?.type || 'application/x-mpegURL';
     videoPlayer = passedPlayer;
     bitrateAsBitsPerSecond = videoBitrate;
     !isLivestreamClaim && sendPromMetric('time_to_start', timeToStartVideo, playerPoweredBy);

@@ -229,9 +229,17 @@ const MobileActions = (props: Props) => {
                 />
               </div>
             </div>
-            <span className="shorts-mobile-panel__count">{isSubscribed ? __('Following') : __('Follow')}</span>
           </div>
         )}
+
+        <div className="shorts-mobile-panel__action-item">
+          <Button
+            className="shorts-mobile-panel__action-button"
+            onClick={onInfoButtonClick}
+            icon={ICONS.INFO}
+            iconSize={16}
+          />
+        </div>
 
         <div className="shorts-mobile-panel__action-item">
           <Button
@@ -240,7 +248,6 @@ const MobileActions = (props: Props) => {
             icon={ICONS.COMMENTS_LIST}
             iconSize={16}
           />
-          <span className="shorts-mobile-panel__count">{__('Comments')}</span>
         </div>
 
         <div className="shorts-mobile-panel__action-item">
@@ -251,7 +258,6 @@ const MobileActions = (props: Props) => {
             iconSize={16}
             title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
           />
-          <span className="shorts-mobile-panel__count">{__('Share')}</span>
         </div>
 
         {!isUnlisted && (
@@ -268,19 +274,8 @@ const MobileActions = (props: Props) => {
               title={__('Repost this content')}
               requiresChannel
             />
-            <span className="shorts-mobile-panel__count">{__('Repost')}</span>
           </div>
         )}
-
-        <div className="shorts-mobile-panel__action-item">
-          <Button
-            className="shorts-mobile-panel__action-button"
-            onClick={onInfoButtonClick}
-            icon={ICONS.INFO}
-            iconSize={16}
-          />
-          <span className="shorts-mobile-panel__count">{__('Details')}</span>
-        </div>
 
         <div className="shorts-mobile-panel__action-item">
           <Button
@@ -293,7 +288,6 @@ const MobileActions = (props: Props) => {
             icon={ICONS.AUTOPLAY_NEXT}
             iconSize={24}
           />
-          <span className="shorts-mobile-panel__count">{__('Auto Next')}</span>
         </div>
       </div>
     </>

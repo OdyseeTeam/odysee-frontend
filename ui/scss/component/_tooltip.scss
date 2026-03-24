@@ -21,6 +21,12 @@
   font-size: var(--font-xxsmall) !important;
 }
 
+@media (max-width: $breakpoint-small) {
+  .MuiTooltip-popper {
+    display: none !important;
+  }
+}
+
 .profile-badge__tooltip {
   margin-top: 0px !important;
   right: 0.5rem !important;

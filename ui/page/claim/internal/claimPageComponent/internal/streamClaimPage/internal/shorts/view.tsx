@@ -8,7 +8,7 @@ import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
 import ShortsActions from 'component/shortsActions';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
-import MobilePanel from 'component/shortsMobileSidePanel';
+import MobileTabView from 'component/mobileTabView';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
@@ -201,6 +201,7 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
+  const drawerOpenRef = React.useRef<any>(null);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [transitionDirection, setTransitionDirection] = React.useState<ReelDirection | null | undefined>(null);
@@ -237,7 +238,8 @@ export default function ShortsPage(props: Props) {
   const [overlayTarget, setOverlayTarget] = React.useState(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
-    const viewer = document.querySelector('.shorts__viewer');
+    const viewer =
+      document.querySelector('.shorts__viewer .content__wrapper') || document.querySelector('.shorts__viewer');
     const cover = document.querySelector('.content__cover--shorts');
     const target = viewer || cover || null;
     setOverlayTarget((prev) => (prev !== target ? target : prev));
@@ -441,6 +443,9 @@ export default function ShortsPage(props: Props) {
     };
   }, [dispatch]);
   React.useEffect(() => {
+    const docEl = document.documentElement;
+    if (docEl) docEl.style.removeProperty('--shorts-viewer-width');
+
     let timeoutId;
 
     function loop() {
@@ -760,7 +765,7 @@ export default function ShortsPage(props: Props) {
         overlayTarget &&
         createPortal(
           <>
-            {overlayTarget.classList.contains('shorts__viewer') && (
+            {overlayTarget.closest('.shorts__viewer') && (
               <div className="shorts-viewer__content-info">
                 {channelUri && (
                   <Link
@@ -805,24 +810,27 @@ export default function ShortsPage(props: Props) {
                 onSwipeNext={goToNext}
                 onSwipePrevious={goToPrevious}
                 enableSwipe={isSwipeEnabled}
+                panelOpen={sidePanelOpen}
               />
 
-              <ShortsActions
-                hasPlaylist={hasPlaylist}
-                onNext={goToNext}
-                onPrevious={goToPrevious}
-                isLoading={isLoadingContent}
-                currentIndex={currentIndex}
-                totalVideos={shortsRecommendedUris?.length || 0}
-                isAtStart={isAtStart}
-                isAtEnd={isAtEnd}
-                autoPlayNextShort={autoPlayNextShort}
-                doToggleShortsAutoplay={doToggleShortsAutoplay}
-                uri={uri}
-                onCommentsClick={handleCommentsClick}
-                onInfoClick={handleInfoButtonClick}
-                handleShareClick={handleShareClick}
-              />
+              {!sidePanelOpen && (
+                <ShortsActions
+                  hasPlaylist={hasPlaylist}
+                  onNext={goToNext}
+                  onPrevious={goToPrevious}
+                  isLoading={isLoadingContent}
+                  currentIndex={currentIndex}
+                  totalVideos={shortsRecommendedUris?.length || 0}
+                  isAtStart={isAtStart}
+                  isAtEnd={isAtEnd}
+                  autoPlayNextShort={autoPlayNextShort}
+                  doToggleShortsAutoplay={doToggleShortsAutoplay}
+                  uri={uri}
+                  onCommentsClick={handleCommentsClick}
+                  onInfoClick={handleInfoButtonClick}
+                  handleShareClick={handleShareClick}
+                />
+              )}
             </div>
           </div>
 
@@ -840,21 +848,52 @@ export default function ShortsPage(props: Props) {
             />
           )}
 
-          {isMobile && (
-            <MobilePanel
-              isOpen={sidePanelOpen}
-              onClose={handleClosePanel}
-              onInfoClick={handleInfoButtonClick}
-              uri={uri}
-              accessStatus={accessStatus}
-              contentUnlocked={contentUnlocked}
-              commentsDisabled={commentsDisabled}
-              commentsListTitle={commentsListTitle}
-              linkedCommentId={linkedCommentId}
-              threadCommentId={threadCommentId}
-              isComments={panelMode === 'comments'}
-            />
-          )}
+          {isMobile &&
+            (() => {
+              const portalTarget = isFullscreen
+                ? document.querySelector('.player-fullscreen-target') || document.body
+                : document.body;
+              return portalTarget
+                ? createPortal(
+                    <MobileTabView
+                      useDrawer
+                      drawerOpenRef={drawerOpenRef}
+                      tabDefs={[
+                        { icon: ICONS.INFO, label: __('Details') },
+                        { icon: ICONS.COMMENTS_LIST, label: __('Comments') },
+                      ]}
+                      infoContent={
+                        <div className="file-page">
+                          <div className="card-stack">
+                            <section className="file-page__media-actions">
+                              <FileTitleSection uri={uri} accessStatus={accessStatus} />
+                            </section>
+                          </div>
+                        </div>
+                      }
+                      commentsContent={
+                        contentUnlocked ? (
+                          commentsDisabled ? (
+                            <Empty padded text={__('The creator of this content has disabled comments.')} />
+                          ) : (
+                            <React.Suspense fallback={null}>
+                              <CommentsList
+                                uri={uri}
+                                linkedCommentId={linkedCommentId}
+                                threadCommentId={threadCommentId}
+                                notInDrawer
+                              />
+                            </React.Suspense>
+                          )
+                        ) : null
+                      }
+                      relatedContent={null}
+                      onDrawerClose={handleClosePanel}
+                    />,
+                    portalTarget
+                  )
+                : null;
+            })()}
         </div>
       </div>
     </>

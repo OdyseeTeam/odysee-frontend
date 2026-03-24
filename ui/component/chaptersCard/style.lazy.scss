@@ -1,4 +1,4 @@
-@import '~ui/scss/init/breakpoints';
+@import '../../scss/init/breakpoints';
 
 .chapters-card {
   display: flex;
@@ -52,12 +52,16 @@
 .chapters-card__title {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-xs);
+  width: 100%;
 }
 
 .chapters-card__count {
   font-size: var(--font-xsmall);
-  opacity: 0.7;
+  background-color: rgba(var(--color-header-button-base), 0.4);
+  padding: 2px 6px;
+  border-radius: var(--border-radius);
 }
 
 .chapters-card__list {
@@ -103,8 +107,10 @@
   text-align: left;
   font-size: var(--font-small);
 
-  &:hover {
-    background-color: rgba(var(--color-header-button-base), 0.4);
+  @media (hover: hover) {
+    &:hover {
+      background-color: rgba(var(--color-header-button-base), 0.4);
+    }
   }
 }
 

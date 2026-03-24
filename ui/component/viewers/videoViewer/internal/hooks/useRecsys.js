@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 import RecSys from 'recsys';
@@ -23,6 +22,12 @@ export default function useRecsys(videoId, userId, embedded, shareTelemetry) {
 
   useEffect(() => {
     if (!shareTelemetry || !videoId || !media) return;
+
+    inPauseRef.current = false;
+    lastTimeUpdateRef.current = null;
+    currentTimeUpdateRef.current = null;
+    watchedDurationRef.current = { total: 0, lastTimestamp: -1 };
+    prevStateRef.current = { paused: true, ended: false, playbackRate: 1 };
 
     const unsubscribe = store.subscribe(() => {
       const s = store.state;

@@ -1,8 +1,6 @@
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
-import * as ICONS from 'constants/icons';
-import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as SETTINGS from 'constants/settings';
 import * as TAGS from 'constants/tags';
@@ -11,8 +9,7 @@ import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
-import SwipeableDrawer from 'component/swipeableDrawer';
-import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { useLocation } from 'react-router-dom';
@@ -118,6 +115,9 @@ export default function VideoPlayersPage(props: Props) {
     }
   }, [dispatch, fileInfo, uri, videoPlayedEnoughToResetPosition]);
 
+  const chapters = React.useMemo(() => parseChapters(description), [description]);
+  const hasChapters = chapters.length > 0;
+
   if (isMature) {
     return (
       <>
@@ -131,7 +131,8 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
+        {isSmallScreen && <ChaptersCard uri={uri} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
@@ -151,23 +152,14 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} />}
+            {isSmallScreen && <ChaptersCard uri={uri} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
             {contentUnlocked &&
               (commentsDisabled ? (
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
-              ) : isMobile && !isLandscapeRotated ? (
-                <React.Fragment>
-                  <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
-                    <React.Suspense fallback={null}>
-                      <CommentsList {...commentsListProps} />
-                    </React.Suspense>
-                  </SwipeableDrawer>
-
-                  <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
-                </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
                   <CommentsList {...commentsListProps} notInDrawer />
@@ -194,7 +186,8 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
   const isMobile = useIsMobile();
   return (
     <div className="card-stack--spacing-m">
-      {!isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+      {!isSmallScreen && !isMobile && <PlaylistCard id={collectionId} uri={uri} />}
+      {!isMobile && <ChaptersCard uri={uri} />}
       <RecommendedContent uri={uri} />
     </div>
   );

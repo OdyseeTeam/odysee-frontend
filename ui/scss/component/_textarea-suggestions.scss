@@ -273,6 +273,12 @@
   color: var(--color-text) !important;
 }
 
+.MuiDrawer-paperAnchorBottom {
+  @media (max-width: $breakpoint-small) {
+    bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
 .MuiPaper-root {
   background-color: var(--mui-background);
   .form-field__two-column {

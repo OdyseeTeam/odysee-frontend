@@ -127,8 +127,19 @@
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 
-  &:fullscreen {
+  &:fullscreen,
+  html.ios-fullscreen & {
     border-radius: 0;
+
+    video {
+      object-fit: contain !important;
+    }
+  }
+
+  html.ios-fullscreen & .media-controls {
+    @media (orientation: portrait) {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
   }
 }
 
@@ -200,8 +211,8 @@
 .media-default-skin .media-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   border-radius: inherit;
-  background-image: linear-gradient(to top, oklch(0 0 0 / 0.5), oklch(0 0 0 / 0.3), oklch(0 0 0 / 0));
   backdrop-filter: blur(0) saturate(1.2) brightness(0.9);
   opacity: 0;
   transition-property: opacity, backdrop-filter;
@@ -359,7 +370,6 @@
   flex: 1;
   gap: 0.75rem;
   padding-inline: 0.5rem;
-  margin-left: 0.25rem;
 
   & .media-time__value:first-child {
     display: none;
@@ -732,7 +742,7 @@
 .media-default-skin--video {
   background: oklch(0 0 0);
   --media-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-background-color: oklch(1 0 0 / 0.1);
+  --media-surface-background-color: var(--player-surface-bg, oklch(0 0 0 / 0.3));
   --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
   --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
   --media-surface-shadow-color: oklch(0 0 0 / 0.15);
@@ -783,6 +793,42 @@
       scale: 1;
       filter: blur(0);
       transition-duration: 100ms;
+    }
+  }
+
+  &:has(.media-popover) {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+    pointer-events: auto;
+    transition-delay: 0ms;
+  }
+}
+
+.media-default-skin--video .media-controls.odysee-mobile-controls {
+  bottom: 0;
+  inset-inline: 0;
+  will-change: opacity;
+  transition-property: opacity;
+  transition-duration: 100ms;
+  transition-delay: 0ms;
+  transform-origin: center;
+
+  &:not([data-visible]) {
+    scale: 1;
+    filter: none;
+    transition-delay: 0ms;
+    transition-duration: 100ms;
+
+    @media (pointer: coarse) {
+      opacity: 1;
+    }
+
+    @media (pointer: fine) {
+      opacity: 0;
+      transition-duration: 300ms;
+      transition-delay: 500ms;
+      pointer-events: none;
     }
   }
 }

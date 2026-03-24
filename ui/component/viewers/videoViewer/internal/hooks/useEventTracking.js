@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 import analytics from 'analytics';
@@ -54,6 +53,15 @@ export default function useEventTracking(
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
             }),
+            get currentTime() {
+              return media.currentTime;
+            },
+            get duration() {
+              return media.duration;
+            },
+            get seeking() {
+              return media.seeking;
+            },
           };
           analytics.video.videoStartEvent(
             claimId,
@@ -71,6 +79,15 @@ export default function useEventTracking(
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
             }),
+            get currentTime() {
+              return media.currentTime;
+            },
+            get duration() {
+              return media.duration;
+            },
+            get seeking() {
+              return media.seeking;
+            },
           };
           analytics.video.videoStartEvent(
             claimId,

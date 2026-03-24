@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   background-color: var(--color-black);
-  color: var(--color-text-inverse);
+  color: #ffffff;
 
   .card__subtitle {
     color: var(--color-text-help);
@@ -38,7 +38,6 @@
 .embed__wrapper--light-background {
   @extend .embed__wrapper;
 
-  .vjs-poster,
   video {
     background-color: var(--color-white);
   }
@@ -105,6 +104,77 @@
 .embed__overlay-logo {
   max-height: 2rem;
   max-width: 7rem;
+}
+
+.embed__wrapper {
+  .odysee-skin {
+    --media-border-radius: 0;
+  }
+
+  .file-render,
+  .file-render--video,
+  .file-render--embed,
+  .file-viewer,
+  .content__cover,
+  video {
+    border-radius: 0 !important;
+  }
+}
+
+.embed__wrapper .media-settings-menu {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.odysee-embed-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-delay: 500ms;
+  transition-timing-function: ease-out;
+  pointer-events: none;
+}
+
+.media-controls[data-visible] ~ .odysee-embed-header {
+  opacity: 1;
+  pointer-events: auto;
+  transition-duration: 150ms;
+  transition-delay: 0ms;
+}
+
+.odysee-embed-header__title {
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 12px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.odysee-embed-header__logo {
+  flex-shrink: 0;
+  color: #fff;
+  text-decoration: none;
+
+  .icon {
+    height: 24px;
+  }
 }
 
 // Reactions overlay for embedded videos
