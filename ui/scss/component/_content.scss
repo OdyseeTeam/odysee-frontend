@@ -531,7 +531,7 @@
 
   .content__floating-close {
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 0.1s ease 0.5s;
   }
 
   &:hover,
@@ -539,18 +539,22 @@
   &:has([data-paused]) {
     .content__info--shorts-floating {
       opacity: 1;
+      transition-delay: 0s;
     }
 
     .content__shorts-floating-actions {
       opacity: 1;
+      transition-delay: 0s;
     }
 
     .content__shorts-floating-nav {
       opacity: 1;
+      transition-delay: 0s;
     }
 
     .content__floating-close {
       opacity: 1;
+      transition-delay: 0s;
     }
   }
 
@@ -734,7 +738,7 @@
     top: 0;
     z-index: 2;
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 0.1s ease 0.5s;
     margin-top: 0 !important;
     border: none;
     border-radius: 0;
@@ -819,7 +823,7 @@
     gap: var(--spacing-xxs);
     padding: var(--spacing-xxs);
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 0.1s ease 0.5s;
 
     .button {
       background: oklch(0 0 0 / 0.4) !important;
@@ -849,7 +853,7 @@
     gap: var(--spacing-xxs);
     padding: var(--spacing-xxs);
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity 0.1s ease 0.5s;
 
     @media (max-width: $breakpoint-small) {
       display: none;
