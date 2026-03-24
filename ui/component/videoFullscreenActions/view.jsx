@@ -561,119 +561,123 @@ export default function VideoFullscreenActions(props: Props) {
           )
         ) : (
           <>
-            <Button
-              className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
-                myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
-              } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
-              onClick={() => {
-                if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
-                doReactionLike(uri);
-              }}
-              icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
-              iconSize={18}
-              title={__('Like')}
-              label={
-                myReaction === REACTION_TYPES.LIKE ? (
-                  <>
-                    <div className="button__fire-glow" />
-                    <div className="button__fire-particle1" />
-                    <div className="button__fire-particle2" />
-                    <div className="button__fire-particle3" />
-                    <div className="button__fire-particle4" />
-                    <div className="button__fire-particle5" />
-                    <div className="button__fire-particle6" />
-                  </>
-                ) : undefined
-              }
-            />
-            <Button
-              className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
-                myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
-              } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
-              onClick={() => {
-                if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
-                doReactionDislike(uri);
-              }}
-              icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
-              iconSize={18}
-              title={__('Dislike')}
-              label={
-                myReaction === REACTION_TYPES.DISLIKE ? (
-                  <>
-                    <div className="button__slime-stain" />
-                    <div className="button__slime-drop1" />
-                    <div className="button__slime-drop2" />
-                  </>
-                ) : undefined
-              }
-            />
+            <div className="video-fullscreen__actions-group">
+              <Button
+                className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+                  myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
+                } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
+                onClick={() => {
+                  if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
+                  doReactionLike(uri);
+                }}
+                icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
+                iconSize={18}
+                title={__('Like')}
+                label={
+                  myReaction === REACTION_TYPES.LIKE ? (
+                    <>
+                      <div className="button__fire-glow" />
+                      <div className="button__fire-particle1" />
+                      <div className="button__fire-particle2" />
+                      <div className="button__fire-particle3" />
+                      <div className="button__fire-particle4" />
+                      <div className="button__fire-particle5" />
+                      <div className="button__fire-particle6" />
+                    </>
+                  ) : undefined
+                }
+              />
+              <Button
+                className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
+                  myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
+                } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
+                onClick={() => {
+                  if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
+                  doReactionDislike(uri);
+                }}
+                icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
+                iconSize={18}
+                title={__('Dislike')}
+                label={
+                  myReaction === REACTION_TYPES.DISLIKE ? (
+                    <>
+                      <div className="button__slime-stain" />
+                      <div className="button__slime-drop1" />
+                      <div className="button__slime-drop2" />
+                    </>
+                  ) : undefined
+                }
+              />
+            </div>
 
-            <Button
-              className={`video-fullscreen__action-btn ${
-                panelMode === 'info' ? 'video-fullscreen__action-btn--active' : ''
-              }`}
-              onClick={() => handleTogglePanel('info')}
-              icon={ICONS.INFO}
-              iconSize={18}
-              title={__('Show Details')}
-            />
-
-            {hasChapters && (
+            <div className="video-fullscreen__actions-group">
               <Button
                 className={`video-fullscreen__action-btn ${
-                  panelMode === 'chapters' ? 'video-fullscreen__action-btn--active' : ''
+                  panelMode === 'info' ? 'video-fullscreen__action-btn--active' : ''
                 }`}
-                onClick={() => handleTogglePanel('chapters')}
-                icon={ICONS.VIEW_LIST}
+                onClick={() => handleTogglePanel('info')}
+                icon={ICONS.INFO}
                 iconSize={18}
-                title={__('Chapters')}
+                title={__('Show Details')}
               />
-            )}
 
-            {hasPlaylist && (
-              <Button
-                className={`video-fullscreen__action-btn ${
-                  panelMode === 'playlist' ? 'video-fullscreen__action-btn--active' : ''
-                }`}
-                onClick={() => handleTogglePanel('playlist')}
-                icon={ICONS.PLAYLIST}
-                iconSize={18}
-                title={__('Playlist')}
-              />
-            )}
-
-            {isLivestreamClaim ? (
-              <Button
-                className={`video-fullscreen__action-btn ${
-                  panelMode === 'chat' ? 'video-fullscreen__action-btn--active' : ''
-                }`}
-                onClick={() => handleTogglePanel('chat')}
-                icon={ICONS.CHAT}
-                iconSize={18}
-                title={__('Chat')}
-              />
-            ) : (
-              <>
+              {hasChapters && (
                 <Button
                   className={`video-fullscreen__action-btn ${
-                    panelMode === 'comments' ? 'video-fullscreen__action-btn--active' : ''
+                    panelMode === 'chapters' ? 'video-fullscreen__action-btn--active' : ''
                   }`}
-                  onClick={() => handleTogglePanel('comments')}
-                  icon={ICONS.COMMENTS_LIST}
+                  onClick={() => handleTogglePanel('chapters')}
+                  icon={ICONS.VIEW_LIST}
                   iconSize={18}
-                  title={__('Comments')}
+                  title={__('Chapters')}
                 />
+              )}
+
+              {hasPlaylist && (
                 <Button
                   className={`video-fullscreen__action-btn ${
-                    panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
+                    panelMode === 'playlist' ? 'video-fullscreen__action-btn--active' : ''
                   }`}
-                  onClick={() => handleTogglePanel('related')}
-                  icon={ICONS.DISCOVER}
+                  onClick={() => handleTogglePanel('playlist')}
+                  icon={ICONS.PLAYLIST}
                   iconSize={18}
-                  title={__('Related')}
+                  title={__('Playlist')}
                 />
-              </>
-            )}
+              )}
+
+              {isLivestreamClaim ? (
+                <Button
+                  className={`video-fullscreen__action-btn ${
+                    panelMode === 'chat' ? 'video-fullscreen__action-btn--active' : ''
+                  }`}
+                  onClick={() => handleTogglePanel('chat')}
+                  icon={ICONS.CHAT}
+                  iconSize={18}
+                  title={__('Chat')}
+                />
+              ) : (
+                <>
+                  <Button
+                    className={`video-fullscreen__action-btn ${
+                      panelMode === 'comments' ? 'video-fullscreen__action-btn--active' : ''
+                    }`}
+                    onClick={() => handleTogglePanel('comments')}
+                    icon={ICONS.COMMENTS_LIST}
+                    iconSize={18}
+                    title={__('Comments')}
+                  />
+                  <Button
+                    className={`video-fullscreen__action-btn ${
+                      panelMode === 'related' ? 'video-fullscreen__action-btn--active' : ''
+                    }`}
+                    onClick={() => handleTogglePanel('related')}
+                    icon={ICONS.DISCOVER}
+                    iconSize={18}
+                    title={__('Related')}
+                  />
+                </>
+              )}
+            </div>
           </>
         )}
       </div>
