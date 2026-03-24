@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import classnames from 'classnames';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
+import { useAppDispatch } from 'redux/hooks';
 import './style.scss';
 import MobileActions from '../shortsMobileActions';
 import { fullscreenElement as getFullscreenElement } from 'util/full-screen';

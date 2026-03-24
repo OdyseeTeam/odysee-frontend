@@ -11,6 +11,7 @@ import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import { useIsShortsMobile } from 'effects/use-screensize';
+import { platform } from 'util/platform';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
 import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
