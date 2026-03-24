@@ -1,4 +1,5 @@
 // @flow
+import type { Node } from 'react';
 import { SITE_NAME, DOMAIN } from 'config';
 import * as PAGES from 'constants/pages';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
@@ -21,18 +22,35 @@ const YoutubeTransferStatus = lazyImport(() =>
 );
 
 const STATUS_TOKEN_PARAM = 'status_token';
+const ERROR_PARAM = 'error';
 const ERROR_MESSAGE_PARAM = 'error_message';
 const NEW_CHANNEL_PARAM = 'new_channel';
+const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
+const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';
+
+function isTruthyQueryValue(value: ?string): boolean {
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  if (value === '') {
+    return true;
+  }
+
+  const normalizedValue = value.toLowerCase();
+  return normalizedValue !== '0' && normalizedValue !== 'false' && normalizedValue !== 'no';
+}
 
 type Props = {
   youtubeChannels: ?Array<{ transfer_state: string, sync_status: string }>,
   doUserFetch: () => void,
   inSignUpFlow?: boolean,
   doToggleInterestedInYoutubeSync: () => void,
+  transferFooter?: Node,
 };
 
 export default function YoutubeSync(props: Props) {
-  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
+  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync, transferFooter } = props;
   const {
     location: { search, pathname },
     push,
@@ -40,14 +58,26 @@ export default function YoutubeSync(props: Props) {
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const statusToken = urlParams.get(STATUS_TOKEN_PARAM);
+  const hasErrorParam = urlParams.get(ERROR_PARAM) === 'true';
   const errorMessage = urlParams.get(ERROR_MESSAGE_PARAM);
   const newChannelParam = urlParams.get(NEW_CHANNEL_PARAM);
+  const hasAutoOpenSyncPrimaryParam = urlParams.has(AUTO_OPEN_SYNC_PARAM);
+  const autoOpenSyncParam = hasAutoOpenSyncPrimaryParam
+    ? urlParams.get(AUTO_OPEN_SYNC_PARAM)
+    : urlParams.get(AUTO_OPEN_SYNC_PARAM_ALT);
+  const shouldAutoOpenSync = isTruthyQueryValue(autoOpenSyncParam);
   const [channel, setChannel] = React.useState('');
   const [language, setLanguage] = React.useState(getDefaultLanguage());
   const [nameError, setNameError] = React.useState(undefined);
   const [acknowledgedTerms, setAcknowledgedTerms] = React.useState(false);
-  const [addingNewChannel, setAddingNewChannel] = React.useState(newChannelParam);
+  const [addingNewChannel, setAddingNewChannel] = React.useState(Boolean(newChannelParam));
+  const hasYoutubeAuthError = hasErrorParam || Boolean(errorMessage);
+  const youtubeAuthErrorMessage =
+    hasYoutubeAuthError && !errorMessage
+      ? __('There was a problem connecting this YouTube channel. Please try again.')
+      : errorMessage;
   const hasYoutubeChannels = youtubeChannels && youtubeChannels.length > 0;
+  const showYoutubeTransferStatus = hasYoutubeChannels && !addingNewChannel && !hasYoutubeAuthError;
 
   React.useEffect(() => {
     const urlParamsInEffect = new URLSearchParams(search);
@@ -66,9 +96,7 @@ export default function YoutubeSync(props: Props) {
   }, [statusToken, hasYoutubeChannels, doUserFetch]);
 
   React.useEffect(() => {
-    if (!newChannelParam) {
-      setAddingNewChannel(false);
-    }
+    setAddingNewChannel(Boolean(newChannelParam));
   }, [newChannelParam]);
 
   function handleCreateChannel() {
@@ -95,7 +123,7 @@ export default function YoutubeSync(props: Props) {
   }
 
   function handleNewChannel() {
-    urlParams.append('new_channel', 'true');
+    urlParams.set('new_channel', 'true');
     push(`${pathname}?${urlParams.toString()}`);
     setAddingNewChannel(true);
   }
@@ -113,12 +141,16 @@ export default function YoutubeSync(props: Props) {
   return (
     <Wrapper>
       <div className="main__channel-creation">
-        {hasYoutubeChannels && !addingNewChannel ? (
+        {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
-            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} />
+            <>
+              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
+              {transferFooter}
+            </>
           </React.Suspense>
         ) : (
           <Card
+            className="card--youtube-sync"
             title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })}
             subtitle={__(
               `Don't want to manually upload? Get your YouTube videos in front of the %site_name% audience.`,
@@ -178,7 +210,7 @@ export default function YoutubeSync(props: Props) {
                           <Button
                             button="link"
                             label={__('how the program works')}
-                            href="https://help.odysee.tv/category-syncprogram/limits/"
+                            href="https://help.odysee.tv/category-syncprogram/whatisyoutubesync/"
                           />
                         ),
                         site_name: SITE_NAME,
@@ -197,39 +229,50 @@ export default function YoutubeSync(props: Props) {
                     label={__('Claim Now')}
                   />
 
-                  {inSignUpFlow && !errorMessage && (
+                  {inSignUpFlow && !hasYoutubeAuthError && (
                     <Button button="link" label={__('Skip')} onClick={() => doToggleInterestedInYoutubeSync()} />
                   )}
 
-                  {errorMessage && <Button button="link" label={__('Skip')} navigate={`/$/${PAGES.REWARDS}`} />}
+                  {hasYoutubeAuthError && (
+                    <Button
+                      button="link"
+                      label={__('Skip')}
+                      navigate={`/$/${PAGES.YOUTUBE_SYNC}?reset_scroll=youtube`}
+                    />
+                  )}
                 </div>
                 <div className="help--card-actions">
-                  <I18nMessage
-                    tokens={{
-                      learn_more: (
-                        <Button
-                          button="link"
-                          label={__('Learn more')}
-                          href="https://help.odysee.tv/category-syncprogram/"
-                        />
-                      ),
-                      community_guidelines: (
-                        <Button
-                          button="link"
-                          label={__('Community Guidelines')}
-                          href="https://help.odysee.tv/communityguidelines/"
-                        />
-                      ),
-                    }}
-                  >
-                    Enrollment in the Odysee Sync Program is based on a manual assessment which requires a channel to
-                    have at least 50,000 monthly views on YouTube, and to be in compliance with Odysee's
-                    %community_guidelines%. %learn_more%.
-                  </I18nMessage>
+                  <p>
+                    {__(
+                      'Automated syncing by Odysee is available for channels with 50,000+ monthly views on YouTube. All other channels can use the Odysee Self Sync Tool to transfer their content.'
+                    )}
+                  </p>
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        download_sync_tool: (
+                          <Button
+                            button="link"
+                            label={__('Download the Self Sync Tool')}
+                            href="https://sync.odysee.tv/"
+                          />
+                        ),
+                        learn_more: (
+                          <Button
+                            button="link"
+                            label={__('Learn more')}
+                            href="https://help.odysee.tv/category-syncprogram/"
+                          />
+                        ),
+                      }}
+                    >
+                      %download_sync_tool% • %learn_more%
+                    </I18nMessage>
+                  </p>
                 </div>
               </Form>
             }
-            nag={errorMessage && <Nag message={errorMessage} type="error" relative />}
+            nag={youtubeAuthErrorMessage && <Nag message={youtubeAuthErrorMessage} type="error" relative />}
           />
         )}
       </div>

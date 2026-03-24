@@ -1,0 +1,22 @@
+.card--buyusdc {
+  .card__main-actions {
+    margin: calc(var(--spacing-s) * -1) !important;
+    padding-top: 11px;
+  }
+
+  .iframe-wrapper {
+    position: relative;
+
+    iframe {
+      width: 100%;
+      height: 600px;
+    }
+
+    &.iframe--disabled {
+      iframe {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+    }
+  }
+}

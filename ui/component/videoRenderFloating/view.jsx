@@ -21,7 +21,6 @@ import VideoRender from 'component/videoClaimRender';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
-import { onFullscreenChange } from 'util/full-screen';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
@@ -42,10 +41,13 @@ import {
 import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import FloatingShortsActions from './internal/floatingShortsActions';
+import FloatingReactions from './internal/floatingReactions';
 
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
 const CONTENT_VIEWER_CLASS = 'content__viewer';
+const SHORTS_VIEWER_CLASS = 'shorts__viewer';
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
 // ****************************************************************************
@@ -54,6 +56,7 @@ const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpack
 type Props = {
   claimId: ?string,
   channelUrl: ?string,
+  channelTitle: ?string,
   isFloating: boolean,
   uri: string,
   title: ?string,
@@ -72,7 +75,7 @@ type Props = {
   playingCollection: Collection,
   hasClaimInQueue: boolean,
   mainPlayerDimensions: { height: number, width: number },
-  location: { state?: { overrideFloating?: boolean } },
+  location: { search: string, state?: { overrideFloating?: boolean } },
   contentUnlocked: boolean,
   isAutoplayCountdown: ?boolean,
   autoplayCountdownUri: ?string,
@@ -84,12 +87,19 @@ type Props = {
   doOpenModal: (id: string, {}) => void,
   doClearPlayingSource: () => void,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
+  sidePanelOpen: boolean,
+  isClaimShort?: boolean,
+  disableShortsView?: boolean,
+  shortsPlaylist: Array<string>,
+  autoPlayNextShort: boolean,
+  doSetPlayingUri: (PlayingUri) => void,
 };
 
 function VideoRenderFloating(props: Props) {
   const {
     claimId,
     channelUrl,
+    channelTitle,
     uri,
     title,
     isFloating,
@@ -119,11 +129,42 @@ function VideoRenderFloating(props: Props) {
     doOpenModal,
     doClearPlayingSource,
     doSetShowAutoplayCountdownForUri,
+    sidePanelOpen,
     contentUnlocked,
+    isClaimShort,
+    disableShortsView,
+    shortsPlaylist,
+    autoPlayNextShort,
+    doSetPlayingUri,
   } = props;
 
   const { state } = location;
   const { overrideFloating } = state || {};
+
+  const isShortVideo = Boolean(isClaimShort && (!disableShortsView || isFloating));
+  const isShortsFloating = isFloating && isShortVideo;
+
+  const shortsPlaylistRef = React.useRef(shortsPlaylist);
+  if (shortsPlaylist.length > 0) {
+    shortsPlaylistRef.current = shortsPlaylist;
+  }
+  const playlist = shortsPlaylistRef.current;
+  const playlistIndex = uri ? playlist.indexOf(uri) : -1;
+
+  const hasPreviousShort = playlistIndex > 0;
+  const hasNextShort = playlistIndex >= 0 && playlistIndex < playlist.length - 1;
+
+  const goToPreviousShort = React.useCallback(() => {
+    if (hasPreviousShort) {
+      doSetPlayingUri({ uri: playlist[playlistIndex - 1], collection: {}, isShort: true });
+    }
+  }, [hasPreviousShort, playlist, playlistIndex, doSetPlayingUri]);
+
+  const goToNextShort = React.useCallback(() => {
+    if (hasNextShort) {
+      doSetPlayingUri({ uri: playlist[playlistIndex + 1], collection: {}, isShort: true });
+    }
+  }, [hasNextShort, playlist, playlistIndex, doSetPlayingUri]);
 
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
@@ -142,7 +183,13 @@ function VideoRenderFloating(props: Props) {
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);
+  const shortsFloatingWrapperRef = React.useRef();
   const [forceDisable, setForceDisable] = React.useState(false);
+  const [isShortsFloatingPaused, setIsShortsFloatingPaused] = React.useState(false);
+  const [fireGlow, setFireGlow] = React.useState(false);
+  const fireGlowTimeout = React.useRef(null);
+  const [slimeEffect, setSlimeEffect] = React.useState(false);
+  const slimeEffectTimeout = React.useRef(null);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
@@ -150,14 +197,22 @@ function VideoRenderFloating(props: Props) {
   // allows displaying overlays like membership/paid/rental for restrictions even when floating
   const showStreamPlaceholder = cancelledAutoPlayCountdown && !canViewFile;
 
+  // Avoid forcing collection query params for floating shorts title navigation.
+  const includeCollectionQueryInTitleNav = Boolean(collectionId && !isShortsFloating);
   const navigateUrl = uri
-    ? formatLbryUrlForWeb(uri) + (collectionId ? generateListSearchUrlParams(collectionId) : '')
+    ? formatLbryUrlForWeb(uri) +
+      (isShortsFloating
+        ? '?view=shorts'
+        : includeCollectionQueryInTitleNav
+        ? generateListSearchUrlParams(collectionId)
+        : '')
     : '';
+  const shortsMetaLabel = channelTitle || (channelUrl ? formatLbryChannelName(channelUrl) : __('Anonymous'));
+  const channelNavigateUrl = channelUrl ? formatLbryUrlForWeb(channelUrl) : '';
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   // const [isPortraitVideo, setIsPortraitVideo] = React.useState(false);
   const isPortraitVideo = React.useRef(false);
-
   // ****************************************************************************
   // FUNCTIONS
   // ****************************************************************************
@@ -278,17 +333,16 @@ function VideoRenderFloating(props: Props) {
       resizedBetweenFloating.current = true;
     }
 
-    function onWindowResize() {
+    const element = document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
+    const resizeObserver = new ResizeObserver(() => {
       if (isFloating) clampToScreenOnResize();
       if (collectionSidebarId || !isFloating) handleResize();
-    }
+    });
 
-    window.addEventListener('resize', onWindowResize);
-    if (!isFloating && !isMobile) onFullscreenChange(window, 'add', handleResize);
+    if (element) resizeObserver.observe(element);
 
     return () => {
-      window.removeEventListener('resize', onWindowResize);
-      if (!isFloating && !isMobile) onFullscreenChange(window, 'remove', handleResize);
+      resizeObserver.disconnect();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -310,8 +364,117 @@ function VideoRenderFloating(props: Props) {
   }, [doClearPlayingSource, isComment, isFloating]);
 
   React.useEffect(() => {
-    if (isFloating) doFetchRecommendedContent(uri);
-  }, [doFetchRecommendedContent, isFloating, uri]);
+    if (isFloating && !isShortVideo) doFetchRecommendedContent(uri);
+  }, [doFetchRecommendedContent, isFloating, uri, isShortVideo]);
+
+  React.useEffect(() => {
+    if (!isShortsFloating) {
+      setIsShortsFloatingPaused(false);
+      return;
+    }
+
+    let videoEl = null;
+    const onPlay = () => setIsShortsFloatingPaused(false);
+    const onPause = () => setIsShortsFloatingPaused(true);
+
+    const attach = () => {
+      // $FlowFixMe — querySelector returns HTMLElement but we need HTMLVideoElement
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      if (el && el !== videoEl) {
+        if (videoEl) {
+          videoEl.removeEventListener('play', onPlay);
+          videoEl.removeEventListener('pause', onPause);
+        }
+        videoEl = el;
+        videoEl.addEventListener('play', onPlay);
+        videoEl.addEventListener('pause', onPause);
+        setIsShortsFloatingPaused(videoEl.paused);
+        return true;
+      }
+      return !!videoEl;
+    };
+
+    attach();
+    const interval = setInterval(attach, 200);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      if (videoEl) {
+        videoEl.removeEventListener('play', onPlay);
+        videoEl.removeEventListener('pause', onPause);
+      }
+    };
+  }, [isShortsFloating, uri]);
+
+  React.useEffect(() => {
+    if (!isShortsFloating) return;
+
+    let videoEl = null;
+    let cleanupFn = null;
+
+    const attachListener = () => {
+      // $FlowFixMe
+      const el: ?HTMLVideoElement = document.querySelector('.content__viewer--shorts-floating .vjs-tech');
+      if (!el || el === videoEl) return !!videoEl;
+
+      if (cleanupFn) cleanupFn();
+
+      videoEl = el;
+      const handleEnded = () => {
+        if (autoPlayNextShort && hasNextShort) {
+          setTimeout(() => goToNextShort(), 500);
+        } else if (videoEl) {
+          const v = videoEl;
+          setTimeout(() => {
+            v.currentTime = 0;
+            // $FlowFixMe
+            v.play().catch(() => {});
+          }, 100);
+        }
+      };
+
+      videoEl.addEventListener('ended', handleEnded);
+      const currentEl = videoEl;
+      cleanupFn = () => {
+        currentEl.removeEventListener('ended', handleEnded);
+        videoEl = null;
+      };
+      return true;
+    };
+
+    attachListener();
+    const interval = setInterval(attachListener, 200);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      if (cleanupFn) cleanupFn();
+    };
+  }, [isShortsFloating, uri, autoPlayNextShort, hasNextShort, goToNextShort]);
+
+  React.useEffect(() => {
+    const wrapperNode = shortsFloatingWrapperRef.current;
+    if (!(wrapperNode instanceof Element) || !isShortsFloating) return;
+
+    const blockDoubleClickFullscreen = (event: Event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Prevent downstream handlers (including VideoJS) from seeing this dblclick.
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+    };
+
+    wrapperNode.addEventListener('dblclick', blockDoubleClickFullscreen, true);
+
+    return () => {
+      wrapperNode.removeEventListener('dblclick', blockDoubleClickFullscreen, true);
+    };
+  }, [isShortsFloating]);
 
   React.useEffect(() => {
     return () => {
@@ -356,7 +519,6 @@ function VideoRenderFloating(props: Props) {
     if (isDraggingVideojsComponent(e)) {
       return false;
     }
-
     // Not really necessary, but reset just in case 'handleStop' didn't fire.
     setWasDragging(false);
   }
@@ -381,7 +543,9 @@ function VideoRenderFloating(props: Props) {
       return false;
     }
 
-    if (wasDragging) setWasDragging(false);
+    // Always clear drag click-shield after drag end.
+    setWasDragging(false);
+
     const { x, y } = ui;
     let newPos = { x, y };
 
@@ -392,6 +556,10 @@ function VideoRenderFloating(props: Props) {
       relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
     }
   }
+
+  const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
+  const heightForViewer =
+    !theaterMode || isMobile ? fileViewerRect?.height : getPossiblePlayerHeight(minRatio * window.innerWidth, isMobile);
 
   return (
     <VideoRenderFloatingContext.Provider value={{ draggable }}>
@@ -406,9 +574,11 @@ function VideoRenderFloating(props: Props) {
           mainFilePlaying={mainFilePlaying}
           isLandscapeRotated={isLandscapeRotated}
           isTabletLandscape={isTabletLandscape}
+          isShortVideo={isShortVideo}
         />
       ) : null}
 
+      {wasDragging && <div className="floating-player__drag-backdrop" />}
       <Draggable
         onDrag={handleDragMove}
         onStart={handleDragStart}
@@ -421,20 +591,28 @@ function VideoRenderFloating(props: Props) {
         disabled={noFloatingPlayer || forceDisable}
       >
         <div
-          className={classnames([CONTENT_VIEWER_CLASS], {
+          id="abcd"
+          className={classnames({
+            [CONTENT_VIEWER_CLASS]: !isShortVideo,
+            [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,
+            'content__viewer--shorts-floating': isShortsFloating && !isMobile,
+            'shorts-floating--paused': isShortsFloatingPaused,
+            'shorts-floating--fire-glow': fireGlow,
+            'shorts-floating--slime-effect': slimeEffect,
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
             'content__viewer--disable-click': wasDragging,
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             'content__viewer--portrait': isPortraitVideo.current,
+            'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,
           })}
           style={
             !isFloating && fileViewerRect
               ? {
                   width: fileViewerRect.width,
-                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : fileViewerRect.height,
+                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
                   left: fileViewerRect.x,
                   top:
                     isMobile && !playingUriSource
@@ -444,7 +622,13 @@ function VideoRenderFloating(props: Props) {
               : {}
           }
         >
-          <div className={classnames('content__wrapper', { 'content__wrapper--floating': isFloating })}>
+          <div
+            className={classnames('content__wrapper', {
+              'content__wrapper--floating': isFloating,
+              'content__wrapper--shorts-floating': isShortsFloating,
+            })}
+            ref={shortsFloatingWrapperRef}
+          >
             {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
 
             {isFloating && (
@@ -481,13 +665,64 @@ function VideoRenderFloating(props: Props) {
 
             {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
             {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
-              <FloatingRender uri={uri} draggable={draggable} />
+              <FloatingRender
+                uri={uri}
+                draggable={draggable}
+                isShortsContext={isShortVideo}
+                isFloatingContext={isFloating}
+                forceRenderStream={isFloating}
+              />
+            )}
+
+            {isShortsFloating && (
+              <FloatingShortsActions
+                uri={uri}
+                claimId={claimId}
+                channelUrl={channelUrl}
+                navigateUrl={navigateUrl}
+                onPrevious={hasPreviousShort ? goToPreviousShort : null}
+                onNext={hasNextShort ? goToNextShort : null}
+                onFireGlow={() => {
+                  setFireGlow(false);
+                  clearTimeout(fireGlowTimeout.current);
+                  requestAnimationFrame(() => {
+                    setFireGlow(true);
+                    fireGlowTimeout.current = setTimeout(() => setFireGlow(false), 2000);
+                  });
+                }}
+                onSlimeEffect={() => {
+                  setSlimeEffect(false);
+                  clearTimeout(slimeEffectTimeout.current);
+                  requestAnimationFrame(() => {
+                    setSlimeEffect(true);
+                    slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                  });
+                }}
+              />
+            )}
+
+            {isFloating && !isShortsFloating && uri && <FloatingReactions uri={uri} claimId={claimId} />}
+
+            {fireGlow && isShortsFloating && (
+              <div className="shorts-floating-flames">
+                {Array.from({ length: 50 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="shorts-floating-flames__particle"
+                    style={{
+                      left: `calc(${(i / 50) * 100}% - 35px)`,
+                      animationDelay: `${Math.random()}s`,
+                    }}
+                  />
+                ))}
+              </div>
             )}
 
             {isFloating && (
               <div
                 className={classnames('content__info', {
                   draggable: !isMobile,
+                  'content__info--shorts-floating': isShortsFloating && !isMobile,
                   'content-info__playlist': playingCollection,
                 })}
               >
@@ -500,11 +735,29 @@ function VideoRenderFloating(props: Props) {
                       className="content__floating-link"
                     />
                   </div>
-                  <ChannelThumbnail xxsmall uri={channelUrl} />
-                  <UriIndicator link uri={uri} />
+                  {isShortsFloating ? (
+                    channelNavigateUrl ? (
+                      <Button navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
+                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
+                        {shortsMetaLabel && (
+                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="content__shorts-floating-channel">
+                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
+                        {shortsMetaLabel && (
+                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
+                        )}
+                      </div>
+                    )
+                  ) : (
+                    <ChannelThumbnail xxsmall uri={channelUrl} />
+                  )}
+                  {!isShortsFloating && <UriIndicator link uri={uri} />}
                 </div>
 
-                {playingCollection && collectionSidebarId !== collectionId && (
+                {!isShortsFloating && playingCollection && collectionSidebarId !== collectionId && (
                   <React.Suspense fallback={null}>
                     <PlaylistCard
                       id={collectionId}
@@ -534,6 +787,7 @@ type GlobalStylesProps = {
   mainFilePlaying: boolean,
   isLandscapeRotated: boolean,
   isTabletLandscape: boolean,
+  isShortVideo?: boolean,
 };
 
 const PlayerGlobalStyles = (props: GlobalStylesProps) => {
@@ -547,6 +801,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     mainFilePlaying,
     isLandscapeRotated,
     isTabletLandscape,
+    isShortVideo,
   } = props;
 
   const justChanged = React.useRef();
@@ -555,7 +810,10 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   const isMobilePlayer = isMobile && !isFloating; // to avoid miniplayer -> file page only
 
   const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
-  const heightForViewer = getPossiblePlayerHeight(minRatio * fileViewerRect.width, isMobile);
+  const heightForViewer = getPossiblePlayerHeight(
+    minRatio * (!theaterMode ? fileViewerRect.width : window.innerWidth),
+    isMobile
+  );
   const widthForViewer = heightForViewer / videoAspectRatio;
   const maxLandscapeHeight = getMaxLandscapeHeight(isMobile ? undefined : widthForViewer);
   const heightResult = appDrawerOpen ? `${maxLandscapeHeight}px` : `${heightForViewer}px`;
@@ -674,7 +932,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     background: videoGreaterThanLandscape && mainFilePlaying && !forceDefaults ? 'transparent !important' : undefined,
   };
   const maxHeight = {
-    maxHeight: !theaterMode && !isMobile ? 'var(--desktop-portrait-player-max-height)' : undefined,
+    maxHeight: !theaterMode && !isMobile && !isShortVideo ? 'var(--desktop-portrait-player-max-height)' : undefined,
   };
 
   return (
@@ -754,8 +1012,25 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   );
 };
 
-const FloatingRender = withStreamClaimRender(({ uri, draggable }: { uri: string, draggable: boolean }) => (
-  <VideoRender className={classnames({ draggable })} uri={uri} />
-));
+const FloatingRender = withStreamClaimRender(
+  ({
+    uri,
+    draggable,
+    isShortsContext,
+    isFloatingContext,
+  }: {
+    uri: string,
+    draggable: boolean,
+    isShortsContext?: boolean,
+    isFloatingContext?: boolean,
+  }) => (
+    <VideoRender
+      className={classnames({ draggable })}
+      uri={uri}
+      isShortsContext={isShortsContext}
+      isFloatingContext={isFloatingContext}
+    />
+  )
+);
 
 export default VideoRenderFloating;

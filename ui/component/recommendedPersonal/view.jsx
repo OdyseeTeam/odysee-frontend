@@ -6,7 +6,7 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { useIsLargeScreen, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsLargeScreen, useIsSmallScreen } from 'effects/use-screensize';
 
 // TODO: recsysFyp will be moved into 'RecSys', so the redux import in a jsx
 // violation is just temporary.
@@ -18,9 +18,9 @@ import { recsysFyp } from 'redux/actions/search';
 
 const VIEW = { ALL_VISIBLE: 0, COLLAPSED: 1, EXPANDED: 2 };
 
-function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isMediumScreen) {
-  // return isMediumScreen ? 6 : isLargeScreen ? Math.ceil(defaultSize * (3 / 2)) : defaultSize;
-  return isMediumScreen ? 12 : isLargeScreen ? Math.ceil(24) : 12;
+function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isSmallScreen) {
+  // return isSmallScreen ? 6 : isLargeScreen ? Math.ceil(defaultSize * (3 / 2)) : defaultSize;
+  return isSmallScreen ? 12 : isLargeScreen ? Math.ceil(24) : 12;
 }
 
 type Props = {
@@ -29,22 +29,20 @@ type Props = {
   // --- redux ---
   userId: ?string,
   personalRecommendations: { gid: string, uris: Array<string>, fetched: boolean },
-  userHasOdyseeMembership: ?boolean,
   doFetchPersonalRecommendations: () => void,
 };
 
 export default function RecommendedPersonal(props: Props) {
-  const { header, onLoad, userId, personalRecommendations, userHasOdyseeMembership, doFetchPersonalRecommendations } =
-    props;
+  const { header, onLoad, userId, personalRecommendations, doFetchPersonalRecommendations } = props;
 
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();
-  const isMediumScreen = useIsMediumScreen();
+  const isSmallScreen = useIsSmallScreen();
 
   const count = personalRecommendations.uris.length;
-  const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isMediumScreen);
+  const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isSmallScreen);
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
   const [hiddenArray, setHiddenArray] = useState([]);
 
@@ -100,15 +98,13 @@ export default function RecommendedPersonal(props: Props) {
 
   React.useEffect(() => {
     // -- Fetch FYP
-    if (userHasOdyseeMembership) {
-      doFetchPersonalRecommendations();
-    }
-  }, [userHasOdyseeMembership, doFetchPersonalRecommendations]);
+    doFetchPersonalRecommendations();
+  }, [doFetchPersonalRecommendations]);
 
   // **************************************************************************
   // **************************************************************************
 
-  if (userHasOdyseeMembership === undefined || !personalRecommendations.fetched) {
+  if (!personalRecommendations.fetched) {
     return (
       <>
         {header}
@@ -128,21 +124,6 @@ export default function RecommendedPersonal(props: Props) {
     );
   }
 
-  if (!userHasOdyseeMembership) {
-    return (
-      <div>
-        {header}
-        <div className="empty empty--centered-tight">
-          <I18nMessage
-            tokens={{ learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('learn more')} /> }}
-          >
-            Premium membership required. Become a member, or %learn_more%.
-          </I18nMessage>
-        </div>
-      </div>
-    );
-  }
-
   if (count < 1) {
     return (
       <div>
@@ -151,7 +132,8 @@ export default function RecommendedPersonal(props: Props) {
           <I18nMessage
             tokens={{ learn_more: <Button button="link" navigate={`/$/${PAGES.FYP}`} label={__('Learn More')} /> }}
           >
-            No recommendations available at the moment. %learn_more%
+            No recommendations available at the moment. Typically this means you need to view more content first.
+            %learn_more%
           </I18nMessage>
         </div>
       </div>

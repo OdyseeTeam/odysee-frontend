@@ -12,6 +12,10 @@
   background-size: cover;
 }
 
+.media__thumb__short {
+  aspect-ratio: 9 / 16;
+}
+
 .media__thumb--small {
   width: calc(var(--file-list-thumbnail-width) / 1.5) !important;
 
@@ -121,6 +125,7 @@
 }
 
 .mediaInfo__description {
+  word-break: break-word;
   .claim__tags {
     .tag {
       background-color: rgba(var(--color-header-button-base), 1);
@@ -231,11 +236,13 @@
       .ratio-bar-like {
         height: 100%;
         background-color: var(--color-fire);
+        transition: flex 0.6s;
       }
 
       .ratio-bar-dislike {
         height: 100%;
         background-color: var(--color-slime);
+        transition: flex 0.6s;
       }
     }
 
@@ -260,10 +267,20 @@
     pointer-events: none;
   }
 
+  .ratio-wrapper--no-slime {
+    max-width: unset;
+    min-width: unset;
+    width: auto;
+  }
+
   .icon--DollarSign {
     stroke-width: 1.5;
     transform: scale(0.8);
     margin-right: -4px;
+
+    @media (max-width: $breakpoint-small) {
+      margin-right: 0;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 
 type ButtonProps = {
-  uri: string,
+  uri: ?string,
   collectionId: string,
 };
 
@@ -14,6 +14,8 @@ const PlayButton = (props: ButtonProps) => {
   const { uri, collectionId } = props;
 
   const { push } = useHistory();
+
+  if (!uri) return null;
 
   function handlePlay() {
     push({

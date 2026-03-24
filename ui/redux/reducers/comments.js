@@ -261,7 +261,7 @@ export default handleActions(
     },
 
     [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, disabled } = action.data;
+      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, disabled, page } = action.data;
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
@@ -301,6 +301,11 @@ export default handleActions(
 
           // --- Top-level comments ---
           if (!parentId) {
+            if (page === 1) {
+              topLevelCommentsById[claimId] = [];
+              pinnedCommentsById[claimId] = [];
+              byId[claimId] = [];
+            }
             for (let i = 0; i < comments.length; ++i) {
               const comment = comments[i];
               commonUpdateAction(comment, commentById, commentIds, i);
@@ -1048,6 +1053,29 @@ export default handleActions(
       };
     },
 
+    [ACTIONS.COMMENT_MODERATION_DELEGATES_FOR_MY_CHANNELS_COMPLETED]: (state: CommentsState, action: any) => {
+      const moderationDelegatesById = Object.assign({}, state.moderationDelegatesById);
+      const newDelegatesById = action.data;
+
+      for (const [creatorChannelId, delegates] of Object.entries(newDelegatesById)) {
+        if (Array.isArray(delegates)) {
+          moderationDelegatesById[creatorChannelId] = delegates.map((delegate: any) => {
+            return {
+              channelId: delegate.channel_id,
+              channelName: delegate.channel_name,
+            };
+          });
+        } else {
+          moderationDelegatesById[creatorChannelId] = [];
+        }
+      }
+
+      return {
+        ...state,
+        moderationDelegatesById: moderationDelegatesById,
+      };
+    },
+
     [ACTIONS.COMMENT_MODERATION_AM_I_LIST_STARTED]: (state: CommentsState, action: any) => ({
       ...state,
       fetchingModerationDelegators: true,
@@ -1098,6 +1126,40 @@ export default handleActions(
         ...state,
         settingsByChannelId,
         fetchingSettings: false,
+      };
+    },
+
+    [ACTIONS.ADD_MODERATOR_COMPLETED]: (state: CommentsState, action: any) => {
+      const { newDelegates, creatorChannelId } = action.data;
+      const moderationDelegatesById = Object.assign({}, state.moderationDelegatesById);
+
+      const parsedNewDelegates = newDelegates.map((delegate) => {
+        return {
+          channelId: delegate.channel_id,
+          channelName: delegate.channel_name,
+        };
+      });
+
+      moderationDelegatesById[creatorChannelId] = Array.isArray(moderationDelegatesById[creatorChannelId])
+        ? moderationDelegatesById[creatorChannelId].concat(parsedNewDelegates)
+        : parsedNewDelegates;
+
+      return {
+        ...state,
+        moderationDelegatesById,
+      };
+    },
+    [ACTIONS.REMOVE_MODERATOR_COMPLETED]: (state: CommentsState, action: any) => {
+      const { removedDelegateId, creatorChannelId } = action.data;
+      const moderationDelegatesById = Object.assign({}, state.moderationDelegatesById);
+
+      moderationDelegatesById[creatorChannelId] = Array.isArray(moderationDelegatesById[creatorChannelId])
+        ? moderationDelegatesById[creatorChannelId].filter((delegate) => delegate.channelId !== removedDelegateId)
+        : [];
+
+      return {
+        ...state,
+        moderationDelegatesById,
       };
     },
 

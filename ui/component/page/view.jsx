@@ -3,7 +3,7 @@ import { lazyImport } from 'util/lazyImport';
 import { MAIN_CLASS } from 'constants/classnames';
 import { parseURI } from 'util/lbryURI';
 import { useHistory } from 'react-router';
-import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import classnames from 'classnames';
 import Header from 'component/header';
 import React from 'react';
@@ -60,12 +60,12 @@ function Page(props: Props) {
   } = props;
 
   const {
-    location: { pathname, hash },
+    location: { pathname, hash, search },
   } = useHistory();
 
   const theaterMode =
     renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;
-  const isMediumScreen = useIsMediumScreen();
+  const isSmallScreen = useIsSmallScreen();
   const isMobile = useIsMobile();
 
   const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
@@ -80,13 +80,15 @@ function Page(props: Props) {
   } catch (e) {}
 
   const isAbsoluteSideNavHidden = (isOnFilePage || isMobile) && !sidebarOpen;
+  const urlParams = new URLSearchParams(search);
+  const isShortVideo = urlParams.get('view') === 'shorts';
 
   React.useEffect(() => {
-    if (isOnFilePage || isMediumScreen) setSidebarOpen(false);
+    if (isOnFilePage || isSmallScreen) setSidebarOpen(false);
 
     // TODO: make sure setState callback for usePersistedState uses useCallback to it doesn't cause effect to re-run
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnFilePage, isMediumScreen]);
+  }, [isOnFilePage, isSmallScreen]);
 
   return (
     <>
@@ -99,6 +101,7 @@ function Page(props: Props) {
           sidebarOpen={sidebarOpen}
           isAbsoluteSideNavHidden={isAbsoluteSideNavHidden}
           setSidebarOpen={openSidebar}
+          hideSidebarToggle={noSideNavigation}
         />
       )}
 
@@ -118,7 +121,7 @@ function Page(props: Props) {
               <SideNavigation
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={openSidebar}
-                isMediumScreen={isMediumScreen}
+                isMediumScreen={isSmallScreen}
                 isOnFilePage={isOnFilePage}
               />
             )
@@ -137,13 +140,14 @@ function Page(props: Props) {
               'main--full-width': fullWidthPage,
               'main--auth-page': authPage,
               'main--file-page': filePage,
-              'main--video-page': filePage && !theaterMode && !livestream && !isMarkdown,
+              'main--video-page': filePage && !theaterMode && !livestream && !isMarkdown && !isShortVideo,
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
               'main--livestream': livestream && !theaterMode,
               'main--livestream--theater-mode': livestream && theaterMode,
               'main--popout-chat': isPopoutWindow,
+              'main--shorts-page': isShortVideo,
             })}
           >
             {children}

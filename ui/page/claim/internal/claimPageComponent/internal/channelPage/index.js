@@ -9,18 +9,19 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
-import { selectBlacklistedOutpointMap, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
-import { selectYoutubeChannels } from 'redux/selectors/user';
+import { doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
+import { selectYoutubeChannels, selectUser } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
-import { selectLanguage, selectIsAgeRestrictedContentAllowed } from 'redux/selectors/settings';
-import { selectOdyseeMembershipForChannelId, selectMembershipMineFetched } from 'redux/selectors/memberships';
+import { selectLanguage, selectClientSetting, selectIsAgeRestrictedContentAllowed } from 'redux/selectors/settings';
+import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
-import { doGetMembershipTiersForChannelClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { doMembershipMine } from 'redux/actions/memberships';
 import { PREFERENCE_EMBED, AGE_RESTRICED_CHANNEL_IMAGES_TAG } from 'constants/tags';
 import ChannelPage from './view';
+import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -32,7 +33,6 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, claim),
     claim,
     isSubscribed: selectIsSubscribedForUri(state, props.uri),
-    blackListedOutpointMap: selectBlacklistedOutpointMap(state),
     subCount: selectSubCountForUri(state, props.uri),
     pending: makeSelectClaimIsPending(props.uri)(state),
     youtubeChannels: selectYoutubeChannels(state),
@@ -40,7 +40,7 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
-    odyseeMembership: selectOdyseeMembershipForChannelId(state, claim.claim_id),
+    odyseeMembership: selectUserOdyseeMembership(state, claim.claim_id),
     myMembershipsFetched: selectMembershipMineFetched(state),
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
@@ -48,13 +48,14 @@ const select = (state, props) => {
     isMature: claim ? isClaimNsfw(claim) : false,
     isImagesAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, AGE_RESTRICED_CHANNEL_IMAGES_TAG)(state),
     isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowed(state),
+    isGlobalMod: Boolean(selectUser(state)?.global_mod),
+    hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   };
 };
 
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   fetchSubCount: (claimId) => dispatch(doFetchSubCount(claimId)),
-  getMembershipTiersForChannel: (channelId) => dispatch(doGetMembershipTiersForChannelClaimId(channelId)),
   doMembershipMine: () => dispatch(doMembershipMine()),
 });
 

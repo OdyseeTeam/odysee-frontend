@@ -9,6 +9,7 @@ import {
   selectClaimsByUri,
   selectCollectionClaimPublishUpdateMetadataForId,
 } from 'redux/selectors/claims';
+import { WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 import {
@@ -108,6 +109,11 @@ export const selectMyClaimForUri = createCachedSelector(
   }
 )((state, caseSensitive = true) => `selectMyClaimForUri-${caseSensitive ? '1' : '0'}`);
 
+export const selectPrevFileSizeTooBig = createSelector(selectMyClaimForUri, (claim) => {
+  const size = claim && claim.value && claim.value.source && claim.value.source.size;
+  return size ? Number(size) > WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824 : false;
+});
+
 export const selectIsResolvingPublishUris = createSelector(
   selectState,
   selectResolvingUris,
@@ -181,9 +187,9 @@ export const selectValidTierIdsForCurrentForm = createSelector(
     }
 
     const perkName = getRestrictivePerkName(type, liveCreateType, liveEditType);
-    const tiers: Array<MembershipTier> = tiersByCreatorId[channelId] || [];
+    const tiers: CreatorMemberships = tiersByCreatorId[channelId] || [];
     const validTiers = filterMembershipTiersWithPerk(tiers, perkName);
-    return validTiers.map((tier) => tier?.Membership?.id);
+    return validTiers.map((tier) => tier?.membership_id);
   }
 );
 
@@ -254,6 +260,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
     description: collection.description,
     thumbnail_url: collection.thumbnail?.url,
     claims,
+    tags: collection.tags || [],
   };
 
   if (isPrivate) {
@@ -262,7 +269,6 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
       bid: 0.0001,
       channel_id: activeChannelId,
       name: sanitizeName(collectionTitle),
-      tags: [],
     };
 
     return collectionPublishCreateParams;

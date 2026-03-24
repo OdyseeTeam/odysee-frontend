@@ -16,6 +16,7 @@ import rewardsReducer from 'redux/reducers/rewards';
 import userReducer from 'redux/reducers/user';
 import membershipsReducer from 'redux/reducers/memberships';
 import stripeReducer from 'redux/reducers/stripe';
+import arWalletReducer from 'redux/reducers/arwallet';
 import commentsReducer from 'redux/reducers/comments';
 import blockedReducer from 'redux/reducers/blocked';
 import coinSwapReducer from 'redux/reducers/coinSwap';
@@ -23,6 +24,7 @@ import livestreamReducer from 'redux/reducers/livestream';
 import searchReducer from 'redux/reducers/search';
 import reactionsReducer from 'redux/reducers/reactions';
 import syncReducer from 'redux/reducers/sync';
+import shortsReducer from 'redux/reducers/shorts';
 
 export default (history) =>
   combineReducers({
@@ -49,7 +51,9 @@ export default (history) =>
     user: userReducer,
     memberships: membershipsReducer,
     stripe: stripeReducer,
+    arwallet: arWalletReducer,
     wallet: walletReducer,
     sync: syncReducer,
     collections: collectionsReducer,
+    shorts: shortsReducer,
   });

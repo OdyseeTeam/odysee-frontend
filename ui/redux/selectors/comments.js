@@ -5,7 +5,7 @@ import { selectGeoBlockLists, selectMutedChannels } from 'redux/selectors/blocke
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMentionSearchResults, selectMentionQuery } from 'redux/selectors/search';
 import { selectUserLocale } from 'redux/selectors/user';
-import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
+import { selectBlackListedData, selectFilteredData } from 'lbryinc';
 import {
   selectClaimsById,
   selectMyClaimIdsRaw,
@@ -15,8 +15,10 @@ import {
 } from 'redux/selectors/claims';
 import { isClaimNsfw, getChannelFromClaim } from 'util/claim';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
+import { selectActiveChannelId } from 'redux/selectors/app';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
+import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 
 const selectState = (state: State) => state.comments || {};
 
@@ -168,8 +170,8 @@ const filterCommentsDepOnList = {
   myChannelClaimIds: selectMyChannelClaimIds,
   mutedChannels: selectMutedChannels,
   personalBlockList: selectModerationBlockList,
-  blacklistedMap: selectBlacklistedOutpointMap,
-  filteredMap: selectFilteredOutpointMap,
+  blackListedData: selectBlackListedData,
+  filteredData: selectFilteredData,
   showMatureContent: selectShowMatureContent,
   geoBlockList: selectGeoBlockLists,
   locale: selectUserLocale,
@@ -208,6 +210,17 @@ export const selectMembersOnlyCommentsForChannelId = (state: State, channelId: C
 export const selectSectionsForChannelId = (state: State, channelId: ClaimId) => {
   const channelSettings = selectSettingsForChannelId(state, channelId);
   return channelSettings?.channel_sections;
+};
+
+export const selectUploadTemplatesForChannelId = (state: State, channelId: ClaimId): Array<UploadTemplate> => {
+  const channelSettings = selectSettingsForChannelId(state, channelId);
+  return getUploadTemplatesFromSettings(channelSettings);
+};
+
+export const selectUploadTemplatesForActiveChannel = (state: State): Array<UploadTemplate> => {
+  const activeChannelId = selectActiveChannelId(state);
+  if (!activeChannelId) return [];
+  return selectUploadTemplatesForChannelId(state, activeChannelId);
 };
 
 /**
@@ -296,8 +309,8 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
     myChannelClaimIds,
     mutedChannels,
     personalBlockList,
-    blacklistedMap,
-    filteredMap,
+    blackListedData,
+    filteredData,
     showMatureContent,
     geoBlockList,
     locale,
@@ -343,8 +356,7 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
             }
           }
 
-          const outpoint = `${channelClaim.txid}:${channelClaim.nout}`;
-          if (blacklistedMap[outpoint] || filteredMap[outpoint]) {
+          if (blackListedData[channelClaim.claim_id] || filteredData[channelClaim.claim_id]) {
             return false;
           }
 

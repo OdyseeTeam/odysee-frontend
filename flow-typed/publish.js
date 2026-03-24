@@ -77,6 +77,7 @@ declare type PublishState = {|
   thumbnailError: ?boolean,
   description: string,
   language: string,
+  languages?: Array<string>,
   releaseTime: ?number, // The user-entered value, whether valid or not. The UI
                         // can gray out for some scenarios, but value should be
                         // retained for un-graying. @see PAYLOAD.releaseTime()

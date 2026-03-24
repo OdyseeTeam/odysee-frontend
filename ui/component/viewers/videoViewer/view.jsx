@@ -23,6 +23,7 @@ import { useGetAds } from 'effects/use-get-ads';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import FileReactions from 'component/fileReactions';
 import { useHistory } from 'react-router';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
@@ -30,13 +31,28 @@ import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { isClaimUnlisted } from 'util/claim';
+import { parseURI } from 'util/lbryURI';
 import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
+const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
+
+function isSameClaimUri(firstUri: ?string, secondUri: ?string): boolean {
+  if (!firstUri || !secondUri) return false;
+  if (firstUri === secondUri) return true;
+
+  try {
+    const firstClaimId = parseURI(firstUri).streamClaimId;
+    const secondClaimId = parseURI(secondUri).streamClaimId;
+    return Boolean(firstClaimId && secondClaimId && firstClaimId === secondClaimId);
+  } catch (e) {
+    return false;
+  }
+}
 
 type Props = {
   uri: string,
@@ -91,6 +107,8 @@ type Props = {
   isDownloadDisabled: boolean,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   doSetVideoSourceLoaded: (uri: string) => void,
+  doSyncLastPosition: (uri: string, position: number) => void,
+  autoPlayNextShort: boolean,
 };
 
 /*
@@ -147,6 +165,8 @@ function VideoViewer(props: Props) {
     isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
+    doSyncLastPosition,
+    autoPlayNextShort,
   } = props;
 
   const videoEnded = React.useRef(false);
@@ -252,6 +272,13 @@ function VideoViewer(props: Props) {
   }, [isEmbedded, videoPlaybackRate]);
 
   const handlePlayNextUri = React.useCallback(() => {
+    if (playNextUri && isSameClaimUri(playNextUri, uri) && playerRef.current) {
+      const player: any = playerRef.current;
+      player.currentTime(0);
+      player.play();
+      return;
+    }
+
     if (shouldPlayRecommended) {
       if (IS_IOS) {
         // Safari doesn't like it when there is an async action between click
@@ -345,20 +372,32 @@ function VideoViewer(props: Props) {
 
   function onPause(event, player) {
     setIsPlaying(false);
-    handlePosition(player);
+    handlePosition(player, true);
     analytics.video.videoIsPlaying(false, player);
   }
 
   function onPlayerClosed(event, player) {
     setShowRecommendationOverlay(false);
-    handlePosition(player);
+    handlePosition(player, true);
     analytics.video.videoIsPlaying(false, player);
   }
 
-  function handlePosition(player) {
+  const lastSyncTimeRef = React.useRef(0);
+
+  function handlePosition(player, forceSync) {
     try {
       if (!isLivestreamClaim && uri && savePosition && player) {
-        savePosition(uri, player.currentTime());
+        const currentTime = player.currentTime();
+        savePosition(uri, currentTime);
+
+        // Sync position to server periodically or on pause/close
+        if (doSyncLastPosition && currentTime > 0) {
+          const now = Date.now();
+          if (forceSync || now - lastSyncTimeRef.current > POSITION_SYNC_INTERVAL_MS) {
+            lastSyncTimeRef.current = now;
+            doSyncLastPosition(uri, currentTime);
+          }
+        }
       }
     } catch (error) {}
   }
@@ -469,6 +508,10 @@ function VideoViewer(props: Props) {
       setShowRecommendationOverlay(false);
     }
 
+    function onSeeked() {
+      handlePosition(player, true);
+    }
+
     function onQualityChanged() {
       if (promoteDqSetting.current && !isEmbedded) {
         promoteDqSetting.current = false;
@@ -493,6 +536,7 @@ function VideoViewer(props: Props) {
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
     player.on('seeking', onSeeking);
+    player.on('seeked', onSeeked);
     player.on('hlsQualitySelector:changed:user', onQualityChanged);
     player.one('loadedmetadata', moveToPosition);
 
@@ -509,6 +553,7 @@ function VideoViewer(props: Props) {
       player.off(VJS_EVENTS.PLAYER_CLOSED, cancelOldEvents);
       player.off('loadedmetadata', moveToPosition);
       player.off('seeking', onSeeking);
+      player.off('seeked', onSeeked);
     };
 
     // turn off old events to prevent duplicate runs
@@ -532,6 +577,8 @@ function VideoViewer(props: Props) {
     playerRef.current.play();
   }
 
+  const [hovered, setHovered] = useState(false);
+
   return (
     <>
       {isEmbedded && (
@@ -545,6 +592,8 @@ function VideoViewer(props: Props) {
           'file-viewer--is-playing': isPlaying,
           'file-viewer--ended-embed': showEmbedEndOverlay,
         })}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
         {showRecommendationOverlay && (
@@ -631,7 +680,14 @@ function VideoViewer(props: Props) {
           isDownloadDisabled={isDownloadDisabled}
           isUnlisted={isClaimUnlisted(claim)}
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
+          autoPlayNextShort={autoPlayNextShort}
         />
+
+        {isEmbedded && authenticated && !showEmbedEndOverlay && (hovered || !isPlaying) && (
+          <div className="embed-reactions-overlay" aria-label={__('Reactions')}>
+            <FileReactions uri={uri} />
+          </div>
+        )}
       </div>
     </>
   );

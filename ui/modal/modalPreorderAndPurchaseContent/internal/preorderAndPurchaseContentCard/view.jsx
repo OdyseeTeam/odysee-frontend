@@ -3,8 +3,6 @@ import React from 'react';
 
 // $FlowFixMe
 import { Global } from '@emotion/react';
-
-import './style.scss';
 import ClaimPreview from 'component/claimPreview';
 import BusyIndicator from 'component/common/busy-indicator';
 import { Form } from 'component/common/form';
@@ -12,12 +10,13 @@ import * as ICONS from 'constants/icons';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import withCreditCard from 'hocs/withCreditCard';
+import WalletStatus from 'component/walletStatus';
 import { secondsToDhms } from 'util/time';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
-
 import { ModalContext } from 'contexts/modal';
+import { useArStatus } from 'effects/use-ar-status';
+import './style.scss';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -46,10 +45,13 @@ type Props = {
   uri: string,
   // -- redux --
   claimId: string,
+  canReceiveTips: boolean,
   preferredCurrency: string,
   preorderTag: number,
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
+  balance: WalletBalance,
+  exchangeRate: { ar: number },
   costInfo: any,
   fiatRequired: boolean,
   isFetchingPurchases: boolean,
@@ -66,10 +68,13 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const {
     uri,
     claimId,
+    canReceiveTips,
     preferredCurrency,
     rentalTag,
     purchaseTag,
     preorderTag,
+    balance,
+    exchangeRate,
     costInfo,
     fiatRequired,
     isFetchingPurchases,
@@ -81,6 +86,15 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doCheckIfPurchasedClaimId,
     doPlayUri,
   } = props;
+
+  const { ar: arBalance } = balance;
+  const { ar: dollarsPerAr } = exchangeRate;
+
+  const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag;
+  const cantAffordRent = rentalTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag.price;
+  const cantAffordPurchase = purchaseTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag;
+
+  const { activeArStatus } = useArStatus();
 
   const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
 
@@ -104,7 +118,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   let transactionType = '';
   if (tags.purchaseTag && tags.rentalTag) {
     transactionType = 'purchaseOrRent';
-  } else if (tags.purchaseTag) {
+  } else if (tags.purchaseTag || costInfo?.cost) {
     transactionType = 'purchase';
   } else if (tags.rentalTag) {
     transactionType = 'rental';
@@ -165,24 +179,21 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
             <div className="fiat-order__claim-preview">
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
-
-            {pendingSdkPayment ? (
-              <Button
-                button="primary"
-                requiresAuth
-                onClick={() => doPlayUri(uri, true, undefined, doHideModal)}
-                label={
-                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo?.cost || '?' }}>
-                    Purchase for %currency%%amount%
-                  </I18nMessage>
-                }
-                icon={ICONS.BUY}
-              />
-            ) : waitingForBackend ? (
+            {/* confirm purchase - needs to check balance and disable */}
+            {!canReceiveTips ? (
+              <div className="monetization-disabled">
+                USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.
+              </div>
+            ) : activeArStatus !== 'connected' ? (
+              <WalletStatus />
+            ) : null}
+            {waitingForBackend ? (
               <BusyIndicator message={__('Processing order...')} />
             ) : (
               <SubmitArea
                 handleSubmit={handleSubmit}
+                pendingSdkPayment={pendingSdkPayment}
+                costInfo={costInfo}
                 label={STRINGS[transactionType].button}
                 fiatSymbol={fiatSymbol}
                 tipAmount={tipAmount}
@@ -190,8 +201,32 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentLabel={STRINGS['rental'].button}
                 rentTipAmount={rentTipAmount}
                 rentDuration={rentDuration}
+                disabled={activeArStatus !== 'connected' || !canReceiveTips}
+                rentDisabled={cantAffordRent}
+                purchaseDisabled={cantAffordPurchase}
+                preorderDisabled={cantAffordPreorder}
+                uri={uri}
+                setWaitingForBackend={setWaitingForBackend}
+                doPlayUri={doPlayUri}
+                doHideModal={doHideModal}
               />
             )}
+            <p className="help">
+              <I18nMessage
+                tokens={{
+                  paid_content_terms_and_conditions: (
+                    <Button
+                      button="link"
+                      href="https://help.odysee.tv/category-monetization/"
+                      label={__('paid-content terms and conditions')}
+                    />
+                  ),
+                }}
+              >
+                By continuing, you accept the %paid_content_terms_and_conditions%. All payments are final and
+                non-refundable.
+              </I18nMessage>
+            </p>
           </div>
         }
       />
@@ -199,7 +234,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   );
 }
 
-const SubmitArea = withCreditCard((props: any) => (
+const SubmitArea = (props: any) => (
   <div className="handle-submit-area">
     <Button
       button="primary"
@@ -210,6 +245,7 @@ const SubmitArea = withCreditCard((props: any) => (
         duration: props.rentDuration,
       })}
       icon={props.tags.rentalTag ? ICONS.BUY : ICONS.TIME}
+      disabled={props.disabled || props.purchaseDisabled}
     />
 
     {props.tags.purchaseTag && props.tags.rentalTag && (
@@ -222,7 +258,25 @@ const SubmitArea = withCreditCard((props: any) => (
           duration: props.rentDuration,
         })}
         icon={ICONS.TIME}
+        disabled={props.disabled || props.rentDisabled}
+      />
+    )}
+
+    {props.pendingSdkPayment && (
+      <Button
+        button="primary"
+        requiresAuth
+        onClick={() => {
+          props.setWaitingForBackend(true);
+          props.doPlayUri(props.uri, true, undefined, props.doHideModal);
+        }}
+        label={
+          <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: props.costInfo?.cost || '?' }}>
+            Purchase for %currency%%amount%
+          </I18nMessage>
+        }
+        icon={ICONS.BUY}
       />
     )}
   </div>
-));
+);

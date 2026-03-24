@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri } from 'redux/actions/content';
 import { withRouter } from 'react-router-dom';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -10,12 +11,14 @@ import {
   selectThumbnailForUri,
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
-import { selectIsClaimBlackListedForUri } from 'lbryinc';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { doToggleAppDrawer } from 'redux/actions/app';
-import { getChannelIdFromClaim } from 'util/claim';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
+import { getChannelIdFromClaim, isClaimShort } from 'util/claim';
 
 import * as TAGS from 'constants/tags';
 
@@ -31,9 +34,14 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
 
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
 
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+
+  const filterData = selectFilteredDataForUri(state, uri);
+  const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
+
+  const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -48,7 +56,10 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
-    isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
+    isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
+    disableShortsView: !!collectionSidebarId || selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
+    isClaimFiltered,
+    isClaimShort: isClaimShort(claim),
   };
 };
 

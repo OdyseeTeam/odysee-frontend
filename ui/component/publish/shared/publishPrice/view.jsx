@@ -9,18 +9,16 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
-import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
+import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
 
-const FEE = { MIN: 1, MAX: 999.99 };
+const FEE = { MIN: 0, MAX: 999.99 };
 const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until currency approach is determined.
 
 type Props = {
   disabled: boolean,
   // --- redux ---
-  fileMime: ?string,
-  streamType: ?string,
   fiatPurchaseEnabled: boolean,
   fiatPurchaseFee: Price,
   fiatRentalEnabled: boolean,
@@ -30,17 +28,15 @@ type Props = {
   fee: Fee,
   memberRestrictionStatus: MemberRestrictionStatus,
   chargesEnabled: ?boolean,
+  monetizationStatus: boolean,
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
-  type: PublishType,
   visibility: Visibility,
 };
 
 function PublishPrice(props: Props) {
   const {
-    fileMime,
-    streamType,
     // Purchase
     fiatPurchaseEnabled,
     fiatPurchaseFee,
@@ -53,16 +49,16 @@ function PublishPrice(props: Props) {
     fee,
     memberRestrictionStatus,
     chargesEnabled,
+    monetizationStatus,
     updatePublishForm,
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
-    type,
     visibility,
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
-  const [fiatAllowed, setFiatAllowed] = React.useState(true);
+  const [hadSDKPaywallSelected] = React.useState(paywall === PAYWALL.SDK);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
@@ -130,24 +126,36 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
-              {!noBankAccount && (
-                <FormField
-                  type="radio"
-                  name="content_fiat"
-                  label={`${__('Purchase / Rent')} \u{0024}`}
-                  checked={paywall === PAYWALL.FIAT}
-                  disabled={disabled || noBankAccount || !fiatAllowed}
-                  onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
-                />
-              )}
+
               <FormField
                 type="radio"
-                name="content_sdk"
-                label={<LbcSymbol prefix={__('Purchase with Credits')} />}
-                checked={paywall === PAYWALL.SDK}
-                disabled={disabled}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
+                name="content_fiat"
+                label={`${__('Purchase / Rent')} \u{0024}`}
+                checked={paywall === PAYWALL.FIAT}
+                disabled={disabled || !monetizationStatus}
+                onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
+                helper={
+                  !monetizationStatus &&
+                  'In order to use this feature, you must set up a wallet and enable monetization first.'
+                }
               />
+              {hadSDKPaywallSelected && (
+                <>
+                  <FormField
+                    type="radio"
+                    name="content_sdk"
+                    label={<LbcSymbol prefix={__('Purchase with Credits')} />}
+                    checked={paywall === PAYWALL.SDK}
+                    disabled={disabled}
+                    onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
+                  />
+                  {paywall === PAYWALL.SDK && (
+                    <p className="help--warning" style={{ 'margin-top': '10px' }}>
+                      LBC will be sunset in the future, we recommend using other content pricing methods
+                    </p>
+                  )}
+                </>
+              )}
             </React.Fragment>
           </fieldset-section>
         </div>
@@ -181,7 +189,7 @@ function PublishPrice(props: Props) {
     return (
       <div
         className={classnames('publish-price__row', {
-          'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
+          'publish-price__row--disabled': (noBankAccount || restrictedWithoutPrice) && !ENABLE_ARCONNECT,
         })}
       >
         <div className="publish-price__grp-1">
@@ -196,7 +204,7 @@ function PublishPrice(props: Props) {
         <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatPurchaseEnabled })}>
           <FormFieldPrice
             name="fiat_purchase_fee"
-            min={1}
+            min={0.01}
             price={fiatPurchaseFee}
             onChange={(fee) => updatePublishForm({ fiatPurchaseFee: fee })}
             onBlur={() => sanitizeFee('fiatPurchaseFee')}
@@ -218,7 +226,7 @@ function PublishPrice(props: Props) {
     return (
       <div
         className={classnames('publish-price__row', {
-          'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
+          'publish-price__row--disabled': (noBankAccount || restrictedWithoutPrice) && !ENABLE_ARCONNECT,
         })}
       >
         <div className="publish-price__grp-1">
@@ -233,7 +241,7 @@ function PublishPrice(props: Props) {
         <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatRentalEnabled })}>
           <FormFieldPrice
             name="fiat_rental_fee"
-            min={1}
+            min={0.01}
             price={fiatRentalFee}
             onChange={(fee) => updatePublishForm({ fiatRentalFee: fee })}
             onBlur={() => sanitizeFee('fiatRentalFee')}
@@ -287,26 +295,6 @@ function PublishPrice(props: Props) {
       doTipAccountStatus();
     }
   }, [bankAccountNotFetched, doTipAccountStatus]);
-
-  React.useEffect(() => {
-    function isFiatWhitelistedFileType() {
-      if (fileMime) {
-        // fileMime: the current browsed/selected file (it's empty on edit, but can be changed)
-        return fileMime.startsWith('audio') || fileMime.startsWith('video');
-      } else if (streamType) {
-        // streamType: the original type that we are editing from.
-        return streamType === 'audio' || streamType === 'video' || streamType === 'document';
-      }
-      return false;
-    }
-
-    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
-    setFiatAllowed(isFiatAllowed);
-
-    if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
-      updatePublishForm({ paywall: PAYWALL.FREE });
-    }
-  }, [fileMime, paywall, type, updatePublishForm, streamType]);
 
   if (paymentDisallowed) {
     return (

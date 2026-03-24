@@ -6,7 +6,7 @@ import { DARK_THEME, LIGHT_THEME } from 'constants/themes';
 type Props = {
   dark?: boolean, // always a dark spinner
   light?: boolean, // always a light spinner
-  theme: string,
+  theme?: string,
   type: ?string,
   delayed: boolean,
   text?: any,

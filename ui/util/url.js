@@ -274,3 +274,20 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 
   return embedUrlParams;
 };
+
+// This is NOT a full HTML decoder.
+// It intentionally decodes only a small set of common entities
+// to salvage malformed URLs without breaking query parameters
+// like "&currency".
+export function htmlDecode(str) {
+  if (typeof str !== 'string' || !str.includes('&')) return str;
+  return str
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*34;/gi, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#0*39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&');
+}

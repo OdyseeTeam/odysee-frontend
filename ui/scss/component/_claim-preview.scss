@@ -11,12 +11,19 @@
     top: var(--spacing-xxxxs);
     right: 0;
     padding: 2px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    min-width: 40px;
-    min-height: 40px;
     border-radius: 50%;
     z-index: 2;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
 
     &[aria-expanded='true'] {
       opacity: 1;
@@ -33,12 +40,16 @@
     transition: background-size 0.2s ease-in-out;
   }
 
+  .media__thumb__short {
+    aspect-ratio: 9 / 16;
+  }
+
   .claim-preview__title {
     font-weight: var(--font-weight-bold);
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin-right: var(--spacing-xl);
+    margin-right: var(--spacing-m);
     color: rgba(var(--color-text-base), 0.9);
   }
 
@@ -91,13 +102,34 @@
   }
 }
 
+.claim-preview__wrapper--short {
+  .media__thumb {
+    background-size: cover;
+    aspect-ratio: 9 / 16;
+  }
+
+  &:hover {
+    .media__thumb {
+      background-size: cover;
+      aspect-ratio: 9 / 16;
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    width: 48.5% !important;
+  }
+}
+
 .claim-preview--tile {
-  margin-bottom: var(--spacing-m);
+  margin-bottom: var(--spacing-xl);
   margin-right: 0;
   margin-top: 0;
   margin-left: var(--spacing-m);
   justify-content: flex-start;
   list-style: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 
   .menu__button {
     right: calc(var(--spacing-xs) * -1);
@@ -155,6 +187,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-s);
+
     $width: 100%;
     width: $width;
     @include handleClaimTileGifThumbnail($width);
@@ -502,6 +536,15 @@
 
 // neko rename to header?
 .claim-preview__wrapper--inline {
+  &:hover .claim-preview__title {
+    color: rgba(var(--color-text-base), 0.9);
+  }
+
+  .claim-preview-info > a:hover .claim-preview__title,
+  &:has(> .claim-preview--inline > .button:hover) .claim-preview__title {
+    color: var(--color-primary);
+  }
+
   .channel-thumbnail {
     height: var(--channel-thumbnail-width--small);
     width: var(--channel-thumbnail-width--small);
@@ -515,11 +558,11 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
-    .button-following {
-      color: var(--color-primary-contrast) !important;
-      background-color: rgba(125, 125, 125, 0.5) !important;
+    .button-following--active {
+      color: var(--color-primary-contrast);
+      background-color: rgba(125, 125, 125, 0.5);
       .icon {
-        stroke: var(--color-primary-contrast) !important;
+        stroke: var(--color-primary-contrast);
       }
     }
     .button {
@@ -531,7 +574,7 @@
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
     .claim-preview__actions {
       margin: 0;
       align-self: flex-start;
@@ -553,6 +596,16 @@
 
       .membership-button-wrapper {
         margin-top: 0;
+      }
+
+      a.button-following--active {
+        .button__content {
+          width: 100%;
+        }
+      }
+
+      .button-following__bell {
+        margin-left: auto;
       }
 
       span {
@@ -653,6 +706,21 @@
   @media (max-width: $breakpoint-small) {
     .claim-preview__text {
       flex-direction: column;
+
+      .claim-preview-metadata {
+        .claim-tile__info {
+          .media__subtitle {
+            margin-top: 2px;
+            .button--uri-indicator {
+              .button__content {
+                .channel-name {
+                  font-size: var(--font-xxsmall) !important;
+                }
+              }
+            }
+          }
+        }
+      }
       .claim-preview__actions {
         flex-direction: row;
         justify-content: flex-start !important;
@@ -814,7 +882,6 @@
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
-
     .claim-preview-metadata {
       .claim-tile__info {
         .channel-thumbnail {
@@ -1215,6 +1282,9 @@
     a.button--no-style:first-of-type {
       .button__content {
         align-items: unset;
+        font-size: var(--font-xxsmall);
+        margin-top: -1px;
+        margin-bottom: -2px;
       }
     }
   }
@@ -1357,6 +1427,17 @@
   align-items: flex-start;
 }
 
+.claim-shorts-grid {
+  @media (max-width: $breakpoint-small) {
+    display: flex;
+    gap: 5px !important;
+    align-items: flex-start !important;
+    :not(:first-child) {
+      margin-top: 1px !important;
+    }
+  }
+}
+
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
@@ -1467,7 +1548,7 @@
   }
 }
 
-.embed__wrapper .claim-preview--tile {
+.embed__wrapper .file-viewer .claim-preview--tile {
   margin-bottom: 0px !important;
   width: unset !important;
   margin: 0px !important;
@@ -1492,7 +1573,6 @@
   margin-top: var(--spacing-xxxs);
   color: var(--color-subtitle);
   padding: 0px;
-  padding-bottom: var(--spacing-l);
 
   .channel-thumbnail {
     @include handleChannelGif(1.9rem);
@@ -1503,8 +1583,13 @@
     color: rgba(var(--color-text-base) 0.7);
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: 1020px) {
+    margin-top: 0px;
     padding-bottom: 0;
+
+    .media__subtitle {
+      margin-top: -2px !important;
+    }
   }
 }
 
@@ -1987,6 +2072,12 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+.claim-list__loading-more {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-s);
+}
+
 .playlist-preview__wrapper {
   @extend .claim-preview__wrapper;
   @extend .claim-preview__wrapper--row;
@@ -2166,6 +2257,17 @@ $claim-preview-progress-bar-height: 5px;
             display: flex;
             flex-grow: 1;
             align-items: center;
+            .icon {
+              height: var(--font-base) !important;
+              margin-right: var(--spacing-xxs);
+            }
+          }
+
+          .auto-publish-badge {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            color: var(--color-primary);
             .icon {
               height: var(--font-base) !important;
               margin-right: var(--spacing-xxs);

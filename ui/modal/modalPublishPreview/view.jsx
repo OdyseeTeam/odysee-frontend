@@ -22,6 +22,7 @@ import * as STRIPE from 'constants/stripe';
 import { TO_SECONDS } from 'util/stripe';
 import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
+import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 
 type Props = {
   publishPayload: PublishParams,
@@ -60,7 +61,7 @@ type Props = {
   publishing: boolean,
   isLivestreamClaim: boolean,
   remoteFile: ?string,
-  myMembershipTiers: MembershipTiers,
+  myMembershipTiers: Object,
   memberRestrictionTierIds: Array<number>,
   memberRestrictionStatus: MemberRestrictionStatus,
   visibility: Visibility,
@@ -329,18 +330,12 @@ const ModalPublishPreview = (props: Props) => {
 
     return (
       <div className="publish-preview__tier-restrictions">
-        {myMembershipTiers.map((tier: MembershipTier) => {
-          const tierId = tier?.Membership?.id || '0';
+        {myMembershipTiers.map((tier: CreatorMembership) => {
+          const tierId = tier?.membership_id || '0';
           const tierSelected = memberRestrictionTierIds.includes(tierId);
 
           return tierSelected ? (
-            <FormField
-              key={tierId}
-              name={tierId}
-              type="checkbox"
-              defaultChecked
-              label={tier?.Membership?.name || tierId}
-            />
+            <FormField key={tierId} name={tierId} type="checkbox" defaultChecked label={tier?.name || tierId} />
           ) : (
             <div key={tierId} className="dummy-tier" />
           );
@@ -421,7 +416,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Description'), getDescription())}
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
-                    {createRow(__('Deposit'), getDeposit())}
+                    {bid !== MINIMUM_PUBLISH_BID && createRow(__('Deposit'), getDeposit())}
                     {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {createRow(__('Visibility'), getVisibilityValue())}

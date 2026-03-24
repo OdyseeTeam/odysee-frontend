@@ -2,6 +2,8 @@
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
 import * as FILE_LIST from 'constants/file_list';
+import * as TAGS from 'constants/tags';
+
 import { Lbryio, doFetchViewCount } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
@@ -28,6 +30,7 @@ import { creditsToString } from 'util/format-credits';
 import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
+import { doUserHasPremium } from './user';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
@@ -37,10 +40,16 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     return Promise.resolve({ claimId, cost: 0, includesData: true });
   }
 
+  let usdCost = Number(fee.amount);
   if (fee.currency === 'LBC') {
-    return Promise.resolve({ claimId, cost: fee.amount, includesData: true });
+    const { LBC_USD } = await Lbryio.getExchangeRates();
+    usdCost = usdCost / (1 / LBC_USD);
   }
+  usdCost = Math.max(usdCost, 0.01).toFixed(2);
 
+  return Promise.resolve({ claimId, cost: Number(fee.amount), includesData: true, feeCurrency: fee.currency, usdCost });
+
+  /*
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
     claimId,
     cost: Number(fee.amount) / LBC_USD,
@@ -48,6 +57,7 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
   }));
 
   return Promise.resolve(exchangeRate);
+  */
 }
 
 export function doResolveUris(
@@ -151,7 +161,7 @@ export function doResolveUris(
               const isProtected = isClaimProtected(stream);
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
-              if (hasFiatTags(stream) && stream.claim_id) {
+              if ((hasFiatTags(stream) || stream.value?.fee) && stream.claim_id) {
                 fiatClaimIds.push(stream.claim_id);
               }
 
@@ -210,7 +220,7 @@ export function doResolveUris(
  *
  * @param claimIds
  */
-export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true, options?: {}) {
+export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: boolean = true, options?: {}) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
@@ -273,10 +283,12 @@ export function doFetchClaimListMine(
   fetchViewCount: boolean = false,
   channelIds: Array<?string> = []
 ) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
+
+    const state = getState();
 
     let claimTypes = ['stream', 'repost'];
     if (filterBy && filterBy.length !== 0) {
@@ -292,6 +304,19 @@ export function doFetchClaimListMine(
       resolve,
     })
       .then(async (result: StreamListResponse) => {
+        // Log stuck claims
+        const claims = result.items;
+        const pendingClaimsById = selectPendingClaimsById(state);
+        for (let i = 0; i < claims.length - 1; i++) {
+          if (Object.keys(pendingClaimsById).includes(claims[i].claim_id)) {
+            continue;
+          }
+          if (claims[i].confirmations > claims[i + 1].confirmations) {
+            Lbryio.call('event', 'desktop_error', { error_message: `CLAIM STUCK IN UPLOADS: ${claims[i].claim_id}` });
+            break;
+          }
+        }
+
         dispatch({
           type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
           data: {
@@ -383,7 +408,7 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = __('Successfully abandoned your claim.');
+        abandonMessage = __('Successfully removed your upload.');
       } else if (isSupport) {
         abandonMessage = __('Successfully abandoned your support.');
       } else {
@@ -480,7 +505,7 @@ export function doAbandonClaim(claim: Claim, cb: (string) => any) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = __('Successfully abandoned your claim.');
+        abandonMessage = __('Successfully removed your upload.');
       } else if (supportToAbandon) {
         abandonMessage = __('Successfully abandoned your support.');
       } else {
@@ -734,6 +759,7 @@ export const doFetchChannelListMine =
 
     const callback = (response: ChannelListResponse) => {
       dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
+      dispatch(doUserHasPremium()); // depends on channel list
     };
 
     const failure = (error) => {
@@ -801,7 +827,7 @@ export function doClaimSearch(
         const channelId = getChannelIdFromClaim(stream);
         if (channelId) channelClaimIds.add(channelId);
 
-        if (!options.has_no_source && hasFiatTags(stream) && stream.claim_id) {
+        if (!options.has_no_source && stream.claim_id && (hasFiatTags(stream) || stream.value?.fee)) {
           fiatClaimIds.push(stream.claim_id);
         }
       });
@@ -825,7 +851,7 @@ export function doClaimSearch(
         dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
 
         const sdkPaidClaimIds = settledCostInfosById
-          .filter((costInfo) => Number.isInteger(Number(costInfo.cost)) && Number(costInfo.cost) > 0)
+          .filter((costInfo) => Number(costInfo.cost) > 0)
           .map((costInfo) => costInfo.claimId);
 
         if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
@@ -1028,10 +1054,16 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
       return Lbry.claim_list({ claim_id: Object.keys(pendingById), resolve: true }).then((results) => {
         const claims = results.items;
         const confirmedClaims = [];
+        const membershipCheckClaimIds = [];
         claims.forEach((claim) => {
           if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
             confirmedClaims.push(claim);
             delete pendingById[claim.claim_id];
+          }
+
+          // $FlowIgnore
+          if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
+            membershipCheckClaimIds.push(claim.claim_id);
           }
         });
 
@@ -1042,6 +1074,8 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
             pending: pendingById,
           },
         });
+
+        dispatch(doMembershipContentForStreamClaimIds(membershipCheckClaimIds));
 
         const channelClaims = confirmedClaims.filter((claim) => claim.value_type === 'channel');
         if (channelClaims.length && onChannelConfirmCallback) {

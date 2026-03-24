@@ -311,9 +311,33 @@ function RepostCreate(props: Props) {
         }
         actions={
           <div>
-            <ChannelSelector />
+            <fieldset-section>
+              <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                <fieldset-section>
+                  <label htmlFor="auth_first_channel">
+                    {repostNameError ? (
+                      <span className="error__text">{repostNameError}</span>
+                    ) : (
+                      <span>
+                        {__('Repost URL')}
+                        <HelpLink href="https://help.odysee.tv/category-blockchain/category-staking/naming/" />
+                      </span>
+                    )}
+                  </label>
+                  <div className="form-field__prefix">{repostUrlName}</div>
+                </fieldset-section>
+                <FormField
+                  type="text"
+                  name="repost_name"
+                  value={enteredRepostName}
+                  onChange={(event) => setEnteredRepostName(event.target.value)}
+                  placeholder={__('MyFunName')}
+                />
+              </fieldset-group>
+            </fieldset-section>
+
             {uri && (
-              <fieldset-section>
+              <fieldset-section style={{ marginTop: 'var(--spacing-m)', marginBottom: 'calc(-1 * var(--spacing-m))' }}>
                 <ClaimPreview key={uri} uri={uri} actions={''} showNullPlaceholder />
               </fieldset-section>
             )}
@@ -337,59 +361,41 @@ function RepostCreate(props: Props) {
               </fieldset-section>
             )}
 
-            <React.Fragment>
-              <fieldset-section>
-                <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
-                  <fieldset-section>
-                    <label htmlFor="auth_first_channel">
-                      {repostNameError ? (
-                        <span className="error__text">{repostNameError}</span>
-                      ) : (
-                        <span>
-                          {__('Repost URL')}
-                          <HelpLink href="https://help.odysee.tv/category-blockchain/category-staking/naming/" />
-                        </span>
-                      )}
-                    </label>
-                    <div className="form-field__prefix">{repostUrlName}</div>
-                  </fieldset-section>
-                  <FormField
-                    type="text"
-                    name="repost_name"
-                    value={enteredRepostName}
-                    onChange={(event) => setEnteredRepostName(event.target.value)}
-                    placeholder={__('MyFunName')}
-                  />
-                </fieldset-group>
-              </fieldset-section>
+            <div
+              style={{
+                marginTop: 'var(--spacing-m)',
+                display: 'flex',
+                gap: 'var(--spacing-m)',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div style={{ minWidth: '10em' }}>
+                <FormField
+                  type="number"
+                  name="repost_bid"
+                  min="0"
+                  step="any"
+                  placeholder="0.123"
+                  className="form-field--price-amount"
+                  label={<LbcSymbol postfix={__('Support --[button to support a claim]--')} size={14} />}
+                  value={repostBid}
+                  error={repostBidError}
+                  disabled={!enteredRepostName || resolvingRepost}
+                  onChange={(event) => setRepostBid(event.target.value)}
+                  onWheel={(e) => e.stopPropagation()}
+                />
+                <WalletSpendableBalanceHelp inline />
+              </div>
+              <div className="form-field__help" style={{ marginTop: 'var(--spacing-xs)' }}>
+                <BidHelpText
+                  uri={'lbry://' + enteredRepostName}
+                  amountNeededForTakeover={enteredRepostAmount}
+                  isResolvingUri={isResolvingEnteredRepost}
+                />
+              </div>
+            </div>
 
-              <FormField
-                type="number"
-                name="repost_bid"
-                min="0"
-                step="any"
-                placeholder="0.123"
-                className="form-field--price-amount"
-                label={<LbcSymbol postfix={__('Support --[button to support a claim]--')} size={14} />}
-                value={repostBid}
-                error={repostBidError}
-                helper={
-                  <>
-                    <BidHelpText
-                      uri={'lbry://' + enteredRepostName}
-                      amountNeededForTakeover={enteredRepostAmount}
-                      isResolvingUri={isResolvingEnteredRepost}
-                    />
-                    <WalletSpendableBalanceHelp inline />
-                  </>
-                }
-                disabled={!enteredRepostName || resolvingRepost}
-                onChange={(event) => setRepostBid(event.target.value)}
-                onWheel={(e) => e.stopPropagation()}
-              />
-            </React.Fragment>
-
-            <div className="section__actions">
+            <div className="section__actions publish__actions" style={{ marginTop: 'var(--spacing-m)' }}>
               <Button
                 icon={ICONS.REPOST}
                 disabled={
@@ -404,6 +410,7 @@ function RepostCreate(props: Props) {
                 label={reposting ? __('Reposting') : __('Repost')}
                 onClick={handleSubmit}
               />
+              <ChannelSelector isPublishMenu />
               <Button button="link" label={__('Cancel')} onClick={cancelIt} />
             </div>
           </div>

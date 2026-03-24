@@ -84,6 +84,19 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__refresh-button--spinning .icon {
+  animation: comment-refresh-spin 0.5s ease-in-out;
+}
+
+@keyframes comment-refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .comment__settings {
   display: flex;
   gap: var(--spacing-s);
@@ -369,9 +382,6 @@ $thumbnailWidthSmall: 2rem;
     font-size: var(--font-small);
     font-weight: var(--font-weight-bold);
     color: white;
-    svg {
-      margin-bottom: 2px;
-    }
   }
 
   .comment__pin {
@@ -414,12 +424,6 @@ $thumbnailWidthSmall: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-}
-
-.credit-amount-wrapper {
-  .credit-amount {
-    font-size: var(--font-small);
   }
 }
 
@@ -830,6 +834,9 @@ $thumbnailWidthSmall: 2rem;
         width: $width !important;
         height: calc(#{$width} * (9 / 16));
       }
+    }
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
     }
 
     .channel-thumbnail {

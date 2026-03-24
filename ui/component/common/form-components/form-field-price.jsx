@@ -19,7 +19,7 @@ type Props = {
   currencies?: Array<'LBC' | CurrencyOption>,
 };
 
-const DEFAULT_CURRENCIES = Object.freeze(['LBC', 'USD']);
+const DEFAULT_CURRENCIES = Object.freeze(['LBC']);
 
 const CURRENCY_LABELS = Object.freeze({
   LBC: 'LBRY Credits',

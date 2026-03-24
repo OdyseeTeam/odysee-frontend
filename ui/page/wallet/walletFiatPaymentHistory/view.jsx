@@ -2,6 +2,7 @@
 import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
+import CopyableText from 'component/copyableText';
 import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
@@ -25,7 +26,6 @@ const WalletFiatPaymentHistory = (props: Props) => {
     pageSize = 5,
     fetchDataOnMount,
     paymentHistory,
-    lastFour,
     doCustomerListPaymentHistory,
     doGetCustomerStatus,
     transactionType,
@@ -83,16 +83,32 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }
 
   function getTipAmount(transaction) {
+    const symbol = transaction.currency !== 'AR' ? STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol : '$';
+    const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
     return (
       <>
-        {STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol}
-        {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+        {symbol}
+        {transaction.tipped_amount / 100} {currency}
       </>
     );
   }
 
   function getIsAnon(transaction) {
     return transaction.private_tip ? __('Yes') : __('No');
+  }
+
+  function getTransactionTx(transaction) {
+    return (
+      <>
+        {transaction?.currency === 'AR' ? (
+          <CopyableText
+            hideValue
+            linkTo={`https://viewblock.io/arweave/tx/`}
+            copyable={transaction.payment_intent_id}
+          />
+        ) : null}
+      </>
+    );
   }
 
   // **************************************************************************
@@ -120,8 +136,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
                 <th className="transactionType-header">{<>{__('Type')}</>}</th>
                 <th className="location-header">{__('Location')}</th>
                 <th className="amount-header">{__('Amount')} </th>
-                <th className="card-header">{__('Card Last 4')}</th>
                 <th className="anonymous-header">{__('Anonymous')}</th>
+                <th className="transactionId-header">{__('Transaction')}</th>
               </tr>
             </thead>
             <tbody>
@@ -134,8 +150,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
                     {createColumn(getClaimLink(t))}
                     {createColumn(getTipAmount(t))}
                     {/* TODO: this is incorrect need it per transactions not per user */}
-                    {createColumn(lastFour)}
                     {createColumn(getIsAnon(t))}
+                    {createColumn(getTransactionTx(t))}
                   </tr>
                 ))}
             </tbody>

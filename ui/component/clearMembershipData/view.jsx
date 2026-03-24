@@ -7,7 +7,7 @@ import Button from 'component/button';
 const isDev = process.env.NODE_ENV !== 'production';
 
 type Props = {
-  purchasedMemberships?: ?MembershipTiers,
+  purchasedMemberships?: ?any,
   // -- redux --
   doMembershipClearData: () => void,
 };

@@ -140,6 +140,10 @@ declare type ClaimSearchOptions = {|
   remove_duplicates?: boolean, // removes duplicated content from search by picking either the original claim or the oldest matching repost
   has_source?: boolean, // find claims containing a source field
   has_no_source?: boolean, // find claims not containing a source field
+  content_aspect_ratio?: string, // limit claims by content aspect ratio
+  exclude_shorts?: boolean,
+  exclude_shorts_duration_lte?: number,
+  exclude_shorts_aspect_ratio_lte?: number,
 |};
 
 declare type ClaimSearchResponse = {

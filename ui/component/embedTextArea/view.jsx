@@ -23,6 +23,9 @@ export default function EmbedTextArea(props: Props) {
     props;
 
   const [embedAutoplay, setEmbedAutoplay] = React.useState(false);
+  const isChannel = claim && claim.value_type === 'channel';
+  const isCollection = claim && claim.value_type === 'collection';
+  const showAutoplayToggle = !isChannel && !isCollection && !newestType;
 
   const { canonical_url: canonicalUri } = claim;
   const input = useRef();
@@ -66,15 +69,17 @@ export default function EmbedTextArea(props: Props) {
         readOnly
       />
 
-      <div className="margin-vertical-medium">
-        <FormField
-          name={'embed-autoplay' + (newestType ? ' ' + newestType : '')}
-          type="checkbox"
-          label={__('Enable Autoplay')}
-          checked={embedAutoplay}
-          onChange={() => setEmbedAutoplay((prev) => !prev)}
-        />
-      </div>
+      {showAutoplayToggle && (
+        <div className="margin-vertical-medium">
+          <FormField
+            name={'embed-autoplay' + (newestType ? ' ' + newestType : '')}
+            type="checkbox"
+            label={__('Enable Autoplay')}
+            checked={embedAutoplay}
+            onChange={() => setEmbedAutoplay((prev) => !prev)}
+          />
+        </div>
+      )}
 
       <div className="section__actions">
         <Button

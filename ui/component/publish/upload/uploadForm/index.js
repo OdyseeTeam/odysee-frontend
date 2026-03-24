@@ -7,6 +7,7 @@ import {
   selectMemberRestrictionStatus,
   selectPublishFormValue,
   selectMyClaimForUri,
+  selectPrevFileSizeTooBig,
 } from 'redux/selectors/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -20,6 +21,7 @@ import {
 import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
 import UploadForm from './view';
 
 const select = (state) => {
@@ -39,6 +41,8 @@ const select = (state) => {
     // Need this to make it easier to find the source on previously published content
     isStillEditing: selectIsStillEditing(state),
     filePath: selectPublishFormValue(state, 'filePath'),
+    fileSizeTooBig: selectPublishFormValue(state, 'fileSizeTooBig'),
+    prevFileSizeTooBig: selectPrevFileSizeTooBig(state),
     remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
     memberRestrictionStatus: selectMemberRestrictionStatus(state),
@@ -60,6 +64,7 @@ const perform = (dispatch) => ({
   resetThumbnailStatus: () => dispatch(doResetThumbnailStatus()),
   checkAvailability: (name) => dispatch(doCheckPublishNameAvailability(name)),
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),
+  fetchCreatorSettings: (channelId) => dispatch(doFetchCreatorSettings(channelId)),
 });
 
 export default connect(select, perform)(UploadForm);

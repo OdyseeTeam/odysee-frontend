@@ -35,8 +35,13 @@
 
   .header__menu--right {
     .header__navigationItem--balance {
+      height: var(--height-button);
+      background-color: var(--color-header-button);
+      color: var(--color-text);
+      padding: var(--spacing-xxs) !important;
       transition: border-radius 0.4s;
-      margin-right: var(--spacing-s);
+      margin-right: var(--spacing-s) !important;
+      min-width: fit-content;
       .button__label {
         margin-left: var(--spacing-xxs) !important;
       }
@@ -48,14 +53,12 @@
     }
     .header__navigationItem--balance-round {
       @media (max-width: $breakpoint-large) {
+        min-width: var(--height-button);
+        max-width: var(--height-button);
         border-radius: 50%;
         .button__label {
           display: none;
         }
-      }
-      @media (max-width: $breakpoint-small) {
-        width: var(--height-button-mobile);
-        height: var(--height-button-mobile);
       }
     }
 

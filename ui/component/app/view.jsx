@@ -1,5 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
 import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
@@ -16,6 +18,7 @@ import VideoRenderFloating from 'component/videoRenderFloating';
 import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
+import Wander from 'component/wander';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
@@ -56,11 +59,13 @@ const LATEST_PATH = `/$/${PAGES.LATEST}/`;
 const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
 const EMBED_PATH = `/$/${PAGES.EMBED}/`;
 
+type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
 type Props = {
   language: string,
   languages: Array<string>,
   theme: string,
-  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
+  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean, experimental_ui: boolean },
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
@@ -84,14 +89,21 @@ type Props = {
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
+  fetchDelegatesForMyChannels: () => void,
   homepageFetched: boolean,
   defaultChannelClaim: ?any,
   nagsShown: boolean,
   announcement: string,
+  homepageOrder: HomepageOrder,
+  isFypModalShown: boolean,
+  personalRecommendations: { gid: string, uris: Array<string>, fetched: boolean },
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
+  doOpenModal: (id: string, ?{}) => void,
+  doSetClientSetting: (string, any, ?boolean) => void,
+  doToast: ({ message: string }) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -124,12 +136,19 @@ function App(props: Props) {
     setIncognito,
     fetchModBlockedList,
     fetchModAmIList,
+    fetchDelegatesForMyChannels,
     defaultChannelClaim,
     announcement,
+    homepageOrder,
+    isFypModalShown,
+    personalRecommendations,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
+    doOpenModal,
+    doSetClientSetting,
+    doToast,
   } = props;
 
   const isMobile = useIsMobile();
@@ -209,6 +228,24 @@ function App(props: Props) {
     }
 
     // Only 1 nag is possible, so show the most important:
+
+    // Active uploads warning (show globally so users know why the browser prompts on leave)
+    if (uploadCount > 0 && !embedPath) {
+      const pathname = location && location.pathname;
+      const onUploadPage =
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (pathname && pathname.startsWith(`/$/${PAGES.UPLOADS}`));
+      if (!onUploadPage) {
+        return (
+          <Nag
+            type="helpful"
+            message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
+            actionText={__('View Uploads')}
+            onClick={() => history.push(`/$/${PAGES.UPLOADS}`)}
+          />
+        );
+      }
+    }
 
     if (user === null && !embedPath) {
       return <NagNoUser />;
@@ -324,6 +361,7 @@ function App(props: Props) {
     if (hasMyChannels) {
       fetchModBlockedList();
       fetchModAmIList();
+      fetchDelegatesForMyChannels();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMyChannels, hasNoChannels, setIncognito]);
@@ -333,6 +371,52 @@ function App(props: Props) {
       doSetDefaultChannel(activeChannelClaim.claim_id);
     }
   }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel, hasMyChannels, prefsReady]);
+
+  useEffect(() => {
+    if (
+      isFypModalShown ||
+      !prefsReady ||
+      // $FlowIgnore
+      homepageOrder.active?.includes('FYP') ||
+      // $FlowIgnore
+      homepageOrder.hidden?.includes('FYP') ||
+      !personalRecommendations.uris.length
+    ) {
+      return;
+    }
+
+    doOpenModal(MODALS.CONFIRM, {
+      title: __('Homepage recommendations available'),
+      subtitle: __(
+        'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
+      ),
+      labelOk: __('Yes!'),
+      labelCancel: __('Later'),
+      onConfirm: (closeModal) => {
+        closeModal();
+
+        const active = homepageOrder?.active || [];
+        const newHomePageOrder = {
+          ...homepageOrder,
+          active: ['FYP', ...active],
+        };
+        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+        doToast({ message: __('Homepage recommendations enabled.') });
+      },
+      onCancel: (closeModal) => {
+        closeModal();
+
+        const hidden = homepageOrder?.hidden || [];
+        const newHomePageOrder = {
+          ...homepageOrder,
+          hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden],
+        };
+        doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true);
+        doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true);
+      },
+    });
+  }, [isFypModalShown, prefsReady, homepageOrder, personalRecommendations, doSetClientSetting, doOpenModal, doToast]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -519,6 +603,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
+          <Wander />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
           {!embedPath && <VideoRenderFloating />}

@@ -53,15 +53,7 @@ const TextareaSuggestionsInput = (props: Props) => {
         {!claimIsMine && (
           <Button
             disabled={!messageValue || messageValue.length === 0}
-            icon={ICONS.LBC}
-            onClick={() => handleTip(true)}
-          />
-        )}
-
-        {!claimIsMine && (
-          <Button
-            disabled={!messageValue || messageValue.length === 0}
-            icon={ICONS.FINANCE}
+            icon={ICONS.USD}
             onClick={() => handleTip(false)}
           />
         )}

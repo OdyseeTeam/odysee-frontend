@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import {
-  selectMembershipTiersForChannelUri,
+  selectArEnabledMembershipTiersForChannelUri,
   selectProtectedContentMembershipsForContentClaimId,
   selectMembersOnlyChatMembershipIdsForCreatorId,
   selectCheapestPlanForRestrictedIds,
@@ -9,6 +9,8 @@ import {
   selectMyPurchasedMembershipTierForCreatorUri,
   selectMembershipMineData,
 } from 'redux/selectors/memberships';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
+
 import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import {
@@ -16,7 +18,7 @@ import {
   selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 
-import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
+import { doMembershipList, doMembershipBuy, doMembershipBuyClear } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
 
 import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
@@ -46,7 +48,8 @@ const select = (state, props) => {
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
-    creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
+    creatorMemberships: selectArEnabledMembershipTiersForChannelUri(state, uri),
+    defaultArweaveAddress: selectAPIArweaveDefaultAddress(state),
     channelName: selectChannelNameForUri(state, uri),
     channelClaimId,
     incognito: selectIncognito(state),
@@ -63,6 +66,7 @@ const perform = {
   doMembershipList,
   doMembershipBuy,
   doToast,
+  doMembershipBuyClear,
 };
 
 export default connect(select, perform)(PreviewPage);

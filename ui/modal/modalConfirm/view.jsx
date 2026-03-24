@@ -18,13 +18,25 @@ type Props = {
   busyMsg?: string,
   checkboxLabel?: string,
   onConfirm: (closeModal: () => void, setIsBusy: (boolean) => void) => void,
+  onCancel: (closeModal: () => void, setIsBusy: (boolean) => void) => void,
   // --- perform ---
   doHideModal: () => void,
 };
 
 export default function ModalConfirm(props: Props) {
-  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, checkboxLabel, onConfirm, doHideModal } =
-    props;
+  const {
+    title,
+    subtitle,
+    body,
+    labelOk,
+    labelCancel,
+    hideCancel,
+    busyMsg,
+    checkboxLabel,
+    onConfirm,
+    onCancel,
+    doHideModal,
+  } = props;
 
   const [isBusy, setIsBusy] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState(!checkboxLabel);
@@ -32,6 +44,14 @@ export default function ModalConfirm(props: Props) {
   function handleOnClick() {
     if (onConfirm) {
       onConfirm(doHideModal, setIsBusy);
+    }
+  }
+
+  function handleOnCancel() {
+    if (onCancel) {
+      onCancel(doHideModal, setIsBusy);
+    } else {
+      doHideModal();
     }
   }
 
@@ -67,7 +87,7 @@ export default function ModalConfirm(props: Props) {
               )}
 
               {!hideCancel && !(isBusy && busyMsg) && (
-                <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={doHideModal} />
+                <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={handleOnCancel} />
               )}
             </div>
           </>

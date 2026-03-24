@@ -15,11 +15,13 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
 const VideoPlayersPage = lazyImport(() => import('./internal/videoPlayers' /* webpackChunkName: "videoPlayersPage" */));
 const LivestreamPage = lazyImport(() => import('./internal/livestream' /* webpackChunkName: "livestream" */));
+const ShortsPage = lazyImport(() => import('./internal/shorts'));
 
 type Props = {
   uri: string,
@@ -36,6 +38,9 @@ type Props = {
   contentUnlocked: boolean,
   isLivestream: boolean,
   isClaimBlackListed: boolean,
+  isClaimFiltered: boolean,
+  isClaimShort: boolean,
+  disableShortsView: boolean,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
@@ -57,17 +62,29 @@ const StreamClaimPage = (props: Props) => {
     contentUnlocked,
     isLivestream,
     isClaimBlackListed,
+    isClaimFiltered,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     doToggleAppDrawer,
+    isClaimShort,
+    disableShortsView,
   } = props;
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
+  const history = useHistory();
+
+  const isHidden = isClaimFiltered || isClaimBlackListed;
 
   const cost = costInfo ? costInfo.cost : null;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
+
+  const { search } = history.location;
+
+  const urlParams = new URLSearchParams(search);
+  const shortsView = urlParams.get('view') === 'shorts';
+  const isShortVideo = isClaimShort && !disableShortsView;
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
@@ -79,13 +96,41 @@ const StreamClaimPage = (props: Props) => {
   }, []);
 
   React.useEffect(() => {
+    if (!isClaimShort && shortsView) {
+      const urlParams = new URLSearchParams(search);
+      urlParams.delete('view');
+      const newSearch = urlParams.toString();
+      const { pathname } = window.location;
+      const newUrl = `${pathname}${newSearch ? `?${newSearch}` : ''}`;
+      window.history.replaceState({}, '', newUrl);
+      window.location.reload();
+    }
+  }, [isClaimShort, shortsView, search]);
+
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(search);
+    if (isShortVideo && shortsView) {
+      urlParams.set('view', 'shorts');
+      const newSearch = urlParams.toString();
+      const { pathname } = window.location;
+      const newUrl = `${pathname}?${newSearch}`;
+      window.history.replaceState({}, '', newUrl);
+    } else if (!isShortVideo && shortsView) {
+      urlParams.delete('view');
+      const newSearch = urlParams.toString();
+      history.replace(`${history.location.pathname}${newSearch ? `?${newSearch}` : ''}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShortVideo, shortsView, search, history]);
+
+  React.useEffect(() => {
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
 
     return () => doSetPrimaryUri(null);
   }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
 
-  if (isMarkdown) {
+  if (!isHidden && isMarkdown) {
     return (
       <React.Suspense fallback={null}>
         <MarkdownPostPage uri={uri} accessStatus={accessStatus} />
@@ -93,11 +138,19 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
-  if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+  if (!isHidden && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
     if (isLivestream) {
       return (
         <React.Suspense fallback={null}>
           <LivestreamPage uri={uri} accessStatus={accessStatus} />
+        </React.Suspense>
+      );
+    }
+
+    if (isShortVideo) {
+      return (
+        <React.Suspense fallback={null}>
+          <ShortsPage uri={uri} accessStatus={accessStatus} />
         </React.Suspense>
       );
     }
@@ -166,6 +219,22 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
+  function filteredInfo() {
+    return (
+      <section className="card--section dmca-info">
+        <p>{__('This content violates the terms and conditions of Odysee and has been filtered.')}</p>
+        <p>
+          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+            email: 'help@odysee.com',
+          })}
+        </p>
+        <div className="section__actions">
+          <Button button="link" href="https://help.odysee.tv/communityguidelines/" label={__('Read More')} />
+        </div>
+      </section>
+    );
+  }
+
   if (isMature) {
     return (
       <>
@@ -181,8 +250,8 @@ const StreamClaimPage = (props: Props) => {
   return (
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-        {renderClaimLayout()}
-        {isClaimBlackListed && dmcaInfo()}
+        {!isHidden && renderClaimLayout()}
+        {(isClaimBlackListed && dmcaInfo()) || (isClaimFiltered && filteredInfo())}
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
 

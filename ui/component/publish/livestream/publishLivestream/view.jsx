@@ -34,6 +34,7 @@ type Props = {
   duration: number,
   isVid: boolean,
   doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateTitle: (string, boolean) => void,
   doUpdateFile: (file: WebFile, clearName: boolean) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
@@ -50,6 +51,7 @@ function PublishLivestream(props: Props) {
     liveEditType,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
+    doUpdateTitle,
     doUpdateFile,
     duration,
     isVid,
@@ -61,6 +63,8 @@ function PublishLivestream(props: Props) {
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
+
+  const [urlChangedManually, setUrlChangedManually] = React.useState(false);
 
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
   const PAGE_SIZE = 4;
@@ -108,7 +112,7 @@ function PublishLivestream(props: Props) {
   }
 
   function handleTitleChange(event) {
-    updatePublishForm({ title: event.target.value });
+    doUpdateTitle(event.target.value, urlChangedManually);
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
@@ -201,7 +205,7 @@ function PublishLivestream(props: Props) {
               autoFocus
               autoComplete="off"
             />
-            <PublishName uri={uri} />
+            <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
             <>
               {inEditMode && (
                 <fieldset-group>

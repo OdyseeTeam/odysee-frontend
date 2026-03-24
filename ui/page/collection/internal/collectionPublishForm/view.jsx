@@ -104,7 +104,7 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
 
-  function handlePublish() {
+  function handlePublish(params) {
     setPublishPending(true);
 
     const successCb = (pendingClaim) => {
@@ -118,7 +118,7 @@ const CollectionPublishForm = (props: Props) => {
     };
 
     // $FlowFixMe
-    doCollectionPublish(formParams, collectionId)
+    doCollectionPublish(params, collectionId)
       .then(successCb)
       .catch(() => setPublishPending(false));
   }
@@ -126,9 +126,14 @@ const CollectionPublishForm = (props: Props) => {
   function handleSubmitForm() {
     if (!hasChanges) return goBack();
 
+    const trimmedParams = { ...formParams };
+    if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
+
+    setFormParams(trimmedParams);
+
     if (editing) {
       // $FlowFixMe
-      doCollectionEdit(collectionId, formParams);
+      doCollectionEdit(collectionId, trimmedParams);
 
       return onDoneForId(collectionId);
     }
@@ -140,12 +145,12 @@ const CollectionPublishForm = (props: Props) => {
           'You are about to publish this playlist with unavailable items that will be removed (all other items will be unaffected). This action is permanent and cannot be undone.'
         ),
         onConfirm: (closeModal) => {
-          handlePublish();
+          handlePublish(trimmedParams);
           closeModal();
         },
       });
     } else {
-      handlePublish();
+      handlePublish(trimmedParams);
     }
   }
 

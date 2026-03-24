@@ -11,6 +11,7 @@ const select = (state, props) => ({
   floatingPlayer: selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
   autoplayMedia: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
   autoplayNext: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
+  disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
   isFloating: selectIsPlayerFloating(state),
 });
 

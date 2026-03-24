@@ -33,19 +33,24 @@ type SideNavLink = {
   noI18n?: boolean,
 };
 
-const getHomeButton = (additionalAction) => ({
-  title: 'Home',
-  link: `/`,
-  icon: ICONS.HOME,
-  onClick: () => {
-    if (window.location.pathname === '/') {
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      if (additionalAction) {
-        additionalAction();
+const getHomeButton = (additionalAction) => {
+  const isEmbed = typeof window !== 'undefined' && window.location.pathname.startsWith('/$/embed');
+  const homePath = isEmbed ? '/$/embed/home' : '/';
+
+  return {
+    title: 'Home',
+    link: homePath,
+    icon: ICONS.HOME,
+    onClick: () => {
+      if (typeof window !== 'undefined' && window.location.pathname === homePath) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        if (additionalAction) {
+          additionalAction();
+        }
       }
-    }
-  },
-});
+    },
+  };
+};
 
 const RECENT_FROM_FOLLOWING = {
   title: 'Following --[sidebar button]--',
@@ -58,6 +63,13 @@ const NOTIFICATIONS: SideNavLink = {
   link: `/$/${PAGES.NOTIFICATIONS}`,
   icon: ICONS.NOTIFICATION,
   extra: <NotificationBubble inline />,
+  hideForUnauth: true,
+};
+
+const WALLET: SideNavLink = {
+  title: 'Wallet',
+  link: `/$/${PAGES.WALLET}`,
+  icon: ICONS.WALLET,
   hideForUnauth: true,
 };
 
@@ -187,16 +199,16 @@ function SideNavigation(props: Props) {
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
-      title: 'Go Live',
-      icon: ICONS.GOLIVE,
-      hideForUnauth: true,
-      onClick: () => doBeginPublish('livestream'),
-    },
-    {
       title: 'Upload',
       icon: ICONS.PUBLISH,
       hideForUnauth: true,
       onClick: () => doBeginPublish('file'),
+    },
+    {
+      title: 'Go Live',
+      icon: ICONS.GOLIVE,
+      hideForUnauth: true,
+      onClick: () => doBeginPublish('livestream'),
     },
     {
       title: 'Post',
@@ -236,12 +248,6 @@ function SideNavigation(props: Props) {
       title: 'Creator Analytics',
       link: `/$/${PAGES.CREATOR_DASHBOARD}`,
       icon: ICONS.ANALYTICS,
-      hideForUnauth: true,
-    },
-    {
-      title: 'Wallet',
-      link: `/$/${PAGES.WALLET}`,
-      icon: ICONS.WALLET,
       hideForUnauth: true,
     },
     {
@@ -589,7 +595,7 @@ function SideNavigation(props: Props) {
         <Button label={__('Community Guidelines')} href="https://help.odysee.tv/communityguidelines/" target="_blank" />
       </li>
       <li className="navigation-link">
-        <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
+        <Button label={__('Contribute')} navigate={`/$/${PAGES.CONTRIBUTE}`} />
       </li>
       <li className="navigation-link">
         <Button label={__('Terms')} href="https://odysee.com/$/tos" />
@@ -625,7 +631,10 @@ function SideNavigation(props: Props) {
       >
         {(!canDisposeMenu || sidebarOpen) && (
           <div className="navigation-inner-container">
-            <ul className="navigation-links--absolute mobile-only">{notificationsEnabled && getLink(NOTIFICATIONS)}</ul>
+            <ul className="navigation-links--absolute mobile-only">
+              {notificationsEnabled && getLink(NOTIFICATIONS)}
+              {getLink(WALLET)}
+            </ul>
 
             <ul
               className={classnames('navigation-links', {
@@ -635,9 +644,12 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
+              {showMicroMenu && getLink(WATCH_LATER)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
-
+            <ul className="navigation-links--absolute mobile-only">
+              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
+            </ul>
             <ul
               className={classnames('navigation-links', {
                 'navigation-links--micro': showMicroMenu,
@@ -671,9 +683,6 @@ function SideNavigation(props: Props) {
               )}
             </ul>
 
-            <ul className="navigation-links--absolute mobile-only">
-              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
-            </ul>
             <ul className="navigation-links--absolute mobile-only">
               {email && MOBILE_LINKS.map((linkProps) => getLink(linkProps))}
               {!email && UNAUTH_LINKS.map((linkProps) => getLink(linkProps))}

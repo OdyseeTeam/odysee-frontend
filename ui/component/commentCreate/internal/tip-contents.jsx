@@ -4,9 +4,7 @@ import React from 'react';
 import ChannelThumbnail from 'component/channelThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
-
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
+import { TAB_USD } from 'constants/tip_tabs';
 
 type Props = {
   activeChannelUrl: string,
@@ -25,8 +23,8 @@ export const TipReviewBox = (props: Props) => {
       <CreditAmount
         amount={tipAmount}
         className="comment-create__support-comment-preview__amount"
-        isFiat={activeTab === TAB_FIAT}
-        size={activeTab === TAB_LBC ? 18 : 2}
+        isFiat={activeTab === TAB_USD}
+        size={2}
       />
 
       {isReviewingStickerComment ? (

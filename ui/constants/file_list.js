@@ -10,6 +10,8 @@ export const FILE_TYPE = Object.freeze({
   REPOSTS: { key: 'Reposts', cmd: 'repost', label: 'Reposts' },
   UNLISTED: { key: 'Unlisted', cmd: '', label: 'Unlisted' },
   SCHEDULED: { key: 'Scheduled', cmd: '', label: 'Scheduled' },
+  PAID: { key: 'Paid', cmd: '', label: 'Paid' },
+  PAID_LEGACY: { key: 'Paid-Legacy', cmd: '', label: 'Paid (Legacy/LBC)' },
 });
 
 export const SORT_ORDER = Object.freeze({

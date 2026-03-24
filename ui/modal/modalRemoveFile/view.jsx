@@ -1,17 +1,13 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
-import { FormField } from 'component/common/form';
 import Button from 'component/button';
-import usePersistedState from 'effects/use-persisted-state';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
-import LbcSymbol from 'component/common/lbc-symbol';
 
 type Props = {
   uri: string,
   claim: StreamClaim,
-  claimIsMine: boolean,
   doResolveUri: (string) => void,
   closeModal: () => void,
   deleteFile: (string, boolean, boolean, boolean, any) => void,
@@ -24,9 +20,7 @@ type Props = {
 };
 
 function ModalRemoveFile(props: Props) {
-  const { uri, claimIsMine, doResolveUri, closeModal, deleteFile, doGoBack = true, title, claim, isAbandoning } = props;
-  const [deleteChecked, setDeleteChecked] = usePersistedState('modal-remove-file:delete', true);
-  const [abandonChecked, setAbandonChecked] = usePersistedState('modal-remove-file:abandon', true);
+  const { uri, doResolveUri, closeModal, deleteFile, doGoBack = true, title, claim, isAbandoning } = props;
 
   React.useEffect(() => {
     if (uri) {
@@ -43,57 +37,15 @@ function ModalRemoveFile(props: Props) {
             Are you sure you'd like to remove %title%?
           </I18nMessage>
         }
-        body={
-          <React.Fragment>
-            {/* @if TARGET='app' */}
-            <FormField
-              name="file_delete"
-              label={__('Delete this file from my computer')}
-              type="checkbox"
-              checked={deleteChecked}
-              onChange={() => setDeleteChecked(!deleteChecked)}
-            />
-            {/* @endif */}
-
-            {claimIsMine && (
-              <React.Fragment>
-                <FormField
-                  name="claim_abandon"
-                  label={
-                    <I18nMessage tokens={{ lbc: <LbcSymbol postfix={claim.amount} /> }}>
-                      Remove from blockchain (%lbc%)
-                    </I18nMessage>
-                  }
-                  type="checkbox"
-                  checked={abandonChecked}
-                  onChange={() => setAbandonChecked(!abandonChecked)}
-                />
-                {abandonChecked === true && (
-                  <p className="help error__text">{__('This action is permanent and cannot be undone')}</p>
-                )}
-
-                {/* @if TARGET='app' */}
-                {abandonChecked === false && deleteChecked && (
-                  <p className="help">{__('This file will be removed from your Library and Downloads folder.')}</p>
-                )}
-                {!deleteChecked && (
-                  <p className="help">
-                    {__('This file will be removed from your Library but will remain in your Downloads folder.')}
-                  </p>
-                )}
-                {/* @endif */}
-              </React.Fragment>
-            )}
-          </React.Fragment>
-        }
+        body={<p className="help error__text">{__('This action is permanent and cannot be undone')}</p>}
         actions={
           <>
             <div className="section__actions">
               <Button
                 button="primary"
-                label={isAbandoning ? __('Removing...') : __('OK')}
-                disabled={isAbandoning || !(deleteChecked || abandonChecked)}
-                onClick={() => deleteFile(uri, deleteChecked, claimIsMine ? abandonChecked : false, doGoBack, claim)}
+                label={isAbandoning ? __('Removing...') : __('Remove')}
+                disabled={isAbandoning}
+                onClick={() => deleteFile(uri, false, true, doGoBack, claim)}
               />
               <Button button="link" label={__('Cancel')} onClick={closeModal} />
             </div>

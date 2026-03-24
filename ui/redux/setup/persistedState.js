@@ -25,13 +25,23 @@ const FILTERS = {
   content: createFilter('content', [
     'positions',
     'history',
+    'remoteHistoryLastFetched',
     'lastViewedAnnouncement',
     'recsysEntries',
     'uriAccessKeys',
   ]),
-  subscriptions: createFilter('subscriptions', ['subscriptions']),
+  subscriptions: createFilter('subscriptions', ['subscriptions', 'following']),
   settings: createBlacklistFilter('settings', ['loadedLanguages']),
-  collections: createFilter('collections', ['builtin', 'savedIds', 'unpublished', 'edited', 'updated', 'pending']),
+  collections: createFilter('collections', [
+    'builtin',
+    'savedIds',
+    'unpublished',
+    'edited',
+    'updated',
+    'pending',
+    'lastUsedCollectionIds',
+    'autoPublishById',
+  ]),
 };
 
 const whiteListedReducers = [

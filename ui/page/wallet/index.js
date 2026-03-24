@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { selectTotalBalance } from 'redux/selectors/wallet';
+import { doTipAccountStatus } from 'redux/actions/stripe';
 import { doOpenModal } from 'redux/actions/app';
 import Wallet from './view';
 
@@ -7,6 +8,9 @@ const select = (state) => ({
   totalBalance: selectTotalBalance(state),
 });
 
-export default connect(select, {
+const perform = {
   doOpenModal,
-})(Wallet);
+  doTipAccountStatus,
+};
+
+export default connect(select, perform)(Wallet);

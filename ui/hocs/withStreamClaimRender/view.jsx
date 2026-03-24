@@ -15,6 +15,10 @@ import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
 
+// Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
+const HOME_INIT_FLAGS_MAX_SIZE = 100;
+const homeInitFlags: Set<string> = new Set();
+
 type Props = {
   uri: string,
   children?: any,
@@ -37,6 +41,7 @@ type Props = {
   purchaseTag: number,
   rentalTag: string,
   autoplay: boolean,
+  autoplayNextShort: boolean,
   isFetchingPurchases: ?boolean,
   renderMode: string,
   streamingUrl: any,
@@ -59,8 +64,14 @@ type Props = {
   doFileGetForUri: (uri: string, opt?: ?FileGetOptions) => void,
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doClearPlayingUri: () => void,
+  onSwipeNext?: () => void,
+  onSwipePrevious?: () => void,
+  enableSwipe?: boolean,
+  isShortsContext?: boolean,
+  isFloatingContext?: boolean,
+  forceRenderStream?: boolean,
 };
 
 /**
@@ -89,6 +100,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       purchaseTag,
       rentalTag,
       autoplay,
+      autoplayNextShort,
       isFetchingPurchases,
       renderMode,
       streamingUrl,
@@ -113,6 +125,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doStartFloatingPlayingUri,
       doMembershipList,
       doClearPlayingUri,
+      onSwipeNext,
+      onSwipePrevious,
+      enableSwipe,
+      isShortsContext,
+      isFloatingContext,
+      forceRenderStream,
     } = props;
 
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
@@ -132,7 +150,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
 
     const collectionId =
-      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
+      (urlParams && (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || urlParams.get('lid'))) ||
       (currentUriPlaying && playingCollectionId) ||
       undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
@@ -158,7 +176,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       !forceDisableAutoplay &&
       !(requiresAgeConfirmation && !isAgeRestrictedContentAllowed) &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
-      (forceAutoplayParam || urlTimeParam || (isLivestreamClaim ? isCurrentClaimLive : autoplay));
+      (forceAutoplayParam ||
+        urlTimeParam ||
+        (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
+        (isShortsContext && autoplayNextShort));
 
     const autoplayVideo =
       !claimLinkId &&
@@ -169,6 +190,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
+
+    // For live livestreams, the streaming URL comes from activeLivestreamForChannel, not streamingUrl
+    const hasStreamSource = streamingUrl || (isLivestreamClaim && isCurrentClaimLive);
 
     function handleClick() {
       streamClaim();
@@ -182,7 +206,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
-        doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
+        doMembershipList({ channel_claim_id: channelClaimId });
       }
     }, [channelClaimId, channelName, doMembershipList]);
 
@@ -226,10 +250,25 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
       // $FlowIgnore
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
-      const isHome = pathname === '/';
+      const isHome = pathname === '/' || pathname === '/$/embed/home';
+      const hasDifferentUriAlreadyPlaying = Boolean(playingUri?.uri && !currentUriPlaying);
 
       if (canViewFile) {
-        if (isHome) updateClaim('isHome');
+        if (isHome) {
+          // Floating player should never re-bootstrap playback on homepage transitions.
+          if (isFloatingContext) return;
+
+          // Don't let home feed items hijack an already-active floating player.
+          if (hasDifferentUriAlreadyPlaying) return;
+
+          if (!homeInitFlags.has(uri)) {
+            if (homeInitFlags.size >= HOME_INIT_FLAGS_MAX_SIZE) {
+              homeInitFlags.clear();
+            }
+            homeInitFlags.add(uri);
+            updateClaim('isHome');
+          }
+        }
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
@@ -257,7 +296,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
-    }, [pathname, sourceLoaded]);
+    }, [pathname, sourceLoaded, canViewFile, uri]);
+
+    // Ensure non-video embeds (e.g. markdown) fetch their source in embed mode
+    React.useEffect(() => {
+      if (canViewFile && renderMode === 'md' && !streamingUrl) {
+        doFileGetForUri(uri, fileGetOptions);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canViewFile, renderMode, streamingUrl, uri]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
@@ -268,8 +315,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         sourceId: claimLinkId,
         commentId: undefined,
       };
-
-      // console.log('updateClaim: ', trigger);
 
       let check = playingOptions.uri === currentStreamingUri;
 
@@ -310,9 +355,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile || (requiresAgeConfirmation && !isAgeRestrictedContentAllowed)) {
-      // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
-        <ClaimCoverRender uri={uri} transparent {...clickProps}>
+        <ClaimCoverRender
+          uri={uri}
+          transparent
+          isShortsContext={isShortsContext}
+          isFloatingContext={isFloatingContext}
+          {...clickProps}
+        >
           {requiresAgeConfirmation && !isAgeRestrictedContentAllowed ? (
             <>
               {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
@@ -337,22 +387,32 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Loading State -- return before component render
     if (
       (!playingUri && !streamStarted) ||
-      !streamingUrl ||
+      !hasStreamSource ||
       embeddedLivestreamPendingStart ||
       livestreamUnplayable ||
-      (isPlayable && !currentUriPlaying)
+      (isPlayable && !currentUriPlaying && !forceRenderStream)
     ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return (
           <>
             {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
-            <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>
+            <ClaimCoverRender uri={uri} isShortsContext={isShortsContext} isFloatingContext={isFloatingContext}>
+              {children}
+            </ClaimCoverRender>
           </>
         );
       } else if (isPlayable && !autoplayVideo) {
         return (
-          <ClaimCoverRender uri={uri} onClick={handleClick}>
+          <ClaimCoverRender
+            onSwipeNext={onSwipeNext}
+            onSwipePrevious={onSwipePrevious}
+            enableSwipe={enableSwipe}
+            uri={uri}
+            onClick={handleClick}
+            isShortsContext={isShortsContext}
+            isFloatingContext={isFloatingContext}
+          >
             {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
           </ClaimCoverRender>
@@ -365,7 +425,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Main Component Render -- return when already has the claim's contents
     return (
       <>
-        {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
+        {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded && !forceRenderStream ? (
           <LoadingScreen />
         ) : (
           <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />

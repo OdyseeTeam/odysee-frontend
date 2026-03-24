@@ -14,17 +14,24 @@ type Props = {
   doOpenModal: (string, {}) => void,
   collectionName?: string,
   collectionId: string,
+  claimId?: ?string,
   doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   isBuiltin: boolean,
   publishedNotEdited: boolean,
   collectionEmpty: boolean,
   isMyCollection: boolean,
+  autoPublish: boolean,
+  collectionHasEdits: boolean,
+  publishError?: ?string,
+  doSetCollectionAutoPublish: (collectionId: string, enabled: boolean) => void,
+  doRetryCollectionPublish: (collectionId: string) => void,
 };
 
 function CollectionMenuList(props: Props) {
   const {
     inline = false,
     collectionId,
+    claimId,
     collectionName,
     doOpenModal,
     doEnableCollectionShuffle,
@@ -32,6 +39,11 @@ function CollectionMenuList(props: Props) {
     publishedNotEdited,
     collectionEmpty,
     isMyCollection,
+    autoPublish,
+    collectionHasEdits,
+    publishError,
+    doSetCollectionAutoPublish,
+    doRetryCollectionPublish,
   } = props;
 
   const { push } = useHistory();
@@ -88,6 +100,25 @@ function CollectionMenuList(props: Props) {
                     {__('Edit')}
                   </div>
                 </MenuItem>
+                {claimId && (
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => doSetCollectionAutoPublish(collectionId, !autoPublish)}
+                  >
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.PUBLISH} />
+                      {autoPublish ? __('Disable Auto-publish') : __('Enable Auto-publish')}
+                    </div>
+                  </MenuItem>
+                )}
+                {claimId && collectionHasEdits && publishError && (
+                  <MenuItem className="comment__menu-option" onSelect={() => doRetryCollectionPublish(collectionId)}>
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.REFRESH} />
+                      {__('Retry Publish Now')}
+                    </div>
+                  </MenuItem>
+                )}
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}

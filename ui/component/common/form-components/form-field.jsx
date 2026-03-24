@@ -3,6 +3,7 @@ import 'easymde/dist/easymde.min.css';
 
 import './plugins/inline-attachment/inline-attachment';
 import './plugins/inline-attachment/codemirror-4.inline-attachment';
+import './plugins/inline-attachment/textarea.inline-attachment';
 import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constants/cdn_urls';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
 import { openEditorMenu } from 'util/context-menu';
@@ -64,6 +65,7 @@ type Props = {
   render?: () => React$Node,
   handleTip?: (isLBC: boolean) => any,
   handleSubmit?: () => any,
+  hideValue?: boolean,
 };
 
 type State = {
@@ -74,6 +76,7 @@ export class FormField extends React.PureComponent<Props, State> {
   static defaultProps = { labelOnLeft: false, blockWrap: true };
 
   input: { current: ElementRef<any> };
+  textareaInlineAttachmentAttached: ?boolean;
 
   constructor(props: Props) {
     super(props);
@@ -90,6 +93,31 @@ export class FormField extends React.PureComponent<Props, State> {
 
     if (input && autoFocus) input.focus();
     if (slimInput && showSelectors && showSelectors.open && input) input.blur();
+
+    this.maybeAttachTextareaInlineAttachment();
+  }
+
+  componentDidUpdate() {
+    this.maybeAttachTextareaInlineAttachment();
+  }
+
+  maybeAttachTextareaInlineAttachment() {
+    const { type } = this.props;
+    const input = this.input.current;
+
+    if (type === 'textarea' && input && !this.textareaInlineAttachmentAttached) {
+      this.textareaInlineAttachmentAttached = true;
+
+      window.inlineAttachment.editors.textarea.attach(input, {
+        uploadUrl: IMG_CDN_PUBLISH_URL,
+        uploadFieldName: UPLOAD_CONFIG.BLOB_KEY,
+        extraParams: { [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL },
+        filenameTag: '{filename}',
+        urlText: '![image]({filename})',
+        jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
+        errorText: '![image]("failed to upload file")',
+      });
+    }
   }
 
   render() {
@@ -100,6 +128,7 @@ export class FormField extends React.PureComponent<Props, State> {
       blockWrap,
       charCount,
       children,
+      disabled,
       error,
       helper,
       hideSuggestions,
@@ -128,6 +157,7 @@ export class FormField extends React.PureComponent<Props, State> {
       render,
       handleTip,
       handleSubmit,
+      hideValue,
       max,
       ...inputProps
     } = this.props;
@@ -138,7 +168,7 @@ export class FormField extends React.PureComponent<Props, State> {
     const labelProps = { name, label };
     const countInfoProps = { charCount, textAreaMaxLength };
     const quickActionProps = { label: quickActionLabel, quickActionHandler };
-    const inputSimpleProps = { name, label, ...inputProps };
+    const inputSimpleProps = { name, label, disabled, ...inputProps };
     const inputSelectProps = { name, error, label, children, ...inputProps };
 
     switch (type) {
@@ -389,7 +419,7 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       default:
-        const inputElementProps = { type, name, maxLength: max, ref: this.input, ...inputProps };
+        const inputElementProps = { type, name, disabled, maxLength: max, ref: this.input, ...inputProps };
 
         return (
           <FormFieldWrapper {...wrapperProps}>
@@ -411,15 +441,26 @@ export class FormField extends React.PureComponent<Props, State> {
                 </div>
               )}
 
-              {prefix && <label htmlFor={name}>{prefix}</label>}
+              {/*
+              {prefix && (
+                <label htmlFor={name} className={disabled || error ? 'disabled' : ''}>
+                  {prefix}
+                </label>
+              )}
+                */}
 
               {inputButton ? (
                 <input-submit>
-                  <input {...inputElementProps} />
+                  {!hideValue && <input {...inputElementProps} />}
                   {inputButton}
                 </input-submit>
+              ) : inputElem || !prefix ? (
+                <input {...inputElementProps} />
               ) : (
-                inputElem || <input {...inputElementProps} />
+                <div className="arInput-wrapper">
+                  <span>{prefix}</span>
+                  <input {...inputElementProps} />
+                </div>
               )}
             </fieldset-section>
           </FormFieldWrapper>

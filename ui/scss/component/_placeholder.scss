@@ -37,6 +37,10 @@
         width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
       }
     }
+
+    .media__thumb__short {
+      aspect-ratio: 9 / 16;
+    }
   }
 
   .media__thumb {

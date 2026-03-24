@@ -29,6 +29,7 @@ const defaultState = {
     [SETTINGS.EMAIL_COLLECTION_ACKNOWLEDGED]: false,
     [SETTINGS.FOLLOWING_ACKNOWLEDGED]: false,
     [SETTINGS.TAGS_ACKNOWLEDGED]: false,
+    [SETTINGS.FYP_MODAL_SHOWN]: false,
     [SETTINGS.ENABLE_SYNC]: IS_WEB,
     [SETTINGS.ENABLE_PUBLISH_PREVIEW]: true,
     [SETTINGS.ACTIVE_CHANNEL_CLAIM]: undefined,
@@ -71,12 +72,15 @@ const defaultState = {
       amount: 0.1,
     },
     [SETTINGS.PREFERRED_CURRENCY]: 'USD',
+    [SETTINGS.CRYPTO_DISCLAIMERS]: true,
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,
     [SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED]: false,
     [SETTINGS.AGE_CONFIRMED]: false,
     [SETTINGS.AUTOPLAY_MEDIA]: true,
+    [SETTINGS.HIDE_SHORTS]: false,
+    [SETTINGS.DISABLE_SHORTS_VIEW]: false,
     [SETTINGS.FLOATING_PLAYER]: true,
     [SETTINGS.AUTO_DOWNLOAD]: true,
     [SETTINGS.HIDE_MEMBERS_ONLY_CONTENT]: false,
@@ -91,6 +95,7 @@ const defaultState = {
   },
 };
 defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT] = defaultState.clientSettings[SETTINGS.AUTOPLAY_MEDIA];
+defaultState.clientSettings[SETTINGS.AUTOPLAY_NEXT_SHORTS] = false;
 
 reducers[ACTIONS.REHYDRATE] = (state, action) => {
   const { clientSettings } = state;

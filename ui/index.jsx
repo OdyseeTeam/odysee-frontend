@@ -1,3 +1,4 @@
+import React, { Fragment, useState, useEffect } from 'react';
 import 'babel-polyfill';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
@@ -9,7 +10,6 @@ import moment from 'moment';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
 import * as MODALS from 'constants/modal_types';
-import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import {
@@ -33,7 +33,7 @@ import {
   doLoadBuiltInHomepageData,
 } from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
-import { Lbryio, doBlackListedOutpointsSubscribe, doFilteredOutpointsSubscribe } from 'lbryinc';
+import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
 import rewards from 'rewards';
 import { store, persistor, history } from 'store';
 import app from './app';
@@ -61,6 +61,22 @@ import apiPublishCallViaWeb from 'web/setup/publish';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
 
 analytics.init();
+
+// Handle IndexedDB errors gracefully (e.g., "Connection to Indexed Database server lost")
+// These can happen due to browser storage issues, too many tabs, or private browsing restrictions.
+// The site continues to work normally - state just won't persist across refreshes.
+// We silently handle this since it's not actionable and doesn't affect video playback.
+window.addEventListener('unhandledrejection', (event) => {
+  const errorMessage = event.reason?.message || event.reason?.toString() || '';
+  if (
+    errorMessage.includes('IndexedDB') ||
+    errorMessage.includes('Indexed Database') ||
+    errorMessage.includes('IDBDatabase')
+  ) {
+    event.preventDefault(); // Prevent the error from being reported to Sentry
+    console.warn('IndexedDB error (handled):', errorMessage);
+  }
+});
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -248,10 +264,10 @@ function AppWrapper() {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-
+        // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
-        app.store.dispatch(doBlackListedOutpointsSubscribe());
-        app.store.dispatch(doFilteredOutpointsSubscribe());
+        app.store.dispatch(doBlackListedDataSubscribe());
+        app.store.dispatch(doFilteredDataSubscribe());
         app.store.dispatch(doFetchUserLocale());
         app.store.dispatch(doResolveSubscriptions());
       }, 25);

@@ -5,6 +5,7 @@ import './style.scss';
 import * as ICONS from 'constants/icons';
 import * as FILE_LIST from 'constants/file_list';
 import * as SETTINGS from 'constants/settings';
+import * as CS from 'constants/claim_search';
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import Button from 'component/button';
@@ -16,7 +17,7 @@ import Page from 'component/page';
 import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
 import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
-import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS, PURCHASE_TAG, RENTAL_TAG } from 'constants/tags';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
@@ -38,6 +39,8 @@ type Props = {
   myRepostClaims: Array<Claim>,
   myUnlistedClaims: Array<Claim>,
   myScheduledClaims: Array<Claim>,
+  myPaidClaims: Array<Claim>,
+  myPaidClaimsLegacy: Array<Claim>,
   history: { replace: (string) => void, push: (string) => void },
   page: number,
   pageSize: number,
@@ -68,6 +71,8 @@ function FileListPublished(props: Props) {
     myRepostClaims,
     myUnlistedClaims,
     myScheduledClaims,
+    myPaidClaims,
+    myPaidClaimsLegacy,
     page,
     pageSize,
     myChannelIds,
@@ -103,8 +108,12 @@ function FileListPublished(props: Props) {
   }, [isAllSelected, activeChannel]);
 
   const method =
-    (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key || filterType === FILE_LIST.FILE_TYPE.SCHEDULED.key) &&
-    !isFilteringEnabled
+    [
+      FILE_LIST.FILE_TYPE.UNLISTED.key,
+      FILE_LIST.FILE_TYPE.SCHEDULED.key,
+      FILE_LIST.FILE_TYPE.PAID.key,
+      FILE_LIST.FILE_TYPE.PAID_LEGACY.key,
+    ].includes(filterType) && !isFilteringEnabled
       ? FILE_LIST.METHOD.CLAIM_SEARCH
       : FILE_LIST.METHOD.CLAIM_LIST;
 
@@ -121,7 +130,6 @@ function FileListPublished(props: Props) {
       any_tags: [VISIBILITY_TAGS.UNLISTED],
       channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
-      has_source: true,
       order_by: ['height'],
       remove_duplicates: true,
     };
@@ -130,15 +138,44 @@ function FileListPublished(props: Props) {
   const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
-      any_tags: [SCHEDULED_TAGS.SHOW, SCHEDULED_TAGS.HIDE],
+      // $FlowIgnore
+      any_tags: Object.values(SCHEDULED_TAGS),
       channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
-      has_source: true,
       order_by: ['height'],
       remove_duplicates: true,
       release_time: `>${Math.floor(Date.now() / 1000)}`,
     };
   }, [channelIdsClaimSearch]);
+
+  const csOptionsPaid: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      any_tags: [PURCHASE_TAG, RENTAL_TAG],
+      channel_ids: channelIdsClaimSearch,
+      claim_type: ['stream'],
+      order_by: ['height'],
+      remove_duplicates: true,
+    };
+  }, [channelIdsClaimSearch]);
+
+  const csOptionsPaidLegacy: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      fee_amount: CS.FEE_AMOUNT_ONLY_PAID,
+      channel_ids: channelIdsClaimSearch,
+      claim_type: ['stream'],
+      order_by: ['height'],
+      remove_duplicates: true,
+    };
+  }, [channelIdsClaimSearch]);
+
+  const csOptions = {
+    [FILE_LIST.FILE_TYPE.UNLISTED.key]: csOptionsUnlisted,
+    [FILE_LIST.FILE_TYPE.SCHEDULED.key]: csOptionsScheduled,
+    [FILE_LIST.FILE_TYPE.PAID.key]: csOptionsPaid,
+    [FILE_LIST.FILE_TYPE.PAID_LEGACY.key]: csOptionsPaidLegacy,
+  };
 
   const claimsToShow = React.useMemo(() => {
     if (!isFilteringEnabled) {
@@ -161,12 +198,28 @@ function FileListPublished(props: Props) {
       case FILE_LIST.FILE_TYPE.SCHEDULED.key:
         claims = myScheduledClaims;
         break;
+      case FILE_LIST.FILE_TYPE.PAID.key:
+        claims = myPaidClaims;
+        break;
+      case FILE_LIST.FILE_TYPE.PAID_LEGACY.key:
+        claims = myPaidClaimsLegacy;
+        break;
       default:
         claims = [];
         break;
     }
     return claims;
-  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterType, isFilteringEnabled]);
+  }, [
+    myClaims,
+    myStreamClaims,
+    myRepostClaims,
+    myUnlistedClaims,
+    myScheduledClaims,
+    myPaidClaims,
+    myPaidClaimsLegacy,
+    filterType,
+    isFilteringEnabled,
+  ]);
 
   const filteredClaims = React.useMemo(() => {
     if (!isFilteringEnabled) {
@@ -187,7 +240,8 @@ function FileListPublished(props: Props) {
       result = result.filter((claim) => {
         const contentClaim = claim.reposted_claim ? claim.reposted_claim : claim;
         // $FlowFixMe
-        return contentClaim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+        const title = contentClaim.value && contentClaim.value.title;
+        return title ? title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()) : false;
       });
     }
 
@@ -204,8 +258,8 @@ function FileListPublished(props: Props) {
 
       if (memoizedSortOption.key === FILE_LIST.SORT_KEYS.NAME) {
         const nameComparisonObj = {
-          a: firstComparisonItem.value?.title || firstComparisonItem.name,
-          b: secondComparisonItem.value?.title || secondComparisonItem.name,
+          a: (firstComparisonItem.value && firstComparisonItem.value.title) || firstComparisonItem.name,
+          b: (secondComparisonItem.value && secondComparisonItem.value.title) || secondComparisonItem.name,
         };
 
         Object.assign(comparisonObj, nameComparisonObj);
@@ -215,18 +269,32 @@ function FileListPublished(props: Props) {
         return comparisonObj.a.localeCompare(comparisonObj.b, undefined, { numeric: true, sensitivity: 'base' });
       }
 
-      function getComparisonObj() {
+      function populateComparisonObj() {
         let timestampComparisonObj = {};
         switch (memoizedSortOption.key) {
           case FILE_LIST.SORT_KEYS.RELEASED_AT:
             firstComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
             secondComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
 
+            // $FlowFixMe - release_time exists on StreamMetadata
+            const firstReleaseTime = firstComparisonItem.value && firstComparisonItem.value.release_time;
+            const firstIsUnlisted =
+              firstComparisonItem.value &&
+              firstComparisonItem.value.tags &&
+              firstComparisonItem.value.tags.includes(VISIBILITY_TAGS.UNLISTED);
+            // $FlowFixMe - release_time exists on StreamMetadata
+            const secondReleaseTime = secondComparisonItem.value && secondComparisonItem.value.release_time;
+            const secondIsUnlisted =
+              secondComparisonItem.value &&
+              secondComparisonItem.value.tags &&
+              secondComparisonItem.value.tags.includes(VISIBILITY_TAGS.UNLISTED);
+
             timestampComparisonObj = {
-              // $FlowFixMe
-              a: firstComparisonItem.value?.release_time || firstComparisonItem.meta.creation_timestamp,
-              // $FlowFixMe
-              b: secondComparisonItem.value?.release_time || secondComparisonItem.meta.creation_timestamp,
+              a: !firstIsUnlisted && firstReleaseTime ? firstReleaseTime : firstComparisonItem.meta.creation_timestamp,
+              b:
+                !secondIsUnlisted && secondReleaseTime
+                  ? secondReleaseTime
+                  : secondComparisonItem.meta.creation_timestamp,
             };
 
             Object.assign(comparisonObj, timestampComparisonObj);
@@ -248,7 +316,7 @@ function FileListPublished(props: Props) {
         }
       }
 
-      getComparisonObj();
+      populateComparisonObj();
 
       // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
@@ -318,16 +386,11 @@ function FileListPublished(props: Props) {
   }
 
   function getClaimSearchResultsJsx() {
-    const isUnlisted = filterType === FILE_LIST.FILE_TYPE.UNLISTED.key;
     const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
 
     return hasChannels ? (
-      <ClaimSearchView
-        key={isUnlisted ? 'unlisted' : 'scheduled'}
-        csOptions={isUnlisted ? csOptionsUnlisted : csOptionsScheduled}
-        layout="list"
-        pagination="infinite"
-      />
+      // $FlowIgnore[incompatible-cast]: filterType is never 'All' here, probably.
+      <ClaimSearchView key={filterType} csOptions={csOptions[filterType]} layout="list" pagination="infinite" />
     ) : (
       <Yrbl
         title={__('No uploads')}
@@ -398,15 +461,7 @@ function FileListPublished(props: Props) {
     fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
   }, [isFilteringEnabled, isAllMyClaimsFetched, fetchClaimListMine]);
 
-  const firstUpdate = React.useRef(true);
-  React.useLayoutEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    }
-    setFilterParamsChanged(true);
-  }, [searchText, filterType, memoizedSortOption]);
-
+  // Always reset filterParamsChanged for the next render.
   React.useEffect(() => {
     if (filterParamsChanged) {
       setFilterParamsChanged(false);
@@ -445,6 +500,7 @@ function FileListPublished(props: Props) {
             isAllSelected,
             params,
             channelIdsClaimList,
+            setFilterParamsChanged,
           }}
         >
           <ClaimListHeader filterType={filterType} setFilterType={setFilterType} />

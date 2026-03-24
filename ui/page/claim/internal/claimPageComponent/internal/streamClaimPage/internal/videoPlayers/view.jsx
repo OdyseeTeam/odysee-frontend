@@ -12,7 +12,7 @@ import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
@@ -64,7 +64,7 @@ export default function VideoPlayersPage(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
-  const isMediumScreen = useIsMediumScreen() && !isMobile;
+  const isSmallScreen = useIsSmallScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
 
   const initialPlayingCol = React.useRef(playingCollectionId);
@@ -82,8 +82,8 @@ export default function VideoPlayersPage(props: Props) {
   }, [colParam, isUriPlaying, playingCollectionId]);
 
   const rightSideProps = React.useMemo(
-    () => ({ collectionId, uri, isMediumScreen }),
-    [collectionId, isMediumScreen, uri]
+    () => ({ collectionId, uri, isSmallScreen }),
+    [collectionId, isSmallScreen, uri]
   );
 
   const videoPlayedEnoughToResetPosition = React.useMemo(() => {
@@ -118,7 +118,7 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+        {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
@@ -134,7 +134,7 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+            {isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
@@ -170,17 +170,17 @@ export default function VideoPlayersPage(props: Props) {
 type RightSideProps = {
   collectionId: ?string,
   uri: string,
-  isMediumScreen: boolean,
+  isSmallScreen: boolean,
 };
 
 const RightSideContent = (rightSideProps: RightSideProps) => {
-  const { collectionId, uri, isMediumScreen } = rightSideProps;
+  const { collectionId, uri, isSmallScreen } = rightSideProps;
 
   const isMobile = useIsMobile();
 
   return (
     <div className="card-stack--spacing-m">
-      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
+      {!isSmallScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
       <RecommendedContent uri={uri} />
     </div>
   );

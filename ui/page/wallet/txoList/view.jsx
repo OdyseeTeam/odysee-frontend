@@ -272,7 +272,7 @@ function TxoList(props: Props) {
                       label={
                         <>
                           {__('Type')}
-                          <HelpLink href="https://help.odysee.tv/category-wallet/transactionhistory/" />
+                          <HelpLink href="https://help.odysee.tv/category-legacy/transactionhistory/" />
                         </>
                       }
                       value={type || 'all'}

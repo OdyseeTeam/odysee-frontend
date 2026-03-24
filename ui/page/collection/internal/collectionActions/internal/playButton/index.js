@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectCanPlaybackFileForUri } from 'redux/selectors/content';
 import PlayButton from './view';
 
 const select = (state, props) => {
@@ -10,7 +11,10 @@ const select = (state, props) => {
 
   // this will help play the first valid claim in a list
   // in case the urls have been deleted
-  const firstPlayableItem = collectionUrls?.find((url) => Boolean(selectClaimForUri(state, url)));
+  const firstPlayableItem = collectionUrls?.find((url) => {
+    const claim = selectClaimForUri(state, url);
+    return Boolean(claim && claim.value_type !== 'deleted' && selectCanPlaybackFileForUri(state, url));
+  });
 
   return {
     uri: firstPlayableItem,

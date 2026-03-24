@@ -16,6 +16,7 @@ const select = (state, props) => ({
   hideMembersOnlyContent: selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT),
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
   hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
+  hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES),
   defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
   ageConfirmed: selectClientSetting(state, SETTINGS.AGE_CONFIRMED),
   showNsfw: selectShowMatureContent(state),

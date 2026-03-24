@@ -36,8 +36,6 @@ const StripeAccountConnection = (props: Props) => {
     doTipAccountRemove,
   } = props;
 
-  const STRIPE_DISABLED = true;
-
   const { email, id: accountId } = accountInfo || {};
   const bankAccountNotFetched = chargesEnabled === undefined;
 
@@ -78,7 +76,6 @@ const StripeAccountConnection = (props: Props) => {
         title={
           <div className="table__header-text">
             {accountId ? __('Bank account connected') : __('Connect a bank account')}
-            {STRIPE_DISABLED && <div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>}
           </div>
         }
         background

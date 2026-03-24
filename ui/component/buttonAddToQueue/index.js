@@ -7,6 +7,8 @@ import ButtonAddToQueue from './view';
 import { doToast } from 'redux/actions/notifications';
 import { doStartFloatingPlayingUri, doSetPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
+import { doResolveUri } from 'redux/actions/claims';
+import { doFileGetForUri } from 'redux/actions/file';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -32,6 +34,8 @@ const perform = {
   doCollectionEdit,
   doStartFloatingPlayingUri,
   doSetPlayingUri,
+  doResolveUri,
+  doFileGetForUri,
 };
 
 export default connect(select, perform)(ButtonAddToQueue);

@@ -6,6 +6,7 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
+  overscroll-behavior: contain;
 
   padding: 1px;
   background-color: rgba(var(--color-header-button-base), 0.4);
@@ -85,11 +86,6 @@
     */
   }
 
-  .card__body {
-    max-height: 20rem;
-    overflow: scroll;
-  }
-
   .card__header--between {
     padding-bottom: var(--spacing-s);
     .card__title {
@@ -114,6 +110,8 @@
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
     overflow-y: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     display: flex;
     .claim-list {
       max-height: 100%;
@@ -124,6 +122,8 @@
         max-height: 100%;
         overflow-y: scroll !important;
         overflow-x: hidden;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
         &::-webkit-scrollbar {
           background-color: var(--color-border) !important;
         }

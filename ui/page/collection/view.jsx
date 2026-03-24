@@ -11,6 +11,7 @@ import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
 import Card from 'component/common/card';
 import Button from 'component/button';
+import Yrbl from 'component/yrbl';
 import '../playlists/style.scss';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   collectionId: string,
   // -- redux --
   hasClaim: ?boolean,
+  geoRestriction: ?GeoRestriction,
   collection: Collection,
   brokenUrls: ?Array<any>,
   isCollectionMine: boolean,
@@ -35,6 +37,7 @@ const CollectionPage = (props: Props) => {
     // -- path match --
     collectionId,
     // -- redux --
+    geoRestriction,
     hasClaim,
     collection,
     brokenUrls,
@@ -48,8 +51,9 @@ const CollectionPage = (props: Props) => {
 
   const {
     push,
-    location: { search, state },
+    location: { search, state, pathname },
   } = useHistory();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
   const { showEdit: pageShowEdit } = state || {};
 
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
@@ -92,6 +96,21 @@ const CollectionPage = (props: Props) => {
     }
   }, [collectionId, doResolveClaimId, isPrivate]);
 
+  if (geoRestriction) {
+    return (
+      <Page noSideNavigation={isEmbedPath}>
+        <div className="main--empty">
+          <Yrbl
+            title={__('Content unavailable')}
+            subtitle={geoRestriction.message ? __(geoRestriction.message) : ''}
+            type="sad"
+            alwaysShow
+          />
+        </div>
+      </Page>
+    );
+  }
+
   if (!hasPrivate && isResolvingCollection) {
     return (
       <div className="main--empty">
@@ -102,7 +121,7 @@ const CollectionPage = (props: Props) => {
 
   if (!collection && !isResolvingCollection) {
     return (
-      <Page>
+      <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty empty">{__('Nothing here')}</div>
       </Page>
     );
@@ -124,7 +143,7 @@ const CollectionPage = (props: Props) => {
   }
 
   return (
-    <Page className="playlists-page__wrapper">
+    <Page className="playlists-page__wrapper" noSideNavigation={isEmbedPath}>
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader

@@ -3,7 +3,6 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import React, { useState } from 'react';
 import Button from 'component/button';
-import { isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { webDownloadClaim } from 'util/downloadClaim';
 
 type Props = {
@@ -51,7 +50,6 @@ function FileDownloadLink(props: Props) {
 
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
-  const isPrivateOrUnlisted = isClaimUnlisted(claim) || isClaimPrivate(claim);
 
   // @if TARGET='web'
   // initiate download when streamingUrl is available
@@ -125,7 +123,7 @@ function FileDownloadLink(props: Props) {
         onClick={handleDownload}
         aria-hidden={!focusable}
         tabIndex={focusable ? 0 : -1}
-        disabled={contentRestrictedFromUser || isPrivateOrUnlisted}
+        disabled={contentRestrictedFromUser}
       />
     </>
   );

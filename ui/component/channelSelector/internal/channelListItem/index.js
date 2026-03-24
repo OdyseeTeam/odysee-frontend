@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimUriForId } from 'redux/selectors/claims';
-import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import ChannelListItem from './view';
 
 const select = (state, props) => {
@@ -8,7 +8,7 @@ const select = (state, props) => {
 
   return {
     uri: selectClaimUriForId(state, channelId),
-    odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
+    odyseeMembership: selectUserOdyseeMembership(state, channelId),
   };
 };
 

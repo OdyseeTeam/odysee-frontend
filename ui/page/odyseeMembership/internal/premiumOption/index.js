@@ -1,16 +1,11 @@
 import { connect } from 'react-redux';
-import { doOpenModal } from 'redux/actions/app';
-import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 
 import PremiumOption from './view';
 
-const select = (state, props) => ({
-  preferredCurrency: selectPreferredCurrency(state),
-});
+const select = (state, props) => ({});
 
 const perform = {
-  doOpenModal,
   doOpenCancelationModalForMembership,
 };
 

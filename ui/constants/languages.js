@@ -188,11 +188,11 @@ const LANGUAGES = {
 };
 
 export function getLanguageEngName(code) {
-  return LANGUAGES[code][0];
+  return LANGUAGES[code] ? LANGUAGES[code][0] : code;
 }
 
 export function getLanguageName(code) {
-  return LANGUAGES[code][1];
+  return LANGUAGES[code] ? LANGUAGES[code][1] : code;
 }
 
 export default LANGUAGES;

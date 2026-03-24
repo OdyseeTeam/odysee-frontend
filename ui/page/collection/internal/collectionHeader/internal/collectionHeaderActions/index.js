@@ -5,12 +5,21 @@ import {
   selectCollectionIsEmptyForId,
   selectCollectionSavedForId,
   selectCollectionTypeForId,
+  selectCollectionAutoPublishForId,
+  selectCollectionIsPublishingForId,
+  selectCollectionPublishErrorForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
-import { doToggleCollectionSavedForId, doSortCollectionByKey } from 'redux/actions/collections';
+import {
+  doToggleCollectionSavedForId,
+  doSortCollectionByKey,
+  doSetCollectionAutoPublish,
+  doRetryCollectionPublish,
+} from 'redux/actions/collections';
 import { doEnableCollectionShuffle } from 'redux/actions/content';
 
-import CollectionActions from './view';
+import CollectionHeaderActions from './view';
 
 const select = (state, props) => {
   const { uri, collectionId } = props;
@@ -23,6 +32,10 @@ const select = (state, props) => {
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     collectionSavedForId: selectCollectionSavedForId(state, collectionId),
     collectionType: selectCollectionTypeForId(state, collectionId),
+    autoPublish: selectCollectionAutoPublishForId(state, collectionId),
+    isPublishing: selectCollectionIsPublishingForId(state, collectionId),
+    publishError: selectCollectionPublishErrorForId(state, collectionId),
+    collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 
@@ -31,6 +44,8 @@ const perform = {
   doToggleCollectionSavedForId,
   doSortCollectionByKey,
   doEnableCollectionShuffle,
+  doSetCollectionAutoPublish,
+  doRetryCollectionPublish,
 };
 
-export default connect(select, perform)(CollectionActions);
+export default connect(select, perform)(CollectionHeaderActions);

@@ -55,6 +55,10 @@
       width: 100% !important;
     }
   }
+
+  .media__thumb__short {
+    aspect-ratio: 9 / 16 !important;
+  }
   .claim-preview__text {
     position: relative;
     justify-content: flex-start;
@@ -158,6 +162,9 @@
 
   .media__thumb {
     height: 216px;
+  }
+  .media__thumb__short {
+    aspect-ratio: 9 / 16;
   }
 
   .claim-preview__text {

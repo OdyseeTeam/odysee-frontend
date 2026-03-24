@@ -14,7 +14,20 @@ import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 
-const history = createBrowserHistory();
+let __pushBlocked = false;
+const _nativePush = History.prototype.pushState;
+History.prototype.pushState = function (state, title, url) {
+  if (__pushBlocked) return;
+  __pushBlocked = true;
+  Promise.resolve().then(() => {
+    __pushBlocked = false;
+  });
+  return _nativePush.call(this, state, title, url);
+};
+
+const browserHistory = createBrowserHistory();
+
+const history = browserHistory;
 const rootReducer = createRootReducer(history);
 const persistedReducer = persistReducer(persistOptions, rootReducer);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

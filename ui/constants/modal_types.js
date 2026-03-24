@@ -1,6 +1,7 @@
 export const CONFIRM = 'confirm';
 export const CONFIRM_FILE_REMOVE = 'confirm_file_remove';
 export const CONFIRM_EXTERNAL_RESOURCE = 'confirm_external_resource';
+export const CRYPTO_DISCLAIMERS = 'crypto_disclaimers';
 export const CUSTOMIZE_HOMEPAGE = 'customize_homepage';
 export const INCOMPATIBLE_DAEMON = 'incompatible_daemon';
 export const FEATURED_CHANNELS_EDIT = 'featured_channels_edit';
@@ -57,6 +58,7 @@ export const ANNOUNCEMENTS = 'ANNOUNCEMENTS';
 export const ADD_CARD = 'ADD_CARD';
 export const ACCOUNT_DELETE = 'ACCOUNT_DELETE';
 
+export const ARWEAVE_CONNECT = 'ARWEAVE_CONNECT';
 // Memberships
 
 export const MEMBERSHIP_SPLASH = 'MEMBERSHIP_SPLASH';
@@ -64,3 +66,7 @@ export const JOIN_MEMBERSHIP = 'JOIN_MEMBERSHIP';
 export const CONFIRM_ODYSEE_MEMBERSHIP = 'CONFIRM_ODYSEE_MEMBERSHIP';
 export const CANCEL_MEMBERSHIP = 'CANCEL_MEMBERSHIP';
 export const ACTIVATE_CREATOR_MEMBERSHIPS = 'ACTIVATE_CREATOR_MEMBERSHIPS';
+
+// Publish helpers
+export const COPY_FROM_UPLOAD = 'COPY_FROM_UPLOAD';
+export const MANAGE_UPLOAD_TEMPLATES = 'MANAGE_UPLOAD_TEMPLATES';

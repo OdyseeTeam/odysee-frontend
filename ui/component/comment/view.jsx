@@ -40,6 +40,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
+import { Prompt } from 'react-router-dom';
 import CommentMenuList from 'component/commentMenuList';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
@@ -49,6 +50,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 import { lazyImport } from 'util/lazyImport';
+import { BeforeUnload } from 'util/beforeUnload';
 
 const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
@@ -195,6 +197,14 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   const [page, setPage] = useState(showRepliesOnMount ? 1 : 0);
   const [advancedEditor] = usePersistedState('comment-editor-mode', false);
   const [displayDeadComment, setDisplayDeadComment] = React.useState(forceDisplayDeadComment);
+
+  // Expand replies when linked comment ancestors arrive after mount (e.g. notification navigation)
+  React.useEffect(() => {
+    if (isInLinkedCommentChain) {
+      setShowReplies(true);
+      setPage((prev) => prev || 1);
+    }
+  }, [isInLinkedCommentChain]);
   const likesCount = (othersReacts && othersReacts.like) || 0;
   const dislikesCount = (othersReacts && othersReacts.dislike) || 0;
   const totalLikesAndDislikes = likesCount + dislikesCount;
@@ -234,7 +244,22 @@ function CommentView(props: Props & StateProps & DispatchProps) {
         window.removeEventListener('keydown', handleEscape);
       };
     }
-  }, [author, authorUri, editedMessage, isEditing, setEditing]);
+  }, [editedMessage, isEditing, setEditing]);
+
+  useEffect(() => {
+    // For Refresh
+    const handleRefresh = (event) => {
+      if (isEditing) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    BeforeUnload.register(handleRefresh, 'Editing message');
+    return () => {
+      BeforeUnload.unregister(handleRefresh, 'Editing message');
+    };
+  }, [isEditing]);
 
   useEffect(() => {
     if (uri && page > 0) {
@@ -430,6 +455,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
           <div>
             {isEditing ? (
               <Form onSubmit={handleSubmit}>
+                <Prompt
+                  when={isEditing}
+                  message={__('You are still editing this message, are you sure you want to leave?')}
+                />
                 <FormField
                   className="comment__edit-input"
                   type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}

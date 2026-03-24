@@ -1,5 +1,6 @@
 import { parseURI } from 'util/lbryURI';
 import visit from 'unist-util-visit';
+import decode from 'parse-entities';
 
 const protocol = 'lbry://';
 const uriRegex = /(lbry:\/\/)[^\s"]*[^)]/g;
@@ -157,13 +158,113 @@ const transform = (tree) => {
 
 export const formattedLinks = () => transform;
 
+const URL_PROTOCOLS = ['http://', 'https://', 'mailto:'];
+const RE_WHITESPACE = /\s/;
+const TRAILING_PUNCTUATION = '.,:;"\'';
+
+// Fix for remark-parse's url tokenizer incorrectly terminating at ')' before
+// its paren-balancing logic runs, clipping URLs like Wikipedia disambiguation links.
+function tokenizeUrl(eat, value, silent) {
+  const self = this;
+  if (!self.options.gfm) return;
+
+  let subvalue = '';
+  let matchedProtocol;
+
+  for (const p of URL_PROTOCOLS) {
+    if (value.slice(0, p.length).toLowerCase() === p) {
+      subvalue = value.slice(0, p.length);
+      matchedProtocol = p;
+      break;
+    }
+  }
+
+  if (!subvalue) return;
+
+  let index = subvalue.length;
+  const length = value.length;
+  let queue = '';
+  let parenCount = 0;
+  let bracketCount = 0;
+
+  while (index < length) {
+    const character = value.charAt(index);
+
+    if (RE_WHITESPACE.test(character) || character === '<') break;
+
+    if (character === ')') {
+      if (parenCount > 0) {
+        parenCount--;
+        queue += character;
+        index++;
+        continue;
+      }
+      break;
+    }
+
+    if (character === ']') {
+      if (bracketCount > 0) {
+        bracketCount--;
+        queue += character;
+        index++;
+        continue;
+      }
+      break;
+    }
+
+    if (TRAILING_PUNCTUATION.includes(character)) {
+      const next = value.charAt(index + 1);
+      if (!next || RE_WHITESPACE.test(next)) break;
+    }
+
+    if (character === '(') parenCount++;
+    if (character === '[') bracketCount++;
+
+    queue += character;
+    index++;
+  }
+
+  if (!queue) return;
+
+  subvalue += queue;
+
+  if (matchedProtocol === 'mailto:') {
+    const atPos = queue.indexOf('@');
+    if (atPos <= 0 || atPos === queue.length - 1) return;
+  }
+
+  if (silent) return true;
+
+  const exit = self.enterLink();
+  const content = self.tokenizeInline(subvalue, eat.now());
+  exit();
+
+  return eat(subvalue)({
+    type: 'link',
+    title: null,
+    url: decode(subvalue, { nonTerminated: false }),
+    children: content,
+  });
+}
+
+tokenizeUrl.locator = function locateUrl(value, fromIndex) {
+  if (!this.options.gfm) return -1;
+  let min = -1;
+  for (const p of URL_PROTOCOLS) {
+    const pos = value.indexOf(p, fromIndex);
+    if (pos !== -1 && (pos < min || min === -1)) min = pos;
+  }
+  return min;
+};
+tokenizeUrl.notInLink = true;
+
 // Main module
 export function inlineLinks() {
   const Parser = this.Parser;
   const tokenizers = Parser.prototype.inlineTokenizers;
   const methods = Parser.prototype.inlineMethods;
 
-  // Add an inline tokenizer (defined in the following example).
+  tokenizers.url = tokenizeUrl; // replaces built-in to fix paren handling
   tokenizers.uri = tokenizeURI;
   tokenizers.mention = tokenizeMention;
 

@@ -51,8 +51,8 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFiatPaid: selectIsFiatPaidForUri(state, uri),
-    isFiatPaidAsPurchase: Boolean(selectPurchaseMadeForClaimId(state, claim.claim_id)),
-    isTierUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
+    isFiatPaidAsPurchase: Boolean(selectPurchaseMadeForClaimId(state, claim?.claim_id)),
+    isTierUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim?.claim_id),
     scheduledState: selectScheduledStateForUri(state, uri),
   };
 };

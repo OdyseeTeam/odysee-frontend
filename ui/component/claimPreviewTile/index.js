@@ -7,6 +7,7 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
   selectClaimIsMine,
+  selectIsShortForUri,
 } from 'redux/selectors/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
@@ -15,8 +16,8 @@ import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
-import ClaimPreviewTile from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
+import ClaimPreviewTile from './view';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -41,8 +42,10 @@ const select = (state, props) => {
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
     viewCount: selectViewCountForUri(state, props.uri),
+    disableShortsView: selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
     defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
+    isShort: selectIsShortForUri(state, props.uri),
   };
 };
 

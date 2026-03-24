@@ -7,7 +7,7 @@ import * as PAGES from 'constants/pages';
 import { COL_TYPES } from 'constants/collections';
 import { push } from 'connected-react-router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
-import { getChannelIdFromClaim, isClaimUnlisted } from 'util/claim';
+import { getChannelIdFromClaim, isClaimUnlisted, isClaimShort } from 'util/claim';
 import { toHex } from 'util/hex';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
@@ -31,10 +31,12 @@ import {
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
   selectIsLastCollectionItemForIdAndUri,
+  selectHasPrivateCollectionForId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
 import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { doToast } from 'redux/actions/notifications';
-import { doPurchaseUri } from 'redux/actions/file';
+import { doPurchaseUri, doFileGetForUri } from 'redux/actions/file';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
@@ -54,7 +56,7 @@ import {
   selectIsPlayableForUri,
   selectCanPlaybackFileForUri,
 } from 'redux/selectors/content';
-import { doResolveUri } from 'redux/actions/claims';
+import { doResolveUri, doResolveClaimIds } from 'redux/actions/claims';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -175,11 +177,13 @@ export const doStartFloatingPlayingUri =
     if (!uri) return;
 
     const state = getState();
+    const claim = selectClaimForUri(state, uri);
     const isMature = selectClaimIsNsfwForUri(state, uri);
     const isPlayable = selectIsPlayableForUri(state, uri);
     const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
     const isLive = selectIsActiveLivestreamForUri(state, uri);
     const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
+    const shortData = claim ? { isShort: isClaimShort(claim) } : {};
 
     if (!canStartloatingPlayer) return;
 
@@ -207,15 +211,19 @@ export const doStartFloatingPlayingUri =
 
       dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: itemsToAdd, type: COL_TYPES.PLAYLIST }));
 
-      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection }));
+      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection, ...shortData }));
     }
 
     if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
       // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
-      return dispatch(doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
+      return dispatch(
+        doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection }, ...shortData })
+      );
     }
 
-    return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
+    return dispatch(
+      doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {}, ...shortData })
+    );
   };
 
 export const doPlayNextUri =
@@ -290,7 +298,7 @@ export function doPlaylistAddAndAllowPlaying({
   createNew?: boolean,
   createCb?: (id: string) => void,
 }) {
-  return (dispatch: Dispatch, getState: () => any) => {
+  return async (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
     const remove = Boolean(id && uri && selectCollectionForIdHasClaimUrl(state, id, uri));
 
@@ -337,21 +345,26 @@ export function doPlaylistAddAndAllowPlaying({
     const collectionPlayingId = selectPlayingCollectionId(state);
     const playingUri = selectPlayingUri(state);
     const isUriPlaying = uri && selectIsUriCurrentlyPlaying(state, uri);
-    const firstItemUri = collectionId && selectFirstItemUrlForCollection(state, collectionId);
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
 
     const startPlaying = async () => {
-      if (isUriPlaying) {
-        dispatch(doChangePlayingUri({ collection: { collectionId } }));
-      } else {
-        const uriToStartPlaying = firstItemUri || uri;
+      // Use fresh state at click-time, not stale closure state from toast-creation
+      const freshState = getState();
+      const freshIsUriPlaying = uri && selectIsUriCurrentlyPlaying(freshState, uri);
+      const freshFirstItemUri = collectionId && selectFirstItemUrlForCollection(freshState, collectionId);
+      const uriToStartPlaying = freshFirstItemUri || uri;
 
-        if (uriToStartPlaying) {
-          await dispatch(doResolveUri(uriToStartPlaying, true));
-          dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
-        }
+      if (freshIsUriPlaying) {
+        // Video is already playing — just associate the playlist collection context
+        dispatch(doChangePlayingUri({ collection: { collectionId } }));
+      } else if (uriToStartPlaying) {
+        // Force resolve (not cached) to ensure claim metadata is complete for playability check
+        await dispatch(doResolveUri(uriToStartPlaying, false));
+        // Fetch the streaming URL so the player has a source to play
+        dispatch(doFileGetForUri(uriToStartPlaying));
+        dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
       }
     };
 
@@ -371,21 +384,32 @@ export function doPlaylistAddAndAllowPlaying({
         if (playingUrl) {
           // adds the queue collection id to the playingUri data so it can be used and updated by other components
           if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
-        } else {
-          // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
+        } else if (uri) {
+          // Ensure claim is fully resolved so isPlayable check passes
+          await dispatch(doResolveUri(uri, false));
+          dispatch(doFileGetForUri(uri));
           dispatch(doStartFloatingPlayingUri({ uri, ...paramsToAdd }));
         }
       }
     } else {
+      const hasItemsResolved = !!collectionId && selectCollectionHasItemsResolvedForId(state, collectionId);
+      const isPrivateVersion = !!collectionId && selectHasPrivateCollectionForId(state, collectionId);
+      let collectionUrls;
+      if (hasItemsResolved || isPrivateVersion) {
+        collectionUrls = selectUrlsForCollectionId(state, collectionId);
+      }
+
       const handleEdit = () =>
         // $FlowFixMe
         dispatch(push({ pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`, state: { showEdit: true } }));
 
       dispatch(
         doToast({
-          message: __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
-            playlist_name: collectionName,
-          }),
+          message:
+            __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
+              playlist_name: collectionName,
+              // $FlowIgnore
+            }) + (collectionUrls?.length ? ` (${remove ? collectionUrls.length - 1 : collectionUrls.length + 1})` : ''),
           actionText: isPlayingCollection || hasItemPlaying || remove ? __('Edit Playlist') : __('Start Playing'),
           action: isPlayingCollection || hasItemPlaying || remove ? handleEdit : startPlaying,
           secondaryActionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Edit Playlist'),
@@ -527,6 +551,112 @@ export function doClearContentHistoryAll() {
   };
 }
 
+export function doDeleteRemoteViewHistory(claimId?: string) {
+  return () => {
+    const params = claimId ? { claim_id: claimId } : {};
+    return Lbryio.call('user', 'view_history/delete', params, 'post').catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error('Failed to delete remote view history', err);
+    });
+  };
+}
+
+const REMOTE_HISTORY_BATCH_SIZE = 200;
+let fetchViewHistoryInProgress = false;
+
+export function doFetchViewHistory() {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    if (fetchViewHistoryInProgress) return;
+    fetchViewHistoryInProgress = true;
+
+    dispatch({ type: ACTIONS.FETCH_VIEW_HISTORY_STARTED });
+
+    try {
+      // Fetch all pages of remote history (up to 30 days)
+      let allItems: Array<ViewHistoryItem> = [];
+      let page = 1;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await Lbryio.call('user', 'view_history', { page, page_size: 500 }, 'post');
+
+        // Lbryio.call returns response.data, which should be {items, page, has_more}
+        const items = response?.items || (Array.isArray(response) ? response : []);
+        if (items.length > 0) {
+          allItems = allItems.concat(items);
+          hasMore = response?.has_more === true;
+          page += 1;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      if (allItems.length === 0) {
+        dispatch({
+          type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
+          data: { remoteHistory: [], remotePositions: {} },
+        });
+        return;
+      }
+
+      // Resolve claim IDs to get canonical URLs
+      const claimIds = allItems.map((item) => item.claim_id);
+
+      // Resolve claim IDs (doResolveClaimIds handles auto-pagination for >50)
+      const resolveResponse = await dispatch(doResolveClaimIds(claimIds, true));
+
+      // Build claim_id -> canonical_url map from resolved claims
+      const claimIdToUri = {};
+      if (resolveResponse) {
+        Object.values(resolveResponse).forEach((resolvedObj: any) => {
+          const claim = resolvedObj?.stream || resolvedObj?.channel;
+          if (claim && claim.claim_id && claim.canonical_url) {
+            claimIdToUri[claim.claim_id] = claim.canonical_url;
+          }
+        });
+      }
+
+      // Convert remote items to WatchHistory format
+      const remoteHistory: Array<WatchHistory> = [];
+      for (const item of allItems) {
+        const uri = claimIdToUri[item.claim_id];
+        if (uri) {
+          remoteHistory.push({
+            uri,
+            lastViewed: new Date(item.updated_at).getTime(),
+          });
+        }
+      }
+
+      // Batch fetch last positions
+      const remotePositions = {};
+      for (let i = 0; i < claimIds.length; i += REMOTE_HISTORY_BATCH_SIZE) {
+        const batch = claimIds.slice(i, i + REMOTE_HISTORY_BATCH_SIZE);
+        try {
+          const posResponse = await Lbryio.call('file', 'last_positions', { claim_ids: batch.join(',') }, 'post');
+          if (posResponse) {
+            Object.assign(remotePositions, posResponse);
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to fetch last positions batch', err);
+        }
+      }
+
+      dispatch({
+        type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
+        data: { remoteHistory, remotePositions },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to fetch remote view history', err);
+      dispatch({ type: ACTIONS.FETCH_VIEW_HISTORY_FAILED });
+    } finally {
+      fetchViewHistoryInProgress = false;
+    }
+  };
+}
+
 export const doRecommendationUpdate =
   (claimId: string, urls: Array<string>, id: string, parentId: string) => (dispatch: Dispatch) => {
     dispatch({
@@ -587,17 +717,17 @@ export const doEnableCollectionShuffle =
       dispatch(doChangePlayingUri(newPlayingCollectionObj));
     } else {
       dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
+
+      const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
+
+      dispatch(
+        push({
+          pathname: navigateUrl,
+          search: generateListSearchUrlParams(collectionId),
+          state: { collectionId, forceAutoplay: true },
+        })
+      );
     }
-
-    const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
-
-    dispatch(
-      push({
-        pathname: navigateUrl,
-        search: generateListSearchUrlParams(collectionId),
-        state: { collectionId, forceAutoplay: true },
-      })
-    );
   };
 
 export const doToggleShuffleList =
@@ -609,7 +739,7 @@ export const doToggleShuffleList =
     if (!listIsShuffledForId) {
       dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
     } else {
-      dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
+      dispatch(doChangePlayingUri({ collection: { collectionId, shuffle: undefined } }));
     }
 
     if (!hideToast) {

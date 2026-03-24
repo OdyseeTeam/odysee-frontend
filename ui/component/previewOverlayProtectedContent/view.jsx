@@ -7,7 +7,7 @@ type Props = {
   channel: ?ChannelClaim,
   cheapestPlanPrice: ?number,
   claimIsMine: boolean,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   hasProtectedContentTag: boolean,
   protectedMembershipIds: Array<number>,
   userIsAMember: boolean,
@@ -26,7 +26,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
 
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
-      doMembershipList({ channel_name: channel.name, channel_id: channel.claim_id });
+      doMembershipList({ channel_claim_id: channel.claim_id });
     }
   }, [channel, cheapestPlanPrice, doMembershipList, protectedMembershipIds]);
 
@@ -38,20 +38,22 @@ const PreviewOverlayProtectedContent = (props: Props) => {
     );
   }
 
-  if (protectedMembershipIds && userIsAMember !== undefined && cheapestPlanPrice && hasProtectedContentTag) {
+  if (hasProtectedContentTag) {
     return (
       <div className="protected-content__wrapper">
         <div className="protected-content__lock">
           <Icon icon={ICONS.LOCK} />
         </div>
-        <div className="protected-content__label-wrapper">
-          <div className="protected-content__label-container">
-            <div className="protected-content__label">
-              {__('Members Only')}
-              <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+        {userIsAMember !== undefined && protectedMembershipIds && cheapestPlanPrice && (
+          <div className="protected-content__label-wrapper">
+            <div className="protected-content__label-container">
+              <div className="protected-content__label">
+                {__('Members Only')}
+                <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }

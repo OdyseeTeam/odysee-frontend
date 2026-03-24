@@ -2,12 +2,10 @@ import { connect } from 'react-redux';
 import { selectMemberRestrictionStatus, selectPublishFormValue } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { doCustomerPurchaseCost, doTipAccountStatus } from 'redux/actions/stripe';
-import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
 import PublishPrice from './view';
 
 const select = (state) => ({
-  fileMime: selectPublishFormValue(state, 'fileMime'),
-  streamType: selectPublishFormValue(state, 'streamType'),
   paywall: selectPublishFormValue(state, 'paywall'),
   fiatPurchaseEnabled: selectPublishFormValue(state, 'fiatPurchaseEnabled'),
   fiatPurchaseFee: selectPublishFormValue(state, 'fiatPurchaseFee'),
@@ -17,8 +15,8 @@ const select = (state) => ({
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
   memberRestrictionStatus: selectMemberRestrictionStatus(state),
-  type: state.publish.type,
   visibility: selectPublishFormValue(state, 'visibility'),
+  monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state),
 });
 
 const perform = {

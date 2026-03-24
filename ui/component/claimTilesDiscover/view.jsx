@@ -6,6 +6,8 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
+import classNames from 'classnames';
+import type { HomepageTitles } from 'util/buildHomepage';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -54,6 +56,7 @@ type Props = {
   hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
   loading: boolean,
   duration?: string,
+  contentAspectRatio?: string,
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
@@ -67,6 +70,9 @@ type Props = {
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
+  excludeShorts?: boolean,
+  sectionTitle?: HomepageTitles,
+  isShorts?: boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -90,6 +96,7 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
+    sectionTitle,
   } = props;
 
   const listRef = React.useRef();
@@ -109,7 +116,8 @@ function ClaimTilesDiscover(props: Props) {
   const uris = (prefixUris || []).concat(claimSearchUris);
   if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
 
-  if (window.location.pathname === '/') {
+  // Treat the embed homepage the same as the main homepage for pin injection.
+  if (window.location.pathname === '/' || window.location.pathname === '/$/embed/home') {
     injectPinUrls(uris, pins, resolvedPinUris);
   }
 
@@ -209,7 +217,12 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   return (
-    <ul ref={listRef} className="claim-grid">
+    <ul
+      ref={listRef}
+      className={classNames('claim-grid', {
+        'claim-shorts-grid': props.isShorts || sectionTitle === 'Shorts',
+      })}
+    >
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
@@ -224,6 +237,7 @@ function ClaimTilesDiscover(props: Props) {
                   {inj && inj}
                   {(i < finalUris.length - uriBuffer.current.length || i < pageSize - uriBuffer.current.length) && (
                     <ClaimPreviewTile
+                      sectionTitle={sectionTitle}
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}
                       properties={renderProperties}
@@ -233,14 +247,26 @@ function ClaimTilesDiscover(props: Props) {
               );
             } else {
               return (
-                <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+                <ClaimPreviewTile
+                  sectionTitle={sectionTitle}
+                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                  key={i}
+                  placeholder
+                  pulse
+                />
               );
             }
           })
         : new Array(pageSize)
             .fill(1)
             .map((x, i) => (
-              <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+              <ClaimPreviewTile
+                sectionTitle={sectionTitle}
+                showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                key={i}
+                placeholder
+                pulse
+              />
             ))}
     </ul>
   );

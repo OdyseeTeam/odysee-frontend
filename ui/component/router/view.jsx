@@ -4,7 +4,7 @@ import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
 
 import * as PAGES from 'constants/pages';
 import { PAGE_TITLE } from 'constants/pageTitles';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { parseURI } from 'util/lbryURI';
@@ -17,7 +17,7 @@ import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
-import { getPathForPage } from 'util/url';
+import { getPathForPage, htmlDecode } from 'util/url';
 
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
 
@@ -28,6 +28,7 @@ const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkNa
 const CareersITProjectManagerPage = lazyImport(() =>
   import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
 );
+const ContributePage = lazyImport(() => import('web/page/contribute' /* webpackChunkName: "contribute" */));
 const SeniorBackendEngineerPage = lazyImport(() =>
   import('web/page/careers/seniorBackendEngineer' /* webpackChunkName: "seniorBackendEngineer" */)
 );
@@ -53,7 +54,6 @@ const SignInWalletPasswordPage = lazyImport(() =>
 const SignUpPage = lazyImport(() => import('page/signUp' /* webpackChunkName: "signUp" */));
 const SignInVerifyPage = lazyImport(() => import('page/signInVerify' /* webpackChunkName: "signInVerify" */));
 
-const BuyPage = lazyImport(() => import('page/buy' /* webpackChunkName: "buy" */));
 const ReceivePage = lazyImport(() => import('page/receive' /* webpackChunkName: "receive" */));
 const SendPage = lazyImport(() => import('page/send' /* webpackChunkName: "send" */));
 const SwapPage = lazyImport(() => import('page/swap' /* webpackChunkName: "swap" */));
@@ -142,6 +142,8 @@ const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpac
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
+const PaymentAccountPage = lazyImport(() => import('page/paymentAccount' /* webpackChunkName: "paymentAccountSync" */));
+const ArAccountPage = lazyImport(() => import('page/arAccount' /* webpackChunkName: "arAccountPage" */));
 
 // Tell the browser we are handling scroll restoration
 if ('scrollRestoration' in history) {
@@ -161,6 +163,7 @@ type Props = {
     length: number,
     location: { pathname: string },
     push: (string) => void,
+    replace: (string) => void,
     state: {},
     replaceState: ({}, string, string) => void,
     listen: (any) => () => void,
@@ -234,6 +237,8 @@ function AppRouter(props: Props) {
   const resetScroll = urlParams.get('reset_scroll');
   const hasLinkedCommentInUrl = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const tagParams = urlParams.get(CS.TAGS_KEY);
+  const isSmallScreen = useIsSmallScreen();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
   const ClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} />, [uri]);
@@ -243,7 +248,7 @@ function AppRouter(props: Props) {
   const categoryPages = React.useMemo(() => {
     if (!homepageData) return null;
 
-    const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
+    const dynamicRoutes = GetLinksData(homepageData, isSmallScreen, isMediumScreen, isLargeScreen).filter(
       (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
 
@@ -254,7 +259,7 @@ function AppRouter(props: Props) {
         component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen, wildWestDisabled]);
+  }, [homepageData, isSmallScreen, isMediumScreen, isLargeScreen, wildWestDisabled]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -353,7 +358,15 @@ function AppRouter(props: Props) {
   // in the browser causing a redirect loop
   const decodedUrl = decodeURIComponent(pathname) + search;
   if (decodedUrl !== pathname + search) {
-    return <Redirect to={decodedUrl} />;
+    // Use history.replace instead of <Redirect> to avoid adding extra entries.
+    history.replace(decodedUrl);
+    return null;
+  }
+
+  // Try to support strange cases where url has html encoding
+  const htmlDecodedUrl = htmlDecode(pathname + hash + search);
+  if (htmlDecodedUrl !== pathname + hash + search) {
+    return <Redirect to={htmlDecodedUrl} />;
   }
 
   return (
@@ -388,6 +401,8 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
         <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}`} exact component={ContributePage} />
+        <Route path={`/$/${PAGES.CONTRIBUTE}/:id`} exact component={ContributePage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} exact component={SeniorBackendEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SOFTWARE_SECURITY_ENGINEER}`} exact component={SoftwareSecurityEngineerPage} />
         <Route path={`/$/${PAGES.CAREERS_SENIOR_ANDROID_DEVELOPER}`} exact component={SeniorAndroidDeveloperPage} />
@@ -453,7 +468,6 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.HIDDEN_CONTENT}`} component={HiddenContentPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.RECEIVE}`} component={ReceivePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SEND}`} component={SendPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SWAP}`} component={SwapPage} />
@@ -464,10 +478,13 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={MembershipsCreatorAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} component={MembershipsSupporterAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_LANDING}`} component={MembershipsLandingPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.PAYMENTACCOUNT}`} component={PaymentAccountPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.ARACCOUNT}`} component={ArAccountPage} />
         <Route path={`/$/${PAGES.PORTAL}/:portalName`} exact component={PortalPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
+        <Route path={`/$/${PAGES.EMBED}/home`} exact component={HomePage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 

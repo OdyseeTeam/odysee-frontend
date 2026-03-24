@@ -5,7 +5,7 @@ import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import ClaimPreview from 'component/claimPreview';
 import Card from 'component/common/card';
-import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import { FYP_ID } from 'constants/urlParams';
 import classnames from 'classnames';
@@ -47,7 +47,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const signingChannel = claim && claim.signing_channel;
   const channelName = signingChannel ? signingChannel.name : null;
   const isMobile = useIsMobile();
-  const isMedium = useIsMediumScreen();
+  const isSmall = useIsSmallScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
 
   // Assume this component always resides in a page where the `uri` matches
@@ -61,9 +61,17 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const [uuid] = React.useState(fypId ? Uuidv4() : '');
 
   React.useEffect(() => {
+    const { search } = location;
+    const urlParams = new URLSearchParams(search);
+    const isInShortsMode = urlParams.get('view') === 'shorts';
+
+    if (isInShortsMode) {
+      return;
+    }
+
     const fypParam = fypId && uuid ? { gid: fypId, uuid } : null;
     doFetchRecommendedContent(uri, fypParam);
-  }, [uri, doFetchRecommendedContent, fypId, uuid]);
+  }, [uri, doFetchRecommendedContent, fypId, uuid, location]);
 
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
@@ -87,7 +95,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   return (
     <Card
       isBodyList
-      smallTitle={!isMobile && !isMedium}
+      smallTitle={!isMobile && !isSmall}
       className="file-page__recommended"
       title={__('Related')}
       titleActions={
@@ -142,6 +150,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               pageSize={20}
               infiniteScroll={false}
               hideFilters
+              hasSource
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
               empty={__('No related content found')}

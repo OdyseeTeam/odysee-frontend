@@ -66,8 +66,11 @@ const ClaimPageComponent = (props: Props) => {
   const isNewestPath = latestContentPath || liveContentPath;
 
   const isCollection = claim && claim.value_type === 'collection';
+  const isEmbed = pathname && pathname.startsWith('/$/embed');
 
-  const { isChannel } = parseURI(uri);
+  // In embed mode with live/latest path, use the resolved URL instead of the channel URL
+  const effectiveUri = isEmbed && isNewestPath && latestClaimUrl ? latestClaimUrl : uri;
+  const { isChannel } = parseURI(effectiveUri);
 
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
@@ -82,6 +85,9 @@ const ClaimPageComponent = (props: Props) => {
   }, [canonicalUrl, doFetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
 
   useEffect(() => {
+    // Preserve /$/embed/... URLs; do not rewrite to canonical when embedded
+    if (isEmbed) return;
+
     if (canonicalUrl) {
       const statePos =
         hash.indexOf('#state') > -1
@@ -116,7 +122,7 @@ const ClaimPageComponent = (props: Props) => {
         history.replaceState(history.state, '', replaceUrl);
       }
     }
-  }, [canonicalUrl, pathname, hash, search]);
+  }, [canonicalUrl, pathname, hash, search, isEmbed]);
 
   React.useEffect(() => {
     if (creatorSettings === undefined && channelClaimId) {
@@ -139,43 +145,46 @@ const ClaimPageComponent = (props: Props) => {
     );
   }
 
-  if (isNewestPath && latestClaimUrl) {
-    const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
-    return <Redirect to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
-  }
+  // Skip redirects in embed mode to preserve the embed URL
+  if (!isEmbed) {
+    if (isNewestPath && latestClaimUrl) {
+      const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
+      return <Redirect to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
+    }
 
-  // Don't navigate directly to repost urls
-  // Always redirect to the actual content
-  // Also redirect to channel page (uri) when on a non-existing latest path (live or content)
-  if (claim && (claim.repost_url === uri || (isNewestPath && latestClaimUrl === null))) {
-    const newUrl = formatLbryUrlForWeb(canonicalUrl);
-    return <Redirect to={newUrl} />;
-  }
+    // Don't navigate directly to repost urls
+    // Always redirect to the actual content
+    // Also redirect to channel page (uri) when on a non-existing latest path (live or content)
+    if (claim && (claim.repost_url === uri || (isNewestPath && latestClaimUrl === null))) {
+      const newUrl = formatLbryUrlForWeb(canonicalUrl);
+      return <Redirect to={newUrl} />;
+    }
 
-  if (claim && isCollection && collectionFirstItemUri) {
-    switch (collection?.type) {
-      case COL_TYPES.COLLECTION:
-      case COL_TYPES.PLAYLIST:
-        urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
-        const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
-        return <Redirect to={newUrl} />;
+    if (claim && isCollection && collectionFirstItemUri) {
+      switch (collection?.type) {
+        case COL_TYPES.COLLECTION:
+        case COL_TYPES.PLAYLIST: {
+          urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
+          const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
+          return <Redirect to={newUrl} />;
+        }
+        case COL_TYPES.FEATURED_CHANNELS:
+          return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
 
-      case COL_TYPES.FEATURED_CHANNELS:
-        return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
-
-      default:
-        // Do nothing
-        break;
+        default:
+          // Do nothing
+          break;
+      }
     }
   }
 
   if (isChannel) {
-    return <ChannelPage uri={uri} location={location} />;
+    return <ChannelPage uri={effectiveUri} location={location} />;
   }
 
   return (
     <StreamClaimPage
-      uri={uri}
+      uri={effectiveUri}
       collectionId={collectionId}
       linkedCommentId={linkedCommentId}
       threadCommentId={threadCommentId}

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
-import { doUpdateFile, doUpdatePublishForm } from 'redux/actions/publish';
+import { doUpdateFile, doUpdatePublishForm, doUpdateTitle } from 'redux/actions/publish';
 import PublishLivestream from './view';
 
 const select = (state) => ({
@@ -21,6 +21,7 @@ const select = (state) => ({
 const perform = {
   doUpdatePublishForm,
   doUpdateFile,
+  doUpdateTitle,
 };
 
 export default connect(select, perform)(PublishLivestream);

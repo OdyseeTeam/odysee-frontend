@@ -3,8 +3,9 @@
   border-radius: var(--border-radius);
   padding: var(--spacing-s);
 
-  label {
-    margin-bottom: 0 !important;
+  p {
+    text-align: center;
+    // margin-bottom: 0 !important;
   }
 
   &.red {

@@ -9,7 +9,7 @@ import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { isChannelClaim } from 'util/claim';
+import { isChannelClaim, isClaimShort } from 'util/claim';
 import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
@@ -114,6 +114,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   thumbnailFromClaim: string,
   defaultCollectionAction: string,
+  disableShortsView: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -190,6 +191,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doDisablePlayerDrag,
     thumbnailFromClaim,
     defaultCollectionAction,
+    disableShortsView,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -212,6 +214,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
+  const shortClaim = isClaimShort(claim);
 
   const backgroundImage = thumbnailFromClaim
     ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
@@ -272,6 +276,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     Object.keys(searchParams).forEach((key) => {
       navigateSearch.set(key, searchParams[key]);
     });
+  }
+
+  if (shortClaim && !disableShortsView) {
+    navigateSearch.set('view', 'shorts');
   }
 
   const handleNavLinkClick = (e) => {
@@ -573,6 +581,18 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     <div className="dmca-info">{__('DMCA flagged')}</div>
                   </a>
                 )}
+                {banState.filtered && claimIsMine && (
+                  <a
+                    href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div className="dmca-info">{__('Filtered')}</div>
+                  </a>
+                )}
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
               </div>
               <div className="claim-tile__info">
@@ -614,7 +634,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
               <div className="claim-preview__actions">
-                {!hideJoin && <JoinButton />}
+                {!hideJoin && <JoinButton uri={uri} />}
                 {!pending && (
                   <>
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (

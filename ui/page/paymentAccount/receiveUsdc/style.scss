@@ -1,0 +1,42 @@
+.card--receiveusdc {
+  .section__flex {
+    display: flex;
+    align-items: unset;
+
+    .qr__wrapper {
+      background: var(--color-background);
+      padding: var(--spacing-s);
+      border-radius: var(--border-radius);
+      margin-right: var(--spacing-m);
+
+      .qr-code {
+        width: 206px !important;
+        height: 206px !important;
+
+        canvas {
+          width: 100% !important;
+          height: 100% !important;
+        }
+      }
+    }
+
+    .address__wrapper {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--spacing-s);
+      width: 100%;
+      font-size: var(--font-xxxsmall);
+
+      fieldset-section {
+        width: 100%;
+
+        input,
+        button {
+          padding: var(--spacing-s) var(--spacing-xxxs);
+          height: 16px;
+          background-color: var(--color-header-button);
+        }
+      }
+    }
+  }
+}

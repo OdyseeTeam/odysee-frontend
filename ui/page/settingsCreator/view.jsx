@@ -12,16 +12,10 @@ import SearchChannelField from 'component/searchChannelField';
 import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
-import LbcSymbol from 'component/common/lbc-symbol';
-import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
 
 const DEBOUNCE_REFRESH_MS = 1000;
-
-const LBC_MAX = 21000000;
-const LBC_MIN = 0;
-const LBC_STEP = 1.0;
 
 // ****************************************************************************
 // ****************************************************************************
@@ -71,15 +65,11 @@ export default function SettingsCreatorPage(props: Props) {
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
   const [mutedWordTags, setMutedWordTags] = React.useState([]);
   const [moderatorUris, setModeratorUris] = React.useState([]);
-  const [minTip, setMinTip] = React.useState(0);
-  const [minSuper, setMinSuper] = React.useState(0);
   const [slowModeMin, setSlowModeMin] = React.useState(0);
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(0);
   const [lastUpdated, setLastUpdated] = React.useState(1);
 
   const pushSlowModeMinDebounced = React.useMemo(() => debounce(pushSlowModeMin, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinTipDebounced = React.useMemo(() => debounce(pushMinTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinSuperDebounced = React.useMemo(() => debounce(pushMinSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // **************************************************************************
   // **************************************************************************
@@ -105,8 +95,6 @@ export default function SettingsCreatorPage(props: Props) {
 
     if (fullSync) {
       setCommentsEnabled(settings.comments_enabled || false);
-      setMinTip(settings.min_tip_amount_comment || 0);
-      setMinSuper(settings.min_tip_amount_super_chat || 0);
       setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
       setCommentsMembersOnly(settings.comments_members_only);
@@ -115,12 +103,6 @@ export default function SettingsCreatorPage(props: Props) {
     } else {
       if (settings.comments_enabled !== undefined) {
         setCommentsEnabled(settings.comments_enabled);
-      }
-      if (settings.min_tip_amount_comment !== undefined) {
-        setMinTip(settings.min_tip_amount_comment);
-      }
-      if (settings.min_tip_amount_super_chat !== undefined) {
-        setMinSuper(settings.min_tip_amount_super_chat);
       }
       if (settings.slow_mode_min_gap !== undefined) {
         setSlowModeMin(settings.slow_mode_min_gap);
@@ -148,14 +130,6 @@ export default function SettingsCreatorPage(props: Props) {
 
   function pushSlowModeMin(value: number, activeChannelClaim: ChannelClaim) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
-  }
-
-  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
-  }
-
-  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_super_chat: value });
   }
 
   function parseModUri(uri) {
@@ -377,67 +351,6 @@ export default function SettingsCreatorPage(props: Props) {
                         }
                       />
                     </div>
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for comments</I18nMessage>
-                    }
-                    subtitle={__(HELP.MIN_TIP)}
-                  >
-                    <FormField
-                      name="min_tip_amount_comment"
-                      className="form-field--price-amount"
-                      max={LBC_MAX}
-                      min={LBC_MIN}
-                      step={LBC_STEP}
-                      type="number"
-                      placeholder="1"
-                      value={minTip}
-                      onChange={(e) => {
-                        const newMinTip = parseFloat(e.target.value);
-                        setMinTip(newMinTip);
-                        pushMinTipDebounced(newMinTip, activeChannelClaim);
-                        if (newMinTip !== 0 && minSuper !== 0) {
-                          setMinSuper(0);
-                          pushMinSuperDebounced(0, activeChannelClaim);
-                        }
-                      }}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>
-                    }
-                    subtitle={
-                      <>
-                        {__(HELP.MIN_SUPER)}
-                        {minTip !== 0 && (
-                          <p className="help--inline">
-                            <em>{__(HELP.MIN_SUPER_OFF)}</em>
-                          </p>
-                        )}
-                      </>
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_super_chat"
-                      className="form-field--price-amount"
-                      min={0}
-                      step="any"
-                      type="number"
-                      placeholder="1"
-                      value={minSuper}
-                      disabled={minTip !== 0}
-                      onChange={(e) => {
-                        const newMinSuper = parseFloat(e.target.value);
-                        setMinSuper(newMinSuper);
-                        pushMinSuperDebounced(newMinSuper, activeChannelClaim);
-                      }}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
                   </SettingsRow>
 
                   <SettingsRow title={__('Moderators')} subtitle={__(HELP.MODERATORS)} multirow>

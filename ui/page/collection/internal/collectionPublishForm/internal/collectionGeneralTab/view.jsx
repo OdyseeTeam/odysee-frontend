@@ -159,11 +159,17 @@ function CollectionGeneralTab(props: Props) {
               hideHeader
               label={__('Selected Tags')}
               empty={__('No tags added')}
+              excludedControlTags={[
+                TAGS.DISABLE_COMMENTS_TAG,
+                TAGS.DISABLE_DOWNLOAD_BUTTON_TAG,
+                TAGS.DISABLE_REACTIONS_COMMENTS_TAG,
+                TAGS.DISABLE_SLIMES_COMMENTS_TAG,
+                TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG,
+              ]}
               limitSelect={TAGS_LIMIT}
               help={__(
                 "Add tags that are relevant to your content so those who're looking for it can find it more easily."
               )}
-              excludedControlTags={[TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG]}
               placeholder={__('gaming, crypto')}
               onSelect={(newTags) => {
                 const validatedTags = [];

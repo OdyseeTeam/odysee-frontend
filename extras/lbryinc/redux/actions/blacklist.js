@@ -3,26 +3,24 @@ import * as ACTIONS from 'constants/action_types';
 
 const CHECK_BLACK_LISTED_CONTENT_INTERVAL = 60 * 60 * 1000;
 
-export function doFetchBlackListedOutpoints() {
+export function doFetchBlackListedData() {
   return (dispatch) => {
     dispatch({
       type: ACTIONS.FETCH_BLACK_LISTED_CONTENT_STARTED,
     });
 
-    const success = ({ outpoints }) => {
-      const splitOutpoints = [];
-      if (outpoints) {
-        outpoints.forEach((outpoint, index) => {
-          const [txid, nout] = outpoint.split(':');
-
-          splitOutpoints[index] = { txid, nout: Number.parseInt(nout, 10) };
+    const success = (data) => {
+      let blackListedDataMap = {};
+      if (data) {
+        data.map((entry) => {
+          blackListedDataMap[entry.claim_id] = { tag_name: entry.tag_name };
         });
       }
 
       dispatch({
         type: ACTIONS.FETCH_BLACK_LISTED_CONTENT_COMPLETED,
         data: {
-          outpoints: splitOutpoints,
+          blackListedData: blackListedDataMap,
           success: true,
         },
       });
@@ -38,13 +36,13 @@ export function doFetchBlackListedOutpoints() {
       });
     };
 
-    Lbryio.call('file', 'list_blocked', { auth_token: '' }, 'get').then(success, failure);
+    Lbryio.call('file', 'list_blocked', { auth_token: '', with_claim_id: 1 }, 'get').then(success, failure);
   };
 }
 
-export function doBlackListedOutpointsSubscribe() {
+export function doBlackListedDataSubscribe() {
   return (dispatch) => {
-    dispatch(doFetchBlackListedOutpoints());
-    setInterval(() => dispatch(doFetchBlackListedOutpoints()), CHECK_BLACK_LISTED_CONTENT_INTERVAL);
+    dispatch(doFetchBlackListedData());
+    setInterval(() => dispatch(doFetchBlackListedData()), CHECK_BLACK_LISTED_CONTENT_INTERVAL);
   };
 }

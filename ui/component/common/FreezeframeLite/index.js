@@ -8,6 +8,8 @@ import * as templates from './templates';
 import { classes } from './classes';
 import './styles.scss';
 
+const frozenFrameCache = new Map();
+
 const defaultOptions = {
   responsive: true,
   trigger: 'hover',
@@ -53,6 +55,9 @@ class FreezeframeLite {
   }
 
   async setup($image) {
+    if ($image.parentElement?.classList.contains(classes.CONTAINER)) {
+      return;
+    }
     const freeze = this.wrap($image);
     this.items.push(freeze);
     await this.process(freeze);
@@ -83,30 +88,39 @@ class FreezeframeLite {
       const { $canvas, $image, $container } = freeze;
       const { clientWidth, clientHeight } = $image;
       const devicePixelRatio = window.devicePixelRatio || 1.0;
+      const cacheKey = $image.src;
 
       if (!clientWidth) {
         $image.classList.add(classes.VISIBLE);
         $canvas.classList.add(classes.INACTIVE);
         return null;
       }
-      $canvas.setAttribute('width', clientWidth * devicePixelRatio);
-      $canvas.setAttribute('height', clientHeight * devicePixelRatio);
+
+      const canvasWidth = clientWidth * devicePixelRatio;
+      const canvasHeight = clientHeight * devicePixelRatio;
+      $canvas.setAttribute('width', canvasWidth);
+      $canvas.setAttribute('height', canvasHeight);
 
       const context = $canvas.getContext('2d');
-      context.drawImage($image, 0, 0, clientWidth * devicePixelRatio, clientHeight * devicePixelRatio);
+
+      const cached = frozenFrameCache.get(cacheKey);
+      if (cached && cached.width === canvasWidth && cached.height === canvasHeight) {
+        context.putImageData(cached.imageData, 0, 0);
+        $canvas.classList.add(classes.CANVAS_READY);
+        this.ready($container);
+        resolve(freeze);
+        return;
+      }
+
+      context.drawImage($image, 0, 0, canvasWidth, canvasHeight);
+      try {
+        const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight);
+        frozenFrameCache.set(cacheKey, { imageData, width: canvasWidth, height: canvasHeight });
+      } catch (e) {}
 
       $canvas.classList.add(classes.CANVAS_READY);
-
-      $canvas.addEventListener(
-        'transitionend',
-        () => {
-          this.ready($container);
-          resolve(freeze);
-        },
-        {
-          once: true,
-        }
-      );
+      this.ready($container);
+      resolve(freeze);
     });
   }
 

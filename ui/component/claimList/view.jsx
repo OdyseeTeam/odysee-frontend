@@ -12,6 +12,8 @@ import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
+import type { HomepageTitles } from 'util/buildHomepage';
 
 const Draggable = React.lazy(() =>
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
@@ -20,6 +22,8 @@ const Draggable = React.lazy(() =>
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const SORT_NEW = 'new';
 const SORT_OLD = 'old';
+const INITIAL_VISIBLE_COUNT = 50;
+const LOAD_MORE_COUNT = 50;
 
 type Props = {
   uris: Array<string>,
@@ -71,6 +75,8 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
+  isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
 };
 
 export default function ClaimList(props: Props) {
@@ -121,9 +127,15 @@ export default function ClaimList(props: Props) {
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
+    isShortFromChannelPage,
+    sectionTitle,
   } = props;
 
   const isMobile = useIsMobile();
+  const { location } = useHistory();
+
+  const queryParams = new URLSearchParams(location.search);
+  const isShorts = queryParams.get('view') === 'shortsTab';
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);
@@ -151,9 +163,42 @@ export default function ClaimList(props: Props) {
 
   const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
 
+  // -- Progressive rendering for large lists (#3206) --
+  const isLargeList = droppableProvided && sortedUris.length > INITIAL_VISIBLE_COUNT;
+  const activeIndex = isLargeList && activeUri ? sortedUris.indexOf(activeUri) : 0;
+  const initialCount = isLargeList
+    ? Math.min(sortedUris.length, Math.max(INITIAL_VISIBLE_COUNT, activeIndex + Math.round(INITIAL_VISIBLE_COUNT / 2)))
+    : sortedUris.length;
+
+  const [visibleCount, setVisibleCount] = React.useState(initialCount);
+
   React.useEffect(() => {
-    if (typeof loadedCallback === 'function') loadedCallback(totalLength);
-  }, [totalLength]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Reset visible count when URIs change (e.g., switching playlists)
+    setVisibleCount(initialCount);
+  }, [collectionId, initialCount]);
+
+  React.useEffect(() => {
+    if (!isLargeList || visibleCount >= sortedUris.length) return;
+
+    const scrollNode = scrollableListRef.current;
+    if (!scrollNode) return;
+
+    const handleScroll = debounce(() => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollNode;
+      if (scrollTop + clientHeight >= scrollHeight - 400) {
+        setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, sortedUris.length));
+      }
+    }, 100);
+
+    scrollNode.addEventListener('scroll', handleScroll);
+    return () => scrollNode.removeEventListener('scroll', handleScroll);
+  }, [isLargeList, sortedUris.length, visibleCount]);
+
+  const displayedUris = isLargeList ? sortedUris.slice(0, visibleCount) : sortedUris;
+
+  React.useEffect(() => {
+    if (typeof loadedCallback === 'function' && !loading) loadedCallback(totalLength);
+  }, [totalLength, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const noResultMsg = searchInLanguage
     ? __('No results. Contents may be hidden by the Language filter.')
@@ -256,11 +301,13 @@ export default function ClaimList(props: Props) {
     }
   }, [activeUri, setHasActive, sortedUris]);
 
+  const scrollableListRef = React.useRef();
   const listRefCb = React.useCallback(
     (node) => {
       if (node) {
         if (droppableProvided) droppableProvided.innerRef(node);
         if (setListRef) setListRef(node);
+        scrollableListRef.current = node;
       }
     },
     [droppableProvided, setListRef]
@@ -289,7 +336,7 @@ export default function ClaimList(props: Props) {
 
   return tileLayout && !header ? (
     <>
-      <section ref={listRef} className="claim-grid">
+      <section ref={listRef} className={`claim-grid ${isShorts ? 'claim-shorts-grid' : ''}`}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {
@@ -313,6 +360,8 @@ export default function ClaimList(props: Props) {
                       collectionId={collectionId}
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
+                      isShortFromChannelPage={isShortFromChannelPage}
+                      sectionTitle={sectionTitle}
                     />
                   )}
                 </React.Fragment>
@@ -372,7 +421,7 @@ export default function ClaimList(props: Props) {
         >
           {droppableProvided ? (
             <>
-              {sortedUris.map((uri, index) => (
+              {displayedUris.map((uri, index) => (
                 <React.Suspense fallback={null} key={uri}>
                   <Draggable draggableId={uri} index={index}>
                     {(draggableProvided, draggableSnapshot) => {
@@ -438,6 +487,11 @@ export default function ClaimList(props: Props) {
                 </React.Suspense>
               ))}
               {droppableProvided.placeholder}
+              {isLargeList && visibleCount < sortedUris.length && (
+                <li className="claim-list__loading-more">
+                  <Spinner type="small" />
+                </li>
+              )}
             </>
           ) : (
             sortedUris.map((uri, index) => (

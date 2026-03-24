@@ -17,8 +17,9 @@ type Props = {
   rentalInfo: { price: number, currency: string, expirationTimeInSeconds: number },
   purchaseInfo: number,
   isFetchingPurchases: boolean,
+  doTipAccountCheckForUri: (uri: string) => void,
   // below props are just passed to <CreditAmount />
-  customPrices?: { priceFiat: number, priceLBC: number },
+  customPrices?: { priceFiat: number, priceLBC: number }, // TODO Custom Prices for file
   hideFree?: boolean, // hide the file price if it's free
   isFiat?: boolean,
   showLBC?: boolean,
@@ -26,6 +27,12 @@ type Props = {
 
 class FilePrice extends React.PureComponent<Props> {
   static defaultProps = { showFullPrice: false };
+
+  componentDidUpdate(prevProps: Props) {
+    if (!prevProps.costInfo && this.props.costInfo && !this.props.purchaseInfo) {
+      this.props.doTipAccountCheckForUri(this.props.uri);
+    }
+  }
 
   render() {
     const {
@@ -73,17 +80,19 @@ class FilePrice extends React.PureComponent<Props> {
           })}
         >
           {fiatPaid ? (
-            <CreditAmount
-              amount={''}
-              className={className}
-              isFiat
-              icon={ICONS.COMPLETED} // icon={ICONS.PURCHASED}
-            />
+            <CreditAmount amount={''} className={className} isFiat icon={ICONS.COMPLETED} />
+          ) : sdkPaid ? (
+            <span className={className}>
+              <Icon icon={ICONS.PURCHASED} size={type === 'filepage' ? 22 : undefined} />
+            </span>
           ) : (
             <>
               {purchaseInfo && (
                 <CreditAmount
                   amount={showIconsOnly ? '' : purchaseInfo}
+                  customAmounts={
+                    customPrices ? { amountFiat: customPrices.priceFiat, amountLBC: customPrices.priceLBC } : undefined
+                  }
                   className={className}
                   isFiat
                   showFullPrice={showFullPrice}

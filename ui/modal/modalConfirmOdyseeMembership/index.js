@@ -15,7 +15,7 @@ const select = (state, props) => {
     activeChannelClaim: selectActiveChannelClaim(state),
     channels: selectMyChannelClaims(state),
     incognito: selectIncognito(state),
-    purchasePending: selectPurchaseIsPendingForMembershipId(state, membership.Membership.id),
+    purchasePending: selectPurchaseIsPendingForMembershipId(state, membership.membership_id),
   };
 };
 

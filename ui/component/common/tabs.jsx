@@ -49,11 +49,12 @@ function Tabs(props: TabsProps) {
   const tabsRef = useRef<Element | void | null>();
 
   // Recalculate "Rect" on window resize
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (tabsRef.current) {
       setTabsRect(tabsRef.current.getBoundingClientRect());
     }
-  });
+  }, []);
+  useOnResize(handleResize);
 
   const tabLabels = props.children[0];
   const tabContent = props.children[1];
@@ -93,19 +94,21 @@ function TabList(props: TabListProps) {
 // Flow doesn't understand we don't have to pass it in ourselves
 type TabProps = {
   isSelected?: Boolean,
+  className?: string,
 };
 function Tab(props: TabProps) {
   // @reach/tabs provides an `isSelected` prop
   // We could also useContext to read it manually
-  const { isSelected } = props;
+  const { isSelected, className, ...rest } = props;
   const [rect, setRect] = React.useState();
 
   // Recalculate "Rect" on window resize
-  useOnResize(() => {
+  const handleResize = React.useCallback(() => {
     if (ref.current) {
       setRect(ref.current.getBoundingClientRect());
     }
-  });
+  }, []);
+  useOnResize(handleResize);
 
   // Each tab measures itself
   const ref = useRef<Element | void | null>();
@@ -117,7 +120,14 @@ function Tab(props: TabProps) {
     if (isSelected) setSelectedRect(rect);
   }, [isSelected, rect, setSelectedRect]);
 
-  return <ReachTab ref={ref} {...props} className="tab" type="button" />;
+  return (
+    <ReachTab
+      ref={ref}
+      {...rest}
+      className={classnames('tab', { 'tab--selected': isSelected }, className)}
+      type="button"
+    />
+  );
 }
 
 //

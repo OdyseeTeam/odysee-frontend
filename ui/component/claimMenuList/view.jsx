@@ -71,9 +71,7 @@ type Props = {
   hasEdits: Collection,
   isAuthenticated: boolean,
   doEnableCollectionShuffle: (params: { collectionId: string }) => void,
-  lastUsedCollection: ?Collection,
-  hasClaimInLastUsedCollection: boolean,
-  lastUsedCollectionIsNotBuiltin: boolean,
+  lastUsedCollections: ?Array<any>,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
@@ -120,9 +118,7 @@ function ClaimMenuList(props: Props) {
     hasEdits,
     isAuthenticated,
     doEnableCollectionShuffle,
-    lastUsedCollection,
-    hasClaimInLastUsedCollection,
-    lastUsedCollectionIsNotBuiltin,
+    lastUsedCollections,
     doRemovePersonalRecommendation,
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
@@ -306,7 +302,7 @@ function ClaimMenuList(props: Props) {
           onSelect={() => handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)}
         >
           <div className="menu__link">
-            <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
+            <Icon aria-hidden icon={ICONS.TIME} />
             {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
           </div>
         </MenuItem>
@@ -320,7 +316,7 @@ function ClaimMenuList(props: Props) {
           onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
         >
           <div className="menu__link">
-            <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
+            <Icon aria-hidden icon={ICONS.STAR} />
             {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
           </div>
         </MenuItem>
@@ -344,20 +340,26 @@ function ClaimMenuList(props: Props) {
       );
     };
 
-    const ToggleLastUsedCollectionMenuItem = () => {
-      return lastUsedCollection && lastUsedCollectionIsNotBuiltin ? (
-        <MenuItem
-          className="comment__menu-option"
-          onSelect={() => handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)}
-        >
-          <div className="menu__link">
-            {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
-            {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
-            {!hasClaimInLastUsedCollection && __('Add to %collection%', { collection: lastUsedCollection.name })}
-            {hasClaimInLastUsedCollection && __('In %collection%', { collection: lastUsedCollection.name })}
-          </div>
-        </MenuItem>
-      ) : null;
+    const ToggleLastUsedCollectionMenuItems = () => {
+      if (!lastUsedCollections || lastUsedCollections.length === 0) {
+        return null;
+      }
+      return lastUsedCollections.map((lastUsedCollection) => {
+        return (
+          <MenuItem
+            key={lastUsedCollection.id}
+            className="comment__menu-option"
+            onSelect={() => handleAdd(lastUsedCollection.hasClaim, lastUsedCollection.name, lastUsedCollection.id)}
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={lastUsedCollection.hasClaim ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD} />
+              {lastUsedCollection.hasClaim
+                ? __('In %collection%', { collection: lastUsedCollection.name })
+                : __('Add to %collection%', { collection: lastUsedCollection.name })}
+            </div>
+          </MenuItem>
+        );
+      });
     };
 
     const RemoveFromCollectionMenuItem = () => {
@@ -385,7 +387,7 @@ function ClaimMenuList(props: Props) {
 
     return (
       <>
-        {isAuthenticated && claimInCollection && (
+        {isAuthenticated && claimInCollection && isMyCollection && (
           <>
             <RemoveFromCollectionMenuItem />
             <hr className="menu__separator" />
@@ -399,7 +401,7 @@ function ClaimMenuList(props: Props) {
             <WatchLaterMenuItem />
             <FavoritesMenuItem />
             <AddToPlaylistMenuItem />
-            <ToggleLastUsedCollectionMenuItem />
+            <ToggleLastUsedCollectionMenuItems />
             <hr className="menu__separator" />
           </>
         )}
@@ -532,7 +534,7 @@ function ClaimMenuList(props: Props) {
                     <>
                       <MenuItem className="comment__menu-option" onSelect={handleSupport}>
                         <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.LBC} />
+                          <Icon aria-hidden icon={ICONS.USD} />
                           {__('Support --[button to support a claim]--')}
                         </div>
                       </MenuItem>

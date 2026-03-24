@@ -17,6 +17,15 @@
   }
 }
 
+.embed__wrapper--page {
+  display: block;
+  height: auto;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
 .embed__wrapper--channel {
   justify-content: center;
   align-items: center;
@@ -33,6 +42,13 @@
   video {
     background-color: var(--color-white);
   }
+}
+
+// Ensure readable text for embedded markdown/posts even when not in page mode
+.embed__wrapper .file-viewer--document,
+.embed__wrapper .document,
+.embed__wrapper .markdown-post {
+  color: var(--color-text);
 }
 
 .embed__inline-button {
@@ -89,4 +105,52 @@
 .embed__overlay-logo {
   max-height: 2rem;
   max-width: 7rem;
+}
+
+// Reactions overlay for embedded videos
+.embed-reactions-overlay {
+  position: absolute;
+  right: 8px;
+  bottom: 48px; // sit just above the seek bar
+  z-index: 7;
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 8px;
+  padding: 6px 12px;
+  align-items: center;
+  backdrop-filter: blur(1.5px);
+  // Override colors for legibility on dark background
+  --color-link: var(--color-text);
+  --color-fire: var(--color-text);
+  --color-slime: var(--color-text);
+
+  .ratio-wrapper {
+    min-width: unset;
+    max-width: unset;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    // Hide the ratio bar in embed overlay - too cluttered
+    .ratio-bar {
+      display: none;
+    }
+
+    .button-like,
+    .button-dislike {
+      float: none;
+      margin: 0;
+
+      .button__content {
+        gap: 6px;
+      }
+
+      .button__label {
+        font-size: var(--font-small);
+      }
+    }
+  }
 }

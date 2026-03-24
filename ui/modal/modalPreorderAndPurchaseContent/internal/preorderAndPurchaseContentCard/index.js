@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import {
   selectClaimForUri,
   selectPreorderTagForUri,
@@ -11,6 +12,7 @@ import {
   selectIsFetchingPurchases,
   selectSdkFeePendingForUri,
   selectPendingPurchaseForUri,
+  selectCanReceiveTipsForUri,
 } from 'redux/selectors/claims';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doPlayUri } from 'redux/actions/content';
@@ -18,8 +20,8 @@ import { doHideModal } from 'redux/actions/app';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doPurchaseClaimForUri } from 'redux/actions/wallet';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { withRouter } from 'react-router';
 import PreorderAndPurchaseContent from './view';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -27,21 +29,27 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri, false);
   const { claim_id: claimId, value_type: claimType } = claim || {};
 
+  const costInfo = selectCostInfoForUri(state, uri);
+  const purchaseTag = selectPurchaseTagForUri(state, uri);
+
   return {
     claimId,
     claimType,
+    canReceiveTips: selectCanReceiveTipsForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     preorderTag: selectPreorderTagForUri(state, uri),
-    purchaseTag: selectPurchaseTagForUri(state, uri),
+    purchaseTag,
     rentalTag: selectRentalTagForUri(state, uri),
-    costInfo: selectCostInfoForUri(state, uri),
+    costInfo,
     claimIsMine: selectClaimIsMine(state, claim),
     sdkPaid: selectClaimWasPurchasedForUri(state, uri),
     fiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     isAuthenticated: selectUserVerifiedEmail(state),
-    pendingSdkPayment: selectSdkFeePendingForUri(state, uri),
+    pendingSdkPayment: costInfo?.feeCurrency === 'LBC' ? selectSdkFeePendingForUri(state, uri) : undefined,
     pendingPurchase: selectPendingPurchaseForUri(state, uri),
+    balance: selectArweaveBalance(state) || { ar: 0 },
+    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

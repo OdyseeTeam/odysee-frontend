@@ -11,13 +11,13 @@ import {
   selectClaimIsNsfwForUri,
   selectScheduledStateForUri,
   selectIsUriUnlisted,
+  makeSelectFileExtensionForUri,
 } from 'redux/selectors/claims';
-import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
+import { makeSelectMediaTypeForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import path from 'path';
 import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/claim';
 
 const RECENT_HISTORY_AMOUNT = 10;
@@ -129,10 +129,10 @@ export const selectIsPlayerFloating = (state: State) => {
     return true;
   }
 
-  const { primaryUri: primaryPlayingUri } = playingUri;
-  if (primaryPlayingUri) {
-    const isAlreadyPlaying = selectIsUriCurrentlyPlaying(state, primaryPlayingUri);
-    if (isAlreadyPlaying) return false;
+  // Use current-page primary URI for floating decisions. Using stale playingUri.primaryUri
+  // can incorrectly force non-floating mode after route transitions.
+  if (primaryUri && selectIsUriCurrentlyPlaying(state, primaryUri)) {
+    return false;
   }
 
   if (
@@ -152,12 +152,18 @@ export const selectContentPositionForUri = (state: State, uri: string) => {
     const outpoint = `${claim.txid}:${claim.nout}`;
     const id = claim.claim_id;
     const positions = selectState(state).positions;
-    return positions[id] ? positions[id][outpoint] : null;
+    if (positions[id]) {
+      // Prefer local outpoint-specific position, fall back to remote position
+      return positions[id][outpoint] != null ? positions[id][outpoint] : positions[id].remote || null;
+    }
+    return null;
   }
   return null;
 };
 
 export const selectHistory = (state: State) => selectState(state).history || [];
+export const selectFetchingRemoteHistory = (state: State) => selectState(state).fetchingRemoteHistory;
+export const selectRemoteHistoryLastFetched = (state: State) => selectState(state).remoteHistoryLastFetched;
 
 export const selectHistoryPageCount = createSelector(selectHistory, (history) =>
   Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE)
@@ -191,10 +197,11 @@ export const selectWatchHistoryUris = createSelector(selectHistory, (history) =>
 });
 
 // should probably be in lbry-redux, yarn link was fighting me
-export const makeSelectFileExtensionForUri = (uri: string) =>
+/* export const makeSelectFileExtensionForUri = (uri: string) =>
   createSelector(makeSelectFileNameForUri(uri), (fileName) => {
     return fileName && path.extname(fileName).substring(1);
   });
+*/
 
 export const makeSelectFileRenderModeForUri = (uri: string) =>
   createSelector(
@@ -202,7 +209,11 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
     makeSelectMediaTypeForUri(uri),
     makeSelectFileExtensionForUri(uri),
     (contentType, mediaType, extension) => {
-      if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
+      if (
+        mediaType === 'video' ||
+        (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+        mediaType === 'livestream'
+      ) {
         return RENDER_MODES.VIDEO;
       }
       if (mediaType === 'audio') {
@@ -223,9 +234,11 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
       if (['text', 'document', 'script'].includes(mediaType)) {
         return RENDER_MODES.DOCUMENT;
       }
+      // @if TARGET='app'
       if (extension === 'docx') {
         return RENDER_MODES.DOCX;
       }
+      // @endif
 
       // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
       if (['3D-file', 'model'].includes(mediaType)) {
@@ -261,7 +274,11 @@ export const selectFileRenderModeForUri = createSelector(
   (state, uri) => makeSelectMediaTypeForUri(uri)(state),
   (state, uri) => makeSelectFileExtensionForUri(uri)(state),
   (contentType, mediaType, extension) => {
-    if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
+    if (
+      mediaType === 'video' ||
+      (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+      mediaType === 'livestream'
+    ) {
       return RENDER_MODES.VIDEO;
     }
     if (mediaType === 'audio') {
@@ -282,9 +299,11 @@ export const selectFileRenderModeForUri = createSelector(
     if (['text', 'document', 'script'].includes(mediaType)) {
       return RENDER_MODES.DOCUMENT;
     }
+    // @if TARGET='app'
     if (extension === 'docx') {
       return RENDER_MODES.DOCX;
     }
+    // @endif
 
     // when writing this my local copy of Lbry.getMediaType had '3D-file', but I was receiving model...'
     if (['3D-file', 'model'].includes(mediaType)) {
@@ -339,8 +358,12 @@ export const selectCanViewFileForUri = (state: State, uri: string) => {
     return true;
   }
 
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  if (claimIsMine) {
+    return true;
+  }
+
   if (scheduledButNotReady) {
-    const claimIsMine = selectClaimIsMineForUri(state, uri);
     return !!claimIsMine;
   }
 

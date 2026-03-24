@@ -18,6 +18,7 @@ const select = (state, props) => {
     repostedClaim: repostedUri ? selectClaimForUri(state, repostedUri, false) : null,
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     discoverDataNew: discoverDataNew,
+    hideLivestreams: selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES),
   };
 };
 

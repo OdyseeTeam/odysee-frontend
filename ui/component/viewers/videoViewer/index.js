@@ -18,6 +18,7 @@ import {
   doChangeMute,
   doAnalyticsBuffer,
   doAnalyticsViewForUri,
+  doSyncLastPosition,
   doSetVideoSourceLoaded,
 } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
@@ -93,6 +94,7 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
+    autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
   };
 };
 
@@ -107,6 +109,7 @@ const perform = (dispatch) => ({
   setVideoPlaybackRate: (rate) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate)),
   doPlayNextUri: (params) => dispatch(doPlayNextUri(params)),
   doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),
+  doSyncLastPosition: (uri, position) => dispatch(doSyncLastPosition(uri, position)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
   doToast: (props) => dispatch(doToast(props)),
   doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),

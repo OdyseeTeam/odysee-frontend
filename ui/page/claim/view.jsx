@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
 
@@ -23,19 +23,23 @@ const ClaimPage = (props: Props) => {
 
   const { isChannel } = parseURI(uri);
 
-  const {
-    location: { search },
-  } = useHistory();
+  const { search, pathname } = useLocation();
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
 
   const ClaimRenderWrapper = React.useMemo(
     () =>
       ({ children }: { children: any }) =>
         (
-          <Page className="file-page" filePage isMarkdown={!!isMarkdownPost}>
+          <Page
+            className="file-page"
+            filePage
+            isMarkdown={!!isMarkdownPost}
+            noSideNavigation={isEmbedPath && !!isMarkdownPost}
+          >
             {children}
           </Page>
         ),
-    [isMarkdownPost]
+    [isMarkdownPost, isEmbedPath]
   );
 
   const LivestreamPageWrapper = React.useMemo(
@@ -49,12 +53,33 @@ const ClaimPage = (props: Props) => {
     [chatDisabled]
   );
 
+  const ChannelPageWrapper = React.useMemo(
+    () =>
+      ({ children }: { children: any }) =>
+        (
+          <Page className="channelPage-wrapper" noFooter fullWidthPage noSideNavigation={isEmbedPath}>
+            {children}
+          </Page>
+        ),
+    [isEmbedPath]
+  );
+
   if (isChannel) {
     const urlParams = new URLSearchParams(search);
     const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
 
     if (editing) {
-      return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageEditingWrapper} Wrapper={Page} />;
+      const ChannelPageEditingWrapperLocal = ({ children }: { children: any }) => (
+        <Page
+          className="channelPage-wrapper channelPage-edit-wrapper"
+          noFooter
+          fullWidthPage
+          noSideNavigation={isEmbedPath}
+        >
+          {children}
+        </Page>
+      );
+      return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageEditingWrapperLocal} Wrapper={Page} />;
     }
 
     return (
@@ -82,17 +107,5 @@ const ClaimPage = (props: Props) => {
     />
   );
 };
-
-const ChannelPageWrapper = ({ children }: { children: any }) => (
-  <Page className="channelPage-wrapper" noFooter fullWidthPage>
-    {children}
-  </Page>
-);
-
-const ChannelPageEditingWrapper = ({ children }: { children: any }) => (
-  <Page className="channelPage-wrapper channelPage-edit-wrapper" noFooter fullWidthPage>
-    {children}
-  </Page>
-);
 
 export default ClaimPage;

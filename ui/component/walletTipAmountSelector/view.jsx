@@ -1,81 +1,73 @@
 // @flow
+import React from 'react';
 import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 import { useIsMobile } from 'effects/use-screensize';
-import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
-import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
+import { TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
 
 type Props = {
   uri: string,
   activeTab: string,
   amount: number,
-  balance: number,
+  USDCBalance: number,
+  arBalance: number,
   claim: StreamClaim,
-  convertedAmount?: number,
   customTipAmount?: number,
   exchangeRate?: any,
   fiatConversion?: boolean,
   tipError: string,
   uri: string,
   canReceiveFiatTips: ?boolean,
+  arweaveTipData: ArweaveTipDataForId,
   isComment?: boolean,
   onChange: (number) => void,
-  setConvertedAmount?: (number) => void,
-  setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
-  preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
+  arExchangeRate: any,
 };
-
-// const STRIPE_DISABLED = true;
 
 function WalletTipAmountSelector(props: Props) {
   const {
     uri,
     activeTab,
     amount,
-    balance,
+    USDCBalance,
+    arBalance,
     claim,
-    convertedAmount,
+    // convertedAmount,
     customTipAmount,
     exchangeRate,
     fiatConversion,
     tipError,
     canReceiveFiatTips,
+    arweaveTipData,
     isComment,
     onChange,
-    setConvertedAmount,
-    setDisableSubmitButton,
     setTipError,
-    preferredCurrency,
     doTipAccountCheckForUri,
+    arExchangeRate,
   } = props;
 
+  const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
+  const amountInArEstimated = Number((amount / arExchangeRate?.ar).toFixed(6));
 
-  const tipAmountsToDisplay =
-    customTipAmount && fiatConversion && activeTab === TAB_FIAT
-      ? [customTipAmount]
-      : customTipAmount && exchangeRate
-      ? [convertToTwoDecimalsOrMore(customTipAmount / exchangeRate)]
-      : DEFAULT_TIP_AMOUNTS;
+  const tipAmountsToDisplay = DEFAULT_TIP_AMOUNTS;
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
-  const shouldDisableFiatSelectors = activeTab === TAB_FIAT && !canReceiveFiatTips;
+  const shouldDisableARSelectors =
+    activeTab === TAB_USD && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -83,14 +75,17 @@ function WalletTipAmountSelector(props: Props) {
    * @returns {boolean}
    */
   function shouldDisableAmountSelector(amount: number) {
+    const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
+
     // if it's LBC but the balance isn't enough, or fiat conditions met
     // $FlowFixMe
     return (
-      ((amount > balance || balance === 0) && activeTab !== TAB_FIAT) ||
-      shouldDisableFiatSelectors ||
-      (customTipAmount && fiatConversion && activeTab !== TAB_FIAT && exchangeRate
-        ? convertToTwoDecimalsOrMore(amount * exchangeRate) < customTipAmount
-        : customTipAmount && amount < customTipAmount)
+      isARCondition ||
+      shouldDisableARSelectors ||
+      (customTipAmount &&
+        fiatConversion &&
+        activeTab !== TAB_FIAT &&
+        (exchangeRate ? convertToTwoDecimalsOrMore(amount * exchangeRate) < customTipAmount : amount < customTipAmount))
     );
   }
 
@@ -98,20 +93,7 @@ function WalletTipAmountSelector(props: Props) {
   function handleCustomPriceChange(amount: number) {
     const tipAmountValue = parseFloat(amount);
     onChange(tipAmountValue);
-    if (fiatConversion && exchangeRate && setConvertedAmount && convertedAmount !== tipAmountValue * exchangeRate) {
-      setConvertedAmount(tipAmountValue * exchangeRate);
-    }
   }
-
-  React.useEffect(() => {
-    if (setDisableSubmitButton) setDisableSubmitButton(shouldDisableFiatSelectors);
-  }, [setDisableSubmitButton, shouldDisableFiatSelectors]);
-
-  React.useEffect(() => {
-    if (setConvertedAmount && exchangeRate && (!convertedAmount || convertedAmount !== amount * exchangeRate)) {
-      setConvertedAmount(amount * exchangeRate);
-    }
-  }, [amount, convertedAmount, exchangeRate, setConvertedAmount]);
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
@@ -129,31 +111,19 @@ function WalletTipAmountSelector(props: Props) {
     } else {
       // if it's not fiat, aka it's boost or lbc tip
       if (activeTab !== TAB_FIAT) {
-        regexp = RegExp(/^(\d*([.]\d{0,8})?)$/);
-        const validTipInput = regexp.test(String(amount));
-
-        if (!validTipInput) {
-          setTipError(__('Amount must have no more than 8 decimal places'));
-        } else if (amount === balance) {
-          setTipError(__('Please decrease the amount to account for transaction fees'));
-        } else if (amount > balance || balance === 0) {
-          setTipError(__('Not enough Credits'));
+        if (activeTab === 'TabUSD' && (!arBalance || amountInArEstimated > arBalance)) {
+          setTipError(__('Insufficient AR Balance'));
         } else if (amount < MINIMUM_PUBLISH_BID) {
           setTipError(__('Amount must be higher'));
-        } else if (
-          convertedAmount &&
-          exchangeRate &&
-          customTipAmount &&
-          amount < convertToTwoDecimalsOrMore(customTipAmount / exchangeRate)
-        ) {
+        } else if (customTipAmount && amount < convertToTwoDecimalsOrMore(customTipAmount / arExchangeRate.ar)) {
           regexp = RegExp(/^(\d*([.]\d{0,2})?)$/);
           const validCustomTipInput = regexp.test(String(amount));
 
           if (validCustomTipInput) {
             setTipError(
-              __('Insufficient amount (%input_amount% Credits = %converted_amount% USD).', {
+              __('Insufficient amount (%input_amount% USD = %converted_amount% AR).', {
                 input_amount: amount,
-                converted_amount: convertToTwoDecimalsOrMore(convertedAmount, 4),
+                converted_amount: convertToTwoDecimalsOrMore(amount / arExchangeRate.ar, 4),
               })
             );
           } else {
@@ -184,16 +154,14 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
-  }, [activeTab, amount, balance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, amount, arBalance, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;
 
   const getHelpMessage = (helpMessage: any, customClassName) => (
     <div className={classnames('help', customClassName)}>{helpMessage}</div>
   );
-
-  let fiatIconToUse = ICONS.FINANCE;
-  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
   return (
     <>
@@ -207,10 +175,10 @@ function WalletTipAmountSelector(props: Props) {
               className={classnames('button-toggle button-toggle--expandformobile', {
                 'button-toggle--active':
                   convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
-                'button-toggle--disabled': amount > balance,
+                'button-toggle--disabled': activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={activeTab === TAB_USD ? 'USD' : 'LBC'}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -220,22 +188,14 @@ function WalletTipAmountSelector(props: Props) {
 
         <Button
           button="alt"
-          disabled={shouldDisableFiatSelectors}
+          disabled={shouldDisableAmountSelector(0)}
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={TAB_USD}
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
-        {activeTab === TAB_LBC && DEFAULT_TIP_AMOUNTS.some((val) => val > balance) && (
-          <Button
-            icon={ICONS.REWARDS}
-            button="primary"
-            label={__('Receive Credits')}
-            navigate={`/$/${PAGES.REWARDS}`}
-          />
-        )}
       </div>
 
       {customTipAmount &&
@@ -243,12 +203,10 @@ function WalletTipAmountSelector(props: Props) {
         activeTab !== TAB_FIAT &&
         getHelpMessage(
           __('This support is priced in $USD.') +
-            (convertedAmount
-              ? ' ' +
-                __('The current exchange rate for the submitted LBC amount is ~ $%exchange_amount%.', {
-                  exchange_amount: convertToTwoDecimalsOrMore(convertedAmount),
-                })
-              : '')
+            (' ' +
+              __('The current exchange rate for the submitted USD amount is ~ %exchange_amount% AR.', {
+                exchange_amount: convertToTwoDecimalsOrMore(amount / arExchangeRate.ar),
+              }))
         )}
 
       {/* custom number input form */}
@@ -263,15 +221,24 @@ function WalletTipAmountSelector(props: Props) {
             min="0"
             step="any"
             type="number"
-            placeholder="1.23"
+            className={activeTab === 'TabUSD' ? 'usd-tip' : ''}
+            prefix={activeTab === 'TabUSD' ? '$' : null}
+            placeholder={'1.23'}
             value={amount}
             onChange={(event) => handleCustomPriceChange(event.target.value)}
-          />
+          />{' '}
+          {activeTab === TAB_USD ? (
+            <span className={'walletTipSelector__input-conversion help'}>({amountInArEstimated} AR)</span>
+          ) : (
+            ''
+          )}
         </div>
       )}
 
-      {/* lbc tab */}
-      {activeTab === TAB_LBC && <WalletSpendableBalanceHelp />}
+      {activeTab === TAB_USD && arweaveTipData && arweaveTipData.status === 'active' && (
+        <WalletSpendableBalanceHelp asset="ar" />
+      )}
+      {activeTab === TAB_BOOST && <WalletSpendableBalanceHelp asset="lbc" />}
 
       {/* help message */}
       {activeTab === TAB_FIAT &&

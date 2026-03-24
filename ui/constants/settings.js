@@ -1,6 +1,8 @@
 /* Many SETTINGS are stored in the localStorage by their name -
     be careful about changing the value of a SETTINGS constant, as doing so can invalidate existing SETTINGS */
 export const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
+export const CRYPTO_DISCLAIMERS = 'crypto_disclaimers';
+export const ARWEAVE_PAYMENTS_INFO_ACK = 'arweave_payments_info_ack';
 export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
@@ -42,8 +44,8 @@ export const HOMEPAGE_ORDER_APPLY_TO_SIDEBAR = 'homepage_order_apply_to_sidebar'
 export const HIDE_MEMBERS_ONLY_CONTENT = 'hide_members_only_content';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const HIDE_SHORTS = 'hide_shorts';
+export const HIDE_LIVESTREAMS_IN_CATEGORIES = 'hide_livestreams_in_categories';
 export const DEFAULT_COLLECTION_ACTION = 'default_collection_action';
-export const SHORTS_DURATION_LIMIT = '61';
 export const HIDE_SCHEDULED_LIVESTREAMS = 'hide_scheduled_livestreams';
 export const SUPPORT_OPTION = 'support_option';
 export const TILE_LAYOUT = 'tile_layout';
@@ -53,6 +55,11 @@ export const PREFERRED_CURRENCY = 'preferred_currency';
 export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
 export const UPLOAD_PAGE_FILTERING = 'upload_page_filtering';
+export const AUTOPLAY_NEXT_SHORTS = 'autoplay_next_shorts';
+export const SHORTS_ASPECT_RATIO_LTE = 0.8;
+export const SHORTS_DURATION_LTE = 180;
+export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
+export const FYP_MODAL_SHOWN = 'fyp_modal_shown';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',

@@ -45,9 +45,10 @@ function AboutTab(props: Props) {
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
 
-  return (
-    <div className="card">
-      {channelIsBlackListed && (
+  // If channel is blacklisted, only show the DMCA message
+  if (channelIsBlackListed) {
+    return (
+      <div className="card">
         <section className="card--section dmca-info">
           <p>
             {__(
@@ -69,7 +70,12 @@ function AboutTab(props: Props) {
             />
           </div>
         </section>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
       <section className="section card--section">
         <Fragment>
           {description && (
@@ -107,7 +113,7 @@ function AboutTab(props: Props) {
               <label>{__('Languages')}</label>
               <div className="media__info-text">
                 {languages.reduce((acc, lang, i) => {
-                  return acc + `${SUPPORTED_LANGUAGES[lang]}` + ' ';
+                  return acc + `${SUPPORTED_LANGUAGES[lang] || lang}` + ' ';
                 }, '')}
               </div>
             </>

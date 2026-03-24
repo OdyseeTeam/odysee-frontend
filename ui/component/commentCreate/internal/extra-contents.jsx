@@ -28,40 +28,40 @@ export const FormChannelSelector = (selectorProps: SelectorProps) => {
 type HelpTextProps = {
   deletedComment: boolean,
   minAmount: number,
-  minSuper: number,
   minTip: number,
-  minUSDCAmount: number,
-  minUSDCSuper: number,
-  minUSDCTip: number,
+  minSuper: number,
+  minUSDAmount: number,
+  minUSDSuper: number,
+  minUSDTip: number,
 };
 
 export const HelpText = (helpTextProps: HelpTextProps) => {
-  const { deletedComment, minAmount, minSuper, minTip, minUSDCAmount, minUSDCSuper, minUSDCTip } = helpTextProps;
+  const { deletedComment, minAmount, minTip, minSuper, minUSDAmount, minUSDSuper, minUSDTip } = helpTextProps;
 
   return (
     <>
       {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
 
-      {(!!minAmount || !!minUSDCAmount) && (
+      {(!!minAmount || !!minUSDAmount) && (
         <div className="help--notice comment-create__min-amount-notice">
-          <I18nMessage
-            tokens={{
-              usdc: <CreditAmount noFormat isFiat amount={minUSDCAmount} />,
-              minUSDCAmount,
-              lbc: <CreditAmount noFormat amount={minAmount} />,
-            }}
-          >
-            {(minTip || minUSDCTip ? 'Comment min: ' : minSuper || minUSDCSuper ? 'HyperChat min: ' : '') +
-              (minTip || minSuper ? '%lbc%' : '') +
-              (minAmount && minUSDCAmount ? ' or ' : '') +
-              (minUSDCTip || minUSDCSuper ? '%usdc%' : '')}
-          </I18nMessage>
+          <span>{!!minTip || !!minUSDTip ? __('Comment minimum: ') : __('HyperChat minimum: ')}</span>
+          {(!!minTip || !!minSuper || !!minUSDTip || !!minUSDSuper) && (
+            <>
+              <I18nMessage
+                tokens={{
+                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount || 0.01} />,
+                }}
+              >
+                {`%usd%`}
+              </I18nMessage>
+            </>
+          )}
 
           <Icon
             customTooltipText={
-              minTip
+              minTip || minUSDTip
                 ? __('This channel requires a minimum tip for each comment.')
-                : minSuper
+                : minSuper || minUSDSuper
                 ? __('This channel requires a minimum amount for HyperChats to be visible.')
                 : ''
             }

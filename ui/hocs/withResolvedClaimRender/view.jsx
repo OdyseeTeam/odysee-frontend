@@ -27,26 +27,19 @@ type Props = {
   uriAccessKey: ?UriAccessKey,
   geoRestriction: ?GeoRestriction,
   gblAvailable: boolean,
-  preferEmbed: boolean,
   verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (type: PublishType, name: ?string) => void,
   doOpenModal: (string, {}) => void,
 };
 
-/**
- * HigherOrderComponent to resolve a claim and return the correct states for render, such as loading, failed, restricted, etc
- *
- * @param Component: FunctionalComponentParam
- * @returns {FunctionalComponent}
- */
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
-  const ClaimRenderWrapper = (props: Props) => {
+  const ResolvedClaimRender = (props: Props) => {
     const {
       uri,
       delayed,
       Wrapper = React.Fragment,
-      ClaimRenderWrapper = React.Fragment,
+      ClaimRenderWrapper: ClaimWrapperComponent = React.Fragment,
       // -- redux --
       claim,
       hasClaim,
@@ -59,7 +52,6 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       uriAccessKey,
       geoRestriction,
       gblAvailable,
-      preferEmbed,
       verifyClaimSignature,
       doResolveUri,
       doBeginPublish,
@@ -70,8 +62,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     const { streamName, /* channelName, */ isChannel } = parseURI(uri);
 
-    const claimIsRestricted =
-      !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+    const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
 
     const resolveRequired =
       claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated);
@@ -247,7 +238,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         );
       }
 
-      if (isClaimFiltered && !preferEmbed) {
+      if (isClaimFiltered) {
         return (
           <Wrapper>
             <div className="main--empty">
@@ -263,14 +254,14 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     return (
       <React.Suspense fallback={<LoadingSpinner text={__('Loading...')} />}>
-        <ClaimRenderWrapper>
+        <ClaimWrapperComponent>
           <ClaimRenderComponent uri={uri} {...otherProps} />
-        </ClaimRenderWrapper>
+        </ClaimWrapperComponent>
       </React.Suspense>
     );
   };
 
-  return ClaimRenderWrapper;
+  return ResolvedClaimRender;
 };
 
 // prettier-ignore

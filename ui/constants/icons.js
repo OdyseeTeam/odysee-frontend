@@ -7,6 +7,7 @@
 export const ODYSEE_LOGO = 'OdyseeLogo';
 export const ODYSEE_WHITE_TEXT = 'OdyseeLogoWhiteText';
 export const ODYSEE_DARK_TEXT = 'OdyseeLogoDarkText';
+export const AR = 'Ar';
 
 // User
 export const SIGN_OUT = 'SignOut';
@@ -50,6 +51,11 @@ export const CHEF = 'Chef';
 export const STAR = 'star';
 export const DISCOVER = 'Compass';
 export const HOLIDAY = 'Holiday';
+export const COMEDY = 'Comedy';
+export const LIFESTYLE = 'Lifestyle';
+export const GHOST = 'Ghost';
+export const SPIRITUALITY = 'Spirituality';
+export const HORROR = 'Horror';
 
 // Badges
 export const BADGE_MOD = 'BadgeMod';
@@ -89,13 +95,11 @@ export const SHARE_LINK = 'ShareLink';
 
 // Other
 export const ARRANGE = 'Arrange';
-export const COMEDY = 'Comedy';
-export const LIFESTYLE = 'Lifestyle';
+export const CREDITCARD = 'Credit Card';
+export const SWAP = 'Swap';
+export const EXCHANGE = 'Exchange';
 export const MEMBERSHIP = 'Membership';
 export const GOLIVE = 'GOLIVE';
-export const GHOST = 'Ghost';
-export const SPIRITUALITY = 'Spirituality';
-export const HORROR = 'Horror';
 export const VIEW_TILES = 'TileView';
 export const VIEW_LIST = 'ListView';
 export const EMOJI = 'Emoji';
@@ -111,10 +115,12 @@ export const DISMISS_ALL = 'DismissAll';
 export const SUBMIT = 'Submit';
 export const FILTERED_BY_LANG = 'FilteredByLang';
 export const FINANCE = 'DollarSign';
-export const EURO = 'Euro';
+export const USD = 'USD';
+export const EURO = 'EUR';
 export const REWARDS = 'Award';
 export const ALERT = 'AlertCircle';
 export const INFO = 'InfoCircle';
+export const WARNING = 'Warning';
 export const COPY = 'Clipboard';
 export const ARROW_LEFT = 'ChevronLeft';
 export const ARROW_RIGHT = 'ChevronRight';
@@ -153,7 +159,13 @@ export const SECURE = 'Lock';
 export const MENU = 'Menu';
 export const TRANSACTIONS = 'FileText';
 export const LBRY = 'Lbry';
+export const USDC = 'USDC';
+export const BNB = 'BNB';
+export const BASE = 'Base';
+export const ETH = 'ETH';
 export const LBC = 'LBC';
+export const WANDER = 'Wander';
+export const TIMERCHECK = 'Clock';
 export const LIGHT = 'Sun';
 export const DARK = 'Moon';
 export const LIBRARY = 'Folder';
@@ -217,3 +229,6 @@ export const LOCK = 'Lock';
 export const WEB = 'Globe';
 export const SHARE = 'Share2';
 export const EXTERNAL = 'ExternalLink';
+export const AUTOPLAY_NEXT = 'AutoPlay';
+export const COMMENTS_LIST = 'CommentsList';
+export const TIMES = 'Times';

@@ -1,14 +1,6 @@
 // @flow
 import type { Node } from 'react';
-import {
-  THUMBNAIL_WIDTH,
-  THUMBNAIL_WIDTH_POSTER,
-  THUMBNAIL_HEIGHT,
-  THUMBNAIL_HEIGHT_POSTER,
-  THUMBNAIL_QUALITY,
-  MISSING_THUMB_DEFAULT,
-} from 'config';
-import { useIsMobile } from 'effects/use-screensize';
+import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from 'config';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
@@ -21,7 +13,6 @@ const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING
 
 type Props = {
   uri?: string,
-  tileLayout?: boolean,
   thumbnail: ?string, // externally sourced image
   children?: Node,
   allowGifs: boolean,
@@ -34,13 +25,12 @@ type Props = {
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
   thumbnailFromSecondaryClaim: ?string,
-  // doResolveUri: (uri: string) => void,
+  isShort: boolean, // doResolveUri: (uri: string) => void,
 };
 
 function FileThumbnail(props: Props) {
   const {
     uri,
-    tileLayout,
     thumbnail: rawThumbnail,
     children,
     allowGifs = false,
@@ -52,10 +42,9 @@ function FileThumbnail(props: Props) {
     hasResolvedClaim,
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
+    isShort = false,
     // doResolveUri,
   } = props;
-
-  const isMobile = useIsMobile();
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const thumbnail =
@@ -71,6 +60,7 @@ function FileThumbnail(props: Props) {
     return (
       url && (
         <FreezeframeWrapper
+          isShort={isShort}
           small={small}
           src={url}
           className={classnames('media__thumb', className, {
@@ -94,16 +84,15 @@ function FileThumbnail(props: Props) {
     } else {
       url = getThumbnailCdnUrl({
         thumbnail,
-        width: isMobile && tileLayout ? THUMBNAIL_WIDTH_POSTER : THUMBNAIL_WIDTH,
-        height: isMobile && tileLayout ? THUMBNAIL_HEIGHT_POSTER : THUMBNAIL_HEIGHT,
         quality: THUMBNAIL_QUALITY,
+        isShorts: isShort,
       });
     }
   }
 
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
 
-  if (!gettingThumbnail && thumbnailUrl !== undefined) {
+  if (!gettingThumbnail) {
     return (
       <Thumb
         small={small}
@@ -124,6 +113,7 @@ function FileThumbnail(props: Props) {
       className={classnames('media__thumb', className, {
         'media__thumb--resolving': hasResolvedClaim === false,
         'media__thumb--small': small,
+        // 'media__thumb__short': isShort, This didn't seem to be necessary. Caused issues due to using short format thumbnail to shorts with no thumbnail, in non short views
       })}
     >
       {children}

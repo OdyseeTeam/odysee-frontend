@@ -8,7 +8,7 @@ import {
   selectClaimIsMine,
 } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
-import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectIsAgeRestrictedContentAllowed } from 'redux/selectors/settings';
 import { AGE_RESTRICED_CHANNEL_IMAGES_TAG } from 'constants/tags';
@@ -23,7 +23,7 @@ const select = (state, props) => {
     claim,
     isResolving: selectIsUriResolving(state, uri),
     claimsByUri: selectClaimsByUri(state),
-    odyseeMembership: selectOdyseeMembershipForChannelId(state, getChannelIdFromClaim(claim)),
+    odyseeMembership: selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)),
     isImagesAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, AGE_RESTRICED_CHANNEL_IMAGES_TAG)(state),
     channelIsMine: selectClaimIsMine(state, claim),
     isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowed(state),

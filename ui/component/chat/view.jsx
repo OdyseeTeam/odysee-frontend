@@ -155,20 +155,7 @@ export default function ChatLayout(props: Props) {
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
       (!isMobile ? scrollPos < -2 : scrollPos < minScrollHeight)
   );
-  const setHoverLock = React.useCallback(
-    (e) => {
-      if (!isMobile) {
-        if (e && discussionElement && discussionElement.scrollTop === 0) {
-          discussionElement.scrollTop = -1;
-          discussionElement.style.paddingBottom = discussionElement.scrollTop * -1 + 'px';
-        } else if (!e && discussionElement) {
-          discussionElement.style.paddingBottom = '0px';
-          if (discussionElement.scrollTop > -2) discussionElement.scrollTop = 0;
-        }
-      }
-    },
-    [discussionElement, isMobile]
-  );
+  const setHoverLock = React.useCallback((e) => {}, []);
 
   const restoreScrollPos = React.useCallback(() => {
     if (discussionElement) {
@@ -425,6 +412,16 @@ export default function ChatLayout(props: Props) {
               noHyperchats={false}
               handleHyperchatClick={handleHyperchatClick}
               selectedHyperchat={selectedHyperchat}
+              pinnedComment={pinnedComment}
+              pinActive={showPinned && !selectedHyperchat}
+              onPinClick={() => {
+                if (selectedHyperchat) {
+                  setSelectedHyperchat(null);
+                  setShowPinned(true);
+                } else {
+                  setShowPinned(!showPinned);
+                }
+              }}
             />
           )}
 
@@ -447,13 +444,12 @@ export default function ChatLayout(props: Props) {
             ) : (
               showPinned && (
                 <div className="livestream-pinned__wrapper">
-                  <ChatComment comment={pinnedComment} key={pinnedComment.comment_id} uri={uri} />
-                  <Button
-                    title={__('Dismiss pinned comment')}
-                    button="inverse"
-                    className="close-button"
-                    onClick={() => setShowPinned(false)}
-                    icon={ICONS.REMOVE}
+                  <ChatComment
+                    comment={pinnedComment}
+                    key={pinnedComment.comment_id}
+                    uri={uri}
+                    hidePinLabel
+                    handleDismissPin={() => setShowPinned(false)}
                   />
                 </div>
               )
@@ -484,18 +480,14 @@ export default function ChatLayout(props: Props) {
               </div>
             </Slide>
           ) : (
-            showPinned && (
-              <div className="livestream-pinned__wrapper">
-                <ChatComment comment={selectedHyperchat} key={selectedHyperchat.comment_id} uri={uri} />
-                <Button
-                  title={__('Dismiss Hyperchat')}
-                  button="inverse"
-                  className="close-button"
-                  onClick={() => setSelectedHyperchat(null)}
-                  icon={ICONS.REMOVE}
-                />
-              </div>
-            )
+            <div className="livestream-pinned__wrapper">
+              <ChatComment
+                comment={selectedHyperchat}
+                key={selectedHyperchat.comment_id}
+                uri={uri}
+                handleDismissPin={() => setSelectedHyperchat(null)}
+              />
+            </div>
           ))}
 
         <ChatComments
