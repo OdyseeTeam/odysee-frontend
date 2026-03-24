@@ -5,6 +5,8 @@ import useSwipeNavigation from 'effects/use-swipe-navigation';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
+import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
+import { doOpenModal } from 'redux/actions/app';
 import './style.scss';
 import MobileActions from '../shortsMobileActions';
 import { fullscreenElement as getFullscreenElement } from 'util/full-screen';
