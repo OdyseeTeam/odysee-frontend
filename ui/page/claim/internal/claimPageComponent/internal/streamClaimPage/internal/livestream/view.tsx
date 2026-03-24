@@ -52,7 +52,7 @@ export default function LivestreamPage(props: Props) {
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const streamPlayingRef = React.useRef();
-  const [layoutRendered, setLayoutRendered] = React.useState(chatDisabled || isMobile);
+  const [layoutRendered, setLayoutRendered] = React.useState(true);
   const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
   const livestreamChatEnabled = !chatDisabled && contentUnlocked;
   const showLivestreamChat = (!isMobile || isLandscapeRotated) && !theaterMode && livestreamChatEnabled;
