@@ -27,9 +27,10 @@ type Props = {
   livestream?: boolean;
   hideDescription?: boolean;
   accessStatus?: string;
+  expandOverrideProp?: boolean;
 };
 export default function FileTitleSection(props: Props) {
-  const { uri, nsfw, isNsfwBlocked, livestream = false, hideDescription, accessStatus } = props;
+  const { uri, nsfw, isNsfwBlocked, livestream = false, hideDescription, accessStatus, expandOverrideProp } = props;
   const dispatch = useAppDispatch();
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const { signing_channel: channel } = claim || {};

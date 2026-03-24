@@ -14,7 +14,7 @@ export default function ChaptersCard(props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const [activeIndex, setActiveIndex] = React.useState(-1);
   const activeItemRef = React.useRef(null);
-  const listRef = React.useRef<any>(null);
+  const listRef = React.useRef(null);
 
   React.useEffect(() => {
     function handleToggle() {
