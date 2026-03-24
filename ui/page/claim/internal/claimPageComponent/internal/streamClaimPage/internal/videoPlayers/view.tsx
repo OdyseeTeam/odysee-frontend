@@ -1,6 +1,8 @@
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
+import parseChapters from 'util/parse-chapters';
+import ChaptersCard from 'component/chaptersCard';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as SETTINGS from 'constants/settings';
 import * as TAGS from 'constants/tags';
