@@ -138,6 +138,7 @@ export function CommentCreate(props: Props) {
     textInjection,
   } = props;
 
+  const fileUri = React.useContext(AppContext)?.uri;
   const dispatch = useAppDispatch();
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const supportDisabled = useAppSelector((state) =>

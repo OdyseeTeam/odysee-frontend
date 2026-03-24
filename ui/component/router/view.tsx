@@ -724,15 +724,6 @@ function AppRouter(props: Props) {
       dispatch(doSetActiveChannel(null, true));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'pathname' change
   }, [pathname]);
-  // react-router doesn't decode pathanmes before doing the route matching check
-  // We have to redirect here because if we redirect on the server, it might get encoded again
-  // in the browser causing a redirect loop
-  const decodedUrl = decodeURIComponent(pathname) + search;
-
-  if (decodedUrl !== pathname + search) {
-    return <Navigate replace to={decodedUrl} />;
-  }
-
   // Try to support strange cases where url has html encoding
   const htmlDecodedUrl = htmlDecode(pathname + hash + search);
 

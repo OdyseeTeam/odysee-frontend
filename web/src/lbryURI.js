@@ -11,7 +11,7 @@ const regexInvalidURI =
 // const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:$#]?)([0-9a-f]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
 const MOD_SEQUENCE_SEPARATOR = '*';
