@@ -1,9 +1,12 @@
+// @flow
 import { SDK_API_PATH } from 'config';
+
 const isProduction = process.env.NODE_ENV === 'production';
 const WATCHMAN_BACKEND_ENDPOINT = 'https://watchman.na-backend.odysee.com/reports/playback';
 const SEND_DATA_TO_WATCHMAN_INTERVAL = 10; // in seconds
 
 let gWatchmanAnalyticsEnabled = false;
+
 // variables initialized for watchman
 let amountOfBufferEvents = 0;
 let amountOfBufferTimeInMS = 0;
@@ -22,25 +25,29 @@ async function sendAndResetWatchmanData() {
 
   let timeSinceLastIntervalSend = new Date() - lastSentTime;
   lastSentTime = new Date();
-  let protocol;
 
+  let protocol;
+  const hls = videoPlayer.engine || videoPlayer._hls;
   if (videoType === 'application/x-mpegURL' && !isLivestream) {
     protocol = 'hls';
-    // get bandwidth if it exists from the texttrack (so it's accurate if user changes quality)
-    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = hls?.levels?.[hls.currentLevel]?.bitrate;
   } else if (isLivestream) {
     protocol = 'lvs';
-    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = hls?.levels?.[hls.currentLevel]?.bitrate;
   } else {
     protocol = 'stb';
   }
 
-  // current position in video in MS
-  const positionInVideo = isLivestream ? 0 : videoPlayer && Math.round(videoPlayer.currentTime()) * 1000;
-  // get the duration marking the time in the video for relative position calculation
-  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer && Math.round(videoPlayer.duration());
+  const currentTime =
+    typeof videoPlayer.currentTime === 'function' ? videoPlayer.currentTime() : videoPlayer.currentTime;
+  const duration = typeof videoPlayer.duration === 'function' ? videoPlayer.duration() : videoPlayer.duration;
+
+  const positionInVideo = isLivestream ? 0 : videoPlayer && Math.round(currentTime) * 1000;
+  const totalDurationInSeconds = isLivestream ? 0 : videoPlayer && Math.round(duration);
+
   // temp: if buffering over the interval, the duration doesn't reset since we don't get an event
   if (amountOfBufferTimeInMS > timeSinceLastIntervalSend) amountOfBufferTimeInMS = timeSinceLastIntervalSend;
+
   // build object for watchman backend
   const objectToSend = {
     rebuf_count: amountOfBufferEvents,
@@ -54,17 +61,19 @@ async function sendAndResetWatchmanData() {
     position: isLivestream ? 0 : Math.round(positionInVideo),
     rel_position: isLivestream ? 0 : Math.round((positionInVideo / (totalDurationInSeconds * 1000)) * 100),
     bitrate: bitrateAsBitsPerSecond,
-    bandwidth: undefined, // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
+    bandwidth: undefined,
+    // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
   };
+
   // post to watchman
   await sendWatchmanData(objectToSend);
+
   // reset buffer data
   amountOfBufferEvents = 0;
   amountOfBufferTimeInMS = 0;
 }
 
 let watchmanInterval;
-
 // clear watchman interval and mark it as null (when video paused)
 function stopWatchmanInterval() {
   clearInterval(watchmanInterval);
@@ -101,38 +110,30 @@ async function sendWatchmanData(body) {
 
 // ****************************************************************************
 // ****************************************************************************
+
 export type Watchman = {
-  setState: (enable: boolean) => void;
-  videoStartEvent: (
-    arg0: string | null | undefined,
-    arg1: number,
-    arg2: string,
-    arg3: number | null | undefined,
-    arg4: string,
-    arg5: any,
-    arg6: number | null | undefined,
-    arg7: boolean
-  ) => void;
-  videoIsPlaying: (arg0: boolean, arg1: any) => void;
+  setState: (enable: boolean) => void,
+  videoStartEvent: (?string, number, string, ?number, string, any, ?number, boolean) => void,
+  videoIsPlaying: (boolean, any) => void,
   videoBufferEvent: (
-    arg0: StreamClaim,
-    arg1: {
-      timeAtBuffer: number;
-      bufferDuration: number;
-      bitRate: number;
-      duration: number;
-      userId: string;
-      playerPoweredBy: string;
-      readyState: number;
-      isLivestream: boolean;
+    StreamClaim,
+    {
+      timeAtBuffer: number,
+      bufferDuration: number,
+      bitRate: number,
+      duration: number,
+      userId: string,
+      playerPoweredBy: string,
+      readyState: number,
+      isLivestream: boolean,
     }
-  ) => Promise<any>;
+  ) => Promise<any>,
 };
+
 export const watchman: Watchman = {
   setState: (enable: boolean) => {
     gWatchmanAnalyticsEnabled = enable;
   },
-
   /**
    * Is told whether video is being started or paused, and adjusts interval accordingly
    * @param {boolean} isPlaying - Whether video was started or paused
@@ -140,21 +141,22 @@ export const watchman: Watchman = {
    */
   videoIsPlaying: (isPlaying, passedPlayer) => {
     let playerIsSeeking = false;
-
     // have to use this because videojs pauses/unpauses during seek
     // sometimes the seeking function isn't populated yet so check for it as well
-    if (passedPlayer && passedPlayer.seeking) {
-      playerIsSeeking = passedPlayer.seeking();
+    if (passedPlayer && passedPlayer.seeking !== undefined) {
+      playerIsSeeking = typeof passedPlayer.seeking === 'function' ? passedPlayer.seeking() : passedPlayer.seeking;
     }
 
     // if being paused, and not seeking, send existing data and stop interval
     if (!isPlaying && !playerIsSeeking) {
       sendAndResetWatchmanData();
-      stopWatchmanInterval(); // if being told to pause, and seeking, send and restart interval
+      stopWatchmanInterval();
+      // if being told to pause, and seeking, send and restart interval
     } else if (!isPlaying && playerIsSeeking) {
       sendAndResetWatchmanData();
       stopWatchmanInterval();
-      startWatchmanIntervalIfNotRunning(); // is being told to play, and seeking, don't do anything,
+      startWatchmanIntervalIfNotRunning();
+      // is being told to play, and seeking, don't do anything,
       // assume it's been started already from pause
     } else if (isPlaying && playerIsSeeking) {
       // start but not a seek, assuming a start from paused content
@@ -182,7 +184,11 @@ export const watchman: Watchman = {
     claimUrl = canonicalUrl;
     playerPoweredBy = poweredBy;
     isLivestream = isLivestreamClaim;
-    videoType = passedPlayer.currentSource().type;
+
+    videoType =
+      typeof passedPlayer.currentSource === 'function'
+        ? passedPlayer.currentSource().type
+        : passedPlayer.currentSrc?.type || 'application/x-mpegURL';
     videoPlayer = passedPlayer;
     bitrateAsBitsPerSecond = videoBitrate;
     !isLivestreamClaim && sendPromMetric('time_to_start', timeToStartVideo, playerPoweredBy);
@@ -192,17 +198,11 @@ export const watchman: Watchman = {
   },
 };
 
-function sendPromMetric(name: string, value: number | undefined, player: string) {
+function sendPromMetric(name: string, value?: number, player: string) {
   if (gWatchmanAnalyticsEnabled) {
     let url = new URL(SDK_API_PATH + '/metric/ui');
-    const params = {
-      name: name,
-      value: value ? value.toString() : '',
-      player: player,
-    };
+    const params = { name: name, value: value ? value.toString() : '', player: player };
     url.search = new URLSearchParams(params).toString();
-    return fetch(url, {
-      method: 'post',
-    }).catch(function (error) {});
+    return fetch(url, { method: 'post' }).catch(function (error) {});
   }
 }

@@ -101,13 +101,14 @@
     gap: 2px;
 
     .button {
-      background: rgba(0, 0, 0, 0.4) !important;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-      border-radius: 50% !important;
-      width: 2.25rem !important;
-      height: 2.25rem !important;
-      min-width: 2.25rem;
-      min-height: 2.25rem;
+      background-color: oklch(1 0 0 / 0.1) !important;
+      backdrop-filter: blur(64px) brightness(0.9) saturate(1.5);
+      box-shadow: none !important;
+      border-radius: 9999px !important;
+      width: 2.125rem !important;
+      height: 2.125rem !important;
+      min-width: 2.125rem;
+      min-height: 2.125rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -115,6 +116,20 @@
       position: relative;
       padding: 0 !important;
       margin: 0 !important;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0.175rem;
+        border-radius: inherit;
+        background: transparent;
+        transition: background 150ms ease;
+        pointer-events: none;
+      }
+
+      &:hover::before {
+        background: oklch(1 0 0 / 0.1);
+      }
 
       .button__content {
         padding: 0;
@@ -157,12 +172,14 @@
         width: 16px;
         height: 16px;
         stroke: white;
+        filter: drop-shadow(0 1px 0 oklch(0 0 0 / 0.25));
       }
     }
   }
 
   &:hover,
-  &:has(.vjs-paused) {
+  &:has(.vjs-paused),
+  &:has([data-paused]) {
     .video-js--tap-to-unmute {
       max-width: calc(var(--floating-viewer-width) - (var(--spacing-xs) * 3) - 42px);
     }

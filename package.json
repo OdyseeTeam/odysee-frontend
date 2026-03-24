@@ -57,8 +57,6 @@
     "@permaweb/aoconnect": "^0.0.63",
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/react": "^10.45.0",
-    "@silvermine/videojs-airplay": "^1.1.0",
-    "@silvermine/videojs-chromecast": "^1.3.3",
     "@ungap/from-entries": "^0.2.1",
     "@wanderapp/connect": "^0.1.11",
     "arweave": "^1.15.7",
@@ -134,11 +132,8 @@
     "twemoji": "^14.0.2",
     "unist-util-visit": "^5.1.0",
     "uuid": "^9.0.1",
-    "video.js": "^7.19.2",
-    "videojs-contrib-quality-levels": "^2.0.9",
-    "videojs-event-tracking": "^1.0.1",
-    "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
+    "@videojs/react": "10.0.0-beta.3",
+    "hls.js": "^1.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
