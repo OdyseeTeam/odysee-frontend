@@ -6,8 +6,16 @@ import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import MobileTabView from 'component/mobileTabView';
 import RecommendedContent from 'component/recommendedContent';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { getChannelIdFromClaim, getClaimScheduledState } from 'util/claim';
+import { doClearPlayingUri as doClearPlayingUriAction } from 'redux/actions/content';
 
 const LivestreamScheduledInfo = lazyImport(
   () =>
@@ -39,18 +47,18 @@ type Props = {
   livestreamChatEnabled: boolean;
 };
 export default function LivestreamLayout(props: Props) {
-  const {
-    uri,
-    livestreamChatEnabled,
-    // -- redux --
-    activeStreamUri,
-    claim,
-    chatDisabled,
-    isCurrentClaimLive,
-    showScheduledInfo,
-    videoTheaterMode,
-    doClearPlayingUri,
-  } = props;
+  const { uri, livestreamChatEnabled } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const channelId = getChannelIdFromClaim(claim);
+  const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
+  const activeStreamUri = activeLivestream?.claimUri;
+  const isCurrentClaimLive = activeLivestream?.claimId === claim?.claim_id;
+  const chatDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
+  const videoTheaterMode = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE));
+  const scheduledState = claim ? getClaimScheduledState(claim) : 'non-scheduled';
+  const showScheduledInfo = scheduledState === 'scheduled' || scheduledState === 'started';
+  const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
