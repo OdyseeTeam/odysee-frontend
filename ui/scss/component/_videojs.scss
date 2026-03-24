@@ -1196,6 +1196,11 @@ img.odysee-cast-thumbnail {
   }
 }
 
+// Hide fullscreen actions by default — only shown in fullscreen mode
+.video-fullscreen__actions-wrapper {
+  display: none;
+}
+
 .player-fullscreen-target .video-fullscreen__actions-wrapper {
   display: none;
 }

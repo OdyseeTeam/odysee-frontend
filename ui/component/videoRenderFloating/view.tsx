@@ -693,7 +693,7 @@ function VideoRenderFloating(props: Props) {
         <div
           ref={draggableNodeRef}
           id="abcd"
-          className={classnames({
+          className={classnames('player-fullscreen-target', {
             [CONTENT_VIEWER_CLASS]: !isShortVideo,
             [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
             [FLOATING_PLAYER_CLASS]: isFloating,

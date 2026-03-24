@@ -268,8 +268,22 @@ reach-portal {
 }
 
 .MuiList-root {
-  .menu__link:hover {
-    color: inherit;
+  .menu__link {
+    color: var(--color-text) !important;
+
+    .icon {
+      stroke: var(--color-text) !important;
+    }
+
+    &:hover {
+      color: var(--color-primary-contrast) !important;
+      background-color: var(--color-navigation-hover) !important;
+      border-radius: var(--border-radius);
+
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
   }
 }
 
@@ -277,6 +291,12 @@ reach-portal {
   margin-left: 0px !important;
   font-size: var(--font-small) !important;
   display: block !important;
+  color: var(--color-text) !important;
+
+  &:hover {
+    background-color: var(--color-navigation-hover) !important;
+    color: var(--color-primary-contrast) !important;
+  }
 }
 
 .menu__link {

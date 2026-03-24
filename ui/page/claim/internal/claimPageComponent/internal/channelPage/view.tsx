@@ -151,7 +151,7 @@ function ChannelPage(props: Props) {
   const showDiscussion = currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
-  const [hasShorts, setHasShorts] = React.useState(currentView === CHANNEL_PAGE.VIEWS.SHORTS);
+  const [hasShorts, setHasShorts] = React.useState(true);
   const [displayView, setDisplayView] = React.useState(currentView);
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {

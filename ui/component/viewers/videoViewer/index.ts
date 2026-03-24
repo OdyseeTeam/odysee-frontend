@@ -95,6 +95,8 @@ function VideoViewerWithRedux(props: any) {
   const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
   const isFloating = useAppSelector(selectIsPlayerFloating);
   const autoplayNext = !isMarkdownOrComment && useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
+  const floatingPlayer = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER));
+  const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
 
   const match = { params, path: pathname, url: pathname, isExact: true };
 
@@ -132,6 +134,12 @@ function VideoViewerWithRedux(props: any) {
     recomendedContent,
     autoPlayNextShort,
     isFloating,
+    floatingPlayer,
+    setFloatingPlayer: (v: boolean) => dispatch(doSetClientSetting(SETTINGS.FLOATING_PLAYER, v)),
+    autoplayMedia,
+    setAutoplayMedia: (v: boolean) => dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, v)),
+    doSyncLastPosition: (u: string, p: number) => {}, // TODO: wire to sync action
+    doClearContentHistoryUri: (u: string) => {}, // TODO: wire to content action
     changeVolume: (v: number) => dispatch(doChangeVolume(v)),
     savePosition: (u: string, p: number) => dispatch(savePosition(u, p)),
     clearPosition: (u: string) => dispatch(clearPosition(u)),
