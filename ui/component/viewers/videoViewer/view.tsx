@@ -1,4 +1,4 @@
-// @flow
+
 import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -15,9 +15,8 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { getAllIds } from 'util/buildHomepage';
-import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { isClaimUnlisted } from 'util/claim';
@@ -29,60 +28,7 @@ const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 
-type Props = {
-  uri: string,
-  source: string,
-  contentType: string,
-  embedded: boolean,
-  playNextUri: ?string,
-  playPreviousUri?: string,
-  position: number,
-  changeVolume: (number) => void,
-  changeMute: (boolean) => void,
-  thumbnail: string,
-  claim: StreamClaim,
-  muted: boolean,
-  videoPlaybackRate: number,
-  volume: number,
-  autoplayNext: boolean,
-  autoplayIfEmbedded: boolean,
-  doAnalyticsBuffer: (string, any) => void,
-  savePosition: (string, number) => void,
-  clearPosition: (string) => void,
-  toggleVideoTheaterMode: () => void,
-  toggleAutoplayNext: () => void,
-  setVideoPlaybackRate: (number) => void,
-  authenticated: boolean,
-  userId: number,
-  internalFeature: boolean,
-  homepageData?: { [string]: HomepageCat },
-  shareTelemetry: boolean,
-  doPlayNextUri: (params: { uri: string }) => void,
-  collectionId: string,
-  recomendedContent: any,
-  nextPlaylistUri: string,
-  videoTheaterMode: boolean,
-  isMarkdownOrComment: boolean,
-  doAnalyticsViewForUri: (string) => void,
-  claimRewards: () => void,
-  isLivestreamClaim: boolean,
-  activeLivestreamForChannel: ?LivestreamActiveClaim,
-  defaultQuality: ?string,
-  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
-  doSetContentHistoryItem: (uri: string) => void,
-  doClearContentHistoryUri: (uri: string) => void,
-  isPurchasableContent: boolean,
-  isRentableContent: boolean,
-  purchaseMadeForClaimId: boolean,
-  isProtectedContent: boolean,
-  isDownloadDisabled: boolean,
-  doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
-  doSetVideoSourceLoaded: (uri: string) => void,
-  autoPlayNextShort: boolean,
-  isFloating: boolean,
-};
-
-function VideoViewer(props: Props) {
+function VideoViewer(props) {
   const {
     uri,
     playNextUri,
@@ -154,9 +100,7 @@ function VideoViewer(props: Props) {
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
 
-  const {
-    location: { pathname, search },
-  } = useHistory();
+  const { pathname, search } = useLocation();
 
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
@@ -219,7 +163,6 @@ function VideoViewer(props: Props) {
   const handlePlayNextUri = React.useCallback(() => {
     if (shouldPlayRecommended) {
       if (IS_IOS) {
-        // $FlowIgnore
         doPlayNextUri({ uri: playNextUri });
       } else {
         doSetShowAutoplayCountdownForUri({ uri, show: true });

@@ -1,8 +1,8 @@
-// @flow
+
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 
-export default function useWatchdog(isLivestream: boolean, onStall: () => void, timeoutMs: number = 15000) {
+export default function useWatchdog(isLivestream, onStall, timeoutMs = 15000) {
   const media = Player.useMedia();
   const watchdogRef = useRef(null);
 

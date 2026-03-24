@@ -1,4 +1,4 @@
-// @flow
+
 import 'scss/component/_videojs-skin.scss';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Video } from '@videojs/react/video';
@@ -22,50 +22,7 @@ import Button from 'component/button';
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
 
-type Props = {
-  adUrl: ?string,
-  claimId: ?string,
-  title: ?string,
-  channelTitle: string,
-  embedded: boolean,
-  embeddedInternal: boolean,
-  isAudio: boolean,
-  poster: ?string,
-  shareTelemetry: boolean,
-  source: string,
-  sourceType: string,
-  startMuted: boolean,
-  userId: ?number,
-  defaultQuality: ?string,
-  onPlayerReady: (any, any) => void,
-  playNext: () => void,
-  playPrevious: () => void,
-  toggleVideoTheaterMode: () => void,
-  claimRewards: () => void,
-  doAnalyticsViewForUri: (string) => void,
-  doAnalyticsBuffer: (string, any) => void,
-  uri: string,
-  claimValues: any,
-  isLivestreamClaim: boolean,
-  userClaimId: ?string,
-  activeLivestreamForChannel: ?LivestreamActiveClaim,
-  isPurchasableContent: boolean,
-  isRentableContent: boolean,
-  isProtectedContent: boolean,
-  isDownloadDisabled: boolean,
-  isUnlisted: boolean,
-  doSetVideoSourceLoaded: (uri: string) => void,
-  // Passed from view.jsx
-  canPlayNext: boolean,
-  canPlayPrevious: boolean,
-  autoplayNext: boolean,
-  onToggleAutoplayNext: () => void,
-  videoTheaterMode: boolean,
-  isMarkdownOrComment: boolean,
-  isFloating: boolean,
-};
-
-function VideoJsInner(props: Props) {
+function VideoJsInner(props) {
   const {
     claimId,
     title,
@@ -371,8 +328,7 @@ function VideoJsInner(props: Props) {
   );
 }
 
-// $FlowFixMe
-export default React.memo(function VideoJs(props: Props) {
+export default React.memo(function VideoJs(props) {
   return (
     <Player.Provider>
       <VideoJsInner {...props} />

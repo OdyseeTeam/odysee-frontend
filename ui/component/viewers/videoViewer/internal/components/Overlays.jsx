@@ -1,12 +1,7 @@
-// @flow
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const OVERLAY_DURATION_MS = 800;
-
-type OverlayData = {
-  content: string,
-  id: number,
-};
 
 let overlayIdCounter = 0;
 
@@ -14,7 +9,7 @@ export function useOverlay() {
   const [overlay, setOverlay] = useState(null);
   const timerRef = useRef(null);
 
-  const showOverlay = useCallback((content: string) => {
+  const showOverlay = useCallback((content) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     const id = ++overlayIdCounter;
     setOverlay({ content, id });
@@ -32,11 +27,7 @@ export function useOverlay() {
   return { overlay, showOverlay };
 }
 
-type Props = {
-  overlay: ?OverlayData,
-};
-
-export default function Overlays({ overlay }: Props) {
+export default function Overlays({ overlay }) {
   if (!overlay) return null;
 
   return (

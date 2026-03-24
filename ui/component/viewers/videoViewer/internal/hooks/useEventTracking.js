@@ -1,19 +1,19 @@
-// @flow
+
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 import analytics from 'analytics';
 
 export default function useEventTracking(
-  claimId: ?string,
-  userId: ?number,
-  claimValues: any,
-  channelTitle: string,
-  embedded: boolean,
-  uri: string,
-  isLivestreamClaim: boolean,
-  doAnalyticsViewForUri: (string) => any,
-  doAnalyticsBuffer: (string, any) => void,
-  claimRewards: () => void
+  claimId,
+  userId,
+  claimValues,
+  channelTitle,
+  embedded,
+  uri,
+  isLivestreamClaim,
+  doAnalyticsViewForUri,
+  doAnalyticsBuffer,
+  claimRewards
 ) {
   const store = Player.usePlayer();
   const media = Player.useMedia();
@@ -37,7 +37,6 @@ export default function useEventTracking(
     const handlePlaying = () => {
       if (!firstPlayTrackedRef.current && startTimeRef.current !== null) {
         firstPlayTrackedRef.current = true;
-        // $FlowFixMe
         const secondsToLoad = (performance.now() - startTimeRef.current) / 1000;
 
         analytics.event.playerVideoStarted(embedded);
@@ -51,7 +50,6 @@ export default function useEventTracking(
           }
 
           const playerShim = {
-            // $FlowFixMe
             currentSource: () => ({
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
@@ -69,7 +67,6 @@ export default function useEventTracking(
           );
         } else {
           const playerShim = {
-            // $FlowFixMe
             currentSource: () => ({
               type: media.currentSrc && media.currentSrc.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
               src: media.currentSrc,
@@ -91,7 +88,6 @@ export default function useEventTracking(
       }
 
       if (bufferStartRef.current !== null) {
-        // $FlowFixMe
         const bufferDuration = (performance.now() - bufferStartRef.current) / 1000;
         doAnalyticsBuffer(uri, {
           timeAtBuffer: store.state.currentTime,

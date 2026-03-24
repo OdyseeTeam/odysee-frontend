@@ -132,7 +132,7 @@
     "twemoji": "^14.0.2",
     "unist-util-visit": "^5.1.0",
     "uuid": "^9.0.1",
-    "@videojs/react": "10.0.0-beta.3",
+    "@videojs/react": "10.0.0-beta.10",
     "hls.js": "^1.6.7"
   },
   "devDependencies": {
@@ -155,8 +155,7 @@
     "vite-plus": "^0.1.12"
   },
   "resolutions": {
-    "video.js": "7.21.4"
-  },
+      },
   "engines": {
     "node": "^22.0.0"
   },

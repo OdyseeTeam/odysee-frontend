@@ -1,4 +1,4 @@
-// @flow
+
 /* eslint-disable react/prop-types */
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import Player from './player';
@@ -406,7 +406,7 @@ function chapterFormatFn(chapters) {
   };
 }
 
-function ChapterMarkers({ chapters }: { chapters: Array<any> }) {
+function ChapterMarkers({ chapters }) {
   const duration = Player.usePlayer((s) => s.duration) || 0;
 
   if (!chapters || chapters.length < 2 || !duration) return null;
@@ -420,7 +420,7 @@ function ChapterMarkers({ chapters }: { chapters: Array<any> }) {
   );
 }
 
-function ChapterPill({ chapters }: { chapters: Array<any> }) {
+function ChapterPill({ chapters }) {
   const currentTime = Player.usePlayer((s) => s.currentTime) || 0;
 
   if (!chapters || chapters.length === 0) return null;
@@ -451,27 +451,7 @@ function FullscreenLabel() {
   return Player.usePlayer((s) => Boolean(s.fullscreen)) ? __('Exit Fullscreen (f)') : __('Fullscreen (f)');
 }
 
-type Props = {
-  children?: any,
-  className?: string,
-  isLivestream?: boolean,
-  isMarkdownOrComment?: boolean,
-  onToggleTheaterMode?: () => void,
-  videoTheaterMode?: boolean,
-  onToggleAutoplayNext?: () => void,
-  autoplayNext?: boolean,
-  onPlayNext?: () => void,
-  onPlayPrevious?: () => void,
-  canPlayNext?: boolean,
-  canPlayPrevious?: boolean,
-  defaultQuality?: ?string,
-  originalVideoHeight?: ?number,
-  title?: ?string,
-  description?: ?string,
-  isFloating?: boolean,
-};
-
-export default function OdyseeSkin(props: Props) {
+export default function OdyseeSkin(props) {
   const {
     children,
     className,

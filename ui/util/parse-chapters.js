@@ -1,11 +1,9 @@
-// @flow
-
-function strToSeconds(stime: string): number {
+function strToSeconds(stime) {
   const tt = stime.split(':').reverse();
   return (tt.length >= 3 ? +tt[2] : 0) * 60 * 60 + (tt.length >= 2 ? +tt[1] : 0) * 60 + (tt.length >= 1 ? +tt[0] : 0);
 }
 
-function isValidTimestamp(str: string): boolean {
+function isValidTimestamp(str) {
   switch (str.length) {
     case 4:
       return /^[0-9]:[0-5][0-9]$/.test(str);
@@ -20,16 +18,10 @@ function isValidTimestamp(str: string): boolean {
   }
 }
 
-export type Chapter = {
-  time: number,
-  label: string,
-  timestamp: string,
-};
-
-export default function parseChapters(description: ?string): Array<Chapter> {
+export default function parseChapters(description) {
   if (!description) return [];
 
-  const chapters: Array<Chapter> = [];
+  const chapters = [];
   const lines = description.split('\n');
 
   for (const line of lines) {

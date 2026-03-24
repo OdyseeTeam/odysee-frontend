@@ -1,13 +1,11 @@
-// @flow
+
 import React, { useRef, useCallback } from 'react';
 import Player from '../player';
 
 const DOUBLE_TAP_THRESHOLD_MS = 300;
 const SEEK_AMOUNT = 10;
 
-type Props = {};
-
-export default function MobileTouchOverlay(props: Props) {
+export default function MobileTouchOverlay(props) {
   const store = Player.usePlayer();
   const lastTapRef = useRef(0);
   const lastTapSideRef = useRef(null);

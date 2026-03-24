@@ -1,21 +1,14 @@
-// @flow
+
 import React, { useState, useEffect, useCallback } from 'react';
 import Player from '../player';
 import * as QUALITY_OPTIONS from 'constants/player';
-
-type Props = {
-  defaultQuality: ?string,
-  originalVideoHeight: ?number,
-  isLivestream: boolean,
-  onQualityChanged: ?() => void,
-};
 
 export default function QualitySelector({
   defaultQuality,
   originalVideoHeight,
   isLivestream,
   onQualityChanged,
-}: Props) {
+}) {
   const media = Player.useMedia();
   const [levels, setLevels] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(-1);

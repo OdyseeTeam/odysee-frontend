@@ -1,4 +1,4 @@
-// @flow
+
 import { useEffect, useRef, useCallback } from 'react';
 import * as KEYCODES from 'constants/keycodes';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
@@ -19,13 +19,6 @@ export default function useKeyboardShortcuts({
   toggleVideoTheaterMode,
   playNext,
   playPrevious,
-}: {
-  containerRef: any,
-  isMobile: boolean,
-  isLivestreamClaim: boolean,
-  toggleVideoTheaterMode: () => void,
-  playNext: () => void,
-  playPrevious: () => void,
 }) {
   const store = Player.usePlayer();
   const media = Player.useMedia();
@@ -226,7 +219,6 @@ export default function useKeyboardShortcuts({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', handleBlur);
-    // $FlowFixMe
     document.addEventListener('visibilitychange', handleBlur);
 
     const container = containerRef.current;
@@ -236,7 +228,6 @@ export default function useKeyboardShortcuts({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
-      // $FlowFixMe
       document.removeEventListener('visibilitychange', handleBlur);
       if (container) container.removeEventListener('wheel', handleWheel);
       clearHoldTimeout();

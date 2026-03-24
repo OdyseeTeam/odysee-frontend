@@ -1,7 +1,7 @@
-// @flow
+
 import { useEffect, useState } from 'react';
 
-export default function useChromecast(source: ?string, title: ?string, channelTitle: ?string) {
+export default function useChromecast(source, title, channelTitle) {
   const [castAvailable, setCastAvailable] = useState(false);
   useEffect(() => {
     if (typeof window.chrome === 'undefined' || !window.chrome?.cast) return;
@@ -35,7 +35,6 @@ export default function useChromecast(source: ?string, title: ?string, channelTi
 
     return () => {
       try {
-        // $FlowFixMe
         const session = window.cast?.framework?.CastContext?.getInstance()?.getCurrentSession();
         if (session) session.endSession(false);
       } catch (e) {}

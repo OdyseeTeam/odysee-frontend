@@ -1,4 +1,4 @@
-// @flow
+
 import { useEffect } from 'react';
 import Player from '../player';
 import analytics from 'analytics';
@@ -43,12 +43,10 @@ export default function useAnalytics() {
       lastFrameNum = metadata.presentedFrames;
 
       if (fpsRounder.length < 10) {
-        // $FlowIssue
         media.requestVideoFrameCallback(ticker);
       }
     }
 
-    // $FlowIssue
     media.requestVideoFrameCallback(ticker);
 
     const handleSeeked = () => {

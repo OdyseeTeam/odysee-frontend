@@ -1,8 +1,7 @@
-// @flow
+
 import { useEffect, useRef } from 'react';
 import Player from '../player';
-// $FlowFixMe
-import RecSys from 'extras/recsys/recsys';
+import RecSys from 'recsys';
 
 const PlayerEvent = {
   event: { start: 0, stop: 1, scrub: 2, speed: 3, ended: 4 },
@@ -12,7 +11,7 @@ function newRecsysPlayerEvent(eventType, offset, arg) {
   return arg != null ? { event: eventType, offset, arg } : { event: eventType, offset };
 }
 
-export default function useRecsys(videoId: ?string, userId: ?number, embedded: boolean, shareTelemetry: boolean) {
+export default function useRecsys(videoId, userId, embedded, shareTelemetry) {
   const store = Player.usePlayer();
   const media = Player.useMedia();
 

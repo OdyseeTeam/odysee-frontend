@@ -1,4 +1,4 @@
-// @flow
+
 import { useState, useEffect, useRef } from 'react';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
@@ -7,25 +7,16 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
 
-type ResolvedSource = {
-  src: string,
-  type: string,
-  isHls: boolean,
-  originalSrc: ?{ src: string, type: string },
-  hlsSrc: ?{ src: string, type: string },
-  thumbnailBasePath: ?string,
-};
-
 export default function useResolvedSource(
-  source: string,
-  sourceType: string,
-  isLivestreamClaim: boolean,
-  userClaimId: ?string,
-  isProtectedContent: boolean,
-  activeLivestreamForChannel: ?LivestreamActiveClaim,
-  uri: string,
-  doSetVideoSourceLoaded: (uri: string) => void
-): ?ResolvedSource {
+  source,
+  sourceType,
+  isLivestreamClaim,
+  userClaimId,
+  isProtectedContent,
+  activeLivestreamForChannel,
+  uri,
+  doSetVideoSourceLoaded
+) {
   const [resolved, setResolved] = useState(null);
   const playerServerRef = useRef(null);
 

@@ -1,4 +1,4 @@
-// @flow
+
 /* eslint-disable react/prop-types */
 import React, { useCallback, useEffect } from 'react';
 
@@ -42,13 +42,9 @@ function ShortcutItem({ keys, separator, label }) {
   );
 }
 
-type Props = {
-  onClose: () => void,
-};
-
-export default function KeyboardShortcutsOverlay({ onClose }: Props) {
+export default function KeyboardShortcutsOverlay({ onClose }) {
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
+    (e) => {
       if (e.key === 'Escape') onClose();
     },
     [onClose]
@@ -71,7 +67,6 @@ export default function KeyboardShortcutsOverlay({ onClose }: Props) {
         <div className="odysee-shortcuts-overlay__body">
           <ul className="odysee-shortcuts__list">
             {PRIMARY_SHORTCUTS.map((s) => (
-              // $FlowFixMe
               <ShortcutItem key={s.label} {...s} />
             ))}
           </ul>
