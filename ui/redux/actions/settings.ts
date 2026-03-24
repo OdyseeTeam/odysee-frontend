@@ -568,6 +568,22 @@ export function toggleAutoplayNext() {
     );
   };
 }
+export function toggleFloatingPlayer() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const ready = selectPrefsReady(state);
+    const floatingPlayer = selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+    dispatch(doSetClientSetting(SETTINGS.FLOATING_PLAYER, !floatingPlayer, ready));
+  };
+}
+export function toggleAutoplayMedia() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const ready = selectPrefsReady(state);
+    const autoplayMedia = selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA);
+    dispatch(doSetClientSetting(SETTINGS.AUTOPLAY_MEDIA, !autoplayMedia, ready));
+  };
+}
 export function toggleDisableShortsView() {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();

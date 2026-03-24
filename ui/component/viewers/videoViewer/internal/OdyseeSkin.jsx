@@ -361,6 +361,24 @@ function SettingsMenuContent({
     }
   }, [media]);
 
+  const [localFloating, setLocalFloating] = useState(floatingPlayer);
+  const handleToggleFloating = useCallback(() => {
+    setLocalFloating((v) => !v);
+    if (onToggleFloatingPlayer) onToggleFloatingPlayer();
+  }, [onToggleFloatingPlayer]);
+
+  const [localAutoplay, setLocalAutoplay] = useState(autoplayMedia);
+  const handleToggleAutoplay = useCallback(() => {
+    setLocalAutoplay((v) => !v);
+    if (onToggleAutoplayMedia) onToggleAutoplayMedia();
+  }, [onToggleAutoplayMedia]);
+
+  const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
+  const handleToggleAutoplayNext = useCallback(() => {
+    setLocalAutoplayNext((v) => !v);
+    if (onToggleAutoplayNext) onToggleAutoplayNext();
+  }, [onToggleAutoplayNext]);
+
   const handleSnapshot = useCallback(() => {
     handleSnapshotFn(media, title);
     if (onCloseMenu) onCloseMenu();
@@ -502,7 +520,7 @@ function SettingsMenuContent({
         <button
           type="button"
           className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
-          onClick={isFloating ? undefined : onToggleFloatingPlayer}
+          onClick={isFloating ? undefined : handleToggleFloating}
         >
           <svg
             className="media-settings-menu__icon"
@@ -520,13 +538,13 @@ function SettingsMenuContent({
             <rect x="7.5" y="6.5" width="9" height="7" rx="1" fill="currentColor" stroke="none" />
           </svg>
           <span className="media-settings-menu__label">{__('Floating Player')}</span>
-          <span className={`media-settings-toggle ${floatingPlayer ? 'media-settings-toggle--on' : ''}`}>
+          <span className={`media-settings-toggle ${localFloating ? 'media-settings-toggle--on' : ''}`}>
             <span className="media-settings-toggle__knob" />
           </span>
         </button>
       )}
       {!embedded && (
-        <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayMedia}>
+        <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplay}>
           <svg
             className="media-settings-menu__icon"
             width={16}
@@ -543,16 +561,16 @@ function SettingsMenuContent({
             <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
           </svg>
           <span className="media-settings-menu__label">{__('Autoplay')}</span>
-          <span className={`media-settings-toggle ${autoplayMedia ? 'media-settings-toggle--on' : ''}`}>
+          <span className={`media-settings-toggle ${localAutoplay ? 'media-settings-toggle--on' : ''}`}>
             <span className="media-settings-toggle__knob" />
           </span>
         </button>
       )}
       {!embedded && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
-        <button type="button" className="media-settings-menu__item" onClick={onToggleAutoplayNext}>
+        <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
-          <span className={`media-settings-toggle ${autoplayNext ? 'media-settings-toggle--on' : ''}`}>
+          <span className={`media-settings-toggle ${localAutoplayNext ? 'media-settings-toggle--on' : ''}`}>
             <span className="media-settings-toggle__knob" />
           </span>
         </button>

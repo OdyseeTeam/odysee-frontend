@@ -54,9 +54,9 @@ function VideoViewer(props) {
     toggleVideoTheaterMode,
     toggleAutoplayNext,
     floatingPlayer,
-    setFloatingPlayer,
+    toggleFloatingPlayer,
     autoplayMedia,
-    setAutoplayMedia,
+    toggleAutoplayMedia,
     setVideoPlaybackRate,
     homepageData,
     authenticated,
@@ -111,9 +111,6 @@ function VideoViewer(props) {
   const timeParam = urlParams.get('t');
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
-  const [localFloatingPlayer, setLocalFloatingPlayer] = useState(floatingPlayer);
-  const [localAutoplayMedia, setLocalAutoplayMedia] = useState(autoplayMedia);
 
   const embedContext = useContext(EmbedContext);
   const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
@@ -123,7 +120,6 @@ function VideoViewer(props) {
   const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
   const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
   const [videoNode, setVideoNode] = useState();
-  const isFirstRender = React.useRef(true);
 
   React.useEffect(() => {
     if (defaultQuality) {
@@ -141,38 +137,9 @@ function VideoViewer(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying]);
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    toggleAutoplayNext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localAutoplayNext]);
-
-  const isFirstFloatingRender = React.useRef(true);
-  useEffect(() => {
-    if (isFirstFloatingRender.current) {
-      isFirstFloatingRender.current = false;
-      return;
-    }
-    setFloatingPlayer(localFloatingPlayer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localFloatingPlayer]);
-
-  const isFirstAutoplayMediaRender = React.useRef(true);
-  useEffect(() => {
-    if (isFirstAutoplayMediaRender.current) {
-      isFirstAutoplayMediaRender.current = false;
-      return;
-    }
-    setAutoplayMedia(localAutoplayMedia);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localAutoplayMedia]);
-
-  const handleToggleAutoplayNext = useCallback(() => setLocalAutoplayNext((v) => !v), []);
-  const handleToggleFloatingPlayer = useCallback(() => setLocalFloatingPlayer((v) => !v), []);
-  const handleToggleAutoplayMedia = useCallback(() => setLocalAutoplayMedia((v) => !v), []);
+  const handleToggleAutoplayNext = useCallback(() => toggleAutoplayNext(), [toggleAutoplayNext]);
+  const handleToggleFloatingPlayer = useCallback(() => toggleFloatingPlayer(), [toggleFloatingPlayer]);
+  const handleToggleAutoplayMedia = useCallback(() => toggleAutoplayMedia(), [toggleAutoplayMedia]);
 
   useInterval(
     () => {
@@ -428,11 +395,11 @@ function VideoViewer(props) {
           autoPlayNextShort={autoPlayNextShort}
           canPlayNext={canPlayNext}
           canPlayPrevious={canPlayPrevious}
-          autoplayNext={localAutoplayNext}
+          autoplayNext={autoplayNext}
           onToggleAutoplayNext={handleToggleAutoplayNext}
-          floatingPlayer={localFloatingPlayer}
+          floatingPlayer={floatingPlayer}
           onToggleFloatingPlayer={handleToggleFloatingPlayer}
-          autoplayMedia={localAutoplayMedia}
+          autoplayMedia={autoplayMedia}
           onToggleAutoplayMedia={handleToggleAutoplayMedia}
           videoTheaterMode={videoTheaterMode}
           isMarkdownOrComment={isMarkdownOrComment}
