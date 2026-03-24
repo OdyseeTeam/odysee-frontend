@@ -19,6 +19,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
 import { useNavigate } from 'react-router-dom';
+import { toggleAutoplayNextShort as toggleAutoplayNextShortAction } from 'redux/actions/settings';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 import {
@@ -173,6 +174,7 @@ function VideoRenderFloating(props: Props) {
   const doCommentSocketDisconnect = (socketClaimId: string, channelName: string) =>
     dispatch(doCommentSocketDisconnectAction(socketClaimId, channelName));
   const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
+  const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShortAction());
   const doClearQueueList = () => dispatch(doClearQueueListAction());
   const doOpenModal = (id: string, arg1: {}) => dispatch(doOpenModalAction(id, arg1));
   const doSetPlayingUri = (arg0: PlayingUri) => dispatch(doSetPlayingUriAction(arg0));

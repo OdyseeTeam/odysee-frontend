@@ -536,13 +536,14 @@ type ActionButtonsProps = {
 
 const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
   const { uri, totalUnfilteredComments, sort, changeSort, handleRefresh } = actionButtonsProps;
+  const canSort = totalUnfilteredComments > 1;
   const sortButtonProps = {
     activeSort: sort,
     changeSort,
   };
   return (
     <div className="comment__actions">
-      {(canSort || isMobile) && ENABLE_COMMENT_REACTIONS && (
+      {canSort && ENABLE_COMMENT_REACTIONS && (
         <span className={`comment__sort ${!canSort ? 'comment__sort--disabled' : ''}`}>
           <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
           <SortButton
