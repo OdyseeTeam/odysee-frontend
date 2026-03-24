@@ -60,7 +60,7 @@ export default function LivestreamLayout(props: Props) {
 
   const liveStatusFetching = activeStreamUri === undefined;
   React.useEffect(() => {
-    if (!isCurrentClaimLive) dispatch(doClearPlayingUri()); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+    if (!isCurrentClaimLive && doClearPlayingUri) doClearPlayingUri(); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isCurrentClaimLive]);
   if (!claim || !claim.signing_channel) return null;
   const { name: channelName } = claim.signing_channel;
