@@ -23,8 +23,10 @@ import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
+const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
+
 
 function VideoViewer(props) {
   const {
@@ -77,6 +79,7 @@ function VideoViewer(props) {
     isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
+    doSyncLastPosition,
     autoPlayNextShort,
     isFloating,
   } = props;
@@ -237,10 +240,21 @@ function VideoViewer(props) {
     clearPosition(uri);
   }, [adUrl, canPlayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
 
-  function handlePosition(node) {
+  const lastSyncTimeRef = React.useRef(0);
+
+  function handlePosition(node, forceSync) {
     try {
       if (!isLivestreamClaim && uri && savePosition && node) {
-        savePosition(uri, node.currentTime);
+        const currentTime = node.currentTime;
+        savePosition(uri, currentTime);
+
+        if (doSyncLastPosition && currentTime > 0) {
+          const now = Date.now();
+          if (forceSync || now - lastSyncTimeRef.current > POSITION_SYNC_INTERVAL_MS) {
+            lastSyncTimeRef.current = now;
+            doSyncLastPosition(uri, currentTime);
+          }
+        }
       }
     } catch (error) {}
   }
@@ -278,7 +292,7 @@ function VideoViewer(props) {
       };
       const handlePause = () => {
         setIsPlaying(false);
-        handlePosition(node);
+        handlePosition(node, true);
       };
       const handleVolumeChange = () => {
         updateVolumeState(node.volume, node.muted);

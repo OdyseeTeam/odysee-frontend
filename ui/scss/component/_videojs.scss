@@ -347,6 +347,7 @@ img.odysee-cast-thumbnail {
   background-color: black;
   border: 1px solid white;
   border-radius: var(--border-radius);
+  overflow: hidden;
   aspect-ratio: 16 / 9;
   min-width: fit-content;
   min-height: fit-content;
@@ -1332,13 +1333,20 @@ html.ios-fullscreen .player-fullscreen-target {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .video-fullscreen__actions-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 0.075rem;
     padding: 0.25rem;
     border-radius: 9999px;
     background-color: var(--player-overlay-bg);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .video-fullscreen__action-btn {

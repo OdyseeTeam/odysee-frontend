@@ -158,9 +158,6 @@ const FloatingShortsActions = ({
               ) : null
             }
           />
-          {Number.isInteger(likeCount) && (
-            <span className="shorts-floating-action__count">{formatNumberWithCommas(likeCount, 0)}</span>
-          )}
         </div>
 
         <div
@@ -208,9 +205,6 @@ const FloatingShortsActions = ({
               ) : null
             }
           />
-          {Number.isInteger(dislikeCount) && (
-            <span className="shorts-floating-action__count">{formatNumberWithCommas(dislikeCount, 0)}</span>
-          )}
         </div>
 
         {channelUrl && (

@@ -6,6 +6,7 @@ const watchHistoryActions = [
   ACTIONS.SET_CONTENT_LAST_VIEWED,
   ACTIONS.CLEAR_CONTENT_HISTORY_URI,
   ACTIONS.CLEAR_CONTENT_HISTORY_ALL,
+  ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
 ];
 // When syncing actions with multiple states (e.g. STARTED, FAILED, COMPLETED),
 // bear in mind that we are actually dispatching actions for other tabs to

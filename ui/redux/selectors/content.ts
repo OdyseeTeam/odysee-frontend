@@ -130,13 +130,20 @@ export const selectContentPositionForUri = (state: State, uri: string) => {
     const outpoint = `${claim.txid}:${claim.nout}`;
     const id = claim.claim_id;
     const positions = selectState(state).positions;
-    return positions[id] ? positions[id][outpoint] : null;
+    if (positions[id]) {
+      // Prefer local outpoint-specific position, fall back to remote position
+      return positions[id][outpoint] != null ? positions[id][outpoint] : positions[id].remote || null;
+    }
+    return null;
   }
 
   return null;
 };
-const EMPTY_HISTORY: Array<any> = [];
-export const selectHistory = (state: State) => selectState(state).history || EMPTY_HISTORY;
+
+export const selectHistory = (state: State) => selectState(state).history || [];
+export const selectFetchingRemoteHistory = (state: State) => selectState(state).fetchingRemoteHistory;
+export const selectRemoteHistoryLastFetched = (state: State) => selectState(state).remoteHistoryLastFetched;
+
 export const selectHistoryPageCount = createSelector(selectHistory, (history) =>
   Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE)
 );

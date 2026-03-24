@@ -118,16 +118,21 @@ function UserSignUp() {
   const showEmailVerification = (emailToVerify && !hasVerifiedEmail) || (!hasVerifiedEmail && passwordSet);
   const showUserVerification =
     balance === 0 && hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
+  const [youtubeTransferSeen, setYoutubeTransferSeen] = React.useState(false);
   const showChannelCreation =
     hasVerifiedEmail &&
+    !youtubeTransferSeen &&
     ((balance !== undefined &&
       balance !== null &&
       balance > DEFAULT_BID_FOR_FIRST_CHANNEL &&
       channelCount === 0 &&
       !hasYoutubeChannels) ||
       interestedInYoutubeSync);
-  const showYoutubeTransfer = hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete;
-  const showFollowIntro = step === 'channels' || (hasVerifiedEmail && !followingAcknowledged);
+  const showYoutubeTransfer =
+    hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete && !youtubeTransferSeen;
+  const youtubeSyncPendingLoad = interestedInYoutubeSync && hasVerifiedEmail && !hasYoutubeChannels;
+  const showFollowIntro =
+    step === 'channels' || (hasVerifiedEmail && !followingAcknowledged && !youtubeSyncPendingLoad);
   const showTagsIntro = SHOW_TAGS_INTRO && (step === 'tags' || (hasVerifiedEmail && !tagsAcknowledged));
   const canHijackSignInFlowWithSpinner = hasVerifiedEmail && !showFollowIntro && !showTagsIntro && !rewardsAcknowledged;
   const showSpinnerForSync = syncingWallet && !hasSynced && balance === undefined;
