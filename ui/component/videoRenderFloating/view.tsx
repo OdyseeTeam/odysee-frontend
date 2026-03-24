@@ -18,7 +18,7 @@ import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
 import Draggable from 'react-draggable';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
-import { useHistory } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 import {
@@ -115,6 +115,7 @@ function isDraggingVideojsComponent(e) {
 function VideoRenderFloating(props: Props) {
   const { location } = props;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { search: routerSearch } = useLocation();
   const urlParams = new URLSearchParams(routerSearch);
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
@@ -236,6 +237,7 @@ function VideoRenderFloating(props: Props) {
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const draggableNodeRef = React.useRef(null);
+  const fullscreenTargetRef = React.useRef(null);
   const noPlayerHeight = fileViewerRect?.height === 0;
   const draggable = !isMobile && isFloating;
   // allows displaying overlays like membership/paid/rental for restrictions even when floating
@@ -789,7 +791,7 @@ function VideoRenderFloating(props: Props) {
                 role="button"
                 tabIndex={0}
                 style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
-                onClick={() => history.push(navigateUrl)}
+                onClick={() => navigate(navigateUrl)}
               />
             )}
 
