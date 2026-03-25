@@ -142,10 +142,11 @@ const onPlayerReady = (player, options) => {
  *           True if device supports touch events
  */
 const hasTouch = () => {
+  const nav = window.navigator || {};
   return (
     'ontouchstart' in window ||
-    (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
-    (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0)
+    (nav.maxTouchPoints && nav.maxTouchPoints > 0) ||
+    (nav.msMaxTouchPoints && nav.msMaxTouchPoints > 0)
   );
 };
 
