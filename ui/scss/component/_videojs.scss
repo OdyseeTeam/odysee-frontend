@@ -15,7 +15,7 @@ $control-bar-height-mobile: 44px;
 
 .odysee-skin {
   $__surface-bg: oklch(0 0 0 / 0.4);
-  $__overlay-bg: oklch(0.25 0 0 / 0.45);
+  $__overlay-bg: oklch(0.2 0 0 / 0.65);
   $__hover-bg: oklch(from currentColor l c h / 0.1);
 
   --player-surface-bg: #{$__surface-bg};

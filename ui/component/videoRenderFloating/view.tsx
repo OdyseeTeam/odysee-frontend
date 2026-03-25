@@ -101,16 +101,10 @@ type Props = {
   };
 };
 
-function isDraggingVideojsComponent(e) {
-  const className = e?.target?.className;
-  return (
-    typeof className === 'string' &&
-    (className.includes('vjs-volume-control') ||
-      className.includes('vjs-volume-level') ||
-      className.includes('vjs-time-marker') ||
-      className.includes('vjs-mouse-display') ||
-      className.includes('vjs-icon-placeholder'))
-  );
+function isDraggingPlayerControl(e) {
+  const el = e?.target;
+  if (!el || typeof el.closest !== 'function') return false;
+  return !!el.closest('.media-controls, .media-slider');
 }
 
 function VideoRenderFloating(props: Props) {
@@ -492,7 +486,7 @@ function VideoRenderFloating(props: Props) {
 
     const attach = () => {
       const el: HTMLVideoElement | null | undefined = document.querySelector(
-        '.content__viewer--shorts-floating .vjs-tech'
+        '.content__viewer--shorts-floating video'
       );
 
       if (el && el !== videoEl) {
@@ -531,7 +525,7 @@ function VideoRenderFloating(props: Props) {
 
     const attachListener = () => {
       const el: HTMLVideoElement | null | undefined = document.querySelector(
-        '.content__viewer--shorts-floating .vjs-tech'
+        '.content__viewer--shorts-floating video'
       );
       if (!el || el === videoEl) return !!videoEl;
       if (cleanupFn) cleanupFn();
@@ -614,7 +608,7 @@ function VideoRenderFloating(props: Props) {
     function onPointerDown(e) {
       const handle = e.target.closest('.draggable');
       if (!handle || e.target.closest('.button')) return;
-      if (isDraggingVideojsComponent(e)) return;
+      if (isDraggingPlayerControl(e)) return;
 
       const d = dragRef.current;
       d.active = true;
@@ -1047,7 +1041,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   ]);
   React.useEffect(() => {
     if (videoGreaterThanLandscape && isMobilePlayer) {
-      const videoNode = document.querySelector('.vjs-tech');
+      const videoNode = document.querySelector('.video-js-parent video');
 
       if (videoNode) {
         const top = appDrawerOpen ? amountNeededToCenter : 0;
@@ -1096,23 +1090,23 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         '.content__wrapper': transparentBackground,
         '.video-js-parent': {
           ...transparentBackground,
-          '.vjs-touch-overlay': {
+          '.odysee-touch-overlay': {
             maxHeight: isTabletLandscape ? 'var(--desktop-portrait-player-max-height) !important' : undefined,
           },
         },
-        '.vjs-fullscreen': {
+        '.player-fullscreen-target:fullscreen, html.ios-fullscreen .player-fullscreen-target': {
           video: {
             opacity: '1',
             height: '100%',
             position: 'absolute',
             top: isFloating ? '0px !important' : undefined,
           },
-          '.vjs-touch-overlay': {
+          '.odysee-touch-overlay': {
             height: '100% !important',
             maxHeight: 'unset !important',
           },
         },
-        '.vjs-tech': {
+        '.video-js-parent video': {
           opacity: '1',
           height: '100%',
           position: 'absolute',
