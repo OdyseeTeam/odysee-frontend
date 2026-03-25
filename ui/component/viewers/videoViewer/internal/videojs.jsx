@@ -242,7 +242,7 @@ function VideoJsInner(props) {
       ...(isLivestreamClaim
         ? {
             liveSyncDuration: 4,
-            liveMaxLatencyDuration: 10,
+            liveMaxLatencyDuration: Infinity,
           }
         : undefined),
     });
