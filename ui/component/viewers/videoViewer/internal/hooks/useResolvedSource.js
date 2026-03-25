@@ -56,7 +56,28 @@ export default function useResolvedSource(
         return;
       }
 
-      const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      let response;
+      try {
+        response = await fetch(source, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+      } catch (e) {
+        if (cancelled) return;
+        if (source) {
+          setResolved({
+            src: source,
+            type: sourceType,
+            isHls: false,
+            originalSrc: { type: sourceType, src: source },
+            hlsSrc: null,
+            thumbnailBasePath: null,
+          });
+        }
+        doSetVideoSourceLoaded(uri);
+        return;
+      } finally {
+        clearTimeout(timeout);
+      }
       if (cancelled) return;
 
       playerServerRef.current = response.headers.get('x-powered-by');
