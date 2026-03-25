@@ -248,8 +248,9 @@ function VideoViewer(props: Props) {
 
   useInterval(
     () => {
-      if (playerRef.current && isPlaying && !isLivestreamClaim) {
-        handlePosition(playerRef.current);
+      const player = playerRef.current;
+      if (player && !isLivestreamClaim && !player.paused()) {
+        handlePosition(player);
       }
     },
     !isLivestreamClaim ? PLAY_POSITION_SAVE_INTERVAL_MS : null
@@ -390,7 +391,7 @@ function VideoViewer(props: Props) {
         const currentTime = player.currentTime();
         savePosition(uri, currentTime);
 
-        // Sync position to server periodically or on pause/close
+        // Sync position to server periodically or on pause/close/seek
         if (doSyncLastPosition && currentTime > 0) {
           const now = Date.now();
           if (forceSync || now - lastSyncTimeRef.current > POSITION_SYNC_INTERVAL_MS) {
