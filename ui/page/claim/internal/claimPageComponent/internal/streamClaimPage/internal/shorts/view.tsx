@@ -12,6 +12,7 @@ import MobileTabView from 'component/mobileTabView';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as TAGS from 'constants/tags';
 import * as SETTINGS_CONST from 'constants/settings';
@@ -59,6 +60,9 @@ import { doClaimSearch as doClaimSearchAction, doResolveUri as doResolveUriActio
 import { toggleAutoplayNextShort } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent as doFetchShortsRecommendedContentAction } from 'redux/actions/search';
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import FileTitleSection from 'component/fileTitleSection';
+import Empty from 'component/common/empty';
+import CommentsList from 'component/commentsList';
 
 const EMPTY_ARRAY: string[] = [];
 
@@ -229,6 +233,7 @@ export default function ShortsPage(props: Props) {
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
+  const isFullscreen = !!document.fullscreenElement;
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
   const latestRouteRef = React.useRef({

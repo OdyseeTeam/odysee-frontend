@@ -1,4 +1,5 @@
 import Livestream from 'livestream';
+const LivestreamApi = Livestream as typeof Livestream & { call: (resource: string, action: string, params?: any, method?: string) => Promise<any> };
 import * as ACTIONS from 'constants/action_types';
 import { transformNewLivestreamData } from 'util/livestream';
 import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
@@ -80,7 +81,7 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
     type: ACTIONS.LIVESTREAM_IS_LIVE_START,
     data: channelId,
   });
-  return Livestream.call('livestream', 'is_live', {
+  return LivestreamApi.call('livestream', 'is_live', {
     channel_claim_id: channelId,
   })
     .then(async (response: LivestreamIsLiveResponse) => {
@@ -133,9 +134,9 @@ export const doFetchAllActiveLivestreamsForQuery =
       type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START,
       data: queryStr,
     });
-    return Livestream.call('livestream', 'all')
+    return LivestreamApi.call('livestream', 'all')
       .then(async (response: LivestreamAllResponse) => {
-        const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData(response);
+        const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData(response as any);
         const activeLivestreamResolvedByCreatorId = await dispatch(
           doFetchActiveLivestreamsForQuery(livestreamInfoByCreatorId, query)
         );

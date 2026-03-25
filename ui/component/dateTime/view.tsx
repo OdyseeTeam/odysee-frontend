@@ -10,6 +10,7 @@ const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
 type Props = {
   date?: any;
+  formatOptions?: Intl.DateTimeFormatOptions;
   genericSeconds?: boolean;
   minUpdateDeltaMs?: number;
   showFutureDate?: boolean;

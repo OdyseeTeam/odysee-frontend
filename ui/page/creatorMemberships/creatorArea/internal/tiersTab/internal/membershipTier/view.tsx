@@ -25,7 +25,7 @@ function MembershipTier(props: Props) {
   const dispatch = useAppDispatch();
   const exchangeRate = useAppSelector(selectArweaveExchangeRates);
   const doOpenModal = (modalId: string, modalProps: {}) => dispatch(doOpenModalAction(modalId, modalProps));
-  const doToast = (params: { message: string }) => dispatch(doToastAction(params));
+  const doToast = (params: ToastParams) => dispatch(doToastAction(params));
   const doDeactivateMembershipForId = (membershipId: number | null | undefined) =>
     dispatch(doDeactivateMembershipForIdAction(membershipId));
   const doMembershipList = (params: MembershipListParams) => dispatch(doMembershipListAction(params));

@@ -55,7 +55,7 @@ import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/member
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
-const CommentCreate = lazyImport(
+const CommentCreate: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/commentCreate'
@@ -98,7 +98,7 @@ export default function CommentList(props: Props) {
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const threadComment = useAppSelector((state) => selectCommentForCommentId(state, threadCommentId));
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
-  const allCommentIds = useAppSelector((state) => selectCommentIdsForUri(state, uri));
+  const allCommentIds: Array<string> = useAppSelector((state) => selectCommentIdsForUri(state, uri)) as Array<string>;
   const chatCommentsRestrictedToChannelMembers = Boolean(
     useAppSelector((state) => selectProtectedContentTagForUri(state, uri))
   );
@@ -113,9 +113,9 @@ export default function CommentList(props: Props) {
   const commentsEnabledSetting = useAppSelector((state) => selectCommentsEnabledSettingForChannelId(state, channelId));
   const myReactsByCommentId = useAppSelector(selectMyReacts);
   const othersReactsById = useAppSelector(selectOthersReacts);
-  const pinnedComments = useAppSelector((state) => selectPinnedCommentsForUri(state, uri));
+  const pinnedComments: Array<any> | undefined = useAppSelector((state) => selectPinnedCommentsForUri(state, uri)) as Array<any> | undefined;
   const threadCommentAncestors = useAppSelector((state) => selectCommentAncestorsForId(state, threadCommentId));
-  const topLevelComments = useAppSelector((state) => selectTopLevelCommentsForUri(state, uri));
+  const topLevelComments: Array<any> = useAppSelector((state) => (selectTopLevelCommentsForUri as any)(state, uri));
   const topLevelTotalPages = useAppSelector((state) => selectTopLevelTotalPagesForUri(state, uri));
   const totalComments = useAppSelector((state) => selectTotalCommentsCountForUri(state, uri));
   const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
@@ -124,8 +124,8 @@ export default function CommentList(props: Props) {
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
   const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
-  const spinnerRef = React.useRef();
-  const commentListRef = React.useRef();
+  const spinnerRef = React.useRef<HTMLDivElement>(null);
+  const commentListRef = React.useRef<HTMLUListElement>(null);
   const threadRedirect = React.useRef(false);
   const DEFAULT_SORT = ENABLE_COMMENT_REACTIONS ? SORT_BY.POPULARITY : SORT_BY.NEWEST;
   const [sort, setSort] = usePersistedState('comment-sort-by', DEFAULT_SORT);
@@ -133,7 +133,7 @@ export default function CommentList(props: Props) {
   const [didInitialPageFetch, setInitialPageFetch] = React.useState(false);
   const hasDefaultExpansion = commentsAreExpanded || !isSmallScreen || isMobile;
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
-  const [debouncedUri, setDebouncedUri] = React.useState();
+  const [debouncedUri, setDebouncedUri] = React.useState<string | undefined>();
   const [uiFilteredComments, setUiFilteredComments] = React.useState([]);
   const updateUiFilteredComments = React.useCallback((commentIds) => {
     setUiFilteredComments((prevCommentIds) => {
@@ -581,6 +581,8 @@ type SortButtonProps = {
   activeSort: number;
   sortOption: number;
   changeSort: (arg0: number) => void;
+  label?: string;
+  icon?: string;
 };
 
 const SortButton = (sortButtonProps: SortButtonProps) => {

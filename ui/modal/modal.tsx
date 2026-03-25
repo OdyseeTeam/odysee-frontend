@@ -6,6 +6,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import { useIsMobile } from 'effects/use-screensize';
 type ModalProps = {
+  isOpen?: boolean;
   type?: 'alert' | 'card' | 'custom' | 'confirm';
   width?: 'default' | 'wide' | 'wide-fixed';
   overlay?: boolean;
@@ -22,6 +23,8 @@ type ModalProps = {
   expandButtonLabel?: string;
   hideButtonLabel?: string;
   title?: string | React.ReactNode;
+  contentLabel?: string;
+  ariaHideApp?: boolean;
 };
 export function Modal(props: ModalProps) {
   const {
@@ -43,7 +46,6 @@ export function Modal(props: ModalProps) {
   return (
     <ReactModal
       {...modalProps}
-      // $FlowFixMe
       parentSelector={() => document.fullscreenElement || document.body}
       onRequestClose={!disableOutsideClick ? onAborted || onConfirmed : false}
       className={classnames('modal', className, {
@@ -75,46 +77,31 @@ export function Modal(props: ModalProps) {
     </ReactModal>
   );
 }
-type State = {
-  expanded: boolean;
-};
-export class ExpandableModal extends React.PureComponent<ModalProps, State> {
-  static defaultProps = {
-    confirmButtonLabel: __('OK'),
-    expandButtonLabel: __('Show More...'),
-    hideButtonLabel: __('Show Less'),
-  };
+export function ExpandableModal(props: ModalProps) {
+  const {
+    children,
+    extraContent,
+    confirmButtonLabel = __('OK'),
+    expandButtonLabel = __('Show More...'),
+    hideButtonLabel = __('Show Less'),
+    onConfirmed,
+    ...rest
+  } = props;
+  const [expanded, setExpanded] = React.useState(false);
 
-  constructor(props: ModalProps) {
-    super(props);
-    this.state = {
-      expanded: false,
-    };
-  }
-
-  toggleExpanded() {
-    this.setState({
-      expanded: !this.state.expanded,
-    });
-  }
-
-  render() {
-    return (
-      <Modal type="custom" {...this.props}>
-        {this.props.children}
-        {this.state.expanded ? <div>{this.props.extraContent}</div> : null}
-        <div className="card__actions">
-          <Button button="primary" label={this.props.confirmButtonLabel} onClick={this.props.onConfirmed} />
-          <Button
-            button="link"
-            label={!this.state.expanded ? this.props.expandButtonLabel : this.props.hideButtonLabel}
-            onClick={() => {
-              this.toggleExpanded();
-            }}
-          />
-        </div>
-      </Modal>
-    );
-  }
+  return (
+    <Modal type="custom" {...rest} onConfirmed={onConfirmed}>
+      {children}
+      {expanded ? <div>{extraContent}</div> : null}
+      <div className="card__actions">
+        <Button button="primary" label={confirmButtonLabel} onClick={onConfirmed} />
+        <Button
+          button="link"
+          label={!expanded ? expandButtonLabel : hideButtonLabel}
+          onClick={() => setExpanded(!expanded)}
+        />
+      </div>
+    </Modal>
+  );
 }
 export default Modal;

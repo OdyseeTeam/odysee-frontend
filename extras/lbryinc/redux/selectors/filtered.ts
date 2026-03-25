@@ -6,5 +6,5 @@ export const selectFilteredDataForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);
   const filteredData = selectFilteredData(state);
-  return filteredData[claim?.claim_id] || filteredData[channelClaim?.claim_id || channelClaim?.channel_id];
+  return filteredData[claim?.claim_id] || filteredData[channelClaim?.claim_id || (channelClaim as any)?.channel_id];
 };

@@ -72,7 +72,7 @@ export const getSearchQueryString = (query: string, options: Record<string, unkn
   isDurationFilterSupported = checkQuerySupportsDurationFilter();
 
   if (includeUserOptions) {
-    const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
+    const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE] as string | undefined;
 
     if (claimType) {
       queryParams.push(`claimType=${claimType}`);
@@ -100,14 +100,14 @@ export const getSearchQueryString = (query: string, options: Record<string, unkn
       queryParams.push(`${SEARCH_OPTIONS.TIME_FILTER}=${timeFilter}`);
     }
 
-    const minDuration = options[SEARCH_OPTIONS.MIN_DURATION];
+    const minDuration = options[SEARCH_OPTIONS.MIN_DURATION] as number | undefined;
 
     if (isDurationFilterSupported && minDuration && minDuration > 0) {
       const minSeconds = minDuration * 60;
       queryParams.push(`${SEARCH_OPTIONS.MIN_DURATION}=${minSeconds}`);
     }
 
-    const maxDuration = options[SEARCH_OPTIONS.MAX_DURATION];
+    const maxDuration = options[SEARCH_OPTIONS.MAX_DURATION] as number | undefined;
 
     if (isDurationFilterSupported && maxDuration && maxDuration > 0) {
       const maxSeconds = maxDuration * 60;

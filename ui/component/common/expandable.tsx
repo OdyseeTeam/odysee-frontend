@@ -9,12 +9,12 @@ type Props = {
 };
 export default function Expandable(props: Props) {
   const { children } = props;
-  const { props: childProps } = children;
+  const childProps = (children as any)?.props;
   const containsImage = childProps && childProps.content && childProps.content.includes('![');
-  const ref = React.useRef();
+  const ref = React.useRef<HTMLDivElement | null>(null);
   const [expanded, setExpanded] = React.useState(false);
   const [disabled, disableExpanded] = React.useState(false);
-  const [childRect, setRect] = React.useState();
+  const [childRect, setRect] = React.useState<DOMRect | undefined>();
   const childOverflows = childRect && childRect.height > COLLAPSED_HEIGHT;
 
   function handleClick() {

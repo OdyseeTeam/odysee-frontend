@@ -20,14 +20,13 @@ import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from './app';
-// @ts-ignore
-import { Dispatch } from 'react';
+// Dispatch and GetState are ambient globals from ui/types/redux.d.ts
 import { LocalStorage } from 'util/storage';
 import arweave from 'util/arweave';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
-export const WALLET_PERMISSIONS = [
+export const WALLET_PERMISSIONS: string[] = [
   'ACCESS_ADDRESS',
   'ACCESS_PUBLIC_KEY',
   'SIGN_TRANSACTION',
@@ -82,7 +81,7 @@ export function doArConnect() {
 
     if (window.arweaveWallet) {
       try {
-        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
+        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS as any);
         window.wanderInstance.close();
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
@@ -244,8 +243,8 @@ export const doArSign = (msg: string) => {
       }
 
       const data = new TextEncoder().encode(msg);
-      const signature = await window.arweaveWallet.signMessage(data);
-      const isValidSignature = await window.arweaveWallet.verifyMessage(data, signature);
+      const signature = await (window.arweaveWallet as any).signMessage(data);
+      const isValidSignature = await (window.arweaveWallet as any).verifyMessage(data, signature);
       return isValidSignature;
     } catch (e) {
       return false;
@@ -411,7 +410,7 @@ export const doArTip = (
           Owner: senderAddress,
           // test/fix
           signer: createDataItemSigner(window.arweaveWallet),
-        });
+        } as any);
       }
 
       if (!transactionId) {
@@ -526,6 +525,7 @@ export const sendWinstons = async (
     status: number;
     statusText: string;
     data: any;
+    transactionId?: string;
   };
 
   try {

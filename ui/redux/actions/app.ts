@@ -23,6 +23,17 @@ import { doClearPublish } from 'redux/actions/publish';
 import { Lbryio } from 'lbryinc';
 import { doToast, doError, doNotificationList } from 'redux/actions/notifications';
 import pushNotifications from '$web/src/push-notifications';
+
+type PushNotifications = {
+  supported: boolean;
+  subscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
+  unsubscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
+  subscribed: (userId: number) => Promise<boolean>;
+  reconnect: (userId: number) => Promise<boolean>;
+  disconnect: (userId: number) => Promise<boolean>;
+  validate: (userId: number) => Promise<void>;
+};
+const pushNotifs = pushNotifications as unknown as PushNotifications;
 import Native from 'native';
 import {
   doFetchDaemonSettings,
@@ -48,7 +59,7 @@ import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/setti
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
-const p = { version: '0.0.0' }; // Version from package.json
+const p: { version: string; lbrySettings?: any } = { version: '0.0.0' }; // Version from package.json
 import { doMembershipMine } from 'redux/actions/memberships';
 import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
@@ -366,10 +377,10 @@ export function doDaemonReady() {
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
     const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
     dispatch(
-      doAuthenticate(
+      (doAuthenticate as Function)(
         appVersion,
         shareUsageData,
-        (status) => {
+        (status: any) => {
           const trendingAlgorithm =
             status &&
             status.wallet &&
@@ -388,7 +399,7 @@ export function doDaemonReady() {
     });
     // @if TARGET='app'
     dispatch(doBalanceSubscribe());
-    dispatch(doSetAutoLaunch());
+    dispatch(doSetAutoLaunch(undefined));
     dispatch(doFindFFmpeg());
     dispatch(doGetDaemonStatus());
     dispatch(doFetchDaemonSettings());
@@ -415,7 +426,7 @@ export function doClearCache() {
 export function doQuit() {
   return () => {
     // @if TARGET='app'
-    remote.app.quit(); // @endif
+    (remote.app as any).quit(); // @endif
   };
 }
 export function doQuitAnyDaemon() {
@@ -475,7 +486,7 @@ export function doAnalyticsViewForUri(uri: string) {
     const { txid, nout, claim_id: claimId } = claim;
     const claimIsMine = selectClaimIsMineForUri(state, uri);
     const isUnlistedOrScheduled =
-      getClaimScheduledState(claim) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
+      (getClaimScheduledState(claim) as any) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
     const isGlobalMod = Boolean(selectUser(state)?.global_mod);
     const outpoint = `${txid}:${nout}`;
 
@@ -485,7 +496,7 @@ export function doAnalyticsViewForUri(uri: string) {
 
     const position = selectContentPositionForUri(state, uri);
 
-    return analytics.apiLog.view(uri, outpoint, claimId, position);
+    return analytics.apiLog.view(uri, outpoint, claimId, position, undefined);
   };
 }
 
@@ -500,7 +511,7 @@ export function doSyncLastPosition(uri: string, position: number) {
     if (claimIsMine) return;
 
     const outpoint = `${txid}:${nout}`;
-    analytics.apiLog.view(uri, outpoint, claimId, position);
+    analytics.apiLog.view(uri, outpoint, claimId, position, undefined);
   };
 }
 export function doAnalyticsBuffer(uri: string, bufferData: any) {
@@ -512,13 +523,13 @@ export function doAnalyticsBuffer(uri: string, bufferData: any) {
     const {
       value: { video, audio, source },
     } = claim;
-    const timeAtBuffer = isLivestream ? 0 : parseInt(bufferData.currentTime * 1000);
-    const bufferDuration = parseInt(bufferData.secondsToLoad * 1000);
+    const timeAtBuffer = isLivestream ? 0 : parseInt(String(bufferData.currentTime * 1000));
+    const bufferDuration = parseInt(String(bufferData.secondsToLoad * 1000));
     const fileDurationInSeconds = isLivestream ? 0 : (video && video.duration) || (audio && audio.duration);
     const fileSize = isLivestream ? 0 : source.size; // size in bytes
 
-    const fileSizeInBits = isLivestream ? '0' : fileSize * 8;
-    const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(fileSizeInBits / fileDurationInSeconds);
+    const fileSizeInBits: number = isLivestream ? 0 : (fileSize as number) * 8;
+    const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(String(fileSizeInBits / fileDurationInSeconds));
     const userId = user && user.id.toString();
 
     // if there's a logged in user, send buffer event data to watchman
@@ -551,14 +562,14 @@ export function doSignIn() {
     const state = getState();
     const user = selectUser(state);
 
-    if (pushNotifications.supported && user) {
-      pushNotifications.reconnect(user.id);
-      pushNotifications.validate(user.id);
+    if (pushNotifs.supported && user) {
+      pushNotifs.reconnect(user.id);
+      pushNotifs.validate(user.id);
     }
 
     dispatch(doNotificationSocketConnect(true));
     dispatch(doNotificationList(null, false));
-    dispatch(doCheckPendingClaims());
+    dispatch(doCheckPendingClaims(() => {}));
     dispatch(doBalanceSubscribe());
     dispatch(doFetchChannelListMine());
     dispatch(doFetchCollectionListMine());
@@ -577,13 +588,13 @@ function clearBeforeUnloadListeners() {
 }
 
 function doSignOutAction() {
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const user = selectUser(state);
 
     try {
-      if (pushNotifications.supported && user) {
-        await pushNotifications.disconnect(user.id);
+      if (pushNotifs.supported && user) {
+        await pushNotifs.disconnect(user.id);
       }
     } finally {
       LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
@@ -639,7 +650,7 @@ export function doToggle3PAnalytics(allowParam: any, doNotDispatch: any) {
     const state = getState();
     const allowState = selectAllowAnalytics(state);
     const allow = allowParam !== undefined && allowParam !== null ? allowParam : allowState;
-    analytics.toggleThirdParty(allow);
+    (analytics as any).toggleThirdParty(allow);
 
     if (!doNotDispatch) {
       return dispatch({
@@ -682,7 +693,7 @@ export function doGetAndPopulatePreferences(syncId?: number) {
             if (SDK_SYNC_KEYS.includes(key)) {
               if (shouldSetSetting(key, val, daemonSettings[key])) {
                 if (key === DAEMON_SETTINGS.LBRYUM_SERVERS) {
-                  const servers = stringifyServerParam(val);
+                  const servers = stringifyServerParam(val as [string, string][]);
                   dispatch(doSetDaemonSetting(key, servers, true));
                 } else {
                   dispatch(doSetDaemonSetting(key, val, true));
@@ -741,7 +752,7 @@ export function doToggleSplashAnimation() {
     type: ACTIONS.TOGGLE_SPLASH_ANIMATION,
   };
 }
-export function doSetActiveChannel(claimId: ClaimId, override: boolean) {
+export function doSetActiveChannel(claimId: ClaimId, override?: boolean) {
   return (dispatch: Dispatch, getState: GetState) => {
     if (claimId || override) {
       return dispatch({

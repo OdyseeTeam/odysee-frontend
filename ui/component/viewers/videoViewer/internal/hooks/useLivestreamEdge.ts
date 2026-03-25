@@ -1,11 +1,10 @@
-
 import { useEffect, useRef } from 'react';
 import Player from '../player';
 
 const LIVE_SYNC_DURATION = 4;
 const LIVE_EDGE_THRESHOLD = LIVE_SYNC_DURATION + 10;
 
-export default function useLivestreamEdge(isLivestream) {
+export default function useLivestreamEdge(isLivestream: boolean) {
   const media = Player.useMedia();
   const seekingRef = useRef(true);
 
@@ -15,7 +14,7 @@ export default function useLivestreamEdge(isLivestream) {
     seekingRef.current = true;
 
     const getLiveSyncPosition = () => {
-      const hls = media._hls;
+      const hls = (media as any)._hls;
       if (hls && hls.liveSyncPosition != null) {
         return hls.liveSyncPosition;
       }
@@ -45,8 +44,8 @@ export default function useLivestreamEdge(isLivestream) {
       }
     };
 
-    const hls = media._hls;
-    let hlsHandler = null;
+    const hls = (media as any)._hls;
+    let hlsHandler: (() => void) | null = null;
 
     if (hls) {
       hlsHandler = () => {

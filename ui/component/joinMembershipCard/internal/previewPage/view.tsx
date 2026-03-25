@@ -35,7 +35,7 @@ type Props = {
   selectedCreatorMembership: CreatorMembership;
   selectedMembershipIndex: number;
   unlockableTierIds: Array<number>;
-  userHasACreatorMembership: boolean;
+  userHasACreatorMembership?: boolean;
   membersOnly?: boolean;
   isLivestream: boolean | null | undefined;
   setMembershipIndex: (index: number) => void;

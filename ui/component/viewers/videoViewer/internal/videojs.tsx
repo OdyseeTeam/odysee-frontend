@@ -30,7 +30,9 @@ import Button from 'component/button';
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
 
-function VideoJsInner(props) {
+type MediaWithHls = HTMLMediaElement & { _hls?: Hls };
+
+function VideoJsInner(props: any) {
   const {
     claimId,
     title,
@@ -85,7 +87,7 @@ function VideoJsInner(props) {
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
   const readyCalledRef = useRef(false);
-  const [reload, setReload] = useState('initial');
+  const [reload, setReload] = useState<string | number>('initial');
 
   const isLivestream = isLivestreamClaim && userClaimId;
 
@@ -119,7 +121,7 @@ function VideoJsInner(props) {
     useCallback(() => setReload(Date.now()), []),
     15000
   );
-  useErrorRecovery(resolvedSource?.src, setReload, setTapToRetryVisible);
+  useErrorRecovery(resolvedSource?.src, setReload as (val: number | string) => void, setTapToRetryVisible);
   useLivestreamEdge(Boolean(isLivestream));
   useMediaSession(claimValues, channelTitle);
   useKeyboardShortcuts({
@@ -249,11 +251,11 @@ function VideoJsInner(props) {
 
     if (!isHls) {
       let recovered = false;
-      hls.on('hlsManifestParsed', () => { recovered = true; });
-      hls.on('hlsError', (_, data) => {
+      hls.on('hlsManifestParsed' as any, () => { recovered = true; });
+      hls.on('hlsError' as any, (_: any, data: any) => {
         if (!recovered && data.fatal) {
           hls.destroy();
-          delete media._hls;
+          delete (media as MediaWithHls)._hls;
           media.src = src;
         }
       });
@@ -261,11 +263,11 @@ function VideoJsInner(props) {
 
     hls.attachMedia(media);
     hls.loadSource(src);
-    media._hls = hls;
+    (media as MediaWithHls)._hls = hls;
 
     return () => {
       hls.destroy();
-      delete media._hls;
+      delete (media as MediaWithHls)._hls;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
@@ -298,7 +300,7 @@ function VideoJsInner(props) {
       }
     };
 
-    const hls = media._hls;
+    const hls = (media as MediaWithHls)._hls;
     if (hls) {
       const onReady = () => {
         hls.off(Hls.Events.MANIFEST_PARSED, onReady);
@@ -482,7 +484,7 @@ function VideoJsInner(props) {
   );
 }
 
-export default React.memo(function VideoJs(props) {
+export default React.memo(function VideoJs(props: any) {
   return (
     <Player.Provider>
       <VideoJsInner {...props} />

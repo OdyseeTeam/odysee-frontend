@@ -17,7 +17,7 @@ export const makeSelectPendingAmountByUri = (uri) =>
   createSelector(selectClaimIdsByUri, selectPendingSupportTransactions, (claimIdsByUri, pendingSupports) => {
     const uriEntry = Object.entries(claimIdsByUri).find(([u, cid]) => u === uri);
     const claimId = uriEntry && uriEntry[1];
-    const pendingSupport = claimId && pendingSupports[claimId];
+    const pendingSupport = claimId && pendingSupports[claimId as string];
     return pendingSupport ? pendingSupport.effective : undefined;
   });
 export const selectWalletEncryptResult = (state) => selectState(state).walletEncryptResult;
@@ -40,7 +40,7 @@ export const selectTransactionsById = createSelector(selectState, (state) => sta
 export const selectSupportsByOutpoint = createSelector(selectState, (state) => state.supports || EMPTY_OBJECT);
 export const selectTotalSupports = createSelector(selectSupportsByOutpoint, (byOutpoint) => {
   let total = parseFloat('0.0');
-  Object.values(byOutpoint).forEach((support) => {
+  Object.values(byOutpoint).forEach((support: any) => {
     const { amount } = support;
     total = amount ? total + parseFloat(amount) : total;
   });

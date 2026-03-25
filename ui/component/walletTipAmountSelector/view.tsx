@@ -26,6 +26,9 @@ type Props = {
   isComment?: boolean;
   onChange: (arg0: number) => void;
   setTipError: (arg0: any) => void;
+  setDisableSubmitButton?: (arg0: any) => void;
+  modalProps?: any;
+  exchangeRateOverride?: any;
 };
 
 const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
@@ -82,8 +85,8 @@ function WalletTipAmountSelector(props: Props) {
   }
 
   // parse number as float and sets it in the parent component
-  function handleCustomPriceChange(amount: number) {
-    const tipAmountValue = parseFloat(amount);
+  function handleCustomPriceChange(amount: number | string) {
+    const tipAmountValue = parseFloat(String(amount));
     onChange(tipAmountValue);
   }
 
@@ -147,7 +150,7 @@ function WalletTipAmountSelector(props: Props) {
   }, [activeTab, amount, arBalance, customTipAmount, exchangeRate, setTipError]);
   if (!claim) return null;
 
-  const getHelpMessage = (helpMessage: any, customClassName) => (
+  const getHelpMessage = (helpMessage: any, customClassName?: string) => (
     <div className={classnames('help', customClassName)}>{helpMessage}</div>
   );
 
@@ -206,7 +209,7 @@ function WalletTipAmountSelector(props: Props) {
             id="tip-input"
             disabled={!customTipAmount && shouldDisableAmountSelector(0)}
             error={tipError}
-            min="0"
+            min={0}
             step="any"
             type="number"
             className={activeTab === 'TabUSD' ? 'usd-tip' : ''}

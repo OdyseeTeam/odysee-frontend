@@ -63,11 +63,11 @@ export default function FeaturedChannelsEdit(props: Props) {
 
     if (isEditing) {
       // --- EDIT ---
-      // $FlowIgnore²
+
       const index = fc ? entries.findIndex((x) => x.id === fc.id) : -1;
 
       if (index > -1) {
-        // $FlowIgnore²
+  
         const newFc: FeaturedChannelsSection = { ...fc, value: { ...fc.value, title: name, uris: uris } };
         entries.splice(index, 1, newFc);
       } else {
@@ -87,7 +87,6 @@ export default function FeaturedChannelsEdit(props: Props) {
     }
 
     const newSections = { ...sections, entries };
-    // $FlowIgnore²
     dispatch(
       doUpdateCreatorSettings(channelClaim, {
         channel_sections: newSections,

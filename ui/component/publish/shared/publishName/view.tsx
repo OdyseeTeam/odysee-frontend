@@ -27,14 +27,14 @@ function PublishName(props: Props) {
   const publishFormName = useAppSelector((state) => selectPublishFormValue(state, 'name'));
   const uri = useAppSelector((state) => selectPublishFormValue(state, 'uri'));
   const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
-  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
-  const myClaimForUriCaseInsensitive = useAppSelector((state) => selectMyClaimForUri(state, false));
+  const myClaimForUri = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
+  const myClaimForUriCaseInsensitive = useAppSelector((state) => (selectMyClaimForUri as any)(state, false));
   const currentUploads = useAppSelector((state) => selectCurrentUploads(state));
   const activeChannelClaim = useAppSelector((state) => selectActiveChannelClaim(state));
   const incognito = useAppSelector((state) => selectIncognito(state));
   const amountNeededForTakeover = useAppSelector((state) => selectTakeOverAmount(state));
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
-  const prepareEdit = (claim: {}, editUri: string) => dispatch(doPrepareEdit(claim, editUri));
+  const prepareEdit = (claim: {}, editUri: string) => dispatch(doPrepareEdit(claim as any, editUri, ''));
   const [name, setName] = useState(publishFormName);
   const nameThrottled = useThrottle(name, 750);
   const [nameError, setNameError] = useState(undefined);

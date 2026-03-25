@@ -22,9 +22,9 @@ export default function NotificationBubble(props: Props) {
 
   if (favicon) {
     if (unseenCount > 0) {
-      favicon.href = FAVICON_NOTIFICATION;
+      (favicon as HTMLLinkElement).href = FAVICON_NOTIFICATION;
     } else {
-      favicon.href = FAVICON;
+      (favicon as HTMLLinkElement).href = FAVICON;
     }
   }
 

@@ -29,8 +29,24 @@ import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 
+type ChatCommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name?: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  removed: boolean;
+  support_amount: number;
+  timestamp: number;
+  [key: string]: any;
+};
+
 type Props = {
-  comment: Comment;
+  comment: ChatCommentData;
   forceUpdate?: any;
   uri: string;
   isMobile?: boolean;
@@ -40,7 +56,7 @@ type Props = {
   handleDismissPin?: () => void;
   hidePinLabel?: boolean;
 };
-export const ChatCommentContext = React.createContext<any>();
+export const ChatCommentContext = React.createContext<any>(undefined);
 export default function ChatComment(props: Props) {
   const {
     comment,
@@ -77,7 +93,7 @@ export default function ChatComment(props: Props) {
   const creatorMembership = useAppSelector((state) =>
     selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channelId)
   );
-  const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
+  const isSprout = channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
   const [exchangeRate, setExchangeRate] = React.useState(0);
   React.useEffect(() => {
     if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
@@ -153,12 +169,15 @@ export default function ChatComment(props: Props) {
                     commentId={commentId}
                     authorUri={authorUri}
                     commentIsMine={commentIsMine}
+                    channelIsMine={false}
+                    isUserLabel={false}
                     isPinned={isPinned}
                     isTopLevel
                     disableEdit
                     disableRemove={comment.removed}
                     isLiveComment
                     handleDismissPin={handleDismissPin}
+                    handleEditComment={() => {}}
                     setQuickReply={handleCommentClick}
                   />
                 </Menu>
@@ -241,12 +260,15 @@ export default function ChatComment(props: Props) {
                 commentId={commentId}
                 authorUri={authorUri}
                 commentIsMine={commentIsMine}
+                channelIsMine={false}
+                isUserLabel={false}
                 isPinned={isPinned}
                 isTopLevel
                 disableEdit
                 disableRemove={comment.removed}
                 isLiveComment
                 handleDismissPin={handleDismissPin}
+                handleEditComment={() => {}}
                 setQuickReply={handleCommentClick}
               />
             </Menu>
@@ -288,12 +310,15 @@ export default function ChatComment(props: Props) {
             commentId={commentId}
             authorUri={authorUri}
             commentIsMine={commentIsMine}
+            channelIsMine={false}
+            isUserLabel={false}
             isPinned={isPinned}
             isTopLevel
             disableEdit
             disableRemove={comment.removed}
             isLiveComment
             handleDismissPin={handleDismissPin}
+            handleEditComment={() => {}}
             setQuickReply={handleCommentClick}
           />
         </Menu>

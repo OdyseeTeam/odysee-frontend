@@ -10,7 +10,8 @@ import { doResolveUri } from 'redux/actions/claims';
 
 type Props = {
   title?: string;
-  claimUri: string;
+  claimUri?: string;
+  uri?: string;
 };
 
 const LivestreamLink = (props: Props) => {

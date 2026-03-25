@@ -135,8 +135,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
     const shouldClearPlayingUri = React.useRef(false);
-    const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
-    const [clickProps, setClickProps] = React.useState();
+    const [currentStreamingUri, setCurrentStreamingUri] = React.useState<string | undefined>();
+    const [clickProps, setClickProps] = React.useState<{ href?: string; onClick?: () => void } | undefined>();
     const currentLocation = location || {
       pathname: typeof window !== 'undefined' ? window.location.pathname : '',
       search: typeof window !== 'undefined' ? window.location.search : '',
@@ -151,7 +151,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       href = `${currentLocation.pathname || ''}${currentLocation.search || ''}`,
       state: locationState,
       pathname = '',
-    } = currentLocation;
+    } = currentLocation as { search: string; href?: string; state: any; pathname?: string };
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
     const urlParams = search ? new URLSearchParams(search) : null;
@@ -168,10 +168,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     if (urlParams && urlParams.get('signature') && urlParams.get('signature_ts')) {
       uriAccessKey = {
+        key: 'signature',
+        value: urlParams.get('signature') || '',
         signature: urlParams.get('signature') || '',
         signature_ts: urlParams.get('signature_ts') || '',
       };
-      fileGetOptions.uriAccessKey = uriAccessKey;
+      (fileGetOptions as any).uriAccessKey = uriAccessKey;
     }
 
     // check if there is a time or autoplay parameter, if so force autoplay
@@ -216,7 +218,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         dispatch(
           doMembershipList({
             channel_claim_id: channelClaimId,
-          })
+          }, undefined)
         );
       }
     }, [channelClaimId, channelName, dispatch]);
@@ -371,7 +373,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           transparent
           isShortsContext={isShortsContext}
           isFloatingContext={isFloatingContext}
-          {...clickProps}
+          {...(clickProps || {})}
         >
           {pendingFiatPayment || sdkFeePending ? (
             <>

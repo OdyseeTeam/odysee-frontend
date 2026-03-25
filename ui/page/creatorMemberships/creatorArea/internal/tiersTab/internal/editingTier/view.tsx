@@ -14,11 +14,11 @@ import {
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
 
-const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
+const getIsInputEmpty = (value: string) => !value || value.length <= 2 || !/\S/.test(value);
 
-const MIN_PRICE = '0.01'; // TODO: make this a decimal like 0.10
+const MIN_PRICE = 0.01; // TODO: make this a decimal like 0.10
 
-const MAX_PRICE = '1000';
+const MAX_PRICE = 1000;
 type Props = {
   membership: CreatorMembership;
   hasSubscribers: boolean | null | undefined;
@@ -43,13 +43,13 @@ function MembershipEditTier(props: Props) {
   const isMobile = useIsMobile();
   const roughHeaderHeight = (isMobile ? 56 : 60) + 10; // @see: --header-height
 
-  const nameRef = React.useRef();
-  const contributionRef = React.useRef();
+  const nameRef = React.useRef<any>(null);
+  const contributionRef = React.useRef<any>(null);
   // no guarantee MEMBERSHIP_CONSTS._PERKS is the same as api get perks result. this is dumb.
-  const defaultPerkIds = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
-  const currentPerkIds = membership.perks.map((perk) => perk.id);
-  const editablePerkIds = [...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS];
-  const perksIdsShownInEditForm = Array.from(new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS]));
+  const defaultPerkIds: Array<number | string> = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
+  const currentPerkIds: Array<number | string> = membership.perks.map((perk) => perk.id);
+  const editablePerkIds: Array<number | string> = [...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS];
+  const perksIdsShownInEditForm: Array<number | string> = Array.from(new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS]));
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
@@ -65,13 +65,13 @@ function MembershipEditTier(props: Props) {
     editTierFrequency: initialState.current.frequency,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
+  const [selectedPerkIds, setSelectedPerkIds] = React.useState<Array<number | string>>(initialState.current.perks);
   const [saveError, setSaveError] = React.useState('');
   console.log('selectedPerkIds', selectedPerkIds);
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
-  const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
-  const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > parseFloat(MAX_PRICE);
+  const priceLowerThanMin = Number(editTierParams.editTierPrice) < MIN_PRICE;
+  const priceHigherThanMax = Number(editTierParams.editTierPrice) > MAX_PRICE;
   const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
 
   /**
@@ -126,6 +126,8 @@ function MembershipEditTier(props: Props) {
 
             const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
             const newMembershipObj: CreatorMembership = {
+              id: responseOrError.id || '',
+              channel_id: activeChannelClaim.claim_id,
               name: editTierParams.editTierName,
               description: editTierParams.editTierDescription,
               has_subscribers: false,
@@ -147,7 +149,8 @@ function MembershipEditTier(props: Props) {
             // force update for list
             doMembershipList(
               {
-                channel_claim_id: activeChannelClaim.claim_id,
+                channel_id: activeChannelClaim.claim_id,
+                channel_name: activeChannelClaim.name,
               },
               true
             );
@@ -155,7 +158,8 @@ function MembershipEditTier(props: Props) {
           .catch(() => setIsSubmitting(false));
       } else {
         // is edit
-        const params = {
+        const params: MembershipUpdateTierParams = {
+          id: membership.id,
           new_name: editTierParams.editTierName,
           new_description: editTierParams.editTierDescription,
           new_amount: price,
@@ -174,6 +178,8 @@ function MembershipEditTier(props: Props) {
 
             const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
             const newMembershipObj: CreatorMembership = {
+              id: membership.id,
+              channel_id: activeChannelClaim.claim_id,
               membership_id: membership.membership_id,
               name: editTierParams.editTierName,
               description: editTierParams.editTierDescription,
@@ -197,7 +203,8 @@ function MembershipEditTier(props: Props) {
             // force update for list
             doMembershipList(
               {
-                channel_claim_id: activeChannelClaim.claim_id,
+                channel_id: activeChannelClaim.claim_id,
+                channel_name: activeChannelClaim.name,
               },
               true
             );
@@ -208,7 +215,7 @@ function MembershipEditTier(props: Props) {
   }
 
   const editTierWrapperRef = React.useCallback(
-    (node) => {
+    (node: HTMLDivElement | null) => {
       if (node) {
         const y = node.getBoundingClientRect().top + window.pageYOffset - roughHeaderHeight;
         window.scrollTo({
@@ -223,7 +230,7 @@ function MembershipEditTier(props: Props) {
     <div className="membership-tier__wrapper-edit" ref={editTierWrapperRef}>
       <FormField
         ref={nameRef}
-        max="30"
+        max={30}
         type="text"
         name="tier_name"
         label={__('Tier Name')}
@@ -237,8 +244,8 @@ function MembershipEditTier(props: Props) {
 
       <FormField
         type="textarea"
-        max="2000"
-        lines="3"
+        max={2000}
+        lines={3}
         name="tier_description"
         label={__('Tier Description')}
         placeholder={__('Description of your tier')}

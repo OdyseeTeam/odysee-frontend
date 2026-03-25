@@ -6,8 +6,8 @@ type Props = {
 };
 export default function YoutubeBadge(props: Props) {
   const { channelClaimId } = props;
-  const [isVerified, setIsVerified] = React.useState();
-  const [lastYtSyncDate, setLastYtSyncDate] = React.useState();
+  const [isVerified, setIsVerified] = React.useState<boolean>();
+  const [lastYtSyncDate, setLastYtSyncDate] = React.useState<string>();
   React.useEffect(() => {
     if (channelClaimId) {
       Lbryio.call('yt', 'get_youtuber', {

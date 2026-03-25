@@ -73,8 +73,8 @@ const FloatingShortsActions = ({
   const doReactionDislike = (uriArg: string) => dispatch(doReactionDislikeAction(uriArg));
   const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShort());
   const doSetShortsSidePanel = (isOpen: boolean) => dispatch(doSetShortsSidePanelAction(isOpen));
-  const doChannelSubscribe = (sub: {}) => dispatch(doChannelSubscribeAction(sub));
-  const doChannelUnsubscribe = (sub: {}) => dispatch(doChannelUnsubscribeAction(sub));
+  const doChannelSubscribe = (sub: any) => dispatch(doChannelSubscribeAction(sub));
+  const doChannelUnsubscribe = (sub: any) => dispatch(doChannelUnsubscribeAction(sub));
   const [optimisticReaction, setOptimisticReaction] = React.useState(undefined);
   const [fireButtonGlow, setFireButtonGlow] = React.useState(false);
   const fireButtonGlowTimeout = React.useRef(null);

@@ -136,7 +136,7 @@ export const doGetSyncDesktop =
     const setSyncPending = selectSetSyncIsPending(state);
     const syncLocked = selectSyncIsLocked(state);
     return getSavedPassword().then((savedPassword) => {
-      const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
+      const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : String(savedPassword);
 
       if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
         return dispatch(doGetSync(passwordArgument, cb));
@@ -168,7 +168,7 @@ export function doSyncLoop(noInterval?: boolean, syncId?: number) {
           const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
 
           if (syncEnabled) {
-            dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData))));
+            dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData, undefined))));
           }
         }, SYNC_INTERVAL);
       }
@@ -185,7 +185,7 @@ export function doSyncUnsubscribe() {
 export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: boolean | null | undefined) => void) {
   const password = passedPassword === null || passedPassword === undefined ? '' : passedPassword;
 
-  function handleCallback(error, hasNewData) {
+  function handleCallback(error: any, hasNewData?: boolean | null) {
     if (callback) {
       if (typeof callback !== 'function') {
         throw new Error('Second argument passed to "doGetSync" must be a function');
@@ -213,7 +213,14 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
     dispatch({
       type: ACTIONS.GET_SYNC_STARTED,
     });
-    const data = {};
+    const data: {
+      unlockFailed?: boolean;
+      lastSyncHash?: string;
+      syncHash?: string | null;
+      syncData?: any;
+      changed?: boolean;
+      hasSyncedWallet?: boolean;
+    } = {};
     return Lbry.wallet_status()
       .then((status) => {
         if (status.is_locked) {
@@ -444,8 +451,8 @@ export function doCheckSync() {
   };
 }
 export function doResetSync() {
-  return (dispatch: Dispatch): Promise<any> =>
-    new Promise((resolve) => {
+  return (dispatch: Dispatch): Promise<void> =>
+    new Promise<void>((resolve) => {
       dispatch({
         type: ACTIONS.SYNC_RESET,
       });
@@ -454,7 +461,7 @@ export function doResetSync() {
 }
 export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string, encrypt: boolean) {
   return (dispatch: Dispatch) => {
-    const data = {};
+    const data: { oldHash?: string } = {};
     return Lbry.sync_hash()
       .then((hash) =>
         Lbryio.call(

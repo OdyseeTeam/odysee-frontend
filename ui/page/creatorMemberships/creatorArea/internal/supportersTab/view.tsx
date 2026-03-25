@@ -131,7 +131,7 @@ const SupportersTab = (props: Props) => {
                     <table className="table">
                       <thead>
                         <tr>
-                          <th className="channelName-header" colSpan="2">
+                          <th className="channelName-header" colSpan={2}>
                             {__('Channel Name')}
                           </th>
                           <th>{__('Tier')}</th>

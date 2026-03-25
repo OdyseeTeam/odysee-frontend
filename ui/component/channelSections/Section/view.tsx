@@ -17,8 +17,8 @@ import { selectClaimIsMineForId } from 'redux/selectors/claims';
 import './style.scss';
 
 type Props = {
-  id: string;
-  title: string;
+  id?: string;
+  title?: string;
   uris: Array<string>;
   channelId: ClaimId;
 };

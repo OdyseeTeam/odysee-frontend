@@ -86,7 +86,7 @@ export function getTimeAgoStr(
   suffixList.some((s) => {
     // moment() is very liberal with it's rounding.
     // Always round down dates for better youtube parity.
-    duration = Math.floor(moment().diff(date, s));
+    duration = Math.floor(moment().diff(date, s as any));
     suffix = s;
     return duration > 0 || (showFutureDate && duration * -1 > 0);
   });

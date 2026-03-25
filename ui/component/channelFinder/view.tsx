@@ -26,7 +26,7 @@ type Props = {
       from?: number;
     }
   ) => void;
-  label?: Node;
+  label?: React.ReactNode;
   placeholder?: string;
 };
 

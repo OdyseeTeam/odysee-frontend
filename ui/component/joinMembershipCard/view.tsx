@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import { Form } from 'component/common/form';
 import { useNavigate } from 'react-router-dom';
@@ -33,10 +32,10 @@ import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import './style.scss';
 
 type Props = {
-  uri: string;
+  uri?: string;
   fileUri?: string;
-  doHideModal: () => void;
-  membershipIndex: number;
+  doHideModal?: () => void;
+  membershipIndex?: number;
   passedTierIndex?: number;
   shouldNavigate?: boolean;
   membersOnly?: boolean;

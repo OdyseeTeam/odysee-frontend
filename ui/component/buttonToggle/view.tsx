@@ -1,9 +1,9 @@
 import React from 'react';
 import './style.scss';
 type Props = {
-  busy: boolean | null | undefined;
+  busy?: boolean | null | undefined;
   status: boolean;
-  setStatus: () => void;
+  setStatus?: () => void;
 };
 
 function ButtonToggle(props: Props) {

@@ -111,8 +111,8 @@ function SyncEnableFlow(props: Props) {
       dispatch(doCheckSync());
 
       if (mode === ENABLE_MODE) {
-        getSavedPassword().then((pw) => {
-          setPassword(pw);
+        getSavedPassword().then((pw: unknown) => {
+          setPassword(pw as string);
           setStep(FETCH_FOR_ENABLE);
         });
       } else {

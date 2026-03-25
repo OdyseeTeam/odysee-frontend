@@ -83,8 +83,25 @@ const CommentCreate = lazyImport(
 );
 // ****************************************************************************
 // ****************************************************************************
+type CommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  support_amount: number;
+  replies: number;
+  timestamp: number;
+  signing_ts: string;
+  [key: string]: any;
+};
+
 export type Props = {
-  comment: Comment;
+  comment: CommentData;
   uri?: string;
   forceDisplayDeadComment?: boolean;
   linkedCommentId?: string;
@@ -124,7 +141,7 @@ function CommentView(props: Props) {
   } = props;
 
   const dispatch = useAppDispatch();
-  const { comment_id: commentId, channel_url: channelUrl, channel_id: channelId } = comment || {};
+  const { comment_id: commentId, channel_url: channelUrl, channel_id: channelId } = comment || ({} as Partial<CommentData>);
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
@@ -144,9 +161,9 @@ function CommentView(props: Props) {
   const creatorMembership =
     useAppSelector((state) => selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channelId)) || '';
   const repliesFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, commentId));
-  const fetchedReplies = useAppSelector((state) => selectRepliesForParentId(state, commentId));
+  const fetchedReplies = useAppSelector((state) => (selectRepliesForParentId as any)(state, commentId)) as Array<CommentData>;
   const authorTitle = useAppSelector((state) => (channelUrl ? selectTitleForUri(state, channelUrl) : null));
-  const commentElemRef = React.useRef();
+  const commentElemRef = React.useRef<HTMLDivElement>(null);
   const {
     channel_url: authorUri,
     channel_name: author,
@@ -201,7 +218,7 @@ function CommentView(props: Props) {
   const slimedToDeath =
     !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
-  const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
+  const isSprout = channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
   let channelOwnerOfContent;
 
   try {
@@ -243,7 +260,7 @@ function CommentView(props: Props) {
 
     BeforeUnload.register(handleRefresh, 'Editing message');
     return () => {
-      BeforeUnload.unregister(handleRefresh, 'Editing message');
+      BeforeUnload.unregister(handleRefresh);
     };
   }, [isEditing]);
   useEffect(() => {
@@ -258,7 +275,7 @@ function CommentView(props: Props) {
 
   function handleEditComment(isEditing: boolean) {
     if (playingUri.source === 'comment' && commentElemRef.current) {
-      const claimLink = commentElemRef.current.querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
+      const claimLink = (commentElemRef.current as HTMLDivElement).querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
 
       if (isEditing && playingUri.sourceId === claimLink?.id) {
         dispatch(doClearPlayingUri());
@@ -310,8 +327,8 @@ function CommentView(props: Props) {
 
   const handleShowMore = React.useCallback(() => setPage((prev) => prev + 1), []);
   const linkedCommentRef = React.useCallback(
-    (node) => {
-      if (node) commentElemRef.current = node;
+    (node: HTMLDivElement | null) => {
+      if (node) (commentElemRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
 
       if (node !== null && window.pendingLinkedCommentScroll) {
         delete window.pendingLinkedCommentScroll;
@@ -320,7 +337,7 @@ function CommentView(props: Props) {
 
         if (elem) {
           elem.scrollTo({
-            top: node.getBoundingClientRect().top + (mobileChatElem ? 0 : elem.scrollY) - ROUGH_HEADER_HEIGHT,
+            top: node.getBoundingClientRect().top + (mobileChatElem ? 0 : (elem as Window).scrollY) - ROUGH_HEADER_HEIGHT,
             left: 0,
             behavior: 'smooth',
           });
@@ -351,9 +368,9 @@ function CommentView(props: Props) {
     >
       <div className="comment__thumbnail-wrapper">
         {authorUri ? (
-          <ChannelThumbnail uri={authorUri} xsmall className="comment__author-thumbnail" checkMembership={false} />
+          <ChannelThumbnail uri={authorUri} xsmall className="comment__author-thumbnail" />
         ) : (
-          <ChannelThumbnail xsmall className="comment__author-thumbnail" checkMembership={false} />
+          <ChannelThumbnail uri="" xsmall className="comment__author-thumbnail" />
         )}
 
         {numDirectReplies > 0 && showReplies && (
@@ -387,12 +404,14 @@ function CommentView(props: Props) {
                     uri={uri}
                     commentId={commentId}
                     authorUri={authorUri}
-                    commentIsMine={commentIsMine}
-                    isPinned={isPinned}
-                    isTopLevel={isTopLevel}
+                    commentIsMine={!!commentIsMine}
+                    isPinned={!!isPinned}
+                    isTopLevel={!!isTopLevel}
                     isUserLabel
+                    isLiveComment={false}
+                    channelIsMine={false}
                     handleEditComment={() => handleEditComment(true)}
-                    setQuickReply={setQuickReply}
+                    setQuickReply={setQuickReply as (arg0: any) => void}
                     className={classnames('comment__author', {
                       'comment__author--creator': commentByOwnerOfContent,
                     })}
@@ -408,10 +427,10 @@ function CommentView(props: Props) {
                 className="comment__time"
                 onClick={handleTimeClick}
                 label={
-                  <>
+                  (<>
                     <DateTime date={timePosted} timeAgo />
                     {commentIsEdited && <span className="comment__edited">{__('(edited)')}</span>}
-                  </>
+                  </>) as any
                 }
               />
 
@@ -436,14 +455,17 @@ function CommentView(props: Props) {
                   </MenuButton>
                   <CommentMenuList
                     uri={uri}
-                    isTopLevel={isTopLevel}
-                    isPinned={isPinned}
+                    isTopLevel={!!isTopLevel}
+                    isPinned={!!isPinned}
                     commentId={commentId}
                     authorUri={authorUri}
-                    commentIsMine={commentIsMine}
+                    commentIsMine={!!commentIsMine}
+                    channelIsMine={false}
+                    isLiveComment={false}
+                    isUserLabel={false}
                     handleEditComment={() => handleEditComment(true)}
                     supportAmount={supportAmount}
-                    setQuickReply={setQuickReply}
+                    setQuickReply={setQuickReply as (arg0: any) => void}
                   />
                 </Menu>
               </div>
@@ -486,13 +508,12 @@ function CommentView(props: Props) {
                     </div>
                   ) : stickerFromMessage ? (
                     <div className="sticker__comment">
-                      <OptimizedImage src={stickerFromMessage.url} waitLoad loading="lazy" />
+                      <OptimizedImage src={stickerFromMessage.url} waitLoad />
                     </div>
                   ) : (
                     <Expandable>
                       <MarkdownPreview
                         content={message}
-                        promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
                         hasMembership={Boolean(odyseeMembership)}
@@ -515,7 +536,9 @@ function CommentView(props: Props) {
                       icon={ICONS.REPLY}
                       iconSize={isMobile && 12}
                     />
-                    {ENABLE_COMMENT_REACTIONS && <CommentReactions uri={uri} commentId={commentId} />}
+                    {ENABLE_COMMENT_REACTIONS && (
+                      <CommentReactions uri={uri as string} commentId={commentId} hideCreatorLike={false} />
+                    )}
                   </div>
                 )}
 
@@ -565,24 +588,26 @@ function CommentView(props: Props) {
                 )}
 
                 {isReplying && (
-                  <CommentCreate
-                    isReply
-                    uri={uri}
-                    parentId={commentId}
-                    onDoneReplying={() => {
-                      if (openNewThread) {
-                        handleOpenNewThread();
-                      } else {
-                        setShowReplies(true);
-                      }
+                  <React.Suspense fallback={null}>
+                    {React.createElement(CommentCreate as any, {
+                      isReply: true,
+                      uri,
+                      parentId: commentId,
+                      onDoneReplying: () => {
+                        if (openNewThread) {
+                          handleOpenNewThread();
+                        } else {
+                          setShowReplies(true);
+                        }
 
-                      setReplying(false);
-                    }}
-                    onCancelReplying={() => {
-                      setReplying(false);
-                    }}
-                    supportDisabled={supportDisabled}
-                  />
+                        setReplying(false);
+                      },
+                      onCancelReplying: () => {
+                        setReplying(false);
+                      },
+                      supportDisabled,
+                    })}
+                  </React.Suspense>
                 )}
               </>
             )}

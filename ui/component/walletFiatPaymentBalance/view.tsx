@@ -33,7 +33,7 @@ const WalletBalance = (props: Props) => {
       }
 
       let unique = [...new Set(channelNames)];
-      setTotalCreatorsSupported(unique.length);
+      setTotalCreatorsSupported(unique.length as any);
     }
   }, [transactions]);
   return (

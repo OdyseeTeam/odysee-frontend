@@ -60,7 +60,6 @@ function getProcessingFee(transaction, currencySymbol) {
 function getTransactionTx(transaction) {
   return (
     <>
-      {/* $FlowIgnore */}
       {!transaction?.payment_intent_id?.startsWith('pi_') ? (
         <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.payment_intent_id} />
       ) : null}

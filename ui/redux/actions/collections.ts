@@ -119,35 +119,35 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
     const collection = selectCollectionForId(state, collectionId);
     const createdAtTimestamp = collection.createdAt;
-    const params: GenericPublishCreateParams = {
+    const params: Record<string, any> = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
       blocking: true,
       title: options.title,
       thumbnail_url: options.thumbnail_url,
-      tags: options.tags ? options.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [],
+      tags: options.tags ? options.tags.map((tag: any) => (typeof tag === 'string' ? tag : tag.name)) : [],
       languages: options.languages || [],
       description: options.description,
     };
-    const fullParams = {};
+    const fullParams: Record<string, any> = {};
 
     if (isPrivate) {
-      const publishParams: CollectionPublishCreateParams = {
+      const publishParams = {
         ...params,
         name: options.name,
         // -- avoid duplicates --
         claims: Array.from(new Set(options.claims)),
-      };
+      } as CollectionPublishCreateParams;
       Object.assign(fullParams, publishParams);
     } else {
-      const updateParams: CollectionPublishUpdateParams = {
+      const updateParams = {
         ...params,
         claim_id: collectionId,
         clear_claims: true,
         replace: true,
         // -- avoid duplicates --
         claims: Array.from(new Set(options.claims)),
-      };
+      } as unknown as CollectionPublishUpdateParams;
       Object.assign(fullParams, updateParams);
     }
 
@@ -181,8 +181,8 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     return new Promise((resolve, reject) => {
       const publishFn = isPrivate ? Lbry.collection_create : Lbry.collection_update;
 
-      function success(response: CollectionCreateResponse) {
-        const collectionClaim = response.outputs[0];
+      function success(response: CollectionCreateResponse & { outputs?: Array<Claim> }) {
+        const collectionClaim = response.outputs ? response.outputs[0] : response;
         const publishStartedAt = Math.floor(Date.now() / 1000);
         if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
         if (!collectionClaim?.timestamp) collectionClaim.timestamp = publishStartedAt;
@@ -215,7 +215,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
                 claims: [collectionClaim],
               },
             },
-            doCheckPendingClaims()
+            doCheckPendingClaims(() => {}) as any
           )
         );
         return resolve(collectionClaim);
@@ -446,7 +446,7 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
 const mergeBatches = (arrayOfResults: Array<any>) => {
   let resultItems = [];
   arrayOfResults.forEach((result: any) => {
-    const claims = result.items || Object.values(result).map((item) => item.stream || item);
+    const claims = result.items || Object.values(result).map((item: any) => item.stream || item);
     resultItems = resultItems.concat(claims);
   });
   return resultItems;
@@ -512,9 +512,9 @@ const doFetchCollectionItems =
 
         if (items.some((item) => failedItems.includes(item))) {
           // itemsWereFetching stays true
-        } else if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
+        } else if (batches.every((b) => b.uris.length === 0) && batches.some((b) => b.ids.length > 0) && resolvingIds.length === 0) {
           itemsWereFetching = false;
-        } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
+        } else if (batches.every((b) => b.ids.length === 0) && batches.some((b) => b.uris.length > 0) && resolvingUris.length === 0) {
           itemsWereFetching = false;
         } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
           itemsWereFetching = false;
@@ -611,9 +611,9 @@ export const doFetchItemsInCollection =
       const { value } = claim;
       const { tags } = value || {};
       const claimIds = getClaimIdsInCollectionClaim(claim) || [];
-      const valueTypes = new Set();
-      const streamTypes = new Set();
-      const newItems = new Set();
+      const valueTypes = new Set<string>();
+      const streamTypes = new Set<string>();
+      const newItems = new Set<string>();
       claimIds.forEach((claimId, index) => {
         const collectionItem = collectionItems[index];
 
@@ -663,7 +663,7 @@ export const doFetchThumbnailClaimsForCollectionIds =
       type: ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_START,
       data: collectionIdsStr,
     });
-    const allClaimIds = new Set();
+    const allClaimIds = new Set<string>();
     collectionIds.forEach((collectionId) => {
       const collection = selectCollectionForId(state, collectionId);
 
@@ -693,7 +693,7 @@ export const doSortCollectionByKey =
     // Save unresolved uris
     const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
     const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
-    const sortedClaims = resolvedClaims.toSorted((a, b) => {
+    const sortedClaims = [...resolvedClaims].sort((a, b) => {
       if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
         const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
         const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
@@ -818,7 +818,7 @@ export const doCollectionEdit =
 
     const isQueue = collectionId === COLS.QUEUE_ID;
     const title = params.title || params.name;
-    return new Promise((success) => {
+    return new Promise<void>((success) => {
       dispatch({
         // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
         type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,

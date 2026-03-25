@@ -41,7 +41,7 @@ export const apiLog: ApiLog = {
         };
         resolve(Lbryio.call('file', 'view', params));
       } else {
-        resolve();
+        resolve(undefined);
       }
     });
   },

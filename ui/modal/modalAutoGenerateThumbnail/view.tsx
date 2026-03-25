@@ -8,17 +8,17 @@ import { doUploadThumbnail } from 'redux/actions/publish';
 import { doToast } from 'redux/actions/notifications';
 
 type Props = {
-  filePath: string;
+  filePath: string | File;
 };
 
 function ModalAutoGenerateThumbnail(props: Props) {
   const { filePath } = props;
   const dispatch = useAppDispatch();
   const closeModal = () => dispatch(doHideModal());
-  const upload = (file: WebFile) => dispatch(doUploadThumbnail(null, file, null, null, 'Generated'));
-  const showToast = (options: {}) => dispatch(doToast(options));
+  const upload = (file: File) => dispatch(doUploadThumbnail(undefined, file, undefined, undefined, 'Generated'));
+  const showToast = (options: ToastParams) => dispatch(doToast(options));
 
-  const playerRef = useRef();
+  const playerRef = useRef<HTMLVideoElement>(null);
   let videoSrc;
 
   if (typeof filePath === 'string') {
@@ -53,7 +53,7 @@ function ModalAutoGenerateThumbnail(props: Props) {
     }
   }
 
-  function captureSnapshot(quality: number): Buffer | null | undefined {
+  function captureSnapshot(quality: number): BlobPart | null | undefined {
     const player = playerRef.current;
 
     if (!player) {

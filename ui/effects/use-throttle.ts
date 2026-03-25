@@ -13,9 +13,9 @@ function useUnmount(fn: () => any): void {
 
 export default function useThrottle(value: string, ms: number = 200) {
   const [state, setState] = React.useState(value);
-  const timeout = React.useRef();
-  const nextValue = React.useRef(null);
-  const hasNextValue = React.useRef(0);
+  const timeout = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const nextValue = React.useRef<string | null>(null);
+  const hasNextValue = React.useRef<boolean>(false);
   React.useEffect(() => {
     if (!timeout.current) {
       setState(value);

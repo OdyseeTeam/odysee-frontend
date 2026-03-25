@@ -1,2 +1,2 @@
 import React from 'react';
-export const LivestreamContext = React.createContext<any>();
+export const LivestreamContext = React.createContext<any>(undefined);

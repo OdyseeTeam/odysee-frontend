@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 
 /* eslint-disable react/prop-types */
+const StripeCheckout = (window as any).StripeCheckout;
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Button from 'component/button';
 import { useAppSelector } from 'redux/hooks';

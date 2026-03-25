@@ -25,7 +25,7 @@ import { doToast } from 'redux/actions/notifications';
 import { PREFERENCE_EMBED } from 'constants/tags';
 type Props = {
   uri: string;
-  shrinkOnMobile: boolean;
+  shrinkOnMobile?: boolean;
 };
 export default function SubscribeButton(props: Props) {
   const { uri, shrinkOnMobile = false } = props;
@@ -37,9 +37,9 @@ export default function SubscribeButton(props: Props) {
   const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
   const channelTitle = useAppSelector((state) => selectChannelTitleForUri(state, uri));
   const isEmbed = React.useContext(EmbedContext);
-  const buttonRef = useRef();
-  const bellRef = useRef();
-  const prevWidthRef = useRef(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const bellRef = useRef<HTMLSpanElement>(null);
+  const prevWidthRef = useRef<number | null>(null);
   const isMobile = useIsMobile();
   let isHovering = useHover(buttonRef);
   const isBellHovering = useHover(bellRef);
@@ -193,7 +193,7 @@ export default function SubscribeButton(props: Props) {
                     }
                   );
                   const btn = buttonRef.current;
-                  const group = btn ? btn.closest('.button-group') : null;
+                  const group = btn ? (btn.closest('.button-group') as HTMLElement | null) : null;
 
                   if (btn && group) {
                     group.style.position = 'relative';

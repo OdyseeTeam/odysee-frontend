@@ -240,7 +240,7 @@ export function doSetWalletSyncPreference(pref: any) {
 }
 export function doPushSettingsToPrefs() {
   return (dispatch: Dispatch) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       dispatch({
         type: ACTIONS.SYNC_CLIENT_SETTINGS,
       });
@@ -332,10 +332,10 @@ export function doFetchDevStrings() {
   };
 }
 
-function populateCategoryTitles(categories) {
+function populateCategoryTitles(categories: any) {
   if (categories) {
     window.CATEGORY_PAGE_TITLE = {};
-    Object.values(categories).forEach((x) => {
+    Object.values(categories).forEach((x: any) => {
       window.CATEGORY_PAGE_TITLE[x.name] = x.label;
     });
   }

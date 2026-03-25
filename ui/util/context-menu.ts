@@ -49,9 +49,10 @@ export function openContextMenu(
   canEdit: boolean = false,
   selection: string = ''
 ): void {
-  const { type, value } = event.target;
-  const isInput = event.target.matches('input') && (type === 'text' || type === 'number');
-  const isTextField = canEdit || isInput || event.target.matches('textarea');
+  const target = event.target as HTMLInputElement;
+  const { type, value } = target;
+  const isInput = target.matches('input') && (type === 'text' || type === 'number');
+  const isTextField = canEdit || isInput || target.matches('textarea');
   const isSomethingSelected = selection.length > 0 || window.getSelection().toString().length > 0;
   templates.push({
     label: 'Copy',
@@ -60,7 +61,7 @@ export function openContextMenu(
     enabled: isSomethingSelected,
   });
   // If context menu is opened on Input and there is text on the input and something is selected.
-  const { selectionStart, selectionEnd } = event.target;
+  const { selectionStart, selectionEnd } = target;
 
   if (!!value && isTextField && selectionStart !== selectionEnd) {
     templates.push({
@@ -89,7 +90,7 @@ export function openContextMenu(
   }
 
   injectDevelopmentTemplate(event, templates);
-  remote.Menu.buildFromTemplate(templates).popup({});
+  (remote as any).Menu.buildFromTemplate(templates).popup({});
 }
 // This function is used for the markdown description on the publish page
 export function openEditorMenu(codeMirror: CodeMirrorEditor, event: MouseEvent): void {

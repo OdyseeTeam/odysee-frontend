@@ -3,9 +3,10 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import withCreditCard from 'hocs/withCreditCard';
 type Props = {
-  pageLocation: string;
+  pageLocation?: string;
   interval: string;
   plan: string;
+  doOpenModal?: boolean;
 };
 
 const JoinButton = (props: Props) => {

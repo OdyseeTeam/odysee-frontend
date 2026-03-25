@@ -78,7 +78,7 @@ function UserSignUp() {
     [dispatch]
   );
   const claimNewUserReward = React.useCallback(
-    () => dispatch(doClaimRewardType(REWARD_TYPES.NEW_USER, { notifyError: false })),
+    () => dispatch(doClaimRewardType(REWARD_TYPES.TYPE_NEW_USER, { notifyError: false })),
     [dispatch]
   );
   const setClientSetting = React.useCallback(
@@ -91,7 +91,7 @@ function UserSignUp() {
   const redirect = urlParams.get(REDIRECT_PARAM);
   const step = urlParams.get(STEP_PARAM);
   const shouldRedirectImmediately = urlParams.get(REDIRECT_IMMEDIATELY_PARAM);
-  const [initialSignInStep, setInitialSignInStep] = React.useState();
+  const [initialSignInStep, setInitialSignInStep] = React.useState<number | undefined>();
   const hasVerifiedEmail = user && user.has_verified_email;
   const rewardsApproved = user && user.is_reward_approved;
   const isIdentityVerified = user && user.is_identity_verified;
@@ -99,7 +99,7 @@ function UserSignUp() {
   const hasFetchedReward = useFetched(claimingReward);
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const channelCount = channels ? channels.length : 0;
-  const hasClaimedEmailAward = claimedRewards.some((reward) => reward.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
+  const hasClaimedEmailAward = claimedRewards.some((reward: any) => reward.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
   const isYoutubeTransferComplete =
     hasYoutubeChannels &&

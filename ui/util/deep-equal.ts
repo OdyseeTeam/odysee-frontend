@@ -1,7 +1,7 @@
 /* eslint-disable */
 // underscore's deep equal function
 // https://github.com/jashkenas/underscore/blob/master/underscore.js#L1189
-export default function isEqual(a, b, aStack, bStack) {
+export default function isEqual(a: any, b: any, aStack?: any, bStack?: any) {
   // Identical objects are equal. `0 === -0`, but they aren't identical.
   // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
   if (a === b) return a !== 0 || 1 / a === 1 / b;
@@ -44,7 +44,7 @@ function deepEq(a, b, aStack, bStack) {
       return +a === +b;
 
     case '[object Symbol]':
-      return SymbolProto.valueOf.call(a) === SymbolProto.valueOf.call(b);
+      return Symbol.prototype.valueOf.call(a) === Symbol.prototype.valueOf.call(b);
   }
 
   var areArrays = className === '[object Array]';
@@ -121,6 +121,6 @@ function deepEq(a, b, aStack, bStack) {
 }
 
 function has(obj, path) {
-  return obj != null && hasOwnProperty.call(obj, path);
+  return obj != null && Object.prototype.hasOwnProperty.call(obj, path);
 }
 /* eslint-enable */

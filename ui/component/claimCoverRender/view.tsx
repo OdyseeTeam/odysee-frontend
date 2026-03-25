@@ -16,8 +16,8 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectFileRenderModeForUri, selectPlayingUri } from 'redux/selectors/content';
 type Props = {
   uri: string;
-  children: any;
-  passedRef: any;
+  children?: any;
+  passedRef?: any;
   href?: string;
   transparent?: boolean;
   onClick?: () => void;
@@ -26,7 +26,7 @@ type Props = {
   enableSwipe?: boolean;
   isShortsContext?: boolean;
   isFloatingContext?: boolean;
-  obscurePreview: boolean;
+  obscurePreview?: boolean;
 };
 
 const ClaimCoverRender = (props: Props) => {
@@ -63,7 +63,7 @@ const ClaimCoverRender = (props: Props) => {
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const isShorts = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam || isShortClaim;
   const shouldUseShortsCoverLayout = isShorts && !isFloatingContext;
-  const thumbnail = useGetPoster(claimThumbnail, isShorts);
+  const thumbnail = useGetPoster(claimThumbnail as string, isShorts);
   const swipeRef = useSwipeNavigation({
     onSwipeNext,
     onSwipePrevious,

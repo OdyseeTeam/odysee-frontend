@@ -19,7 +19,7 @@ const BADGE_ICONS = {
   Creator: ICONS.MEMBERSHIP,
 };
 type Props = {
-  membershipName: string;
+  membershipName?: string;
   linkPage?: boolean;
   placement?: string;
   className?: string;

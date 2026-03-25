@@ -110,25 +110,25 @@ function MenuList(props: MenuListProps) {
     <MUIRawMenu
       anchorEl={menu.anchorEl}
       open={menu.open}
-      onClose={(_, __) => handleClose(_)}
+      onClose={(_, __) => handleClose(_ as any)}
       disableScrollLock
       sx={{ zIndex: 100003 }}
       slotProps={{
         backdrop: {
-          onClick: handleClose,
+          onClick: handleClose as any,
         },
         paper: {
           className: 'menu__paper',
           'data-reach-menu-popover': '',
-          onClick: (event) => event.stopPropagation(),
-        },
+          onClick: (event: any) => event.stopPropagation(),
+        } as any,
         list: {
           className,
           onClick,
           'data-reach-menu-list': '',
           'data-reach-menu-items': '',
           role: 'menu',
-        },
+        } as any,
       }}
     >
       {flattenFragments(children)}

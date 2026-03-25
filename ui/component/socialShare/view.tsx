@@ -53,7 +53,7 @@ function withSpinner(Component: (props: any) => React.ReactElement<React.Compone
     const dispatch = useAppDispatch();
     const claim = useAppSelector((state) => selectClaimForUri(state, uri));
     const inviteStatusFetched = useAppSelector(selectUserInviteStatusFetched);
-    const [accessKey, setAccessKey] = React.useState(FETCHING_ACCESS_KEY);
+    const [accessKey, setAccessKey] = React.useState<number | UriAccessKey | null | undefined>(FETCHING_ACCESS_KEY);
     React.useEffect(() => {
       if (!inviteStatusFetched) {
         dispatch(doFetchInviteStatus(false));
@@ -129,7 +129,7 @@ function SocialShare(props: SocialShareProps) {
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<React.ReactNode> = getClaimLinkElements();
   // Tweet params
-  let tweetIntentParams = {
+  let tweetIntentParams: { url: string; text: any; hashtags: string; via?: string } = {
     url: shareUrl?.url || '',
     text: title || claim.name,
     hashtags: 'Odysee',
@@ -214,8 +214,8 @@ function SocialShare(props: SocialShareProps) {
         domain: SHARE_DOMAIN,
         lbryURI: lbryUrl,
         referralCode: rewardsApproved ? referralCode : '',
-        startTimeSeconds: includeStartTime && startTimeSeconds ? startTimeSeconds : null,
-        collectionId: collectionId && includeCollectionId ? collectionId : null,
+        startTimeSeconds: includeStartTime && startTimeSeconds ? Number(startTimeSeconds) : null,
+        collectionId: collectionId && includeCollectionId ? String(collectionId) : null,
         uriAccessKey: uriAccessKey,
         useShortUrl: Boolean(uriAccessKey), // or isUnlisted
       })

@@ -28,7 +28,7 @@ function buildUpcomingOptions(
   channelIds: Array<string>,
   isLivestream: boolean,
   limitPerChannel?: number
-) {
+): ClaimSearchOptions {
   return {
     page: 1,
     page_size: 50,
@@ -40,7 +40,7 @@ function buildUpcomingOptions(
     not_channel_ids: mutedAndBlockedIds,
     not_tags: CsOptHelper.not_tags(),
     order_by: ['^release_time'],
-    release_time: [getUpcomingReleaseTime()],
+    release_time: getUpcomingReleaseTime(),
     ...(isLivestream ? { has_no_source: true } : { has_source: true }),
     ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
   };

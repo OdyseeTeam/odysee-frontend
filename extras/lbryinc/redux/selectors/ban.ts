@@ -10,7 +10,13 @@ import { selectBlackListedData } from './blacklist';
 import { selectFilteredData } from './filtered';
 import { getChannelFromClaim } from 'util/claim';
 import { isURIEqual } from 'util/lbryURI';
-const ALL_CLEAR_STATE = Object.freeze({});
+export type BanState = {
+  blacklisted?: boolean;
+  filtered?: boolean;
+  muted?: boolean;
+  blocked?: boolean;
+};
+const ALL_CLEAR_STATE: BanState = Object.freeze({});
 export const selectBanStateForUri = createCachedSelector(
   selectClaimForUri,
   selectBlackListedData,
@@ -23,12 +29,12 @@ export const selectBanStateForUri = createCachedSelector(
     }
 
     const channelClaim = getChannelFromClaim(claim);
-    const banState = {};
+    const banState: BanState = {};
 
     // This will be replaced once blocking is done at the wallet server level.
     if (blackListedData) {
       if (
-        (channelClaim && blackListedData[channelClaim.claim_id || channelClaim.channel_id]) ||
+        (channelClaim && blackListedData[channelClaim.claim_id || (channelClaim as any).channel_id]) ||
         blackListedData[claim.claim_id]
       ) {
         banState['blacklisted'] = true;
@@ -39,7 +45,7 @@ export const selectBanStateForUri = createCachedSelector(
     // is in the filter list.
     if (filteredData) {
       if (
-        (channelClaim && filteredData[channelClaim.claim_id || channelClaim.channel_id]) ||
+        (channelClaim && filteredData[channelClaim.claim_id || (channelClaim as any).channel_id]) ||
         filteredData[claim.claim_id]
       ) {
         banState['filtered'] = true;

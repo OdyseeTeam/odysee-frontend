@@ -7,7 +7,7 @@ type StreamData = {
   s: string;
   t: string;
 };
-export function getTipValues(hyperChatsByAmount: Array<Comment>) {
+export function getTipValues(hyperChatsByAmount: Array<{ is_fiat?: boolean; support_amount?: number; channel_url?: string; [key: string]: any }>) {
   let superChatsChannelUrls = [];
   let superChatsFiatAmount = 0;
   let superChatsLBCAmount = 0;
@@ -33,16 +33,17 @@ export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   };
 }
 
-const transformLivestreamClaimData = (data: LivestreamClaimResponse): LivestreamActiveClaim => ({
+const transformLivestreamClaimData = (data: any): LivestreamActiveClaim => ({
   uri: data.CanonicalURL,
+  claimUri: data.CanonicalURL,
   claimId: data.ClaimID,
   releaseTime: data.ReleaseTime,
 });
 
 const getPreferredLivestreamVideoUrl = (livestream: any) => livestream.VideoURLLLHLS || livestream.VideoURL;
 
-export const transformNewLivestreamData = (data: LivestreamAllResponse): LivestreamInfoByCreatorIds =>
-  data.reduce((acc, curr) => {
+export const transformNewLivestreamData = (data: Array<any>): LivestreamInfoByCreatorIds =>
+  data.reduce((acc: Record<string, any>, curr: any) => {
     acc[curr.ChannelClaimID] = {
       type: 'application/x-mpegurl',
       isLive: curr.Live,

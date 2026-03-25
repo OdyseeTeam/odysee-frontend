@@ -4,6 +4,6 @@ import { FormContext } from 'component/common/form-components/form';
 export const FormErrors = () => {
   const { formErrors } = React.useContext(FormContext);
   if (!formErrors) return null;
-  return Object.values(formErrors).map((error, i) => <ErrorText key={i}>{error}</ErrorText>);
+  return Object.values(formErrors).map((error, i) => <ErrorText key={i}>{error as string}</ErrorText>);
 };
 export default FormErrors;

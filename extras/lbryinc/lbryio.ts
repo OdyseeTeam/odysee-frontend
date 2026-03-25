@@ -2,13 +2,29 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 // Use browser-native URLSearchParams instead of Node's querystring module
 import analytics from 'analytics';
-const Lbryio = {
+const Lbryio: {
+  enabled: boolean;
+  authenticationPromise: Promise<any> | null;
+  exchangePromise: Promise<any> | null;
+  exchangeLastFetched: number | null;
+  CONNECTION_STRING: string;
+  authToken: string | null;
+  overrides: Record<string, any>;
+  setLocalApi: (endpoint: string) => void;
+  call: (resource: string, action: string, params?: any, method?: string, noAuth?: boolean) => Promise<any>;
+  getAuthToken: () => Promise<string | null>;
+  getCurrentUser: () => Promise<any>;
+  authenticate: (domain?: string, language?: string) => Promise<any>;
+  getStripeToken: () => string;
+  getExchangeRates: () => Promise<any>;
+  setOverride: (methodName: string, newMethod: (...args: any[]) => any) => void;
+} = {
   enabled: true,
   authenticationPromise: null,
   exchangePromise: null,
   exchangeLastFetched: null,
   CONNECTION_STRING: 'https://api.lbry.com/',
-};
+} as any;
 const EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
 const INTERNAL_APIS_DOWN = 'internal_apis_down';
 
@@ -99,7 +115,7 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: qs,
-      };
+      } as any;
       url = `${Lbryio.CONNECTION_STRING}${resource}/${action}`;
     }
 
@@ -312,7 +328,7 @@ function sendFailedCallAnalytics(resource, action, params, error) {
       params,
     },
   };
-  analytics.log('Internal API failures', options, 'analytics'); // @endif
+  analytics.log('Internal API failures', options as any, 'analytics'); // @endif
 }
 
 export default Lbryio;

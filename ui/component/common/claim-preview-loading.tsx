@@ -3,8 +3,10 @@ import React from 'react';
 type Props = {
   isChannel?: boolean;
   type?: string;
-  WrapperElement?: string;
+  WrapperElement?: any;
   xsmall?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 };
 
 function ClaimPreviewLoading(props: Props) {

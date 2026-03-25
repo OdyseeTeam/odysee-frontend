@@ -1,4 +1,5 @@
 import React from 'react';
+import type { HomepageTitles } from 'util/buildHomepage';
 import classnames from 'classnames';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
@@ -72,6 +73,7 @@ function DiscoverPage(props: Props) {
   const claimSearchFilters = {
     contentTypes: isCategory && !isWildWest ? CATEGORY_CONTENT_TYPES_FILTER : CS.CONTENT_TYPES,
     liftUpTagSearch: true,
+    isChannelSearch: false,
   };
 
   // **************************************************************************
@@ -216,6 +218,7 @@ function DiscoverPage(props: Props) {
     >
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
+          uris={[]}
           pins={getPins(dynamicRouteProps)}
           hideFilters={isWildWest ? true : hideFilter}
           header={repostedUri ? <span /> : undefined}
@@ -225,7 +228,7 @@ function DiscoverPage(props: Props) {
           claimType={claimType ? [claimType] : undefined}
           defaultStreamType={undefined} // defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined} remove due to claim search bug with reposts
           headerLabel={getHeaderLabel()}
-          tags={tags}
+          tags={tags ? tags.join(',') : undefined}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null} // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
@@ -244,11 +247,11 @@ function DiscoverPage(props: Props) {
           meta={getMeta()}
           hasSource
           hideRepostsOverride={dynamicRouteProps ? false : undefined}
-          hideMembersOnlyContent={hideMembersOnlyContent}
+          hideMembersOnly={hideMembersOnlyContent}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           duration={dynamicRouteProps?.options?.duration}
           csOptionsHook={tagSearchCsOptionsHook}
-          sectionTitle={dynamicRouteProps?.title}
+          sectionTitle={dynamicRouteProps?.title as HomepageTitles}
         />
       </ClaimSearchFilterContext.Provider>
     </Page>

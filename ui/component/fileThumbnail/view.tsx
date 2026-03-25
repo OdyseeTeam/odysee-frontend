@@ -24,6 +24,7 @@ type Props = {
   small?: boolean;
   forceReload?: boolean;
   isShort?: boolean;
+  tileLayout?: boolean;
 };
 
 function FileThumbnail(props: Props) {
@@ -40,10 +41,10 @@ function FileThumbnail(props: Props) {
   } = props;
 
   const hasResolvedClaim = useAppSelector((state) => (uri ? selectHasResolvedClaimForUri(state, uri) : undefined));
-  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri)) as string | null | undefined;
   const thumbnailFromSecondaryClaim = useAppSelector((state) =>
     secondaryUri ? selectThumbnailForUri(state, secondaryUri) : undefined
-  );
+  ) as string | null | undefined;
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const thumbnail =

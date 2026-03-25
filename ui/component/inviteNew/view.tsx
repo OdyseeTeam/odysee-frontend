@@ -16,8 +16,8 @@ import {
 import { doUserInviteNew } from 'redux/actions/user';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
 
-function lookupUrlByClaimName(name, channels) {
-  const claim = channels.find((channel) => channel.name === name);
+function lookupUrlByClaimName(name: string, channels: ChannelClaim[]) {
+  const claim = channels.find((channel: ChannelClaim) => channel.name === name);
   return claim && claim.canonical_url ? claim.canonical_url.replace('lbry://', '') : name;
 }
 
@@ -26,7 +26,7 @@ function InviteNew() {
   const errorMessage = useAppSelector(selectUserInviteNewErrorMessage);
   const referralCode = useAppSelector(selectUserInviteReferralCode) || '';
   const isPending = useAppSelector(selectUserInviteNewIsPending);
-  const channels = useAppSelector(selectMyChannelClaims);
+  const channels = useAppSelector(selectMyChannelClaims) as ChannelClaim[] | undefined;
 
   // Email
   const [email, setEmail] = useState('');
@@ -42,10 +42,10 @@ function InviteNew() {
   // Referral link
   const [referralSource, setReferralSource] = useState(referralCode);
   const handleReferralChange = React.useCallback(
-    (code) => {
+    (code: string) => {
       setReferralSource(code);
       // TODO: keep track of this in an array?
-      const matchingChannel = channels && channels.find((ch) => ch.name === code);
+      const matchingChannel = channels && channels.find((ch: ChannelClaim) => ch.name === code);
 
       if (matchingChannel) {
         analytics.apiLog.publish(matchingChannel);
@@ -56,7 +56,7 @@ function InviteNew() {
   const topChannel =
     channels &&
     channels.length > 0 &&
-    channels.reduce((top, channel) => {
+    channels.reduce((top: ChannelClaim, channel: ChannelClaim) => {
       const topClaimCount = (top && top.meta && top.meta.claims_in_channel) || 0;
       const currentClaimCount = (channel && channel.meta && channel.meta.claims_in_channel) || 0;
       return topClaimCount >= currentClaimCount ? top : channel;
@@ -93,6 +93,7 @@ function InviteNew() {
               <CopyableText label={__('Your invite link')} copyable={referral} />
               {channels && channels.length > 0 && (
                 <FormField
+                  name="customize_link"
                   type="select"
                   label={__('Customize link')}
                   value={referralSource}

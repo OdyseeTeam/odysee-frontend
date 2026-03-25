@@ -13,6 +13,9 @@ type Props = {
   fileMimeType: string | null | undefined;
   disabled: boolean;
   setPrevFileText: (arg0: string) => void;
+  inEditMode?: boolean;
+  mode?: string;
+  inProgress?: any;
 };
 
 function PublishPost(props: Props) {
@@ -43,7 +46,7 @@ function PublishPost(props: Props) {
             value={title}
             onChange={handleTitleChange}
             className="fieldset-group"
-            max="200"
+            max={200}
             autoFocus
             autoComplete="off"
           />

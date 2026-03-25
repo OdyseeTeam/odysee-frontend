@@ -68,8 +68,8 @@ export const sentryWrapper: SentryWrapper = {
 
           const eventId =
             typeof error === 'string'
-              ? Sentry.captureMessage(error, reformatTagKeys(options))
-              : Sentry.captureException(error, reformatTagKeys(options));
+              ? Sentry.captureMessage(error, reformatTagKeys(options) as any)
+              : Sentry.captureException(error, reformatTagKeys(options) as any);
           resolve(eventId);
         });
       } else {

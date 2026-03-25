@@ -89,7 +89,6 @@ const ConfirmationPage = (props: Props) => {
           label={__('Features and Perks')}
           value={
             <ul className="ul--no-style membership-tier__perks">
-              {/* $FlowFixMe -- already handled above */}
               {selectedCreatorMembership.perks.map((tierPerk, i) => (
                 <li key={i}>{__(tierPerk.name)}</li>
               ))}
@@ -177,7 +176,7 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = (props: { isRenewal: boolean; disabled: boolean }) => (
+const SubmitButton = (props: { isRenewal: boolean; disabled: boolean; modalState?: any }) => (
   <Submit disabled={props.disabled} autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />
 );
 

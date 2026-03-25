@@ -49,17 +49,17 @@ type Props = {
     claimIds?: Array<string>;
     onlyPinForOrder?: string;
   };
-  uris: Array<string>;
+  uris?: Array<string>;
   injectedItem?: ListInjectedItem;
   showNoSourceClaims?: boolean;
   renderProperties?: (arg0: Claim) => React.ReactNode | null | undefined;
   fetchViewCount?: boolean;
   // claim search options are below
-  tags: Array<string>;
+  tags?: Array<string>;
   notTags?: Array<string>;
   claimIds?: Array<string>;
   channelIds?: Array<string>;
-  pageSize: number;
+  pageSize?: number;
   orderBy?: Array<string>;
   releaseTime?: string;
   languages?: Array<string>;
@@ -72,7 +72,7 @@ type Props = {
   hasNoSource?: boolean;
   forceShowReposts?: boolean;
   hideMembersOnly?: boolean;
-  loading: boolean;
+  loading?: boolean;
   duration?: string;
   contentAspectRatio?: string;
   excludeShorts?: boolean;
@@ -165,7 +165,7 @@ function resolveSearchOptions(resolveProps: any) {
     order_by: resolveOrderByOption(orderBy),
     stream_types: streamTypesParam,
     remove_duplicates: true,
-    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
+    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL as any),
   };
 
   function resolveOrderByOption(ob: string | Array<string>) {
@@ -305,7 +305,7 @@ function ClaimTilesDiscover(props: Props) {
   const listRef = React.useRef();
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
-  const prevUris = React.useRef();
+  const prevUris = React.useRef<string[]>();
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
   const resolvedPinUris = useResolvePins({

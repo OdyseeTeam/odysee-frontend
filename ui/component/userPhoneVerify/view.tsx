@@ -8,7 +8,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doUserPhoneVerify, doUserPhoneReset } from 'redux/actions/user';
 import { selectPhoneToVerify, selectPhoneVerifyErrorMessage, selectUserCountryCode } from 'redux/selectors/user';
 
-const UserPhoneVerify = React.memo(function UserPhoneVerify() {
+const UserPhoneVerify = React.memo(function UserPhoneVerify(props: { cancelButton?: React.ReactNode }) {
   const dispatch = useAppDispatch();
 
   const phone = useAppSelector((state) => selectPhoneToVerify(state));
@@ -20,7 +20,7 @@ const UserPhoneVerify = React.memo(function UserPhoneVerify() {
 
   const [code, setCode] = useState('');
 
-  const handleCodeChanged = useCallback((event: React.SyntheticEvent<any>) => {
+  const handleCodeChanged = useCallback((event: any) => {
     setCode(String(event.target.value).trim());
   }, []);
 

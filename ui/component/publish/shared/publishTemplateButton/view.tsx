@@ -132,6 +132,7 @@ function getDefaultTemplateDataForComparison(publishFormValues: any): UploadTemp
       ? [defaultLanguage]
       : [];
   return {
+    name: '',
     title: '',
     description: '',
     tags: [],
@@ -186,9 +187,9 @@ export default function PublishTemplateButton() {
     settingsByChannelId || {}
   );
   const orderedChannelClaims = React.useMemo((): Array<ChannelClaim> => {
-    const seenById = {};
-    const channels = [];
-    (myChannelClaims || []).forEach((channelClaim) => {
+    const seenById: Record<string, boolean> = {};
+    const channels: Array<ChannelClaim> = [];
+    ((myChannelClaims || []) as Array<ChannelClaim>).forEach((channelClaim) => {
       if (!channelClaim || !channelClaim.claim_id || seenById[channelClaim.claim_id]) {
         return;
       }
@@ -285,7 +286,7 @@ export default function PublishTemplateButton() {
       [...allTemplates].toSorted((a, b) => {
         const pinnedDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
         if (pinnedDiff !== 0) return pinnedDiff;
-        const byLastUsed = getTemplateSortTimestamp(b) - getTemplateSortTimestamp(a);
+        const byLastUsed = getTemplateSortTimestamp(b as unknown as { createdAt: number; lastUsedAt?: number }) - getTemplateSortTimestamp(a as unknown as { createdAt: number; lastUsedAt?: number });
         if (byLastUsed !== 0) return byLastUsed;
         const byCreated = Number(b.createdAt || 0) - Number(a.createdAt || 0);
         if (byCreated !== 0) return byCreated;

@@ -9,7 +9,7 @@ import { doToast } from 'redux/actions/notifications';
 type Props = {
   uri: string;
   collectionId: string;
-  focusable: boolean;
+  focusable?: boolean;
 };
 
 function ButtonAddToQueue(props: Props) {

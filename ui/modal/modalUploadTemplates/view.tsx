@@ -43,7 +43,7 @@ function makeDuplicateTemplateName(name: string, existingTemplates: Array<Upload
   return candidate;
 }
 
-function getTemplateSortTimestamp(template: { createdAt: number; lastUsedAt?: number }): number {
+function getTemplateSortTimestamp(template: UploadTemplate): number {
   return Number(template.lastUsedAt || template.createdAt || 0);
 }
 
@@ -96,7 +96,7 @@ function getNormalizedPaywall(paywall: any): string {
 }
 
 function hasEnabledPriceDetails(templateData: UploadTemplateData): boolean {
-  const data = templateData || {};
+  const data: UploadTemplateData = templateData || ({} as UploadTemplateData);
   const normalizedPaywall = getNormalizedPaywall(data.paywall);
   const hasSdkPrice = Number(data?.fee?.amount || 0) > 0;
   const hasFiatPurchase = Boolean(data.fiatPurchaseEnabled && Number(data?.fiatPurchaseFee?.amount || 0) > 0);
@@ -128,7 +128,7 @@ function getTemplatePreviewFields(templateData: UploadTemplateData): Array<{
   label: string;
   value: string;
 }> {
-  const data = templateData || {};
+  const data: UploadTemplateData = templateData || ({} as UploadTemplateData);
   const fields = [];
   if (data.title)
     fields.push({
@@ -224,7 +224,7 @@ function getTemplateSearchText(template: TemplateEntry): string {
 export default function ModalUploadTemplates() {
   const dispatch = useAppDispatch();
   const defaultChannelId = useAppSelector(selectActiveChannelId) || '';
-  const myChannelClaims = useAppSelector(selectMyChannelClaims) || [];
+  const myChannelClaims = (useAppSelector(selectMyChannelClaims) || []) as Array<ChannelClaim>;
   const settingsByChannelId = useAppSelector(selectSettingsByChannelId) || {};
 
   const fetchCreatorSettings = React.useCallback(
@@ -241,8 +241,8 @@ export default function ModalUploadTemplates() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [hasLocalEdits, setHasLocalEdits] = React.useState(false);
   const orderedChannelClaims = React.useMemo((): Array<ChannelClaim> => {
-    const seenById = {};
-    const channels = [];
+    const seenById: Record<string, boolean> = {};
+    const channels: Array<ChannelClaim> = [];
     (myChannelClaims || []).forEach((channelClaim) => {
       if (!channelClaim || !channelClaim.claim_id || seenById[channelClaim.claim_id]) {
         return;
@@ -261,14 +261,14 @@ export default function ModalUploadTemplates() {
     return channels;
   }, [myChannelClaims, defaultChannelId]);
   const channelClaimById = React.useMemo(() => {
-    const map = {};
+    const map: Record<string, ChannelClaim> = {};
     orderedChannelClaims.forEach((channelClaim) => {
       map[channelClaim.claim_id] = channelClaim;
     });
     return map;
   }, [orderedChannelClaims]);
   const sourceTemplatesByChannelId = React.useMemo(() => {
-    const nextTemplatesByChannelId = {};
+    const nextTemplatesByChannelId: Record<string, Array<UploadTemplate>> = {};
     orderedChannelClaims.forEach((channelClaim) => {
       const channelId = channelClaim.claim_id;
       nextTemplatesByChannelId[channelId] = getUploadTemplatesFromSettings(
@@ -319,7 +319,7 @@ export default function ModalUploadTemplates() {
   }, [orderedChannelClaims, templatesByChannelId]);
   const sortedTemplates = React.useMemo(
     () =>
-      [...allTemplateEntries].toSorted((a, b) => {
+      [...allTemplateEntries].sort((a, b) => {
         const pinnedDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
         if (pinnedDiff !== 0) return pinnedDiff;
         const byLastUsed = getTemplateSortTimestamp(b) - getTemplateSortTimestamp(a);
@@ -354,7 +354,7 @@ export default function ModalUploadTemplates() {
   React.useEffect(() => {
     const templateKeys = new Set(sortedTemplates.map((template) => getTemplateKey(template.channelId, template.id)));
     setExpandedPreviewByTemplateKey((prev) => {
-      const next = {};
+      const next: Record<string, boolean> = {};
       Object.keys(prev).forEach((templateKey) => {
         if (templateKeys.has(templateKey) && prev[templateKey]) {
           next[templateKey] = true;

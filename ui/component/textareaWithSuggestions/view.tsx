@@ -106,9 +106,9 @@ export default function TextareaWithSuggestions(props: Props) {
     type,
     disabled,
   };
-  const [suggestionValue, setSuggestionValue] = React.useState(undefined);
-  const [highlightedSuggestion, setHighlightedSuggestion] = React.useState('');
-  const [shouldClose, setClose] = React.useState();
+  const [suggestionValue, setSuggestionValue] = React.useState<any>(undefined);
+  const [highlightedSuggestion, setHighlightedSuggestion] = React.useState<any>('');
+  const [shouldClose, setClose] = React.useState<boolean>(false);
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   const suggestionTerm = suggestionValue && suggestionValue.term;
   const isEmote = Boolean(suggestionValue && suggestionValue.isEmote);
@@ -127,16 +127,16 @@ export default function TextareaWithSuggestions(props: Props) {
     isBackgroundSearch: false,
     [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS,
   };
-  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0);
+  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0) as { results: string[] | undefined; loading: boolean };
   const stringifiedResults = JSON.stringify(results);
   const hasMinLength = suggestionTerm && isMention && suggestionTerm.length >= LIGHTHOUSE_MIN_CHARACTERS;
   const isTyping = isMention && debouncedTerm !== suggestionTerm;
   const showPlaceholder =
     isMention && !invalidTerm && (isTyping || loading || (results && results.length > 0 && !hasNewResolvedResults));
 
-  const shouldFilter = (uri, previous) => uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
+  const shouldFilter = (uri: string, previous?: string[]) => uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
 
-  const filteredCommentors = canonicalCommentors && canonicalCommentors.filter((uri) => shouldFilter(uri));
+  const filteredCommentors = canonicalCommentors && canonicalCommentors.filter((uri: string) => shouldFilter(uri));
   const filteredSubs = canonicalSubs && canonicalSubs.filter((uri) => shouldFilter(uri, filteredCommentors));
   const filteredTop =
     canonicalTop &&
@@ -352,7 +352,7 @@ export default function TextareaWithSuggestions(props: Props) {
   React.useEffect(() => {
     if (!suggestionTerm) return; // only if there is a term, or else can't tab to navigate page
 
-    function handleKeyDown(e: React.KeyboardEvent<any>) {
+    function handleKeyDown(e: KeyboardEvent) {
       const { keyCode } = e;
 
       if (highlightedSuggestion && keyCode === KEYCODES.TAB) {
@@ -393,25 +393,25 @@ export default function TextareaWithSuggestions(props: Props) {
 
   /** ------ **/
   return (
-    <Autocomplete
+    <Autocomplete<{ label: string; group: any }, false, true, true>
       PopperComponent={AutocompletePopper}
       autoHighlight
       disableClearable
-      filterOptions={(options) => options.filter(({ label }) => allMatches.includes(label))}
+      filterOptions={(options) => options.filter((opt) => typeof opt !== 'string' && allMatches.includes(opt.label))}
       freeSolo
       fullWidth
-      getOptionLabel={(option) => option.label || ''}
-      groupBy={(option) => option.group}
+      getOptionLabel={(option) => (typeof option === 'string' ? option : option.label || '')}
+      groupBy={(option) => (typeof option === 'string' ? '' : option.group)}
       id={id}
       inputValue={messageValue}
       loading={allMatches.length === 0 || showPlaceholder}
       loadingText={showPlaceholder ? <BusyIndicator message={__('Searching...')} /> : __('Nothing found')}
-      onBlur={() => onBlur && onBlur()}
+      onBlur={() => onBlur && onBlur(undefined)}
       /* Different from onInputChange, onChange is only used for the selected value,
     so here it is acting simply as a selection handler (see it as onSelect) */
-      onChange={(event, value) => handleSelect(value.label, event.keyCode)}
+      onChange={(event: any, value: any) => handleSelect(value.label, event.keyCode)}
       onClose={(event, reason) => reason !== 'selectOption' && setClose(true)}
-      onFocus={() => onFocus && onFocus()}
+      onFocus={() => onFocus && onFocus(undefined)}
       onHighlightChange={(event, option) => setHighlightedSuggestion(option)}
       onInputChange={(event, value, reason) => reason === 'input' && handleInputChange(value)}
       onOpen={() => suggestionTerm && setClose(false)}

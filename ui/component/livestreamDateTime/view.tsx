@@ -55,7 +55,7 @@ const LivestreamDateTime = (props: Props) => {
     );
   }
 
-  if (moment.unix(releaseTime).isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())) {
+  if (moment.unix(releaseTime as any).isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())) {
     return __('Starting Soon');
   }
 

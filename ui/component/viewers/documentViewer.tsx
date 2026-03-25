@@ -30,7 +30,7 @@ type Props = {
 const DocumentViewer = (props: Props) => {
   const { source, theme, renderMode } = props;
   const { stream, contentType } = source;
-  const [content, setContent] = React.useState();
+  const [content, setContent] = React.useState<string | null | undefined>();
   React.useEffect(() => {
     if (stream) {
       fetch(stream)
@@ -40,7 +40,7 @@ const DocumentViewer = (props: Props) => {
           }
           return null;
         })
-        .then((data) => setContent(data))
+        .then((data: any) => setContent(data))
         .catch(() => setContent(null));
     }
   }, [stream]);

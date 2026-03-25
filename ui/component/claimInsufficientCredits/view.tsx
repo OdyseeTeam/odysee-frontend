@@ -8,7 +8,7 @@ import { selectClaimWasPurchasedForUri } from 'redux/selectors/claims';
 
 type Props = {
   uri: string;
-  fileInfo: FileListItem;
+  fileInfo?: FileListItem;
 };
 
 function ClaimInsufficientCredits(props: Props) {

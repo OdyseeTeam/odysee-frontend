@@ -13,7 +13,7 @@ type Props = {};
 
 function PledgesTab(props: Props) {
   const dispatch = useAppDispatch();
-  const myMembershipSubs = useAppSelector(selectMyPurchasedMembershipsFromCreators);
+  const myMembershipSubs = useAppSelector(selectMyPurchasedMembershipsFromCreators) as Array<any> | undefined;
   const isFetchingMembershipSubs = useAppSelector(selectMembershipMineFetching);
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   React.useEffect(() => {
@@ -40,13 +40,13 @@ function PledgesTab(props: Props) {
   // const ORDER_DESC = 'desc';
   const sortedMembershipSubs = React.useMemo(() => {
     // let startedAtSort = (a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime();
-    let amountSortAsc = (a, b) => a.subscription.current_price.amount - b.subscription.current_price.amount;
+    let amountSortAsc = (a: any, b: any) => a.subscription.current_price.amount - b.subscription.current_price.amount;
 
-    let amountSortDesc = (a, b) => b.subscription.current_price.amount - a.subscription.current_price.amount;
+    let amountSortDesc = (a: any, b: any) => b.subscription.current_price.amount - a.subscription.current_price.amount;
 
-    let renewBySortAsc = (a, b) => getRenewByMoment(a) - (getRenewByMoment(b) || 999999999999999); // if null, make it really big so it's last
+    let renewBySortAsc = (a: any, b: any) => (getRenewByMoment(a)?.valueOf() || 0) - (getRenewByMoment(b)?.valueOf() || 999999999999999); // if null, make it really big so it's last
 
-    let renewBySortDesc = (a, b) => (getRenewByMoment(b) || 999999999999999) - getRenewByMoment(a); // if null, make it really big so it's last
+    let renewBySortDesc = (a: any, b: any) => (getRenewByMoment(b)?.valueOf() || 999999999999999) - (getRenewByMoment(a)?.valueOf() || 0); // if null, make it really big so it's last
 
     const defaultSort = renewBySortAsc;
     let sortFn;
@@ -106,7 +106,7 @@ function PledgesTab(props: Props) {
           <table className="table table--pledges">
             <thead>
               <tr>
-                <th className="channelName-header" colSpan="2">
+                <th className="channelName-header" colSpan={2}>
                   {__('Channel Name')}
                 </th>
                 <th>{__('Tier')}</th>

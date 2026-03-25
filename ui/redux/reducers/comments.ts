@@ -2,8 +2,18 @@ import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 import { BLOCK_LEVEL } from 'constants/comment';
 import { isURIEqual } from 'util/lbryURI';
+
+// Local type for comment objects from the Commentron API (avoids collision with DOM Comment).
+type CommentData = {
+  comment_id: string;
+  parent_id?: string;
+  channel_id?: string;
+  replies?: number;
+  [key: string]: any;
+};
+
 // See 'CommentsState' for documentation.
-const defaultState: CommentsState = {
+const defaultState = {
   commentById: {},
   byId: {},
   totalCommentsById: {},
@@ -106,7 +116,7 @@ export default handleActions(
         claimId,
         livestream,
       }: {
-        comment: Comment;
+        comment: CommentData;
         claimId: string;
         uri: string;
         livestream: boolean;

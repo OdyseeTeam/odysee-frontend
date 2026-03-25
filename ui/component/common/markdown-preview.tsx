@@ -65,6 +65,7 @@ type MarkdownProps = {
   hasMembership?: boolean;
   isComment?: boolean;
   isMinimal?: boolean;
+  promptLinks?: boolean;
 };
 
 // ****************************************************************************
@@ -156,7 +157,7 @@ const SimpleImageLink = (props: ImageLinkProps) => {
   }
 
   if (isEmote(title, src)) {
-    return <OptimizedImage src={src} title={title} className="emote" waitLoad loading="lazy" />;
+    return <OptimizedImage src={src} title={title} className="emote" loading="lazy" />;
   }
 
   return (
@@ -276,7 +277,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
   return (
     <div dir="auto" className={classnames('notranslate markdown-preview', className)}>
       <ReactMarkdown
-        remarkPlugins={remarkPlugins}
+        remarkPlugins={remarkPlugins as any}
         rehypePlugins={[[rehypeSanitize, schema]]}
         urlTransform={identityUrl}
         components={{

@@ -111,7 +111,7 @@ export default function SettingContent() {
             <SettingsRow title={__('Purchase and tip confirmations')} multirow>
               <FormField type="radio" name="confirm_all_purchases" checked={!instantPurchaseEnabled} label={__('Always confirm before purchasing content or tipping')} onChange={() => setClientSetting(SETTINGS.INSTANT_PURCHASE_ENABLED, false)} />
               <FormField type="radio" name="instant_purchases" checked={instantPurchaseEnabled} label={__('Only confirm purchases or tips over a certain amount')} helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)} onChange={() => setClientSetting(SETTINGS.INSTANT_PURCHASE_ENABLED, true)} />
-              {instantPurchaseEnabled && <FormFieldPrice name="confirmation_price" min={0.1} onChange={(newValue) => setClientSetting(SETTINGS.INSTANT_PURCHASE_MAX, newValue)} price={instantPurchaseMax} />}
+              {instantPurchaseEnabled && <FormFieldPrice name="confirmation_price" min={0.1} onChange={(newValue: any) => setClientSetting(SETTINGS.INSTANT_PURCHASE_MAX, newValue)} price={instantPurchaseMax} />}
             </SettingsRow>
           </>} />
     </>;

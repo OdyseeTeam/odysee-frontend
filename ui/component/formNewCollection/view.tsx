@@ -24,7 +24,7 @@ function FormNewCollection(props: Props) {
     sourceId ? selectCollectionForId(state, sourceId)?.name : undefined
   );
 
-  const buttonref: ElementRef<any> = React.useRef();
+  const buttonref = React.useRef<any>(null);
   const [newCollectionName, setCollectionName] = React.useState(
     sourceCollectionName
       ? __('%copied_playlist_name% (copy)', {
@@ -60,7 +60,7 @@ function FormNewCollection(props: Props) {
   function handleKeyDown(e: React.KeyboardEvent<any>) {
     if (e.keyCode === KEYCODES.ENTER) {
       e.preventDefault();
-      buttonref.current.click();
+      (buttonref as any).current.click();
     }
   }
 

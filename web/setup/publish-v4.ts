@@ -37,7 +37,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
     dispatch(
       progress({
         guid,
-        status: 'notify_ok',
+        status: { status: 'notify_ok' },
         publishId,
       })
     );
@@ -50,7 +50,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_ok',
+              status: { status: 'notify_ok' },
               publishId,
             })
           ),
@@ -58,7 +58,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_failed',
+              status: { status: 'notify_failed' },
             })
           ),
       });
@@ -72,7 +72,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_ok',
+              status: { status: 'notify_ok' },
               publishId,
             })
           ),
@@ -80,7 +80,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_failed',
+              status: { status: 'notify_failed' },
             })
           ),
       });
@@ -94,7 +94,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'retry',
+              status: { status: 'retry' },
             })
           ),
         onProgress: (pct: string) =>
@@ -108,7 +108,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'error',
+              status: { status: 'error' },
             })
           ),
       });
@@ -118,7 +118,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_ok',
+              status: { status: 'notify_ok' },
               publishId,
             })
           ),
@@ -126,7 +126,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'notify_failed',
+              status: { status: 'notify_failed' },
             })
           ),
       });
@@ -172,7 +172,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'error',
+              status: { status: 'error' },
             })
           );
           throw new Error('The upload does not exist.');
@@ -181,7 +181,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'error',
+              status: { status: 'error' },
             })
           );
           throw status.error;
@@ -190,7 +190,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           dispatch(
             progress({
               guid,
-              status: 'error',
+              status: { status: 'error' },
             })
           );
           throw new Error('Unhandled status');

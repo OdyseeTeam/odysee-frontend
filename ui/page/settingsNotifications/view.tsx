@@ -21,10 +21,10 @@ export default function NotificationSettingsPage() {
   const dispatch = useAppDispatch();
   const osNotificationsEnabled = useAppSelector(selectosNotificationsEnabled);
   const isAuthenticated = Boolean(useAppSelector(selectUserVerifiedEmail));
-  const [error, setError] = React.useState();
-  const [tagMap, setTagMap] = React.useState({});
-  const [tags, setTags] = React.useState();
-  const [enabledEmails, setEnabledEmails] = React.useState();
+  const [error, setError] = React.useState<boolean>(false);
+  const [tagMap, setTagMap] = React.useState<{ [key: string]: boolean }>({});
+  const [tags, setTags] = React.useState<Array<{ name: string; description: string }> | undefined>();
+  const [enabledEmails, setEnabledEmails] = React.useState<Array<{ email: string; isEnabled: boolean }> | undefined>();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const verificationToken = urlParams.get('verification_token');
@@ -63,7 +63,7 @@ export default function NotificationSettingsPage() {
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
-  function handleChangeTag(name, newIsEnabled) {
+  function handleChangeTag(name: string, newIsEnabled: boolean) {
     const tagParams = newIsEnabled
       ? {
           add: name,
@@ -78,7 +78,7 @@ export default function NotificationSettingsPage() {
     });
   }
 
-  function handleChangeEmail(email, newIsEnabled) {
+  function handleChangeEmail(email: string, newIsEnabled: boolean) {
     Lbryio.call('user_email', 'edit', {
       email: email,
       enabled: newIsEnabled,

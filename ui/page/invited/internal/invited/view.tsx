@@ -83,7 +83,7 @@ function Invited(props: Props) {
   }, [referrerUri, isSubscribed, dispatch, userHasVerifiedEmail, referrerIsChannel]);
   React.useEffect(() => {
     if (referrerSet === undefined && userHasVerifiedEmail) {
-      dispatch(doClaimRefereeReward());
+      dispatch(doClaimRefereeReward(''));
     }
   }, [dispatch, userHasVerifiedEmail, referrerSet]);
   React.useEffect(() => {

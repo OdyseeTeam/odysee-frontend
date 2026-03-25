@@ -5,9 +5,9 @@ import { useAppDispatch } from 'redux/hooks';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 type Props = {
   uri: string;
-  buttonType: string | null | undefined;
-  showLabel: boolean | null | undefined;
-  focusable: boolean;
+  buttonType?: string | null | undefined;
+  showLabel?: boolean | null | undefined;
+  focusable?: boolean;
 };
 export default function FileHideRecommendation(props: Props) {
   const { uri, buttonType, showLabel = false, focusable = true } = props;

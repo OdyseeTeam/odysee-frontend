@@ -44,7 +44,7 @@ function AutoplayCountdown(props: Props) {
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isFloating = useAppSelector(selectIsPlayerFloating);
   const canPlayback = useAppSelector((state) => selectCanPlaybackFileForUri(state, uri));
-  const hasUriPlaying = useAppSelector((state) => selectHasUriPlaying(state, uri));
+  const hasUriPlaying = useAppSelector((state) => selectHasUriPlaying(state));
   const [timer, setTimer] = React.useState(COUNTDOWN_TIME);
   const [timerCanceled, setTimerCanceled] = React.useState(false);
   const [timerPaused, setTimerPaused] = React.useState(false);

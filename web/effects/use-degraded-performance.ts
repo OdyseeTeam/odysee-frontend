@@ -38,7 +38,7 @@ export function useDegradedPerformance(onDegradedPerformanceCallback, user, doSe
       // This should be moved into the config once more endpoints are using it
       const STATUS_ENDPOINT = `${SDK_API_PATH}/status`.replace('v1', 'v2');
       fetchWithTimeout(STATUS_TIMEOUT_LIMIT, fetch(STATUS_ENDPOINT, getParams(user)))
-        .then((response) => response.json())
+        .then((response: any) => response.json())
         .then((status) => {
           doSetAssignedLbrynetServer(status?.user?.assigned_lbrynet_server);
 

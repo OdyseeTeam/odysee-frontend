@@ -114,9 +114,9 @@ function TransactionListTableItem(props: Props) {
   } catch (e) {}
 
   const dateFormat = {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+    month: 'short' as const,
+    day: 'numeric' as const,
+    year: 'numeric' as const,
   };
   const forClaim = name && claimId;
   return (
@@ -166,7 +166,7 @@ function TransactionListTableItem(props: Props) {
       <td className="table__item--align-right">
         <CreditAmount
           showPlus={isMinus}
-          amount={isMinus ? Number(0 - amount) : Number(amount)}
+          amount={isMinus ? Number(0 - Number(amount)) : Number(amount)}
           precision={8}
           showLBC={false}
         />

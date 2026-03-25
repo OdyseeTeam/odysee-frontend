@@ -141,12 +141,14 @@ export const makeSelectLivestreamsForChannelId = (channelId: string) =>
 export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
   createSelector(selectPendingClaims, (pendingClaims) => {
     return pendingClaims.filter(
-      (claim) =>
-        claim.value_type === 'stream' &&
-        claim.value &&
-        !claim.value.source &&
-        claim.signing_channel &&
-        claim.signing_channel.claim_id === channelId
+      (c) => {
+        const claim = c as Claim;
+        return claim.value_type === 'stream' &&
+          claim.value &&
+          !(claim.value as StreamMetadata).source &&
+          claim.signing_channel &&
+          claim.signing_channel.claim_id === channelId;
+      }
     );
   });
 export const selectIsActiveLivestreamForUri = createCachedSelector(

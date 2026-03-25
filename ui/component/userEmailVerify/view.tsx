@@ -17,7 +17,7 @@ import { doToast } from 'redux/actions/notifications';
 
 const THIRTY_SECONDS_IN_MS = 30000;
 
-const UserEmailVerify = React.memo(function UserEmailVerify() {
+const UserEmailVerify = React.memo(function UserEmailVerify(props: { cancelButton?: React.ReactNode }) {
   const dispatch = useAppDispatch();
 
   const email = useAppSelector((state) => selectEmailToVerify(state));

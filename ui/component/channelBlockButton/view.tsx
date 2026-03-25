@@ -69,7 +69,7 @@ function ChannelBlockButton(props: Props) {
           if (isBlocked) {
             dispatch(doCommentModUnBlockAsModerator(uri, creatorUri, ''));
           } else {
-            dispatch(doCommentModBlockAsModerator(uri, undefined, creatorUri, undefined));
+            dispatch(doCommentModBlockAsModerator(uri, undefined, creatorUri, undefined, undefined));
           }
         }
 
@@ -79,7 +79,7 @@ function ChannelBlockButton(props: Props) {
         if (isBlocked) {
           dispatch(doCommentModUnBlockAsAdmin(uri, ''));
         } else {
-          dispatch(doCommentModBlockAsAdmin(uri, undefined, undefined));
+          dispatch(doCommentModBlockAsAdmin(uri, undefined, undefined, undefined));
         }
 
         break;

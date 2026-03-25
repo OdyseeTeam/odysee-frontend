@@ -37,7 +37,7 @@ export default function RecommendedPersonal(props: Props) {
   const user = useAppSelector(selectUser);
   const userId = user && user.id;
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
-  const ref = React.useRef();
+  const ref = React.useRef<HTMLDivElement>(null);
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();

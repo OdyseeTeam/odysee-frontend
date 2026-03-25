@@ -31,6 +31,12 @@ type Props = {
   mode: string | null | undefined;
   disabled: boolean;
   fileSource: string;
+  inEditMode?: boolean;
+  changeFileSource?: (state: any) => void;
+  fileMimeType?: string;
+  inProgress?: any;
+  setPrevFileText?: (text: string) => void;
+  setWaitForFile?: (wait: boolean) => void;
 };
 
 function PublishFile(props: Props) {
@@ -45,7 +51,7 @@ function PublishFile(props: Props) {
   const balance = useAppSelector(selectBalance);
   const duration = useAppSelector((state) => selectPublishFormValue(state, 'fileDur'));
   const isVid = useAppSelector((state) => selectPublishFormValue(state, 'fileVid'));
-  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const prevFileSizeTooBig = useAppSelector(selectPrevFileSizeTooBig);
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
@@ -56,7 +62,7 @@ function PublishFile(props: Props) {
   });
 
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
-  const [livestreamData, setLivestreamData] = React.useState([]);
+  const [livestreamData, setLivestreamData] = React.useState<LivestreamReplayItem[]>([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const currentPath = typeof filePath === 'string' ? filePath : filePath?.name;
   const claimChannelId =
@@ -95,7 +101,14 @@ function PublishFile(props: Props) {
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
         `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
       const responseFromNewApi = await fetch(newEndpointUrl);
-      const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
+      const data: Array<{
+        Status: string;
+        URL: string;
+        Duration: number;
+        PercentComplete: number;
+        ThumbnailURLs: string[] | null;
+        Created: string;
+      }> = (await responseFromNewApi.json()).data;
       const newData: Array<LivestreamReplayItem> = [];
 
       if (data && data.length > 0) {
@@ -113,7 +126,7 @@ function PublishFile(props: Props) {
                 uploadedAt: dataItem.Created,
               },
             };
-            newData.push(objectToPush);
+            newData.push(objectToPush as unknown as LivestreamReplayItem);
           }
         }
       }
@@ -233,8 +246,9 @@ function PublishFile(props: Props) {
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
-    if (titleInput.current && titleInput.current.input) {
-      titleInput.current.input.current.focus();
+    const inputRef = titleInput.current as any;
+    if (inputRef && inputRef.input) {
+      inputRef.input.current.focus();
     }
 
     dispatch(doUpdateFile(file, clearName));
@@ -264,7 +278,7 @@ function PublishFile(props: Props) {
 
               {fileSource === SOURCE_SELECT && (
                 <div className="main--empty empty">
-                  <Spinner small />
+                  <Spinner type="small" />
                 </div>
               )}
             </>
@@ -278,7 +292,7 @@ function PublishFile(props: Props) {
                 value={title}
                 onChange={handleTitleChange}
                 className="fieldset-group"
-                max="200"
+                max={200}
                 ref={titleInput}
               />
             </div>

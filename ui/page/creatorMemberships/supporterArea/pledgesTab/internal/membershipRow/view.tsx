@@ -111,7 +111,7 @@ export default function MembershipRow(props: Props) {
   if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
     return (
       <tr>
-        <td colSpan="9">
+        <td colSpan={9}>
           <Spinner />
         </td>
       </tr>

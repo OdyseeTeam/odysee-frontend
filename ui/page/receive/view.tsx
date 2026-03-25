@@ -9,7 +9,7 @@ export default function ReceivePage(props: Props) {
       noSideNavigation
       className="main--buy"
       backout={{
-        backoutLabel: __('Done'),
+        backLabel: __('Done'),
         title: (
           <>
             <LbcSymbol prefix={__('Receive')} size={28} />

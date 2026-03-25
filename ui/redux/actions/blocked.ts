@@ -50,7 +50,7 @@ export function doFetchGeoBlockedList() {
           json = await res.json();
         } catch (e) {}
 
-        const geoBlockList = json.data || {};
+        const geoBlockList = (json as any).data || {};
         dispatch({
           type: ACTIONS.FETCH_GBL_DONE,
           data: geoBlockList,

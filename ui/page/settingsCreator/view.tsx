@@ -59,8 +59,8 @@ export default function SettingsCreatorPage() {
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
-  const [mutedWordTags, setMutedWordTags] = React.useState([]);
-  const [moderatorUris, setModeratorUris] = React.useState([]);
+  const [mutedWordTags, setMutedWordTags] = React.useState<Array<{ name: string }>>([]);
+  const [moderatorUris, setModeratorUris] = React.useState<string[]>([]);
   const [slowModeMin, setSlowModeMin] = React.useState(0);
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(0);
   const [lastUpdated, setLastUpdated] = React.useState(1);
@@ -76,7 +76,7 @@ export default function SettingsCreatorPage() {
    * @param fullSync If true, update all states and consider 'undefined'
    *   settings as "cleared/false"; if false, only update defined settings.
    */
-  function settingsToStates(settings: PerChannelSettings, fullSync: boolean) {
+  function settingsToStates(settings: { [key: string]: any }, fullSync: boolean) {
     const doSetMutedWordTags = (words: Array<string>) => {
       const tagArray = Array.from(new Set(words));
       setMutedWordTags(tagArray.filter(t => t !== '').map(x => {
@@ -120,7 +120,7 @@ export default function SettingsCreatorPage() {
     }
   }
 
-  function setSettings(newSettings: PerChannelSettings) {
+  function setSettings(newSettings: { [key: string]: any }) {
     settingsToStates(newSettings, false);
     dispatch(doUpdateCreatorSettings(activeChannelClaim, newSettings));
     setLastUpdated(Date.now());
@@ -132,7 +132,7 @@ export default function SettingsCreatorPage() {
     }));
   }
 
-  function parseModUri(uri) {
+  function parseModUri(uri: string) {
     try {
       return parseURI(uri);
     } catch (e) {}

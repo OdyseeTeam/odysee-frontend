@@ -19,7 +19,7 @@ export const getLastMonthPayments = (payments: any) => {
  * @param liveEditType
  * @returns {string}
  */
-export function getRestrictivePerkName(type: PublishType, liveCreateType: LiveCreateType, liveEditType: LiveEditType) {
+export function getRestrictivePerkName(type: PublishType, liveCreateType: string, liveEditType: string) {
   const EXCLUSIVE_CONTENT = 'Exclusive content';
   const EXCLUSIVE_LIVESTREAMS = 'Exclusive livestreams';
 

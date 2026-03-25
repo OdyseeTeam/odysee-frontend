@@ -4,7 +4,7 @@ export type ShareUrlProps = {
   lbryURI: string;
   referralCode: string;
   startTimeSeconds: number | null;
-  collectionId: number | null | undefined;
+  collectionId: string | null | undefined;
   uriAccessKey: UriAccessKey | null | undefined;
   useShortUrl: boolean;
 };
@@ -24,18 +24,18 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         referralCode,
         Boolean(referralCode),
         Boolean(startTimeSeconds),
-        startTimeSeconds,
-        collectionId,
+        startTimeSeconds as number,
+        collectionId as string | undefined,
         uriAccessKey
       );
       urlNoReferral = await generateShortShareUrl(
         domain,
         lbryURI,
-        null,
+        null as any,
         false,
         Boolean(startTimeSeconds),
-        startTimeSeconds,
-        collectionId,
+        startTimeSeconds as number,
+        collectionId as string | undefined,
         uriAccessKey
       );
     } else {
@@ -45,17 +45,19 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         referralCode,
         Boolean(referralCode),
         Boolean(startTimeSeconds),
-        startTimeSeconds,
-        collectionId
+        startTimeSeconds as any,
+        collectionId as any,
+        undefined as any
       );
       urlNoReferral = generateShareUrl(
         domain,
         lbryURI,
-        null,
+        null as any,
         false,
         Boolean(startTimeSeconds),
-        startTimeSeconds,
-        collectionId
+        startTimeSeconds as any,
+        collectionId as any,
+        undefined as any
       );
     }
 

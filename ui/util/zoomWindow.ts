@@ -1,4 +1,4 @@
-import { webFrame } from 'electron';
+const { webFrame } = require('electron') as any;
 import * as SETTINGS from 'constants/settings';
 import { LocalStorage } from 'util/storage';
 const isDev = process.env.NODE_ENV !== 'production';

@@ -288,7 +288,7 @@ function App() {
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
     if (!connectionStatus.online) {
-      return <Nag type="helpful" message={__('You are offline. Check your internet connection.')} />;
+      return <Nag {...({ type: 'helpful', message: __('You are offline. Check your internet connection.') } as any)} />;
     }
 
     // Only 1 nag is possible, so show the most important:
@@ -302,10 +302,12 @@ function App() {
       if (!onUploadPage) {
         return (
           <Nag
-            type="helpful"
-            message={__('Upload in progress. Closing or reloading may interrupt your upload.')}
-            actionText={__('View Uploads')}
-            onClick={() => navigate(`/$/${PAGES.UPLOADS}`)}
+            {...({
+              type: 'helpful',
+              message: __('Upload in progress. Closing or reloading may interrupt your upload.'),
+              actionText: __('View Uploads'),
+              onClick: () => navigate(`/$/${PAGES.UPLOADS}`),
+            } as any)}
           />
         );
       }
@@ -317,7 +319,7 @@ function App() {
 
     if (lbryTvApiStatus === STATUS_DEGRADED || lbryTvApiStatus === STATUS_FAILING) {
       if (!shouldHideNag) {
-        return <NagDegradedPerformance onClose={() => setLbryTvApiStatus(STATUS_OK)} />;
+        return <NagDegradedPerformance {...({ onClose: () => setLbryTvApiStatus(STATUS_OK) } as any)} />;
       }
     }
 
@@ -325,14 +327,16 @@ function App() {
       if (!retryingSync) {
         return (
           <Nag
-            type="error"
-            message={__('Failed to synchronize settings. Wait a while before retrying.')}
-            actionText={__('Retry')}
-            onClick={() => {
-              dispatch(doSyncLoop(true));
-              setRetryingSync(true);
-              setTimeout(() => setRetryingSync(false), 4000);
-            }}
+            {...({
+              type: 'error',
+              message: __('Failed to synchronize settings. Wait a while before retrying.'),
+              actionText: __('Retry'),
+              onClick: () => {
+                dispatch(doSyncLoop(true));
+                setRetryingSync(true);
+                setTimeout(() => setRetryingSync(false), 4000);
+              },
+            } as any)}
           />
         );
       }
@@ -340,7 +344,7 @@ function App() {
       const msg =
         reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
       assert(reloadRequired === 'newVersionFound' || reloadRequired === 'lazyImportFailed');
-      return <Nag message={__(msg)} actionText={__('Refresh')} onClick={() => window.location.reload()} />;
+      return <Nag {...({ message: __(msg), actionText: __('Refresh'), onClick: () => window.location.reload() } as any)} />;
     }
   }
 
@@ -614,7 +618,7 @@ function App() {
     // TODO: Rename `SyncFatalError` since it has nothing to do with syncing.
     return (
       <React.Suspense fallback={null}>
-        <SyncFatalError lbryTvApiStatus={lbryTvApiStatus} />
+        <SyncFatalError {...({ lbryTvApiStatus } as any)} />
       </React.Suspense>
     );
   }
@@ -640,7 +644,7 @@ function App() {
               </div>
             }
           >
-            <Router uri={uri} />
+            <Router {...({ uri } as any)} />
           </React.Suspense>
           <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
           <React.Suspense fallback={null}>
@@ -653,7 +657,7 @@ function App() {
             {!hasVerifiedEmail && <YoutubeWelcome />}
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
-              <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
+              <NagSunset {...({ email: hasVerifiedEmail, onClose: () => setSeenSunsetMessage(true) } as any)} />
             )}
             {getStatusNag()}
             {useDebugLog && <DebugLog />}

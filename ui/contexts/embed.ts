@@ -1,2 +1,2 @@
 import React from 'react';
-export const EmbedContext = React.createContext<any>();
+export const EmbedContext = React.createContext<any>(undefined);

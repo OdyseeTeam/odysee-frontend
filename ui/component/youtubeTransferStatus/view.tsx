@@ -22,7 +22,7 @@ import {
 import { doResolveUris } from 'redux/actions/claims';
 import './style.lazy.scss';
 type Props = {
-  alwaysShow: boolean;
+  alwaysShow?: boolean;
   addNewChannel?: boolean;
   autoOpenSync?: boolean;
 };

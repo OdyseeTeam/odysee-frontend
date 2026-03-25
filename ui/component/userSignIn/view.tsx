@@ -30,7 +30,7 @@ function UserSignIn() {
   }, [hasVerifiedEmail, navigate, redirect, showEmail, showLoading, showPassword]);
   React.useEffect(() => {
     if (emailToVerify && emailOnlyLogin) {
-      dispatch(doUserSignIn(emailToVerify));
+      dispatch(doUserSignIn(emailToVerify, undefined));
     }
   }, [emailToVerify, emailOnlyLogin, dispatch]);
   return (

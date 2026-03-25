@@ -7,8 +7,8 @@ import { doToast } from 'redux/actions/notifications';
 
 type Props = {
   copyable: string;
-  onlyCopy: boolean;
-  snackMessage: string | null | undefined;
+  onlyCopy?: boolean;
+  snackMessage?: string | null | undefined;
   label?: string;
   primaryButton?: boolean;
   name?: string;
@@ -17,6 +17,8 @@ type Props = {
   // url to append copyable to 'https://link.to/<copyable>`
   onCopy?: (arg0: string) => string;
   enableInputMask?: boolean;
+  className?: string;
+  disabled?: boolean;
 };
 export default function CopyableText(props: Props) {
   const {
@@ -34,7 +36,7 @@ export default function CopyableText(props: Props) {
 
   const dispatch = useAppDispatch();
   const [maskInput, setMaskInput] = React.useState(enableInputMask);
-  const input = useRef();
+  const input = useRef<any>();
 
   function handleCopyText() {
     if (enableInputMask || onlyCopy) {

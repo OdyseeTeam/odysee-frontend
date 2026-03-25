@@ -12,9 +12,9 @@ import { doResolveUri } from 'redux/actions/claims';
 type Props = {
   lastViewed: number;
   uri: string;
-  selected: boolean;
+  selected?: boolean;
   onSelect?: () => void;
-  slim: boolean;
+  slim?: boolean;
 };
 
 function NavigationHistoryItem(props: Props) {

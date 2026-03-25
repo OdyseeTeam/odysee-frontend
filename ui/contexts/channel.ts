@@ -1,2 +1,2 @@
 import React from 'react';
-export const ChannelPageContext = React.createContext<any>();
+export const ChannelPageContext = React.createContext<any>(undefined);

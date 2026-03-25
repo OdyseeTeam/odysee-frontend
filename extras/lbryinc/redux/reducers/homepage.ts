@@ -15,8 +15,8 @@ export const homepageReducer = handleActions(
       const { uris, success } = action.data;
       return { ...state, fetchingFeaturedContent: false, fetchingFeaturedContentFailed: !success, featuredUris: uris };
     },
-    [ACTIONS.FETCH_TRENDING_CONTENT_STARTED]: (state) => ({ ...state, fetchingTrendingContent: true }),
-    [ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
+    [(ACTIONS as any).FETCH_TRENDING_CONTENT_STARTED]: (state) => ({ ...state, fetchingTrendingContent: true }),
+    [(ACTIONS as any).FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
       const { uris, success } = action.data;
       return { ...state, fetchingTrendingContent: false, fetchingTrendingContentFailed: !success, trendingUris: uris };
     },

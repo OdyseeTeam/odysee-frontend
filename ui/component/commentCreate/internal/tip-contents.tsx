@@ -41,9 +41,10 @@ export const TipReviewBox = (props: Props) => {
 type TipButtonProps = {
   name: string;
   tab: string;
-  activeTab: string;
-  tipSelectorOpen: boolean;
+  activeTab?: string;
+  tipSelectorOpen?: boolean;
   onClick: (tab: string) => void;
+  [key: string]: any;
 };
 export const TipActionButton = (tipButtonProps: TipButtonProps) => {
   const { name, tab, activeTab, tipSelectorOpen, onClick, ...buttonProps } = tipButtonProps;

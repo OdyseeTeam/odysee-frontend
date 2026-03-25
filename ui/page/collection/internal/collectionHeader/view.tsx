@@ -26,12 +26,17 @@ import {
 } from 'redux/selectors/collections';
 import './style.scss';
 type Props = {
-  collection: Collection;
-  showEdit: boolean;
+  collection?: Collection;
+  showEdit?: boolean;
   unavailableUris?: Array<string>;
-  setShowEdit: (show: boolean) => void;
+  setShowEdit?: (show: boolean) => void;
   setUnavailable?: (uris: Array<string>) => void;
   collectionThumbnail?: string;
+  uri?: any;
+  collectionId?: string;
+  isBuiltin?: boolean;
+  claimIsPending?: boolean;
+  isHeader?: boolean;
 };
 
 const CollectionHeader = (props: Props) => {

@@ -19,7 +19,7 @@ export default function SettingAccountPassword() {
   const passwordSetSuccess = useAppSelector(selectPasswordSetSuccess);
   const passwordSetError = useAppSelector(selectPasswordSetError);
   const doUserPasswordSet = (newPassword: string, oldPassword: string | null | undefined) =>
-    dispatch(doUserPasswordSetAction(newPassword, oldPassword));
+    dispatch(doUserPasswordSetAction(newPassword, oldPassword, undefined));
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const hasPassword = user && user.password_set;

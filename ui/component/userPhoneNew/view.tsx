@@ -24,8 +24,8 @@ const countryCodes = countryData.callingCountries.all
   });
 
 type Props = {
-  cancelButton: React.ReactNode;
-  isPending: boolean;
+  cancelButton?: React.ReactNode;
+  isPending?: boolean;
 };
 
 const UserPhoneNew = React.memo(function UserPhoneNew({ cancelButton, isPending }: Props) {
@@ -64,13 +64,13 @@ const UserPhoneNew = React.memo(function UserPhoneNew({ cancelButton, isPending 
   );
 
   const handleChanged = useCallback(
-    (event: React.SyntheticEvent<any>) => {
+    (event: any) => {
       setPhone(formatPhone(event.target.value));
     },
     [formatPhone]
   );
 
-  const handleSelect = useCallback((event: React.SyntheticEvent<any>) => {
+  const handleSelect = useCallback((event: any) => {
     setCountryCode(event.target.value);
   }, []);
 

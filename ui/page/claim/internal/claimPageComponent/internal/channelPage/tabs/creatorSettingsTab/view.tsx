@@ -33,6 +33,21 @@ import {
 import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
+type ChannelSettings = {
+  comments_enabled?: boolean;
+  min_tip_amount_comment?: number;
+  min_tip_amount_super_chat?: number;
+  min_usdc_tip_amount_comment?: number;
+  min_usdc_tip_amount_super_chat?: number;
+  slow_mode_min_gap?: number;
+  time_since_first_comment?: number;
+  comments_members_only?: boolean;
+  livestream_chat_members_only?: boolean;
+  words?: Array<string>;
+  channel_sections?: any;
+  [key: string]: any;
+};
+
 const DEBOUNCE_REFRESH_MS = 1000;
 const FIELD_NAMES = {
   MIN_TIP: 'minTip',
@@ -57,7 +72,7 @@ export default function CreatorSettingsTab(props: Props) {
   const commentBlockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentBlockWords(channelClaim, words));
   const commentUnblockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentUnblockWords(channelClaim, words));
   const fetchCreatorSettings = (channelClaimId: string) => dispatch(doFetchCreatorSettings(channelClaimId));
-  const updateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) => dispatch(doUpdateCreatorSettings(channelClaim, settings));
+  const updateCreatorSettings = (channelClaim: ChannelClaim, settings: ChannelSettings) => dispatch(doUpdateCreatorSettings(channelClaim, settings as PerChannelSettings));
   const commentModAddDelegate = (modChanId: string, modChanName: string, creatorChannelClaim: ChannelClaim) => dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim));
   const commentModRemoveDelegate = (modChanId: string, modChanName: string, creatorChannelClaim: ChannelClaim) => dispatch(doCommentModRemoveDelegate(modChanId, modChanName, creatorChannelClaim));
   const commentModListDelegates = (creatorChannelClaim: ChannelClaim) => dispatch(doCommentModListDelegates(creatorChannelClaim));
@@ -66,8 +81,8 @@ export default function CreatorSettingsTab(props: Props) {
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
-  const [mutedWordTags, setMutedWordTags] = React.useState([]);
-  const [moderatorUris, setModeratorUris] = React.useState([]);
+  const [mutedWordTags, setMutedWordTags] = React.useState<Tag[]>([]);
+  const [moderatorUris, setModeratorUris] = React.useState<string[]>([]);
   const [minTip, setMinTip] = React.useState(0);
   const [minSuper, setMinSuper] = React.useState(0);
   const [minUSDTip, setMinUSDTip] = React.useState(0);
@@ -96,7 +111,7 @@ export default function CreatorSettingsTab(props: Props) {
    * @param fullSync If true, update all states and consider 'undefined'
    *   settings as "cleared/false"; if false, only update defined settings.
    */
-  function settingsToStates(settings: PerChannelSettings, fullSync: boolean) {
+  function settingsToStates(settings: ChannelSettings, fullSync: boolean) {
     const doSetMutedWordTags = (words: Array<string>) => {
       const tagArray = Array.from(new Set(words));
       setMutedWordTags(tagArray.filter(t => t !== '').map(x => {
@@ -114,7 +129,7 @@ export default function CreatorSettingsTab(props: Props) {
       focusedField.current !== FIELD_NAMES.MIN_USD_SUPER && setMinUSDSuper(settings.min_usdc_tip_amount_super_chat || 0);
       focusedField.current !== FIELD_NAMES.SLOW_MODE && setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
-      setCommentsMembersOnly(settings.comments_members_only);
+      setCommentsMembersOnly(settings.comments_members_only || false);
       setLivestreamChatMembersOnly(settings.livestream_chat_members_only || false);
       doSetMutedWordTags(settings.words || []);
     } else {
@@ -160,7 +175,7 @@ export default function CreatorSettingsTab(props: Props) {
     }
   }
 
-  function setSettings(newSettings: PerChannelSettings) {
+  function setSettings(newSettings: ChannelSettings) {
     settingsToStates(newSettings, false);
     updateCreatorSettings(activeChannelClaim, newSettings);
     setLastUpdated(Date.now());
@@ -196,7 +211,7 @@ export default function CreatorSettingsTab(props: Props) {
     });
   }
 
-  function parseModUri(uri) {
+  function parseModUri(uri: string) {
     try {
       return parseURI(uri);
     } catch (e) {}
@@ -208,8 +223,8 @@ export default function CreatorSettingsTab(props: Props) {
     setModeratorUris([...moderatorUris, channelUri]);
     const parsedUri = parseModUri(channelUri);
 
-    if (parsedUri && parsedUri.claimId && parsedUri.claimName) {
-      commentModAddDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim);
+    if (parsedUri && parsedUri.channelClaimId && parsedUri.channelName) {
+      commentModAddDelegate(parsedUri.channelClaimId, parsedUri.channelName, activeChannelClaim);
       setLastUpdated(Date.now());
     }
   }
@@ -218,14 +233,14 @@ export default function CreatorSettingsTab(props: Props) {
     setModeratorUris(moderatorUris.filter(x => x !== channelUri));
     const parsedUri = parseModUri(channelUri);
 
-    if (parsedUri && parsedUri.claimId && parsedUri.claimName) {
-      commentModRemoveDelegate(parsedUri.claimId, parsedUri.claimName, activeChannelClaim);
+    if (parsedUri && parsedUri.channelClaimId && parsedUri.channelName) {
+      commentModRemoveDelegate(parsedUri.channelClaimId, parsedUri.channelName, activeChannelClaim);
       setLastUpdated(Date.now());
     }
   }
 
   function addMutedWords(newTags: Array<Tag>) {
-    const validatedNewTags = [];
+    const validatedNewTags: Tag[] = [];
     newTags.forEach(newTag => {
       if (!mutedWordTags.some(tag => tag.name === newTag.name)) {
         validatedNewTags.push(newTag);
@@ -276,7 +291,7 @@ export default function CreatorSettingsTab(props: Props) {
     }
 
     if (activeChannelClaim && settingsByChannelId && settingsByChannelId[activeChannelClaim.claim_id]) {
-      const channelSettings = settingsByChannelId[activeChannelClaim.claim_id];
+      const channelSettings = settingsByChannelId[activeChannelClaim.claim_id] as ChannelSettings;
       settingsToStates(channelSettings, true);
     }
   }, [activeChannelClaim, settingsByChannelId, lastUpdated]);

@@ -11,7 +11,7 @@ import { getChannelIdFromClaim, isChannelClaim, isStreamPlaceholderClaim } from 
 export function getGeoRestrictionForClaim(
   claim: StreamClaim | null | undefined,
   locale: LocaleInfo,
-  geoBlockLists: GBL | null | undefined
+  geoBlockLists: any
 ) {
   if (locale && geoBlockLists && claim) {
     const claimId: string | null | undefined = claim.claim_id;

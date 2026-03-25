@@ -50,7 +50,7 @@ function TiersTab(props: Props) {
       const newChannelMemberships = new Set(previousMemberships);
       newChannelMemberships.add(membership);
       // sort by price lowest to highest
-      return Array.from(newChannelMemberships).toSorted((a, b) => a.prices[0].amount - b.prices[0].amount);
+      return Array.from(newChannelMemberships).toSorted((a: any, b: any) => a.prices[0].amount - b.prices[0].amount);
     });
   }
 
@@ -123,9 +123,10 @@ function TiersTab(props: Props) {
                     membership={membershipTier}
                     hasSubscribers={hasSubscribers}
                     removeEditing={() => removeEditingForMembershipId(membershipId)}
-                    addChannelMembership={(newMembership) => {
+                    addChannelMembership={async (newMembership: any) => {
                       removeChannelMembershipForId(membershipId);
                       addChannelMembership(newMembership);
+                      return [] as any;
                     }}
                     onCancel={() => {
                       removeEditingForMembershipId(membershipId);
@@ -142,7 +143,6 @@ function TiersTab(props: Props) {
                     hasSubscribers={hasSubscribers}
                     addEditingId={() => addEditingForMembershipId(membershipId)}
                     removeMembership={() => removeChannelMembershipForId(membershipId)}
-                    exchangeRate={exchangeRate}
                   />
                 )}
               </div>

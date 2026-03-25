@@ -3,8 +3,8 @@ import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import classnames from 'classnames';
 type Props = {
-  title: string;
-  subtitle?: string;
+  title?: string | React.ReactNode;
+  subtitle?: string | React.ReactNode;
   warning?: string;
   multirow?: boolean;
   // Displays the Value widget(s) below the Label instead of on the right.

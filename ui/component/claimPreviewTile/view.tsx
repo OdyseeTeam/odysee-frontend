@@ -47,12 +47,12 @@ import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 type Props = {
-  uri: string;
-  placeholder: boolean;
+  uri?: string;
+  placeholder?: boolean | string;
   showHiddenByUser?: boolean;
   showNoSourceClaims?: boolean;
   showUnresolvedClaims?: boolean;
-  properties?: (arg0: Claim) => void;
+  properties?: (arg0: Claim) => React.ReactNode;
   collectionId?: string;
   fypId?: string;
   pulse?: boolean;
@@ -119,7 +119,7 @@ function ClaimPreviewTile(props: Props) {
   const isAbandoned = !isResolvingUri && !claim;
   const showCollectionContext = isClaimAllowedForCollection(claim);
   const collectionClaimId = isCollection && claim && claim.claim_id;
-  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
+  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, !!placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId || '';
@@ -147,7 +147,7 @@ function ClaimPreviewTile(props: Props) {
   const channelTitle = signingChannel && ((signingChannel.value && signingChannel.value.title) || signingChannel.name);
   const isChannelPage = React.useContext(ChannelPageContext);
   const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
-  const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
   const useShortsThumb = sectionTitle === 'Shorts' || queryParams.get('view') === 'shortsTab';
   let shouldHide = false;
 
@@ -318,7 +318,7 @@ function ClaimPreviewTile(props: Props) {
               ) : (
                 <React.Fragment>
                   <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
-                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                    <ChannelThumbnail uri={channelUri || ''} xsmall checkMembership={false} />
                   </UriIndicator>
 
                   <div className="claim-tile__about">
@@ -334,7 +334,7 @@ function ClaimPreviewTile(props: Props) {
             </div>
             {isRepost && (
               <div className="claim-tile__repost-author">
-                <ClaimRepostAuthor uri={uri} />
+                <ClaimRepostAuthor uri={uri} short={false} />
               </div>
             )}
           </div>

@@ -8,10 +8,11 @@ type Props = {
   claim: Claim | null | undefined;
   // Get from parent, so we don't need to call the selector for each entry.
   resolvingUris: Array<string>;
-  onClick?: (arg0: MouseEvent) => void;
+  onClick?: (arg0: any) => void;
   noHoverHighlight?: boolean;
   iconRight?: string;
   iconRightOnHoverOnly?: boolean;
+  iconRightErrorColor?: boolean;
   hideInvalid?: boolean;
 };
 export default function Entry(props: Props) {
@@ -42,7 +43,7 @@ export default function Entry(props: Props) {
           </>
         ) : (
           <>
-            <ChannelThumbnail xsmall />
+            <ChannelThumbnail xsmall uri={uri} />
             <div className="entry__label">
               {uri === null ? (
                 <span className="entry__title">{'---'}</span>

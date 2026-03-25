@@ -119,7 +119,7 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <Button
                 icon={ICONS.EYE}
-                onClick={() => dispatch(doReadNotifications())}
+                onClick={() => dispatch(doReadNotifications([]))}
                 button="secondary"
                 label={__('Mark all as read')}
               />

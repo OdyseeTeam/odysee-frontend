@@ -71,6 +71,9 @@ const LivestreamPage = lazyImport(
 const ShortsPage = lazyImport(() => import('./internal/shorts'));
 type Props = {
   uri: string;
+  collectionId?: string;
+  linkedCommentId?: string;
+  threadCommentId?: string;
 };
 
 function dmcaInfo() {

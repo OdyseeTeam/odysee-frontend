@@ -14,6 +14,7 @@ import { doFetchChannelIsLiveForId, doSetIsLivePollingForChannelId } from 'redux
 type Props = {
   uri?: string;
   forceRender?: string;
+  [key: string]: any;
 };
 
 /**

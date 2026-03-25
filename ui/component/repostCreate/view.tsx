@@ -44,9 +44,11 @@ type Props = {
   uri: string;
   name: string;
   contentUri: string;
+  repostUri?: string;
   setRepostUri: (arg0: string) => void;
   setContentUri: (arg0: string) => void;
   isRepostPage?: boolean;
+  redirectUri?: string;
 };
 
 const addLbryIfNot = (term) => {
@@ -282,7 +284,7 @@ function RepostCreate(props: Props) {
           claim_id: repostClaimId,
         })
       ).then((repostClaim: StreamClaim) => {
-        dispatch(doCheckPendingClaims());
+        dispatch(doCheckPendingClaims(() => {}));
         analytics.apiLog.publish(repostClaim);
         dispatch(
           doToast({
@@ -400,7 +402,7 @@ function RepostCreate(props: Props) {
                 <FormField
                   type="number"
                   name="repost_bid"
-                  min="0"
+                  min={0}
                   step="any"
                   placeholder="0.123"
                   className="form-field--price-amount"

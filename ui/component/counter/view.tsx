@@ -1,8 +1,8 @@
 import React from 'react';
 import './style.scss';
 type Props = {
-  value: number;
-  precision: number;
+  value: number | string;
+  precision?: number;
   startFrom?: number;
 };
 const DIGITS = Array.from(

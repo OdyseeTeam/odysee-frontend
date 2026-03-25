@@ -4,7 +4,7 @@ import JoinMembershipCard from 'component/joinMembershipCard';
 import { useAppDispatch } from 'redux/hooks';
 import { doHideModal } from 'redux/actions/app';
 
-type Props = Record<string, never>;
+type Props = Record<string, any>;
 
 function ModalJoinMembership(props: Props) {
   const dispatch = useAppDispatch();
@@ -13,7 +13,7 @@ function ModalJoinMembership(props: Props) {
 
   return (
     <Modal onAborted={hideModal} isOpen type="card">
-      <JoinMembershipCard {...props} />
+      <JoinMembershipCard {...(props as any)} />
     </Modal>
   );
 }

@@ -16,11 +16,11 @@ import { useAppDispatch } from 'redux/hooks';
 import { doArSend } from 'redux/actions/arwallet';
 import './style.scss';
 type Props = {
-  cardHeader: any;
-  wallet: any;
-  balance: any;
-  arWalletStatus: any;
-  activeArStatus: any;
+  cardHeader?: any;
+  wallet?: any;
+  balance?: any;
+  arWalletStatus?: any;
+  activeArStatus?: any;
 };
 
 const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);

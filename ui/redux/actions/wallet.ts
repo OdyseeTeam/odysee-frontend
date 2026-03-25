@@ -788,7 +788,7 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
     const types = new Set([]);
     // { claimId: {txid: 123, amount 12.3}, }
     const entries = Object.entries(pendingSupportTxs);
-    entries.forEach(([claim, data]) => {
+    entries.forEach(([claim, data]: [string, any]) => {
       promises.push(
         Lbry.transaction_show({
           txid: data.txid,
@@ -816,7 +816,7 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
           }
         } else {
           if (result.height <= 0) {
-            const match = entries.find((entry) => entry[1].txid === result.txid);
+            const match = entries.find((entry) => (entry[1] as any).txid === result.txid);
             newPendingTxes[match[0]] = match[1];
           } else {
             changed = true;
@@ -939,18 +939,18 @@ export const doPurchaseClaimForUri =
       preorderTag,
     };
     const itsARental = transactionType === 'rental';
-    let tipAmount = 0;
-    let rentTipAmount = 0;
+    let tipAmount: number = 0;
+    let rentTipAmount: number = 0;
 
     if (tags.purchaseTag && tags.rentalTag) {
-      tipAmount = tags.purchaseTag;
-      rentTipAmount = tags.rentalTag.price;
+      tipAmount = Number(tags.purchaseTag);
+      rentTipAmount = Number(tags.rentalTag.price);
     } else if (tags.purchaseTag) {
-      tipAmount = tags.purchaseTag;
+      tipAmount = Number(tags.purchaseTag);
     } else if (tags.rentalTag) {
-      rentTipAmount = tags.rentalTag.price;
+      rentTipAmount = Number(tags.rentalTag.price);
     } else if (tags.preorderTag) {
-      tipAmount = tags.preorderTag;
+      tipAmount = Number(tags.preorderTag);
     }
 
     const amountToUse = itsARental ? rentTipAmount : tipAmount;

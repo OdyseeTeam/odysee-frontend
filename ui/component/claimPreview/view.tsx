@@ -60,7 +60,7 @@ import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { doResolveUri } from 'redux/actions/claims';
 import { doFileGetForUri } from 'redux/actions/file';
-import { selectBanStateForUri } from 'lbryinc';
+import { selectBanStateForUri, type BanState } from 'lbryinc';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectLanguage, selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectHasVisitedUri } from 'redux/selectors/content';
@@ -71,18 +71,18 @@ const AbandonedChannelPreview = lazyImport(
       'component/abandonedChannelPreview'
       /* webpackChunkName: "abandonedChannelPreview" */
     )
-);
+) as React.LazyExoticComponent<React.ComponentType<{ uri: string; type: string }>>;
 // preview images used on the landing page and on the channel page
 type Props = {
-  uri: string;
-  active: boolean;
-  showUserBlocked: boolean;
-  placeholder: string;
-  type: string;
+  uri?: string;
+  active?: boolean;
+  showUserBlocked?: boolean;
+  placeholder?: string;
+  type?: string;
   nonClickable?: boolean;
-  blockedUris: Array<string>;
-  actions: boolean | React.ReactNode | string | number;
-  properties: boolean | React.ReactNode | string | number | ((arg0: Claim) => React.ReactNode);
+  blockedUris?: Array<string>;
+  actions?: boolean | React.ReactNode | string | number;
+  properties?: boolean | React.ReactNode | string | number | ((arg0: Claim) => React.ReactNode);
   empty?: React.ReactNode;
   onClick?: (e: any, claim?: Claim | null, index?: number) => any;
   customShouldHide?: (arg0: Claim) => boolean;
@@ -113,8 +113,11 @@ type Props = {
   playItemsOnClick?: boolean;
   disableClickNavigation?: boolean;
   doDisablePlayerDrag?: (disable: boolean) => void;
+  showHiddenByUser?: boolean;
+  showNoSourceClaims?: boolean;
+  fypId?: string;
 };
-const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
+const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   const {
     // core
     uri,
@@ -162,7 +165,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
   const isCollection = claim && claim.value_type === 'collection';
-  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as BanState;
   const claimIsMine = useAppSelector((state) => (uri ? selectClaimIsMine(state, claim) : false));
   const date = useAppSelector((state) => (uri ? selectDateForUri(state, uri) : undefined));
   const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));
@@ -195,7 +198,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   const isCollectionOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
-  const WrapperElement = wrapperElement || 'li';
+  const WrapperElement: any = wrapperElement || 'li';
   const shouldFetch =
     claim === undefined || (claim !== null && claim.value_type === 'channel' && isEmpty(claim.meta) && !pending);
   const abandoned = !isResolvingUri && !claim;
@@ -246,7 +249,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
     }
   }
 
-  const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
   const navigateUrl =
     isCollection && listId && defaultCollectionAction === COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
@@ -440,7 +443,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
   if (!shouldFetch && showUnresolvedClaim && !isResolvingUri && isChannelUri && claim === null) {
     return (
       <React.Suspense fallback={null}>
-        <AbandonedChannelPreview uri={uri} type />
+        <AbandonedChannelPreview uri={uri} type={type || ''} />
       </React.Suspense>
     );
   }
@@ -489,7 +492,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
             'claim-preview--collection-editing': isMyCollection && showEdit,
           })}
         >
-          {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
+          {!hideRepostLabel && <ClaimRepostAuthor uri={uri} short={false} />}
           {showIndexes && (
             <span className="card__subtitle card__subtitle--small-no-margin claim-preview__list-index">
               {indexInContainer + 1}
@@ -508,7 +511,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link external={isEmbed}>
-              <ChannelThumbnail uri={uri} small={type === 'inline'} checkMembership={false} />
+              <ChannelThumbnail uri={uri} small={type === 'inline'} />
             </UriIndicator>
           ) : (
             <>
@@ -527,7 +530,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
                       </div>
                     )}
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} isSubscribed={false} iconOnly={false} xsmall={smallThumbnail} />
                     </div>
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
@@ -537,7 +540,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
                 <>
                   <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} pending />
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} isSubscribed={false} iconOnly={false} xsmall={smallThumbnail} pending />
                     </div>
                   </FileThumbnail>
                 </>
@@ -590,7 +593,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
                     <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
-                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall checkMembership={false} />
+                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall />
                     </UriIndicator>
                   </div>
                 )}
@@ -625,7 +628,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
               <div className="claim-preview__actions">
-                {!hideJoin && <JoinButton uri={uri} />}
+                {!hideJoin && <JoinButton />}
                 {!pending && (
                   <>
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
@@ -635,6 +638,7 @@ const ClaimPreview = forwardRef<any>((props: Props, ref: any) => {
                         {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
                           <SubscribeButton
                             uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                            shrinkOnMobile={false}
                           />
                         )}
                         {includeSupportAction && type && <ClaimSupportButton uri={uri} />}

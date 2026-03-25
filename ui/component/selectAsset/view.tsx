@@ -23,7 +23,7 @@ type Props = {
   otherValue: string | null | undefined;
   onUpdate: (arg0: any, arg1: any) => void;
   recommended: string;
-  title: string;
+  title?: string;
   onDone?: () => void;
   inline?: boolean;
 };
@@ -68,7 +68,7 @@ function SelectAsset(props: Props) {
   const [pathSelected, setPathSelected] = React.useState('');
   const [fileSelected, setFileSelected] = React.useState<any>(null);
   const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
-  const [imagePreview, setImagePreview] = React.useState(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const [crop, setCrop] = React.useState<Crop>();
   const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
   const imgRef = React.useRef(null);
@@ -78,8 +78,8 @@ function SelectAsset(props: Props) {
   const [cropInit, setCropInit] = React.useState(false);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
-  const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
-  const [imageTitle, setImageTitle] = React.useState();
+  const [uploadErrorMsg, setUploadErrorMsg] = React.useState<string | undefined>();
+  const [imageTitle, setImageTitle] = React.useState<string | undefined>();
   React.useEffect(() => {
     if (useUrl) {
       setUploadErrorMsg('');
@@ -382,7 +382,7 @@ function SelectAsset(props: Props) {
                   // file.path is undefined in web but available in electron
                   setPathSelected(file.name || file.path);
                   setUploadErrorMsg('');
-                  setImagePreview(URL.createObjectURL(file));
+                  setImagePreview(URL.createObjectURL(file as any));
 
                   if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
                     const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
@@ -426,12 +426,11 @@ function SelectAsset(props: Props) {
                   <div className="cropCanvas">
                     <ReactCrop
                       crop={crop}
-                      onChange={(c) => setCrop(c)}
-                      onComplete={(c) => setCompletedCrop(c)}
+                      onChange={(c: Crop) => setCrop(c)}
+                      onComplete={(c: PixelCrop) => setCompletedCrop(c)}
                       aspect={assetName === 'Cover Image' ? 32 / 5 : 1}
                       circularCrop={assetName === 'Thumbnail'}
-                      minWidth={assetName === 'Cover Image' ? null : 160}
-                      unit={'%'}
+                      minWidth={assetName === 'Cover Image' ? (null as any) : 160}
                     >
                       <img
                         ref={imgRef}
@@ -467,7 +466,7 @@ function SelectAsset(props: Props) {
             type="submit"
             label={useUrl ? __('Done') : __('Upload')}
             disabled={
-              !useUrl && (uploadStatus === STATUS.UPLOADING || !pathSelected || !fileSelected || uploadErrorMsg)
+              !useUrl && !!(uploadStatus === STATUS.UPLOADING || !pathSelected || !fileSelected || uploadErrorMsg)
             }
             onClick={() => {
               if (!useUrl) {

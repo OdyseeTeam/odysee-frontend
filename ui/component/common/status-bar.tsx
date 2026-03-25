@@ -1,59 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ipcRenderer } from 'electron';
 import classnames from 'classnames';
-type Props = {};
-type State = {
-  hoverUrl: string;
-  show: boolean;
-};
 
-class StatusBar extends React.PureComponent<Props, State> {
-  constructor() {
-    super();
-    this.state = {
-      hoverUrl: '',
-      show: false,
-    };
-    (this as any).handleUrlChange = this.handleUrlChange.bind(this);
-  }
+function StatusBar() {
+  const [hoverUrl, setHoverUrl] = useState('');
+  const [show, setShow] = useState(false);
 
-  componentDidMount() {
-    ipcRenderer.on('update-target-url', this.handleUrlChange);
-  }
-
-  componentWillUnmount() {
-    ipcRenderer.removeListener('update-target-url', this.handleUrlChange);
-  }
-
-  handleUrlChange(event: any, url: string) {
-    // We want to retain the previous URL so that it can fade out
-    // without the component collapsing.
+  const handleUrlChange = useCallback((_event: any, url: string) => {
     if (url === '') {
-      this.setState({
-        show: false,
-      });
+      setShow(false);
     } else {
-      this.setState({
-        show: true,
-      });
-      this.setState({
-        hoverUrl: url,
-      });
+      setShow(true);
+      setHoverUrl(url);
     }
-  }
+  }, []);
 
-  render() {
-    const { hoverUrl, show } = this.state;
-    return (
-      <div
-        className={classnames('status-bar', {
-          visible: show,
-        })}
-      >
-        {decodeURI(hoverUrl)}
-      </div>
-    );
-  }
+  useEffect(() => {
+    ipcRenderer.on('update-target-url', handleUrlChange);
+    return () => {
+      ipcRenderer.removeListener('update-target-url', handleUrlChange);
+    };
+  }, [handleUrlChange]);
+
+  return (
+    <div
+      className={classnames('status-bar', {
+        visible: show,
+      })}
+    >
+      {decodeURI(hoverUrl)}
+    </div>
+  );
 }
 
 export default StatusBar;

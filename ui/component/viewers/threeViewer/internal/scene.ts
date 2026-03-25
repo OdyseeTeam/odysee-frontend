@@ -30,11 +30,11 @@ const ViewerScene = ({ backgroundColor, showFog }) => {
 
   // Add fog
   if (showFog) {
-    scene.fog = new Fog(bg, 1, 54);
+    scene.fog = new Fog(bg.getHex(), 1, 54);
   }
 
   // Add basic lights
-  addLights(scene, 0xffffff, bg);
+  addLights(scene, 0xffffff, bg.getHex());
   // Return new three scene
   return scene;
 };

@@ -106,7 +106,7 @@ function getPasswordFromCookie() {
 }
 
 function deleteSavedPassword() {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     deleteCookie(SAVED_PASSWORD);
     resolve();
   });
@@ -121,14 +121,14 @@ function setAuthToken(value) {
 }
 
 function deleteAuthToken() {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     deleteCookie(AUTH_TOKEN);
     resolve();
   });
 }
 
 function doSignOutCleanup() {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     deleteAuthToken();
     deleteSavedPassword();
     sessionStorage.removeItem('bannerHidden');

@@ -10,8 +10,8 @@ import { getChannelIdFromClaim } from 'util/claim';
 
 type ChannelInfo = {
   uri: string;
-  name: string;
-  title: string;
+  name?: string | null;
+  title?: string;
 };
 type Props = {
   uri?: string;

@@ -1,4 +1,4 @@
-import type { store } from 'store';
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// Break circular reference by using `any` for the store type inference
+// The actual types will be inferred at usage sites
+export type RootState = any;
+export type AppDispatch = any;

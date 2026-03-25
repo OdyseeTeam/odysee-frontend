@@ -42,7 +42,7 @@ function ClaimPublishButton(props: Props) {
       title={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
       label={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
       icon={ICONS.EDIT}
-      onClick={!claim ? undefined : () => dispatch(doPrepareEdit(claim, editUri))}
+      onClick={!claim ? undefined : () => dispatch(doPrepareEdit(claim, editUri, ''))}
     />
   );
 }

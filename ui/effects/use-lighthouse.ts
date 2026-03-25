@@ -10,8 +10,8 @@ export default function useLighthouse(
   additionalOptions: any = {},
   throttleMs: number = 500
 ) {
-  const [results, setResults] = React.useState();
-  const [loading, setLoading] = React.useState();
+  const [results, setResults] = React.useState<Array<string> | null>();
+  const [loading, setLoading] = React.useState<boolean>();
   const queryString = query
     ? getSearchQueryString(query, {
         nsfw: showMature,

@@ -55,7 +55,7 @@ export type Events = {
 };
 export const events: Events = {
   setState: (enable: boolean) => {
-    gGoogleAnalyticsOn = enable && isProduction && window.gtag;
+    gGoogleAnalyticsOn = enable && isProduction && !!window.gtag;
 
     if (gGoogleAnalyticsOn) {
       window.gtag('consent', 'update', {

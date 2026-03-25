@@ -15,6 +15,7 @@ import { selectSubscriptions } from 'redux/selectors/subscriptions';
 
 type Props = {
   onContinue: () => void;
+  onBack?: () => void;
 };
 
 function UserChannelFollowIntro(props: Props) {

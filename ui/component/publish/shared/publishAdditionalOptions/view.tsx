@@ -20,7 +20,7 @@ import { selectUser } from 'redux/selectors/user';
 // @endif
 type Props = {
   disabled: boolean;
-  showSchedulingOptions: boolean;
+  showSchedulingOptions?: boolean;
   isLivestream?: boolean;
 };
 
@@ -67,9 +67,9 @@ function PublishAdditionalOptions(props: Props) {
                         })
                       }
                     >
-                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, unknown]) => (
                         <option key={langKey} value={langKey}>
-                          {langName}
+                          {langName as string}
                         </option>
                       ))}
                     </FormField>
@@ -84,12 +84,12 @@ function PublishAdditionalOptions(props: Props) {
                           licenseUrl: newLicenseUrl,
                         })
                       }
-                      handleLicenseDescriptionChange={(event) =>
+                      handleLicenseDescriptionChange={(event: any) =>
                         updatePublishForm({
                           otherLicenseDescription: event.target.value,
                         })
                       }
-                      handleLicenseUrlChange={(event) =>
+                      handleLicenseUrlChange={(event: any) =>
                         updatePublishForm({
                           licenseUrl: event.target.value,
                         })

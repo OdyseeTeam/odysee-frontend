@@ -14,6 +14,22 @@ import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
+type ChannelStats = {
+  ChannelSubs: number;
+  ChannelSubChange: number;
+  AllContentViews: number;
+  AllContentViewChange: number;
+  VideoURITopNew: string;
+  VideoViewsTopNew: number;
+  VideoViewChangeTopNew: number;
+  VideoURITopCommentNew: string;
+  VideoCommentTopCommentNew: number;
+  VideoCommentChangeTopCommentNew: number;
+  VideoURITopAllTime: string;
+  VideoViewsTopAllTime: number;
+  VideoViewChangeTopAllTime: number;
+};
+
 type Props = {
   uri: string;
 };
@@ -25,8 +41,8 @@ export default function CreatorAnalytics(props: Props) {
   const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
   const doResolveUris = (uris: Array<string>) => dispatch(doResolveUrisAction(uris));
   const navigate = useNavigate();
-  const [stats, setStats] = React.useState();
-  const [error, setError] = React.useState();
+  const [stats, setStats] = React.useState<ChannelStats | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
   const [fetchingStats, setFetchingStats] = React.useState(false);
   const claimId = claim && claim.claim_id;
   // TODO: put this back when hubs are fixed
@@ -52,7 +68,7 @@ export default function CreatorAnalytics(props: Props) {
       Lbryio.call('channel', 'stats', {
         claim_id: claimId,
       })
-        .then((res) => {
+        .then((res: ChannelStats) => {
           setFetchingStats(false);
           setStats(res);
         })

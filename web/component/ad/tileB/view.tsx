@@ -64,13 +64,13 @@ function AdTileB(props: Props) {
           })}
         >
           <script id="nrp-62" type="text/javascript" className="">
-            {(function (node) {
+            {(function (node: any): any {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = AD_CONFIG.rumble.url;
               if (node) node.appendChild(nrp);
-            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode) as any}
           </script>
         </div>
       </html>

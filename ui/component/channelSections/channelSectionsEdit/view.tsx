@@ -19,7 +19,7 @@ export default function ChannelSectionsEdit(props: Props) {
 
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const title = getClaimTitle(claim);
-  const thumbnailUrl = getThumbnailFromClaim(claim);
+  const thumbnailUrl = getThumbnailFromClaim(claim) as string | undefined;
   const coverUrl = useAppSelector((state) => makeSelectCoverForUri(uri)(state));
   // @todo: anything need to handle with 'creatingChannel' and 'updatingChannel' (i.e. while channel is being created)
   const [coverError, setCoverError] = React.useState(false);

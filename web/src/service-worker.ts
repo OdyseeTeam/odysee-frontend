@@ -1,3 +1,6 @@
+/// <reference lib="webworker" />
+declare const self: ServiceWorkerGlobalScope;
+
 import { initializeApp } from 'firebase/app';
 import { getMessaging } from 'firebase/messaging/sw';
 import { firebaseConfig } from '$web/src/firebase-config';
@@ -7,18 +10,18 @@ const NOTIFICATION_ICON = '/public/pwa/icon-512.png';
 const NOTIFICATION_BADGE = '/public/pwa/icon-96-alpha.png';
 // used to fetch the manifest file.
 self.addEventListener('fetch', () => {});
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (event: ExtendableEvent) => {
   // Activate worker immediately.
   event.waitUntil(self.skipWaiting());
 });
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event: ExtendableEvent) => {
   // Become available to all pages.
   event.waitUntil(self.clients.claim());
 });
-self.addEventListener('push', (event) => {
+self.addEventListener('push', (event: PushEvent) => {
   event.waitUntil(
     (async () => {
-      const { data } = event.data.json();
+      const { data } = event.data!.json();
       if (!data.title || !data.body || !data.link) return;
       return self.registration.showNotification(data.title, {
         body: data.body,
@@ -31,7 +34,7 @@ self.addEventListener('push', (event) => {
     })()
   );
 });
-self.addEventListener('notificationclick', async (event) => {
+self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
   event.waitUntil(
     (async () => {

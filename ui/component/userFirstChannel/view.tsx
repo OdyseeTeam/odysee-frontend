@@ -100,7 +100,7 @@ function UserFirstChannel(props: Props) {
         title: title,
         thumbnailUrl: params.thumbnailUrl,
         languages: primaryLanguage,
-      })
+      }, undefined)
     ).then((channelClaim) => {
       if (channelClaim) {
         analytics.apiLog.publish(channelClaim);
@@ -115,7 +115,7 @@ function UserFirstChannel(props: Props) {
     if (!isNameValid(value)) {
       setNameError(INVALID_NAME_ERROR);
     } else {
-      setNameError();
+      setNameError(undefined);
     }
   }
 
@@ -205,7 +205,7 @@ function UserFirstChannel(props: Props) {
                 </option>
                 {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
                   <option key={langKey} value={langKey}>
-                    {langName}
+                    {langName as string}
                   </option>
                 ))}
               </FormField>

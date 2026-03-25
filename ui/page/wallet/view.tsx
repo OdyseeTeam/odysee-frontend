@@ -121,7 +121,7 @@ const WalletPage = () => {
                   {!loading && (
                     <>
                       {showIntro && <YrblWalletEmpty includeWalletLink />}
-                      <div className="card-stack">{tabIndex === 1 && <TxoList search={search} />}</div>
+                      <div className="card-stack">{tabIndex === 1 && <TxoList />}</div>
                     </>
                   )}
                 </div>
@@ -138,7 +138,7 @@ const WalletPage = () => {
                   )}
                   {!loading && (
                     <>
-                      <div className="card-stack">{tabIndex === 2 && <TxoList search={search} />}</div>
+                      <div className="card-stack">{tabIndex === 2 && <TxoList />}</div>
                     </>
                   )}
                 </div>
@@ -155,7 +155,7 @@ const WalletPage = () => {
                   )}
                   {!loading && (
                     <>
-                      <div className="card-stack">{tabIndex === 3 && <TxoList search={search} />}</div>
+                      <div className="card-stack">{tabIndex === 3 && <TxoList />}</div>
                     </>
                   )}
                 </div>
@@ -178,7 +178,7 @@ const WalletPage = () => {
               <YrblWalletEmpty includeWalletLink />
             ) : (
               <div className="card-stack">
-                <TxoList search={search} />
+                <TxoList />
               </div>
             )}
           </>

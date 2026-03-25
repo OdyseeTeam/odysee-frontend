@@ -8,7 +8,7 @@ import { selectFilteredActiveLivestreamUris, selectIsFetchingActiveLivestreams }
 
 export default function LivestreamList() {
   const dispatch = useAppDispatch();
-  const activeLivestreamUris = useAppSelector(selectFilteredActiveLivestreamUris);
+  const activeLivestreamUris = useAppSelector((state) => (selectFilteredActiveLivestreamUris as any)(state));
   const fetchingActiveLivestreams = useAppSelector(selectIsFetchingActiveLivestreams);
 
   React.useEffect(() => {

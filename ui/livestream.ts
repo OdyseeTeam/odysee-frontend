@@ -2,6 +2,10 @@ import { LIVESTREAM_SERVER_API } from 'config';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
   enabled: Boolean(LIVESTREAM_SERVER_API),
+} as {
+  url: any;
+  enabled: boolean;
+  call: (resource: string, action: string, params?: Record<string, any>, method?: string) => Promise<any>;
 };
 
 function checkAndParse(response) {
@@ -48,7 +52,7 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
   });
   const qs = new URLSearchParams(params).toString();
   let url = `${Livestream.url}/${resource}/${action}?${qs}`;
-  let options = {
+  let options: RequestInit = {
     method: 'GET',
   };
 

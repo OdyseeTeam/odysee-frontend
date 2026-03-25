@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import { useLocation } from 'react-router-dom';

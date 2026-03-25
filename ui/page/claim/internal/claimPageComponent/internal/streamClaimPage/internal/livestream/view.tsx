@@ -26,6 +26,7 @@ const ChatLayout = lazyImport(
 );
 type Props = {
   uri: string;
+  accessStatus?: string;
 };
 export default function LivestreamPage(props: Props) {
   const { uri: propUri } = props;
@@ -48,7 +49,7 @@ export default function LivestreamPage(props: Props) {
     subCategory: string | null | undefined
   ) => dispatch(doCommentSocketConnectAction(u, channelName, cId, subCategory));
   const doCommentSocketDisconnect = (cId: string, channelName: string) =>
-    dispatch(doCommentSocketDisconnectAction(cId, channelName));
+    dispatch(doCommentSocketDisconnectAction(cId, channelName, undefined));
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const streamPlayingRef = React.useRef();

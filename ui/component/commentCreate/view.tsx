@@ -97,7 +97,7 @@ type ArTipParams = {
   tipChannelName: string;
   channelClaimId: string;
   recipientAddress: string;
-  currency: string;
+  currency: 'USD' | 'AR';
 };
 type UserParams = {
   activeChannelName: string | null | undefined;
@@ -191,7 +191,7 @@ export function CommentCreate(props: Props) {
     (channelId: string) => dispatch(doFetchCreatorSettingsAction(channelId)),
     [dispatch]
   );
-  const doToast = React.useCallback((params: { message: string }) => dispatch(doToastAction(params)), [dispatch]);
+  const doToast = React.useCallback((params: ToastParams) => dispatch(doToastAction(params)), [dispatch]);
   const doCommentById = React.useCallback(
     (commentId: string, toastIfNotFound: boolean) => dispatch(doCommentByIdAction(commentId, toastIfNotFound)),
     [dispatch]
@@ -232,8 +232,8 @@ export function CommentCreate(props: Props) {
   );
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { activeArStatus } = useArStatus();
   const isMobile = useIsMobile();
-  const activeArStatus = 'not-authenticated';
   const formFieldRef = React.useRef<InstanceType<typeof FormField> | null>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
@@ -243,24 +243,24 @@ export function CommentCreate(props: Props) {
     txid: undefined,
     tipAmount: undefined,
   });
-  const [tipSelectorOpen, setTipSelector] = React.useState();
-  const [isReviewingSupportComment, setReviewingSupportComment] = React.useState();
-  const [isReviewingStickerComment, setReviewingStickerComment] = React.useState();
-  const [selectedSticker, setSelectedSticker] = React.useState();
+  const [tipSelectorOpen, setTipSelector] = React.useState<boolean>(false);
+  const [isReviewingSupportComment, setReviewingSupportComment] = React.useState<boolean>(false);
+  const [isReviewingStickerComment, setReviewingStickerComment] = React.useState<boolean>(false);
+  const [selectedSticker, setSelectedSticker] = React.useState<any>(undefined);
   const [tipAmount, setTipAmount] = React.useState(1);
   // const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
   const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
-  const [activeTab, setActiveTab] = React.useState();
-  const [tipError, setTipError] = React.useState();
+  const [activeTab, setActiveTab] = React.useState<string | undefined>();
+  const [tipError, setTipError] = React.useState<any>();
   const [deletedComment, setDeletedComment] = React.useState(false);
-  const [showSelectors, setShowSelectors] = React.useState({
+  const [showSelectors, setShowSelectors] = React.useState<{ tab: any; open: boolean }>({
     tab: undefined,
     open: false,
   });
-  const [disableReviewButton, setDisableReviewButton] = React.useState();
-  const [exchangeRate, setExchangeRate] = React.useState();
-  const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
+  const [disableReviewButton, setDisableReviewButton] = React.useState<any>();
+  const [exchangeRate, setExchangeRate] = React.useState<number | undefined>();
+  const [tipModalOpen, setTipModalOpen] = React.useState<boolean | undefined>(undefined);
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
@@ -314,7 +314,7 @@ export function CommentCreate(props: Props) {
   );
   const commentSelectorsProps = React.useMemo(() => {
     return {
-      claimIsMine,
+      claimIsMine: Boolean(claimIsMine),
       addEmoteToComment,
       handleSelectSticker,
       isOpen: showSelectors.open,
@@ -429,7 +429,7 @@ export function CommentCreate(props: Props) {
     });
   }
 
-  function updateComment(imageUrl, imageTitle) {
+  function updateComment(imageUrl: string, imageTitle: string) {
     if (!imageTitle) imageTitle = '';
     let markdown = `![${imageTitle}](${imageUrl})`;
     setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${markdown} ` : `${markdown} `));
@@ -580,7 +580,7 @@ export function CommentCreate(props: Props) {
         // AR
         dry_run: true,
       };
-      doCommentCreate(uri, isLivestream, dryRunCommentParams)
+      doCommentCreate(uri, isLivestream, dryRunCommentParams as any)
         .then((res: Record<string, any>) => {
           if (res && res.signature) {
             // tell apis about a tip, get a token and amount
@@ -601,7 +601,7 @@ export function CommentCreate(props: Props) {
                   const { transactionId } = arTipResponse;
                   const params = Object.assign({}, dryRunCommentParams);
                   params.payment_tx_id = transactionId;
-                  params.dryrun = undefined;
+                  params.dry_run = false;
                   params.amount = tipAmount; // dollars
 
                   // ...
@@ -671,7 +671,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [dryRun] Optional flag to simulate the comment creation
    */
-  async function handleCreateComment(txid, payment_intent_id, payment_tx_id, environment, dryRun = false) {
+  async function handleCreateComment(txid?: any, payment_intent_id?: any, payment_tx_id?: any, environment?: any, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getCommentsMembersOnlyRestriction(
@@ -706,7 +706,7 @@ export function CommentCreate(props: Props) {
       amount: !!txid || !!payment_intent_id || !!payment_tx_id ? getAmount() : undefined,
       currency: 'AR',
       dry_run: dryRun,
-    })
+    } as any)
       .then((res) => {
         setSubmitting(false);
 
@@ -774,7 +774,7 @@ export function CommentCreate(props: Props) {
 
     BeforeUnload.register(handleBack, 'Creating comment');
     return () => {
-      BeforeUnload.unregister(handleBack, 'Creating comment');
+      BeforeUnload.unregister(handleBack);
     };
   }, [charCount]);
   // Fetch channel constraints if not already.
@@ -809,7 +809,7 @@ export function CommentCreate(props: Props) {
   }, [recipientArweaveTipInfo, doTipAccountCheckForUri, uri]);
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
-    function altEnterListener(e: React.KeyboardEvent<any>) {
+    function altEnterListener(e: any) {
       const inputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input;
 
       if (inputRef && inputRef.current === document.activeElement) {
@@ -985,12 +985,12 @@ export function CommentCreate(props: Props) {
               onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
               handleTip={() => handleSelectTipComment(TAB_USD)}
               handleSubmit={handleCreateComment}
-              slimInput={isMobile && uri} // "uri": make sure it's on a file page
+              slimInput={isMobile && !!uri} // "uri": make sure it's on a file page
               slimInputButtonRef={slimInputButtonRef}
               onSlimInputClose={onSlimInputClose}
               commentSelectorsProps={commentSelectorsProps}
               submitButtonRef={buttonRef}
-              setShowSelectors={setShowSelectors}
+              setShowSelectors={setShowSelectors as (arg0: { tab?: string; open: boolean }) => void}
               showSelectors={showSelectors}
               tipModalOpen={tipModalOpen}
               placeholder={__(commentLabelText)}

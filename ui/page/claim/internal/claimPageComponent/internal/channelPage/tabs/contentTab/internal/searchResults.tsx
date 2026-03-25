@@ -14,14 +14,14 @@ type Props = {
   hideShorts?: boolean;
   minDuration?: number | null | undefined;
   maxDuration?: number | null | undefined;
-  maxAspectRatio?: undefined;
+  maxAspectRatio?: number;
   contentType?: string | null | undefined;
   freshness?: string | null | undefined;
   durationParam?: string | null | undefined;
   customMinMinutes?: number | null | undefined;
   customMaxMinutes?: number | null | undefined;
   onResults?: (results: Array<string> | null | undefined) => void;
-  doResolveUris: (arg0: Array<string>, arg1: boolean) => void;
+  doResolveUris: (arg0: Array<string>, arg1?: boolean) => void;
 };
 export function SearchResults(props: Props) {
   const {

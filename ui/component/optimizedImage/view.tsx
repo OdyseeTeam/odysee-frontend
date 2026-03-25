@@ -33,6 +33,10 @@ type Props = {
   width?: number;
   quality?: number;
   waitLoad?: boolean;
+  loading?: 'eager' | 'lazy';
+  className?: string;
+  title?: string;
+  onError?: () => void;
 };
 
 function OptimizedImage(props: Props) {

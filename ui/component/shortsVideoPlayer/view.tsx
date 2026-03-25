@@ -4,10 +4,10 @@ import { useLocation } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 type Props = {
   uri: string,
-  upcomingUris: Array<string>,
+  upcomingUris?: Array<string>,
   isMobile: boolean,
   primaryPlayerWrapperClass: string,
-  nextRecommendedShort: ?string,
+  nextRecommendedShort: string | null | undefined,
   autoPlayNextShort: boolean,
   isAtEnd: boolean,
   onSwipeNext: () => void,

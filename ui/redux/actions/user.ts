@@ -58,7 +58,7 @@ export function doFetchInviteStatus(shouldCallRewardList = true) {
   };
 }
 export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, domain) {
-  const payload = {
+  const payload: Record<string, any> = {
     app_version: appVersion,
     domain,
   };
@@ -89,7 +89,7 @@ export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, doma
 
 function checkAuthBusy() {
   let time = Date.now();
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     (function waitForAuth() {
       try {
         sessionStorage.setItem('test', 'available');
@@ -612,7 +612,7 @@ export function doUserSignIn(email, password) {
 }
 export function doUserSignUp(email, password) {
   return (dispatch) =>
-    new Promise((resolve, reject) => {
+    new Promise<void>((resolve, reject) => {
       dispatch({
         type: ACTIONS.USER_EMAIL_NEW_STARTED,
         email,
@@ -1018,7 +1018,7 @@ export function doClaimYoutubeChannels() {
                 return null;
               })
             ).then(() => {
-              const actions = [
+              const actions: any[] = [
                 {
                   type: ACTIONS.USER_YOUTUBE_IMPORT_SUCCESS,
                   data: transferResponse,
@@ -1067,7 +1067,7 @@ export function doFetchUserLocale(isRetry = false) {
   return (dispatch) => {
     fetch(LOCALE_API)
       .then(async (res) => {
-        let json = {};
+        let json: Record<string, any> = {};
 
         try {
           json = await res.json();

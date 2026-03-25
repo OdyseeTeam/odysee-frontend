@@ -6,7 +6,7 @@ import { useAppSelector } from 'redux/hooks';
 import { selectTheme } from 'redux/selectors/settings';
 
 type Props = {
-  type: string;
+  type?: string;
 };
 export default function Logo(props: Props) {
   const { type } = props;

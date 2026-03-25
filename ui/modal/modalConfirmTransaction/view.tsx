@@ -42,7 +42,7 @@ function ModalConfirmTransaction(props: Props) {
         claim_id: claimId,
         channel_id: (!incognito && activeChannelClaim && activeChannelClaim.claim_id) || undefined,
       };
-      dispatch(doSendTip(tipParams, false));
+      dispatch(doSendTip(tipParams, false, undefined, undefined));
     } else {
       dispatch(doSendDraftTransaction(destination, amount));
     }

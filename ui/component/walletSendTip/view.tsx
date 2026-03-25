@@ -48,7 +48,7 @@ type ArTipParams = {
   tipChannelName: string;
   channelClaimId: string;
   recipientAddress: string;
-  currency: string;
+  currency: 'USD' | 'AR';
 };
 type UserParams = {
   activeChannelName: string | null | undefined;
@@ -62,6 +62,8 @@ type Props = {
   customText?: string;
   setAmount?: (arg0: number, arg1: string) => void;
   modalProps?: any;
+  claimIsMine?: boolean;
+  onCancel?: () => void;
 };
 export default function WalletSendTip(props: Props) {
   const { uri, isTipOnly, hasSelectedTab, customText, setAmount, modalProps } = props;
@@ -108,8 +110,8 @@ export default function WalletSendTip(props: Props) {
   // tipAmount: number 12.345, round later
   const [tipAmount, setTipAmount] = usePersistedState('comment-support:customTip', 1.0);
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
-  const [tipError, setTipError] = React.useState();
-  const [disableSubmitButton, setDisableSubmitButton] = React.useState();
+  const [tipError, setTipError] = React.useState<string>();
+  const [disableSubmitButton, setDisableSubmitButton] = React.useState<boolean>();
 
   /** CONSTS **/
   const boostThisContentText = getBoostThisContentText();
@@ -209,7 +211,7 @@ export default function WalletSendTip(props: Props) {
         channel_id: (!incognito && activeChannelId) || undefined,
       };
       // send tip/boost
-      doSendTip_(supportParams, isSupport);
+      doSendTip_(supportParams, isSupport, undefined, undefined);
       doHideModal_();
     }
   }
@@ -250,7 +252,7 @@ export default function WalletSendTip(props: Props) {
           activeChannelId,
         };
         // hit backend to send tip
-        doArTip_(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
+        doArTip_(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment)
           .then((r) => {
             if (r.error) {
               throw new Error(r.error);

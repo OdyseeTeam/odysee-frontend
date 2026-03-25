@@ -184,7 +184,7 @@ function PublishLivestream(props: Props) {
               value={title}
               onChange={handleTitleChange}
               className="fieldset-group"
-              max="200"
+              max={200}
               autoFocus
               autoComplete="off"
             />
@@ -273,6 +273,7 @@ function PublishLivestream(props: Props) {
                                     >
                                       <td>
                                         <FormField
+                                          name="livestream-file"
                                           type="radio"
                                           checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
                                           label={null}
@@ -392,7 +393,7 @@ function PublishLivestream(props: Props) {
                     )}
                   </label>
                   <div className="main empty--centered-tight">
-                    <Spinner small />
+                    <Spinner type="small" />
                   </div>
                 </>
               )}

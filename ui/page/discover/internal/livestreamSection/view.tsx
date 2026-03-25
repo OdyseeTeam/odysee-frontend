@@ -91,7 +91,7 @@ export default function LivestreamSection(props: Props) {
           useSkeletonScreen={false}
           showHeader={false}
           hideFilters
-          hideMembersOnlyContent={hideMembersOnlyContent}
+          hideMembersOnly={hideMembersOnlyContent}
           infiniteScroll={false}
           loading={false}
           showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
@@ -140,7 +140,7 @@ export default function LivestreamSection(props: Props) {
         infiniteScroll={false}
         loading={false}
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
-        hideMembersOnlyContent={hideMembersOnlyContent}
+        hideMembersOnly={hideMembersOnlyContent}
       />
 
       {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (

@@ -6,7 +6,9 @@ import { walletReducer } from 'redux/reducers/wallet';
 import { publishReducer } from 'redux/reducers/publish';
 import { collectionsReducer } from 'redux/reducers/collections';
 import appReducer from 'redux/reducers/app';
+// @ts-ignore - circular type alias resolved at runtime
 import tagsReducer from 'redux/reducers/tags';
+// @ts-ignore - circular type alias resolved at runtime
 import contentReducer from 'redux/reducers/content';
 import settingsReducer from 'redux/reducers/settings';
 import subscriptionsReducer from 'redux/reducers/subscriptions';
@@ -17,6 +19,7 @@ import membershipsReducer from 'redux/reducers/memberships';
 import stripeReducer from 'redux/reducers/stripe';
 import arWalletReducer from 'redux/reducers/arwallet';
 import commentsReducer from 'redux/reducers/comments';
+// @ts-ignore - circular type alias resolved at runtime
 import blockedReducer from 'redux/reducers/blocked';
 import coinSwapReducer from 'redux/reducers/coinSwap';
 import livestreamReducer from 'redux/reducers/livestream';

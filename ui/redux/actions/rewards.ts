@@ -5,7 +5,9 @@ import * as ACTIONS from 'constants/action_types';
 import { selectUnclaimedRewards, selectWeeklyWatchClaimedThisWeek } from 'redux/selectors/rewards';
 import { selectUserIsRewardApproved } from 'redux/selectors/user';
 import { doFetchInviteStatus } from 'redux/actions/user';
-import rewards from 'rewards';
+import rewardsImport from 'rewards';
+
+const rewards = rewardsImport as any;
 import { resolveApiMessage } from 'util/api-message';
 export function doRewardList() {
   return (dispatch) => {
@@ -33,7 +35,7 @@ export function doRewardList() {
       });
   };
 }
-export function doClaimRewardType(rewardType, options = {}) {
+export function doClaimRewardType(rewardType: string, options: { failSilently?: boolean; callbacks?: any; params?: any; callback?: (...args: any[]) => void; notifyError?: boolean } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const userIsRewardApproved = selectUserIsRewardApproved(state);

@@ -128,7 +128,7 @@ export default function YoutubeSync(props: Props) {
     if (!isNameValid(value)) {
       setNameError(INVALID_NAME_ERROR);
     } else {
-      setNameError();
+      setNameError(undefined);
     }
   }
 
@@ -144,8 +144,7 @@ export default function YoutubeSync(props: Props) {
         {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
             <>
-              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} autoOpenSync={shouldAutoOpenSync} />
-              {transferFooter}
+              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel as any} autoOpenSync={shouldAutoOpenSync} />
             </>
           </React.Suspense>
         ) : (
@@ -193,7 +192,7 @@ export default function YoutubeSync(props: Props) {
                   onChange={(event) => setLanguage(event.target.value)}
                   value={language}
                 >
-                  {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                  {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, any]) => (
                     <option key={langKey} value={langKey}>
                       {langName}
                     </option>
@@ -234,7 +233,7 @@ export default function YoutubeSync(props: Props) {
                   />
 
                   {inSignUpFlow && !hasYoutubeAuthError && (
-                    <Button button="link" label={__('Skip')} onClick={() => doToggleInterestedInYoutubeSync()} />
+                    <Button button="link" label={__('Skip')} onClick={() => doToggleInterestedInYoutubeSync?.()} />
                   )}
 
                   {hasYoutubeAuthError && (

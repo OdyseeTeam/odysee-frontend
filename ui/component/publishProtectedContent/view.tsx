@@ -15,7 +15,7 @@ import { doMembershipContentforStreamClaimId, doMembershipList } from 'redux/act
 
 type Props = {
   claim: Claim;
-  isStillEditing: boolean;
+  isStillEditing?: boolean;
 };
 
 function PublishProtectedContent(props: Props) {

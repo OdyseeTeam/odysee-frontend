@@ -393,7 +393,7 @@ function getClaimCopyMetadata(claim: StreamClaim | null | undefined): ClaimCopyM
 }
 
 function getFieldAvailabilityForClaim(claim: StreamClaim | null | undefined): Record<string, boolean> {
-  const availability = {};
+  const availability: Record<string, boolean> = {};
   COPYABLE_FIELDS.forEach((field) => {
     availability[field.key] = false;
   });

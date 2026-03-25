@@ -26,11 +26,11 @@ function ModalWalletUnlock(props: Props) {
   const unlockWallet = (pwd: string) => dispatch(doWalletUnlock(pwd));
 
   useEffect(() => {
-    getSavedPassword().then((p) => {
+    getSavedPassword().then((p: unknown) => {
       if (p !== null) {
-        setPassword(p);
+        setPassword(p as string);
         setRememberPassword(true);
-        unlockWallet(p);
+        unlockWallet(p as string);
       } else if (shouldTryWithBlankPassword) {
         unlockWallet('');
       }
@@ -60,7 +60,7 @@ function ModalWalletUnlock(props: Props) {
       title={__('Unlock wallet')}
       contentLabel={__('Unlock wallet')}
       type="confirm"
-      shouldCloseOnOverlayClick={false}
+      disableOutsideClick
       confirmButtonLabel={__('Unlock')}
       abortButtonLabel={__('Exit')}
       onConfirmed={() => unlockWallet(password)}

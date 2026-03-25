@@ -23,7 +23,7 @@ function ModalConfirmThumbnailUpload(props: Props) {
 
   function handleConfirmed() {
     if (file) {
-      dispatch(doUploadThumbnail('', file, null, null, file.path, cb));
+      dispatch(doUploadThumbnail('', file as any, null, null, file.path, cb));
       dispatch(
         doUpdatePublishForm({
           thumbnailPath: file.path,
@@ -34,7 +34,7 @@ function ModalConfirmThumbnailUpload(props: Props) {
   }
 
   React.useEffect(() => {
-    const imgSrc = URL.createObjectURL(file);
+    const imgSrc = URL.createObjectURL(file as any);
     setImageSrc(imgSrc);
     return () => {
       if (imgSrc) {

@@ -41,6 +41,7 @@ export { selectFilteredData, selectFilteredDataForUri } from './redux/selectors/
 // } from './redux/selectors/homepage';
 export { selectViewCount, selectViewCountForUri, selectSubCountForUri } from './redux/selectors/stats';
 export { selectBanStateForUri } from './redux/selectors/ban';
+export type { BanState } from './redux/selectors/ban';
 export {
   selectHasSyncedWallet,
   selectSyncData,

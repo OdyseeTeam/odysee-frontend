@@ -30,23 +30,23 @@ const INITIAL_VISIBLE_COUNT = 50;
 const LOAD_MORE_COUNT = 50;
 const ACTIVE_ITEM_BUFFER = Math.round(INITIAL_VISIBLE_COUNT / 2);
 type Props = {
-  uris: Array<string>;
+  uris?: Array<string>;
   prefixUris?: Array<string>;
-  header: React.ReactNode | boolean;
-  headerAltControls: React.ReactNode;
-  loading: boolean;
+  header?: React.ReactNode | boolean;
+  headerAltControls?: React.ReactNode;
+  loading?: any;
   useLoadingSpinner?: boolean;
   // use built-in spinner when 'loading' is true. Else, roll your own at client-side.
-  type: string;
+  type?: string;
   activeUri?: string;
-  empty?: string;
+  empty?: string | React.ReactNode;
   defaultSort?: boolean;
-  onScrollBottom?: (arg0: any) => void;
+  onScrollBottom?: (arg0?: any) => void;
   page?: number;
   pageSize?: number;
   // If using the default header, this is a unique ID needed to persist the state of the filter setting
   persistedStorageKey?: string;
-  showHiddenByUser: boolean;
+  showHiddenByUser?: boolean;
   showUnresolvedClaims?: boolean;
   renderActions?: (arg0: Claim) => React.ReactNode | null | undefined;
   renderProperties?: (arg0: Claim) => React.ReactNode | null | undefined;
@@ -56,8 +56,8 @@ type Props = {
   tileLayout?: boolean;
   hideMenu?: boolean;
   hideJoin?: boolean;
-  claimSearchByQuery: Record<string, Array<string>>;
-  claimsByUri: Record<string, any>;
+  claimSearchByQuery?: Record<string, Array<string>>;
+  claimsByUri?: Record<string, any>;
   collectionId?: string;
   fypId?: string;
   showNoSourceClaims?: boolean;
@@ -81,6 +81,10 @@ type Props = {
   setHasActive?: (has: boolean) => void;
   isShortFromChannelPage?: boolean;
   sectionTitle?: HomepageTitles;
+  searchOptions?: ClaimSearchOptions;
+  placeholder?: string;
+  showNullPlaceholder?: boolean;
+  onHidden?: (arg0: any) => void;
 };
 export default function ClaimList(props: Props) {
   const {
@@ -138,10 +142,10 @@ export default function ClaimList(props: Props) {
   const queryParams = new URLSearchParams(location.search);
   const isShorts = queryParams.get('view') === 'shortsTab';
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
-  const uriBuffer = React.useRef([]);
-  const currentActiveItem = React.useRef();
+  const uriBuffer = React.useRef<number[]>([]);
+  const currentActiveItem = React.useRef<string>();
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
-  const listRef = React.useRef();
+  const listRef = React.useRef<HTMLElement>(null);
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
   // Exclude prefix uris in these results variables. We don't want to show
@@ -250,7 +254,7 @@ export default function ClaimList(props: Props) {
       key={uri}
       indexInContainer={index}
       type={type}
-      active={activeUri && uri === activeUri}
+      active={!!(activeUri && uri === activeUri)}
       hideMenu={hideMenu}
       hideJoin={hideJoin}
       includeSupportAction={includeSupportAction}
@@ -299,7 +303,7 @@ export default function ClaimList(props: Props) {
       setHasActive(sortedUris.some((uri) => activeUri && uri === activeUri));
     }
   }, [activeUri, setHasActive, sortedUris]);
-  const scrollableListRef = React.useRef();
+  const scrollableListRef = React.useRef<HTMLElement | null>(null);
   const listRefCb = React.useCallback(
     (node) => {
       if (node) {
@@ -441,8 +445,8 @@ export default function ClaimList(props: Props) {
                       const topForDrawer = Number(
                         document.documentElement?.style?.getPropertyValue('--content-height') || 0
                       );
-                      const playerInfo = isDraggingFromFloatingPlayer && document.querySelector('.content__info');
-                      const playerElem = isDraggingFromFloatingPlayer && document.querySelector('.content__viewer');
+                      const playerInfo = isDraggingFromFloatingPlayer && (document.querySelector('.content__info') as HTMLElement | null);
+                      const playerElem = isDraggingFromFloatingPlayer && (document.querySelector('.content__viewer') as HTMLElement | null);
                       const playerTransform = playerElem && playerElem.style.transform;
                       let playerTop =
                         playerTransform &&
@@ -450,15 +454,16 @@ export default function ClaimList(props: Props) {
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
                       assert(dp.style, 'Invalid style detected. Please fix Flow warnings below.');
+                      const dpStyle = draggableProvided.draggableProps.style as Record<string, any>;
                       // prettier-ignore
                       const style = { ...draggableProvided.draggableProps.style,
                 transform,
                 top: isDraggingFromFloatingPlayer
-                ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop) : isDraggingFromMobile
-                ? draggableProvided.draggableProps.style.top - topForDrawer
-                : draggableProvided.draggableProps.style.top,
-                left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
-                right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right
+                ? dpStyle.top - (playerInfo as HTMLElement | null)?.offsetTop! - Number(playerTop) : isDraggingFromMobile
+                ? dpStyle.top - topForDrawer
+                : dpStyle.top,
+                left: isDraggingFromFloatingPlayer ? undefined : dpStyle.left,
+                right: isDraggingFromFloatingPlayer ? undefined : dpStyle.right
               };
                       const isActive = activeUri && uri === activeUri;
                       return (

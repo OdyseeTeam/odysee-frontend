@@ -8,11 +8,11 @@
  * Author: Roy van Kaathoven
  * Contact: ik@royvankaathoven.nl
  */
-(function (document, window) {
+(function (document: Document, window: Window & { inlineAttachment?: any }) {
   'use strict';
 
   // eslint-disable-next-line unicorn/consistent-function-scoping
-  var inlineAttachment = function (options, instance) {
+  var inlineAttachment: any = function (this: any, options: any, instance: any) {
     this.settings = inlineAttachment.util.merge(options, inlineAttachment.defaults);
     this.editor = instance;
     this.filenameTag = '{filename}';
@@ -68,21 +68,21 @@
      * @param  {HtmlElement} el
      * @param  {String} value Text which will be inserted at the cursor position
      */
-    insertTextAtCursor: function (el, text) {
+    insertTextAtCursor: function (el: any, text: string) {
       var scrollPos = el.scrollTop,
         strPos = 0,
-        browser = false,
-        range;
+        browser: string | false = false,
+        range: any;
 
       if (el.selectionStart || el.selectionStart === '0') {
         browser = 'ff';
-      } else if (document.selection) {
+      } else if ((document as any).selection) {
         browser = 'ie';
       }
 
       if (browser === 'ie') {
         el.focus();
-        range = document.selection.createRange();
+        range = (document as any).selection.createRange();
         range.moveStart('character', -el.value.length);
         strPos = range.text.length;
       } else if (browser === 'ff') {
@@ -96,7 +96,7 @@
 
       if (browser === 'ie') {
         el.focus();
-        range = document.selection.createRange();
+        range = (document as any).selection.createRange();
         range.moveStart('character', -el.value.length);
         range.moveStart('character', strPos);
         range.moveEnd('character', 0);

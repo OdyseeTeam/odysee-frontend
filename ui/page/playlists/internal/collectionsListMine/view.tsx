@@ -23,7 +23,7 @@ import {
 } from 'redux/selectors/collections';
 import { doResolveClaimIds } from 'redux/actions/claims';
 import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
-type Props = {};
+type Props = { handleCreatePlaylist?: () => void };
 // Avoid prop drilling
 export const CollectionsListContext = React.createContext<any>({
   searchText: '',
@@ -116,7 +116,7 @@ export default function CollectionsListMine(props: Props) {
       const collectionB = { ...collectionsById[b], ...updatedCollections[b] };
       let firstComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionA : collectionB;
       let secondComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionB : collectionA;
-      const comparisonObj = {};
+      const comparisonObj: { a?: string | number; b?: string | number } = {};
 
       if (sortOption.key === COLS.SORT_KEYS.NAME) {
         const nameComparisonObj = {
@@ -125,7 +125,7 @@ export default function CollectionsListMine(props: Props) {
         };
         Object.assign(comparisonObj, nameComparisonObj);
         // Only name (string) has a different return than when sorting numbers
-        return comparisonObj.a.localeCompare(comparisonObj.b);
+        return String(comparisonObj.a).localeCompare(String(comparisonObj.b));
       }
 
       function getComparisonObj() {

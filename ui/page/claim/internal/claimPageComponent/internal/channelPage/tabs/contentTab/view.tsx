@@ -43,12 +43,12 @@ const HiddenNsfwClaims = lazyImport(
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 type Props = {
   uri: string;
-  filters: any;
-  channelIsBlackListed: boolean;
+  filters?: any;
+  channelIsBlackListed?: boolean;
   defaultPageSize?: number;
   defaultInfiniteScroll?: boolean;
-  viewHiddenChannels: boolean;
-  claimType: string;
+  viewHiddenChannels?: boolean;
+  claimType?: string;
   empty?: string;
   shortsOnly?: boolean;
   excludeShorts?: boolean;
@@ -100,6 +100,7 @@ function ContentTab(props: Props) {
   const isChannelSearch = searchQuery.trim().length > 2;
   const claimSearchFilterCtx = {
     contentTypes: CS.CONTENT_TYPES,
+    liftUpTagSearch: false,
     repost: {
       hideReposts,
       setHideReposts,
@@ -141,7 +142,7 @@ function ContentTab(props: Props) {
 
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
         <React.Suspense fallback={null}>
-          <HiddenNsfwClaims uri={uri} />
+          <HiddenNsfwClaims uri={uri} className={undefined} />
         </React.Suspense>
       )}
 
@@ -181,7 +182,7 @@ function ContentTab(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && (
         <React.Suspense fallback={null}>
-          <HiddenNsfwClaims uri={uri} />
+          <HiddenNsfwClaims uri={uri} className={undefined} />
         </React.Suspense>
       )}
       {!fetching && (
@@ -199,7 +200,7 @@ function ContentTab(props: Props) {
             tileLayout={tileLayout}
             uris={searchQuery.length > 2 || isSearching ? [] : null}
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={searchQuery.length < 3 && [claimId]}
+            channelIds={searchQuery.length < 3 ? [claimId].filter(Boolean) as string[] : undefined}
             claimType={claimType}
             feeAmount={undefined}
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}

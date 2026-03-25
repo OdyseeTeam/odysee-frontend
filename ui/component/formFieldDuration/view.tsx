@@ -51,7 +51,7 @@ export default function FormFieldDuration(props: Props) {
       return;
     }
 
-    const seconds = parseDuration(value, 's');
+    const seconds = parseDuration(String(value), 's');
 
     if (Number.isInteger(seconds) && seconds > 0) {
       const max = maxDurationInSeconds || ONE_HUNDRED_YEARS_IN_SECONDS;

@@ -42,15 +42,15 @@ export default function LivestreamSetupPage() {
   const editingURI = publishFormValues?.editingURI;
   const hasChannels = useAppSelector(selectHasChannels);
   const fetchingChannels = useAppSelector(selectFetchingMyChannels);
-  const myLivestreamClaims = useAppSelector((state) => makeSelectLivestreamsForChannelId(channelId)(state));
-  const pendingClaims = useAppSelector((state) => makeSelectPendingLivestreamsForChannelId(channelId)(state));
+  const myLivestreamClaims = useAppSelector((state) => makeSelectLivestreamsForChannelId(channelId)(state)) as Array<StreamClaim>;
+  const pendingClaims = useAppSelector((state) => makeSelectPendingLivestreamsForChannelId(channelId)(state)) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
   const isMobile = useIsMobile();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
-  const [sigData, setSigData] = React.useState({
+  const [sigData, setSigData] = React.useState<{ signature: any; signing_ts: any }>({
     signature: undefined,
     signing_ts: undefined,
   });
@@ -151,7 +151,7 @@ export default function LivestreamSetupPage() {
 
   const filterPending = (claims: Array<StreamClaim>) => {
     return claims.filter((claim) => {
-      return !pendingClaims.some((pending) => pending.permanent_url === claim.permanent_url);
+      return !pendingClaims.some((pending: any) => pending.permanent_url === claim.permanent_url);
     });
   };
 
@@ -195,7 +195,7 @@ export default function LivestreamSetupPage() {
     }
   }, [urlTab]);
 
-  const HeaderMenu = (e) => {
+  const HeaderMenu = (e: { disabled?: boolean; isEditing?: string | boolean }) => {
     return (
       <>
         <Button
@@ -219,7 +219,7 @@ export default function LivestreamSetupPage() {
           onClick={() => {
             setTab('Setup');
           }}
-          disabled={e.disabled || e.isEditing}
+          disabled={e.disabled || !!e.isEditing}
           className={classnames('button-toggle', {
             'button-toggle--active': tab === 'Setup',
           })}
@@ -235,7 +235,7 @@ export default function LivestreamSetupPage() {
 
   return (
     <Page>
-      {balance < 0.01 && <YrblWalletEmpty />}
+      {balance < 0.01 && <YrblWalletEmpty includeWalletLink />}
       <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
         <label>

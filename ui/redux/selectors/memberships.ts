@@ -201,7 +201,7 @@ export const selectMyPurchasedMembershipsFromCreators = createSelector(
   selectMyPurchasedMembershipsFromCreatorsById,
   (myPurchasedCreatorMemberships) =>
     myPurchasedCreatorMemberships &&
-    Object.values(myPurchasedCreatorMemberships).reduce((acc, val) => acc.concat(val), [])
+    Object.values(myPurchasedCreatorMemberships).reduce((acc: any[], val: any) => acc.concat(val), [])
 );
 export const selectMyActiveMembershipsForCreatorId = (state: State, id: string) => {
   const myActiveMembershipsById = selectMyActiveMembershipsById(state);
@@ -257,8 +257,8 @@ export const selectUserHasValidOdyseeMembership = (state: State) =>
 // deprecated
 export const selectMyValidMembershipIds = createSelector(selectMyValidMembershipsById, (validMembershipsById) => {
   const validMembershipIds = new Set([]);
-  Object.entries(validMembershipsById).forEach(([key, value]) => {
-    value.forEach((value) => {
+  Object.entries(validMembershipsById).forEach(([key, value]: [string, any]) => {
+    (value as any[]).forEach((value) => {
       validMembershipIds.add(value.membership.id);
     });
   });
@@ -427,16 +427,15 @@ export const selectCreatorHasMembershipsByUri = createSelector(
   selectArEnabledMembershipTiersForChannelUri,
   (memberships) => Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
 );
-// @ts-ignore
-export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier => {
+export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier | undefined => {
   const myPurchasedCreatorMemberships = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
   if (!myPurchasedCreatorMemberships) return myPurchasedCreatorMemberships;
   const creatorMembershipTiers = selectMembershipTiersForCreatorId(state, creatorId);
-  if (!creatorMembershipTiers) return creatorMembershipTiers;
+  if (!creatorMembershipTiers) return creatorMembershipTiers as undefined;
   // This is needed because some data like Perks is present in membership_list call,
   // but returns null on membership_mine
   return Object.assign(
-    {},
+    {} as MembershipTier,
     myPurchasedCreatorMemberships[0],
     creatorMembershipTiers.find((membershipSub) => membershipSub.membership_id === myPurchasedCreatorMemberships[0].id)
   );
@@ -503,7 +502,7 @@ export const selectProtectedContentMembershipsForId = (state: State, claimId: Cl
   if (!membershipsById) return undefined;
   // Map the restricted membership IDs to their full membership objects if available
   const result = [];
-  membershipIdsSet.forEach((id) => {
+  membershipIdsSet.forEach((id: any) => {
     const membership = membershipsById[id];
     if (membership) result.push(membership);
   });
@@ -586,7 +585,7 @@ export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
       (membership: CreatorMembership) =>
         membership.perks &&
         membership.perks.some((perk: MembershipOdyseePerk) => {
-          if (perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id) {
+          if (String(perk.id) === String(MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id)) {
             membershipIds.add(membership.membership_id);
             return true;
           }
@@ -603,7 +602,7 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
       (membership: MembershipTier) =>
         membership.perks &&
         membership.perks.some(
-          (perk: MembershipOdyseePerk) => perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id
+          (perk: MembershipOdyseePerk) => String(perk.id) === String(MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id)
         )
     )
 );
