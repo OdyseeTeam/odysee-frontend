@@ -135,6 +135,21 @@ const onPlayerReady = (player, options) => {
 };
 
 /**
+ * Detect if device has touch capability
+ *
+ * @function hasTouch
+ * @return   {boolean}
+ *           True if device supports touch events
+ */
+const hasTouch = () => {
+  return (
+    'ontouchstart' in window ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+    (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0)
+  );
+};
+
+/**
  * A video.js plugin.
  *
  * Adds a monile UI for player control, and fullscreen orientation control
@@ -162,7 +177,13 @@ const onPlayerReady = (player, options) => {
  *           Never shows if the endscreen plugin is present
  */
 function mobileUi(options) {
-  if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
+  // Activate mobile UI for:
+  // 1. Android/iOS devices
+  // 2. Safari/WebKit browsers with touch capability (fixes GNOME Web on touchscreen laptops)
+  const shouldActivate =
+    videojs.browser.IS_ANDROID || videojs.browser.IS_IOS || (hasTouch() && videojs.browser.IS_SAFARI);
+
+  if (shouldActivate) {
     this.ready(() => onPlayerReady(this, videojs.mergeOptions(defaults, options)));
   }
 }
