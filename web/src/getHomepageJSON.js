@@ -26,7 +26,7 @@ const loadAnnouncements = (homepageKeys) => {
 if (!memo.homepageData) {
   if (process.env.CUSTOM_HOMEPAGE === 'true') {
     try {
-      const customPath = path.resolve(__dirname, '../../custom/homepages/v2/index.cjs');
+      const customPath = path.resolve(__dirname, '../../custom/homepages/v2/index.js');
       memo.homepageData = require(customPath);
       memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
     } catch (err) {
