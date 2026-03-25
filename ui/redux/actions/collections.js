@@ -407,7 +407,6 @@ const doFetchCollectionItems =
     };
 
     try {
-      const state = getState();
       const batchSize = pageSize || FETCH_BATCH_SIZE;
       const uriBatches: Array<Promise<any>> = [];
       const idBatches: Array<Promise<any>> = [];
@@ -447,10 +446,12 @@ const doFetchCollectionItems =
       // Related to above. Collection with deleted items would never get "resolved: true" status.
       // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
       if (itemsWereFetching) {
-        const resolvingIds = selectResolvingIds(state);
-        const resolvingUris = selectResolvingUris(state);
-        const failedToResolveUris = selectFailedToResolveUris(state);
-        const failedToResolveIds = selectFailedToResolveIds(state);
+        // Use fresh state after async batch resolution, not the stale pre-fetch state.
+        const freshState = getState();
+        const resolvingIds = selectResolvingIds(freshState);
+        const resolvingUris = selectResolvingUris(freshState);
+        const failedToResolveUris = selectFailedToResolveUris(freshState);
+        const failedToResolveIds = selectFailedToResolveIds(freshState);
         const failedItems = failedToResolveIds.concat(failedToResolveUris);
         if (items.some((item) => failedItems.includes(item))) {
           // itemsWereFetching stays true
@@ -549,18 +550,25 @@ export const doFetchItemsInCollection =
       const streamTypes = new Set();
       const newItems = new Set();
 
-      claimIds.forEach((claimId, index) => {
-        const collectionItem = collectionItems[index];
+      // Build a lookup map for resolved items by claim_id for correct matching.
+      // Index-based mapping breaks when some items fail to resolve (gaps in results).
+      const resolvedById = {};
+      collectionItems.forEach((item) => {
+        resolvedById[item.claim_id] = item;
+      });
+
+      claimIds.forEach((claimId) => {
+        const collectionItem = resolvedById[claimId];
 
         if (collectionItem) {
           newItems.add(collectionItem.claim_id);
           valueTypes.add(collectionItem.value_type);
-          if (collectionItem.value.stream_type) {
+          if (collectionItem.value && collectionItem.value.stream_type) {
             streamTypes.add(collectionItem.value.stream_type);
           }
-        } else {
-          newItems.add(claimId);
         }
+        // Skip unresolvable items — they don't exist on the network
+        // and would block the selector (undefined in claimsById).
       });
 
       const collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
