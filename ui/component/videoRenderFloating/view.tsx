@@ -429,16 +429,18 @@ function VideoRenderFloating(props: Props) {
     // $FlowFixMe
     body.appendChild = function (node) {
       const fsEl = getFullscreenElement();
-      if (node && node.nodeName === 'REACH-PORTAL' && fsEl) {
-        // $FlowFixMe
-        return fsEl.appendChild(node);
+      if (fsEl && node && node.nodeType === 1) {
+        const isMuiPortal = node.classList?.contains('MuiModal-root') || node.classList?.contains('MuiPopover-root');
+        if (node.nodeName === 'REACH-PORTAL' || isMuiPortal) {
+          return fsEl.appendChild(node);
+        }
       }
       return origAppend(node);
     };
 
     // $FlowFixMe
     body.removeChild = function (node) {
-      if (node && node.nodeName === 'REACH-PORTAL' && node.parentNode && node.parentNode !== body) {
+      if (node && node.parentNode && node.parentNode !== body) {
         return node.parentNode.removeChild(node);
       }
       return origRemove(node);
