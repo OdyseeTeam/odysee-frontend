@@ -510,7 +510,16 @@ export const doFetchItemsInCollection =
         return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
       }
     } else {
-      const claim = selectClaimForClaimId(state, collectionId);
+      let claim = selectClaimForClaimId(state, collectionId);
+
+      // claim_search may truncate the collection's value.claims to 50 items.
+      // Re-resolve via Lbry.resolve to get the full list of collection items.
+      const claimUri = claim?.canonical_url || claim?.permanent_url;
+      if (claimUri) {
+        await dispatch(doResolveUris([claimUri], false, false, { include_is_my_output: true }));
+        state = getState();
+        claim = selectClaimForClaimId(state, collectionId);
+      }
 
       const claimIds = getClaimIdsInCollectionClaim(claim);
       promisedCollectionItemsFetch = claimIds && dispatch(doFetchCollectionItems(claimIds, pageSize));
