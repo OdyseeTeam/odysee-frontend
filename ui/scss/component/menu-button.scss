@@ -60,6 +60,7 @@ reach-portal {
 .MuiPaper-root.MuiMenu-paper,
 .menu__paper {
   background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
   overflow: hidden;
 }
 
@@ -320,6 +321,20 @@ reach-portal {
       stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);
     }
+  }
+}
+
+.menu__link--sign-out {
+  margin-bottom: var(--spacing-xs) !important;
+
+  .menu__link-help {
+    display: block;
+    font-size: var(--font-xxsmall);
+    color: var(--color-text-subtitle);
+  }
+
+  &:hover .menu__link-help {
+    color: var(--color-primary-contrast);
   }
 }
 

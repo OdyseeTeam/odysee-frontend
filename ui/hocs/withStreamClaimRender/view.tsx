@@ -247,11 +247,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       uri,
     ]);
     React.useEffect(() => {
-      const uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
-      let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
+      const decodedPathname = decodeURIComponent(pathname);
+      const uriChannel = decodedPathname.substring(decodedPathname.indexOf('/@') + 2, decodedPathname.indexOf(':'));
+      let cut = decodedPathname.substring(decodedPathname.indexOf('/') + 1, decodedPathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
-      const isExternaleEmbed = pathname.includes('/$/embed');
+      const isExternaleEmbed = decodedPathname.includes('/$/embed');
       const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
       const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
       const isHome = pathname === '/' || pathname === '/$/embed/home';

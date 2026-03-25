@@ -112,6 +112,7 @@ function MenuList(props: MenuListProps) {
       open={menu.open}
       onClose={(_, __) => handleClose(_)}
       disableScrollLock
+      sx={{ zIndex: 100003 }}
       slotProps={{
         backdrop: {
           onClick: handleClose,

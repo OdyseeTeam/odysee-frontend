@@ -173,20 +173,12 @@ export default function HeaderProfileMenuButton() {
               <HeaderMenuLink useMui page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 
               <hr className="menu__separator" />
-              <MuiMenuItem onClick={signOut}>
-                <div
-                  className="menu__link"
-                  style={{
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <div className="menu__link-label">
-                    <Icon aria-hidden icon={ICONS.SIGN_OUT} />
-                    {__('Sign Out')}
-                  </div>
+              <MuiMenuItem className="menu__link menu__link--sign-out" onClick={signOut}>
+                <Icon aria-hidden icon={ICONS.SIGN_OUT} />
+                <span>
+                  {__('Sign Out')}
                   <span className="menu__link-help">{email}</span>
-                </div>
+                </span>
               </MuiMenuItem>
             </MuiMenu>
           </ClickAwayListener>
