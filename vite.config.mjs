@@ -422,7 +422,7 @@ export default defineConfig({
 
   resolve: {
     conditions: ['browser', ...(isProduction ? ['production'] : ['development'])],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.scss'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.cjs', '.json', '.scss'],
     alias: {
       // Explicit aliases for things that aren't in ui/
       config: path.resolve(__dirname, 'config.ts'),
