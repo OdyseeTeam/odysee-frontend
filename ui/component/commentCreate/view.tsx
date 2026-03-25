@@ -25,7 +25,7 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'contexts/app';
 import { getStripeEnvironment } from 'util/stripe';
 import { TAB_USD } from 'constants/tip_tabs';
-import { useArStatus } from 'effects/use-ar-status';
+// import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 import { BeforeUnload } from 'util/beforeUnload';
 import { hasLegacyOdyseePremium } from 'redux/selectors/user';
@@ -233,7 +233,7 @@ export function CommentCreate(props: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
-  const { activeArStatus } = useArStatus();
+  const activeArStatus = 'not-authenticated';
   const formFieldRef = React.useRef<InstanceType<typeof FormField> | null>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);

@@ -26,6 +26,7 @@ type Props = {
 
 const CollectionItemsList = (props: Props) => {
   const { collectionId, isEditPreview, ...claimListProps } = props;
+  const showEdit = (claimListProps as any).showEdit;
 
   const dispatch = useAppDispatch();
   const collectionUrls = useAppSelector((state) =>
@@ -50,22 +51,33 @@ const CollectionItemsList = (props: Props) => {
     );
   }
 
+  if (showEdit || isEditPreview) {
+    return (
+      <React.Suspense fallback={null}>
+        <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+          <Lazy.Droppable droppableId="list__ordering">
+            {(DroppableProvided) => (
+              <ClaimList
+                collectionId={collectionId}
+                uris={collectionUrls}
+                isEditPreview={isEditPreview}
+                droppableProvided={DroppableProvided}
+                {...claimListProps}
+              />
+            )}
+          </Lazy.Droppable>
+        </Lazy.DragDropContext>
+      </React.Suspense>
+    );
+  }
+
   return (
-    <React.Suspense fallback={null}>
-      <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-        <Lazy.Droppable droppableId="list__ordering">
-          {(DroppableProvided) => (
-            <ClaimList
-              collectionId={collectionId}
-              uris={collectionUrls}
-              isEditPreview={isEditPreview}
-              droppableProvided={DroppableProvided}
-              {...claimListProps}
-            />
-          )}
-        </Lazy.Droppable>
-      </Lazy.DragDropContext>
-    </React.Suspense>
+    <ClaimList
+      collectionId={collectionId}
+      uris={collectionUrls}
+      isEditPreview={isEditPreview}
+      {...claimListProps}
+    />
   );
 };
 

@@ -1611,10 +1611,11 @@ export function doCommentModUnBlockAsModerator(commenterUri: string, creatorUri:
   };
 }
 const yieldThread = () => new Promise((resolve) => setTimeout(resolve));
+const normalizeUri = (uri: string) => uri && uri.replace(/:/g, '#');
 
 export function doFetchModBlockedList() {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const LOOP_CHUNK_SIZE = 1;
+    const LOOP_CHUNK_SIZE = 100;
 
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
@@ -1666,8 +1667,12 @@ export function doFetchModBlockedList() {
               }
             }
 
+            const personalSeen = new Set();
+            const adminSeen = new Set();
+            const moderatorSeen = new Set();
+
             for (let i = 0; i < blockListsPerChannel.length; ++i) {
-              const storeList = async (fetchedList, blockedList, timeoutMap, blockedByMap) => {
+              const storeList = async (fetchedList, blockedList, seenSet, timeoutMap, blockedByMap) => {
                 if (fetchedList) {
                   for (let j = 0; j < fetchedList.length; ++j) {
                     const blockedChannel = fetchedList[j];
@@ -1682,7 +1687,9 @@ export function doFetchModBlockedList() {
                         claimId: blockedChannel.blocked_channel_id,
                       });
 
-                      if (!blockedList.find((blockedChannel) => isURIEqual(blockedChannel.channelUri, channelUri))) {
+                      const normalizedUri = normalizeUri(channelUri);
+                      if (!seenSet.has(normalizedUri)) {
+                        seenSet.add(normalizedUri);
                         blockedList.push({
                           channelUri,
                           blockedAt: blockedChannel.blocked_at,
@@ -1725,11 +1732,12 @@ export function doFetchModBlockedList() {
                 await yieldThread();
               }
 
-              await storeList(blocked_channels, personalBlockList, personalTimeoutMap);
-              await storeList(globally_blocked_channels, adminBlockList, adminTimeoutMap);
+              await storeList(blocked_channels, personalBlockList, personalSeen, personalTimeoutMap);
+              await storeList(globally_blocked_channels, adminBlockList, adminSeen, adminTimeoutMap);
               await storeList(
                 delegated_blocked_channels,
                 moderatorBlockList,
+                moderatorSeen,
                 moderatorTimeoutMap,
                 moderatorBlockListDelegatorsMap
               );

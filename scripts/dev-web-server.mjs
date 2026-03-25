@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -10,6 +11,36 @@ const liveChildren = new Set();
 let shuttingDown = false;
 let exitCode = 0;
 let forceExitTimer;
+
+const PID_FILE = path.resolve(projectRoot, 'web/dist/.dev-server.pid');
+
+function killPreviousInstance() {
+  try {
+    if (!fs.existsSync(PID_FILE)) return;
+    const oldPid = parseInt(fs.readFileSync(PID_FILE, 'utf8').trim(), 10);
+    if (!oldPid || oldPid === process.pid) return;
+    try {
+      process.kill(-oldPid, 'SIGTERM');
+    } catch {
+      try { process.kill(oldPid, 'SIGTERM'); } catch {}
+    }
+    fs.unlinkSync(PID_FILE);
+  } catch {}
+}
+
+function writePidFile() {
+  try {
+    fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
+    fs.writeFileSync(PID_FILE, String(process.pid));
+  } catch {}
+}
+
+function removePidFile() {
+  try { fs.unlinkSync(PID_FILE); } catch {}
+}
+
+killPreviousInstance();
+writePidFile();
 
 function describeExit(name, code, signal) {
   if (signal) return `${name} exited from signal ${signal}`;
@@ -101,6 +132,7 @@ async function shutdown(reason, signal = 'SIGTERM') {
 
   await Promise.all(Array.from(liveChildren).map((child) => killProcessTree(child, signal)));
 
+  removePidFile();
   clearTimeout(forceExitTimer);
   process.exit(exitCode);
 }

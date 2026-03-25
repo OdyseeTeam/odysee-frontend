@@ -16,7 +16,7 @@ import classnames from 'classnames';
 import VideoRender from 'component/videoClaimRender';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
-import Draggable from 'react-draggable';
+// import Draggable from 'react-draggable';
 import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
 import { useNavigate } from 'react-router-dom';
 import { toggleAutoplayNextShort as toggleAutoplayNextShortAction } from 'redux/actions/settings';
@@ -229,6 +229,7 @@ function VideoRenderFloating(props: Props) {
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);
+  const wasDraggingRef = React.useRef(false);
   const shortsFloatingWrapperRef = React.useRef();
   const [forceDisable, setForceDisable] = React.useState(false);
   const [isShortsFloatingPaused, setIsShortsFloatingPaused] = React.useState(false);
@@ -603,6 +604,73 @@ function VideoRenderFloating(props: Props) {
     }
   }, [collectionId, dispatch, floatingPlayerEnabled, overrideFloating, primaryUri, uri]);
 
+  const dragRef = React.useRef({ active: false, dragging: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+
+  React.useEffect(() => {
+    if (!draggable) return;
+    const node = draggableNodeRef.current;
+    if (!node) return;
+
+    function onPointerDown(e) {
+      const handle = e.target.closest('.draggable');
+      if (!handle || e.target.closest('.button')) return;
+      if (isDraggingVideojsComponent(e)) return;
+
+      const d = dragRef.current;
+      d.active = true;
+      d.dragging = false;
+      d.startX = e.clientX;
+      d.startY = e.clientY;
+      d.origX = position.x;
+      d.origY = position.y;
+    }
+
+    function onPointerMove(e) {
+      const d = dragRef.current;
+      if (!d.active) return;
+      const dx = e.clientX - d.startX;
+      const dy = e.clientY - d.startY;
+      if (!d.dragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+        d.dragging = true;
+        node.setPointerCapture(e.pointerId);
+        wasDraggingRef.current = true;
+        setWasDragging(true);
+      }
+      if (!d.dragging) return;
+      const clamped = clampFloatingPlayerToScreen({ x: d.origX + dx, y: d.origY + dy });
+      node.style.transform = `translate(${clamped.x}px, ${clamped.y}px)`;
+    }
+
+    function onPointerUp(e) {
+      const d = dragRef.current;
+      if (!d.active) return;
+      const wasDrag = d.dragging;
+      d.active = false;
+      d.dragging = false;
+      if (!wasDrag) return;
+      const dx = e.clientX - d.startX;
+      const dy = e.clientY - d.startY;
+      let newPos = clampFloatingPlayerToScreen({ x: d.origX + dx, y: d.origY + dy });
+      relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
+      node.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
+      setPosition(newPos);
+      wasDraggingRef.current = false;
+      setWasDragging(false);
+    }
+
+    node.addEventListener('pointerdown', onPointerDown);
+    node.addEventListener('pointermove', onPointerMove);
+    node.addEventListener('pointerup', onPointerUp);
+    node.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      node.removeEventListener('pointerdown', onPointerDown);
+      node.removeEventListener('pointermove', onPointerMove);
+      node.removeEventListener('pointerup', onPointerUp);
+      node.removeEventListener('pointercancel', onPointerUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draggable, position.x, position.y]);
+
   if (!uri || (isFloating && noFloatingPlayer)) {
     return null;
   }
@@ -610,41 +678,6 @@ function VideoRenderFloating(props: Props) {
   // ****************************************************************************
   // RENDER
   // ****************************************************************************
-  function handleDragStart(e) {
-    if (isDraggingVideojsComponent(e)) {
-      return false;
-    }
-
-    // Not really necessary, but reset just in case 'handleStop' didn't fire.
-    setWasDragging(false);
-  }
-
-  function handleDragMove(e, ui) {
-    const { x, y } = position;
-    const newX = ui.x;
-    const newY = ui.y;
-
-    // Mark as dragging if the position changed and we were not dragging before.
-    if (!wasDragging && (newX !== x || newY !== y)) {
-      setWasDragging(true);
-    }
-  }
-
-  function handleDragStop(e, ui) {
-    // Always clear drag click-shield after drag end.
-    setWasDragging(false);
-    const { x, y } = ui;
-    let newPos = {
-      x,
-      y,
-    };
-
-    if (newPos.x !== position.x || newPos.y !== position.y) {
-      newPos = clampFloatingPlayerToScreen(newPos);
-      setPosition(newPos);
-      relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
-    }
-  }
 
   const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
   const heightForViewer =
@@ -671,28 +704,8 @@ function VideoRenderFloating(props: Props) {
       ) : null}
 
       {wasDragging && <div className="floating-player__drag-backdrop" />}
-      <Draggable
-        nodeRef={draggableNodeRef}
-        onDrag={handleDragMove}
-        onStart={handleDragStart}
-        onStop={handleDragStop}
-        defaultPosition={position}
-        position={
-          isFloating
-            ? position
-            : {
-                x: 0,
-                y: 0,
-              }
-        }
-        bounds="parent"
-        handle=".draggable"
-        cancel=".button"
-        disabled={noFloatingPlayer || forceDisable}
-      >
         <div
           ref={draggableNodeRef}
-          id="abcd"
           className={classnames('player-fullscreen-target', {
             [CONTENT_VIEWER_CLASS]: !isShortVideo,
             [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
@@ -710,17 +723,19 @@ function VideoRenderFloating(props: Props) {
             'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,
           })}
           style={
-            !isFloating && fileViewerRect
-              ? {
-                  width: fileViewerRect.width,
-                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
-                  left: fileViewerRect.x,
-                  top:
-                    isMobile && !playingUriSource
-                      ? HEADER_HEIGHT_MOBILE
-                      : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
-                }
-              : {}
+            isFloating
+              ? { transform: `translate(${position.x}px, ${position.y}px)` }
+              : fileViewerRect
+                ? {
+                    width: fileViewerRect.width,
+                    height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
+                    left: fileViewerRect.x,
+                    top:
+                      isMobile && !playingUriSource
+                        ? HEADER_HEIGHT_MOBILE
+                        : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
+                  }
+                : {}
           }
         >
           <div
@@ -915,7 +930,6 @@ function VideoRenderFloating(props: Props) {
             />
           )}
         </div>
-      </Draggable>
     </VideoRenderFloatingContext.Provider>
   );
 }

@@ -60,6 +60,7 @@
   border: 2px solid rgba(var(--color-header-button-base), 0.5);
   background-color: #000;
   border-radius: var(--border-radius);
+  will-change: transform;
 
   .file-render--video {
     border-top-right-radius: var(--border-radius);

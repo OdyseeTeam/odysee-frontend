@@ -446,13 +446,15 @@ export const selectHasUnavailableClaimIdsForCollectionId = createSelector(
   selectClaimIdsForCollectionId,
   (claimIds) => claimIds && claimIds.includes(null)
 );
+const _prevCollectionUrls = new Map<string, Array<string>>();
 export const selectUrlsForCollectionId = createCachedSelector(
+  (state, collectionId) => collectionId,
   (state, collectionId, itemCount) => itemCount,
   selectItemsForCollectionId,
   selectClaimsById,
-  (itemCount, items, claimsById) => {
+  (collectionId, itemCount, items, claimsById) => {
     if (!items) return items;
-    const uris = new Set([]);
+    const uris = new Set<string>([]);
     let notFetched;
     items.some((item, index) => {
       if (isPermanentUrl(item) || isCanonicalUrl(item)) {
@@ -477,7 +479,14 @@ export const selectUrlsForCollectionId = createCachedSelector(
       return undefined;
     }
 
-    return Array.from(uris);
+    const result = Array.from(uris);
+    const key = `${collectionId}:${itemCount}`;
+    const prev = _prevCollectionUrls.get(key);
+    if (prev && prev.length === result.length && prev.every((u, i) => u === result[i])) {
+      return prev;
+    }
+    _prevCollectionUrls.set(key, result);
+    return result;
   }
 )((state, url, itemCount) => `${String(url)}:${String(itemCount)}`);
 export const selectFirstPlayableUrlForCollectionId = createCachedSelector(

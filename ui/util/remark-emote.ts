@@ -1,8 +1,17 @@
 import { EMOTES_48px as EMOTES, TWEMOTEARRAY } from 'constants/emotes';
 import { visit } from 'unist-util-visit';
 
-const EMOTE_NODE_TYPE = 'emote';
-const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
+const RE_EMOTE_GLOBAL = /:\+1:|:-1:|:[\w-]+:/g;
+
+const emoteMap = new Map<string, { name: string; url: string }>();
+for (const emote of EMOTES as Array<{ name: string; url: string }>) {
+  emoteMap.set(emote.name, emote);
+}
+for (const emote of TWEMOTEARRAY as Array<{ name: string; url: string }>) {
+  if (!emoteMap.has(emote.name)) {
+    emoteMap.set(emote.name, emote);
+  }
+}
 
 type MdastNode = {
   type: string;
@@ -14,51 +23,6 @@ type MdastNode = {
   children?: MdastNode[];
 };
 
-function findNextEmote(value: string, fromIndex: number, strictlyFromIndex: boolean) {
-  let begin = 0;
-
-  while (begin < value.length) {
-    const match = value.substring(begin).match(RE_EMOTE);
-
-    if (!match) {
-      return null;
-    }
-
-    match.index = (match.index || 0) + begin;
-
-    if (strictlyFromIndex && match.index !== fromIndex) {
-      if (match.index > fromIndex) {
-        return null;
-      }
-
-      begin = match.index + match[0].length;
-      continue;
-    }
-
-    if (fromIndex > 0 && fromIndex > match.index && fromIndex < match.index + match[0].length) {
-      begin = match.index + match[0].length;
-      continue;
-    }
-
-    const text = match[0];
-
-    if (EMOTES.some(({ name }) => text === name) || TWEMOTEARRAY.some(({ name }) => text === name)) {
-      return {
-        text,
-        index: match.index,
-      };
-    }
-
-    if (strictlyFromIndex && match.index >= fromIndex) {
-      return null;
-    }
-
-    begin = match.index + match[0].length;
-  }
-
-  return null;
-}
-
 function createTextNode(value: string): MdastNode {
   return {
     type: 'text',
@@ -66,13 +30,7 @@ function createTextNode(value: string): MdastNode {
   };
 }
 
-function createEmoteNode(text: string): MdastNode {
-  const emote = EMOTES.find(({ name }) => text === name) || TWEMOTEARRAY.find(({ name }) => text === name);
-
-  if (!emote) {
-    return createTextNode(text);
-  }
-
+function createEmoteNode(text: string, emote: { name: string; url: string }): MdastNode {
   return {
     type: 'image',
     url: emote.url,
@@ -94,22 +52,24 @@ function createEmoteNode(text: string): MdastNode {
 
 function splitTextNode(value: string): MdastNode[] {
   const nodes: MdastNode[] = [];
-  let index = 0;
+  let lastIndex = 0;
 
-  while (index < value.length) {
-    const emote = findNextEmote(value, index, false);
+  RE_EMOTE_GLOBAL.lastIndex = 0;
+  let match;
+  while ((match = RE_EMOTE_GLOBAL.exec(value)) !== null) {
+    const emote = emoteMap.get(match[0]);
+    if (!emote) continue;
 
-    if (!emote) {
-      nodes.push(createTextNode(value.slice(index)));
-      break;
+    if (match.index > lastIndex) {
+      nodes.push(createTextNode(value.slice(lastIndex, match.index)));
     }
 
-    if (emote.index > index) {
-      nodes.push(createTextNode(value.slice(index, emote.index)));
-    }
+    nodes.push(createEmoteNode(match[0], emote));
+    lastIndex = match.index + match[0].length;
+  }
 
-    nodes.push(createEmoteNode(emote.text));
-    index = emote.index + emote.text.length;
+  if (lastIndex < value.length) {
+    nodes.push(createTextNode(value.slice(lastIndex)));
   }
 
   return nodes.length ? nodes : [createTextNode(value)];
