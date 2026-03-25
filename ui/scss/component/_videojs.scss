@@ -371,6 +371,11 @@ img.odysee-cast-thumbnail {
   background-color: black;
   overflow: hidden;
 
+  img {
+    max-height: none !important;
+    object-fit: none !important;
+  }
+
   &:has(img:not([src])),
   &:has(img[src='']),
   &:empty {

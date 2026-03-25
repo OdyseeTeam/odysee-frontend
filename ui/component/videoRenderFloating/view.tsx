@@ -598,7 +598,9 @@ function VideoRenderFloating(props: Props) {
     }
   }, [collectionId, dispatch, floatingPlayerEnabled, overrideFloating, primaryUri, uri]);
 
-  const dragRef = React.useRef({ active: false, dragging: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+  const dragRef = React.useRef({ active: false, dragging: false, pointerId: 0, startX: 0, startY: 0, origX: 0, origY: 0, lastX: 0, lastY: 0, backdrop: null });
+  const positionRef = React.useRef(position);
+  positionRef.current = position;
 
   React.useEffect(() => {
     if (!draggable) return;
@@ -613,25 +615,36 @@ function VideoRenderFloating(props: Props) {
       const d = dragRef.current;
       d.active = true;
       d.dragging = false;
+      d.pointerId = e.pointerId;
       d.startX = e.clientX;
       d.startY = e.clientY;
-      d.origX = position.x;
-      d.origY = position.y;
+      d.origX = positionRef.current.x;
+      d.origY = positionRef.current.y;
+      d.lastX = d.origX;
+      d.lastY = d.origY;
     }
 
     function onPointerMove(e) {
       const d = dragRef.current;
       if (!d.active) return;
+      e.preventDefault();
       const dx = e.clientX - d.startX;
       const dy = e.clientY - d.startY;
       if (!d.dragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
         d.dragging = true;
-        node.setPointerCapture(e.pointerId);
         wasDraggingRef.current = true;
-        setWasDragging(true);
+        node.setPointerCapture(d.pointerId);
+        node.classList.add('content__viewer--disable-click');
+        if (!d.backdrop) {
+          d.backdrop = document.createElement('div');
+          d.backdrop.className = 'floating-player__drag-backdrop';
+          node.parentNode?.insertBefore(d.backdrop, node);
+        }
       }
       if (!d.dragging) return;
       const clamped = clampFloatingPlayerToScreen({ x: d.origX + dx, y: d.origY + dy });
+      d.lastX = clamped.x;
+      d.lastY = clamped.y;
       node.style.transform = `translate(${clamped.x}px, ${clamped.y}px)`;
     }
 
@@ -641,29 +654,43 @@ function VideoRenderFloating(props: Props) {
       const wasDrag = d.dragging;
       d.active = false;
       d.dragging = false;
-      if (!wasDrag) return;
-      const dx = e.clientX - d.startX;
-      const dy = e.clientY - d.startY;
-      let newPos = clampFloatingPlayerToScreen({ x: d.origX + dx, y: d.origY + dy });
-      relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
-      node.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
-      setPosition(newPos);
+      if (node.hasPointerCapture(d.pointerId)) {
+        node.releasePointerCapture(d.pointerId);
+      }
+      if (d.backdrop) {
+        d.backdrop.remove();
+        d.backdrop = null;
+      }
+      node.classList.remove('content__viewer--disable-click');
       wasDraggingRef.current = false;
-      setWasDragging(false);
+      if (!wasDrag) return;
+      const newPos = { x: d.lastX, y: d.lastY };
+      relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
+      positionRef.current = newPos;
+      setPosition(newPos);
+    }
+
+    function onLostCapture(e) {
+      const d = dragRef.current;
+      if (d.active) {
+        onPointerUp(e);
+      }
     }
 
     node.addEventListener('pointerdown', onPointerDown);
-    node.addEventListener('pointermove', onPointerMove);
-    node.addEventListener('pointerup', onPointerUp);
-    node.addEventListener('pointercancel', onPointerUp);
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+    node.addEventListener('lostpointercapture', onLostCapture);
     return () => {
       node.removeEventListener('pointerdown', onPointerDown);
-      node.removeEventListener('pointermove', onPointerMove);
-      node.removeEventListener('pointerup', onPointerUp);
-      node.removeEventListener('pointercancel', onPointerUp);
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+      node.removeEventListener('lostpointercapture', onLostCapture);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draggable, position.x, position.y]);
+  }, [draggable]);
 
   if (!uri || (isFloating && noFloatingPlayer)) {
     return null;
@@ -697,7 +724,6 @@ function VideoRenderFloating(props: Props) {
         />
       ) : null}
 
-      {wasDragging && <div className="floating-player__drag-backdrop" />}
         <div
           ref={draggableNodeRef}
           className={classnames('player-fullscreen-target', {
@@ -711,7 +737,7 @@ function VideoRenderFloating(props: Props) {
             'content__viewer--inline': !isFloating,
             'content__viewer--secondary': isComment,
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
-            'content__viewer--disable-click': wasDragging,
+            'content__viewer--disable-click': false,
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             'content__viewer--portrait': isPortraitVideo.current,
             'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,

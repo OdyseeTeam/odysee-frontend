@@ -74,7 +74,7 @@ const FloatingReactions = ({ uri, claimId }: Props) => {
           iconSize={14}
           requiresAuth
           authSrc="filereaction_like"
-          className={classnames('button--file-action button-like', {
+          className={classnames('floating-player__reaction-btn button--file-action button-like', {
             'button--fire': isFireActive,
             'button--fire-glow-pulse': fireButtonGlow,
           })}
@@ -115,7 +115,7 @@ const FloatingReactions = ({ uri, claimId }: Props) => {
             iconSize={14}
             requiresAuth
             authSrc="filereaction_dislike"
-            className={classnames('button--file-action button-dislike', {
+            className={classnames('floating-player__reaction-btn button--file-action button-dislike', {
               'button--slime': isSlimeActive,
               'button--slime-glow-pulse': slimeButtonGlow,
             })}
