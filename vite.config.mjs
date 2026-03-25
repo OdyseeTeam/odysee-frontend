@@ -406,10 +406,10 @@ function getManualChunkName(id) {
   return null;
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: __dirname,
   publicDir: 'static',
-  base: '/public/',
+  base: command === 'serve' ? '/' : '/public/',
 
   define: {
     ...buildEnvDefines(),
@@ -573,4 +573,4 @@ export default defineConfig({
     // Enable typeAware + typeCheck here once strict types are added
     ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed'],
   },
-});
+}));

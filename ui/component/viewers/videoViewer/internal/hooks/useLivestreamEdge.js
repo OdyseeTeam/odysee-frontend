@@ -53,15 +53,22 @@ export default function useLivestreamEdge(isLivestream) {
         if (media.paused) return;
         if (seekingRef.current) {
           seekToLiveEdge();
+          seekingRef.current = false;
         }
       };
       hls.on('hlsLevelUpdated', hlsHandler);
     }
 
+    const onSeeking = () => {
+      seekingRef.current = false;
+    };
+
     media.addEventListener('timeupdate', onTimeUpdate);
+    media.addEventListener('seeking', onSeeking);
 
     return () => {
       media.removeEventListener('timeupdate', onTimeUpdate);
+      media.removeEventListener('seeking', onSeeking);
       if (hls && hlsHandler) {
         hls.off('hlsLevelUpdated', hlsHandler);
       }

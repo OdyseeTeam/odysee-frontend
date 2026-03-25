@@ -323,7 +323,7 @@ export function doFetchLanguage(language: string) {
 export function doFetchDevStrings() {
   return (dispatch: Dispatch, getState: GetState) => {
     // @if process.env.NODE_ENV!='production'
-    if (!window.app_strings) {
+    if (process.env.NODE_ENV !== 'production' && !window.app_strings) {
       fetch(`${URL_DEV}/app-strings.json`)
         .then((r) => r.json())
         .then((j) => (window.app_strings = j))
