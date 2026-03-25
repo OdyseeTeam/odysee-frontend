@@ -1,6 +1,17 @@
-const config = require('../config.cjs');
-
+const fs = require('fs');
 const path = require('path');
+
+// Auto-rename .js -> .cjs in custom homepages (external repo builds .js, Node ESM needs .cjs)
+const hpDir = path.resolve(__dirname, '../custom/homepages/v2');
+if (fs.existsSync(hpDir)) {
+  fs.readdirSync(hpDir).forEach((f) => {
+    if (f.endsWith('.js')) {
+      fs.renameSync(path.join(hpDir, f), path.join(hpDir, f.replace(/\.js$/, '.cjs')));
+    }
+  });
+}
+
+const config = require('../config.cjs');
 
 const Koa = require('koa');
 
