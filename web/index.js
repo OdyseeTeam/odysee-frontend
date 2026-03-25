@@ -30,7 +30,7 @@ const cacheControlMiddleware = require('./middleware/cache-control');
 const iframeDestroyerMiddleware = require('./middleware/iframe-destroyer');
 
 const app = new Koa();
-const DIST_ROOT = path.resolve(__dirname, 'dist');
+const STATIC_ROOT = path.resolve(__dirname, 'dist/public');
 app.proxy = true;
 app.use(async (ctx, next) => {
   try {
@@ -48,22 +48,23 @@ app.use(redirectMiddleware);
 app.use(iframeDestroyerMiddleware);
 app.use(appStringsMiddleWare);
 
+// Strip /public prefix so koa-static can find files in dist/public/
+app.use(async (ctx, next) => {
+  const originalPath = ctx.path;
+  if (ctx.path.startsWith('/public/')) {
+    ctx.path = ctx.path.slice('/public'.length);
+  }
+  await next();
+  ctx.path = originalPath;
+});
+
+const staticServe = serve(STATIC_ROOT, { maxage: 3600000 });
+
 if (config.DYNAMIC_ROUTES_FIRST) {
-  // Route dynamic pages first so we can inject proper meta (/, embeds, etc)
   app.use(router.routes());
-  // Then fall through to static assets (e.g. /public/*)
-  app.use(
-    serve(DIST_ROOT, {
-      maxage: 3600000,
-    })
-  );
+  app.use(staticServe);
 } else {
-  // Default: serve static first (production-safe), then dynamic routes
-  app.use(
-    serve(DIST_ROOT, {
-      maxage: 3600000,
-    })
-  );
+  app.use(staticServe);
   app.use(router.routes());
 }
 
