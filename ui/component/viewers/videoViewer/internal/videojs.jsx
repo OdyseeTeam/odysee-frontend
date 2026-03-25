@@ -78,6 +78,7 @@ export type Player = {
   on: (string, (any) => void) => void,
   off: (string, ?(any) => void) => void,
   one: (string, (any) => void) => void,
+  paused: () => boolean,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
   keyboardShortcutsOverlay?: {

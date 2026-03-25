@@ -540,7 +540,15 @@ export function doSyncLastPosition(uri: string, position: number) {
     if (claimIsMine) return;
 
     const outpoint = `${txid}:${nout}`;
-    analytics.apiLog.view(uri, outpoint, claimId, position);
+    const lastTimestamp = Math.floor(position);
+    if (lastTimestamp <= 0) return;
+
+    Lbryio.call('file', 'view', {
+      uri,
+      outpoint,
+      claim_id: claimId,
+      last_timestamp: lastTimestamp,
+    }).catch(() => {});
   };
 }
 
