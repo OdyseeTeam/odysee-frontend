@@ -649,18 +649,20 @@ async function getHtml(ctx) {
     }
 
     // Otherwise, try to resolve an embed claim
-    const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, '').replace('/', '#'));
-    const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
+    try {
+      const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, ''));
+      const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
-    if (claim) {
-      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
-        userAgent: userAgent,
-        baseUrl: ctx.origin,
-        isEmbed: true,
-      });
-      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
-      return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
-    }
+      if (claim) {
+        const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
+          userAgent: userAgent,
+          baseUrl: ctx.origin,
+          isEmbed: true,
+        });
+        const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
+        return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+      }
+    } catch {}
 
     return insertToHead(html);
   }

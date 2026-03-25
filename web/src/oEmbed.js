@@ -64,11 +64,11 @@ async function getClaim(requestUrl) {
 // ****************************************************************************
 function generateOEmbedData(claim, embedlyReferrer, timestamp, referral, collectionId) {
   const { value, signing_channel: authorClaim } = claim;
-  const claimTitle = value.title;
-  const authorName = authorClaim ? authorClaim.value.title || authorClaim.name : 'Anonymous';
-  const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
+  const claimTitle = value?.title || claim.name || '';
+  const authorName = authorClaim ? authorClaim.value?.title || authorClaim.name : 'Anonymous';
+  const authorUrlPath = authorClaim && authorClaim.canonical_url?.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
-  const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
+  const thumbnailUrl = value?.thumbnail?.url ? getThumbnailCardCdnUrl(value.thumbnail.url) : null;
   const autoplay = true;
   let embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, null, autoplay);
 
