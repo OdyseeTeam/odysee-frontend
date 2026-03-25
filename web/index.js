@@ -30,7 +30,7 @@ const cacheControlMiddleware = require('./middleware/cache-control');
 const iframeDestroyerMiddleware = require('./middleware/iframe-destroyer');
 
 const app = new Koa();
-const STATIC_ROOT = path.resolve(__dirname, 'dist/public');
+const DIST_ROOT = path.resolve(__dirname, 'dist');
 app.proxy = true;
 app.use(async (ctx, next) => {
   try {
@@ -48,23 +48,18 @@ app.use(redirectMiddleware);
 app.use(iframeDestroyerMiddleware);
 app.use(appStringsMiddleWare);
 
-// Strip /public prefix so koa-static can find files in dist/public/
-app.use(async (ctx, next) => {
-  const originalPath = ctx.path;
-  if (ctx.path.startsWith('/public/')) {
-    ctx.path = ctx.path.slice('/public'.length);
-  }
-  await next();
-  ctx.path = originalPath;
-});
-
-const staticServe = serve(STATIC_ROOT, { maxage: 3600000 });
+// /public/* files are served from dist/ (maps to dist/public/*)
+const staticServe = serve(DIST_ROOT, { maxage: 3600000 });
+// Root-level files like /robots.txt, /sw.js are in dist/public/, serve with prefix strip
+const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: 3600000 });
 
 if (config.DYNAMIC_ROUTES_FIRST) {
   app.use(router.routes());
   app.use(staticServe);
+  app.use(rootStaticServe);
 } else {
   app.use(staticServe);
+  app.use(rootStaticServe);
   app.use(router.routes());
 }
 
