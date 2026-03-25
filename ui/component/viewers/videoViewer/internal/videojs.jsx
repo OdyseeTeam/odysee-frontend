@@ -228,12 +228,12 @@ function VideoJsInner(props) {
     readyCalledRef.current = false;
   }, [source, reload]);
 
-  // Attach hls.js for HLS sources
+  // Attach hls.js for HLS sources (or try HLS for any video source, falling back to native)
   useEffect(() => {
     if (!media || !resolvedSource || !resolvedSource.src) return;
+    if (!Hls.isSupported()) return;
     const src = resolvedSource.src;
-    const isHls = src.includes('.m3u8') || src.includes('m3u8');
-    if (!isHls || !Hls.isSupported()) return;
+    const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
 
     const hls = new Hls({
       backBufferLength: 30,
@@ -246,6 +246,19 @@ function VideoJsInner(props) {
           }
         : undefined),
     });
+
+    if (!isHls) {
+      let recovered = false;
+      hls.on('hlsManifestParsed', () => { recovered = true; });
+      hls.on('hlsError', (_, data) => {
+        if (!recovered && data.fatal) {
+          hls.destroy();
+          delete media._hls;
+          media.src = src;
+        }
+      });
+    }
+
     hls.attachMedia(media);
     hls.loadSource(src);
     media._hls = hls;

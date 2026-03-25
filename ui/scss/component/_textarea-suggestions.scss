@@ -8,6 +8,7 @@
 
     .create__comment {
       min-height: calc(var(--height-input) * 1.5) !important;
+      padding: var(--spacing-xs) !important;
     }
   }
 

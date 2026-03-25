@@ -363,7 +363,7 @@
    Time Display
    ========================================================================== */
 
-.media-default-skin .media-time {
+:where(.media-default-skin) .media-time {
   container: media-time / inline-size;
   display: flex;
   align-items: center;
@@ -739,10 +739,10 @@
    Root
    ========================================================================== */
 
-.media-default-skin--video {
+:where(.media-default-skin--video) {
   background: oklch(0 0 0);
   --media-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-background-color: var(--player-surface-bg, oklch(0 0 0 / 0.3));
+  --media-surface-background-color: oklch(0 0 0 / 0.3);
   --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
   --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
   --media-surface-shadow-color: oklch(0 0 0 / 0.15);

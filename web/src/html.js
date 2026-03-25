@@ -526,12 +526,22 @@ async function getHtml(ctx) {
   if (!html || isDev) {
     try {
       let rawHtml = fs.readFileSync(HTML_PATH, 'utf8');
+      rawHtml = rawHtml.replace(
+        '</head>',
+        `<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1" async></script></head>`
+      );
       // React Scan is opt-in in development. Always injecting it proved too expensive on some heavy pages.
       if (isDev && process.env.REACT_SCAN) {
         rawHtml = rawHtml.replace(
           '<head>',
           `<head>\n    <script>window.__REACT_SCAN__ = { enabled: true, showToolbar: true };</script>` +
             `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`
+        );
+      }
+      if (isDev) {
+        rawHtml = rawHtml.replace(
+          '</body>',
+          `<script>new EventSource('/__livereload').onmessage=function(e){location.reload()}</script></body>`
         );
       }
       html = rawHtml;

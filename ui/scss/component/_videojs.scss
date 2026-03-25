@@ -25,7 +25,7 @@ $control-bar-height-mobile: 44px;
   --media-border-color: transparent;
   --media-surface-inner-border-color: transparent;
   --media-surface-outer-border-color: transparent;
-  --media-surface-background-color: var(--player-surface-bg);
+  --media-surface-background-color: var(--player-overlay-bg);
 
   @at-root .video-fullscreen__actions {
     --player-surface-bg: #{$__surface-bg};

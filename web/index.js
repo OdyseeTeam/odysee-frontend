@@ -109,6 +109,40 @@ function killPort(port) {
 
 killPort(PORT);
 
+// --- Dev livereload via SSE ---
+const IS_DEV = (process.env.NODE_ENV || 'development') === 'development';
+if (IS_DEV) {
+  const sseClients = new Set();
+  let buildHash = Date.now().toString();
+
+  const watchFile = path.resolve(DIST_ROOT, 'public/index-web.html');
+  let debounceTimer;
+  fs.watchFile(watchFile, { interval: 500 }, () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      buildHash = Date.now().toString();
+      for (const res of sseClients) {
+        res.write(`data: ${buildHash}\n\n`);
+      }
+    }, 300);
+  });
+
+  app.use(async (ctx, next) => {
+    if (ctx.path === '/__livereload') {
+      ctx.set('Content-Type', 'text/event-stream');
+      ctx.set('Cache-Control', 'no-cache');
+      ctx.set('Connection', 'keep-alive');
+      ctx.status = 200;
+      ctx.respond = false;
+      ctx.res.write(`data: ${buildHash}\n\n`);
+      sseClients.add(ctx.res);
+      ctx.req.on('close', () => sseClients.delete(ctx.res));
+      return;
+    }
+    await next();
+  });
+}
+
 const server = app.listen(PORT, () => {
   console.log(`Server up at localhost:${PORT}`);
 });

@@ -6,11 +6,7 @@ import Player from '../player';
 const BACKOFF_DELAYS = [250, 1000, 5000, 15000];
 const MAX_ATTEMPTS = 4;
 
-export default function useErrorRecovery(
-  resolvedSrc,
-  setReload: (number) => void,
-  setTapToRetryVisible: (boolean) => void
-) {
+export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVisible) {
   const media = Player.useMedia();
   const attemptsRef = useRef(0);
   const lastTimeRef = useRef(0);

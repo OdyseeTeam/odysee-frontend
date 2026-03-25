@@ -233,6 +233,7 @@ export function CommentCreate(props: Props) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
+  const { activeArStatus } = useArStatus();
   const formFieldRef = React.useRef<InstanceType<typeof FormField> | null>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
