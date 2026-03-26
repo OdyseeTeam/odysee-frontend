@@ -135,7 +135,6 @@ function classifyEncoderImplementation(encoderImplementation: string | null | un
  *  Only fall back to explicit h264 if auto fails with a codec-related error. */
 function getCodecAttemptOrder(): WebrtcPublishVideoCodecPreference[] {
   return ['auto', 'h264'];
-  return attempts;
 }
 
 export default function LivestreamWebRtcPublisher(props: Props) {

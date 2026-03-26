@@ -842,10 +842,8 @@ export function doClaimSearch(
     const state = getState();
     const alreadyFetching = selectIsFetchingClaimSearchForQuery(state, query);
     if (alreadyFetching) {
-      console.log('[doClaimSearch] Already fetching, skipping:', query.substring(0, 80));
       return Promise.resolve();
     }
-    console.log('[doClaimSearch] Starting search:', { query: query.substring(0, 80), options: { ...options, channel_ids: options.channel_ids?.length } });
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: {
@@ -854,7 +852,6 @@ export function doClaimSearch(
     });
 
     const success = async (data: ClaimSearchResponse) => {
-      console.log('[doClaimSearch] Success callback:', { items: data?.items?.length, page: data?.page });
       const resolveInfo = {};
       const urls = [];
       const claimIds: Array<ClaimId> = [];
@@ -919,10 +916,8 @@ export function doClaimSearch(
       // Resolve cost infos before batching (async)
       let sdkPaidClaimIds: string[] = [];
       if (costInfos.size > 0) {
-        console.log('[doClaimSearch] Awaiting costInfos:', costInfos.size);
         try {
           const settledCostInfosById = await Promise.all(Array.from(costInfos));
-          console.log('[doClaimSearch] CostInfos resolved:', settledCostInfosById.length);
           batchedActions.push({
             type: ACTIONS.SET_COST_INFOS_BY_ID,
             data: settledCostInfosById,
@@ -931,12 +926,10 @@ export function doClaimSearch(
             .filter((costInfo) => Number(costInfo.cost) > 0)
             .map((costInfo) => costInfo.claimId);
         } catch (costErr) {
-          console.error('[doClaimSearch] CostInfos FAILED:', costErr);
         }
       }
 
       // Dispatch all synchronous state updates as one commit
-      console.log('[doClaimSearch] Dispatching BATCH_ACTIONS with', batchedActions.length, 'actions');
       dispatch({ type: 'BATCH_ACTIONS', actions: batchedActions });
 
       // Async follow-up fetches (each dispatches its own actions)
@@ -964,7 +957,6 @@ export function doClaimSearch(
     };
 
     const failure = (err) => {
-      console.error('[doClaimSearch] FAILED:', err);
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_FAILED,
         data: {
@@ -1005,7 +997,6 @@ export function doClaimSearch(
 
     const successCallback = settings?.useAutoPagination ? autoPaginate() : success;
     return await Lbry.claim_search(options).then(successCallback, failure).catch((err) => {
-      console.error('[doClaimSearch] Unhandled error in success/failure callback:', err);
       failure(err);
     });
   };
