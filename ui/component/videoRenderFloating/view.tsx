@@ -82,9 +82,74 @@ import { getVideoClaimAspectRatio, isClaimShort as isClaimShortUtil } from 'util
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectShortsSidePanelOpen, selectShortsPlaylist } from 'redux/selectors/shorts';
-// MiniPlayerPlayButton is declared as a global type but has no component implementation.
-// Cast to a component type so the existing JSX usage compiles without runtime changes.
-const MiniPlayerPlayButton = (null as any) as React.FC;
+function MiniPlayerPlayButton() {
+  const [state, setState] = React.useState('paused');
+
+  React.useEffect(() => {
+    const video: HTMLVideoElement | null = document.querySelector('.content__viewer--floating video');
+    if (!video) return;
+    const sync = () => {
+      if (video.ended) setState('ended');
+      else if (video.paused) setState('paused');
+      else setState('playing');
+    };
+    sync();
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    video.addEventListener('ended', sync);
+    return () => {
+      video.removeEventListener('play', sync);
+      video.removeEventListener('pause', sync);
+      video.removeEventListener('ended', sync);
+    };
+  }, []);
+
+  return (
+    <button
+      type="button"
+      className="content__floating-play"
+      onClick={(e) => {
+        e.stopPropagation();
+        const video: HTMLVideoElement | null = document.querySelector('.content__viewer--floating video');
+        if (video) {
+          if (video.ended) {
+            video.currentTime = 0;
+            video.play();
+          } else if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        }
+      }}
+    >
+      {state === 'ended' ? (
+        <svg
+          width={14}
+          height={14}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="1 4 1 10 7 10" />
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+        </svg>
+      ) : state === 'paused' ? (
+        <svg width={14} height={14} viewBox="0 0 18 18" fill="currentColor">
+          <path d="M4 2.5v13l11-6.5z" />
+        </svg>
+      ) : (
+        <svg width={14} height={14} viewBox="0 0 18 18" fill="currentColor">
+          <rect x={3} y={3} width={4} height={12} rx={1} />
+          <rect x={11} y={3} width={4} height={12} rx={1} />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
