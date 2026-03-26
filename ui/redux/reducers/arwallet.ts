@@ -62,6 +62,7 @@ reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
   ...state,
   error: action.data,
   connecting: false,
+  fetching: false,
   wallet: null,
   address: null,
   balance: {

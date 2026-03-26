@@ -54,6 +54,8 @@ export default function Wander(props: Props) {
     if (authenticated) {
       doArInit();
 
+      if (window.wanderInstance || (WanderConnect as any).instance) return;
+
       try {
         const wanderInstance = new WanderConnect({
           clientId: 'FREE_TRIAL',
@@ -135,8 +137,11 @@ export default function Wander(props: Props) {
         });
         setInstance(wanderInstance);
         window.wanderInstance = wanderInstance;
+        (window as any).__WANDER_INITIALIZED__ = true;
       } catch (e) {
-        console.error(e);
+        if (e?.message && !e.message.includes('already exists')) {
+          console.error(e);
+        }
       }
     } else {
       try {
@@ -144,11 +149,7 @@ export default function Wander(props: Props) {
       } catch {}
     }
 
-    return () => {
-      try {
-        window.wanderInstance.destroy();
-      } catch {}
-    }; // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated]);
   React.useEffect(() => {
     if (window.wanderInstance) {

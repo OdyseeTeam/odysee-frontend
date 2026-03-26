@@ -335,11 +335,9 @@ const appMount = document.getElementById('app');
 if (!appMount) {
   throw new Error('#app mount node not found');
 }
-const reactRoot = createRoot(appMount);
-reactRoot.render(<AppWrapper />);
-
-if (import.meta.hot) {
-  import.meta.hot.dispose(() => {
-    reactRoot.unmount();
-  });
+if (!(window as any).__REACT_ROOT__) {
+  const internalKey = Object.keys(appMount).find((k) => k.startsWith('__reactContainer'));
+  if (internalKey) delete appMount[internalKey];
+  (window as any).__REACT_ROOT__ = createRoot(appMount);
 }
+(window as any).__REACT_ROOT__.render(<AppWrapper />);

@@ -140,6 +140,12 @@ export default function useChromecast() {
     if (castReady) {
       initCast(true);
     } else {
+      if (!document.querySelector('script[src*="cast_sender"]')) {
+        var s = document.createElement('script');
+        s.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+        s.async = true;
+        document.head.appendChild(s);
+      }
       window.__onGCastApiAvailable = initCast;
       var retryId = setInterval(function () {
         if (window.cast && window.cast.framework && window.cast.framework.CastContext) {

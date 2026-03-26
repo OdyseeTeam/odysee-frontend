@@ -529,7 +529,7 @@ async function getHtml(ctx) {
       if (!rawHtml.includes('cast_sender.js')) {
         rawHtml = rawHtml.replace(
           '</head>',
-          `<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1" async></script></head>`
+          `<script>(function(){var d=customElements.define.bind(customElements);customElements.define=function(n,c,o){if(!customElements.get(n))d(n,c,o)}})()</script></head>`
         );
       }
       // React Scan is opt-in in development. Always injecting it proved too expensive on some heavy pages.
