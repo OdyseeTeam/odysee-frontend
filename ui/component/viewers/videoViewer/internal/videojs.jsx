@@ -291,20 +291,38 @@ function VideoJsInner(props) {
       if (p2pEnabled && isLivestreamClaim && hls.p2pEngine) {
         console.log('[P2P] Engine active:', hls.p2pEngine); // eslint-disable-line no-console
         const engine = hls.p2pEngine;
-        if (engine.addEventListener) {
-          engine.addEventListener('onPeerConnect', (params) => {
-            console.log('[P2P] Peer connected:', params.peerId); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onPeerClose', (params) => {
-            console.log('[P2P] Peer disconnected:', params.peerId); // eslint-disable-line no-console
-          });
+        try {
           engine.addEventListener('onSegmentLoaded', (details) => {
-            console.log('[P2P] Segment loaded via', details.peerId ? 'P2P' : 'HTTP', details.url?.slice(-30)); // eslint-disable-line no-console
+            const source = details.peerId ? 'P2P peer ' + details.peerId : 'HTTP';
+            console.log('[P2P] Segment via', source); // eslint-disable-line no-console
           });
-          engine.addEventListener('onTrackerUpdate', (params) => {
-            console.log('[P2P] Tracker update: peers =', params.peers?.length); // eslint-disable-line no-console
+          engine.addEventListener('onSegmentError', (details) => {
+            console.warn('[P2P] Segment error:', details); // eslint-disable-line no-console
           });
+          engine.addEventListener('onChunkDownloaded', (bytesLength, downloadSource, peerId) => {
+            if (peerId) {
+              console.log('[P2P] Chunk from peer:', peerId, bytesLength, 'bytes'); // eslint-disable-line no-console
+            }
+          });
+        } catch (e) {
+          console.warn('[P2P] Failed to attach event listeners:', e); // eslint-disable-line no-console
         }
+        // Log peer count periodically
+        const peerLogInterval = setInterval(() => {
+          try {
+            const core = engine.core;
+            if (core && core.streams) {
+              let totalPeers = 0;
+              core.streams.forEach((stream) => {
+                if (stream.peers) totalPeers += stream.peers.size;
+              });
+              if (totalPeers > 0) {
+                console.log('[P2P] Connected peers:', totalPeers); // eslint-disable-line no-console
+              }
+            }
+          } catch {} // eslint-disable-line no-empty
+        }, 10000);
+        hls.on('hlsDestroying', () => clearInterval(peerLogInterval));
       } else if (p2pEnabled && isLivestreamClaim) {
         console.warn('[P2P] p2pEngine not found on hls instance - mixin may not have worked'); // eslint-disable-line no-console
       }
@@ -313,11 +331,10 @@ function VideoJsInner(props) {
     if (p2pEnabled && isLivestreamClaim) {
       import('p2p-media-loader-hlsjs').then(({ HlsJsP2PEngine }) => {
         if (destroyed) return;
-        // injectMixin modifies the class in place - pass Hls directly.
-        // It's safe because injectMixin adds properties, doesn't replace the constructor.
-        HlsJsP2PEngine.injectMixin(Hls);
+        // injectMixin RETURNS a new class that extends Hls with P2P support
+        const HlsWithP2P = HlsJsP2PEngine.injectMixin(Hls);
         console.log('[P2P] P2P mixin injected, creating HLS instance...'); // eslint-disable-line no-console
-        createHls(Hls);
+        createHls(HlsWithP2P);
       }).catch((e) => {
         console.warn('[P2P] Failed to load p2p-media-loader, falling back to standard HLS:', e); // eslint-disable-line no-console
         createHls(Hls);

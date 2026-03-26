@@ -70,6 +70,7 @@ export default function LivestreamLayout(props: Props) {
 
   const [hyperchatsHidden] = React.useState(false);
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
+  const [playerKey, setPlayerKey] = React.useState(0);
 
   // Creator-only stream metrics
   const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
@@ -129,7 +130,7 @@ export default function LivestreamLayout(props: Props) {
           <LivestreamMetrics metrics={serverMetrics} mode="compact" />
         )}
         {showP2POptIn && (
-          <LivestreamWebrtcOptIn onEnable={() => {}} />
+          <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
         )}
         <FileTitleSection uri={uri} expandOverride />
       </section>
@@ -151,7 +152,7 @@ export default function LivestreamLayout(props: Props) {
     return (
       <section className="card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-          <VideoClaimInitiator uri={claim.canonical_url}>
+          <VideoClaimInitiator key={playerKey} uri={claim.canonical_url}>
             {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
           </VideoClaimInitiator>
         </div>
@@ -169,7 +170,7 @@ export default function LivestreamLayout(props: Props) {
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-        <VideoClaimInitiator uri={claim.canonical_url}>
+        <VideoClaimInitiator key={playerKey} uri={claim.canonical_url}>
           {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
         </VideoClaimInitiator>
       </div>
@@ -182,7 +183,7 @@ export default function LivestreamLayout(props: Props) {
               <LivestreamMetrics metrics={serverMetrics} mode="compact" />
             )}
             {showP2POptIn && (
-              <LivestreamWebrtcOptIn onEnable={() => {}} />
+              <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
             )}
             <FileTitleSection uri={uri} />
           </div>

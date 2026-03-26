@@ -11,7 +11,6 @@ import {
   getWebrtcPublishVideoConstraints,
   type WebrtcPublishVideoCodecPreference,
 } from 'constants/webrtcPublish';
-import { LocalStorage } from 'util/storage';
 import { startWhipPublish, stopWhipPublish, updateWhipVideoEncodingPolicy } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
@@ -132,26 +131,10 @@ function classifyEncoderImplementation(encoderImplementation: string | null | un
   return 'unknown';
 }
 
-const LAST_WORKING_CODEC_KEY = 'livestream-last-working-codec';
-
-function getLastWorkingCodec(): WebrtcPublishVideoCodecPreference | null {
-  try {
-    const v = LocalStorage.getItem(LAST_WORKING_CODEC_KEY);
-    return v ? JSON.parse(v) : null;
-  } catch { return null; } // eslint-disable-line no-empty
-}
-
-function saveWorkingCodec(codec: WebrtcPublishVideoCodecPreference) {
-  try { LocalStorage.setItem(LAST_WORKING_CODEC_KEY, JSON.stringify(codec)); } catch {} // eslint-disable-line no-empty
-}
-
-/** Returns ordered list of codec preferences to try: last known working → auto → h264 fallback */
+/** Always try auto first (lets browser/server negotiate best codec).
+ *  Only fall back to explicit h264 if auto fails with a codec-related error. */
 function getCodecAttemptOrder(): WebrtcPublishVideoCodecPreference[] {
-  const lastWorking = getLastWorkingCodec();
-  const attempts: WebrtcPublishVideoCodecPreference[] = [];
-  if (lastWorking && lastWorking !== 'auto') attempts.push(lastWorking);
-  attempts.push('auto');
-  if (!attempts.includes('h264')) attempts.push('h264');
+  return ['auto', 'h264'];
   return attempts;
 }
 
@@ -475,13 +458,20 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             publishCtx.actions.setPc(pc);
             publishCtx.actions.setResourceUrl(resourceUrl);
             publishCtx.actions.updateStats({ liveStartedAt: Date.now() });
-            saveWorkingCodec(codec);
+
             setStatus('live');
             dispatch(doToast({ message: __('You are live!') }));
             return;
           } catch (e: unknown) {
             lastErr = e;
             if (isAbortError(e)) break;
+            // Network errors (Failed to fetch) - don't try next codec, just fail
+            // Only try next codec for actual negotiation/codec errors
+            const isNetworkError = e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
+            if (isNetworkError) {
+              console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
+              break;
+            }
             console.warn(`[WebRTC] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
           }
         }
@@ -531,13 +521,17 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           publishCtx.actions.setPc(pc);
           publishCtx.actions.setResourceUrl(resourceUrl);
           publishCtx.actions.updateStats({ liveStartedAt: Date.now() });
-          saveWorkingCodec(codec);
           setStatus('live');
           dispatch(doToast({ message: __('You are live!') }));
           return;
         } catch (e: unknown) {
           lastErr = e;
           if (isAbortError(e)) break;
+          const isNetworkError = e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
+          if (isNetworkError) {
+            console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
+            break;
+          }
           console.warn(`[WebRTC] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
         }
       }
@@ -932,9 +926,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       )}
 
       {/* Hidden P2P seed player - makes streamer the first peer */}
-      {hlsVideoUrl && (
-        <LivestreamP2PSeed videoUrl={hlsVideoUrl} active={p2pEnabled && isLive} />
-      )}
+      <LivestreamP2PSeed videoUrl={hlsVideoUrl || ''} active={p2pEnabled && isLive && Boolean(hlsVideoUrl)} />
 
       {/* P2P confirmation dialog */}
       {showP2pConfirm && (
