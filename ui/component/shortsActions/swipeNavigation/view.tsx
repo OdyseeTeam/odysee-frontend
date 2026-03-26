@@ -186,7 +186,7 @@ const SwipeNavigationPortal = React.memo<Props>(
             if (
               link &&
               link.closest(
-                '.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play, .shorts-page__navigation'
+                '.shorts-viewer__content-info, .shorts-page__view-toggle--overlay, .button--play, .shorts-page__navigation, .odysee-mobile-controls__top'
               )
             ) {
               if (link instanceof HTMLElement) link.click();

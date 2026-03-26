@@ -956,6 +956,12 @@ img.odysee-cast-thumbnail {
   padding: 0.175rem;
   border-radius: 9999px;
   pointer-events: auto;
+
+  .shorts__viewer & {
+    @media (max-width: 1020px) {
+      top: 60px;
+    }
+  }
 }
 
 .odysee-mobile-controls__bottom {
