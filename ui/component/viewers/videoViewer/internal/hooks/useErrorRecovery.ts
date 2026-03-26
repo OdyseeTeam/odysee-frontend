@@ -3,16 +3,10 @@ import { useEffect, useRef, useCallback } from 'react';
 import Hls from 'hls.js';
 import Player from '../player';
 
-type MediaWithHls = HTMLMediaElement & { _hls?: Hls };
-
 const BACKOFF_DELAYS = [250, 1000, 5000, 15000];
 const MAX_ATTEMPTS = 4;
 
-export default function useErrorRecovery(
-  resolvedSrc: string | undefined,
-  setReload: (val: number | string) => void,
-  setTapToRetryVisible: (val: boolean) => void
-) {
+export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVisible) {
   const media = Player.useMedia();
   const attemptsRef = useRef(0);
   const lastTimeRef = useRef(0);
@@ -49,7 +43,7 @@ export default function useErrorRecovery(
 
       clearTimer();
       timerRef.current = setTimeout(() => {
-        const hls = (media as MediaWithHls)._hls;
+        const hls = media._hls;
 
         if (hls) {
           if (errorType === 'networkError') {
@@ -68,7 +62,7 @@ export default function useErrorRecovery(
     };
 
     const onMediaError = () => {
-      if ((media as MediaWithHls)._hls) return;
+      if (media._hls) return;
       const error = media.error;
       if (!error) return;
 
@@ -93,12 +87,12 @@ export default function useErrorRecovery(
 
     const attachHlsHandler = () => {
       const checkHls = () => {
-        const hls = (media as MediaWithHls)._hls;
+        const hls = media._hls;
         if (hls) {
           hls.on(Hls.Events.ERROR, onHlsError);
         }
       };
-      if ((media as MediaWithHls)._hls) {
+      if (media._hls) {
         checkHls();
       } else {
         setTimeout(checkHls, 100);
@@ -113,7 +107,7 @@ export default function useErrorRecovery(
       clearTimer();
       media.removeEventListener('error', onMediaError);
       media.removeEventListener('playing', resetAttempts);
-      const hls = (media as MediaWithHls)._hls;
+      const hls = media._hls;
       if (hls) {
         hls.off(Hls.Events.ERROR, onHlsError);
       }

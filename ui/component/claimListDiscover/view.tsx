@@ -604,6 +604,18 @@ function ClaimListDiscover(props: Props) {
             claimSearchResult.length &&
             claimSearchResult.length < dynamicPageSize * options.page &&
             claimSearchResult.length % dynamicPageSize === 0));
+
+  console.log('[ClaimListDiscover] DEBUG:', {
+    shouldPerformSearch,
+    hasPins,
+    channelIdsParam: !!channelIdsParam,
+    uris: !!uris,
+    claimSearchResult: claimSearchResult === undefined ? 'undefined' : claimSearchResult === null ? 'null' : `array(${claimSearchResult.length})`,
+    loading,
+    searchKey,
+    page: options.page,
+  });
+
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
   const timedOutMessage = (
@@ -646,11 +658,14 @@ function ClaimListDiscover(props: Props) {
     }
   }, [effectivePage, nonPaginationOptionsKey, page]);
   React.useEffect(() => {
+    console.log('[ClaimListDiscover] Pin resolution effect:', { hasPins, pinClaimIds: pins?.claimIds?.length, pinUrls: pins?.urls?.length });
     if (!hasPins) return;
 
     if (pins.claimIds) {
+      console.log('[ClaimListDiscover] Resolving pin claimIds:', pins.claimIds);
       doResolveClaimIds(pins.claimIds);
     } else if (pins.urls) {
+      console.log('[ClaimListDiscover] Resolving pin urls:', pins.urls);
       doResolveUris(pins.urls, true);
     }
   }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
@@ -658,28 +673,44 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     const excludeUris = JSON.parse(excludeUrisStr);
 
+    console.log('[ClaimListDiscover] finalUris effect:', {
+      hasUris: !!uris,
+      claimSearchResult: claimSearchResult === undefined ? 'undefined' : claimSearchResult === null ? 'null' : `array(${claimSearchResult.length})`,
+      resolvedPinUris: resolvedPinUris === undefined ? 'undefined' : `array(${resolvedPinUris?.length})`,
+      channelIdsParam: !!channelIdsParam,
+      hasPins,
+      isUnfetchedClaimSearch,
+    });
+
     if (uris) {
       // --- direct uris
       const newUris = uris && Array.from(new Set(uris));
       injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
       const newFinalUris = filterExcludedUris(newUris, excludeUris);
+      console.log('[ClaimListDiscover] Setting finalUris from uris:', newFinalUris.length);
       setFinalUris(newFinalUris);
     } else if (claimSearchResult) {
       // --- searched uris
       if (isUnfetchedClaimSearch && prevUris.current) {
+        console.log('[ClaimListDiscover] Setting finalUris from prevUris (unfetched)');
         setFinalUris(prevUris.current);
       } else if (!hasPins) {
+        console.log('[ClaimListDiscover] Setting finalUris from claimSearchResult (no pins):', claimSearchResult.length);
         setFinalUris(claimSearchResult);
         prevUris.current = claimSearchResult;
       } else {
         const newUris = Array.from(new Set(claimSearchResult));
         const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
         const newFinalUris = filterExcludedUris(injected, excludeUris);
+        console.log('[ClaimListDiscover] Setting finalUris with pins injected:', newFinalUris.length);
         setFinalUris(newFinalUris);
         prevUris.current = newFinalUris;
       }
     } else if (resolvedPinUris && !channelIdsParam) {
+      console.log('[ClaimListDiscover] Setting finalUris from resolvedPinUris:', resolvedPinUris.length);
       setFinalUris(resolvedPinUris);
+    } else {
+      console.log('[ClaimListDiscover] No finalUris set - stuck in loading!');
     }
   }, [
     channelIdsParam,
@@ -776,7 +807,10 @@ function ClaimListDiscover(props: Props) {
             },
           }
         : {};
+      console.log('[ClaimListDiscover] Triggering doClaimSearch:', { channel_ids: searchOptions.channel_ids?.length, claim_type: searchOptions.claim_type, page: searchOptions.page });
       doClaimSearch(searchOptions, searchSettings);
+    } else {
+      console.log('[ClaimListDiscover] Search NOT triggered (shouldPerformSearch=false)');
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
   const headerToUse = header || (

@@ -218,7 +218,6 @@ function DiscoverPage(props: Props) {
     >
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
-          uris={[]}
           pins={getPins(dynamicRouteProps)}
           hideFilters={isWildWest ? true : hideFilter}
           header={repostedUri ? <span /> : undefined}

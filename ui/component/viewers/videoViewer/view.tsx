@@ -27,62 +27,8 @@ const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 
-type Props = {
-  uri: string;
-  playNextUri?: string;
-  playPreviousUri?: string;
-  source: string;
-  contentType: string;
-  embedded?: boolean;
-  changeVolume: (v: number) => void;
-  changeMute: (m: boolean) => void;
-  videoPlaybackRate: number;
-  thumbnail: string;
-  position: number;
-  claim: any;
-  muted: boolean;
-  volume: number;
-  autoplayNext: boolean;
-  autoplayIfEmbedded: boolean;
-  doAnalyticsBuffer: (uri: string, data: any) => void;
-  doAnalyticsViewForUri: (uri: string) => void;
-  claimRewards: () => void;
-  savePosition: (uri: string, position: number) => void;
-  clearPosition: (uri: string) => void;
-  toggleVideoTheaterMode: () => void;
-  toggleAutoplayNext: () => void;
-  floatingPlayer: boolean;
-  toggleFloatingPlayer: () => void;
-  autoplayMedia: boolean;
-  toggleAutoplayMedia: () => void;
-  setVideoPlaybackRate: (rate: number) => void;
-  homepageData: any;
-  authenticated: boolean;
-  userId: string;
-  internalFeature: boolean;
-  shareTelemetry: boolean;
-  doPlayNextUri: (params: any) => void;
-  recomendedContent?: string[];
-  nextPlaylistUri?: string;
-  videoTheaterMode: boolean;
-  isMarkdownOrComment: boolean;
-  isLivestreamClaim: boolean;
-  activeLivestreamForChannel: any;
-  defaultQuality: string;
-  doToast: (params: any) => void;
-  doSetContentHistoryItem: (uri: string) => void;
-  isPurchasableContent: boolean;
-  isRentableContent: boolean;
-  isProtectedContent: boolean;
-  isDownloadDisabled: boolean;
-  doSetShowAutoplayCountdownForUri: (params: any) => void;
-  doSetVideoSourceLoaded: (uri: string) => void;
-  doSyncLastPosition: (uri: string, position: number) => void;
-  autoPlayNextShort: boolean;
-  isFloating: boolean;
-};
 
-function VideoViewer(props: Props) {
+function VideoViewer(props) {
   const {
     uri,
     playNextUri,
@@ -173,7 +119,7 @@ function VideoViewer(props: Props) {
   const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
   const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
   const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
-  const [videoNode, setVideoNode] = useState<HTMLVideoElement | null>(null);
+  const [videoNode, setVideoNode] = useState();
 
   React.useEffect(() => {
     if (defaultQuality) {
@@ -205,15 +151,15 @@ function VideoViewer(props: Props) {
   );
 
   const updateVolumeState = React.useCallback(
-    debounce((...args: unknown[]) => {
-      changeVolume(args[0] as number);
-      changeMute(args[1] as boolean);
+    debounce((volume, muted) => {
+      changeVolume(volume);
+      changeMute(muted);
     }, 500),
     []
   );
 
   const handlePlayNextUri = React.useCallback(
-    (options?: { manual?: boolean }) => {
+    (options) => {
       const manual = options && options.manual;
       if (shouldPlayRecommended) {
         if (manual || IS_IOS) {
@@ -238,7 +184,7 @@ function VideoViewer(props: Props) {
 
   const onVideoEnded = React.useCallback(() => {
     videoEnded.current = true;
-    analytics.video.videoIsPlaying(false, null);
+    analytics.video.videoIsPlaying(false);
 
     if (adUrl) return setAdUrl(null);
 
@@ -263,7 +209,7 @@ function VideoViewer(props: Props) {
 
   const lastSyncTimeRef = React.useRef(0);
 
-  function handlePosition(node: HTMLVideoElement, forceSync?: boolean) {
+  function handlePosition(node, forceSync) {
     try {
       if (!isLivestreamClaim && uri && savePosition && node) {
         const currentTime = node.currentTime;
@@ -360,7 +306,7 @@ function VideoViewer(props: Props) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} doReplay={replay} />}
+        {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
         {showRecommendationOverlay && (
           <div className="recommendation-overlay-wrapper">
             <div className="recommendation-overlay-grid">
@@ -372,7 +318,7 @@ function VideoViewer(props: Props) {
                       i === 4 && isMobile ? replay() : doPlayNextUri({ uri: url });
                     }}
                   >
-                    <ClaimPreviewTile uri={url} placeholder={false} onClickHandledByParent />
+                    <ClaimPreviewTile uri={url} onClickHandledByParent />
                   </div>
                 ))}
             </div>

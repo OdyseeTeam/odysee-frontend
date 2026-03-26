@@ -67,7 +67,6 @@ function PortalPage() {
         </div>
         <div className="portal-content">
           <ClaimListDiscover
-            uris={[]}
             claimIds={(portal.claimIds && portal.claimIds.videos) || []}
             infiniteScroll
             tileLayout

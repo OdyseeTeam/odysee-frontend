@@ -34,7 +34,6 @@ function TopPage() {
     <Page className="topPage-wrapper">
       <SearchTopClaim query={name} hideLink setChannelActive={setChannelActive} isSearching={false} />
       <ClaimListDiscover
-        uris={[]}
         tileLayout={false}
         name={channelActive ? `@${queryName}` : queryName}
         defaultFreshness={CS.FRESH_ALL}

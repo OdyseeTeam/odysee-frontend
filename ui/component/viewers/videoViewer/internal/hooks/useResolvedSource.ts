@@ -7,17 +7,17 @@ const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
 
 export default function useResolvedSource(
-  source: any,
-  sourceType: any,
-  isLivestreamClaim: any,
-  userClaimId: any,
-  isProtectedContent: any,
-  activeLivestreamForChannel: any,
-  uri: any,
-  doSetVideoSourceLoaded: any
+  source,
+  sourceType,
+  isLivestreamClaim,
+  userClaimId,
+  isProtectedContent,
+  activeLivestreamForChannel,
+  uri,
+  doSetVideoSourceLoaded
 ) {
-  const [resolved, setResolved] = useState<any>(null);
-  const playerServerRef = useRef<string | null>(null);
+  const [resolved, setResolved] = useState(null);
+  const playerServerRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,7 +58,7 @@ export default function useResolvedSource(
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 5000);
-      let response: Response;
+      let response;
       try {
         response = await fetch(source, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
       } catch (e) {
@@ -86,9 +86,9 @@ export default function useResolvedSource(
       let trimmedUrl = new URL(response.url);
       trimmedUrl.hash = '';
       trimmedUrl.search = '';
-      const trimmedUrlStr = trimmedUrl.toString();
+      trimmedUrl = trimmedUrl.toString();
 
-      if (response && response.redirected && response.url && trimmedUrlStr.endsWith('m3u8') && response.status < 400) {
+      if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8') && response.status < 400) {
         const hlsSrc = { type: HLS_FILETYPE, src: response.url };
         const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
         setResolved({

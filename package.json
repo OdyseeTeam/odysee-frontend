@@ -58,6 +58,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/react": "^10.45.0",
     "@ungap/from-entries": "^0.2.1",
+    "@videojs/react": "10.0.0-beta.10",
     "@wanderapp/connect": "^0.1.11",
     "arweave": "^1.15.7",
     "classnames": "^2.2.5",
@@ -71,6 +72,7 @@
     "emoji-dictionary": "^1.0.11",
     "global": "^4.4.0",
     "hast-util-sanitize": "^3.0.2",
+    "hls.js": "^1.6.7",
     "humanize-duration": "^3.27.0",
     "imagesloaded": "^4.1.4",
     "lbry-format": "https://github.com/lbryio/lbry-format.git",
@@ -79,6 +81,7 @@
     "mammoth": "^1.4.16",
     "match-sorter": "^6.3.0",
     "moment": "^2.29.4",
+    "p2p-media-loader-hlsjs": "^2.2.2",
     "parse-duration": "^1.0.0",
     "parse-entities": "^4.0.2",
     "player.js": "^0.1.0",
@@ -131,9 +134,7 @@
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
     "unist-util-visit": "^5.1.0",
-    "uuid": "^9.0.1",
-    "@videojs/react": "10.0.0-beta.10",
-    "hls.js": "^1.6.7"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -154,8 +155,7 @@
     "vite": "^8.0.1",
     "vite-plus": "^0.1.12"
   },
-  "resolutions": {
-      },
+  "resolutions": {},
   "engines": {
     "node": "^22.0.0"
   },

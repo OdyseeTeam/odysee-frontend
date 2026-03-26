@@ -396,7 +396,7 @@ export default function VideoFullscreenActions(props: Props) {
       <div className="file-page">
         <div className="card-stack">
           <section className="file-page__media-actions">
-            <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverrideProp />
+            <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
           </section>
         </div>
       </div>
@@ -748,7 +748,7 @@ export default function VideoFullscreenActions(props: Props) {
         )}
 
         <div className="video-fullscreen__side-panel-content">
-          {panelMode === 'info' && <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverrideProp />}
+          {panelMode === 'info' && <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />}
           {panelMode === 'chat' && (
             <>
               <button className="video-fullscreen__chat-close-button" onClick={handleClosePanel} title={__('Close')}>
