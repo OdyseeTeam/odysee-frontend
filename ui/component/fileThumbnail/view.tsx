@@ -75,40 +75,61 @@ function FileThumbnail(props: Props) {
     (thumbnailFromClaim === null || (!thumbnail && !hasResolvedClaim));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
-  // ---- Live thumbnail hover refresh (preload-then-swap to avoid flash) ----
+  // ---- Live thumbnail hover refresh (preload-then-swap, no flash) ----
   const [isHovering, setIsHovering] = React.useState(false);
   const [loadedLiveUrl, setLoadedLiveUrl] = React.useState<string | null>(null);
-  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+  const fetchingRef = React.useRef(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     if (isHovering && liveThumbnail) {
       let canceled = false;
 
       const fetchFrame = () => {
+        if (canceled || fetchingRef.current) return;
+        fetchingRef.current = true;
         const sep = liveThumbnail.includes('?') ? '&' : '?';
         const nextUrl = `${liveThumbnail}${sep}t=${Date.now()}`;
         const img = new Image();
         img.onload = () => {
-          if (!canceled) setLoadedLiveUrl(nextUrl);
+          fetchingRef.current = false;
+          if (!canceled) {
+            setLoadedLiveUrl(nextUrl);
+            // Schedule next frame only after this one loaded
+            timerRef.current = setTimeout(fetchFrame, LIVE_THUMB_REFRESH_MS);
+          }
+        };
+        img.onerror = () => {
+          fetchingRef.current = false;
+          if (!canceled) {
+            // On error, retry after a longer delay (don't spam 404s)
+            timerRef.current = setTimeout(fetchFrame, 1000);
+          }
         };
         img.src = nextUrl;
       };
 
       fetchFrame();
-      intervalRef.current = setInterval(fetchFrame, LIVE_THUMB_REFRESH_MS);
 
       return () => {
         canceled = true;
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        fetchingRef.current = false;
+        if (timerRef.current) clearTimeout(timerRef.current);
       };
     } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      // Stop fetching but keep the last good frame (don't clear to null)
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
-      setLoadedLiveUrl(null);
+      fetchingRef.current = false;
     }
   }, [isHovering, liveThumbnail]);
+
+  // Clear loaded URL only when the live thumbnail source itself changes (stream ended)
+  React.useEffect(() => {
+    if (!liveThumbnail) setLoadedLiveUrl(null);
+  }, [liveThumbnail]);
 
   const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
 

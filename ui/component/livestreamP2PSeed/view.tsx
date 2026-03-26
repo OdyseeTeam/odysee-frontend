@@ -25,49 +25,57 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
     const video = videoRef.current;
     if (!video) return;
 
-    let HlsConstructor = Hls;
-    try {
-      const { HlsJsP2PEngine } = require('p2p-media-loader-hlsjs');
-      HlsJsP2PEngine.injectMixin(HlsConstructor);
-      console.log('[P2P Seed] Streamer seeding enabled for:', videoUrl); // eslint-disable-line no-console
-    } catch (e) {
-      console.warn('[P2P Seed] Failed to load p2p-media-loader, seeding disabled:', e); // eslint-disable-line no-console
-      return;
-    }
+    let destroyed = false;
 
-    const hls = new HlsConstructor({
-      // Minimal buffer - we're not watching, just seeding
-      backBufferLength: 10,
-      maxBufferLength: 15,
-      maxMaxBufferLength: 30,
-      // Live settings
-      liveSyncDuration: 4,
-      liveMaxLatencyDuration: Infinity,
-      // P2P config
-      p2p: {
-        core: {
-          announceTrackers: [
-            'wss://tracker.novage.com.ua',
-            'wss://tracker.webtorrent.dev',
-          ],
+    (async () => {
+      let HlsConstructor: typeof Hls = Hls;
+      try {
+        const { HlsJsP2PEngine } = await import('p2p-media-loader-hlsjs');
+        if (destroyed) return;
+        // injectMixin modifies the class in place
+        HlsJsP2PEngine.injectMixin(Hls);
+        HlsConstructor = Hls;
+        console.log('[P2P Seed] Streamer seeding enabled for:', videoUrl); // eslint-disable-line no-console
+      } catch (e) {
+        console.warn('[P2P Seed] Failed to load p2p-media-loader, seeding disabled:', e); // eslint-disable-line no-console
+        return;
+      }
+
+      if (destroyed) return;
+
+      const hls = new HlsConstructor({
+        backBufferLength: 10,
+        maxBufferLength: 15,
+        maxMaxBufferLength: 30,
+        liveSyncDuration: 4,
+        liveMaxLatencyDuration: Infinity,
+        p2p: {
+          core: {
+            announceTrackers: [
+              'wss://tracker.novage.com.ua',
+              'wss://tracker.webtorrent.dev',
+            ],
+          },
         },
-      },
-    });
+      });
 
-    hls.attachMedia(video);
-    hls.loadSource(videoUrl);
-    hlsRef.current = hls;
+      hls.attachMedia(video);
+      hls.loadSource(videoUrl);
+      hlsRef.current = hls;
 
-    // Mute and keep playing so segments keep downloading
-    video.muted = true;
-    video.volume = 0;
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.play().catch(() => {});
-    });
+      video.muted = true;
+      video.volume = 0;
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {});
+      });
+    })();
 
     return () => {
-      hls.destroy();
-      hlsRef.current = null;
+      destroyed = true;
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
     };
   }, [active, videoUrl]);
 

@@ -471,6 +471,9 @@ export default defineConfig(({ command }) => ({
       // Pre-bundled ESM buffer to work around Rolldown CJS interop chunk ordering bug
       buffer: path.resolve(__dirname, 'web/stubs/buffer-esm.js'),
 
+      // Node.js polyfills for browser (needed by p2p-media-loader)
+      events: 'events',
+
       // Build optimization
       'redux-persist-transform-filter': 'redux-persist-transform-filter/index.js',
     },
@@ -572,6 +575,8 @@ export default defineConfig(({ command }) => ({
       'tus-js-client',
       'remark',
       'react-datepicker',
+      'events',
+      'p2p-media-loader-hlsjs',
     ],
   },
 

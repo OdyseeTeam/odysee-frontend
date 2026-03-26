@@ -807,10 +807,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
             <div className="livestream-webrtc__controls-spacer" />
 
-            {isLive && hlsVideoUrl && (
+            {(isLive || p2pEnabled) && (
               <button
                 className={classnames('livestream-webrtc__control-btn livestream-webrtc__control-btn--p2p', {
                   'livestream-webrtc__control-btn--p2p-active': p2pEnabled,
+                  'livestream-webrtc__control-btn--p2p-pulse': p2pEnabled,
                 })}
                 onClick={() => {
                   if (p2pEnabled) {
@@ -819,7 +820,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                     setShowP2pConfirm(true);
                   }
                 }}
-                title={p2pEnabled ? __('P2P seeding active') : __('Enable P2P seeding')}
+                title={p2pEnabled ? __('P2P seeding active - click to disable') : __('Enable P2P seeding')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -867,6 +868,29 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           <p className="livestream-webrtc__hint-msg">{disabledReason}</p>
         )}
       </div>
+
+      {/* P2P seeding banner for streamer - hidden once enabled */}
+      {isLive && !p2pEnabled && !showP2pConfirm && (
+        <div className="livestream-webrtc__p2p-banner">
+          <div className="livestream-webrtc__p2p-banner-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </div>
+          <div className="livestream-webrtc__p2p-banner-text">
+            <span className="livestream-webrtc__p2p-banner-title">{__('Help viewers with P2P')}</span>
+            <span className="livestream-webrtc__p2p-banner-sub">
+              {__('Seed your stream directly to viewers via peer-to-peer. Reduces server load.')}
+            </span>
+          </div>
+          <button
+            className="livestream-webrtc__p2p-banner-btn"
+            onClick={() => setShowP2pConfirm(true)}
+          >
+            {__('Enable')}
+          </button>
+        </div>
+      )}
 
       {/* Claim Preview - AFTER the button */}
       {nextStreamUri && (
@@ -931,7 +955,17 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                   setShowP2pConfirm(false);
                 }}
               >
-                {__('Enable P2P')}
+                {__('Always')}
+              </button>
+              <button
+                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--outline"
+                onClick={() => {
+                  // Session only - set in redux but don't push to wallet
+                  dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true));
+                  setShowP2pConfirm(false);
+                }}
+              >
+                {__('Try now')}
               </button>
               <button
                 className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--secondary"

@@ -617,6 +617,20 @@ img.odysee-cast-thumbnail {
   }
 }
 
+.media-button--p2p {
+  position: relative;
+}
+
+.media-button--p2p-active {
+  color: var(--color-primary);
+  animation: p2p-player-bolt-glow 2s ease-in-out infinite;
+}
+
+@keyframes p2p-player-bolt-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 4px rgba(var(--color-primary-dynamic), 0.5)); }
+}
+
 .media-button--cast-active {
   color: var(--color-primary);
 }

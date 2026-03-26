@@ -281,6 +281,10 @@
       }
     }
 
+    &--p2p-pulse {
+      animation: p2p-bolt-glow 2s ease-in-out infinite;
+    }
+
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -665,6 +669,118 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+// ---- P2P banner (streamer opt-in) ----
+.livestream-webrtc__p2p-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  padding: var(--spacing-xs) var(--spacing-s);
+  border-radius: 8px;
+  border: 1px solid rgba(var(--color-primary-dynamic), 0.15);
+  background: rgba(var(--color-primary-dynamic), 0.04);
+  animation: webrtc-settings-in 0.3s ease;
+}
+
+.livestream-webrtc__p2p-banner-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(var(--color-primary-dynamic), 0.1);
+  color: var(--color-primary);
+}
+
+.livestream-webrtc__p2p-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.livestream-webrtc__p2p-banner-title {
+  display: block;
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.livestream-webrtc__p2p-banner-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-subtitle);
+  line-height: 1.4;
+  margin-top: 1px;
+}
+
+.livestream-webrtc__p2p-banner-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+// ---- P2P active indicator ----
+.livestream-webrtc__p2p-active {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 6px var(--spacing-s);
+  border-radius: 6px;
+  background: rgba(var(--color-primary-dynamic), 0.06);
+  border: 1px solid rgba(var(--color-primary-dynamic), 0.12);
+}
+
+.livestream-webrtc__p2p-active-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-primary);
+  animation: p2p-bolt-glow 2s ease-in-out infinite;
+}
+
+.livestream-webrtc__p2p-active-text {
+  flex: 1;
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.livestream-webrtc__p2p-active-off {
+  padding: 3px 10px;
+  border: 1px solid rgba(var(--color-header-button-base), 0.15);
+  border-radius: 4px;
+  background: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-subtitle);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text);
+    background: rgba(var(--color-header-button-base), 0.08);
+  }
+}
+
+@keyframes p2p-bolt-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgba(var(--color-primary-dynamic), 0.5));
+  }
+}
+
 // ---- P2P confirm dialog ----
 .livestream-webrtc__p2p-confirm {
   position: fixed;
@@ -727,6 +843,16 @@
 
     &:hover {
       filter: brightness(1.1);
+    }
+  }
+
+  &--outline {
+    border: 1px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+
+    &:hover {
+      background: rgba(var(--color-primary-dynamic), 0.08);
     }
   }
 

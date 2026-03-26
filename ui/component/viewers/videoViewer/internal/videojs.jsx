@@ -236,8 +236,8 @@ function VideoJsInner(props) {
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
 
-    // Inject P2P delivery when the setting is enabled.
-    // This modifies the Hls class to share segments with other viewers via WebRTC.
+    let destroyed = false;
+
     const p2pEnabled = (() => {
       try {
         const stored = LocalStorage.getItem('p2p_delivery');
@@ -245,60 +245,93 @@ function VideoJsInner(props) {
       } catch { return false; } // eslint-disable-line no-empty
     })();
 
-    let HlsConstructor = Hls;
-    if (p2pEnabled && isLivestreamClaim) {
-      try {
-        const { HlsJsP2PEngine } = require('p2p-media-loader-hlsjs');
-        HlsJsP2PEngine.injectMixin(HlsConstructor);
-        console.log('[P2P] P2P delivery enabled for this stream'); // eslint-disable-line no-console
-      } catch (e) {
-        console.warn('[P2P] Failed to load p2p-media-loader:', e); // eslint-disable-line no-console
+    function createHls(HlsConstructor) {
+      if (destroyed) return;
+      const hls = new HlsConstructor({
+        backBufferLength: 30,
+        capLevelToPlayerSize: true,
+        capLevelOnFPSDrop: true,
+        ...(isLivestreamClaim
+          ? {
+              liveSyncDuration: 4,
+              liveMaxLatencyDuration: Infinity,
+            }
+          : undefined),
+        ...(p2pEnabled && isLivestreamClaim
+          ? {
+              p2p: {
+                core: {
+                  announceTrackers: [
+                    'wss://tracker.novage.com.ua',
+                    'wss://tracker.webtorrent.dev',
+                  ],
+                },
+              },
+            }
+          : undefined),
+      });
+
+      if (!isHls) {
+        let recovered = false;
+        hls.on('hlsManifestParsed', () => { recovered = true; });
+        hls.on('hlsError', (_, data) => {
+          if (!recovered && data.fatal) {
+            hls.destroy();
+            delete media._hls;
+            media.src = src;
+          }
+        });
+      }
+
+      hls.attachMedia(media);
+      hls.loadSource(src);
+      media._hls = hls;
+
+      // P2P diagnostics
+      if (p2pEnabled && isLivestreamClaim && hls.p2pEngine) {
+        console.log('[P2P] Engine active:', hls.p2pEngine); // eslint-disable-line no-console
+        const engine = hls.p2pEngine;
+        if (engine.addEventListener) {
+          engine.addEventListener('onPeerConnect', (params) => {
+            console.log('[P2P] Peer connected:', params.peerId); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onPeerClose', (params) => {
+            console.log('[P2P] Peer disconnected:', params.peerId); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onSegmentLoaded', (details) => {
+            console.log('[P2P] Segment loaded via', details.peerId ? 'P2P' : 'HTTP', details.url?.slice(-30)); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onTrackerUpdate', (params) => {
+            console.log('[P2P] Tracker update: peers =', params.peers?.length); // eslint-disable-line no-console
+          });
+        }
+      } else if (p2pEnabled && isLivestreamClaim) {
+        console.warn('[P2P] p2pEngine not found on hls instance - mixin may not have worked'); // eslint-disable-line no-console
       }
     }
 
-    const hls = new HlsConstructor({
-      backBufferLength: 30,
-      capLevelToPlayerSize: true,
-      capLevelOnFPSDrop: true,
-      ...(isLivestreamClaim
-        ? {
-            liveSyncDuration: 4,
-            liveMaxLatencyDuration: Infinity,
-          }
-        : undefined),
-      ...(p2pEnabled && isLivestreamClaim
-        ? {
-            p2p: {
-              core: {
-                announceTrackers: [
-                  'wss://tracker.novage.com.ua',
-                  'wss://tracker.webtorrent.dev',
-                ],
-              },
-            },
-          }
-        : undefined),
-    });
-
-    if (!isHls) {
-      let recovered = false;
-      hls.on('hlsManifestParsed', () => { recovered = true; });
-      hls.on('hlsError', (_, data) => {
-        if (!recovered && data.fatal) {
-          hls.destroy();
-          delete media._hls;
-          media.src = src;
-        }
+    if (p2pEnabled && isLivestreamClaim) {
+      import('p2p-media-loader-hlsjs').then(({ HlsJsP2PEngine }) => {
+        if (destroyed) return;
+        // injectMixin modifies the class in place - pass Hls directly.
+        // It's safe because injectMixin adds properties, doesn't replace the constructor.
+        HlsJsP2PEngine.injectMixin(Hls);
+        console.log('[P2P] P2P mixin injected, creating HLS instance...'); // eslint-disable-line no-console
+        createHls(Hls);
+      }).catch((e) => {
+        console.warn('[P2P] Failed to load p2p-media-loader, falling back to standard HLS:', e); // eslint-disable-line no-console
+        createHls(Hls);
       });
+    } else {
+      createHls(Hls);
     }
 
-    hls.attachMedia(media);
-    hls.loadSource(src);
-    media._hls = hls;
-
     return () => {
-      hls.destroy();
-      delete media._hls;
+      destroyed = true;
+      if (media._hls) {
+        media._hls.destroy();
+        delete media._hls;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);

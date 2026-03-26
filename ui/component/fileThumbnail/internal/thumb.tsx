@@ -42,10 +42,12 @@ const Thumb = (props: Props) => {
   }, []);
 
   if (isLiveRefreshing && (bufferA || bufferB)) {
-    // Double-buffered live mode: two stacked <img> elements
+    // Double-buffered live mode: base layer is background-image (never blank),
+    // two <img> elements stack on top and crossfade. Only rendered when they have a real URL.
     return (
       <div
         ref={thumbnailRef}
+        style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
         className={classnames('media__thumb', {
           className,
           'media__thumb--small': small,
@@ -53,20 +55,24 @@ const Thumb = (props: Props) => {
         })}
         {...hoverHandlers}
       >
-        <img
-          src={bufferA || ''}
-          className={classnames('media__thumb-live-img', { 'media__thumb-live-img--active': activeBuffer === 'a' })}
-          onLoad={() => handleImgLoad('a')}
-          alt=""
-          draggable={false}
-        />
-        <img
-          src={bufferB || ''}
-          className={classnames('media__thumb-live-img', { 'media__thumb-live-img--active': activeBuffer === 'b' })}
-          onLoad={() => handleImgLoad('b')}
-          alt=""
-          draggable={false}
-        />
+        {bufferA && (
+          <img
+            src={bufferA}
+            className={classnames('media__thumb-live-img', { 'media__thumb-live-img--active': activeBuffer === 'a' })}
+            onLoad={() => handleImgLoad('a')}
+            alt=""
+            draggable={false}
+          />
+        )}
+        {bufferB && (
+          <img
+            src={bufferB}
+            className={classnames('media__thumb-live-img', { 'media__thumb-live-img--active': activeBuffer === 'b' })}
+            onLoad={() => handleImgLoad('b')}
+            alt=""
+            draggable={false}
+          />
+        )}
         {children}
       </div>
     );
