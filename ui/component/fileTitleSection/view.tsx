@@ -22,8 +22,8 @@ import { getClaimTitle } from 'util/claim';
 
 type Props = {
   uri: string;
-  nsfw: boolean;
-  isNsfwBlocked: boolean;
+  nsfw?: boolean;
+  isNsfwBlocked?: boolean;
   livestream?: boolean;
   hideDescription?: boolean;
   accessStatus?: string;

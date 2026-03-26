@@ -50,7 +50,7 @@ function OverviewTab(props: Props) {
         <table className="table">
           <thead>
             <tr>
-              <th className="channelName-header" colSpan="2">
+              <th className="channelName-header" colSpan={2}>
                 {__('Channel Name')}
               </th>
               <th>{__('Supporters')}</th>
@@ -61,7 +61,7 @@ function OverviewTab(props: Props) {
           </thead>
 
           <tbody>
-            {myChannelClaims.map((channelClaim) => (
+            {myChannelClaims.map((channelClaim: ChannelClaim) => (
               <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
                 <ChannelOverview channelClaim={channelClaim} />
               </tr>

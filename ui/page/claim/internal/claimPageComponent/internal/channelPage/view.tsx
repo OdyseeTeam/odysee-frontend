@@ -66,7 +66,7 @@ const HiddenNsfwClaims = lazyImport(
       'component/hiddenNsfwClaims'
       /* webpackChunkName: "hiddenNsfwClaims" */
     )
-);
+) as React.LazyExoticComponent<React.ComponentType<{ uri?: string; mature?: boolean }>>;
 const TABS_FOR_CHANNELS_WITH_CONTENT = [
   CHANNEL_PAGE.VIEWS.HOME,
   CHANNEL_PAGE.VIEWS.CONTENT,
@@ -75,7 +75,8 @@ const TABS_FOR_CHANNELS_WITH_CONTENT = [
 ];
 type Props = {
   uri: string;
-  match: {
+  location?: any;
+  match?: {
     params: {
       attribute: string | null | undefined;
     };
@@ -104,7 +105,7 @@ function ChannelPage(props: Props) {
   const myMembershipsFetched = useAppSelector(selectMembershipMineFetched);
   const isOdyseeChannel = useAppSelector((state) => selectIsClaimOdyseeChannelForUri(state, uri));
   const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
-  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as { filtered?: boolean; blacklisted?: boolean };
   const isMature = claim ? isClaimNsfw(claim) : false;
   const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
@@ -150,7 +151,7 @@ function ChannelPage(props: Props) {
     });
   const showDiscussion = currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
-  const [filters, setFilters] = React.useState(undefined);
+  const [filters, setFilters] = React.useState<any>(undefined);
   const [hasShorts, setHasShorts] = React.useState(true);
   const [displayView, setDisplayView] = React.useState(currentView);
   const [legacyHeader, setLegacyHeader] = React.useState(false);
@@ -170,7 +171,7 @@ function ChannelPage(props: Props) {
       });
     }
   }, [coverUrl]);
-  const [scrollPast, setScrollPast] = React.useState(0);
+  const [scrollPast, setScrollPast] = React.useState<boolean>(false);
 
   const onScroll = () => {
     if (window.pageYOffset > 240) {
@@ -186,7 +187,7 @@ function ChannelPage(props: Props) {
     });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  const handleShortsLoaded = React.useCallback((count) => {
+  const handleShortsLoaded = React.useCallback((count: number) => {
     setHasShorts(count > 0);
   }, []);
   React.useEffect(() => {
@@ -208,7 +209,7 @@ function ChannelPage(props: Props) {
         `channel_id=${encodeURIComponent(claimId)}` +
           `&size=1` +
           `&nsfw=false` +
-          `&${SEARCH_OPTIONS.MEDIA_TYPE}=${SEARCH_OPTIONS.MEDIA_VIDEO}` +
+          `&media_type=${SEARCH_OPTIONS.MEDIA_VIDEO}` +
           `&${SEARCH_OPTIONS.MAX_DURATION}=${SETTINGS.SHORTS_DURATION_LTE}` +
           `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
       )
@@ -299,7 +300,7 @@ function ChannelPage(props: Props) {
       break;
   }
 
-  function onTabChange(newTabIndex, keepFilters) {
+  function onTabChange(newTabIndex: number, keepFilters?: boolean) {
     const baseUrl = formatLbryUrlForWeb(uri);
     const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
     let newSearch = '';
@@ -396,10 +397,10 @@ function ChannelPage(props: Props) {
   }, [hideShorts, currentView, uri, navigate, isEmbedPath]);
 
   if (editing) {
-    return <ChannelEdit uri={uri} onDone={() => navigate(-1)} />;
+    return <ChannelEdit uri={uri} onDone={() => navigate(-1)} disabled={false} />;
   }
 
-  function handleViewMore(section) {
+  function handleViewMore(section: any) {
     function getOrderBy() {
       return section.order_by && section.order_by[0] === 'trending_group'
         ? CS.ORDER_BY_TRENDING
@@ -493,7 +494,7 @@ function ChannelPage(props: Props) {
             {!(isBlocked || isMuted || isMature) && (!channelIsBlackListed || isSubscribed) && (
               <SubscribeButton uri={permanentUrl} shrinkOnMobile />
             )}
-            <ClaimMenuList uri={claim.permanent_url} inline />
+            <ClaimMenuList uri={claim.permanent_url} inline collectionId="" />
           </div>
           <div className="channel__primary-info">
             <h1 className="channel__title">
@@ -559,7 +560,7 @@ function ChannelPage(props: Props) {
           />
         </div>
       ) : (
-        <Tabs onChange={onTabChange} index={tabIndex}>
+        <Tabs onChange={onTabChange as (arg0: number) => void} index={tabIndex}>
           <div
             className={classnames('tab__wrapper', {
               'tab__wrapper--fixed': scrollPast,
@@ -635,17 +636,17 @@ function ChannelPage(props: Props) {
           <TabPanels>
             <TabPanel>
               {activeView === CHANNEL_PAGE.VIEWS.HOME && (
-                <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
+                <HomeTab uri={uri} editMode={!!channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
               )}
             </TabPanel>
             <TabPanel>
               {activeView === CHANNEL_PAGE.VIEWS.CONTENT && (
                 <ContentTab
                   uri={uri}
-                  channelIsBlackListed={channelIsBlackListed}
+                  channelIsBlackListed={!!channelIsBlackListed}
                   viewHiddenChannels
-                  claimType={['stream', 'repost']}
-                  empty={<section className="main--empty">{__('No Content Found')}</section>}
+                  claimType={['stream', 'repost'] as any}
+                  empty={(<section className="main--empty">{__('No Content Found')}</section>) as any}
                   filters={filters}
                   excludeShorts
                 />
@@ -659,10 +660,10 @@ function ChannelPage(props: Props) {
               >
                 <ContentTab
                   uri={uri}
-                  channelIsBlackListed={channelIsBlackListed}
+                  channelIsBlackListed={!!channelIsBlackListed}
                   viewHiddenChannels
-                  claimType={['stream', 'repost']}
-                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
+                  claimType={['stream', 'repost'] as any}
+                  empty={(<section className="main--empty">{__('No Shorts Found')}</section>) as any}
                   filters={filters}
                   loadedCallback={handleShortsLoaded}
                   shortsOnly
@@ -674,14 +675,15 @@ function ChannelPage(props: Props) {
                 <ContentTab
                   claimType={'collection'}
                   uri={uri}
-                  channelIsBlackListed={channelIsBlackListed}
+                  channelIsBlackListed={!!channelIsBlackListed}
                   viewHiddenChannels
-                  empty={collectionEmpty}
+                  empty={collectionEmpty as any}
+                  filters={filters}
                 />
               )}
             </TabPanel>
             <TabPanel>
-              {activeView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
+              {activeView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={!!channelIsMine} />}
             </TabPanel>
             <TabPanel>
               {activeView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}

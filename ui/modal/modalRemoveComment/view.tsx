@@ -17,7 +17,7 @@ type Props = {
   setQuickReply: (arg0: any) => void;
 };
 
-function getCommentPreview(comment: Comment | null | undefined) {
+function getCommentPreview(comment: any) {
   return comment ? (
     <div className="section comment-preview non-clickable">
       <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />

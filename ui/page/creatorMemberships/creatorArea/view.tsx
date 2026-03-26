@@ -6,8 +6,11 @@ import { lazyImport } from 'util/lazyImport';
 import { formatLbryUrlForWeb } from 'util/url';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import Page from 'component/page';
-import ChannelSelector from 'component/channelSelector';
+import PageComponent from 'component/page';
+import ChannelSelectorComponent from 'component/channelSelector';
+
+const Page = PageComponent as React.ComponentType<any>;
+const ChannelSelector = ChannelSelectorComponent as React.ComponentType<any>;
 import Button from 'component/button';
 import TabWrapper from './internal/tabWrapper';
 import './style.scss';
@@ -28,22 +31,22 @@ const OverviewTab = lazyImport(
       './internal/overviewTab'
       /* webpackChunkName: "overviewTab" */
     )
-);
+) as React.ComponentType<any>;
 const TiersTab = lazyImport(
   () =>
     import(
       './internal/tiersTab'
       /* webpackChunkName: "tiersTab" */
     )
-);
+) as React.ComponentType<any>;
 const SupportersTab = lazyImport(
   () =>
     import(
       './internal/supportersTab'
       /* webpackChunkName: "supportersTab" */
     )
-);
-const PaymentsTab = lazyImport(() => import('./internal/paymentsTab'));
+) as React.ComponentType<any>;
+const PaymentsTab = lazyImport(() => import('./internal/paymentsTab')) as React.ComponentType<any>;
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
@@ -63,6 +66,19 @@ const CreatorArea = (props: Props) => {
   const doListAllMyMembershipTiers = () => dispatch(doListAllMyMembershipTiersAction());
   const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
   const navigate = useNavigate();
+
+  const [allSelected, setAllSelected] = React.useState(false);
+  const [ackInfo, setAckInfo] = React.useState(true);
+
+  const handleAckArPaymentsInfo = (value: boolean) => setAckInfo(value);
+
+  const disabledMessage = __('Monetization is not enabled. Please set up your wallet first.');
+
+  const channelsToList = allSelected
+    ? myChannelClaims
+    : activeChannelClaim
+      ? [activeChannelClaim]
+      : null;
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   // if tiers are saved, then go to balance, otherwise go to tiers
@@ -88,7 +104,7 @@ const CreatorArea = (props: Props) => {
       break;
   }
 
-  function onTabChange(newTabIndex) {
+  function onTabChange(newTabIndex: number) {
     let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
 
     if (newTabIndex === 0) {

@@ -53,7 +53,7 @@ const Lbry: LbryTypes = {
         [/\.(lbry)$/i, 'application'],
       ];
       const res = formats.reduce((ret, testpair) => {
-        switch (testpair[0].test(ret)) {
+        switch ((testpair[0] as RegExp).test(ret)) {
           case true:
             return testpair[1];
 
@@ -311,7 +311,7 @@ export function apiCall(
     ? fetch(connectionString, options)
     : fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString, options));
   return fetchPromise
-    .then((response) => checkAndParse(response, method))
+    .then((response) => checkAndParse(response as Response, method))
     .then((response) => {
       const error = response.error || (response.result && response.result.error);
 
@@ -319,7 +319,7 @@ export function apiCall(
         ApiFailureMgr.logFailure(method, params, counter);
         return reject(error);
       } else {
-        ApiFailureMgr.logSuccess(method);
+        ApiFailureMgr.logSuccess(method, params);
         return resolve(response.result);
       }
     })

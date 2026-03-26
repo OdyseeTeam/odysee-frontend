@@ -47,7 +47,6 @@ export default function ClaimListHeader(props: Props) {
             {/* Filter Options */}
             <div className="claim-search__menu-group">
               <div className="claim-search__menu-subgroup">
-                {/* $FlowFixMe */}
                 {Object.values(FILE_LIST.FILE_TYPE).map((info: FilterInfo) => (
                   <Button
                     button="alt"

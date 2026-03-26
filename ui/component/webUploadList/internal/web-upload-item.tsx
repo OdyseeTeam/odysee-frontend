@@ -19,8 +19,8 @@ export default function WebUploadItem(props: Props) {
   const [showFileSelector, setShowFileSelector] = useState(false);
   const locked = tusIsSessionLocked(params.guid);
 
-  function handleFileChange(newFile: WebFile, clearName = true) {
-    if (serializeFileObj(newFile) === fileFingerprint) {
+  function handleFileChange(newFile: WebFile | File | any, clearName = true) {
+    if (serializeFileObj(newFile as any) === fileFingerprint) {
       setShowFileSelector(false);
       doPublishResume({ ...params, file_path: newFile });
 

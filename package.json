@@ -135,9 +135,7 @@
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
     "unist-util-visit": "^5.1.0",
-    "uuid": "^9.0.1",
-    "events": "^3.3.0",
-    "p2p-media-loader-hlsjs": "^2.2.2"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

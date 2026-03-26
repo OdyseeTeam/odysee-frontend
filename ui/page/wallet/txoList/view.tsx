@@ -37,6 +37,7 @@ const DEFAULT_TRANSACTION_TYPE_PARAM = 'tip';
 type Delta = {
   changedParameterKey: string;
   value: string;
+  tab?: string;
 };
 
 function TxoList() {
@@ -443,10 +444,10 @@ function TxoList() {
               </div>
               {/* listing of the transactions */}
               {fiatType === 'incoming' && (
-                <WalletFiatAccountHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+                <WalletFiatAccountHistory transactionType={transactionType} page={Number(page)} pageSize={Number(pageSize)} />
               )}
               {fiatType === 'outgoing' && (
-                <WalletFiatPaymentHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+                <WalletFiatPaymentHistory transactionType={transactionType as 'tips' | 'rentals-purchases'} page={Number(page)} pageSize={Number(pageSize)} />
               )}
             </div>
           </div>

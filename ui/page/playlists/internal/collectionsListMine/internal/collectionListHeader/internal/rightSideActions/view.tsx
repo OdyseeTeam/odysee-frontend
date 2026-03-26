@@ -35,7 +35,7 @@ const RightSideActions = () => {
     navigate(url);
   }
 
-  function escapeListener(e: React.KeyboardEvent<any>) {
+  function escapeListener(e: any) {
     if (e.keyCode === KEYCODES.ESCAPE) {
       e.preventDefault();
       setSearchText('');

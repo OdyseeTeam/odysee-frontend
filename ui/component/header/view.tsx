@@ -37,13 +37,13 @@ type Props = {
   backout: {
     backLabel?: string;
     backNavDefault?: string;
-    title: string;
-    simpleTitle: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
+    title: string | React.ReactNode;
+    simpleTitle?: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   };
-  hideCancel: boolean;
-  isAbsoluteSideNavHidden: boolean;
-  sidebarOpen: boolean;
-  setSidebarOpen: (arg0: boolean) => void;
+  hideCancel?: boolean;
+  isAbsoluteSideNavHidden?: boolean;
+  sidebarOpen?: boolean;
+  setSidebarOpen?: (arg0: boolean) => void;
   hideSidebarToggle?: boolean;
 };
 

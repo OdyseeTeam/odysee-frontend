@@ -1,10 +1,10 @@
 import React from 'react';
 // import { resetColors } from 'util/theme';
 type Props = {
-  // uri: ?string,
-  // cover: ?string,
-  // avatar: ?string,
-  reset: boolean | null | undefined;
+  uri?: string;
+  cover?: string;
+  avatar?: string;
+  reset?: boolean | null | undefined;
 };
 
 const Wallpaper = (props: Props) => {

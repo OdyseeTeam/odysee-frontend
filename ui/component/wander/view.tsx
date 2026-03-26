@@ -82,11 +82,11 @@ export default function Wander(props: Props) {
             cssVars: {
               light: {
                 shadowBlurred: 'none',
-              },
+              } as any,
               dark: {
                 shadowBlurred: 'none',
                 boxShadow: 'none',
-              },
+              } as any,
             },
             customStyles: `
               .backdrop {

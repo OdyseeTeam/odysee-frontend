@@ -28,7 +28,7 @@ const RightSideActions = () => {
     navigate(url);
   }
 
-  function escapeListener(e: React.KeyboardEvent<any>) {
+  function escapeListener(e: any) {
     if (e.keyCode === KEYCODES.ESCAPE) {
       e.preventDefault();
       setSearchText('');
@@ -74,7 +74,6 @@ const RightSideActions = () => {
             >
               {Object.entries(FILE_LIST.SORT_VALUES).map(([key, value]) => (
                 <option key={key} value={key}>
-                  {/* $FlowFixMe */}
                   {__(value.str)}
                 </option>
               ))}

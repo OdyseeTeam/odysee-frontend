@@ -5,7 +5,7 @@ import { doSignOut } from 'redux/actions/app';
 import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
 
 type Props = {
-  button: string;
+  button?: string;
   label?: string;
 };
 

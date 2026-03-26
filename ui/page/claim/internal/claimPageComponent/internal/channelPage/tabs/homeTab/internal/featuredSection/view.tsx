@@ -18,7 +18,7 @@ import { doFetchViewCount as doFetchViewCountAction } from 'lbryinc';
 type Props = {
   uri: string;
   claimId: string;
-  section: any;
+  section?: any;
 };
 
 function FeaturedSection(props: Props) {

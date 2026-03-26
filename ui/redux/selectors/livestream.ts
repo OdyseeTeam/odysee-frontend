@@ -123,7 +123,7 @@ export const selectIsLivePollingForUri = (state: State, uri: string) => {
   if (isLivePolling) return true;
   return false;
 };
-// select non-pending claims without sources for given channel (cached per channelId — do not use makeSelect* that builds a new selector each call)
+// select non-pending claims without sources for given channel (cached per channelId -- do not use makeSelect* that builds a new selector each call)
 export const selectLivestreamsForChannelId = createCachedSelector(
   (state: State, channelId?: string) => selectMyClaims(state),
   (state: State, channelId?: string) => channelId,

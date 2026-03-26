@@ -28,6 +28,7 @@ type Props = {
   small?: boolean;
   forceReload?: boolean;
   isShort?: boolean;
+  tileLayout?: boolean;
 };
 
 function FileThumbnail(props: Props) {
@@ -44,10 +45,10 @@ function FileThumbnail(props: Props) {
   } = props;
 
   const hasResolvedClaim = useAppSelector((state) => (uri ? selectHasResolvedClaimForUri(state, uri) : undefined));
-  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri)) as string | null | undefined;
   const thumbnailFromSecondaryClaim = useAppSelector((state) =>
     secondaryUri ? selectThumbnailForUri(state, secondaryUri) : undefined
-  );
+  ) as string | null | undefined;
   const liveThumbnailFromStore = useAppSelector((state) => (uri ? selectLiveThumbnailForUri(state, uri) : null));
   // If the live thumbnail 404s (stream ended but state not yet updated), fall back
   const [liveThumbnailFailed, setLiveThumbnailFailed] = React.useState(false);

@@ -9,7 +9,7 @@ export type ArWalletState = {
   address: string | null | undefined;
   error: string | null | undefined;
   connecting: boolean;
-  balance: WalletBalance;
+  balance: any;
   exchangeRates: ExchangeRates;
   fetching: boolean;
   tippingStatusById: Record<string, string>; // started, errored, complete/deleted

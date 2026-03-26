@@ -12,7 +12,7 @@ import {
   selectPrevFileSizeTooBig,
 } from 'redux/selectors/publish';
 type Props = {
-  waitForFile: boolean;
+  waitForFile?: boolean;
   missingRequiredFile?: boolean;
   title?: string | null | undefined;
   mode?: string;

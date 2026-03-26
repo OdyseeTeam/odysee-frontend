@@ -24,7 +24,7 @@ export default function useResolvePins(props: Props) {
             const uris = [];
 
             if (result) {
-              Object.values(result).forEach((r) => {
+              Object.values(result).forEach((r: any) => {
                 const claim = r && r.stream;
 
                 if (claim && pins.claimIds?.includes(claim.claim_id)) {

@@ -19,19 +19,21 @@ const events = {
 };
 
 class FreezeframeLite {
-  items = [];
-  $images = [];
-  eventListeners = Object.values(events).reduce((acc, item) => {
+  items: any[] = [];
+  $images: any[] = [];
+  options: typeof defaultOptions;
+  isTouch: boolean = false;
+  eventListeners: Record<string, any[]> = Object.values(events).reduce((acc: Record<string, any[]>, item) => {
     acc[item] = [];
     return acc;
   }, {});
 
-  constructor(node) {
+  constructor(node: any) {
     this.options = { ...defaultOptions };
     this.init(node);
   }
 
-  init(node) {
+  init(node: any) {
     this.isTouch = isTouch();
     this.capture(node);
     this.load(this.$images);
@@ -58,9 +60,9 @@ class FreezeframeLite {
     this.attach(freeze);
   }
 
-  wrap($image) {
-    const $container = htmlToNode(templates.container());
-    const $canvas = htmlToNode(templates.canvas());
+  wrap($image: any) {
+    const $container = htmlToNode(templates.container()) as HTMLElement;
+    const $canvas = htmlToNode(templates.canvas()) as HTMLCanvasElement;
 
     if (this.options.responsive) {
       $container.classList.add(classes.RESPONSIVE);

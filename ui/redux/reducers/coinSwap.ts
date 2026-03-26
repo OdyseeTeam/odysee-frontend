@@ -22,9 +22,9 @@ const calculateLbcAmount = (pricing, exchange, fallback) => {
   return (btcAmount * SATOSHIS) / exchange.rate;
 };
 
-const defaultState: CoinSwapState = {
+const defaultState = {
   coinSwaps: [],
-};
+} as CoinSwapState;
 export default handleActions(
   {
     [ACTIONS.ADD_COIN_SWAP]: (state: CoinSwapState, action: CoinSwapAddAction): CoinSwapState => {

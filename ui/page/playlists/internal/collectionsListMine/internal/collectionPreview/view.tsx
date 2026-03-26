@@ -90,7 +90,7 @@ function CollectionPreview(props: Props) {
   const isEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
   const thumbnailFromClaim = useAppSelector((state) => (uri ? selectThumbnailForUri(state, uri) : ''));
   const thumbnailFromSecondaryClaim = useAppSelector((state) =>
-    firstCollectionItemUrl ? selectThumbnailForUri(state, firstCollectionItemUrl, true) : ''
+    firstCollectionItemUrl ? selectThumbnailForUri(state, firstCollectionItemUrl) : ''
   );
   const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
   const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
@@ -238,18 +238,15 @@ function CollectionPreview(props: Props) {
             </div>
 
             <div className="action">
-              {collectionCount > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && (
+              {Number(collectionCount) > 0 && firstPlayableCollectionItemUrl && !hidePlayAll && (
                 <Button
                   button="alt"
                   icon={ICONS.PLAY}
                   onClick={() =>
-                    navigate({
-                      pathname: firstItemPath,
-                      search: generateListSearchUrlParams(collectionId),
-                      state: {
-                        forceAutoplay: true,
-                      },
-                    })
+                    navigate(
+                      `${firstItemPath}${generateListSearchUrlParams(collectionId)}`,
+                      { state: { forceAutoplay: true } }
+                    )
                   }
                 />
               )}

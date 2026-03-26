@@ -17,7 +17,7 @@ export default function QualitySelector({
     if (!media) return;
 
     // Access hls.js engine from the media element
-    const hls = media.engine || media._hls;
+    const hls = (media as any).engine || (media as any)._hls;
     if (!hls || !hls.levels) return;
 
     const updateLevels = () => {
@@ -44,7 +44,7 @@ export default function QualitySelector({
 
   const selectQuality = useCallback(
     (levelIndex) => {
-      const hls = media?.engine || media?._hls;
+      const hls = (media as any)?.engine || (media as any)?._hls;
       if (!hls) return;
       hls.currentLevel = levelIndex;
       setCurrentLevel(levelIndex);

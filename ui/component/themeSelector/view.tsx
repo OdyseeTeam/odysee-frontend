@@ -53,7 +53,7 @@ export default function ThemeSelector() {
   const startHours = ['18', '19', '20', '21'];
   const endHours = ['5', '6', '7', '8'];
 
-  function onThemeChange(event: React.SyntheticEvent<any>) {
+  function onThemeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const { value } = event.target;
 
     if (value === 'dark') {
@@ -67,7 +67,7 @@ export default function ThemeSelector() {
     setClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, value);
   }
 
-  function onChangeTime(event: React.SyntheticEvent<any>, options: OptionTimes) {
+  function onChangeTime(event: React.ChangeEvent<HTMLSelectElement>, options: OptionTimes) {
     setDarkTime(event.target.value, options);
   }
 

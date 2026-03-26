@@ -42,7 +42,7 @@ const CommentsReplies = lazyImport(
     )
 );
 type Props = {
-  menuButton: boolean;
+  menuButton?: boolean;
   notification: WebNotification;
 };
 const creatorIcon = (channelUrl, channelThumbnail) => (
@@ -53,6 +53,7 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
     channelInfo={{
       uri: channelUrl,
       name: '',
+      title: '',
     }}
   >
     <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
@@ -191,7 +192,7 @@ export default function Notification(props: Props) {
             )}
             {notification_rule === RULE.NEW_LIVESTREAM && (
               <FileThumbnail
-                thumbnail={notification_parameters.device.image_url}
+                thumbnail={(notification_parameters.device as any).image_url}
                 className="notificationContent__thumbnail"
               />
             )}
@@ -257,6 +258,8 @@ export default function Notification(props: Props) {
             <React.Suspense fallback={null}>
               <CommentCreate
                 isReply
+                bottom={false}
+                isNested={false}
                 uri={notificationTarget}
                 parentId={notification_parameters.dynamic.hash}
                 onDoneReplying={() => setReplying(false)}
@@ -273,6 +276,8 @@ export default function Notification(props: Props) {
               uri={notificationTarget}
               parentId={notification_parameters.dynamic.hash}
               numDirectReplies={1}
+              hasMore={false}
+              threadLevel={0}
               supportDisabled
             />
           )}

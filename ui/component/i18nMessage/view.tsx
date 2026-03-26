@@ -1,7 +1,8 @@
 import React from 'react';
 type Props = {
-  tokens: Record<string, any>;
+  tokens?: Record<string, any>;
   children: string; // e.g. "Read %faq_link% for more detail"
+  f?: boolean;
 };
 export default function I18nMessage(props: Props) {
   const message = __(props.children),

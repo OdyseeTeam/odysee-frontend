@@ -168,7 +168,7 @@ const WalletSend = React.memo(function WalletSend({
                   label={__('Amount')}
                   className="form-field--price-amount"
                   affixClass="form-field--fix-no-height"
-                  min="0"
+                  min={0}
                   step="any"
                   placeholder="12.34"
                   onChange={(event) =>

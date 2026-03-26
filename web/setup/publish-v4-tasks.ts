@@ -130,7 +130,7 @@ export function startTus(
   return new Promise((resolve, reject) => {
     assert(uploadUrl || uploadLocation, 'Either uploadUrl or uploadLocation must be provided');
     // --- Create tus session ---
-    const tusSession = new tus.Upload(file, {
+    const tusSession = new tus.Upload(file as File, {
       ...(uploadUrl
         ? {
             uploadUrl: uploadUrl,
@@ -156,7 +156,7 @@ export function startTus(
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
         cb.onProgress(percentage);
       },
-      onShouldRetry: (err, retryAttempt, options) => {
+      onShouldRetry: (err: any, retryAttempt, options) => {
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
         const shouldRetry =
           !inStatusCategory(status, 400) ||
@@ -396,7 +396,7 @@ function v4Error(flop: Error | string, cause: {}): Error {
   if (typeof flop === 'string') {
     return finalizeError(flop, cause);
   } else {
-    const mergedCause = { ...(flop.cause ? flop.cause : {}), ...cause };
+    const mergedCause = { ...(flop.cause && typeof flop.cause === 'object' ? flop.cause : {}), ...cause };
     // Override generic "failed to fetch"
     const message = flop.message === 'Failed to fetch' ? 'Network error. Please try again.' : flop.message;
     // Done

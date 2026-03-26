@@ -4,6 +4,7 @@ type Props = {
   subtitle?: string;
   action?: any;
   children?: string;
+  className?: string;
 };
 
 const ErrorBubble = (props: Props) => {

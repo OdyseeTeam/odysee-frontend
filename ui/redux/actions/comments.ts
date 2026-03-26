@@ -51,7 +51,7 @@ export function doCommentList(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
-    const myChannelClaims = selectMyChannelClaims(state);
+    const myChannelClaims = selectMyChannelClaims(state) as Claim[] | null;
     const { claim_id: claimId } = claim || {};
 
     if (!claimId) {
@@ -73,7 +73,7 @@ export function doCommentList(
     // Adding 'channel_id' and 'channel_name' enables "CreatorSettings > commentsEnabled".
     const creatorChannelClaim = getChannelFromClaim(claim);
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
-    let channelSignature = {};
+    let channelSignature: { signature?: string; signing_ts?: string } = {};
     let myChannelClaim;
 
     if (isProtected) {
@@ -209,7 +209,7 @@ export function doCommentListOwn(
   assert(pageSize <= 50, `claim_search can't resolve > 50 (pageSize=${pageSize})`);
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannelClaims = selectMyChannelClaims(state);
+    const myChannelClaims = selectMyChannelClaims(state) as Claim[] | null;
 
     if (!myChannelClaims) {
       console.error('Failed to fetch channel list.'); // eslint-disable-line
@@ -370,7 +370,7 @@ export function doCommentById(commentId: string, toastIfNotFound: boolean = true
 export function doFetchMyCommentedChannels(claimId: string | null | undefined) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannelClaims = selectMyChannelClaims(state);
+    const myChannelClaims = selectMyChannelClaims(state) as Claim[] | null;
     const contentClaimId = claimId;
 
     if (!contentClaimId || !myChannelClaims) {
@@ -402,7 +402,7 @@ export function doFetchMyCommentedChannels(claimId: string | null | undefined) {
               return;
             }
 
-            if (response[i].value.total_items > 0) {
+            if ((response[i] as PromiseFulfilledResult<any>).value.total_items > 0) {
               commentedChannelIds.push(params[i].author_claim_id);
             }
           }
@@ -416,7 +416,7 @@ export function doFetchMyCommentedChannels(claimId: string | null | undefined) {
           });
         })
         .catch((err) => {
-          assert(false, 'doFetchMyCommentedChannels failed', err);
+          (assert as (condition: any, msg?: string, data?: any) => void)(false, 'doFetchMyCommentedChannels failed', err);
         });
     });
   };
@@ -449,11 +449,11 @@ export function doHyperChatList(uri: string) {
       return;
     }
 
-    const myChannelClaims = selectMyChannelClaims(state);
+    const myChannelClaims = selectMyChannelClaims(state) as Claim[] | null;
     const activeChannelClaim = selectActiveChannelClaim(state);
     const activeChannelId = activeChannelClaim?.claim_id;
     const isProtected = Boolean(selectProtectedContentTagForUri(state, uri));
-    let channelSignature = {};
+    let channelSignature: { signature?: string; signing_ts?: string } = {};
     let myChannelClaim;
 
     if (isProtected) {
@@ -735,7 +735,7 @@ export function doCommentReact(commentId: string, type: string) {
 
     // --- Check if already commented from another channel ---
     if (checkIfAlreadyReacted) {
-      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaims(state));
+      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaims(state) as Claim[] | null);
 
       if (!reactedChannelNames) {
         // Couldn't determine. Probably best to just stop the operation.
@@ -834,8 +834,8 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     const commentChannelChangeCooldown = 1000 * 60 * 30; // 30min
 
     const channelSwitchCutoffTimestamp = Date.now() - commentChannelChangeCooldown;
-    let previousCommenterChannel = LocalStorage.getItem(`commenter_${targetClaimId}`);
-    previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
+    const previousCommenterChannelRaw = LocalStorage.getItem(`commenter_${targetClaimId}`);
+    const previousCommenterChannel: { claim_id: string; name: string; last_comment_timestamp: number } | null = previousCommenterChannelRaw ? JSON.parse(previousCommenterChannelRaw) : null;
 
     if (
       previousCommenterChannel &&
@@ -881,8 +881,10 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
 
         if (claim) {
           mentionedChannels.push({
+            uri: mentionUri,
+            name: claim.name,
+            claimId: claim.claim_id,
             channel_name: claim.name,
-            channel_id: claim.claim_id,
           });
         } else {
           mentionUrls.push(mentionUri);
@@ -895,8 +897,10 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
             Object.values(response).map((claim) => {
               if (claim) {
                 mentionedChannels.push({
-                  channel_name: claim.name,
-                  channel_id: claim.claim_id,
+                  uri: (claim as Claim).permanent_url || '',
+                  name: (claim as Claim).name,
+                  claimId: (claim as Claim).claim_id,
+                  channel_name: (claim as Claim).name,
                 });
               }
             });
@@ -958,7 +962,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
             payment_tx_id,
           }
         : {}),
-    })
+    } as unknown as CommentCreateParams)
       .then((result: CommentCreateResponse) => {
         if (dry_run) {
           return result;
@@ -970,8 +974,8 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
           last_comment_timestamp: Date.now(),
         };
         LocalStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
-        let lastCommentedClaims = LocalStorage.getItem('lastCommentedClaims');
-        lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
+        const lastCommentedClaimsRaw = LocalStorage.getItem('lastCommentedClaims');
+        const lastCommentedClaims: Array<string> = lastCommentedClaimsRaw ? JSON.parse(lastCommentedClaimsRaw) : [];
 
         if (!lastCommentedClaims.includes(claim_id)) {
           lastCommentedClaims.push(claim_id);
@@ -1097,7 +1101,7 @@ export function doCommentAbandon(
       ...commentIdSignature,
       mod_channel_id: deleterClaim && deleterIsModOrAdmin ? deleterClaim.claim_id : undefined,
       mod_channel_name: deleterClaim && deleterIsModOrAdmin ? deleterClaim.name : undefined,
-    })
+    } as CommentAbandonParams)
       .then((result: CommentAbandonResponse) => {
         // Comment may not be deleted if the signing channel can't be signed.
         // This will happen if the channel was recently created or abandoned.
@@ -1173,7 +1177,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
         comment: comment,
         signature: signedComment.signature,
         signing_ts: signedComment.signing_ts,
-      })
+      } as unknown as CommentEditParams)
         .then((result: CommentEditResponse) => {
           if (result != null) {
             dispatch({
@@ -1310,7 +1314,7 @@ function doCommentModToggleBlock(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
-    let blockerChannelClaims = selectMyChannelClaims(state);
+    let blockerChannelClaims = selectMyChannelClaims(state) as Claim[] | null;
 
     if (!ready) {
       return dispatch(doAlertWaitingForSync());
@@ -1399,7 +1403,7 @@ function doCommentModToggleBlock(
                 global_un_block: unblock ? blockLevel === BLOCK_LEVEL.ADMIN : undefined,
                 ...sharedModBlockParams,
                 time_out: unblock ? undefined : timeoutSec,
-              })
+              } as unknown as ModerationBlockParams)
             )
         )
           .then((response) => {
@@ -1590,7 +1594,7 @@ export function doCommentModUnBlock(commenterUri: string, showLink: boolean = tr
  */
 export function doCommentModUnBlockAsAdmin(commenterUri: string, blockerId: string) {
   return (dispatch: Dispatch) => {
-    return dispatch(doCommentModToggleBlock(true, commenterUri, '', blockerId ? [blockerId] : [], BLOCK_LEVEL.ADMIN));
+    return dispatch(doCommentModToggleBlock(true, commenterUri, '', blockerId ? [blockerId] : [], BLOCK_LEVEL.ADMIN, undefined));
   };
 }
 
@@ -1606,7 +1610,7 @@ export function doCommentModUnBlockAsAdmin(commenterUri: string, blockerId: stri
 export function doCommentModUnBlockAsModerator(commenterUri: string, creatorUri: string, blockerId: string) {
   return (dispatch: Dispatch) => {
     return dispatch(
-      doCommentModToggleBlock(true, commenterUri, creatorUri, blockerId ? [blockerId] : [], BLOCK_LEVEL.MODERATOR)
+      doCommentModToggleBlock(true, commenterUri, creatorUri, blockerId ? [blockerId] : [], BLOCK_LEVEL.MODERATOR, undefined)
     );
   };
 }
@@ -1618,7 +1622,7 @@ export function doFetchModBlockedList() {
     const LOOP_CHUNK_SIZE = 100;
 
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Claim[] | null;
 
     if (!myChannels) {
       dispatch({
@@ -1643,7 +1647,7 @@ export function doFetchModBlockedList() {
                 mod_channel_name: signatureData.name,
                 signature: signatureData.signature,
                 signing_ts: signatureData.signing_ts,
-              })
+              } as unknown as BlockedListArgs)
             )
         )
           .then(async (res) => {
@@ -1660,7 +1664,7 @@ export function doFetchModBlockedList() {
             const blockListsPerChannel = [];
 
             for (let i = 0; i < res.length; ++i) {
-              blockListsPerChannel.push(res[i].value);
+              blockListsPerChannel.push((res[i] as PromiseFulfilledResult<any>).value);
 
               if (i > 0 && i % 2 === 0) {
                 await yieldThread();
@@ -1672,7 +1676,7 @@ export function doFetchModBlockedList() {
             const moderatorSeen = new Set();
 
             for (let i = 0; i < blockListsPerChannel.length; ++i) {
-              const storeList = async (fetchedList, blockedList, seenSet, timeoutMap, blockedByMap) => {
+              const storeList = async (fetchedList: any, blockedList: any, seenSet: Set<string>, timeoutMap: any, blockedByMap?: any) => {
                 if (fetchedList) {
                   for (let j = 0; j < fetchedList.length; ++j) {
                     const blockedChannel = fetchedList[j];
@@ -1685,7 +1689,7 @@ export function doFetchModBlockedList() {
                       const channelUri = buildURI({
                         channelName: blockedChannel.blocked_channel_name,
                         claimId: blockedChannel.blocked_channel_id,
-                      });
+                      } as any);
 
                       const normalizedUri = normalizeUri(channelUri);
                       if (!seenSet.has(normalizedUri)) {
@@ -1708,7 +1712,7 @@ export function doFetchModBlockedList() {
                         const blockedByChannelUri = buildURI({
                           channelName: blockedChannel.blocked_by_channel_name,
                           claimId: blockedChannel.blocked_by_channel_id,
-                        });
+                        } as any);
 
                         if (blockedByMap[channelUri]) {
                           if (!blockedByMap[channelUri].includes(blockedByChannelUri)) {
@@ -1749,20 +1753,23 @@ export function doFetchModBlockedList() {
                 personalBlockList:
                   personalBlockList.length > 0
                     ? personalBlockList
-                        .toSorted((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
-                        .map((blockedChannel) => blockedChannel.channelUri)
+                        .slice()
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 adminBlockList:
                   adminBlockList.length > 0
                     ? adminBlockList
-                        .toSorted((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
-                        .map((blockedChannel) => blockedChannel.channelUri)
+                        .slice()
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockList:
                   moderatorBlockList.length > 0
                     ? moderatorBlockList
-                        .toSorted((a, b) => new Date(a.blockedAt) - new Date(b.blockedAt))
-                        .map((blockedChannel) => blockedChannel.channelUri)
+                        .slice()
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockListDelegatorsMap: moderatorBlockListDelegatorsMap,
                 personalTimeoutMap,
@@ -1819,7 +1826,7 @@ export const doUpdateBlockListForPublishedChannel = (channelClaim: ChannelClaim)
             signing_ts: channelSignature.signing_ts,
             blocked_channel_id: channelClaimId,
             blocked_channel_name: channelName,
-          });
+          } as unknown as ModerationBlockParams);
         }
       })
     );
@@ -1845,7 +1852,7 @@ export function doCommentModAddDelegate(
       channel_id: creatorChannelClaim.claim_id,
       channel_name: creatorChannelClaim.name,
       ...signature,
-    })
+    } as unknown as ModerationAddDelegateParams)
       .then((res) => {
         dispatch({
           type: ACTIONS.ADD_MODERATOR_COMPLETED,
@@ -1898,7 +1905,7 @@ export function doCommentModRemoveDelegate(
       channel_id: creatorChannelClaim.claim_id,
       channel_name: creatorChannelClaim.name,
       ...signature,
-    })
+    } as unknown as ModerationRemoveDelegateParams)
       .then(() => {
         dispatch({
           type: ACTIONS.REMOVE_MODERATOR_COMPLETED,
@@ -1976,7 +1983,7 @@ export function doCommentModListDelegates(channelClaim: ChannelClaim) {
 export function doCommentModListDelegatesForMyChannels() {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Claim[] | null;
 
     if (!myChannels) {
       dispatch({
@@ -2034,10 +2041,10 @@ export function doCommentModListDelegatesForMyChannels() {
       });
   };
 }
-export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
+export function doFetchCommentModAmIList(channelClaim?: ChannelClaim) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Claim[] | null;
 
     if (!myChannels) {
       dispatch({
@@ -2098,7 +2105,7 @@ export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
 export const doFetchCreatorSettings = (channelId: string) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Claim[] | null;
     const creatorChannel = selectClaimForClaimId(state, channelId);
     dispatch({
       type: ACTIONS.COMMENT_FETCH_SETTINGS_STARTED,
@@ -2169,7 +2176,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
  * @param settings
  * @returns {function(Dispatch, GetState): any}
  */
-export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) => {
+export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: { [key: string]: any }) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const channelSignature = await ChannelSign.sign(channelClaim.claim_id, channelClaim.name, true);
 
@@ -2367,7 +2374,7 @@ export const doCommentUnblockWords = (channelClaim: ChannelClaim, words: Array<s
 export const doFetchBlockedWords = () => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Claim[] | null;
     dispatch({
       type: ACTIONS.COMMENT_FETCH_BLOCKED_WORDS_STARTED,
     });

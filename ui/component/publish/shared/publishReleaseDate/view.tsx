@@ -26,7 +26,7 @@ export type Props = {
 const PublishReleaseDate = (props: Props) => {
   const { minDate } = props;
   const dispatch = useAppDispatch();
-  const claimToEdit = useAppSelector((state) => selectMyClaimForUri(state));
+  const claimToEdit = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
   const releaseTime = useAppSelector((state) => selectPublishFormValue(state, 'releaseTime'));
   const releaseTimeDisabled = useAppSelector((state) => selectPublishFormValue(state, 'releaseTimeDisabled'));
   const releaseTimeError = useAppSelector((state) => selectPublishFormValue(state, 'releaseTimeError'));

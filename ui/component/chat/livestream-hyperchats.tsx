@@ -1,4 +1,3 @@
-import type { ElementRef } from 'react';
 import { parseSticker } from 'util/comments';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -9,15 +8,33 @@ import Icon from 'component/common/icon';
 import React from 'react';
 import Slide from '@mui/material/Slide';
 import { Lbryio } from 'lbryinc';
+
+type ChatCommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name?: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  removed: boolean;
+  support_amount: number;
+  timestamp: number;
+  [key: string]: any;
+};
+
 type Props = {
-  superChats: Array<Comment>;
+  superChats: Array<ChatCommentData>;
   hyperchatsHidden?: boolean;
-  selectedHyperchat: Comment | null | undefined;
+  selectedHyperchat: ChatCommentData | null | undefined;
   channelTitle?: string;
   isMobile?: boolean;
+  noHyperchats?: boolean;
   toggleHyperChat: () => void;
   handleHyperchatClick: (comment: any) => void;
-  pinnedComment: Comment | null | undefined;
+  pinnedComment: ChatCommentData | null | undefined;
   pinActive?: boolean;
   onPinClick?: () => void;
 };
@@ -42,7 +59,7 @@ export default function LivestreamHyperchats(props: Props) {
   }, [exchangeRate]);
   const stickerSuperChats = hyperChatsByAmount && hyperChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
   const showMore = superChatTopTen && hyperChatsByAmount && superChatTopTen.length < hyperChatsByAmount.length;
-  const elRef: ElementRef<any> = React.useRef();
+  const elRef = React.useRef<HTMLDivElement>(null);
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
       <div
@@ -62,7 +79,7 @@ export default function LivestreamHyperchats(props: Props) {
               <Icon icon={ICONS.PIN} size={16} />
             </div>
           )}
-          {superChatTopTen.map((hyperChat: Comment) => {
+          {superChatTopTen.map((hyperChat: ChatCommentData) => {
             const { comment_id, channel_url, support_amount, is_fiat } = hyperChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(hyperChat);
             const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
@@ -118,6 +135,7 @@ export default function LivestreamHyperchats(props: Props) {
   );
 }
 type SliderProps = {
+  isMobile?: boolean;
   hyperchatsHidden?: boolean;
   children: any;
 };

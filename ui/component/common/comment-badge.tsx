@@ -23,6 +23,9 @@ export default function CommentBadge(props: Props) {
 type WrapperProps = {
   hideTooltip?: boolean;
   children: any;
+  title?: string;
+  placement?: string;
+  className?: string;
 };
 
 const BadgeWrapper = (props: WrapperProps) => {

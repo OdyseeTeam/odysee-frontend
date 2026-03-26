@@ -44,13 +44,29 @@ export const VIEW_MODES = {
   SUPERCHAT: 'sc',
 };
 const COMMENT_SCROLL_TIMEOUT = 25;
-const CommentCreate = lazyImport(
+const CommentCreate: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/commentCreate'
       /* webpackChunkName: "comments" */
     )
 );
+type ChatCommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name?: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  removed: boolean;
+  support_amount: number;
+  timestamp: number;
+  [key: string]: any;
+};
+
 type Props = {
   customViewMode?: string;
   embed?: boolean;
@@ -59,8 +75,8 @@ type Props = {
   isPopoutWindow?: boolean;
   setCustomViewMode?: (arg0: any) => void;
   uri: string;
-  setLayoutRendered: (arg0: boolean) => void;
-  doUpdateCreatorSettings: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
+  setLayoutRendered?: (arg0: boolean) => void;
+  doUpdateCreatorSettings?: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
 };
 export default function ChatLayout(props: Props) {
   const {
@@ -82,8 +98,8 @@ export default function ChatLayout(props: Props) {
   const channelId = getChannelIdFromClaim(claim);
   const channelTitle = getChannelTitleFromClaim(claim);
   const commentsByChronologicalOrder = useAppSelector((state) =>
-    selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS)
-  );
+    (selectTopLevelCommentsForUri as any)(state, uri, MAX_LIVESTREAM_COMMENTS)
+  ) as Array<ChatCommentData> | undefined;
   const pinnedComments = useAppSelector((state) => selectPinnedCommentsForUri(state, uri));
   const hyperChatsByAmount = useAppSelector((state) => selectHyperChatsForUri(state, uri));
   const myChannelClaims = useAppSelector(selectMyChannelClaims);
@@ -111,33 +127,33 @@ export default function ChatLayout(props: Props) {
   const [scrollPos, setScrollPos] = React.useState(0);
   const [showPinned, setShowPinned] = React.useState(true);
   const [resolvingSuperChats, setResolvingSuperChats] = React.useState(false);
-  const [openedPopoutWindow, setPopoutWindow] = React.useState(undefined);
+  const [openedPopoutWindow, setPopoutWindow] = React.useState<Window | undefined>(undefined);
   const [chatHidden, setChatHidden] = React.useState(false);
   const [didInitialScroll, setDidInitialScroll] = React.useState(false);
   const [minScrollHeight, setMinScrollHeight] = React.useState(0);
   const [keyboardOpened, setKeyboardOpened] = React.useState(false);
-  const [superchatsAmount, setSuperchatsAmount] = React.useState(false);
-  const [chatElement, setChatElement] = React.useState();
+  const [superchatsAmount, setSuperchatsAmount] = React.useState<number | false>(false);
+  const [chatElement, setChatElement] = React.useState<HTMLElement | null>(null);
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
-  const [selectedHyperchat, setSelectedHyperchat] = React.useState(null);
+  const [selectedHyperchat, setSelectedHyperchat] = React.useState<ChatCommentData | null>(null);
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
-  let superChatsByChronologicalOrder = [];
+  let superChatsByChronologicalOrder: Array<ChatCommentData> = [];
   if (hyperChatsByAmount) hyperChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
 
   if (superChatsByChronologicalOrder.length > 0) {
-    superChatsByChronologicalOrder.sort((a, b) => b.timestamp - a.timestamp);
+    superChatsByChronologicalOrder.sort((a: ChatCommentData, b: ChatCommentData) => b.timestamp - a.timestamp);
   }
 
   // get commenter claim ids for checking premium status
   const commenterClaimIds =
-    commentsByChronologicalOrder && commentsByChronologicalOrder.map(({ channel_id }) => channel_id);
+    commentsByChronologicalOrder && commentsByChronologicalOrder.map(({ channel_id }: ChatCommentData) => channel_id);
   React.useEffect(() => {
-    if (commenterClaimIds?.length > 0 && channelId) {
+    if (commenterClaimIds && commenterClaimIds.length > 0 && channelId) {
       dispatch(doFetchOdyseeMembershipForChannelIds(commenterClaimIds));
       dispatch(doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds));
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, commenterClaimIds.length, dispatch]);
+  }, [channelId, commenterClaimIds && commenterClaimIds.length, dispatch]);
   React.useEffect(() => {
     if (myChannelClaims !== undefined) {
       dispatch(doListAllMyMembershipTiers());
@@ -148,7 +164,7 @@ export default function ChatLayout(props: Props) {
   const commentsLength = commentsToDisplay && commentsToDisplay.length;
   const pinnedComment = pinnedComments.length > 0 ? pinnedComments[0] : null;
   const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } =
-    getTipValues(superChatsByChronologicalOrder);
+    getTipValues(superChatsByChronologicalOrder as any);
   const scrolledPastRecent = Boolean(
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
     (!isMobile ? scrollPos < -2 : scrollPos < minScrollHeight)
@@ -183,7 +199,7 @@ export default function ChatLayout(props: Props) {
   }
 
   function toggleHyperChat() {
-    const hasNewSuperchats = !superchatsAmount || superChatsChannelUrls.length !== superchatsAmount;
+    const hasNewSuperchats = superchatsAmount === false || superChatsChannelUrls.length !== superchatsAmount;
 
     if (superChatsChannelUrls && hasNewSuperchats) {
       setSuperchatsAmount(superChatsChannelUrls.length);
@@ -215,7 +231,7 @@ export default function ChatLayout(props: Props) {
     }
   }, [didInitialScroll, isMobile, restoreScrollPos, viewMode]);
   React.useEffect(() => {
-    if (discussionElement && !openedPopoutWindow) setChatElement(discussionElement);
+    if (discussionElement && !openedPopoutWindow) setChatElement(discussionElement as HTMLElement);
   }, [discussionElement, openedPopoutWindow]);
   // Register scroll handler (TODO: Should throttle/debounce)
   React.useEffect(() => {
@@ -342,7 +358,7 @@ export default function ChatLayout(props: Props) {
     setTextInjection(authorTitle);
   }
 
-  function handleHyperchatClick(hyperchat: Comment) {
+  function handleHyperchatClick(hyperchat: ChatCommentData) {
     setSelectedHyperchat(hyperchat);
   }
 
@@ -406,7 +422,7 @@ export default function ChatLayout(props: Props) {
               isMobile={isMobile}
               noHyperchats={false}
               handleHyperchatClick={handleHyperchatClick}
-              selectedHyperchat={selectedHyperchat}
+              selectedHyperchat={selectedHyperchat as any}
               pinnedComment={pinnedComment}
               pinActive={showPinned && !selectedHyperchat}
               onPinClick={() => {
@@ -430,9 +446,10 @@ export default function ChatLayout(props: Props) {
                     comment={pinnedComment}
                     key={pinnedComment.comment_id}
                     uri={uri}
+                    handleCommentClick={() => {}}
                     handleDismissPin={() => setShowPinned(false)}
                     isMobile
-                    setResolvingSuperChats={setResolvingSuperChats}
+                    {...({ setResolvingSuperChats } as any)}
                   />
                 </div>
               </Slide>
@@ -444,6 +461,7 @@ export default function ChatLayout(props: Props) {
                     key={pinnedComment.comment_id}
                     uri={uri}
                     hidePinLabel
+                    handleCommentClick={() => {}}
                     handleDismissPin={() => setShowPinned(false)}
                   />
                 </div>
@@ -461,9 +479,10 @@ export default function ChatLayout(props: Props) {
                   comment={selectedHyperchat}
                   key={selectedHyperchat.comment_id}
                   uri={uri}
+                  handleCommentClick={() => {}}
                   handleDismissPin={() => setSelectedHyperchat(null)}
                   isMobile
-                  setResolvingSuperChats={setResolvingSuperChats}
+                  {...({ setResolvingSuperChats } as any)}
                 />
                 <Button
                   title={__('Dismiss pinned comment')}
@@ -480,6 +499,7 @@ export default function ChatLayout(props: Props) {
                 comment={selectedHyperchat}
                 key={selectedHyperchat.comment_id}
                 uri={uri}
+                handleCommentClick={() => {}}
                 handleDismissPin={() => setSelectedHyperchat(null)}
               />
             </div>
@@ -488,7 +508,7 @@ export default function ChatLayout(props: Props) {
         <ChatComments
           uri={uri}
           viewMode={viewMode}
-          comments={commentsToDisplay}
+          comments={commentsToDisplay as any}
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}

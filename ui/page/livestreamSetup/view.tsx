@@ -49,14 +49,14 @@ export default function LivestreamSetupPage() {
   const editingURI = publishFormValues?.editingURI;
   const hasChannels = useAppSelector(selectHasChannels);
   const fetchingChannels = useAppSelector(selectFetchingMyChannels);
-  const myLivestreamClaims = useAppSelector((state) => selectLivestreamsForChannelId(state, channelId));
-  const pendingClaims = useAppSelector((state) => selectPendingLivestreamsForChannelId(state, channelId));
+  const myLivestreamClaims = useAppSelector((state) => selectLivestreamsForChannelId(state, channelId)) as Array<StreamClaim>;
+  const pendingClaims = useAppSelector((state) => selectPendingLivestreamsForChannelId(state, channelId)) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
-  const [sigData, setSigData] = React.useState({
+  const [sigData, setSigData] = React.useState<{ signature: any; signing_ts: any }>({
     signature: undefined,
     signing_ts: undefined,
   });

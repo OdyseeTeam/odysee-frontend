@@ -1,54 +1,44 @@
-import * as React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 type Props = {
   source: string;
 };
-type State = {
-  loading: boolean;
-};
 
-class HtmlViewer extends React.PureComponent<Props, State> {
-  iframe: React.ElementRef<any>;
+function HtmlViewer({ source }: Props) {
+  const iframe = useRef<HTMLIFrameElement>(null);
+  const [loading, setLoading] = useState(true);
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      loading: true,
-    };
-    this.iframe = React.createRef();
-  }
+  useEffect(() => {
+    const el = iframe.current;
+    if (!el) return;
 
-  componentDidMount() {
-    const resize = () => {
-      const { scrollHeight, scrollWidth } = this.iframe.current.contentDocument.body;
-      this.iframe.current.style.height = `${scrollHeight}px`;
-      this.iframe.current.style.width = `${scrollWidth}px`;
+    const onLoad = () => {
+      setLoading(false);
+      const { scrollHeight, scrollWidth } = el.contentDocument!.body;
+      el.style.height = `${scrollHeight}px`;
+      el.style.width = `${scrollWidth}px`;
     };
 
-    this.iframe.current.addEventListener('load', () => {
-      this.setState({
-        loading: false,
-      });
-      resize();
-    });
+    el.addEventListener('load', onLoad);
+    (el as any).resize = () => {
+      const { scrollHeight, scrollWidth } = el.contentDocument!.body;
+      el.style.height = `${scrollHeight}px`;
+      el.style.width = `${scrollWidth}px`;
+    };
 
-    this.iframe.current.resize = () => resize();
-  }
+    return () => el.removeEventListener('load', onLoad);
+  }, []);
 
-  render() {
-    const { source } = this.props;
-    const { loading } = this.state;
-    return (
-      <div className="file-viewer file-viewer--html file-viewer--iframe">
-        {loading && <div className="placeholder--text-document" />}
-        {/* @if TARGET='app' */}
-        <iframe ref={this.iframe} hidden={loading} sandbox="" title={__('File preview')} src={`file://${source}`} />
-        {/* @endif */}
-        {/* @if TARGET='web' */}
-        <iframe ref={this.iframe} hidden={loading} sandbox="" title={__('File preview')} src={source} />
-        {/* @endif */}
-      </div>
-    );
-  }
+  return (
+    <div className="file-viewer file-viewer--html file-viewer--iframe">
+      {loading && <div className="placeholder--text-document" />}
+      {/* @if TARGET='app' */}
+      <iframe ref={iframe} hidden={loading} sandbox="" title={__('File preview')} src={`file://${source}`} />
+      {/* @endif */}
+      {/* @if TARGET='web' */}
+      <iframe ref={iframe} hidden={loading} sandbox="" title={__('File preview')} src={source} />
+      {/* @endif */}
+    </div>
+  );
 }
 
 export default HtmlViewer;

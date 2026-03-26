@@ -140,7 +140,7 @@ export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number
         const values = Object.values(results || {});
         dispatch({
           type: ACTIONS.FETCH_LAST_ACTIVE_SUBS_DONE,
-          data: values.map((v) => getChannelFromClaim(v.stream)),
+          data: values.map((v: any) => getChannelFromClaim(v.stream)),
         });
       })
       .catch(() => {

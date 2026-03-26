@@ -187,7 +187,7 @@ ipcRenderer.on('open-menu', (event, uri) => {
     navigateTo('/$/help');
   }
 });
-const { dock } = remote.app;
+const dock = remote.app.dock;
 ipcRenderer.on('window-is-focused', () => {
   if (!dock) return;
   app.store.dispatch({
@@ -201,19 +201,19 @@ ipcRenderer.on('devtools-is-opened', () => {
 // Force exit mode for html5 fullscreen api
 // See: https://github.com/electron/electron/issues/18188
 remote.getCurrentWindow().on('leave-full-screen', (event) => {
-  document.webkitExitFullscreen();
+  (document as any).webkitExitFullscreen();
 });
 document.addEventListener('click', (event) => {
-  let { target } = event;
+  let target = event.target as HTMLElement | null;
 
-  while (target && target !== document) {
+  while (target && target !== (document as any)) {
     if (target.matches('a[href^="http"]') || target.matches('a[href^="mailto"]')) {
       event.preventDefault();
-      shell.openExternal(target.href);
+      shell.openExternal((target as HTMLAnchorElement).href);
       return;
     }
 
-    target = target.parentNode;
+    target = target.parentNode as HTMLElement | null;
   }
 });
 // @endif

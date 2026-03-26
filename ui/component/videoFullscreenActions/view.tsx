@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import FileTitleSection from 'component/fileTitleSection';
@@ -7,6 +6,7 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import * as TAGS from 'constants/tags';
 import ShortsActions from 'component/shortsActions';
 import MobileTabView from 'component/mobileTabView';
 import RecommendedContent from 'component/recommendedContent';
@@ -14,25 +14,42 @@ import ChaptersCard from 'component/chaptersCard';
 import PlaylistCard from 'component/playlistCard';
 import parseChapters from 'util/parse-chapters';
 import * as REACTION_TYPES from 'constants/reactions';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { useIsMobile, useIsLandscapeScreen, ForceMobileProvider } from 'effects/use-screensize';
 import { fullscreenElement as getFullscreenElement, exitFullscreen, onFullscreenChange } from 'util/full-screen';
-
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectPlayingCollectionId } from 'redux/selectors/content';
+import { selectMyReactionForUri } from 'redux/selectors/reactions';
+import { doOpenModal } from 'redux/actions/app';
+import { doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 
 const CommentsList = lazyImport(() => import('component/commentsList'));
 const ChatLayout = lazyImport(() => import('component/chat'));
 
+type Props = {
+  uri: string;
+  isShort?: boolean;
+  isLivestreamClaim?: boolean;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  isAtStart?: boolean;
+  isAtEnd?: boolean;
+  hasPlaylist?: boolean;
+  autoPlayNextShort?: boolean;
+  doToggleShortsAutoplay?: () => void;
+};
 
-export default function VideoFullscreenActions(props) {
+export default function VideoFullscreenActions(props: Props) {
   const {
     uri,
-    accessStatus,
-    contentUnlocked,
-    commentsDisabled,
-    linkedCommentId,
-    threadCommentId,
-    description,
-    doOpenModal,
-    doCloseAppDrawer,
     isShort,
     isLivestreamClaim,
     onNext,
@@ -40,13 +57,45 @@ export default function VideoFullscreenActions(props) {
     isAtStart,
     isAtEnd,
     hasPlaylist,
-    playingCollectionId,
     autoPlayNextShort,
     doToggleShortsAutoplay,
-    myReaction,
-    doReactionLike,
-    doReactionDislike,
   } = props;
+
+  const dispatch = useAppDispatch();
+
+  const search = window.location.search || '';
+  const urlParams = new URLSearchParams(search);
+
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const claimId = claim?.claim_id;
+  const channelId = getChannelIdFromClaim(claim);
+  const isProtectedContent = useAppSelector((state) => Boolean(selectProtectedContentTagForUri(state, uri)));
+  const contentUnlocked = useAppSelector((state) =>
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+  );
+  const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
+  const commentsDisabled = useAppSelector(
+    (state) => commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+  );
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
+  const description = claim?.value?.description;
+  const playingCollectionId = useAppSelector(selectPlayingCollectionId);
+  const myReaction = useAppSelector((state) => selectMyReactionForUri(state, uri));
+  const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
+
+  const handleOpenModal = React.useCallback(
+    (...args: [id: any, modalProps?: any]) => dispatch(doOpenModal(...args)),
+    [dispatch]
+  );
+  const handleReactionLike = React.useCallback(
+    (reactionUri: string) => dispatch(doReactionLike(reactionUri)),
+    [dispatch]
+  );
+  const handleReactionDislike = React.useCallback(
+    (reactionUri: string) => dispatch(doReactionDislike(reactionUri)),
+    [dispatch]
+  );
 
   const isMobileSize = useIsMobile();
   const isLandscape = useIsLandscapeScreen();
@@ -62,11 +111,11 @@ export default function VideoFullscreenActions(props) {
   }, []);
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
-  const [panelMode, setPanelMode] = React.useState(null);
+  const [panelMode, setPanelMode] = React.useState<string | null>(null);
   const [fireGlow, setFireGlow] = React.useState(false);
-  const fireGlowTimeout = React.useRef(null);
+  const fireGlowTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [slimeGlow, setSlimeGlow] = React.useState(false);
-  const slimeGlowTimeout = React.useRef(null);
+  const slimeGlowTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartY = React.useRef(0);
   const touchStartX = React.useRef(0);
   const isDragging = React.useRef(false);
@@ -88,13 +137,13 @@ export default function VideoFullscreenActions(props) {
     window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: null } }));
   }, []);
 
-  const sidePanelRef = React.useRef(null);
+  const sidePanelRef = React.useRef<HTMLDivElement>(null);
 
   const adjustVideoForSwipe = React.useCallback((deltaX) => {
     const fsTarget = document.querySelector('.player-fullscreen-target');
     if (!fsTarget) return;
-    const contentWrapper = fsTarget.querySelector('.content__wrapper');
-    const actions = fsTarget.querySelector('.video-fullscreen__actions');
+    const contentWrapper = fsTarget.querySelector('.content__wrapper') as HTMLElement | null;
+    const actions = fsTarget.querySelector('.video-fullscreen__actions') as HTMLElement | null;
     if (deltaX === null) {
       if (contentWrapper) {
         contentWrapper.style.removeProperty('margin-right');
@@ -217,12 +266,11 @@ export default function VideoFullscreenActions(props) {
     const onFsChange = () => {
       if (!getFullscreenElement()) {
         handleClosePanel();
-        doCloseAppDrawer();
       }
     };
     onFullscreenChange(document, 'add', onFsChange);
     return () => onFullscreenChange(document, 'remove', onFsChange);
-  }, [handleClosePanel, doCloseAppDrawer]);
+  }, [handleClosePanel]);
 
   React.useEffect(() => {
     const onPanel = (e) => {
@@ -275,11 +323,11 @@ export default function VideoFullscreenActions(props) {
   }, []);
 
   const handleShareClick = React.useCallback(() => {
-    doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable: true });
-  }, [doOpenModal, uri]);
+    handleOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable: true });
+  }, [handleOpenModal, uri]);
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
-  const drawerOpenRef = React.useRef((index, instant) => {}); // eslint-disable-line no-unused-vars
+  const drawerOpenRef = React.useRef((index: number, instant?: boolean) => {}); // eslint-disable-line no-unused-vars
 
   const tabModes = React.useMemo(() => {
     const modes = ['info'];
@@ -464,7 +512,7 @@ export default function VideoFullscreenActions(props) {
                 } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
                 onClick={() => {
                   if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
-                  doReactionLike(uri);
+                  handleReactionLike(uri);
                 }}
                 icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
                 iconSize={18}
@@ -489,7 +537,7 @@ export default function VideoFullscreenActions(props) {
                 } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
                 onClick={() => {
                   if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
-                  doReactionDislike(uri);
+                  handleReactionDislike(uri);
                 }}
                 icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
                 iconSize={18}
@@ -578,7 +626,6 @@ export default function VideoFullscreenActions(props) {
         )}
       </div>
 
-      {/* $FlowFixMe */}
       <div
         ref={sidePanelRef}
         className={`video-fullscreen__side-panel ${panelMode ? 'video-fullscreen__side-panel--open' : ''} ${

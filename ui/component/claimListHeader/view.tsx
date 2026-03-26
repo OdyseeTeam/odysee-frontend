@@ -21,24 +21,25 @@ import { selectClientSetting, selectShowMatureContent, selectLanguage } from 're
 import { doSetClientSetting as doSetClientSettingAction } from 'redux/actions/settings';
 type Props = {
   defaultTags: string;
+  tags?: string;
   freshness?: string;
   defaultFreshness?: string;
-  claimType?: Array<string>;
+  claimType?: string | Array<string>;
   streamType?: string | Array<string>;
   defaultStreamType?: string | Array<string>;
-  feeAmount: string;
+  feeAmount?: string;
   sortBy?: string;
   orderBy?: Array<string>;
   defaultOrderBy?: string;
-  hideAdvancedFilter: boolean;
-  hideFilters: boolean;
-  hideLayoutButton: boolean;
-  hasMatureTags: boolean;
+  hideAdvancedFilter?: boolean;
+  hideFilters?: boolean;
+  hideLayoutButton?: boolean;
+  hasMatureTags?: boolean;
   hiddenNsfwMessage?: React.ReactNode;
   channelIds?: Array<string>;
-  tileLayout: boolean;
+  tileLayout?: boolean;
   scrollAnchor?: string;
-  contentType: string;
+  contentType?: string;
   meta?: React.ReactNode;
   setPage: (arg0: number) => void;
 };
@@ -91,7 +92,7 @@ function ClaimListHeader(props: Props) {
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount || CS.FEE_AMOUNT_ANY;
-  const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
+  const showDuration = !(claimType && (claimType === CS.CLAIM_CHANNEL || claimType === CS.CLAIM_COLLECTION));
   const isDiscoverPage = pathname.includes(PAGES.DISCOVER);
   const isRabbitHolePage = pathname.includes(PAGES.RABBIT_HOLE) || pathname.includes(PAGES.WILD_WEST);
   const showHideAnonymous = isDiscoverPage || isRabbitHolePage;
@@ -268,7 +269,7 @@ function ClaimListHeader(props: Props) {
                     className={classnames(`button-toggle button-toggle--${type}`, {
                       'button-toggle--active': orderParam === type,
                     })}
-                    disabled={orderBy}
+                    disabled={!!orderBy}
                     icon={toCapitalCase(type)}
                     iconSize={toCapitalCase(type) === ICONS.NEW ? 20 : undefined}
                     label={__(toCapitalCase(type))}
@@ -546,7 +547,6 @@ function ClaimListHeader(props: Props) {
                     {Object.entries(CS.SORT_BY).map(([key, value]) => {
                       return (
                         <option key={value.key} value={value.key}>
-                          {/* $FlowFixMe */}
                           {__(value.str)}
                         </option>
                       );

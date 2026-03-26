@@ -17,7 +17,7 @@ type Props = {
   pageSize: number;
   fetchDataOnMount?: boolean;
   // Option to fetch it ourselves, or not if parent or someone else has done it
-  lastFour: any | null | undefined;
+  lastFour?: any | null | undefined;
   transactionType: 'tips' | 'rentals-purchases';
 };
 

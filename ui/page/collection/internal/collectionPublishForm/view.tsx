@@ -47,9 +47,10 @@ const TAB = {
 };
 type Props = {
   collectionId: string;
-  onDoneForId: (arg0: string) => void;
+  onDoneForId?: (arg0: any) => any;
+  useIds?: boolean;
 };
-export const CollectionFormContext = React.createContext<any>();
+export const CollectionFormContext = React.createContext<any>(undefined);
 
 const CollectionPublishForm = (props: Props) => {
   const { collectionId, onDoneForId } = props;
@@ -70,7 +71,9 @@ const CollectionPublishForm = (props: Props) => {
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
-  const [thumbailError, setThumbnailError] = React.useState();
+  const [thumbailError, setThumbnailError] = React.useState<string | undefined>();
+  const initialParams = React.useRef(collectionParams);
+  const collectionResetPending = React.useRef(false);
   const [formParams, setFormParams] = React.useState(collectionParams);
   const [tabIndex, setTabIndex] = React.useState(0);
   const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
@@ -235,9 +238,7 @@ const CollectionPublishForm = (props: Props) => {
                   </div>
                   <CollectionItemsList
                     collectionId={collectionId}
-                    empty={__('This playlist has no items.')}
-                    showEdit
-                    isEditPreview
+                    {...({ empty: __('This playlist has no items.'), showEdit: true, isEditPreview: true } as any)}
                   />
                 </>
               )}
@@ -255,9 +256,7 @@ const CollectionPublishForm = (props: Props) => {
 
         <div className="section__actions">
           <Submit
-            button="primary"
-            disabled={publishingClaimWithNoChanges || publishPending}
-            label={publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit')}
+            {...({ button: 'primary', disabled: publishingClaimWithNoChanges || publishPending, label: publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit') } as any)}
           />
           <Button button="link" label={__('Cancel')} onClick={handleCancelButton} />
 

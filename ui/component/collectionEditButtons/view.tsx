@@ -184,6 +184,10 @@ export default function CollectionButtons(props: Props) {
 }
 type ButtonProps = {
   className?: string;
+  title?: string;
+  icon?: string;
+  disabled?: boolean;
+  onClick?: () => void;
 };
 
 const OrderButton = (props: ButtonProps) => {

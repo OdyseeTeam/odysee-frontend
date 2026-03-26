@@ -152,7 +152,7 @@ export default function HomepageSort(props: Props) {
     }
   }
 
-  const draggedItemRef = React.useRef();
+  const draggedItemRef = React.useRef<HTMLDivElement>(null);
 
   const DraggableItem = ({ item, index }: any) => {
     if (!SECTIONS[item]) {
@@ -166,10 +166,11 @@ export default function HomepageSort(props: Props) {
           if (snapshot.isDragging) {
             // Handle strange offset (https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307)
             const dp = draggableProvided.draggableProps;
+            const style = dp.style as any;
 
-            if (draggedItemRef.current && dp.style && dp.style.left && dp.style.top) {
-              dp.style.left = draggedItemRef.offsetLeft;
-              dp.style.top = dp.style.top - document.getElementsByClassName('modal')[0].offsetTop;
+            if (draggedItemRef.current && style && style.left && style.top) {
+              style.left = draggedItemRef.current.offsetLeft;
+              style.top = style.top - (document.getElementsByClassName('modal')[0] as HTMLElement).offsetTop;
             }
           }
 

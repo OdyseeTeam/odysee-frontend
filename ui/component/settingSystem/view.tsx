@@ -58,7 +58,7 @@ export default function SettingSystem() {
   const decryptWallet = () => dispatch(doNotifyDecryptWallet());
   const updateWalletStatus = () => dispatch(doWalletStatus());
   const confirmForgetPassword = (modalProps: {}) => dispatch(doNotifyForgetPassword(modalProps));
-  const toggle3PAnalytics = (allow: boolean) => dispatch(doToggle3PAnalytics(allow));
+  const toggle3PAnalytics = (allow: boolean) => dispatch(doToggle3PAnalytics(allow, undefined));
 
   const [clearingCache, setClearingCache] = React.useState(false);
   const [storedPassword, setStoredPassword] = React.useState(false);

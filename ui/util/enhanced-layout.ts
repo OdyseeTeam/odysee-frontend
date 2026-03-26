@@ -27,9 +27,9 @@ export default function useKonamiListener() {
  * Tested in: Safari 4+, Google Chrome 4+, Firefox 3+, IE7+, Mobile Safari 2.2.1+ and Android
  */
 
-var Konami = function (callback) {
-  var konami = {
-    addEvent: function (obj, type, fn, ref_obj) {
+var Konami: any = function (this: any, callback: any) {
+  var konami: any = {
+    addEvent: function (obj: any, type: any, fn: any, ref_obj?: any) {
       if (obj.addEventListener) obj.addEventListener(type, fn, false);
       else if (obj.attachEvent) {
         // IE
@@ -57,7 +57,7 @@ var Konami = function (callback) {
       }
 
       // IE
-      konami.input += e ? e.keyCode : event.keyCode;
+      konami.input += e ? (e as KeyboardEvent).keyCode : (event as any).keyCode;
 
       if (konami.input.length > konami.pattern.length) {
         konami.input = konami.input.substr(konami.input.length - konami.pattern.length);

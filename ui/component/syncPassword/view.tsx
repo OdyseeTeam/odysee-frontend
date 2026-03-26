@@ -23,12 +23,12 @@ function SyncPassword() {
   const urlParams = new URLSearchParams(search);
   const redirect = urlParams.get('redirect');
   const [password, setPassword] = React.useState('');
-  const [rememberPassword, setRememberPassword] = usePersistedState(true);
+  const [rememberPassword, setRememberPassword] = usePersistedState('sync-password:remember', true);
 
   function handleSubmit() {
     dispatch(
       doGetSyncDesktop((error, hasDataChanged) => {
-        dispatch(doHandleSyncComplete(error, hasDataChanged));
+        dispatch(doHandleSyncComplete(error, hasDataChanged, undefined));
 
         if (!error) {
           navigate(redirect || '/');
@@ -48,6 +48,7 @@ function SyncPassword() {
         actions={
           <div>
             <FormField
+              name="sync-password"
               type="password"
               error={
                 passwordError &&

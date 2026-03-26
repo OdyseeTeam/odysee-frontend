@@ -15,7 +15,7 @@ type Reward = {
 type Props = Record<string, never>;
 
 const RewardListClaimed = (props: Props) => {
-  const rewards: Array<Reward> = useAppSelector(selectClaimedRewards);
+  const rewards: Array<Reward> = useAppSelector(selectClaimedRewards) as Array<Reward>;
 
   if (!rewards || !rewards.length) {
     return null;

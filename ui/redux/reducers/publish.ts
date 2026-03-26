@@ -36,6 +36,8 @@ const defaultState: PublishState = {
   fileSizeTooBig: false,
   streamType: '',
   remoteFileUrl: undefined,
+  contentIsFree: true,
+  publishType: 'file',
   paywall: PAYWALL.FREE,
   fee: {
     amount: 1,
@@ -113,9 +115,9 @@ export const publishReducer = handleActions(
         return state;
       }
     },
-    [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
+    [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: { data: Partial<PublishState> }): PublishState => {
       const { data } = action;
-      const auto = {};
+      const auto: Partial<PublishState> = {};
 
       // --- Resolve PublishState based on the incoming changes ---------------
       // data -> incoming changes (partial PublishState)

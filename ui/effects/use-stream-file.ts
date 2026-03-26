@@ -3,7 +3,7 @@ import useIsMounted from 'effects/use-is-mounted'; // Returns a blob from the do
 
 export default function useFileStream(fileStream) {
   const isMounted = useIsMounted();
-  const [state, setState] = React.useState({
+  const [state, setState] = React.useState<{ error: boolean; loading: boolean; content: any }>({
     error: false,
     loading: true,
     content: null,
@@ -30,6 +30,7 @@ export default function useFileStream(fileStream) {
           setState({
             content: blob,
             loading: false,
+            error: false,
           });
         }
       });
@@ -39,6 +40,7 @@ export default function useFileStream(fileStream) {
           setState({
             error: true,
             loading: false,
+            content: null,
           });
         }
       });

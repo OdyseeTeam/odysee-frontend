@@ -31,6 +31,16 @@ const LBC_MAX = 21000000;
 const LBC_MIN = 1;
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const DEBOUNCE_BTC_CHANGE_MS = 400;
+type SwapInfo = {
+  chargeCode?: string;
+  coins?: string[];
+  sendAddresses?: Record<string, string>;
+  sendAmounts?: Record<string, { amount: string | number; currency: string }>;
+  lbcAmount?: number;
+  status?: Record<string, any>;
+  [key: string]: any;
+};
+
 const INTERNAL_APIS_DOWN = 'internal_apis_down';
 const BTC_API_STATUS_PENDING = 'NEW'; // Started swap, waiting for coin.
 
@@ -117,7 +127,7 @@ function WalletSwap() {
   const coinSwaps = useAppSelector(selectCoinSwaps);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const [btc, setBtc] = React.useState(0);
-  const [lbcError, setLbcError] = React.useState();
+  const [lbcError, setLbcError] = React.useState<string | undefined>();
   const [lbc, setLbc] = usePersistedState('swap-desired-lbc', LBC_MIN);
   const [action, setAction] = React.useState(ACTION_MAIN);
   const [nag, setNag] = React.useState(null);
@@ -127,9 +137,9 @@ function WalletSwap() {
   const [isRefreshingStatus, setIsRefreshingStatus] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [swap, setSwap] = React.useState({});
+  const [swap, setSwap] = React.useState<SwapInfo | null>({});
   const [coin, setCoin] = React.useState('bitcoin');
-  const [lastStatusQuery, setLastStatusQuery] = React.useState();
+  const [lastStatusQuery, setLastStatusQuery] = React.useState<number | undefined>();
   function returnToMainAction() {
     setIsSwapping(false);
     setAction(ACTION_MAIN);
@@ -362,8 +372,8 @@ function WalletSwap() {
     setSwap(null);
     setNag(null);
     Lbryio.call('btc', 'swap', {
-      lbc_satoshi_requested: parseInt(lbc * BTC_SATOSHIS + 0.5),
-      btc_satoshi_provided: parseInt(btc * BTC_SATOSHIS + 0.5),
+      lbc_satoshi_requested: parseInt(String(lbc * BTC_SATOSHIS + 0.5)),
+      btc_satoshi_provided: parseInt(String(btc * BTC_SATOSHIS + 0.5)),
       pay_to_wallet_address: receiveAddress,
     })
       .then((response) => {
@@ -580,7 +590,7 @@ function WalletSwap() {
           autoFocus
           onClick={handleStartSwap}
           button="primary"
-          disabled={isSwapping || isNaN(btc) || btc === 0 || lbc === 0 || lbcError}
+          disabled={isSwapping || isNaN(btc) || btc === 0 || lbc === 0 || !!lbcError}
           label={isSwapping ? __('Processing...') : __('Start Swap')}
         />
         {!isSwapping && coinSwaps.length !== 0 && (
@@ -617,14 +627,14 @@ function WalletSwap() {
             primaryButton
             copyable={getCoinSendAmountStr(coin)}
             snackMessage={__('Amount copied.')}
-            onCopy={(inputElem) => {
+            onCopy={((inputElem: HTMLInputElement) => {
               const inputStr = inputElem.value;
               const selectEndIndex = inputStr.lastIndexOf(' ');
 
               if (selectEndIndex > -1 && inputStr.substring(0, selectEndIndex).match(/[\d.]/)) {
                 inputElem.setSelectionRange(0, selectEndIndex, 'forward');
               }
-            }}
+            }) as any}
           />
           <div className="help">{__('Use the copy button to ensure the EXACT amount is sent!')}</div>
           {getGap()}

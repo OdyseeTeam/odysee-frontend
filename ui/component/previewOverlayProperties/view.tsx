@@ -23,10 +23,10 @@ import { claimContainsTag } from 'util/claim';
 type Props = {
   uri: string;
   pending?: boolean;
-  isSubscribed: boolean;
-  small: boolean;
+  isSubscribed?: boolean;
+  small?: boolean;
   properties?: (arg0: Claim) => React.ReactNode | null | undefined;
-  iconOnly: boolean;
+  iconOnly?: boolean;
   xsmall?: boolean;
   isLivestream?: boolean;
 };

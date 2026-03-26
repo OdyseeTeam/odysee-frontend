@@ -45,6 +45,7 @@ import { isStreamPlaceholderClaim } from 'util/claim';
 type Props = {
   uri: string;
   hideRepost?: boolean;
+  livestream?: boolean;
 };
 
 export default function FileActions(props: Props) {
@@ -211,7 +212,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => {
-                        doPrepareEdit_(claim, editUri);
+                        doPrepareEdit_(claim, editUri, '');
                       }}
                     >
                       <div className="menu__link">

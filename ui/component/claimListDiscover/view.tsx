@@ -43,7 +43,7 @@ function resolveHideMembersOnly(global: any, override: any) {
   return override === undefined || override === null ? global : override;
 }
 type Props = {
-  uris: Array<string>;
+  uris?: Array<string>;
   prefixUris?: Array<string>;
   pins?: {
     urls?: Array<string>;
@@ -51,7 +51,7 @@ type Props = {
     onlyPinForOrder?: string;
   };
   name?: string;
-  type: string;
+  type?: string;
   pageSize?: number;
   duration?: string;
   fetchViewCount?: boolean;
@@ -66,11 +66,11 @@ type Props = {
   includeSupportAction?: boolean;
   infiniteScroll?: boolean;
   isChannel?: boolean;
-  personalView: boolean;
-  showHeader: boolean;
+  personalView?: boolean;
+  showHeader?: boolean;
   showHiddenByUser?: boolean;
   showNoSourceClaims?: boolean;
-  tileLayout: boolean;
+  tileLayout?: boolean;
   searchLanguages?: Array<string>;
   ignoreSearchInLanguage?: boolean;
   // Negate the redux setting where it doesn't make sense.
@@ -81,10 +81,10 @@ type Props = {
   // Newest First, Oldest First
   freshness?: string;
   defaultFreshness?: string;
-  tags: string;
+  tags?: string;
   // these are just going to be string. pass a CSV if you want multi
   notTags?: Array<string>;
-  defaultTags: string;
+  defaultTags?: string;
   claimType?: string | Array<string>;
   defaultClaimType?: Array<string>;
   streamType?: string | Array<string>;
@@ -100,7 +100,7 @@ type Props = {
   channelIds?: Array<string>;
   excludedChannelIds?: Array<string>;
   claimIds?: Array<string>;
-  subscribedChannels: Array<Subscription>;
+  subscribedChannels?: Array<Subscription>;
   header?: React.ReactNode;
   headerLabel?: string | React.ReactNode;
   hiddenNsfwMessage?: React.ReactNode;
@@ -111,7 +111,8 @@ type Props = {
   renderProperties?: (arg0: Claim) => React.ReactNode;
   csOptionsHook?: (options: any) => any;
   // Final client-side tweak of Claim Search options.
-  expandFilters: boolean;
+  expandFilters?: boolean;
+  loading?: any;
   hideLayoutButton?: boolean;
   loadedCallback?: (arg0: number) => void;
   maxClaimRender?: number;
@@ -121,6 +122,7 @@ type Props = {
   sectionTitle?: HomepageTitles;
   contentAspectRatio?: string;
   excludeShortsAspectRatio?: boolean;
+  channelIsMine?: boolean | Claim;
 };
 
 function getNonPaginationOptionsKey(options) {
@@ -307,7 +309,7 @@ function ClaimListDiscover(props: Props) {
   const didNavigateForward = navigationType === 'PUSH';
   const prevUris = React.useRef();
   const [page, setPage] = React.useState(1);
-  const [forceRefresh, setForceRefresh] = React.useState();
+  const [forceRefresh, setForceRefresh] = React.useState<number>();
   const isLargeScreen = useIsLargeScreen();
   const followed = (followedTags && followedTags.map((t) => t.name)) || [];
   const urlParams = new URLSearchParams(search);
@@ -318,7 +320,7 @@ function ClaimListDiscover(props: Props) {
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
-  const [finalUris, setFinalUris] = React.useState();
+  const [finalUris, setFinalUris] = React.useState<string[]>();
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
   const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
@@ -471,7 +473,7 @@ function ClaimListDiscover(props: Props) {
     options.release_time = releaseTime;
   } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
     if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
-      options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam).startOf('hour').unix())}`;
+      options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam as moment.unitOfTime.DurationConstructor).startOf('hour').unix())}`;
     } else if (orderParam === CS.ORDER_BY_NEW || orderParam === CS.ORDER_BY_TRENDING) {
       // Warning - hack below
       // If users are following more than 10 channels or tags, limit results to stuff less than a year old
@@ -602,6 +604,7 @@ function ClaimListDiscover(props: Props) {
             claimSearchResult.length &&
             claimSearchResult.length < dynamicPageSize * options.page &&
             claimSearchResult.length % dynamicPageSize === 0));
+
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
   const timedOutMessage = (
@@ -678,6 +681,7 @@ function ClaimListDiscover(props: Props) {
       }
     } else if (resolvedPinUris && !channelIdsParam) {
       setFinalUris(resolvedPinUris);
+    } else {
     }
   }, [
     channelIdsParam,
@@ -775,6 +779,7 @@ function ClaimListDiscover(props: Props) {
           }
         : {};
       doClaimSearch(searchOptions, searchSettings);
+    } else {
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
   const headerToUse = header || (

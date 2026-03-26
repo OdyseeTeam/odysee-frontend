@@ -92,7 +92,7 @@ const recsys: Recsys = {
   onRecsLoaded: function (claimId, uris, uuid = '') {
     if (window && window.store) {
       const state = window.store.getState();
-      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
+      const recommendedMeta: any = selectRecommendedMetaForClaimId(state, claimId);
 
       if (!recsys.entries[claimId]) {
         recsys.createRecsysEntry(claimId, null, uuid || recommendedMeta.uuid);
@@ -125,7 +125,7 @@ const recsys: Recsys = {
   createRecsysEntry: function (claimId, parentUuid, uuid = '') {
     if (window && window.store && claimId) {
       const state = window.store.getState();
-      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
+      const recommendedMeta: any = selectRecommendedMetaForClaimId(state, claimId);
       const user = selectUser(state);
       const userId = user ? user.id : null;
       // Make a stub entry that will be filled out on page load
@@ -221,7 +221,7 @@ const recsys: Recsys = {
    * @param claimId
    * @param event
    */
-  onRecsysPlayerEvent: function (claimId, event, isEmbedded) {
+  onRecsysPlayerEvent: function (claimId: string, event: any, isEmbedded?: boolean) {
     const state = window.store.getState();
     const autoPlayNext = state && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
 

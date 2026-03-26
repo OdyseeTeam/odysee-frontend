@@ -14,7 +14,7 @@ import { fullscreenElement as getFullscreenElement } from 'util/full-screen';
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 type Props = {
   uri?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onNext: () => void;
   onPrevious: () => void;
   isEnabled: boolean;
@@ -29,6 +29,9 @@ type Props = {
   webShareable?: boolean;
   collectionId?: string;
   handleShareClick?: () => void;
+  thumbnailUrl?: string | null;
+  hasPlaylist?: boolean;
+  isComments?: boolean;
 };
 const SwipeNavigationPortal = React.memo<Props>(
   ({
@@ -129,8 +132,7 @@ const SwipeNavigationPortal = React.memo<Props>(
       [onNext, onPrevious, isEnabled]
     );
     React.useEffect(() => {
-      // $FlowFixMe - overlayRef is a callback ref, not a ref object
-      const overlay = overlayRef.current;
+      const overlay = (overlayRef as any).current;
       if (!overlay || !isEnabled) return;
 
       if (!isMobile) {

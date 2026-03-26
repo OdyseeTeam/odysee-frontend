@@ -246,7 +246,7 @@ function FileListPublished() {
         memoizedSortOption.value === FILE_LIST.SORT_ORDER.ASC ? nameComparisonClaimA : nameComparisonClaimB;
       let secondComparisonItem =
         memoizedSortOption.value === FILE_LIST.SORT_ORDER.ASC ? nameComparisonClaimB : nameComparisonClaimA;
-      const comparisonObj = {};
+      const comparisonObj: { a?: any; b?: any } = {};
 
       if (memoizedSortOption.key === FILE_LIST.SORT_KEYS.NAME) {
         const nameComparisonObj = {
@@ -380,7 +380,7 @@ function FileListPublished() {
         {method === FILE_LIST.METHOD.CLAIM_LIST &&
           fetching &&
           Array.from({ length: Number(pageSize) }, (_, i) => {
-            return <ClaimPreview key={i} placeholder="loading" />;
+            return <ClaimPreview key={i} uri="" placeholder="loading" />;
           })}
       </>
     );
@@ -395,7 +395,7 @@ function FileListPublished() {
   }
 
   useEffect(() => {
-    dispatch(doCheckPendingClaims());
+    dispatch(doCheckPendingClaims(() => {}));
   }, [dispatch]);
   useEffect(() => {
     if (isFilteringEnabled) {
@@ -410,7 +410,7 @@ function FileListPublished() {
           true,
           Object.values(FILE_LIST.FILE_TYPE)
             .find((fileType) => fileType.key === filterType)
-            .cmd.split(','),
+            ?.cmd.split(',') || [],
           true,
           channelIdsClaimList
         )
@@ -483,14 +483,14 @@ function FileListPublished() {
           {!fetching && !hasClaims ? (
             <section className="main--empty">
               <Yrbl
-                title={filterType === FILE_LIST.FILE_TYPE.REPOSTS ? __('No Reposts') : __('No uploads')}
+                title={filterType === FILE_LIST.FILE_TYPE.REPOSTS.key ? __('No Reposts') : __('No uploads')}
                 subtitle={
-                  filterType === FILE_LIST.FILE_TYPE.REPOSTS
+                  filterType === FILE_LIST.FILE_TYPE.REPOSTS.key
                     ? __("You haven't reposted anything yet.")
                     : __("You haven't uploaded anything yet. This is where you can find them when you do!")
                 }
                 actions={
-                  filterType !== FILE_LIST.FILE_TYPE.REPOSTS && (
+                  filterType !== FILE_LIST.FILE_TYPE.REPOSTS.key && (
                     <div className="section__actions">
                       <Button
                         button="primary"

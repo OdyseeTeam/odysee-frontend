@@ -33,7 +33,7 @@ export function handleBidChange(
   setBidError: (error: string) => void,
   setParam: (params: { bid: number }) => void
 ): void {
-  const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
+  const totalAvailableBidAmount = (parseFloat(String(amount)) || 0.0) + (parseFloat(String(balance)) || 0.0);
   setParam({
     bid: bid,
   });
@@ -228,7 +228,7 @@ export function resolvePublishPayload(
       type !== 'livestream' ||
       (type === 'livestream' && liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay')
     ) {
-      publishPayload.file_path = filePath;
+      publishPayload.file_path = filePath as string;
     }
   }
 
@@ -263,7 +263,14 @@ const PAYLOAD = {
     const { liveEditType } = publishData;
     const unlistedFixedPublishDate = 2147483647; // Backend relies to future dates to skip sending of new content notifications
 
-    const past = {};
+    const past: {
+      wasHidden?: boolean;
+      wasScheduled?: boolean;
+      timestamp?: number;
+      release_time?: number;
+      creation_timestamp?: number;
+      isStreamPlaceholder?: boolean;
+    } = {};
 
     if (isEditing && claimToEdit) {
       const tags = claimToEdit.value?.tags || [];

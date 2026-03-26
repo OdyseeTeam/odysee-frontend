@@ -1,4 +1,3 @@
-// @flow
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 type SwipeNavigationOptions = {

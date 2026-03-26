@@ -74,7 +74,7 @@ export const selectLatestClaimForUri = createSelector(
     if (!latestClaim) return latestClaim;
     const latestClaims = Object.values(latestClaim);
     if (!latestClaims.length) return null;
-    return latestClaims[0].stream;
+    return (latestClaims[0] as any).stream;
   }
 );
 export const selectClaimsByUri = createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
@@ -433,7 +433,7 @@ export const selectGenericClaimPublishUpdateMetadataForId = (state: State, claim
     description: selectMetadataItemForClaimIdAndKey(state, claimId, 'description'),
     languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
     locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations'),
-    bid: Number(selectClaimBidAmountForId(state, claimId)) || 0.001,
+    bid: String(Number(selectClaimBidAmountForId(state, claimId)) || 0.001),
     tags: tags
       ? tags.map((tag) => ({
           name: tag,
@@ -481,7 +481,7 @@ export const selectReleaseTimeForUri = (state: State, uri: string) => {
   return claim?.value?.release_time;
 };
 export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
-  const releaseTime: moment = moment.unix(claimReleaseTime || 0);
+  const releaseTime: moment.Moment = moment.unix(claimReleaseTime || 0);
   return releaseTime;
 });
 export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
@@ -603,9 +603,9 @@ export const selectMyClaims = createSelector(
   selectAbandoningIds,
   (myClaimIds, byId, abandoningIds) => {
     const claims = [];
-    myClaimIds.forEach((id) => {
-      const claim = byId[id];
-      if (claim && abandoningIds.indexOf(id) === -1) claims.push(claim);
+    myClaimIds.forEach((id: any) => {
+      const claim = byId[id as string];
+      if (claim && abandoningIds.indexOf(id as string) === -1) claims.push(claim);
     });
     return [...claims];
   }
@@ -790,7 +790,7 @@ export const selectChannelForClaimUri = createCachedSelector(
 )((state, uri, includePrefix) => `${String(uri)}:${String(includePrefix)}`);
 export const selectChannelNameForClaimUri = (state: State, uri: string) => {
   const channel = selectChannelForClaimUri(state, uri);
-  return getNameFromClaim(channel);
+  return getNameFromClaim(channel as any);
 };
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
@@ -823,8 +823,8 @@ export const makeSelectChannelPermUrlForClaimUri = (uri: string, includePrefix: 
   });
 export const makeSelectMyChannelPermUrlForName = (name: string) =>
   createSelector(selectMyChannelClaims, (claims) => {
-    const matchingClaim = claims && claims.find((claim) => claim.name === name);
-    return matchingClaim ? matchingClaim.permanent_url : null;
+    const matchingClaim = claims && claims.find((claim: any) => claim.name === name);
+    return matchingClaim ? (matchingClaim as any).permanent_url : null;
   });
 // CAUTION: this is purely meant for the GUI now, as it filters out INTERNAL_TAGS.
 export const selectTagsForUri = createCachedSelector(
@@ -935,7 +935,7 @@ export const makeSelectSupportsForUri = (uri: string) =>
 
       const { claim_id: claimId } = claim;
       let total = 0;
-      Object.values(byOutpoint).forEach((support) => {
+      Object.values(byOutpoint).forEach((support: any) => {
         const { claim_id, amount } = support;
         total = claim_id === claimId && amount ? total + parseFloat(amount) : total;
       });

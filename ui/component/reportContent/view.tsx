@@ -111,7 +111,7 @@ function getClaimPreview(claim: StreamClaim) {
   ) : null;
 }
 
-function getCommentPreviews(comment: Comment | null | undefined) {
+function getCommentPreviews(comment: any) {
   return comment ? (
     <div className="section non-clickable">
       <CommentView comment={comment} threadLevel={-1} isTopLevel hideActions hideContextMenu />
@@ -136,8 +136,8 @@ export default function ReportContent() {
   const [timestampInvalid, setTimestampInvalid] = React.useState(false);
   const [isResolvingClaim, setIsResolvingClaim] = React.useState(false);
   const [isResolvingComment, setIsResolvingComment] = React.useState(false);
-  const [isReporting, setIsReporting] = React.useState();
-  const [error, setError] = React.useState();
+  const [isReporting, setIsReporting] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string>('');
   const navigate = useNavigate();
   // Resolve claim if URL is entered directly or if page is reloaded.
   React.useEffect(() => {
@@ -357,7 +357,7 @@ export default function ReportContent() {
                       key={x}
                       label={__(String(x))}
                       checked={x === input.type}
-                      disabled={x === REPORT_API.INFRINGES_MY_RIGHTS && commentId}
+                      disabled={x === REPORT_API.INFRINGES_MY_RIGHTS && !!commentId}
                       onChange={() => updateInput('type', x)}
                     />
                   );
@@ -703,10 +703,10 @@ export default function ReportContent() {
                 maxlength={FF_MAX_CHARS_REPORT_CONTENT_SHORT}
                 onChange={(e) => updateInput('country', e.target.value)}
               >
-                <option value="" disabled defaultValue>
+                <option value="" disabled>
                   {__('Select your country')}
                 </option>
-                {COUNTRIES.map((country) => (
+                {COUNTRIES.map((country: string) => (
                   <option key={country} value={country}>
                     {country}
                   </option>

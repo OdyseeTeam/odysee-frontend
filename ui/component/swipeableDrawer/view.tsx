@@ -1,5 +1,4 @@
 import 'scss/component/_swipeable-drawer.scss';
-// @ts-expect-error;
 import { Global } from '@emotion/react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS, HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
@@ -14,7 +13,7 @@ import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app'
 const TRANSITION_MS = 225;
 const TRANSITION_STR = `${TRANSITION_MS}ms cubic-bezier(0, 0, 0.2, 1) 0ms`;
 type Props = {
-  children: Node;
+  children: React.ReactNode;
   title: any;
   hasSubtitle?: boolean;
   actions?: any;
@@ -27,11 +26,11 @@ export default function SwipeableDrawer(props: Props) {
   const open = useAppSelector((state) => selectIsDrawerOpenForType(state, type));
   const doToggleAppDrawer = (drawerType: string) => dispatch(doToggleAppDrawerAction(drawerType));
   const pullerHeight = type === DRAWERS.PLAYLIST ? 120 : 62;
-  const drawerRoot = React.useRef();
-  const backdropRef = React.useRef();
-  const paperRef = React.useRef();
+  const drawerRoot = React.useRef<HTMLElement | null>(null);
+  const backdropRef = React.useRef<HTMLElement | null>(null);
+  const paperRef = React.useRef<HTMLElement | null>(null);
   const pausedByDrawer = React.useRef(false);
-  const touchPos = React.useRef();
+  const touchPos = React.useRef<number | undefined>();
   const openPrev = React.useRef(open);
   const [playerHeight, setPlayerHeight] = React.useState(getMaxLandscapeHeight());
   const landscapePlayerHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
@@ -41,7 +40,7 @@ export default function SwipeableDrawer(props: Props) {
     doToggleAppDrawer(type);
   }
 
-  function handleTouchMove(e) {
+  function handleTouchMove(e: React.TouchEvent | TouchEvent) {
     const touchPosY = e.touches[0].clientY;
     touchPos.current = touchPosY;
     const draggingBelowHeader = touchPosY > HEADER_HEIGHT_MOBILE;
@@ -119,7 +118,6 @@ export default function SwipeableDrawer(props: Props) {
         const videoParent = playerElement && playerElement.querySelector('.video-js-parent');
         const isLivestream = videoParent && videoParent.classList.contains('livestreamPlayer');
         const videoNode = videoParent && videoParent.querySelector('video');
-        // $FlowFixMe
         const isPlaying = videoNode && !videoNode.paused;
 
         if (videoNode && !isLivestream && isPlaying && drawerMovedFullscreen) {
@@ -192,7 +190,7 @@ export default function SwipeableDrawer(props: Props) {
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer on unmount
   }, []);
   const drawerElemRef = React.useCallback(
-    (node) => {
+    (node: HTMLElement | null) => {
       if (node) {
         const isFullscreenDrawer = node.style.transform.includes(`translateY(${HEADER_HEIGHT_MOBILE}px)`);
         const openStateChanged = openPrev.current !== open; // so didn't run because of window resize
@@ -290,6 +288,8 @@ type HeaderProps = {
   actions?: any;
   type: string;
   handleClose: () => void;
+  onTouchMove?: (e: React.TouchEvent) => void;
+  onTouchEnd?: () => void;
 };
 
 const HeaderContents = (props: HeaderProps) => {

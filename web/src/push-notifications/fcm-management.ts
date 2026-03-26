@@ -18,13 +18,13 @@ const updateRegistrations = (data) => {
 };
 
 export const addRegistration = (userId: number) => {
-  const data = Array.from(new Set(registrations().concat(userId)));
+  const data = Array.from(new Set(registrations().concat(String(userId))));
   updateRegistrations(data);
 };
 export const removeRegistration = (userId: number) => {
-  const data = registrations().filter((id) => id !== userId);
+  const data = registrations().filter((id) => String(id) !== String(userId));
   updateRegistrations(data);
 };
 export const hasRegistration = (userId: number): boolean => {
-  return registrations().includes(userId);
+  return registrations().includes(String(userId));
 };

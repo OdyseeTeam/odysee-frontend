@@ -22,16 +22,16 @@ function PublishBid(props: Props) {
   const bid = useAppSelector((state) => selectPublishFormValue(state, 'bid'));
   const isResolvingUri = useAppSelector((state) => selectIsResolvingPublishUris(state));
   const balance = useAppSelector((state) => selectBalance(state));
-  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
+  const myClaimForUri = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
   const amountNeededForTakeover = useAppSelector((state) => selectTakeOverAmount(state));
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
-  const [bidError, setBidError] = useState(undefined);
+  const [bidError, setBidError] = useState<string | undefined>(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
   const [bidHasExceededDefaultAmount] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
   useEffect(() => {
     if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
       updatePublishForm({
-        bid: parseFloat(MINIMUM_PUBLISH_BID),
+        bid: MINIMUM_PUBLISH_BID,
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -63,11 +63,11 @@ function PublishBid(props: Props) {
         <FormField
           type="number"
           name="content_bid"
-          min="0"
+          min={0}
           step="any"
           placeholder="0.123"
           className="form-field--price-amount"
-          label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
+          label={<LbcSymbol postfix={__('Deposit')} size={12} />}
           value={bid}
           error={bidError}
           onChange={(event) =>

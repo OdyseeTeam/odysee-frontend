@@ -6,6 +6,7 @@ import { useAppSelector } from 'redux/hooks';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 type Props = {
   uri: string;
+  isFree?: boolean;
 };
 export default function FileRenderDownload(props: Props) {
   const { uri } = props;

@@ -6,6 +6,7 @@ import { selectDefaultChannelId } from 'redux/selectors/settings';
 
 type Props = {
   channelId?: string;
+  [key: string]: any;
 };
 
 const ButtonNavigateChannelId = (props: Props) => {

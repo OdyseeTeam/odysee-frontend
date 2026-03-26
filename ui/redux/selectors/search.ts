@@ -19,12 +19,11 @@ import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
 import * as SETTINGS from 'constants/settings';
 export const selectState = (state: State): SearchState => state.search;
-// @ts-expect-error - 'searchQuery' is never populated. Something lost in a merge?
-export const selectSearchValue: (state: State) => string = (state) => selectState(state).searchQuery;
+export const selectSearchValue: (state: State) => string = (state) => (selectState(state) as any).searchQuery;
 export const selectSearchOptions: (state: State) => SearchOptions = (state) => selectState(state).options;
 export const selectIsSearching: (state: State) => boolean = (state) => selectState(state).searching;
 export const selectSearchResultByQuery = (state: State) => selectState(state).resultsByQuery;
-export const selectHasReachedMaxResultsLength: (state: State) => { [key in boolean]?: Array<boolean> } = (state) =>
+export const selectHasReachedMaxResultsLength: (state: State) => { [key: string]: Array<boolean> } = (state) =>
   selectState(state).hasReachedMaxResultsLength;
 export const selectMentionSearchResults: (state: State) => Array<string> = (state) => selectState(state).results;
 export const selectMentionQuery: (state: State) => string = (state) => selectState(state).mentionQuery;
@@ -37,7 +36,7 @@ export const makeSelectSearchUrisForQuery = (query: string): ((state: State) => 
     const normalizedQuery = createNormalizedSearchKey(query);
     return byQuery[normalizedQuery] && byQuery[normalizedQuery]['uris'];
   });
-export const makeSelectHasReachedMaxResultsLength = (query: string): ((state: State) => boolean) =>
+export const makeSelectHasReachedMaxResultsLength = (query: string) =>
   createSelector(selectHasReachedMaxResultsLength, (hasReachedMaxResultsLength) => {
     if (query) {
       query = query.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
@@ -79,14 +78,14 @@ export const selectRecommendedContentRawForUri = createCachedSelector(
  *
  * @signature (state: State, uri: string) => { [ClaimId]: Claim }
  */
-const selectRecClaimsByIdForUri = createSelector(
+const selectRecClaimsByIdForUri = (createSelector as any)(
   selectClaimsByUri,
   selectRecommendedContentRawForUri, // (state, uri)
-  (claimsByUri, recommendationsRaw) => {
-    const recClaimsById = {};
+  (claimsByUri: any, recommendationsRaw: any) => {
+    const recClaimsById: Record<string, any> = {};
 
     if (recommendationsRaw) {
-      recommendationsRaw.uris.forEach((uri) => {
+      recommendationsRaw.uris.forEach((uri: string) => {
         if (claimsByUri[uri]) {
           recClaimsById[uri] = claimsByUri[uri];
         }

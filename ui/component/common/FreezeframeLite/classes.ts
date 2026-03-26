@@ -12,4 +12,5 @@ export const classes = {
   CANVAS_READY: 'ff-canvas-ready',
   RESPONSIVE: 'ff-responsive',
   VISIBLE: 'ff-visible',
+  LOADING_ICON: 'ff-loading-icon',
 };

@@ -21,7 +21,20 @@ import {
 } from 'redux/selectors/comments';
 import { selectClaimsById } from 'redux/selectors/claims';
 
-function scaleToDevicePixelRatio(value) {
+// Local type for comment objects from the redux store
+type OwnComment = {
+  comment_id: string;
+  claim_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name?: string;
+  parent_id?: string;
+  body?: string;
+  replies?: number;
+  [key: string]: any;
+};
+
+function scaleToDevicePixelRatio(value: number) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
 
   if (devicePixelRatio < 1.0) {
@@ -41,7 +54,7 @@ export default function OwnComments() {
   const isFetchingComments = useAppSelector(selectIsFetchingComments);
   const claimsById = useAppSelector(selectClaimsById);
 
-  const spinnerRef = React.useRef();
+  const spinnerRef = React.useRef<HTMLDivElement>(null);
   const [isLoadingLong, setIsLoadingLong] = React.useState(false);
   const [page, setPage] = React.useState(0);
   const [activeChannelId, setActiveChannelId] = React.useState('');
@@ -51,7 +64,7 @@ export default function OwnComments() {
   const totalPages = Math.ceil(totalComments / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const moreBelow = page < totalPages;
 
-  function getCommentsElem(comments: Array<Comment>) {
+  function getCommentsElem(comments: Array<OwnComment>) {
     return comments.map((comment) => {
       const contentClaim = claimsById[comment.claim_id];
       const isChannel = contentClaim && contentClaim.value_type === 'channel';
@@ -82,7 +95,7 @@ export default function OwnComments() {
               )}
               {!contentClaim && <Empty text={__('Content or channel was deleted.')} />}
             </div>
-            <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions comment={comment} />
+            <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions comment={comment as any} />
           </div>
         </div>
       );

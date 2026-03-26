@@ -25,6 +25,7 @@ export type Analytics = {
   // Logging using internal-apis.
   sentryError: (arg0: {} | string, arg1: {}) => Promise<any>;
   // Deprecated, only used for React ErrorBoundary. Use log() instead.
+  toggleThirdParty: (enabled: boolean) => void;
 
   /**
    * The primary logging interface.
@@ -72,8 +73,8 @@ const analytics: Analytics = {
       }
     });
   },
-  setUser: (userId) => {
-    analytics.event.setUser(userId); // Pass on to other submodules if needed...
+  setUser: (userId: Record<string, any>) => {
+    analytics.event.setUser(userId as any); // Pass on to other submodules if needed...
   },
   toggleThirdParty: (enabled: boolean): void => {
     // Retained to keep things compiling. We don't do third-party analytics,

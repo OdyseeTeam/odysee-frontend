@@ -40,7 +40,7 @@ const RewardTile = (props: Props) => {
       subtitle={<LbcMessage>{reward.reward_description}</LbcMessage>}
       actions={
         <div className="section__actions">
-          {reward.reward_type === rewards.TYPE_GENERATED_CODE && (
+          {reward.reward_type === (rewards as any).TYPE_GENERATED_CODE && (
             <Button button="primary" onClick={openRewardCodeModal} label={__('Enter Code')} disabled={disabled} />
           )}
           {reward.reward_type === rewards.TYPE_REFERRAL && (

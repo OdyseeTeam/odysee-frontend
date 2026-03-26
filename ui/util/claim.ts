@@ -163,7 +163,7 @@ export function getClaimScheduledState(claim: Claim | null | undefined): ClaimSc
   const tags = getClaimTags(claim);
 
   if (tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE))) {
-    const releaseTime = claim?.value?.release_time;
+    const releaseTime = (claim?.value as StreamMetadata | undefined)?.release_time;
 
     if (releaseTime) {
       return Date.now() > releaseTime * 1000 ? 'started' : 'scheduled';
@@ -181,7 +181,7 @@ export function getClaimTitle(claim: Claim | null | undefined) {
 }
 export function getClaimVideoInfo(claim: Claim | null | undefined) {
   const metadata = getClaimMetadata(claim);
-  return metadata && metadata.video;
+  return metadata && (metadata as StreamMetadata).video;
 }
 export function getVideoClaimAspectRatio(claim: Claim | null | undefined) {
   const { width: claimWidth, height: claimHeight } = getClaimVideoInfo(claim) || {};
@@ -200,7 +200,7 @@ export const getThumbnailFromClaim = (claim: Claim | null | undefined) => {
 };
 export const isClaimShort = (claim: Claim | null | undefined): boolean => {
   if (!claim || !claim.value) return false;
-  const media = claim.value.video || claim.value.audio;
+  const media: any = (claim.value as StreamMetadata)?.video || (claim.value as StreamMetadata)?.audio;
   if (!media) return false;
   const isShortDuration = media.duration && media.duration <= SETTINGS.SHORTS_DURATION_LTE;
   if (!isShortDuration) return false;

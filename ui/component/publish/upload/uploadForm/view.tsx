@@ -56,14 +56,14 @@ import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/se
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
-const SelectThumbnail = lazyImport(
+const SelectThumbnail: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
     import(
       'component/selectThumbnail'
       /* webpackChunkName: "selectThumbnail" */
     )
 );
-const PublishPrice = lazyImport(
+const PublishPrice: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
     import(
       'component/publish/shared/publishPrice'
@@ -80,7 +80,7 @@ function UploadForm(props: Props) {
 
   // -- selectors --
   const publishFormValues = useAppSelector(selectPublishFormValues);
-  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
   const isPostClaim = useAppSelector(
     (state) => makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN
@@ -134,10 +134,10 @@ function UploadForm(props: Props) {
   const fetchCreatorSettings = React.useCallback((cid: string) => dispatch(doFetchCreatorSettings(cid)), [dispatch]);
   const inEditMode = Boolean(editingURI);
   const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
-  const mode = PUBLISH_MODES.FILE;
+  const mode: string = PUBLISH_MODES.FILE;
   // Used to check if the url name has changed:
   // A new file needs to be provided
-  const [prevName, setPrevName] = React.useState(false);
+  const [prevName, setPrevName] = React.useState<string | false>(false);
   // Used to check if the file has been modified by user
   const [fileEdited, setFileEdited] = React.useState(false);
   const [prevFileText, setPrevFileText] = React.useState('');
@@ -243,7 +243,7 @@ function UploadForm(props: Props) {
   }, [thumbnail, resetThumbnailStatus]);
   // Save previous name of the editing claim
   useEffect(() => {
-    if (isStillEditing && (!prevName || !prevName.trim() === '')) {
+    if (isStillEditing && (!prevName || (prevName as string).trim() === '')) {
       if (name !== prevName) {
         setPrevName(name);
       }
@@ -269,7 +269,7 @@ function UploadForm(props: Props) {
           {
             streamName: name,
             activeChannelName,
-          },
+          } as LbryUrlObj,
           true
         );
     } catch (e) {}

@@ -180,8 +180,8 @@ export default function Portals(props: Props) {
                 tabIndex={-1}
                 to={{
                   pathname: '/$/portal/' + portal.name,
-                  state: portal,
-                }}
+                } as any}
+                state={portal as any}
               >
                 <div
                   className="portal-thumbnail"

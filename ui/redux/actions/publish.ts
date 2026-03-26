@@ -103,13 +103,13 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
         // hit backend to save restricted memberships
         if (channelClaimId) {
           const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
-          dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
+          dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined));
         }
       };
 
       analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
       const { permanent_url: url } = pendingClaim;
-      const actions = [];
+      const actions: Array<any> = [];
       actions.push({
         type: ACTIONS.PUBLISH_SUCCESS,
         data: {
@@ -120,7 +120,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       // We have to fake a temp claim until the new pending one is returned by claim_list_mine
       // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
       // Doing this allows us to show the pending claim immediately, it will get overwritten by the real one
-      const isMatch = (claim) => claim.claim_id === pendingClaim.claim_id;
+      const isMatch = (claim: any) => claim.claim_id === pendingClaim.claim_id;
 
       const isEdit = myClaims.some(isMatch);
       actions.push({
@@ -151,7 +151,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
           lbryFirstError,
         })
       );
-      dispatch(doCheckPendingClaims());
+      dispatch(doCheckPendingClaims(undefined));
       // @if TARGET='app'
       dispatch(doCheckReflectingFiles());
 
@@ -163,8 +163,8 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       } // @endif
     };
 
-    const publishFail = (error) => {
-      const actions = [];
+    const publishFail = (error: any) => {
+      const actions: Array<any> = [];
       actions.push({
         type: ACTIONS.PUBLISH_FAIL,
       });
@@ -207,7 +207,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
 export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: GetState) => {
   const publishSuccess = (successResponse, lbryFirstError) => {
     const state = getState();
-    const myClaimIds: Set<string> = selectMyActiveClaims(state);
+    const myClaimIds = selectMyActiveClaims(state) as Set<string>;
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
     const { memberRestrictionTierIds, name } = state.publish;
@@ -219,7 +219,7 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
       // hit backend to save restricted memberships
       if (channelClaimId) {
         const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
-        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
+        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined));
       }
     };
 
@@ -228,7 +228,7 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
     // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
     // Doing this allows us to show the pending claim immediately, it will get overwritten by the real one
     const isEdit = myClaimIds.has(pendingClaim.claim_id);
-    const actions = [];
+    const actions: Array<any> = [];
     actions.push({
       type: ACTIONS.PUBLISH_SUCCESS,
       data: {
@@ -249,11 +249,11 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
         lbryFirstError,
       })
     );
-    dispatch(doCheckPendingClaims());
+    dispatch(doCheckPendingClaims(undefined));
   };
 
-  const publishFail = (error) => {
-    const actions = [];
+  const publishFail = (error: any) => {
+    const actions: Array<any> = [];
     actions.push({
       type: ACTIONS.PUBLISH_FAIL,
     });
@@ -266,7 +266,7 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
     dispatch(batchActions(...actions));
   };
 
-  dispatch(doPublish(publishSuccess, publishFail, null, publishPayload));
+  dispatch(doPublish(publishSuccess, publishFail, undefined, publishPayload));
 };
 export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -429,7 +429,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
           });
         });
 
-        video.src = window.URL.createObjectURL(file);
+        video.src = window.URL.createObjectURL(file as unknown as Blob);
       } else {
         formUpdates.fileDur = 0;
       }
@@ -450,7 +450,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
             }); // setPublishMode(PUBLISH_MODES.POST);
           }
         });
-        reader.readAsText(file); // setCurrentFileType('text/markdown');
+        reader.readAsText(file as unknown as Blob); // setCurrentFileType('text/markdown');
       }
     }
 
@@ -492,7 +492,7 @@ export const doUploadThumbnail =
   (dispatch: Dispatch) => {
     let thumbnail, fileExt, fileName, fileType, stats, size;
 
-    const uploadError = (error = '') => {
+    const uploadError = (error: string | { message: string; cause: string } = '') => {
       dispatch(
         batchActions(
           {
@@ -583,7 +583,7 @@ export const doUploadThumbnail =
           uri: 'file://' + filePath,
           type: fileType,
           name: fileName,
-        });
+        } as any);
         data.append('upload', 'Upload');
         return doUpload(data);
       });
@@ -660,8 +660,8 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       : isPostClaim
         ? PUBLISH_TYPES.POST
         : PUBLISH_TYPES.FILE;
-    const liveCreateType: LiveCreateType | null | undefined = isLivestreamClaim ? 'edit_placeholder' : undefined;
-    const liveEditType: LiveEditType | null | undefined = isLivestreamClaim ? 'update_only' : undefined; // Reverted #2801
+    const liveCreateType = isLivestreamClaim ? 'edit_placeholder' : undefined;
+    const liveEditType = isLivestreamClaim ? 'update_only' : undefined; // Reverted #2801
 
     const publishData: UpdatePublishState = {
       type,
@@ -680,7 +680,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       bid: Number(amount),
       author,
       description,
-      fee,
+      fee: { amount: Number(fee.amount), currency: fee.currency },
       languages,
       thumbnail: thumbnail ? thumbnail.url : null,
       title,
@@ -1197,7 +1197,7 @@ export const doPublish =
 
     const state = getState();
     const myClaimForUri = state.publish.claimToEdit;
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
     // const myClaims = selectMyClaimsWithoutChannels(state);
     // get redux publish form
     const publishData = selectPublishFormValues(state);
@@ -1353,7 +1353,7 @@ export function doUpdateUploadAdd(
   };
 }
 export const doUpdateUploadProgress =
-  (props: { guid: string; progress?: string; status?: UploadStatus }) => (dispatch: Dispatch) =>
+  (props: { guid: string; progress?: string; status?: UploadStatus; publishId?: string | number }) => (dispatch: Dispatch) =>
     dispatch({
       type: ACTIONS.UPDATE_UPLOAD_PROGRESS,
       data: props,

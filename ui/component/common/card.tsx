@@ -13,6 +13,7 @@ type Props = {
   body?: string | React.ReactNode;
   actions?: string | React.ReactNode;
   icon?: string;
+  iconColor?: boolean;
   className?: string;
   isPageTitle?: boolean;
   noTitleWrap?: boolean;
@@ -30,6 +31,7 @@ type Props = {
   headerActions?: React.ReactNode;
   gridHeader?: boolean;
   accessStatus?: string;
+  style?: React.CSSProperties;
 };
 
 function Card(props: Props) {
@@ -244,7 +246,7 @@ const TitleWrapper = (props: TitleProps) => {
   return isPageTitle ? (
     <h1 className="card__title">
       {accessStatus && <AccessIndicator status={accessStatus} />}
-      <font
+      <span
         dangerouslySetInnerHTML={{
           __html: transformer(children),
         }}

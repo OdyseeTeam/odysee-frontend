@@ -25,7 +25,7 @@ export default function useIsVisibilityRestricted(
   uriAccessKey: UriAccessKey | null | undefined,
   verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>
 ) {
-  const [isRestricted, setIsRestricted] = React.useState(undefined);
+  const [isRestricted, setIsRestricted] = React.useState<boolean | undefined>(undefined);
   const location = useLocation();
   let accessKey: UriAccessKey | null | undefined;
 
@@ -52,9 +52,9 @@ export default function useIsVisibilityRestricted(
             return verifyClaimSignature({
               channel_id: getChannelIdFromClaim(claim) || claim.claim_id,
               claim_id: claim.claim_id,
-              signature: accessKey.signature,
-              signing_ts: accessKey.signature_ts,
-            })
+              signature: accessKey.signature as string,
+              signing_ts: accessKey.signature_ts as string,
+            } as VerifyClaimSignatureParams)
               .then((res: VerifyClaimSignatureResponse) => !res.is_valid) // Verification done
               .catch(() => true); // Verification process failed, have to block
           } else {

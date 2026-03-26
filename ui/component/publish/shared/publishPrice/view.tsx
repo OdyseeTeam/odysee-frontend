@@ -172,7 +172,7 @@ function PublishPrice(props: Props) {
                     <p
                       className="help--warning"
                       style={{
-                        'margin-top': '10px',
+                        marginTop: '10px',
                       }}
                     >
                       LBC will be sunset in the future, we recommend using other content pricing methods

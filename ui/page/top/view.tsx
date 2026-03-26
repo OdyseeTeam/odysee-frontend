@@ -32,8 +32,9 @@ function TopPage() {
 
   return (
     <Page className="topPage-wrapper">
-      <SearchTopClaim query={name} hideLink setChannelActive={setChannelActive} />
+      <SearchTopClaim query={name} hideLink setChannelActive={setChannelActive} isSearching={false} />
       <ClaimListDiscover
+        tileLayout={false}
         name={channelActive ? `@${queryName}` : queryName}
         defaultFreshness={CS.FRESH_ALL}
         defaultOrderBy={CS.ORDER_BY_TOP}
@@ -56,7 +57,7 @@ function TopPage() {
         renderProperties={(claim) => (
           <span className="claim-preview__custom-properties">
             {claim.meta.is_controlling && <span className="help--inline">{__('Currently winning')}</span>}
-            <ClaimEffectiveAmount uri={claim.repost_url || claim.canonical_url} />
+            <ClaimEffectiveAmount uri={(claim as any).repost_url || claim.canonical_url} />
           </span>
         )}
         header={

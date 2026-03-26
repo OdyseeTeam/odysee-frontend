@@ -4,7 +4,7 @@ declare const IS_WEB: boolean;
 declare const __static: string;
 declare const WEBPACK_PORT: number;
 declare function __(msg: string, ...args: any[]): string;
-declare function assert(condition: any, message?: string): asserts condition;
+declare function assert(condition: any, message?: string, data?: any): asserts condition;
 
 declare module '*.scss' {
   const content: Record<string, string>;

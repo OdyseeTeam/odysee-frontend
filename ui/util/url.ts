@@ -52,7 +52,7 @@ export const formatInAppUrl = (path: string): string => {
     // Definitely an app page (or it's formatted like one)
     const [, , page, queryString] = appPageMatches;
 
-    if (Object.values(PAGES).includes(page)) {
+    if (Object.values(PAGES).includes(page as any)) {
       let actualUrl = '/$/' + page;
 
       if (queryString) {
@@ -221,7 +221,7 @@ export const generateShortShareUrl = async (
   const baseUrl = `${domain}/${lbryWebUrl}`;
   // -- Append params that we want to shorten:
   const urlToShorten = new URL(baseUrl);
-  paramsToShorten.forEach((p: Params) => {
+  paramsToShorten.forEach((p) => {
     if (p[1]) {
       urlToShorten.searchParams.set(p[0], p[1]);
     }
@@ -229,7 +229,7 @@ export const generateShortShareUrl = async (
   // -- Fetch the short url:
   const shortUrl = await ShortUrl.createFrom(urlToShorten.toString())
     .then((res: ShortUrlResponse) => {
-      return res.shortUrl;
+      return res.short_url;
     })
     .catch((err) => {
       assert(false, 'ShortUrl api failed, returning original', err);
@@ -237,7 +237,7 @@ export const generateShortShareUrl = async (
     });
   // -- Put remaining params that we want in original form:
   const finalUrl = new URL(shortUrl);
-  paramsToRetain.forEach((p: Params) => {
+  paramsToRetain.forEach((p) => {
     if (p[1]) {
       finalUrl.searchParams.set(p[0], p[1]);
     }

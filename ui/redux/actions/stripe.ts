@@ -78,7 +78,7 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
 
       // Check if response is new v2 format (AccountStatus with arweave/stripe properties)
       // vs legacy format (StripeAccountStatus directly)
-      if (accountStatusResponse?.arweave || accountStatusResponse?.stripe) {
+      if ((accountStatusResponse as any)?.arweave || (accountStatusResponse as any)?.stripe) {
         return accountStatusResponse;
       }
 
@@ -357,7 +357,7 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
   try {
     const pub_key = await window.arweaveWallet.getActivePublicKey();
     const data = new TextEncoder().encode(address);
-    const signature = await window.arweaveWallet.signMessage(data);
+    const signature = await (window as any).arweaveWallet.signMessage(data);
     const hexSig = bufferToHex(signature);
     const params = {
       currency,
@@ -366,7 +366,7 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     };
 
     if (makeDefault) {
-      params.default = true;
+      (params as any).default = true;
     }
 
     const res = await Lbryio.call('arweave/address', 'add', params, 'post');

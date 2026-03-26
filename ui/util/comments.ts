@@ -5,16 +5,22 @@ const ALL_VALID_STICKERS = [...FREE_GLOBAL_STICKERS, ...PAID_GLOBAL_STICKERS];
 const stickerRegex = /(<stkr>:[A-Z0-9_]+:<stkr>)/;
 // Mostly taken from Reddit's sorting functions
 // https://github.com/reddit-archive/reddit/blob/master/r2/r2/lib/db/_sorts.pyx
+type CommentItem = {
+  is_pinned?: boolean;
+  channel_id?: string;
+  comment_id?: string;
+  [key: string]: any;
+};
 type SortProps = {
-  comments: Array<Comment> | null | undefined;
+  comments: Array<CommentItem> | null | undefined;
   reactionsById: {};
   sort: string;
   isMyComment: (arg0: string) => boolean;
 };
-export function sortComments(sortProps: SortProps): Array<Comment> {
+export function sortComments(sortProps: SortProps): Array<CommentItem> {
   const { comments, reactionsById, sort, isMyComment } = sortProps;
   if (!comments) return [];
-  return comments.slice().toSorted((a: Comment, b: Comment) => {
+  return comments.slice().toSorted((a: CommentItem, b: CommentItem) => {
     if (a.is_pinned) {
       return -1;
     } else if (b.is_pinned) {

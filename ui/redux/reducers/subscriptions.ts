@@ -1,7 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { parseURI, normalizeURI, isURIEqual } from 'util/lbryURI';
 import { handleActions } from 'util/redux-utils';
-const defaultState: SubscriptionState = {
+const defaultState = {
   subscriptions: [],
   // Deprecated
   lastActiveSubscriptions: undefined,

@@ -67,13 +67,13 @@ function AdAboveComments(props: Props) {
       <div className="rmbl_aboveComments">
         <div>
           <script id="nrp-59" type="text/javascript" className="">
-            {(function (node) {
+            {(function (node: any): any {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = `https://a.ads.rmbl.ws/warp/59?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
-            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode) as any}
           </script>
           {/*
           <script id="nrp-60" type="text/javascript" className="">

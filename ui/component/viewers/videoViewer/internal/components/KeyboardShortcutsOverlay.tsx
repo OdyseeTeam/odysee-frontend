@@ -22,7 +22,7 @@ const SECONDARY_SHORTCUTS = [
   { keys: '.', label: __('Forward one frame (paused)') },
 ];
 
-function ShortcutItem({ keys, separator, label }) {
+function ShortcutItem({ keys, separator, label }: { keys: any; separator?: any; label: any }) {
   const parts = Array.isArray(keys) ? keys : [keys];
   const joiner = separator || ' / ';
 

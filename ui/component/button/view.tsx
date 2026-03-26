@@ -11,35 +11,45 @@ import { selectHasChannels } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
 
 type Props = {
-  id: string | null | undefined;
-  href: string | null | undefined;
-  title: string | null | undefined;
-  label: string | null | undefined;
-  largestLabel: string | null | undefined;
-  icon: string | null | undefined;
-  iconRight: string | null | undefined;
-  disabled: boolean | null | undefined;
-  children: React.ReactNode | null | undefined;
-  navigate: string | null | undefined;
+  id?: string | null | undefined;
+  href?: string | null | undefined;
+  title?: string | null | undefined;
+  label?: React.ReactNode | null | undefined;
+  largestLabel?: string | null | undefined;
+  icon?: string | null | undefined;
+  iconRight?: string | null | undefined;
+  disabled?: boolean | null | undefined;
+  children?: React.ReactNode | null | undefined;
+  navigate?: string | null | undefined;
   navigateTarget?: string;
-  className: string | null | undefined;
-  description: string | null | undefined;
-  type: string;
-  button: string | null | undefined;
+  className?: string | null | undefined;
+  description?: string | null | undefined;
+  type?: string;
+  button?: string | null | undefined;
   // primary, secondary, alt, link
   iconSize?: number;
   iconColor?: string;
   activeClass?: string;
-  innerRef: any | null | undefined;
+  innerRef?: any | null | undefined;
   authSrc?: string;
+  autoFocus?: boolean;
   // Events
-  onClick: ((arg0: any) => any) | null | undefined;
-  onMouseEnter: ((arg0: any) => any) | null | undefined;
-  onMouseLeave: ((arg0: any) => any) | null | undefined;
+  onClick?: ((arg0: any) => any) | null | undefined;
+  onMouseEnter?: ((arg0: any) => any) | null | undefined;
+  onMouseLeave?: ((arg0: any) => any) | null | undefined;
+  onChange?: ((arg0: any) => any) | null | undefined;
   requiresAuth?: boolean;
   requiresChannel?: boolean;
-  myref: any;
+  myref?: any;
+  name?: string;
+  target?: string;
   'aria-label'?: string;
+  'aria-hidden'?: boolean;
+  style?: React.CSSProperties;
+  tabIndex?: number;
+  noStyle?: boolean;
+  channelId?: any;
+  [key: string]: any;
 };
 // check if the link is for odysee.com
 function isAnOdyseeLink(urlString) {
@@ -48,7 +58,7 @@ function isAnOdyseeLink(urlString) {
 
 // use forwardRef to allow consumers to pass refs to the button content if they want to
 // flow requires forwardRef have default type arguments passed to it
-const Button = forwardRef<any>((props: Props, ref: any) => {
+const Button = forwardRef<any, Props>((props: Props, ref: any) => {
   const {
     type = 'button',
     onClick: onClickProp,
@@ -75,7 +85,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
     myref,
     authSrc,
     ...otherProps
-  } = props;
+  } = props as Props & Record<string, any>;
 
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -188,7 +198,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         aria-label={ariaLabel}
         disabled={disabled} // is there a reason this wasn't here before?
         ref={combinedRef}
-        {...otherProps}
+        {...(otherProps as any)}
       >
         {content}
       </a>
@@ -245,7 +255,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         className={({ isActive }) => classnames(combinedClassName, isActive && activeClass)}
         aria-label={ariaLabel}
         ref={combinedRef}
-        {...otherProps}
+        {...(otherProps as any)}
       >
         {content}
       </NavLink>
@@ -268,13 +278,13 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         }
 
         if (onClick) {
-          onClick();
+          onClick(e);
         }
       }}
       className={({ isActive }) => classnames(combinedClassName, isActive && activeClass)}
       aria-label={ariaLabel}
       ref={combinedRef}
-      {...otherProps}
+      {...(otherProps as any)}
     >
       {content}
     </NavLink>
@@ -291,7 +301,7 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
         }
       }}
       disabled={disable}
-      type={type}
+      type={type as 'button' | 'submit' | 'reset'}
       {...otherProps}
     >
       {content}
@@ -301,4 +311,4 @@ const Button = forwardRef<any>((props: Props, ref: any) => {
 
 Button.displayName = 'Button';
 
-export default React.memo(Button);
+export default React.memo(Button) as any;

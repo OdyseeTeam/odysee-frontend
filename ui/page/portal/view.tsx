@@ -16,7 +16,7 @@ const Portals = lazyImport(
     )
 );
 
-export const PortalContext = React.createContext<any>();
+export const PortalContext = React.createContext<any>(undefined);
 
 function PortalPage() {
   const homepageData = useAppSelector(selectHomepageData) || {};
@@ -41,7 +41,7 @@ function PortalPage() {
     if (portal) {
       const theme = document.getElementsByClassName('theme');
       const stars = document.getElementsByClassName('stars');
-      theme[0].style.backgroundImage =
+      (theme[0] as HTMLElement).style.backgroundImage =
         'radial-gradient(circle at 80% 20%, rgba(0,0,0,0.6), #000 50%, rgba(101,15,124,0.9) 25%, #000 75%)';
       stars[0].classList.add('stars-active');
       setTimeout(() => {

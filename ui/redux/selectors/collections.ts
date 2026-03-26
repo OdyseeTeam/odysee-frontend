@@ -156,7 +156,7 @@ export const selectMyPublishedCollections = createSelector(
       if (!updated[id]) {
         myPublishedCollections[id] = item;
       } else {
-        myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: item.updatedAt };
+        myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: (item as any).updatedAt };
       }
     });
     return myPublishedCollections;
@@ -297,12 +297,12 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
         .filter(Boolean);
       const collectionsContainingClaim = Object.entries(collectionsById)
         .filter(
-          ([id, collection]) =>
+          ([id, collection]: [string, any]) =>
             myCollectionIds.has(id) && // Only include my collections
-            collection.items?.some((item) => item === url || item === claimId) &&
-            !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
+            collection.items?.some((item: any) => item === url || item === claimId) &&
+            !lastUsedCollections.some((lastUsedCollection: any) => lastUsedCollection.id === collection.id)
         )
-        .map(([id, collection]) => ({ ...collection, hasClaim: true }));
+        .map(([id, collection]: [string, any]) => ({ ...collection, hasClaim: true }));
       const claimMenuCollections = lastUsedCollections.concat(collectionsContainingClaim);
       return claimMenuCollections;
     }

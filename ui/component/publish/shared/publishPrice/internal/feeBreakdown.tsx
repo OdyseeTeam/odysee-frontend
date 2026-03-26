@@ -7,7 +7,7 @@ type Props = {
 
 function FeeBreakdown(props: Props) {
   const { amount, doCustomerPurchaseCost } = props;
-  const [fees, setFees] = React.useState();
+  const [fees, setFees] = React.useState<StripeCustomerPurchaseCostResponse | null | undefined>();
   React.useEffect(() => {
     doCustomerPurchaseCost(amount)
       .then((x) => setFees(x))

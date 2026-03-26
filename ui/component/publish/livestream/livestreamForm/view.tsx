@@ -71,10 +71,23 @@ const PublishPrice = lazyImport(
       /* webpackChunkName: "publish" */
     )
 );
+type LiveCreateTypeValue = 'new_placeholder' | 'choose_replay' | 'edit_placeholder';
+type LiveEditTypeValue = 'update_only' | 'use_replay' | 'upload_replay';
+
+type ReplayApiItem = {
+  Status: string;
+  URL: string;
+  Duration: number;
+  PercentComplete: number;
+  ThumbnailURLs: string[] | null;
+  Created: string;
+};
+
 type Props = {
-  liveCreateType: LiveCreateType;
-  liveEditType: LiveEditType;
-  setClearStatus: (arg0: boolean) => void;
+  liveCreateType?: LiveCreateTypeValue;
+  liveEditType?: LiveEditTypeValue;
+  setClearStatus?: (arg0: boolean) => void;
+  disabled?: boolean;
 };
 
 function LivestreamForm(props: Props) {
@@ -99,7 +112,7 @@ function LivestreamForm(props: Props) {
     name,
     publishing,
   } = formValues;
-  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state));
+  const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
   const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, permanentUrl));
   const isPostClaim =
@@ -115,7 +128,12 @@ function LivestreamForm(props: Props) {
   const user = useAppSelector((state) => selectUser(state));
   const isClaimingInitialRewards = useAppSelector((state) => selectIsClaimingInitialRewards(state));
   const hasClaimedInitialRewards = useAppSelector((state) => selectHasClaimedInitialRewards(state));
-  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state));
+  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state)) as any as {
+    isApplicable: boolean;
+    isSelectionValid: boolean;
+    isRestricting: boolean;
+    details: Record<string, boolean>;
+  };
   const balance = useAppSelector((state) => selectBalance(state));
 
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
@@ -135,9 +153,9 @@ function LivestreamForm(props: Props) {
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
   // Used to check if the url name has changed:
   // A new file needs to be provided
-  const [prevName, setPrevName] = React.useState(false);
+  const [prevName, setPrevName] = React.useState<string | false>(false);
   const [waitForFile] = useState(false);
-  const [livestreamData, setLivestreamData] = React.useState([]);
+  const [livestreamData, setLivestreamData] = React.useState<LivestreamReplayItem[]>([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const TAGS_LIMIT = 5;
   const formDisabled = publishing;
@@ -200,7 +218,7 @@ function LivestreamForm(props: Props) {
   }, [publishError]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  async function fetchLivestreams(channelId, channelName) {
+  async function fetchLivestreams(channelId: string | undefined, channelName: string | undefined) {
     setCheckingLivestreams(true);
     let signedMessage;
 
@@ -217,7 +235,7 @@ function LivestreamForm(props: Props) {
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
         `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
       const responseFromNewApi = await fetch(newEndpointUrl);
-      const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
+      const data: Array<ReplayApiItem> = (await responseFromNewApi.json()).data;
       const newData: Array<LivestreamReplayItem> = [];
 
       if (data && data.length > 0) {
@@ -225,8 +243,10 @@ function LivestreamForm(props: Props) {
           const statusNorm =
             typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
           if (statusNorm === 'inprogress' || statusNorm === 'ready') {
-            const objectToPush = {
+            const objectToPush: LivestreamReplayItem = {
               data: {
+                claimId: '',
+                url: dataItem.URL,
                 fileLocation: dataItem.URL,
                 fileDuration:
                   statusNorm === 'inprogress'
@@ -280,7 +300,7 @@ function LivestreamForm(props: Props) {
   }, [thumbnail, dispatch]);
   // Save previous name of the editing claim
   useEffect(() => {
-    if (isStillEditing && (!prevName || !prevName.trim() === '')) {
+    if (isStillEditing && (!prevName || (typeof prevName === 'string' && prevName.trim() === ''))) {
       if (name !== prevName) {
         setPrevName(name);
       }
@@ -297,8 +317,8 @@ function LivestreamForm(props: Props) {
         buildURI(
           {
             streamName: name,
-            activeChannelName,
-          },
+            channelName: activeChannelName,
+          } as LbryUrlObj,
           true
         );
     } catch (e) {}
@@ -423,6 +443,7 @@ function LivestreamForm(props: Props) {
               className="button-toggle button-toggle--active"
             />
           )}
+          {/* @ts-ignore -- selectedChannelUrl is managed internally */}
           {!isMobile && <ChannelSelector hideAnon isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
             <Button
@@ -479,12 +500,13 @@ function LivestreamForm(props: Props) {
                   <SelectThumbnail />
                 </div>
               }
-              livestreamData={livestreamData}
+              {...{ livestreamData } as any}
             />
 
+            {/* @ts-ignore -- isStillEditing is resolved internally */}
             <PublishProtectedContent claim={myClaimForUri} />
 
-            {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
+            {liveCreateType === 'choose_replay' && <PublishPrice {...({ disabled: !!disabled } as any)} />}
 
             <Card
               background
@@ -496,7 +518,7 @@ function LivestreamForm(props: Props) {
                     disableAutoFocus
                     hideHeader
                     label={__('Selected Tags')}
-                    empty={__('No tags added')}
+                    excludedControlTags={null}
                     limitSelect={TAGS_LIMIT}
                     help={__(
                       "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
@@ -535,6 +557,7 @@ function LivestreamForm(props: Props) {
         <section>
           <div className="section__actions publish__actions">
             <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+            {/* @ts-ignore -- selectedChannelUrl is managed internally */}
             <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
           </div>
           <div className="help">
@@ -556,7 +579,7 @@ function LivestreamForm(props: Props) {
                     <Button
                       button="link"
                       href="https://help.odysee.tv/communityguidelines/"
-                      target="_blank"
+                      navigateTarget="_blank"
                       label={__('Community Guidelines')}
                     />
                   ),

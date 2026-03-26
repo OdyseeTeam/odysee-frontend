@@ -1,15 +1,35 @@
-
 import React from 'react';
 import classnames from 'classnames';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import parseChapters from 'util/parse-chapters';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { getClaimMetadata } from 'util/claim';
 import './style.lazy.scss';
 
+type Props = {
+  uri?: string;
+  description?: string;
+  visible?: boolean;
+  setVisible?: (val: boolean) => void;
+};
 
-export default function ChaptersCard(props) {
-  const { description, visible, setVisible } = props;
+export default function ChaptersCard(props: Props) {
+  const { uri, description: descriptionProp, visible: visibleProp, setVisible: setVisibleProp } = props;
+
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const metadata = getClaimMetadata(claim);
+  const reduxVisible = useAppSelector((state) => selectClientSetting(state, SETTINGS.CHAPTERS_CARD_VISIBLE)) || false;
+
+  const description = descriptionProp !== undefined ? descriptionProp : metadata?.description;
+  const visible = visibleProp !== undefined ? visibleProp : reduxVisible;
+  const setVisible = setVisibleProp || ((val: boolean) => dispatch(doSetClientSetting(SETTINGS.CHAPTERS_CARD_VISIBLE, val)));
 
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const [activeIndex, setActiveIndex] = React.useState(-1);
@@ -89,7 +109,7 @@ export default function ChaptersCard(props) {
     } else {
       window.pendingSeekTime = time;
       const playButton = document.querySelector('.button--play');
-      if (playButton) playButton.click();
+      if (playButton) (playButton as HTMLElement).click();
     }
     window.scrollTo(0, 0);
   }

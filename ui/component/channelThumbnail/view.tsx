@@ -13,22 +13,26 @@ import { doResolveUri } from 'redux/actions/claims';
 import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 type Props = {
-  uri: string;
+  uri?: string;
   className?: string;
   thumbnailPreview?: string | null | undefined;
   obscure?: boolean;
+  link?: boolean;
   small?: boolean;
   xsmall?: boolean;
   xxsmall?: boolean;
+  xxxsmall?: boolean;
   allowGifs?: boolean;
   noLazyLoad?: boolean;
   hideStakedIndicator?: boolean;
   hideTooltip?: boolean;
   setThumbUploadError?: (arg0: boolean) => void;
   ThumbUploadError?: boolean;
+  thumbUploadError?: boolean;
   showMemberBadge?: boolean;
   isChannel?: boolean;
   tooltipTitle?: string;
+  checkMembership?: boolean;
 };
 
 function ChannelThumbnail(props: Props) {
@@ -50,7 +54,7 @@ function ChannelThumbnail(props: Props) {
     tooltipTitle,
   } = props;
   const dispatch = useAppDispatch();
-  const rawThumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const rawThumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri)) as string | undefined;
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const isResolving = useAppSelector((state) => selectIsUriResolving(state, uri));
   const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));

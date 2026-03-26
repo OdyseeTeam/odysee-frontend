@@ -7,6 +7,7 @@ import { MATURE_TAGS } from 'constants/tags';
 import Button from 'component/button';
 type Props = {
   name: string;
+  title?: string;
   type?: string;
   onClick?: (arg0: any) => any;
   disabled?: boolean;

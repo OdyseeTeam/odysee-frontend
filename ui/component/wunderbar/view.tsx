@@ -6,7 +6,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import { useAppDispatch } from 'redux/hooks';
 import { doOpenModal } from 'redux/actions/app';
 
-const Button = lazyImport(
+const Button: any = lazyImport(
   () =>
     import(
       'component/button'

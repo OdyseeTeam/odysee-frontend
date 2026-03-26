@@ -17,8 +17,8 @@ import { selectFileRenderModeForUri, selectPlayingUri } from 'redux/selectors/co
 import { selectLiveThumbnailForUri } from 'redux/selectors/livestream';
 type Props = {
   uri: string;
-  children: any;
-  passedRef: any;
+  children?: any;
+  passedRef?: any;
   href?: string;
   transparent?: boolean;
   onClick?: () => void;
@@ -27,7 +27,7 @@ type Props = {
   enableSwipe?: boolean;
   isShortsContext?: boolean;
   isFloatingContext?: boolean;
-  obscurePreview: boolean;
+  obscurePreview?: boolean;
 };
 
 const ClaimCoverRender = (props: Props) => {
@@ -64,7 +64,7 @@ const ClaimCoverRender = (props: Props) => {
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const isShorts = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam || isShortClaim;
   const shouldUseShortsCoverLayout = isShorts && !isFloatingContext;
-  const staticThumbnail = useGetPoster(claimThumbnail, isShorts);
+  const staticThumbnail = useGetPoster(claimThumbnail as string, isShorts);
   const liveThumbnail = useAppSelector((state) => selectLiveThumbnailForUri(state, uri));
 
   // Live thumbnail hover refresh (preload-then-swap to avoid flash)

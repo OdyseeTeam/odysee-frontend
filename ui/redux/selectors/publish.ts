@@ -102,7 +102,7 @@ export const selectMyClaimForUri = createCachedSelector(
     }
   }
 )((state, caseSensitive = true) => `selectMyClaimForUri-${caseSensitive ? '1' : '0'}`);
-export const selectPrevFileSizeTooBig = createSelector(selectMyClaimForUri, (claim) => {
+export const selectPrevFileSizeTooBig = createSelector((state: any) => selectMyClaimForUri(state, true), (claim) => {
   const size = claim && claim.value && claim.value.source && claim.value.source.size;
   return size ? Number(size) > WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824 : false;
 });
@@ -130,7 +130,7 @@ export const selectIsResolvingPublishUris = createSelector(
 );
 export const selectTakeOverAmount = createSelector(
   selectState,
-  selectMyClaimForUri,
+  (state: any) => selectMyClaimForUri(state, true),
   selectClaimsByUri,
   ({ name }, myClaimForUri, claimsByUri) => {
     if (!name) {
@@ -249,7 +249,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   if (isPrivate) {
     const collectionPublishCreateParams: CollectionPublishCreateParams = {
       ...privateCollectionParams,
-      bid: 0.0001,
+      bid: 0.0001 as any,
       channel_id: activeChannelId,
       name: sanitizeName(collectionTitle),
     };

@@ -11,7 +11,10 @@ import JoinButton from './internal/joinPlanButton';
 import { useAppSelector } from 'redux/hooks';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 type Props = {
-  pageLocation: string;
+  pageLocation?: string;
+  uri?: string;
+  claimIsMine?: boolean;
+  onCancel?: () => void;
 };
 
 const MembershipSplash = (props: Props) => {

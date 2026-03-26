@@ -25,6 +25,18 @@ import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { getUploadTemplatesFromSettings } from 'util/homepage-settings';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 
+// Local type for Commentron comment objects (avoids collision with DOM Comment).
+type CommentData = {
+  comment_id: string;
+  channel_id: string;
+  channel_url: string;
+  channel_name?: string;
+  parent_id?: string;
+  body?: string;
+  replies?: number;
+  [key: string]: any;
+};
+
 const selectState = (state: State) => state.comments || EMPTY_OBJECT;
 
 export const selectCommentsById = (state: State) => selectState(state).commentById || EMPTY_OBJECT;
@@ -162,6 +174,7 @@ const filterCommentsDepOnList = {
   delegatorsById: selectModerationDelegatorsById,
 };
 const filterCommentsPropKeys = Object.keys(filterCommentsDepOnList);
+const filterCommentsDepValues = Object.values(filterCommentsDepOnList) as Array<(state: State) => any>;
 export const selectPendingCommentReacts = (state: State) => selectState(state).pendingCommentReactions;
 export const selectSettingsByChannelId = (state: State) => selectState(state).settingsByChannelId;
 export const selectFetchingCreatorSettings = (state: State) => selectState(state).fetchingSettings;
@@ -213,23 +226,23 @@ export const selectFeaturedChannelsForChannelId = createCachedSelector(
     }
   }
 )((state, channelId) => String(channelId));
-export const selectCommentsForUri = createCachedSelector(
-  (state, uri) => uri,
+export const selectCommentsForUri = (createCachedSelector as any)(
+  (state: State, uri: string) => uri,
   selectCommentsByClaimId,
   selectClaimIdForUri,
-  ...Object.values(filterCommentsDepOnList),
-  (uri, byClaimId, claimId, ...filterInputs) => {
+  ...filterCommentsDepValues,
+  (uri: string, byClaimId: any, claimId: string, ...filterInputs: any[]) => {
     const comments = byClaimId && byClaimId[claimId];
     return filterComments(comments, claimId, filterInputs);
   }
-)((state, uri) => String(uri));
-export const selectTopLevelCommentsForUri = createCachedSelector(
-  (state, uri) => uri,
-  (state, uri, maxCount) => maxCount,
+)((state: State, uri: string) => String(uri));
+export const selectTopLevelCommentsForUri = (createCachedSelector as any)(
+  (state: State, uri: string) => uri,
+  (state: State, uri: string, maxCount: number) => maxCount,
   selectTopLevelCommentsByClaimId,
   selectClaimIdForUri,
-  ...Object.values(filterCommentsDepOnList),
-  (uri, maxCount = -1, byClaimId, claimId, ...filterInputs) => {
+  ...filterCommentsDepValues,
+  (uri: string, maxCount: number = -1, byClaimId: any, claimId: string, ...filterInputs: any[]) => {
     const comments = byClaimId && byClaimId[claimId];
 
     if (comments) {
@@ -238,17 +251,17 @@ export const selectTopLevelCommentsForUri = createCachedSelector(
       return EMPTY_ARRAY;
     }
   }
-)((state, uri, maxCount = -1) => `${String(uri)}:${maxCount}`);
+)((state: State, uri: string, maxCount: number = -1) => `${String(uri)}:${maxCount}`);
 export const selectTopLevelTotalPagesForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
   return state.comments.topLevelTotalPagesById[claimId] || 0;
 };
-export const selectRepliesForParentId = createCachedSelector(
-  (state, id) => id,
-  (state) => selectState(state).repliesByParentId,
+export const selectRepliesForParentId = (createCachedSelector as any)(
+  (state: State, id: string) => id,
+  (state: State) => selectState(state).repliesByParentId,
   selectCommentsById,
-  ...Object.values(filterCommentsDepOnList),
-  (id, repliesByParentId, commentsById, ...filterInputs) => {
+  ...filterCommentsDepValues,
+  (id: string, repliesByParentId: any, commentsById: any, ...filterInputs: any[]) => {
     // const claimId = byUri[uri]; // just parentId (id)
     const replyIdsForParent = repliesByParentId[id] || EMPTY_ARRAY;
     if (!replyIdsForParent.length) return EMPTY_ARRAY;
@@ -268,7 +281,7 @@ export const selectRepliesForParentId = createCachedSelector(
  * @param claimId The claim that `comments` reside in.
  * @param filterInputs Values returned by filterCommentsDepOnList.
  */
-const filterComments = (comments: Array<Comment>, claimId: string | undefined, filterInputs: any) => {
+const filterComments = (comments: Array<CommentData>, claimId: string | undefined, filterInputs: any) => {
   const filterProps = filterInputs.reduce((acc, cur, i) => {
     acc[filterCommentsPropKeys[i]] = cur;
     return acc;
@@ -422,7 +435,7 @@ export const selectChannelMentionData = createCachedSelector(
   selectSubscriptionUris,
   selectMentionSearchResults,
   selectMentionQuery,
-  (uri, claimIdsByUri, claimsById, topLevelComments, subscriptionUris, searchUris, query) => {
+  (uri: string, claimIdsByUri: any, claimsById: any, topLevelComments: CommentData[], subscriptionUris: string[], searchUris: string[], query: string) => {
     let canonicalCreatorUri;
     const commentorUris = [];
     const canonicalCommentors = [];

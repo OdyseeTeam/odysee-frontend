@@ -1,5 +1,4 @@
 import 'scss/component/_swipeable-drawer.scss';
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import classnames from 'classnames';
 import * as ICONS from 'constants/icons';

@@ -5,11 +5,13 @@ type Props = {
   src: string;
   className: string;
   children: any;
+  isShort?: boolean;
+  small?: boolean;
 };
 const imageDataCache = new Map();
 const FreezeframeWrapper: React.ComponentType<Props> = React.memo((props: Props) => {
   const { src, className, children } = props;
-  const canvasRef = useRef();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(() => {
     const devicePixelRatio = window.devicePixelRatio || 1.0;
     const fullSrc = src ? `${THUMBNAIL_CDN_URL}s:${Math.floor(64 * devicePixelRatio)}:0/quality:95/plain/${src}` : null;

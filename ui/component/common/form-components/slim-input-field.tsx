@@ -27,7 +27,6 @@ export const TextareaWrapper = (wrapperProps: TextareaWrapperProps) => {
     closeSelector,
   } = wrapperProps;
 
-  // $FlowFixMe
   const fullscreenEl = document.fullscreenElement;
 
   function handleCloseAll() {

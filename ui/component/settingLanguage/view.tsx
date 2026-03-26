@@ -36,9 +36,9 @@ function SettingLanguage() {
           onChange={onLanguageChange}
           value={language || getDefaultLanguage()}
         >
-          {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+          {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, unknown]) => (
             <option key={langKey} value={langKey}>
-              {langName}
+              {langName as string}
             </option>
           ))}
         </FormField>

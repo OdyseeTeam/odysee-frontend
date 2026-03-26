@@ -6,7 +6,7 @@ import Yrbl from 'component/yrbl';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
 type Props = {
-  includeWalletLink: boolean;
+  includeWalletLink?: boolean;
   type?: string;
   actions?: React.ReactNode;
 };

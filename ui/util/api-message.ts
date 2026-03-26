@@ -8,7 +8,7 @@ type ApiMsgConfig = {
   type?: string;
 };
 // prettier-ignore
-const MESSAGE_MAP: Array<ApiMsgConfig> = Object.freeze([{
+const MESSAGE_MAP = Object.freeze([{
   originalMsg: /^your user name (.*) is too close to the creator's user name (.*) and may cause confusion. Please use another identity.$/,
   replacement: 'Your user name "%1%" is too close to the creator\'s user name "%2%" and may cause confusion. Please use another identity.'
 }, {

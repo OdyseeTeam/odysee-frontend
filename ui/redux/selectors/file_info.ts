@@ -59,7 +59,8 @@ export const selectFileInfosDownloaded = createSelector(
   selectFileInfosByOutpoint,
   selectMyClaims,
   (byOutpoint, myClaims) =>
-    Object.values(byOutpoint).filter((fileInfo) => {
+    Object.values(byOutpoint).filter((fi) => {
+      const fileInfo = fi as any;
       const myClaimIds = myClaims.map((claim) => claim.claim_id);
       return fileInfo && myClaimIds.indexOf(fileInfo.claim_id) === -1 && (fileInfo.completed || fileInfo.written_bytes);
     })
@@ -91,7 +92,7 @@ export const selectFileListPublishedSort = (state) => selectState(state).fileLis
 export const selectFileListDownloadedSort = (state) => selectState(state).fileListDownloadedSort;
 export const selectDownloadedUris = createSelector(
   selectFileInfosDownloaded, // We should use permament_url but it doesn't exist in file_list
-  (info) => info.slice().map((claim) => `lbry://${claim.claim_name}#${claim.claim_id}`)
+  (info) => info.slice().map((claim: any) => `lbry://${claim.claim_name}#${claim.claim_id}`)
 );
 export const makeSelectMediaTypeForUri = (uri) =>
   createSelector(makeSelectFileInfoForUri(uri), makeSelectContentTypeForUri(uri), (fileInfo, contentType) => {

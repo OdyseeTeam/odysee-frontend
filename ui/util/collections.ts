@@ -13,7 +13,7 @@ export const defaultCollectionState: Collection = {
 };
 export function getClaimIdsInCollectionClaim(claim: CollectionClaim | null | undefined) {
   if (!claim) return claim;
-  return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
+  return (claim.value as any)?.claims || ((claim as any).claims && (claim as any).claims.map((claim: any) => claim.claim_id)) || [];
 }
 export function claimToStoredCollection(claim: CollectionClaim) {
   const storedCollection: Collection = Object.assign({}, defaultCollectionState);
@@ -72,7 +72,7 @@ export function resolveCollectionType(
   return COL_TYPES.COLLECTION;
 }
 export function resolveAuxParams(collectionType: string | null | undefined, collectionClaim: Claim) {
-  const auxParams = {};
+  const auxParams: Record<string, any> = {};
 
   switch (collectionType) {
     case COL_TYPES.PLAYLIST:

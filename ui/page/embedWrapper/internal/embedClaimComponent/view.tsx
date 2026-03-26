@@ -1,4 +1,3 @@
-// @noflow
 import React from 'react';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -7,7 +6,6 @@ import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 import MarkdownPreview from 'component/common/markdown-preview';
 import { formatLbryUrlForWeb } from 'util/url';
-import PropTypes from 'prop-types';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import Spinner from 'component/spinner';
 import I18nMessage from 'component/i18nMessage';
@@ -23,42 +21,42 @@ import { doFileGetForUri } from 'redux/actions/file';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
-const LivestreamScheduledInfo = lazyImport(
+const LivestreamScheduledInfo: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/livestreamScheduledInfo'
       /* webpackChunkName: "livestreamScheduledInfo" */
     )
 );
-const ClaimPreviewTile = lazyImport(
+const ClaimPreviewTile: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/claimPreviewTile'
       /* webpackChunkName: "claimPreviewTile" */
     )
 );
-const ClaimPreview = lazyImport(
+const ClaimPreview: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/claimPreview'
       /* webpackChunkName: "claimPreview" */
     )
 );
-const VideoRender = lazyImport(
+const VideoRender: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/videoClaimRender'
       /* webpackChunkName: "videoClaimRender" */
     )
 );
-const ClaimListDiscover = lazyImport(
+const ClaimListDiscover: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/claimListDiscover'
       /* webpackChunkName: "claimListDiscover" */
     )
 );
-const ClaimList = lazyImport(
+const ClaimList: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/claimList'
@@ -66,8 +64,7 @@ const ClaimList = lazyImport(
     )
 );
 
-// Note: Prop types are inferred from connected component; avoid TS/Flow in this file to satisfy linters
-const EmbedClaimComponent = (props) => {
+const EmbedClaimComponent = (props: { uri: string; collectionId?: string }) => {
   const { uri, collectionId } = props;
   const dispatch = useAppDispatch();
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
@@ -268,20 +265,16 @@ const EmbedClaimComponent = (props) => {
   return <EmbeddedClaim uri={uri} />;
 };
 
-const EmbeddedVideoClaimComponent = ({ uri, streamClaim }) => (
+const EmbeddedVideoClaimComponent = ({ uri, streamClaim }: { uri: string; streamClaim: any }) => (
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
 
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
-EmbeddedVideoClaimComponent.propTypes = {
-  uri: PropTypes.string.isRequired,
-  streamClaim: PropTypes.object,
-};
 
 // Minimal Markdown Embed Viewer: fetch content and render markdown
-const EmbeddedMarkdown = ({ uri, streamingUrl }) => {
+const EmbeddedMarkdown = ({ uri, streamingUrl }: { uri: string; streamingUrl: string | undefined }) => {
   const mdDispatch = useAppDispatch();
-  const [content, setContent] = React.useState();
+  const [content, setContent] = React.useState<string | null | undefined>();
   React.useEffect(() => {
     if (!streamingUrl) {
       mdDispatch(doFileGetForUri(uri));
@@ -325,19 +318,8 @@ const EmbeddedMarkdown = ({ uri, streamingUrl }) => {
   );
 };
 
-EmbeddedMarkdown.propTypes = {
-  uri: PropTypes.string.isRequired,
-  streamingUrl: PropTypes.string,
-};
-
-const EmbeddedClaimComponent = ({ uri }) => <ClaimPreviewTile uri={uri} onlyThumb />;
+const EmbeddedClaimComponent = ({ uri }: { uri: string }) => <ClaimPreviewTile uri={uri} onlyThumb />;
 
 const EmbeddedClaim = withStreamClaimRender(EmbeddedClaimComponent);
-EmbeddedClaimComponent.propTypes = {
-  uri: PropTypes.string.isRequired,
-};
+
 export default withResolvedClaimRender(EmbedClaimComponent);
-EmbedClaimComponent.propTypes = {
-  uri: PropTypes.string.isRequired,
-  collectionId: PropTypes.string,
-};

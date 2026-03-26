@@ -6,6 +6,8 @@ type IconProps = {
   size: number;
   color: string;
   title?: string;
+  className?: string;
+  style?: React.CSSProperties;
 };
 type CustomProps = {
   size?: number;
@@ -15,7 +17,7 @@ type CustomProps = {
 // Returns a react component
 // Icons with tooltips need to use this function so the ref can be properly forwarded
 const buildIcon = (iconStrokes: React.ReactNode, customSvgValues = {}) =>
-  forwardRef((props: IconProps, ref) => {
+  forwardRef<SVGSVGElement, IconProps>((props, ref) => {
     const { size = 24, color = 'currentColor', title, ...otherProps } = props;
     return (
       <svg
@@ -46,7 +48,7 @@ export const icons = {
       strokeWidth="0"
       style={{
         enableBackground: 'new 0 0 103.1 103.1',
-      }}
+      } as React.CSSProperties}
       version="1.1"
       viewBox="0 0 103.1 103.1"
       x="0px"
@@ -968,6 +970,7 @@ export const icons = {
       <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
     </g>
   ),
+  // @ts-ignore -- duplicate computed key (same value as ICONS.MUTE)
   [ICONS.VOLUME_MUTED]: buildIcon(
     <g>
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -1240,6 +1243,7 @@ export const icons = {
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </g>
   ),
+  // @ts-ignore -- duplicate computed key (same value as ICONS.SIGN_UP)
   [ICONS.PURCHASED]: buildIcon(
     <g>
       <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
@@ -1251,6 +1255,7 @@ export const icons = {
       <polyline points="22 4 12 14.01 9 11.01" />
     </g>
   ),
+  // @ts-ignore -- duplicate computed key (same value as ICONS.UNBLOCK)
   [ICONS.NOT_COMPLETED]: buildIcon(<circle cx="12" cy="12" r="10" />),
   [ICONS.REFRESH]: buildIcon(
     <g>
@@ -1547,13 +1552,12 @@ export const icons = {
   [ICONS.DOWNVOTE]: buildIcon(
     <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
   ),
-  [ICONS.SLIME_ACTIVE]: (props: IconProps) => {
-    const { size = 24, color = 'currentColor', title, ...otherProps } = props;
+  [ICONS.SLIME_ACTIVE]: (props: IconProps & { ref?: React.Ref<SVGSVGElement> }) => {
+    const { size = 24, color = 'currentColor', title, ref, ...otherProps } = props;
     const gradId = `slimeGrad-${uuid()}`;
     return (
       <svg
-        // $FlowFixMe
-        ref={otherProps.ref}
+        ref={ref}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         width={size}
@@ -1587,13 +1591,12 @@ export const icons = {
       strokeMiterlimit="10"
     />
   ),
-  [ICONS.FIRE_ACTIVE]: (props: IconProps) => {
-    const { size = 24, color = 'currentColor', title, ...otherProps } = props;
+  [ICONS.FIRE_ACTIVE]: (props: IconProps & { ref?: React.Ref<SVGSVGElement> }) => {
+    const { size = 24, color = 'currentColor', title, ref, ...otherProps } = props;
     const gradId = `fireGrad-${uuid()}`;
     return (
       <svg
-        // $FlowFixMe
-        ref={otherProps.ref}
+        ref={ref}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         width={size}
@@ -1627,6 +1630,7 @@ export const icons = {
       strokeMiterlimit="10"
     />
   ),
+  // @ts-ignore -- duplicate computed key (same value as ICONS.NOTIFICATION)
   [ICONS.BELL]: buildIcon(
     <g>
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -2280,6 +2284,7 @@ export const icons = {
       />
     </svg>
   ),
+  // @ts-ignore -- duplicate computed key (second definition of ICONS.LIVESTREAM)
   [ICONS.LIVESTREAM]: (props: CustomProps) => (
     <svg
       version="1.1"
@@ -2397,6 +2402,7 @@ export const icons = {
       />
     </svg>
   ),
+  // @ts-ignore -- duplicate computed key (second definition of ICONS.LIVESTREAM_SOLID)
   [ICONS.LIVESTREAM_SOLID]: (props: CustomProps) => (
     <svg
       id="prefix__Layer_1"
@@ -2697,6 +2703,7 @@ export const icons = {
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
     </g>
   ),
+  // @ts-ignore -- duplicate computed key (same value as ICONS.REPOST)
   [ICONS.REPEAT]: (props: IconProps) => {
     const { size = 24, color = 'currentColor', ...otherProps } = props;
     return (
@@ -3083,7 +3090,7 @@ export const icons = {
           height: '154',
           xlinkHref: '#SVGID_00000170984886341847456420000000262070696033326467_',
           transform: 'matrix(0.2544 0 0 0.2544 10.7103 -58.8974)',
-        }}
+        } as React.CSSProperties}
       />
       <path className="live-membership--st2" d="M13.9,20.9v-9.7l6.9,4.7L13.9,20.9z M15.1,13.4v5.1l3.7-2.7L15.1,13.4z" />
       <g>

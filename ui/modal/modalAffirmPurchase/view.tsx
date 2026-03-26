@@ -39,7 +39,7 @@ function ModalAffirmPurchase(props: Props) {
   function onAffirmPurchase() {
     setPurchasing(true);
     dispatch(
-      doPlayUri(uri, true, undefined, (fileInfo: GetResponse) => {
+      doPlayUri(uri, true, undefined, ((fileInfo: GetResponse) => {
         setPurchasing(false);
         setSuccess(true);
         dispatch(doAnaltyicsPurchaseEvent(fileInfo));
@@ -47,7 +47,7 @@ function ModalAffirmPurchase(props: Props) {
         if (playingUri.uri !== uri) {
           dispatch(doSetPlayingUri({ ...playingUri, uri }));
         }
-      })
+      }) as any)
     );
   }
 

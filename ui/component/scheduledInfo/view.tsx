@@ -17,8 +17,8 @@ function ScheduledInfo(props: Props) {
   const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
   const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
   const isLivestream = useAppSelector((state) => selectIsLivestreamClaimForUri(state, uri));
-  const [startDateFromNow, setStartDateFromNow] = React.useState();
-  const [inPast, setInPast] = React.useState();
+  const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
+  const [inPast, setInPast] = React.useState<boolean | undefined>();
   const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
   const icon = isLivestream ? ICONS.LIVESTREAM_SOLID : ICONS.TIME;
   const text = isLivestream ? 'Live %time_date%' : 'Available %time_date%';

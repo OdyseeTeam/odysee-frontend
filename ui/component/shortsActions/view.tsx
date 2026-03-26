@@ -50,6 +50,8 @@ type Props = {
   collectionId?: string;
   handleShareClick: () => void;
   onInfoClick: () => void;
+  currentIndex?: number;
+  totalVideos?: number;
 };
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
 const ShortsActions = React.memo<Props>(
@@ -112,7 +114,7 @@ const ShortsActions = React.memo<Props>(
 
       if (fireEffect) {
         el.classList.remove(cls);
-        void el.offsetWidth;
+        void (el as HTMLElement).offsetWidth;
         el.classList.add(cls);
       } else {
         el.classList.remove(cls);
@@ -125,7 +127,7 @@ const ShortsActions = React.memo<Props>(
 
       if (slimeEffect) {
         el.classList.remove(cls);
-        void el.offsetWidth;
+        void (el as HTMLElement).offsetWidth;
         el.classList.add(cls);
       } else {
         el.classList.remove(cls);
@@ -200,7 +202,7 @@ const ShortsActions = React.memo<Props>(
             className={classnames('shorts-page__ratings', {
               'shorts-page__ratings--no-slime': disableSlimes,
             })}
-            style={{
+            style={({
               ...(disableReactions
                 ? {
                     visibility: 'hidden',
@@ -218,7 +220,7 @@ const ShortsActions = React.memo<Props>(
                 const slimeStop = Math.min(100, likePercent + 15);
                 return `linear-gradient(to bottom, var(--color-fire) ${fireStop}%, var(--color-slime) ${slimeStop}%)`;
               })(),
-            }}
+            } as React.CSSProperties)}
           >
             <div className="fire-and-count">
               <Button

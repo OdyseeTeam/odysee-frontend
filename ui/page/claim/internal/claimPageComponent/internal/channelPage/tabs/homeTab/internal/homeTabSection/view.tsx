@@ -73,7 +73,7 @@ function HomeTabSection(props: Props) {
       no_totals: true,
       index,
       has_source: true,
-      duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
+      duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL as import('constants/claim_search').Duration),
     }),
     [channelClaimId, section.type, section.order_by, section.file_type, index, stream_types, claimType]
   );
@@ -140,7 +140,7 @@ function HomeTabSection(props: Props) {
       dispatch(doClaimSearchAction(searchOptions, searchSettings)).then((res) => {
         if (section.type === 'playlists' && res) {
           const streams = Object.values(res);
-          const claimIds = streams.map((s) => s?.stream?.claim_id);
+          const claimIds = streams.map((s: any) => s?.stream?.claim_id);
           dispatch(doFetchThumbnailClaimsForCollectionIdsAction({
             collectionIds: claimIds,
           }));
@@ -346,7 +346,7 @@ function HomeTabSection(props: Props) {
                 })
               }
             >
-              <option value="select" disabled="disabled">
+              <option value="select" disabled>
                 {__('Select')}
               </option>
               <option value="featured" disabled={hasFeaturedContent}>

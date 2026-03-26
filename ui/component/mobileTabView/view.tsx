@@ -11,7 +11,29 @@ const SWIPE_THRESHOLD = 50;
 
 let sharedActiveTab = 0;
 
-export default function MobileTabView(props) {
+type TabDef = {
+  icon: string;
+  label: string;
+};
+
+type Props = {
+  infoContent?: React.ReactNode;
+  chaptersContent?: React.ReactNode;
+  playlistContent?: React.ReactNode;
+  commentsContent?: React.ReactNode;
+  relatedContent?: React.ReactNode;
+  initialTab?: number;
+  useDrawer?: boolean;
+  drawerOpenRef?: React.MutableRefObject<((index: number, instant?: boolean) => void) | null>;
+  tabDefs?: TabDef[];
+  onTabChange?: (index: number) => void;
+  onDrawerClose?: () => void;
+  onSwipeDismiss?: () => void;
+  swipeDismissRef?: React.RefObject<HTMLElement | null>;
+  onSwipeProgress?: (value: number | string | null) => void;
+};
+
+export default function MobileTabView(props: Props) {
   const {
     infoContent,
     chaptersContent,
@@ -28,9 +50,9 @@ export default function MobileTabView(props) {
     onSwipeProgress,
   } = props;
 
-  const trackRef = React.useRef(null);
-  const containerRef = React.useRef(null);
-  const sheetRef = React.useRef(null);
+  const trackRef = React.useRef<HTMLDivElement | null>(null);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const sheetRef = React.useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = React.useState(initialTab);
   const [panelHeight, setPanelHeight] = React.useState(0);
   const [drawerOpen, setDrawerOpen] = React.useState(useDrawer && initialTab !== 0);
@@ -254,7 +276,7 @@ export default function MobileTabView(props) {
     };
   }, [useDrawer, tabDefs.length, goToTab, onTabChange, onSwipeDismiss, swipeDismissRef, onSwipeProgress]);
 
-  function openToTab(index, instant) {
+  function openToTab(index: number, instant?: boolean) {
     if (!instant && drawerOpen && index === activeTab) {
       setDrawerOpen(false);
       if (onDrawerClose) onDrawerClose();
@@ -309,9 +331,9 @@ export default function MobileTabView(props) {
     }
   }, []);
 
-  const getContentWrapper = React.useCallback(() => {
+  const getContentWrapper = React.useCallback((): HTMLElement | null => {
     const fs = document.querySelector('.player-fullscreen-target');
-    return fs && fs.querySelector('.content__wrapper');
+    return fs ? (fs.querySelector('.content__wrapper') as HTMLElement | null) : null;
   }, []);
 
   const handleDrawerTouchMove = React.useCallback(

@@ -1,5 +1,4 @@
 import React from 'react';
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import ClaimPreview from 'component/claimPreview';
 import BusyIndicator from 'component/common/busy-indicator';
@@ -63,6 +62,7 @@ const STRINGS = {
 };
 type Props = {
   uri: string;
+  onCancel?: () => void;
 };
 export default function PreorderAndPurchaseContentCard(props: Props) {
   const { uri } = props;
@@ -86,7 +86,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const exchangeRate = useAppSelector(selectArweaveExchangeRates);
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
-  const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag;
+  const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < Number(preorderTag);
   const cantAffordRent = rentalTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag.price;
   const cantAffordPurchase = purchaseTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag;
   const { activeArStatus } = useArStatus();
@@ -97,18 +97,18 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     purchaseTag,
     preorderTag,
   };
-  let tipAmount = 0;
-  let rentTipAmount = 0;
+  let tipAmount: number = 0;
+  let rentTipAmount: number = 0;
 
   if (tags.purchaseTag && tags.rentalTag) {
-    tipAmount = tags.purchaseTag;
+    tipAmount = Number(tags.purchaseTag);
     rentTipAmount = tags.rentalTag.price;
   } else if (tags.purchaseTag) {
-    tipAmount = tags.purchaseTag;
+    tipAmount = Number(tags.purchaseTag);
   } else if (tags.rentalTag) {
     tipAmount = tags.rentalTag.price;
   } else if (tags.preorderTag) {
-    tipAmount = tags.preorderTag;
+    tipAmount = Number(tags.preorderTag);
   }
 
   let transactionType = '';

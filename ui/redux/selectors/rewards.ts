@@ -11,7 +11,7 @@ export const selectViewRateById = (state) => selectState(state).viewRateById;
 export const selectViewRateForChannelId = (state, channelId) => selectViewRateById(state)[channelId];
 export const selectClaimedRewards = createSelector(selectClaimedRewardsById, (byId) => Object.values(byId) || []);
 export const selectClaimedRewardsByTransactionId = createSelector(selectClaimedRewards, (rewards) =>
-  rewards.reduce((mapParam, reward) => {
+  rewards.reduce((mapParam: Record<string, any>, reward: any) => {
     const map = mapParam;
     map[reward.transaction_id] = reward;
     return map;
@@ -24,7 +24,7 @@ export const selectUnclaimedRewardValue = createSelector(selectUnclaimedRewards,
 );
 export const selectClaimsPendingByType = (state) => selectState(state).claimPendingByType;
 
-const selectIsClaimRewardPending = (state, props) => selectClaimsPendingByType(state, props)[props.reward_type];
+const selectIsClaimRewardPending = (state: any, props: any) => selectClaimsPendingByType(state)[props.reward_type];
 
 export const makeSelectIsRewardClaimPending = () =>
   createSelector(
@@ -34,7 +34,7 @@ export const makeSelectIsRewardClaimPending = () =>
   );
 export const selectClaimErrorsByType = (state) => selectState(state).claimErrorsByType;
 
-const selectClaimRewardError = (state, props) => selectClaimErrorsByType(state, props)[props.reward_type];
+const selectClaimRewardError = (state: any, props: any) => selectClaimErrorsByType(state)[props.reward_type];
 
 export const makeSelectClaimRewardError = () =>
   createSelector(
@@ -77,8 +77,8 @@ export const selectIsClaimingInitialRewards = createSelector(selectClaimsPending
 });
 export const selectHasClaimedInitialRewards = createSelector(selectClaimedRewardsById, (claimedRewardsById) => {
   const claims = Object.values(claimedRewardsById);
-  const newUserClaimed = !!claims.find((claim) => claim && claim.reward_type === REWARDS.TYPE_NEW_USER);
-  const confirmEmailClaimed = !!claims.find((claim) => claim && claim.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
+  const newUserClaimed = !!claims.find((claim: any) => claim && claim.reward_type === REWARDS.TYPE_NEW_USER);
+  const confirmEmailClaimed = !!claims.find((claim: any) => claim && claim.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
   return newUserClaimed && confirmEmailClaimed;
 });
 export const selectWeeklyWatchClaimedThisWeek = createSelector(selectUnclaimedRewards, (unclaimedRewards) => {
@@ -86,7 +86,7 @@ export const selectWeeklyWatchClaimedThisWeek = createSelector(selectUnclaimedRe
 
   if (weeklyWatch && weeklyWatch.data && weeklyWatch.data.last_claimed) {
     const last = new Date(weeklyWatch.data.last_claimed);
-    const diff = new Date() - last;
+    const diff = new Date().getTime() - last.getTime();
     const diffDays = diff / (1000 * 60 * 60 * 24);
     return diffDays < 6.5;
   }

@@ -21,7 +21,7 @@ import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 type Props = {
-  selectedChannelUrl: string;
+  selectedChannelUrl?: string;
   onChannelSelect?: (id: string | null | undefined) => void;
   hideAnon?: boolean;
   storeSelection?: boolean;
@@ -36,6 +36,7 @@ type Props = {
     isSelected: boolean;
   };
   hideCreateNew?: boolean;
+  channelIds?: string[];
 };
 
 function ChannelSelector(props: Props) {

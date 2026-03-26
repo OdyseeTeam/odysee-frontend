@@ -37,6 +37,7 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
     channelInfo={{
       uri: channelUrl,
       name: '',
+      title: '',
     }}
   >
     <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
@@ -50,7 +51,7 @@ export default function NotificationHeaderButton() {
   const user = useAppSelector(selectUser);
   const authenticated = useAppSelector(selectUserVerifiedEmail);
   const readNotification = (ids: Array<number>) => dispatch(doReadNotifications(ids));
-  const seeNotification = (ids: Array<number>) => dispatch(doSeeNotifications(ids));
+  const seeNotification = (ids: Array<string>) => dispatch(doSeeNotifications(ids));
   const deleteNotification = (id: number) => dispatch(doDeleteNotification(id));
   const doSeeAllNotifications = () => dispatch(doSeeAllNotificationsAction());
   const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
@@ -174,7 +175,7 @@ export default function NotificationHeaderButton() {
       const { id, is_read: isRead } = notification;
 
       if (!isRead) {
-        seeNotification([id]);
+        seeNotification([String(id)]);
         readNotification([id]);
         if (notificationAction) notificationAction();
       }
@@ -192,22 +193,14 @@ export default function NotificationHeaderButton() {
       <div
         className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
         key={id}
-        to={{
-          ...getNotificationLocation(notification),
-          state: !disableAutoplay
-            ? undefined
-            : {
-                forceDisableAutoplay: true,
-              },
-        }}
       >
         <NavLink
           className="menu__list--notification-overlay"
           onClick={handleNotificationClick}
           to={{
-            ...getNotificationLocation(notification),
-            state: !disableAutoplay ? undefined : { forceDisableAutoplay: true },
+            ...getNotificationLocation(notification, undefined),
           }}
+          state={!disableAutoplay ? undefined : { forceDisableAutoplay: true }}
         />
         <div className="notification__icon">{icon}</div>
         <div className="menu__list--notification-info">

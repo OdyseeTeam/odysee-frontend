@@ -3,8 +3,8 @@ import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { doWalletEncrypt, doWalletDecrypt } from 'redux/actions/wallet';
 const NO_WALLET_ERROR = 'no wallet found for this user';
-export function doSetDefaultAccount(success, failure) {
-  return (dispatch) => {
+export function doSetDefaultAccount(success?: () => void, failure?: (err: any) => void) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SET_DEFAULT_ACCOUNT,
     });
@@ -54,8 +54,8 @@ export function doSetDefaultAccount(success, failure) {
       });
   };
 }
-export function doSetSync(oldHash, newHash, data) {
-  return (dispatch) => {
+export function doSetSync(oldHash: string, newHash: string, data: string, password?: string) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SET_SYNC_STARTED,
     });
@@ -91,10 +91,10 @@ export function doSetSync(oldHash, newHash, data) {
       });
   };
 }
-export function doGetSync(passedPassword, callback) {
+export function doGetSync(passedPassword?: string | null, callback?: (error: any, hasNewData?: boolean) => void) {
   const password = passedPassword === null || passedPassword === undefined ? '' : passedPassword;
 
-  function handleCallback(error, hasNewData) {
+  function handleCallback(error?: any, hasNewData?: boolean) {
     if (callback) {
       if (typeof callback !== 'function') {
         throw new Error('Second argument passed to "doGetSync" must be a function');
@@ -104,11 +104,11 @@ export function doGetSync(passedPassword, callback) {
     }
   }
 
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.GET_SYNC_STARTED,
     });
-    const data = {};
+    const data: { unlockFailed?: boolean; syncHash?: string; syncData?: string; changed?: boolean; hasSyncedWallet?: boolean } = {};
     Lbry.wallet_status()
       .then((status) => {
         if (status.is_locked) {
@@ -239,8 +239,8 @@ export function doGetSync(passedPassword, callback) {
       });
   };
 }
-export function doSyncApply(syncHash, syncData, password) {
-  return (dispatch) => {
+export function doSyncApply(syncHash: string, syncData: string, password: string) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SYNC_APPLY_STARTED,
     });
@@ -269,7 +269,7 @@ export function doSyncApply(syncHash, syncData, password) {
   };
 }
 export function doCheckSync() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.GET_SYNC_STARTED,
     });
@@ -308,17 +308,17 @@ export function doCheckSync() {
   };
 }
 export function doResetSync() {
-  return (dispatch) =>
-    new Promise((resolve) => {
+  return (dispatch: Dispatch) =>
+    new Promise<void>((resolve) => {
       dispatch({
         type: ACTIONS.SYNC_RESET,
       });
       resolve();
     });
 }
-export function doSyncEncryptAndDecrypt(oldPassword, newPassword, encrypt) {
-  return (dispatch) => {
-    const data = {};
+export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string, encrypt: boolean) {
+  return (dispatch: Dispatch) => {
+    const data: { oldHash?: string } = {};
     return Lbry.sync_hash()
       .then((hash) =>
         Lbryio.call(

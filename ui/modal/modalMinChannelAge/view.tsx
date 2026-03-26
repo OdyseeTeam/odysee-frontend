@@ -19,7 +19,7 @@ export default function ModalMinChannelAge(props: Props) {
   const { onConfirm } = props;
   const dispatch = useAppDispatch();
   const hideModal = React.useCallback(() => dispatch(doHideModal()), [dispatch]);
-  const [showLimitationWarning, setShowLimitationWarning] = React.useState('');
+  const [showLimitationWarning, setShowLimitationWarning] = React.useState<string | boolean>('');
   const [limitDisabled, setLimitDisabled] = React.useState(false);
   const [minChannelAgeInput, setMinChannelAgeInput] = React.useState('');
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(-1);

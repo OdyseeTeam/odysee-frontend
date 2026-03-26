@@ -38,7 +38,7 @@ export default function SplashScreen({ onReadyToLaunch }: Props) {
   const [isRunning, setIsRunning] = useState(false);
   const [launchedModal, setLaunchedModal] = useState(false);
   const [launchWithIncompatibleDaemon, setLaunchWithIncompatibleDaemon] = useState(
-    !process.env.NODE_ENV === 'production'
+    process.env.NODE_ENV !== 'production'
   );
   const [waitingForWallet, setWaitingForWallet] = useState(0);
   const [waitingForSync, setWaitingForSync] = useState(0);
@@ -226,7 +226,7 @@ export default function SplashScreen({ onReadyToLaunch }: Props) {
       case MODALS.INCOMPATIBLE_DAEMON:
         return <ModalIncompatibleDaemon onContinueAnyway={runWithIncompatibleDaemon} />;
       case MODALS.WALLET_UNLOCK:
-        return <ModalWalletUnlock />;
+        return <ModalWalletUnlock shouldTryWithBlankPassword={false} />;
       case MODALS.UPGRADE:
         return <ModalUpgrade />;
       case MODALS.DOWNLOADING:

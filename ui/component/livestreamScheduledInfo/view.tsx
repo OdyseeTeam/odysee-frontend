@@ -17,8 +17,8 @@ export default function LivestreamScheduledInfo(props: Props) {
   const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
   const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
 
-  const [startDateFromNow, setStartDateFromNow] = React.useState();
-  const [inPast, setInPast] = React.useState();
+  const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
+  const [inPast, setInPast] = React.useState<boolean | undefined>();
   const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
   React.useEffect(() => {
     const calcTime = () => {

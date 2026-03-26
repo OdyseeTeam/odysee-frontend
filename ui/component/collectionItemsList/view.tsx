@@ -22,6 +22,11 @@ const Lazy = {
 type Props = {
   collectionId: string;
   isEditPreview?: boolean;
+  showEdit?: any;
+  unavailableUris?: any[];
+  showNullPlaceholder?: boolean;
+  onDoneForId?: (id: any) => void;
+  useIds?: boolean;
 };
 
 const CollectionItemsList = (props: Props) => {

@@ -53,7 +53,7 @@ export default function SettingAccount() {
             )}
 
             {/* @if TARGET='app' */}
-            <SyncToggle disabled={walletEncrypted && !storedPassword && storedPassword !== ''} />
+            <SyncToggle disabled={walletEncrypted && !storedPassword && (storedPassword as any) !== ''} />
             {/* @endif */}
 
             {hasChannels && (

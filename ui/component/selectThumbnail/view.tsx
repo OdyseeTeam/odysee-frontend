@@ -15,11 +15,11 @@ import { doUpdatePublishForm, doResetThumbnailStatus } from 'redux/actions/publi
 import { doOpenModal } from 'redux/actions/app';
 import './style.lazy.scss';
 type Props = {
-  thumbnailParam: string | null | undefined;
-  thumbnailParamError: boolean;
-  thumbnailParamStatus: string;
+  thumbnailParam?: string | null | undefined;
+  thumbnailParamError?: boolean;
+  thumbnailParamStatus?: string;
   optional?: boolean;
-  updateThumbnailParams: (arg0: {}) => void;
+  updateThumbnailParams?: (arg0: {}) => void;
 };
 
 function SelectThumbnail(props: Props) {
@@ -36,7 +36,7 @@ function SelectThumbnail(props: Props) {
     thumbnailError: publishThumbnailError,
   } = publishFormValues;
   const fileInfos = useAppSelector(selectFileInfosByOutpoint);
-  const myClaimForUri = useAppSelector(selectMyClaimForUri);
+  const myClaimForUri = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
 
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
@@ -61,7 +61,7 @@ function SelectThumbnail(props: Props) {
     isSupportedVideo = actualFilePath.type.split('/')[0] === 'video';
   }
 
-  function handleThumbnailChange(e: React.SyntheticEvent<any>) {
+  function handleThumbnailChange(e: any) {
     const newThumbnail = e.target.value.replace(' ', '');
 
     if (updateThumbnailParams) {

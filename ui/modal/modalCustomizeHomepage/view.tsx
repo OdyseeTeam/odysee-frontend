@@ -25,7 +25,7 @@ export default function ModalCustomizeHomepage() {
   );
 
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
-  const order = React.useRef();
+  const order = React.useRef<HomepageOrder | undefined>();
 
   function handleNewOrder(newOrder: HomepageOrder) {
     order.current = newOrder;

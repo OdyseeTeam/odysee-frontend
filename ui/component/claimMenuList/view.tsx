@@ -168,15 +168,15 @@ function ClaimMenuListInner(props: Props) {
 
   // -- dispatch helpers --
   const openModal = React.useCallback((id: string, params: {}) => dispatch(doOpenModal(id, params)), [dispatch]);
-  const prepareEdit = React.useCallback((c: {}, editUri: string) => dispatch(doPrepareEdit(c, editUri)), [dispatch]);
+  const prepareEdit = React.useCallback((c: any, editUri: string) => dispatch(doPrepareEdit(c, editUri, '')), [dispatch]);
   const doToast = React.useCallback((params: any) => dispatch(doToastAction(params)), [dispatch]);
   const doChannelMute = React.useCallback((u: string) => dispatch(doChannelMuteAction(u)), [dispatch]);
   const doChannelUnmute = React.useCallback((u: string) => dispatch(doChannelUnmuteAction(u)), [dispatch]);
-  const doCommentModBlock = React.useCallback((u: string) => dispatch(doCommentModBlockAction(u)), [dispatch]);
+  const doCommentModBlock = React.useCallback((u: string) => dispatch(doCommentModBlockAction(u, undefined, undefined)), [dispatch]);
   const doCommentModUnBlock = React.useCallback((u: string) => dispatch(doCommentModUnBlockAction(u)), [dispatch]);
   const doCommentModBlockAsAdmin = React.useCallback(
     (commenterUri: string, offendingCommentId?: string | null, blockerId?: string | null) =>
-      dispatch(doCommentModBlockAsAdminAction(commenterUri, offendingCommentId, blockerId)),
+      dispatch(doCommentModBlockAsAdminAction(commenterUri, offendingCommentId, blockerId, undefined)),
     [dispatch]
   );
   const doCommentModUnBlockAsAdmin = React.useCallback(
@@ -229,7 +229,7 @@ function ClaimMenuListInner(props: Props) {
   }
 
   const lbryUrl: string = generateLbryContentUrl(claim.canonical_url, claim.permanent_url);
-  const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
+  const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl, '', false, false, 0, undefined, undefined as any);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
   const collectionNavigateUrl =
@@ -314,7 +314,7 @@ function ClaimMenuListInner(props: Props) {
     } else {
       openModal(MODALS.CONFIRM_CLAIM_REVOKE, {
         claim,
-        cb: isChannel && (() => navigate(`/$/${PAGES.CHANNELS}`), { replace: true }),
+        cb: isChannel && (() => navigate(`/$/${PAGES.CHANNELS}`, { replace: true })),
       });
     }
   }

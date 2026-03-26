@@ -50,7 +50,7 @@ function ModalRemoveFile(props: Props) {
                 button="primary"
                 label={isAbandoning ? __('Removing...') : __('Remove')}
                 disabled={isAbandoning}
-                onClick={() => dispatch(doDeleteFileAndMaybeGoBack(uri, false, true, doGoBack, claim))}
+                onClick={() => dispatch(doDeleteFileAndMaybeGoBack(uri, false, true, doGoBack as any, claim))}
               />
               <Button button="link" label={__('Cancel')} onClick={closeModal} />
             </div>

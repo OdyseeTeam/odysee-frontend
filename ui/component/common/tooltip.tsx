@@ -36,13 +36,13 @@ function Tooltip(props: Props) {
       enterNextDelay={enterDelay}
       title={title}
       followCursor={followCursor}
-      placement={placement}
+      placement={placement as any}
       classes={{
         tooltip: className,
       }}
       {...(state || {})}
     >
-      {children}
+      {children as React.ReactElement}
     </MUITooltip>
   );
 }

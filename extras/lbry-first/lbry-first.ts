@@ -42,7 +42,7 @@ const LbryFirst: LbryFirstTypes = {
       title: string;
       description: string;
       file_path: string | null | undefined;
-    } = {}
+    } = { title: '', description: '', file_path: '' }
   ) => {
     // Only upload when originally publishing for now
     if (!params.file_path) {
@@ -65,7 +65,7 @@ const LbryFirst: LbryFirstTypes = {
     return lbryFirstCallWithResult('youtube.Upload', uploadParams);
   },
   hasYTAuth: (token: string) => {
-    const hasYTAuthParams = {};
+    const hasYTAuthParams: Record<string, string> = {};
     hasYTAuthParams.AuthToken = token;
     return lbryFirstCallWithResult('youtube.HasAuth', hasYTAuthParams);
   },

@@ -4,9 +4,9 @@ type Props = {
   children: React.ReactNode;
   errors?: {} | null | undefined;
   disableSubmitOnEnter?: boolean;
-  onSubmit: (arg0: any) => any;
-};
-export const FormContext = React.createContext<any>();
+  onSubmit?: (arg0: any) => any;
+} & Omit<React.HTMLAttributes<HTMLFormElement>, 'onSubmit'>;
+export const FormContext = React.createContext<any>(undefined);
 export const Form = (props: Props) => {
   const { children, errors, disableSubmitOnEnter, onSubmit, ...otherProps } = props;
   const pressedEnter = React.useRef(false);

@@ -13,8 +13,8 @@ const skipNavigation = (e) => {
   const element = document.querySelector(focusableElementQuery);
 
   // Trigger focus to skip navigation
-  if (element && element.focus) {
-    element.focus();
+  if (element && (element as HTMLElement).focus) {
+    (element as HTMLElement).focus();
   }
 };
 

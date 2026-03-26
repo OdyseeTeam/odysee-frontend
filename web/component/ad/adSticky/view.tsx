@@ -54,7 +54,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
+    const pathIsCategory = Object.values(homepageData.categories || {}).some((x: any) =>
       pathname.startsWith(`/$/${x?.name}`)
     );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
@@ -171,7 +171,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   if (shouldShowAds && provider === 'rumble' && !isHidden) {
-    return random === 0 ? (
+    return (random as number) === 0 ? (
       <div
         id="rmbl-sticky"
         ref={stickyContainer}
@@ -182,13 +182,13 @@ const AdSticky = memo(function AdSticky(props: Props) {
       >
         <div className="rmbl-sticky">
           <script id="nrp-61" type="text/javascript" className="">
-            {(function (node) {
+            {(function (node: any) {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = `https://a.ads.rmbl.ws/warp/61?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
-            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode) as any}
           </script>
         </div>
         <div className="rmbl-sticky-close">
@@ -206,13 +206,13 @@ const AdSticky = memo(function AdSticky(props: Props) {
       >
         <div className="rmbl-sticky">
           <script id="nrp-157" type="text/javascript">
-            {(function (node) {
+            {(function (node: any) {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = `//a.ads.rmbl.ws/warp/157?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
-            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode) as any}
           </script>
         </div>
         <div className="rmbl-sticky-close">

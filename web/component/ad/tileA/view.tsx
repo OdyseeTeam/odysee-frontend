@@ -20,7 +20,7 @@ export type Props = {
 // ****************************************************************************
 const AdTileA = memo(function AdTileA(props: Props) {
   const { provider, tileLayout, shouldShowAds, noFallback } = props;
-  const [iframe, setIframe] = React.useState(false);
+  const [iframe, setIframe] = React.useState<false | { __html: string }>(false);
   const primaryIframeRef = React.useRef(false);
   const [useFallback, setUseFallback] = React.useState(false);
   React.useEffect(() => {
@@ -88,7 +88,7 @@ const AdTileA = memo(function AdTileA(props: Props) {
           <div className={'rc_tile rc_tile--rmbl'}>
             <div>
               <script id="nrp-60" type="text/javascript" className="">
-                {(function (node) {
+                {(function (node: ParentNode | null) {
                   var nrp = document.createElement('script');
                   nrp.type = 'text/javascript';
                   nrp.async = true;
@@ -97,7 +97,7 @@ const AdTileA = memo(function AdTileA(props: Props) {
                   primaryIframeRef.current = true;
                 })(
                   document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
-                )}
+                ) as any}
               </script>
             </div>
           </div>

@@ -38,12 +38,12 @@ const L_KEY_CODE = 76;
 const ESC_KEY_CODE = 27;
 const WUNDERBAR_INPUT_DEBOUNCE_MS = 1000;
 type Props = {
-  onSearch: (arg0: string) => void;
-  isMobile: boolean;
+  onSearch?: (arg0: string) => void;
+  isMobile?: boolean;
   channelsOnly?: boolean;
   noTopSuggestion?: boolean;
   noBottomLinks?: boolean;
-  subscriptions: Array<Subscription>;
+  subscriptions?: Array<Subscription>;
   customSelectAction?: (arg0: string) => void;
 };
 const isRefFocused = (ref) => ref && ref.current && ref.current === document.activeElement;
@@ -57,7 +57,7 @@ export default function WunderBarSuggestions(props: Props) {
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
   const showMature = useAppSelector(selectShowMatureContent);
   const claimsByUri = useAppSelector(selectClaimsByUri);
-  const subscriptionUris = useAppSelector(selectSubscriptionUris) || [];
+  const subscriptionUris: Array<string> = useAppSelector(selectSubscriptionUris) || [];
   const navigateToSearchPage = (query: string) => {
     const encodedQuery = encodeURIComponent(query);
     navigate({ pathname: `/$/search`, search: `?q=${encodedQuery}` });
@@ -101,7 +101,7 @@ export default function WunderBarSuggestions(props: Props) {
   const showPlaceholder = isTyping || loading;
 
   function getAdditionalOptions(channelsOnly: boolean | null | undefined, language: string | null | undefined) {
-    const additionalOptions = {};
+    const additionalOptions: Record<string, any> = {};
 
     if (channelsOnly) {
       additionalOptions.isBackgroundSearch = false;
@@ -311,7 +311,7 @@ export default function WunderBarSuggestions(props: Props) {
       }
     }
   }, [dispatch, stringifiedResults]);
-  const [subscriptionResults, setSubscriptionResults] = React.useState([]);
+  const [subscriptionResults, setSubscriptionResults] = React.useState<Array<string>>([]);
   React.useEffect(() => {
     if (subscriptionUris && term && term.length > 1) {
       let subscriptionResults = [];

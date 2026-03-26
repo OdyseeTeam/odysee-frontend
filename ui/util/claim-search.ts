@@ -52,7 +52,7 @@ export const CsOptHelper = {
       return undefined;
     }
 
-    let x: undefined | Array<string>;
+    let x: undefined | string | Array<string>;
 
     switch (duration) {
       case CS.DURATION.ALL:

@@ -45,7 +45,7 @@ export default function useKeyboardShortcuts({
       s.setVolume(Math.max(0, s.volume - amount));
     }
 
-    function seekVideo(stepSize, jumpTo) {
+    function seekVideo(stepSize: number, jumpTo?: boolean) {
       const s = getState();
       const duration = s.duration;
       const currentTime = s.currentTime;

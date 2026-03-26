@@ -1,6 +1,6 @@
 import React from 'react';
 type Props = {
-  children: string;
+  children: any;
 };
 export default function ErrorText(props: Props) {
   const { children } = props;

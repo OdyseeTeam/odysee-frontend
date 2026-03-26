@@ -198,7 +198,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
       this.mesh.traverse((child) => {
         if (child instanceof Mesh) {
           if (child.geometry) child.geometry.dispose();
-          if (child.material) child.material.dispose();
+          if (child.material) (child.material as any).dispose();
         }
       });
       // Clean up controls
@@ -301,7 +301,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
         .add(this.material, 'flatShading')
         .name('FlatShading')
         .onChange(() => {
-          this.updateMaterial(this.material);
+          this.updateMaterial(this.material, null);
         })
         .listen();
       materialFolder.add(this.material, 'wireframe').name('Wireframe').listen();
@@ -396,7 +396,7 @@ class ThreeViewer extends React.PureComponent<Props, State> {
       if (child instanceof Mesh) {
         // Get geometry from child
         const geometry = new Geometry();
-        geometry.fromBufferGeometry(child.geometry);
+        geometry.fromBufferGeometry(child.geometry as any);
         geometry.mergeVertices();
         geometry.computeVertexNormals();
         // Create and regroup inner objects

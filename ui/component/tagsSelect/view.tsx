@@ -11,11 +11,11 @@ import { selectFollowedTags } from 'redux/selectors/tags';
 import { doToggleTagFollowDesktop as doToggleTagFollowDesktopAction } from 'redux/actions/tags';
 type Props = {
   showClose?: boolean;
-  suggestMature: boolean;
+  suggestMature?: boolean;
   // Overrides
   // The default component is for following tags
   title?: string | boolean;
-  help?: string;
+  help?: string | boolean;
   label?: string;
   tagsChosen?: Array<Tag>;
   onSelect?: (arg0: Array<Tag>) => void;
@@ -25,7 +25,8 @@ type Props = {
   hideHeader?: boolean;
   limitShow?: number;
   limitSelect?: number;
-  excludedControlTags: Array<Tag> | null | undefined;
+  empty?: string;
+  excludedControlTags?: Array<string> | null | undefined;
 };
 /*
   Displays tagsChosen if it exists, otherwise followedTags.

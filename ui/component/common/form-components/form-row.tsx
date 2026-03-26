@@ -9,26 +9,19 @@ type Props = {
   alignRight?: boolean;
   centered?: boolean;
 };
-export class FormRow extends React.PureComponent<Props> {
-  static defaultProps = {
-    padded: false,
-  };
-
-  render() {
-    const { children, padded, verticallyCentered, stretch, alignRight, centered } = this.props;
-    return (
-      <div
-        className={classnames('form-row', {
-          'form-row--padded': padded,
-          'form-row--vertically-centered': verticallyCentered,
-          'form-row--stretch': stretch,
-          'form-row--right': alignRight,
-          'form-row--centered': centered,
-        })}
-      >
-        {children}
-      </div>
-    );
-  }
+export function FormRow({ children, padded = false, verticallyCentered, stretch, alignRight, centered }: Props) {
+  return (
+    <div
+      className={classnames('form-row', {
+        'form-row--padded': padded,
+        'form-row--vertically-centered': verticallyCentered,
+        'form-row--stretch': stretch,
+        'form-row--right': alignRight,
+        'form-row--centered': centered,
+      })}
+    >
+      {children}
+    </div>
+  );
 }
 export default FormRow;

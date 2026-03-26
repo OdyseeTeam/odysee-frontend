@@ -30,7 +30,7 @@ type Props = {
   tagsPassedIn: Array<Tag>;
   unfollowedTags?: Array<Tag>;
   followedTags?: Array<Tag>;
-  onSelect?: (arg0: Tag) => void;
+  onSelect?: (arg0: Tag[]) => void;
   hideSuggestions?: boolean;
   hideInputField?: boolean;
   suggestMature?: boolean;
@@ -44,7 +44,7 @@ type Props = {
   limitSelect?: number;
   limitShow?: number;
   disableControlTags?: boolean;
-  help?: string;
+  help?: string | React.ReactNode;
   excludedControlTags?: Array<string>;
 };
 const UNALLOWED_TAGS = ['lbry-first'];
@@ -222,7 +222,7 @@ export default function TagsSearch(props: Props) {
     } else {
       const wasFollowing = followedTagNames.includes(tag);
       doToggleTagFollowDesktop(tag);
-      analytics.event.tagFollow(tag, !wasFollowing);
+      analytics.event.tagFollow(tag, !wasFollowing, undefined);
     }
   }
 

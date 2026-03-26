@@ -205,7 +205,7 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 // prettier-ignore
-type SidebarCat = Omit<HomepageCat, 'id' | 'pinnedUrls' | 'pinnedClaimIds' | 'hideSort' | 'hideByDefault'>;
+type SidebarCat = Omit<HomepageCat, 'pinnedUrls' | 'pinnedClaimIds' | 'hideSort' | 'hideByDefault'>;
 type Props = {
   sidebarOpen: boolean;
   isMediumScreen: boolean;
@@ -484,7 +484,7 @@ function SideNavigation(props: Props) {
     }
   }, [setPulseLibrary, purchaseSuccess, dispatch]);
   React.useEffect(() => {
-    function handleKeydown(e: React.KeyboardEvent<any>) {
+    function handleKeydown(e: KeyboardEvent) {
       if (e.keyCode === KEYCODES.ESCAPE && isAbsolute) {
         setSidebarOpen(false);
       } else if (e.keyCode === KEYCODES.BACKSLASH) {
@@ -693,7 +693,7 @@ function SideNavigation(props: Props) {
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}
-                  {categories.map((linkProps) => getCategoryLink(linkProps))}
+                  {categories.map((linkProps: SidebarCat) => getCategoryLink(linkProps))}
                 </>
               )}
             </ul>

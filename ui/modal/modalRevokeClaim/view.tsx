@@ -30,7 +30,7 @@ export default function ModalRevokeClaim(props: Props) {
   const abandonClaim = (claimToAbandon: Claim, callback: (() => void) | null | undefined) =>
     dispatch(doAbandonClaim(claimToAbandon, callback));
 
-  const { value_type: valueType, type, normalized_name: name, is_my_input: isSupport } = tx || claim;
+  const { value_type: valueType, type, normalized_name: name, is_my_input: isSupport } = (tx || claim) as any;
   const [channelName, setChannelName] = useState('');
 
   React.useEffect(() => {

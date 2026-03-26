@@ -97,7 +97,7 @@ export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => as
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 // list available memberships for a channel id
 export const doMembershipList =
-  (params: MembershipListParams, forceUpdate: boolean | null | undefined) =>
+  (params: MembershipListParams, forceUpdate?: boolean | null | undefined) =>
   async (dispatch: Dispatch, getState: GetState) => {
     const { channel_claim_id: channelId } = params;
     const state = getState();
@@ -175,6 +175,7 @@ export const doMembershipBuy =
     } = membershipParams;
     const source_payment_address = selectAPIArweaveDefaultAddress(state);
     const subscribeApiParams: MembershipSubscribeParams = {
+      membership_id: membershipId,
       subscriber_channel_claim_id: subscriberChannelId,
       price_id: String(priceId),
       source_payment_address: source_payment_address || '',
@@ -222,7 +223,7 @@ export const doMembershipBuy =
 
         if (error) {
           // TODO pass error to redux
-          throw new Error(error?.message || error);
+          throw new Error((error as any)?.message || error);
         }
 
         transactionId = txid;
@@ -259,7 +260,7 @@ export const doMembershipBuy =
           Owner: source_payment_address,
           // test/fix
           signer: createDataItemSigner(window.arweaveWallet),
-        });
+        } as any);
       }
 
       const notifyParams = {
@@ -341,12 +342,12 @@ export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
-    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve) as string[]));
     dispatch({
       type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL,
       data: inboundTransactions,
     });
-  } catch (error) {
+  } catch (error: any) {
     dispatch({
       type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED,
       data: error.message || error,
@@ -367,13 +368,13 @@ export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
-    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve) as string[]));
     // TODO also resolve memberships?
     dispatch({
       type: ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL,
       data: outboundTransactions,
     });
-  } catch (error) {
+  } catch (error: any) {
     dispatch({
       type: ACTIONS.MEMBERSHIP_TX_OUTGOING_FAILED,
       data: error.message || error,
@@ -721,11 +722,11 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
   const myChannelClaims = selectMyChannelClaims(state);
   if (!myChannelClaims) return Promise.resolve();
   const pendingPromises = [];
-  myChannelClaims.map((channelClaim, index) => {
+  myChannelClaims.map((channelClaim: any, index) => {
     pendingPromises[index] = dispatch(
       doMembershipList({
         channel_claim_id: channelClaim.claim_id,
-      })
+      }, null)
     );
   });
   return await Promise.all(pendingPromises)

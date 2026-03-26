@@ -45,14 +45,14 @@ import {
 import { selectCountForCollectionId, selectUrlsForCollectionIdNonDeleted } from 'redux/selectors/collections';
 import { selectPrefsReady } from 'redux/selectors/sync';
 
-const FeaturedBanner = lazyImport(
+const FeaturedBanner: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
     import(
       'component/featuredBanner'
       /* webpackChunkName: "featuredBanner" */
     )
 );
-const CustomBanner = lazyImport(
+const CustomBanner: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
     import(
       'component/customBanner'
@@ -170,10 +170,10 @@ function HomePage() {
     showPersonalizedTags,
     subscribedChannelIds,
   ]);
-  const showWatchLaterSectionRef = React.useRef();
+  const showWatchLaterSectionRef = React.useRef<boolean | undefined>();
 
   if (showWatchLaterSectionRef.current === undefined) {
-    if ((watchLaterRawCount || 0) > 0) {
+    if (((watchLaterRawCount as number) || 0) > 0) {
       showWatchLaterSectionRef.current = true;
     } else if (prefsReady) {
       showWatchLaterSectionRef.current = false;
@@ -185,18 +185,18 @@ function HomePage() {
     () => sortedRowData.filter((row: RowDataItem) => row.id !== 'WATCH_LATER' || showWatchLaterSection),
     [showWatchLaterSection, sortedRowData]
   );
+  type CacheLivestreamEntry = {
+    livestreamUris: Array<string> | null | undefined;
+  };
   type Cache = {
     topGrid: number;
     hasBanner: boolean;
-    [homepageId: string]: {
-      livestreamUris: Array<string> | null | undefined;
-    };
-  };
+  } & Record<string, CacheLivestreamEntry>;
   const cache: Cache = React.useMemo(() => {
-    const cache = {
+    const cache: Cache = {
       topGrid: -1,
       hasBanner: true,
-    };
+    } as Cache;
 
     if (homepageFetched) {
       visibleSortedRowData.forEach((row: RowDataItem, index: number) => {
@@ -272,7 +272,7 @@ function HomePage() {
     const tilePlaceholder = (
       <ul className="claim-grid">
         {Array.from({ length: options.pageSize || 8 }, (_, i) => (
-          <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
+          <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder uri={''} />
         ))}
       </ul>
     );
@@ -287,6 +287,13 @@ function HomePage() {
             tileLayout
             maxClaimRender={options.pageSize || 8}
             showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+            header={false}
+            headerAltControls={null}
+            loading={false}
+            type=""
+            showHiddenByUser={false}
+            claimSearchByQuery={{}}
+            claimsByUri={{}}
           />
         )
       ) : (
@@ -337,7 +344,7 @@ function HomePage() {
             <HeaderArea />
             {index === 0 && <>{claimTiles}</>}
             {index !== 0 && (
-              <WaitUntilOnPage name={title} placeholder={tilePlaceholder} yOffset={800}>
+              <WaitUntilOnPage placeholder={tilePlaceholder} yOffset={800}>
                 {claimTiles}
               </WaitUntilOnPage>
             )}

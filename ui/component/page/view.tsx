@@ -23,26 +23,28 @@ const Footer = lazyImport(
     )
 );
 type Props = {
-  authPage: boolean;
+  authPage?: boolean;
   authRedirect?: string;
   // Redirects to '/' by default.
-  backout: {
+  backout?: {
     backLabel?: string;
     backNavDefault?: string;
-    title: string;
-    simpleTitle: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
+    title: string | React.ReactNode;
+    simpleTitle?: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   };
-  children: React.ReactNode | Array<React.ReactNode>;
-  className: string | null | undefined;
-  filePage: boolean;
-  fullWidthPage: boolean;
+  children?: React.ReactNode | Array<React.ReactNode>;
+  className?: string | null | undefined;
+  filePage?: boolean;
+  fullWidthPage?: boolean;
   isMarkdown?: boolean;
   livestream?: boolean;
-  noFooter: boolean;
-  noHeader: boolean;
-  noSideNavigation: boolean;
+  noFooter?: boolean;
+  noHeader?: boolean;
+  noSideNavigation?: boolean;
   settingsPage?: boolean;
   isPopoutWindow?: boolean;
+  notcontained?: boolean;
+  backoutLabel?: string;
 };
 
 function Page(props: Props) {

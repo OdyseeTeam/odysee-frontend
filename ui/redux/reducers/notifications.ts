@@ -31,7 +31,7 @@ const deleteId = (list, id) => {
   return list.filter((n) => n.id !== id);
 };
 
-const defaultState: NotificationState = {
+const defaultState = {
   notifications: [],
   notificationsFiltered: [],
   deletedNotificationIds: [],
@@ -45,7 +45,7 @@ const defaultState: NotificationState = {
 export default handleActions(
   {
     // Toasts
-    [ACTIONS.CREATE_TOAST]: (state: NotificationState, action: DoToast) => {
+    [ACTIONS.CREATE_TOAST]: (state: NotificationState, action: any) => {
       const toast: Toast = action.data;
       const newToasts: Array<Toast> = state.toasts.slice();
       newToasts.push(toast);
@@ -57,7 +57,7 @@ export default handleActions(
       return { ...state, toasts: newToasts };
     },
     // Debug Log
-    [ACTIONS.DEBUG_LOG]: (state: NotificationState, action: DoDebugLog) => {
+    [ACTIONS.DEBUG_LOG]: (state: NotificationState, action: any) => {
       const { clear, append, info } = action.data;
       const debugLog = append ? state.debugLog.slice() : [];
 
@@ -131,7 +131,7 @@ export default handleActions(
       };
     },
     // Errors
-    [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: DoError) => {
+    [ACTIONS.CREATE_ERROR]: (state: NotificationState, action: any) => {
       const error: ErrorNotification = action.data;
       const newErrors: Array<ErrorNotification> = state.errors.slice();
       newErrors.push(error);

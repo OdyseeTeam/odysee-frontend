@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import { VideoRenderFloatingContext } from 'contexts/videoRenderFloating';
 import type { ElementRef } from 'react';
@@ -12,6 +11,9 @@ import {
 } from 'constants/player';
 import React from 'react';
 import Button from 'component/button';
+
+// Button's forwardRef typing erases its Props; re-type to accept any props in this file.
+const TypedButton = Button as React.FC<any>;
 import classnames from 'classnames';
 import VideoRender from 'component/videoClaimRender';
 import UriIndicator from 'component/uriIndicator';
@@ -28,7 +30,8 @@ import {
   onFullscreenChange as onFsChange,
 } from 'util/full-screen';
 import { isURIEqual } from 'util/lbryURI';
-import AutoplayCountdown from './internal/autoplayCountdown';
+import AutoplayCountdownImport from './internal/autoplayCountdown';
+const AutoplayCountdown = AutoplayCountdownImport as React.FC<any>;
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ChannelThumbnail from 'component/channelThumbnail';
 import {
@@ -79,11 +82,15 @@ import { getVideoClaimAspectRatio, isClaimShort as isClaimShortUtil } from 'util
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectShortsSidePanelOpen, selectShortsPlaylist } from 'redux/selectors/shorts';
+// MiniPlayerPlayButton is declared as a global type but has no component implementation.
+// Cast to a component type so the existing JSX usage compiles without runtime changes.
+const MiniPlayerPlayButton = (null as any) as React.FC;
+
 const HEADER_HEIGHT = 60;
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
 const CONTENT_VIEWER_CLASS = 'content__viewer';
 const SHORTS_VIEWER_CLASS = 'shorts__viewer';
-const PlaylistCard = lazyImport(
+const PlaylistCard: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
     import(
       'component/playlistCard'
@@ -92,8 +99,20 @@ const PlaylistCard = lazyImport(
 );
 // ****************************************************************************
 // ****************************************************************************
+type FileViewerRect = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+  width: number;
+  height: number;
+  x: number;
+  windowOffset: number;
+};
+
 type Props = {
   location?: {
+    pathname?: string;
     search?: string;
     state?: {
       overrideFloating?: boolean;
@@ -101,7 +120,7 @@ type Props = {
   };
 };
 
-function isDraggingPlayerControl(e) {
+function isDraggingPlayerControl(e: any) {
   const el = e?.target;
   if (!el || typeof el.closest !== 'function') return false;
   return !!el.closest('.media-controls, .media-slider');
@@ -166,7 +185,7 @@ function VideoRenderFloating(props: Props) {
     subCategory: string | null | undefined
   ) => dispatch(doCommentSocketConnectAction(socketUri, channelName, socketClaimId, subCategory));
   const doCommentSocketDisconnect = (socketClaimId: string, channelName: string) =>
-    dispatch(doCommentSocketDisconnectAction(socketClaimId, channelName));
+    dispatch(doCommentSocketDisconnectAction(socketClaimId, channelName, undefined));
   const doClearPlayingUri = () => dispatch(doClearPlayingUriAction());
   const doToggleShortsAutoplay = () => dispatch(toggleAutoplayNextShortAction());
   const doClearQueueList = () => dispatch(doClearQueueListAction());
@@ -214,23 +233,23 @@ function VideoRenderFloating(props: Props) {
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
   const initialMobileState = React.useRef(isMobile);
-  const initialPlayerHeight = React.useRef();
-  const resizedBetweenFloating = React.useRef();
+  const initialPlayerHeight = React.useRef<number | undefined>();
+  const resizedBetweenFloating = React.useRef<boolean | undefined>();
   const { source: playingUriSource, primaryUri: playingPrimaryUri } = playingUri;
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
   const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled);
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
-  const [fileViewerRect, setFileViewerRect] = React.useState();
+  const [fileViewerRect, setFileViewerRect] = React.useState<FileViewerRect>();
   const [wasDragging, setWasDragging] = React.useState(false);
   const wasDraggingRef = React.useRef(false);
-  const shortsFloatingWrapperRef = React.useRef();
+  const shortsFloatingWrapperRef = React.useRef<HTMLDivElement>(null);
   const [forceDisable, setForceDisable] = React.useState(false);
   const [isShortsFloatingPaused, setIsShortsFloatingPaused] = React.useState(false);
   const [fireGlow, setFireGlow] = React.useState(false);
-  const fireGlowTimeout = React.useRef(null);
+  const fireGlowTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [slimeEffect, setSlimeEffect] = React.useState(false);
-  const slimeEffectTimeout = React.useRef(null);
+  const slimeEffectTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const draggableNodeRef = React.useRef(null);
@@ -419,15 +438,13 @@ function VideoRenderFloating(props: Props) {
     return () => onFsChange(document, 'remove', handler);
   }, []);
 
-  // $FlowFixMe
   React.useEffect(() => {
     const body = document.body;
     if (!body) return;
     const origAppend = body.appendChild.bind(body);
     const origRemove = body.removeChild.bind(body);
 
-    // $FlowFixMe
-    body.appendChild = function (node) {
+    body.appendChild = function (node: any) {
       const fsEl = getFullscreenElement();
       if (fsEl && node && node.nodeType === 1) {
         const isMuiPortal = node.classList?.contains('MuiModal-root') || node.classList?.contains('MuiPopover-root');
@@ -438,8 +455,7 @@ function VideoRenderFloating(props: Props) {
       return origAppend(node);
     };
 
-    // $FlowFixMe
-    body.removeChild = function (node) {
+    body.removeChild = function (node: any) {
       if (node && node.parentNode && node.parentNode !== body) {
         return node.parentNode.removeChild(node);
       }
@@ -770,7 +786,7 @@ function VideoRenderFloating(props: Props) {
             {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
 
             {isFloating && (
-              <Button
+              <TypedButton
                 title={__('Close')}
                 onClick={() => {
                   if (hasClaimInQueue) {
@@ -893,7 +909,7 @@ function VideoRenderFloating(props: Props) {
               >
                 <div className="content-info__text">
                   <div className="claim-preview__title" title={title || uri}>
-                    <Button
+                    <TypedButton
                       label={title || uri}
                       navigate={navigateUrl}
                       button="link"
@@ -902,12 +918,12 @@ function VideoRenderFloating(props: Props) {
                   </div>
                   {isShortsFloating ? (
                     channelNavigateUrl ? (
-                      <Button navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
+                      <TypedButton navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
                         <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
                         {shortsMetaLabel && (
                           <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
                         )}
-                      </Button>
+                      </TypedButton>
                     ) : (
                       <div className="content__shorts-floating-channel">
                         <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
@@ -960,7 +976,7 @@ type GlobalStylesProps = {
   videoAspectRatio: number;
   theaterMode: boolean;
   appDrawerOpen: boolean;
-  initialPlayerHeight: ElementRef<any>;
+  initialPlayerHeight: React.MutableRefObject<number | undefined>;
   isFloating: boolean;
   fileViewerRect: any;
   mainFilePlaying: boolean;
@@ -982,7 +998,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     isTabletLandscape,
     isShortVideo,
   } = props;
-  const justChanged = React.useRef();
+  const justChanged = React.useRef<boolean | undefined>();
   const isMobile = useIsMobile();
   const isMobilePlayer = isMobile && !isFloating; // to avoid miniplayer -> file page only
 
@@ -1006,7 +1022,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
 
     if (viewer) {
-      if (!appDrawerOpen && heightForViewer) viewer.style.height = `${heightForViewer}px`;
+      if (!appDrawerOpen && heightForViewer) (viewer as HTMLElement).style.height = `${heightForViewer}px`;
 
       if (!appDrawerOpen) {
         const htmlEl = document.querySelector('html');
@@ -1026,18 +1042,19 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         return;
       }
 
-      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
-      const videoNode = document.querySelector('.video-js-parent video');
-      const touchOverlay = document.querySelector('.odysee-touch-overlay');
+      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`) as HTMLElement | null;
+      const videoNode = document.querySelector('.video-js-parent video') as HTMLElement | null;
+      const touchOverlay = document.querySelector('.odysee-touch-overlay') as HTMLElement | null;
 
       if (rootEl && viewer) {
         const scrollTop = window.pageYOffset || rootEl.scrollTop;
-        const isHigherThanLandscape = scrollTop < initialPlayerHeight.current - maxLandscapeHeight;
+        const playerHeight = initialPlayerHeight.current || 0;
+        const isHigherThanLandscape = scrollTop < playerHeight - maxLandscapeHeight;
 
         if (videoNode) {
           if (isHigherThanLandscape) {
-            if (initialPlayerHeight.current > maxLandscapeHeight) {
-              const result = initialPlayerHeight.current - scrollTop;
+            if (playerHeight > maxLandscapeHeight) {
+              const result = playerHeight - scrollTop;
               const amountNeededToCenter = getAmountNeededToCenterVideo(videoNode.offsetHeight, result);
               videoNode.style.top = `${amountNeededToCenter}px`;
               if (touchOverlay) touchOverlay.style.height = `${result}px`;
@@ -1069,7 +1086,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   ]);
   React.useEffect(() => {
     if (videoGreaterThanLandscape && isMobilePlayer) {
-      const videoNode = document.querySelector('.video-js-parent video');
+      const videoNode = document.querySelector('.video-js-parent video') as HTMLElement | null;
 
       if (videoNode) {
         const top = appDrawerOpen ? amountNeededToCenter : 0;
@@ -1169,23 +1186,26 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   );
 };
 
-const FloatingRender = withStreamClaimRender(
+const FloatingRender: React.FC<any> = withStreamClaimRender(
   ({
     uri,
     draggable,
     isShortsContext,
     isFloatingContext,
+    streamClaim,
   }: {
     uri: string;
     draggable: boolean;
     isShortsContext?: boolean;
     isFloatingContext?: boolean;
+    streamClaim?: () => void;
   }) => (
     <VideoRender
       className={classnames({
         draggable,
       })}
       uri={uri}
+      streamClaim={streamClaim as () => void}
       isShortsContext={isShortsContext}
       isFloatingContext={isFloatingContext}
     />

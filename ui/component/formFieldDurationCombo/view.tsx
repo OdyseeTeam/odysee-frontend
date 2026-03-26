@@ -5,9 +5,15 @@
 import React from 'react';
 import './style.scss';
 import { FormField } from 'component/common/form';
+
+type DurationCombo = {
+  value: number;
+  unit: string;
+};
+
 type Props = {
-  duration: Duration;
-  onChange: (arg0: Duration) => void;
+  duration: DurationCombo;
+  onChange: (arg0: DurationCombo) => void;
   onBlur?: (arg0: any) => void;
   label?: string;
   placeholder?: number;
@@ -29,7 +35,7 @@ export default function FormFieldDurationCombo(props: Props) {
   const { duration, onChange, onBlur, min, disabled, step, label, placeholder, units } = props;
   const [value, setValue] = React.useState(duration.value);
 
-  function handleValueChange(event: React.SyntheticEvent<any>) {
+  function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     setValue(parseFloat(event.target.value));
     onChange({
       value: event.target.value ? parseFloat(event.target.value) : 0,
@@ -37,7 +43,7 @@ export default function FormFieldDurationCombo(props: Props) {
     });
   }
 
-  function handleUnitChange(event: React.SyntheticEvent<any>) {
+  function handleUnitChange(event: React.ChangeEvent<HTMLSelectElement>) {
     onChange({
       value: duration.value,
       unit: event.target.value,

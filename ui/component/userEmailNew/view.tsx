@@ -27,8 +27,9 @@ import { doSetWalletSyncPreference, doSetDaemonSetting } from 'redux/actions/set
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
 
 type Props = {
-  interestedInYoutubSync: boolean;
-  doToggleInterestedInYoutubeSync: () => void;
+  interestedInYoutubSync?: boolean;
+  doToggleInterestedInYoutubeSync?: () => void;
+  cancelButton?: React.ReactNode;
 };
 
 function UserEmailNew(props: Props) {
@@ -67,7 +68,7 @@ function UserEmailNew(props: Props) {
       .catch(() => {});
   }
 
-  function handleChangeToSignIn(additionalParams) {
+  function handleChangeToSignIn(additionalParams?: any) {
     dispatch(doClearEmailEntry());
     let url = `/$/${PAGES.AUTH_SIGNIN}`;
     const urlParams = new URLSearchParams(location.search);

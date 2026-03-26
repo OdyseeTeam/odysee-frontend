@@ -144,7 +144,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               showHeader={false}
               type="small"
               claimType={['stream']}
-              orderBy="new"
+              orderBy={['new']}
               pageSize={20}
               infiniteScroll={false}
               hideFilters

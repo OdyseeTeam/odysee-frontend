@@ -6,19 +6,19 @@ const PlayerEvent = {
   event: { start: 0, stop: 1, scrub: 2, speed: 3, ended: 4 },
 };
 
-function newRecsysPlayerEvent(eventType, offset, arg) {
+function newRecsysPlayerEvent(eventType: number, offset: number, arg?: number) {
   return arg != null ? { event: eventType, offset, arg } : { event: eventType, offset };
 }
 
-export default function useRecsys(videoId, userId, embedded, shareTelemetry) {
+export default function useRecsys(videoId: string, userId: string | undefined, embedded: boolean, shareTelemetry: boolean) {
   const store = Player.usePlayer();
   const media = Player.useMedia();
 
   const inPauseRef = useRef(false);
   const lastTimeUpdateRef = useRef(null);
   const currentTimeUpdateRef = useRef(null);
-  const watchedDurationRef = useRef({ total: 0, lastTimestamp: -1 });
-  const prevStateRef = useRef({ paused: true, ended: false, playbackRate: 1 });
+  const watchedDurationRef = useRef<{ total: number; lastTimestamp: number | string }>({ total: 0, lastTimestamp: -1 });
+  const prevStateRef = useRef({ paused: true, ended: false, playbackRate: 1, seeking: false, currentTime: 0 });
 
   useEffect(() => {
     if (!shareTelemetry || !videoId || !media) return;
@@ -27,7 +27,7 @@ export default function useRecsys(videoId, userId, embedded, shareTelemetry) {
     lastTimeUpdateRef.current = null;
     currentTimeUpdateRef.current = null;
     watchedDurationRef.current = { total: 0, lastTimestamp: -1 };
-    prevStateRef.current = { paused: true, ended: false, playbackRate: 1 };
+    prevStateRef.current = { paused: true, ended: false, playbackRate: 1, seeking: false, currentTime: 0 };
 
     const unsubscribe = store.subscribe(() => {
       const s = store.state;

@@ -55,7 +55,7 @@ function getLanguageExtension(contentType: string) {
     type.includes('x-csrc') ||
     type.includes('x-c++src')
   ) {
-    return StreamLanguage.define(clike);
+    return StreamLanguage.define(clike as any);
   }
 
   if (type.includes('shell') || type.includes('bash') || type.includes('sh')) {

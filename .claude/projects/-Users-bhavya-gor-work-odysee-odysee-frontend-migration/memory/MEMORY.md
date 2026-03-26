@@ -1,0 +1,2 @@
+- [Migration Status](project_migration_status.md) — Flow->TS + Webpack->Vite migration, 225 commits ahead of master
+- [Architecture](project_architecture.md) — Tech stack, directory structure, build system, Redux slices, key patterns

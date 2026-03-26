@@ -38,7 +38,7 @@ function SettingWalletServer() {
   const setCustomWalletServers = (value: any) => dispatch(doSetDaemonSetting(DAEMON_SETTINGS.LBRYUM_SERVERS, value));
   const clearWalletServers = () => dispatch(doClearDaemonSetting(DAEMON_SETTINGS.LBRYUM_SERVERS));
   const getDaemonStatus = () => dispatch(doGetDaemonStatus());
-  const saveServerConfig = (servers: Array<ServerTuple>) => dispatch(doSaveCustomWalletServers(servers));
+  const saveServerConfig = (servers: Array<ServerTuple>) => dispatch(doSaveCustomWalletServers(servers as any));
 
   const [advancedMode, setAdvancedMode] = useState(false);
   const walletStatus = daemonStatus && daemonStatus.wallet;

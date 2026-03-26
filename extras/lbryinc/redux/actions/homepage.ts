@@ -1,6 +1,6 @@
 import { Lbryio } from 'lbryinc';
 import { batchActions } from 'util/batch-actions';
-import { doResolveUris } from 'util/lbryURI';
+import { doResolveUris } from 'redux/actions/claims';
 import * as ACTIONS from 'constants/action_types';
 export function doFetchFeaturedUris(offloadResolve = false) {
   return (dispatch) => {
@@ -13,7 +13,7 @@ export function doFetchFeaturedUris(offloadResolve = false) {
       Object.keys(Uris).forEach((category) => {
         urisToResolve = [...urisToResolve, ...Uris[category]];
       });
-      const actions = [
+      const actions: any[] = [
         {
           type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
           data: {
@@ -45,15 +45,15 @@ export function doFetchFeaturedUris(offloadResolve = false) {
 export function doFetchTrendingUris() {
   return (dispatch) => {
     dispatch({
-      type: ACTIONS.FETCH_TRENDING_CONTENT_STARTED,
+      type: ACTIONS.FETCH_FEATURED_CONTENT_STARTED,
     });
 
     const success = (data) => {
       const urisToResolve = data.map((uri) => uri.url);
-      const actions = [
+      const actions: any[] = [
         doResolveUris(urisToResolve),
         {
-          type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+          type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
           data: {
             uris: data,
             success: true,
@@ -65,7 +65,7 @@ export function doFetchTrendingUris() {
 
     const failure = () => {
       dispatch({
-        type: ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED,
+        type: ACTIONS.FETCH_FEATURED_CONTENT_COMPLETED,
         data: {
           uris: [],
         },

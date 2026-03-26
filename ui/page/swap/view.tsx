@@ -8,7 +8,7 @@ export default function SwapPage(props: Props) {
       noSideNavigation
       className="main--swap"
       backout={{
-        backoutLabel: __('Done'),
+        backLabel: __('Done'),
         title: __('Swap Crypto'),
       }}
     >

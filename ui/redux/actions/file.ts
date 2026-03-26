@@ -18,7 +18,7 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 export function doOpenFileInFolder(path: string) {
   return () => {
-    shell.showItemInFolder(path);
+    (shell as any).showItemInFolder(path);
   };
 }
 export function doOpenFileInShell(path: string) {
@@ -119,7 +119,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
     }
 
     const outpoint = selectClaimOutpointForUri(state, uri);
-    const keyFromOpt = opt && opt.uriAccessKey;
+    const keyFromOpt = opt && (opt as any).uriAccessKey;
     const cachedKey: UriAccessKey | null | undefined = state.content.uriAccessKeys[uri];
     const accessKey: UriAccessKey | null | undefined = keyFromOpt || cachedKey || null;
     dispatch({
@@ -133,7 +133,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
       environment: stripeEnvironment,
       ...accessKey,
     })
-      .then((streamInfo: GetResponse) => {
+      .then((streamInfo: GetResponse & { error?: string; purchase_receipt?: any; content_fee?: any }) => {
         const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
 
         if (timeout) {
@@ -237,7 +237,7 @@ export function doPurchaseUri(
     const balance = selectBalance(state);
     const { cost } = costInfo;
 
-    if (parseFloat(cost) > balance) {
+    if (parseFloat(String(cost)) > balance) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,
         data: {

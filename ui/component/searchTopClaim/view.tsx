@@ -20,8 +20,8 @@ import { makeSelectWinningUriForQuery, selectIsResolvingWinningUri } from 'redux
 type Props = {
   query: string;
   hideLink?: boolean;
-  setChannelActive: (arg0: boolean) => void;
-  isSearching: boolean;
+  setChannelActive?: (arg0: boolean) => void;
+  isSearching?: boolean;
 };
 
 export default function SearchTopClaim(props: Props) {

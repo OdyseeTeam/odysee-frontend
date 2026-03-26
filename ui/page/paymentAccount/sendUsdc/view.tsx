@@ -13,7 +13,7 @@ function SendUsdc(props: any) {
   const { cardHeader, arWalletStatus, balance } = props;
   const [canSend, setCanSend] = React.useState(false);
   const inputAmountRef = React.useRef<HTMLInputElement | null>(null);
-  const inputReceivingAddressRef = React.useRef();
+  const inputReceivingAddressRef = React.useRef<any>();
   const networks = [
     {
       symbol: 'eth',
@@ -44,7 +44,7 @@ function SendUsdc(props: any) {
     const check =
       inputAmountRef.current?.value &&
       Number(inputAmountRef.current?.value) <= Number(balance) &&
-      isValidEthAddress(inputReceivingAddressRef.current?.value);
+      isValidEthAddress(inputReceivingAddressRef.current?.value ?? '');
     setCanSend(check);
   }
 

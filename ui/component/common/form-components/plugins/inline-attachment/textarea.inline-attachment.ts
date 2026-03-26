@@ -68,7 +68,7 @@
    * @param {HTMLElement} el - textarea or input element
    * @param {Object} options
    */
-  textareaEditor.attach = function (el, options) {
+  (textareaEditor as any).attach = function (el, options) {
     options = options || {};
     var editor = new textareaEditor(el);
     var inlineattach = new window.inlineAttachment(options, editor);

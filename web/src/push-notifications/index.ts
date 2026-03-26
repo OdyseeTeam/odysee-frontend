@@ -9,8 +9,8 @@ import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
 import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
 import { browserData } from '$web/src/ua';
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
-let messaging = null;
-let pushSystem = null;
+let messaging: any = null;
+let pushSystem: Record<string, any> | null = null;
 
 const getTokenList = (value: unknown): Array<any> => {
   if (Array.isArray(value)) return value;
@@ -22,40 +22,8 @@ const getTokenList = (value: unknown): Array<any> => {
   return [];
 };
 
-(async () => {
-  const supported = await isPushSupported();
-
-  if (supported) {
-    const app = initializeApp(firebaseConfig);
-    messaging = getMessaging(app);
-    pushSystem = {
-      supported: true,
-      subscribe,
-      unsubscribe,
-      subscribed,
-      reconnect,
-      disconnect,
-      validate,
-    };
-  }
-})(); // Proxy will forward to push system if it's supported.
-
-export default new Proxy(
-  {},
-  {
-    get(target, prop) {
-      if (pushSystem) {
-        return pushSystem[prop];
-      } else {
-        if (prop === 'supported') return false;
-        throw new Error('Push notifications are not supported in this browser environment.');
-      }
-    },
-  }
-);
-
 const subscriptionMetaData = () => {
-  const isMobile = window.navigator.userAgentData?.mobile || false;
+  const isMobile = (window.navigator as any).userAgentData?.mobile || false;
   const browserName = browserData.browser?.name || 'unknown';
   const osName = browserData.os?.name || 'unknown';
   return {
@@ -150,3 +118,45 @@ const validate = async (userId: number) => {
     }, 0);
   }
 };
+
+(async () => {
+  const supported = await isPushSupported();
+
+  if (supported) {
+    const app = initializeApp(firebaseConfig);
+    messaging = getMessaging(app);
+    pushSystem = {
+      supported: true,
+      subscribe,
+      unsubscribe,
+      subscribed,
+      reconnect,
+      disconnect,
+      validate,
+    };
+  }
+})(); // Proxy will forward to push system if it's supported.
+
+type PushNotificationsApi = {
+  supported: boolean;
+  subscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
+  unsubscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
+  subscribed: (userId: number) => Promise<boolean>;
+  reconnect: (userId: number) => Promise<boolean>;
+  disconnect: (userId: number) => Promise<boolean>;
+  validate: (userId: number) => Promise<void>;
+};
+
+export default new Proxy(
+  {} as PushNotificationsApi,
+  {
+    get(target, prop) {
+      if (pushSystem) {
+        return pushSystem[prop as string];
+      } else {
+        if (prop === 'supported') return false;
+        throw new Error('Push notifications are not supported in this browser environment.');
+      }
+    },
+  }
+);

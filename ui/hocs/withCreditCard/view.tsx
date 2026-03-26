@@ -10,7 +10,8 @@ import { doOpenModal } from 'redux/actions/app';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
 
 type Props = {
-  modalState: any;
+  modalState?: any;
+  [key: string]: any;
 };
 
 /**

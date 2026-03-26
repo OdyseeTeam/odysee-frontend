@@ -9,7 +9,7 @@ export default function ReportContentPage(props: any) {
       noSideNavigation
       className="main--report-content"
       backout={{
-        backoutLabel: __('Done'),
+        backLabel: __('Done'),
         title: __('Report content'),
       }}
       authRedirect={`${location.pathname}${location.search}`} // 'report_content?claimId=xxx'

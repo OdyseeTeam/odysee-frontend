@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import React from 'react';
 import classnames from 'classnames';
@@ -50,6 +49,8 @@ import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import './style.lazy.scss';
 type Props = {
   id: string;
+  uri?: string;
+  onClose?: () => void;
   disableClickNavigation?: boolean;
   useDrawer?: boolean;
   isFloating?: boolean;
@@ -123,7 +124,7 @@ export default function PlaylistCard(props: Props) {
     doToggleCollectionSavedForId,
   };
 
-  return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
+  return <PlaylistCardComponent {...(playlistCardProps as PlaylistCardProps)} className="playlist__wrapper" />;
 }
 type PlaylistCardProps = {
   id: string;
@@ -153,8 +154,9 @@ type PlaylistCardProps = {
   bodyOnly?: boolean;
   showEdit: boolean;
   currentIndexLabel: string;
-  setShowEdit: (show: boolean) => void;
+  setShowEdit: React.Dispatch<React.SetStateAction<boolean>>;
   className?: string;
+  onClose?: () => void;
 };
 
 const PlaylistCardComponent = (props: PlaylistCardProps) => {
@@ -193,16 +195,16 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen() && !isMobile;
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
-  const activeItemRef = React.useRef();
-  const scrollRestorePending = React.useRef();
-  const listHasActive = React.useRef();
+  const activeItemRef = React.useRef<HTMLElement | null>(null);
+  const scrollRestorePending = React.useRef<boolean>(false);
+  const listHasActive = React.useRef<boolean>(false);
   const lengthRef = React.useRef(collectionLength);
   const activeItemIndexRef = React.useRef(playingItemIndex);
   const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
   const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
-  const [bodyRef, setBodyRef] = React.useState();
-  const [hasActive, setHasActive] = React.useState();
-  const [scrolledPastActive, setScrolledPast] = React.useState();
+  const [bodyRef, setBodyRef] = React.useState<HTMLElement | null>(null);
+  const [hasActive, setHasActive] = React.useState<boolean>(false);
+  const [scrolledPastActive, setScrolledPast] = React.useState<boolean>(false);
 
   /*
   // Disabled due to it blocking the clicking of the scrollbar
@@ -232,7 +234,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   }
 
   const activeListItemRef = React.useCallback(
-    (node) => {
+    (node: HTMLElement | null) => {
       if (node && bodyRef && Number.isInteger(playingItemIndex)) {
         activeItemRef.current = node;
         // without this, the list would scroll to the top of the item
@@ -272,9 +274,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
           if (isFloating || isMobile) {
             if (isFloating) {
-              const playerInfo = document.querySelector('.content__info');
+              const playerInfo = document.querySelector('.content__info') as HTMLElement | null;
               if (playerInfo) playerInfoTop = playerInfo.offsetTop;
-              const playerElem = document.querySelector('.content__viewer');
+              const playerElem = document.querySelector('.content__viewer') as HTMLElement | null;
               const playerTransform = playerElem && playerElem.style.transform;
 
               if (playerTransform) {
@@ -324,7 +326,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     }
   }, [activeListItemRef, bodyOpen, bodyRef, collectionLength, isFloating, isMobile, playingItemIndex]);
   // Prevent scroll events from propagating to the page behind the playlist (#2699)
-  const wrapperRef = React.useRef();
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper || !bodyRef) return;
@@ -353,7 +355,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             opacity: !scrolledPastActive || !hasActive ? '0' : '0.9 !important',
             // visibility also needed because it prevents clicking on the button
             // opacity makes it invisible but still clickable
-            visibility: !scrolledPastActive || !hasActive ? 'hidden' : 'visible !important',
+            visibility: (!scrolledPastActive || !hasActive ? 'hidden' : 'visible !important') as any,
             '&:hover': {
               opacity: !scrolledPastActive || !hasActive ? '0' : '1 !important',
             },
@@ -469,7 +471,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                                 Private %lock_icon%
                               </I18nMessage>
                             ) : (
-                              <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                              <UriIndicator link uri={publishedCollectionName as string} showHiddenAsAnonymous />
                             )}
 
                             {currentIndexLabel}
@@ -522,23 +524,25 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             !bodyOpen || titleOnly ? undefined : (
               <CollectionItemsList
                 collectionId={id}
-                type="small"
-                activeUri={playingItemUrl}
-                empty={__('Playlist is Empty')}
-                showEdit={showEdit}
-                smallThumbnail
-                showIndexes
-                playItemsOnClick={playingCurrentPlaylist}
-                disableClickNavigation={disableClickNavigation}
-                doDisablePlayerDrag={doDisablePlayerDrag}
-                setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
-                setListRef={(node) => setBodyRef(node)}
-                scrolledPastActive={scrolledPastActive}
-                restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
-                setHasActive={(hasActive) => {
-                  listHasActive.current = hasActive;
-                  setHasActive(hasActive);
-                }}
+                {...({
+                  type: "small",
+                  activeUri: playingItemUrl,
+                  empty: __('Playlist is Empty'),
+                  showEdit: showEdit,
+                  smallThumbnail: true,
+                  showIndexes: true,
+                  playItemsOnClick: playingCurrentPlaylist,
+                  disableClickNavigation: disableClickNavigation,
+                  doDisablePlayerDrag: doDisablePlayerDrag,
+                  setActiveListItemRef: bodyRef ? activeListItemRef : undefined,
+                  setListRef: (node: HTMLElement | null) => setBodyRef(node),
+                  scrolledPastActive: scrolledPastActive,
+                  restoreScrollPos: () => activeListItemRef(activeItemRef.current),
+                  setHasActive: (hasActive: boolean) => {
+                    listHasActive.current = hasActive;
+                    setHasActive(hasActive);
+                  },
+                } as any)}
               />
             )
           } // Disabled due to it blocking the clicking of the scrollbar

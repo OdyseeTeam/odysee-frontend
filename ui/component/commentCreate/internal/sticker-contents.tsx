@@ -39,6 +39,7 @@ export const StickerReviewBox = (props: Props) => {
 type StickerButtonProps = {
   isReviewingStickerComment: boolean;
   disabled?: boolean;
+  [key: string]: any;
 };
 export const StickerActionButton = (stickerButtonProps: StickerButtonProps) => {
   const { isReviewingStickerComment, disabled, ...buttonProps } = stickerButtonProps;

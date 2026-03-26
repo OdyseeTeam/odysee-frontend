@@ -23,8 +23,7 @@ export default function WebUploadList(props: Props) {
         subtitle={__('Leave the app running until upload is complete')}
         body={
           <section>
-            {/* $FlowFixMe */}
-            {Object.values(currentUploads).map((uploadItem) => (
+            {Object.values(currentUploads).map((uploadItem: any) => (
               <WebUploadItem
                 key={`upload${uploadItem.params.name}`}
                 uploadItem={uploadItem}

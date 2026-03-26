@@ -106,7 +106,7 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
     'notification'
   );
 };
-export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch, getState) => {
+export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, isProtected?: any) => (dispatch, getState) => {
   const state = getState();
   const creatorId = selectChannelClaimIdForUri(state, uri);
   const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);

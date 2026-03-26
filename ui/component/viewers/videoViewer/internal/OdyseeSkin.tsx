@@ -36,7 +36,13 @@ import Logo from 'component/logo';
 import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
 
-const OdyseeCast = (props) => (
+// HLS.js attaches these properties to media elements at runtime
+interface HlsMediaElement extends HTMLMediaElement {
+  engine?: any;
+  _hls?: any;
+}
+
+const OdyseeCast = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={14}
@@ -196,7 +202,7 @@ const OdyseeSettings = icons[ICONS.SETTINGS];
 const OdyseeRepeat = icons[ICONS.REPEAT];
 const OdyseeCamera = icons[ICONS.CAMERA];
 
-const Btn = forwardRef(function Btn({ className, ...props }, ref) {
+const Btn = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(function Btn({ className, ...props }, ref) {
   return <button ref={ref} type="button" className={`media-button ${className || ''}`} {...props} />;
 });
 
@@ -248,11 +254,11 @@ function useQualityLevels() {
   useEffect(() => {
     if (!media) return;
 
-    let hls = media.engine || media._hls;
+    let hls = (media as HlsMediaElement).engine || (media as HlsMediaElement)._hls;
     if (hls) setup(hls);
 
     const interval = setInterval(() => {
-      const h = media.engine || media._hls;
+      const h = (media as HlsMediaElement).engine || (media as HlsMediaElement)._hls;
       if (h && h !== hls) {
         hls = h;
         setup(h);
@@ -302,7 +308,7 @@ function useQualityLevels() {
 
   const selectQuality = useCallback(
     (levelIndex) => {
-      const hls = media?.engine || media?._hls;
+      const hls = (media as HlsMediaElement | null)?.engine || (media as HlsMediaElement | null)?._hls;
       if (!hls) return;
       hls.currentLevel = levelIndex;
       setCurrentLevel(levelIndex);
@@ -757,7 +763,7 @@ function LiveButton() {
 
   const getLiveSyncPosition = useCallback(() => {
     if (!media) return null;
-    const hls = media._hls;
+    const hls = (media as HlsMediaElement)._hls;
     if (hls && hls.liveSyncPosition != null) return hls.liveSyncPosition;
     if (media.seekable && media.seekable.length > 0) {
       return media.seekable.end(media.seekable.length - 1) - 4;
@@ -882,7 +888,7 @@ export default function OdyseeSkin(props) {
     const isSafari = platform.isSafari();
     if (!isFloating && !isSafari) return;
     const fix = () => {
-      const popup = document.querySelector('.media-popover--settings[popover]');
+      const popup = document.querySelector('.media-popover--settings[popover]') as HTMLElement | null;
       const trigger = isFloating
         ? document.querySelector('.content__viewer--floating .media-button--settings')
         : document.querySelector('.media-button--settings');

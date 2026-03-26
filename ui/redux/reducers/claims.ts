@@ -226,7 +226,7 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
 
       if (stream.value_type === 'collection') {
         if (!newResolvedCollectionsById[stream.claim_id]) {
-          newResolvedCollectionsById[stream.claim_id] = claimToStoredCollection(stream);
+          newResolvedCollectionsById[stream.claim_id] = claimToStoredCollection(stream as CollectionClaim);
         }
       }
 
@@ -284,7 +284,7 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       newResolvingUrls.delete(collection.permanent_url);
       newFailedToResolveUrls.delete(collection.canonical_url);
       newFailedToResolveUrls.delete(collection.permanent_url);
-      newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection);
+      newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection as CollectionClaim);
 
       if (selectClaimIsMine(state, collection)) {
         myClaimIds.add(collection.claim_id);
@@ -437,7 +437,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
       myClaimIds.add(claimId);
 
       if (valueType === 'collection' && (!newMyCollectionClaimIds || !newMyCollectionClaimIds.has(claimId))) {
-        newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
+        newResolvedCollectionsById[claimId] = claimToStoredCollection(claim as CollectionClaim);
         if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
         newMyCollectionClaimIds.add(claimId);
       }
@@ -645,10 +645,10 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
     pendingById[claimId] = newClaim;
 
     if (valueType === 'channel') {
-      const channelClaim: ChannelClaim = claim;
+      const channelClaim = claim as ChannelClaim;
       newMyChannelClaimsById[claimId] = channelClaim;
     } else if (valueType === 'collection') {
-      newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
+      newResolvedCollectionsById[claimId] = claimToStoredCollection(claim as CollectionClaim);
       if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
       newMyCollectionClaimIds.add(claimId);
     }

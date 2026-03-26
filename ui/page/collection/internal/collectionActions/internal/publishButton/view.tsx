@@ -13,6 +13,7 @@ import {
   selectCollectionPublishErrorForId,
 } from 'redux/selectors/collections';
 type Props = {
+  uri?: string;
   collectionId: string;
   showEdit?: boolean;
 };

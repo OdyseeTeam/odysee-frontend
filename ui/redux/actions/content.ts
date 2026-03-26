@@ -721,7 +721,7 @@ export function doFetchViewHistory() {
       }
 
       // Convert remote items to WatchHistory format
-      const remoteHistory: Array<WatchHistory> = [];
+      const remoteHistory: Array<ViewHistoryItem> = [];
       for (const item of allItems) {
         const uri = claimIdToUri[item.claim_id];
         if (uri) {

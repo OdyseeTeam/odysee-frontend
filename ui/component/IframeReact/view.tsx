@@ -1,9 +1,9 @@
 import React from 'react';
 import Card from 'component/common/card';
 type Props = {
-  fullHeight: boolean;
+  fullHeight?: boolean;
   src: string;
-  title: string;
+  title?: string;
 };
 export default function I18nMessage(props: Props) {
   const { src, title } = props;
@@ -34,7 +34,7 @@ export default function I18nMessage(props: Props) {
     // style={{height: iframeHeight}}
     // ref={iframeRef}
     !failedToLoadSrc ? (
-      <iframe src={src} title={title} onLoad={onLoad} sandbox={!IS_WEB} />
+      <iframe src={src} title={title} onLoad={onLoad} sandbox={!IS_WEB as any} />
     ) : (
       <Card
         title={__('Failed to load')}

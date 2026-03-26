@@ -6,10 +6,26 @@ import { selectIsFetchingComments } from 'redux/selectors/comments';
 import { selectIsUriResolving } from 'redux/selectors/claims';
 import { VIEW_MODES } from 'component/chat/view';
 
+type ChatCommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name?: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  removed: boolean;
+  support_amount: number;
+  timestamp: number;
+  [key: string]: any;
+};
+
 // 30 sec timestamp refresh timer
 const UPDATE_TIMESTAMP_MS = 30 * 1000;
 type Props = {
-  comments: Array<Comment>;
+  comments: Array<ChatCommentData>;
   uri: string;
   isMobile?: boolean;
   viewMode: string;
@@ -17,7 +33,7 @@ type Props = {
   setResolvingSuperChats?: (arg0: boolean) => void;
   setHoverLock: (arg0: boolean) => void;
   handleCommentClick?: (arg0: string) => void;
-  isCompact: string;
+  isCompact: boolean;
 };
 export default function ChatComments(props: Props) {
   const {
@@ -45,7 +61,7 @@ export default function ChatComments(props: Props) {
   React.useEffect(() => {
     if (setResolvingSuperChats) setResolvingSuperChats(resolvingSuperchats);
   }, [resolvingSuperchats, setResolvingSuperChats]);
-  const now = new Date();
+  const now = Date.now();
   const shouldRefreshTimestamp =
     comments &&
     comments.some((comment) => {

@@ -25,7 +25,7 @@ export default function ModalOpenExternalResource(props: Props) {
 
   function openResource() {
     // @if TARGET='app'
-    const { openExternal, openPath, showItemInFolder } = shell;
+    const { openExternal, openPath, showItemInFolder } = shell as any;
 
     if (uri) {
       openExternal(uri);

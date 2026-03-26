@@ -1,5 +1,4 @@
 import 'scss/component/_header.scss';
-// @ts-expect-error
 import { Global } from '@emotion/react';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
@@ -98,8 +97,8 @@ export default function HeaderProfileMenuButton() {
         <Global
           styles={{
             body: {
-              overflowY: 'scroll !important',
-              paddingRight: '0px !important',
+              overflowY: 'scroll !important' as any,
+              paddingRight: '0px !important' as any,
             },
           }}
         />

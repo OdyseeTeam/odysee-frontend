@@ -1,7 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { remote } from 'electron';
 // @if TARGET='app'
-const win = remote.BrowserWindow.getFocusedWindow();
+const win = (remote as any).BrowserWindow?.getFocusedWindow();
 // @endif
 const reducers = {};
 export type SnackBar = {
@@ -34,6 +34,8 @@ export type AppState = {
   enhancedLayout: boolean;
   splashAnimationEnabled: boolean;
   searchOptionsExpanded: boolean;
+  currentScroll: number;
+  scrollHistory: number[];
   isPasswordSaved: boolean;
   welcomeVersion: number;
   allowAnalytics: boolean;
@@ -51,6 +53,8 @@ export type AppState = {
   };
   videoSourceLoaded: string | null | undefined;
   assignedLbrynetServer: string | null | undefined;
+  muted: boolean;
+  autoUpdateDownloaded: boolean;
 };
 const defaultState: AppState = {
   isLoaded: false,

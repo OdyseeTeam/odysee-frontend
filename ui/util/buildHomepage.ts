@@ -152,7 +152,7 @@ export function GetLinksData(
   showIndividualTags?: boolean,
   showNsfw?: boolean
 ) {
-  function getPageSize(originalSize, following) {
+  function getPageSize(originalSize, following?) {
     if (following) {
       return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
     }
@@ -402,7 +402,7 @@ export function GetLinksData(
   for (let i = 0; i < entries.length; ++i) {
     const key = entries[i][0];
     const val = entries[i][1];
-    rowData.push(getHomepageRowForCat(key, val));
+    rowData.push(getHomepageRowForCat(key, val as HomepageCat));
   }
 
   return rowData;
@@ -421,4 +421,5 @@ export type HomepageTitles =
   | 'Comedy'
   | 'Music'
   | 'Sports'
-  | 'Finance 2.0';
+  | 'Finance 2.0'
+  | 'Shorts';

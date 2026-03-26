@@ -3,12 +3,12 @@ import * as ACTIONS from 'constants/action_types';
 const RETRY_DELAY_MS = 3000;
 const RETRY_ATTEMPTS = 5;
 
-type LazyComponentImport = () => Promise<{ default: React.ComponentType }>;
+type LazyComponentImport<T extends React.ComponentType<any> = React.ComponentType<any>> = () => Promise<{ default: T }>;
 
-function componentLoader(
-  lazyComponent: LazyComponentImport,
+function componentLoader<T extends React.ComponentType<any>>(
+  lazyComponent: LazyComponentImport<T>,
   attemptsLeft: number
-): Promise<{ default: React.ComponentType }> {
+): Promise<{ default: T }> {
   return new Promise((resolve, reject) => {
     lazyComponent()
       .then(resolve)
@@ -31,6 +31,6 @@ function componentLoader(
   });
 }
 
-export function lazyImport(componentImport: LazyComponentImport): React.LazyExoticComponent<React.ComponentType> {
+export function lazyImport<T extends React.ComponentType<any>>(componentImport: LazyComponentImport<T>): React.LazyExoticComponent<T> {
   return React.lazy(() => componentLoader(componentImport, RETRY_ATTEMPTS));
 }

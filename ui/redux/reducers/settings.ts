@@ -203,7 +203,7 @@ reducers[ACTIONS.SAVE_CUSTOM_WALLET_SERVERS] = (state, action) => {
   return Object.assign({}, state, {
     customWalletServers: action.data,
   });
-}; // @ts-expect-error
+};
 
 export default function reducer(state = defaultState, action: any) {
   const handler = reducers[action.type];

@@ -14,7 +14,7 @@ import { doResolveUri } from 'redux/actions/claims';
 type Props = {
   params: any;
   bidError: string | null | undefined;
-  onChange: () => void;
+  onChange: (event?: any) => void;
 };
 
 function PublishName(props: Props) {
@@ -48,7 +48,7 @@ function PublishName(props: Props) {
           type="number"
           name="content_bid"
           step="any"
-          min="0.0"
+          min={0.0}
           placeholder={0.1}
           label={<LbcSymbol postfix={__('Deposit')} size={14} />}
           value={bid}

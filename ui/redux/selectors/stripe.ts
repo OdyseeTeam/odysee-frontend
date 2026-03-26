@@ -113,6 +113,9 @@ export const selectCardDetails = (state: State) => {
     expiryYear: card.exp_year,
     expiryMonth: card.exp_month,
     lastFour: card.last4,
+    last4: card.last4,
+    exp_month: card.exp_month,
+    exp_year: card.exp_year,
     email,
   };
   return cardDetails;

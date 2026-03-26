@@ -4,7 +4,7 @@ const getProgress = (elapsed, duration) => Math.min(elapsed / duration, 1);
 
 const easeOut = (progress) => Math.pow(progress - 1, 5) + 1;
 
-export default function useTween(duration, onRest) {
+export default function useTween(duration: number, onRest?: () => void) {
   const [value, setValue] = useState(0);
   useEffect(() => {
     let start = performance.now();

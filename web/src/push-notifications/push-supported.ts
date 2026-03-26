@@ -4,7 +4,7 @@ export const isPushSupported = async (): Promise<boolean> => {
     try {
       // Some browsers incognito expose sw but not the registration, while other don't expose sw at all.
       // $FlowIssue[incompatible-type]
-      const activeRegistrations: Array<ServiceWorkerRegistration> = await navigator.serviceWorker.getRegistrations();
+      const activeRegistrations: ServiceWorkerRegistration[] = [...await navigator.serviceWorker.getRegistrations()];
       const swRegistered = activeRegistrations.length > 0;
       const firebaseSupported = await isSupported();
       const notificationFeature = 'Notification' in window;

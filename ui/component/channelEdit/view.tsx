@@ -48,9 +48,9 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 const MAX_TAG_SELECT = 5;
 type Props = {
-  uri: string;
-  onDone: () => void;
-  disabled: boolean;
+  uri?: string;
+  onDone?: () => void;
+  disabled?: boolean;
 };
 
 function ChannelForm(props: Props) {
@@ -81,7 +81,7 @@ function ChannelForm(props: Props) {
     (id: string, modalProps: any) => dispatch(doOpenModal(id, modalProps)),
     [dispatch]
   );
-  const updateChannel = React.useCallback((params: any) => dispatch(doUpdateChannel(params)), [dispatch]);
+  const updateChannel = React.useCallback((params: any) => dispatch(doUpdateChannel(params, undefined)), [dispatch]);
   const createChannel = React.useCallback(
     (params: any) => {
       const { name, amount: amt, ...optionalParams } = params;
@@ -133,7 +133,7 @@ function ChannelForm(props: Props) {
   const errorMsg = resolveErrorMsg();
   const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
   const thumbnailPreview = resolveThumbnailPreview();
-  const [scrollPast, setScrollPast] = React.useState(0);
+  const [scrollPast, setScrollPast] = React.useState<number | boolean>(0);
 
   const onScroll = () => {
     if (window.pageYOffset > 240) {
@@ -173,7 +173,7 @@ function ChannelForm(props: Props) {
       website,
       email,
       coverUrl,
-      thumbnailUrl,
+      thumbnailUrl: thumbnailUrl as string,
       description,
       title,
       amount: amount || 0.001,
@@ -386,7 +386,7 @@ function ChannelForm(props: Props) {
                 thumbnailPreview={thumbnailPreview}
                 allowGifs
                 setThumbUploadError={setThumbError}
-                thumbUploadError={thumbError}
+                ThumbUploadError={thumbError}
               />
               <div className="channel__edit-thumb">
                 <Button
@@ -567,7 +567,7 @@ function ChannelForm(props: Props) {
                         <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
                           {__('None selected')}
                         </option>
-                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, string]) => (
                           <option key={langKey} value={langKey}>
                             {langName}
                           </option>
@@ -586,7 +586,7 @@ function ChannelForm(props: Props) {
                       <option key={'sec-langNone'} value={PUBLISH.LANG_NONE}>
                         {__('None selected')}
                       </option>
-                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, string]) => (
                         <option key={langKey} value={langKey} disabled={langKey === languageParam[0]}>
                           {langName}
                         </option>
@@ -611,7 +611,7 @@ function ChannelForm(props: Props) {
                         label={<LbcSymbol postfix={__('Deposit')} size={14} />}
                         value={params.amount}
                         error={bidError}
-                        min="0.0"
+                        min={0.0}
                         disabled={false}
                         onChange={(event) => handleBidChange(parseFloat(event.target.value))}
                         placeholder={0.1}
@@ -633,7 +633,7 @@ function ChannelForm(props: Props) {
                     title={__('Delete Channel')}
                     body={
                       <div className="publish-row">
-                        <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                        <ClaimAbandonButton uri={uri} abandonActionCallback={() => navigate(`/$/${PAGES.CHANNELS}`, { replace: true })} iconSize={18} />
                       </div>
                     }
                   />

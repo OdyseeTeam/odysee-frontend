@@ -29,6 +29,7 @@ type Props = {
   delayed?: boolean;
   Wrapper?: any;
   ClaimRenderWrapper?: any;
+  [key: string]: any;
 };
 
 const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam) => {
@@ -47,7 +48,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const isClaimBlackListed = useAppSelector((state) => Boolean(selectBlackListedDataForUri(state, uri)));
     const filterData = useAppSelector((state) => selectFilteredDataForUri(state, uri));
     const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
-    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim)) as boolean;
     const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
     const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
     const isGlobalMod = useAppSelector((state) => Boolean(selectUser(state)?.global_mod));

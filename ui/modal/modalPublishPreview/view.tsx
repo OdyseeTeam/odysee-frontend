@@ -50,7 +50,7 @@ function createRow(label: string, value: any, hide?: boolean) {
   );
 }
 
-function truncateWithEllipsis(str, maxChars) {
+function truncateWithEllipsis(str: string | undefined, maxChars: number) {
   if (str && str.length > maxChars) {
     return str.slice(0, maxChars).trim() + '...';
   }
@@ -104,7 +104,7 @@ const ModalPublishPreview = (props: Props) => {
     remoteFile,
   } = publishFormValues;
 
-  const publish: DoPublishDesktop = (filePath, preview) => dispatch(doPublishDesktop(filePath, preview));
+  const publish = (filePath: any, preview?: boolean) => dispatch(doPublishDesktop(filePath, preview));
   const closeModal = () => dispatch(doHideModal());
   const setEnablePublishPreview = (value: boolean) =>
     dispatch(doSetClientSetting(SETTINGS.ENABLE_PUBLISH_PREVIEW, value));
@@ -119,7 +119,7 @@ const ModalPublishPreview = (props: Props) => {
   }, [rtPayload, rtStore]);
   const livestream =
     (uri && isLivestreamClaim) ||
-    (previewResponse?.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
+    (previewResponse?.outputs[0] && previewResponse.outputs[0].value && !(previewResponse.outputs[0].value as StreamMetadata).source);
   // leave the confirm modal up if we're not going straight to upload/reflecting
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
@@ -135,7 +135,7 @@ const ModalPublishPreview = (props: Props) => {
 
   // **************************************************************************
   // **************************************************************************
-  function getFilePathName(filePath: undefined | WebFile) {
+  function getFilePathName(filePath: undefined | string | WebFile) {
     if (!filePath) {
       return NO_FILE;
     }
@@ -258,7 +258,7 @@ const ModalPublishPreview = (props: Props) => {
     }
   }
 
-  function getTagsValue(tags) {
+  function getTagsValue(tags: Array<{ name: string }>) {
     const visibleTags = removeInternalTags(tags);
     return visibleTags.map((tag) => (
       <Tag
@@ -271,8 +271,8 @@ const ModalPublishPreview = (props: Props) => {
     ));
   }
 
-  function getChannelValue(channel) {
-    const channelClaim = myChannels && myChannels.find((x) => x.name === channel);
+  function getChannelValue(channel: string) {
+    const channelClaim: any = myChannels && myChannels.find((x: any) => x.name === channel);
     return channel ? (
       <div className="channel-value">
         {channelClaim && <ChannelThumbnail xsmall noLazyLoad uri={channelClaim.permanent_url} />}

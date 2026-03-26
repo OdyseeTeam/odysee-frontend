@@ -121,7 +121,7 @@ export default function SendPage(props: Props) {
       noSideNavigation
       className="main--send"
       backout={{
-        backoutLabel: __('Done'),
+        backLabel: __('Done'),
         title: (
           <>
             <LbcSymbol prefix={__('Send')} size={28} />

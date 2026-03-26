@@ -70,7 +70,7 @@ function HomeTab(props: Props) {
     setHome((prevHome) => (JSON.stringify(prevHome) === JSON.stringify(nextHome) ? prevHome : nextHome));
   }, [claimId, edit, homeTemplate, homepageSections, settingsByChannelId]);
 
-  function handleEditCollection(e, index) {
+  function handleEditCollection(e: any, index?: any) {
     let newHome = [...home];
 
     if (e.order) {

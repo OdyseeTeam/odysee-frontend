@@ -39,8 +39,8 @@ function CollectionGeneralTab(props: Props) {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
-  const [thumbStatus, setThumbStatus] = React.useState();
-  const [thumbError, setThumbError] = React.useState();
+  const [thumbStatus, setThumbStatus] = React.useState<string | undefined>();
+  const [thumbError, setThumbError] = React.useState<string | undefined>();
 
   function handleUpdateThumbnail(update: Record<string, string>) {
     const { thumbnail_url: url, thumbnail_status: status, thumbnail_error: error } = update;
@@ -100,13 +100,7 @@ function CollectionGeneralTab(props: Props) {
               <FormUrlName
                 channelName={collectionChannelName}
                 name={name}
-                autoFocus={!hasClaim}
-                disabled={hasClaim}
-                onChange={(e) =>
-                  updateFormParams({
-                    name: e.target.value || '',
-                  })
-                }
+                {...({ autoFocus: !hasClaim, disabled: hasClaim, onChange: (e: any) => updateFormParams({ name: e.target.value || '' }) } as any)}
               />
 
               <span className="form-field__help">
@@ -136,11 +130,7 @@ function CollectionGeneralTab(props: Props) {
 
       <fieldset-section>
         <SelectThumbnail
-          thumbnailParam={thumbnailUrl}
-          thumbnailParamError={thumbError}
-          thumbnailParamStatus={thumbStatus}
-          updateThumbnailParams={handleUpdateThumbnail}
-          optional
+          {...({ thumbnailParam: thumbnailUrl, thumbnailParamError: thumbError, thumbnailParamStatus: thumbStatus, updateThumbnailParams: handleUpdateThumbnail, optional: true } as any)}
         />
       </fieldset-section>
 
@@ -175,12 +165,12 @@ function CollectionGeneralTab(props: Props) {
               hideHeader
               label={__('Selected Tags')}
               empty={__('No tags added')}
-              excludedControlTags={[
+              excludedControlTags={([
                 TAGS.DISABLE_COMMENTS_TAG,
                 TAGS.DISABLE_DOWNLOAD_BUTTON_TAG,
                 TAGS.DISABLE_REACTIONS_COMMENTS_TAG,
                 TAGS.DISABLE_SLIMES_COMMENTS_TAG,
-              ]}
+              ]) as any}
               limitSelect={TAGS_LIMIT}
               help={__(
                 "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."

@@ -110,11 +110,9 @@ const EmbedWrapperPage = () => {
   const embedLightBackground = urlParams.get('embedBackgroundLight');
 
   React.useEffect(() => {
-    // $FlowFixMe
     if (!document.querySelector('meta[name="darkreader-lock"]') && document.head) {
       const meta = document.createElement('meta');
       meta.name = 'darkreader-lock';
-      // $FlowFixMe
       document.head.appendChild(meta);
     }
   }, []);

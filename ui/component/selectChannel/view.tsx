@@ -20,7 +20,7 @@ function SelectChannel(props: Props) {
 
   function handleChannelChange(event: React.SyntheticEvent<any>) {
     const channelClaimId = (event.target as HTMLSelectElement).value;
-    dispatch(doSetActiveChannel(channelClaimId));
+    dispatch(doSetActiveChannel(channelClaimId, false));
   }
 
   return (

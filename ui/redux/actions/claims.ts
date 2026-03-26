@@ -32,7 +32,15 @@ import { doUserHasPremium } from './user';
 let onChannelConfirmCallback;
 let checkPendingInterval;
 
-async function getCostInfoForFee(claimId: string, fee: Fee) {
+type CostInfo = {
+  claimId: string;
+  cost: number;
+  includesData: boolean;
+  feeCurrency?: string;
+  usdCost?: number;
+};
+
+async function getCostInfoForFee(claimId: string, fee: Fee | undefined): Promise<CostInfo> {
   if (fee === undefined) {
     return Promise.resolve({
       claimId,
@@ -48,7 +56,7 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     usdCost = usdCost / (1 / LBC_USD);
   }
 
-  usdCost = Math.max(usdCost, 0.01).toFixed(2);
+  usdCost = Number(Math.max(usdCost, 0.01).toFixed(2));
   return Promise.resolve({
     claimId,
     cost: Number(fee.amount),
@@ -114,7 +122,7 @@ export function doResolveUris(
         const repostsToResolve = new Set([]);
         const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
-        const costInfos = new Set();
+        const costInfos = new Set<Promise<CostInfo>>();
         const fiatClaimIds = [];
         const resolveInfo: Record<
           string,
@@ -127,9 +135,9 @@ export function doResolveUris(
         > = {};
 
         for (const uri in response) {
-          const uriResolveInfo = Object.assign({}, response[uri]);
+          const uriResolveInfoRaw = Object.assign({}, response[uri]);
 
-          if (uriResolveInfo.error) {
+          if ('error' in uriResolveInfoRaw && uriResolveInfoRaw.error) {
             const fallbackResolveInfo = {
               stream: null,
               claimsInChannel: null,
@@ -138,6 +146,7 @@ export function doResolveUris(
             };
             resolveInfo[uri] = fallbackResolveInfo;
           } else {
+            const uriResolveInfo = uriResolveInfoRaw as Claim;
             if (resolveReposts) {
               const repostedClaim = uriResolveInfo.reposted_claim;
 
@@ -155,23 +164,28 @@ export function doResolveUris(
               }
             }
 
-            const resultResponse = {};
+            const resultResponse: {
+              stream?: StreamClaim | null;
+              channel?: ChannelClaim | null;
+              claimsInChannel?: number | null;
+              collection?: CollectionClaim | null;
+            } = {};
 
             if (uriResolveInfo.value_type === 'channel') {
-              const channel: ChannelClaim = uriResolveInfo;
+              const channel = uriResolveInfo as ChannelClaim;
               resultResponse.channel = channel;
               resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
             } else if (uriResolveInfo.value_type === 'collection') {
-              const collection: CollectionClaim = uriResolveInfo;
+              const collection = uriResolveInfo as CollectionClaim;
               resultResponse.collection = collection;
               collectionIds.add(collection.claim_id);
             } else {
-              const stream: StreamClaim = uriResolveInfo;
+              const stream = uriResolveInfo as StreamClaim;
               resultResponse.stream = stream;
               const isProtected = isClaimProtected(stream);
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
-              if ((hasFiatTags(stream) || stream.value?.fee) && stream.claim_id) {
+              if ((hasFiatTags(stream) || (stream.value as StreamMetadata)?.fee) && stream.claim_id) {
                 fiatClaimIds.push(stream.claim_id);
               }
 
@@ -181,12 +195,12 @@ export function doResolveUris(
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
 
-              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
+              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined));
             }
 
             const channelId = getChannelIdFromClaim(uriResolveInfo);
             if (channelId) channelClaimIds.add(channelId);
-            resolveInfo[uri] = resultResponse;
+            resolveInfo[uri] = resultResponse as typeof resolveInfo[string];
           }
         }
 
@@ -282,7 +296,7 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: b
     ).then((response: ClaimSearchResponse) => ({ ...response, ...cachedClaims }));
   };
 }
-export const doResolveClaimId = (claimId: ClaimId, returnCachedClaims: boolean = true, options: {}) =>
+export const doResolveClaimId = (claimId: ClaimId, returnCachedClaims: boolean = true, options: {} = {}) =>
   doResolveClaimIds([claimId], returnCachedClaims, options);
 export function doResolveUri(
   uri: string,
@@ -349,7 +363,7 @@ export function doFetchClaimListMine(
         const claimIds: Array<ClaimId> = [];
         const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
-        const costInfos = new Set();
+        const costInfos = new Set<Promise<CostInfo>>();
         result.items.forEach((item) => {
           claimIds.push(item.claim_id);
 
@@ -360,7 +374,7 @@ export function doFetchClaimListMine(
 
           const channelId = getChannelIdFromClaim(item);
           if (channelId) channelClaimIds.add(channelId);
-          costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
+          costInfos.add(getCostInfoForFee(item.claim_id, item.value ? (item.value as StreamMetadata).fee : undefined));
         });
 
         if (costInfos.size > 0) {
@@ -448,6 +462,7 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
       claim_id?: string;
       txid?: string;
       nout?: number;
+      blocking?: boolean;
     } = {
       blocking: true,
     };
@@ -691,8 +706,8 @@ export function doUpdateChannel(params: any, cb: any) {
     });
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
-    const channelClaim = myChannels.find((myChannel) => myChannel.claim_id === params.claim_id);
-    const updateParams = {
+    const channelClaim = (myChannels as Array<ChannelClaim>).find((myChannel) => myChannel.claim_id === params.claim_id);
+    const updateParams: Record<string, any> = {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
       title: params.title,
@@ -826,7 +841,9 @@ export function doClaimSearch(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const alreadyFetching = selectIsFetchingClaimSearchForQuery(state, query);
-    if (alreadyFetching) return Promise.resolve();
+    if (alreadyFetching) {
+      return Promise.resolve();
+    }
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: {
@@ -840,7 +857,7 @@ export function doClaimSearch(
       const claimIds: Array<ClaimId> = [];
       const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
-      const costInfos = new Set();
+      const costInfos = new Set<Promise<CostInfo>>();
       const fiatClaimIds = [];
       let collectionResolveInfo;
       data.items.some((stream: Claim, index: number) => {
@@ -853,7 +870,7 @@ export function doClaimSearch(
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           const isProtected = isClaimProtected(stream);
           if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
-          costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
+          costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined));
         }
 
         if (stream.value_type === 'collection') {
@@ -866,7 +883,7 @@ export function doClaimSearch(
         const channelId = getChannelIdFromClaim(stream);
         if (channelId) channelClaimIds.add(channelId);
 
-        if (!options.has_no_source && stream.claim_id && (hasFiatTags(stream) || stream.value?.fee)) {
+        if (!options.has_no_source && stream.claim_id && (hasFiatTags(stream) || (stream.value as StreamMetadata)?.fee)) {
           fiatClaimIds.push(stream.claim_id);
         }
       });
@@ -899,14 +916,17 @@ export function doClaimSearch(
       // Resolve cost infos before batching (async)
       let sdkPaidClaimIds: string[] = [];
       if (costInfos.size > 0) {
-        const settledCostInfosById = await Promise.all(Array.from(costInfos));
-        batchedActions.push({
-          type: ACTIONS.SET_COST_INFOS_BY_ID,
-          data: settledCostInfosById,
-        });
-        sdkPaidClaimIds = settledCostInfosById
-          .filter((costInfo) => Number(costInfo.cost) > 0)
-          .map((costInfo) => costInfo.claimId);
+        try {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          batchedActions.push({
+            type: ACTIONS.SET_COST_INFOS_BY_ID,
+            data: settledCostInfosById,
+          });
+          sdkPaidClaimIds = settledCostInfosById
+            .filter((costInfo) => Number(costInfo.cost) > 0)
+            .map((costInfo) => costInfo.claimId);
+        } catch (costErr) {
+        }
       }
 
       // Dispatch all synchronous state updates as one commit
@@ -976,7 +996,9 @@ export function doClaimSearch(
     };
 
     const successCallback = settings?.useAutoPagination ? autoPaginate() : success;
-    return await Lbry.claim_search(options).then(successCallback, failure);
+    return await Lbry.claim_search(options).then(successCallback, failure).catch((err) => {
+      failure(err);
+    });
   };
 }
 export function doRepost(options: StreamRepostOptions) {

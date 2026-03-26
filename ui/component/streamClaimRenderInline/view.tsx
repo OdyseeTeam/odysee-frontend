@@ -9,7 +9,7 @@ import { webDownloadClaim } from 'util/downloadClaim';
 import analytics from 'analytics';
 // @if TARGET='app'
 // should match
-const DocxViewer = lazyImport(
+const DocxViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/viewers/docxViewer'
@@ -18,7 +18,7 @@ const DocxViewer = lazyImport(
 );
 // import ThreeViewer from 'component/viewers/threeViewer';
 // @endif
-const DocumentViewer = lazyImport(
+const DocumentViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/viewers/documentViewer'
@@ -26,21 +26,21 @@ const DocumentViewer = lazyImport(
     )
 );
 // const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
-const HtmlViewer = lazyImport(
+const HtmlViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/viewers/htmlViewer'
       /* webpackChunkName: "htmlViewer" */
     )
 );
-const ImageViewer = lazyImport(
+const ImageViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/viewers/imageViewer'
       /* webpackChunkName: "imageViewer" */
     )
 );
-const PdfViewer = lazyImport(
+const PdfViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
       'component/viewers/pdfViewer'
@@ -124,14 +124,14 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.IMAGE:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={source} />
+<ImageViewer uri={uri} source={source} />
           </React.Suspense>
         );
 
       case RENDER_MODES.HTML:
         return (
           <React.Suspense fallback={null}>
-            <HtmlViewer source={downloadPath || source} />
+<HtmlViewer source={downloadPath || source} />
           </React.Suspense>
         );
 
@@ -139,7 +139,7 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.MARKDOWN:
         return (
           <React.Suspense fallback={null}>
-            <DocumentViewer
+<DocumentViewer
               source={{
                 stream: source,
                 contentType,
@@ -153,26 +153,26 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.DOCX:
         return (
           <React.Suspense fallback={null}>
-            <DocxViewer source={downloadPath} />
+<DocxViewer source={downloadPath} />
           </React.Suspense>
         );
 
       case RENDER_MODES.PDF:
         return (
           <React.Suspense fallback={null}>
-            <PdfViewer source={downloadPath || source} />
+<PdfViewer source={downloadPath || source} />
           </React.Suspense>
         );
 
       case RENDER_MODES.CAD:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer
+<ImageViewer
               uri={uri}
               source={thumbnail}
               title={__('Download')}
               onClick={() => {
-                webDownloadClaim(streamingUrl, 'file', false);
+                webDownloadClaim(streamingUrl, 'file', false, undefined);
               }}
             />
           </React.Suspense>
@@ -190,12 +190,12 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.COMIC:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer
+<ImageViewer
               uri={uri}
               source={thumbnail}
               title={__('Download')}
               onClick={() => {
-                webDownloadClaim(streamingUrl, 'file', false);
+                webDownloadClaim(streamingUrl, 'file', false, undefined);
               }}
             />
           </React.Suspense>
@@ -204,12 +204,12 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.APPLICATION:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer
+<ImageViewer
               uri={uri}
               source={thumbnail}
               title={__('Download')}
               onClick={() => {
-                webDownloadClaim(streamingUrl, 'file', false);
+                webDownloadClaim(streamingUrl, 'file', false, undefined);
               }}
             />
           </React.Suspense>
@@ -223,12 +223,12 @@ function StreamClaimRenderInline(props: Props) {
       case RENDER_MODES.DOWNLOAD:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer
+<ImageViewer
               uri={uri}
               source={thumbnail}
               title={__('Download')}
               onClick={() => {
-                webDownloadClaim(streamingUrl, 'file', false);
+                webDownloadClaim(streamingUrl, 'file', false, undefined);
               }}
             />
           </React.Suspense>

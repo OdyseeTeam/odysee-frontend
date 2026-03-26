@@ -1,11 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import './style.scss';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { LocalStorage } from 'util/storage';
 
-const CustomBanner = ({ image, label, description, tag, button, background, isSecondary = false }) => {
+type Props = {
+  image: { url: string; alt: string };
+  label: string;
+  description: string;
+  tag?: string;
+  button: { text: string; link: string };
+  background: { url: string; alt: string };
+  isSecondary?: boolean;
+};
+
+const CustomBanner = ({ image, label, description, tag, button, background, isSecondary = false }: Props) => {
   // Generate a unique key for the banner based on its content (e.g., the tag)
   const bannerKey = `banner-${label.replace(/\s+/g, '-').toLowerCase()}`;
   // State to control the visibility of the banner
@@ -85,22 +94,4 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
   );
 };
 
-CustomBanner.propTypes = {
-  image: PropTypes.shape({
-    url: PropTypes.string.isRequired,
-    alt: PropTypes.string.isRequired,
-  }).isRequired,
-  label: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  tag: PropTypes.string,
-  button: PropTypes.shape({
-    text: PropTypes.string.isRequired,
-    link: PropTypes.string.isRequired,
-  }).isRequired,
-  background: PropTypes.shape({
-    url: PropTypes.string.isRequired,
-    alt: PropTypes.string.isRequired,
-  }).isRequired,
-  isSecondary: PropTypes.bool,
-};
 export default CustomBanner;

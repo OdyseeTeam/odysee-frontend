@@ -7,13 +7,13 @@ import { useAppDispatch } from 'redux/hooks';
 import { doToast } from 'redux/actions/notifications';
 
 type Props = {
-  copyable: string;
-  snackMessage: string | null | undefined;
+  copyable?: string;
+  snackMessage?: string | null | undefined;
   label?: string;
   claim: Claim;
-  includeStartTime: boolean;
-  startTime: number;
-  referralCode: string | null | undefined;
+  includeStartTime?: boolean;
+  startTime?: number;
+  referralCode?: string | null | undefined;
   newestType?: string;
   uriAccessKey?: UriAccessKey;
 };
@@ -26,7 +26,7 @@ export default function EmbedTextArea(props: Props) {
   const isCollection = claim && claim.value_type === 'collection';
   const showAutoplayToggle = !isChannel && !isCollection && !newestType;
   const { canonical_url: canonicalUri } = claim;
-  const input = useRef();
+  const input = useRef<any>();
   const streamUrl = generateEmbedUrlEncoded(
     canonicalUri,
     includeStartTime && startTime,
@@ -63,6 +63,7 @@ export default function EmbedTextArea(props: Props) {
   return (
     <div className="section">
       <FormField
+        name="embed-textarea"
         type="textarea"
         className="form-field--copyable"
         label={label}

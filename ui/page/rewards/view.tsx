@@ -95,14 +95,14 @@ function RewardsPage() {
     const isNotEligible = !user || !user.primary_email || !user.has_verified_email || !user.is_reward_approved;
     return (
       <RewardTile
-        key={REWARD_TYPES.TYPE_GENERATED_CODE}
+        key={(REWARD_TYPES as any).TYPE_GENERATED_CODE}
         reward={{
-          reward_type: REWARD_TYPES.TYPE_GENERATED_CODE,
+          reward_type: (REWARD_TYPES as any).TYPE_GENERATED_CODE,
           reward_title: __('Custom Code'),
           reward_description: __(
             'Are you a supermodel or rockstar that received a custom Credits code? Claim it here.'
           ),
-        }}
+        } as any}
         disabled={isNotEligible}
       />
     );

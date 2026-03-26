@@ -31,12 +31,13 @@ import {
   doRetryCollectionPublish,
 } from 'redux/actions/collections';
 type Props = {
-  uri: string;
+  uri?: string;
   collectionId: string;
-  showEdit: boolean;
-  setShowEdit: (arg0: boolean) => void;
-  isBuiltin: boolean;
-  claimIsPending: boolean;
+  showEdit?: boolean;
+  setShowEdit?: (arg0: boolean) => void;
+  isBuiltin?: boolean;
+  claimIsPending?: boolean;
+  isHeader?: boolean;
 };
 
 function CollectionHeaderActions(props: Props) {

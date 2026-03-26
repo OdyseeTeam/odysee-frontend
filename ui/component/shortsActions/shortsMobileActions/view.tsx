@@ -91,7 +91,6 @@ const MobileActions = (props: Props) => {
           document.body
         )}
 
-      {/* $FlowFixMe */}
       {slimeEffect && createPortal(<div className="shorts-mobile-slime" />, document.body)}
 
       <div className="shorts-mobile-panel__actions">

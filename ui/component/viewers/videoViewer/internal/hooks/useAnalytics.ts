@@ -10,7 +10,7 @@ export default function useAnalytics() {
   const paused = Player.usePlayer((s) => s.paused);
 
   useEffect(() => {
-    analytics.video.videoIsPlaying(!paused);
+    analytics.video.videoIsPlaying(!paused, undefined);
   }, [paused]);
 
   // FPS detection
@@ -42,11 +42,11 @@ export default function useAnalytics() {
       lastFrameNum = metadata.presentedFrames;
 
       if (fpsRounder.length < 10) {
-        media.requestVideoFrameCallback(ticker);
+        (media as any).requestVideoFrameCallback(ticker);
       }
     }
 
-    media.requestVideoFrameCallback(ticker);
+    (media as any).requestVideoFrameCallback(ticker);
 
     const handleSeeked = () => {
       fpsRounder.pop();
