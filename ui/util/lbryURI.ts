@@ -247,7 +247,7 @@ const errorHistory = [];
 function logErrorOnce(err: string) {
   if (!errorHistory.includes(err)) {
     errorHistory.push(err);
-    console.error(err); // eslint-disable-line no-console
+    console.warn(err); // eslint-disable-line no-console
   }
 }
 

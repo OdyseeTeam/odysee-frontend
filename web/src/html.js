@@ -543,7 +543,7 @@ async function getHtml(ctx) {
       if (isDev) {
         rawHtml = rawHtml.replace(
           '</body>',
-          `<script>new EventSource('/__livereload').onmessage=function(e){location.reload()}</script></body>`
+          `<script>(function(){var t,r=false;new EventSource('/__livereload').onmessage=function(){if(r)return;r=true;clearTimeout(t);t=setTimeout(function(){location.reload()},1500)}})()</script></body>`
         );
       }
       html = rawHtml;

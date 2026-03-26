@@ -7,7 +7,7 @@ type Props = {
   upcomingUris: Array<string>,
   isMobile: boolean,
   primaryPlayerWrapperClass: string,
-  nextRecommendedShort: ?string,
+  nextRecommendedShort: string | null | undefined,
   autoPlayNextShort: boolean,
   isAtEnd: boolean,
   onSwipeNext: () => void,

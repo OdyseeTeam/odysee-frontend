@@ -57,9 +57,10 @@ app.use(iframeDestroyerMiddleware);
 app.use(appStringsMiddleWare);
 
 // /public/* files are served from dist/ (maps to dist/public/*)
-const staticServe = serve(DIST_ROOT, { maxage: 3600000 });
+const staticMaxAge = (process.env.NODE_ENV || 'development') === 'development' ? 0 : 3600000;
+const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge });
 // Root-level files like /robots.txt, /sw.js are in dist/public/, serve with prefix strip
-const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: 3600000 });
+const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: staticMaxAge });
 
 if (config.DYNAMIC_ROUTES_FIRST) {
   app.use(router.routes());
@@ -132,7 +133,7 @@ if (IS_DEV) {
       for (const res of sseClients) {
         res.write(`data: ${buildHash}\n\n`);
       }
-    }, 300);
+    }, 1500);
   });
 
   app.use(async (ctx, next) => {
@@ -142,7 +143,9 @@ if (IS_DEV) {
       ctx.set('Connection', 'keep-alive');
       ctx.status = 200;
       ctx.respond = false;
-      ctx.res.write(`data: ${buildHash}\n\n`);
+      // Do not send a `data:` event here — the page script reloads on every onmessage(),
+      // so an initial payload would cause an infinite refresh loop.
+      ctx.res.write(': livereload\n\n');
       sseClients.add(ctx.res);
       ctx.req.on('close', () => sseClients.delete(ctx.res));
       return;

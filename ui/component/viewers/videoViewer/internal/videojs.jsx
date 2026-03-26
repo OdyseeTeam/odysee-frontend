@@ -2,6 +2,7 @@ import 'scss/component/_videojs-skin.scss';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Video } from '@videojs/react/video';
 import Hls from 'hls.js';
+import { LocalStorage } from 'util/storage';
 import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
 import useResolvedSource from './hooks/useResolvedSource';
@@ -235,7 +236,27 @@ function VideoJsInner(props) {
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
 
-    const hls = new Hls({
+    // Inject P2P delivery when the setting is enabled.
+    // This modifies the Hls class to share segments with other viewers via WebRTC.
+    const p2pEnabled = (() => {
+      try {
+        const stored = LocalStorage.getItem('p2p_delivery');
+        return stored ? JSON.parse(stored) === true : false;
+      } catch { return false; } // eslint-disable-line no-empty
+    })();
+
+    let HlsConstructor = Hls;
+    if (p2pEnabled && isLivestreamClaim) {
+      try {
+        const { HlsJsP2PEngine } = require('p2p-media-loader-hlsjs');
+        HlsJsP2PEngine.injectMixin(HlsConstructor);
+        console.log('[P2P] P2P delivery enabled for this stream'); // eslint-disable-line no-console
+      } catch (e) {
+        console.warn('[P2P] Failed to load p2p-media-loader:', e); // eslint-disable-line no-console
+      }
+    }
+
+    const hls = new HlsConstructor({
       backBufferLength: 30,
       capLevelToPlayerSize: true,
       capLevelOnFPSDrop: true,
@@ -243,6 +264,18 @@ function VideoJsInner(props) {
         ? {
             liveSyncDuration: 4,
             liveMaxLatencyDuration: Infinity,
+          }
+        : undefined),
+      ...(p2pEnabled && isLivestreamClaim
+        ? {
+            p2p: {
+              core: {
+                announceTrackers: [
+                  'wss://tracker.novage.com.ua',
+                  'wss://tracker.webtorrent.dev',
+                ],
+              },
+            },
           }
         : undefined),
     });

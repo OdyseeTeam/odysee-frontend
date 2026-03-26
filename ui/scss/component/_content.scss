@@ -1138,6 +1138,15 @@
   cursor: default;
 }
 
+// Hide play button when live thumbnail is auto-refreshing (frame-by-frame preview)
+.content__cover--live-refreshing {
+  .button--play {
+    opacity: 0 !important;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+}
+
 .content__loading {
   @extend .embed__inline-button;
   height: 100% !important;

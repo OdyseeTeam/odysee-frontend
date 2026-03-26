@@ -27,3 +27,16 @@ fs.readdirSync(dir).forEach((file) => {
     }
   }
 });
+
+// Create a browser-safe ESM entry when the homepage repo only provides index.cjs.
+const indexCjsPath = path.join(dir, 'index.cjs');
+const indexTsPath = path.join(dir, 'index.ts');
+if (fs.existsSync(indexCjsPath) && !fs.existsSync(indexTsPath)) {
+  const shim = `import homepages from './index.cjs';
+
+export default homepages;
+export const en = homepages?.en;
+`;
+  fs.writeFileSync(indexTsPath, shim);
+  console.log('Created custom homepage ESM shim: index.ts');
+}

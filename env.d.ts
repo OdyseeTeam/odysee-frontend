@@ -50,3 +50,9 @@ declare module '*.frag' {
   const content: string;
   export default content;
 }
+
+declare module 'homepages' {
+  export const en: any;
+  const homepages: any;
+  export default homepages;
+}

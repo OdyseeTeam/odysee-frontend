@@ -5,11 +5,16 @@
 import { LocalStorage } from 'util/storage';
 
 const registrations = (): Array<string> => {
-  return JSON.parse(LocalStorage.getItem('fcm') || '[]');
+  try {
+    const parsed = JSON.parse(LocalStorage.getItem('fcm') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 };
 
 const updateRegistrations = (data) => {
-  LocalStorage.setItem('fcm', JSON.stringify(data));
+  LocalStorage.setItem('fcm', JSON.stringify(Array.isArray(data) ? data : []));
 };
 
 export const addRegistration = (userId: number) => {

@@ -1,0 +1,315 @@
+@import 'init/breakpoints';
+
+// ============================================================
+// Stream Metrics  --  shared base + per-mode styles
+// ============================================================
+
+.stream-metrics {
+  font-variant-numeric: tabular-nums;
+}
+
+// ---- Compact mode (slim inline bar) ----
+
+.stream-metrics--compact {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.stream-metrics__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-subtitle);
+  background: rgba(var(--color-header-button-base), 0.08);
+  white-space: nowrap;
+}
+
+.stream-metrics__health-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--good {
+    background: #34d399;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+  }
+
+  &--unknown {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}
+
+// ---- Overlay mode (WebRTC publisher video) ----
+
+.stream-metrics--overlay {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  pointer-events: none;
+}
+
+.stream-metrics__viewers-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.stream-metrics__source-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+// ---- Full mode (creator claim page) ----
+
+.stream-metrics--full {
+  padding: var(--spacing-s) var(--spacing-m);
+  border-radius: 10px;
+  border: 1px solid rgba(var(--color-header-button-base), 0.3);
+  background:
+    linear-gradient(135deg, rgba(var(--color-primary-dynamic), 0.04), transparent 60%),
+    rgba(var(--color-header-button-base), 0.07);
+  backdrop-filter: blur(8px);
+
+  &.stream-metrics--offline {
+    opacity: 0.6;
+    text-align: center;
+    padding: var(--spacing-m);
+  }
+}
+
+.stream-metrics__offline-label {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  font-weight: 600;
+}
+
+.stream-metrics__full-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-s);
+}
+
+.stream-metrics__full-viewers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text);
+}
+
+.stream-metrics__full-viewer-count {
+  font-size: var(--font-large);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.stream-metrics__full-viewer-label {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  font-weight: 500;
+}
+
+.stream-metrics__full-source {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  background: rgba(var(--color-header-button-base), 0.25);
+  border: 1px solid rgba(var(--color-header-button-base), 0.3);
+}
+
+.stream-metrics__full-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xs);
+
+  @media (max-width: $breakpoint-small) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stream-metrics__full-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-xs) var(--spacing-s);
+  border-radius: var(--border-radius);
+  background: rgba(var(--color-header-button-base), 0.1);
+  border: 1px solid rgba(var(--color-header-button-base), 0.15);
+}
+
+.stream-metrics__full-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-subtitle);
+}
+
+.stream-metrics__full-stat-value {
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.stream-metrics__full-stat-sub {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-subtitle);
+}
+
+// ---- Card mode (RTMP setup page) ----
+
+.stream-metrics--card {
+  padding: var(--spacing-m);
+  border-radius: 12px;
+  border: 1px solid rgba(var(--color-header-button-base), 0.35);
+  background:
+    linear-gradient(135deg, rgba(var(--color-primary-dynamic), 0.05), transparent 60%),
+    rgba(var(--color-header-button-base), 0.08);
+
+  &.stream-metrics--card-offline {
+    opacity: 0.7;
+  }
+}
+
+.stream-metrics__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-s);
+}
+
+.stream-metrics__card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--live {
+    background: #34d399;
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+    animation: stream-metrics-pulse 1.5s ease-in-out infinite;
+  }
+
+  &--offline {
+    background: rgba(var(--color-header-button-base), 0.5);
+  }
+}
+
+.stream-metrics__card-title {
+  font-size: var(--font-body);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stream-metrics__card-source {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-subtitle);
+  background: rgba(var(--color-header-button-base), 0.2);
+}
+
+.stream-metrics__card-viewers {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.stream-metrics__card-offline-text {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+}
+
+.stream-metrics__card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xs);
+
+  @media (max-width: $breakpoint-small) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stream-metrics__card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--spacing-xs) var(--spacing-s);
+  border-radius: var(--border-radius);
+  background: rgba(var(--color-header-button-base), 0.1);
+  border: 1px solid rgba(var(--color-header-button-base), 0.15);
+
+  &--wide {
+    grid-column: span 2;
+
+    @media (max-width: $breakpoint-small) {
+      grid-column: span 2;
+    }
+  }
+}
+
+.stream-metrics__card-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-subtitle);
+}
+
+.stream-metrics__card-stat-value {
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+// ---- Animation ----
+
+@keyframes stream-metrics-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

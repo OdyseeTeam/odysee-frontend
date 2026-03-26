@@ -16,6 +16,9 @@ interface Config {
   SEARCH_SERVER_API_ALT: string | undefined;
   COMMENT_SERVER_API: string | undefined;
   LIVESTREAM_SERVER_API: string | undefined;
+  LIVESTREAM_INGEST_HOST: string | undefined;
+  LIVESTREAM_WEBRTC_PORT: string | undefined;
+  LIVESTREAM_WHIP_URL_TEMPLATE: string | undefined;
   SHORT_URL_API: string | undefined;
   SOCKETY_SERVER_API: string | undefined;
   LOCALE_API: string | undefined;

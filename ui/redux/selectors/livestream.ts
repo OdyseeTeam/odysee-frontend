@@ -15,7 +15,7 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
-import { EMPTY_OBJECT } from 'redux/selectors/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
 
 const selectState = (state: State) => state.livestream || EMPTY_OBJECT;
 
@@ -123,24 +123,32 @@ export const selectIsLivePollingForUri = (state: State, uri: string) => {
   if (isLivePolling) return true;
   return false;
 };
-// select non-pending claims without sources for given channel
-export const makeSelectLivestreamsForChannelId = (channelId: string) =>
-  createSelector(selectState, selectMyClaims, (livestreamState, myClaims = []) => {
-    return myClaims
-      .filter(
-        (claim) =>
-          claim.value_type === 'stream' &&
-          claim.value &&
-          !claim.value.source &&
-          claim.confirmations > 0 &&
-          claim.signing_channel &&
-          claim.signing_channel.claim_id === channelId
-      )
-      .toSorted((a, b) => b.timestamp - a.timestamp); // newest first
-  });
-export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
-  createSelector(selectPendingClaims, (pendingClaims) => {
-    return pendingClaims.filter(
+// select non-pending claims without sources for given channel (cached per channelId — do not use makeSelect* that builds a new selector each call)
+export const selectLivestreamsForChannelId = createCachedSelector(
+  (state: State, channelId?: string) => selectMyClaims(state),
+  (state: State, channelId?: string) => channelId,
+  (myClaims, channelId) => {
+    if (!channelId) return EMPTY_ARRAY;
+    const filtered = myClaims.filter(
+      (claim) =>
+        claim.value_type === 'stream' &&
+        claim.value &&
+        !claim.value.source &&
+        claim.confirmations > 0 &&
+        claim.signing_channel &&
+        claim.signing_channel.claim_id === channelId
+    );
+    if (filtered.length === 0) return EMPTY_ARRAY;
+    return filtered.toSorted((a, b) => b.timestamp - a.timestamp); // newest first
+  }
+)((state: State, channelId?: string) => String(channelId ?? ''));
+
+export const selectPendingLivestreamsForChannelId = createCachedSelector(
+  (state: State, channelId?: string) => selectPendingClaims(state),
+  (state: State, channelId?: string) => channelId,
+  (pendingClaims, channelId) => {
+    if (!channelId) return EMPTY_ARRAY;
+    const filtered = pendingClaims.filter(
       (claim) =>
         claim.value_type === 'stream' &&
         claim.value &&
@@ -148,7 +156,16 @@ export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
         claim.signing_channel &&
         claim.signing_channel.claim_id === channelId
     );
-  });
+    return filtered.length === 0 ? EMPTY_ARRAY : filtered;
+  }
+)((state: State, channelId?: string) => String(channelId ?? ''));
+
+/** @deprecated Prefer `selectLivestreamsForChannelId(state, channelId)` — factory returns a new function each call and breaks memoization. */
+export const makeSelectLivestreamsForChannelId = (channelId: string) => (state: State) =>
+  selectLivestreamsForChannelId(state, channelId);
+/** @deprecated Prefer `selectPendingLivestreamsForChannelId(state, channelId)` */
+export const makeSelectPendingLivestreamsForChannelId = (channelId: string) => (state: State) =>
+  selectPendingLivestreamsForChannelId(state, channelId);
 export const selectIsActiveLivestreamForUri = createCachedSelector(
   (state: State, uri: string) => uri,
   selectActiveLivestreamByCreatorId,
@@ -172,6 +189,23 @@ export const selectIsActiveLivestreamForClaimId = (state: State, claimId: string
     (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.claimId === claimId
   );
 };
+/**
+ * Returns the live thumbnail URL for a claim URI if the claim is an active livestream.
+ * The thumbnail comes from the livestream API's ThumbnailURL field (a frame grab of the live stream).
+ */
+export const selectLiveThumbnailForUri = (state: State, uri: string): string | null => {
+  if (!uri) return null;
+  const activeLivestreams = selectActiveLivestreamByCreatorId(state);
+  if (!activeLivestreams) return null;
+  for (const creatorId in activeLivestreams) {
+    const active: any = activeLivestreams[creatorId];
+    if (active && active.uri === uri && active.liveThumbnailUrl) {
+      return active.liveThumbnailUrl;
+    }
+  }
+  return null;
+};
+
 export const selectActiveLivestreamForChannel = (state: State, channelId: string) => {
   const activeLivestreams = selectActiveLivestreamByCreatorId(state);
   if (!channelId || !activeLivestreams) return undefined;

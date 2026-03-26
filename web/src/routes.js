@@ -127,6 +127,12 @@ router.post(`/$/frame`, async (ctx) => {
 router.get('*', async (ctx, next) => {
   const requestedUrl = ctx.url;
 
+  // Dev SSE livereload (web/index.js) must not be served as SPA HTML — router runs before that middleware.
+  if (ctx.path === '/__livereload') {
+    await next();
+    return;
+  }
+
   if (config.DYNAMIC_ROUTES_FIRST) {
     // Dynamic-first: let static middleware handle assets
     if (requestedUrl.startsWith('/public/') || requestedUrl === '/sw.js') {

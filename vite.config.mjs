@@ -423,6 +423,8 @@ export default defineConfig(({ command }) => ({
   resolve: {
     conditions: ['browser', ...(isProduction ? ['production'] : ['development'])],
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.cjs', '.json', '.scss'],
+    // Ensure a single copy of React across all packages (pnpm can nest duplicates)
+    dedupe: ['react', 'react-dom'],
     alias: {
       // Explicit aliases for things that aren't in ui/
       config: path.resolve(__dirname, 'config.ts'),
@@ -504,12 +506,26 @@ export default defineConfig(({ command }) => ({
         },
       },
     },
+    // Transform local .cjs files to ESM for the dev server only.
+    // Build mode uses Rolldown which handles CJS interop natively.
+    {
+      name: 'cjs-to-esm-dev',
+      enforce: 'pre',
+      apply: 'serve',
+      transform(code, id) {
+        if (!id.endsWith('.cjs') || id.includes('node_modules')) return null;
+        return {
+          code: `var module = { exports: {} }; var exports = module.exports;\n${code}\nexport default module.exports;\n`,
+          map: null,
+        };
+      },
+    },
     react(),
     ssrTemplatePlugin(),
   ],
 
   server: {
-    port: parseInt(process.env.WEBPACK_WEB_PORT || '9090', 10),
+    port: parseInt(process.env.WEB_SERVER_PORT || process.env.WEBPACK_WEB_PORT || '9090', 10),
     open: false,
   },
 
@@ -526,6 +542,7 @@ export default defineConfig(({ command }) => ({
   },
 
   optimizeDeps: {
+    entries: ['index.html'],
     include: [
       'react',
       'react-dom',

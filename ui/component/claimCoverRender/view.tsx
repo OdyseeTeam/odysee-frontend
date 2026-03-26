@@ -14,6 +14,7 @@ import { selectShortsSidePanelOpen } from 'redux/selectors/shorts';
 import { selectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectFileRenderModeForUri, selectPlayingUri } from 'redux/selectors/content';
+import { selectLiveThumbnailForUri } from 'redux/selectors/livestream';
 type Props = {
   uri: string;
   children: any;
@@ -63,7 +64,45 @@ const ClaimCoverRender = (props: Props) => {
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const isShorts = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam || isShortClaim;
   const shouldUseShortsCoverLayout = isShorts && !isFloatingContext;
-  const thumbnail = useGetPoster(claimThumbnail, isShorts);
+  const staticThumbnail = useGetPoster(claimThumbnail, isShorts);
+  const liveThumbnail = useAppSelector((state) => selectLiveThumbnailForUri(state, uri));
+
+  // Live thumbnail hover refresh (preload-then-swap to avoid flash)
+  const [isHovering, setIsHovering] = React.useState(false);
+  const [loadedLiveUrl, setLoadedLiveUrl] = React.useState<string | null>(null);
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  React.useEffect(() => {
+    if (isHovering && liveThumbnail) {
+      let canceled = false;
+
+      const fetchFrame = () => {
+        const sep = liveThumbnail.includes('?') ? '&' : '?';
+        const nextUrl = `${liveThumbnail}${sep}t=${Date.now()}`;
+        const img = new Image();
+        img.onload = () => {
+          if (!canceled) setLoadedLiveUrl(nextUrl);
+        };
+        img.src = nextUrl;
+      };
+
+      fetchFrame();
+      intervalRef.current = setInterval(fetchFrame, 200);
+
+      return () => {
+        canceled = true;
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    } else {
+      if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+      setLoadedLiveUrl(null);
+    }
+  }, [isHovering, liveThumbnail]);
+
+  const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
+
+  const thumbnail = loadedLiveUrl || liveThumbnail || staticThumbnail;
+
   const swipeRef = useSwipeNavigation({
     onSwipeNext,
     onSwipePrevious,
@@ -79,6 +118,8 @@ const ClaimCoverRender = (props: Props) => {
       ref={shouldUseShortsCoverLayout ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
+      onMouseEnter={liveThumbnail ? () => setIsHovering(true) : undefined}
+      onMouseLeave={liveThumbnail ? () => setIsHovering(false) : undefined}
       style={
         thumbnail &&
         !obscurePreview &&
@@ -100,6 +141,7 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
         'content__cover--side-panel-open': sidePanelOpen && !isMobile,
+        'content__cover--live-refreshing': isLiveRefreshing,
       })}
     >
       {children}

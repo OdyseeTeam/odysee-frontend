@@ -47,8 +47,10 @@ function updateActiveLivestreams(state: LivestreamState, livestreamInfoByCreator
     const livestreamInfo: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
 
     if (livestreamInfo) {
-      const { isLive, activeClaim, futureClaims, pastClaims }: LivestreamInfo = livestreamInfo;
-      newActiveLivestreamByCreatorId[creatorId] = isLive ? activeClaim : null;
+      const { isLive, activeClaim, futureClaims, pastClaims, thumbnailUrl }: LivestreamInfo = livestreamInfo;
+      newActiveLivestreamByCreatorId[creatorId] = isLive
+        ? { ...activeClaim, ...(thumbnailUrl ? { liveThumbnailUrl: thumbnailUrl } : {}) }
+        : null;
 
       if (futureClaims) {
         newFutureLivestreamsByCreatorId[creatorId] = futureClaims;

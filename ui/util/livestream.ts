@@ -48,6 +48,7 @@ export const transformNewLivestreamData = (data: LivestreamAllResponse): Livestr
       isLive: curr.Live,
       viewCount: curr.ViewerCount,
       creatorId: curr.ChannelClaimID,
+      thumbnailUrl: curr.ThumbnailURL || null,
       activeClaim: {
         ...transformLivestreamClaimData(curr.ActiveClaim),
         videoUrl: getPreferredLivestreamVideoUrl(curr),

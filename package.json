@@ -20,8 +20,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
-    "dev:vite": "vp dev",
+    "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
+    "dev:ssr": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "build": "vp build",
     "preview": "vp preview",
     "check": "vp check",
@@ -133,7 +133,8 @@
     "unist-util-visit": "^5.1.0",
     "uuid": "^9.0.1",
     "@videojs/react": "10.0.0-beta.10",
-    "hls.js": "^1.6.7"
+    "hls.js": "^1.6.7",
+    "p2p-media-loader-hlsjs": "^2.2.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

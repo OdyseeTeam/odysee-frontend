@@ -17,6 +17,7 @@ export default function SettingPlayer() {
   const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
   const autoplayNext = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
   const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+  const p2pDelivery = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const isFloating = useAppSelector(selectIsPlayerFloating);
 
   const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
@@ -46,6 +47,10 @@ export default function SettingPlayer() {
             <SettingsRow title={__('Disable Shorts View')} subtitle={__(HELP.DISABLE_SHORTS_VIEW)}>
               <FormField type="checkbox" name="disable shorts view" onChange={() => setClientSetting(SETTINGS.DISABLE_SHORTS_VIEW, !disableShortsView)} checked={disableShortsView} />
             </SettingsRow>
+
+            <SettingsRow title={__('P2P Stream Delivery')} subtitle={__(HELP.P2P_DELIVERY)}>
+              <FormField type="checkbox" name="p2p_delivery" onChange={() => setClientSetting(SETTINGS.P2P_DELIVERY, !p2pDelivery)} checked={p2pDelivery} />
+            </SettingsRow>
           </>} />
     </>;
 } // prettier-ignore
@@ -57,4 +62,6 @@ const HELP = {
   AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
   DEFAULT_VIDEO_QUALITY:
     'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts. At this time, not all videos have multiple quality options, in which case the original quality will be used.',
+  P2P_DELIVERY:
+    'Enable peer-to-peer delivery for livestreams. Uses WebRTC for low-latency playback and shares stream segments with other viewers. Your IP address will be visible to the streaming server and other viewers. Off by default for privacy.',
 };

@@ -13,8 +13,8 @@ type SwipeNavigationOptions = {
 export default function useSwipeNavigation(options: SwipeNavigationOptions) {
   const { onSwipeNext, onSwipePrevious, isEnabled = true, minSwipeDistance = 50, tapDuration = 200, onTap } = options;
 
-  const [element, setElement] = useState<?HTMLElement>(null);
-  const elementRef = useCallback((node: ?HTMLElement) => setElement(node), []);
+  const [element, setElement] = useState<HTMLElement | null>(null);
+  const elementRef = useCallback((node: HTMLElement | null) => setElement(node), []);
   const touchStartRef = useRef(null);
   const touchEndRef = useRef(null);
   const isScrollingRef = useRef(false);

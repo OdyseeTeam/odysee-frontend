@@ -5,7 +5,7 @@ export const selectState = (state) => state.user || EMPTY_OBJECT;
 export const hasLegacyOdyseePremium = (state) => selectState(state).hasLegacyOdyseePremium;
 export const selectAuthenticationIsPending = (state) => selectState(state).authenticationIsPending;
 export const selectUserIsPending = (state) => selectState(state).userIsPending;
-export const selectUser = (state) => selectState(state).user;
+export const selectUser = createSelector(selectState, (slice) => slice.user);
 export const selectEmailAlreadyExists = (state) => selectState(state).emailAlreadyExists;
 export const selectEmailDoesNotExist = (state) => selectState(state).emailDoesNotExist;
 export const selectResendingVerificationEmail = (state) => selectState(state).resendingVerificationEmail;
