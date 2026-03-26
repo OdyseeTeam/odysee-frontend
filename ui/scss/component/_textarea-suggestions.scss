@@ -40,6 +40,10 @@
     @media (min-width: $breakpoint-small) {
       margin-bottom: var(--spacing-s);
     }
+
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-m) !important;
+    }
   }
 
   #comment__signup-prompt {
@@ -283,7 +287,8 @@
 }
 
 .MuiPaper-root {
-  background-color: var(--mui-background);
+  background-color: var(--mui-background) !important;
+  color: var(--color-text) !important;
   .form-field__two-column {
     display: flex;
     justify-content: space-between;

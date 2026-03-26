@@ -49,6 +49,7 @@ export const TextareaWrapper = (wrapperProps: TextareaWrapperProps) => {
         // other input boxes, so in this case it is disabled when trying to type in a custom tip
         ModalProps={{
           disableEnforceFocus: tipModalOpen,
+          container: fullscreenEl || document.body,
         }}
       >
         {children}
