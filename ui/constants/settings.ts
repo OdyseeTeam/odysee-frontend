@@ -60,6 +60,7 @@ export const SHORTS_DURATION_LTE = 180;
 export const DISABLE_SHORTS_VIEW = 'disable_shorts_view';
 export const FYP_MODAL_SHOWN = 'fyp_modal_shown';
 export const P2P_DELIVERY = 'p2p_delivery';
+export const P2P_OPT_IN_DISMISSED = 'p2p_opt_in_dismissed';
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',
   ACCOUNT: 'account',

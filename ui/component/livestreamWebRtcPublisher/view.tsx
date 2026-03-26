@@ -15,10 +15,15 @@ import { LocalStorage } from 'util/storage';
 import { startWhipPublish, stopWhipPublish, updateWhipVideoEncodingPolicy } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
-import { selectLivestreamsForChannelId, selectViewersForId } from 'redux/selectors/livestream';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+import { selectPrefsReady } from 'redux/selectors/sync';
+import { selectLivestreamsForChannelId, selectViewersForId, selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimIdForUri } from 'redux/selectors/claims';
 import ClaimPreview from 'component/claimPreview';
+import LivestreamP2PSeed from 'component/livestreamP2PSeed';
 import LivestreamConnectingAnimation from 'component/livestreamConnectingAnimation';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import LivestreamMetrics from 'component/livestreamMetrics/view';
@@ -194,6 +199,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Server-side stream metrics
   const channelName = activeChannelClaim?.name;
   const serverMetrics = useLivestreamMetrics(channelId, channelName, signature, signingTs, status === 'live');
+
+  // P2P seed: streamer acts as first peer in the P2P swarm (uses shared P2P_DELIVERY setting)
+  const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
+  const hlsVideoUrl = activeLivestream?.videoUrl;
+  const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const [showP2pConfirm, setShowP2pConfirm] = React.useState(false);
 
   // Viewer count from commentron WebSocket (actual HLS viewer count, not OME's always-1)
   const activeClaimId = useAppSelector((state) => nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined);
@@ -795,6 +807,26 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
             <div className="livestream-webrtc__controls-spacer" />
 
+            {isLive && hlsVideoUrl && (
+              <button
+                className={classnames('livestream-webrtc__control-btn livestream-webrtc__control-btn--p2p', {
+                  'livestream-webrtc__control-btn--p2p-active': p2pEnabled,
+                })}
+                onClick={() => {
+                  if (p2pEnabled) {
+                    dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false, prefsReady));
+                  } else {
+                    setShowP2pConfirm(true);
+                  }
+                }}
+                title={p2pEnabled ? __('P2P seeding active') : __('Enable P2P seeding')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </button>
+            )}
+
             {(isLive || isConnecting) && (
               <Button
                 button="primary"
@@ -875,6 +907,42 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         </div>
       )}
 
+      {/* Hidden P2P seed player - makes streamer the first peer */}
+      {hlsVideoUrl && (
+        <LivestreamP2PSeed videoUrl={hlsVideoUrl} active={p2pEnabled && isLive} />
+      )}
+
+      {/* P2P confirmation dialog */}
+      {showP2pConfirm && (
+        <div className="livestream-webrtc__p2p-confirm">
+          <div className="livestream-webrtc__p2p-confirm-card">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+            <h4>{__('Enable P2P delivery?')}</h4>
+            <p>
+              {__('Your stream will be shared peer-to-peer with viewers. This reduces server load but your IP address may be visible to viewers. This also applies when you watch other livestreams.')}
+            </p>
+            <div className="livestream-webrtc__p2p-confirm-actions">
+              <button
+                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--primary"
+                onClick={() => {
+                  dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true, prefsReady));
+                  setShowP2pConfirm(false);
+                }}
+              >
+                {__('Enable P2P')}
+              </button>
+              <button
+                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--secondary"
+                onClick={() => setShowP2pConfirm(false)}
+              >
+                {__('Not now')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

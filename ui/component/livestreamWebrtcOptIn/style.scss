@@ -81,6 +81,24 @@
       background: rgba(var(--color-header-button-base), 0.12);
     }
   }
+
+  &--dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--color-text-subtitle);
+
+    &:hover {
+      color: var(--color-text);
+      background: rgba(var(--color-header-button-base), 0.1);
+    }
+  }
 }
 
 @keyframes webrtc-opt-in-fade {

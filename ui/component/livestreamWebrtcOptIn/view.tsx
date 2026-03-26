@@ -7,28 +7,29 @@ import { selectPrefsReady } from 'redux/selectors/sync';
 import './style.scss';
 
 type Props = {
-  /** Called when the user enables WebRTC (either permanently or just this session) */
   onEnable: () => void;
 };
 
 export default function LivestreamWebrtcOptIn({ onEnable }: Props) {
   const dispatch = useAppDispatch();
-  const webrtcEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
+  const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
+  const dismissed = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_OPT_IN_DISMISSED));
   const prefsReady = useAppSelector(selectPrefsReady);
-  const [dismissed, setDismissed] = React.useState(false);
 
-  // If already enabled globally, don't show
-  if (webrtcEnabled || dismissed) return null;
+  if (p2pEnabled || dismissed) return null;
 
   function handleEnableOnce() {
+    dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true));
     onEnable();
-    setDismissed(true);
   }
 
   function handleEnableAlways() {
     dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true, prefsReady));
     onEnable();
-    setDismissed(true);
+  }
+
+  function handleDismiss() {
+    dispatch(doSetClientSetting(SETTINGS.P2P_OPT_IN_DISMISSED, true, prefsReady));
   }
 
   return (
@@ -40,9 +41,9 @@ export default function LivestreamWebrtcOptIn({ onEnable }: Props) {
           </svg>
         </div>
         <div className="webrtc-opt-in__text">
-          <p className="webrtc-opt-in__title">{__('Low-latency P2P stream available')}</p>
+          <p className="webrtc-opt-in__title">{__('P2P streaming available')}</p>
           <p className="webrtc-opt-in__subtitle">
-            {__('WebRTC provides near-instant latency. Your IP address will be visible to the streaming server.')}
+            {__('Share stream data with other viewers to reduce load. Your IP may be visible to peers.')}
           </p>
         </div>
         <div className="webrtc-opt-in__actions">
@@ -50,7 +51,12 @@ export default function LivestreamWebrtcOptIn({ onEnable }: Props) {
             {__('Try it')}
           </button>
           <button className="webrtc-opt-in__btn webrtc-opt-in__btn--secondary" onClick={handleEnableAlways}>
-            {__('Always use')}
+            {__('Always')}
+          </button>
+          <button className="webrtc-opt-in__btn webrtc-opt-in__btn--dismiss" onClick={handleDismiss} title={__('Dismiss')}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
       </div>

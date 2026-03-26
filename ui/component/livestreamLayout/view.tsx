@@ -20,7 +20,6 @@ import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import LivestreamMetrics from 'component/livestreamMetrics/view';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
-import LivestreamWebrtcViewer from 'component/livestreamWebrtcViewer';
 import LivestreamWebrtcOptIn from 'component/livestreamWebrtcOptIn';
 
 const LivestreamScheduledInfo = lazyImport(
@@ -70,7 +69,6 @@ export default function LivestreamLayout(props: Props) {
   const isLandscapeRotated = useIsMobileLandscape();
 
   const [hyperchatsHidden] = React.useState(false);
-  const [webrtcViewerActive, setWebrtcViewerActive] = React.useState(false);
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
 
   // Creator-only stream metrics
@@ -89,16 +87,11 @@ export default function LivestreamLayout(props: Props) {
   const metricsActive = Boolean(claimIsMine && isCurrentClaimLive);
   const serverMetrics = useLivestreamMetrics(myChannelId, myChannelName, sigData.signature, sigData.signing_ts, metricsActive);
 
-  // WebRTC viewer for non-creator viewers
+  // P2P delivery opt-in for viewers
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
-  const canOfferWebrtc = !claimIsMine && channelId && isCurrentClaimLive && typeof RTCPeerConnection !== 'undefined';
-  const showWebrtcOptIn = canOfferWebrtc && !webrtcViewerActive && !p2pEnabled;
-
-  React.useEffect(() => {
-    if (p2pEnabled && canOfferWebrtc && !webrtcViewerActive) {
-      setWebrtcViewerActive(true);
-    }
-  }, [p2pEnabled, canOfferWebrtc]); // eslint-disable-line react-hooks/exhaustive-deps
+  const p2pDismissed = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_OPT_IN_DISMISSED));
+  const canOfferP2P = !claimIsMine && channelId && isCurrentClaimLive && typeof RTCPeerConnection !== 'undefined';
+  const showP2POptIn = canOfferP2P && !p2pEnabled && !p2pDismissed;
 
   const liveStatusFetching = activeStreamUri === undefined;
   React.useEffect(() => {
@@ -135,8 +128,8 @@ export default function LivestreamLayout(props: Props) {
         {claimIsMine && serverMetrics?.live && (
           <LivestreamMetrics metrics={serverMetrics} mode="compact" />
         )}
-        {showWebrtcOptIn && channelId && (
-          <LivestreamWebrtcOptIn onEnable={() => setWebrtcViewerActive(true)} />
+        {showP2POptIn && (
+          <LivestreamWebrtcOptIn onEnable={() => {}} />
         )}
         <FileTitleSection uri={uri} expandOverride />
       </section>
@@ -158,17 +151,9 @@ export default function LivestreamLayout(props: Props) {
     return (
       <section className="card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-          {webrtcViewerActive && channelId ? (
-            <LivestreamWebrtcViewer
-              channelClaimId={channelId}
-              isCurrentClaimLive={isCurrentClaimLive}
-              onExit={() => setWebrtcViewerActive(false)}
-            />
-          ) : (
-            <VideoClaimInitiator uri={claim.canonical_url}>
-              {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
-            </VideoClaimInitiator>
-          )}
+          <VideoClaimInitiator uri={claim.canonical_url}>
+            {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
+          </VideoClaimInitiator>
         </div>
 
         <MobileTabView
@@ -184,17 +169,9 @@ export default function LivestreamLayout(props: Props) {
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-        {webrtcViewerActive && channelId ? (
-          <LivestreamWebrtcViewer
-            channelClaimId={channelId}
-            isCurrentClaimLive={isCurrentClaimLive}
-            onExit={() => setWebrtcViewerActive(false)}
-          />
-        ) : (
-          <VideoClaimInitiator uri={claim.canonical_url}>
-            {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
-          </VideoClaimInitiator>
-        )}
+        <VideoClaimInitiator uri={claim.canonical_url}>
+          {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
+        </VideoClaimInitiator>
       </div>
       <div className="file-page__secondary-content">
         <div className="file-page__media-actions">
@@ -204,8 +181,8 @@ export default function LivestreamLayout(props: Props) {
             {claimIsMine && serverMetrics?.live && (
               <LivestreamMetrics metrics={serverMetrics} mode="compact" />
             )}
-            {showWebrtcOptIn && channelId && (
-              <LivestreamWebrtcOptIn onEnable={() => setWebrtcViewerActive(true)} />
+            {showP2POptIn && (
+              <LivestreamWebrtcOptIn onEnable={() => {}} />
             )}
             <FileTitleSection uri={uri} />
           </div>
