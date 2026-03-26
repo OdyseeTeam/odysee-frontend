@@ -351,8 +351,8 @@ export function doLoadBuiltInHomepageData() {
     // As a compromise between the above needs vs. wanting a smaller ui.js,
     // we'll just bake in the English version.
     // @if process.env.CUSTOM_HOMEPAGE='true'
-    import('homepages/odysee-en').then((mod) => {
-      const enHp = mod.default || mod;
+    import('homepages').then((mod) => {
+      const enHp = mod.en || mod.default?.en || mod.default || mod;
       if (enHp) {
         window.homepages = {};
         const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo

@@ -240,16 +240,18 @@ function LivestreamForm(props: Props) {
 
       if (data && data.length > 0) {
         for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
+          const statusNorm =
+            typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
+          if (statusNorm === 'inprogress' || statusNorm === 'ready') {
             const objectToPush: LivestreamReplayItem = {
               data: {
                 claimId: '',
                 url: dataItem.URL,
                 fileLocation: dataItem.URL,
                 fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
+                  statusNorm === 'inprogress'
+                    ? __('Processing...(') + (dataItem.PercentComplete ?? '') + '%)'
+                    : String((dataItem.Duration ?? 0) / 1000000000),
                 percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
                 uploadedAt: dataItem.Created,
@@ -558,7 +560,7 @@ function LivestreamForm(props: Props) {
             {/* @ts-ignore -- selectedChannelUrl is managed internally */}
             <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
           </div>
-          <p className="help">
+          <div className="help">
             {!formDisabled && !formValid ? (
               <PublishFormErrors title={title} waitForFile={waitingForFile} />
             ) : (
@@ -586,7 +588,7 @@ function LivestreamForm(props: Props) {
                 By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
               </I18nMessage>
             )}
-          </p>
+          </div>
         </section>
       </div>
     </div>

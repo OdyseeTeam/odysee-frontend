@@ -10,12 +10,17 @@ import * as SETTINGS from 'constants/settings';
 import MobileTabView from 'component/mobileTabView';
 import RecommendedContent from 'component/recommendedContent';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { getChannelIdFromClaim, getClaimScheduledState } from 'util/claim';
 import { doClearPlayingUri as doClearPlayingUriAction } from 'redux/actions/content';
+import useLivestreamMetrics from 'effects/use-livestream-metrics';
+import LivestreamMetrics from 'component/livestreamMetrics/view';
+import Lbry from 'lbry';
+import { toHex } from 'util/hex';
+import LivestreamWebrtcOptIn from 'component/livestreamWebrtcOptIn';
 
 const LivestreamScheduledInfo = lazyImport(
   () =>
@@ -65,6 +70,29 @@ export default function LivestreamLayout(props: Props) {
 
   const [hyperchatsHidden] = React.useState(false);
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
+  const [playerKey, setPlayerKey] = React.useState(0);
+
+  // Creator-only stream metrics
+  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const signingChannel = claim?.signing_channel;
+  const myChannelName = claimIsMine ? signingChannel?.name : undefined;
+  const myChannelId = claimIsMine ? signingChannel?.claim_id : undefined;
+  const [sigData, setSigData] = React.useState<{ signature?: string; signing_ts?: string }>({});
+  React.useEffect(() => {
+    if (myChannelId && myChannelName) {
+      Lbry.channel_sign({ channel_id: myChannelId, hexdata: toHex(myChannelName) })
+        .then((data: any) => setSigData(data))
+        .catch(() => setSigData({}));
+    }
+  }, [myChannelId, myChannelName]);
+  const metricsActive = Boolean(claimIsMine && isCurrentClaimLive);
+  const serverMetrics = useLivestreamMetrics(myChannelId, myChannelName, sigData.signature, sigData.signing_ts, metricsActive);
+
+  // P2P delivery opt-in for viewers
+  const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
+  const p2pDismissed = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_OPT_IN_DISMISSED));
+  const canOfferP2P = !claimIsMine && channelId && isCurrentClaimLive && typeof RTCPeerConnection !== 'undefined';
+  const showP2POptIn = canOfferP2P && !p2pEnabled && !p2pDismissed;
 
   const liveStatusFetching = activeStreamUri === undefined;
   React.useEffect(() => {
@@ -98,6 +126,12 @@ export default function LivestreamLayout(props: Props) {
       <section className="file-page__media-actions">
         {noticeContent}
         <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
+        {claimIsMine && serverMetrics?.live && (
+          <LivestreamMetrics metrics={serverMetrics} mode="compact" />
+        )}
+        {showP2POptIn && (
+          <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
+        )}
         <FileTitleSection uri={uri} expandOverride />
       </section>
     );
@@ -118,7 +152,7 @@ export default function LivestreamLayout(props: Props) {
     return (
       <section className="card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-          <VideoClaimInitiator uri={claim.canonical_url}>
+          <VideoClaimInitiator key={playerKey} uri={claim.canonical_url}>
             {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
           </VideoClaimInitiator>
         </div>
@@ -136,7 +170,7 @@ export default function LivestreamLayout(props: Props) {
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-        <VideoClaimInitiator uri={claim.canonical_url}>
+        <VideoClaimInitiator key={playerKey} uri={claim.canonical_url}>
           {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
         </VideoClaimInitiator>
       </div>
@@ -145,6 +179,12 @@ export default function LivestreamLayout(props: Props) {
           <div className="section card-stack">
             {noticeContent}
             <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
+            {claimIsMine && serverMetrics?.live && (
+              <LivestreamMetrics metrics={serverMetrics} mode="compact" />
+            )}
+            {showP2POptIn && (
+              <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
+            )}
             <FileTitleSection uri={uri} />
           </div>
         </div>

@@ -12,6 +12,16 @@ import { isPushSupported } from '$web/src/push-notifications/push-supported';
 let messaging: any = null;
 let pushSystem: Record<string, any> | null = null;
 
+const getTokenList = (value: unknown): Array<any> => {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') {
+    if (Array.isArray((value as any).items)) return (value as any).items;
+    if (Array.isArray((value as any).data)) return (value as any).data;
+    if (Array.isArray((value as any).result)) return (value as any).result;
+  }
+  return [];
+};
+
 const subscriptionMetaData = () => {
   const isMobile = (window.navigator as any).userAgentData?.mobile || false;
   const browserName = browserData.browser?.name || 'unknown';
@@ -81,16 +91,32 @@ const disconnect = async (userId: number): Promise<boolean> => {
 
 const validate = async (userId: number) => {
   if (!hasRegistration(userId)) return;
-  window.requestIdleCallback(async () => {
-    const serverTokens = await Lbryio.call('cfm', 'list');
-    const fcmToken = await getFcmToken();
-    if (!fcmToken) return;
-    const exists = serverTokens.find((item: any) => item.value === fcmToken);
 
-    if (!exists) {
-      await subscribe(userId, false);
+  const runValidation = async () => {
+    try {
+      const serverTokensRaw = await Lbryio.call('cfm', 'list');
+      const serverTokens = getTokenList(serverTokensRaw);
+      const fcmToken = await getFcmToken();
+      if (!fcmToken) return;
+
+      const exists = serverTokens.find((item) => item?.value === fcmToken || item?.token === fcmToken);
+      if (!exists) {
+        await subscribe(userId, false);
+      }
+    } catch {
+      // Ignore validation failures; we'll retry on the next refresh path.
     }
-  });
+  };
+
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => {
+      void runValidation();
+    });
+  } else {
+    window.setTimeout(() => {
+      void runValidation();
+    }, 0);
+  }
 };
 
 (async () => {

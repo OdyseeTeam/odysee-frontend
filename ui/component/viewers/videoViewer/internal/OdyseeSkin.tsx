@@ -21,6 +21,10 @@ import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
+import * as SETTINGS from 'constants/settings';
 import {
   fullscreenElement as getFullscreenElement,
   requestFullscreen,
@@ -838,6 +842,8 @@ export default function OdyseeSkin(props) {
     ...rest
   } = props;
 
+  const dispatch = useAppDispatch();
+  const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const isMobileDevice = platform.isMobile();
   const isMobileSize = useIsMobile();
   const isShorts =
@@ -1116,6 +1122,20 @@ export default function OdyseeSkin(props) {
                     <OdyseeDiscover size={18} color="currentColor" />
                   </button>
                 </>
+              )}
+
+              {isLivestream && p2pEnabled && (
+                <button
+                  type="button"
+                  className="media-button media-button--icon media-button--p2p media-button--p2p-active"
+                  aria-label={__('P2P delivery active')}
+                  title={__('P2P delivery active - click to disable')}
+                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false))}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                </button>
               )}
 
               <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
@@ -1587,6 +1607,20 @@ export default function OdyseeSkin(props) {
                   <CaptionsLabel />
                 </Tooltip.Popup>
               </Tooltip.Root>
+
+              {isLivestream && p2pEnabled && (
+                <button
+                  type="button"
+                  className="media-button media-button--icon media-button--p2p media-button--p2p-active"
+                  aria-label={__('P2P delivery active')}
+                  title={__('P2P delivery active - click to disable')}
+                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false))}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                </button>
+              )}
 
               <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
                 <Popover.Trigger

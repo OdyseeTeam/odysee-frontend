@@ -141,11 +141,59 @@ export default function VideoPlayersPage(props: Props) {
     );
   }
 
-  const commentsListProps = {
-    uri,
-    linkedCommentId,
-    threadCommentId,
-  };
+  const isMobilePortrait = isMobile && !isLandscapeRotated;
+  const commentsListProps = { uri, linkedCommentId, threadCommentId };
+
+  if (isMobilePortrait) {
+    const infoContent = (
+      <section className="file-page__media-actions">
+        <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+      </section>
+    );
+
+    const commentsContent =
+      contentUnlocked && !commentsDisabled ? (
+        <React.Suspense fallback={null}>
+          <CommentsList {...commentsListProps} notInDrawer />
+        </React.Suspense>
+      ) : (
+        <Empty padded={false} text={__('The creator of this content has disabled comments.')} />
+      );
+
+    const chaptersContent = hasChapters ? (
+      <React.Suspense fallback={null}>
+        <ChaptersCard uri={uri} visible setVisible={() => {}} />
+      </React.Suspense>
+    ) : undefined;
+
+    const playlistContent = collectionId ? (
+      <React.Suspense fallback={null}>
+        <PlaylistCard id={collectionId} uri={uri} />
+      </React.Suspense>
+    ) : undefined;
+
+    const relatedContent = <RightSideContent {...rightSideProps} />;
+
+    return (
+      <>
+        <div className="section card-stack file-page__video">
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            <VideoClaimInitiator uri={uri} />
+          </div>
+
+          <MobileTabView
+            infoContent={infoContent}
+            chaptersContent={chaptersContent}
+            playlistContent={playlistContent}
+            commentsContent={commentsContent}
+            relatedContent={relatedContent}
+            initialTab={linkedCommentId ? 1 : 0}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="section card-stack file-page__video">

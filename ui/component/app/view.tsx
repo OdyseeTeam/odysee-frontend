@@ -4,6 +4,7 @@ import * as SETTINGS from 'constants/settings';
 import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
+import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
@@ -144,6 +145,13 @@ const VideoRenderFloating = lazyImport(
     import(
       'component/videoRenderFloating'
       /* webpackChunkName: "videoRenderFloating" */
+    )
+);
+const LivestreamPublisherFloating = lazyImport(
+  () =>
+    import(
+      'component/livestreamPublisherFloating'
+      /* webpackChunkName: "livestreamPublisherFloating" */
     )
 );
 const Wander = lazyImport(
@@ -624,47 +632,50 @@ function App() {
   }
 
   return (
-    <div className={MAIN_WRAPPER_CLASS} ref={appRef} key={langRenderKey}>
-      {lbryTvApiStatus === STATUS_DOWN ? (
-        <Yrbl
-          className="main--empty"
-          title={__('odysee.com is currently down')}
-          subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
-        />
-      ) : (
-        <AppContext.Provider
-          value={{
-            uri,
-          }}
-        >
-          <React.Suspense
-            fallback={
-              <div className="main--empty">
-                <Spinner delayed />
-              </div>
-            }
+    <LivestreamPublishProvider>
+      <div className={MAIN_WRAPPER_CLASS} ref={appRef} key={langRenderKey}>
+        {lbryTvApiStatus === STATUS_DOWN ? (
+          <Yrbl
+            className="main--empty"
+            title={__('odysee.com is currently down')}
+            subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
+          />
+        ) : (
+          <AppContext.Provider
+            value={{
+              uri,
+            }}
           >
-            <Router {...({ uri } as any)} />
-          </React.Suspense>
-          <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
-          <React.Suspense fallback={null}>
-            <ModalRouter />
-          </React.Suspense>
-          <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-          <React.Suspense fallback={null}>{!embedPath && <VideoRenderFloating />}</React.Suspense>
-          <React.Suspense fallback={null}>
-            {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
-            {!hasVerifiedEmail && <YoutubeWelcome />}
-            {!shouldHideNag && <NagContinueFirstRun />}
-            {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
-              <NagSunset {...({ email: hasVerifiedEmail, onClose: () => setSeenSunsetMessage(true) } as any)} />
-            )}
-            {getStatusNag()}
-            {useDebugLog && <DebugLog />}
-          </React.Suspense>
-        </AppContext.Provider>
-      )}
-    </div>
+            <React.Suspense
+              fallback={
+                <div className="main--empty">
+                  <Spinner delayed />
+                </div>
+              }
+            >
+              <Router uri={uri} />
+            </React.Suspense>
+            <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
+            <React.Suspense fallback={null}>
+              <ModalRouter />
+            </React.Suspense>
+            <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
+            <React.Suspense fallback={null}>{!embedPath && <VideoRenderFloating />}</React.Suspense>
+            <React.Suspense fallback={null}>{!embedPath && <LivestreamPublisherFloating />}</React.Suspense>
+            <React.Suspense fallback={null}>
+              {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
+              {!hasVerifiedEmail && <YoutubeWelcome />}
+              {!shouldHideNag && <NagContinueFirstRun />}
+              {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
+                <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
+              )}
+              {getStatusNag()}
+              {useDebugLog && <DebugLog />}
+            </React.Suspense>
+          </AppContext.Provider>
+        )}
+      </div>
+    </LivestreamPublishProvider>
   );
 }
 

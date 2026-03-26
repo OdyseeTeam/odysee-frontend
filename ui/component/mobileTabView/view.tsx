@@ -66,7 +66,7 @@ export default function MobileTabView(props: Props) {
   const swipeStartX = React.useRef(0);
   const swipeStartY = React.useRef(0);
   const swipeDeltaX = React.useRef(0);
-  const swipeDirection = React.useRef<'none' | 'horizontal' | 'vertical'>('none');
+  const swipeDirection = React.useRef('none');
   const canDismiss = React.useRef(false);
   const activeTabRef = React.useRef(activeTab);
 
@@ -382,7 +382,7 @@ export default function MobileTabView(props: Props) {
     [onDrawerClose, getContentWrapper]
   );
 
-  const drawerSwipeDir = React.useRef<'none' | 'horizontal' | 'vertical'>('none');
+  const drawerSwipeDir = React.useRef('none');
   const drawerSwipeActive = React.useRef(false);
   const drawerSwipeStartY = React.useRef(0);
   const drawerSwipeStartX = React.useRef(0);

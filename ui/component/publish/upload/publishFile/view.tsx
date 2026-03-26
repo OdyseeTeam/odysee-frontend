@@ -113,14 +113,16 @@ function PublishFile(props: Props) {
 
       if (data && data.length > 0) {
         for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
+          const statusNorm =
+            typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
+          if (statusNorm === 'inprogress' || statusNorm === 'ready') {
             const objectToPush = {
               data: {
                 fileLocation: dataItem.URL,
                 fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
+                  statusNorm === 'inprogress'
+                    ? __('Processing...(') + (dataItem.PercentComplete ?? '') + '%)'
+                    : String((dataItem.Duration ?? 0) / 1000000000),
                 percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
                 uploadedAt: dataItem.Created,

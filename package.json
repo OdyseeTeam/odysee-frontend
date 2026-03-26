@@ -20,8 +20,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
-    "dev:vite": "vp dev",
+    "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
+    "dev:ssr": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "build": "vp build",
     "preview": "vp preview",
     "check": "vp check",
@@ -70,6 +70,7 @@
     "dat.gui": "^0.7.2",
     "dom-scroll-into-view": "^1.2.1",
     "emoji-dictionary": "^1.0.11",
+    "events": "^3.3.0",
     "global": "^4.4.0",
     "hast-util-sanitize": "^3.0.2",
     "hls.js": "^1.6.7",

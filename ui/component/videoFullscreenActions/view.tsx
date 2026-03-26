@@ -15,7 +15,7 @@ import PlaylistCard from 'component/playlistCard';
 import parseChapters from 'util/parse-chapters';
 import * as REACTION_TYPES from 'constants/reactions';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
-import { useIsMobile, useIsLandscapeScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsLandscapeScreen, ForceMobileProvider } from 'effects/use-screensize';
 import { fullscreenElement as getFullscreenElement, exitFullscreen, onFullscreenChange } from 'util/full-screen';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
@@ -31,12 +31,8 @@ import { selectMyReactionForUri } from 'redux/selectors/reactions';
 import { doOpenModal } from 'redux/actions/app';
 import { doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 
-const CommentsList = lazyImport(() => import('component/commentsList')) as React.LazyExoticComponent<
-  React.ComponentType<any>
->;
-const ChatLayout = lazyImport(() => import('component/chat')) as React.LazyExoticComponent<
-  React.ComponentType<any>
->;
+const CommentsList = lazyImport(() => import('component/commentsList'));
+const ChatLayout = lazyImport(() => import('component/chat'));
 
 type Props = {
   uri: string;
@@ -103,21 +99,16 @@ export default function VideoFullscreenActions(props: Props) {
 
   const isMobileSize = useIsMobile();
   const isLandscape = useIsLandscapeScreen();
-  const wasMobileRef = React.useRef(isMobileSize);
   const [isFs, setIsFs] = React.useState(!!getFullscreenElement());
+  const isMobile = isMobileSize || window.matchMedia('(pointer: coarse)').matches;
+  const useSidePanel = isLandscape || !isMobileSize;
 
-  React.useEffect(() => {
-    if (!isFs) wasMobileRef.current = isMobileSize;
-  }, [isMobileSize, isFs]);
 
   React.useEffect(() => {
     const onFsChange = () => setIsFs(!!getFullscreenElement());
     onFullscreenChange(document, 'add', onFsChange);
     return () => onFullscreenChange(document, 'remove', onFsChange);
   }, []);
-
-  const isMobile = isFs ? wasMobileRef.current : isMobileSize;
-  const useSidePanel = isLandscape || !isMobileSize;
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
   const [panelMode, setPanelMode] = React.useState<string | null>(null);
@@ -441,83 +432,6 @@ export default function VideoFullscreenActions(props: Props) {
           useSidePanel ? 'video-fullscreen__actions-wrapper--landscape' : ''
         }`}
       >
-        <div className="video-fullscreen__actions">
-          <Button
-            className="video-fullscreen__action-btn"
-            onClick={() => (useSidePanel ? handleTogglePanel('info') : drawerOpenRef.current(0))}
-            icon={ICONS.INFO}
-            iconSize={18}
-            title={__('Show Details')}
-          />
-
-          <Button
-            className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
-              myReaction === REACTION_TYPES.LIKE ? 'button--fire' : ''
-            } ${fireGlow ? 'button--fire-glow-pulse' : ''}`}
-            onClick={() => {
-              if (myReaction !== REACTION_TYPES.LIKE) triggerFireGlow();
-              handleReactionLike(uri);
-            }}
-            icon={myReaction === REACTION_TYPES.LIKE ? ICONS.FIRE_ACTIVE : ICONS.FIRE}
-            iconSize={18}
-            title={__('Like')}
-            label={
-              myReaction === REACTION_TYPES.LIKE ? (
-                <>
-                  <div className="button__fire-glow" />
-                  <div className="button__fire-particle1" />
-                  <div className="button__fire-particle2" />
-                  <div className="button__fire-particle3" />
-                  <div className="button__fire-particle4" />
-                  <div className="button__fire-particle5" />
-                  <div className="button__fire-particle6" />
-                </>
-              ) : undefined
-            }
-          />
-          <Button
-            className={`video-fullscreen__action-btn video-fullscreen__action-btn--reaction ${
-              myReaction === REACTION_TYPES.DISLIKE ? 'button--slime' : ''
-            } ${slimeGlow ? 'button--slime-glow-pulse' : ''}`}
-            onClick={() => {
-              if (myReaction !== REACTION_TYPES.DISLIKE) triggerSlimeGlow();
-              handleReactionDislike(uri);
-            }}
-            icon={myReaction === REACTION_TYPES.DISLIKE ? ICONS.SLIME_ACTIVE : ICONS.SLIME}
-            iconSize={18}
-            title={__('Dislike')}
-            label={
-              myReaction === REACTION_TYPES.DISLIKE ? (
-                <>
-                  <div className="button__slime-stain" />
-                  <div className="button__slime-drop1" />
-                  <div className="button__slime-drop2" />
-                </>
-              ) : undefined
-            }
-          />
-
-          <Button
-            className="video-fullscreen__action-btn"
-            onClick={() =>
-              useSidePanel
-                ? handleTogglePanel(isLivestreamClaim ? 'chat' : 'comments')
-                : drawerOpenRef.current(commentsIdx)
-            }
-            icon={isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST}
-            iconSize={18}
-            title={isLivestreamClaim ? __('Chat') : __('Comments')}
-          />
-
-          <Button
-            className="video-fullscreen__action-btn"
-            onClick={() => (useSidePanel ? handleTogglePanel('related') : drawerOpenRef.current(relatedIdx))}
-            icon={ICONS.DISCOVER}
-            iconSize={18}
-            title={__('Related')}
-          />
-        </div>
-
         {useSidePanel ? (
           <div
             ref={sidePanelRef}
@@ -532,21 +446,23 @@ export default function VideoFullscreenActions(props: Props) {
               <span className="video-fullscreen__puller video-fullscreen__puller--vertical" />
             </div>
             <div className="video-fullscreen__side-panel-inner">
-              {panelMode && (
-                <MobileTabView
-                  tabDefs={tabDefs}
-                  infoContent={infoContent}
-                  chaptersContent={chaptersContent}
-                  playlistContent={playlistContent}
-                  commentsContent={commentsContent}
-                  relatedContent={relatedContent}
-                  initialTab={tabModes.indexOf(panelMode)}
-                  onTabChange={handleDrawerTabChange}
-                  onSwipeDismiss={handleClosePanel}
-                  swipeDismissRef={sidePanelRef}
-                  onSwipeProgress={adjustVideoForSwipe}
-                />
-              )}
+              <ForceMobileProvider value={true}>
+                {panelMode && (
+                  <MobileTabView
+                    tabDefs={tabDefs}
+                    infoContent={infoContent}
+                    chaptersContent={chaptersContent}
+                    playlistContent={playlistContent}
+                    commentsContent={commentsContent}
+                    relatedContent={relatedContent}
+                    initialTab={tabModes.indexOf(panelMode)}
+                    onTabChange={handleDrawerTabChange}
+                    onSwipeDismiss={handleClosePanel}
+                    swipeDismissRef={sidePanelRef}
+                    onSwipeProgress={adjustVideoForSwipe}
+                  />
+                )}
+              </ForceMobileProvider>
             </div>
           </div>
         ) : (

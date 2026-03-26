@@ -2,6 +2,10 @@
 import React, { useRef } from 'react';
 import { getWindowAngle, isWindowLandscapeForAngle } from 'util/window';
 const DEFAULT_SCREEN_SIZE = 1080;
+
+const ForceMobileContext = React.createContext(false);
+export const ForceMobileProvider = ForceMobileContext.Provider;
+
 export function useWindowSize() {
   const isWindowClient = typeof window === 'object';
   const [windowSize, setWindowSize] = React.useState(isWindowClient ? window.innerWidth : DEFAULT_SCREEN_SIZE);
@@ -42,7 +46,9 @@ function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => bo
 }
 
 export function useIsMobile() {
-  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 901);
+  const forced = React.useContext(ForceMobileContext);
+  const fromWindow = useHasWindowWidthChangedEnough((windowSize) => windowSize < 901);
+  return forced || fromWindow;
 }
 export function useIsMobileLandscape() {
   const isMobile = useIsMobile();
