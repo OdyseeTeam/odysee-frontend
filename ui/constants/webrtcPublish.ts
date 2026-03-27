@@ -64,11 +64,14 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
 
 export function getWebrtcPublishVideoConstraints(
   presetId: WebrtcPublishPresetId,
+  facingMode?: 'user' | 'environment',
 ): MediaTrackConstraints {
   const video = { ...WEBRTC_PUBLISH_PRESETS[presetId].video };
 
   if (platform.isMobile()) {
-    video.facingMode = 'user';
+    // Use { exact } so the browser never silently falls back to another camera
+    // (e.g. picking the rear camera just because it natively supports 1080p).
+    video.facingMode = { exact: facingMode || 'user' };
   }
 
   return video;
@@ -79,11 +82,17 @@ export function getWebrtcPublishEncodingOptions(
 ): {
   maxVideoBitrateBps: number;
   maxVideoFramerate: number;
+  maxVideoWidth: number;
+  maxVideoHeight: number;
 } {
   const p = WEBRTC_PUBLISH_PRESETS[presetId];
+  const w = (p.video.width as { ideal: number })?.ideal || 1280;
+  const h = (p.video.height as { ideal: number })?.ideal || 720;
   return {
     maxVideoBitrateBps: p.maxVideoBitrateBps,
     maxVideoFramerate: p.maxVideoFramerate,
+    maxVideoWidth: w,
+    maxVideoHeight: h,
   };
 }
 

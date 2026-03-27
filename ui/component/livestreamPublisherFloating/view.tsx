@@ -17,6 +17,7 @@ import { getWebrtcPublishEncodingOptions, type WebrtcPublishPresetId, type Webrt
 import { startWhipPublish } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { doToast } from 'redux/actions/notifications';
+import { platform } from 'util/platform';
 import './style.scss';
 
 function formatResolutionLabel(resolution: string | null): string | null {
@@ -49,9 +50,11 @@ export default function LivestreamPublisherFloating() {
   const [presetId] = usePersistedState('livestream-quality-preset', 'balanced') as [WebrtcPublishPresetId, (v: WebrtcPublishPresetId) => void];
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const floatingRef = React.useRef<HTMLDivElement>(null);
+  const [showStopConfirm, setShowStopConfirm] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isOnLivestreamPage = location.pathname.includes(PAGES.LIVESTREAM);
+  const isMobile = platform.isMobile();
 
   // Stream metrics
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
@@ -88,8 +91,10 @@ export default function LivestreamPublisherFloating() {
   const claimTitle = useAppSelector((state) => nextStreamUri ? selectTitleForUri(state, nextStreamUri) : undefined);
   const claimNavigateUrl = nextStreamUri ? formatLbryUrlForWeb(nextStreamUri) : null;
   const isStreaming = status === 'live' || status === 'connecting' || status === 'preview';
-  const showFullPreview = isStreaming && mediaStream && floatingPreviewEnabled && !isOnLivestreamPage;
-  const showMinimalPill = isStreaming && mediaStream && !floatingPreviewEnabled && !isOnLivestreamPage;
+  const notOnStreamPage = isStreaming && mediaStream && !isOnLivestreamPage;
+  // Mobile defaults to pill; user can toggle to full preview. Desktop defaults to full preview.
+  const showFullPreview = notOnStreamPage && floatingPreviewEnabled && !isMobile;
+  const showMinimalPill = notOnStreamPage && (!floatingPreviewEnabled || isMobile);
   const throughputBps = serverMetrics?.live && serverMetrics.throughput
     ? serverMetrics.throughput.in_bps
     : (videoBitrateKbps ?? 0) * 1000;
@@ -126,6 +131,8 @@ export default function LivestreamPublisherFloating() {
         const { pc, resourceUrl } = await startWhipPublish(whipUrl, mediaStream, {
           maxVideoBitrateBps: enc.maxVideoBitrateBps,
           maxVideoFramerate: enc.maxVideoFramerate,
+          maxVideoWidth: enc.maxVideoWidth,
+          maxVideoHeight: enc.maxVideoHeight,
           videoCodecPreference: codec,
           degradationPreference: 'maintain-framerate',
         });
@@ -252,72 +259,111 @@ export default function LivestreamPublisherFloating() {
     };
   }, [showFullPreview]);
 
-  // ---- Minimal status pill (when preview disabled but streaming) ----
+  // ---- Minimal pill (bottom-right, both mobile and desktop) ----
   if (showMinimalPill) {
     const isLive = status === 'live';
     return (
-      <div className="livestream-floating-pill">
-        <span
-          className={classnames('livestream-floating-pill__badge', {
-            'livestream-floating-pill__badge--live': isLive,
-          })}
-        >
-          {isLive && <span className="livestream-floating-pill__dot" />}
-          {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
-        </span>
-
-        {isLive && totalViewers > 0 && (
-          <span className="livestream-floating-pill__meta">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-            {totalViewers}
+      <>
+        <div className="livestream-floating-pill">
+          <span
+            className={classnames('livestream-floating-pill__badge', {
+              'livestream-floating-pill__badge--live': isLive,
+            })}
+          >
+            {isLive && <span className="livestream-floating-pill__dot" />}
+            {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
           </span>
-        )}
-        {isLive && fpsLabel && <span className="livestream-floating-pill__meta">{fpsLabel}</span>}
-        {resolutionLabel && <span className="livestream-floating-pill__meta">{resolutionLabel}</span>}
-        {isLive && throughputLabel && <span className="livestream-floating-pill__meta">{throughputLabel}</span>}
-        {isLive && videoCodec && <span className="livestream-floating-pill__meta">{videoCodec}</span>}
-        {isLive && qualityLimitLabel && <span className="livestream-floating-pill__meta">{qualityLimitLabel}</span>}
 
-        <button
-          className="livestream-floating-pill__btn"
-          onClick={() => actions.setFloatingPreviewEnabled(true)}
-          title={__('Show preview')}
-        >
-          {/* Eye icon */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </button>
+          {isLive && totalViewers > 0 && (
+            <span className="livestream-floating-pill__meta">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {totalViewers}
+            </span>
+          )}
+          {resolutionLabel && <span className="livestream-floating-pill__meta">{resolutionLabel}</span>}
+          {!isMobile && isLive && fpsLabel && <span className="livestream-floating-pill__meta">{fpsLabel}</span>}
+          {!isMobile && isLive && throughputLabel && <span className="livestream-floating-pill__meta">{throughputLabel}</span>}
+          {!isMobile && isLive && videoCodec && <span className="livestream-floating-pill__meta">{videoCodec}</span>}
 
-        <button
-          className="livestream-floating-pill__btn"
-          onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
-          title={__('Go to stream page')}
-        >
-          {/* Monitor icon */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-        </button>
-
-        {(isLive || status === 'connecting') && (
-            <button
-              className="livestream-floating-pill__btn livestream-floating-pill__btn--stop"
-              onClick={() => actions.stopStream({ preservePreview: Boolean(cameraAutoStart) })}
-              title={__('End stream')}
-            >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="4" y="4" width="16" height="16" rx="2" />
+          <button
+            className="livestream-floating-pill__btn"
+            onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
+            title={__('Go to stream page')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
             </svg>
           </button>
+
+          {!isMobile && (
+            <button
+              className="livestream-floating-pill__btn"
+              onClick={() => actions.setFloatingPreviewEnabled(true)}
+              title={__('Show preview')}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          )}
+
+          {(isLive || status === 'connecting') && (
+            <button
+              className="livestream-floating-pill__btn livestream-floating-pill__btn--stop"
+              onClick={() => setShowStopConfirm(true)}
+              title={__('End stream')}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+              </svg>
+            </button>
+          )}
+
+          {status === 'preview' && (
+            <button
+              className="livestream-floating-pill__btn livestream-floating-pill__btn--close"
+              onClick={() => actions.stopStream()}
+              title={__('Close preview')}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {showStopConfirm && (
+          <div className="livestream-floating-stop-confirm" onClick={() => setShowStopConfirm(false)}>
+            <div className="livestream-floating-stop-confirm__card" onClick={(e) => e.stopPropagation()}>
+              <p>{__('Are you sure you want to end the stream?')}</p>
+              <div className="livestream-floating-stop-confirm__actions">
+                <button
+                  className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--cancel"
+                  onClick={() => setShowStopConfirm(false)}
+                >
+                  {__('Cancel')}
+                </button>
+                <button
+                  className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--stop"
+                  onClick={() => {
+                    setShowStopConfirm(false);
+                    actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+                  }}
+                >
+                  {__('End Stream')}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
+      </>
     );
   }
 
@@ -357,15 +403,6 @@ export default function LivestreamPublisherFloating() {
             </span>
           </div>
           <div className="livestream-floating__bottom-bar">
-            {status === 'live' && totalViewers > 0 && (
-              <span className="livestream-floating__meta livestream-floating__meta--viewers">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                {totalViewers}
-              </span>
-            )}
             {throughputLabel ? (
               <span className="livestream-floating__meta">
                 {throughputLabel}
@@ -405,18 +442,6 @@ export default function LivestreamPublisherFloating() {
             </svg>
           </button>
 
-          {(isLive || status === 'connecting') && (
-            <button
-              className="livestream-floating__control-btn livestream-floating__control-btn--stop"
-              onClick={() => actions.stopStream({ preservePreview: Boolean(cameraAutoStart) })}
-              title={__('End stream')}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="4" y="4" width="16" height="16" rx="2" />
-              </svg>
-            </button>
-          )}
-
           <button
             className="livestream-floating__control-btn"
             onClick={() => actions.setFloatingPreviewEnabled(false)}
@@ -426,6 +451,31 @@ export default function LivestreamPublisherFloating() {
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </button>
+
+          {status === 'preview' && (
+            <button
+              className="livestream-floating__control-btn livestream-floating__control-btn--close"
+              onClick={() => actions.stopStream()}
+              title={__('Close preview')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+
+          {(isLive || status === 'connecting') && (
+            <button
+              className="livestream-floating__control-btn livestream-floating__control-btn--stop"
+              onClick={() => setShowStopConfirm(true)}
+              title={__('End stream')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -465,6 +515,31 @@ export default function LivestreamPublisherFloating() {
             {fpsLabel && (
               <span className="livestream-floating__info-pill">{fpsLabel}</span>
             )}
+          </div>
+        </div>
+      )}
+
+      {showStopConfirm && (
+        <div className="livestream-floating-stop-confirm" onClick={() => setShowStopConfirm(false)}>
+          <div className="livestream-floating-stop-confirm__card" onClick={(e) => e.stopPropagation()}>
+            <p>{__('Are you sure you want to end the stream?')}</p>
+            <div className="livestream-floating-stop-confirm__actions">
+              <button
+                className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--cancel"
+                onClick={() => setShowStopConfirm(false)}
+              >
+                {__('Cancel')}
+              </button>
+              <button
+                className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--stop"
+                onClick={() => {
+                  setShowStopConfirm(false);
+                  actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+                }}
+              >
+                {__('End Stream')}
+              </button>
+            </div>
           </div>
         </div>
       )}

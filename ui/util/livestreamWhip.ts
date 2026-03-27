@@ -72,6 +72,8 @@ export type StartWhipPublishOptions = {
   iceGatherTimeoutMs?: number;
   maxVideoBitrateBps?: number;
   maxVideoFramerate?: number;
+  maxVideoWidth?: number;
+  maxVideoHeight?: number;
   videoCodecPreference?: WebrtcPublishVideoCodecPreference;
   degradationPreference?: RTCDegradationPreference;
 };
@@ -220,10 +222,9 @@ function applyOutgoingCodecPreferencesForIngest(
 
 async function applyOutboundVideoEncoding(
   pc: RTCPeerConnection,
-  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'degradationPreference'>
+  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'>
 ): Promise<void> {
-  const { maxVideoBitrateBps, maxVideoFramerate, degradationPreference } = options;
-  if (maxVideoBitrateBps == null && maxVideoFramerate == null && !degradationPreference) return;
+  const { maxVideoBitrateBps, maxVideoFramerate, maxVideoWidth, maxVideoHeight, degradationPreference } = options;
 
   // Set audio bitrate to 128kbps (Opus default is ~32kbps, too low for livestream)
   for (const sender of pc.getSenders()) {
@@ -248,6 +249,17 @@ async function applyOutboundVideoEncoding(
     const enc = params.encodings[0];
     if (maxVideoBitrateBps != null) enc.maxBitrate = maxVideoBitrateBps;
     if (maxVideoFramerate != null) enc.maxFramerate = maxVideoFramerate;
+
+    // Scale down if camera provides a resolution higher than the target
+    if (maxVideoHeight && sender.track) {
+      const settings = sender.track.getSettings();
+      const actualHeight = settings.height || 0;
+      if (actualHeight > maxVideoHeight * 1.1) {
+        enc.scaleResolutionDownBy = actualHeight / maxVideoHeight;
+        if (WHIP_DEBUG) console.log(`[WHIP] Scaling down: ${actualHeight}p -> ${maxVideoHeight}p (factor ${enc.scaleResolutionDownBy.toFixed(2)})`); // eslint-disable-line no-console
+      }
+    }
+
     // Prevent Chrome from dropping below 15fps when bandwidth is tight
     (enc as any).minFramerate = 15;
     (enc as any).priority = 'high';
@@ -264,7 +276,7 @@ async function applyOutboundVideoEncoding(
 
 export async function updateWhipVideoEncodingPolicy(
   pc: RTCPeerConnection | null,
-  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'degradationPreference'>
+  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'>
 ): Promise<void> {
   if (!pc) return;
   await applyOutboundVideoEncoding(pc, options);
@@ -332,6 +344,8 @@ export async function startWhipPublish(
     await applyOutboundVideoEncoding(pc, {
       maxVideoBitrateBps: options?.maxVideoBitrateBps,
       maxVideoFramerate: options?.maxVideoFramerate,
+      maxVideoWidth: options?.maxVideoWidth,
+      maxVideoHeight: options?.maxVideoHeight,
       degradationPreference: options?.degradationPreference,
     });
     await waitForIceGatheringDone(pc, signal, Math.max(iceMs, 5000));

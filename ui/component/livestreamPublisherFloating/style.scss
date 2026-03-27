@@ -158,6 +158,14 @@
       }
     }
 
+    &--close {
+      background: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+    }
+
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -264,7 +272,7 @@
   }
 }
 
-// ---- Minimal status pill ----
+// ---- Minimal status pill (bottom-right) ----
 .livestream-floating-pill {
   position: fixed;
   bottom: var(--spacing-l);
@@ -272,11 +280,10 @@
   z-index: 100000;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 4px 6px 4px 4px;
+  gap: 4px;
+  padding: 3px 4px 3px 3px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -285,11 +292,11 @@
   &__badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    height: 24px;
-    padding: 0 8px;
+    gap: 4px;
+    height: 22px;
+    padding: 0 7px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -302,8 +309,8 @@
   }
 
   &__dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: #fff;
     animation: livestream-floating-pulse 1.5s ease-in-out infinite;
@@ -313,14 +320,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     cursor: pointer;
     transition: background 0.15s ease;
+    flex-shrink: 0;
 
     &:hover {
       background: rgba(255, 255, 255, 0.25);
@@ -333,17 +341,26 @@
         background: rgba(255, 70, 70, 0.65);
       }
     }
+
+    &--close {
+      background: rgba(255, 255, 255, 0.15);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
   }
 
   &__meta {
     display: inline-flex;
     align-items: center;
-    height: 24px;
-    padding: 0 8px;
+    gap: 3px;
+    height: 22px;
+    padding: 0 6px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     color: rgba(255, 255, 255, 0.88);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
@@ -353,6 +370,7 @@
   @media (max-width: $breakpoint-small) {
     bottom: var(--spacing-m);
     right: var(--spacing-m);
+    max-width: calc(100vw - var(--spacing-m) * 2);
   }
 }
 
@@ -364,6 +382,72 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+// ---- Stop confirm modal ----
+.livestream-floating-stop-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  animation: livestream-floating-in 0.15s ease;
+
+  &__card {
+    max-width: 280px;
+    padding: var(--spacing-m);
+    border-radius: 12px;
+    background: var(--color-background);
+    border: 1px solid rgba(var(--color-header-button-base), 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+
+    p {
+      margin: 0 0 var(--spacing-m);
+      font-size: var(--font-small);
+      font-weight: 600;
+      color: var(--color-text);
+      line-height: 1.4;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: center;
+  }
+
+  &__btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: var(--font-small);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &--cancel {
+      border: 1px solid rgba(var(--color-header-button-base), 0.15);
+      background: rgba(var(--color-header-button-base), 0.06);
+      color: var(--color-text-subtitle);
+
+      &:hover {
+        color: var(--color-text);
+        background: rgba(var(--color-header-button-base), 0.12);
+      }
+    }
+
+    &--stop {
+      border: none;
+      background: rgba(255, 70, 70, 0.9);
+      color: #fff;
+
+      &:hover {
+        background: rgba(255, 70, 70, 1);
+      }
+    }
   }
 }
 

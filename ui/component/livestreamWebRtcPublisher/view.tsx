@@ -11,6 +11,7 @@ import {
   getWebrtcPublishVideoConstraints,
   type WebrtcPublishVideoCodecPreference,
 } from 'constants/webrtcPublish';
+import { platform } from 'util/platform';
 import { startWhipPublish, updateWhipVideoEncodingPolicy } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
@@ -99,9 +100,10 @@ function getIdealConstraintValue(
 }
 
 function getCameraConstraintAttempts(
-  presetId: import('constants/webrtcPublish').WebrtcPublishPresetId
+  presetId: import('constants/webrtcPublish').WebrtcPublishPresetId,
+  facingMode?: 'user' | 'environment',
 ): MediaTrackConstraints[] {
-  const base = getWebrtcPublishVideoConstraints(presetId);
+  const base = getWebrtcPublishVideoConstraints(presetId, facingMode);
   const targetWidth = getIdealConstraintValue(base.width as ConstrainULong | undefined);
   const targetHeight = getIdealConstraintValue(base.height as ConstrainULong | undefined);
   const targetFps = getIdealConstraintValue(base.frameRate as ConstrainDouble | undefined);
@@ -292,6 +294,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Local UI state derived from context
   const [micEnabled, setMicEnabled] = React.useState(true);
   const [cameraEnabled, setCameraEnabled] = React.useState(true);
+  const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
+  const isMobile = platform.isMobile();
   const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
   const [previewFrameFps, setPreviewFrameFps] = React.useState<number | null>(null);
   const encoderLoggedRef = React.useRef(false);
@@ -322,6 +326,27 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Server-side stream metrics
   const channelName = activeChannelClaim?.name;
   const serverMetrics = useLivestreamMetrics(channelId, channelName, signature, signingTs, status === 'live');
+
+  // Detect when server says stream is no longer live (e.g. connection silently dropped)
+  const metricsNotLiveCountRef = React.useRef(0);
+  React.useEffect(() => {
+    if (status !== 'live') {
+      metricsNotLiveCountRef.current = 0;
+      return;
+    }
+    // serverMetrics is null on first render; only act when we get a definitive `live: false`
+    if (serverMetrics && serverMetrics.live === false) {
+      metricsNotLiveCountRef.current += 1;
+      // Require 3 consecutive not-live polls (15s) to avoid false positives
+      if (metricsNotLiveCountRef.current >= 3) {
+        if (WEBRTC_DEBUG) console.warn('[WebRTC] Server reports stream no longer live'); // eslint-disable-line no-console
+        dispatch(doToast({ isError: true, message: __('Stream connection lost. The server reports the stream is no longer active.') }));
+        publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+      }
+    } else {
+      metricsNotLiveCountRef.current = 0;
+    }
+  }, [serverMetrics]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // P2P seed: streamer acts as first peer in the P2P swarm (uses shared P2P_DELIVERY setting)
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
@@ -431,8 +456,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     }).catch(() => {});
   }, [browserPublishSupported, livestreamEnabled, status, cameraAutoStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function requestCameraStream() {
-    const attempts = getCameraConstraintAttempts(presetId);
+  async function requestCameraStream(overrideFacingMode?: 'user' | 'environment') {
+    const attempts = getCameraConstraintAttempts(presetId, overrideFacingMode ?? facingMode);
     let lastError: unknown;
 
     for (let index = 0; index < attempts.length; index += 1) {
@@ -483,6 +508,23 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
         setCameraAutoStart(false);
       }
+    }
+  }
+
+  async function flipCamera() {
+    const nextFacing = facingMode === 'user' ? 'environment' : 'user';
+    setErrorMessage(null);
+    try {
+      const nextStream = await requestCameraStream(nextFacing);
+      nextStream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
+      nextStream.getVideoTracks().forEach((t) => { t.enabled = cameraEnabled; });
+      // Stop old tracks only after new stream is ready
+      mediaStream?.getTracks().forEach((t) => t.stop());
+      setMediaStream(nextStream);
+      setFacingMode(nextFacing);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setErrorMessage(msg);
     }
   }
 
@@ -598,6 +640,35 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     if (!mediaStream) return;
     mediaStream.getVideoTracks().forEach((t) => { t.enabled = cameraEnabled; });
   }, [cameraEnabled, mediaStream]);
+
+  // Warn before closing/refreshing while live
+  React.useEffect(() => {
+    if (status !== 'live' && status !== 'connecting') return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [status]);
+
+  // Monitor ICE connection state — detect when the stream actually dies
+  React.useEffect(() => {
+    if (status !== 'live') return;
+    const pc = publishCtx.refs.pcRef.current;
+    if (!pc) return;
+
+    const onIceChange = () => {
+      const state = pc.iceConnectionState;
+      if (WEBRTC_DEBUG) console.log('[WebRTC] ICE state:', state); // eslint-disable-line no-console
+      if (state === 'failed' || state === 'closed') {
+        dispatch(doToast({ isError: true, message: __('Stream connection lost.') }));
+        publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+      }
+    };
+    pc.addEventListener('iceconnectionstatechange', onIceChange);
+    return () => pc.removeEventListener('iceconnectionstatechange', onIceChange);
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Elapsed time counter - reads from persistent context liveStartedAt
   const liveStartedAt = publishCtx.state.liveStartedAt;
@@ -760,6 +831,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               signal: ac.signal,
               maxVideoBitrateBps: enc.maxVideoBitrateBps,
               maxVideoFramerate: enc.maxVideoFramerate,
+              maxVideoWidth: enc.maxVideoWidth,
+              maxVideoHeight: enc.maxVideoHeight,
               videoCodecPreference: codec,
               degradationPreference: 'maintain-framerate',
             });
@@ -1133,6 +1206,22 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 )}
               </svg>
             </button>
+
+            {isMobile && (
+              <button
+                className="livestream-webrtc__control-btn"
+                onClick={flipCamera}
+                disabled={isStopping}
+                title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 3h5v5" />
+                  <path d="M8 21H3v-5" />
+                  <path d="M21 3l-7 7" />
+                  <path d="M3 21l7-7" />
+                </svg>
+              </button>
+            )}
 
             <div className="livestream-webrtc__controls-spacer" />
 
