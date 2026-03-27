@@ -1124,13 +1124,13 @@ export default function OdyseeSkin(props) {
                 </>
               )}
 
-              {isLivestream && p2pEnabled && (
+              {isLivestream && (
                 <button
                   type="button"
-                  className="media-button media-button--icon media-button--p2p media-button--p2p-active"
-                  aria-label={__('P2P delivery active')}
-                  title={__('P2P delivery active - click to disable')}
-                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false))}
+                  className={`media-button media-button--icon media-button--p2p ${p2pEnabled ? 'media-button--p2p-active' : ''}`}
+                  aria-label={p2pEnabled ? __('P2P delivery active') : __('Enable P2P delivery')}
+                  title={p2pEnabled ? __('P2P delivery active - click to disable') : __('Enable P2P delivery')}
+                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -1608,13 +1608,13 @@ export default function OdyseeSkin(props) {
                 </Tooltip.Popup>
               </Tooltip.Root>
 
-              {isLivestream && p2pEnabled && (
+              {isLivestream && (
                 <button
                   type="button"
-                  className="media-button media-button--icon media-button--p2p media-button--p2p-active"
-                  aria-label={__('P2P delivery active')}
-                  title={__('P2P delivery active - click to disable')}
-                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false))}
+                  className={`media-button media-button--icon media-button--p2p ${p2pEnabled ? 'media-button--p2p-active' : ''}`}
+                  aria-label={p2pEnabled ? __('P2P delivery active') : __('Enable P2P delivery')}
+                  title={p2pEnabled ? __('P2P delivery active - click to disable') : __('Enable P2P delivery')}
+                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />

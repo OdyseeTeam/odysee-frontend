@@ -1,5 +1,37 @@
 import React from 'react';
 import Hls from 'hls.js';
+import { getLivestreamTurnServer } from 'constants/livestream';
+
+const P2P_ANNOUNCE_TRACKERS = ['wss://tracker.novage.com.ua:443', 'wss://tracker.openwebtorrent.com:443'];
+const P2P_LIVE_HIGH_DEMAND_WINDOW = 3;
+
+function getP2PIceServers() {
+  const turnServer = getLivestreamTurnServer();
+  return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, ...(turnServer ? [turnServer] : [])];
+}
+
+function serializeP2PError(error: any) {
+  if (!error) return null;
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack || null,
+    };
+  }
+  if (typeof error === 'object') {
+    return {
+      name: error.name || null,
+      message: error.message || null,
+      code: error.code || null,
+      details: error.details || null,
+      raw: String(error),
+    };
+  }
+  return {
+    raw: String(error),
+  };
+}
 
 type Props = {
   /** The HLS video URL of the streamer's own livestream */
@@ -7,6 +39,39 @@ type Props = {
   /** Whether seeding is active */
   active: boolean;
 };
+
+function shortenP2PUrl(url?: string | null) {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url, window.location.href);
+    return `${parsed.pathname}${parsed.search}`;
+  } catch {
+    return url.length > 120 ? `...${url.slice(-120)}` : url;
+  }
+}
+
+function summarizeP2PStreams(streams: Map<any, any>) {
+  return Array.from(streams.values()).map((stream: any) => ({
+    type: stream?.type || 'unknown',
+    index: stream?.index ?? null,
+    runtimeId: shortenP2PUrl(String(stream?.runtimeId || '')),
+    segments: stream?.segments?.size ?? 0,
+    peers: stream?.peers?.size ?? 0,
+  }));
+}
+
+function summarizeP2PSegment(details: any) {
+  return {
+    source: details?.downloadSource || (details?.peerId ? 'p2p' : 'http'),
+    peerId: details?.peerId || null,
+    bytesLength: details?.bytesLength ?? null,
+    streamType: details?.streamType || null,
+    segmentUrl: shortenP2PUrl(details?.segmentUrl || details?.segment?.url || null),
+    externalId: details?.segment?.externalId ?? null,
+    runtimeId: details?.segment?.runtimeId ? String(details.segment.runtimeId).slice(-80) : null,
+  };
+}
 
 /**
  * Hidden HLS player with P2P enabled that makes the streamer a seed node.
@@ -18,6 +83,7 @@ type Props = {
 export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const hlsRef = React.useRef<Hls | null>(null);
+  const connectedPeersRef = React.useRef<Set<string>>(new Set());
 
   React.useEffect(() => {
     console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
@@ -42,6 +108,7 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
       }
 
       if (destroyed) return;
+      const p2pIceServers = getP2PIceServers();
 
       const hls = new HlsConstructor({
         backBufferLength: 10,
@@ -51,11 +118,11 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         liveMaxLatencyDuration: Infinity,
         p2p: {
           core: {
-            announceTrackers: [
-              'wss://tracker.novage.com.ua:443',
-              'wss://tracker.webtorrent.dev:443',
-              'wss://tracker.openwebtorrent.com:443',
-            ],
+            announceTrackers: P2P_ANNOUNCE_TRACKERS,
+            highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+            rtcConfig: {
+              iceServers: p2pIceServers,
+            },
           },
         },
       });
@@ -71,7 +138,15 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
       const RETRY_DELAY_MS = 3000;
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        console.log('[P2P Seed] Manifest loaded, seeding active'); // eslint-disable-line no-console
+        connectedPeersRef.current.clear();
+        console.log('[P2P Seed] Manifest loaded, seeding active:', {
+          requestedUrl: shortenP2PUrl(videoUrl),
+          trackers: P2P_ANNOUNCE_TRACKERS,
+          highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+          iceServers: p2pIceServers.map((server) => server.urls),
+          manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
+          streamSummaries: hls.p2pEngine?.core?.streams ? summarizeP2PStreams(hls.p2pEngine.core.streams) : [],
+        }); // eslint-disable-line no-console
         video.play().catch(() => {});
 
         // Check if P2P engine is actually running
@@ -79,14 +154,64 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
           console.log('[P2P Seed] P2P engine active on seeder'); // eslint-disable-line no-console
           const engine = hls.p2pEngine;
           try {
+            engine.addEventListener('onSegmentStart', (details: any) => {
+              console.log('[P2P Seed] Segment start:', summarizeP2PSegment(details)); // eslint-disable-line no-console
+            });
             engine.addEventListener('onSegmentLoaded', (details: any) => {
-              const source = details.peerId ? 'P2P peer ' + details.peerId : 'HTTP';
-              console.log('[P2P Seed] Segment via', source); // eslint-disable-line no-console
+              console.log('[P2P Seed] Segment loaded:', {
+                ...summarizeP2PSegment(details),
+                connectedPeers: connectedPeersRef.current.size,
+                connectedPeerIds: Array.from(connectedPeersRef.current),
+              }); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onSegmentAbort', (details: any) => {
+              console.warn('[P2P Seed] Segment aborted:', summarizeP2PSegment(details)); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onSegmentError', (details: any) => {
+              console.warn('[P2P Seed] Segment error:', {
+                ...summarizeP2PSegment(details),
+                error: details?.error?.type || details?.error?.message || details?.error || null,
+              }); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onTrackerWarning', (details: any) => {
+              console.warn('[P2P Seed] Tracker warning:', {
+                streamType: details?.streamType || null,
+                warning: serializeP2PError(details?.warning),
+              }); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onTrackerError', (details: any) => {
+              console.warn('[P2P Seed] Tracker error:', {
+                streamType: details?.streamType || null,
+                error: serializeP2PError(details?.error),
+              }); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onPeerConnect', (details: any) => {
+              if (details?.peerId) connectedPeersRef.current.add(details.peerId);
+              console.log('[P2P Seed] Peer connected:', details); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onPeerClose', (details: any) => {
+              if (details?.peerId) connectedPeersRef.current.delete(details.peerId);
+              console.warn('[P2P Seed] Peer closed:', details); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onPeerError', (details: any) => {
+              console.warn('[P2P Seed] Peer error:', {
+                peerId: details?.peerId || null,
+                error: serializeP2PError(details?.error),
+              }); // eslint-disable-line no-console
             });
             engine.addEventListener('onChunkDownloaded', (bytesLength: any, downloadSource: any, peerId: any) => {
-              if (peerId) {
-                console.log('[P2P Seed] Uploaded chunk to peer:', peerId, bytesLength, 'bytes'); // eslint-disable-line no-console
-              }
+              if (downloadSource === 'http' && !peerId) return;
+              console.log('[P2P Seed] Chunk downloaded:', {
+                bytesLength,
+                downloadSource,
+                peerId: peerId || null,
+              }); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onChunkUploaded', (bytesLength: any, peerId: any) => {
+              console.log('[P2P Seed] Chunk uploaded:', {
+                bytesLength,
+                peerId: peerId || null,
+              }); // eslint-disable-line no-console
             });
           } catch (e) {
             console.warn('[P2P Seed] Failed to attach event listeners:', e); // eslint-disable-line no-console
@@ -100,7 +225,14 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
                 core.streams.forEach((stream: any) => {
                   if (stream.peers) totalPeers += stream.peers.size;
                 });
-                console.log(`[P2P Seed] Peers: ${totalPeers}, Streams: ${core.streams.size}`); // eslint-disable-line no-console
+                console.log('[P2P Seed] Swarm snapshot:', {
+                  peers: connectedPeersRef.current.size,
+                  trackedPeers: totalPeers,
+                  streams: core.streams.size,
+                  manifestResponseUrl: shortenP2PUrl(core.manifestResponseUrl || null),
+                  streamSummaries: summarizeP2PStreams(core.streams),
+                  connectedPeerIds: Array.from(connectedPeersRef.current),
+                }); // eslint-disable-line no-console
               }
             } catch {} // eslint-disable-line no-empty
           }, 10000);
@@ -112,6 +244,20 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
 
       hls.on(Hls.Events.ERROR, (_: any, data: any) => {
         if (destroyed) return;
+        const errorSummary = {
+          fatal: Boolean(data?.fatal),
+          type: data?.type || null,
+          details: data?.details || null,
+          responseUrl: shortenP2PUrl(data?.response?.url || data?.url || null),
+        };
+        const isExpectedLivePlaylistGap =
+          !data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR && data?.details === 'levelEmptyError';
+
+        if (isExpectedLivePlaylistGap) {
+          console.log('[P2P Seed] Live playlist not populated yet, retrying:', errorSummary); // eslint-disable-line no-console
+        } else {
+          console.warn('[P2P Seed] HLS error:', errorSummary); // eslint-disable-line no-console
+        }
         if (data.fatal && data.type === Hls.ErrorTypes.NETWORK_ERROR && retryCount < MAX_RETRIES) {
           retryCount++;
           console.log(`[P2P Seed] Stream not ready, retrying in ${RETRY_DELAY_MS / 1000}s (${retryCount}/${MAX_RETRIES})...`); // eslint-disable-line no-console
@@ -125,6 +271,15 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         if (data.fatal) {
           console.warn('[P2P Seed] Fatal error, giving up:', data.details); // eslint-disable-line no-console
         }
+      });
+
+      hls.on(Hls.Events.LEVEL_LOADED, (_: any, data: any) => {
+        console.log('[P2P Seed] Playlist loaded:', {
+          url: shortenP2PUrl(data?.details?.url || data?.url || null),
+          fragments: data?.details?.fragments?.length ?? 0,
+          live: Boolean(data?.details?.live),
+          targetDuration: data?.details?.targetduration ?? null,
+        }); // eslint-disable-line no-console
       });
 
       hls.loadSource(videoUrl);

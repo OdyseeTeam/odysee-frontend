@@ -2,7 +2,6 @@ import 'scss/component/_videojs-skin.scss';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Video } from '@videojs/react/video';
 import Hls from 'hls.js';
-import { LocalStorage } from 'util/storage';
 import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
 import useResolvedSource from './hooks/useResolvedSource';
@@ -27,9 +26,78 @@ import { platform } from 'util/platform';
 import classnames from 'classnames';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
+import { getLivestreamTurnServer } from 'constants/livestream';
 
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
+const P2P_ANNOUNCE_TRACKERS = ['wss://tracker.novage.com.ua:443', 'wss://tracker.openwebtorrent.com:443'];
+const P2P_LIVE_HIGH_DEMAND_WINDOW = 3;
+const P2P_LIVE_SYNC_DURATION = 12;
+const P2P_LIVE_MAX_LATENCY_DURATION = 24;
+
+function getP2PIceServers() {
+  const turnServer = getLivestreamTurnServer();
+  return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, ...(turnServer ? [turnServer] : [])];
+}
+
+function serializeP2PError(error: any) {
+  if (!error) return null;
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack || null,
+    };
+  }
+  if (typeof error === 'object') {
+    return {
+      name: error.name || null,
+      message: error.message || null,
+      code: error.code || null,
+      details: error.details || null,
+      raw: String(error),
+    };
+  }
+  return {
+    raw: String(error),
+  };
+}
+
+function shortenP2PUrl(url?: string | null) {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url, window.location.href);
+    return `${parsed.pathname}${parsed.search}`;
+  } catch {
+    return url.length > 120 ? `...${url.slice(-120)}` : url;
+  }
+}
+
+function summarizeP2PStreams(streams: Map<any, any>) {
+  return Array.from(streams.values()).map((stream: any) => ({
+    type: stream?.type || 'unknown',
+    index: stream?.index ?? null,
+    runtimeId: shortenP2PUrl(String(stream?.runtimeId || '')),
+    segments: stream?.segments?.size ?? 0,
+    peers: stream?.peers?.size ?? 0,
+  }));
+}
+
+function summarizeP2PSegment(details: any) {
+  return {
+    source: details?.downloadSource || (details?.peerId ? 'p2p' : 'http'),
+    peerId: details?.peerId || null,
+    bytesLength: details?.bytesLength ?? null,
+    streamType: details?.streamType || null,
+    segmentUrl: shortenP2PUrl(details?.segmentUrl || details?.segment?.url || null),
+    externalId: details?.segment?.externalId ?? null,
+    runtimeId: details?.segment?.runtimeId ? String(details.segment.runtimeId).slice(-80) : null,
+  };
+}
 
 function VideoJsInner(props) {
   const {
@@ -79,8 +147,10 @@ function VideoJsInner(props) {
   } = props;
 
   const isMobile = useIsMobile();
+  const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const store = Player.usePlayer();
   const media = Player.useMedia();
+  const connectedPeersRef = useRef<Set<string>>(new Set());
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
@@ -233,20 +303,14 @@ function VideoJsInner(props) {
   useEffect(() => {
     if (!media || !resolvedSource || !resolvedSource.src) return;
     if (!Hls.isSupported()) return;
-    const p2pEnabled = (() => {
-      try {
-        const stored = LocalStorage.getItem('p2p_delivery');
-        return stored ? JSON.parse(stored) === true : false;
-      } catch { return false; } // eslint-disable-line no-empty
-    })();
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
     if (p2pEnabled && isLivestreamClaim) {
       console.log('[P2P] Viewer livestream source:', {
-        src,
+        src: shortenP2PUrl(src),
         isHls,
-        preferredVideoUrl: activeLivestreamForChannel?.videoUrl || null,
-        publicVideoUrl: activeLivestreamForChannel?.videoUrlPublic || null,
+        preferredVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrl || null),
+        publicVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrlPublic || null),
       }); // eslint-disable-line no-console
     }
 
@@ -254,6 +318,7 @@ function VideoJsInner(props) {
 
     function createHls(HlsConstructor) {
       if (destroyed) return;
+      const p2pIceServers = getP2PIceServers();
       // Remember play state so we can restore after HLS reattaches
       const wasPlaying = !media.paused;
       const hls = new HlsConstructor({
@@ -262,19 +327,19 @@ function VideoJsInner(props) {
         capLevelOnFPSDrop: true,
         ...(isLivestreamClaim
           ? {
-              liveSyncDuration: 4,
-              liveMaxLatencyDuration: Infinity,
+              liveSyncDuration: p2pEnabled ? P2P_LIVE_SYNC_DURATION : 4,
+              liveMaxLatencyDuration: p2pEnabled ? P2P_LIVE_MAX_LATENCY_DURATION : Infinity,
             }
           : undefined),
         ...(p2pEnabled && isLivestreamClaim
           ? {
               p2p: {
                 core: {
-                  announceTrackers: [
-                    'wss://tracker.novage.com.ua:443',
-                    'wss://tracker.webtorrent.dev:443',
-                    'wss://tracker.openwebtorrent.com:443',
-                  ],
+                  announceTrackers: P2P_ANNOUNCE_TRACKERS,
+                  highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+                  rtcConfig: {
+                    iceServers: p2pIceServers,
+                  },
                 },
               },
             }
@@ -297,6 +362,33 @@ function VideoJsInner(props) {
       hls.loadSource(src);
       media._hls = hls;
 
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        connectedPeersRef.current.clear();
+        if (p2pEnabled && isLivestreamClaim) {
+          console.log('[P2P] Viewer manifest parsed:', {
+            requestedUrl: shortenP2PUrl(src),
+            trackers: P2P_ANNOUNCE_TRACKERS,
+            highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+            liveSyncDuration: P2P_LIVE_SYNC_DURATION,
+            liveMaxLatencyDuration: P2P_LIVE_MAX_LATENCY_DURATION,
+            iceServers: p2pIceServers.map((server) => server.urls),
+            manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
+            streamSummaries: hls.p2pEngine?.core?.streams ? summarizeP2PStreams(hls.p2pEngine.core.streams) : [],
+          }); // eslint-disable-line no-console
+        }
+      });
+
+      hls.on(Hls.Events.LEVEL_LOADED, (_: any, data: any) => {
+        if (p2pEnabled && isLivestreamClaim) {
+          console.log('[P2P] Viewer playlist loaded:', {
+            url: shortenP2PUrl(data?.details?.url || data?.url || null),
+            fragments: data?.details?.fragments?.length ?? 0,
+            live: Boolean(data?.details?.live),
+            targetDuration: data?.details?.targetduration ?? null,
+          }); // eslint-disable-line no-console
+        }
+      });
+
       // Restore play state after HLS reattaches
       if (wasPlaying) {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -309,17 +401,64 @@ function VideoJsInner(props) {
         console.log('[P2P] Engine active:', hls.p2pEngine); // eslint-disable-line no-console
         const engine = hls.p2pEngine;
         try {
+          engine.addEventListener('onSegmentStart', (details) => {
+            console.log('[P2P] Segment start:', summarizeP2PSegment(details)); // eslint-disable-line no-console
+          });
           engine.addEventListener('onSegmentLoaded', (details) => {
-            const source = details.peerId ? 'P2P peer ' + details.peerId : 'HTTP';
-            console.log('[P2P] Segment via', source); // eslint-disable-line no-console
+            console.log('[P2P] Segment loaded:', {
+              ...summarizeP2PSegment(details),
+              connectedPeers: connectedPeersRef.current.size,
+              connectedPeerIds: Array.from(connectedPeersRef.current),
+            }); // eslint-disable-line no-console
           });
           engine.addEventListener('onSegmentError', (details) => {
-            console.warn('[P2P] Segment error:', details); // eslint-disable-line no-console
+            console.warn('[P2P] Segment error:', {
+              ...summarizeP2PSegment(details),
+              error: details?.error?.type || details?.error?.message || details?.error || null,
+            }); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onTrackerWarning', (details) => {
+            console.warn('[P2P] Tracker warning:', {
+              streamType: details?.streamType || null,
+              warning: serializeP2PError(details?.warning),
+            }); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onTrackerError', (details) => {
+            console.warn('[P2P] Tracker error:', {
+              streamType: details?.streamType || null,
+              error: serializeP2PError(details?.error),
+            }); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onPeerConnect', (details) => {
+            if (details?.peerId) connectedPeersRef.current.add(details.peerId);
+            console.log('[P2P] Peer connected:', details); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onPeerClose', (details) => {
+            if (details?.peerId) connectedPeersRef.current.delete(details.peerId);
+            console.warn('[P2P] Peer closed:', details); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onPeerError', (details) => {
+            console.warn('[P2P] Peer error:', {
+              peerId: details?.peerId || null,
+              error: serializeP2PError(details?.error),
+            }); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onSegmentAbort', (details) => {
+            console.warn('[P2P] Segment aborted:', summarizeP2PSegment(details)); // eslint-disable-line no-console
           });
           engine.addEventListener('onChunkDownloaded', (bytesLength, downloadSource, peerId) => {
-            if (peerId) {
-              console.log('[P2P] Chunk from peer:', peerId, bytesLength, 'bytes'); // eslint-disable-line no-console
-            }
+            if (downloadSource === 'http' && !peerId) return;
+            console.log('[P2P] Chunk downloaded:', {
+              bytesLength,
+              downloadSource,
+              peerId: peerId || null,
+            }); // eslint-disable-line no-console
+          });
+          engine.addEventListener('onChunkUploaded', (bytesLength, peerId) => {
+            console.log('[P2P] Chunk uploaded:', {
+              bytesLength,
+              peerId: peerId || null,
+            }); // eslint-disable-line no-console
           });
         } catch (e) {
           console.warn('[P2P] Failed to attach event listeners:', e); // eslint-disable-line no-console
@@ -333,9 +472,14 @@ function VideoJsInner(props) {
               core.streams.forEach((stream) => {
                 if (stream.peers) totalPeers += stream.peers.size;
               });
-              if (totalPeers > 0) {
-                console.log('[P2P] Connected peers:', totalPeers); // eslint-disable-line no-console
-              }
+              console.log('[P2P] Swarm snapshot:', {
+                peers: connectedPeersRef.current.size,
+                trackedPeers: totalPeers,
+                streams: core.streams.size,
+                manifestResponseUrl: shortenP2PUrl(core.manifestResponseUrl || null),
+                streamSummaries: summarizeP2PStreams(core.streams),
+                connectedPeerIds: Array.from(connectedPeersRef.current),
+              }); // eslint-disable-line no-console
             }
           } catch {} // eslint-disable-line no-empty
         }, 10000);
