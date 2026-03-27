@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .content__viewer {
   @extend .card;
   position: absolute;
@@ -1246,7 +1248,7 @@
     z-index: 1;
     border-radius: 10px;
 
-    @media (min-width: 1020px) {
+    @media (min-width: $breakpoint-shorts) {
       opacity: 0;
       transition: opacity 300ms ease-out 500ms;
     }
@@ -1328,7 +1330,7 @@
     width: 100%;
     transition: opacity 100ms ease-out;
 
-    @media (min-width: 1020px) {
+    @media (min-width: $breakpoint-shorts) {
       opacity: 0;
       transition: opacity 100ms ease-out;
     }
@@ -1386,18 +1388,18 @@
   &.shorts__viewer--panel-open {
     transform: translate(-130%, 0%) !important;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       transform: none !important;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       left: 20px !important;
       transform: none !important;
       transition: none !important;
     }
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     width: 100vw !important;
     height: 100vh !important;
     height: 100svh !important;
@@ -1448,7 +1450,7 @@
     }
   }
 
-  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+  @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
     width: 350px !important;
     .content__wrapper {
       width: 100% !important;
@@ -1582,7 +1584,7 @@
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: $breakpoint-shorts) {
   .shorts-page {
     width: 100vw !important;
     height: 100vh !important;
@@ -1620,7 +1622,7 @@
   }
 }
 
-@media (min-width: 1020px) {
+@media (min-width: $breakpoint-shorts) {
   body:has(.swipe-navigation-overlay.shorts-swipe-overlay:hover) .shorts__viewer::after,
   body:has(.shorts__viewer .media-controls[data-visible]) .shorts__viewer::after,
   body:has(.shorts__viewer [data-paused]) .shorts__viewer::after {

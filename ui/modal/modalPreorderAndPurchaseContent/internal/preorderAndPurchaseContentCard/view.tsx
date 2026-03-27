@@ -31,7 +31,7 @@ import {
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doPlayUri } from 'redux/actions/content';
 import { doHideModal } from 'redux/actions/app';
-import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/payments';
 import { doPurchaseClaimForUri } from 'redux/actions/wallet';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';

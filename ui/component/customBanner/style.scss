@@ -337,7 +337,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 900px width
-@media (max-width: $breakpoint-medium) and (min-width: 769px) {
+@media (max-width: $breakpoint-medium) and (min-width: #{$breakpoint-small + 1}) {
   .banner-container {
     padding: 0 20px;
 
@@ -403,7 +403,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1280px width (HD displays)
-@media (max-width: $breakpoint-1280) and (min-width: 1151px) {
+@media (max-width: $breakpoint-1280) and (min-width: #{$breakpoint-1150 + 1}) {
   // Corregido: usando valor directo
   .banner-container {
     .banner-content-wrapper {
@@ -436,7 +436,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1150px width
-@media (max-width: $breakpoint-1150) and (min-width: 1025px) {
+@media (max-width: $breakpoint-1150) and (min-width: #{$breakpoint-tablet + 1}) {
   // $breakpoint-tablet + 1 = 1025px
   .banner-container {
     .banner-content-wrapper {

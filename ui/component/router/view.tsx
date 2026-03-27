@@ -466,13 +466,6 @@ const SearchPage = lazyImport(
       /* webpackChunkName: "search" */
     )
 );
-const SettingsStripeCard = lazyImport(
-  () =>
-    import(
-      'page/settingsStripeCard'
-      /* webpackChunkName: "settingsStripeCard" */
-    )
-);
 const SettingsStripeAccount = lazyImport(
   () =>
     import(
@@ -825,10 +818,6 @@ function AppRouter(props: Props) {
           }
         />
         <Route path={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`} element={renderLegacyPage(SettingsNotificationsPage)} />
-        <Route
-          path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
-          element={<PrivateRoute component={SettingsStripeCard} isAuthenticated={isAuthenticated} />}
-        />
         <Route
           path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
           element={<PrivateRoute component={SettingsStripeAccount} isAuthenticated={isAuthenticated} />}

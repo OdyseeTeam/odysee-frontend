@@ -28,6 +28,7 @@
     "check:fix": "vp check --fix",
     "lint": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json .",
     "lint:fix": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json --fix .",
+    "audit:styles": "node scripts/style-audit.mjs",
     "fmt": "vp fmt",
     "fmt:check": "vp fmt --check",
     "typecheck": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json --type-aware --type-check .",

@@ -7,8 +7,8 @@ import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { doListAccountTransactions as doListAccountTransactionsAction } from 'redux/actions/stripe';
-import { selectAccountTransactions } from 'redux/selectors/stripe';
+import { doListAccountTransactions as doListAccountTransactionsAction } from 'redux/actions/payments';
+import { selectAccountTransactions } from 'redux/selectors/payments';
 type Props = {
   page: number;
   pageSize: number;

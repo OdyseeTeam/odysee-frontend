@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .shorts-mobile-panel {
   position: fixed;
   z-index: 10000;
@@ -252,7 +254,7 @@
   font-style: italic;
 }
 
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: $breakpoint-tablet) and (orientation: landscape) {
   .shorts-mobile-panel__modal {
     max-height: 90vh;
   }
@@ -270,7 +272,7 @@
   }
 }
 
-@media (min-width: 1021px) {
+@media (min-width: #{$breakpoint-shorts + 1}) {
   .shorts-mobile-panel {
     display: none;
   }

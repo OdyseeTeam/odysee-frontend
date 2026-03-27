@@ -16,7 +16,7 @@ import {
   selectArweaveFetching,
   selectArweaveExchangeRates,
 } from 'redux/selectors/arwallet';
-import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
+import { selectFullAPIArweaveAccounts } from 'redux/selectors/payments';
 import { doArDisconnect, doArUpdateBalance } from 'redux/actions/arwallet';
 import BuyAr from './buyAr';
 import Overview from './overview';

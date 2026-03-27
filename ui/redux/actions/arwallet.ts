@@ -17,7 +17,7 @@ import {
 } from 'constants/action_types';
 // @ts-ignore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
-import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/payments';
 import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from './app';
 // Dispatch and GetState are ambient globals from ui/types/redux.d.ts

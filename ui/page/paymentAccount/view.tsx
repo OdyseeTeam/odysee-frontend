@@ -16,7 +16,7 @@ import './style.scss';
 import Overview from './overview';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectArweaveConnected, selectArweaveBalance, selectArweaveFetching } from 'redux/selectors/arwallet';
-import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectAPIArweaveActiveAccounts } from 'redux/selectors/payments';
 import {
   doArDisconnect as doArDisconnectAction,
   doArUpdateBalance as doArUpdateBalanceAction,

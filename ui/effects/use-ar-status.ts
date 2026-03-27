@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LocalStorage } from 'util/storage';
 import { selectArweaveWanderAuth, selectArweaveStatus } from 'redux/selectors/arwallet';
-import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
+import { selectArAccountRegisteringError } from 'redux/selectors/payments';
 import { useIsMobile } from 'effects/use-screensize';
 import { doArConnect } from 'redux/actions/arwallet';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';

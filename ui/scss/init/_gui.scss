@@ -1,3 +1,5 @@
+@import 'breakpoints';
+
 // component specific styling should go in the component scss file
 
 *::selection {
@@ -39,10 +41,12 @@ body {
     'Segoe UI Emoji',
     'Segoe UI Symbol' !important;
 
-  // The W3C future standard; currently supported by Firefox only.
-  // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
   scrollbar-width: 6px;
   scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
+
+  @media (max-width: $breakpoint-small) {
+    scrollbar-width: none;
+  }
 }
 
 body::-webkit-scrollbar {

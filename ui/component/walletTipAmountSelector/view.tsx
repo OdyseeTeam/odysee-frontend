@@ -11,8 +11,8 @@ import { TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
-import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/payments';
+import { doTipAccountCheckForUri } from 'redux/actions/payments';
 import { getChannelIdFromClaim } from 'util/claim';
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 type Props = {

@@ -1,6 +1,7 @@
 import * as MODALS from 'constants/modal_types';
 import * as STRIPE from 'constants/stripe';
 import React from 'react';
+import './style.lazy.scss';
 import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -8,8 +9,8 @@ import { doOpenModal } from 'redux/actions/app';
 import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
-import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/payments';
+import { doTipAccountCheckForUri } from 'redux/actions/payments';
 
 const DISABLE_SUPPORT_TAG = 'disable-support';
 const DISABLED_SUPPORT = process.env.DISABLED_SUPPORT_CHANNELS ? process.env.DISABLED_SUPPORT_CHANNELS.split(',') : [];

@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 $control-bar-height: 48px;
 $control-bar-height-mobile: 44px;
 
@@ -958,7 +960,7 @@ img.odysee-cast-thumbnail {
   pointer-events: auto;
 
   .shorts__viewer & {
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       top: 60px;
     }
   }

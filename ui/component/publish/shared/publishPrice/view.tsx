@@ -17,8 +17,8 @@ import { doUpdatePublishForm } from 'redux/actions/publish';
 import {
   doCustomerPurchaseCost as doCustomerPurchaseCostAction,
   doTipAccountStatus as doTipAccountStatusAction,
-} from 'redux/actions/stripe';
-import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
+} from 'redux/actions/payments';
+import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/payments';
 const FEE = {
   MIN: 0,
   MAX: 999.99,

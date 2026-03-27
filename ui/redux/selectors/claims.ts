@@ -2,7 +2,7 @@ import moment from 'moment';
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/payments';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';

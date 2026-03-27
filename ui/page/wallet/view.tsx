@@ -10,7 +10,7 @@ import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectTotalBalance } from 'redux/selectors/wallet';
-import { doTipAccountStatus } from 'redux/actions/stripe';
+import { doTipAccountStatus } from 'redux/actions/payments';
 import TxoList from './txoList';
 import './style.scss';
 

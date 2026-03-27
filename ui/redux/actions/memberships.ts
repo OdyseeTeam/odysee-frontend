@@ -19,7 +19,7 @@ import { ODYSEE_CHANNEL } from 'constants/channels';
 import { formatDateToMonthDayAndYear } from 'util/time';
 import { buildURI } from 'util/lbryURI';
 import { getStripeEnvironment } from 'util/stripe';
-import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/payments';
 import { doArSign, sendWinstons } from './arwallet';
 import { doResolveClaimIds } from './claims';
 import { doChannelsHavePremium } from './user';

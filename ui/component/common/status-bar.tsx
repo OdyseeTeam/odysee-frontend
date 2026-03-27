@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ipcRenderer } from 'electron';
 import classnames from 'classnames';
+import './status-bar.scss';
 
 function StatusBar() {
   const [hoverUrl, setHoverUrl] = useState('');

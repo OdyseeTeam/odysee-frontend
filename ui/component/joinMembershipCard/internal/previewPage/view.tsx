@@ -18,14 +18,14 @@ import {
   selectArweaveTipDataForId,
   selectCanReceiveFiatTipsForUri,
   selectFullAPIArweaveAccounts,
-} from 'redux/selectors/stripe';
+} from 'redux/selectors/payments';
 import {
   selectCheapestProtectedContentMembershipForId,
   selectIsMembershipListFetchingForId,
   selectArEnabledMembershipTiersForChannelUri,
   selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
-import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/payments';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { getChannelFromClaim, getChannelTitleFromClaim, getChannelIdFromClaim } from 'util/claim';

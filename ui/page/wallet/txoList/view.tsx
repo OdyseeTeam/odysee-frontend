@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchTxoPage, doFetchTransactions, doUpdateTxoPageParams } from 'redux/actions/wallet';
-import { doCustomerListPaymentHistory, doListAccountTransactions } from 'redux/actions/stripe';
+import { doCustomerListPaymentHistory, doListAccountTransactions } from 'redux/actions/payments';
 import {
   selectIsFetchingTxos,
   selectIsFetchingTransactions,

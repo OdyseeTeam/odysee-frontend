@@ -16,13 +16,10 @@
 @import 'component/card';
 @import 'component/channel';
 @import 'component/_textarea-suggestions';
-@import 'component/claim_support_button';
-@import 'component/claim-list';
 @import 'component/claim-preview';
 @import 'component/collection';
 @import 'component/comments';
 @import 'component/content';
-@import 'component/dat-gui';
 @import 'component/embed-player';
 @import 'component/expandable';
 @import 'component/expanding-details';
@@ -45,7 +42,6 @@
 @import 'component/navigation';
 @import 'component/notification';
 @import 'component/nudge';
-@import 'component/pagination';
 @import 'component/purchase-button';
 @import 'component/purchase';
 @import 'component/placeholder';
@@ -55,8 +51,6 @@
 @import 'component/snack-bar';
 @import 'component/spinner';
 @import 'component/splash';
-@import 'component/status-bar';
-@import 'component/syntax-highlighter';
 @import 'component/table';
 @import 'component/livestream';
 @import 'component/tabs';
@@ -72,5 +66,3 @@
 @import 'component/ads';
 @import 'component/shorts';
 @import 'component/mobile-tab-view';
-@import 'component/chapters-card';
-@import 'component/playlist-card';

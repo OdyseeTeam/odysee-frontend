@@ -10,8 +10,8 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   doCustomerListPaymentHistory as doCustomerListPaymentHistoryAction,
   doGetCustomerStatus as doGetCustomerStatusAction,
-} from 'redux/actions/stripe';
-import { selectPaymentHistory } from 'redux/selectors/stripe';
+} from 'redux/actions/payments';
+import { selectPaymentHistory } from 'redux/selectors/payments';
 type Props = {
   page: number;
   pageSize: number;

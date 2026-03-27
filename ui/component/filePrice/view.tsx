@@ -14,7 +14,7 @@ import {
   selectIsFetchingPurchases,
   selectCostInfoForUri,
 } from 'redux/selectors/claims';
-import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/payments';
 
 type Props = {
   uri?: string;

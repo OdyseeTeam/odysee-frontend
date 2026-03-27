@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 $actions-z-index: 2;
 
 .channelPage-wrapper {
@@ -506,13 +508,13 @@ $actions-z-index: 2;
     top 0.2s;
   background-color: var(--color-header-background);
 
-  @media (min-width: 1600px) {
+  @media (min-width: $breakpoint-large) {
     left: calc((100% - (var(--page-max-width))) / 2);
   }
-  @media (min-width: 1450px) and (max-width: $breakpoint-large) {
+  @media (min-width: $breakpoint-desktop-compact) and (max-width: $breakpoint-large) {
     left: calc((100% - (var(--page-max-width))) / 2) !important;
   }
-  @media (min-width: $breakpoint-small) and (max-width: 1449px) {
+  @media (min-width: $breakpoint-small) and (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
   @media (max-width: $breakpoint-small) {
@@ -552,10 +554,10 @@ $actions-z-index: 2;
   width: 50px;
   top: -1.9rem;
 
-  @media (min-width: 1449px) {
+  @media (min-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - (var(--page-max-width))) / 2);
   }
-  @media (min-width: $breakpoint-medium) and (max-width: 1449px) {
+  @media (min-width: $breakpoint-medium) and (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
 
@@ -806,7 +808,7 @@ $actions-z-index: 2;
     }
   }
 
-  @media (max-width: 1449px) {
+  @media (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((var(--channel-thumbnail-width) / 2) + var(--spacing-m));
   }
 
@@ -1116,13 +1118,13 @@ $actions-z-index: 2;
     .channel-thumbnail__custom {
       max-width: unset;
     }
-    @media (max-width: 1400px) {
+    @media (max-width: $breakpoint-shorts-xwide) {
       max-width: 160px;
     }
-    @media (max-width: 1150px) {
+    @media (max-width: $breakpoint-medium) {
       max-width: 280px;
     }
-    @media (max-width: 1000px) {
+    @media (max-width: $breakpoint-small-plus) {
       max-width: 220px;
     }
   }

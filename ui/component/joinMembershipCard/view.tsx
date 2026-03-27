@@ -19,7 +19,7 @@ import {
   selectMyPurchasedMembershipTierForCreatorUri,
   selectMembershipMineData,
 } from 'redux/selectors/memberships';
-import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/payments';
 import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import {

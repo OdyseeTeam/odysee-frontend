@@ -33,7 +33,7 @@ import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
 import { getStripeEnvironment } from 'util/stripe';
 import { sendWinstons } from './arwallet';
-import { selectAPIArweaveDefaultAddress, selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectAPIArweaveDefaultAddress, selectArweaveTipDataForId } from 'redux/selectors/payments';
 const stripeEnvironment = getStripeEnvironment();
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;

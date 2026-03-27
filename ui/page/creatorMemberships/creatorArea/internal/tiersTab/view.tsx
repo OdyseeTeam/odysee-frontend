@@ -8,7 +8,7 @@ import EditingTier from './internal/editingTier';
 import HelpHub from 'component/common/help-hub';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doOpenModal } from 'redux/actions/app';
-import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+import { selectAccountChargesEnabled } from 'redux/selectors/payments';
 import { selectMembershipTiersForCreatorId, selectMembershipOdyseePermanentPerks } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doGetMembershipPerks, doDeactivateMembershipForId } from 'redux/actions/memberships';

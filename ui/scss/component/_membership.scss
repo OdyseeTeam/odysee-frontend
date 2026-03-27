@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 /** CONFIRM / CANCEL PREMIUM MODAL **/
 
 .stripe__confirm-remove-membership {
@@ -556,7 +558,7 @@
     }
   }
 
-  @media (max-width: 1000px) {
+  @media (max-width: $breakpoint-small-plus) {
     flex-basis: 66%;
   }
 

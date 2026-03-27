@@ -13,12 +13,12 @@ import {
   selectArAccountRegistering,
   selectArAccountRegisteringError,
   selectFullAPIArweaveStatus,
-} from 'redux/selectors/stripe';
+} from 'redux/selectors/payments';
 import {
   doRegisterArweaveAddress,
   doRegisterArweaveAddressClear,
   doUpdateArweaveAddressDefault,
-} from 'redux/actions/stripe';
+} from 'redux/actions/payments';
 import { selectArweaveConnecting } from 'redux/selectors/arwallet';
 
 type Props = {

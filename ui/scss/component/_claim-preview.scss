@@ -574,7 +574,7 @@
     }
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .claim-preview__actions {
       margin: 0;
       align-self: flex-start;
@@ -1583,7 +1583,7 @@
     color: rgba(var(--color-text-base) 0.7);
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     margin-top: 0px;
     padding-bottom: 0;
 

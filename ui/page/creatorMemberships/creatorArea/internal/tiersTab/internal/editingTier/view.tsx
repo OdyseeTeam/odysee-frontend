@@ -12,7 +12,7 @@ import {
   doMembershipList as doMembershipListAction,
 } from 'redux/actions/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/payments';
 
 const getIsInputEmpty = (value: string) => !value || value.length <= 2 || !/\S/.test(value);
 

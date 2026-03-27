@@ -24,7 +24,7 @@ import {
   doListAllMyMembershipTiers as doListAllMyMembershipTiersAction,
   doGetMembershipSupportersList as doGetMembershipSupportersListAction,
 } from 'redux/actions/memberships';
-import { selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
+import { selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/payments';
 const OverviewTab = lazyImport(
   () =>
     import(

@@ -11,7 +11,7 @@ import {
   doCleanTips as doCleanTipsAction,
 } from 'redux/actions/arwallet';
 import { selectArweaveWanderAuth, selectArweaveAddress, selectArweaveConnecting } from 'redux/selectors/arwallet';
-import { selectArAccountRegisteringError } from 'redux/selectors/stripe';
+import { selectArAccountRegisteringError } from 'redux/selectors/payments';
 import { selectTheme } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import './style.scss';

@@ -3,7 +3,7 @@ import Card from 'component/common/card';
 import './style.scss';
 import { Lbryio } from 'lbryinc';
 import { useAppSelector } from 'redux/hooks';
-import { selectAPIArweaveDefaultAccount } from 'redux/selectors/stripe';
+import { selectAPIArweaveDefaultAccount } from 'redux/selectors/payments';
 type Props = {
   cardHeader: () => React.ReactNode;
   mode: string;

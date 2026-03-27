@@ -5,7 +5,7 @@ import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { doArConnect } from 'redux/actions/arwallet';
-import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
+import { selectFullAPIArweaveAccounts } from 'redux/selectors/payments';
 
 export default function WalletStatus() {
   const dispatch = useAppDispatch();

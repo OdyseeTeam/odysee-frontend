@@ -2,8 +2,8 @@ import React from 'react';
 import './style.scss';
 import ButtonToggle from '../buttonToggle';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/selectors/stripe';
-import { doUpdateArweaveAddressStatus } from 'redux/actions/stripe';
+import { selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/selectors/payments';
+import { doUpdateArweaveAddressStatus } from 'redux/actions/payments';
 
 type Props = {
   address: string;

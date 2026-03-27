@@ -4,8 +4,8 @@ import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { selectAccountStatus } from 'redux/selectors/stripe';
-import { doTipAccountStatus } from 'redux/actions/stripe';
+import { selectAccountStatus } from 'redux/selectors/payments';
+import { doTipAccountStatus } from 'redux/actions/payments';
 
 export default function WalletFiatBalance() {
   const dispatch = useAppDispatch();
@@ -36,7 +36,7 @@ export default function WalletFiatBalance() {
               button="secondary"
               label={__('Payment Methods')}
               icon={ICONS.SETTINGS}
-              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+              navigate={`/$/${PAGES.ARACCOUNT}`}
             />
           </div>
         </>

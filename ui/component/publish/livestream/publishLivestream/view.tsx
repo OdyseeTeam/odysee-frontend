@@ -10,6 +10,7 @@ import CopyableText from 'component/copyableText';
 import moment from 'moment';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
+import 'component/common/paginate.scss';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Icon from 'component/common/icon';

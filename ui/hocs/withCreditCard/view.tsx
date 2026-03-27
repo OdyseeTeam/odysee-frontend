@@ -4,10 +4,10 @@ import Button from 'component/button';
 import Spinner from 'component/spinner';
 import { ModalContext } from 'contexts/modal';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectHasSavedCard } from 'redux/selectors/stripe';
+import { selectHasSavedCard } from 'redux/selectors/payments';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doOpenModal } from 'redux/actions/app';
-import { doGetCustomerStatus } from 'redux/actions/stripe';
+import { doGetCustomerStatus } from 'redux/actions/payments';
 
 type Props = {
   modalState?: any;

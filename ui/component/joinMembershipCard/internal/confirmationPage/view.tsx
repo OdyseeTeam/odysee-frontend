@@ -104,7 +104,7 @@ const ConfirmationPage = (props: Props) => {
           </ErrorBubble>
 
           <div className="section__actions">
-            <Button button="primary" label={__('Change Settings')} navigate="/$/settings/card" />
+            <Button button="primary" label={__('Change Settings')} navigate="/$/araccount" />
           </div>
         </>
       ) : purchasePending ? (

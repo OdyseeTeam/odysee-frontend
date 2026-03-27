@@ -55,7 +55,7 @@ const WalletBalance = (props: Props) => {
               button="secondary"
               label={__('Manage Cards')}
               icon={ICONS.SETTINGS}
-              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+              navigate={`/$/${PAGES.ARACCOUNT}`}
             />
           </div>
         </>

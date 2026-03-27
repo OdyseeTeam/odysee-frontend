@@ -1,9 +1,13 @@
+@import 'init/breakpoints';
+
 .pagination {
   display: flex !important;
   align-items: center;
+
   .ul--no-style {
     max-height: 100%;
     overflow-y: scroll !important;
+
     &::-webkit-scrollbar {
       background-color: var(--color-border) !important;
     }
@@ -21,7 +25,6 @@
 .pagination__item {
   width: 3rem;
   height: 3rem;
-
   border-radius: 50%;
   text-align: center;
   list-style-type: none;

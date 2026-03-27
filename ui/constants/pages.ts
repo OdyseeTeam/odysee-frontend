@@ -54,7 +54,6 @@ export const REWARDS_VERIFY = 'rewards/verify';
 export const REPOST_NEW = 'repost';
 export const SEND = 'send';
 export const SETTINGS = 'settings';
-export const SETTINGS_STRIPE_CARD = 'settings/card';
 export const SETTINGS_STRIPE_ACCOUNT = 'settings/tip_account';
 export const SETTINGS_NOTIFICATIONS = 'settings/notifications';
 export const SETTINGS_BLOCKED_MUTED = 'settings/block_and_mute';
@@ -212,7 +211,6 @@ const PAGES = {
   SETTINGS_NOTIFICATIONS,
   SETTINGS_OWN_COMMENTS,
   SETTINGS_STRIPE_ACCOUNT,
-  SETTINGS_STRIPE_CARD,
   SETTINGS_UPDATE_PWD,
   SHOW,
   SPORTS,

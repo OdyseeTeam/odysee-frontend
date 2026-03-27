@@ -9,7 +9,7 @@ import * as MODALS from 'constants/modal_types';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectIndexForCreatorMembership } from 'redux/selectors/memberships';
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/payments';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 import { doOpenModal } from 'redux/actions/app';
 

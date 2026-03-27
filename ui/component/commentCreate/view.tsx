@@ -58,8 +58,8 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
-import { doTipAccountCheckForUri as doTipAccountCheckForUriAction } from 'redux/actions/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/payments';
+import { doTipAccountCheckForUri as doTipAccountCheckForUriAction } from 'redux/actions/payments';
 import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from 'redux/selectors/memberships';
 import { doArTip as doArTipAction } from 'redux/actions/arwallet';
 import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';

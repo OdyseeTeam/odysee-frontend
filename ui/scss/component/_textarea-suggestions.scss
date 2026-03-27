@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .MuiAutocomplete-inputRoot {
   @media (min-width: $breakpoint-small) {
     padding: 0 !important;

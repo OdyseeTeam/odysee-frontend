@@ -20,7 +20,7 @@ import {
   selectResolvingIds,
   selectIsFetchingClaimSearchForQuery,
 } from 'redux/selectors/claims';
-import { doCheckIfPurchasedClaimIds } from 'redux/actions/stripe';
+import { doCheckIfPurchasedClaimIds } from 'redux/actions/payments';
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';

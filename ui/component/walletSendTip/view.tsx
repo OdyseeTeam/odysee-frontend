@@ -32,11 +32,11 @@ import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
-import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/payments';
 import { doArTip } from 'redux/actions/arwallet';
 import { doToast } from 'redux/actions/notifications';
 import { selectArweaveTippingErrorForId, selectArweaveTippingStartedForId } from 'redux/selectors/arwallet';
-import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/payments';
 const stripeEnvironment = getStripeEnvironment();
 type SupportParams = {
   amount: number;

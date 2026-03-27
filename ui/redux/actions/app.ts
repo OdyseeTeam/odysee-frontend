@@ -68,7 +68,7 @@ import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { selectContentPositionForUri } from 'redux/selectors/content';
-import { doTipAccountStatus } from './stripe';
+import { doTipAccountStatus } from './payments';
 const { lbrySettings: config, version: appVersion } = p;
 
 // @if TARGET='app'

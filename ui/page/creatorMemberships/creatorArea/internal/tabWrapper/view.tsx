@@ -4,10 +4,10 @@ import Spinner from 'component/spinner';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+import { selectAccountChargesEnabled } from 'redux/selectors/payments';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
 import { userHasMembershipTiers, selectMySupportersList } from 'redux/selectors/memberships';
-import { doTipAccountStatus } from 'redux/actions/stripe';
+import { doTipAccountStatus } from 'redux/actions/payments';
 type Props = {
   component: any;
   switchToTiersTab?: () => void;

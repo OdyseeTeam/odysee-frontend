@@ -1,3 +1,6 @@
+$breakpoint-ad-compact: 1000px;
+$breakpoint-ad-mobile: 650px;
+
 .rmbl_aboveComments {
   width: 100%;
   div {
@@ -9,14 +12,14 @@
       margin-bottom: var(--spacing-m);
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: $breakpoint-ad-compact) {
       iframe {
         &:nth-of-type(3) {
           display: none !important;
         }
       }
     }
-    @media (max-width: 650px) {
+    @media (max-width: $breakpoint-ad-mobile) {
       iframe {
         &:nth-of-type(2) {
           display: none !important;

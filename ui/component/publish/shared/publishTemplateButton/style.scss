@@ -2,6 +2,8 @@
 // PublishTemplateButton - overrides for .page__title context
 // ==========================================================================
 
+@import 'init/breakpoints';
+
 .publish-template-wrapper {
   position: relative;
   display: inline-flex;
@@ -327,7 +329,7 @@
   border-color: rgba(var(--color-primary-dynamic), 0.65);
 }
 
-@media (max-width: 900px) {
+@media (max-width: $breakpoint-small) {
   .publish-template-wrapper {
     margin-left: 0;
 
@@ -355,7 +357,7 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: $breakpoint-mobile-narrow) {
   .publish-template-menu-button[data-reach-menu-button] {
     max-width: 100%;
     padding-left: var(--spacing-xs);

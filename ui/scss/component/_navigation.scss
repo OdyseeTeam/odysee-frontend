@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));

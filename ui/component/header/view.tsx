@@ -28,7 +28,7 @@ import { selectGetSyncErrorMessage, selectPrefsReady } from 'redux/selectors/syn
 import { selectHasNavigated } from 'redux/selectors/app';
 import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
 import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
-import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectAPIArweaveActiveAccounts } from 'redux/selectors/payments';
 import { selectIsPlayerFloating } from 'redux/selectors/content';
 type Props = {
   authHeader: boolean;

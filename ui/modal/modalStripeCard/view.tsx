@@ -4,8 +4,8 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { selectHasSavedCard } from 'redux/selectors/stripe';
+import './style.scss';
+import { useAppDispatch } from 'redux/hooks';
 import { doOpenModal, doHideModal } from 'redux/actions/app';
 
 type Props = {
@@ -16,7 +16,6 @@ type Props = {
 const ModalStripeCard = (props: Props) => {
   const { previousModal, previousProps } = props;
   const dispatch = useAppDispatch();
-  useAppSelector(selectHasSavedCard);
 
   function handleGoBack() {
     dispatch(doHideModal());

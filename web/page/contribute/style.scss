@@ -1,3 +1,5 @@
+$breakpoint-contribute-mobile: 620px;
+
 .contribute-container {
   width: 100%;
   max-width: 1000px;
@@ -230,7 +232,7 @@
     }
   }
 
-  @media (max-width: 620px) {
+  @media (max-width: $breakpoint-contribute-mobile) {
     .a43-screen {
       padding: 1rem;
       font-size: 0.78rem;

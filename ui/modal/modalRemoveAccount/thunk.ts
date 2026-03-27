@@ -4,8 +4,8 @@ import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
-import { selectCustomerStatus, selectAccountStatus } from 'redux/selectors/stripe';
-import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from 'redux/actions/stripe';
+import { selectCustomerStatus, selectAccountStatus } from 'redux/selectors/payments';
+import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from 'redux/actions/payments';
 type Status = 'success' | 'error_occurred';
 export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {

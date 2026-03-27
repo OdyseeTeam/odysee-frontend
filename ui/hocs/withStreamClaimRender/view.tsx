@@ -43,7 +43,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
 import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
-import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/payments';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)

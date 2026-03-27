@@ -44,7 +44,6 @@ export const PAGE_TITLE = {
   [PAGES.SETTINGS_NOTIFICATIONS]: 'Manage notifications',
   [PAGES.SETTINGS_OWN_COMMENTS]: 'Your comments',
   [PAGES.SETTINGS_STRIPE_ACCOUNT]: 'Legacy Payout Settings',
-  [PAGES.SETTINGS_STRIPE_CARD]: 'Legacy Payment Methods',
   [PAGES.SETTINGS_UPDATE_PWD]: 'Update password',
   [PAGES.SWAP]: 'Swap Credits',
   [PAGES.TAGS_FOLLOWING]: 'Tags',

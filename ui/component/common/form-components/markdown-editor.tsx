@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import './syntax-highlighter.scss';
 import MarkdownPreview from 'component/common/markdown-preview';
 import { openContextMenu } from 'util/context-menu';
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as dat from 'dat.gui';
+import './style.lazy.scss';
 import LoadingScreen from 'component/common/loading-screen';
 // ThreeJS
 import { LoadingManager } from 'three-full/sources/loaders/LoadingManager';

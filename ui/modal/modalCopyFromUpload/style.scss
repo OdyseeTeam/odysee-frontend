@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .modal.copy-from-upload-modal {
   max-width: 760px !important;
   width: min(94vw, 760px) !important;
@@ -246,7 +248,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: $breakpoint-small) {
   .modal.copy-from-upload-modal {
     width: min(96vw, 36rem) !important;
     max-width: min(96vw, 36rem) !important;
@@ -294,7 +296,7 @@
   }
 }
 
-@media (max-width: 450px) {
+@media (max-width: $breakpoint-xxsmall) {
   .modal.copy-from-upload-modal {
     --file-list-thumbnail-width: 5.6rem;
   }

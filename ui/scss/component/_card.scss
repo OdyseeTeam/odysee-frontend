@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .card {
   position: relative;
 
@@ -918,6 +920,12 @@
 
 .publish-row {
   padding: var(--spacing-s);
+
+  // Keep publish-description textarea spacing stable against global/form overrides.
+  textarea#content_description {
+    padding: var(--spacing-s) !important;
+  }
+
   p {
     color: rgba(var(--color-text-base), 0.8);
     margin-top: var(--spacing-xxs);

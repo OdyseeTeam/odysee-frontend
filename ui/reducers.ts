@@ -16,7 +16,7 @@ import notificationsReducer from 'redux/reducers/notifications';
 import rewardsReducer from 'redux/reducers/rewards';
 import userReducer from 'redux/reducers/user';
 import membershipsReducer from 'redux/reducers/memberships';
-import stripeReducer from 'redux/reducers/stripe';
+import paymentsReducer from 'redux/reducers/payments';
 import arWalletReducer from 'redux/reducers/arwallet';
 import commentsReducer from 'redux/reducers/comments';
 // @ts-ignore - circular type alias resolved at runtime
@@ -28,8 +28,9 @@ import reactionsReducer from 'redux/reducers/reactions';
 import syncReducer from 'redux/reducers/sync';
 import shortsReducer from 'redux/reducers/shorts';
 import { routerReducer } from 'redux/router';
-export default () =>
-  combineReducers({
+
+export default () => {
+  const combinedReducer = combineReducers({
     router: routerReducer,
     app: appReducer,
     blacklist: blacklistReducer,
@@ -52,10 +53,20 @@ export default () =>
     coinSwap: coinSwapReducer,
     user: userReducer,
     memberships: membershipsReducer,
-    stripe: stripeReducer,
+    payments: paymentsReducer,
     arwallet: arWalletReducer,
     wallet: walletReducer,
     sync: syncReducer,
     collections: collectionsReducer,
     shorts: shortsReducer,
   });
+
+  // One-time compatibility migration for persisted state key rename.
+  return (state: any, action: any) => {
+    if (state?.stripe && !state?.payments) {
+      state = { ...state, payments: state.stripe };
+    }
+
+    return combinedReducer(state, action);
+  };
+};

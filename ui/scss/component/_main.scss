@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 body {
   overflow-x: hidden;
 }
@@ -397,7 +399,7 @@ body {
     }
   }
 
-  @media (min-width: 1750px) {
+  @media (min-width: $breakpoint-desktop-wide) {
     padding: 0;
     width: 100%;
     max-width: var(--page-max-width--filepage);

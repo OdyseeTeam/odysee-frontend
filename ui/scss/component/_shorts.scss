@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .shorts-transition-preview {
   --shorts-preview-translate-x: calc(-50% - 6px);
   position: fixed;
@@ -19,11 +21,11 @@
   &--panel-open {
     --shorts-preview-translate-x: -130%;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       left: 20px;
       width: 350px !important;
@@ -44,11 +46,11 @@
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+  @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     --shorts-preview-translate-x: 0;
     left: 0;
     width: 100vw;
@@ -81,12 +83,12 @@
   &--panel-open {
     --shorts-preview-translate-x: -130%;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       width: 350px !important;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       left: 20px;
       width: 350px !important;
@@ -107,11 +109,11 @@
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+  @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     --shorts-preview-translate-x: 0;
     left: 0;
     width: 100vw;
@@ -160,7 +162,7 @@
 
 .shorts-page,
 .main--shorts-page {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     & ~ .header,
     & + .header {
       background-color: transparent !important;
@@ -172,7 +174,7 @@
 
 body:has(.shorts-page),
 body:has(.main--shorts-page) {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .header {
       transition:
         background-color var(--resizing-animation-timing),
@@ -184,7 +186,7 @@ body:has(.main--shorts-page) {
 
 body:has(.shorts-page):not(:has(.navigation__overlay--active)),
 body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .header {
       background-color: transparent !important;
       backdrop-filter: none !important;
@@ -275,7 +277,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     background: var(--color-button-secondary-bg-hover);
     border-radius: 5px;
   }
-  @media screen and (max-width: 1020px) {
+  @media screen and (max-width: $breakpoint-shorts) {
     background: transparent;
     border: none;
     color: var(--color-text);
@@ -355,14 +357,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     display: none;
   }
 
-  @media (max-width: 1180px) and (min-width: 1020px) {
+  @media (max-width: $breakpoint-shorts-large) and (min-width: $breakpoint-shorts) {
     .menu__button {
       right: calc(50% - 500px / 2 + 270px - 60px);
     }
   }
 }
 
-@media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+@media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
   }
@@ -389,7 +391,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   padding-bottom: 0;
   overflow: hidden;
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     right: 10px;
   }
 
@@ -510,7 +512,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   p {
     font-size: 0.7rem;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
     }
   }
@@ -536,7 +538,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     font-size: 0.7rem;
     line-height: 1.8;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
     }
   }
@@ -555,7 +557,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     left: calc(54% - 85vw / 2 - 60px);
   }
 
-  @media (max-width: 1400px) and (min-width: 1020px) {
+  @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       left: calc(403px - var(--spacing-xs)) !important;
       right: auto !important;
@@ -584,19 +586,19 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (min-height: 750px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (min-height: 750px) {
     .shorts-page__navigation {
       left: 300px !important;
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (min-height: 850px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (min-height: 850px) {
     .shorts-page__navigation {
       left: calc(var(--shorts-viewer-width-default) - 50px) !important;
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (max-height: 750px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (max-height: 750px) {
     .shorts-page__navigation {
       left: 270px !important;
       padding-bottom: 70px !important;
@@ -613,7 +615,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   background: var(--color-background);
 }
 
-@media (max-width: 1400px) and (min-width: 1020px) {
+@media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
   .shorts-page__side-panel {
     width: min(calc(100vw - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) - 40px), 640px);
     right: calc(var(--shorts-viewer-width, var(--shorts-viewer-width-default)) + 40px - 100vw);
@@ -632,7 +634,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 .shorts-page__container--panel-open {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       right: 15px;
     }
@@ -642,14 +644,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+@media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
   .shorts-page__navigation {
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
 }
 
 .shorts-page__container--panel-open {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       right: 15px;
     }
@@ -793,7 +795,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     width: fit-content;
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 110px);
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       right: 10px;
     }
   }
@@ -932,13 +934,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (max-width: 1050px) {
+@media (max-width: $breakpoint-shorts-medium) {
   .shorts-page__view-toggle {
     display: none;
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: $breakpoint-shorts) {
   .shorts-page__view-toggle {
     display: none;
   }
@@ -991,14 +993,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts__viewer {
   .shorts-page__view-toggle--overlay {
-    @media (min-width: 1020px) {
+    @media (min-width: $breakpoint-shorts) {
       opacity: 0;
       transition: opacity 100ms ease-out;
     }
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: $breakpoint-shorts) {
   .shorts__viewer,
   .content__cover--shorts {
     .shorts-page__view-toggle--overlay {
@@ -1056,17 +1058,17 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     &.content__cover--panel-open {
       transform: translate(-130%, 0%) !important;
 
-      @media (max-width: 1020px) {
+      @media (max-width: $breakpoint-shorts) {
         transform: none !important;
       }
 
-      @media (max-width: 1400px) and (min-width: 1020px) {
+      @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
         left: 20px !important;
         transform: none !important;
       }
     }
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       width: 100vw !important;
       height: 100vh !important;
       height: 100svh !important;
@@ -1087,17 +1089,17 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
 
-    @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+    @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
       width: 350px !important;
     }
     &.content__cover--side-panel-open {
       transform: translate(-130%, 0%) !important;
 
-      @media (max-width: 1020px) {
+      @media (max-width: $breakpoint-shorts) {
         transform: none !important;
       }
 
-      @media (max-width: 1400px) and (min-width: 1020px) {
+      @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
         left: 20px !important;
         transform: none !important;
       }
