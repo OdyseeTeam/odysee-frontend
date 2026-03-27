@@ -18,6 +18,9 @@ export default function useResolvedSource(
 ) {
   const [resolved, setResolved] = useState(null);
   const playerServerRef = useRef(null);
+  const logLivestreamSource = (label, payload) => {
+    console.log(`[Livestream Viewer] ${label}`, payload); // eslint-disable-line no-console
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -27,12 +30,23 @@ export default function useResolvedSource(
 
       if (isLivestream) {
         if (isProtectedContent && activeLivestreamForChannel) {
+          logLivestreamSource('Resolving protected livestream source', {
+            uri,
+            preferredUrl: activeLivestreamForChannel.videoUrl || null,
+            publicUrl: activeLivestreamForChannel.videoUrlPublic || null,
+          });
           const protectedResponse = await Lbry.get({
             uri: activeLivestreamForChannel.uri,
             base_streaming_url: activeLivestreamForChannel.videoUrl,
             environment: stripeEnvironment,
           });
           if (cancelled) return;
+          logLivestreamSource('Resolved protected livestream source', {
+            uri,
+            finalSrc: protectedResponse.streaming_url,
+            preferredUrl: activeLivestreamForChannel.videoUrl || null,
+            publicUrl: activeLivestreamForChannel.videoUrlPublic || null,
+          });
           setResolved({
             src: protectedResponse.streaming_url,
             type: HLS_FILETYPE,
@@ -43,6 +57,12 @@ export default function useResolvedSource(
           });
         } else if (activeLivestreamForChannel && activeLivestreamForChannel.videoUrl) {
           const liveUrl = activeLivestreamForChannel.videoUrl;
+          logLivestreamSource('Resolved public livestream source', {
+            uri,
+            finalSrc: liveUrl,
+            preferredUrl: activeLivestreamForChannel.videoUrl || null,
+            publicUrl: activeLivestreamForChannel.videoUrlPublic || null,
+          });
           setResolved({
             src: liveUrl,
             type: HLS_FILETYPE,

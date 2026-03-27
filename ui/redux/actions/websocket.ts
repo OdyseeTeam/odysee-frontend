@@ -25,8 +25,14 @@ const getCommentSocketUrlForCommenter = (claimId, channelName) => {
 
 export const doSocketConnect = (url, cb, type) => {
   function connectToSocket() {
-    if (sockets[url] !== undefined && sockets[url] !== null) {
-      sockets[url].close();
+    // If already connected or connecting, don't tear down and reopen
+    const existing = sockets[url];
+    if (existing && (existing.readyState === WebSocket.OPEN || existing.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+
+    if (existing) {
+      existing.close();
       sockets[url] = null;
     }
 

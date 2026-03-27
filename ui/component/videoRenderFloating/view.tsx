@@ -412,32 +412,28 @@ function VideoRenderFloating(props: Props) {
   // EFFECTS
   // ****************************************************************************
   // Establish web socket connection for viewer count.
+  // Use a ref to track if we connected, to avoid re-triggering on socketConnection state changes.
+  const wsConnectedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!claimId || !channelUrl || !isCurrentClaimLive) return;
+    if (!claimId || !channelUrl || !isCurrentClaimLive || !contentUnlocked) {
+      return;
+    }
     const channelName = formatLbryChannelName(channelUrl);
 
-    // Only connect if not yet connected, so for example clicked on an embed instead of accessing
-    // from the Livestream page
-    if (!socketConnection?.connected && contentUnlocked) {
+    if (!wsConnectedRef.current) {
+      wsConnectedRef.current = true;
       doCommentSocketConnect(uri, channelName, claimId, undefined);
     }
 
-    // This will be used to disconnect for every case, since this is the main player component
     return () => {
-      if (socketConnection?.connected) {
+      if (wsConnectedRef.current) {
+        wsConnectedRef.current = false;
         doCommentSocketDisconnect(claimId, channelName);
       }
     };
-  }, [
-    channelUrl,
-    claimId,
-    contentUnlocked,
-    doCommentSocketConnect,
-    doCommentSocketDisconnect,
-    isCurrentClaimLive,
-    socketConnection,
-    uri,
-  ]);
+    // Stable deps only - no socketConnection, no inline functions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimId, channelUrl, isCurrentClaimLive, contentUnlocked, uri]);
   React.useEffect(() => {
     if (playingPrimaryUri || uri || collectionSidebarId) {
       handleResize();

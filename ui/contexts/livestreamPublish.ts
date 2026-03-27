@@ -22,8 +22,10 @@ export type LivestreamPublishState = {
   videoCodec: string | null;
   audioCodec: string | null;
   encoderImpl?: string | null;
+  avgEncodeMs?: number | null;
   connectionState: string;
   qualityLimitationReason?: string | null;
+  qualityLimitationDurations?: Record<string, number> | null;
   /** Timestamp (ms) when the stream went live. Persists across navigation. */
   liveStartedAt: number | null;
 };
@@ -37,7 +39,7 @@ export type LivestreamPublishActions = {
   updateStats: (stats: Partial<LivestreamPublishState>) => void;
   setPc: (pc: RTCPeerConnection | null) => void;
   setResourceUrl: (url: string | null) => void;
-  stopStream: () => Promise<void>;
+  stopStream: (options?: { preservePreview?: boolean }) => Promise<void>;
 };
 
 export type LivestreamPublishRefs = {
@@ -65,8 +67,10 @@ export const INITIAL_PUBLISH_STATE: LivestreamPublishState = {
   videoCodec: null,
   audioCodec: null,
   encoderImpl: null,
+  avgEncodeMs: null,
   connectionState: 'idle',
   qualityLimitationReason: null,
+  qualityLimitationDurations: null,
   liveStartedAt: null,
 };
 

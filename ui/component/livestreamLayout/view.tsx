@@ -10,7 +10,7 @@ import * as SETTINGS from 'constants/settings';
 import MobileTabView from 'component/mobileTabView';
 import RecommendedContent from 'component/recommendedContent';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
@@ -73,7 +73,7 @@ export default function LivestreamLayout(props: Props) {
   const [playerKey, setPlayerKey] = React.useState(0);
 
   // Creator-only stream metrics
-  const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
   const signingChannel = claim?.signing_channel;
   const myChannelName = claimIsMine ? signingChannel?.name : undefined;
   const myChannelId = claimIsMine ? signingChannel?.claim_id : undefined;

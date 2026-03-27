@@ -52,8 +52,9 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         p2p: {
           core: {
             announceTrackers: [
-              'wss://tracker.novage.com.ua',
-              'wss://tracker.webtorrent.dev',
+              'wss://tracker.novage.com.ua:443',
+              'wss://tracker.webtorrent.dev:443',
+              'wss://tracker.openwebtorrent.com:443',
             ],
           },
         },
@@ -72,6 +73,41 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         console.log('[P2P Seed] Manifest loaded, seeding active'); // eslint-disable-line no-console
         video.play().catch(() => {});
+
+        // Check if P2P engine is actually running
+        if (hls.p2pEngine) {
+          console.log('[P2P Seed] P2P engine active on seeder'); // eslint-disable-line no-console
+          const engine = hls.p2pEngine;
+          try {
+            engine.addEventListener('onSegmentLoaded', (details: any) => {
+              const source = details.peerId ? 'P2P peer ' + details.peerId : 'HTTP';
+              console.log('[P2P Seed] Segment via', source); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onChunkDownloaded', (bytesLength: any, downloadSource: any, peerId: any) => {
+              if (peerId) {
+                console.log('[P2P Seed] Uploaded chunk to peer:', peerId, bytesLength, 'bytes'); // eslint-disable-line no-console
+              }
+            });
+          } catch (e) {
+            console.warn('[P2P Seed] Failed to attach event listeners:', e); // eslint-disable-line no-console
+          }
+          // Log tracker/peer status periodically
+          const peerLogInterval = setInterval(() => {
+            try {
+              const core = engine.core;
+              if (core && core.streams) {
+                let totalPeers = 0;
+                core.streams.forEach((stream: any) => {
+                  if (stream.peers) totalPeers += stream.peers.size;
+                });
+                console.log(`[P2P Seed] Peers: ${totalPeers}, Streams: ${core.streams.size}`); // eslint-disable-line no-console
+              }
+            } catch {} // eslint-disable-line no-empty
+          }, 10000);
+          hls.on(Hls.Events.DESTROYING, () => clearInterval(peerLogInterval));
+        } else {
+          console.warn('[P2P Seed] No p2pEngine on seeder HLS instance - mixin may not have worked'); // eslint-disable-line no-console
+        }
       });
 
       hls.on(Hls.Events.ERROR, (_: any, data: any) => {

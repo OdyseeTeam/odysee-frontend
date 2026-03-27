@@ -235,6 +235,8 @@ async function applyOutboundVideoEncoding(
     const enc = params.encodings[0];
     if (maxVideoBitrateBps != null) enc.maxBitrate = maxVideoBitrateBps;
     if (maxVideoFramerate != null) enc.maxFramerate = maxVideoFramerate;
+    (enc as any).priority = 'high';
+    (enc as any).networkPriority = 'high';
     (params as any).degradationPreference = degradationPreference || 'balanced';
 
     try {

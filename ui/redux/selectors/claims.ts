@@ -294,7 +294,7 @@ const selectNormalizedAndVerifiedUri = createCachedSelector(
   }
 )((state, rawUri) => String(rawUri));
 export const selectClaimIsMine = (state: State, claim: Claim | null | undefined) => {
-  if (!claim) return claim;
+  if (!claim) return false;
 
   if (claim.is_my_output) {
     return true;

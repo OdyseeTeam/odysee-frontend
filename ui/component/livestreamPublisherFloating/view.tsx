@@ -11,6 +11,7 @@ import classnames from 'classnames';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
+import usePersistedState from 'effects/use-persisted-state';
 import './style.scss';
 
 function formatResolutionLabel(resolution: string | null): string | null {
@@ -28,10 +29,12 @@ function formatResolutionLabel(resolution: string | null): string | null {
 export default function LivestreamPublisherFloating() {
   const { state, actions } = useLivestreamPublish();
   const { status, mediaStream, floatingPreviewEnabled, resolution, videoBitrateKbps } = state;
+  const [cameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const floatingRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const isOnLivestreamPage = location.pathname.includes(PAGES.LIVESTREAM);
 
   // Stream metrics
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
@@ -45,7 +48,7 @@ export default function LivestreamPublisherFloating() {
         .catch(() => setSigData({}));
     }
   }, [channelId, channelName]);
-  const isLiveForMetrics = status === 'live';
+  const isLiveForMetrics = status === 'live' && !isOnLivestreamPage;
   const serverMetrics = useLivestreamMetrics(channelId, channelName, sigData.signature, sigData.signing_ts, isLiveForMetrics);
 
   // Viewer count: commentron WSS for HLS, OME for WebRTC (only if source is WebRTC)
@@ -60,8 +63,6 @@ export default function LivestreamPublisherFloating() {
   // Claim title for info bar
   const claimTitle = useAppSelector((state) => nextStreamUri ? selectTitleForUri(state, nextStreamUri) : undefined);
   const claimNavigateUrl = nextStreamUri ? formatLbryUrlForWeb(nextStreamUri) : null;
-
-  const isOnLivestreamPage = location.pathname.includes(PAGES.LIVESTREAM);
   const isStreaming = status === 'live' || status === 'connecting' || status === 'preview';
   const showFullPreview = isStreaming && mediaStream && floatingPreviewEnabled && !isOnLivestreamPage;
   const showMinimalPill = isStreaming && mediaStream && !floatingPreviewEnabled && !isOnLivestreamPage;
@@ -207,11 +208,11 @@ export default function LivestreamPublisherFloating() {
         </button>
 
         {(isLive || status === 'connecting') && (
-          <button
-            className="livestream-floating-pill__btn livestream-floating-pill__btn--stop"
-            onClick={() => actions.stopStream()}
-            title={__('End stream')}
-          >
+            <button
+              className="livestream-floating-pill__btn livestream-floating-pill__btn--stop"
+              onClick={() => actions.stopStream({ preservePreview: Boolean(cameraAutoStart) })}
+              title={__('End stream')}
+            >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <rect x="4" y="4" width="16" height="16" rx="2" />
             </svg>
@@ -300,7 +301,7 @@ export default function LivestreamPublisherFloating() {
           {(isLive || status === 'connecting') && (
             <button
               className="livestream-floating__control-btn livestream-floating__control-btn--stop"
-              onClick={() => actions.stopStream()}
+              onClick={() => actions.stopStream({ preservePreview: Boolean(cameraAutoStart) })}
               title={__('End stream')}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

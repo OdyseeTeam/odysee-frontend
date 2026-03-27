@@ -1,4 +1,5 @@
 /** Presets for browser WHIP / WebRTC publishing (getUserMedia + outbound RTP caps). */
+import { platform } from 'util/platform';
 
 export type WebrtcPublishPresetId = "data_saver" | "balanced" | "hd";
 export type WebrtcPublishVideoCodecPreference =
@@ -32,10 +33,9 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
       width: { ideal: 854 },
       height: { ideal: 480 },
       frameRate: { ideal: 30 },
-      facingMode: "user",
     },
-    // 480p: 1.5 Mbps (OBS default for 480p is ~1-2 Mbps)
-    maxVideoBitrateBps: 1_500_000,
+    // 480p: 2 Mbps leaves more headroom for motion-heavy livestreams.
+    maxVideoBitrateBps: 2_000_000,
     maxVideoFramerate: 30,
   },
   balanced: {
@@ -44,10 +44,9 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
       width: { ideal: 1280 },
       height: { ideal: 720 },
       frameRate: { ideal: 30 },
-      facingMode: "user",
     },
-    // 720p: 2.5 Mbps (OBS default for 720p is ~3-4.5 Mbps)
-    maxVideoBitrateBps: 2_500_000,
+    // 720p: 4 Mbps gives the encoder enough headroom to keep framerate up.
+    maxVideoBitrateBps: 4_000_000,
     maxVideoFramerate: 30,
   },
   hd: {
@@ -56,10 +55,9 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
       width: { ideal: 1920 },
       height: { ideal: 1080 },
       frameRate: { ideal: 30 },
-      facingMode: "user",
     },
-    // 1080p: 4 Mbps (OBS default for 1080p is ~4.5-6 Mbps)
-    maxVideoBitrateBps: 4_000_000,
+    // 1080p: 8 Mbps is a more realistic cap for high-motion live video.
+    maxVideoBitrateBps: 8_000_000,
     maxVideoFramerate: 30,
   },
 };
@@ -67,7 +65,13 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
 export function getWebrtcPublishVideoConstraints(
   presetId: WebrtcPublishPresetId,
 ): MediaTrackConstraints {
-  return WEBRTC_PUBLISH_PRESETS[presetId].video;
+  const video = { ...WEBRTC_PUBLISH_PRESETS[presetId].video };
+
+  if (platform.isMobile()) {
+    video.facingMode = 'user';
+  }
+
+  return video;
 }
 
 export function getWebrtcPublishEncodingOptions(

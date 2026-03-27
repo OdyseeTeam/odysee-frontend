@@ -416,6 +416,7 @@ export default defineConfig(({ command }) => ({
     IS_WEB: JSON.stringify(true),
     __static: JSON.stringify(path.join(__dirname, 'static')),
     'process.platform': JSON.stringify('browser'),
+    'process.browser': JSON.stringify(true),
     'process.cwd': '(() => "/")',
     global: 'globalThis',
   },

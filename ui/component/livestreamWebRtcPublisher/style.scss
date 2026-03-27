@@ -226,6 +226,23 @@
     }
   }
 
+  &__diag-msg,
+  &__warning-msg {
+    margin: 0;
+    text-align: center;
+    font-size: var(--font-small);
+    line-height: 1.5;
+  }
+
+  &__diag-msg {
+    color: var(--color-text-subtitle);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__warning-msg {
+    color: #c77b00;
+  }
+
   // ---- Controls bar ----
   &__controls {
     display: flex;
@@ -308,11 +325,28 @@
   }
 
   &__claim-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: var(--font-xsmall);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-text-subtitle);
+  }
+
+  &__claim-live-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: var(--color-primary);
+    animation: webrtc-pulse 2s ease-in-out infinite;
   }
 
   &__claim-header {

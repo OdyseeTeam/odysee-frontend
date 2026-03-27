@@ -6,7 +6,7 @@ import { setGlobalDevModeChecks } from 'reselect';
 // for the same arguments. This is useful for finding perf bugs, but fires 250+
 // times on page load due to legacy selectors. Set to 'once' so each unique site
 // logs only a single warning instead of flooding the console.
-setGlobalDevModeChecks({ inputStabilityCheck: 'once' });
+setGlobalDevModeChecks({ inputStabilityCheck: 'once', identityFunctionCheck: 'once' });
 
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';

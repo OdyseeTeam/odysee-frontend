@@ -233,20 +233,29 @@ function VideoJsInner(props) {
   useEffect(() => {
     if (!media || !resolvedSource || !resolvedSource.src) return;
     if (!Hls.isSupported()) return;
-    const src = resolvedSource.src;
-    const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
-
-    let destroyed = false;
-
     const p2pEnabled = (() => {
       try {
         const stored = LocalStorage.getItem('p2p_delivery');
         return stored ? JSON.parse(stored) === true : false;
       } catch { return false; } // eslint-disable-line no-empty
     })();
+    const src = resolvedSource.src;
+    const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
+    if (p2pEnabled && isLivestreamClaim) {
+      console.log('[P2P] Viewer livestream source:', {
+        src,
+        isHls,
+        preferredVideoUrl: activeLivestreamForChannel?.videoUrl || null,
+        publicVideoUrl: activeLivestreamForChannel?.videoUrlPublic || null,
+      }); // eslint-disable-line no-console
+    }
+
+    let destroyed = false;
 
     function createHls(HlsConstructor) {
       if (destroyed) return;
+      // Remember play state so we can restore after HLS reattaches
+      const wasPlaying = !media.paused;
       const hls = new HlsConstructor({
         backBufferLength: 30,
         capLevelToPlayerSize: true,
@@ -262,8 +271,9 @@ function VideoJsInner(props) {
               p2p: {
                 core: {
                   announceTrackers: [
-                    'wss://tracker.novage.com.ua',
-                    'wss://tracker.webtorrent.dev',
+                    'wss://tracker.novage.com.ua:443',
+                    'wss://tracker.webtorrent.dev:443',
+                    'wss://tracker.openwebtorrent.com:443',
                   ],
                 },
               },
@@ -286,6 +296,13 @@ function VideoJsInner(props) {
       hls.attachMedia(media);
       hls.loadSource(src);
       media._hls = hls;
+
+      // Restore play state after HLS reattaches
+      if (wasPlaying) {
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          media.play().catch(() => {});
+        });
+      }
 
       // P2P diagnostics
       if (p2pEnabled && isLivestreamClaim && hls.p2pEngine) {
