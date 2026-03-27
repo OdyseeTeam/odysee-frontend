@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, FormField } from 'component/common/form';
-import ReactPaginate from 'react-paginate';
+import ReactPaginateModule from 'react-paginate';
+const ReactPaginate = (ReactPaginateModule as any).default || ReactPaginateModule;
 import './paginate.scss';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation, useNavigate } from 'react-router-dom';

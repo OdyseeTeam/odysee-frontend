@@ -108,6 +108,18 @@ export function FormField(props: Props) {
   const textareaInlineAttachmentAttached = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const mdOnChange = React.useCallback(
+    (value: string) => {
+      const normalizedValue =
+        textAreaMaxLength && value.length > textAreaMaxLength
+          ? value.substring(0, textAreaMaxLength)
+          : value;
+      inputProps.onChange?.(normalizedValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [textAreaMaxLength, inputProps.onChange]
+  );
+
   function maybeAttachTextareaInlineAttachment() {
     const el = input.current;
     if ((type === 'textarea' || type === 'markdown') && el && !textareaInlineAttachmentAttached.current) {
@@ -204,13 +216,7 @@ export function FormField(props: Props) {
                 {...inputProps}
                 id={name}
                 inputRef={input as React.RefObject<HTMLTextAreaElement>}
-                onChange={(value: string) => {
-                  const normalizedValue =
-                    textAreaMaxLength && value.length > textAreaMaxLength
-                      ? value.substring(0, textAreaMaxLength)
-                      : value;
-                  inputProps.onChange?.(normalizedValue);
-                }}
+                onChange={mdOnChange}
               />
 
               <CountInfo {...countInfoProps} />
