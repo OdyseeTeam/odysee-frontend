@@ -1,9 +1,7 @@
-import { remote } from 'electron';
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import * as KEYCODES from 'constants/keycodes';
 import * as SETTINGS from 'constants/settings';
 import { webDownloadClaim } from 'util/downloadClaim';
 import analytics from 'analytics';
@@ -99,23 +97,6 @@ function StreamClaimRenderInline(props: Props) {
       dispatch(doAnalyticsViewForUri(uri)).then(() => dispatch(doClaimEligiblePurchaseRewards()));
     }
   }, [uri, streamingUrl, dispatch]);
-
-  // @if TARGET='app'
-  React.useEffect(() => {
-    const escapeListener = (e: KeyboardEvent) => {
-      if (e.keyCode === KEYCODES.ESCAPE) {
-        e.preventDefault();
-        remote.getCurrentWindow().setFullScreen(false);
-        return false;
-      }
-    };
-
-    window.addEventListener('keydown', escapeListener, true);
-    return () => {
-      window.removeEventListener('keydown', escapeListener, true);
-    };
-  }, []);
-  // @endif
 
   function renderViewer() {
     const source = streamingUrl;

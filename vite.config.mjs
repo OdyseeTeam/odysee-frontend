@@ -447,9 +447,7 @@ export default defineConfig(({ command }) => ({
       $web: WEB_ROOT,
       $ui: UI_ROOT,
 
-      // Web stubs for electron/fs
-      'electron-is-dev': path.resolve(WEB_ROOT, 'stubs/electron-is-dev.ts'),
-      electron: path.resolve(WEB_ROOT, 'stubs/electron.ts'),
+      // Web stubs for node/fs
       fs: path.resolve(WEB_ROOT, 'stubs/fs.ts'),
 
       // Lodash optimizations

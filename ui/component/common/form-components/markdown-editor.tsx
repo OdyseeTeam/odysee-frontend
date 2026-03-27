@@ -264,7 +264,7 @@ export default function MarkdownEditor(props: Props) {
         }}
         onContextMenu={(event) => {
           try {
-            openContextMenu(
+            const handled = openContextMenu(
               event.nativeEvent,
               [],
               true,
@@ -273,7 +273,9 @@ export default function MarkdownEditor(props: Props) {
                 event.currentTarget.selectionEnd || 0
               )
             );
-            event.preventDefault();
+            if (handled) {
+              event.preventDefault();
+            }
           } catch {}
         }}
       />

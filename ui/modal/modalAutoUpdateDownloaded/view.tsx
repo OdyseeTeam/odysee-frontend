@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-// @if TARGET='app'
-import { ipcRenderer } from 'electron';
-// @endif
 import { Modal } from 'modal/modal';
 import LastReleaseChanges from 'component/lastReleaseChanges';
 import { useAppDispatch } from 'redux/hooks';
@@ -13,7 +10,7 @@ const ModalAutoUpdateDownloaded = () => {
 
   const handleConfirm = () => {
     setDisabled(true);
-    ipcRenderer.send('autoUpdateAccepted');
+    window.location.reload();
   };
 
   const handleAbort = () => {

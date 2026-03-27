@@ -16,7 +16,6 @@ import { selectUser } from 'redux/selectors/user';
 // @if TARGET='app'
 // import ErrorText from 'component/common/error-text';
 // import { LbryFirst } from 'lbry-redux';
-// import { ipcRenderer } from 'electron';
 // @endif
 type Props = {
   disabled: boolean;

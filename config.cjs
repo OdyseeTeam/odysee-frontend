@@ -1,4 +1,4 @@
-// Server-side config (CJS) - used by web/index.ts, web/src/*.ts, electron/*.ts
+// Server-side config (CJS) - used by web/index.ts and web/src/*.ts
 // Client-side code uses config.ts (ESM) via Vite alias
 const path = require('path');
 

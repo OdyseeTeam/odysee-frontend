@@ -1,6 +1,5 @@
 import React from 'react';
 import classnames from 'classnames';
-import { clipboard } from 'electron';
 import Button from 'component/button';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectCanonicalUrlForUri } from 'redux/selectors/claims';
@@ -24,7 +23,7 @@ function ClaimUri(props: Props) {
       })}
       label={noShortUrl ? uri : shortUrl || uri}
       onClick={() => {
-        clipboard.writeText(shortUrl || uri);
+        navigator.clipboard?.writeText(shortUrl || uri);
         doToast({
           message: __('Copied'),
         });

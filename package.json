@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "author": {
-    "name": "Odysee Inc.",
+    "name": "Odysee",
     "email": "hello@odysee.com"
   },
   "repository": {
@@ -166,15 +166,5 @@
     "overrides": {
       "react-is": "^18.3.1"
     }
-  },
-  "lbrySettings": {
-    "lbrynetDaemonVersion": "0.99.0",
-    "lbrynetDaemonUrlTemplate": "https://github.com/lbryio/lbry/releases/download/vDAEMONVER/lbrynet-OSNAME.zip",
-    "lbrynetDaemonDir": "static/daemon",
-    "lbrynetDaemonFileName": "lbrynet",
-    "LBRYFirstVersion": "0.0.20",
-    "LBRYFirstUrlTemplate": "https://github.com/lbryio/lbry-first/releases/download/vLBRYFIRSTVER/lbry-first_OSNAME_amd64.zip",
-    "LBRYFirstDir": "static/lbry-first",
-    "LBRYFirstFileName": "lbry-first"
   }
 }

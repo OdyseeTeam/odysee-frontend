@@ -6,7 +6,6 @@ import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import FileSelector from 'component/common/file-selector';
 import I18nMessage from 'component/i18nMessage';
-import SettingAutoLaunch from 'component/settingAutoLaunch';
 import SettingClosingBehavior from 'component/settingClosingBehavior';
 import SettingsRow from 'component/settingsRow';
 import SettingWalletServer from 'component/settingWalletServer';
@@ -28,10 +27,6 @@ import { doSetDaemonSetting, doClearDaemonSetting, doFindFFmpeg } from 'redux/ac
 import { selectAllowAnalytics } from 'redux/selectors/app';
 import { selectDaemonSettings, selectFfmpegStatus, selectFindingFFmpeg } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-
-// @if TARGET='app'
-const IS_MAC = process.platform === 'darwin';
-// @endif
 
 type Price = {
   currency: string;
@@ -195,20 +190,6 @@ export default function SettingSystem() {
                 helper={__('We use detailed analytics to improve all aspects of the LBRY experience.')}
               />
             </SettingsRow>
-            {/* @endif */}
-
-            {/* @if TARGET='app' */}
-            {/* Auto launch in a hidden state doesn't work on mac https://github.com/Teamwork/node-auto-launch/issues/81 */}
-            {!IS_MAC && (
-              <SettingsRow
-                title={__('Start minimized')}
-                subtitle={__(
-                  'Improve view speed and help the LBRY network by allowing the app to cuddle up in your system tray.'
-                )}
-              >
-                <SettingAutoLaunch noLabels />
-              </SettingsRow>
-            )}
             {/* @endif */}
 
             {/* @if TARGET='app' */}

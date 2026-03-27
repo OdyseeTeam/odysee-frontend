@@ -93,7 +93,6 @@ const defaultState = {
     [SETTINGS.P2P_DELIVERY]: false,
     [SETTINGS.P2P_OPT_IN_DISMISSED]: false,
     // OS
-    [SETTINGS.AUTO_LAUNCH]: true,
     [SETTINGS.TO_TRAY_WHEN_CLOSED]: true,
   },
 };

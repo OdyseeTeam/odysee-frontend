@@ -1,4 +1,4 @@
-// Native module - electron-only functionality stubbed for web
+// Native module placeholder for platform-specific integrations.
 const Native: Record<string, any> = {};
 
 export default Native;

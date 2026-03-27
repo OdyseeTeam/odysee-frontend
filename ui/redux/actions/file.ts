@@ -1,8 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
-// @if TARGET='app'
-import { shell } from 'electron';
-// @endif
 import Lbry from 'lbry';
 import { selectClaimForUri, selectClaimOutpointForUri, selectIsLivestreamClaimForUri } from 'redux/selectors/claims';
 import { doAbandonClaim } from 'redux/actions/claims';
@@ -18,16 +15,12 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 export function doOpenFileInFolder(path: string) {
   return () => {
-    (shell as any).showItemInFolder(path);
+    window.open(path, '_blank', 'noopener,noreferrer');
   };
 }
 export function doOpenFileInShell(path: string) {
   return (dispatch: Dispatch) => {
-    const success = shell.openPath(path);
-
-    if (!success) {
-      dispatch(doOpenFileInFolder(path));
-    }
+    dispatch(doOpenFileInFolder(path));
   };
 }
 export function doDeleteFile(
@@ -42,7 +35,6 @@ export function doDeleteFile(
       dispatch(doAbandonClaim(claim, cb));
     }
 
-    // @if TARGET='app'
     Lbry.file_delete({
       outpoint,
       delete_from_download_dir: deleteFromComputer,
@@ -52,7 +44,7 @@ export function doDeleteFile(
       data: {
         outpoint,
       },
-    }); // @endif
+    });
   };
 }
 export function doDeleteFileAndMaybeGoBack(

@@ -13,7 +13,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import { clipboard } from 'electron';
 import I18nMessage from 'component/i18nMessage';
 import { Navigate } from 'react-router-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -488,7 +487,7 @@ function WalletSwap() {
               label={__('Copy transaction ID')}
               title={sendTxId}
               onClick={() => {
-                clipboard.writeText(sendTxId);
+                navigator.clipboard?.writeText(sendTxId);
                 dispatch(
                   doToast({
                     message: __('Transaction ID copied.'),

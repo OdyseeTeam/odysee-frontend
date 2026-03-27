@@ -1,8 +1,4 @@
 import * as ACTIONS from 'constants/action_types';
-import { remote } from 'electron';
-// @if TARGET='app'
-const win = (remote as any).BrowserWindow?.getFocusedWindow();
-// @endif
 const reducers = {};
 export type SnackBar = {
   message: string;
@@ -237,9 +233,7 @@ reducers[ACTIONS.RELOAD_REQUIRED] = (state, action) =>
 reducers[ACTIONS.DOWNLOADING_COMPLETED] = (state) => {
   const { badgeNumber } = state;
   // Don't update the badge number if the window is focused
-  // @if TARGET='app'
-  if (win && win.isFocused()) return Object.assign({}, state);
-  // @endif
+  if (typeof document !== 'undefined' && document.hasFocus()) return Object.assign({}, state);
   return Object.assign({}, state, {
     badgeNumber: badgeNumber + 1,
   });

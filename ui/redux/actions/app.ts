@@ -1,10 +1,4 @@
-// @if TARGET='app'
-import { execSync } from 'child_process';
-import isDev from 'electron-is-dev';
-import { ipcRenderer, remote } from 'electron';
-// @endif
 import moment from 'moment';
-import path from 'path';
 import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
@@ -17,7 +11,6 @@ import { doFetchCollectionListMine } from 'redux/actions/collections';
 import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { doFetchViewHistory } from 'redux/actions/content';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
-import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
 import { doClearPublish } from 'redux/actions/publish';
 import { Lbryio } from 'lbryinc';
@@ -35,20 +28,11 @@ type PushNotifications = {
 };
 const pushNotifs = pushNotifications as unknown as PushNotifications;
 import Native from 'native';
-import {
-  doFetchDaemonSettings,
-  doSetAutoLaunch,
-  doSetDaemonSetting,
-  doFindFFmpeg,
-  doGetDaemonStatus,
-} from 'redux/actions/settings';
+import { doSetDaemonSetting } from 'redux/actions/settings';
 import {
   selectIsUpgradeSkipped,
   selectUpdateUrl,
   selectUpgradeDownloadItem,
-  selectUpgradeDownloadPath,
-  selectUpgradeFilename,
-  selectAutoUpdateDeclined,
   selectRemoteVersion,
   selectUpgradeTimer,
   selectModal,
@@ -59,7 +43,6 @@ import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/setti
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
-const p: { version: string; lbrySettings?: any } = { version: '0.0.0' }; // Version from package.json
 import { doMembershipMine } from 'redux/actions/memberships';
 import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
@@ -69,16 +52,8 @@ import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { selectContentPositionForUri } from 'redux/selectors/content';
 import { doTipAccountStatus } from './payments';
-const { lbrySettings: config, version: appVersion } = p;
+const appVersion = '0.0.0';
 
-// @if TARGET='app'
-const { autoUpdater } = remote.require('electron-updater');
-
-const { download } = remote.require('electron-dl');
-
-const Fs = remote.require('fs');
-
-// @endif
 const CHECK_UPGRADE_INTERVAL = 10 * 60 * 1000;
 export function doOpenModal(id: any, modalProps: any = {}) {
   return {
@@ -108,58 +83,30 @@ export function doSkipUpgrade() {
   };
 }
 export function doStartUpgrade() {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return (_dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const upgradeDownloadPath = selectUpgradeDownloadPath(state);
-    ipcRenderer.send('upgrade', upgradeDownloadPath);
+    const url = selectUpdateUrl(state);
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 }
 export function doDownloadUpgrade() {
   return (dispatch: Dispatch, getState: GetState) => {
-    // @if TARGET='app'
     const state = getState();
-    // Make a new directory within temp directory so the filename is guaranteed to be available
-    const dir = Fs.mkdtempSync(remote.app.getPath('temp') + path.sep);
-    const upgradeFilename = selectUpgradeFilename(state);
-    const options = {
-      onProgress: (p) => dispatch(doUpdateDownloadProgress(Math.round(p * 100))),
-      directory: dir,
-    };
-    download(remote.getCurrentWindow(), selectUpdateUrl(state), options).then((downloadItem) => {
-      /**
-       * TODO: get the download path directly from the download object. It should just be
-       * downloadItem.getSavePath(), but the copy on the main process is being garbage collected
-       * too soon.
-       */
-      dispatch({
-        type: ACTIONS.UPGRADE_DOWNLOAD_COMPLETED,
-        data: {
-          downloadItem,
-          path: path.join(dir, upgradeFilename),
-        },
-      });
-    });
+    const url = selectUpdateUrl(state);
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
     dispatch({
       type: ACTIONS.UPGRADE_DOWNLOAD_STARTED,
     });
     dispatch(doHideModal());
-    dispatch(doOpenModal(MODALS.DOWNLOADING)); // @endif
+    dispatch(doOpenModal(MODALS.DOWNLOADING));
   };
 }
 export function doDownloadUpgradeRequested() {
-  // This means the user requested an upgrade by clicking the "upgrade" button in the navbar.
-  // If on Mac and Windows, we do some new behavior for the auto-update system.
-  // This will probably be reorganized once we get auto-update going on Linux and remove
-  // the old logic.
-  return (dispatch: Dispatch) => {
-    if (['win32', 'darwin'].includes(process.platform) || !!process.env.APPIMAGE) {
-      // electron-updater behavior
-      dispatch(doOpenModal(MODALS.AUTO_UPDATE_DOWNLOADED));
-    } else {
-      // Old behavior for Linux
-      dispatch(doDownloadUpgrade());
-    }
-  };
+  return (dispatch: Dispatch) => dispatch(doDownloadUpgrade());
 }
 export function doClearUpgradeTimer() {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -220,18 +167,6 @@ export function doCheckUpgradeAvailable() {
       type: ACTIONS.CHECK_UPGRADE_START,
     });
 
-    if (['win32', 'darwin'].includes(process.platform) || !!process.env.APPIMAGE) {
-      // On Windows, Mac, and AppImage, updates happen silently through
-      // electron-updater.
-      const autoUpdateDeclined = selectAutoUpdateDeclined(state);
-
-      if (!autoUpdateDeclined && !isDev) {
-        autoUpdater.checkForUpdates();
-      }
-
-      return;
-    }
-
     const success = ({ remoteVersion, upgradeAvailable }) => {
       dispatch({
         type: ACTIONS.CHECK_UPGRADE_SUCCESS,
@@ -256,7 +191,12 @@ export function doCheckUpgradeAvailable() {
       });
     };
 
-    Native.getAppVersionInfo().then(success, fail);
+    if (Native && typeof (Native as any).getAppVersionInfo === 'function') {
+      (Native as any).getAppVersionInfo().then(success, fail);
+      return;
+    }
+
+    fail();
   };
 }
 
@@ -306,29 +246,9 @@ export function doMinVersionSubscribe() {
 }
 export function doCheckDaemonVersion() {
   return (dispatch: Dispatch) => {
-    // @if TARGET='app'
-    Lbry.version().then(({ lbrynet_version: lbrynetVersion }) => {
-      // Avoid the incompatible daemon modal if running in dev mode
-      // Lets you  run a different daemon than the one specified in package.json
-      if (config.lbrynetDaemonVersion === lbrynetVersion || process.env.NODE_ENV !== 'production') {
-        return dispatch({
-          type: ACTIONS.DAEMON_VERSION_MATCH,
-        });
-      }
-
-      dispatch({
-        type: ACTIONS.DAEMON_VERSION_MISMATCH,
-      });
-
-      if (process.env.NODE_ENV === 'production') {
-        return dispatch(doOpenModal(MODALS.INCOMPATIBLE_DAEMON));
-      }
-    });
-    // @endif
-    // @if TARGET='web'
     dispatch({
       type: ACTIONS.DAEMON_VERSION_MATCH,
-    }); // @endif
+    });
   };
 }
 export function doNotifyEncryptWallet() {
@@ -397,19 +317,6 @@ export function doDaemonReady() {
     dispatch({
       type: ACTIONS.DAEMON_READY,
     });
-    // @if TARGET='app'
-    dispatch(doBalanceSubscribe());
-    dispatch(doSetAutoLaunch(undefined));
-    dispatch(doFindFFmpeg());
-    dispatch(doGetDaemonStatus());
-    dispatch(doFetchDaemonSettings());
-    dispatch(doFetchFileInfos());
-
-    if (!selectIsUpgradeSkipped(state)) {
-      dispatch(doCheckUpgradeAvailable());
-    }
-
-    dispatch(doCheckUpgradeSubscribe()); // @endif
   };
 }
 export function doClearCache() {
@@ -425,28 +332,12 @@ export function doClearCache() {
 }
 export function doQuit() {
   return () => {
-    // @if TARGET='app'
-    (remote.app as any).quit(); // @endif
+    window.close();
   };
 }
 export function doQuitAnyDaemon() {
   return (dispatch: Dispatch) => {
-    // @if TARGET='app'
-    Lbry.stop()
-      .catch(() => {
-        try {
-          if (process.platform === 'win32') {
-            execSync('taskkill /im lbrynet.exe /t /f');
-          } else {
-            execSync('pkill lbrynet');
-          }
-        } catch (error) {
-          dispatch(doAlertError(`Quitting daemon failed due to: ${error.message}`));
-        }
-      })
-      .finally(() => {
-        dispatch(doQuit());
-      }); // @endif
+    dispatch(doQuit());
   };
 }
 export function doChangeVolume(volume: any) {

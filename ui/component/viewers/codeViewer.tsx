@@ -149,7 +149,7 @@ export default function CodeViewer(props: Props) {
                 editorView.state.selection.main.from,
                 editorView.state.selection.main.to
               );
-              openContextMenu(
+              const handled = openContextMenu(
                 event,
                 [
                   {
@@ -167,7 +167,9 @@ export default function CodeViewer(props: Props) {
                 false,
                 selection
               );
-              event.preventDefault();
+              if (handled) {
+                event.preventDefault();
+              }
             },
           }),
         ],

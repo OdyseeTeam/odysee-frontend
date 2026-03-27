@@ -1,5 +1,4 @@
 import React, { useRef, useCallback } from 'react';
-import { remote } from 'electron';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
 type Props = {
@@ -26,15 +25,6 @@ function FileSelector({ type = 'file', currentPath, onFileChosen, label, placeho
     if (fileInput.current) fileInput.current.value = '';
   }, [onFileChosen]);
 
-  const handleDirectoryInputSelection = useCallback(() => {
-    remote.dialog
-      .showOpenDialog({ properties: ['openDirectory'] })
-      .then((result) => {
-        const path = result && result.filePaths[0];
-        if (path) onFileChosen({ path } as any);
-      });
-  }, [onFileChosen]);
-
   const fileInputButton = useCallback(() => {
     fileInput.current?.click();
   }, []);
@@ -56,7 +46,7 @@ function FileSelector({ type = 'file', currentPath, onFileChosen, label, placeho
             autoFocus={autoFocus}
             button="primary"
             disabled={disabled}
-            onClick={type === 'openDirectory' ? handleDirectoryInputSelection : fileInputButton}
+            onClick={fileInputButton}
             label={__('Browse')}
           />
         }
@@ -66,7 +56,7 @@ function FileSelector({ type = 'file', currentPath, onFileChosen, label, placeho
         style={{ display: 'none' }}
         accept={accept}
         ref={fileInput}
-        onChange={() => (type === 'openDirectory' ? () => {} : handleFileInputSelection())}
+        onChange={handleFileInputSelection}
         {...(type === 'openDirectory' ? { webkitdirectory: 'True' } as any : {})}
       />
     </React.Fragment>

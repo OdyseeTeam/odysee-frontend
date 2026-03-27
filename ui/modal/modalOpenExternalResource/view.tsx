@@ -3,9 +3,6 @@ import { Modal } from 'modal/modal';
 import { formatFileSystemPath } from 'util/url';
 import { useAppDispatch } from 'redux/hooks';
 import { doHideModal } from 'redux/actions/app';
-// @if TARGET='app'
-import { shell } from 'electron';
-// @endif
 
 type Props = {
   uri: string;
@@ -24,28 +21,11 @@ export default function ModalOpenExternalResource(props: Props) {
   }
 
   function openResource() {
-    // @if TARGET='app'
-    const { openExternal, openPath, showItemInFolder } = shell as any;
-
-    if (uri) {
-      openExternal(uri);
-    } else if (path) {
-      const success = openPath(path);
-
-      if (!success) {
-        showItemInFolder(path);
-      }
-    }
-
-    // @endif
-    // @if TARGET='web'
     if (uri) {
       window.open(uri);
     } else if (path) {
       window.open(formatFileSystemPath(path));
     }
-
-    // @endif
     closeModal();
   }
 

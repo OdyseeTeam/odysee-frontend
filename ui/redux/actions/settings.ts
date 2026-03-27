@@ -8,7 +8,6 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import { doToast } from 'redux/actions/notifications';
 import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
-import { launcher } from 'util/autoLaunch';
 import { selectClientSetting, selectHomepageDb } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
 import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal, doSetChronoLocale } from 'redux/actions/app';
@@ -21,7 +20,6 @@ import { LocalStorage } from 'util/storage';
 import { URL_DEV } from 'config';
 
 const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
-export const IS_MAC = process.platform === 'darwin';
 const UPDATE_IS_NIGHT_INTERVAL = 5 * 60 * 1000;
 export function doFetchDaemonSettings() {
   return (dispatch: Dispatch) => {
@@ -490,55 +488,6 @@ export function doSetLanguage(language: string) {
         });
     } else {
       return Promise.resolve();
-    }
-  };
-}
-export function doSetAutoLaunch(value: any) {
-  return (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
-    const autoLaunch = selectClientSetting(state, SETTINGS.AUTO_LAUNCH);
-
-    if (IS_MAC || process.env.NODE_ENV !== 'production') {
-      return;
-    }
-
-    if (value === undefined) {
-      launcher.isEnabled().then((isEnabled) => {
-        if (isEnabled) {
-          if (!autoLaunch) {
-            launcher.disable().then(() => {
-              dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-            });
-          }
-        } else {
-          if (autoLaunch || autoLaunch === null || autoLaunch === undefined) {
-            launcher.enable().then(() => {
-              dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-            });
-          }
-        }
-      });
-    } else if (value === true) {
-      launcher.isEnabled().then(function (isEnabled) {
-        if (!isEnabled) {
-          launcher.enable().then(() => {
-            dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-          });
-        } else {
-          dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-        }
-      });
-    } else {
-      // value = false
-      launcher.isEnabled().then(function (isEnabled) {
-        if (isEnabled) {
-          launcher.disable().then(() => {
-            dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-          });
-        } else {
-          dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-        }
-      });
     }
   };
 }

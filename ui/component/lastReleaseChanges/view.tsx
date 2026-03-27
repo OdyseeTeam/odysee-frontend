@@ -15,7 +15,7 @@ const LastReleaseChanges = (props: Props) => {
   const releaseVersionTitle = (
     <p>
       {!hideReleaseVersion &&
-        __('A new version %release_tag% of LBRY is ready for you.', {
+        __('A new version %release_tag% is ready for you.', {
           release_tag: releaseTag,
         })}
     </p>
@@ -25,7 +25,7 @@ const LastReleaseChanges = (props: Props) => {
       <I18nMessage
         tokens={{
           release_notes: (
-            <Button button="link" label={__('release notes')} href="https://github.com/lbryio/lbry-desktop/releases" />
+            <Button button="link" label={__('release notes')} href="https://github.com/OdyseeTeam/odysee-frontend/releases" />
           ),
         }}
       >
@@ -34,7 +34,7 @@ const LastReleaseChanges = (props: Props) => {
     </p>
   );
   useEffect(() => {
-    const lastReleaseUrl = 'https://api.github.com/repos/lbryio/lbry-desktop/releases/latest';
+    const lastReleaseUrl = 'https://api.github.com/repos/OdyseeTeam/odysee-frontend/releases/latest';
     const options = {
       method: 'GET',
       headers: {

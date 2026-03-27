@@ -20,7 +20,6 @@ export const AUTOPLAY_MEDIA = 'autoplay';
 export const AUTOPLAY_NEXT = 'autoplay_next';
 export const OS_NOTIFICATIONS_ENABLED = 'os_notifications_enabled';
 export const AUTO_DOWNLOAD = 'auto_download';
-export const AUTO_LAUNCH = 'auto_launch';
 export const HIDE_BALANCE = 'hide_balance';
 export const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
 export const HIDE_TITLE_NOTIFICATION_COUNT = 'hide_title_notification_count';
