@@ -11,6 +11,7 @@ import {
   getWebrtcPublishVideoConstraints,
   type WebrtcPublishVideoCodecPreference,
 } from 'constants/webrtcPublish';
+import { platform } from 'util/platform';
 import { startWhipPublish, updateWhipVideoEncodingPolicy } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
@@ -99,9 +100,10 @@ function getIdealConstraintValue(
 }
 
 function getCameraConstraintAttempts(
-  presetId: import('constants/webrtcPublish').WebrtcPublishPresetId
+  presetId: import('constants/webrtcPublish').WebrtcPublishPresetId,
+  facingMode?: 'user' | 'environment',
 ): MediaTrackConstraints[] {
-  const base = getWebrtcPublishVideoConstraints(presetId);
+  const base = getWebrtcPublishVideoConstraints(presetId, facingMode);
   const targetWidth = getIdealConstraintValue(base.width as ConstrainULong | undefined);
   const targetHeight = getIdealConstraintValue(base.height as ConstrainULong | undefined);
   const targetFps = getIdealConstraintValue(base.frameRate as ConstrainDouble | undefined);
@@ -292,6 +294,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Local UI state derived from context
   const [micEnabled, setMicEnabled] = React.useState(true);
   const [cameraEnabled, setCameraEnabled] = React.useState(true);
+  const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
+  const isMobile = platform.isMobile();
   const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
   const [previewFrameFps, setPreviewFrameFps] = React.useState<number | null>(null);
   const encoderLoggedRef = React.useRef(false);
@@ -431,8 +435,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     }).catch(() => {});
   }, [browserPublishSupported, livestreamEnabled, status, cameraAutoStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function requestCameraStream() {
-    const attempts = getCameraConstraintAttempts(presetId);
+  async function requestCameraStream(overrideFacingMode?: 'user' | 'environment') {
+    const attempts = getCameraConstraintAttempts(presetId, overrideFacingMode ?? facingMode);
     let lastError: unknown;
 
     for (let index = 0; index < attempts.length; index += 1) {
@@ -483,6 +487,23 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
         setCameraAutoStart(false);
       }
+    }
+  }
+
+  async function flipCamera() {
+    const nextFacing = facingMode === 'user' ? 'environment' : 'user';
+    setErrorMessage(null);
+    try {
+      const nextStream = await requestCameraStream(nextFacing);
+      nextStream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
+      nextStream.getVideoTracks().forEach((t) => { t.enabled = cameraEnabled; });
+      // Stop old tracks only after new stream is ready
+      mediaStream?.getTracks().forEach((t) => t.stop());
+      setMediaStream(nextStream);
+      setFacingMode(nextFacing);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setErrorMessage(msg);
     }
   }
 
@@ -1133,6 +1154,22 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 )}
               </svg>
             </button>
+
+            {isMobile && (
+              <button
+                className="livestream-webrtc__control-btn"
+                onClick={flipCamera}
+                disabled={isStopping}
+                title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4" />
+                  <path d="M4 8V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" />
+                  <polyline points="15 13 12 16 9 13" />
+                  <polyline points="15 11 12 8 9 11" />
+                </svg>
+              </button>
+            )}
 
             <div className="livestream-webrtc__controls-spacer" />
 
