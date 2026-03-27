@@ -218,6 +218,18 @@ reach-portal {
     margin: 0px;
     display: flex;
 
+    > .menu__wrapper > .menu__link:hover,
+    > .menu__wrapper > .menu__link:focus-visible,
+    > .menu__wrapper > .menu__link[aria-expanded='true'] {
+      background-color: var(--color-navigation-hover) !important;
+      color: var(--color-primary-contrast) !important;
+      border-radius: var(--border-radius);
+
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
+
     .icon--ChevronDown {
       margin-left: var(--spacing-s);
     }
