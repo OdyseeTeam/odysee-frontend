@@ -25,7 +25,6 @@ reach-portal {
   }
 }
 
-// Legacy @reach/menu-button popover positioning (no longer used)
 [data-reach-menu] {
   display: block;
   position: absolute;
@@ -34,50 +33,30 @@ reach-portal {
   max-width: calc(100% - var(--height-button) - var(--spacing-xs));
 }
 
-// New MUI-based Menu wrapper — invisible to layout
 .menu__wrapper {
   display: contents;
 }
 
 .MuiMenuItem-root {
-  padding: var(--spacing-xs) var(--spacing-s) !important;
+  padding: 0px;
   margin: 0px !important;
-  margin-left: 0px !important;
-  font-size: var(--font-small) !important;
-  display: flex !important;
-  align-items: center;
   color: var(--color-text) !important;
 
-  &:hover,
-  &.Mui-focusVisible {
-    background-color: var(--color-menu-item-hover) !important;
-    color: var(--color-menu-item-color, var(--color-primary-contrast)) !important;
-    border-radius: var(--border-radius);
+  &:hover {
+    color: var(--color-primary-contrast) !important;
   }
 }
 
 .MuiMenu-list--paper {
   display: flex;
-  background-color: var(--color-background) !important;
 
   .menu__link {
     display: flex !important;
   }
 }
 
-// Override MUI defaults: Paper background + List padding
-.MuiPaper-root.MuiMenu-paper,
-.menu__paper {
-  background-color: var(--color-background) !important;
-  color: var(--color-text) !important;
-  overflow: hidden;
-}
-
-.MuiList-root.MuiMenu-list {
-  padding: var(--spacing-xs) 0 !important;
-}
-
-[data-reach-menu-list] {
+[data-reach-menu-list],
+.MuiMenu-list--paper {
   display: block;
   white-space: nowrap;
   outline: none;
@@ -160,7 +139,6 @@ reach-portal {
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
   transform-origin: top;
   border-radius: var(--border-radius);
-  margin: 0 var(--spacing-xxs);
   padding: var(--spacing-xs) 0;
 
   [data-reach-menu-item] {
@@ -278,28 +256,17 @@ reach-portal {
 }
 
 .MuiList-root {
-  .MuiMenuItem-root > .menu__link {
-    color: inherit !important;
-    background-color: transparent !important;
-    padding: 0 !important;
-
-    .icon {
-      stroke: currentColor !important;
-    }
+  .menu__link:hover {
+    color: white;
+    background-color: var(--color-navigation-hover);
+    border-radius: var(--border-radius);
   }
 }
 
-// Some MenuItems are rendered with both classes on the same element.
-.MuiMenuItem-root.menu__link {
-  padding: var(--spacing-xs) var(--spacing-s) !important;
-  color: inherit !important;
-  background-color: transparent !important;
-}
-
-// Disable generic menu__link hover styling inside MUI items to avoid double-hover effects.
-.MuiMenuItem-root .menu__link:hover .icon,
-.MuiMenuItem-root.menu__link:hover .icon {
-  stroke: currentColor !important;
+.MuiMenuItem-root {
+  margin-left: 0px !important;
+  font-size: var(--font-small) !important;
+  display: block !important;
 }
 
 .menu__link {
@@ -327,8 +294,6 @@ reach-portal {
 }
 
 .menu__link--sign-out {
-  margin-bottom: var(--spacing-xs) !important;
-
   .menu__link-help {
     display: block;
     font-size: var(--font-xxsmall);

@@ -1,6 +1,5 @@
 import 'scss/component/_header.scss';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import { useNavigate } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as PUBLISH_TYPES from 'constants/publish_types';
@@ -25,7 +24,6 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const uploadProps = {
     requiresAuth: !authenticated,
   };
-  const navigate = useNavigate();
   return authenticated ? (
     <div className="header__buttons">
       <Tooltip title={__('Upload')}>
@@ -53,20 +51,17 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   ) : (
     <>
       <Tooltip title={__('Upload')}>
-        <Button
-          className="header__navigationItem--icon"
-          onClick={() => navigate(`/$/${PAGES.AUTH}${authRedirectParam}`)}
-        >
+        <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}>
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>
       </Tooltip>
       <Tooltip title={__('Settings')}>
-        <Button className="header__navigationItem--icon" onClick={() => navigate(`/$/${PAGES.SETTINGS}`)}>
+        <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.SETTINGS}`}>
           <Icon size={18} icon={ICONS.SETTINGS} aria-hidden />
         </Button>
       </Tooltip>
       <Tooltip title={__('Help')}>
-        <Button className="header__navigationItem--icon" onClick={() => navigate(`/$/${PAGES.HELP}`)}>
+        <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.HELP}`}>
           <Icon size={18} icon={ICONS.HELP} aria-hidden />
         </Button>
       </Tooltip>
