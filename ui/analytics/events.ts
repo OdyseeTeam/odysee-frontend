@@ -35,8 +35,6 @@ export type Events = {
   setUser: (userId: string) => void;
   // ------
   report: (arg0: string, arg1: any) => void;
-  // ------
-  adsFetched: () => void;
   emailProvided: () => void;
   emailVerified: () => void;
   openUrl: (arg0: string) => void;
@@ -76,11 +74,6 @@ export const events: Events = {
   // --------------------------------------------------------------------------
   report: (event: string, params?: Record<string, string | number>) => {
     sendGaEvent(event, params);
-  },
-  // --------------------------------------------------------------------------
-  // --------------------------------------------------------------------------
-  adsFetched: () => {
-    sendGaEvent('ad_fetched');
   },
   emailProvided: () => {
     sendGaEvent('engagement', {

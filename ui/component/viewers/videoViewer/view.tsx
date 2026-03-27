@@ -1,6 +1,3 @@
-import { ENABLE_PREROLL_ADS } from 'config';
-import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import VideoJs from './internal/videojs';
 import analytics from 'analytics';
@@ -8,13 +5,9 @@ import { EmbedContext } from 'contexts/embed';
 import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
-import { useGetAds } from 'effects/use-get-ads';
-import Button from 'component/button';
-import I18nMessage from 'component/i18nMessage';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import FileReactions from 'component/fileReactions';
 import { useLocation } from 'react-router-dom';
-import { getAllIds } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { isClaimUnlisted } from 'util/claim';
@@ -58,10 +51,8 @@ function VideoViewer(props) {
     autoplayMedia,
     toggleAutoplayMedia,
     setVideoPlaybackRate,
-    homepageData,
     authenticated,
     userId,
-    internalFeature,
     shareTelemetry,
     doPlayNextUri,
     recomendedContent,
@@ -97,7 +88,6 @@ function VideoViewer(props) {
   const canPlayNext = Boolean(playNextUri || shouldPlayRecommended);
   const canPlayPrevious = Boolean(playPreviousUri);
 
-  const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
   const channelTitle =
@@ -105,7 +95,7 @@ function VideoViewer(props) {
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
 
-  const { pathname, search } = useLocation();
+  const { search } = useLocation();
 
   const urlParams = new URLSearchParams(search);
   const timeParam = urlParams.get('t');
@@ -116,9 +106,6 @@ function VideoViewer(props) {
   const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
-  const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
-  const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
-  const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
   const [videoNode, setVideoNode] = useState();
 
   React.useEffect(() => {
@@ -186,8 +173,6 @@ function VideoViewer(props) {
     videoEnded.current = true;
     analytics.video.videoIsPlaying(false);
 
-    if (adUrl) return setAdUrl(null);
-
     const isShorts = !!document.querySelector('.shorts-page__container');
     if (isShorts) {
       clearPosition(uri);
@@ -205,7 +190,7 @@ function VideoViewer(props) {
     }
 
     clearPosition(uri);
-  }, [adUrl, canPlayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
+  }, [canPlayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
 
   const lastSyncTimeRef = React.useRef(0);
 
@@ -284,7 +269,7 @@ function VideoViewer(props) {
       };
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [muted, uri, adUrl, isEmbedded, autoplayIfEmbedded]
+    [muted, uri, isEmbedded, autoplayIfEmbedded]
   );
 
   function replay() {
@@ -325,40 +310,9 @@ function VideoViewer(props) {
           </div>
         )}
 
-        {!isFetchingAd && adUrl && (
-          <>
-            <span className="ads__video-notify">
-              {__('Advertisement')}{' '}
-              <Button
-                className="ads__video-close"
-                icon={ICONS.REMOVE}
-                title={__('Close')}
-                onClick={() => setAdUrl(null)}
-              />
-            </span>
-            <span className="ads__video-nudge">
-              <I18nMessage
-                tokens={{
-                  sign_up: (
-                    <Button
-                      button="secondary"
-                      className="ads__video-link"
-                      label={__('Sign Up')}
-                      navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`}
-                    />
-                  ),
-                }}
-              >
-                %sign_up% to turn ads off.
-              </I18nMessage>
-            </span>
-          </>
-        )}
-
         <VideoJs
-          adUrl={adUrl}
-          source={adUrl || source}
-          sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
+          source={source}
+          sourceType={forcePlayer ? 'video/mp4' : contentType}
           isAudio={isAudio}
           poster={isAudio ? thumbnail : ''}
           thumbnail={thumbnail}
@@ -369,8 +323,6 @@ function VideoViewer(props) {
           title={claim && ((claim.value && claim.value.title) || claim.name)}
           channelTitle={channelTitle}
           userId={userId}
-          allowPreRoll={!authenticated}
-          internalFeatureEnabled={internalFeature}
           shareTelemetry={shareTelemetry}
           playNext={handlePlayNextUri}
           playPrevious={handlePlayPreviousUri}
