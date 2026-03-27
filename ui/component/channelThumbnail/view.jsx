@@ -31,6 +31,9 @@ type Props = {
   isChannel?: boolean,
   odyseeMembership: ?string,
   tooltipTitle?: string,
+  isImagesAgeRestricted: boolean,
+  channelIsMine: boolean,
+  isAgeRestrictedContentAllowed: boolean,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -55,6 +58,9 @@ function ChannelThumbnail(props: Props) {
     isChannel,
     odyseeMembership,
     tooltipTitle,
+    isImagesAgeRestricted,
+    channelIsMine,
+    isAgeRestrictedContentAllowed,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -64,6 +70,7 @@ function ChannelThumbnail(props: Props) {
   const channelThumbnail = thumbnailPreview || thumbnail || defaultAvatar;
   const isAnimated = channelThumbnail && (channelThumbnail.endsWith('gif') || channelThumbnail.endsWith('webp'));
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
+  const shouldBlur = !channelIsMine && isImagesAgeRestricted && !isAgeRestrictedContentAllowed;
 
   const stableFreezeUrlRef = React.useRef(null);
   if (isAnimated && !allowGifs && channelThumbnail) {
@@ -102,6 +109,7 @@ function ChannelThumbnail(props: Props) {
       <FreezeframeWrapper
         src={stableFreezeUrlRef.current}
         className={classnames('channel-thumbnail', className, {
+          'age-restricted': shouldBlur,
           'channel-thumbnail--small': small,
           'channel-thumbnail--xsmall': xsmall,
           'channel-thumbnail--xxsmall': xxsmall,
@@ -116,6 +124,7 @@ function ChannelThumbnail(props: Props) {
   return (
     <div
       className={classnames('channel-thumbnail', className, {
+        'age-restricted': shouldBlur,
         [colorClassName]: !showThumb,
         'channel-thumbnail--small': small,
         'channel-thumbnail--xsmall': xsmall,

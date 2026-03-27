@@ -60,11 +60,11 @@
   line-height: 0;
   margin-right: var(--spacing-xxxxs) !important;
   vertical-align: middle;
-  flex-shrink: 0;  
+  flex-shrink: 0;
 
-  svg{
-    width:20px;
-    height:20px;
+  svg {
+    width: 20px;
+    height: 20px;
   }
 
   svg:nth-of-type(2) {
@@ -113,7 +113,7 @@
 }
 
 .icon__lbc--after-text {
-  margin-right: var(--spacing-xxxxs)
+  margin-right: var(--spacing-xxxxs);
 }
 
 .icon__lbc--title {

@@ -13,11 +13,7 @@ type Props = {
 };
 
 export default function ModalCryptoDisclaimers(props: Props) {
-  const {
-    clientSettings,
-    doHideModal,
-    doSetClientSetting,
-  } = props;
+  const { clientSettings, doHideModal, doSetClientSetting } = props;
 
   const showDisclaimersLS = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
   const [showDisclaimers, setShowDisclaimers] = React.useState(showDisclaimersLS);
@@ -38,35 +34,62 @@ export default function ModalCryptoDisclaimers(props: Props) {
       <ul>
         <li>
           <b>Cryptocurrency Risk Notice</b>
-          <p>Purchasing, holding, and transacting in cryptocurrencies involves significant risk. Prices are highly volatile and may fluctuate widely in a short period of time. You could lose some or all of your investment.</p>
+          <p>
+            Purchasing, holding, and transacting in cryptocurrencies involves significant risk. Prices are highly
+            volatile and may fluctuate widely in a short period of time. You could lose some or all of your investment.
+          </p>
         </li>
         <li>
           <b>Third-Party Payment Processing</b>
-          <p>All purchases made via card payment are processed by third-party providers. By proceeding, you acknowledge that you are subject to their terms of service and privacy policies. We do not control or assume responsibility for the actions of third-party processors.</p>
+          <p>
+            All purchases made via card payment are processed by third-party providers. By proceeding, you acknowledge
+            that you are subject to their terms of service and privacy policies. We do not control or assume
+            responsibility for the actions of third-party processors.
+          </p>
         </li>
         <li>
           <b>No Investment Advice</b>
-          <p>The information provided on this site does not constitute financial, investment, or trading advice. We do not make recommendations or endorsements regarding any cryptocurrency. Please consult a licensed financial advisor before making any investment decisions.</p>
+          <p>
+            The information provided on this site does not constitute financial, investment, or trading advice. We do
+            not make recommendations or endorsements regarding any cryptocurrency. Please consult a licensed financial
+            advisor before making any investment decisions.
+          </p>
         </li>
         <li>
           <b>Transaction Finality</b>
-          <p>All crypto transactions are irreversible. Please verify the amount and recipient details before confirming your purchase. We are not responsible for user errors or mistyped wallet addresses.</p>
+          <p>
+            All crypto transactions are irreversible. Please verify the amount and recipient details before confirming
+            your purchase. We are not responsible for user errors or mistyped wallet addresses.
+          </p>
         </li>
         <li>
           <b>Availability & Jurisdiction</b>
-          <p>Services may not be available in all regions and are subject to local laws and regulations. It is your responsibility to ensure that you are compliant with your local jurisdiction before buying or using cryptocurrency.</p>
+          <p>
+            Services may not be available in all regions and are subject to local laws and regulations. It is your
+            responsibility to ensure that you are compliant with your local jurisdiction before buying or using
+            cryptocurrency.
+          </p>
         </li>
         <li>
           <b>KYC/AML Requirements</b>
-          <p>In some cases, identity verification may be required by the payment provider in accordance with Know Your Customer (KYC) and Anti-Money Laundering (AML) regulations.</p>
+          <p>
+            In some cases, identity verification may be required by the payment provider in accordance with Know Your
+            Customer (KYC) and Anti-Money Laundering (AML) regulations.
+          </p>
         </li>
         <li>
           <b>Tax Responsibilities</b>
-          <p>You are solely responsible for complying with your local tax regulations regarding crypto purchases and reporting. Please consult a tax professional for advice related to your jurisdiction.</p>
+          <p>
+            You are solely responsible for complying with your local tax regulations regarding crypto purchases and
+            reporting. Please consult a tax professional for advice related to your jurisdiction.
+          </p>
         </li>
         <li>
           <b>System Availability</b>
-          <p>Prices shown are estimates and may change at the time of execution. Platform access and pricing may be impacted by third-party service outages or blockchain congestion.</p>
+          <p>
+            Prices shown are estimates and may change at the time of execution. Platform access and pricing may be
+            impacted by third-party service outages or blockchain congestion.
+          </p>
         </li>
       </ul>
 
@@ -78,12 +101,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
         onChange={handleShowDisclaimers}
       />
 
-      <Button
-        button="primary"
-        label={__('Sign in')}
-        onClick={handleSignIn}
-      />
-
+      <Button button="primary" label={__('Sign in')} onClick={handleSignIn} />
     </Modal>
   );
 }

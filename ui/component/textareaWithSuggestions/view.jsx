@@ -194,12 +194,12 @@ export default function TextareaWithSuggestions(props: Props) {
     ) || [];
 
   const restoreCursorPosition = (cursorIndex) => {
-      if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
-        // $FlowIgnore
-        queueMicrotask(() => {
-          inputRef.current.setSelectionRange(cursorIndex, cursorIndex);
-        });
-      }
+    if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
+      // $FlowIgnore
+      queueMicrotask(() => {
+        inputRef.current.setSelectionRange(cursorIndex, cursorIndex);
+      });
+    }
   };
 
   /** --------- **/

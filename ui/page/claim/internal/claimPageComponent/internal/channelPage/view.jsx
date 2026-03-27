@@ -74,6 +74,8 @@ type Props = {
   preferEmbed: boolean,
   banState: any,
   isMature: boolean,
+  isImagesAgeRestricted: boolean,
+  isAgeRestrictedContentAllowed: boolean,
   isGlobalMod: boolean,
   hideShorts: boolean,
 };
@@ -101,6 +103,8 @@ function ChannelPage(props: Props) {
     preferEmbed,
     banState,
     isMature,
+    isImagesAgeRestricted,
+    isAgeRestrictedContentAllowed,
     isGlobalMod,
     hideShorts,
   } = props;
@@ -116,6 +120,8 @@ function ChannelPage(props: Props) {
   const channelIsBlackListed = banState.blacklisted;
   // Show About tab for blacklisted channels (DMCA message) or channels with content
   const hideAboutTab = !showClaims && !isGlobalMod && !channelIsBlackListed;
+
+  const shouldBlur = !channelIsMine && isImagesAgeRestricted && !isAgeRestrictedContentAllowed;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
@@ -395,7 +401,7 @@ function ChannelPage(props: Props) {
   return (
     <ChannelPageContext.Provider value>
       <header
-        className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader })}
+        className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader, 'age-restricted': shouldBlur })}
         style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}
       >
         <div className="channel-header-content">

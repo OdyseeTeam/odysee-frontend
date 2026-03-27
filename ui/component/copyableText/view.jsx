@@ -81,11 +81,22 @@ export default function CopyableText(props: Props) {
       ref={input}
       onFocus={onFocus}
       inputButton={
-      <>
-        <Button button={primaryButton ? 'primary' : 'secondary'} icon={ICONS.COPY} onClick={handleCopyText} aria-label={__('Copy %copyable%', { copyable: copyable })} />
-        {linkTo && (<Button button={primaryButton ? 'primary' : 'secondary'} icon={ICONS.EXTERNAL} navigate={`${linkTo}${copyable}`} description={'Link'} />)}
-      </>
-
+        <>
+          <Button
+            button={primaryButton ? 'primary' : 'secondary'}
+            icon={ICONS.COPY}
+            onClick={handleCopyText}
+            aria-label={__('Copy %copyable%', { copyable: copyable })}
+          />
+          {linkTo && (
+            <Button
+              button={primaryButton ? 'primary' : 'secondary'}
+              icon={ICONS.EXTERNAL}
+              navigate={`${linkTo}${copyable}`}
+              description={'Link'}
+            />
+          )}
+        </>
       }
       helper={
         enableInputMask && (

@@ -16,7 +16,14 @@ type Props = {
 };
 
 function OverviewTab(props: Props) {
-  const { onChannelSelect, myChannelClaims, totalSupportersAmount, totalMonthlyIncome, previousMonthlyIncome, doSetActiveChannel } = props;
+  const {
+    onChannelSelect,
+    myChannelClaims,
+    totalSupportersAmount,
+    totalMonthlyIncome,
+    previousMonthlyIncome,
+    doSetActiveChannel,
+  } = props;
 
   function selectChannel(channelClaim) {
     doSetActiveChannel(channelClaim.claim_id, true);

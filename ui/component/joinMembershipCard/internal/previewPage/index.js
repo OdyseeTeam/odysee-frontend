@@ -1,7 +1,12 @@
 import { connect } from 'react-redux';
-import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri, selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
 import {
-  selectCheapestProtectedContentMembershipForId, selectIsMembershipListFetchingForId,
+  selectArweaveTipDataForId,
+  selectCanReceiveFiatTipsForUri,
+  selectFullAPIArweaveAccounts,
+} from 'redux/selectors/stripe';
+import {
+  selectCheapestProtectedContentMembershipForId,
+  selectIsMembershipListFetchingForId,
   selectArEnabledMembershipTiersForChannelUri,
   selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
@@ -22,7 +27,7 @@ const select = (state, props) => {
 
   const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
   const cheapestPlan = selectCheapestProtectedContentMembershipForId(state, claimId);
-  const joinEnabled = cheapestPlan && cheapestPlan.prices.some(p => p.address);
+  const joinEnabled = cheapestPlan && cheapestPlan.prices.some((p) => p.address);
 
   return {
     paymentsEnabled: selectArweaveTipDataForId(state, channelId),

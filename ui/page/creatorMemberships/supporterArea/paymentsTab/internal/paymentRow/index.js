@@ -17,8 +17,6 @@ const select = (state, props) => {
   };
 };
 
-const perform = {
-
-};
+const perform = {};
 
 export default withRouter(connect(select, perform)(PaymentRow));

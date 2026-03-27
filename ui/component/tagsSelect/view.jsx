@@ -26,7 +26,7 @@ type Props = {
   hideHeader?: boolean,
   limitShow?: number,
   limitSelect?: number,
-  excludedControlTags: ?Array<Tag>,
+  excludedControlTags?: Array<string>,
 };
 
 /*

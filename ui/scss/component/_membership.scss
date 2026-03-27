@@ -759,8 +759,8 @@
     padding-right: 0 !important;
     width: 50px;
     .channel-thumbnail__custom {
-      position:absolute;
-      top:0;
+      position: absolute;
+      top: 0;
       height: 100%;
     }
     .channel-thumbnail--xxsmall {
@@ -822,8 +822,8 @@
     padding-right: 0 !important;
     width: 50px;
     .channel-thumbnail__custom {
-      position:absolute;
-      top:0;
+      position: absolute;
+      top: 0;
       height: 100%;
     }
     .channel-thumbnail--xxsmall {
@@ -1023,7 +1023,7 @@
     background-color: rgba(var(--color-header-button-base), 0.6);
     padding: var(--spacing-m);
     box-sizing: border-box;
-    margin-bottom:var(--spacing-l);
+    margin-bottom: var(--spacing-l);
 
     div {
       margin-bottom: var(--spacing-s);
@@ -1049,7 +1049,7 @@
   }
 
   .membership__plan-actions {
-    display:flex;
+    display: flex;
     margin-top: var(--spacing-l);
   }
 }

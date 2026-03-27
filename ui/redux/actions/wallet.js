@@ -959,10 +959,8 @@ export const doPurchaseClaimForUri =
         );
         const { reference_token, transaction_amount } = tipResponse;
 
-        const tags = [
-          { name: 'X-O-Ref', value: reference_token },
-        ];
-        const { transactionId }  = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
+        const tags = [{ name: 'X-O-Ref', value: reference_token }];
+        const { transactionId } = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
 
         await Lbryio.call(
           'customer',

@@ -15,11 +15,11 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
-import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
+import { selectLanguage, selectClientSetting, selectIsAgeRestrictedContentAllowed } from 'redux/selectors/settings';
 import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doMembershipMine } from 'redux/actions/memberships';
-import { PREFERENCE_EMBED } from 'constants/tags';
+import { PREFERENCE_EMBED, AGE_RESTRICED_CHANNEL_IMAGES_TAG } from 'constants/tags';
 import ChannelPage from './view';
 import * as SETTINGS from 'constants/settings';
 
@@ -46,6 +46,8 @@ const select = (state, props) => {
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
     banState: selectBanStateForUri(state, props.uri),
     isMature: claim ? isClaimNsfw(claim) : false,
+    isImagesAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, AGE_RESTRICED_CHANNEL_IMAGES_TAG)(state),
+    isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowed(state),
     isGlobalMod: Boolean(selectUser(state)?.global_mod),
     hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   };

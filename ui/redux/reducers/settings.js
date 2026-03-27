@@ -76,6 +76,8 @@ const defaultState = {
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,
+    [SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED]: false,
+    [SETTINGS.AGE_CONFIRMED]: false,
     [SETTINGS.AUTOPLAY_MEDIA]: true,
     [SETTINGS.HIDE_SHORTS]: false,
     [SETTINGS.DISABLE_SHORTS_VIEW]: false,

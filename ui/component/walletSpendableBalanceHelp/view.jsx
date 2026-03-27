@@ -4,7 +4,15 @@ import Symbol from '../common/symbol';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 
-type Props = { LBCBalance: number, USDCBalance: number, ARBalance: number, dollarsPerAr: number, asset?: string, inline?: boolean, arConnecting: boolean };
+type Props = {
+  LBCBalance: number,
+  USDCBalance: number,
+  ARBalance: number,
+  dollarsPerAr: number,
+  asset?: string,
+  inline?: boolean,
+  arConnecting: boolean,
+};
 
 function WalletSpendableBalanceHelp(props: Props) {
   const { LBCBalance, USDCBalance, dollarsPerAr, ARBalance, asset = 'lbc', inline, arConnecting } = props;
@@ -18,8 +26,11 @@ function WalletSpendableBalanceHelp(props: Props) {
       <I18nMessage tokens={{ USDCBalance: <Symbol amount={USDCBalance} token="usdc" precision={2} /> }}>
         {text}
       </I18nMessage>
-    ) : (/* asset === 'ar' */
-      <I18nMessage tokens={{ ConvertedBalance: dollarsRounded, ARBalance: <Symbol amount={ARBalance} token="ar" precision={2} /> }}>
+    ) : (
+      /* asset === 'ar' */
+      <I18nMessage
+        tokens={{ ConvertedBalance: dollarsRounded, ARBalance: <Symbol amount={ARBalance} token="ar" precision={2} /> }}
+      >
         {text}
       </I18nMessage>
     );

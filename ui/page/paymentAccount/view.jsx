@@ -91,9 +91,7 @@ function PaymentAccountPage(props: Props) {
         >
           <Icon icon={ICONS.REFRESH} />
         </div>
-        {arWalletStatus && (
-          <Button button="alt" label={__('Disconnect Wallet')} onClick={handleArConnectDisconnect} />
-        )}
+        {arWalletStatus && <Button button="alt" label={__('Disconnect Wallet')} onClick={handleArConnectDisconnect} />}
       </>
     );
   }

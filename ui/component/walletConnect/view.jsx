@@ -37,11 +37,11 @@ export default function WalletConnect(props: Props) {
   if (!window.arweaveWallet) {
     return <span>Install Wander Wallet extension.</span>;
   }
-  return auth
-    ? <Button button="primary" label={__('Connecting...')} icon={ICONS.WANDER} />
-    : connecting ? (
-        <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
-      ) : (
-        <Spinner type="small" />
-      );
+  return auth ? (
+    <Button button="primary" label={__('Connecting...')} icon={ICONS.WANDER} />
+  ) : connecting ? (
+    <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
+  ) : (
+    <Spinner type="small" />
+  );
 }

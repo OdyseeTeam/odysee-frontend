@@ -30,9 +30,7 @@ const ViewModeSelector = ({ viewMode, channelName, onViewModeChange }: Props) =>
           })}
           onSelect={() => onViewModeChange('related')}
         >
-          <div className="menu__link">
-            {__('Related')}
-          </div>
+          <div className="menu__link">{__('Related')}</div>
         </MenuItem>
 
         <MenuItem

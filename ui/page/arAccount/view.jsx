@@ -40,9 +40,7 @@ function ArAccountPage(props: Props) {
     location: { search },
     push,
   } = useHistory();
-  const {
-    activeArStatus,
-  } = useArStatus();
+  const { activeArStatus } = useArStatus();
   const activeWallet = arweaveWallets.find((x) => x.default);
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
@@ -73,7 +71,7 @@ function ArAccountPage(props: Props) {
   function cardHeader() {
     return (
       <>
-        <Symbol token="usd" amount={(balance.ar * exchangeRate.ar)} precision={2} />
+        <Symbol token="usd" amount={balance.ar * exchangeRate.ar} precision={2} />
         <div
           onClick={handleUpdateBalance}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
@@ -141,11 +139,7 @@ function ArAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <BuyAr
-                cardHeader={cardHeader}
-                wallet={activeWallet}
-                activeArStatus={activeArStatus}
-              />
+              <BuyAr cardHeader={cardHeader} wallet={activeWallet} activeArStatus={activeArStatus} />
               {activeArStatus !== 'connected' && (
                 <div className="wallet">
                   <WalletStatus />
@@ -155,11 +149,7 @@ function ArAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <ArWallets
-                cardHeader={cardHeader}
-                activeArStatus={activeArStatus}
-                arweaveWallets={arweaveWallets}
-              />
+              <ArWallets cardHeader={cardHeader} activeArStatus={activeArStatus} arweaveWallets={arweaveWallets} />
               {activeArStatus !== 'connected' && (
                 <div className="wallet">
                   <WalletStatus />

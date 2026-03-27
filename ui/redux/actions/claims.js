@@ -1131,3 +1131,12 @@ export const doFetchNoSourceClaimsForChannelId =
         order_by: ['release_time'],
       })
     );
+
+export function doAllowAgeRestrictedContent(claimId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.ALLOW_AGE_RESTRICTED_CONTENT,
+      data: { claimId },
+    });
+  };
+}

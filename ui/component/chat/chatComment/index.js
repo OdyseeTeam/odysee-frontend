@@ -7,9 +7,7 @@ import {
   selectDateForUri,
 } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import {
-  selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership,
-} from 'redux/selectors/memberships';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 
 import ChatComment from './view';

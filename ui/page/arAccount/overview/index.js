@@ -1,6 +1,10 @@
 import { connect } from 'react-redux';
 import { doArSend } from 'redux/actions/arwallet';
-import { selectAPIArweaveDefaultAccount, selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/selectors/stripe';
+import {
+  selectAPIArweaveDefaultAccount,
+  selectArAccountUpdating,
+  selectArweaveAccountForAddress,
+} from 'redux/selectors/stripe';
 import { doUpdateArweaveAddressStatus } from 'redux/actions/stripe';
 import Overview from './view';
 

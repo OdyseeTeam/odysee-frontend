@@ -7,6 +7,7 @@ import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
+import PreviewOverlayAgeRestrictedContent from '../previewOverlayAgeRestrictedContent';
 
 const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
 
@@ -67,6 +68,7 @@ function FileThumbnail(props: Props) {
             'media__thumb--small': small,
           })}
         >
+          <PreviewOverlayAgeRestrictedContent uri={uri} />
           <PreviewOverlayProtectedContent uri={uri} />
           {children}
         </FreezeframeWrapper>
@@ -99,6 +101,7 @@ function FileThumbnail(props: Props) {
         className={className}
         forceReload={forceReload}
       >
+        <PreviewOverlayAgeRestrictedContent uri={uri} />
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
       </Thumb>

@@ -240,7 +240,8 @@ function FileListPublished(props: Props) {
       result = result.filter((claim) => {
         const contentClaim = claim.reposted_claim ? claim.reposted_claim : claim;
         // $FlowFixMe
-        return contentClaim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+        const title = contentClaim.value && contentClaim.value.title;
+        return title ? title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()) : false;
       });
     }
 
@@ -257,8 +258,8 @@ function FileListPublished(props: Props) {
 
       if (memoizedSortOption.key === FILE_LIST.SORT_KEYS.NAME) {
         const nameComparisonObj = {
-          a: firstComparisonItem.value?.title || firstComparisonItem.name,
-          b: secondComparisonItem.value?.title || secondComparisonItem.name,
+          a: (firstComparisonItem.value && firstComparisonItem.value.title) || firstComparisonItem.name,
+          b: (secondComparisonItem.value && secondComparisonItem.value.title) || secondComparisonItem.name,
         };
 
         Object.assign(comparisonObj, nameComparisonObj);
@@ -275,11 +276,25 @@ function FileListPublished(props: Props) {
             firstComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
             secondComparisonItem = memoizedSortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
 
+            // $FlowFixMe - release_time exists on StreamMetadata
+            const firstReleaseTime = firstComparisonItem.value && firstComparisonItem.value.release_time;
+            const firstIsUnlisted =
+              firstComparisonItem.value &&
+              firstComparisonItem.value.tags &&
+              firstComparisonItem.value.tags.includes(VISIBILITY_TAGS.UNLISTED);
+            // $FlowFixMe - release_time exists on StreamMetadata
+            const secondReleaseTime = secondComparisonItem.value && secondComparisonItem.value.release_time;
+            const secondIsUnlisted =
+              secondComparisonItem.value &&
+              secondComparisonItem.value.tags &&
+              secondComparisonItem.value.tags.includes(VISIBILITY_TAGS.UNLISTED);
+
             timestampComparisonObj = {
-              // $FlowFixMe
-              a: !firstComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) && firstComparisonItem.value?.release_time ? firstComparisonItem.value?.release_time : firstComparisonItem.meta.creation_timestamp,
-              // $FlowFixMe
-              b: !secondComparisonItem.value?.tags?.includes(VISIBILITY_TAGS.UNLISTED) && secondComparisonItem.value?.release_time ? secondComparisonItem.value?.release_time : secondComparisonItem.meta.creation_timestamp,
+              a: !firstIsUnlisted && firstReleaseTime ? firstReleaseTime : firstComparisonItem.meta.creation_timestamp,
+              b:
+                !secondIsUnlisted && secondReleaseTime
+                  ? secondReleaseTime
+                  : secondComparisonItem.meta.creation_timestamp,
             };
 
             Object.assign(comparisonObj, timestampComparisonObj);

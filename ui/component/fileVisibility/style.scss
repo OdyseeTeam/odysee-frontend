@@ -8,8 +8,14 @@
   background-color: var(--color-visibility-label);
   max-height: 1.3rem;
   white-space: nowrap;
+  display: inline;
 
   svg {
     margin-right: var(--spacing-xxs);
   }
+}
+
+.file-visibility-age-restricted {
+  background-color: var(--color-button-toggle-bg-active);
+  color: white;
 }

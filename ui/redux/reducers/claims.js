@@ -69,6 +69,7 @@ const defaultState: ClaimsState = {
   fetchingMyPurchasedClaimsError: undefined,
   costInfosById: {},
   hasPublicationClaims: undefined,
+  ageRestrictionAllowedByClaimId: {},
 };
 
 // ****************************************************************************
@@ -1125,6 +1126,15 @@ reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: ClaimsState, action: an
     ...state,
     myPurchasedClaims,
     fetchingMyPurchasedClaims: false,
+  };
+};
+
+reducers[ACTIONS.ALLOW_AGE_RESTRICTED_CONTENT] = (state: ClaimsState, action: any): ClaimsState => {
+  let ageRestrictionAllowedByClaimId = Object.assign({}, state.ageRestrictionAllowedByClaimId);
+  ageRestrictionAllowedByClaimId[action.data.claimId] = true;
+  return {
+    ...state,
+    ageRestrictionAllowedByClaimId,
   };
 };
 

@@ -137,18 +137,20 @@ export function doUserHasPremium() {
 
       const membershipsById = {};
 
-      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
-      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
+      channelIds.forEach((cid) => {
+        membershipsById[cid] = getMembershipStatus(resById[cid]);
+      });
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById } });
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
     } catch (e) {
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
-    };
+    }
   };
 }
 
 export function doChannelsHavePremium(channelClaimIds) {
   return async (dispatch) => {
-    dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED, data: { channelIds: channelClaimIds} });
+    dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED, data: { channelIds: channelClaimIds } });
     const channelClaimIdsCsv = channelClaimIds.join(',');
 
     // TODO OPTIMIZE Don't fetch if already fetching ids in state
@@ -169,11 +171,13 @@ export function doChannelsHavePremium(channelClaimIds) {
 
       const membershipsById = {};
 
-      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
-      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
+      channelIds.forEach((cid) => {
+        membershipsById[cid] = getMembershipStatus(resById[cid]);
+      });
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById } });
     } catch (e) {
       dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: { channelIds: channelClaimIds } });
-    };
+    }
   };
 }
 

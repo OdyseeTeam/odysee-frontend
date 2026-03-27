@@ -30,7 +30,8 @@ const select = (state) => ({
 
 const perform = (dispatch) => ({
   doClearClaimSearch: () => dispatch(doClearClaimSearch()),
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId) => dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId)),
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId) =>
+    dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId)),
   clearEmailEntry: () => dispatch(doClearEmailEntry()),
   clearPasswordEntry: () => dispatch(doClearPasswordEntry()),
   signOut: () => dispatch(doSignOut()),

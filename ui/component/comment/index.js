@@ -20,9 +20,7 @@ import {
   selectIsFetchingCommentsForParentId,
   selectRepliesForParentId,
 } from 'redux/selectors/comments';
-import {
-  selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership,
-} from 'redux/selectors/memberships';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';

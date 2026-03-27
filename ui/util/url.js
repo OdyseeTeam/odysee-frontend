@@ -281,12 +281,13 @@ export const getModalUrlParam = (modal, modalParams = {}) => {
 // like "&currency".
 export function htmlDecode(str) {
   if (typeof str !== 'string' || !str.includes('&')) return str;
-  return str.replace(/&quot;/gi, '"')
-        .replace(/&#0*34;/gi, '"')
-        .replace(/&#x27;/gi, "'")
-        .replace(/&#0*39;/gi, "'")
-        .replace(/&apos;/gi, "'")
-        .replace(/&lt;/gi, '<')
-        .replace(/&gt;/gi, '>')
-        .replace(/&amp;/gi, '&');
+  return str
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*34;/gi, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#0*39;/gi, "'")
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&');
 }

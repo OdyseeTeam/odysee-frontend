@@ -71,12 +71,12 @@ function ChannelSelector(props: Props) {
   const pendingChannelFetch = !noActiveChannel && channelIds === undefined;
 
   function handleChannelSelect(channelId) {
-      doSetIncognito(false);
-      doSetActiveChannel(channelId);
+    doSetIncognito(false);
+    doSetActiveChannel(channelId);
 
-      if (storeSelection) {
-        doSetDefaultChannel(channelId);
-      }
+    if (storeSelection) {
+      doSetDefaultChannel(channelId);
+    }
   }
 
   function handleSelectOption(channelId) {

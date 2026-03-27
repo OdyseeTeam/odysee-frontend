@@ -102,19 +102,19 @@ const SupporterArea = (props: Props) => {
     <Page className="membershipPage-wrapper">
       <div className="supporter-header-wrapper">
         <div className="supporter-header">
-          <Button
-            navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
-            icon={ICONS.BACK}
-            button="liquidass"
-          />
+          <Button navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`} icon={ICONS.BACK} button="liquidass" />
           <div>{__('Donor Portal')}</div>
         </div>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
           <TabList>
-            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
-            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Payments')}</Tab>
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+              {__('Overview')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+              {__('Payments')}
+            </Tab>
           </TabList>
         </div>
 

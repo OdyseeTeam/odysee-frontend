@@ -267,13 +267,13 @@
     margin-top: Var(--spacing-xs);
   }
 
-  .card__main-actions{
-    .monetization-disabled{
+  .card__main-actions {
+    .monetization-disabled {
       border-radius: var(--border-radius);
-      padding:var(--spacing-s);
+      padding: var(--spacing-s);
       border: 1px solid var(--color-text-error);
-      background: rgba(218,4,4,.1);
-      text-align:center;
+      background: rgba(218, 4, 4, 0.1);
+      text-align: center;
     }
   }
 
@@ -283,12 +283,12 @@
   }
 
   .section {
-    display:flex;
+    display: flex;
   }
 
-  .confirm__wrapper{
+  .confirm__wrapper {
     .section {
-      display:inline-block;
+      display: inline-block;
     }
   }
 }

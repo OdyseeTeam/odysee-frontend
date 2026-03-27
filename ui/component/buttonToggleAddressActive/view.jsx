@@ -18,9 +18,7 @@ function ButtonToggleAddressActive(props: Props) {
       doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
     };
 
-    return (
-      <ButtonToggle status={account.status === 'active'} setStatus={handleClick} busy={accountUpdating} />
-    );
+    return <ButtonToggle status={account.status === 'active'} setStatus={handleClick} busy={accountUpdating} />;
   }
   return null;
 }

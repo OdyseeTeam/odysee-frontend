@@ -27,7 +27,7 @@ function FeeBreakdown(props: Props) {
 
   return (
     <>
-      { /*
+      {/*
         __('Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%', {
         ppf: getAmountStr(fees?.stripe_cut),
         opf: getAmountStr(fees?.odysee_cut),

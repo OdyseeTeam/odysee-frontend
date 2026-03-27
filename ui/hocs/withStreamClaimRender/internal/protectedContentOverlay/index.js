@@ -10,7 +10,8 @@ import {
 import {
   selectMyProtectedContentMembershipForId,
   selectUserIsMemberOfProtectedContentForId,
-  selectPriceOfCheapestPlanForClaimId, selectCheapestProtectedContentMembershipForId,
+  selectPriceOfCheapestPlanForClaimId,
+  selectCheapestProtectedContentMembershipForId,
 } from 'redux/selectors/memberships';
 
 import { doOpenModal } from 'redux/actions/app';
@@ -21,7 +22,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
   const claimId = claim && claim.claim_id;
   const cheapestPlan = selectCheapestProtectedContentMembershipForId(state, claimId);
-  const joinEnabled = cheapestPlan && cheapestPlan.prices.some(p => p.address);
+  const joinEnabled = cheapestPlan && cheapestPlan.prices.some((p) => p.address);
   return {
     claimIsMine: selectClaimIsMine(state, claim),
     channelName: getChannelTitleFromClaim(claim),

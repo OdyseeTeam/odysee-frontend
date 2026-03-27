@@ -260,17 +260,17 @@ export const doFetchShortsRecommendedContent =
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim && claim.value && claim.claim_id) {
-    let idToUse;
-    if (forChannel) {
-      const channelClaim = claim.signing_channel;
-      idToUse = channelClaim?.claim_id;
-      if (!idToUse) {
-        console.error('No channel ID found for channel shorts mode');
-        return;
+      let idToUse;
+      if (forChannel) {
+        const channelClaim = claim.signing_channel;
+        idToUse = channelClaim?.claim_id;
+        if (!idToUse) {
+          console.error('No channel ID found for channel shorts mode');
+          return;
+        }
+      } else {
+        idToUse = claim.claim_id;
       }
-    } else {
-      idToUse = claim.claim_id;
-    }
       const options: SearchOptions = getShortsRecommendationSearchOptions(
         matureEnabled,
         claimIsMature,
