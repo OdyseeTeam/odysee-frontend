@@ -464,7 +464,6 @@ const doFetchCollectionItems =
     };
 
     try {
-      const state = getState();
       const batchSize = pageSize || FETCH_BATCH_SIZE;
       const totalItems = items.length;
 
@@ -504,10 +503,12 @@ const doFetchCollectionItems =
       // Related to above. Collection with deleted items would never get "resolved: true" status.
       // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
       if (itemsWereFetching) {
-        const resolvingIds = selectResolvingIds(state);
-        const resolvingUris = selectResolvingUris(state);
-        const failedToResolveUris = selectFailedToResolveUris(state);
-        const failedToResolveIds = selectFailedToResolveIds(state);
+        // Use fresh state after async batch resolution, not the stale pre-fetch state.
+        const freshState = getState();
+        const resolvingIds = selectResolvingIds(freshState);
+        const resolvingUris = selectResolvingUris(freshState);
+        const failedToResolveUris = selectFailedToResolveUris(freshState);
+        const failedToResolveIds = selectFailedToResolveIds(freshState);
         const failedItems = failedToResolveIds.concat(failedToResolveUris);
 
         if (items.some((item) => failedItems.includes(item))) {

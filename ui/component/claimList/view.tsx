@@ -186,17 +186,19 @@ export default function ClaimList(props: Props) {
   }, [desiredVisibleCount, isLargeList, visibleCount]);
   React.useEffect(() => {
     if (!isLargeList || visibleCount >= sortedUris.length) return;
-    const scrollNode = scrollableListRef.current;
-    if (!scrollNode) return;
-    const handleScroll = debounce(() => {
-      const { scrollTop, scrollHeight, clientHeight } = scrollNode;
 
-      if (scrollTop + clientHeight >= scrollHeight - 400) {
-        setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, sortedUris.length));
+    const handleScroll = debounce(() => {
+      const mainEl = document.querySelector(`.${MAIN_CLASS}`);
+      if (mainEl) {
+        const mainBoundingRect = mainEl.getBoundingClientRect();
+        if (mainBoundingRect.bottom - 400 <= window.innerHeight) {
+          setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, sortedUris.length));
+        }
       }
     }, 100);
-    scrollNode.addEventListener('scroll', handleScroll);
-    return () => scrollNode.removeEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [isLargeList, sortedUris.length, visibleCount]);
   const displayedUris = isLargeList ? sortedUris.slice(0, visibleCount) : sortedUris;
   React.useEffect(() => {
