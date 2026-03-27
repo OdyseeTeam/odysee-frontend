@@ -256,10 +256,13 @@ reach-portal {
 }
 
 .MuiList-root {
-  .menu__link:hover {
-    color: white;
-    background-color: var(--color-navigation-hover);
-    border-radius: var(--border-radius);
+  .MuiMenuItem-root > .menu__link:hover {
+    color: inherit !important;
+    background-color: transparent !important;
+
+    .icon {
+      stroke: currentColor !important;
+    }
   }
 }
 
@@ -267,6 +270,12 @@ reach-portal {
   margin-left: 0px !important;
   font-size: var(--font-small) !important;
   display: block !important;
+}
+
+.MuiMenuItem-root.menu__link:hover {
+  color: var(--color-primary-contrast) !important;
+  background-color: var(--color-navigation-hover) !important;
+  border-radius: var(--border-radius);
 }
 
 .menu__link {
