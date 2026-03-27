@@ -27,7 +27,17 @@ function PostEditor(props: Props) {
   const editing = isStillEditing && uri;
   const [ready, setReady] = React.useState(!editing);
   const [loading, setLoading] = React.useState(false);
-  const updateFileText = React.useCallback(
+  const [localText, setLocalText] = React.useState(fileText || '');
+
+  // Keep local text in sync when Redux state changes externally (e.g. loading edited content)
+  React.useEffect(() => {
+    if (fileText !== undefined && fileText !== null && fileText !== localText) {
+      setLocalText(fileText);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileText]);
+
+  const debouncedDispatch = React.useCallback(
     debounce((value) => {
       dispatch(
         doUpdatePublishForm({
@@ -35,7 +45,15 @@ function PostEditor(props: Props) {
         })
       );
     }, 750),
-    []
+    [dispatch]
+  );
+
+  const updateFileText = React.useCallback(
+    (value: string) => {
+      setLocalText(value);
+      debouncedDispatch(value);
+    },
+    [debouncedDispatch]
   );
   useEffect(() => {
     if (editing && uri) {
@@ -103,7 +121,7 @@ function PostEditor(props: Props) {
       name="content_post"
       label={label}
       placeholder={__('My content for this post...')}
-      value={ready ? fileText : __('Loading...')}
+      value={ready ? localText : __('Loading...')}
       disabled={!ready || disabled}
       onChange={updateFileText}
     />
