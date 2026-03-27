@@ -272,6 +272,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const encoderLoggedRef = React.useRef(false);
   const [justWentLive, setJustWentLive] = React.useState(false);
   const prevStatusRef = React.useRef<Status>(ctxStatus as Status);
+  const prevPresetRef = React.useRef(presetId);
   const adaptivePolicyRef = React.useRef<'balanced' | 'maintain-framerate'>('maintain-framerate');
 
   // Convenience aliases
@@ -442,6 +443,41 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   }
 
   // Detect connecting→live transition for the flash animation
+  React.useEffect(() => {
+    const previousPreset = prevPresetRef.current;
+    prevPresetRef.current = presetId;
+
+    if (previousPreset === presetId) return;
+    if (status !== 'preview' || !mediaStream) return;
+
+    let canceled = false;
+    const currentStream = mediaStream;
+
+    void (async () => {
+      setErrorMessage(null);
+      try {
+        const nextStream = await requestCameraStream();
+        if (canceled) {
+          nextStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        nextStream.getAudioTracks().forEach((track) => { track.enabled = micEnabled; });
+        nextStream.getVideoTracks().forEach((track) => { track.enabled = cameraEnabled; });
+        setMediaStream(nextStream);
+        currentStream.getTracks().forEach((track) => track.stop());
+      } catch (e: unknown) {
+        if (canceled) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        setErrorMessage(msg);
+      }
+    })();
+
+    return () => {
+      canceled = true;
+    };
+  }, [presetId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useEffect(() => {
     if (prevStatusRef.current === 'connecting' && status === 'live') {
       setJustWentLive(true);

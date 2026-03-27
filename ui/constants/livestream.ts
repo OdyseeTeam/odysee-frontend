@@ -52,13 +52,13 @@ export function getLivestreamIngestHostname(): string {
 
 /**
  * TURN server config for WebRTC publishing.
- * Prefer UDP first for better realtime behavior, with TCP relay available as fallback.
+ * Force TCP relay for the browser publisher.
  */
 export function getLivestreamTurnServer(): RTCIceServer | null {
   const host = getLivestreamIngestHostname();
   if (!host) return null;
   return {
-    urls: [`turn:${host}:3478?transport=udp`, `turn:${host}:3478?transport=tcp`],
+    urls: `turn:${host}:3478?transport=tcp`,
     username: 'ome',
     credential: 'airen',
   };
@@ -125,9 +125,9 @@ export function getLivestreamWhipIngestUrl(streamKey: string): string | null {
   }
 
   if (!sigQuery) {
-    return `${proto}://${host}:${port}/live/${channelId}?direction=whip`;
+    return `${proto}://${host}:${port}/live/${channelId}?direction=whip&transport=tcp`;
   }
-  return `${proto}://${host}:${port}/live/${channelId}?direction=whip&${sigQuery}`;
+  return `${proto}://${host}:${port}/live/${channelId}?direction=whip&transport=tcp&${sigQuery}`;
 }
 
 /**

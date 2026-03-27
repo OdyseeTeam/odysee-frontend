@@ -295,7 +295,7 @@ export async function startWhipPublish(
 
   const pc = new RTCPeerConnection({
     iceServers,
-    iceTransportPolicy: 'all',
+    iceTransportPolicy: turnServer ? 'relay' : 'all',
   });
 
   try {
