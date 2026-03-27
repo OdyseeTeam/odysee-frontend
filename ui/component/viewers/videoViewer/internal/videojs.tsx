@@ -303,12 +303,21 @@ function VideoJsInner(props) {
     readyCalledRef.current = false;
   }, [source, reload]);
 
-  // Attach hls.js for HLS sources (or try HLS for any video source, falling back to native)
+  // Attach hls.js only for HLS sources. Use native playback for everything else (e.g. MP4).
   useEffect(() => {
     if (!media || !resolvedSource || !resolvedSource.src) return;
-    if (!Hls.isSupported()) return;
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
+
+    if (!isHls || !Hls.isSupported()) {
+      if (media._hls) {
+        media._hls.destroy();
+        delete media._hls;
+      }
+      media.src = src;
+      return;
+    }
+
     const announceTrackers = getP2PAnnounceTrackers(activeLivestreamForChannel?.p2pTrackerUrl || null);
     const swarmId = activeLivestreamForChannel?.p2pSwarmId || null;
     if (p2pEnabled && isLivestreamClaim) {
@@ -354,18 +363,6 @@ function VideoJsInner(props) {
             }
           : undefined),
       });
-
-      if (!isHls) {
-        let recovered = false;
-        hls.on('hlsManifestParsed', () => { recovered = true; });
-        hls.on('hlsError', (_, data) => {
-          if (!recovered && data.fatal) {
-            hls.destroy();
-            delete media._hls;
-            media.src = src;
-          }
-        });
-      }
 
       hls.attachMedia(media);
       hls.loadSource(src);
