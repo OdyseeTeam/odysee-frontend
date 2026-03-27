@@ -37,17 +37,37 @@ export default function EmbedTextArea(props: Props) {
   );
   const { html: embedText } = generateEmbedIframeData(streamUrl);
 
+  function showCopiedToast() {
+    dispatch(
+      doToast({
+        message: snackMessage || __('Embed code copied'),
+      })
+    );
+  }
+
   function copyToClipboard() {
     const topRef = input.current;
+    const text = embedText || '';
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(showCopiedToast)
+        .catch(() => {
+          // Fallback for browsers/contexts where Clipboard API is blocked.
+          if (topRef && topRef.input && topRef.input.current) {
+            topRef.input.current.select();
+            document.execCommand('copy');
+            showCopiedToast();
+          }
+        });
+      return;
+    }
 
     if (topRef && topRef.input && topRef.input.current) {
       topRef.input.current.select();
       document.execCommand('copy');
-      dispatch(
-        doToast({
-          message: snackMessage || 'Embed link copied',
-        })
-      );
+      showCopiedToast();
     }
   }
 

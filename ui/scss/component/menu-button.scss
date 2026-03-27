@@ -40,12 +40,19 @@ reach-portal {
 }
 
 .MuiMenuItem-root {
-  padding: 0px;
+  padding: var(--spacing-xs) var(--spacing-s) !important;
   margin: 0px !important;
+  margin-left: 0px !important;
+  font-size: var(--font-small) !important;
+  display: flex !important;
+  align-items: center;
   color: var(--color-text) !important;
 
-  &:hover {
-    color: var(--color-primary-contrast) !important;
+  &:hover,
+  &.Mui-focusVisible {
+    background-color: var(--color-menu-item-hover) !important;
+    color: var(--color-menu-item-color, var(--color-primary-contrast)) !important;
+    border-radius: var(--border-radius);
   }
 }
 
@@ -67,8 +74,7 @@ reach-portal {
 }
 
 .MuiList-root.MuiMenu-list {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  padding: var(--spacing-xs) 0 !important;
 }
 
 [data-reach-menu-list] {
@@ -154,10 +160,11 @@ reach-portal {
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
   transform-origin: top;
   border-radius: var(--border-radius);
+  margin: 0 var(--spacing-xxs);
   padding: var(--spacing-xs) 0;
 
   [data-reach-menu-item] {
-    margin: 0;
+    margin: 0 var(--spacing-xxs);
   }
 
   &.membership-tier1 {
@@ -271,35 +278,28 @@ reach-portal {
 }
 
 .MuiList-root {
-  .menu__link {
-    color: var(--color-text) !important;
+  .MuiMenuItem-root > .menu__link {
+    color: inherit !important;
+    background-color: transparent !important;
+    padding: 0 !important;
 
     .icon {
-      stroke: var(--color-text) !important;
-    }
-
-    &:hover {
-      color: var(--color-primary-contrast) !important;
-      background-color: var(--color-navigation-hover) !important;
-      border-radius: var(--border-radius);
-
-      .icon {
-        stroke: var(--color-primary-contrast) !important;
-      }
+      stroke: currentColor !important;
     }
   }
 }
 
-.MuiMenuItem-root {
-  margin-left: 0px !important;
-  font-size: var(--font-small) !important;
-  display: block !important;
-  color: var(--color-text) !important;
+// Some MenuItems are rendered with both classes on the same element.
+.MuiMenuItem-root.menu__link {
+  padding: var(--spacing-xs) var(--spacing-s) !important;
+  color: inherit !important;
+  background-color: transparent !important;
+}
 
-  &:hover {
-    background-color: var(--color-navigation-hover) !important;
-    color: var(--color-primary-contrast) !important;
-  }
+// Disable generic menu__link hover styling inside MUI items to avoid double-hover effects.
+.MuiMenuItem-root .menu__link:hover .icon,
+.MuiMenuItem-root.menu__link:hover .icon {
+  stroke: currentColor !important;
 }
 
 .menu__link {

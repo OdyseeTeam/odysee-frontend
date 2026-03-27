@@ -38,43 +38,58 @@ export default function CopyableText(props: Props) {
   const [maskInput, setMaskInput] = React.useState(enableInputMask);
   const input = useRef<any>();
 
+  function showCopySuccessToast() {
+    dispatch(
+      doToast({
+        message: snackMessage || __('Text copied'),
+      })
+    );
+  }
+
+  function showCopyFailedToast() {
+    dispatch(
+      doToast({
+        message: __('Failed to copy.'),
+        isError: true,
+      })
+    );
+  }
+
   function handleCopyText() {
-    if (enableInputMask || onlyCopy) {
-      navigator.clipboard
-        .writeText(copyable)
-        .then(() => {
-          dispatch(
-            doToast({
-              message: snackMessage || __('Text copied'),
-            })
-          );
-        })
-        .catch(() => {
-          dispatch(
-            doToast({
-              message: __('Failed to copy.'),
-              isError: true,
-            })
-          );
-        });
-    } else {
-      const topRef = input.current;
+    const topRef = input.current;
+    const selectedInput = topRef && topRef.input && topRef.input.current ? topRef.input.current : null;
 
-      if (topRef && topRef.input && topRef.input.current) {
-        topRef.input.current.select();
-
-        if (onCopy) {
-          // Allow clients to change the selection before making the copy.
-          onCopy(topRef.input.current);
-        }
+    if (selectedInput) {
+      selectedInput.select();
+      if (onCopy) {
+        // Allow clients to change the selection before making the copy.
+        onCopy(selectedInput);
       }
+    }
 
-      document.execCommand('copy');
-      dispatch(
-        doToast({
-          message: snackMessage || __('Text copied'),
-        })
-      );
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(copyable).then(showCopySuccessToast).catch(() => {
+        try {
+          if (selectedInput && document.execCommand('copy')) {
+            showCopySuccessToast();
+          } else {
+            showCopyFailedToast();
+          }
+        } catch {
+          showCopyFailedToast();
+        }
+      });
+      return;
+    }
+
+    try {
+      if (selectedInput && document.execCommand('copy')) {
+        showCopySuccessToast();
+      } else {
+        showCopyFailedToast();
+      }
+    } catch {
+      showCopyFailedToast();
     }
   }
 

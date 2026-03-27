@@ -116,6 +116,10 @@
   .form-field--copyable {
     border: unset !important;
   }
+
+  textarea#embed-textarea.form-field--copyable {
+    padding: var(--spacing-s) !important;
+  }
   .button--secondary {
     background-color: var(--color-primary) !important;
     box-shadow: 0 0 0 2px transparent inset !important;

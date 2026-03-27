@@ -827,8 +827,8 @@ $actions-z-index: 2;
 }
 
 .menu__list.channel-selector {
-  margin-left: 0;
-  padding: 0;
+  margin: 0 var(--spacing-xxs);
+  padding: var(--spacing-xs) 0;
   border-radius: var(--border-radius);
   background: transparent;
   max-height: 15rem;

@@ -82,7 +82,7 @@ export default function HeaderProfileMenuButton() {
         padding: 'var(--spacing-xs)',
       },
     },
-    className: 'menu__list--header',
+    className: 'menu__list menu__list--header',
     sx: {
       'z-index': 2,
     },

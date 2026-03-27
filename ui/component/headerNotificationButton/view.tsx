@@ -81,7 +81,7 @@ export default function NotificationHeaderButton() {
         padding: 'var(--spacing-xs)',
       },
     },
-    className: 'menu__list--header menu__list--notifications',
+    className: 'menu__list menu__list--header menu__list--notifications',
     sx: {
       'z-index': 2,
     },
