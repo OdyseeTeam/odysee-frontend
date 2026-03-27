@@ -2,8 +2,9 @@ import React from 'react';
 import Hls from 'hls.js';
 import { getLivestreamTurnServer } from 'constants/livestream';
 
-const P2P_ANNOUNCE_TRACKERS = ['wss://tracker.novage.com.ua:443', 'wss://tracker.openwebtorrent.com:443'];
-const P2P_LIVE_HIGH_DEMAND_WINDOW = 3;
+const P2P_DEBUG = process.env.NODE_ENV === 'development';
+const P2P_FORCE_SEGMENT_MODE = true;
+const P2P_SEED_PLAYLIST_TIMEOUT_MS = 30000;
 
 function getP2PIceServers() {
   const turnServer = getLivestreamTurnServer();
@@ -44,8 +45,9 @@ type Props = {
   swarmId?: string | null;
 };
 
-function getP2PAnnounceTrackers(trackerUrl?: string | null) {
-  return trackerUrl ? [trackerUrl] : P2P_ANNOUNCE_TRACKERS;
+function getP2PAnnounceTrackers(trackerUrl?: string | null): string[] {
+  if (!trackerUrl) return [];
+  return [trackerUrl];
 }
 
 function shortenP2PUrl(url?: string | null) {
@@ -94,7 +96,7 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
   const connectedPeersRef = React.useRef<Set<string>>(new Set());
 
   React.useEffect(() => {
-    console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
+    if (P2P_DEBUG) console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
     if (!active || !videoUrl || !Hls.isSupported()) return;
 
     const video = videoRef.current;
@@ -108,8 +110,8 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
         const { HlsJsP2PEngine } = await import('p2p-media-loader-hlsjs');
         if (destroyed) return;
         // injectMixin RETURNS a new class that extends Hls with P2P support
-        HlsConstructor = HlsJsP2PEngine.injectMixin(Hls) as typeof Hls;
-        console.log('[P2P Seed] Streamer seeding enabled for:', videoUrl); // eslint-disable-line no-console
+        HlsConstructor = HlsJsP2PEngine.injectMixin(Hls) as unknown as typeof Hls;
+        console.log('[P2P Seed] Seeding enabled'); // eslint-disable-line no-console
       } catch (e) {
         console.warn('[P2P Seed] Failed to load p2p-media-loader, seeding disabled:', e); // eslint-disable-line no-console
         return;
@@ -120,15 +122,38 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
       const announceTrackers = getP2PAnnounceTrackers(trackerUrl);
 
       const hls = new HlsConstructor({
-        backBufferLength: 10,
-        maxBufferLength: 15,
-        maxMaxBufferLength: 30,
-        liveSyncDuration: 4,
-        liveMaxLatencyDuration: Infinity,
+        backBufferLength: 30, // Keep more segments in back buffer for P2P sharing
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        playlistLoadPolicy: {
+          default: {
+            maxTimeToFirstByteMs: P2P_SEED_PLAYLIST_TIMEOUT_MS,
+            maxLoadTimeMs: P2P_SEED_PLAYLIST_TIMEOUT_MS,
+            timeoutRetry: {
+              maxNumRetry: 2,
+              retryDelayMs: 0,
+              maxRetryDelayMs: 0,
+            },
+            errorRetry: {
+              maxNumRetry: 2,
+              retryDelayMs: 1000,
+              maxRetryDelayMs: 8000,
+            },
+          },
+        },
+        ...(P2P_FORCE_SEGMENT_MODE
+          ? {
+              lowLatencyMode: false,
+            }
+          : undefined),
+        liveSyncDuration: 10, // Seeder stays further behind so it has segments viewers need
+        liveMaxLatencyDuration: 20,
         p2p: {
           core: {
             announceTrackers,
-            highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+            highDemandTimeWindow: 4, // Seeder downloads more aggressively (it's the source)
+            simultaneousHttpDownloads: 4, // Seeder should always download from HTTP fast
+            simultaneousP2PDownloads: 0, // Seeder doesn't download from peers, only uploads
             swarmId: swarmId || undefined,
             rtcConfig: {
               iceServers: p2pIceServers,
@@ -149,101 +174,44 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         connectedPeersRef.current.clear();
-        console.log('[P2P Seed] Manifest loaded, seeding active:', {
-          requestedUrl: shortenP2PUrl(videoUrl),
-          trackers: announceTrackers,
-          swarmId: swarmId || null,
-          highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
-          iceServers: p2pIceServers.map((server) => server.urls),
-          manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
-          streamSummaries: hls.p2pEngine?.core?.streams ? summarizeP2PStreams(hls.p2pEngine.core.streams) : [],
-        }); // eslint-disable-line no-console
+        console.log('[P2P Seed] Seeding active, tracker:', announceTrackers[0] || 'none'); // eslint-disable-line no-console
         video.play().catch(() => {});
 
-        // Check if P2P engine is actually running
         if (hls.p2pEngine) {
-          console.log('[P2P Seed] P2P engine active on seeder'); // eslint-disable-line no-console
           const engine = hls.p2pEngine;
           try {
-            engine.addEventListener('onSegmentStart', (details: any) => {
-              console.log('[P2P Seed] Segment start:', summarizeP2PSegment(details)); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onSegmentLoaded', (details: any) => {
-              console.log('[P2P Seed] Segment loaded:', {
-                ...summarizeP2PSegment(details),
-                connectedPeers: connectedPeersRef.current.size,
-                connectedPeerIds: Array.from(connectedPeersRef.current),
-              }); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onSegmentAbort', (details: any) => {
-              console.warn('[P2P Seed] Segment aborted:', summarizeP2PSegment(details)); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onSegmentError', (details: any) => {
-              console.warn('[P2P Seed] Segment error:', {
-                ...summarizeP2PSegment(details),
-                error: details?.error?.type || details?.error?.message || details?.error || null,
-              }); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onTrackerWarning', (details: any) => {
-              console.warn('[P2P Seed] Tracker warning:', {
-                streamType: details?.streamType || null,
-                warning: serializeP2PError(details?.warning),
-              }); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onTrackerError', (details: any) => {
-              console.warn('[P2P Seed] Tracker error:', {
-                streamType: details?.streamType || null,
-                error: serializeP2PError(details?.error),
-              }); // eslint-disable-line no-console
-            });
             engine.addEventListener('onPeerConnect', (details: any) => {
               if (details?.peerId) connectedPeersRef.current.add(details.peerId);
-              console.log('[P2P Seed] Peer connected:', details); // eslint-disable-line no-console
+              console.log('[P2P Seed] Peer connected:', details?.peerId); // eslint-disable-line no-console
             });
             engine.addEventListener('onPeerClose', (details: any) => {
               if (details?.peerId) connectedPeersRef.current.delete(details.peerId);
-              console.warn('[P2P Seed] Peer closed:', details); // eslint-disable-line no-console
+              if (P2P_DEBUG) console.log('[P2P Seed] Peer disconnected:', details?.peerId); // eslint-disable-line no-console
             });
-            engine.addEventListener('onPeerError', (details: any) => {
-              console.warn('[P2P Seed] Peer error:', {
-                peerId: details?.peerId || null,
-                error: serializeP2PError(details?.error),
-              }); // eslint-disable-line no-console
+            engine.addEventListener('onChunkUploaded', () => {
+              // Chunk-level logging is too noisy (25+ per segment). Track at segment level instead.
             });
-            engine.addEventListener('onChunkDownloaded', (bytesLength: any, downloadSource: any, peerId: any) => {
-              if (downloadSource === 'http' && !peerId) return;
-              console.log('[P2P Seed] Chunk downloaded:', {
-                bytesLength,
-                downloadSource,
-                peerId: peerId || null,
-              }); // eslint-disable-line no-console
-            });
-            engine.addEventListener('onChunkUploaded', (bytesLength: any, peerId: any) => {
-              console.log('[P2P Seed] Chunk uploaded:', {
-                bytesLength,
-                peerId: peerId || null,
-              }); // eslint-disable-line no-console
-            });
-          } catch (e) {
-            console.warn('[P2P Seed] Failed to attach event listeners:', e); // eslint-disable-line no-console
-          }
-          // Log tracker/peer status periodically
+            if (P2P_DEBUG) {
+              engine.addEventListener('onSegmentLoaded', (details: any) => {
+                if (P2P_DEBUG) console.log('[P2P Seed] Segment:', summarizeP2PSegment(details)); // eslint-disable-line no-console
+              });
+              engine.addEventListener('onSegmentError', (details: any) => {
+                console.warn('[P2P Seed] Segment error:', details?.error?.message || details); // eslint-disable-line no-console
+              });
+              engine.addEventListener('onTrackerError', (details: any) => {
+                console.warn('[P2P Seed] Tracker error:', details?.error?.message || details); // eslint-disable-line no-console
+              });
+            }
+          } catch {} // eslint-disable-line no-empty
           const peerLogInterval = setInterval(() => {
             try {
               const core = engine.core;
-              if (core && core.streams) {
+              if (core && core.streams && P2P_DEBUG) {
                 let totalPeers = 0;
                 core.streams.forEach((stream: any) => {
                   if (stream.peers) totalPeers += stream.peers.size;
                 });
-                console.log('[P2P Seed] Swarm snapshot:', {
-                  peers: connectedPeersRef.current.size,
-                  trackedPeers: totalPeers,
-                  streams: core.streams.size,
-                  manifestResponseUrl: shortenP2PUrl(core.manifestResponseUrl || null),
-                  streamSummaries: summarizeP2PStreams(core.streams),
-                  connectedPeerIds: Array.from(connectedPeersRef.current),
-                }); // eslint-disable-line no-console
+                if (P2P_DEBUG) console.log(`[P2P Seed] Peers: ${connectedPeersRef.current.size}, Streams: ${core.streams.size}`); // eslint-disable-line no-console
               }
             } catch {} // eslint-disable-line no-empty
           }, 10000);
@@ -263,9 +231,17 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
         };
         const isExpectedLivePlaylistGap =
           !data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR && data?.details === 'levelEmptyError';
+        const isExpectedHiddenLiveStall =
+          !data?.fatal && data?.type === Hls.ErrorTypes.MEDIA_ERROR && data?.details === 'bufferStalledError';
+        const isExpectedAudioTrackTimeout =
+          !data?.fatal && data?.type === Hls.ErrorTypes.NETWORK_ERROR && data?.details === 'audioTrackLoadTimeOut';
 
         if (isExpectedLivePlaylistGap) {
-          console.log('[P2P Seed] Live playlist not populated yet, retrying:', errorSummary); // eslint-disable-line no-console
+          if (P2P_DEBUG) console.log('[P2P Seed] Live playlist not ready, retrying:', errorSummary); // eslint-disable-line no-console
+        } else if (isExpectedHiddenLiveStall) {
+          if (P2P_DEBUG) console.log('[P2P Seed] Seeder stalled briefly:', errorSummary); // eslint-disable-line no-console
+        } else if (isExpectedAudioTrackTimeout) {
+          if (P2P_DEBUG) console.log('[P2P Seed] Audio playlist timeout:', errorSummary); // eslint-disable-line no-console
         } else {
           console.warn('[P2P Seed] HLS error:', errorSummary); // eslint-disable-line no-console
         }

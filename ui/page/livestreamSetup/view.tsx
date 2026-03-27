@@ -31,10 +31,7 @@ import LivestreamWebRtcPublisher from 'component/livestreamWebRtcPublisher';
 import usePersistedState from 'effects/use-persisted-state';
 import {
   WEBRTC_PUBLISH_PRESET_ORDER,
-  WEBRTC_PUBLISH_VIDEO_CODEC_ORDER,
-  getWebrtcPublishVideoCodecLabel,
   type WebrtcPublishPresetId,
-  type WebrtcPublishVideoCodecPreference,
 } from 'constants/webrtcPublish';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
@@ -67,7 +64,6 @@ export default function LivestreamSetupPage() {
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !liveDisabled);
   const [isClear, setIsClear] = React.useState(false);
   const [presetId, setPresetId] = usePersistedState('livestream-quality-preset', 'balanced') as [WebrtcPublishPresetId, (v: WebrtcPublishPresetId) => void];
-  const [videoCodecPreference, setVideoCodecPreference] = usePersistedState('livestream-video-codec', 'auto') as [WebrtcPublishVideoCodecPreference, (v: WebrtcPublishVideoCodecPreference) => void];
   const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
   const publishCtx = useLivestreamPublish();
   const isStreamActive = publishCtx.state.status === 'live' || publishCtx.state.status === 'connecting';
@@ -233,24 +229,6 @@ export default function LivestreamSetupPage() {
               </div>
             </div>
 
-            <div className="livestream-setup__option-group">
-              <span className="livestream-setup__option-label">{__('Codec')}</span>
-              <div className="livestream-setup__quality-pills">
-                {WEBRTC_PUBLISH_VIDEO_CODEC_ORDER.map((codec) => (
-                  <button
-                    key={codec}
-                    className={classnames('livestream-setup__quality-pill', {
-                      'livestream-setup__quality-pill--active': videoCodecPreference === codec,
-                    })}
-                    onClick={() => setVideoCodecPreference(codec)}
-                    disabled={isStreamActive}
-                  >
-                    {getWebrtcPublishVideoCodecLabel(codec)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <button
               className={classnames('livestream-setup__float-toggle', {
                 'livestream-setup__float-toggle--on': cameraAutoStart,
@@ -303,7 +281,6 @@ export default function LivestreamSetupPage() {
               livestreamEnabled={livestreamEnabled}
               hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
               presetId={presetId}
-              videoCodecPreference={videoCodecPreference}
               signature={sigData.signature}
               signingTs={sigData.signing_ts}
             />

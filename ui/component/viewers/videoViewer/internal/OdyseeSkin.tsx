@@ -808,6 +808,114 @@ function LiveButton() {
   );
 }
 
+function P2PTrafficGlyph({ transferDirection }) {
+  if (!transferDirection || transferDirection === 'none') return null;
+
+  return (
+    <span className="media-p2p-indicator__traffic" aria-hidden="true">
+      {(transferDirection === 'download' || transferDirection === 'both') && (
+        <svg
+          className="media-p2p-indicator__arrow media-p2p-indicator__arrow--down"
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+        >
+          <path d="M5 1.5v5.1M3 4.6 5 6.7l2-2.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      {(transferDirection === 'upload' || transferDirection === 'both') && (
+        <svg
+          className="media-p2p-indicator__arrow media-p2p-indicator__arrow--up"
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+        >
+          <path d="M5 8.5V3.4M3 5.4 5 3.3l2 2.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </span>
+  );
+}
+
+function formatP2PThroughput(bytesPerSecond) {
+  if (!bytesPerSecond || bytesPerSecond <= 0) return null;
+  if (bytesPerSecond < 1024) return `${Math.round(bytesPerSecond)} B/s`;
+
+  const kiloBytesPerSecond = bytesPerSecond / 1024;
+  if (kiloBytesPerSecond < 1024) {
+    return `${kiloBytesPerSecond >= 100 ? Math.round(kiloBytesPerSecond) : kiloBytesPerSecond.toFixed(1)} KB/s`;
+  }
+
+  const megaBytesPerSecond = kiloBytesPerSecond / 1024;
+  return `${megaBytesPerSecond >= 10 ? megaBytesPerSecond.toFixed(1) : megaBytesPerSecond.toFixed(2)} MB/s`;
+}
+
+function P2PControl({ isLivestream, p2pEnabled, p2pUiState, compact = false, onToggle }) {
+  if (!isLivestream) return null;
+
+  const peerCount = p2pUiState?.peerCount || 0;
+  const status = p2pUiState?.status || (p2pEnabled ? 'enabled' : 'off');
+  const transferDirection = p2pUiState?.transferDirection || 'none';
+  const downloadRateLabel = formatP2PThroughput(p2pUiState?.downloadRateBps || 0);
+  const uploadRateLabel = formatP2PThroughput(p2pUiState?.uploadRateBps || 0);
+  const showIndicator = p2pEnabled && (peerCount > 0 || status === 'active');
+  const peerLabel = peerCount > 0 ? `${peerCount} ${peerCount === 1 ? __('peer') : __('peers')}` : __('P2P');
+  const throughputLabel =
+    compact || status !== 'active'
+      ? null
+      : transferDirection === 'both' && downloadRateLabel && uploadRateLabel
+        ? `${downloadRateLabel} / ${uploadRateLabel}`
+        : downloadRateLabel || uploadRateLabel || null;
+  const buttonLabel = !p2pEnabled
+    ? __('Enable P2P delivery')
+    : status === 'active'
+      ? __('P2P delivery active - click to disable')
+      : peerCount > 0
+        ? __('P2P peering active - click to disable')
+        : __('P2P delivery active - click to disable');
+  const indicatorTitle =
+    status === 'active'
+      ? `${peerLabel} • ${
+          transferDirection === 'both'
+            ? __('Downloading and uploading')
+            : transferDirection === 'download'
+              ? __('Downloading from peers')
+              : __('Uploading to peers')
+        }`
+      : peerLabel;
+
+  return (
+    <div className={`media-p2p-control media-p2p-control--${status} ${compact ? 'media-p2p-control--compact' : ''}`}>
+      <button
+        type="button"
+        className={`media-button media-button--icon media-button--p2p ${p2pEnabled ? 'media-button--p2p-active' : ''}`}
+        aria-label={buttonLabel}
+        title={buttonLabel}
+        onClick={onToggle}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+      </button>
+      {showIndicator && (
+        <span
+          className={`media-p2p-indicator ${status === 'active' ? 'media-p2p-indicator--active' : ''} ${
+            compact ? 'media-p2p-indicator--compact' : ''
+          }`}
+          title={indicatorTitle}
+        >
+          <span className="media-p2p-indicator__dot" />
+          <span className="media-p2p-indicator__label">{compact ? String(peerCount || 1) : peerLabel}</span>
+          <P2PTrafficGlyph transferDirection={transferDirection} />
+          {throughputLabel && <span className="media-p2p-indicator__speed">{throughputLabel}</span>}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function OdyseeSkin(props) {
   const {
     children,
@@ -839,6 +947,7 @@ export default function OdyseeSkin(props) {
     onCastToggle,
     castState,
     castActions,
+    p2pUiState,
     ...rest
   } = props;
 
@@ -1125,17 +1234,13 @@ export default function OdyseeSkin(props) {
               )}
 
               {isLivestream && (
-                <button
-                  type="button"
-                  className={`media-button media-button--icon media-button--p2p ${p2pEnabled ? 'media-button--p2p-active' : ''}`}
-                  aria-label={p2pEnabled ? __('P2P delivery active') : __('Enable P2P delivery')}
-                  title={p2pEnabled ? __('P2P delivery active - click to disable') : __('Enable P2P delivery')}
-                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                  </svg>
-                </button>
+                <P2PControl
+                  isLivestream={Boolean(isLivestream)}
+                  p2pEnabled={p2pEnabled}
+                  p2pUiState={p2pUiState}
+                  compact
+                  onToggle={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
+                />
               )}
 
               <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
@@ -1609,17 +1714,12 @@ export default function OdyseeSkin(props) {
               </Tooltip.Root>
 
               {isLivestream && (
-                <button
-                  type="button"
-                  className={`media-button media-button--icon media-button--p2p ${p2pEnabled ? 'media-button--p2p-active' : ''}`}
-                  aria-label={p2pEnabled ? __('P2P delivery active') : __('Enable P2P delivery')}
-                  title={p2pEnabled ? __('P2P delivery active - click to disable') : __('Enable P2P delivery')}
-                  onClick={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                  </svg>
-                </button>
+                <P2PControl
+                  isLivestream={Boolean(isLivestream)}
+                  p2pEnabled={p2pEnabled}
+                  p2pUiState={p2pUiState}
+                  onToggle={() => dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, !p2pEnabled))}
+                />
               )}
 
               <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>

@@ -19,7 +19,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import usePersistedState from 'effects/use-persisted-state';
-import { selectLivestreamsForChannelId, selectViewersForId, selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import { makeSelectLivestreamsForChannelId, selectViewersForId, selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimIdForUri } from 'redux/selectors/claims';
@@ -35,7 +35,6 @@ type Props = {
   livestreamEnabled: boolean;
   hasApprovedLivestreamClaim: boolean;
   presetId: import('constants/webrtcPublish').WebrtcPublishPresetId;
-  videoCodecPreference?: WebrtcPublishVideoCodecPreference;
   signature?: string;
   signingTs?: string;
 };
@@ -48,6 +47,8 @@ type Status =
   | 'live'
   | 'stopping'
   | 'error';
+
+const WEBRTC_DEBUG = process.env.NODE_ENV === 'development';
 
 function isAbortError(e: unknown): boolean {
   return e instanceof DOMException && e.name === 'AbortError';
@@ -104,10 +105,14 @@ function getCameraConstraintAttempts(
   const targetWidth = getIdealConstraintValue(base.width as ConstrainULong | undefined);
   const targetHeight = getIdealConstraintValue(base.height as ConstrainULong | undefined);
   const targetFps = getIdealConstraintValue(base.frameRate as ConstrainDouble | undefined);
+  const sharedCameraPrefs = {
+    facingMode: base.facingMode,
+  } satisfies Partial<MediaTrackConstraints>;
 
   if (!targetWidth || !targetHeight || !targetFps) return [base];
 
   const exactNativeMode = {
+    ...sharedCameraPrefs,
     width: { exact: targetWidth },
     height: { exact: targetHeight },
     frameRate: { exact: targetFps },
@@ -115,6 +120,7 @@ function getCameraConstraintAttempts(
   } satisfies MediaTrackConstraints;
 
   const strictNativeMode = {
+    ...sharedCameraPrefs,
     width: { exact: targetWidth },
     height: { exact: targetHeight },
     frameRate: { min: targetFps, ideal: targetFps },
@@ -122,6 +128,7 @@ function getCameraConstraintAttempts(
   } satisfies MediaTrackConstraints;
 
   const exactVgaMode = {
+    ...sharedCameraPrefs,
     width: { exact: 640 },
     height: { exact: 480 },
     frameRate: { exact: targetFps },
@@ -129,6 +136,7 @@ function getCameraConstraintAttempts(
   } satisfies MediaTrackConstraints;
 
   const strictVgaMode = {
+    ...sharedCameraPrefs,
     width: { exact: 640 },
     height: { exact: 480 },
     frameRate: { min: targetFps, ideal: targetFps },
@@ -141,9 +149,24 @@ function getCameraConstraintAttempts(
   } satisfies MediaTrackConstraints;
 
   const lowerResolutionStrictScalable = {
+    ...sharedCameraPrefs,
     width: { ideal: 854 },
     height: { ideal: 480 },
     frameRate: { min: targetFps, ideal: targetFps },
+  } satisfies MediaTrackConstraints;
+
+  const lowerResolutionSoftScalable = {
+    ...sharedCameraPrefs,
+    width: { ideal: 854 },
+    height: { ideal: 480 },
+    frameRate: { ideal: targetFps },
+  } satisfies MediaTrackConstraints;
+
+  const forgivingBase = {
+    ...sharedCameraPrefs,
+    width: { ideal: targetWidth },
+    height: { ideal: targetHeight },
+    frameRate: { ideal: targetFps },
   } satisfies MediaTrackConstraints;
 
   return [
@@ -154,6 +177,8 @@ function getCameraConstraintAttempts(
     strictBaseScalable,
     base,
     lowerResolutionStrictScalable,
+    lowerResolutionSoftScalable,
+    forgivingBase,
   ];
 }
 
@@ -163,9 +188,9 @@ function logCameraTrackInfo(track: MediaStreamTrack | undefined) {
   const settings = track.getSettings();
   const capabilities = typeof track.getCapabilities === 'function' ? track.getCapabilities() : undefined;
 
-  console.log('[WebRTC] Camera settings:', settings); // eslint-disable-line no-console
+  if (WEBRTC_DEBUG) console.log('[WebRTC] Camera settings:', settings); // eslint-disable-line no-console
   if (capabilities) {
-    console.log('[WebRTC] Camera capabilities:', capabilities); // eslint-disable-line no-console
+    if (WEBRTC_DEBUG) console.log('[WebRTC] Camera capabilities:', capabilities); // eslint-disable-line no-console
   }
 }
 
@@ -248,7 +273,7 @@ function getCodecAttemptOrder(
 }
 
 export default function LivestreamWebRtcPublisher(props: Props) {
-  const { streamKey, livestreamEnabled, hasApprovedLivestreamClaim, presetId, videoCodecPreference, signature, signingTs } = props;
+  const { streamKey, livestreamEnabled, hasApprovedLivestreamClaim, presetId, signature, signingTs } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const publishCtx = useLivestreamPublish();
@@ -286,7 +311,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Claim context
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const channelId = activeChannelClaim?.claim_id;
-  const myLivestreamClaims = useAppSelector((state) => selectLivestreamsForChannelId(state, channelId));
+  const selectMyLivestreamClaims = React.useMemo(
+    () => (channelId ? makeSelectLivestreamsForChannelId(channelId) : () => []),
+    [channelId]
+  );
+  const myLivestreamClaims = useAppSelector(selectMyLivestreamClaims);
   const nextStreamClaim = myLivestreamClaims?.[0];
   const nextStreamUri = nextStreamClaim?.permanent_url;
 
@@ -296,7 +325,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
   // P2P seed: streamer acts as first peer in the P2P swarm (uses shared P2P_DELIVERY setting)
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
-  const hlsVideoUrl = (activeLivestream as any)?.videoUrlPublic || activeLivestream?.videoUrl;
+  // Use the public (non-LLHLS) URL for seeding, with ?format=ts to match what viewers load
+  const rawHlsVideoUrl = (activeLivestream as any)?.videoUrlPublic || activeLivestream?.videoUrl;
+  const hlsVideoUrl = rawHlsVideoUrl && !rawHlsVideoUrl.includes('format=ts')
+    ? `${rawHlsVideoUrl}${rawHlsVideoUrl.includes('?') ? '&' : '?'}format=ts`
+    : rawHlsVideoUrl;
   const p2pTrackerUrl = (activeLivestream as any)?.p2pTrackerUrl || null;
   const p2pSwarmId = (activeLivestream as any)?.p2pSwarmId || null;
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
@@ -308,12 +341,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
   // Viewer count from commentron WebSocket (actual HLS viewer count, not OME's always-1)
   const activeClaimId = useAppSelector((state) => nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined);
-  const commentronViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined);
-  // For WebRTC viewers, trust OME's number only when streaming via WebRTC
-  const isWebRtcSource = serverMetrics?.source_type?.toLowerCase() === 'webrtc';
-  const webrtcViewers = isWebRtcSource ? (serverMetrics?.viewers?.webrtc ?? 0) : 0;
-  // Total: commentron (real HLS viewers) + OME WebRTC viewers (only if source is WebRTC)
-  const totalViewers = (commentronViewers ?? 0) + webrtcViewers;
+  const totalViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined) ?? 0;
 
   // Poll livestream status: detects existing streams + gets HLS URL for P2P seeding
   React.useEffect(() => {
@@ -340,7 +368,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Debug P2P seed conditions
   React.useEffect(() => {
     if (status === 'live') {
-      console.log('[P2P Seed] Conditions:', {
+      if (WEBRTC_DEBUG) console.log('[P2P Seed] Conditions:', {
         p2pEnabled,
         isLive: status === 'live',
         selectedVideoUrl: hlsVideoUrl || null,
@@ -409,7 +437,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
     for (let index = 0; index < attempts.length; index += 1) {
       const videoConstraints = attempts[index];
-      console.log('[WebRTC] Requesting camera with constraints:', JSON.stringify(videoConstraints)); // eslint-disable-line no-console
+      if (WEBRTC_DEBUG) console.log('[WebRTC] Requesting camera:', JSON.stringify(videoConstraints)); // eslint-disable-line no-console
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -418,7 +446,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         });
         const videoTrack = stream.getVideoTracks()[0];
         const videoSettings = videoTrack?.getSettings();
-        console.log('[WebRTC] Camera delivered:', videoSettings?.width + 'x' + videoSettings?.height, '@', videoSettings?.frameRate + 'fps'); // eslint-disable-line no-console
+        console.log('[WebRTC] Camera:', videoSettings?.width + 'x' + videoSettings?.height, '@', Math.round(videoSettings?.frameRate || 0) + 'fps'); // eslint-disable-line no-console
         logCameraTrackInfo(videoTrack);
         return stream;
       } catch (e: unknown) {
@@ -428,7 +456,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           (e.name === 'OverconstrainedError' || e.name === 'NotFoundError' || e.name === 'ConstraintNotSatisfiedError');
 
         if (isConstraintFailure && index < attempts.length - 1) {
-          console.warn('[WebRTC] Camera constraint attempt failed, trying fallback:', e); // eslint-disable-line no-console
+          if (WEBRTC_DEBUG) console.warn('[WebRTC] Camera constraint fallback:', e); // eslint-disable-line no-console
           continue;
         }
 
@@ -681,7 +709,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           void updateWhipVideoEncodingPolicy(pc, {
             degradationPreference: 'maintain-framerate',
           });
-          console.log('[WebRTC] Switching degradation preference to maintain-framerate due to encoder/limitation state'); // eslint-disable-line no-console
+          if (WEBRTC_DEBUG) console.log('[WebRTC] Switching to maintain-framerate'); // eslint-disable-line no-console
         } else if (!shouldPreferFramerate && adaptivePolicyRef.current !== 'balanced') {
           adaptivePolicyRef.current = 'balanced';
           void updateWhipVideoEncodingPolicy(pc, {
@@ -722,12 +750,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         const ac = new AbortController();
         connectAbortRef.current = ac;
         const enc = getWebrtcPublishEncodingOptions(presetId);
-        const codecAttempts = getCodecAttemptOrder(videoCodecPreference);
+        const codecAttempts = getCodecAttemptOrder(undefined);
         let lastErr: unknown;
         for (const codec of codecAttempts) {
           if (ac.signal.aborted) break;
           try {
-            console.log(`[WebRTC] Trying codec preference: ${codec}`); // eslint-disable-line no-console
+            if (WEBRTC_DEBUG) console.log(`[WebRTC] Trying codec: ${codec}`); // eslint-disable-line no-console
             const { pc, resourceUrl } = await startWhipPublish(whipUrl!, stream, {
               signal: ac.signal,
               maxVideoBitrateBps: enc.maxVideoBitrateBps,
@@ -785,7 +813,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       const ac = new AbortController();
       connectAbortRef.current = ac;
       const enc = getWebrtcPublishEncodingOptions(presetId);
-      const codecAttempts = getCodecAttemptOrder(videoCodecPreference);
+        const codecAttempts = getCodecAttemptOrder(undefined);
       let lastErr: unknown;
       for (const codec of codecAttempts) {
         if (ac.signal.aborted) break;
@@ -849,40 +877,6 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const isConnecting = status === 'connecting';
   const isStopping = status === 'stopping';
   const hasCamera = Boolean(mediaStream);
-  const captureSettings = mediaStream?.getVideoTracks()[0]?.getSettings();
-  const requestedFps = typeof captureSettings?.frameRate === 'number' ? Math.round(captureSettings.frameRate) : null;
-  const actualPreviewFps = previewFrameFps;
-  const sentFps = runtimeStats.fps;
-  const fpsDiagnostic = hasCamera
-    ? isLive
-      ? `Requested ${formatFpsLabel(requestedFps) || '--'} -> Preview ${formatFpsLabel(actualPreviewFps) || '--'} -> Sent ${formatFpsLabel(sentFps) || '--'}`
-      : `Requested ${formatFpsLabel(requestedFps) || '--'} -> Preview ${formatFpsLabel(actualPreviewFps) || '--'}`
-    : null;
-  const lowFpsWarning = (() => {
-    if (requestedFps != null && actualPreviewFps != null && requestedFps >= 24 && actualPreviewFps <= requestedFps - 8 && actualPreviewFps < 20) {
-      return `Local preview FPS is much lower than requested camera FPS (${actualPreviewFps}/${requestedFps}). This points to camera, driver, lighting, or browser capture before WebRTC send.${runtimeStats.avgEncodeMs != null ? ` Avg encode: ${runtimeStats.avgEncodeMs} ms/frame.` : ''}`;
-    }
-
-    if (
-      isLive &&
-      actualPreviewFps != null &&
-      sentFps != null &&
-      actualPreviewFps >= 24 &&
-      sentFps <= actualPreviewFps - 8 &&
-      sentFps < 20
-    ) {
-      return `Sent FPS is much lower than preview FPS (${sentFps}/${actualPreviewFps}). ${
-        runtimeStats.qualityLimitationReason && runtimeStats.qualityLimitationReason !== 'none'
-          ? `Current limit: ${formatQualityLimitationSummary(
-              runtimeStats.qualityLimitationReason,
-              runtimeStats.qualityLimitationDurations
-            )}.`
-          : 'No explicit WebRTC limitation reason reported.'
-      }${runtimeStats.avgEncodeMs != null ? ` Avg encode: ${runtimeStats.avgEncodeMs} ms/frame.` : ''}`;
-    }
-
-    return null;
-  })();
 
   const disabledReason = !browserPublishSupported
     ? __('Your browser does not support WebRTC streaming.')
@@ -973,23 +967,22 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                           <circle cx="12" cy="12" r="3" />
                         </svg>
                         {totalViewers}
-                        {isWebRtcSource && webrtcViewers > 0 && (
-                          <span className="livestream-webrtc__pill-sub">+{webrtcViewers} P2P</span>
-                        )}
                       </span>
                     )}
                   </>
                 )}
                 {(() => {
+                  const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
                   const fps = isLive
-                    ? formatFpsLabel(runtimeStats.fps ?? captureSettings?.frameRate)
-                    : formatFpsLabel(previewFrameFps ?? captureSettings?.frameRate ?? runtimeStats.fps);
+                    ? formatFpsLabel(runtimeStats.fps ?? cs?.frameRate)
+                    : formatFpsLabel(previewFrameFps ?? cs?.frameRate ?? runtimeStats.fps);
                   return fps ? <span className="livestream-webrtc__pill">{fps}</span> : null;
                 })()}
                 {/* Resolution */}
                 {(() => {
-                  const res = captureSettings?.width && captureSettings?.height
-                    ? formatResolutionLabel(`${captureSettings.width}x${captureSettings.height}`)
+                  const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
+                  const res = cs?.width && cs?.height
+                    ? formatResolutionLabel(`${cs.width}x${cs.height}`)
                     : formatResolutionLabel(runtimeStats.resolution);
                   return res ? <span className="livestream-webrtc__pill">{res}</span> : null;
                 })()}
@@ -1019,11 +1012,6 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                             {classifyEncoderImplementation(runtimeStats.encoderImpl) === 'hardware' ? 'HW' : 'SW'}
                           </span>
                         )}
-                      </span>
-                    )}
-                    {runtimeStats.avgEncodeMs != null && (
-                      <span className="livestream-webrtc__pill" title={__('Average video encode time per frame')}>
-                        {runtimeStats.avgEncodeMs} ms
                       </span>
                     )}
                     {runtimeStats.qualityLimitationReason && runtimeStats.qualityLimitationReason !== 'none' && (
@@ -1216,12 +1204,6 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         )}
         {disabledReason && !hasCamera && (
           <p className="livestream-webrtc__hint-msg">{disabledReason}</p>
-        )}
-        {fpsDiagnostic && (
-          <p className="livestream-webrtc__diag-msg">{fpsDiagnostic}</p>
-        )}
-        {lowFpsWarning && (
-          <p className="livestream-webrtc__warning-msg">{lowFpsWarning}</p>
         )}
       </div>
 

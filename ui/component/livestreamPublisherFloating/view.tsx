@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppSelector } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectViewersForId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
+import { makeSelectLivestreamsForChannelId, selectViewersForId } from 'redux/selectors/livestream';
 import { selectClaimIdForUri, selectTitleForUri } from 'redux/selectors/claims';
 import { formatLbryUrlForWeb } from 'util/url';
 import * as PAGES from 'constants/pages';
@@ -12,6 +12,11 @@ import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
 import usePersistedState from 'effects/use-persisted-state';
+import { getLivestreamWhipIngestUrl } from 'constants/livestream';
+import { getWebrtcPublishEncodingOptions, type WebrtcPublishPresetId, type WebrtcPublishVideoCodecPreference } from 'constants/webrtcPublish';
+import { startWhipPublish } from 'util/livestreamWhip';
+import { LIVESTREAM_SERVER_API } from 'config';
+import { doToast } from 'redux/actions/notifications';
 import './style.scss';
 
 function formatResolutionLabel(resolution: string | null): string | null {
@@ -27,9 +32,21 @@ function formatResolutionLabel(resolution: string | null): string | null {
 }
 
 export default function LivestreamPublisherFloating() {
+  const dispatch = useAppDispatch();
   const { state, actions } = useLivestreamPublish();
-  const { status, mediaStream, floatingPreviewEnabled, resolution, videoBitrateKbps } = state;
+  const {
+    status,
+    mediaStream,
+    floatingPreviewEnabled,
+    resolution,
+    videoBitrateKbps,
+    fps,
+    videoCodec,
+    qualityLimitationReason,
+    qualityLimitationDurations,
+  } = state;
   const [cameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
+  const [presetId] = usePersistedState('livestream-quality-preset', 'balanced') as [WebrtcPublishPresetId, (v: WebrtcPublishPresetId) => void];
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const floatingRef = React.useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -51,14 +68,21 @@ export default function LivestreamPublisherFloating() {
   const isLiveForMetrics = status === 'live' && !isOnLivestreamPage;
   const serverMetrics = useLivestreamMetrics(channelId, channelName, sigData.signature, sigData.signing_ts, isLiveForMetrics);
 
-  // Viewer count: commentron WSS for HLS, OME for WebRTC (only if source is WebRTC)
-  const myLivestreamClaims = useAppSelector((state) => selectLivestreamsForChannelId(state, channelId));
+  // Viewer count: use commentron WSS only.
+  const selectMyLivestreamClaims = React.useMemo(
+    () => (channelId ? makeSelectLivestreamsForChannelId(channelId) : () => []),
+    [channelId]
+  );
+  const myLivestreamClaims = useAppSelector(selectMyLivestreamClaims);
+  const hasApprovedLivestreamClaim = (myLivestreamClaims?.length || 0) > 0;
+  const streamKey = channelId && channelName && sigData.signature && sigData.signing_ts
+    ? `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`
+    : null;
+  const whipUrl = streamKey ? getLivestreamWhipIngestUrl(streamKey) : null;
+  const canStartFromPreview = status === 'preview' && Boolean(mediaStream && hasApprovedLivestreamClaim && whipUrl && LIVESTREAM_SERVER_API);
   const nextStreamUri = myLivestreamClaims?.[0]?.permanent_url;
   const activeClaimId = useAppSelector((state) => nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined);
-  const commentronViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined);
-  const isWebRtcSource = serverMetrics?.source_type?.toLowerCase() === 'webrtc';
-  const webrtcViewers = isWebRtcSource ? (serverMetrics?.viewers?.webrtc ?? 0) : 0;
-  const totalViewers = (commentronViewers ?? 0) + webrtcViewers;
+  const totalViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined) ?? 0;
 
   // Claim title for info bar
   const claimTitle = useAppSelector((state) => nextStreamUri ? selectTitleForUri(state, nextStreamUri) : undefined);
@@ -66,6 +90,66 @@ export default function LivestreamPublisherFloating() {
   const isStreaming = status === 'live' || status === 'connecting' || status === 'preview';
   const showFullPreview = isStreaming && mediaStream && floatingPreviewEnabled && !isOnLivestreamPage;
   const showMinimalPill = isStreaming && mediaStream && !floatingPreviewEnabled && !isOnLivestreamPage;
+  const throughputBps = serverMetrics?.live && serverMetrics.throughput
+    ? serverMetrics.throughput.in_bps
+    : (videoBitrateKbps ?? 0) * 1000;
+  const throughputLabel = throughputBps > 0
+    ? (throughputBps >= 1000000 ? `${(throughputBps / 1000000).toFixed(1)} Mbps` : `${Math.round(throughputBps / 1000)} kbps`)
+    : null;
+  const resolutionLabel = formatResolutionLabel(resolution);
+  const fpsLabel = fps && fps > 0 ? `${Math.round(fps)} fps` : null;
+  const infoTitle = claimTitle || __('Attach a stream claim');
+  const showInfoBar = Boolean(claimTitle || status === 'live' || status === 'preview');
+  const qualityLimitLabel =
+    qualityLimitationReason && qualityLimitationReason !== 'none'
+      ? (() => {
+          if (!qualityLimitationDurations) return qualityLimitationReason;
+          const total = Object.values(qualityLimitationDurations).reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+          const current = qualityLimitationDurations[qualityLimitationReason];
+          return total && Number.isFinite(current)
+            ? `${qualityLimitationReason} ${Math.round((current / total) * 100)}%`
+            : qualityLimitationReason;
+        })()
+      : null;
+
+  async function handleGoLiveFromPreview() {
+    if (!mediaStream || !whipUrl) return;
+
+    actions.setErrorMessage(null);
+    actions.setStatus('connecting');
+    const enc = getWebrtcPublishEncodingOptions(presetId);
+    const codecAttempts: WebrtcPublishVideoCodecPreference[] = ['auto', 'h264'];
+    let lastErr: unknown;
+
+    for (const codec of codecAttempts) {
+      try {
+        const { pc, resourceUrl } = await startWhipPublish(whipUrl, mediaStream, {
+          maxVideoBitrateBps: enc.maxVideoBitrateBps,
+          maxVideoFramerate: enc.maxVideoFramerate,
+          videoCodecPreference: codec,
+          degradationPreference: 'maintain-framerate',
+        });
+
+        actions.setPc(pc);
+        actions.setResourceUrl(resourceUrl);
+        actions.updateStats({ liveStartedAt: Date.now() });
+        actions.setStatus('live');
+        dispatch(doToast({ message: __('You are live!') }));
+        return;
+      } catch (error: unknown) {
+        lastErr = error;
+        const isNetworkError = error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('network'));
+        if (isNetworkError) break;
+      }
+    }
+
+    const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+    actions.setErrorMessage(msg);
+    actions.setPc(null);
+    actions.setResourceUrl(null);
+    actions.setStatus('preview');
+    dispatch(doToast({ isError: true, message: __('Connection failed. Try again.') }));
+  }
 
   // Attach media stream to video element
   React.useEffect(() => {
@@ -182,6 +266,21 @@ export default function LivestreamPublisherFloating() {
           {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
         </span>
 
+        {isLive && totalViewers > 0 && (
+          <span className="livestream-floating-pill__meta">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {totalViewers}
+          </span>
+        )}
+        {isLive && fpsLabel && <span className="livestream-floating-pill__meta">{fpsLabel}</span>}
+        {resolutionLabel && <span className="livestream-floating-pill__meta">{resolutionLabel}</span>}
+        {isLive && throughputLabel && <span className="livestream-floating-pill__meta">{throughputLabel}</span>}
+        {isLive && videoCodec && <span className="livestream-floating-pill__meta">{videoCodec}</span>}
+        {isLive && qualityLimitLabel && <span className="livestream-floating-pill__meta">{qualityLimitLabel}</span>}
+
         <button
           className="livestream-floating-pill__btn"
           onClick={() => actions.setFloatingPreviewEnabled(true)}
@@ -256,7 +355,6 @@ export default function LivestreamPublisherFloating() {
             >
               {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
             </span>
-            {resolution && <span className="livestream-floating__meta">{formatResolutionLabel(resolution)}</span>}
           </div>
           <div className="livestream-floating__bottom-bar">
             {status === 'live' && totalViewers > 0 && (
@@ -268,11 +366,9 @@ export default function LivestreamPublisherFloating() {
                 {totalViewers}
               </span>
             )}
-            {serverMetrics?.live && serverMetrics.throughput && serverMetrics.throughput.in_bps > 0 ? (
+            {throughputLabel ? (
               <span className="livestream-floating__meta">
-                {serverMetrics.throughput.in_bps >= 1000000
-                  ? `${(serverMetrics.throughput.in_bps / 1000000).toFixed(1)} Mbps`
-                  : `${Math.round(serverMetrics.throughput.in_bps / 1000)} kbps`}
+                {throughputLabel}
               </span>
             ) : videoBitrateKbps != null && videoBitrateKbps > 0 ? (
               <span className="livestream-floating__meta">
@@ -286,6 +382,17 @@ export default function LivestreamPublisherFloating() {
 
         {/* Controls overlay - visible on hover */}
         <div className="livestream-floating__controls">
+          {status === 'preview' && (
+            <button
+              className="livestream-floating__control-btn livestream-floating__control-btn--primary livestream-floating__control-btn--wide"
+              onClick={() => void handleGoLiveFromPreview()}
+              title={canStartFromPreview ? __('Go live') : __('Select an approved stream claim to go live')}
+              disabled={!canStartFromPreview}
+            >
+              <span className="livestream-floating__control-btn-label">{__('Go Live')}</span>
+            </button>
+          )}
+
           <button
             className="livestream-floating__control-btn"
             onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
@@ -323,19 +430,18 @@ export default function LivestreamPublisherFloating() {
       </div>
 
       {/* Info bar below video - title + stats */}
-      {isLive && (
+      {showInfoBar && (
         <div className="livestream-floating__info-bar">
-          {claimTitle && (
-            <button
-              className="livestream-floating__info-title"
-              onClick={() => claimNavigateUrl && navigate(claimNavigateUrl)}
-              title={claimTitle}
-            >
-              {claimTitle}
-            </button>
-          )}
+          <button
+            className="livestream-floating__info-title"
+            onClick={() => claimNavigateUrl && navigate(claimNavigateUrl)}
+            title={claimTitle || undefined}
+            disabled={!claimNavigateUrl}
+          >
+            {infoTitle}
+          </button>
           <div className="livestream-floating__info-stats">
-            {totalViewers > 0 && (
+            {isLive && totalViewers > 0 && (
               <span className="livestream-floating__info-pill">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -344,23 +450,20 @@ export default function LivestreamPublisherFloating() {
                 {totalViewers}
               </span>
             )}
-            {(() => {
-              const bps = serverMetrics?.live && serverMetrics.throughput
-                ? serverMetrics.throughput.in_bps
-                : (videoBitrateKbps ?? 0) * 1000;
-              if (!bps || bps <= 0) return null;
-              return (
-                <span className="livestream-floating__info-pill">
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="19" x2="12" y2="5" />
-                    <polyline points="5 12 12 5 19 12" />
-                  </svg>
-                  {bps >= 1000000 ? `${(bps / 1000000).toFixed(1)} Mbps` : `${Math.round(bps / 1000)} kbps`}
-                </span>
-              );
-            })()}
-            {resolution && (
-              <span className="livestream-floating__info-pill">{formatResolutionLabel(resolution)}</span>
+            {isLive && throughputLabel && (
+              <span className="livestream-floating__info-pill">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="19" x2="12" y2="5" />
+                  <polyline points="5 12 12 5 19 12" />
+                </svg>
+                {throughputLabel}
+              </span>
+            )}
+            {resolutionLabel && (
+              <span className="livestream-floating__info-pill">{resolutionLabel}</span>
+            )}
+            {fpsLabel && (
+              <span className="livestream-floating__info-pill">{fpsLabel}</span>
             )}
           </div>
         </div>

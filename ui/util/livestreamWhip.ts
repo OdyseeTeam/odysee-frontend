@@ -4,6 +4,7 @@ import { getLivestreamTurnServer } from 'constants/livestream';
 import type { WebrtcPublishVideoCodecPreference } from 'constants/webrtcPublish';
 
 const DEFAULT_ICE_GATHER_TIMEOUT_MS = 4000;
+const WHIP_DEBUG = process.env.NODE_ENV === 'development';
 
 /**
  * Wait until ICE gathering is done, or timeout, or end-of-candidates.
@@ -224,6 +225,18 @@ async function applyOutboundVideoEncoding(
   const { maxVideoBitrateBps, maxVideoFramerate, degradationPreference } = options;
   if (maxVideoBitrateBps == null && maxVideoFramerate == null && !degradationPreference) return;
 
+  // Set audio bitrate to 128kbps (Opus default is ~32kbps, too low for livestream)
+  for (const sender of pc.getSenders()) {
+    if (sender.track?.kind === 'audio') {
+      const audioParams = sender.getParameters();
+      if (!audioParams.encodings || audioParams.encodings.length === 0) {
+        audioParams.encodings = [{}];
+      }
+      audioParams.encodings[0].maxBitrate = 128_000;
+      try { await sender.setParameters(audioParams); } catch {} // eslint-disable-line no-empty
+    }
+  }
+
   for (const sender of pc.getSenders()) {
     if (sender.track?.kind !== 'video') continue;
 
@@ -235,6 +248,8 @@ async function applyOutboundVideoEncoding(
     const enc = params.encodings[0];
     if (maxVideoBitrateBps != null) enc.maxBitrate = maxVideoBitrateBps;
     if (maxVideoFramerate != null) enc.maxFramerate = maxVideoFramerate;
+    // Prevent Chrome from dropping below 15fps when bandwidth is tight
+    (enc as any).minFramerate = 15;
     (enc as any).priority = 'high';
     (enc as any).networkPriority = 'high';
     (params as any).degradationPreference = degradationPreference || 'balanced';
@@ -275,7 +290,7 @@ function logSdpCandidates(label: string, sdp: string) {
     const type = parts[7] || '';
     return `${proto} ${type} ${parts[4]}:${parts[5]}`;
   });
-  console.log(`[WHIP] ${label}:`, transports.length ? transports.join(', ') : '(none)'); // eslint-disable-line no-console
+  if (WHIP_DEBUG) console.log(`[WHIP] ${label}:`, transports.length ? transports.join(', ') : '(none)'); // eslint-disable-line no-console
 }
 
 export async function startWhipPublish(
@@ -290,7 +305,7 @@ export async function startWhipPublish(
   const turnServer = getLivestreamTurnServer();
   if (turnServer) {
     iceServers.push(turnServer);
-    console.log('[WHIP] Using TURN server:', turnServer.urls); // eslint-disable-line no-console
+    if (WHIP_DEBUG) console.log('[WHIP] Using TURN server:', turnServer.urls); // eslint-disable-line no-console
   }
 
   const pc = new RTCPeerConnection({
@@ -357,10 +372,10 @@ export async function startWhipPublish(
                 stats.forEach((r: any) => {
                   if (r.id === localId) {
                     const relayInfo = r.relayProtocol ? ` (relay via ${r.relayProtocol.toUpperCase()})` : '';
-                    console.log(`[WHIP] Connected local: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}${relayInfo}`); // eslint-disable-line no-console
+                    if (WHIP_DEBUG) console.log(`[WHIP] Connected local: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}${relayInfo}`); // eslint-disable-line no-console
                   }
                   if (r.id === remoteId) {
-                    console.log(`[WHIP] Connected remote: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}`); // eslint-disable-line no-console
+                    if (WHIP_DEBUG) console.log(`[WHIP] Connected remote: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}`); // eslint-disable-line no-console
                   }
                 });
               }

@@ -39,6 +39,7 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import ClaimPreviewHidden from './internal/claim-preview-no-mature';
 import ClaimPreviewNoContent from './internal/claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
@@ -185,7 +186,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   const firstCollectionItemUrl = useAppSelector((state) =>
     claim && isCollection ? selectFirstItemUrlForCollection(state, claim.claim_id) : undefined
   );
-  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, uri)) as string | null | undefined;
   const defaultCollectionAction = useAppSelector((state) =>
     selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION)
   );
@@ -205,8 +206,16 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
   const shortClaim = isClaimShort(claim);
-  const backgroundImage = thumbnailFromClaim
-    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+  const isMissingThumbLike = React.useCallback((url: string | null | undefined) => {
+    if (!url) return false;
+    const normalized = url.toLowerCase();
+    return normalized.includes('missing-thumb-png') || normalized.includes('missing-thumb');
+  }, []);
+  const backgroundImage = thumbnailFromClaim && !isMissingThumbLike(thumbnailFromClaim)
+    ? getThumbnailCdnUrl({
+        thumbnail: thumbnailFromClaim,
+        quality: 85,
+      })
     : undefined;
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {

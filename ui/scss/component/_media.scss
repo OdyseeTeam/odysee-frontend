@@ -31,7 +31,8 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.22s ease-out;
+  will-change: opacity;
   pointer-events: none;
 
   &--active {

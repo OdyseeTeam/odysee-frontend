@@ -226,23 +226,6 @@
     }
   }
 
-  &__diag-msg,
-  &__warning-msg {
-    margin: 0;
-    text-align: center;
-    font-size: var(--font-small);
-    line-height: 1.5;
-  }
-
-  &__diag-msg {
-    color: var(--color-text-subtitle);
-    font-variant-numeric: tabular-nums;
-  }
-
-  &__warning-msg {
-    color: #c77b00;
-  }
-
   // ---- Controls bar ----
   &__controls {
     display: flex;
@@ -379,6 +362,36 @@
   }
 
   &__claim-card {
+    padding: 8px;
+    overflow: hidden;
+
+    .claim-preview,
+    .claim-preview__wrapper {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    border-radius: 14px;
+    border: 1px solid rgba(var(--color-primary-dynamic), 0.22);
+    background:
+      linear-gradient(180deg, rgba(var(--color-primary-dynamic), 0.08), rgba(var(--color-header-button-base), 0.06)),
+      rgba(var(--color-background-dynamic), 0.28);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+      0 10px 24px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover,
+    &:focus-within {
+      border-color: rgba(var(--color-primary-dynamic), 0.4);
+      background:
+        linear-gradient(180deg, rgba(var(--color-primary-dynamic), 0.11), rgba(var(--color-header-button-base), 0.08)),
+        rgba(var(--color-background-dynamic), 0.34);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 14px 32px rgba(0, 0, 0, 0.12);
+      transform: translateY(-1px);
+    }
+
     .claim-preview {
       margin: 0;
       padding: 0;

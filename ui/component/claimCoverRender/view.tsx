@@ -5,6 +5,7 @@ import * as SETTINGS from 'constants/settings';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import useGetPoster from 'effects/use-get-poster';
+import useLiveThumbnailFrame from 'effects/use-live-thumbnail-frame';
 import Button from 'component/button';
 import useSwipeNavigation from 'effects/use-swipe-navigation';
 import { useLocation } from 'react-router-dom';
@@ -29,6 +30,12 @@ type Props = {
   isFloatingContext?: boolean;
   obscurePreview?: boolean;
 };
+
+function isMissingThumbLike(url: string | null | undefined) {
+  if (!url) return false;
+  const normalized = url.toLowerCase();
+  return normalized.includes('missing-thumb-png') || normalized.includes('missing-thumb');
+}
 
 const ClaimCoverRender = (props: Props) => {
   const {
@@ -65,43 +72,35 @@ const ClaimCoverRender = (props: Props) => {
   const isShorts = typeof isShortsContext === 'boolean' ? isShortsContext : isShortsParam || isShortClaim;
   const shouldUseShortsCoverLayout = isShorts && !isFloatingContext;
   const staticThumbnail = useGetPoster(claimThumbnail as string, isShorts);
-  const liveThumbnail = useAppSelector((state) => selectLiveThumbnailForUri(state, uri));
+  const liveThumbnailFromStore = useAppSelector((state) => selectLiveThumbnailForUri(state, uri));
+  const liveThumbnail = isMissingThumbLike(liveThumbnailFromStore) ? null : liveThumbnailFromStore;
 
-  // Live thumbnail hover refresh (preload-then-swap to avoid flash)
   const [isHovering, setIsHovering] = React.useState(false);
-  const [loadedLiveUrl, setLoadedLiveUrl] = React.useState<string | null>(null);
-  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
-
+  const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
+  const [coverBufferA, setCoverBufferA] = React.useState<string | null>(liveThumbnail || staticThumbnail || null);
+  const [coverBufferB, setCoverBufferB] = React.useState<string | null>(null);
+  const [activeCoverBuffer, setActiveCoverBuffer] = React.useState<'a' | 'b'>('a');
   React.useEffect(() => {
-    if (isHovering && liveThumbnail) {
-      let canceled = false;
-
-      const fetchFrame = () => {
-        const sep = liveThumbnail.includes('?') ? '&' : '?';
-        const nextUrl = `${liveThumbnail}${sep}t=${Date.now()}`;
-        const img = new Image();
-        img.onload = () => {
-          if (!canceled) setLoadedLiveUrl(nextUrl);
-        };
-        img.src = nextUrl;
-      };
-
-      fetchFrame();
-      intervalRef.current = setInterval(fetchFrame, 200);
-
-      return () => {
-        canceled = true;
-        if (intervalRef.current) clearInterval(intervalRef.current);
-      };
-    } else {
-      if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
-      setLoadedLiveUrl(null);
+    if (!liveThumbnail) {
+      setCoverBufferA(staticThumbnail || null);
+      setCoverBufferB(null);
+      setActiveCoverBuffer('a');
+      return;
     }
-  }, [isHovering, liveThumbnail]);
 
-  const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
+    if (!liveFrameUrl) return;
 
-  const thumbnail = loadedLiveUrl || liveThumbnail || staticThumbnail;
+    if (activeCoverBuffer === 'a') {
+      if (coverBufferB !== liveFrameUrl) setCoverBufferB(liveFrameUrl);
+    } else if (coverBufferA !== liveFrameUrl) {
+      setCoverBufferA(liveFrameUrl);
+    }
+  }, [activeCoverBuffer, coverBufferA, coverBufferB, liveFrameUrl, staticThumbnail, liveThumbnail]);
+
+  const activeCoverThumb = activeCoverBuffer === 'a' ? coverBufferA : coverBufferB;
+  const stableCoverThumb = activeCoverThumb || coverBufferA || coverBufferB || staticThumbnail || null;
+  const enableLiveCrossfade = Boolean(isHovering && liveThumbnail && liveFrameUrl);
+  const isLiveRefreshing = Boolean(liveThumbnail && isHovering && liveFrameUrl);
 
   const swipeRef = useSwipeNavigation({
     onSwipeNext,
@@ -121,12 +120,13 @@ const ClaimCoverRender = (props: Props) => {
       onMouseEnter={liveThumbnail ? () => setIsHovering(true) : undefined}
       onMouseLeave={liveThumbnail ? () => setIsHovering(false) : undefined}
       style={
-        thumbnail &&
+        !enableLiveCrossfade &&
+        stableCoverThumb &&
         !obscurePreview &&
         !(isCurrentlyPlaying && shouldUseShortsCoverLayout) &&
         !(shouldUseShortsCoverLayout && autoplayMedia)
           ? {
-              backgroundImage: `url("${thumbnail}")`,
+              backgroundImage: `url("${stableCoverThumb}")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }
@@ -144,6 +144,28 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--live-refreshing': isLiveRefreshing,
       })}
     >
+      {enableLiveCrossfade && coverBufferA && (
+        <img
+          src={coverBufferA}
+          className={classnames('content__cover-live-img', {
+            'content__cover-live-img--active': activeCoverBuffer === 'a',
+          })}
+          onLoad={() => setActiveCoverBuffer('a')}
+          alt=""
+          draggable={false}
+        />
+      )}
+      {enableLiveCrossfade && coverBufferB && (
+        <img
+          src={coverBufferB}
+          className={classnames('content__cover-live-img', {
+            'content__cover-live-img--active': activeCoverBuffer === 'b',
+          })}
+          onLoad={() => setActiveCoverBuffer('b')}
+          alt=""
+          draggable={false}
+        />
+      )}
       {children}
     </Wrapper>
   );

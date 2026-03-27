@@ -33,13 +33,17 @@ import { getLivestreamTurnServer } from 'constants/livestream';
 
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
-const P2P_ANNOUNCE_TRACKERS = ['wss://tracker.novage.com.ua:443', 'wss://tracker.openwebtorrent.com:443'];
-const P2P_LIVE_HIGH_DEMAND_WINDOW = 3;
-const P2P_LIVE_SYNC_DURATION = 12;
-const P2P_LIVE_MAX_LATENCY_DURATION = 24;
+const P2P_DEBUG = process.env.NODE_ENV === 'development';
+const P2P_LIVE_HIGH_DEMAND_WINDOW = 0; // all segments eligible for P2P (HTTP used as fallback when no peer has it)
+const P2P_LIVE_SYNC_DURATION = 8; // seconds behind live edge (higher = more P2P opportunity)
+const P2P_LIVE_MAX_LATENCY_DURATION = 16; // max seconds behind before seeking forward
+const P2P_ACTIVITY_WINDOW_MS = 10000; // show P2P status as "active" for 10s after last transfer
+const P2P_RATE_WINDOW_MS = 8000; // average throughput over 8s (covers ~2 segment cycles)
+const P2P_FORCE_SEGMENT_MODE = true; // use full segments (not LL-HLS parts) for better P2P sharing
 
-function getP2PAnnounceTrackers(trackerUrl?: string | null) {
-  return trackerUrl ? [trackerUrl] : P2P_ANNOUNCE_TRACKERS;
+function getP2PAnnounceTrackers(trackerUrl?: string | null): string[] {
+  if (!trackerUrl) return [];
+  return [trackerUrl];
 }
 
 function getP2PIceServers() {
@@ -154,15 +158,67 @@ function VideoJsInner(props) {
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const store = Player.usePlayer();
   const media = Player.useMedia();
-  const connectedPeersRef = useRef<Set<string>>(new Set());
+  const p2pActivityRef = useRef({
+    peers: new Set<string>(),
+    lastDownloadAt: 0,
+    lastUploadAt: 0,
+    downloadSamples: [] as Array<{ at: number; bytes: number }>,
+    uploadSamples: [] as Array<{ at: number; bytes: number }>,
+  });
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
+  const [p2pUiState, setP2PUiState] = useState({
+    enabled: false,
+    peerCount: 0,
+    status: 'off',
+    transferDirection: 'none',
+    downloadRateBps: 0,
+    uploadRateBps: 0,
+  });
   const readyCalledRef = useRef(false);
-  const [reload, setReload] = useState('initial');
+  const [reload, setReload] = useState<string | number>('initial');
 
   const isLivestream = isLivestreamClaim && userClaimId;
+
+  // Smoothed rates that decay gradually instead of jumping to 0
+  const smoothedRatesRef = useRef({ download: 0, upload: 0 });
+  const SMOOTH_FACTOR = 0.3; // 0 = no smoothing, 1 = instant
+
+  const syncP2PUiState = useCallback(() => {
+    const now = Date.now();
+    const peerCount = p2pActivityRef.current.peers.size;
+    const hasRecentDownload = now - p2pActivityRef.current.lastDownloadAt < P2P_ACTIVITY_WINDOW_MS;
+    const hasRecentUpload = now - p2pActivityRef.current.lastUploadAt < P2P_ACTIVITY_WINDOW_MS;
+    p2pActivityRef.current.downloadSamples = p2pActivityRef.current.downloadSamples.filter((s) => now - s.at < P2P_RATE_WINDOW_MS);
+    p2pActivityRef.current.uploadSamples = p2pActivityRef.current.uploadSamples.filter((s) => now - s.at < P2P_RATE_WINDOW_MS);
+    const downloadBytes = p2pActivityRef.current.downloadSamples.reduce((t, s) => t + s.bytes, 0);
+    const uploadBytes = p2pActivityRef.current.uploadSamples.reduce((t, s) => t + s.bytes, 0);
+    const rawDownload = Math.round((downloadBytes * 1000) / P2P_RATE_WINDOW_MS);
+    const rawUpload = Math.round((uploadBytes * 1000) / P2P_RATE_WINDOW_MS);
+
+    // Exponential moving average: smooth jumps but still respond to changes
+    const prev = smoothedRatesRef.current;
+    const downloadRateBps = Math.round(rawDownload > 0
+      ? prev.download * (1 - SMOOTH_FACTOR) + rawDownload * SMOOTH_FACTOR
+      : prev.download * 0.85); // decay slowly when no data
+    const uploadRateBps = Math.round(rawUpload > 0
+      ? prev.upload * (1 - SMOOTH_FACTOR) + rawUpload * SMOOTH_FACTOR
+      : prev.upload * 0.85);
+    smoothedRatesRef.current = { download: downloadRateBps, upload: uploadRateBps };
+
+    const transferDirection = hasRecentDownload && hasRecentUpload ? 'both' : hasRecentDownload ? 'download' : hasRecentUpload ? 'upload' : 'none';
+
+    setP2PUiState({
+      enabled: Boolean(p2pEnabled && isLivestream),
+      peerCount,
+      status: !p2pEnabled || !isLivestream ? 'off' : transferDirection !== 'none' ? 'active' : peerCount > 0 ? 'peered' : 'enabled',
+      transferDirection,
+      downloadRateBps,
+      uploadRateBps,
+    });
+  }, [isLivestream, p2pEnabled]);
 
   const resolvedSource = useResolvedSource(
     source,
@@ -174,6 +230,22 @@ function VideoJsInner(props) {
     uri,
     doSetVideoSourceLoaded
   );
+
+  useEffect(() => {
+    p2pActivityRef.current = {
+      peers: new Set<string>(),
+      lastDownloadAt: 0,
+      lastUploadAt: 0,
+      downloadSamples: [],
+      uploadSamples: [],
+    };
+    syncP2PUiState();
+  }, [resolvedSource?.src, p2pEnabled, isLivestream, syncP2PUiState]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(syncP2PUiState, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [syncP2PUiState]);
 
   // Hooks
   useRecsys(claimId, userId, embedded || embeddedInternal, shareTelemetry);
@@ -321,7 +393,7 @@ function VideoJsInner(props) {
     const announceTrackers = getP2PAnnounceTrackers(activeLivestreamForChannel?.p2pTrackerUrl || null);
     const swarmId = activeLivestreamForChannel?.p2pSwarmId || null;
     if (p2pEnabled && isLivestreamClaim) {
-      console.log('[P2P] Viewer livestream source:', {
+      if (P2P_DEBUG) console.log('[P2P] Viewer livestream source:', {
         src: shortenP2PUrl(src),
         isHls,
         preferredVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrl || null),
@@ -342,9 +414,22 @@ function VideoJsInner(props) {
         backBufferLength: 30,
         capLevelToPlayerSize: true,
         capLevelOnFPSDrop: true,
+        // P2P: disable low-latency mode (use full segments for sharing), buffer aggressively
+        // Non-P2P: enable low-latency mode for LLHLS partial segments (~3-4s latency)
+        ...(isLivestreamClaim
+          ? p2pEnabled
+            ? {
+                lowLatencyMode: false,
+                maxBufferLength: 20,
+                maxMaxBufferLength: 30,
+              }
+            : {
+                lowLatencyMode: true,
+              }
+          : undefined),
         ...(isLivestreamClaim
           ? {
-              liveSyncDuration: p2pEnabled ? P2P_LIVE_SYNC_DURATION : 4,
+              liveSyncDuration: p2pEnabled ? P2P_LIVE_SYNC_DURATION : 3,
               liveMaxLatencyDuration: p2pEnabled ? P2P_LIVE_MAX_LATENCY_DURATION : Infinity,
             }
           : undefined),
@@ -354,6 +439,10 @@ function VideoJsInner(props) {
                 core: {
                   announceTrackers,
                   highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+                  simultaneousHttpDownloads: 2,
+                  simultaneousP2PDownloads: 5,
+                  p2pNotReadyTimeoutMs: 1500, // fallback to HTTP if P2P doesn't respond in 1.5s
+                  httpNotReadyTimeoutMs: 2000, // switch to P2P if HTTP is slow
                   swarmId: swarmId || undefined,
                   rtcConfig: {
                     iceServers: p2pIceServers,
@@ -369,13 +458,15 @@ function VideoJsInner(props) {
       media._hls = hls;
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        connectedPeersRef.current.clear();
+        p2pActivityRef.current.peers.clear();
+        syncP2PUiState();
         if (p2pEnabled && isLivestreamClaim) {
-          console.log('[P2P] Viewer manifest parsed:', {
+          if (P2P_DEBUG) console.log('[P2P] Viewer manifest parsed:', {
             requestedUrl: shortenP2PUrl(src),
             trackers: announceTrackers,
             swarmId,
             highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+            lowLatencyMode: !(p2pEnabled && isLivestreamClaim && P2P_FORCE_SEGMENT_MODE),
             liveSyncDuration: P2P_LIVE_SYNC_DURATION,
             liveMaxLatencyDuration: P2P_LIVE_MAX_LATENCY_DURATION,
             iceServers: p2pIceServers.map((server) => server.urls),
@@ -387,7 +478,7 @@ function VideoJsInner(props) {
 
       hls.on(Hls.Events.LEVEL_LOADED, (_: any, data: any) => {
         if (p2pEnabled && isLivestreamClaim) {
-          console.log('[P2P] Viewer playlist loaded:', {
+          if (P2P_DEBUG) console.log('[P2P] Viewer playlist loaded:', {
             url: shortenP2PUrl(data?.details?.url || data?.url || null),
             fragments: data?.details?.fragments?.length ?? 0,
             live: Boolean(data?.details?.live),
@@ -405,94 +496,48 @@ function VideoJsInner(props) {
 
       // P2P diagnostics
       if (p2pEnabled && isLivestreamClaim && hls.p2pEngine) {
-        console.log('[P2P] Engine active:', hls.p2pEngine); // eslint-disable-line no-console
+        console.log('[P2P] Engine active'); // eslint-disable-line no-console
         const engine = hls.p2pEngine;
         try {
-          engine.addEventListener('onSegmentStart', (details) => {
-            console.log('[P2P] Segment start:', summarizeP2PSegment(details)); // eslint-disable-line no-console
-          });
           engine.addEventListener('onSegmentLoaded', (details) => {
-            console.log('[P2P] Segment loaded:', {
-              ...summarizeP2PSegment(details),
-              connectedPeers: connectedPeersRef.current.size,
-              connectedPeerIds: Array.from(connectedPeersRef.current),
-            }); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onSegmentError', (details) => {
-            console.warn('[P2P] Segment error:', {
-              ...summarizeP2PSegment(details),
-              error: details?.error?.type || details?.error?.message || details?.error || null,
-            }); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onTrackerWarning', (details) => {
-            console.warn('[P2P] Tracker warning:', {
-              streamType: details?.streamType || null,
-              warning: serializeP2PError(details?.warning),
-            }); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onTrackerError', (details) => {
-            console.warn('[P2P] Tracker error:', {
-              streamType: details?.streamType || null,
-              error: serializeP2PError(details?.error),
-            }); // eslint-disable-line no-console
+            if (details?.downloadSource === 'p2p' || details?.peerId) {
+              p2pActivityRef.current.lastDownloadAt = Date.now();
+              syncP2PUiState();
+            }
+            if (P2P_DEBUG) console.log('[P2P] Segment:', summarizeP2PSegment(details)); // eslint-disable-line no-console
           });
           engine.addEventListener('onPeerConnect', (details) => {
-            if (details?.peerId) connectedPeersRef.current.add(details.peerId);
-            console.log('[P2P] Peer connected:', details); // eslint-disable-line no-console
+            if (details?.peerId) p2pActivityRef.current.peers.add(details.peerId);
+            syncP2PUiState();
+            console.log('[P2P] Peer connected:', details?.peerId); // eslint-disable-line no-console
           });
           engine.addEventListener('onPeerClose', (details) => {
-            if (details?.peerId) connectedPeersRef.current.delete(details.peerId);
-            console.warn('[P2P] Peer closed:', details); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onPeerError', (details) => {
-            console.warn('[P2P] Peer error:', {
-              peerId: details?.peerId || null,
-              error: serializeP2PError(details?.error),
-            }); // eslint-disable-line no-console
-          });
-          engine.addEventListener('onSegmentAbort', (details) => {
-            console.warn('[P2P] Segment aborted:', summarizeP2PSegment(details)); // eslint-disable-line no-console
+            if (details?.peerId) p2pActivityRef.current.peers.delete(details.peerId);
+            syncP2PUiState();
+            if (P2P_DEBUG) console.log('[P2P] Peer disconnected:', details?.peerId); // eslint-disable-line no-console
           });
           engine.addEventListener('onChunkDownloaded', (bytesLength, downloadSource, peerId) => {
             if (downloadSource === 'http' && !peerId) return;
-            console.log('[P2P] Chunk downloaded:', {
-              bytesLength,
-              downloadSource,
-              peerId: peerId || null,
-            }); // eslint-disable-line no-console
+            p2pActivityRef.current.lastDownloadAt = Date.now();
+            p2pActivityRef.current.downloadSamples.push({ at: Date.now(), bytes: bytesLength || 0 });
+            syncP2PUiState();
           });
           engine.addEventListener('onChunkUploaded', (bytesLength, peerId) => {
-            console.log('[P2P] Chunk uploaded:', {
-              bytesLength,
-              peerId: peerId || null,
-            }); // eslint-disable-line no-console
+            p2pActivityRef.current.lastUploadAt = Date.now();
+            p2pActivityRef.current.uploadSamples.push({ at: Date.now(), bytes: bytesLength || 0 });
+            syncP2PUiState();
           });
-        } catch (e) {
-          console.warn('[P2P] Failed to attach event listeners:', e); // eslint-disable-line no-console
-        }
-        // Log peer count periodically
-        const peerLogInterval = setInterval(() => {
-          try {
-            const core = engine.core;
-            if (core && core.streams) {
-              let totalPeers = 0;
-              core.streams.forEach((stream) => {
-                if (stream.peers) totalPeers += stream.peers.size;
-              });
-              console.log('[P2P] Swarm snapshot:', {
-                peers: connectedPeersRef.current.size,
-                trackedPeers: totalPeers,
-                streams: core.streams.size,
-                manifestResponseUrl: shortenP2PUrl(core.manifestResponseUrl || null),
-                streamSummaries: summarizeP2PStreams(core.streams),
-                connectedPeerIds: Array.from(connectedPeersRef.current),
-              }); // eslint-disable-line no-console
-            }
-          } catch {} // eslint-disable-line no-empty
-        }, 10000);
-        hls.on('hlsDestroying', () => clearInterval(peerLogInterval));
+          if (P2P_DEBUG) {
+            engine.addEventListener('onSegmentError', (details) => {
+              console.warn('[P2P] Segment error:', details?.error?.message || details); // eslint-disable-line no-console
+            });
+            engine.addEventListener('onTrackerError', (details) => {
+              console.warn('[P2P] Tracker error:', details?.error?.message || details); // eslint-disable-line no-console
+            });
+          }
+        } catch {} // eslint-disable-line no-empty
       } else if (p2pEnabled && isLivestreamClaim) {
-        console.warn('[P2P] p2pEngine not found on hls instance - mixin may not have worked'); // eslint-disable-line no-console
+        console.warn('[P2P] p2pEngine not found - mixin may have failed'); // eslint-disable-line no-console
       }
     }
 
@@ -501,7 +546,7 @@ function VideoJsInner(props) {
         if (destroyed) return;
         // injectMixin RETURNS a new class that extends Hls with P2P support
         const HlsWithP2P = HlsJsP2PEngine.injectMixin(Hls);
-        console.log('[P2P] P2P mixin injected, creating HLS instance...'); // eslint-disable-line no-console
+        console.log('[P2P] P2P delivery enabled'); // eslint-disable-line no-console
         createHls(HlsWithP2P);
       }).catch((e) => {
         console.warn('[P2P] Failed to load p2p-media-loader, falling back to standard HLS:', e); // eslint-disable-line no-console
@@ -675,6 +720,7 @@ function VideoJsInner(props) {
         onCastToggle={onCastToggle}
         castState={castState}
         castActions={castActions}
+        p2pUiState={p2pUiState}
       >
         {isCasting && thumbnail && <img src={thumbnail} className="odysee-cast-thumbnail" alt="" />}
 

@@ -8,6 +8,7 @@ type Props = {
   className?: string;
   small?: boolean;
   forceReload?: boolean;
+  enableLiveCrossfade?: boolean;
   isLiveRefreshing?: boolean;
   hoverHandlers?: {
     onMouseEnter?: () => void;
@@ -16,7 +17,7 @@ type Props = {
 };
 
 const Thumb = (props: Props) => {
-  const { thumb, fallback, children, className, small, isLiveRefreshing, hoverHandlers } = props;
+  const { thumb, fallback, children, className, small, enableLiveCrossfade, isLiveRefreshing, hoverHandlers } = props;
   const thumbnailRef = React.useRef(null);
   const srcLoaded = useLazyLoading(thumbnailRef, fallback || '', undefined, [thumb]);
 
@@ -28,7 +29,7 @@ const Thumb = (props: Props) => {
   const [activeBuffer, setActiveBuffer] = React.useState<'a' | 'b'>('a');
 
   React.useEffect(() => {
-    if (!isLiveRefreshing || !thumb) return;
+    if (!enableLiveCrossfade || !thumb) return;
     // Load into the inactive buffer, then swap
     if (activeBuffer === 'a') {
       setBufferB(thumb);
@@ -40,14 +41,16 @@ const Thumb = (props: Props) => {
   const handleImgLoad = React.useCallback((buffer: 'a' | 'b') => {
     setActiveBuffer(buffer);
   }, []);
+  const activeLiveThumb = activeBuffer === 'a' ? bufferA : bufferB;
+  const stableLiveBackground = activeLiveThumb || bufferA || bufferB || thumb;
 
-  if (isLiveRefreshing && (bufferA || bufferB)) {
+  if (enableLiveCrossfade && (bufferA || bufferB)) {
     // Double-buffered live mode: base layer is background-image (never blank),
     // two <img> elements stack on top and crossfade. Only rendered when they have a real URL.
     return (
       <div
         ref={thumbnailRef}
-        style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
+        style={stableLiveBackground ? { backgroundImage: `url(${stableLiveBackground})` } : undefined}
         className={classnames('media__thumb', {
           className,
           'media__thumb--small': small,

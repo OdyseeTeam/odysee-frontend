@@ -10,6 +10,8 @@
  * 5. Media flows via RTCPeerConnection
  */
 
+const VIEWER_DEBUG = process.env.NODE_ENV === 'development';
+
 export type WebrtcViewerResult = {
   pc: RTCPeerConnection;
   ws: WebSocket;
@@ -60,7 +62,7 @@ function applyReceiverCodecPreferences(pc: RTCPeerConnection): void {
         transceiver.setCodecPreferences(codecs);
 
         const preferred = codecs.filter((c) => codecScore(c) <= 4).map((c) => c.mimeType);
-        console.log('[WebRTC Viewer] Codec preferences:', preferred.join(', ')); // eslint-disable-line no-console
+        if (VIEWER_DEBUG) console.log('[WebRTC Viewer] Codec preferences:', preferred.join(', ')); // eslint-disable-line no-console
       } catch {
         // Browser may reject; fall back to default
       }
@@ -88,10 +90,10 @@ export async function startWebrtcViewer(
 
     // Debug ICE state
     pc.oniceconnectionstatechange = () => {
-      console.log('[WebRTC Viewer] ICE state:', pc.iceConnectionState); // eslint-disable-line no-console
+      if (VIEWER_DEBUG) console.log('[WebRTC Viewer] ICE state:', pc.iceConnectionState); // eslint-disable-line no-console
     };
     pc.onconnectionstatechange = () => {
-      console.log('[WebRTC Viewer] Connection state:', pc.connectionState); // eslint-disable-line no-console
+      if (VIEWER_DEBUG) console.log('[WebRTC Viewer] Connection state:', pc.connectionState); // eslint-disable-line no-console
     };
 
     // Collect remote tracks
@@ -178,7 +180,7 @@ export async function startWebrtcViewer(
             sdp: sdpString,
           };
 
-          console.log('[WebRTC Viewer] Received offer, setting remote description...'); // eslint-disable-line no-console
+          if (VIEWER_DEBUG) console.log('[WebRTC Viewer] Received offer'); // eslint-disable-line no-console
           await pc.setRemoteDescription(offer);
 
           // Set codec preferences before creating the answer.
@@ -186,7 +188,7 @@ export async function startWebrtcViewer(
 
           const answer = await pc.createAnswer();
           await pc.setLocalDescription(answer);
-          console.log('[WebRTC Viewer] Sending answer...'); // eslint-disable-line no-console
+          if (VIEWER_DEBUG) console.log('[WebRTC Viewer] Sending answer'); // eslint-disable-line no-console
 
           // OME expects the answer in the same format it sent the offer
           ws.send(JSON.stringify({
@@ -201,12 +203,12 @@ export async function startWebrtcViewer(
 
           // Process any ICE candidates included in the offer message
           if (msg.candidates) {
-            console.log(`[WebRTC Viewer] Processing ${msg.candidates.length} ICE candidates from offer`); // eslint-disable-line no-console
+            if (VIEWER_DEBUG) console.log(`[WebRTC Viewer] Processing ${msg.candidates.length} ICE candidates`); // eslint-disable-line no-console
             for (const candidate of msg.candidates) {
               try {
                 await pc.addIceCandidate(new RTCIceCandidate(candidate));
               } catch (e) {
-                console.warn('[WebRTC Viewer] Failed to add candidate:', candidate, e); // eslint-disable-line no-console
+                if (VIEWER_DEBUG) console.warn('[WebRTC Viewer] Failed to add candidate:', e); // eslint-disable-line no-console
               }
             }
           }
@@ -218,7 +220,7 @@ export async function startWebrtcViewer(
               try {
                 await pc.addIceCandidate(new RTCIceCandidate(candidate));
               } catch (e) {
-                console.warn('[WebRTC Viewer] Failed to add trickle candidate:', e); // eslint-disable-line no-console
+                if (VIEWER_DEBUG) console.warn('[WebRTC Viewer] Failed to add trickle candidate:', e); // eslint-disable-line no-console
               }
             }
           }
