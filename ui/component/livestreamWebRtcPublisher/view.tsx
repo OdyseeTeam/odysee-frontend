@@ -297,6 +297,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // P2P seed: streamer acts as first peer in the P2P swarm (uses shared P2P_DELIVERY setting)
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
   const hlsVideoUrl = (activeLivestream as any)?.videoUrlPublic || activeLivestream?.videoUrl;
+  const p2pTrackerUrl = (activeLivestream as any)?.p2pTrackerUrl || null;
+  const p2pSwarmId = (activeLivestream as any)?.p2pSwarmId || null;
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const prefsReady = useAppSelector(selectPrefsReady);
   const [showP2pConfirm, setShowP2pConfirm] = React.useState(false);
@@ -323,6 +325,18 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     return () => clearInterval(interval);
   }, [channelId, dispatch]);
 
+  React.useEffect(() => {
+    if (!channelId || status !== 'live' || !p2pEnabled || hlsVideoUrl) return;
+
+    dispatch(doFetchChannelIsLiveForId(channelId));
+
+    const retryInterval = setInterval(() => {
+      dispatch(doFetchChannelIsLiveForId(channelId));
+    }, 3000);
+
+    return () => clearInterval(retryInterval);
+  }, [channelId, dispatch, hlsVideoUrl, p2pEnabled, status]);
+
   // Debug P2P seed conditions
   React.useEffect(() => {
     if (status === 'live') {
@@ -332,9 +346,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         selectedVideoUrl: hlsVideoUrl || null,
         preferredVideoUrl: activeLivestream?.videoUrl || null,
         publicVideoUrl: (activeLivestream as any)?.videoUrlPublic || null,
+        trackerUrl: p2pTrackerUrl,
+        swarmId: p2pSwarmId,
       }); // eslint-disable-line no-console
     }
-  }, [activeLivestream, p2pEnabled, status, hlsVideoUrl]);
+  }, [activeLivestream, p2pEnabled, status, hlsVideoUrl, p2pSwarmId, p2pTrackerUrl]);
 
   // Runtime stats
   const [runtimeStats, setRuntimeStats] = React.useState({
@@ -1277,7 +1293,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       )}
 
       {/* Hidden P2P seed player - makes streamer the first peer */}
-      <LivestreamP2PSeed videoUrl={hlsVideoUrl || ''} active={p2pEnabled && isLive && Boolean(hlsVideoUrl)} />
+      <LivestreamP2PSeed
+        videoUrl={hlsVideoUrl || ''}
+        active={p2pEnabled && isLive && Boolean(hlsVideoUrl)}
+        trackerUrl={p2pTrackerUrl}
+        swarmId={p2pSwarmId}
+      />
 
       {/* P2P confirmation dialog */}
       {showP2pConfirm && (

@@ -38,7 +38,15 @@ type Props = {
   videoUrl: string;
   /** Whether seeding is active */
   active: boolean;
+  /** Optional custom tracker URL from livestream metadata */
+  trackerUrl?: string | null;
+  /** Optional custom swarm ID from livestream metadata */
+  swarmId?: string | null;
 };
+
+function getP2PAnnounceTrackers(trackerUrl?: string | null) {
+  return trackerUrl ? [trackerUrl] : P2P_ANNOUNCE_TRACKERS;
+}
 
 function shortenP2PUrl(url?: string | null) {
   if (!url) return null;
@@ -80,7 +88,7 @@ function summarizeP2PSegment(details: any) {
  *
  * No visible UI - runs entirely in the background.
  */
-export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
+export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmId }: Props) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const hlsRef = React.useRef<Hls | null>(null);
   const connectedPeersRef = React.useRef<Set<string>>(new Set());
@@ -109,6 +117,7 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
 
       if (destroyed) return;
       const p2pIceServers = getP2PIceServers();
+      const announceTrackers = getP2PAnnounceTrackers(trackerUrl);
 
       const hls = new HlsConstructor({
         backBufferLength: 10,
@@ -118,8 +127,9 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         liveMaxLatencyDuration: Infinity,
         p2p: {
           core: {
-            announceTrackers: P2P_ANNOUNCE_TRACKERS,
+            announceTrackers,
             highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+            swarmId: swarmId || undefined,
             rtcConfig: {
               iceServers: p2pIceServers,
             },
@@ -141,7 +151,8 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         connectedPeersRef.current.clear();
         console.log('[P2P Seed] Manifest loaded, seeding active:', {
           requestedUrl: shortenP2PUrl(videoUrl),
-          trackers: P2P_ANNOUNCE_TRACKERS,
+          trackers: announceTrackers,
+          swarmId: swarmId || null,
           highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
           iceServers: p2pIceServers.map((server) => server.urls),
           manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
@@ -292,7 +303,7 @@ export default function LivestreamP2PSeed({ videoUrl, active }: Props) {
         hlsRef.current = null;
       }
     };
-  }, [active, videoUrl]);
+  }, [active, swarmId, trackerUrl, videoUrl]);
 
   // Always render the hidden video element so the ref is available when the effect fires
   return (

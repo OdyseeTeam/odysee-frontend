@@ -38,6 +38,10 @@ const P2P_LIVE_HIGH_DEMAND_WINDOW = 3;
 const P2P_LIVE_SYNC_DURATION = 12;
 const P2P_LIVE_MAX_LATENCY_DURATION = 24;
 
+function getP2PAnnounceTrackers(trackerUrl?: string | null) {
+  return trackerUrl ? [trackerUrl] : P2P_ANNOUNCE_TRACKERS;
+}
+
 function getP2PIceServers() {
   const turnServer = getLivestreamTurnServer();
   return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, ...(turnServer ? [turnServer] : [])];
@@ -305,12 +309,16 @@ function VideoJsInner(props) {
     if (!Hls.isSupported()) return;
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
+    const announceTrackers = getP2PAnnounceTrackers(activeLivestreamForChannel?.p2pTrackerUrl || null);
+    const swarmId = activeLivestreamForChannel?.p2pSwarmId || null;
     if (p2pEnabled && isLivestreamClaim) {
       console.log('[P2P] Viewer livestream source:', {
         src: shortenP2PUrl(src),
         isHls,
         preferredVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrl || null),
         publicVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrlPublic || null),
+        trackerUrl: activeLivestreamForChannel?.p2pTrackerUrl || null,
+        swarmId,
       }); // eslint-disable-line no-console
     }
 
@@ -335,8 +343,9 @@ function VideoJsInner(props) {
           ? {
               p2p: {
                 core: {
-                  announceTrackers: P2P_ANNOUNCE_TRACKERS,
+                  announceTrackers,
                   highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+                  swarmId: swarmId || undefined,
                   rtcConfig: {
                     iceServers: p2pIceServers,
                   },
@@ -367,7 +376,8 @@ function VideoJsInner(props) {
         if (p2pEnabled && isLivestreamClaim) {
           console.log('[P2P] Viewer manifest parsed:', {
             requestedUrl: shortenP2PUrl(src),
-            trackers: P2P_ANNOUNCE_TRACKERS,
+            trackers: announceTrackers,
+            swarmId,
             highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
             liveSyncDuration: P2P_LIVE_SYNC_DURATION,
             liveMaxLatencyDuration: P2P_LIVE_MAX_LATENCY_DURATION,

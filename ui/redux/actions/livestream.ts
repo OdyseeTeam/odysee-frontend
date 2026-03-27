@@ -85,7 +85,8 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
     channel_claim_id: channelId,
   })
     .then(async (response: LivestreamIsLiveResponse) => {
-      const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData([response]);
+      const responseData = (response as any)?.data ? { ...(response as any).data, ChannelClaimID: channelId } : response;
+      const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData([responseData]);
       return dispatch({
         type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE,
         data: livestreamInfoByCreatorId,

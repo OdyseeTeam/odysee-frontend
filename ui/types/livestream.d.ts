@@ -7,6 +7,8 @@ type LivestreamActiveClaim = {
   claimUri: string;
   startedStreaming?: string;
   viewerCount?: number;
+  p2pTrackerUrl?: string;
+  p2pSwarmId?: string;
   [key: string]: any;
 };
 

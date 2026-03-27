@@ -34,36 +34,77 @@ export function getTipValues(hyperChatsByAmount: Array<{ is_fiat?: boolean; supp
 }
 
 const transformLivestreamClaimData = (data: any): LivestreamActiveClaim => ({
-  uri: data.CanonicalURL,
-  claimUri: data.CanonicalURL,
-  claimId: data.ClaimID,
-  releaseTime: data.ReleaseTime,
+  uri: data?.CanonicalURL || data?.uri || '',
+  claimUri: data?.CanonicalURL || data?.uri || '',
+  claimId: data?.ClaimID || data?.claimId || '',
+  releaseTime: data?.ReleaseTime || data?.releaseTime,
 });
 
 const getPreferredLivestreamVideoUrl = (livestream: any) => livestream.VideoURL || livestream.VideoURLLLHLS;
 
+function normalizeLivestreamEntry(entry: any): any {
+  const raw = entry?.data && !entry?.ChannelClaimID ? entry.data : entry;
+  if (!raw) return raw;
+
+  const channelClaimId = raw.ChannelClaimID || raw.channel_claim_id || raw.ChannelClaimId;
+  const activeClaim = raw.ActiveClaim || raw.activeClaim || null;
+
+  return {
+    ...raw,
+    ChannelClaimID: channelClaimId,
+    Live: raw.Live ?? raw.live ?? false,
+    ViewerCount: raw.ViewerCount ?? raw.viewCount ?? 0,
+    ThumbnailURL: raw.ThumbnailURL ?? raw.thumbnailUrl ?? null,
+    Start: raw.Start ?? raw.start ?? null,
+    VideoURL: raw.VideoURL ?? raw.videoUrl ?? null,
+    VideoURLLLHLS: raw.VideoURLLLHLS ?? raw.videoUrlLLHLS ?? null,
+    VideoURLWebRTC: raw.VideoURLWebRTC ?? raw.videoUrlWebRTC ?? null,
+    P2PTrackerURL: raw.P2PTrackerURL ?? raw.p2pTrackerUrl ?? null,
+    P2PSwarmID: raw.P2PSwarmID ?? raw.p2pSwarmId ?? null,
+    ActiveClaim: activeClaim,
+  };
+}
+
 export const transformNewLivestreamData = (data: Array<any>): LivestreamInfoByCreatorIds =>
   data.reduce((acc: Record<string, any>, curr: any) => {
-    acc[curr.ChannelClaimID] = {
+    const normalized = normalizeLivestreamEntry(curr);
+    if (!normalized?.ChannelClaimID) return acc;
+
+    const activeClaim = normalized.ActiveClaim
+      ? {
+          ...transformLivestreamClaimData(normalized.ActiveClaim),
+          videoUrl: getPreferredLivestreamVideoUrl(normalized),
+          videoUrlPublic: normalized.VideoURL || null,
+          p2pTrackerUrl: normalized.P2PTrackerURL || null,
+          p2pSwarmId: normalized.P2PSwarmID || null,
+          startedStreaming: moment(normalized.Start),
+        }
+      : {
+          uri: '',
+          claimUri: '',
+          claimId: '',
+          videoUrl: getPreferredLivestreamVideoUrl(normalized),
+          videoUrlPublic: normalized.VideoURL || null,
+          p2pTrackerUrl: normalized.P2PTrackerURL || null,
+          p2pSwarmId: normalized.P2PSwarmID || null,
+          startedStreaming: moment(normalized.Start),
+        };
+
+    acc[normalized.ChannelClaimID] = {
       type: 'application/x-mpegurl',
-      isLive: curr.Live,
-      viewCount: curr.ViewerCount,
-      creatorId: curr.ChannelClaimID,
-      thumbnailUrl: curr.ThumbnailURL || null,
-      activeClaim: {
-        ...transformLivestreamClaimData(curr.ActiveClaim),
-        videoUrl: getPreferredLivestreamVideoUrl(curr),
-        videoUrlPublic: curr.VideoURL || null,
-        startedStreaming: moment(curr.Start),
-      },
-      ...(curr.PastClaims
+      isLive: normalized.Live,
+      viewCount: normalized.ViewerCount,
+      creatorId: normalized.ChannelClaimID,
+      thumbnailUrl: normalized.ThumbnailURL || null,
+      activeClaim,
+      ...(normalized.PastClaims
         ? {
-            pastClaims: curr.PastClaims.map(transformLivestreamClaimData),
+            pastClaims: normalized.PastClaims.map(transformLivestreamClaimData),
           }
         : {}),
-      ...(curr.FutureClaims
+      ...(normalized.FutureClaims
         ? {
-            futureClaims: curr.FutureClaims.map(transformLivestreamClaimData),
+            futureClaims: normalized.FutureClaims.map(transformLivestreamClaimData),
           }
         : {}),
     };
