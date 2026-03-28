@@ -17,16 +17,28 @@ export default () => {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    setPushSupported(pushNotifications.supported);
 
-    if (pushNotifications.supported) {
-      pushNotifications.subscribed(user.id).then((isSubscribed: boolean) => {
+    // Wait for push system to finish initializing before checking support
+    pushNotifications.ready
+      .then(async () => {
+        if (!mounted) return;
+        const supported = pushNotifications.supported;
+        setPushSupported(supported);
+
+        if (supported) {
+          const isSubscribed = await pushNotifications.subscribed(user.id);
+          if (mounted) {
+            setSubscribed(isSubscribed);
+          }
+        }
+        if (mounted) setPushInitialized(true);
+      })
+      .catch(() => {
         if (mounted) {
-          setSubscribed(isSubscribed);
+          setPushSupported(false);
           setPushInitialized(true);
         }
       });
-    }
 
     return () => {
       mounted = false;

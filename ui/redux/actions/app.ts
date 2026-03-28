@@ -19,6 +19,7 @@ import pushNotifications from '$web/src/push-notifications';
 
 type PushNotifications = {
   supported: boolean;
+  ready: Promise<void>;
   subscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
   unsubscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
   subscribed: (userId: number) => Promise<boolean>;
@@ -455,9 +456,15 @@ export function doSignIn() {
     const state = getState();
     const user = selectUser(state);
 
-    if (pushNotifs.supported && user) {
-      pushNotifs.reconnect(user.id);
-      pushNotifs.validate(user.id);
+    if (pushNotifs.ready) {
+      pushNotifs.ready
+        .then(() => {
+          if (pushNotifs.supported && user) {
+            pushNotifs.reconnect(user.id);
+            pushNotifs.validate(user.id);
+          }
+        })
+        .catch(() => {});
     }
 
     dispatch(doNotificationSocketConnect(true));
@@ -486,8 +493,11 @@ function doSignOutAction() {
     const user = selectUser(state);
 
     try {
-      if (pushNotifs.supported && user) {
-        await pushNotifs.disconnect(user.id);
+      if (pushNotifs.ready) {
+        await pushNotifs.ready;
+        if (pushNotifs.supported && user) {
+          await pushNotifs.disconnect(user.id);
+        }
       }
     } finally {
       LocalStorage.setItem('AR_ADDRESS_IN_USE', 'false');
