@@ -327,8 +327,7 @@ function HomePage() {
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
               {(index === cache.topGrid ||
                 (index && index - 1 === cache.topGrid && visibleSortedRowData[cache.topGrid].id === 'UPCOMING')) &&
-                customizeButton
-              }
+                customizeButton}
             </div>
           )}
         </>
@@ -384,11 +383,7 @@ function HomePage() {
     <Page className="homePage-wrapper" fullWidthPage>
       {visibleSortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
-          <Yrbl
-            alwaysShow
-            title={__('Clean as a whistle! --[title for empty homepage]--')}
-            actions={customizeButton}
-          />
+          <Yrbl alwaysShow title={__('Clean as a whistle! --[title for empty homepage]--')} actions={customizeButton} />
         </div>
       )}
 
