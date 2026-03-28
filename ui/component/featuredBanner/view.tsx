@@ -73,7 +73,9 @@ function BannerLatestClaims({ channelUri, count }: { channelUri: string; count: 
       <div className="banner-latest-claims__header">
         <NavLink to={channelUri.replace('lbry://', '/')} className="banner-latest-claims__channel-link">
           <ChannelThumbnail uri={channelUri} xsmall />
-          <span className="banner-latest-claims__name" title={channelName}>{channelName}</span>
+          <span className="banner-latest-claims__name" title={channelName}>
+            {channelName}
+          </span>
         </NavLink>
         <SubscribeButton uri={channelUri} />
       </div>
@@ -199,7 +201,7 @@ export default function FeaturedBanner(props: Props) {
                   />
                 </NavLink>
                 {getChannelUri(item.url) && (
-                  <BannerLatestClaims channelUri={getChannelUri(item.url)!} count={latestClaimCount} />
+                  <BannerLatestClaims channelUri={getChannelUri(item.url)} count={latestClaimCount} />
                 )}
               </div>
             );
