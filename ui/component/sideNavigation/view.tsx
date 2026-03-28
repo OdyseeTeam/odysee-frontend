@@ -32,11 +32,13 @@ import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectUserVerifiedEmail, selectUser, hasLegacyOdyseePremium } from 'redux/selectors/user';
 import { selectClientSettings, selectHomepageData } from 'redux/selectors/settings';
-import { doOpenModal, doSignOut } from 'redux/actions/app';
+import { doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
 import { GetLinksData } from 'util/buildHomepage';
 import { getSortedRowData } from 'util/homepageOrder';
+import { getModalUrlParam } from 'util/url';
+import { useLocation, useNavigate } from 'react-router-dom';
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
 // ****************************************************************************
@@ -237,6 +239,8 @@ function getCategoryLink(props: SidebarCat) {
 function SideNavigation(props: Props) {
   const { sidebarOpen, setSidebarOpen, isMediumScreen, isOnFilePage } = props;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const categories = useAppSelector(selectSidebarCategories);
   const lastActiveSubs = useAppSelector(selectLastActiveSubscriptions);
   const followedTags = useAppSelector(selectFollowedTags);
@@ -349,6 +353,20 @@ function SideNavigation(props: Props) {
   const [displayedSubs, setDisplayedSubs] = React.useState([]);
   const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptionUris?.length > 0;
   let displayedFollowedTags = followedTags;
+
+  const openCustomizeHomepage = React.useCallback(() => {
+    if (!email) {
+      navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+      return;
+    }
+
+    const searchParams = getModalUrlParam(MODALS.CUSTOMIZE_HOMEPAGE);
+    navigate({
+      pathname: location.pathname,
+      search: `?${searchParams}`,
+      hash: location.hash,
+    });
+  }, [email, location.hash, location.pathname, navigate]);
 
   if (showTagSection && followedTags.length > SIDEBAR_SUBS_DISPLAYED && !expandTags) {
     displayedFollowedTags = followedTags.slice(0, SIDEBAR_SUBS_DISPLAYED);
@@ -689,7 +707,7 @@ function SideNavigation(props: Props) {
                   {!showMicroMenu && (
                     <SectionHeader
                       title={__('Categories')}
-                      onClick={() => dispatch(doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE))}
+                      onClick={openCustomizeHomepage}
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}

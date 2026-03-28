@@ -8,7 +8,12 @@ import { selectClaimForUri, selectClaimIdForUri, selectClaimIsNsfwForUri } from 
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { buildURI, isURIValid } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
-import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSearchValue } from 'redux/selectors/search';
+import {
+  makeSelectSearchUrisForQuery,
+  selectPersonalRecommendations,
+  selectSearchOptions,
+  selectSearchValue,
+} from 'redux/selectors/search';
 import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
@@ -17,6 +22,7 @@ import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'c
 import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { getAuthToken } from 'util/saved-passwords';
+import { LocalStorage, LS } from 'util/storage';
 const isDev = process.env.NODE_ENV !== 'production';
 // ****************************************************************************
 // FYP
@@ -234,6 +240,10 @@ export const doUpdateSearchOptions =
   (newOptions: SearchOptions, additionalOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const searchValue = selectSearchValue(state);
+    const existingOptions = selectSearchOptions(state);
+    const updatedOptions = { ...existingOptions, ...newOptions };
+
+    LocalStorage.setItem(LS.SEARCH_OPTIONS, JSON.stringify(updatedOptions));
     dispatch({
       type: ACTIONS.UPDATE_SEARCH_OPTIONS,
       data: newOptions,
@@ -241,7 +251,7 @@ export const doUpdateSearchOptions =
 
     if (searchValue) {
       // After updating, perform a search with the new options
-      dispatch(doSearch(searchValue, additionalOptions));
+      dispatch(doSearch(searchValue, { ...updatedOptions, ...additionalOptions }));
     }
   };
 export const doSetMentionSearchResults = (query: string, uris: Array<string>) => (dispatch: Dispatch) => {

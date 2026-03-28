@@ -41,6 +41,13 @@ const SORT_BY = {
   [SEARCH_OPTIONS.SORT_DESCENDING]: 'Newest first',
   [SEARCH_OPTIONS.SORT_ASCENDING]: 'Oldest first',
 };
+const SEARCH_FILTER_OPTION_LABELS = {
+  [SEARCH_OPTIONS.MEDIA_VIDEO]: 'Video',
+  [SEARCH_OPTIONS.MEDIA_AUDIO]: 'Audio',
+  [SEARCH_OPTIONS.MEDIA_IMAGE]: 'Image',
+  [SEARCH_OPTIONS.MEDIA_TEXT]: 'Text',
+  [SEARCH_OPTIONS.MEDIA_APPLICATION]: 'Other',
+};
 type Props = {
   simple: boolean;
   additionalOptions?: {};
@@ -94,11 +101,56 @@ const SearchOptions = (props: Props) => {
     debounce((m) => updateSearchOptions(SEARCH_OPTIONS.MAX_DURATION, m), 750),
     []
   );
+  const typeOptions = useMemo(() => {
+    if (simple) {
+      return {
+        [SEARCH_OPTIONS.MEDIA_VIDEO]: TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_VIDEO],
+        [SEARCH_OPTIONS.MEDIA_AUDIO]: TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_AUDIO],
+        [SEARCH_OPTIONS.MEDIA_TEXT]: TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_TEXT],
+      };
+    }
 
-  if (simple) {
-    delete TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_APPLICATION];
-    delete TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_IMAGE];
-  }
+    return TYPES_ADVANCED;
+  }, [simple]);
+  const typeOptionKeys = Object.keys(typeOptions);
+  const activeFilterLabels = useMemo(() => {
+    const labels = [];
+    const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
+
+    if (claimType === SEARCH_OPTIONS.INCLUDE_FILES) {
+      labels.push(__('Files'));
+      const selectedMediaTypes = typeOptionKeys.filter((option) => Boolean(options[option]));
+
+      if (selectedMediaTypes.length > 0 && selectedMediaTypes.length < typeOptionKeys.length) {
+        selectedMediaTypes.forEach((option) => labels.push(__(SEARCH_FILTER_OPTION_LABELS[option])));
+      }
+    } else if (claimType === SEARCH_OPTIONS.INCLUDE_CHANNELS) {
+      labels.push(__('Channels'));
+    }
+
+    if (options[SEARCH_OPTIONS.TIME_FILTER]) {
+      labels.push(__(TIME_FILTER[String(options[SEARCH_OPTIONS.TIME_FILTER])]));
+    }
+
+    if (options[SEARCH_OPTIONS.SORT]) {
+      labels.push(__(SORT_BY[String(options[SEARCH_OPTIONS.SORT])]));
+    }
+
+    if (options[SEARCH_OPTIONS.EXACT]) {
+      labels.push(__('Exact match'));
+    }
+
+    if (minDurationMinutes) {
+      labels.push(__('Min %value%m', { value: minDurationMinutes }));
+    }
+
+    if (maxDurationMinutes) {
+      labels.push(__('Max %value%m', { value: maxDurationMinutes }));
+    }
+
+    return labels;
+  }, [maxDurationMinutes, minDurationMinutes, options, typeOptionKeys]);
+  const activeFilterCount = activeFilterLabels.length;
 
   React.useEffect(() => {
     // We no longer let the user set the search results count, but the value
@@ -106,8 +158,6 @@ const SearchOptions = (props: Props) => {
     if (options[SEARCH_OPTIONS.RESULT_COUNT] !== SEARCH_PAGE_SIZE) {
       setSearchOption(SEARCH_OPTIONS.RESULT_COUNT, SEARCH_PAGE_SIZE);
     }
-
-    options[SEARCH_OPTIONS.SORT] = ''; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   function updateSearchOptions(option, value) {
@@ -153,7 +203,7 @@ const SearchOptions = (props: Props) => {
       </div>
       {options[SEARCH_OPTIONS.CLAIM_TYPE] === SEARCH_OPTIONS.INCLUDE_FILES && (
         <div className="media-types">
-          {Object.entries(TYPES_ADVANCED).map((t) => {
+          {Object.entries(typeOptions).map((t) => {
             const option = t[0];
             return (
               <FormField
@@ -273,16 +323,31 @@ const SearchOptions = (props: Props) => {
     options[SEARCH_OPTIONS.CLAIM_TYPE] === SEARCH_OPTIONS.INCLUDE_CHANNELS ? __('Creation Date') : __('Upload Date');
   return (
     <div>
-      <div>
+      <div className="search__filters-toolbar">
         <Button
           button="alt"
-          label={__('Filter')}
+          label={activeFilterCount > 0 ? `${__('Filter')} (${activeFilterCount})` : __('Filter')}
           icon={ICONS.FILTER}
           iconRight={expanded ? ICONS.UP : ICONS.DOWN}
+          className={classnames('search__filters-toggle button-toggle', {
+            'button-toggle--active': activeFilterCount > 0,
+          })}
           onClick={toggleSearchExpanded}
         />
         {searchInLanguage && <LangFilterIndicator />}
       </div>
+      {activeFilterCount > 0 && (
+        <div className="search__filters-summary">
+          <span className="search__filters-summary-label">
+            {__('Active filters')}: {activeFilterCount}
+          </span>
+          {activeFilterLabels.map((label) => (
+            <span key={label} className="search__filters-chip">
+              {label}
+            </span>
+          ))}
+        </div>
+      )}
       <Form
         className={classnames('search__options', {
           'search__options--expanded': expanded,

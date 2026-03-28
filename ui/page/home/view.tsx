@@ -22,9 +22,8 @@ import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { doOpenModal } from 'redux/actions/app';
 import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
 import {
@@ -44,6 +43,7 @@ import {
 } from 'redux/selectors/settings';
 import { selectCountForCollectionId, selectUrlsForCollectionIdNonDeleted } from 'redux/selectors/collections';
 import { selectPrefsReady } from 'redux/selectors/sync';
+import { getModalUrlParam } from 'util/url';
 
 const FeaturedBanner: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(
   () =>
@@ -140,6 +140,7 @@ function HomePage() {
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
   const navigate = useNavigate();
+  const location = useLocation();
   const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
     const rowData: Array<RowDataItem> = GetLinksData(
       homepageData,
@@ -234,7 +235,7 @@ function HomePage() {
       <Button
         button="link"
         iconRight={ICONS.SETTINGS}
-        onClick={() => (authenticated ? dispatch(doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)) : signupDriver())}
+        onClick={() => (authenticated ? openCustomizeHomepage() : signupDriver())}
         title={__('Sort and customize your homepage')}
         label={__('Customize --[Short label for "Customize Homepage"]--')}
       />
@@ -243,6 +244,16 @@ function HomePage() {
 
   function signupDriver() {
     navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+  }
+
+  function openCustomizeHomepage() {
+    const searchParams = getModalUrlParam(MODALS.CUSTOMIZE_HOMEPAGE);
+
+    navigate({
+      pathname: location.pathname,
+      search: `?${searchParams}`,
+      hash: location.hash,
+    });
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {

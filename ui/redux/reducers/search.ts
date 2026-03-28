@@ -3,17 +3,37 @@ import { handleActions } from 'util/redux-utils';
 import { SEARCH_OPTIONS, SEARCH_PAGE_SIZE } from 'constants/search';
 import { createNormalizedSearchKey } from 'util/search';
 import { LIGHTHOUSE_DEFAULT_TYPES } from 'config';
-const defaultSearchTypes = LIGHTHOUSE_DEFAULT_TYPES && LIGHTHOUSE_DEFAULT_TYPES.split(',');
+import { LocalStorage, LS } from 'util/storage';
+
+const defaultSearchTypes = (LIGHTHOUSE_DEFAULT_TYPES && LIGHTHOUSE_DEFAULT_TYPES.split(',')) || [];
+
+const baseSearchOptions = {
+  [SEARCH_OPTIONS.RESULT_COUNT]: SEARCH_PAGE_SIZE,
+  [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
+  [SEARCH_OPTIONS.MEDIA_AUDIO]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_AUDIO),
+  [SEARCH_OPTIONS.MEDIA_VIDEO]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_VIDEO),
+  [SEARCH_OPTIONS.MEDIA_TEXT]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_TEXT),
+  [SEARCH_OPTIONS.MEDIA_IMAGE]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_IMAGE),
+  [SEARCH_OPTIONS.MEDIA_APPLICATION]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_APPLICATION),
+};
+
+function getStoredSearchOptions() {
+  const storedOptions = LocalStorage.getItem(LS.SEARCH_OPTIONS);
+
+  if (!storedOptions) {
+    return {};
+  }
+
+  try {
+    const parsedOptions = JSON.parse(storedOptions);
+    return parsedOptions && typeof parsedOptions === 'object' ? parsedOptions : {};
+  } catch (e) {
+    return {};
+  }
+}
+
 const defaultState = {
-  options: {
-    [SEARCH_OPTIONS.RESULT_COUNT]: SEARCH_PAGE_SIZE,
-    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_FILES_AND_CHANNELS,
-    [SEARCH_OPTIONS.MEDIA_AUDIO]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_AUDIO),
-    [SEARCH_OPTIONS.MEDIA_VIDEO]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_VIDEO),
-    [SEARCH_OPTIONS.MEDIA_TEXT]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_TEXT),
-    [SEARCH_OPTIONS.MEDIA_IMAGE]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_IMAGE),
-    [SEARCH_OPTIONS.MEDIA_APPLICATION]: defaultSearchTypes.includes(SEARCH_OPTIONS.MEDIA_APPLICATION),
-  },
+  options: { ...baseSearchOptions, ...getStoredSearchOptions() },
   resultsByQuery: {},
   hasReachedMaxResultsLength: {},
   searching: false,
@@ -27,7 +47,10 @@ const defaultState = {
 };
 export default handleActions(
   {
-    [ACTIONS.SEARCH_START]: (state: SearchState): SearchState => ({ ...state, searching: true }),
+    [ACTIONS.SEARCH_START]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: true,
+    }),
     [ACTIONS.SEARCH_SUCCESS]: (state: SearchState, action: SearchSuccess): SearchState => {
       const { query, uris, from, size, poweredBy: recsys, uuid } = action.data;
       const normalizedQuery = createNormalizedSearchKey(query);
@@ -56,7 +79,10 @@ export default handleActions(
         }),
       };
     },
-    [ACTIONS.SEARCH_FAIL]: (state: SearchState): SearchState => ({ ...state, searching: false }),
+    [ACTIONS.SEARCH_FAIL]: (state: SearchState): SearchState => ({
+      ...state,
+      searching: false,
+    }),
     [ACTIONS.UPDATE_SEARCH_OPTIONS]: (state: SearchState, action: UpdateSearchOptions): SearchState => {
       const { options: oldOptions } = state;
       const newOptions = action.data;
@@ -80,7 +106,10 @@ export default handleActions(
     },
     [ACTIONS.FYP_FETCH_FAILED]: (state: SearchState, action: any): SearchState => ({
       ...state,
-      personalRecommendations: { ...defaultState.personalRecommendations, fetched: true },
+      personalRecommendations: {
+        ...defaultState.personalRecommendations,
+        fetched: true,
+      },
     }),
     [ACTIONS.FYP_HIDE_URI]: (state: SearchState, action: any): SearchState => {
       const { uri } = action.data;
@@ -91,7 +120,11 @@ export default handleActions(
         uris.splice(index, 1);
         return {
           ...state,
-          personalRecommendations: { ...state.personalRecommendations, gid: state.personalRecommendations.gid, uris },
+          personalRecommendations: {
+            ...state.personalRecommendations,
+            gid: state.personalRecommendations.gid,
+            uris,
+          },
         };
       }
 

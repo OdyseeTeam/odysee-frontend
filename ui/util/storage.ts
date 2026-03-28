@@ -5,6 +5,7 @@ export const LS = Object.freeze({
   CHANNEL_LIVE_STATUS: 'channel-live-status',
   GDPR_REQUIRED: 'gdprRequired',
   // <-- should be using 'locale/get', right?
+  SEARCH_OPTIONS: 'search-options',
   SHARE_INTERNAL: 'shareInternal',
   TUS_LOCKED_UPLOADS: 'tusLockedUploads',
   TUS_REFRESH_LOCK: 'tusRefreshLock',

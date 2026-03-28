@@ -5,6 +5,13 @@ const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
 type QueryParamOptionValue = string | number | boolean | undefined | null;
 type SearchQueryOptions = Record<string, QueryParamOptionValue>;
+const ALL_MEDIA_TYPES = [
+  SEARCH_OPTIONS.MEDIA_AUDIO,
+  SEARCH_OPTIONS.MEDIA_VIDEO,
+  SEARCH_OPTIONS.MEDIA_TEXT,
+  SEARCH_OPTIONS.MEDIA_IMAGE,
+  SEARCH_OPTIONS.MEDIA_APPLICATION,
+];
 
 export function parseQueryParams(queryString: string): Record<string, string> {
   if (queryString === '') return {};
@@ -89,27 +96,23 @@ export const getSearchQueryString = (query: string, options: SearchQueryOptions 
        * when searching for channels or "everything".
        */
       if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
-        queryParams.push(
-          `mediaType=${[
-            SEARCH_OPTIONS.MEDIA_AUDIO,
-            SEARCH_OPTIONS.MEDIA_VIDEO,
-            SEARCH_OPTIONS.MEDIA_TEXT,
-            SEARCH_OPTIONS.MEDIA_IMAGE,
-            SEARCH_OPTIONS.MEDIA_APPLICATION,
-          ].reduce((acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc), '')}`
-        );
+        const mediaTypes = ALL_MEDIA_TYPES.filter((currentOption) => Boolean(options[currentOption]));
+
+        if (mediaTypes.length > 0 && mediaTypes.length < ALL_MEDIA_TYPES.length) {
+          queryParams.push(`mediaType=${mediaTypes.join(',')}`);
+        }
       }
     }
 
     const sortBy = options[SEARCH_OPTIONS.SORT];
 
-    if (typeof sortBy === 'string' || typeof sortBy === 'number') {
+    if ((typeof sortBy === 'string' && sortBy !== '') || typeof sortBy === 'number') {
       queryParams.push(`${SEARCH_OPTIONS.SORT}=${sortBy}`);
     }
 
     const timeFilter = options[SEARCH_OPTIONS.TIME_FILTER];
 
-    if (typeof timeFilter === 'string' || typeof timeFilter === 'number') {
+    if ((typeof timeFilter === 'string' && timeFilter !== '') || typeof timeFilter === 'number') {
       queryParams.push(`${SEARCH_OPTIONS.TIME_FILTER}=${timeFilter}`);
     }
 
