@@ -36,6 +36,7 @@ type Props = {
   forceReload?: boolean;
   isShort?: boolean;
   tileLayout?: boolean;
+  hoverPreview?: boolean;
 };
 
 function FileThumbnail(props: Props) {
@@ -49,6 +50,7 @@ function FileThumbnail(props: Props) {
     small,
     forceReload,
     isShort = false,
+    hoverPreview = false,
   } = props;
 
   const hasResolvedClaim = useAppSelector((state) => (uri ? selectHasResolvedClaimForUri(state, uri) : undefined));
@@ -87,7 +89,7 @@ function FileThumbnail(props: Props) {
   const streamingUrl = useAppSelector((state) => (uri ? selectStreamingUrlForUri(state, uri) : undefined));
   const isVideoContent = Boolean(claim?.value?.video || claim?.value?.source?.media_type?.startsWith('video'));
   const videoDuration = (claim?.value as any)?.video?.duration || 0;
-  const canPreviewOnHover = isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
+  const canPreviewOnHover = hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
 
   const [isHovering, setIsHovering] = React.useState(false);
   const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));

@@ -258,6 +258,7 @@ function ClaimPreviewTile(props: Props) {
           thumbnail={thumbnailUrl}
           allowGifs
           tileLayout
+          hoverPreview
           uri={uri}
           secondaryUri={firstCollectionItemUrl}
         >

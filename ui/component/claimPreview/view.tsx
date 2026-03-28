@@ -532,6 +532,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
                   <FileThumbnail
                     thumbnail={thumbnailUrl}
                     small={smallThumbnail}
+                    hoverPreview={!smallThumbnail}
                     uri={uri}
                     secondaryUri={firstCollectionItemUrl}
                   >
