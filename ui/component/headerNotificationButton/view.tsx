@@ -55,27 +55,17 @@ function PushPromptInDrawer() {
   }
 
   return (
-    <div className="notification-push-prompt">
-      <Icon icon={ICONS.NOTIFICATION} size={16} />
-      <span className="notification-push-prompt__text">{__('Get push notifications')}</span>
-      <Button
-        className="notification-push-prompt__enable"
-        button="primary"
-        label={__('Enable')}
-        onClick={(e) => {
-          e.stopPropagation();
-          pushToggle();
-        }}
-      />
-      <Button
-        button="close"
-        icon={ICONS.REMOVE}
-        onClick={(e) => {
-          e.stopPropagation();
-          setDismissed(true);
-        }}
-      />
-    </div>
+    <Button
+      className="menu__list--notifications-push"
+      button="link"
+      icon={ICONS.NOTIFICATION}
+      label={__('Enable push')}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        pushToggle();
+      }}
+    />
   );
 }
 
@@ -286,10 +276,10 @@ export default function NotificationHeaderButton() {
             </div>
 
             <div className="menu__list--notifications-footer">
-              <PushPromptInDrawer />
               <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
-                <div className="menu__list--notifications-more">{__('View all')}</div>
+                <span className="menu__list--notifications-more">{__('View all')}</span>
               </NavLink>
+              <PushPromptInDrawer />
             </div>
           </MuiMenu>
         </ClickAwayListener>
