@@ -1,27 +1,63 @@
 .publish-file-info {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   flex-wrap: wrap;
   margin-top: var(--spacing-xs);
-  padding: 6px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(var(--color-header-button-base), 0.06);
+  border: 1px solid rgba(var(--color-header-button-base), 0.08);
+  animation: publish-file-info-in 0.25s ease;
 
   &__pill {
     display: inline-flex;
     align-items: center;
-    height: 22px;
-    padding: 0 7px;
-    border-radius: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 5px;
     font-size: 11px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
     color: var(--color-text-subtitle);
-    background: rgba(var(--color-header-button-base), 0.1);
+    background: rgba(var(--color-header-button-base), 0.12);
     white-space: nowrap;
+
+    // First pill (format) gets slight emphasis
+    &:first-child {
+      color: var(--color-text);
+      font-weight: 700;
+    }
 
     &--warn {
       color: #f5a623;
-      background: rgba(255, 180, 0, 0.1);
+      background: rgba(255, 180, 0, 0.12);
     }
+
+    &--good {
+      color: #4caf50;
+      background: rgba(76, 175, 80, 0.1);
+    }
+  }
+
+  // Separator dot between groups
+  &__dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(var(--color-header-button-base), 0.3);
+    flex-shrink: 0;
+  }
+}
+
+@keyframes publish-file-info-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

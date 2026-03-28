@@ -574,13 +574,16 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     // @endif
     // --- Name and title ---
     // Strip off extension and replace invalid characters
-    const fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+    const newFileName = (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+    const fileName = clearName ? newFileName : name || newFileName;
 
-    if (!title) {
-      formUpdates.title = fileName; // Autofill only if empty title.
+    if (clearName || !title) {
+      formUpdates.title = newFileName || fileName;
     }
 
-    if (!isStillEditing) {
+    if (!isStillEditing && clearName) {
+      formUpdates.name = sanitizeName(newFileName || fileName);
+    } else if (!isStillEditing && !name) {
       formUpdates.name = sanitizeName(fileName);
     }
 

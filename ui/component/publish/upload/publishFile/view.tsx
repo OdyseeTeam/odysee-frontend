@@ -205,7 +205,9 @@ function PublishFile(props: Props) {
       );
     }
 
-    if (isVid && !duration) {
+    // Only show "couldn't detect" after metadata extraction has had a chance to run
+    // (fileVideoCodec is empty string initially, populated by MediaBunny async)
+    if (isVid && !duration && fileVideoCodec !== '') {
       return (
         <p className="help--warning">
           <Icon icon={ICONS.INFO} />
@@ -298,16 +300,23 @@ function PublishFile(props: Props) {
                     </span>
                   )}
                   {fileAudioCodec && <span className="publish-file-info__pill">{fileAudioCodec.toUpperCase()}</span>}
+                  {(fileVideoCodec || fileAudioCodec) && (fileHeight > 0 || fileFps > 0) && (
+                    <span className="publish-file-info__dot" />
+                  )}
                   {fileHeight > 0 && (
                     <span className="publish-file-info__pill">
-                      {fileWidth}x{fileHeight}
+                      {fileWidth}&times;{fileHeight}
                     </span>
                   )}
                   {fileFps > 0 && <span className="publish-file-info__pill">{Math.round(fileFps)} fps</span>}
+                  {(fileHeight > 0 || fileFps > 0) && (fileBitrate > 0 || duration > 0) && (
+                    <span className="publish-file-info__dot" />
+                  )}
                   {fileBitrate > 0 && (
                     <span
                       className={classnames('publish-file-info__pill', {
                         'publish-file-info__pill--warn': fileBitrate > BITRATE.RECOMMENDED,
+                        'publish-file-info__pill--good': fileBitrate > 0 && fileBitrate <= BITRATE.RECOMMENDED,
                       })}
                     >
                       {fileBitrate >= 1e6

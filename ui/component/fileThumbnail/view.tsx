@@ -93,9 +93,11 @@ function FileThumbnail(props: Props) {
     hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
 
   const [isHovering, setIsHovering] = React.useState(false);
+
   const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
   const vodPreviewFrame = useVideoPreviewOnHover(
-    canPreviewOnHover ? streamingUrl : null,
+    canPreviewOnHover ? streamingUrl || null : null,
+    canPreviewOnHover ? uri : undefined,
     videoDuration,
     isHovering && canPreviewOnHover
   );
