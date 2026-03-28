@@ -45,6 +45,7 @@ function BannerLatestClaims({ channelUri, count }: { channelUri: string; count: 
       order_by: ['release_time'],
       no_totals: true,
       stream_types: ['video'],
+      exclude_shorts: true,
     };
   }, [channelClaimId, count]);
 
