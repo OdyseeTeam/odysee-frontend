@@ -92,9 +92,9 @@ export default function LivestreamPublisherFloating() {
   const claimNavigateUrl = nextStreamUri ? formatLbryUrlForWeb(nextStreamUri) : null;
   const isStreaming = status === 'live' || status === 'connecting' || status === 'preview';
   const notOnStreamPage = isStreaming && mediaStream && !isOnLivestreamPage;
-  // Mobile defaults to pill; user can toggle to full preview. Desktop defaults to full preview.
-  const showFullPreview = notOnStreamPage && floatingPreviewEnabled && !isMobile;
-  const showMinimalPill = notOnStreamPage && (!floatingPreviewEnabled || isMobile);
+  // Both mobile and desktop can toggle full preview. Mobile defaults to pill on first navigate-away.
+  const showFullPreview = notOnStreamPage && floatingPreviewEnabled;
+  const showMinimalPill = notOnStreamPage && !floatingPreviewEnabled;
   const throughputBps = serverMetrics?.live && serverMetrics.throughput
     ? serverMetrics.throughput.in_bps
     : (videoBitrateKbps ?? 0) * 1000;
@@ -157,6 +157,18 @@ export default function LivestreamPublisherFloating() {
     actions.setStatus('preview');
     dispatch(doToast({ isError: true, message: __('Connection failed. Try again.') }));
   }
+
+  // On mobile, default to pill when first navigating away from stream page
+  const mobileInitRef = React.useRef(false);
+  React.useEffect(() => {
+    if (isMobile && !isOnLivestreamPage && isStreaming && mediaStream && floatingPreviewEnabled && !mobileInitRef.current) {
+      mobileInitRef.current = true;
+      actions.setFloatingPreviewEnabled(false);
+    }
+    if (isOnLivestreamPage) {
+      mobileInitRef.current = false;
+    }
+  }, [isOnLivestreamPage, isMobile, isStreaming, mediaStream, floatingPreviewEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Attach media stream to video element
   React.useEffect(() => {
@@ -300,18 +312,16 @@ export default function LivestreamPublisherFloating() {
             </svg>
           </button>
 
-          {!isMobile && (
-            <button
-              className="livestream-floating-pill__btn"
-              onClick={() => actions.setFloatingPreviewEnabled(true)}
-              title={__('Show preview')}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </button>
-          )}
+          <button
+            className="livestream-floating-pill__btn"
+            onClick={() => actions.setFloatingPreviewEnabled(true)}
+            title={__('Show preview')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
 
           {(isLive || status === 'connecting') && (
             <button
