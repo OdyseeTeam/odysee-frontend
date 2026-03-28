@@ -82,6 +82,7 @@
     "lodash-es": "^4.17.14",
     "mammoth": "^1.4.16",
     "match-sorter": "^6.3.0",
+    "mediabunny": "^1.40.1",
     "moment": "^2.29.4",
     "p2p-media-loader-hlsjs": "^2.2.2",
     "parse-duration": "^1.0.0",

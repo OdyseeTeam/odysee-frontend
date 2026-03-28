@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React, { Suspense } from 'react';
 import { Modal } from 'modal/modal';
-import { formatFileSystemPath } from 'util/url';
-import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { useAppDispatch } from 'redux/hooks';
 import { doHideModal } from 'redux/actions/app';
-import { doUploadThumbnail } from 'redux/actions/publish';
-import { doToast } from 'redux/actions/notifications';
+import Spinner from 'component/spinner';
+import { lazyImport } from 'util/lazyImport';
+
+const ThumbnailPicker = lazyImport(() => import('component/thumbnailPicker'));
 
 type Props = {
   filePath: string | File;
@@ -15,102 +15,25 @@ function ModalAutoGenerateThumbnail(props: Props) {
   const { filePath } = props;
   const dispatch = useAppDispatch();
   const closeModal = () => dispatch(doHideModal());
-  const upload = (file: File) => dispatch(doUploadThumbnail(undefined, file, undefined, undefined, 'Generated'));
-  const showToast = (options: ToastParams) => dispatch(doToast(options));
 
-  const playerRef = useRef<HTMLVideoElement>(null);
-  let videoSrc;
-
-  if (typeof filePath === 'string') {
-    videoSrc = formatFileSystemPath(filePath);
-  } else {
-    videoSrc = URL.createObjectURL(filePath);
-  }
-
-  function uploadImage() {
-    const generateImg = (quality: number) => {
-      const imageBuffer = captureSnapshot(quality);
-      const file = new File([imageBuffer], 'thumbnail.jpeg', {
-        type: 'image/jpeg',
-      });
-      return {
-        imageBuffer,
-        file,
-      };
-    };
-
-    let img = generateImg(1.0);
-
-    if (img.file && img.file.size > THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
-      img = generateImg(0.8);
-    }
-
-    if (img.imageBuffer) {
-      upload(img.file);
-      closeModal();
-    } else {
-      onError();
-    }
-  }
-
-  function captureSnapshot(quality: number): BlobPart | null | undefined {
-    const player = playerRef.current;
-
-    if (!player) {
-      return;
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.width = player.videoWidth;
-    canvas.height = player.videoHeight;
-    const context = canvas.getContext('2d');
-    context.drawImage(player, 0, 0, canvas.width, canvas.height);
-    const dataURL = canvas.toDataURL('image/jpeg', quality);
-    const rawData = dataURL.replace(/data:image\/\w+;base64,/i, '');
-    canvas.remove();
-    return Buffer.from(rawData, 'base64');
-  }
-
-  function resize(): void {
-    const player = playerRef.current;
-
-    if (!player) {
-      return;
-    }
-
-    const fixedWidth = 450;
-    const videoWidth = player.videoWidth;
-    const videoHeight = player.videoHeight;
-    player.width = fixedWidth;
-    player.height = Math.floor(videoHeight * (fixedWidth / videoWidth));
-  }
-
-  function onError(): void {
-    showToast({
-      isError: true,
-      message: __("Something didn't work. Please try again."),
-    });
-  }
+  // ThumbnailPicker requires a File object for BlobSource
+  const file = typeof filePath === 'string' ? null : filePath;
 
   return (
-    <Modal
-      isOpen
-      title={__('Upload thumbnail')}
-      contentLabel={__('Confirm Thumbnail Upload')}
-      type="confirm"
-      confirmButtonLabel={__('Upload')}
-      onConfirmed={uploadImage}
-      onAborted={closeModal}
-    >
-      <p className="section__subtitle">{__('Pause at any time to select a thumbnail from your video')}.</p>
-      <video
-        className="video-thumbnail-generator"
-        ref={playerRef}
-        src={videoSrc}
-        onLoadedMetadata={resize}
-        onError={onError}
-        controls
-      />
+    <Modal isOpen title={__('Choose a thumbnail')} contentLabel={__('Choose Thumbnail')} type="card" onAborted={closeModal}>
+      {file ? (
+        <Suspense
+          fallback={
+            <div className="main--empty empty">
+              <Spinner type="small" />
+            </div>
+          }
+        >
+          <ThumbnailPicker filePath={file} onThumbnailSelected={closeModal} />
+        </Suspense>
+      ) : (
+        <p className="help">{__('Thumbnail generation from video snapshots is only available for file uploads.')}</p>
+      )}
     </Modal>
   );
 }
