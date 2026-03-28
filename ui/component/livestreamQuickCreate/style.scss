@@ -1,0 +1,128 @@
+.quick-create {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--spacing-m);
+
+  &__heading {
+    margin: 0 0 var(--spacing-xxs);
+    font-size: var(--font-large);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__subtitle {
+    margin: 0 0 var(--spacing-m);
+    font-size: var(--font-small);
+    color: var(--color-text-subtitle);
+  }
+
+  &__field {
+    margin-bottom: var(--spacing-m);
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: var(--spacing-xxs);
+    font-size: var(--font-small);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__optional {
+    font-weight: 400;
+    color: var(--color-text-subtitle);
+  }
+
+  &__input {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-s);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(var(--color-header-button-base), 0.18);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-size: var(--font-body);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    &--date {
+      width: auto;
+    }
+  }
+
+  &__uri-preview {
+    display: block;
+    margin-top: var(--spacing-xxs);
+    font-size: var(--font-xsmall);
+    color: var(--color-text-subtitle);
+    word-break: break-all;
+  }
+
+  &__radio-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-m);
+    flex-wrap: wrap;
+  }
+
+  &__radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xxs);
+    font-size: var(--font-small);
+    color: var(--color-text);
+    cursor: pointer;
+
+    input[type='radio'] {
+      accent-color: var(--color-primary);
+    }
+  }
+
+  &__date-picker {
+    .react-datepicker-wrapper {
+      width: auto;
+    }
+  }
+
+  &__thumb-preview {
+    margin-top: var(--spacing-xs);
+    width: 200px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid rgba(var(--color-header-button-base), 0.12);
+    background: #000;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__submit {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-s);
+    border: none;
+    border-radius: 10px;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: var(--font-body);
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

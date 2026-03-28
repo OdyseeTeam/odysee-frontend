@@ -28,6 +28,7 @@ import {
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamWebRtcPublisher from 'component/livestreamWebRtcPublisher';
+import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
 import {
   WEBRTC_PUBLISH_PRESET_ORDER,
@@ -275,11 +276,18 @@ export default function LivestreamSetupPage() {
       {/* Browser Stream Tab (WebRTC) */}
       {tab === 'Stream' && (
         <div className={editingURI ? 'disabled' : ''}>
-          {!fetchingChannels && channelId && (
+          {!fetchingChannels && channelId && approvedLivestreamClaimCount === 0 && (
+            <LivestreamQuickCreate
+              onCreated={() => {
+                if (channelId) dispatch(doFetchNoSourceClaimsForChannelId(channelId));
+              }}
+            />
+          )}
+          {!fetchingChannels && channelId && approvedLivestreamClaimCount > 0 && (
             <LivestreamWebRtcPublisher
               streamKey={streamKey}
               livestreamEnabled={livestreamEnabled}
-              hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
+              hasApprovedLivestreamClaim
               presetId={presetId}
               signature={sigData.signature}
               signingTs={sigData.signing_ts}
