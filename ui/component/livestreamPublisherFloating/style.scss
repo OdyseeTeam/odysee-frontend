@@ -158,6 +158,14 @@
       }
     }
 
+    &--close {
+      background: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+    }
+
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -331,6 +339,14 @@
 
       &:hover {
         background: rgba(255, 70, 70, 0.65);
+      }
+    }
+
+    &--close {
+      background: rgba(255, 255, 255, 0.15);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
       }
     }
   }
