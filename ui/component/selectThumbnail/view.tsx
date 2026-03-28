@@ -212,7 +212,7 @@ function SelectThumbnail(props: Props) {
       )}
 
       {showVideoPicker && videoPickerFile && (
-        <div className="card--thumbnail" style={{ marginTop: 'var(--spacing-m)' }}>
+        <div className="card--thumbnail card--thumbnail-picker">
           <React.Suspense
             fallback={
               <div className="main--empty empty">

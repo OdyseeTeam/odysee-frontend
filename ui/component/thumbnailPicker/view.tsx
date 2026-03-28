@@ -435,12 +435,7 @@ function ThumbnailPicker(props: Props) {
 
           {manualFrame && (
             <div className="thumbnail-picker__manual-preview">
-              <button
-                className="thumbnail-picker__item thumbnail-picker__item--selected"
-                type="button"
-                onClick={handleUpload}
-                disabled={uploading}
-              >
+              <div className="thumbnail-picker__item thumbnail-picker__item--selected">
                 <img
                   src={manualFrame.blobUrl}
                   alt={__('Thumbnail at %timestamp%', {
@@ -449,7 +444,7 @@ function ThumbnailPicker(props: Props) {
                   className="thumbnail-picker__image"
                 />
                 <span className="thumbnail-picker__label">{manualFrame.label}</span>
-              </button>
+              </div>
             </div>
           )}
 
