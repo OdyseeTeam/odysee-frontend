@@ -12,14 +12,18 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
+    request.addEventListener('upgradeneeded', () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
       }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    });
+    request.addEventListener('success', () => resolve(request.result), {
+      once: true,
+    });
+    request.addEventListener('error', () => reject(request.error), {
+      once: true,
+    });
   });
 }
 
@@ -49,8 +53,8 @@ export async function cacheOptimizedFile(guid: string, file: File): Promise<void
 
     store.put(entry, guid);
     await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.addEventListener('complete', () => resolve(), { once: true });
+      tx.addEventListener('error', () => reject(tx.error), { once: true });
     });
     db.close();
   } catch (e) {
@@ -70,8 +74,12 @@ export async function getCachedFile(guid: string): Promise<File | null> {
 
     const entry = await new Promise<CachedFile | undefined>((resolve, reject) => {
       const request = store.get(guid);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      request.addEventListener('success', () => resolve(request.result), {
+        once: true,
+      });
+      request.addEventListener('error', () => reject(request.error), {
+        once: true,
+      });
     });
 
     db.close();
@@ -100,8 +108,8 @@ export async function removeCachedFile(guid: string): Promise<void> {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     tx.objectStore(STORE_NAME).delete(guid);
     await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.addEventListener('complete', () => resolve(), { once: true });
+      tx.addEventListener('error', () => reject(tx.error), { once: true });
     });
     db.close();
   } catch {
@@ -119,7 +127,7 @@ export async function cleanupExpiredCache(): Promise<void> {
     const store = tx.objectStore(STORE_NAME);
 
     const request = store.openCursor();
-    request.onsuccess = () => {
+    request.addEventListener('success', () => {
       const cursor = request.result;
       if (cursor) {
         const entry = cursor.value as CachedFile;
@@ -128,11 +136,11 @@ export async function cleanupExpiredCache(): Promise<void> {
         }
         cursor.continue();
       }
-    };
+    });
 
     await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      tx.addEventListener('complete', () => resolve(), { once: true });
+      tx.addEventListener('error', () => reject(tx.error), { once: true });
     });
     db.close();
   } catch {

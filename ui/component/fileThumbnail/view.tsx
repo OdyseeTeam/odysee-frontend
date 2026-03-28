@@ -88,8 +88,9 @@ function FileThumbnail(props: Props) {
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const streamingUrl = useAppSelector((state) => (uri ? selectStreamingUrlForUri(state, uri) : undefined));
   const isVideoContent = Boolean(claim?.value?.video || claim?.value?.source?.media_type?.startsWith('video'));
-  const videoDuration = (claim?.value as any)?.video?.duration || 0;
-  const canPreviewOnHover = hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
+  const videoDuration = claim?.value?.video?.duration || 0;
+  const canPreviewOnHover =
+    hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
 
   const [isHovering, setIsHovering] = React.useState(false);
   const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
@@ -122,12 +123,13 @@ function FileThumbnail(props: Props) {
   const enableLiveCrossfade = Boolean(isHovering && liveThumbnail && loadedLiveUrl);
   const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
 
-  const hoverHandlers = liveThumbnail || canPreviewOnHover
-    ? {
-        onMouseEnter: () => setIsHovering(true),
-        onMouseLeave: () => setIsHovering(false),
-      }
-    : {};
+  const hoverHandlers =
+    liveThumbnail || canPreviewOnHover
+      ? {
+          onMouseEnter: () => setIsHovering(true),
+          onMouseLeave: () => setIsHovering(false),
+        }
+      : {};
 
   if (!allowGifs && isGif) {
     const url = getImageProxyUrl(thumbnail);

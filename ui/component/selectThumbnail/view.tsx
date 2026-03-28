@@ -1,6 +1,5 @@
 import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import Lbry from 'lbry';
 import { DOMAIN, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import * as React from 'react';
 import { FormField } from 'component/common/form';
@@ -10,8 +9,7 @@ import Spinner from 'component/spinner';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
-import { selectFileInfosByOutpoint } from 'redux/selectors/file_info';
+import { selectPublishFormValues } from 'redux/selectors/publish';
 import { doUpdatePublishForm, doResetThumbnailStatus } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 import { lazyImport } from 'util/lazyImport';
@@ -39,9 +37,6 @@ function SelectThumbnail(props: Props) {
     thumbnailPath,
     thumbnailError: publishThumbnailError,
   } = publishFormValues;
-  const fileInfos = useAppSelector(selectFileInfosByOutpoint);
-  const myClaimForUri = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
-
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
   const openModal = (modal: string, modalProps: {}) => dispatch(doOpenModal(modal, modalProps));
@@ -53,20 +48,9 @@ function SelectThumbnail(props: Props) {
   const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;
-  const outpoint = myClaimForUri ? `${myClaimForUri.txid}:${myClaimForUri.nout}` : undefined;
-  const fileInfo = outpoint ? fileInfos[outpoint] : undefined;
-  const downloadPath = fileInfo ? fileInfo.download_path : undefined;
-  const actualFilePath = filePath || downloadPath;
   const [showVideoPicker, setShowVideoPicker] = React.useState(false);
-  let isSupportedVideo = false;
-
-  if (typeof actualFilePath === 'string') {
-    isSupportedVideo = Lbry.getMediaType(null, actualFilePath) === 'video';
-  } else if (actualFilePath && actualFilePath.type) {
-    isSupportedVideo = actualFilePath.type.split('/')[0] === 'video';
-  }
-
-  const isFileObject = actualFilePath && typeof actualFilePath !== 'string';
+  const videoPickerFile = filePath instanceof File ? filePath : undefined;
+  const isSupportedVideo = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'video');
 
   function handleThumbnailChange(e: any) {
     const newThumbnail = e.target.value.replace(' ', '');
@@ -211,16 +195,8 @@ function SelectThumbnail(props: Props) {
                 {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && (
                   <Button
                     button="link"
-                    label={showVideoPicker ? __('Hide video thumbnails') : __('Pick thumbnail from video')}
-                    onClick={() => {
-                      if (isFileObject) {
-                        setShowVideoPicker(!showVideoPicker);
-                      } else {
-                        openModal(MODALS.AUTO_GENERATE_THUMBNAIL, {
-                          filePath: actualFilePath,
-                        });
-                      }
-                    }}
+                    label={showVideoPicker ? __('Hide video thumbnail tools') : __('Auto-generate from video')}
+                    onClick={() => setShowVideoPicker(!showVideoPicker)}
                   />
                 )}
               </div>
@@ -235,7 +211,7 @@ function SelectThumbnail(props: Props) {
         </div>
       )}
 
-      {showVideoPicker && isSupportedVideo && isFileObject && (
+      {showVideoPicker && videoPickerFile && (
         <div className="card--thumbnail" style={{ marginTop: 'var(--spacing-m)' }}>
           <React.Suspense
             fallback={
@@ -244,11 +220,7 @@ function SelectThumbnail(props: Props) {
               </div>
             }
           >
-            <ThumbnailPicker
-              filePath={actualFilePath as File}
-              onThumbnailSelected={() => setShowVideoPicker(false)}
-              inline
-            />
+            <ThumbnailPicker filePath={videoPickerFile} onThumbnailSelected={() => setShowVideoPicker(false)} />
           </React.Suspense>
         </div>
       )}

@@ -27,9 +27,6 @@ const MAP = Object.freeze({
   [MODALS.ARWEAVE_CONNECT]: lazyImport(() => import('modal/modalArweaveConnect'
   /* webpackChunkName: "modalAnnouncements" */
   )),
-  [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail'
-  /* webpackChunkName: "modalAutoGenerateThumbnail" */
-  )),
   [MODALS.AUTO_UPDATE_DOWNLOADED]: lazyImport(() => import('modal/modalAutoUpdateDownloaded'
   /* webpackChunkName: "modalAutoUpdateDownloaded" */
   )),

@@ -1,7 +1,5 @@
 import React from 'react';
-import classnames from 'classnames';
 import { useAppDispatch } from 'redux/hooks';
-import { doUpdatePublishForm } from 'redux/actions/publish';
 import { doToast } from 'redux/actions/notifications';
 import { cacheOptimizedFile } from 'util/uploadCache';
 import './style.scss';
@@ -24,11 +22,7 @@ type AnalysisResult = {
   duration: number;
   width: number;
   height: number;
-  videoCodec: string;
-  audioCodec: string;
-  needsFaststart: boolean; // moov atom not at beginning
-  isHighBitrate: boolean;
-  recommendedAction: 'faststart' | 'transcode' | 'none';
+  recommendedAction: 'transcode' | 'none';
 };
 
 type OptimizeState = 'idle' | 'analyzing' | 'ready' | 'optimizing' | 'done' | 'error';
@@ -52,12 +46,17 @@ function formatBitrate(bps: number): string {
 /** Resolution-aware target bitrate. Never targets higher than the current bitrate. */
 function getTargetBitrate(height: number, currentMbps: number): number {
   let target: number;
-  if (height >= 2160) target = 12;       // 4K
-  else if (height >= 1440) target = 8;   // 1440p
-  else if (height >= 1080) target = 5;   // 1080p
-  else if (height >= 720) target = 3;    // 720p
-  else if (height >= 480) target = 1.5;  // 480p
-  else target = 1;                        // below 480p
+  if (height >= 2160)
+    target = 12; // 4K
+  else if (height >= 1440)
+    target = 8; // 1440p
+  else if (height >= 1080)
+    target = 5; // 1080p
+  else if (height >= 720)
+    target = 3; // 720p
+  else if (height >= 480)
+    target = 1.5; // 480p
+  else target = 1; // below 480p
   // Don't target higher than what the file already has
   return Math.min(target, currentMbps * 0.7);
 }
@@ -77,32 +76,23 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
 
     async function analyze() {
       setState('analyzing');
+      let input;
+
       try {
         const mb = await loadMediaBunny();
-        const input = new mb.Input({
+        input = new mb.Input({
           formats: mb.ALL_FORMATS,
           source: new mb.BlobSource(file),
         });
 
         const videoTrack = await input.getPrimaryVideoTrack();
-        const audioTrack = await input.getPrimaryAudioTrack();
         const duration = await input.computeDuration();
 
         const width = videoTrack?.displayWidth || 0;
         const height = videoTrack?.displayHeight || 0;
-        const videoCodec = videoTrack?.codec || 'unknown';
-        const audioCodec = audioTrack?.codec || 'unknown';
         const bitrateMbps = fileBitrate / 1e6;
         const isHighBitrate = bitrateMbps > 5;
-
-        // Check if moov atom is at the beginning (faststart)
-        // If we can read metadata quickly, it's likely already faststart
-        // MediaBunny doesn't expose moov position directly, but we can infer:
-        // if the file is MP4 and high bitrate, recommend transcode
-        const isMp4 = file.type === 'video/mp4' || file.name.toLowerCase().endsWith('.mp4');
-        const needsFaststart = false; // MediaBunny handles this internally during output
-
-        let recommendedAction: 'faststart' | 'transcode' | 'none' = 'none';
+        let recommendedAction: 'transcode' | 'none' = 'none';
         if (isHighBitrate) {
           recommendedAction = 'transcode';
         }
@@ -114,10 +104,6 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
           duration: duration || 0,
           width,
           height,
-          videoCodec,
-          audioCodec,
-          needsFaststart,
-          isHighBitrate,
           recommendedAction,
         };
 
@@ -129,12 +115,15 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         setEstimatedSize(((targetMbps * 1e6 * (duration || 0)) / 8) * 1.05);
 
         setState('ready');
-        input.dispose();
       } catch (e) {
         console.error('[VideoOptimizer] Analysis failed:', e); // eslint-disable-line no-console
         if (!canceled) {
           setState('error');
           setAnalysis(null);
+        }
+      } finally {
+        if (input) {
+          input.dispose();
         }
       }
     }
@@ -149,10 +138,11 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
     if (!analysis) return;
     setState('optimizing');
     setProgress(0);
+    let input;
 
     try {
       const mb = await loadMediaBunny();
-      const input = new mb.Input({
+      input = new mb.Input({
         formats: mb.ALL_FORMATS,
         source: new mb.BlobSource(file),
       });
@@ -227,6 +217,10 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
           message: __('Video optimization failed. You can still publish the original.'),
         })
       );
+    } finally {
+      if (input) {
+        input.dispose();
+      }
     }
   }
 

@@ -31,10 +31,11 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
   async function handleConvert() {
     setState('transmuxing');
     setProgress(0);
+    let input;
 
     try {
       const mb = await import('mediabunny');
-      const input = new mb.Input({
+      input = new mb.Input({
         formats: mb.ALL_FORMATS,
         source: new mb.BlobSource(file),
       });
@@ -99,6 +100,10 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
           message: __('Format conversion failed. You can still try publishing the original.'),
         })
       );
+    } finally {
+      if (input) {
+        input.dispose();
+      }
     }
   }
 

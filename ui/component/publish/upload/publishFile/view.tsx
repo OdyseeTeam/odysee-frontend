@@ -155,11 +155,6 @@ function PublishFile(props: Props) {
       fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimChannelId, activeChannelName]);
-  useEffect(() => {
-    if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
-      fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimChannelId, activeChannelName]);
 
   function linkReplays() {
     return (
@@ -296,29 +291,25 @@ function PublishFile(props: Props) {
               {/* Inline codec/format info strip */}
               {isVid && filePath && (fileVideoCodec || fileAudioCodec || fileHeight > 0) && (
                 <div className="publish-file-info">
-                  {fileFormat && (
-                    <span className="publish-file-info__pill">{fileFormat.toUpperCase()}</span>
-                  )}
+                  {fileFormat && <span className="publish-file-info__pill">{fileFormat.toUpperCase()}</span>}
                   {fileVideoCodec && (
                     <span className="publish-file-info__pill">
                       {fileVideoCodec.toUpperCase().replace('AVC', 'H.264').replace('HEVC', 'H.265')}
                     </span>
                   )}
-                  {fileAudioCodec && (
-                    <span className="publish-file-info__pill">{fileAudioCodec.toUpperCase()}</span>
-                  )}
+                  {fileAudioCodec && <span className="publish-file-info__pill">{fileAudioCodec.toUpperCase()}</span>}
                   {fileHeight > 0 && (
                     <span className="publish-file-info__pill">
                       {fileWidth}x{fileHeight}
                     </span>
                   )}
-                  {fileFps > 0 && (
-                    <span className="publish-file-info__pill">{Math.round(fileFps)} fps</span>
-                  )}
+                  {fileFps > 0 && <span className="publish-file-info__pill">{Math.round(fileFps)} fps</span>}
                   {fileBitrate > 0 && (
-                    <span className={classnames('publish-file-info__pill', {
-                      'publish-file-info__pill--warn': fileBitrate > BITRATE.RECOMMENDED,
-                    })}>
+                    <span
+                      className={classnames('publish-file-info__pill', {
+                        'publish-file-info__pill--warn': fileBitrate > BITRATE.RECOMMENDED,
+                      })}
+                    >
                       {fileBitrate >= 1e6
                         ? `${(fileBitrate / 1e6).toFixed(1)} Mbps`
                         : `${Math.round(fileBitrate / 1e3)} kbps`}

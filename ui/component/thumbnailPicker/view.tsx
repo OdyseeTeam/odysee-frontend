@@ -19,6 +19,8 @@ type FrameData = {
   label: string;
 };
 
+type PickerMode = 'auto' | 'manual';
+
 function formatTimestamp(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -28,11 +30,10 @@ function formatTimestamp(seconds: number): string {
 type Props = {
   filePath: File;
   onThumbnailSelected?: (thumbnailUrl: string) => void;
-  inline?: boolean;
 };
 
 function ThumbnailPicker(props: Props) {
-  const { filePath, onThumbnailSelected, inline } = props;
+  const { filePath, onThumbnailSelected } = props;
   const dispatch = useAppDispatch();
 
   const [frames, setFrames] = useState<FrameData[]>([]);
@@ -40,37 +41,80 @@ function ThumbnailPicker(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<PickerMode>('auto');
+  const [duration, setDuration] = useState(0);
+  const [manualTimestamp, setManualTimestamp] = useState(0);
+  const [manualFrame, setManualFrame] = useState<FrameData | null>(null);
+  const [manualLoading, setManualLoading] = useState(false);
 
   const inputRef = useRef<Input | null>(null);
+  const frameUrlsRef = useRef<string[]>([]);
+  const extractionIdRef = useRef(0);
+  const manualFrameUrlRef = useRef<string | null>(null);
 
-  const cleanup = useCallback(() => {
-    frames.forEach((f) => URL.revokeObjectURL(f.blobUrl));
+  const cleanupFrameUrls = useCallback((urls?: string[]) => {
+    const urlsToRevoke = urls || frameUrlsRef.current;
+    urlsToRevoke.forEach((blobUrl) => URL.revokeObjectURL(blobUrl));
+
+    if (!urls) {
+      frameUrlsRef.current = [];
+    }
+  }, []);
+
+  const cleanupInput = useCallback(() => {
     if (inputRef.current) {
       inputRef.current.dispose();
       inputRef.current = null;
     }
-  }, [frames]);
+  }, []);
+
+  const cleanupManualFrame = useCallback(() => {
+    if (manualFrameUrlRef.current) {
+      URL.revokeObjectURL(manualFrameUrlRef.current);
+      manualFrameUrlRef.current = null;
+    }
+  }, []);
+
+  const cleanup = useCallback(() => {
+    extractionIdRef.current += 1;
+    cleanupFrameUrls();
+    cleanupManualFrame();
+    cleanupInput();
+  }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame]);
 
   const extractFrames = useCallback(
     async (percentages: number[]) => {
+      const extractionId = extractionIdRef.current + 1;
+      extractionIdRef.current = extractionId;
+
       setLoading(true);
       setError(null);
       setSelectedIndex(null);
+      setFrames([]);
+      setDuration(0);
+      cleanupManualFrame();
+      setManualFrame(null);
+      cleanupFrameUrls();
+      cleanupInput();
 
-      // Clean up previous frames
-      frames.forEach((f) => URL.revokeObjectURL(f.blobUrl));
+      let input: Input | null = null;
+      let newFrameUrls: string[] = [];
 
       try {
         const source = new BlobSource(filePath);
-        const input = new Input({ formats: ALL_FORMATS, source });
+        input = new Input({ formats: ALL_FORMATS, source });
         inputRef.current = input;
 
         const duration = await input.computeDuration();
+        if (extractionId === extractionIdRef.current) {
+          setDuration(duration || 0);
+        }
         const videoTrack = await input.getPrimaryVideoTrack();
 
         if (!videoTrack) {
-          setError(__('No video track found in the file.'));
-          setLoading(false);
+          if (extractionId === extractionIdRef.current) {
+            setError(__('No video track found in the file.'));
+          }
           return;
         }
 
@@ -79,23 +123,35 @@ function ThumbnailPicker(props: Props) {
         const newFrames: FrameData[] = [];
 
         for await (const sample of sink.samplesAtTimestamps(timestamps)) {
-          if (!sample) continue;
+          if (!sample) {
+            continue;
+          }
+
+          if (extractionId !== extractionIdRef.current) {
+            sample.close();
+            return;
+          }
 
           const blob = await videoSampleToBlob(sample);
           if (blob) {
+            const blobUrl = URL.createObjectURL(blob);
             newFrames.push({
-              blobUrl: URL.createObjectURL(blob),
+              blobUrl,
               blob,
               timestamp: sample.timestamp,
               label: formatTimestamp(sample.timestamp),
             });
+            newFrameUrls.push(blobUrl);
           }
           sample.close();
         }
 
-        input.dispose();
-        inputRef.current = null;
+        if (extractionId !== extractionIdRef.current) {
+          cleanupFrameUrls(newFrameUrls);
+          return;
+        }
 
+        frameUrlsRef.current = newFrameUrls;
         setFrames(newFrames);
 
         if (newFrames.length === 0) {
@@ -103,15 +159,30 @@ function ThumbnailPicker(props: Props) {
         }
       } catch (err) {
         console.error('ThumbnailPicker: frame extraction failed', err); // eslint-disable-line no-console
-        setError(__("Something didn't work. Please try again."));
-      }
+        cleanupFrameUrls(newFrameUrls);
 
-      setLoading(false);
+        if (extractionId === extractionIdRef.current) {
+          setError(__("Something didn't work. Please try again."));
+        }
+      } finally {
+        if (inputRef.current === input) {
+          cleanupInput();
+        } else if (input) {
+          input.dispose();
+        }
+
+        if (extractionId === extractionIdRef.current) {
+          setLoading(false);
+        }
+      }
     },
-    [filePath] // eslint-disable-line react-hooks/exhaustive-deps
+    [cleanupFrameUrls, cleanupInput, filePath]
   );
 
   useEffect(() => {
+    setMode('auto');
+    setManualTimestamp(0);
+    setManualFrame(null);
     extractFrames(DEFAULT_PERCENTAGES);
 
     return () => {
@@ -125,10 +196,78 @@ function ThumbnailPicker(props: Props) {
     extractFrames(randomPercentages);
   }
 
-  async function handleUpload() {
-    if (selectedIndex === null || !frames[selectedIndex]) return;
+  function handleShowManualMode() {
+    const nextTimestamp =
+      selectedIndex !== null && frames[selectedIndex] ? frames[selectedIndex].timestamp : duration ? duration / 2 : 0;
 
-    const frame = frames[selectedIndex];
+    setError(null);
+    cleanupManualFrame();
+    setManualFrame(null);
+    setManualTimestamp(nextTimestamp);
+    setMode('manual');
+  }
+
+  async function handleManualPreview() {
+    if (!duration) return;
+
+    setError(null);
+    setManualLoading(true);
+    cleanupManualFrame();
+    setManualFrame(null);
+
+    let input: Input | null = null;
+
+    try {
+      const source = new BlobSource(filePath);
+      input = new Input({ formats: ALL_FORMATS, source });
+
+      const videoTrack = await input.getPrimaryVideoTrack();
+      if (!videoTrack) {
+        setError(__('No video track found in the file.'));
+        return;
+      }
+
+      const sink = new VideoSampleSink(videoTrack);
+      for await (const sample of sink.samplesAtTimestamps([manualTimestamp])) {
+        if (!sample) {
+          continue;
+        }
+
+        const blob = await videoSampleToBlob(sample);
+        const timestamp = sample.timestamp;
+        const blobUrl = blob ? URL.createObjectURL(blob) : null;
+        sample.close();
+
+        if (!blob || !blobUrl) {
+          break;
+        }
+
+        manualFrameUrlRef.current = blobUrl;
+        setManualFrame({
+          blobUrl,
+          blob,
+          timestamp,
+          label: formatTimestamp(timestamp),
+        });
+        return;
+      }
+
+      setError(__('Could not extract a frame at that position.'));
+    } catch (err) {
+      console.error('ThumbnailPicker: manual frame extraction failed', err); // eslint-disable-line no-console
+      setError(__("Something didn't work. Please try again."));
+    } finally {
+      if (input) {
+        input.dispose();
+      }
+      setManualLoading(false);
+    }
+  }
+
+  async function handleUpload() {
+    const frame = mode === 'manual' ? manualFrame : selectedIndex !== null ? frames[selectedIndex] : null;
+
+    if (!frame) return;
     setUploading(true);
 
     try {
@@ -146,7 +285,9 @@ function ThumbnailPicker(props: Props) {
         }
       }
 
-      dispatch(doUploadThumbnail(undefined, file, undefined, undefined, onThumbnailSelected));
+      await Promise.resolve(
+        dispatch(doUploadThumbnail(undefined, file, undefined, undefined, undefined, onThumbnailSelected))
+      );
     } catch (err) {
       dispatch(
         doToast({
@@ -161,6 +302,23 @@ function ThumbnailPicker(props: Props) {
 
   return (
     <div className="thumbnail-picker">
+      <div className="thumbnail-picker__mode-header">
+        <div>
+          <h3 className="thumbnail-picker__title">{__('Auto-generated video thumbnails')}</h3>
+          <p className="thumbnail-picker__subtitle">
+            {__('Start with generated suggestions. If none fit, switch to manual frame selection.')}
+          </p>
+        </div>
+        {duration > 0 && mode === 'auto' && (
+          <Button
+            button="link"
+            label={__('Manual frame selection')}
+            onClick={handleShowManualMode}
+            disabled={loading || uploading}
+          />
+        )}
+      </div>
+
       {loading && (
         <div className="thumbnail-picker__loading">
           <div className="thumbnail-picker__grid thumbnail-picker__grid--skeleton">
@@ -179,11 +337,15 @@ function ThumbnailPicker(props: Props) {
       {!loading && error && (
         <div className="thumbnail-picker__error">
           <p>{error}</p>
-          <Button button="secondary" label={__('Try again')} onClick={handleRegenerate} />
+          <Button
+            button="secondary"
+            label={mode === 'manual' ? __('Preview frame') : __('Try again')}
+            onClick={mode === 'manual' ? handleManualPreview : handleRegenerate}
+          />
         </div>
       )}
 
-      {!loading && !error && frames.length > 0 && (
+      {!loading && !error && mode === 'auto' && frames.length > 0 && (
         <>
           <div className="thumbnail-picker__grid">
             {frames.map((frame, index) => (
@@ -214,9 +376,92 @@ function ThumbnailPicker(props: Props) {
               disabled={selectedIndex === null || uploading}
               onClick={handleUpload}
             />
-            <Button button="link" label={__('Regenerate')} onClick={handleRegenerate} disabled={uploading} />
+            <Button
+              button="link"
+              label={__('Regenerate suggestions')}
+              onClick={handleRegenerate}
+              disabled={uploading}
+            />
+            {duration > 0 && (
+              <Button
+                button="link"
+                label={__('Manual frame selection')}
+                onClick={handleShowManualMode}
+                disabled={uploading}
+              />
+            )}
           </div>
         </>
+      )}
+
+      {!loading && mode === 'manual' && duration > 0 && (
+        <div className="thumbnail-picker__manual">
+          <div className="thumbnail-picker__manual-controls">
+            <label className="thumbnail-picker__manual-label" htmlFor="thumbnail-picker-manual-range">
+              {__('Choose a frame')}
+            </label>
+            <div className="thumbnail-picker__manual-range-row">
+              <input
+                id="thumbnail-picker-manual-range"
+                className="thumbnail-picker__manual-range"
+                type="range"
+                min={0}
+                max={duration}
+                step={Math.max(duration / 200, 0.25)}
+                value={manualTimestamp}
+                onChange={(event) => setManualTimestamp(Number(event.target.value))}
+              />
+              <span className="thumbnail-picker__manual-timestamp">{formatTimestamp(manualTimestamp)}</span>
+            </div>
+          </div>
+
+          <div className="thumbnail-picker__actions">
+            <Button
+              button="secondary"
+              label={manualLoading ? __('Loading frame...') : __('Preview frame')}
+              onClick={handleManualPreview}
+              disabled={manualLoading || uploading}
+            />
+            <Button
+              button="link"
+              label={__('Back to suggestions')}
+              onClick={() => {
+                setError(null);
+                setMode('auto');
+              }}
+              disabled={manualLoading || uploading}
+            />
+          </div>
+
+          {manualFrame && (
+            <div className="thumbnail-picker__manual-preview">
+              <button
+                className="thumbnail-picker__item thumbnail-picker__item--selected"
+                type="button"
+                onClick={handleUpload}
+                disabled={uploading}
+              >
+                <img
+                  src={manualFrame.blobUrl}
+                  alt={__('Thumbnail at %timestamp%', {
+                    timestamp: manualFrame.label,
+                  })}
+                  className="thumbnail-picker__image"
+                />
+                <span className="thumbnail-picker__label">{manualFrame.label}</span>
+              </button>
+            </div>
+          )}
+
+          <div className="thumbnail-picker__actions">
+            <Button
+              button="primary"
+              label={uploading ? __('Uploading...') : __('Use this frame')}
+              disabled={!manualFrame || manualLoading || uploading}
+              onClick={handleUpload}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
@@ -226,6 +471,10 @@ async function videoSampleToBlob(sample: VideoSample): Promise<Blob | null> {
   try {
     const width = sample.displayWidth;
     const height = sample.displayHeight;
+
+    if (!width || !height) {
+      return null;
+    }
 
     const scale = Math.min(1, THUMBNAIL_WIDTH / width);
     const canvasWidth = Math.round(width * scale);

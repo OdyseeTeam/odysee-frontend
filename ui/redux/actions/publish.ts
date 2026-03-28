@@ -353,11 +353,24 @@ export const doUpdateTitle = (title: string, skipNameAutoFill: boolean) => (disp
   });
 };
 /** Fallback metadata extraction via <video> element when MediaBunny is unavailable */
-function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch) {
+function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch, shouldApplyMetadata: () => boolean) {
   window.URL = window.URL || window.webkitURL;
   const video = document.createElement('video');
+  const objectUrl = window.URL.createObjectURL(blob);
+
+  const cleanup = () => {
+    window.URL.revokeObjectURL(objectUrl);
+    video.removeAttribute('src');
+    video.load();
+  };
+
   video.preload = 'metadata';
   video.addEventListener('loadedmetadata', () => {
+    if (!shouldApplyMetadata()) {
+      cleanup();
+      return;
+    }
+
     dispatch({
       type: ACTIONS.UPDATE_PUBLISH_FORM,
       data: {
@@ -365,15 +378,21 @@ function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch) {
         fileBitrate: getVideoBitrate(blob.size, video.duration),
       },
     });
-    window.URL.revokeObjectURL(video.src);
+    cleanup();
   });
   video.addEventListener('error', () => {
+    if (!shouldApplyMetadata()) {
+      cleanup();
+      return;
+    }
+
     dispatch({
       type: ACTIONS.UPDATE_PUBLISH_FORM,
       data: { fileDur: 0, fileBitrate: 0 },
     });
+    cleanup();
   });
-  video.src = window.URL.createObjectURL(blob);
+  video.src = objectUrl;
 }
 
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
@@ -389,6 +408,16 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
           type: ACTIONS.UPDATE_PUBLISH_FORM,
           data: {
             filePath: '',
+            fileDur: 0,
+            fileBitrate: 0,
+            fileVideoCodec: '',
+            fileAudioCodec: '',
+            fileFormat: '',
+            fileWidth: 0,
+            fileHeight: 0,
+            fileFps: 0,
+            fileNeedsTransmux: false,
+            fileText: undefined,
           },
         });
       } else {
@@ -397,15 +426,26 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
           data: {
             filePath: '',
             name: '',
+            fileDur: 0,
+            fileBitrate: 0,
+            fileVideoCodec: '',
+            fileAudioCodec: '',
+            fileFormat: '',
+            fileWidth: 0,
+            fileHeight: 0,
+            fileFps: 0,
+            fileNeedsTransmux: false,
+            fileText: undefined,
           },
         });
       }
 
-      // TODO: Shouldn't it clear the other file-related attributes too?
       return;
     }
 
     assert(typeof file !== 'string');
+    const selectedFilePath = file.path || file;
+    const shouldApplyMetadata = () => selectPublishFormValue(getState(), 'filePath') === selectedFilePath;
     const contentType = file.type && file.type.split('/');
     const isVideo = contentType ? contentType[0] === 'video' : false;
     const isMp4 = contentType ? contentType[1] === 'mp4' : false;
@@ -425,8 +465,17 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
       fileSize: file.size,
       fileMime: file.type,
       fileVid: isVideo,
+      fileDur: 0,
       fileBitrate: 0,
+      fileVideoCodec: '',
+      fileAudioCodec: '',
+      fileFormat: '',
+      fileWidth: 0,
+      fileHeight: 0,
+      fileFps: 0,
+      fileNeedsTransmux: false,
       fileSizeTooBig: false,
+      fileText: undefined,
     };
 
     // --- Async metadata extraction via MediaBunny ---
@@ -434,8 +483,10 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     if (isMedia) {
       import('mediabunny')
         .then(async (mb) => {
+          let input;
+
           try {
-            const input = new mb.Input({
+            input = new mb.Input({
               formats: mb.ALL_FORMATS,
               source: new mb.BlobSource(file as unknown as Blob),
             });
@@ -466,24 +517,28 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
             metadataUpdates.fileFormat = isMp4Container ? 'mp4' : ext;
             metadataUpdates.fileNeedsTransmux = isVideo && !isMp4Container;
 
-            dispatch({
-              type: ACTIONS.UPDATE_PUBLISH_FORM,
-              data: metadataUpdates,
-            });
-
-            input.dispose();
+            if (shouldApplyMetadata()) {
+              dispatch({
+                type: ACTIONS.UPDATE_PUBLISH_FORM,
+                data: metadataUpdates,
+              });
+            }
           } catch (e) {
             console.warn('[Publish] MediaBunny metadata extraction failed, falling back:', e); // eslint-disable-line no-console
             // Fallback: try <video> element for MP4
             if (isMp4) {
-              extractMetadataViaVideoElement(file as unknown as Blob, dispatch);
+              extractMetadataViaVideoElement(file as unknown as Blob, dispatch, shouldApplyMetadata);
+            }
+          } finally {
+            if (input) {
+              input.dispose();
             }
           }
         })
         .catch(() => {
           // MediaBunny not available — fallback to <video> element
           if (isMp4) {
-            extractMetadataViaVideoElement(file as unknown as Blob, dispatch);
+            extractMetadataViaVideoElement(file as unknown as Blob, dispatch, shouldApplyMetadata);
           }
         });
     } else {
@@ -532,7 +587,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     // --- File Path ---
     // If electron, we'll set filePath to the path string because SDK is handling publishing.
     // File.path will be undefined from web due to browser security, so it will default to the File Object.
-    formUpdates.filePath = file.path || file;
+    formUpdates.filePath = selectedFilePath;
     // --- Finalize ---
     dispatch({
       type: ACTIONS.UPDATE_PUBLISH_FORM,
@@ -1433,10 +1488,12 @@ export function doUpdateUploadRemove(guid: string, params?: Record<string, any>)
       const f = upload.file;
       const fileName = typeof f === 'string' ? f : f.name;
       const fileSize = typeof f === 'object' && 'size' in f ? f.size : 0;
-      import('util/uploadCache').then(({ removeCachedFile }) => {
-        removeCachedFile(`optimized-${fileName}-${fileSize}`).catch(() => {});
-        removeCachedFile(`converted-${fileName}-${fileSize}`).catch(() => {});
-      }).catch(() => {});
+      import('util/uploadCache')
+        .then(({ removeCachedFile }) => {
+          removeCachedFile(`optimized-${fileName}-${fileSize}`).catch(() => {});
+          removeCachedFile(`converted-${fileName}-${fileSize}`).catch(() => {});
+        })
+        .catch(() => {});
     }
 
     dispatch({

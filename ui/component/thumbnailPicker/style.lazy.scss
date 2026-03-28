@@ -4,6 +4,23 @@
   width: 100%;
 }
 
+.thumbnail-picker__mode-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+}
+
+.thumbnail-picker__title {
+  margin: 0;
+}
+
+.thumbnail-picker__subtitle {
+  margin: var(--spacing-xxs) 0 0;
+  color: var(--color-text-subtitle);
+}
+
 .thumbnail-picker__loading {
   position: relative;
 }
@@ -101,9 +118,46 @@
 
 .thumbnail-picker__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-m);
   margin-top: var(--spacing-m);
+}
+
+.thumbnail-picker__manual {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+}
+
+.thumbnail-picker__manual-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+}
+
+.thumbnail-picker__manual-label {
+  font-weight: var(--font-weight-bold);
+}
+
+.thumbnail-picker__manual-range-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.thumbnail-picker__manual-range {
+  flex: 1;
+}
+
+.thumbnail-picker__manual-timestamp {
+  min-width: 3.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.thumbnail-picker__manual-preview {
+  max-width: 28rem;
 }
 
 .thumbnail-picker__error {
