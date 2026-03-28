@@ -298,7 +298,7 @@ export default function LivestreamSetupPage() {
       {/* Browser Stream Tab (WebRTC) */}
       {tab === 'Stream' && (
         <div className={editingURI ? 'disabled' : ''}>
-          {!fetchingChannels && channelId && approvedLivestreamClaimCount === 0 && (
+          {!fetchingChannels && channelId && claimsFetched && approvedLivestreamClaimCount === 0 && (
             <LivestreamQuickCreate
               onCreated={() => {
                 if (channelId) dispatch(doFetchNoSourceClaimsForChannelId(channelId));
