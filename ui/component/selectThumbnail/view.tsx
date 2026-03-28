@@ -6,6 +6,7 @@ import * as React from 'react';
 import { FormField } from 'component/common/form';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
+import Spinner from 'component/spinner';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -13,7 +14,10 @@ import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/pu
 import { selectFileInfosByOutpoint } from 'redux/selectors/file_info';
 import { doUpdatePublishForm, doResetThumbnailStatus } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
+import { lazyImport } from 'util/lazyImport';
 import './style.lazy.scss';
+
+const ThumbnailPicker = lazyImport(() => import('component/thumbnailPicker'));
 type Props = {
   thumbnailParam?: string | null | undefined;
   thumbnailParamError?: boolean;
@@ -53,6 +57,7 @@ function SelectThumbnail(props: Props) {
   const fileInfo = outpoint ? fileInfos[outpoint] : undefined;
   const downloadPath = fileInfo ? fileInfo.download_path : undefined;
   const actualFilePath = filePath || downloadPath;
+  const [showVideoPicker, setShowVideoPicker] = React.useState(false);
   let isSupportedVideo = false;
 
   if (typeof actualFilePath === 'string') {
@@ -60,6 +65,8 @@ function SelectThumbnail(props: Props) {
   } else if (actualFilePath && actualFilePath.type) {
     isSupportedVideo = actualFilePath.type.split('/')[0] === 'video';
   }
+
+  const isFileObject = actualFilePath && typeof actualFilePath !== 'string';
 
   function handleThumbnailChange(e: any) {
     const newThumbnail = e.target.value.replace(' ', '');
@@ -201,16 +208,19 @@ function SelectThumbnail(props: Props) {
                     })
                   }
                 />
-                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && ( // Disabled on desktop until this is resolved
-                  // https://github.com/electron/electron/issues/20750#issuecomment-709505902
+                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && (
                   <Button
                     button="link"
-                    label={__('Take a snapshot from your video')}
-                    onClick={() =>
-                      openModal(MODALS.AUTO_GENERATE_THUMBNAIL, {
-                        filePath: actualFilePath,
-                      })
-                    }
+                    label={showVideoPicker ? __('Hide video thumbnails') : __('Pick thumbnail from video')}
+                    onClick={() => {
+                      if (isFileObject) {
+                        setShowVideoPicker(!showVideoPicker);
+                      } else {
+                        openModal(MODALS.AUTO_GENERATE_THUMBNAIL, {
+                          filePath: actualFilePath,
+                        });
+                      }
+                    }}
                   />
                 )}
               </div>
@@ -222,6 +232,24 @@ function SelectThumbnail(props: Props) {
       {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           <p>{__('Uploading thumbnail')}...</p>
+        </div>
+      )}
+
+      {showVideoPicker && isSupportedVideo && isFileObject && (
+        <div className="card--thumbnail" style={{ marginTop: 'var(--spacing-m)' }}>
+          <React.Suspense
+            fallback={
+              <div className="main--empty empty">
+                <Spinner type="small" />
+              </div>
+            }
+          >
+            <ThumbnailPicker
+              filePath={actualFilePath as File}
+              onThumbnailSelected={() => setShowVideoPicker(false)}
+              inline
+            />
+          </React.Suspense>
         </div>
       )}
     </>

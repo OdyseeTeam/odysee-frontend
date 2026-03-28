@@ -352,6 +352,30 @@ export const doUpdateTitle = (title: string, skipNameAutoFill: boolean) => (disp
     data: { ...publishFormValue },
   });
 };
+/** Fallback metadata extraction via <video> element when MediaBunny is unavailable */
+function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch) {
+  window.URL = window.URL || window.webkitURL;
+  const video = document.createElement('video');
+  video.preload = 'metadata';
+  video.addEventListener('loadedmetadata', () => {
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: {
+        fileDur: video.duration,
+        fileBitrate: getVideoBitrate(blob.size, video.duration),
+      },
+    });
+    window.URL.revokeObjectURL(video.src);
+  });
+  video.addEventListener('error', () => {
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: { fileDur: 0, fileBitrate: 0 },
+    });
+  });
+  video.src = window.URL.createObjectURL(blob);
+}
+
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -405,38 +429,62 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
       fileSizeTooBig: false,
     };
 
-    // --- Async data ---
-    if (isVideo) {
-      if (isMp4) {
-        window.URL = window.URL || window.webkitURL;
-        const video = document.createElement('video');
-        video.preload = 'metadata';
+    // --- Async metadata extraction via MediaBunny ---
+    const isMedia = isVideo || (contentType && contentType[0] === 'audio');
+    if (isMedia) {
+      import('mediabunny')
+        .then(async (mb) => {
+          try {
+            const input = new mb.Input({
+              source: new mb.BlobSource(file as unknown as Blob),
+            });
 
-        video.addEventListener('loadedmetadata', () => {
-          dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              fileDur: video.duration,
-              fileBitrate: getVideoBitrate(file.size, video.duration),
-            },
-          });
-          window.URL.revokeObjectURL(video.src);
+            const duration = (await input.computeDuration()) || 0;
+            const videoTrack = await input.getPrimaryVideoTrack();
+            const audioTrack = await input.getPrimaryAudioTrack();
+            const format = input.getFormat?.()?.constructor?.name || '';
+
+            const metadataUpdates: UpdatePublishState = {
+              fileDur: duration,
+              fileBitrate: duration > 0 ? (file.size * 8) / duration : 0,
+            };
+
+            if (videoTrack) {
+              metadataUpdates.fileVideoCodec = videoTrack.codec || '';
+              metadataUpdates.fileWidth = videoTrack.width || 0;
+              metadataUpdates.fileHeight = videoTrack.height || 0;
+              metadataUpdates.fileFps = videoTrack.frameRate || 0;
+            }
+            if (audioTrack) {
+              metadataUpdates.fileAudioCodec = audioTrack.codec || '';
+            }
+
+            // Detect non-MP4 containers for transmux prompt
+            const ext = file.name?.toLowerCase().split('.').pop() || '';
+            const isMp4Container = ext === 'mp4' || ext === 'mov' || ext === 'm4v';
+            metadataUpdates.fileFormat = isMp4Container ? 'mp4' : ext;
+            metadataUpdates.fileNeedsTransmux = isVideo && !isMp4Container;
+
+            dispatch({
+              type: ACTIONS.UPDATE_PUBLISH_FORM,
+              data: metadataUpdates,
+            });
+
+            await input.dispose();
+          } catch (e) {
+            console.warn('[Publish] MediaBunny metadata extraction failed, falling back:', e); // eslint-disable-line no-console
+            // Fallback: try <video> element for MP4
+            if (isMp4) {
+              extractMetadataViaVideoElement(file as unknown as Blob, dispatch);
+            }
+          }
+        })
+        .catch(() => {
+          // MediaBunny not available — fallback to <video> element
+          if (isMp4) {
+            extractMetadataViaVideoElement(file as unknown as Blob, dispatch);
+          }
         });
-
-        video.addEventListener('error', () => {
-          dispatch({
-            type: ACTIONS.UPDATE_PUBLISH_FORM,
-            data: {
-              fileDur: 0,
-              fileBitrate: 0,
-            },
-          });
-        });
-
-        video.src = window.URL.createObjectURL(file as unknown as Blob);
-      } else {
-        formUpdates.fileDur = 0;
-      }
     } else {
       formUpdates.fileDur = 0;
 
