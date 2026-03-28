@@ -130,7 +130,7 @@ export default function TagsSearch(props: Props) {
     });
   }
 
-  const FILTERED_CONTROL_TAGS = CONTROL_TAGS.filter((tag) => !excludedControlTags.includes(tag));
+  const FILTERED_CONTROL_TAGS = CONTROL_TAGS.filter((tag) => !(excludedControlTags || []).includes(tag));
   const controlTagLabels = {};
   FILTERED_CONTROL_TAGS.map((t) => {
     let label;
