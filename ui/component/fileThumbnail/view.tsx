@@ -3,6 +3,7 @@ import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
 import useLiveThumbnailFrame from 'effects/use-live-thumbnail-frame';
 import useVideoPreviewOnHover from 'effects/use-video-preview-on-hover';
+import useHlsVideoPreview from 'effects/use-hls-video-preview';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
@@ -37,6 +38,7 @@ type Props = {
   isShort?: boolean;
   tileLayout?: boolean;
   hoverPreview?: boolean;
+  externalHover?: boolean;
 };
 
 function FileThumbnail(props: Props) {
@@ -51,6 +53,7 @@ function FileThumbnail(props: Props) {
     forceReload,
     isShort = false,
     hoverPreview = false,
+    externalHover,
   } = props;
 
   const hasResolvedClaim = useAppSelector((state) => (uri ? selectHasResolvedClaimForUri(state, uri) : undefined));
@@ -92,14 +95,23 @@ function FileThumbnail(props: Props) {
   const canPreviewOnHover =
     hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
 
-  const [isHovering, setIsHovering] = React.useState(false);
+  const [isHoveringLocal, setIsHoveringLocal] = React.useState(false);
+  const isHovering = externalHover !== undefined ? externalHover : isHoveringLocal;
 
-  const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
-  const vodPreviewFrame = useVideoPreviewOnHover(
+  const { videoRef: hlsVideoRef, isReady: hlsPreviewReady, isHlsAvailable } = useHlsVideoPreview(
     canPreviewOnHover ? streamingUrl || null : null,
     canPreviewOnHover ? uri : undefined,
-    videoDuration,
     isHovering && canPreviewOnHover
+  );
+
+  const shouldUseFallbackFrames = canPreviewOnHover && isHlsAvailable === false;
+
+  const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
+  const vodPreview = useVideoPreviewOnHover(
+    shouldUseFallbackFrames ? streamingUrl || null : null,
+    shouldUseFallbackFrames ? uri : undefined,
+    videoDuration,
+    isHovering && shouldUseFallbackFrames
   );
   const [loadedLiveUrl, setLoadedLiveUrl] = React.useState<string | null>(null);
   React.useEffect(() => {
@@ -126,10 +138,10 @@ function FileThumbnail(props: Props) {
   const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
 
   const hoverHandlers =
-    liveThumbnail || canPreviewOnHover
+    externalHover === undefined && (liveThumbnail || canPreviewOnHover)
       ? {
-          onMouseEnter: () => setIsHovering(true),
-          onMouseLeave: () => setIsHovering(false),
+          onMouseEnter: () => setIsHoveringLocal(true),
+          onMouseLeave: () => setIsHoveringLocal(false),
         }
       : {};
 
@@ -173,13 +185,29 @@ function FileThumbnail(props: Props) {
     url = loadedLiveUrl;
   }
 
-  // VOD hover preview frame overrides thumbnail while hovering
-  if (vodPreviewFrame && isHovering) {
-    url = vodPreviewFrame;
-  }
-
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
-  const isPreviewActive = Boolean(vodPreviewFrame && isHovering);
+  const hlsPreviewActive = Boolean(hlsPreviewReady && isHovering && canPreviewOnHover);
+  const hasFrames = Boolean(vodPreview.current);
+  const framePreviewActive = Boolean(hasFrames && isHovering);
+
+  const [framesFadedIn, setFramesFadedIn] = React.useState(false);
+  React.useEffect(() => {
+    if (!hasFrames) {
+      setFramesFadedIn(false);
+      return;
+    }
+    if (framePreviewActive && !framesFadedIn) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setFramesFadedIn(true);
+        });
+      });
+    } else if (!framePreviewActive) {
+      setFramesFadedIn(false);
+    }
+  }, [hasFrames, framePreviewActive, framesFadedIn]);
+
+  const isPreviewActive = hlsPreviewActive || (framePreviewActive && framesFadedIn);
 
   if (!gettingThumbnail) {
     return (
@@ -189,6 +217,7 @@ function FileThumbnail(props: Props) {
         fallback={FALLBACK}
         className={classnames(className, {
           'media__thumb--live': Boolean(liveThumbnail),
+          'media__thumb--has-preview': canPreviewOnHover,
           'media__thumb--preview-active': isPreviewActive,
           'media__thumb--live-refreshing': isLiveRefreshing,
         })}
@@ -197,6 +226,37 @@ function FileThumbnail(props: Props) {
         isLiveRefreshing={isLiveRefreshing}
         hoverHandlers={hoverHandlers}
       >
+        {canPreviewOnHover && (
+          <video
+            ref={hlsVideoRef}
+            className={classnames('media__thumb-video-preview', {
+              'media__thumb-video-preview--active': hlsPreviewActive,
+              'media__thumb-video-preview--portrait': isShort,
+            })}
+            muted
+            playsInline
+          />
+        )}
+        {hasFrames && (
+          <div className={classnames('media__thumb-frame-crossfade', {
+            'media__thumb-frame-crossfade--active': framesFadedIn && isHovering,
+            'media__thumb-frame-crossfade--portrait': isShort,
+          })}>
+            <img
+              src={vodPreview.previous || vodPreview.current}
+              className="media__thumb-frame-preview"
+              alt=""
+              draggable={false}
+            />
+            <img
+              key={vodPreview.frameIndex}
+              src={vodPreview.current}
+              className="media__thumb-frame-preview media__thumb-frame-preview--front"
+              alt=""
+              draggable={false}
+            />
+          </div>
+        )}
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
       </Thumb>

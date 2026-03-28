@@ -225,9 +225,13 @@ function ClaimPreviewTile(props: Props) {
     );
   }
 
+  const [tileHover, setTileHover] = React.useState(false);
+
   return (
     <li
       onClick={handleClick}
+      onMouseEnter={() => setTileHover(true)}
+      onMouseLeave={() => setTileHover(false)}
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
@@ -259,6 +263,7 @@ function ClaimPreviewTile(props: Props) {
           allowGifs
           tileLayout
           hoverPreview
+          externalHover={tileHover}
           uri={uri}
           secondaryUri={firstCollectionItemUrl}
         >

@@ -51,8 +51,7 @@ const Thumb = (props: Props) => {
       <div
         ref={thumbnailRef}
         style={stableLiveBackground ? { backgroundImage: `url(${stableLiveBackground})` } : undefined}
-        className={classnames('media__thumb', {
-          className,
+        className={classnames('media__thumb', className, {
           'media__thumb--small': small,
           'media__thumb--loaded': true,
         })}
@@ -86,8 +85,7 @@ const Thumb = (props: Props) => {
       ref={thumbnailRef}
       data-background-image={thumb}
       style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
-      className={classnames('media__thumb', {
-        className,
+      className={classnames('media__thumb', className, {
         'media__thumb--small': small,
         'media__thumb--loaded': srcLoaded,
       })}

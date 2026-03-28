@@ -52,16 +52,101 @@
 }
 
 // VOD hover preview: smooth crossfade when cycling through preview frames
+.media__thumb.media__thumb--has-preview {
+  background-size: 100% !important;
+}
+
 .media__thumb--preview-active {
-  .claim-preview__file-property-overlay,
   .claim-preview-progress {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease;
   }
 
-  background-size: cover !important;
-  transition: background-image 0.3s ease;
+  .claim-preview__file-property-overlay {
+    z-index: 4;
+  }
+
+  background-size: 100% !important;
+}
+
+.media__thumb-frame-crossfade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  &--active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+}
+
+.media__thumb-frame-crossfade--portrait {
+  background: black;
+
+  .media__thumb-frame-preview {
+    object-fit: contain;
+    transform: scale(1.35);
+  }
+}
+
+.media__thumb-frame-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &--front {
+    opacity: 0;
+    animation: frameFadeIn 0.65s ease-in-out forwards;
+  }
+}
+
+@keyframes frameFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.media__thumb-video-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &--portrait {
+    object-fit: contain;
+    background: black;
+    transform: scale(1.35);
+  }
+  border-radius: var(--border-radius);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+  outline: 1px solid rgba(var(--color-primary-dynamic), 1);
+  outline-offset: -1px;
+
+  &--active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
 }
 
 .media__thumb--small {
