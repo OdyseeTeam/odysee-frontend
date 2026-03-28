@@ -231,9 +231,11 @@ function FileThumbnail(props: Props) {
         hoverHandlers={hoverHandlers}
       >
         {canPreviewOnHover && (
-          <div className={classnames('media__thumb-video-wrap', {
-            'media__thumb-video-wrap--active': hlsPreviewActive,
-          })}>
+          <div
+            className={classnames('media__thumb-video-wrap', {
+              'media__thumb-video-wrap--active': hlsPreviewActive,
+            })}
+          >
             <video
               ref={hlsVideoRef}
               className={classnames('media__thumb-video-preview', {

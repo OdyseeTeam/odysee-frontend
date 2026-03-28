@@ -13,7 +13,7 @@ import classnames from 'classnames';
 import describeUnknown from 'util/describeUnknown';
 import './style.scss';
 
-const DEFAULT_THUMBNAIL = '/public/img/livestream-default-thumb.svg';
+const DEFAULT_THUMBNAIL = `${window.location.origin}/public/img/livestream-default-thumb.svg`;
 
 const INVALID_URI_CHARS = new Set([
   ' ',
@@ -95,9 +95,11 @@ export default function LivestreamQuickCreate({ onCreated }: Props) {
   const [thumbnail, setThumbnail] = React.useState('');
   const [showThumb, setShowThumb] = React.useState(false);
   const [publishing, setPublishing] = React.useState(false);
+  const [confirming, setConfirming] = React.useState(false);
 
   const channelName = activeChannel?.name;
-  const canPublish = title.trim().length > 0 && balance >= 0.001 && !publishing;
+  const channelId = activeChannel?.claim_id;
+  const canPublish = title.trim().length > 0 && balance >= 0.001 && !publishing && !confirming;
   const generatedName = titleToName(title) || 'livestream';
 
   async function handleCreate() {
@@ -130,8 +132,30 @@ export default function LivestreamQuickCreate({ onCreated }: Props) {
 
     try {
       await dispatch(doPublishDesktop(undefined, false));
-      dispatch(doToast({ message: __('Stream claim created!') }));
-      onCreated?.();
+      dispatch(doToast({ message: __('Stream claim created! Waiting for confirmation...') }));
+      setPublishing(false);
+      setConfirming(true);
+
+      // Poll for claim confirmation
+      if (channelId) {
+        const { doFetchNoSourceClaimsForChannelId } = await import('redux/actions/claims');
+        let attempts = 0;
+        const maxAttempts = 30; // 30 * 5s = 2.5 minutes max
+
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          await dispatch(doFetchNoSourceClaimsForChannelId(channelId));
+
+          // Check if we now have approved claims
+          const state = window.store?.getState?.();
+          const claims = state?.livestream?.livestreamsByCreatorId?.[channelId];
+          if ((claims && claims.length > 0) || attempts >= maxAttempts) {
+            clearInterval(pollInterval);
+            setConfirming(false);
+            onCreated?.();
+          }
+        }, 5000);
+      }
     } catch (e: unknown) {
       const msg = describeUnknown(e);
       dispatch(
@@ -140,13 +164,31 @@ export default function LivestreamQuickCreate({ onCreated }: Props) {
           message: msg || __('Failed to create stream claim.'),
         })
       );
-    } finally {
       setPublishing(false);
     }
   }
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+
+  if (confirming) {
+    return (
+      <div className="quick-create">
+        <div className="quick-create__card quick-create__card--confirming">
+          <div className="quick-create__confirming">
+            <span className="quick-create__spinner" />
+            <h3 className="quick-create__confirming-title">{__('Confirming your stream claim...')}</h3>
+            <p className="quick-create__confirming-text">
+              {__('This usually takes 1-2 minutes. The stream page will load automatically once confirmed.')}
+            </p>
+            <div className="quick-create__confirming-progress">
+              <div className="quick-create__confirming-bar" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="quick-create">
@@ -252,6 +294,7 @@ export default function LivestreamQuickCreate({ onCreated }: Props) {
             limitSelect={5}
             placeholder={__('Add up to 5 tags...')}
             hideSuggestions
+            disableControlTags
           />
         </div>
 
