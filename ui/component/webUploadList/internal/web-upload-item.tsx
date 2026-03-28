@@ -197,7 +197,20 @@ export default function WebUploadItem(props: Props) {
         <Button
           label={isFileActive ? __('Resume') : __('Retry')}
           button="link"
-          onClick={() => {
+          onClick={async () => {
+            // Try IndexedDB cache first (optimized/converted files survive refresh)
+            if (!isFileActive && file) {
+              const { getCachedFile } = await import('util/uploadCache');
+              const fileName = typeof file === 'string' ? file : file.name;
+              const fileSize = typeof file === 'object' && 'size' in file ? file.size : 0;
+              const cachedFile =
+                (await getCachedFile(`optimized-${fileName}-${fileSize}`)) ||
+                (await getCachedFile(`converted-${fileName}-${fileSize}`));
+              if (cachedFile) {
+                doPublishResume({ ...params, file_path: cachedFile });
+                return;
+              }
+            }
             if (isFileActive) {
               doPublishResume({ ...params, file_path: file });
             } else {

@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { useAppDispatch } from 'redux/hooks';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { doToast } from 'redux/actions/notifications';
+import { cacheOptimizedFile } from 'util/uploadCache';
 import './style.scss';
 
 // Lazy-import mediabunny to keep it out of the main bundle
@@ -46,6 +47,19 @@ function formatSize(bytes: number): string {
 
 function formatBitrate(bps: number): string {
   return `${(bps / 1e6).toFixed(1)} Mbps`;
+}
+
+/** Resolution-aware target bitrate. Never targets higher than the current bitrate. */
+function getTargetBitrate(height: number, currentMbps: number): number {
+  let target: number;
+  if (height >= 2160) target = 12;       // 4K
+  else if (height >= 1440) target = 8;   // 1440p
+  else if (height >= 1080) target = 5;   // 1080p
+  else if (height >= 720) target = 3;    // 720p
+  else if (height >= 480) target = 1.5;  // 480p
+  else target = 1;                        // below 480p
+  // Don't target higher than what the file already has
+  return Math.min(target, currentMbps * 0.7);
 }
 
 export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip }: Props) {
@@ -108,15 +122,11 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         };
 
         setAnalysis(result);
-        // Set target bitrate based on current
-        if (bitrateMbps > 8) {
-          setTargetBitrateMbps(5);
-        } else if (bitrateMbps > 5) {
-          setTargetBitrateMbps(4);
-        }
+        // Resolution-aware target bitrate (Mbps)
+        const targetMbps = getTargetBitrate(height, bitrateMbps);
+        setTargetBitrateMbps(targetMbps);
         // Estimate output size
-        const targetBps = (bitrateMbps > 8 ? 5 : 4) * 1e6;
-        setEstimatedSize(((targetBps * (duration || 0)) / 8) * 1.05); // 5% overhead
+        setEstimatedSize(((targetMbps * 1e6 * (duration || 0)) / 8) * 1.05);
 
         setState('ready');
         input.dispose();
@@ -189,6 +199,11 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
 
       setState('done');
       setProgress(1);
+
+      // Cache in IndexedDB so the file survives page refresh during upload
+      const cacheKey = `optimized-${file.name}-${file.size}`;
+      cacheOptimizedFile(cacheKey, optimizedFile).catch(() => {});
+
       dispatch(
         doToast({
           message: __('Video optimized! Size: %size%', {

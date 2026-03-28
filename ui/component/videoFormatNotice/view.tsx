@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppDispatch } from 'redux/hooks';
 import { doUpdateFile } from 'redux/actions/publish';
 import { doToast } from 'redux/actions/notifications';
+import { cacheOptimizedFile } from 'util/uploadCache';
 import classnames from 'classnames';
 import './style.scss';
 
@@ -78,6 +79,9 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
       });
 
       setState('done');
+      // Cache in IndexedDB so the file survives page refresh during upload
+      const cacheKey = `converted-${file.name}-${file.size}`;
+      cacheOptimizedFile(cacheKey, mp4File).catch(() => {});
       dispatch(doToast({ message: __('Video converted to MP4!') }));
       dispatch(doUpdateFile(mp4File, false));
     } catch (e: unknown) {

@@ -1426,6 +1426,19 @@ export const doUpdateUploadProgress =
  */
 export function doUpdateUploadRemove(guid: string, params?: Record<string, any>) {
   return (dispatch: Dispatch, getState: GetState) => {
+    // Clean up any cached optimized/converted files from IndexedDB
+    const state = getState();
+    const upload = state.publish.currentUploads?.[guid];
+    if (upload?.file) {
+      const f = upload.file;
+      const fileName = typeof f === 'string' ? f : f.name;
+      const fileSize = typeof f === 'object' && 'size' in f ? f.size : 0;
+      import('util/uploadCache').then(({ removeCachedFile }) => {
+        removeCachedFile(`optimized-${fileName}-${fileSize}`).catch(() => {});
+        removeCachedFile(`converted-${fileName}-${fileSize}`).catch(() => {});
+      }).catch(() => {});
+    }
+
     dispatch({
       type: ACTIONS.UPDATE_UPLOAD_REMOVE,
       data: {
