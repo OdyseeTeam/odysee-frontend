@@ -156,12 +156,6 @@ export default function LivestreamSetupPage() {
     }, 1500);
     return () => clearTimeout(timer);
   }, [channelId]);
-  React.useEffect(() => {
-    if (!claimsFetched || urlTab) return;
-    if (totalLivestreamClaims.length === 0 && tab === 'Stream') {
-      setTab('Publish');
-    }
-  }, [claimsFetched]); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     if (urlTab && VALID_LIVESTREAM_TABS.includes(urlTab)) setTab(urlTab);

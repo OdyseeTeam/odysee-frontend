@@ -272,6 +272,52 @@
     border-radius: 50%;
     animation: quick-create-spin 0.6s linear infinite;
   }
+
+  // ---- Confirming state ----
+  &__card--confirming {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__confirming {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-s);
+    padding: var(--spacing-l) var(--spacing-m);
+    text-align: center;
+  }
+
+  &__confirming-title {
+    margin: 0;
+    font-size: var(--font-body);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__confirming-text {
+    margin: 0;
+    font-size: var(--font-small);
+    color: var(--color-text-subtitle);
+    max-width: 300px;
+    line-height: 1.4;
+  }
+
+  &__confirming-progress {
+    width: 200px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(var(--color-header-button-base), 0.15);
+    overflow: hidden;
+  }
+
+  &__confirming-bar {
+    width: 40%;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--color-primary);
+    animation: quick-create-progress 1.5s ease-in-out infinite;
+  }
 }
 
 @keyframes quick-create-in {
@@ -282,6 +328,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes quick-create-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
   }
 }
 
