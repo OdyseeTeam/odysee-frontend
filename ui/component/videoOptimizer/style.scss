@@ -33,8 +33,7 @@
     border-radius: 12px;
     border: 1px solid rgba(255, 180, 0, 0.2);
     background:
-      linear-gradient(135deg, rgba(255, 180, 0, 0.06), transparent 60%),
-      rgba(var(--color-header-button-base), 0.04);
+      linear-gradient(135deg, rgba(255, 180, 0, 0.06), transparent 60%), rgba(var(--color-header-button-base), 0.04);
     animation: video-opt-in 0.3s ease;
   }
 
@@ -142,11 +141,7 @@
   &__progress-fill {
     height: 100%;
     border-radius: 3px;
-    background: linear-gradient(
-      90deg,
-      rgba(var(--color-primary-dynamic), 0.8),
-      var(--color-primary)
-    );
+    background: linear-gradient(90deg, rgba(var(--color-primary-dynamic), 0.8), var(--color-primary));
     transition: width 0.3s ease;
   }
 
@@ -205,11 +200,7 @@
 
     &--primary {
       border: none;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 180, 0, 0.9),
-        rgba(245, 166, 35, 0.8)
-      );
+      background: linear-gradient(135deg, rgba(255, 180, 0, 0.9), rgba(245, 166, 35, 0.8));
       color: #000;
       box-shadow: 0 2px 8px rgba(255, 180, 0, 0.2);
 
@@ -233,7 +224,9 @@
 }
 
 @keyframes video-opt-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes video-opt-in {

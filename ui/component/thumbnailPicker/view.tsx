@@ -121,7 +121,7 @@ function ThumbnailPicker(props: Props) {
   }, [filePath]);
 
   function handleRegenerate() {
-    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).sort((a, b) => a - b);
+    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).toSorted((a, b) => a - b);
     extractFrames(randomPercentages);
   }
 
@@ -132,19 +132,28 @@ function ThumbnailPicker(props: Props) {
     setUploading(true);
 
     try {
-      let file = new File([frame.blob], 'thumbnail.jpeg', { type: 'image/jpeg' });
+      let file = new File([frame.blob], 'thumbnail.jpeg', {
+        type: 'image/jpeg',
+      });
 
       if (file.size > THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
         // Re-encode at lower quality
         const lowerBlob = await reEncodeBlob(frame.blobUrl, 0.7);
         if (lowerBlob) {
-          file = new File([lowerBlob], 'thumbnail.jpeg', { type: 'image/jpeg' });
+          file = new File([lowerBlob], 'thumbnail.jpeg', {
+            type: 'image/jpeg',
+          });
         }
       }
 
       dispatch(doUploadThumbnail(undefined, file, undefined, undefined, onThumbnailSelected));
     } catch (err) {
-      dispatch(doToast({ isError: true, message: __("Something didn't work. Please try again.") }));
+      dispatch(
+        doToast({
+          isError: true,
+          message: __("Something didn't work. Please try again."),
+        })
+      );
     }
 
     setUploading(false);
@@ -181,15 +190,16 @@ function ThumbnailPicker(props: Props) {
               <button
                 key={frame.blobUrl}
                 className={
-                  'thumbnail-picker__item' +
-                  (selectedIndex === index ? ' thumbnail-picker__item--selected' : '')
+                  'thumbnail-picker__item' + (selectedIndex === index ? ' thumbnail-picker__item--selected' : '')
                 }
                 onClick={() => setSelectedIndex(index)}
                 type="button"
               >
                 <img
                   src={frame.blobUrl}
-                  alt={__('Thumbnail at %timestamp%', { timestamp: frame.label })}
+                  alt={__('Thumbnail at %timestamp%', {
+                    timestamp: frame.label,
+                  })}
                   className="thumbnail-picker__image"
                 />
                 <span className="thumbnail-picker__label">{frame.label}</span>
@@ -204,12 +214,7 @@ function ThumbnailPicker(props: Props) {
               disabled={selectedIndex === null || uploading}
               onClick={handleUpload}
             />
-            <Button
-              button="link"
-              label={__('Regenerate')}
-              onClick={handleRegenerate}
-              disabled={uploading}
-            />
+            <Button button="link" label={__('Regenerate')} onClick={handleRegenerate} disabled={uploading} />
           </div>
         </>
       )}
@@ -232,7 +237,10 @@ async function videoSampleToBlob(sample: VideoSample): Promise<Blob | null> {
 
     sample.draw(ctx, 0, 0, canvasWidth, canvasHeight);
 
-    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    const blob = await canvas.convertToBlob({
+      type: 'image/jpeg',
+      quality: 0.9,
+    });
     return blob;
   } catch {
     return null;

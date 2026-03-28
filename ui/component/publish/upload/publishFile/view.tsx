@@ -107,7 +107,9 @@ function PublishFile(props: Props) {
       const encodedChannelName = encodeURIComponent(channelName || '');
       const newEndpointUrl =
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
+        `&signature=${signedMessage.signature}&signature_ts=${
+          signedMessage.signing_ts
+        }&channel_name=${encodedChannelName || ''}`;
       const responseFromNewApi = await fetch(newEndpointUrl);
       const data: Array<{
         Status: string;
@@ -290,7 +292,7 @@ function PublishFile(props: Props) {
               {getUploadMessage()}
               {showOptimizer && (
                 <VideoOptimizer
-                  file={filePath as File}
+                  file={filePath}
                   fileBitrate={fileBitrate}
                   onOptimized={handleOptimizedFile}
                   onSkip={() => setOptimizerDismissed(true)}

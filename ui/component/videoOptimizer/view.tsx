@@ -66,6 +66,7 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
       try {
         const mb = await loadMediaBunny();
         const input = new mb.Input({
+          formats: mb.ALL_FORMATS,
           source: new mb.BlobSource(file),
         });
 
@@ -73,8 +74,8 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         const audioTrack = await input.getPrimaryAudioTrack();
         const duration = await input.computeDuration();
 
-        const width = videoTrack?.width || 0;
-        const height = videoTrack?.height || 0;
+        const width = videoTrack?.displayWidth || 0;
+        const height = videoTrack?.displayHeight || 0;
         const videoCodec = videoTrack?.codec || 'unknown';
         const audioCodec = audioTrack?.codec || 'unknown';
         const bitrateMbps = fileBitrate / 1e6;
@@ -118,7 +119,7 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         setEstimatedSize(((targetBps * (duration || 0)) / 8) * 1.05); // 5% overhead
 
         setState('ready');
-        await input.dispose();
+        input.dispose();
       } catch (e) {
         console.error('[VideoOptimizer] Analysis failed:', e); // eslint-disable-line no-console
         if (!canceled) {
@@ -129,7 +130,9 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
     }
 
     analyze();
-    return () => { canceled = true; };
+    return () => {
+      canceled = true;
+    };
   }, [file, fileBitrate]);
 
   async function handleOptimize() {
@@ -140,6 +143,7 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
     try {
       const mb = await loadMediaBunny();
       const input = new mb.Input({
+        formats: mb.ALL_FORMATS,
         source: new mb.BlobSource(file),
       });
 
@@ -185,7 +189,13 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
 
       setState('done');
       setProgress(1);
-      dispatch(doToast({ message: __('Video optimized! Size: %size%', { size: formatSize(optimizedFile.size) }) }));
+      dispatch(
+        doToast({
+          message: __('Video optimized! Size: %size%', {
+            size: formatSize(optimizedFile.size),
+          }),
+        })
+      );
       onOptimized(optimizedFile);
     } catch (e: unknown) {
       cancelRef.current = null;
@@ -196,7 +206,12 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
       }
       console.error('[VideoOptimizer] Optimization failed:', e); // eslint-disable-line no-console
       setState('error');
-      dispatch(doToast({ isError: true, message: __('Video optimization failed. You can still publish the original.') }));
+      dispatch(
+        doToast({
+          isError: true,
+          message: __('Video optimization failed. You can still publish the original.'),
+        })
+      );
     }
   }
 
@@ -229,7 +244,16 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         {/* Header */}
         <div className="video-optimizer__header">
           <div className="video-optimizer__icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
@@ -252,7 +276,16 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
             </span>
           </div>
           <div className="video-optimizer__stat-arrow">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>
@@ -283,10 +316,7 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         {state === 'optimizing' && (
           <div className="video-optimizer__progress-section">
             <div className="video-optimizer__progress-bar">
-              <div
-                className="video-optimizer__progress-fill"
-                style={{ width: `${progressPercent}%` }}
-              />
+              <div className="video-optimizer__progress-fill" style={{ width: `${progressPercent}%` }} />
             </div>
             <div className="video-optimizer__progress-info">
               <span className="video-optimizer__progress-percent">{progressPercent}%</span>
@@ -298,7 +328,16 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         {/* Done state */}
         {state === 'done' && (
           <div className="video-optimizer__done">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <polyline points="20 6 9 17 4 12" />
             </svg>
             <span>{__('Video optimized and ready to publish!')}</span>
@@ -308,19 +347,22 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         {/* Actions */}
         {state === 'ready' && (
           <div className="video-optimizer__actions">
-            <button
-              className="video-optimizer__btn video-optimizer__btn--primary"
-              onClick={handleOptimize}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <button className="video-optimizer__btn video-optimizer__btn--primary" onClick={handleOptimize}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
               {__('Optimize Video')}
             </button>
-            <button
-              className="video-optimizer__btn video-optimizer__btn--secondary"
-              onClick={onSkip}
-            >
+            <button className="video-optimizer__btn video-optimizer__btn--secondary" onClick={onSkip}>
               {__('Skip & Publish Original')}
             </button>
           </div>
@@ -328,10 +370,7 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
 
         {state === 'optimizing' && (
           <div className="video-optimizer__actions">
-            <button
-              className="video-optimizer__btn video-optimizer__btn--secondary"
-              onClick={handleCancel}
-            >
+            <button className="video-optimizer__btn video-optimizer__btn--secondary" onClick={handleCancel}>
               {__('Cancel')}
             </button>
           </div>

@@ -20,7 +20,13 @@ function ModalAutoGenerateThumbnail(props: Props) {
   const file = typeof filePath === 'string' ? null : filePath;
 
   return (
-    <Modal isOpen title={__('Choose a thumbnail')} contentLabel={__('Choose Thumbnail')} type="card" onAborted={closeModal}>
+    <Modal
+      isOpen
+      title={__('Choose a thumbnail')}
+      contentLabel={__('Choose Thumbnail')}
+      type="card"
+      onAborted={closeModal}
+    >
       {file ? (
         <Suspense
           fallback={

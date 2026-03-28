@@ -436,13 +436,13 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
         .then(async (mb) => {
           try {
             const input = new mb.Input({
+              formats: mb.ALL_FORMATS,
               source: new mb.BlobSource(file as unknown as Blob),
             });
 
             const duration = (await input.computeDuration()) || 0;
             const videoTrack = await input.getPrimaryVideoTrack();
             const audioTrack = await input.getPrimaryAudioTrack();
-            const format = input.getFormat?.()?.constructor?.name || '';
 
             const metadataUpdates: UpdatePublishState = {
               fileDur: duration,
@@ -450,10 +450,11 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
             };
 
             if (videoTrack) {
+              const packetStats = await videoTrack.computePacketStats(120);
               metadataUpdates.fileVideoCodec = videoTrack.codec || '';
-              metadataUpdates.fileWidth = videoTrack.width || 0;
-              metadataUpdates.fileHeight = videoTrack.height || 0;
-              metadataUpdates.fileFps = videoTrack.frameRate || 0;
+              metadataUpdates.fileWidth = videoTrack.displayWidth || 0;
+              metadataUpdates.fileHeight = videoTrack.displayHeight || 0;
+              metadataUpdates.fileFps = packetStats.averagePacketRate || 0;
             }
             if (audioTrack) {
               metadataUpdates.fileAudioCodec = audioTrack.codec || '';
@@ -470,7 +471,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
               data: metadataUpdates,
             });
 
-            await input.dispose();
+            input.dispose();
           } catch (e) {
             console.warn('[Publish] MediaBunny metadata extraction failed, falling back:', e); // eslint-disable-line no-console
             // Fallback: try <video> element for MP4

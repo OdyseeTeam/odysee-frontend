@@ -9,8 +9,7 @@
   border-radius: 10px;
   border: 1px solid rgba(100, 160, 255, 0.2);
   background:
-    linear-gradient(135deg, rgba(100, 160, 255, 0.06), transparent 60%),
-    rgba(var(--color-header-button-base), 0.04);
+    linear-gradient(135deg, rgba(100, 160, 255, 0.06), transparent 60%), rgba(var(--color-header-button-base), 0.04);
   animation: format-notice-in 0.25s ease;
 
   &__icon {
