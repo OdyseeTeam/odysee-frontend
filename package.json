@@ -34,6 +34,7 @@
     "typecheck": "vp lint --type-aware --type-check",
     "typecheck:native": "vp lint --type-aware --type-check",
     "typecheck:tsc": "tsc --noEmit",
+    "prepare": "node scripts/setup-git-hooks.mjs",
     "dev:web-server": "cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "run:web-server": "cross-env NODE_ENV=production vp build && cd web && node index.js",
     "postinstall": "cd web && pnpm install",
