@@ -9,8 +9,11 @@ import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
 import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
 import { browserData } from '$web/src/ua';
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
+
 let messaging: any = null;
 let pushSystem: Record<string, any> | null = null;
+const PUSH_SERVICE_WORKER_URL = '/sw.js';
+const PUSH_SERVICE_WORKER_SCOPE = '/';
 
 const getTokenList = (value: unknown): Array<any> => {
   if (Array.isArray(value)) return value;
@@ -32,8 +35,19 @@ const subscriptionMetaData = () => {
   };
 };
 
+const getPushServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistration | null> => {
+  if (!('serviceWorker' in navigator)) return null;
+
+  const existingRegistration = await navigator.serviceWorker.getRegistration(PUSH_SERVICE_WORKER_SCOPE);
+  if (existingRegistration) return existingRegistration;
+
+  return navigator.serviceWorker.register(PUSH_SERVICE_WORKER_URL, {
+    scope: PUSH_SERVICE_WORKER_SCOPE,
+  });
+};
+
 const getFcmToken = async (): Promise<string | void> => {
-  const swRegistration = await navigator.serviceWorker?.ready;
+  const swRegistration = await getPushServiceWorkerRegistration();
   if (!swRegistration) return;
   return getToken(messaging, {
     serviceWorkerRegistration: swRegistration,
@@ -72,7 +86,7 @@ const unsubscribe = async (userId: number, permanent: boolean = true): Promise<b
 };
 
 const subscribed = async (userId: number): Promise<boolean> => {
-  const swRegistration = await navigator.serviceWorker?.ready;
+  const swRegistration = await getPushServiceWorkerRegistration();
   if (!swRegistration || !swRegistration.pushManager) return false;
   const browserSubscriptionExists = (await swRegistration.pushManager.getSubscription()) !== null;
   const userRecordExists = hasRegistration(userId);

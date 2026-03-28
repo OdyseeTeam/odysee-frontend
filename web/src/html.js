@@ -149,15 +149,23 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:title" content="${cleanTitle || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
-    `<meta property="og:image" content="${getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`}" />\n` +
+    `<meta property="og:image" content="${
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`
+    }" />\n` +
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
-    `<meta name="twitter:title" content="${(cleanTitle && cleanTitle + ' ' + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
+    `<meta name="twitter:title" content="${
+      (cleanTitle && cleanTitle + ' ' + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE
+    }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
-    `<meta name="twitter:image" content="${getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`}"/>\n` +
+    `<meta name="twitter:image" content="${
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`
+    }"/>\n` +
     '<meta property="fb:app_id" content="1673146449633983" />\n' +
     `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}"/>` +
-    `<link rel="search" type="application/opensearchdescription+xml" title="${SITE_NAME || SITE_TITLE}" href="${URL}/opensearch.xml">`;
+    `<link rel="search" type="application/opensearchdescription+xml" title="${
+      SITE_NAME || SITE_TITLE
+    }" href="${URL}/opensearch.xml">`;
   // Add Farcaster Mini App embed meta for generic pages
   const ogImageUrl = getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`;
   const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
@@ -224,7 +232,7 @@ function addPWA() {
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
       window.addEventListener('load', function() {
-        if("serviceWorker" in navigator){navigator.serviceWorker.register("/public/sw.js")}
+        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js", { scope: "/" })}
       });
     </script>`;
   return head;
@@ -341,8 +349,12 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:title" content="${title}"/>`;
   head += `<meta property="og:url" content="${claimPath}"/>`;
   head += `<link rel="canonical" content="${claimPath}"/>`;
-  head += `<link rel="alternate" type="application/json+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(claimPath)}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
-  head += `<link rel="alternate" type="text/xml+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(claimPath)}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
+  head += `<link rel="alternate" type="application/json+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
+    claimPath
+  )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
+  head += `<link rel="alternate" type="text/xml+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
+    claimPath
+  )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
 
   if ((mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) || liveStream) {
     const videoUrl = generateEmbedUrlEncoded(claim.canonical_url);
