@@ -18,6 +18,7 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import Icon from 'component/common/icon';
 import VideoOptimizer from 'component/videoOptimizer/view';
 import VideoFormatNotice from 'component/videoFormatNotice/view';
+import './style.scss';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectBalance } from 'redux/selectors/wallet';
 import {
@@ -53,6 +54,9 @@ function PublishFile(props: Props) {
   const fileFormat = useAppSelector((state) => state.publish.fileFormat);
   const fileVideoCodec = useAppSelector((state) => state.publish.fileVideoCodec);
   const fileAudioCodec = useAppSelector((state) => state.publish.fileAudioCodec);
+  const fileWidth = useAppSelector((state) => state.publish.fileWidth);
+  const fileHeight = useAppSelector((state) => state.publish.fileHeight);
+  const fileFps = useAppSelector((state) => state.publish.fileFps);
   const isStillEditing = useAppSelector(selectIsStillEditing);
   const balance = useAppSelector(selectBalance);
   const duration = useAppSelector((state) => selectPublishFormValue(state, 'fileDur'));
@@ -289,6 +293,44 @@ function PublishFile(props: Props) {
                 }
                 autoFocus
               />
+              {/* Inline codec/format info strip */}
+              {isVid && filePath && (fileVideoCodec || fileAudioCodec || fileHeight > 0) && (
+                <div className="publish-file-info">
+                  {fileFormat && (
+                    <span className="publish-file-info__pill">{fileFormat.toUpperCase()}</span>
+                  )}
+                  {fileVideoCodec && (
+                    <span className="publish-file-info__pill">
+                      {fileVideoCodec.toUpperCase().replace('AVC', 'H.264').replace('HEVC', 'H.265')}
+                    </span>
+                  )}
+                  {fileAudioCodec && (
+                    <span className="publish-file-info__pill">{fileAudioCodec.toUpperCase()}</span>
+                  )}
+                  {fileHeight > 0 && (
+                    <span className="publish-file-info__pill">
+                      {fileWidth}x{fileHeight}
+                    </span>
+                  )}
+                  {fileFps > 0 && (
+                    <span className="publish-file-info__pill">{Math.round(fileFps)} fps</span>
+                  )}
+                  {fileBitrate > 0 && (
+                    <span className={classnames('publish-file-info__pill', {
+                      'publish-file-info__pill--warn': fileBitrate > BITRATE.RECOMMENDED,
+                    })}>
+                      {fileBitrate >= 1e6
+                        ? `${(fileBitrate / 1e6).toFixed(1)} Mbps`
+                        : `${Math.round(fileBitrate / 1e3)} kbps`}
+                    </span>
+                  )}
+                  {duration > 0 && (
+                    <span className="publish-file-info__pill">
+                      {Math.floor(duration / 60)}:{String(Math.floor(duration % 60)).padStart(2, '0')}
+                    </span>
+                  )}
+                </div>
+              )}
               {getUploadMessage()}
               {showOptimizer && (
                 <VideoOptimizer

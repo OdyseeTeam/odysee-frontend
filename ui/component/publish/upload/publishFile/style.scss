@@ -1,0 +1,27 @@
+.publish-file-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: var(--spacing-xs);
+  padding: 6px 0;
+
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-subtitle);
+    background: rgba(var(--color-header-button-base), 0.1);
+    white-space: nowrap;
+
+    &--warn {
+      color: #f5a623;
+      background: rgba(255, 180, 0, 0.1);
+    }
+  }
+}
