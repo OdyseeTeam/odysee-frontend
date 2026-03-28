@@ -62,8 +62,10 @@ export async function fetchStreamMetrics(
     const res = await fetch(url, { method: 'POST', signal });
     if (res.status === 503) return null; // OME not configured
     if (!res.ok) return null;
-    const data: StreamMetrics = await res.json();
-    return data;
+    const json = await res.json();
+    // API wraps response in { success, error, data }
+    const metrics: StreamMetrics = json?.data || json;
+    return metrics;
   } catch {
     return null;
   }
