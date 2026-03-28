@@ -583,6 +583,50 @@
     border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
   }
 
+  .notification-push-prompt {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-s);
+    background: linear-gradient(
+      90deg,
+      rgba(var(--color-primary-dynamic), 0.08),
+      rgba(var(--color-primary-dynamic), 0.03)
+    );
+    border-bottom: 1px solid rgba(var(--color-primary-dynamic), 0.12);
+
+    .icon {
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    &__text {
+      font-size: var(--font-xsmall);
+      font-weight: 600;
+      color: var(--color-text);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    &__enable {
+      padding: 4px 12px !important;
+      min-height: unset !important;
+      font-size: 11px !important;
+      border-radius: 6px !important;
+      flex-shrink: 0;
+    }
+
+    .button--close {
+      flex-shrink: 0;
+      opacity: 0.5;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
   .menu__list--notifications-list {
     overflow-y: scroll;
     max-height: 388px;

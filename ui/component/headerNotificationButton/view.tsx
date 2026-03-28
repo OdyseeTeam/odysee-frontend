@@ -29,6 +29,8 @@ import {
 } from 'redux/actions/notifications';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } from 'redux/actions/memberships';
+import usePersistedState from 'effects/use-persisted-state';
+import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
 const creatorIcon = (channelUrl, channelThumbnail) => (
   <UriIndicator
     uri={channelUrl}
@@ -43,6 +45,39 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
     <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
   </UriIndicator>
 );
+
+function PushPromptInDrawer() {
+  const { pushInitialized, pushSupported, pushEnabled, pushPermission, pushToggle } = useBrowserNotifications();
+  const [dismissed, setDismissed] = usePersistedState('push-nag-drawer', false);
+
+  if (!pushInitialized || !pushSupported || pushEnabled || pushPermission === 'denied' || dismissed) {
+    return null;
+  }
+
+  return (
+    <div className="notification-push-prompt">
+      <Icon icon={ICONS.NOTIFICATION} size={16} />
+      <span className="notification-push-prompt__text">{__('Get push notifications')}</span>
+      <Button
+        className="notification-push-prompt__enable"
+        button="primary"
+        label={__('Enable')}
+        onClick={(e) => {
+          e.stopPropagation();
+          pushToggle();
+        }}
+      />
+      <Button
+        button="close"
+        icon={ICONS.REMOVE}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDismissed(true);
+        }}
+      />
+    </div>
+  );
+}
 
 export default function NotificationHeaderButton() {
   const dispatch = useAppDispatch();
@@ -236,7 +271,7 @@ export default function NotificationHeaderButton() {
 
         <ClickAwayListener onClickAway={handleClickAway}>
           <MuiMenu {...menuProps}>
-            {/* <div className="menu__list--notifications-header" /> */}
+            <PushPromptInDrawer />
             <div className="menu__list--notifications-list">
               {list.map((notification) => {
                 return menuEntry(notification);
