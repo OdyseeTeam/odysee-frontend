@@ -16,6 +16,7 @@ import * as PAGES from 'constants/pages';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import Icon from 'component/common/icon';
+import VideoOptimizer from 'component/videoOptimizer/view';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectBalance } from 'redux/selectors/wallet';
 import {
@@ -62,6 +63,8 @@ function PublishFile(props: Props) {
   });
 
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+  const [optimizerDismissed, setOptimizerDismissed] = React.useState(false);
+  const showOptimizer = isVid && fileBitrate > BITRATE.RECOMMENDED && filePath instanceof File && !optimizerDismissed;
   const [livestreamData, setLivestreamData] = React.useState<LivestreamReplayItem[]>([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const currentPath = typeof filePath === 'string' ? filePath : filePath?.name;
@@ -251,8 +254,13 @@ function PublishFile(props: Props) {
     if (inputRef && inputRef.input) {
       inputRef.input.current.focus();
     }
-
+    setOptimizerDismissed(false);
     dispatch(doUpdateFile(file, clearName));
+  }
+
+  function handleOptimizedFile(optimizedFile: File) {
+    dispatch(doUpdateFile(optimizedFile, false));
+    setOptimizerDismissed(true); // Don't re-show optimizer for the optimized file
   }
 
   const titleInput = React.createRef();
@@ -275,6 +283,14 @@ function PublishFile(props: Props) {
                 autoFocus
               />
               {getUploadMessage()}
+              {showOptimizer && (
+                <VideoOptimizer
+                  file={filePath as File}
+                  fileBitrate={fileBitrate}
+                  onOptimized={handleOptimizedFile}
+                  onSkip={() => setOptimizerDismissed(true)}
+                />
+              )}
               {hasLivestreamData && linkReplays()}
 
               {fileSource === SOURCE_SELECT && (
