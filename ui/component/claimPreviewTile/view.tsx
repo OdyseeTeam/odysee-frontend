@@ -188,6 +188,8 @@ function ClaimPreviewTile(props: Props) {
     }
   }
 
+  const [tileHover, setTileHover] = React.useState(false);
+
   // **************************************************************************
   // **************************************************************************
   if (claim && shouldHide) {
@@ -224,8 +226,6 @@ function ClaimPreviewTile(props: Props) {
       </li>
     );
   }
-
-  const [tileHover, setTileHover] = React.useState(false);
 
   return (
     <li
