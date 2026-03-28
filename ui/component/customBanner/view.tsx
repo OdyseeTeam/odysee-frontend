@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import './style.scss';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
@@ -23,37 +23,10 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
     const isBannerClosed = LocalStorage.getItem(bannerKey) === 'closed';
     return !isBannerClosed;
   });
-  // State to control the visibility of the context menu
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // Function to close the banner
-  const menuRef = useRef(null);
-
   const handleCloseBanner = () => {
     setIsVisible(false);
     LocalStorage.setItem(bannerKey, 'closed');
   };
-
-  // Function to toggle the visibility of the context menu
-  const toggleMenu = (e) => {
-    e.stopPropagation();
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    if (isMenuOpen) {
-      document.addEventListener('click', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isMenuOpen]);
   if (!isVisible) return null;
 
   /* If you want the banner to appear again after some time or in a new session, you can clear the saved state in localStorage. For example:
@@ -65,18 +38,9 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
   }); */
   return (
     <div className={`banner-container ${isSecondary ? 'banner-secondary' : 'banner-primary'}`}>
-      <div className="banner-context-menu" ref={menuRef}>
-        <button className="banner-menu-button" onClick={toggleMenu} aria-label="More options">
-          <Icon icon={ICONS.MORE} />
-        </button>
-        {isMenuOpen && (
-          <div className="banner-menu-dropdown">
-            <button className="banner-menu-item" onClick={handleCloseBanner}>
-              Close the banner
-            </button>
-          </div>
-        )}
-      </div>
+      <button className="banner-close-button" onClick={handleCloseBanner} aria-label="Close banner">
+        <Icon icon={ICONS.REMOVE} />
+      </button>
 
       <div className="banner-content-wrapper">
         <img className="banner-image" src={image.url} alt={image.alt} />
