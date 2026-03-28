@@ -275,12 +275,12 @@ export default function NotificationHeaderButton() {
               )}
             </div>
 
-            <div className="menu__list--notifications-footer">
-              <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
-                <span className="menu__list--notifications-more">{__('View all')}</span>
-              </NavLink>
-              <PushPromptInDrawer />
-            </div>
+            <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
+              <div className="menu__list--notifications-more">
+                {__('View all')}
+                <PushPromptInDrawer />
+              </div>
+            </NavLink>
           </MuiMenu>
         </ClickAwayListener>
       </>

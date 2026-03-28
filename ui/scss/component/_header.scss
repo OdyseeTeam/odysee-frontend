@@ -583,19 +583,14 @@
     border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
   }
 
-  .menu__list--notifications-footer {
-    position: relative;
-  }
-
   .menu__list--notifications-push {
     position: absolute;
-    right: var(--spacing-xs);
+    right: var(--spacing-s);
     top: 50%;
     transform: translateY(-50%);
     font-size: 11px !important;
-    opacity: 0.5;
+    opacity: 0.45;
     white-space: nowrap;
-    z-index: 1;
 
     .icon {
       width: 12px;
@@ -831,6 +826,7 @@
   }
 
   .menu__list--notifications-more {
+    position: relative;
     color: var(--color-text);
     background-color: rgba(var(--color-header-background-base), 1);
     padding: var(--spacing-s) var(--spacing-xs);
