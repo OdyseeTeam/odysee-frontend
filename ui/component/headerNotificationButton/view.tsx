@@ -271,7 +271,6 @@ export default function NotificationHeaderButton() {
 
         <ClickAwayListener onClickAway={handleClickAway}>
           <MuiMenu {...menuProps}>
-            <PushPromptInDrawer />
             <div className="menu__list--notifications-list">
               {list.map((notification) => {
                 return menuEntry(notification);
@@ -286,9 +285,12 @@ export default function NotificationHeaderButton() {
               )}
             </div>
 
-            <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
-              <div className="menu__list--notifications-more">{__('View all')}</div>
-            </NavLink>
+            <div className="menu__list--notifications-footer">
+              <PushPromptInDrawer />
+              <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
+                <div className="menu__list--notifications-more">{__('View all')}</div>
+              </NavLink>
+            </div>
           </MuiMenu>
         </ClickAwayListener>
       </>

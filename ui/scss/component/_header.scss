@@ -583,17 +583,16 @@
     border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
   }
 
+  .menu__list--notifications-footer {
+    border-top: 1px solid rgba(var(--color-header-button-base), 0.08);
+  }
+
   .notification-push-prompt {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-s);
-    background: linear-gradient(
-      90deg,
-      rgba(var(--color-primary-dynamic), 0.08),
-      rgba(var(--color-primary-dynamic), 0.03)
-    );
-    border-bottom: 1px solid rgba(var(--color-primary-dynamic), 0.12);
+    padding: 6px var(--spacing-s);
+    background: rgba(var(--color-primary-dynamic), 0.04);
 
     .icon {
       color: var(--color-primary);
@@ -601,25 +600,25 @@
     }
 
     &__text {
-      font-size: var(--font-xsmall);
+      font-size: 11px;
       font-weight: 600;
-      color: var(--color-text);
+      color: var(--color-text-subtitle);
       flex: 1;
       min-width: 0;
       white-space: nowrap;
     }
 
     &__enable {
-      padding: 4px 12px !important;
+      padding: 3px 10px !important;
       min-height: unset !important;
       font-size: 11px !important;
-      border-radius: 6px !important;
+      border-radius: 5px !important;
       flex-shrink: 0;
     }
 
     .button--close {
       flex-shrink: 0;
-      opacity: 0.5;
+      opacity: 0.4;
 
       &:hover {
         opacity: 1;
