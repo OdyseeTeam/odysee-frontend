@@ -152,7 +152,7 @@ export function SearchResults(props: Props) {
             mediaTypeParam +
             timeFilterParam +
             (maxAspectRatio ? `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${maxAspectRatio}` : '') +
-            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=${'true'}` : '') +
+            (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS}=true` : '') +
             (hideShorts
               ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
               : '') +

@@ -16,9 +16,15 @@ type Props = {
   collectionId: string;
   useIds?: boolean;
 };
+type InjectedProps = {
+  isPrivate: boolean;
+  collectionUrls: any;
+  collectionIds: any;
+  collectionHasItemsResolved: boolean;
+};
 
-const withCollectionItems = (Component: FunctionalComponentParam) => {
-  const CollectionItemsWrapper = (props: Props) => {
+const withCollectionItems = <P extends Props>(Component: React.ComponentType<P & InjectedProps>) => {
+  const CollectionItemsWrapper = (props: P) => {
     const { collectionId, useIds } = props;
     const dispatch = useAppDispatch();
     const isPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));

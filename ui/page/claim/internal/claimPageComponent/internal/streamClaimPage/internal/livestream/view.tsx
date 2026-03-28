@@ -100,12 +100,7 @@ export default function LivestreamPage(props: Props) {
 
       {showLivestreamChat && (
         <React.Suspense fallback={<LoadingBarOneOff />}>
-          <ChatLayout
-            uri={uri}
-            hyperchatsHidden={hyperchatsHidden}
-            toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
-            setLayoutRendered={setLayoutRendered}
-          />
+          <ChatLayout uri={uri} hyperchatsHidden={hyperchatsHidden} setLayoutRendered={setLayoutRendered} />
         </React.Suspense>
       )}
     </LivestreamContext.Provider>

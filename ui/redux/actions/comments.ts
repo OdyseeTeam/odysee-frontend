@@ -842,8 +842,11 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
 
     const channelSwitchCutoffTimestamp = Date.now() - commentChannelChangeCooldown;
     const previousCommenterChannelRaw = LocalStorage.getItem(`commenter_${targetClaimId}`);
-    const previousCommenterChannel: { claim_id: string; name: string; last_comment_timestamp: number } | null =
-      previousCommenterChannelRaw ? JSON.parse(previousCommenterChannelRaw) : null;
+    const previousCommenterChannel: {
+      claim_id: string;
+      name: string;
+      last_comment_timestamp: number;
+    } | null = previousCommenterChannelRaw ? JSON.parse(previousCommenterChannelRaw) : null;
 
     if (
       previousCommenterChannel &&
@@ -1688,9 +1691,9 @@ export function doFetchModBlockedList() {
               }
             }
 
-            const personalSeen = new Set();
-            const adminSeen = new Set();
-            const moderatorSeen = new Set();
+            const personalSeen = new Set<string>();
+            const adminSeen = new Set<string>();
+            const moderatorSeen = new Set<string>();
 
             for (let i = 0; i < blockListsPerChannel.length; ++i) {
               const storeList = async (
@@ -2410,7 +2413,11 @@ export const doFetchBlockedWords = () => {
             channel_id: channelClaim.claim_id,
             hexdata: toHex(channelClaim.name),
           });
-          channelSignatures.push({ ...channelSignature, claim_id: channelClaim.claim_id, name: channelClaim.name });
+          channelSignatures.push({
+            ...channelSignature,
+            claim_id: channelClaim.claim_id,
+            name: channelClaim.name,
+          });
         } catch (e) {}
       }
     }

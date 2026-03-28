@@ -183,7 +183,7 @@ export default function Portals(props: Props) {
                     pathname: '/$/portal/' + portal.name,
                   } as any
                 }
-                state={portal as any}
+                state={portal}
               >
                 <div
                   className="portal-thumbnail"

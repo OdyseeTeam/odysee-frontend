@@ -103,7 +103,7 @@ function CreditAmount({
 
   return (
     <span
-      title={amount && !hideTitle ? String(formatFullPrice(amount as number, 2)) : ''}
+      title={amount && !hideTitle ? String(formatFullPrice(amount, 2)) : ''}
       className={classnames('credit-amount-wrapper', className, {
         hyperChat: hyperChat,
       })}

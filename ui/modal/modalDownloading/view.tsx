@@ -24,7 +24,7 @@ export default function ModalDownloading() {
   return (
     <Modal title={__('Downloading update')} isOpen contentLabel={__('Downloading update')} type="custom">
       {downloadProgress ? `${downloadProgress}% ${__('complete')}` : null}
-      <Line percent={downloadProgress || 0} strokeWidth="4" />
+      <Line percent={downloadProgress || 0} strokeWidth={4} />
       {downloadComplete ? (
         <React.Fragment>
           <p>{__('Click "Begin Upgrade" to start the upgrade process.')}</p>

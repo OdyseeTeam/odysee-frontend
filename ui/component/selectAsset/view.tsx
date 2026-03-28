@@ -327,7 +327,7 @@ function SelectAsset(props: Props) {
         <h2 className="modal_title">
           {title ||
             __('Choose %asset%', {
-              asset: __(`${assetName}`),
+              asset: __(assetName),
             })}
         </h2>
       </div>

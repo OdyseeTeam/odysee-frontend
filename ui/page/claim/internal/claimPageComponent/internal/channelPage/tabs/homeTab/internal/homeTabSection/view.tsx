@@ -180,8 +180,8 @@ function HomeTabSection(props: Props) {
         .search(
           `&s=${encodeURIComponent(searchQuery)}` +
             `&channel_id=${encodeURIComponent(channelClaimId)}` +
-            `&nsfw=${'false'}` +
-            `&resolve=${'true'}` +
+            '&nsfw=false' +
+            '&resolve=true' +
             `&size=${SEARCH_PAGE_SIZE}`
         )
         .then(({ body: results }) => {

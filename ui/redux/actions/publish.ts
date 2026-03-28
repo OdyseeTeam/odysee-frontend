@@ -565,7 +565,7 @@ export const doUploadThumbnail =
           const userInput = [fileName, fileExt, fileType, thumbnail, size];
           uploadError({
             message,
-            cause: `${userInput.join(' | ')}`,
+            cause: userInput.join(' | '),
           });
         });
     };
@@ -975,7 +975,9 @@ export const doSearchMyUploads = (searchTerm: string = '', filter: string = 'all
 
     // ── All uploads: Lighthouse search across user's channels ──
     const channelIdsCsv = myChannelIds.join(',');
-    const queryBase = `from=0&s=${encodeURIComponent(term)}&sort_by=release_time&nsfw=${showMature ? 'true' : 'false'}&size=${SEARCH_PAGE_SIZE_PER_CHANNEL}`;
+    const queryBase = `from=0&s=${encodeURIComponent(term)}&sort_by=release_time&nsfw=${
+      showMature ? 'true' : 'false'
+    }&size=${SEARCH_PAGE_SIZE_PER_CHANNEL}`;
     const response = await lighthouse.search(`${queryBase}&channel_id=${encodeURIComponent(channelIdsCsv)}`);
     const claimIds = [];
 

@@ -32,10 +32,10 @@ export const getDefaultHomepageKey = () => {
  * @param languages The language map to sort, e.g. "{ 'ja': '日本語', ... }"
  * @returns {[string, string][]}
  */
-export function sortLanguageMap(languages) {
+export function sortLanguageMap(languages: Record<string, string>) {
   return Object.entries(languages).toSorted((a, b) => {
-    const lhs = String(a[1]);
-    const rhs = String(b[1]);
+    const lhs = a[1];
+    const rhs = b[1];
     if (lhs < rhs) return -1;
     if (lhs > rhs) return 1;
     return 0;

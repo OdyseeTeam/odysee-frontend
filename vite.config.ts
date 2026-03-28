@@ -559,6 +559,10 @@ export default defineConfig({
   },
 
   lint: {
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
     categories: {
       correctness: 'error',
       suspicious: 'warn',
@@ -568,9 +572,24 @@ export default defineConfig({
       'no-unused-vars': 'off',
       'no-shadow': 'off',
       'no-unused-expressions': 'off',
+      'typescript/no-floating-promises': 'off',
+      'typescript/no-redundant-type-constituents': 'off',
+      'typescript/no-unnecessary-boolean-literal-compare': 'off',
+      'typescript/no-unsafe-type-assertion': 'off',
     },
-    // tsgo type checking available via: pnpm typecheck
-    // Enable typeAware + typeCheck here once strict types are added
-    ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed', 'web/stubs/buffer-esm.js'],
+    ignorePatterns: [
+      'node_modules',
+      'web/dist',
+      'dist',
+      'build',
+      'static',
+      'flow-typed',
+      'web/stubs/buffer-esm.js',
+      'tests',
+      'playwright.config.ts',
+      'vite.config.ts',
+      '**/*.js',
+      '**/*.mjs',
+    ],
   },
 });

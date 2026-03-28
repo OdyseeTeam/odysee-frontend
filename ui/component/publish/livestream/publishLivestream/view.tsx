@@ -295,7 +295,7 @@ function PublishLivestream(props: Props) {
                                       <td>
                                         {durationElem}
                                         <div className="table__item-label">
-                                          {`${moment(item.data.uploadedAt).from(moment())}`}
+                                          {moment(item.data.uploadedAt).from(moment())}
                                         </div>
                                       </td>
                                       <td>

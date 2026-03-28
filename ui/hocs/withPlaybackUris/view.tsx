@@ -12,7 +12,11 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectNextRecommendedContentForUri } from 'redux/selectors/search';
 
 type Props = {
-  uri: string;
+  uri?: string;
+};
+type InjectedProps = {
+  playNextUri?: string | null;
+  playPreviousUri?: string | null;
 };
 
 /**
@@ -22,8 +26,10 @@ type Props = {
  * @param Component: FunctionalComponentParam
  * @returns {FunctionalComponent}
  */
-const withPlaybackUris = (Component: FunctionalComponentParam) => {
-  const PlaybackUrisWrapper = (props: Props) => {
+const withPlaybackUris = <P extends Props & InjectedProps>(Component: React.ComponentType<P>) => {
+  type OuterProps = Omit<P, keyof InjectedProps>;
+
+  const PlaybackUrisWrapper = (props: OuterProps) => {
     const { uri, ...componentProps } = props;
 
     const playingCollectionId = useAppSelector(selectPlayingCollectionId);
@@ -64,7 +70,16 @@ const withPlaybackUris = (Component: FunctionalComponentParam) => {
         return playPreviousUriRef.current;
       }
     }, [currentPlaylistItemIndex, previousListUri]);
-    return <Component {...componentProps} uri={uri} playNextUri={playNextUri} playPreviousUri={playPreviousUri} />;
+    return (
+      <Component
+        {...({
+          ...componentProps,
+          uri,
+          playNextUri,
+          playPreviousUri,
+        } as P)}
+      />
+    );
   };
 
   PlaybackUrisWrapper.displayName = `withPlaybackUris(${Component.displayName || Component.name || 'Component'})`;

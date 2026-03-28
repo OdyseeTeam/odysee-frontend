@@ -22,6 +22,7 @@ import { startWhipPublish } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { doToast } from 'redux/actions/notifications';
 import { platform } from 'util/platform';
+import describeUnknown from 'util/describeUnknown';
 import './style.scss';
 
 function formatResolutionLabel(resolution: string | null): string | null {
@@ -67,7 +68,10 @@ export default function LivestreamPublisherFloating() {
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const channelId = activeChannelClaim?.claim_id;
   const channelName = activeChannelClaim?.name;
-  const [sigData, setSigData] = React.useState<{ signature?: string; signing_ts?: string }>({});
+  const [sigData, setSigData] = React.useState<{
+    signature?: string;
+    signing_ts?: string;
+  }>({});
   React.useEffect(() => {
     if (channelId && channelName) {
       Lbry.channel_sign({ channel_id: channelId, hexdata: toHex(channelName) })
@@ -174,7 +178,7 @@ export default function LivestreamPublisherFloating() {
       }
     }
 
-    const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+    const msg = describeUnknown(lastErr);
     actions.setErrorMessage(msg);
     actions.setPc(null);
     actions.setResourceUrl(null);
@@ -233,8 +237,8 @@ export default function LivestreamPublisherFloating() {
     if (!node) return;
 
     function clamp(x: number, y: number) {
-      const w = node!.offsetWidth;
-      const h = node!.offsetHeight;
+      const w = node.offsetWidth;
+      const h = node.offsetHeight;
       const maxX = window.innerWidth - w - 16;
       const maxY = window.innerHeight - h - 16;
       return {
@@ -246,7 +250,7 @@ export default function LivestreamPublisherFloating() {
     function onPointerDown(e: PointerEvent) {
       if ((e.target as Element)?.closest?.('button')) return;
       const d = dragRef.current;
-      const rect = node!.getBoundingClientRect();
+      const rect = node.getBoundingClientRect();
       d.active = true;
       d.dragging = false;
       d.pointerId = e.pointerId;
@@ -266,7 +270,7 @@ export default function LivestreamPublisherFloating() {
       if (!d.dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
         d.dragging = true;
         try {
-          node!.setPointerCapture(d.pointerId);
+          node.setPointerCapture(d.pointerId);
         } catch {} // eslint-disable-line no-empty
       }
       if (!d.dragging) return;
@@ -274,10 +278,10 @@ export default function LivestreamPublisherFloating() {
       const c = clamp(d.origX + dx, d.origY + dy);
       d.lastX = c.x;
       d.lastY = c.y;
-      node!.style.left = c.x + 'px';
-      node!.style.top = c.y + 'px';
-      node!.style.right = 'auto';
-      node!.style.bottom = 'auto';
+      node.style.left = c.x + 'px';
+      node.style.top = c.y + 'px';
+      node.style.right = 'auto';
+      node.style.bottom = 'auto';
     }
 
     function onPointerUp() {
@@ -287,7 +291,7 @@ export default function LivestreamPublisherFloating() {
       d.active = false;
       d.dragging = false;
       try {
-        node!.releasePointerCapture(d.pointerId);
+        node.releasePointerCapture(d.pointerId);
       } catch {} // eslint-disable-line no-empty
       if (wasDrag) {
         setPos({ x: d.lastX, y: d.lastY });
@@ -437,7 +441,9 @@ export default function LivestreamPublisherFloating() {
                   className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--stop"
                   onClick={() => {
                     setShowStopConfirm(false);
-                    actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+                    actions.stopStream({
+                      preservePreview: Boolean(cameraAutoStart),
+                    });
                   }}
                 >
                   {__('End Stream')}
@@ -454,7 +460,14 @@ export default function LivestreamPublisherFloating() {
   if (!showFullPreview) return null;
 
   const isLive = status === 'live';
-  const posStyle = pos ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const } : {};
+  const posStyle = pos
+    ? {
+        left: pos.x,
+        top: pos.y,
+        right: 'auto' as const,
+        bottom: 'auto' as const,
+      }
+    : {};
 
   return (
     <div
@@ -648,7 +661,9 @@ export default function LivestreamPublisherFloating() {
                 className="livestream-floating-stop-confirm__btn livestream-floating-stop-confirm__btn--stop"
                 onClick={() => {
                   setShowStopConfirm(false);
-                  actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+                  actions.stopStream({
+                    preservePreview: Boolean(cameraAutoStart),
+                  });
                 }}
               >
                 {__('End Stream')}

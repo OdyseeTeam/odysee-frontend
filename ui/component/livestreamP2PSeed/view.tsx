@@ -1,6 +1,7 @@
 import React from 'react';
 import Hls from 'hls.js';
 import { getLivestreamTurnServer } from 'constants/livestream';
+import type { HlsWithP2P, P2PHlsConfig } from 'component/viewers/videoViewer/internal/types';
 
 const P2P_DEBUG = process.env.NODE_ENV === 'development';
 const P2P_FORCE_SEGMENT_MODE = true;
@@ -101,7 +102,11 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
 
   React.useEffect(() => {
     if (P2P_DEBUG)
-      console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
+      console.log('[P2P Seed] Effect:', {
+        active,
+        videoUrl: videoUrl?.slice(-40),
+        hlsSupported: Hls.isSupported(),
+      }); // eslint-disable-line no-console
     if (!active || !videoUrl || !Hls.isSupported()) return;
 
     const video = videoRef.current;
@@ -165,7 +170,7 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
             },
           },
         },
-      });
+      } as P2PHlsConfig) as HlsWithP2P;
 
       hls.attachMedia(video);
       hlsRef.current = hls;
@@ -293,7 +298,13 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
   return (
     <video
       ref={videoRef}
-      style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+      style={{
+        position: 'absolute',
+        width: 0,
+        height: 0,
+        opacity: 0,
+        pointerEvents: 'none',
+      }}
       playsInline
       muted
     />

@@ -21,7 +21,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 self.addEventListener('push', (event: PushEvent) => {
   event.waitUntil(
     (async () => {
-      const { data } = event.data!.json();
+      const { data } = event.data.json();
       if (!data.title || !data.body || !data.link) return;
       return self.registration.showNotification(data.title, {
         body: data.body,

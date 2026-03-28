@@ -110,7 +110,7 @@ const MembershipTier = (props: Props) => {
           icon={ICONS.MEMBERSHIP}
           button="primary"
           label={__('Uncancel')}
-          onClick={() => dispatch(doOpenCancelationModalForMembership(thisMembership as any))}
+          onClick={() => dispatch(doOpenCancelationModalForMembership(thisMembership))}
           disabled={disabled}
         />
       );

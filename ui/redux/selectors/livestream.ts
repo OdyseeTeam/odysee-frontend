@@ -78,7 +78,9 @@ export const selectFilteredActiveLivestreamUris = createCachedSelector(
   }
 )(
   (state: State, channelIds?: Array<string>, excludedChannelIds?: Array<string>, query?: string) =>
-    `${channelIds ? channelIds.toString() : ''}-${excludedChannelIds ? excludedChannelIds.toString() : ''}-${query || ''}`
+    `${channelIds ? channelIds.toString() : ''}-${
+      excludedChannelIds ? excludedChannelIds.toString() : ''
+    }-${query || ''}`
 );
 export const selectIsLiveFetchingForId = (state: State, channelId: string) =>
   selectIsLiveFetchingIds(state).includes(channelId);
@@ -123,42 +125,35 @@ export const selectIsLivePollingForUri = (state: State, uri: string) => {
   if (isLivePolling) return true;
   return false;
 };
-// select non-pending claims without sources for given channel (cached per channelId -- do not use makeSelect* that builds a new selector each call)
-export const selectLivestreamsForChannelId = createCachedSelector(
-  (state: State, channelId?: string) => selectMyClaims(state),
-  (state: State, channelId?: string) => channelId,
-  (myClaims, channelId) => {
-    if (!channelId) return EMPTY_ARRAY;
-    const filtered = myClaims.filter(
-      (claim) =>
-        claim.value_type === 'stream' &&
-        claim.value &&
-        !claim.value.source &&
-        claim.confirmations > 0 &&
-        claim.signing_channel &&
-        claim.signing_channel.claim_id === channelId
-    );
-    if (filtered.length === 0) return EMPTY_ARRAY;
-    return filtered.toSorted((a, b) => b.timestamp - a.timestamp); // newest first
-  }
-)((state: State, channelId?: string) => String(channelId ?? ''));
+// select non-pending claims without sources for given channel
+export const selectLivestreamsForChannelId = (state: State, channelId?: string) => {
+  if (!channelId) return EMPTY_ARRAY;
+  const myClaims = (selectMyClaims(state) || EMPTY_ARRAY) as Claim[];
+  const filtered = myClaims.filter(
+    (claim) =>
+      claim.value_type === 'stream' &&
+      claim.value &&
+      !(claim.value as any).source &&
+      claim.confirmations > 0 &&
+      claim.signing_channel &&
+      claim.signing_channel.claim_id === channelId
+  );
+  return filtered.length === 0 ? EMPTY_ARRAY : filtered.toSorted((a, b) => b.timestamp - a.timestamp);
+};
 
-export const selectPendingLivestreamsForChannelId = createCachedSelector(
-  (state: State, channelId?: string) => selectPendingClaims(state),
-  (state: State, channelId?: string) => channelId,
-  (pendingClaims, channelId) => {
-    if (!channelId) return EMPTY_ARRAY;
-    const filtered = pendingClaims.filter(
-      (claim) =>
-        claim.value_type === 'stream' &&
-        claim.value &&
-        !claim.value.source &&
-        claim.signing_channel &&
-        claim.signing_channel.claim_id === channelId
-    );
-    return filtered.length === 0 ? EMPTY_ARRAY : filtered;
-  }
-)((state: State, channelId?: string) => String(channelId ?? ''));
+export const selectPendingLivestreamsForChannelId = (state: State, channelId?: string) => {
+  if (!channelId) return EMPTY_ARRAY;
+  const pendingClaims = (selectPendingClaims(state) || EMPTY_ARRAY) as Claim[];
+  const filtered = pendingClaims.filter(
+    (claim) =>
+      claim.value_type === 'stream' &&
+      claim.value &&
+      !(claim.value as any).source &&
+      claim.signing_channel &&
+      claim.signing_channel.claim_id === channelId
+  );
+  return filtered.length === 0 ? EMPTY_ARRAY : filtered;
+};
 
 /** @deprecated Prefer `selectLivestreamsForChannelId(state, channelId)` — factory returns a new function each call and breaks memoization. */
 export const makeSelectLivestreamsForChannelId = (channelId: string) => (state: State) =>

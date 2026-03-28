@@ -25,7 +25,6 @@
 | `ui/component/syncPassword/view.tsx`     | `SyncPassword`     |
 | `ui/component/userSignUp/view.tsx`       | `UserSignUp`       |
 | `ui/page/arAccount/view.tsx`             | `ArAccount`        |
-| `ui/page/buyOnRamper/view.tsx`           | `BuyOnRamper`      |
 | `ui/page/paymentAccount/view.tsx`        | `PaymentAccount`   |
 
 ---

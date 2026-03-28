@@ -139,10 +139,10 @@ export default function VideoFullscreenActions(props: Props) {
   const sidePanelRef = React.useRef<HTMLDivElement>(null);
 
   const adjustVideoForSwipe = React.useCallback((deltaX) => {
-    const fsTarget = document.querySelector('.player-fullscreen-target');
+    const fsTarget = document.querySelector<HTMLElement>('.player-fullscreen-target');
     if (!fsTarget) return;
-    const contentWrapper = fsTarget.querySelector('.content__wrapper') as HTMLElement | null;
-    const actions = fsTarget.querySelector('.video-fullscreen__actions') as HTMLElement | null;
+    const contentWrapper = fsTarget.querySelector<HTMLElement>('.content__wrapper');
+    const actions = fsTarget.querySelector<HTMLElement>('.video-fullscreen__actions');
     if (deltaX === null) {
       if (contentWrapper) {
         contentWrapper.style.removeProperty('margin-right');
@@ -372,7 +372,11 @@ export default function VideoFullscreenActions(props: Props) {
       }
     } else if (useSidePanel && panelMode) {
       setPanelMode(panelMode);
-      window.dispatchEvent(new CustomEvent('fullscreen-panel-change', { detail: { mode: panelMode } }));
+      window.dispatchEvent(
+        new CustomEvent('fullscreen-panel-change', {
+          detail: { mode: panelMode },
+        })
+      );
       setTimeout(() => {
         if (fsTarget) fsTarget.classList.remove('player-fullscreen-target--no-transition');
       }, 150);
@@ -418,7 +422,10 @@ export default function VideoFullscreenActions(props: Props) {
     if (hasChapters) tabDefs.push({ icon: ICONS.VIEW_LIST, label: 'Chapters' });
     if (hasPlaylist) tabDefs.push({ icon: ICONS.PLAYLIST, label: 'Playlist' });
     tabDefs.push(
-      { icon: isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST, label: isLivestreamClaim ? 'Chat' : 'Comments' },
+      {
+        icon: isLivestreamClaim ? ICONS.CHAT : ICONS.COMMENTS_LIST,
+        label: isLivestreamClaim ? 'Chat' : 'Comments',
+      },
       { icon: ICONS.DISCOVER, label: 'Related' }
     );
 
@@ -627,9 +634,11 @@ export default function VideoFullscreenActions(props: Props) {
 
       <div
         ref={sidePanelRef}
-        className={`video-fullscreen__side-panel ${panelMode ? 'video-fullscreen__side-panel--open' : ''} ${
-          panelMode === 'chat' ? 'video-fullscreen__side-panel--chat' : ''
-        } ${panelMode === 'playlist' ? 'video-fullscreen__side-panel--playlist' : ''} ${
+        className={`video-fullscreen__side-panel ${
+          panelMode ? 'video-fullscreen__side-panel--open' : ''
+        } ${panelMode === 'chat' ? 'video-fullscreen__side-panel--chat' : ''} ${
+          panelMode === 'playlist' ? 'video-fullscreen__side-panel--playlist' : ''
+        } ${
           panelMode === 'chapters' ? 'video-fullscreen__side-panel--chapters' : ''
         } ${isMobile ? 'video-fullscreen__side-panel--mobile' : ''}`}
       >

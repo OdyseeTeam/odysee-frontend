@@ -20,7 +20,7 @@ async function sendAndResetWatchmanData() {
     return 'Video player not initialized';
   }
 
-  let timeSinceLastIntervalSend = new Date().getTime() - (lastSentTime as any);
+  let timeSinceLastIntervalSend = new Date().getTime() - lastSentTime;
   lastSentTime = new Date();
   let protocol;
   const hls = videoPlayer.engine || videoPlayer._hls;

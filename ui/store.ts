@@ -10,7 +10,7 @@ import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 import { routerMiddleware } from 'redux/router';
 let __pushBlocked = false;
-const _nativePush = History.prototype.pushState;
+const nativePushDescriptor = Object.getOwnPropertyDescriptor(History.prototype, 'pushState');
 
 History.prototype.pushState = function (state, title, url) {
   if (__pushBlocked) return;
@@ -18,7 +18,8 @@ History.prototype.pushState = function (state, title, url) {
   Promise.resolve().then(() => {
     __pushBlocked = false;
   });
-  return _nativePush.call(this, state, title, url);
+  if (!nativePushDescriptor?.value) return;
+  return Reflect.apply(nativePushDescriptor.value, this, [state, title, url]);
 };
 
 const rootReducer = createRootReducer();

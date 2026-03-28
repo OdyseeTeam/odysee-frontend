@@ -87,7 +87,7 @@ export default function useLazyLoading(
         threshold: [threshold],
       }
     );
-    lazyLoadingObserver.observe(elementRef.current as unknown as Element); // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
+    lazyLoadingObserver.observe(elementRef.current as Element); // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
   }, deps);
   return srcLoaded;
 }

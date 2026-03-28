@@ -31,7 +31,7 @@ export default function useLivestreamMetrics(
     const controller = new AbortController();
 
     async function poll() {
-      const data = await fetchStreamMetrics(channelClaimId!, channelName!, signature!, signingTs!, controller.signal);
+      const data = await fetchStreamMetrics(channelClaimId, channelName, signature, signingTs, controller.signal);
       if (!canceled) setMetrics(data);
     }
 

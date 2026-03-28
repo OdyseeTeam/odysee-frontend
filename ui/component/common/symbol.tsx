@@ -40,8 +40,7 @@ const Symbol = (props: Props) => {
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
       <span>
-        {amount !== null &&
-          (counter ? <Counter value={displayAmount} precision={precision as number} /> : displayAmount)}
+        {amount !== null && (counter ? <Counter value={displayAmount} precision={precision} /> : displayAmount)}
         {displayLabel}
       </span>
     </>

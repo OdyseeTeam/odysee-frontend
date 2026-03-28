@@ -29,7 +29,7 @@ export function getThumbnailCdnUrl(props: Props) {
 
   if (thumbnail) {
     if (isShorts) {
-      return `${THUMBNAIL_CDN_URL}s:${900}:${0}/quality:${quality}/plain/${thumbnail}`;
+      return `${THUMBNAIL_CDN_URL}s:900:0/quality:${quality}/plain/${thumbnail}`;
     }
 
     return `${THUMBNAIL_CDN_URL}s:${width}:${height}/quality:${quality}/plain/${thumbnail}`;

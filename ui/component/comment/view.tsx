@@ -165,9 +165,7 @@ function CommentView(props: Props) {
   const creatorMembership =
     useAppSelector((state) => selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channelId)) || '';
   const repliesFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, commentId));
-  const fetchedReplies = useAppSelector((state) =>
-    (selectRepliesForParentId as any)(state, commentId)
-  ) as Array<CommentData>;
+  const fetchedReplies = useAppSelector((state) => selectRepliesForParentId(state, commentId)) as Array<CommentData>;
   const authorTitle = useAppSelector((state) => (channelUrl ? selectTitleForUri(state, channelUrl) : null));
   const commentElemRef = React.useRef<HTMLDivElement>(null);
   const {
@@ -282,7 +280,7 @@ function CommentView(props: Props) {
 
   function handleEditComment(isEditing: boolean) {
     if (playingUri.source === 'comment' && commentElemRef.current) {
-      const claimLink = (commentElemRef.current as HTMLDivElement).querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
+      const claimLink = commentElemRef.current.querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
 
       if (isEditing && playingUri.sourceId === claimLink?.id) {
         dispatch(doClearPlayingUri());
@@ -340,7 +338,7 @@ function CommentView(props: Props) {
   const handleShowMore = React.useCallback(() => setPage((prev) => prev + 1), []);
   const linkedCommentRef = React.useCallback(
     (node: HTMLDivElement | null) => {
-      if (node) (commentElemRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      if (node) commentElemRef.current = node;
 
       if (node !== null && window.pendingLinkedCommentScroll) {
         delete window.pendingLinkedCommentScroll;
@@ -552,7 +550,7 @@ function CommentView(props: Props) {
                       iconSize={isMobile && 12}
                     />
                     {ENABLE_COMMENT_REACTIONS && (
-                      <CommentReactions uri={uri as string} commentId={commentId} hideCreatorLike={false} />
+                      <CommentReactions uri={uri} commentId={commentId} hideCreatorLike={false} />
                     )}
                   </div>
                 )}

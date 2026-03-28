@@ -180,7 +180,7 @@ function HomePage() {
     }
   }
 
-  const showWatchLaterSection = showWatchLaterSectionRef.current === true;
+  const showWatchLaterSection = showWatchLaterSectionRef.current;
   const visibleSortedRowData: Array<RowDataItem> = React.useMemo(
     () => sortedRowData.filter((row: RowDataItem) => row.id !== 'WATCH_LATER' || showWatchLaterSection),
     [showWatchLaterSection, sortedRowData]

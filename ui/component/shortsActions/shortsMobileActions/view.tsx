@@ -27,6 +27,8 @@ type Props = {
   autoPlayNextShort: boolean;
   doToggleShortsAutoplay: () => void;
   isUnlisted: boolean | null | undefined;
+  webShareable?: boolean;
+  collectionId?: string;
 };
 
 const MobileActions = (props: Props) => {

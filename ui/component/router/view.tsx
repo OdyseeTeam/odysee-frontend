@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
+import { Navigate, NavigationType, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
 import * as SETTINGS from 'constants/settings';
 import { PAGE_TITLE } from 'constants/pageTitles';
@@ -639,7 +639,7 @@ function AppRouter(props: Props) {
   }, [homepageData, isLargeScreen, isMediumScreen, isSmallScreen, renderLegacyPage, wildWestDisabled]);
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
-    if (navigationType === 'PUSH' && !hasNavigated && setHasNavigated) {
+    if (navigationType === NavigationType.Push && !hasNavigated && setHasNavigated) {
       setHasNavigated();
     }
   }, [hasNavigated, navigationType, setHasNavigated]);
@@ -689,7 +689,7 @@ function AppRouter(props: Props) {
   }, [pathname, title, uri, unseenCount, hideTitleNotificationCount]);
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
-      if (hash && navigationType === 'PUSH') {
+      if (hash && navigationType === NavigationType.Push) {
         const id = hash.replace('#', '');
         const element = document.getElementById(id);
 

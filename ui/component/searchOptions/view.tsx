@@ -58,11 +58,11 @@ function addRow(label: string, value: any) {
   );
 }
 
-const OBJ_TO_OPTION_ELEM = (obj) => {
+const OBJ_TO_OPTION_ELEM = (obj: Record<string, string>) => {
   return Object.entries(obj).map((x) => {
     return (
       <option key={x[0]} value={x[0]}>
-        {__(String(x[1]))}
+        {__(x[1])}
       </option>
     );
   });

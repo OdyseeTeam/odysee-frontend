@@ -111,12 +111,18 @@ export default function useResolvedSource(
       playerServerRef.current = response.headers.get('x-powered-by');
       const originalSrc = { type: sourceType, src: source };
 
-      let trimmedUrl = new URL(response.url);
+      const trimmedUrl = new URL(response.url);
       trimmedUrl.hash = '';
       trimmedUrl.search = '';
-      trimmedUrl = trimmedUrl.toString();
+      const trimmedUrlString = trimmedUrl.toString();
 
-      if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8') && response.status < 400) {
+      if (
+        response &&
+        response.redirected &&
+        response.url &&
+        trimmedUrlString.endsWith('m3u8') &&
+        response.status < 400
+      ) {
         const hlsSrc = { type: HLS_FILETYPE, src: response.url };
         const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
         setResolved({

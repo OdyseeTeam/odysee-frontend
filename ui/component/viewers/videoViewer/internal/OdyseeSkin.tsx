@@ -1035,10 +1035,10 @@ export default function OdyseeSkin(props) {
     const isSafari = platform.isSafari();
     if (!isFloating && !isSafari) return;
     const fix = () => {
-      const popup = document.querySelector('.media-popover--settings[popover]') as HTMLElement | null;
+      const popup = document.querySelector<HTMLElement>('.media-popover--settings[popover]');
       const trigger = isFloating
-        ? document.querySelector('.content__viewer--floating .media-button--settings')
-        : document.querySelector('.media-button--settings');
+        ? document.querySelector<HTMLElement>('.content__viewer--floating .media-button--settings')
+        : document.querySelector<HTMLElement>('.media-button--settings');
       if (!popup || !trigger) return;
       const tr = trigger.getBoundingClientRect();
       const ph = popup.offsetHeight;

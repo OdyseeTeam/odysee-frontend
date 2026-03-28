@@ -411,8 +411,8 @@ export function doAbandonTxo(txo: Txo, cb: (arg0: string) => void) {
   return (dispatch: Dispatch) => {
     if (cb) cb(ABANDON_STATES.PENDING);
     const isClaim = txo.type === 'claim';
-    const isSupport = txo.type === 'support' && txo.is_my_input === true;
-    const isTip = txo.type === 'support' && txo.is_my_input === false;
+    const isSupport = txo.type === 'support' && txo.is_my_input;
+    const isTip = txo.type === 'support' && !txo.is_my_input;
     const data = isClaim
       ? {
           claimId: txo.claim_id,

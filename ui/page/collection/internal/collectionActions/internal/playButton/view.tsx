@@ -26,13 +26,17 @@ const PlayButton = (props: ButtonProps) => {
   if (!uri) return null;
 
   function handlePlay() {
-    navigate({
-      pathname: formatLbryUrlForWeb(uri),
-      search: generateListSearchUrlParams(collectionId),
-      state: {
-        forceAutoplay: true,
+    navigate(
+      {
+        pathname: formatLbryUrlForWeb(uri),
+        search: generateListSearchUrlParams(collectionId),
       },
-    });
+      {
+        state: {
+          forceAutoplay: true,
+        },
+      }
+    );
   }
 
   return <FileActionButton icon={ICONS.PLAY} title={__('Start Playing')} label={__('Play')} onClick={handlePlay} />;

@@ -19,7 +19,7 @@ import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
 import * as SETTINGS from 'constants/settings';
 export const selectState = (state: State): SearchState => state.search;
-export const selectSearchValue: (state: State) => string = (state) => (selectState(state) as any).searchQuery;
+export const selectSearchValue: (state: State) => string = (state) => selectState(state).searchQuery;
 export const selectSearchOptions: (state: State) => SearchOptions = (state) => selectState(state).options;
 export const selectIsSearching: (state: State) => boolean = (state) => selectState(state).searching;
 export const selectSearchResultByQuery = (state: State) => selectState(state).resultsByQuery;

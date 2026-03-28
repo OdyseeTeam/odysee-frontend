@@ -163,7 +163,7 @@ function DiscoverPage(props: Props) {
         <>
           <h1 className="page__title">
             <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
-            <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+            <label>{(dynamicRouteProps && __(dynamicRouteProps.title)) || __('All Content')}</label>
           </h1>
         </>
       );

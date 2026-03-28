@@ -29,7 +29,7 @@ export default function throttle(
   let previous: number = 0;
 
   const later = () => {
-    previous = options.leading === false ? 0 : getNow();
+    previous = !options.leading ? 0 : getNow();
     timeout = null;
     result = func.apply(context, args);
 
@@ -41,7 +41,7 @@ export default function throttle(
 
   const throttled = function throttled(...funcArgs) {
     const now = getNow();
-    if (!previous && options.leading === false) previous = now;
+    if (!previous && !options.leading) previous = now;
     const remaining = wait - (now - previous);
     context = this; // eslint-disable-line no-this-alias
     args = funcArgs;
@@ -59,7 +59,7 @@ export default function throttle(
         context = null;
         args = null;
       }
-    } else if (!timeout && options.trailing !== false) {
+    } else if (!timeout && options.trailing) {
       timeout = setTimeout(later, remaining);
     }
 

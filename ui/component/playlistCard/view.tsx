@@ -274,9 +274,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
           if (isFloating || isMobile) {
             if (isFloating) {
-              const playerInfo = document.querySelector('.content__info') as HTMLElement | null;
+              const playerInfo = document.querySelector<HTMLElement>('.content__info');
               if (playerInfo) playerInfoTop = playerInfo.offsetTop;
-              const playerElem = document.querySelector('.content__viewer') as HTMLElement | null;
+              const playerElem = document.querySelector<HTMLElement>('.content__viewer');
               const playerTransform = playerElem && playerElem.style.transform;
 
               if (playerTransform) {

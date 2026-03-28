@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ElementRef } from 'react';
 import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
@@ -234,7 +233,7 @@ export function CommentCreate(props: Props) {
   const { pathname } = useLocation();
   const { activeArStatus } = useArStatus();
   const isMobile = useIsMobile();
-  const formFieldRef = React.useRef<InstanceType<typeof FormField> | null>(null);
+  const formFieldRef = React.useRef<any>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setSubmitting] = React.useState(false);
@@ -254,7 +253,10 @@ export function CommentCreate(props: Props) {
   const [activeTab, setActiveTab] = React.useState<string | undefined>();
   const [tipError, setTipError] = React.useState<any>();
   const [deletedComment, setDeletedComment] = React.useState(false);
-  const [showSelectors, setShowSelectors] = React.useState<{ tab: any; open: boolean }>({
+  const [showSelectors, setShowSelectors] = React.useState<{
+    tab: any;
+    open: boolean;
+  }>({
     tab: undefined,
     open: false,
   });

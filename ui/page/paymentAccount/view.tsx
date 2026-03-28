@@ -9,7 +9,6 @@ import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
 import SendUsdc from './sendUsdc';
 import ReceiveUsdt from './receiveUsdc';
-import OnRamper from './onRamper';
 import ArWallets from './arWallets';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
@@ -21,14 +20,12 @@ import {
   doArDisconnect as doArDisconnectAction,
   doArUpdateBalance as doArUpdateBalanceAction,
 } from 'redux/actions/arwallet';
-import { selectThemePath } from 'redux/selectors/settings';
+
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
   RECEIVE: 'receive',
   SEND: 'send',
-  BUY: 'buy',
-  WITHDRAW: 'withdraw',
   WALLETS: 'wallets',
   TRANSACTION_HISTORY: 'transaction-history',
 };
@@ -39,7 +36,6 @@ function PaymentAccountPage() {
   const arWalletStatus = useAppSelector(selectArweaveConnected);
   const balance = useAppSelector((state) => selectArweaveBalance(state).usdc || 0);
   const fetching = useAppSelector(selectArweaveFetching);
-  const theme = useAppSelector(selectThemePath);
   const navigate = useNavigate();
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
@@ -59,16 +55,8 @@ function PaymentAccountPage() {
       tabIndex = 2;
       break;
 
-    case TABS.BUY:
-      tabIndex = 3;
-      break;
-
-    case TABS.WITHDRAW:
-      tabIndex = 4;
-      break;
-
     case TABS.WALLETS:
-      tabIndex = 5;
+      tabIndex = 3;
       break;
 
     default:
@@ -103,10 +91,6 @@ function PaymentAccountPage() {
     } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SEND}`;
     } else if (newTabIndex === 3) {
-      url += `${TAB_QUERY}=${TABS.BUY}`;
-    } else if (newTabIndex === 4) {
-      url += `${TAB_QUERY}=${TABS.WITHDRAW}`;
-    } else if (newTabIndex === 5) {
       url += `${TAB_QUERY}=${TABS.WALLETS}`;
     } else {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
@@ -130,14 +114,8 @@ function PaymentAccountPage() {
             <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
               {__('Send')}
             </Tab>
-            <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
-              {__('Buy')}
-            </Tab>
-            <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>
-              {__('Withdraw')}
-            </Tab>
             {arweaveWallets && arweaveWallets.length > 0 ? (
-              <Tab aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
+              <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
                 {__('My Wallets')}
               </Tab>
             ) : (
@@ -169,38 +147,6 @@ function PaymentAccountPage() {
           <TabPanel>
             <>
               <SendUsdc cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} />
-              {!arWalletStatus && (
-                <div className="wallet">
-                  <WalletConnect />
-                </div>
-              )}
-            </>
-          </TabPanel>
-          <TabPanel>
-            <>
-              <OnRamper
-                cardHeader={cardHeader}
-                arWalletStatus={arWalletStatus}
-                balance={balance}
-                theme={theme}
-                mode="buy"
-              />
-              {!arWalletStatus && (
-                <div className="wallet">
-                  <WalletConnect />
-                </div>
-              )}
-            </>
-          </TabPanel>
-          <TabPanel>
-            <>
-              <OnRamper
-                cardHeader={cardHeader}
-                arWalletStatus={arWalletStatus}
-                balance={balance}
-                theme={theme}
-                mode="sell"
-              />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />

@@ -136,10 +136,8 @@ function MarkdownLink(props: Props) {
       element = (
         <ClaimLink
           uri={lbryUrlFromLink || decodedUri}
-          autoEmbed={embed}
           parentCommentId={parentCommentId}
-          isMarkdownPost
-          allowPreview={allowPreview}
+          allowPreview={embed || allowPreview}
         >
           {children}
         </ClaimLink>

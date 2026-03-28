@@ -126,10 +126,15 @@ function SocialShare(props: SocialShareProps) {
   const lbryUrl: string = generateLbryContentUrl(canonicalUrl, permanentUrl);
   const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
   const [shareUrl, setShareUrl] = React.useState<ShareUrl | null | undefined>();
-  const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
+  const downloadUrl = generateDownloadUrl(name, claimId);
   const claimLinkElements: Array<React.ReactNode> = getClaimLinkElements();
   // Tweet params
-  let tweetIntentParams: { url: string; text: any; hashtags: string; via?: string } = {
+  let tweetIntentParams: {
+    url: string;
+    text: any;
+    hashtags: string;
+    via?: string;
+  } = {
     url: shareUrl?.url || '',
     text: title || claim.name,
     hashtags: 'Odysee',

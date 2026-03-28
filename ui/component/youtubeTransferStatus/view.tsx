@@ -25,6 +25,7 @@ type Props = {
   alwaysShow?: boolean;
   addNewChannel?: boolean;
   autoOpenSync?: boolean;
+  hideChannelLink?: boolean;
 };
 const AUTO_OPEN_SYNC_PARAM = 'open_in_sync';
 const AUTO_OPEN_SYNC_PARAM_ALT = 'open_app';

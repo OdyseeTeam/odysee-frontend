@@ -343,7 +343,11 @@ const WalletBalance = () => {
                       ),
                     }}
                   >
-                    {`${isMobile ? '%textM% or get the %app%.' : '%textD%'} %login%${!isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? ' or %extension%.' : ''}`}
+                    {`${isMobile ? '%textM% or get the %app%.' : '%textD%'} %login%${
+                      !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
+                        ? ' or %extension%.'
+                        : ''
+                    }`}
                   </I18nMessage>
                 </div>
               ) : isSigningIn ? (
@@ -431,7 +435,7 @@ const WalletBalance = () => {
                 />
                 <Button
                   button="secondary"
-                  label={__(`${!isMobile ? 'Send Payment' : 'Send'}`)}
+                  label={__(!isMobile ? 'Send Payment' : 'Send')}
                   icon={ICONS.USD}
                   navigate={`/$/${PAGES.ARACCOUNT}`}
                   disabled={!hasArSignin || !hasArConnection}

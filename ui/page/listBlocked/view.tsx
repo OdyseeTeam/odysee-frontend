@@ -274,7 +274,7 @@ function ListBlocked() {
             uris={list}
             help={getHelpText(viewMode)}
             titleEmptyList={getEmptyListTitle(viewMode)}
-            subtitle={getEmptyListSubtitle(viewMode)}
+            subtitleEmptyList={getEmptyListSubtitle(viewMode)}
             getActionButtons={getActionButtons}
             className={viewMode === VIEW.MODERATOR ? 'block-list--moderator' : undefined}
           />

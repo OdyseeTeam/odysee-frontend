@@ -24,8 +24,8 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         referralCode,
         Boolean(referralCode),
         Boolean(startTimeSeconds),
-        startTimeSeconds as number,
-        collectionId as string | undefined,
+        startTimeSeconds,
+        collectionId,
         uriAccessKey
       );
       urlNoReferral = await generateShortShareUrl(
@@ -34,8 +34,8 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         null as any,
         false,
         Boolean(startTimeSeconds),
-        startTimeSeconds as number,
-        collectionId as string | undefined,
+        startTimeSeconds,
+        collectionId,
         uriAccessKey
       );
     } else {

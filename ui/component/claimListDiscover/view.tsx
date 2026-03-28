@@ -19,7 +19,7 @@ import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
 import type { HomepageTitles } from 'util/buildHomepage';
 import * as SETTINGS from 'constants/settings';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { NavigationType, useLocation, useNavigationType } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   selectById,
@@ -306,7 +306,7 @@ function ClaimListDiscover(props: Props) {
 
     return resolvedPinUris;
   }, [claimsById, hasPins, pins]);
-  const didNavigateForward = navigationType === 'PUSH';
+  const didNavigateForward = navigationType === NavigationType.Push;
   const prevUris = React.useRef();
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState<number>();

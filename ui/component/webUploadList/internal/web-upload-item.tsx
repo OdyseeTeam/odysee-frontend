@@ -20,7 +20,7 @@ export default function WebUploadItem(props: Props) {
   const locked = tusIsSessionLocked(params.guid);
 
   function handleFileChange(newFile: WebFile | File | any, clearName = true) {
-    if (serializeFileObj(newFile as any) === fileFingerprint) {
+    if (serializeFileObj(newFile) === fileFingerprint) {
       setShowFileSelector(false);
       doPublishResume({ ...params, file_path: newFile });
 

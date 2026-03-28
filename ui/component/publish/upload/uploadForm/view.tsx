@@ -243,7 +243,7 @@ function UploadForm(props: Props) {
   }, [thumbnail, resetThumbnailStatus]);
   // Save previous name of the editing claim
   useEffect(() => {
-    if (isStillEditing && (!prevName || (prevName as string).trim() === '')) {
+    if (isStillEditing && (!prevName || prevName.trim() === '')) {
       if (name !== prevName) {
         setPrevName(name);
       }

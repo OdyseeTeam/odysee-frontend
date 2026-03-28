@@ -5,7 +5,7 @@ import * as PAGES from 'constants/pages';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../ui/component/button';
 type Props = {
-  email?: User;
+  email?: boolean;
   onClose: () => void;
 };
 export default function NagSunset(props: Props) {

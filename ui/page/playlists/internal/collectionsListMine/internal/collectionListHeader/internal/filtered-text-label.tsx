@@ -15,7 +15,7 @@ const FilteredTextLabel = () => {
           total: totalLength,
         }
       )}
-      {`${' (' + __('filtered') + ') '}`}
+      {' (' + __('filtered') + ') '}
     </div>
   );
 };

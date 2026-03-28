@@ -166,7 +166,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
   const isCollection = claim && claim.value_type === 'collection';
-  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as BanState;
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri));
   const claimIsMine = useAppSelector((state) => (uri ? selectClaimIsMine(state, claim) : false));
   const date = useAppSelector((state) => (uri ? selectDateForUri(state, uri) : undefined));
   const geoRestriction = useAppSelector((state) => selectGeoRestrictionForUri(state, uri));

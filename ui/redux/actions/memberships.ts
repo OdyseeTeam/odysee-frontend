@@ -97,8 +97,7 @@ export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => as
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 // list available memberships for a channel id
 export const doMembershipList =
-  (params: MembershipListParams, forceUpdate?: boolean | null | undefined) =>
-  async (dispatch: Dispatch, getState: GetState) => {
+  (params: MembershipListParams, forceUpdate?: boolean | null) => async (dispatch: Dispatch, getState: GetState) => {
     const { channel_claim_id: channelId } = params;
     const state = getState();
     const isFetching = selectIsMembershipListFetchingForId(state, channelId);
@@ -193,7 +192,7 @@ export const doMembershipBuy =
     let transactionId;
 
     try {
-      const walletUnlocked = await doArSign('hello');
+      const walletUnlocked = await dispatch(doArSign('hello'));
 
       if (!walletUnlocked) {
         throw new Error('wallet not unlocked');

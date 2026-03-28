@@ -331,7 +331,7 @@ export default function MobileTabView(props: Props) {
 
   const getContentWrapper = React.useCallback((): HTMLElement | null => {
     const fs = document.querySelector('.player-fullscreen-target');
-    return fs ? (fs.querySelector('.content__wrapper') as HTMLElement | null) : null;
+    return fs ? fs.querySelector('.content__wrapper') : null;
   }, []);
 
   const handleDrawerTouchMove = React.useCallback(

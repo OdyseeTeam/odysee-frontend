@@ -103,11 +103,6 @@ function BuyAr(props: Props) {
       note: 'Select Arweave (AR) as your asset',
     },
     {
-      name: 'OnRamper',
-      url: `https://www.onramper.com/widget${wallet?.address ? `?walletAddress=${wallet.address}` : ''}`,
-      note: 'Search for and select Arweave (AR)',
-    },
-    {
       name: 'ChangeNOW',
       url: 'https://changenow.io/buy/ar?amount=10',
       note: 'Pre-configured for AR purchase',
@@ -224,7 +219,9 @@ function BuyAr(props: Props) {
                 label={__('Review Purchase on Transak')}
                 onClick={() =>
                   window.open(
-                    `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat?.symbol ?? ''}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption ?? ''}`,
+                    `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${
+                      activeFiat?.symbol ?? ''
+                    }&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption ?? ''}`,
                     '_blank',
                     'noopener,noreferrer'
                   )

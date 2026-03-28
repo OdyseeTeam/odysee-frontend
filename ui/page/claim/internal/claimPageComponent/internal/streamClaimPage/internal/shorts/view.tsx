@@ -10,7 +10,7 @@ import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobileTabView from 'component/mobileTabView';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
-import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
@@ -413,7 +413,7 @@ export default function ShortsPage(props: Props) {
       const isNavigatingToShortsPlayer = nextParams.get('view') === 'shorts';
       const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
       const isNavigatingToHome = pathname === '/' && !nextSearch;
-      const isBackNavigation = navigationType === 'POP';
+      const isBackNavigation = navigationType === NavigationType.Pop;
       const shouldCleanup =
         (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
         (isCurrentlyInShortsPlayer && isNavigatingToHome) ||

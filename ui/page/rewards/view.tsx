@@ -74,7 +74,7 @@ function RewardsPage() {
                   Send us an email to %help_email% if you continue to see this message. You can continue to use
                   %site_name% without this feature.
                 </I18nMessage>
-                {`${__('Enjoy all the awesome free content in the meantime!')}`}
+                {__('Enjoy all the awesome free content in the meantime!')}
               </p>
             </React.Fragment>
           }

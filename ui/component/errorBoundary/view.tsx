@@ -22,7 +22,6 @@ class ErrorBoundary extends React.Component<Props, State> {
       sentryEventId: undefined,
       desktopErrorReported: false,
     };
-    (this as any).refresh = this.refresh.bind(this);
   }
 
   static getDerivedStateFromError() {
@@ -54,13 +53,13 @@ class ErrorBoundary extends React.Component<Props, State> {
     // @endif
   }
 
-  refresh() {
+  refresh = () => {
     // Use replace so the user can't click back to the errored page.
     window.location.replace(window.location.href);
     this.setState({
       hasError: false,
     });
-  }
+  };
 
   render() {
     const { hasError } = this.state;

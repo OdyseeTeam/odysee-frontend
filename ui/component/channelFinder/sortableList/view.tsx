@@ -10,7 +10,7 @@
  */
 import React from 'react';
 import classnames from 'classnames';
-import './style';
+import './style.scss';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 // prettier-ignore

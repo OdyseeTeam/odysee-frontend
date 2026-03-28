@@ -1,8 +1,10 @@
+/// <reference types="node" />
 /// <reference types="vite/client" />
 
 declare const IS_WEB: boolean;
 declare const __static: string;
 declare const WEBPACK_PORT: number;
+declare const module: { exports: any };
 declare function __(msg: string, ...args: any[]): string;
 declare function assert(condition: any, message?: string, data?: any): asserts condition;
 

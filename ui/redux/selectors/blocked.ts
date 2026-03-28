@@ -16,13 +16,14 @@ export const selectMutedAndBlockedChannelIds = createSelector(
   (state) => state.comments.moderationBlockList,
   (mutedUris, blockedUris) => {
     const allUris = (mutedUris || []).concat(blockedUris || []);
-    const uniqueSet = new Set();
+    const uniqueSet = new Set<string>();
     allUris.forEach((u) => {
       try {
-        uniqueSet.add(parseURI(u).channelClaimId);
+        const channelClaimId = parseURI(u).channelClaimId;
+        if (channelClaimId) uniqueSet.add(channelClaimId);
       } catch {}
     });
-    return Container.Arr.useStableEmpty(Array.from(uniqueSet).toSorted());
+    return Container.Arr.useStableEmpty(Array.from(uniqueSet).toSorted((a, b) => a.localeCompare(b)));
   }
 );
 export const selectGblAvailable = (state: State) => {

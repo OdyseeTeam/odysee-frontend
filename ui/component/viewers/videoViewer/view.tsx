@@ -20,7 +20,60 @@ const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 
-function VideoViewer(props) {
+type Props = {
+  uri: string;
+  source?: string;
+  contentType?: string;
+  embedded?: boolean;
+  changeVolume: (volume: number) => void;
+  changeMute: (muted: boolean) => void;
+  videoPlaybackRate: number;
+  thumbnail?: string;
+  position?: number;
+  claim?: any;
+  muted: boolean;
+  volume: number;
+  autoplayNext?: boolean;
+  autoplayIfEmbedded?: boolean;
+  doAnalyticsBuffer?: (...args: any[]) => void;
+  doAnalyticsViewForUri?: (...args: any[]) => void;
+  claimRewards?: (...args: any[]) => void;
+  savePosition?: (uri: string, position: number) => void;
+  clearPosition: (uri: string) => void;
+  toggleVideoTheaterMode: () => void;
+  toggleAutoplayNext: () => void;
+  floatingPlayer?: boolean;
+  toggleFloatingPlayer: () => void;
+  autoplayMedia?: boolean;
+  toggleAutoplayMedia: () => void;
+  setVideoPlaybackRate: (rate: number) => void;
+  authenticated?: boolean;
+  userId?: string | number;
+  shareTelemetry?: boolean;
+  doPlayNextUri: (params: { uri: string }) => void;
+  recomendedContent?: string[];
+  nextPlaylistUri?: string | null;
+  videoTheaterMode?: boolean;
+  isMarkdownOrComment?: boolean;
+  isLivestreamClaim?: boolean;
+  activeLivestreamForChannel?: any;
+  defaultQuality?: string | null;
+  doToast?: (...args: any[]) => void;
+  doSetContentHistoryItem: (uri: string) => void;
+  isPurchasableContent?: boolean;
+  isRentableContent?: boolean;
+  isProtectedContent?: boolean;
+  isDownloadDisabled?: boolean;
+  doSetShowAutoplayCountdownForUri: (params: { uri: string; show: boolean }) => void;
+  doSetVideoSourceLoaded: (uri: string) => void;
+  doSyncLastPosition?: (uri: string, position: number) => void;
+  autoPlayNextShort?: boolean;
+  isFloating?: boolean;
+  playNextUri?: string | null;
+  playPreviousUri?: string | null;
+};
+
+function VideoViewer(props: Props) {
   const {
     uri,
     playNextUri,
@@ -91,8 +144,8 @@ function VideoViewer(props) {
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
   const channelTitle =
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
-  const isAudio = contentType.includes('audio');
-  const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
+  const isAudio = Boolean(contentType?.includes('audio'));
+  const forcePlayer = Boolean(contentType && FORCE_CONTENT_TYPE_PLAYER.includes(contentType));
 
   const { search } = useLocation();
 
@@ -105,7 +158,7 @@ function VideoViewer(props) {
   const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
-  const [videoNode, setVideoNode] = useState();
+  const [videoNode, setVideoNode] = useState<HTMLVideoElement | null>(null);
 
   React.useEffect(() => {
     if (defaultQuality) {
@@ -137,7 +190,7 @@ function VideoViewer(props) {
   );
 
   const updateVolumeState = React.useCallback(
-    debounce((volume, muted) => {
+    debounce((volume: number, muted: boolean) => {
       changeVolume(volume);
       changeMute(muted);
     }, 500),
@@ -145,7 +198,7 @@ function VideoViewer(props) {
   );
 
   const handlePlayNextUri = React.useCallback(
-    (options) => {
+    (options?: { manual?: boolean }) => {
       const manual = options && options.manual;
       if (shouldPlayRecommended) {
         if (manual || IS_IOS) {
@@ -170,7 +223,7 @@ function VideoViewer(props) {
 
   const onVideoEnded = React.useCallback(() => {
     videoEnded.current = true;
-    analytics.video.videoIsPlaying(false);
+    analytics.video.videoIsPlaying(false, window.player);
 
     const isShorts = !!document.querySelector('.shorts-page__container');
     if (isShorts) {
@@ -193,7 +246,7 @@ function VideoViewer(props) {
 
   const lastSyncTimeRef = React.useRef(0);
 
-  function handlePosition(node, forceSync) {
+  function handlePosition(node: HTMLVideoElement, forceSync = false) {
     try {
       if (!isLivestreamClaim && uri && savePosition && node) {
         const currentTime = node.currentTime;
@@ -211,7 +264,7 @@ function VideoViewer(props) {
   }
 
   const onPlayerReady = useCallback(
-    (player, node) => {
+    (_player: any, node: HTMLVideoElement) => {
       setVideoNode(node);
 
       // Restore position
@@ -290,7 +343,7 @@ function VideoViewer(props) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
+        {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} doReplay={replay} />}
         {showRecommendationOverlay && (
           <div className="recommendation-overlay-wrapper">
             <div className="recommendation-overlay-grid">

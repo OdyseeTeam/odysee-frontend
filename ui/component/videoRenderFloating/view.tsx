@@ -728,7 +728,10 @@ function VideoRenderFloating(props: Props) {
         }
       }
       if (!d.dragging) return;
-      const clamped = clampFloatingPlayerToScreen({ x: d.origX + dx, y: d.origY + dy });
+      const clamped = clampFloatingPlayerToScreen({
+        x: d.origX + dx,
+        y: d.origY + dy,
+      });
       d.lastX = clamped.x;
       d.lastY = clamped.y;
       node.style.transform = `translate(${clamped.x}px, ${clamped.y}px)`;
@@ -913,7 +916,12 @@ function VideoRenderFloating(props: Props) {
             <div
               role="button"
               tabIndex={0}
-              style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 1,
+                cursor: 'pointer',
+              }}
               onClick={() => navigate(navigateUrl)}
             />
           )}
@@ -1110,9 +1118,9 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         return;
       }
 
-      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`) as HTMLElement | null;
-      const videoNode = document.querySelector('.video-js-parent video') as HTMLElement | null;
-      const touchOverlay = document.querySelector('.odysee-touch-overlay') as HTMLElement | null;
+      const viewer = document.querySelector<HTMLElement>(`.${CONTENT_VIEWER_CLASS}`);
+      const videoNode = document.querySelector<HTMLVideoElement>('.video-js-parent video');
+      const touchOverlay = document.querySelector<HTMLElement>('.odysee-touch-overlay');
 
       if (rootEl && viewer) {
         const scrollTop = window.pageYOffset || rootEl.scrollTop;
@@ -1138,7 +1146,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
     window.addEventListener('scroll', handleScroll);
     return () => {
-      const touchOverlay = document.querySelector('.odysee-touch-overlay');
+      const touchOverlay = document.querySelector<HTMLElement>('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
       window.removeEventListener('scroll', handleScroll);
     };
@@ -1154,7 +1162,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   ]);
   React.useEffect(() => {
     if (videoGreaterThanLandscape && isMobilePlayer) {
-      const videoNode = document.querySelector('.video-js-parent video') as HTMLElement | null;
+      const videoNode = document.querySelector<HTMLVideoElement>('.video-js-parent video');
 
       if (videoNode) {
         const top = appDrawerOpen ? amountNeededToCenter : 0;
@@ -1163,7 +1171,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     }
 
     if (isMobile && isFloating) {
-      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
+      const viewer = document.querySelector<HTMLElement>(`.${CONTENT_VIEWER_CLASS}`);
       if (viewer) viewer.removeAttribute('style');
       const touchOverlay = document.querySelector('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
@@ -1195,11 +1203,15 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
             !theaterMode && mainFilePlaying && fileViewerRect?.height > 0
               ? `${heightResult} !important`
               : isMobile && !isLandscapeRotated && mainFilePlaying
-                ? `${heightResult}`
+                ? heightResult
                 : undefined,
           opacity: !theaterMode && mainFilePlaying ? '0 !important' : undefined,
         },
-        '.file-render--video': { ...transparentBackground, ...maxHeight, video: maxHeight },
+        '.file-render--video': {
+          ...transparentBackground,
+          ...maxHeight,
+          video: maxHeight,
+        },
         '.content__wrapper': transparentBackground,
         '.video-js-parent': {
           ...transparentBackground,

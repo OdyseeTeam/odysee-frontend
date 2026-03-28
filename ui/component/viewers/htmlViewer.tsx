@@ -13,14 +13,14 @@ function HtmlViewer({ source }: Props) {
 
     const onLoad = () => {
       setLoading(false);
-      const { scrollHeight, scrollWidth } = el.contentDocument!.body;
+      const { scrollHeight, scrollWidth } = el.contentDocument.body;
       el.style.height = `${scrollHeight}px`;
       el.style.width = `${scrollWidth}px`;
     };
 
     el.addEventListener('load', onLoad);
     (el as any).resize = () => {
-      const { scrollHeight, scrollWidth } = el.contentDocument!.body;
+      const { scrollHeight, scrollWidth } = el.contentDocument.body;
       el.style.height = `${scrollHeight}px`;
       el.style.width = `${scrollWidth}px`;
     };

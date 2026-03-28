@@ -309,7 +309,7 @@ export default function LivestreamMetrics(props: Props) {
 
   if (!metrics) return null;
 
-  const wrapClass = className ? `${className}` : undefined;
+  const wrapClass = className || undefined;
 
   switch (mode) {
     case 'compact':

@@ -193,12 +193,12 @@ export default function SubscribeButton(props: Props) {
                     }
                   );
                   const btn = buttonRef.current;
-                  const group = btn ? (btn.closest('.button-group') as HTMLElement | null) : null;
+                  const group = btn ? btn.closest<HTMLElement>('.button-group') : null;
 
                   if (btn && group) {
                     group.style.position = 'relative';
                     group.querySelectorAll('.button-following__heart-particle').forEach((el) => el.remove());
-                    const icon = btn.querySelector('.icon');
+                    const icon = btn.querySelector<HTMLElement>('.icon');
 
                     if (icon) {
                       const groupRect = group.getBoundingClientRect();

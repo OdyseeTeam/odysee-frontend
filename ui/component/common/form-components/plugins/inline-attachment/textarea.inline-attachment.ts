@@ -15,12 +15,19 @@
   // To programmatically change the value in a way React detects, we need
   // to use the original native setter and then dispatch an 'input' event.
 
-  var nativeTextareaValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-  var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+  var nativeTextareaValueDescriptor = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
+  var nativeInputValueDescriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');
 
   function setNativeValue(el, value) {
-    var setter = el.tagName === 'TEXTAREA' ? nativeTextareaValueSetter : nativeInputValueSetter;
-    setter.call(el, value);
+    if (el.tagName === 'TEXTAREA') {
+      if (!nativeTextareaValueDescriptor?.set) return;
+      // oxlint-disable-next-line typescript/unbound-method
+      Reflect.apply(nativeTextareaValueDescriptor.set, el, [value]);
+    } else {
+      if (!nativeInputValueDescriptor?.set) return;
+      // oxlint-disable-next-line typescript/unbound-method
+      Reflect.apply(nativeInputValueDescriptor.set, el, [value]);
+    }
     el.dispatchEvent(
       new Event('input', {
         bubbles: true,

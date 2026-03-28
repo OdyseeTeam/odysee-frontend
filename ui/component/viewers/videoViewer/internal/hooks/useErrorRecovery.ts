@@ -1,15 +1,16 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { HLS_EVENT_ERROR, HLS_ERROR_TYPE_MEDIA, HLS_ERROR_TYPE_NETWORK } from '../hls';
 import Player from '../player';
+import type { MediaWithHls } from '../types';
 
 const BACKOFF_DELAYS = [250, 1000, 5000, 15000];
 const MAX_ATTEMPTS = 4;
 
 export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVisible) {
-  const media = Player.useMedia();
+  const media = Player.useMedia() as MediaWithHls | null;
   const attemptsRef = useRef(0);
   const lastTimeRef = useRef(0);
-  const timerRef = useRef(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -88,7 +89,7 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
       const checkHls = () => {
         const hls = media._hls;
         if (hls) {
-          hls.on(HLS_EVENT_ERROR, onHlsError);
+          hls.on(HLS_EVENT_ERROR as any, onHlsError);
         }
       };
       if (media._hls) {
@@ -108,7 +109,7 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
       media.removeEventListener('playing', resetAttempts);
       const hls = media._hls;
       if (hls) {
-        hls.off(HLS_EVENT_ERROR, onHlsError);
+        hls.off(HLS_EVENT_ERROR as any, onHlsError);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -448,11 +448,9 @@ export default function ClaimList(props: Props) {
                         document.documentElement?.style?.getPropertyValue('--content-height') || 0
                       );
                       const playerInfo =
-                        isDraggingFromFloatingPlayer &&
-                        (document.querySelector('.content__info') as HTMLElement | null);
+                        isDraggingFromFloatingPlayer && document.querySelector<HTMLElement>('.content__info');
                       const playerElem =
-                        isDraggingFromFloatingPlayer &&
-                        (document.querySelector('.content__viewer') as HTMLElement | null);
+                        isDraggingFromFloatingPlayer && document.querySelector<HTMLElement>('.content__viewer');
                       const playerTransform = playerElem && playerElem.style.transform;
                       const playerTop =
                         playerTransform &&

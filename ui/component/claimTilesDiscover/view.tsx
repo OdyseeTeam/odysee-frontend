@@ -266,7 +266,7 @@ function ClaimTilesDiscover(props: Props) {
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
-  const routerSearch = useAppSelector((state) => (state as any).router?.location?.search || '');
+  const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
   const options = resolveSearchOptions({
     showNsfw,
     hideMembersOnly,

@@ -680,7 +680,7 @@ function ChannelPage(props: Props) {
                   uri={uri}
                   channelIsBlackListed={!!channelIsBlackListed}
                   viewHiddenChannels
-                  empty={collectionEmpty as any}
+                  empty={collectionEmpty}
                   filters={filters}
                 />
               )}

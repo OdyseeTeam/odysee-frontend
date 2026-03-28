@@ -210,7 +210,7 @@ function UserFirstChannel(props: Props) {
                 </option>
                 {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
                   <option key={langKey} value={langKey}>
-                    {langName as string}
+                    {langName}
                   </option>
                 ))}
               </FormField>

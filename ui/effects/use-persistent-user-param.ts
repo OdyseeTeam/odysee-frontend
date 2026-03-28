@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { NavigationType, useLocation, useNavigationType } from 'react-router-dom';
 import usePersistedState from 'effects/use-persisted-state';
 /**
  * Resolves and provides persistence for a user param.
@@ -35,7 +35,7 @@ export default function usePersistentUserParam(
 
   // If nothing was resolved, grab the stashed value, depending on the navigation action:
   if (!param) {
-    if (action === 'POP') {
+    if (action === NavigationType.Pop) {
       // Reaching here means user have popped back to the page's entry point (e.g. '/$/tags' without any '?order=').
       param = stashedOnEntry;
     } else {
@@ -48,7 +48,7 @@ export default function usePersistentUserParam(
     setStashed(param);
   }, [param, setStashed]);
   React.useEffect(() => {
-    if (action !== 'POP') {
+    if (action !== NavigationType.Pop) {
       setStashedOnEntry(param);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);

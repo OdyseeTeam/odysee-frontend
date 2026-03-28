@@ -98,7 +98,7 @@ export default function ChatLayout(props: Props) {
   const channelId = getChannelIdFromClaim(claim);
   const channelTitle = getChannelTitleFromClaim(claim);
   const commentsByChronologicalOrder = useAppSelector((state) =>
-    (selectTopLevelCommentsForUri as any)(state, uri, MAX_LIVESTREAM_COMMENTS)
+    selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS)
   ) as Array<ChatCommentData> | undefined;
   const pinnedComments = useAppSelector((state) => selectPinnedCommentsForUri(state, uri));
   const hyperChatsByAmount = useAppSelector((state) => selectHyperChatsForUri(state, uri));

@@ -6,7 +6,7 @@ const domain =
   typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
 const isProduction = process.env.NODE_ENV === 'production';
 const maxExpiration = 2147483647;
-let sessionPassword;
+let sessionPassword: string | null | undefined;
 
 function areCookiesEnabled() {
   // `navigator.cookieEnabled` doesn't get populated until a certain stage after
@@ -72,7 +72,7 @@ function deleteCookie(name) {
   document.cookie = name + `=; Max-Age=-99999999; domain=${domain}; path=/; Secure; SameSite=None;`;
 }
 
-function setSavedPassword(value, saveToDisk) {
+function setSavedPassword(value, saveToDisk): Promise<void> {
   return new Promise((resolve) => {
     const password = value === undefined || value === null ? '' : value;
     sessionPassword = password;
@@ -84,24 +84,24 @@ function setSavedPassword(value, saveToDisk) {
         deleteSavedPassword();
       }
     }
+    resolve();
   });
 }
 
-function getSavedPassword() {
+function getSavedPassword(): Promise<string | null> {
   return new Promise((resolve) => {
     if (sessionPassword) {
       resolve(sessionPassword);
+      return;
     }
 
     return getPasswordFromCookie().then((p) => resolve(p));
   });
 }
 
-function getPasswordFromCookie() {
+function getPasswordFromCookie(): Promise<string | null> {
   return new Promise((resolve) => {
-    let password;
-    password = getCookie(SAVED_PASSWORD);
-    resolve(password);
+    resolve(getCookie(SAVED_PASSWORD));
   });
 }
 

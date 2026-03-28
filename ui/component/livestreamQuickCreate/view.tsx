@@ -10,6 +10,7 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 import classnames from 'classnames';
+import describeUnknown from 'util/describeUnknown';
 import './style.scss';
 
 const DEFAULT_THUMBNAIL = '/public/img/livestream-default-thumb.svg';
@@ -132,7 +133,7 @@ export default function LivestreamQuickCreate({ onCreated }: Props) {
       dispatch(doToast({ message: __('Stream claim created!') }));
       onCreated?.();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = describeUnknown(e);
       dispatch(
         doToast({
           isError: true,

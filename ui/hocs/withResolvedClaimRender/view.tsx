@@ -48,7 +48,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const isClaimBlackListed = useAppSelector((state) => Boolean(selectBlackListedDataForUri(state, uri)));
     const filterData = useAppSelector((state) => selectFilteredDataForUri(state, uri));
     const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
-    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim)) as boolean;
+    const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
     const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
     const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
     const isGlobalMod = useAppSelector((state) => Boolean(selectUser(state)?.global_mod));
@@ -180,7 +180,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       }
     }
 
-    if (isVisibilityRestricted !== false) {
+    if (isVisibilityRestricted) {
       if (isVisibilityRestricted === undefined) {
         return <LoadingSpinner text={__('Resolving...')} />;
       }

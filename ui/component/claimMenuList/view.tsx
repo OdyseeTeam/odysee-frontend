@@ -76,7 +76,7 @@ type SubscriptionArgs = {
 type Props = {
   uri: string;
   inline?: boolean;
-  collectionId: string;
+  collectionId?: string;
   fypId?: string;
   channelUri?: string;
   autoOpen?: boolean;
@@ -114,7 +114,11 @@ function ClaimMenuListInner(props: Props) {
 
   // -- selectors --
   const placeholderForDeletedClaim = React.useMemo(
-    () => ({ canonical_url: uri, permanent_url: uri, value_type: 'deleted' as const }),
+    () => ({
+      canonical_url: uri,
+      permanent_url: uri,
+      value_type: 'deleted' as const,
+    }),
     [uri]
   );
   const claim = useAppSelector((state) => selectClaimForUri(state, uri, false)) || placeholderForDeletedClaim;

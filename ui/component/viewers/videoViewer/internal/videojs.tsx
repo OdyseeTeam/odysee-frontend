@@ -30,6 +30,7 @@ import { useAppSelector } from 'redux/hooks';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { getLivestreamTurnServer } from 'constants/livestream';
+import type { MediaWithHls, HlsWithP2P, P2PHlsConfig } from './types';
 
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
@@ -111,7 +112,55 @@ function summarizeP2PSegment(details: any) {
   };
 }
 
-function VideoJsInner(props) {
+type Props = {
+  claimId?: string;
+  title?: string;
+  channelTitle?: string;
+  embedded?: boolean;
+  embeddedInternal?: boolean;
+  isAudio?: boolean;
+  poster?: string;
+  thumbnail?: string;
+  shareTelemetry?: boolean;
+  source?: string;
+  sourceType?: string;
+  startMuted?: boolean;
+  userId?: string | number;
+  defaultQuality?: string | null;
+  onPlayerReady: (player: any, node: HTMLVideoElement) => void | (() => void);
+  playNext: (options?: { manual?: boolean }) => void;
+  playPrevious: () => void;
+  toggleVideoTheaterMode: () => void;
+  claimValues?: any;
+  doAnalyticsViewForUri?: (...args: any[]) => void;
+  doAnalyticsBuffer?: (...args: any[]) => void;
+  claimRewards?: (...args: any[]) => void;
+  uri: string;
+  userClaimId?: string;
+  isLivestreamClaim?: boolean;
+  activeLivestreamForChannel?: any;
+  isPurchasableContent?: boolean;
+  isRentableContent?: boolean;
+  isProtectedContent?: boolean;
+  isDownloadDisabled?: boolean;
+  isUnlisted?: boolean;
+  doSetVideoSourceLoaded: (uri: string) => void;
+  canPlayNext?: boolean;
+  canPlayPrevious?: boolean;
+  autoplayNext?: boolean;
+  onToggleAutoplayNext?: () => void;
+  floatingPlayer?: boolean;
+  onToggleFloatingPlayer?: () => void;
+  autoplayMedia?: boolean;
+  onToggleAutoplayMedia?: () => void;
+  videoTheaterMode?: boolean;
+  isMarkdownOrComment?: boolean;
+  isFloating?: boolean;
+  doToast?: (...args: any[]) => void;
+  autoPlayNextShort?: boolean;
+};
+
+function VideoJsInner(props: Props) {
   const {
     claimId,
     title,
@@ -161,7 +210,7 @@ function VideoJsInner(props) {
   const isMobile = useIsMobile();
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const store = Player.usePlayer();
-  const media = Player.useMedia();
+  const media = Player.useMedia() as MediaWithHls | null;
   const p2pActivityRef = useRef({
     peers: new Set<string>(),
     lastDownloadAt: 0,
@@ -273,7 +322,12 @@ function VideoJsInner(props) {
   }, [syncP2PUiState]);
 
   // Hooks
-  useRecsys(claimId, userId, embedded || embeddedInternal, shareTelemetry);
+  useRecsys(
+    claimId,
+    userId !== undefined && userId !== null ? String(userId) : undefined,
+    embedded || embeddedInternal,
+    shareTelemetry
+  );
   useEventTracking(
     claimId,
     userId,
@@ -391,7 +445,7 @@ function VideoJsInner(props) {
 
     window.player = playerApi;
     window.dispatchEvent(new CustomEvent('playerReady'));
-    onPlayerReady(playerApi, media);
+    onPlayerReady(playerApi, media as HTMLVideoElement);
     if (window.pendingSeekTime != null) {
       media.currentTime = window.pendingSeekTime;
       delete window.pendingSeekTime;
@@ -484,13 +538,13 @@ function VideoJsInner(props) {
               },
             }
           : undefined),
-      });
+      } as P2PHlsConfig) as HlsWithP2P;
 
       hls.attachMedia(media);
       hls.loadSource(src);
       media._hls = hls;
 
-      hls.on(HLS_EVENT_MANIFEST_PARSED, () => {
+      hls.on(HLS_EVENT_MANIFEST_PARSED as any, () => {
         p2pActivityRef.current.peers.clear();
         syncP2PUiState();
         if (p2pEnabled && isLivestreamClaim) {
@@ -510,7 +564,7 @@ function VideoJsInner(props) {
         }
       });
 
-      hls.on(HLS_EVENT_LEVEL_LOADED, (_: any, data: any) => {
+      hls.on(HLS_EVENT_LEVEL_LOADED as any, (_: any, data: any) => {
         if (p2pEnabled && isLivestreamClaim) {
           if (P2P_DEBUG)
             console.log('[P2P] Viewer playlist loaded:', {
@@ -524,7 +578,7 @@ function VideoJsInner(props) {
 
       // Restore play state after HLS reattaches
       if (wasPlaying) {
-        hls.on(HLS_EVENT_MANIFEST_PARSED, () => {
+        hls.on(HLS_EVENT_MANIFEST_PARSED as any, () => {
           media.play().catch(() => {});
         });
       }
@@ -653,11 +707,11 @@ function VideoJsInner(props) {
     const hls = media._hls;
     if (hls) {
       const onReady = () => {
-        hls.off(HLS_EVENT_MANIFEST_PARSED, onReady);
+        hls.off(HLS_EVENT_MANIFEST_PARSED as any, onReady);
         media.removeEventListener('canplay', onReady);
         attemptPlay();
       };
-      hls.on(HLS_EVENT_MANIFEST_PARSED, onReady);
+      hls.on(HLS_EVENT_MANIFEST_PARSED as any, onReady);
       media.addEventListener('canplay', onReady, { once: true });
     } else {
       attemptPlay();
@@ -840,7 +894,7 @@ function VideoJsInner(props) {
   );
 }
 
-export default React.memo(function VideoJs(props) {
+export default React.memo(function VideoJs(props: Props) {
   return (
     <Player.Provider>
       <VideoJsInner {...props} />

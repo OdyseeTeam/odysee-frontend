@@ -33,6 +33,7 @@ import LivestreamP2PSeed from 'component/livestreamP2PSeed';
 import LivestreamConnectingAnimation from 'component/livestreamConnectingAnimation';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import classnames from 'classnames';
+import describeUnknown from 'util/describeUnknown';
 import './style.scss';
 
 type Props = {
@@ -45,6 +46,9 @@ type Props = {
 };
 
 type Status = 'idle' | 'requesting_permission' | 'preview' | 'connecting' | 'live' | 'stopping' | 'error';
+type MediaTrackConstraintsWithResizeMode = MediaTrackConstraints & {
+  resizeMode?: 'none' | 'crop-and-scale';
+};
 
 const WEBRTC_DEBUG = process.env.NODE_ENV === 'development';
 
@@ -101,13 +105,13 @@ function getCameraConstraintAttempts(
   presetId: import('constants/webrtcPublish').WebrtcPublishPresetId,
   facingMode?: 'user' | 'environment'
 ): MediaTrackConstraints[] {
-  const base = getWebrtcPublishVideoConstraints(presetId, facingMode);
-  const targetWidth = getIdealConstraintValue(base.width as ConstrainULong | undefined);
-  const targetHeight = getIdealConstraintValue(base.height as ConstrainULong | undefined);
-  const targetFps = getIdealConstraintValue(base.frameRate as ConstrainDouble | undefined);
+  const base = getWebrtcPublishVideoConstraints(presetId, facingMode) as MediaTrackConstraintsWithResizeMode;
+  const targetWidth = getIdealConstraintValue(base.width);
+  const targetHeight = getIdealConstraintValue(base.height);
+  const targetFps = getIdealConstraintValue(base.frameRate);
   const sharedCameraPrefs = {
     facingMode: base.facingMode,
-  } satisfies Partial<MediaTrackConstraints>;
+  } satisfies Partial<MediaTrackConstraintsWithResizeMode>;
 
   if (!targetWidth || !targetHeight || !targetFps) return [base];
 
@@ -117,7 +121,7 @@ function getCameraConstraintAttempts(
     height: { exact: targetHeight },
     frameRate: { exact: targetFps },
     resizeMode: 'none',
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const strictNativeMode = {
     ...sharedCameraPrefs,
@@ -125,7 +129,7 @@ function getCameraConstraintAttempts(
     height: { exact: targetHeight },
     frameRate: { min: targetFps, ideal: targetFps },
     resizeMode: 'none',
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const exactVgaMode = {
     ...sharedCameraPrefs,
@@ -133,7 +137,7 @@ function getCameraConstraintAttempts(
     height: { exact: 480 },
     frameRate: { exact: targetFps },
     resizeMode: 'none',
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const strictVgaMode = {
     ...sharedCameraPrefs,
@@ -141,26 +145,26 @@ function getCameraConstraintAttempts(
     height: { exact: 480 },
     frameRate: { min: targetFps, ideal: targetFps },
     resizeMode: 'none',
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const strictBaseScalable = {
     ...base,
     frameRate: { min: targetFps, ideal: targetFps },
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const lowerResolutionStrictScalable = {
     ...sharedCameraPrefs,
     width: { ideal: 854 },
     height: { ideal: 480 },
     frameRate: { min: targetFps, ideal: targetFps },
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const lowerResolutionSoftScalable = {
     ...sharedCameraPrefs,
     width: { ideal: 854 },
     height: { ideal: 480 },
     frameRate: { ideal: targetFps },
-  } satisfies MediaTrackConstraints;
+  } satisfies MediaTrackConstraintsWithResizeMode;
 
   const forgivingBase = {
     ...sharedCameraPrefs,
@@ -335,7 +339,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       return;
     }
     // serverMetrics is null on first render; only act when we get a definitive `live: false`
-    if (serverMetrics && serverMetrics.live === false) {
+    if (serverMetrics && !serverMetrics.live) {
       metricsNotLiveCountRef.current += 1;
       // Require 3 consecutive not-live polls (15s) to avoid false positives
       if (metricsNotLiveCountRef.current >= 3) {
@@ -346,7 +350,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             message: __('Stream connection lost. The server reports the stream is no longer active.'),
           })
         );
-        publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+        publishCtx.actions.stopStream({
+          preservePreview: Boolean(cameraAutoStart),
+        });
       }
     } else {
       metricsNotLiveCountRef.current = 0;
@@ -356,13 +362,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // P2P seed: streamer acts as first peer in the P2P swarm (uses shared P2P_DELIVERY setting)
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
   // Use the public (non-LLHLS) URL for seeding, with ?format=ts to match what viewers load
-  const rawHlsVideoUrl = (activeLivestream as any)?.videoUrlPublic || activeLivestream?.videoUrl;
+  const rawHlsVideoUrl = activeLivestream?.videoUrlPublic || activeLivestream?.videoUrl;
   const hlsVideoUrl =
     rawHlsVideoUrl && !rawHlsVideoUrl.includes('format=ts')
       ? `${rawHlsVideoUrl}${rawHlsVideoUrl.includes('?') ? '&' : '?'}format=ts`
       : rawHlsVideoUrl;
-  const p2pTrackerUrl = (activeLivestream as any)?.p2pTrackerUrl || null;
-  const p2pSwarmId = (activeLivestream as any)?.p2pSwarmId || null;
+  const p2pTrackerUrl = activeLivestream?.p2pTrackerUrl || null;
+  const p2pSwarmId = activeLivestream?.p2pSwarmId || null;
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const prefsReady = useAppSelector(selectPrefsReady);
   const [showP2pConfirm, setShowP2pConfirm] = React.useState(false);
@@ -410,7 +416,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           isLive: status === 'live',
           selectedVideoUrl: hlsVideoUrl || null,
           preferredVideoUrl: activeLivestream?.videoUrl || null,
-          publicVideoUrl: (activeLivestream as any)?.videoUrlPublic || null,
+          publicVideoUrl: activeLivestream?.videoUrlPublic || null,
           trackerUrl: p2pTrackerUrl,
           swarmId: p2pSwarmId,
         }); // eslint-disable-line no-console
@@ -436,7 +442,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const browserPublishSupported =
     typeof navigator !== 'undefined' &&
     typeof RTCPeerConnection !== 'undefined' &&
-    Boolean(navigator.mediaDevices?.getUserMedia);
+    typeof navigator.mediaDevices?.getUserMedia === 'function';
   const canStartStream =
     browserPublishSupported &&
     livestreamEnabled &&
@@ -487,7 +493,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: videoConstraints,
-          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
         });
         const videoTrack = stream.getVideoTracks()[0];
         const videoSettings = videoTrack?.getSettings();
@@ -514,7 +524,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       }
     }
 
-    throw lastError instanceof Error ? lastError : new Error(String(lastError));
+    throw lastError instanceof Error ? lastError : new Error(describeUnknown(lastError));
   }
 
   async function requestCameraPreview() {
@@ -529,7 +539,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       // Remember that camera was successfully opened for auto-start next time
       setCameraAutoStart(true);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = describeUnknown(e);
       setErrorMessage(msg);
       // If permission denied, clear the auto-start flag
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
@@ -554,7 +564,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       setMediaStream(nextStream);
       setFacingMode(nextFacing);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = describeUnknown(e);
       setErrorMessage(msg);
     }
   }
@@ -589,7 +599,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         currentStream.getTracks().forEach((track) => track.stop());
       } catch (e: unknown) {
         if (canceled) return;
-        const msg = e instanceof Error ? e.message : String(e);
+        const msg = describeUnknown(e);
         setErrorMessage(msg);
       }
     })();
@@ -652,7 +662,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         windowStart = now;
       }
 
-      callbackId = video.requestVideoFrameCallback!(onFrame);
+      callbackId = video.requestVideoFrameCallback(onFrame);
     };
 
     callbackId = video.requestVideoFrameCallback(onFrame);
@@ -704,7 +714,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       if (WEBRTC_DEBUG) console.log('[WebRTC] ICE state:', state); // eslint-disable-line no-console
       if (state === 'failed' || state === 'closed') {
         dispatch(doToast({ isError: true, message: __('Stream connection lost.') }));
-        publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+        publishCtx.actions.stopStream({
+          preservePreview: Boolean(cameraAutoStart),
+        });
       }
     };
     pc.addEventListener('iceconnectionstatechange', onIceChange);
@@ -893,7 +905,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           if (ac.signal.aborted) break;
           try {
             if (WEBRTC_DEBUG) console.log(`[WebRTC] Trying codec: ${codec}`); // eslint-disable-line no-console
-            const { pc, resourceUrl } = await startWhipPublish(whipUrl!, stream, {
+            const { pc, resourceUrl } = await startWhipPublish(whipUrl, stream, {
               signal: ac.signal,
               maxVideoBitrateBps: enc.maxVideoBitrateBps,
               maxVideoFramerate: enc.maxVideoFramerate,
@@ -929,22 +941,32 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           setStatus(publishCtx.state.mediaStream ? 'preview' : 'idle');
           return;
         }
-        const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+        const msg = describeUnknown(lastErr);
         setErrorMessage(msg);
         setStatus(publishCtx.state.mediaStream ? 'preview' : 'error');
         publishCtx.actions.setPc(null);
         publishCtx.actions.setResourceUrl(null);
-        dispatch(doToast({ isError: true, message: __('Failed to start stream. Check permissions and try again.') }));
+        dispatch(
+          doToast({
+            isError: true,
+            message: __('Failed to start stream. Check permissions and try again.'),
+          })
+        );
       } catch (e: unknown) {
         connectAbortRef.current = null;
         if (isAbortError(e)) {
           setStatus(publishCtx.state.mediaStream ? 'preview' : 'idle');
           return;
         }
-        const msg = e instanceof Error ? e.message : String(e);
+        const msg = describeUnknown(e);
         setErrorMessage(msg);
         setStatus('error');
-        dispatch(doToast({ isError: true, message: __('Could not access camera or microphone.') }));
+        dispatch(
+          doToast({
+            isError: true,
+            message: __('Could not access camera or microphone.'),
+          })
+        );
       }
     } else if (status === 'preview') {
       if (!mediaStream || !whipUrl) return;
@@ -990,7 +1012,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         setStatus('preview');
         return;
       }
-      const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+      const msg = describeUnknown(lastErr);
       setErrorMessage(msg);
       setStatus('preview');
       publishCtx.actions.setPc(null);
@@ -1000,7 +1022,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   }
 
   async function handleStop() {
-    await publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
+    await publishCtx.actions.stopStream({
+      preservePreview: Boolean(cameraAutoStart),
+    });
     dispatch(doToast({ message: __('Stream ended.') }));
   }
 

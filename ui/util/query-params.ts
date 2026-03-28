@@ -3,6 +3,9 @@ import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
+type QueryParamOptionValue = string | number | boolean | undefined | null;
+type SearchQueryOptions = Record<string, QueryParamOptionValue>;
+
 export function parseQueryParams(queryString: string): Record<string, string> {
   if (queryString === '') return {};
   const parts = queryString
@@ -30,12 +33,16 @@ export function updateQueryParam(uri: string, key: string, value: string) {
 }
 const isSurroundedByQuotes = (str: string) => str[0] === '"' && str[str.length - 1] === '"';
 
-export const getSearchQueryString = (query: string, options: Record<string, unknown> = {}): string => {
+export const getSearchQueryString = (query: string, options: SearchQueryOptions = {}): string => {
   const encodedQuery = encodeURIComponent(query);
+  const size =
+    typeof options.size === 'number' || typeof options.size === 'string' ? options.size : DEFAULT_SEARCH_SIZE;
+  const from =
+    typeof options.from === 'number' || typeof options.from === 'string' ? options.from : DEFAULT_SEARCH_RESULT_FROM;
   const queryParams = [
     options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,
-    `size=${options.size || DEFAULT_SEARCH_SIZE}`,
-    `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`,
+    `size=${size}`,
+    `from=${from}`,
   ];
   const { isBackgroundSearch } = options;
   const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
@@ -83,20 +90,26 @@ export const getSearchQueryString = (query: string, options: Record<string, unkn
        */
       if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
         queryParams.push(
-          `mediaType=${[SEARCH_OPTIONS.MEDIA_AUDIO, SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_TEXT, SEARCH_OPTIONS.MEDIA_IMAGE, SEARCH_OPTIONS.MEDIA_APPLICATION].reduce((acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc), '')}`
+          `mediaType=${[
+            SEARCH_OPTIONS.MEDIA_AUDIO,
+            SEARCH_OPTIONS.MEDIA_VIDEO,
+            SEARCH_OPTIONS.MEDIA_TEXT,
+            SEARCH_OPTIONS.MEDIA_IMAGE,
+            SEARCH_OPTIONS.MEDIA_APPLICATION,
+          ].reduce((acc, currentOption) => (options[currentOption] ? `${acc}${currentOption},` : acc), '')}`
         );
       }
     }
 
     const sortBy = options[SEARCH_OPTIONS.SORT];
 
-    if (sortBy) {
+    if (typeof sortBy === 'string' || typeof sortBy === 'number') {
       queryParams.push(`${SEARCH_OPTIONS.SORT}=${sortBy}`);
     }
 
     const timeFilter = options[SEARCH_OPTIONS.TIME_FILTER];
 
-    if (timeFilter) {
+    if (typeof timeFilter === 'string' || typeof timeFilter === 'number') {
       queryParams.push(`${SEARCH_OPTIONS.TIME_FILTER}=${timeFilter}`);
     }
 
