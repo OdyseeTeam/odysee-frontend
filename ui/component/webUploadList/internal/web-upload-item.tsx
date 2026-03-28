@@ -117,7 +117,7 @@ export default function WebUploadItem(props: Props) {
             return __('Failed to process file. Please try again.');
 
           default:
-            return status;
+            return typeof status === 'string' ? status : JSON.stringify(status);
         }
       } else {
         const progressInt = parseInt(progress);
