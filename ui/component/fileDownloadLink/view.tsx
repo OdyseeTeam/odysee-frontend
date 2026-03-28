@@ -8,8 +8,6 @@ import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri }
 import { selectContentStates } from 'redux/selectors/content';
 import {
   makeSelectFileInfoForUri,
-  makeSelectDownloadingForUri,
-  makeSelectLoadingForUri,
   selectStreamingUrlForUri,
 } from 'redux/selectors/file_info';
 import { doOpenModal } from 'redux/actions/app';
@@ -21,7 +19,6 @@ type Props = {
   buttonType?: string | null | undefined;
   showLabel?: boolean | null | undefined;
   hideOpenButton?: boolean;
-  hideDownloadStatus?: boolean;
 };
 
 function FileDownloadLink(props: Props) {
@@ -31,15 +28,12 @@ function FileDownloadLink(props: Props) {
     focusable = true,
     showLabel = false,
     hideOpenButton = false,
-    hideDownloadStatus = false,
   } = props;
   const dispatch = useAppDispatch();
 
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const claimIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
-  const downloading = useAppSelector((state) => makeSelectDownloadingForUri(uri)(state));
   const fileInfo = useAppSelector((state) => makeSelectFileInfoForUri(uri)(state));
-  const loading = useAppSelector((state) => makeSelectLoadingForUri(uri)(state));
   const streamingUrl = useAppSelector((state) => selectStreamingUrlForUri(state, uri));
   const contentRestrictedFromUser = useAppSelector(
     (state) => claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id)
@@ -52,8 +46,6 @@ function FileDownloadLink(props: Props) {
   const pause = () => dispatch(doClearPlayingUri());
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
-  // @if TARGET='web'
-  // initiate download when streamingUrl is available
   React.useEffect(() => {
     if (didClickDownloadButton && streamingUrl) {
       webDownloadClaim(streamingUrl, fileName, isProtectedContent, uriAccessKey);
@@ -61,7 +53,6 @@ function FileDownloadLink(props: Props) {
     }
   }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent, uriAccessKey]);
 
-  // @endif
   function handleDownload(e) {
     setDidClickDownloadButton(true);
     e.preventDefault();
@@ -72,27 +63,6 @@ function FileDownloadLink(props: Props) {
     return null;
   }
 
-  // @if TARGET='app'
-  if (downloading || loading) {
-    if (hideDownloadStatus) {
-      return null;
-    }
-
-    if (fileInfo && fileInfo.written_bytes > 0) {
-      const progress = (fileInfo.written_bytes / fileInfo.total_bytes) * 100;
-      return (
-        <span className="download-text">
-          {__('%percent%% downloaded', {
-            percent: progress.toFixed(0),
-          })}
-        </span>
-      );
-    } else {
-      return <span className="download-text">{__('Connecting...')}</span>;
-    }
-  }
-
-  // @endif
   if (fileInfo && fileInfo.download_path && fileInfo.completed) {
     const openLabel = __('Open file');
 

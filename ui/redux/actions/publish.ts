@@ -135,16 +135,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
           },
         },
       } as UpdatePendingClaimsAction);
-      // @if TARGET='app'
-      actions.push({
-        type: ACTIONS.ADD_FILES_REFLECTING,
-        data: pendingClaim,
-      });
-      // @endif
       dispatch(batchActions(...actions));
-      // @if TARGET='app'
-      navigateTo(`/$/${PAGES.UPLOADS}`);
-      // @endif
       dispatch(
         doOpenModal(MODALS.PUBLISH, {
           uri: url,
@@ -154,15 +145,10 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
         })
       );
       dispatch(doCheckPendingClaims(undefined));
-      // @if TARGET='app'
-      dispatch(doCheckReflectingFiles());
-
-      // @endif
-      // @if TARGET='web'
       if (redirectToLivestream) {
         dispatch(doClearPublish());
         navigateTo(`/$/${PAGES.LIVESTREAM}`);
-      } // @endif
+      }
     };
 
     const publishFail = (error: any) => {
@@ -194,15 +180,10 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
       return;
     }
 
-    // Redirect on web immediately because we have a file upload progress componenet
-    // on the publishes page. This doesn't exist on desktop so wait until we get a response
-    // from the SDK
-    // @if TARGET='web'
     if (!redirectToLivestream) {
       navigateTo(`/$/${PAGES.UPLOADS}`);
     }
 
-    // @endif
     dispatch(doPublish(publishSuccess, publishFail));
   };
 };
@@ -563,15 +544,12 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     }
 
     // --- File Size ---
-    // @if TARGET='web'
-    // we only need to enforce file sizes on 'web'
     const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
 
     if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
       formUpdates.fileSizeTooBig = true;
     }
 
-    // @endif
     // --- Name and title ---
     // Strip off extension and replace invalid characters
     const newFileName = (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';

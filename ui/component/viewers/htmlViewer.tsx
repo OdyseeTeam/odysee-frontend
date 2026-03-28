@@ -31,12 +31,7 @@ function HtmlViewer({ source }: Props) {
   return (
     <div className="file-viewer file-viewer--html file-viewer--iframe">
       {loading && <div className="placeholder--text-document" />}
-      {/* @if TARGET='app' */}
-      <iframe ref={iframe} hidden={loading} sandbox="" title={__('File preview')} src={`file://${source}`} />
-      {/* @endif */}
-      {/* @if TARGET='web' */}
       <iframe ref={iframe} hidden={loading} sandbox="" title={__('File preview')} src={source} />
-      {/* @endif */}
     </div>
   );
 }

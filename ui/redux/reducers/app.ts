@@ -62,9 +62,7 @@ const defaultState: AppState = {
   hasSignature: false,
   badgeNumber: 0,
   volume: 1,
-  // @if TARGET='app'
-  upgradeSkipped: sessionStorage.getItem('upgradeSkipped') === 'true',
-  // @endif
+  upgradeSkipped: false,
   muted: false,
   autoUpdateDownloaded: false,
   autoUpdateDeclined: false,

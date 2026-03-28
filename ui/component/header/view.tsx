@@ -321,7 +321,6 @@ const Header = (props: Props) => {
                   }
                 />
               )}
-              {/* @endif */}
             </div>
 
             {!authHeader && !isMobile && (

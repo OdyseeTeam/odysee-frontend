@@ -10,7 +10,6 @@ type Store = {
 };
 export const populateAuthTokenHeader = (store: Store) => {
   return (next: any) => (action: any) => {
-    // @if TARGET='web'
     const { dispatch, getState } = store;
 
     switch (action.type) {
@@ -52,7 +51,6 @@ export const populateAuthTokenHeader = (store: Store) => {
       // skip
     }
 
-    // @endif
     return next(action);
   };
 };

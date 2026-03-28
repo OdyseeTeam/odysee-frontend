@@ -12,7 +12,6 @@ export default function FileRenderDownload(props: Props) {
   const { uri } = props;
   const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
 
-  // @if TARGET='web'
   if (RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode)) {
     return (
       <Card
@@ -27,6 +26,5 @@ export default function FileRenderDownload(props: Props) {
     );
   }
 
-  // @endif
   return <Card title={__('Download')} actions={<FileDownloadLink uri={uri} buttonType="primary" showLabel />} />;
 }

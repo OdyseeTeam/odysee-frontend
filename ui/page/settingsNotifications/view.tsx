@@ -1,6 +1,5 @@
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
 import * as React from 'react';
 import Page from 'component/page';
 import { FormField } from 'component/common/form';
@@ -12,14 +11,10 @@ import { Navigate } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
-import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { doSetClientSetting } from 'redux/actions/settings';
-import { selectosNotificationsEnabled } from 'redux/selectors/settings';
+import { useAppSelector } from 'redux/hooks';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 export default function NotificationSettingsPage() {
-  const dispatch = useAppDispatch();
-  const osNotificationsEnabled = useAppSelector(selectosNotificationsEnabled);
   const isAuthenticated = Boolean(useAppSelector(selectUserVerifiedEmail));
   const [error, setError] = React.useState<boolean>(false);
   const [tagMap, setTagMap] = React.useState<{ [key: string]: boolean }>({});
@@ -169,25 +164,7 @@ export default function NotificationSettingsPage() {
                   </>
                 )}
 
-                {/* @if TARGET='web' */}
                 <BrowserNotificationSettings />
-                {/* @endif */}
-
-                {/* @if TARGET='app' */}
-                <SettingsRow
-                  title={__('Desktop Notifications')}
-                  subtitle={__('Get notified when an upload or channel is confirmed.')}
-                >
-                  <FormField
-                    type="checkbox"
-                    name="desktopNotification"
-                    onChange={() =>
-                      dispatch(doSetClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled))
-                    }
-                    checked={osNotificationsEnabled}
-                  />
-                </SettingsRow>
-                {/* @endif */}
               </>
             }
           />

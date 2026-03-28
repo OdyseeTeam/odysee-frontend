@@ -105,7 +105,6 @@ function PublishLivestream(props: Props) {
   }
 
   function getUploadMessage() {
-    // @if TARGET='web'
     if (fileSizeTooBig) {
       return (
         <p className="help--error">
@@ -116,7 +115,6 @@ function PublishLivestream(props: Props) {
       );
     }
 
-    // @endif
     if (fileBitrate > BITRATE.RECOMMENDED) {
       return (
         <p className="help--warning">
@@ -145,7 +143,6 @@ function PublishLivestream(props: Props) {
       );
     }
 
-    // @if TARGET='web'
     if (!isStillEditing) {
       return (
         <p className="help">
@@ -160,7 +157,7 @@ function PublishLivestream(props: Props) {
           <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
       );
-    } // @endif
+    }
   }
 
   React.useEffect(() => {
@@ -177,7 +174,6 @@ function PublishLivestream(props: Props) {
         <div className="publish-row--no-margin">
           <React.Fragment>
             {/* Decide whether to show file upload or replay selector */}
-            {/* @if TARGET='web' */}
             <FormField
               type="text"
               name="content_title"
@@ -431,7 +427,6 @@ function PublishLivestream(props: Props) {
                 </div>
               )}
             </>
-            {/* @endif */}
           </React.Fragment>
         </div>
       }

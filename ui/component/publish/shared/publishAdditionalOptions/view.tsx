@@ -13,10 +13,6 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectPublishFormValues } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { selectUser } from 'redux/selectors/user';
-// @if TARGET='app'
-// import ErrorText from 'component/common/error-text';
-// import { LbryFirst } from 'lbry-redux';
-// @endif
 type Props = {
   disabled: boolean;
   showSchedulingOptions?: boolean;

@@ -8,7 +8,7 @@ export function assert(condition: any, msg: string = 'Assertion failed', data: a
   doAssert(condition, msg, data);
   // @endif
   // @if IS_TEST_INSTANCE='true'
-  doAssert(condition, msg, data); // @endif
+  doAssert(condition, msg, data);
 }
 
 function doAssert(condition: any, msg: string, data: any) {

@@ -417,7 +417,6 @@ export function GetLinksData(
     if (!showPersonalizedChannels) rowData.push(TOP_CHANNELS);
   }
 
-  // @endif
   // **************************************************************************
   const { categories } = all;
   const entries = Object.entries(categories || []);

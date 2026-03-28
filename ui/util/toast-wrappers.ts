@@ -27,5 +27,5 @@ export function devToast(dispatch: Dispatch, msg: string) {
       isError: true,
       message: `DEV: ${msg}`,
     })
-  ); // @endif
+  );
 }

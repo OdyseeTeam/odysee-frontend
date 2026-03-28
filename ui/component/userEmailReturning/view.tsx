@@ -20,7 +20,6 @@ import {
   selectEmailNewIsPending,
 } from 'redux/selectors/user';
 import { doUserCheckIfEmailExists, doClearEmailEntry } from 'redux/actions/user';
-import { doSetWalletSyncPreference } from 'redux/actions/settings';
 
 function UserEmailReturning() {
   const dispatch = useAppDispatch();
@@ -37,14 +36,10 @@ function UserEmailReturning() {
   const defaultEmail = emailFromUrl ? decodeURIComponent(emailFromUrl) : '';
   const hasPasswordSet = user && user.password_set;
   const [email, setEmail] = useState(defaultEmail);
-  const [syncEnabled, setSyncEnabled] = useState(true);
   const valid = email.match(EMAIL_REGEX);
   const showEmailVerification = emailToVerify || hasPasswordSet;
 
   function handleSubmit() {
-    // @if TARGET='app'
-    dispatch(doSetWalletSyncPreference(syncEnabled));
-    // @endif
     dispatch(doUserCheckIfEmailExists(email));
   }
 
@@ -89,21 +84,6 @@ function UserEmailReturning() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-
-                {/* @if TARGET='app' */}
-                <FormField
-                  type="checkbox"
-                  name="sync_checkbox"
-                  label={
-                    <React.Fragment>
-                      {__('Backup your account and wallet data.')}{' '}
-                      <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                    </React.Fragment>
-                  }
-                  checked={syncEnabled}
-                  onChange={() => setSyncEnabled(!syncEnabled)}
-                />
-                {/* @endif */}
 
                 <div className="section__actions">
                   <Button

@@ -356,13 +356,10 @@ const ModalPublishPreview = (props: Props) => {
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
-    // @if TARGET='app'
-    closeModal(); // @endif
   }
 
   // **************************************************************************
   // **************************************************************************
-  // @if TARGET='web'
 
   /*
   React.useEffect(() => {
@@ -372,7 +369,6 @@ const ModalPublishPreview = (props: Props) => {
       closeModal();
     }
   }, [publishSuccess, publishing, livestream, closeModal]);
-  // @endif
   */
   // **************************************************************************
   // **************************************************************************

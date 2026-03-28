@@ -317,7 +317,6 @@ function UploadForm(props: Props) {
     }
   }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
-  // @if TARGET='web'
   function createWebFile() {
     if (fileText) {
       const fileName = name || title;
@@ -330,7 +329,6 @@ function UploadForm(props: Props) {
     }
   }
 
-  // @endif
   async function handlePublish() {
     let outputFile = filePath;
     let runPublish = false;

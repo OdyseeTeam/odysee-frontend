@@ -28,7 +28,7 @@ function saveMessageWeb(message) {
     if (reportTimer) clearTimeout(reportTimer);
     reportTimer = setTimeout(() => console.log(window.new_strings), 2000); // eslint-disable-line no-console
     // @endif
-  } // @endif
+  }
 }
 
 function removeContextMetadata(message) {

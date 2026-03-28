@@ -11,7 +11,6 @@ type Props = {
 type State = {
   hasError: boolean;
   sentryEventId: string | null | undefined;
-  desktopErrorReported: boolean;
 };
 
 class ErrorBoundary extends React.Component<Props, State> {
@@ -20,7 +19,6 @@ class ErrorBoundary extends React.Component<Props, State> {
     this.state = {
       hasError: false,
       sentryEventId: undefined,
-      desktopErrorReported: false,
     };
   }
 
@@ -31,26 +29,11 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error, errorInfo) {
-    // @if TARGET='web'
     analytics.sentryError(error, errorInfo).then((sentryEventId) => {
       this.setState({
         sentryEventId,
       });
-    }); // @endif
-    // @if TARGET='app'
-    // let errorMessage = 'Uncaught error\n';
-    // Native.getAppVersionInfo().then(({ localVersion }) => {
-    //   Lbry.version().then(({ lbrynet_version: sdkVersion }) => {
-    //     errorMessage += `app version: ${localVersion}\n`;
-    //     errorMessage += `sdk version: ${sdkVersion}\n`;
-    //     errorMessage += `page: ${window.location.href.split('.html')[1]}\n`;
-    //     errorMessage += `${error.stack}`;
-    //     analytics.error(errorMessage).then((isSharingData) => {
-    //       this.setState({ desktopErrorReported: isSharingData });
-    //     });
-    //   });
-    // });
-    // @endif
+    });
   }
 
   refresh = () => {
@@ -63,8 +46,8 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     const { hasError } = this.state;
-    const { sentryEventId, desktopErrorReported } = this.state;
-    const errorWasReported = IS_WEB ? sentryEventId !== null : desktopErrorReported;
+    const { sentryEventId } = this.state;
+    const errorWasReported = sentryEventId !== null;
 
     if (hasError) {
       return (
@@ -100,16 +83,11 @@ class ErrorBoundary extends React.Component<Props, State> {
 
           {errorWasReported && (
             <div className="error__wrapper">
-              {/* @if TARGET='web' */}
               <span className="error__text">
                 {__('Error ID: %sentryEventId%', {
                   sentryEventId,
                 })}
               </span>
-              {/* @endif */}
-              {/* @if TARGET='app' */}
-              <span className="error__text">{__('This error was reported and will be fixed.')}</span>
-              {/* @endif */}
             </div>
           )}
         </div>

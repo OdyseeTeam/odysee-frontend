@@ -178,7 +178,6 @@ function PublishFile(props: Props) {
   }
 
   function getUploadMessage() {
-    // @if TARGET='web'
     if (fileSizeTooBig && !(isStillEditing && prevFileSizeTooBig)) {
       return (
         <p className="help--warning">
@@ -188,7 +187,6 @@ function PublishFile(props: Props) {
       );
     }
 
-    // @endif
     if (fileBitrate > BITRATE.RECOMMENDED) {
       return (
         <p className="help--warning">
@@ -230,7 +228,6 @@ function PublishFile(props: Props) {
       );
     }
 
-    // @if TARGET='web'
     if (!isStillEditing) {
       return (
         <p
@@ -254,7 +251,7 @@ function PublishFile(props: Props) {
           </span>
         </p>
       );
-    } // @endif
+    }
   }
 
   function handleTitleChange(event) {

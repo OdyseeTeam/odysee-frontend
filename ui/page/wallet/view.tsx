@@ -30,7 +30,6 @@ const WalletPage = () => {
 
   const navigate = useNavigate();
   const { search } = useLocation();
-  // @if TARGET='web'
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
   const currencyValue = urlParams.get(CURRENCY_QUERY_PARAM);
@@ -82,13 +81,10 @@ const WalletPage = () => {
     navigate(url);
   }
 
-  // @endif
   const showIntro = totalBalance === 0;
   const loading = totalBalance === undefined;
   return (
-    <>
-      {/* @if TARGET='web' */}
-      <Page className="transactionsPage-wrapper">
+    <Page className="transactionsPage-wrapper">
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('Balance')}</Tab>
@@ -163,29 +159,7 @@ const WalletPage = () => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Page>
-      {/* @endif */}
-      {/* @if TARGET='app' */}
-      <Page>
-        {loading && (
-          <div className="main--empty">
-            <Spinner delayed />
-          </div>
-        )}
-        {!loading && (
-          <>
-            {showIntro ? (
-              <YrblWalletEmpty includeWalletLink />
-            ) : (
-              <div className="card-stack">
-                <TxoList />
-              </div>
-            )}
-          </>
-        )}
-      </Page>
-      {/* @endif */}
-    </>
+    </Page>
   );
 };
 

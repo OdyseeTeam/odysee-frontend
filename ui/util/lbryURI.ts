@@ -298,7 +298,6 @@ export function buildURI(
       }
     }
 
-    // @endif
     if (!claimName && !channelName && !streamName) {
       assert(
         false,

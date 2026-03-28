@@ -3,7 +3,6 @@ import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
-import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
@@ -29,7 +28,6 @@ type PushNotifications = {
 };
 const pushNotifs = pushNotifications as unknown as PushNotifications;
 import Native from 'native';
-import { doSetDaemonSetting } from 'redux/actions/settings';
 import {
   selectIsUpgradeSkipped,
   selectUpdateUrl,
@@ -49,7 +47,6 @@ import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
-import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { selectContentPositionForUri } from 'redux/selectors/content';
 import { doTipAccountStatus } from './payments';
@@ -504,10 +501,9 @@ function doSignOutAction() {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
         .then(async () => {
-          // @if TARGET='web'
           window.persistor.pause();
           await window.persistor.flush();
-          await window.persistor.purge(); // @endif
+          await window.persistor.purge();
         })
         .catch((err) => {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
@@ -572,13 +568,8 @@ export function doGetAndPopulatePreferences(syncId?: number) {
     let preferenceKey;
     // TODO: the logic should match `runPreferences`, but since this function is
     // only hit as a successful sync callback, it doesn't matter for now.
-    // @if TARGET='app'
-    preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
-    // @endif
-    // @if TARGET='web'
     preferenceKey = 'shared';
 
-    // @endif
     function successCb(savedPreferences) {
       const successState = getState();
       const daemonSettings = selectDaemonSettings(successState);
@@ -587,24 +578,6 @@ export function doGetAndPopulatePreferences(syncId?: number) {
         if (!syncInvalidated(getState, syncId)) {
           dispatch(doPopulateSharedUserState(savedPreferences));
         }
-
-        // @if TARGET='app'
-        const { settings } = savedPreferences.value;
-
-        if (settings) {
-          Object.entries(settings).forEach(([key, val]) => {
-            if (SDK_SYNC_KEYS.includes(key)) {
-              if (shouldSetSetting(key, val, daemonSettings[key])) {
-                if (key === DAEMON_SETTINGS.LBRYUM_SERVERS) {
-                  const servers = stringifyServerParam(val as [string, string][]);
-                  dispatch(doSetDaemonSetting(key, servers, true));
-                } else {
-                  dispatch(doSetDaemonSetting(key, val, true));
-                }
-              }
-            }
-          });
-        } // @endif
       } else {
         dispatch(doSetPrefsReady());
       }

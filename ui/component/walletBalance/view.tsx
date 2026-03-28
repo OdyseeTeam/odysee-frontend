@@ -36,7 +36,6 @@ import {
 } from 'redux/selectors/arwallet';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
-import { selectSyncHash } from 'redux/selectors/sync';
 import { selectClaimedRewards } from 'redux/selectors/rewards';
 import { selectClientSettings } from 'redux/selectors/settings';
 
@@ -53,7 +52,6 @@ const WalletBalance = () => {
   const claimsBalance = useAppSelector(selectClaimsBalance) || 0;
   const supportsBalance = useAppSelector(selectSupportsBalance) || 0;
   const tipsBalance = useAppSelector(selectTipsBalance) || 0;
-  const hasSynced = Boolean(useAppSelector(selectSyncHash));
   const consolidatingUtxos = useAppSelector(selectIsConsolidatingUtxos);
   const consolidateIsPending = useAppSelector(selectPendingConsolidateTxid);
   const massClaimingTips = useAppSelector(selectIsMassClaimingTips);
@@ -171,21 +169,6 @@ const WalletBalance = () => {
                 </div>
               )}
 
-              {/* @if TARGET='app' */}
-              {hasSynced ? (
-                <p className="section help">
-                  {__('A backup of your wallet is synced with lbry.tv.')}
-                  <HelpLink href="https://lbry.com/faq/account-sync" />
-                </p>
-              ) : (
-                <p className="help--warning">
-                  {__(
-                    'Your wallet is not currently synced with lbry.tv. You are in control of backing up your wallet.'
-                  )}
-                  <HelpLink navigate={`/$/${PAGES.BACKUP}`} />
-                </p>
-              )}
-              {/* @endif */}
               <div className="section__actions">
                 <Button
                   button="secondary"

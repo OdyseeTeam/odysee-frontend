@@ -10,7 +10,6 @@ import { SETTINGS_GRP } from 'constants/settings';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
-import MaxPurchasePrice from 'component/maxPurchasePrice';
 import SettingsRow from 'component/settingsRow';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doOpenModal } from 'redux/actions/app';
@@ -97,16 +96,6 @@ export default function SettingContent() {
             <SettingsRow title={__('Publish confirmation')} subtitle={__(HELP.PUBLISH_PREVIEW)}>
               <FormField type="checkbox" name="sync_toggle" label={__('')} checked={enablePublishPreview} onChange={() => setClientSetting(SETTINGS.ENABLE_PUBLISH_PREVIEW, !enablePublishPreview)} />
             </SettingsRow>
-
-            {
-        /* @if TARGET='app' */
-      }
-            <SettingsRow title={__('Max purchase price')} subtitle={__(HELP.MAX_PURCHASE_PRICE)} multirow>
-              <MaxPurchasePrice />
-            </SettingsRow>
-            {
-        /* @endif */
-      }
 
             <SettingsRow title={__('Purchase and tip confirmations')} multirow>
               <FormField type="radio" name="confirm_all_purchases" checked={!instantPurchaseEnabled} label={__('Always confirm before purchasing content or tipping')} onChange={() => setClientSetting(SETTINGS.INSTANT_PURCHASE_ENABLED, false)} />

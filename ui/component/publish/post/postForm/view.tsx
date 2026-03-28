@@ -288,7 +288,6 @@ function PostForm(props: Props) {
     }
   }, [activeChannelName, activeChannelId, incognito, dispatch]);
 
-  // @if TARGET='web'
   function createWebFile() {
     if (fileText) {
       const fileName = name || title;
@@ -301,7 +300,6 @@ function PostForm(props: Props) {
     }
   }
 
-  // @endif
   async function handlePublish() {
     let outputFile = filePath;
     let runPublish = false;

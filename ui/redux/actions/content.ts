@@ -23,7 +23,7 @@ import {
   selectCostInfoForUri,
   selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
-import { makeSelectFileInfoForUri, selectFileInfosByOutpoint } from 'redux/selectors/file_info';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import {
   selectUrlsForCollectionId,
   selectCollectionForIdHasClaimUrl,
@@ -56,64 +56,7 @@ import {
 } from 'redux/selectors/content';
 import { doResolveUri, doResolveClaimIds } from 'redux/actions/claims';
 
-const DOWNLOAD_POLL_INTERVAL = 1000;
 export function doUpdateLoadStatus(uri: string, outpoint: string) {
-  // Updates the loading status for a uri as it's downloading
-  // Calls file_list and checks the written_bytes value to see if the number has increased
-  // Not needed on web as users aren't actually downloading the file
-  // @if TARGET='app'
-  return (dispatch: Dispatch, getState: GetState) => {
-    const setNextStatusUpdate = () =>
-      setTimeout(() => {
-        // We need to check if outpoint still exists first because user are able to delete file (outpoint) while downloading.
-        // If a file is already deleted, no point to still try update load status
-        const byOutpoint = selectFileInfosByOutpoint(getState());
-
-        if (byOutpoint[outpoint]) {
-          dispatch(doUpdateLoadStatus(uri, outpoint));
-        }
-      }, DOWNLOAD_POLL_INTERVAL);
-
-    Lbry.file_list({
-      outpoint,
-      full_status: true,
-      page: 1,
-      page_size: 1,
-    }).then((result) => {
-      const { items: fileInfos } = result;
-      const fileInfo = fileInfos[0];
-
-      if (!fileInfo || fileInfo.written_bytes === 0) {
-        // download hasn't started yet
-        setNextStatusUpdate();
-      } else if (fileInfo.completed) {
-        // TODO this isn't going to get called if they reload the client before
-        // the download finished
-        dispatch({
-          type: ACTIONS.DOWNLOADING_COMPLETED,
-          data: {
-            uri,
-            outpoint,
-            fileInfo,
-          },
-        });
-      } else {
-        // ready to play
-        const { total_bytes: totalBytes, written_bytes: writtenBytes } = fileInfo;
-        const progress = (writtenBytes / totalBytes) * 100;
-        dispatch({
-          type: ACTIONS.DOWNLOADING_PROGRESSED,
-          data: {
-            uri,
-            outpoint,
-            fileInfo,
-            progress,
-          },
-        });
-        setNextStatusUpdate();
-      }
-    });
-  }; // @endif
 }
 export const doSetPrimaryUri = (uri: string | null | undefined) => async (dispatch: Dispatch, getState: GetState) =>
   dispatch({

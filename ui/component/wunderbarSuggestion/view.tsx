@@ -3,7 +3,6 @@ import classnames from 'classnames';
 import { ComboboxOption } from 'component/common/combobox';
 import FileThumbnail from 'component/fileThumbnail';
 import ChannelThumbnail from 'component/channelThumbnail';
-import FileProperties from 'component/previewOverlayProperties';
 import ClaimProperties from 'component/claimProperties';
 import MembershipBadge from 'component/membershipBadge';
 import { useAppSelector } from 'redux/hooks';
@@ -53,13 +52,6 @@ export default function WunderbarSuggestion(props: Props) {
         {isChannel && <ChannelThumbnail small uri={uri} />}
         {!isChannel && (
           <FileThumbnail uri={uri}>
-            {/* @if TARGET='app' */}
-            {!isCollection && (
-              <div className="claim-preview__file-property-overlay">
-                <FileProperties uri={uri} small iconOnly />
-              </div>
-            )}
-            {/* @endif */}
             {isCollection && (
               <div className="claim-preview__claim-property-overlay">
                 <ClaimProperties uri={uri} small iconOnly />

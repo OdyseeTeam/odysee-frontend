@@ -5,17 +5,6 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import * as SETTINGS from 'constants/settings';
 import { webDownloadClaim } from 'util/downloadClaim';
 import analytics from 'analytics';
-// @if TARGET='app'
-// should match
-const DocxViewer: React.ComponentType<any> = lazyImport(
-  () =>
-    import(
-      'component/viewers/docxViewer'
-      /* webpackChunkName: "docxViewer" */
-    )
-);
-// import ThreeViewer from 'component/viewers/threeViewer';
-// @endif
 const DocumentViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
@@ -23,7 +12,6 @@ const DocumentViewer: React.ComponentType<any> = lazyImport(
       /* webpackChunkName: "documentViewer" */
     )
 );
-// const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
 const HtmlViewer: React.ComponentType<any> = lazyImport(
   () =>
     import(
@@ -131,13 +119,6 @@ function StreamClaimRenderInline(props: Props) {
           </React.Suspense>
         );
 
-      case RENDER_MODES.DOCX:
-        return (
-          <React.Suspense fallback={null}>
-            <DocxViewer source={downloadPath} />
-          </React.Suspense>
-        );
-
       case RENDER_MODES.PDF:
         return (
           <React.Suspense fallback={null}>
@@ -194,11 +175,6 @@ function StreamClaimRenderInline(props: Props) {
               }}
             />
           </React.Suspense>
-          /*
-        <React.Suspense fallback={null}>
-          <AppViewer uri={uri} />
-        </React.Suspense>
-        */
         );
 
       case RENDER_MODES.DOWNLOAD:
@@ -213,11 +189,6 @@ function StreamClaimRenderInline(props: Props) {
               }}
             />
           </React.Suspense>
-          /*
-        <React.Suspense fallback={null}>
-          <AppViewer uri={uri} />
-        </React.Suspense>
-        */
         );
     }
 

@@ -1,6 +1,4 @@
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
-import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
@@ -21,10 +19,8 @@ import {
   selectEmailNewIsPending,
   selectEmailNewErrorMessage,
   selectEmailAlreadyExists,
-  selectUser,
 } from 'redux/selectors/user';
-import { doSetWalletSyncPreference, doSetDaemonSetting } from 'redux/actions/settings';
-import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
+import { selectDaemonSettings } from 'redux/selectors/settings';
 
 type Props = {
   interestedInYoutubSync?: boolean;
@@ -48,7 +44,6 @@ function UserEmailNew(props: Props) {
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState('');
   const [localShareUsageData, setLocalShareUsageData] = React.useState(false);
-  const [formSyncEnabled, setFormSyncEnabled] = useState(true);
   const valid = email.match(EMAIL_REGEX);
 
   function handleUsageDataChange() {
@@ -56,10 +51,6 @@ function UserEmailNew(props: Props) {
   }
 
   function handleSubmit() {
-    // @if TARGET='app'
-    dispatch(doSetWalletSyncPreference(formSyncEnabled));
-    dispatch(doSetDaemonSetting(DAEMON_SETTINGS.SHARE_USAGE_DATA, true));
-    // @endif
     dispatch(doUserSignUp(email, password === '' ? undefined : password))
       .then(() => {
         LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
@@ -99,8 +90,7 @@ function UserEmailNew(props: Props) {
       })}
     >
       <Card
-        title={__('Join')} // @if TARGET='app'
-        subtitle={__('An account allows you to receive credits and backup your data.')} // @endif
+        title={__('Join')}
         actions={
           <div
             className={classnames({
@@ -125,7 +115,6 @@ function UserEmailNew(props: Props) {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              {/* @if TARGET='web' */}
               <FormField
                 type="checkbox"
                 name="youtube_sync_checkbox"
@@ -133,22 +122,6 @@ function UserEmailNew(props: Props) {
                 checked={interestedInYoutubSync}
                 onChange={() => doToggleInterestedInYoutubeSync()}
               />
-              {/* @endif */}
-
-              {/* @if TARGET='app' */}
-              <FormField
-                type="checkbox"
-                name="sync_checkbox"
-                label={
-                  <React.Fragment>
-                    {__('Backup your account and wallet data.')}{' '}
-                    <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                  </React.Fragment>
-                }
-                checked={formSyncEnabled}
-                onChange={() => setFormSyncEnabled(!formSyncEnabled)}
-              />
-              {/* @endif */}
 
               {!shareUsageData && !IS_WEB && (
                 <FormField
