@@ -98,7 +98,11 @@ function FileThumbnail(props: Props) {
   const [isHoveringLocal, setIsHoveringLocal] = React.useState(false);
   const isHovering = externalHover !== undefined ? externalHover : isHoveringLocal;
 
-  const { videoRef: hlsVideoRef, isReady: hlsPreviewReady, isHlsAvailable } = useHlsVideoPreview(
+  const {
+    videoRef: hlsVideoRef,
+    isReady: hlsPreviewReady,
+    isHlsAvailable,
+  } = useHlsVideoPreview(
     canPreviewOnHover ? streamingUrl || null : null,
     canPreviewOnHover ? uri : undefined,
     isHovering && canPreviewOnHover
@@ -241,10 +245,12 @@ function FileThumbnail(props: Props) {
           </div>
         )}
         {hasFrames && (
-          <div className={classnames('media__thumb-frame-crossfade', {
-            'media__thumb-frame-crossfade--active': framesFadedIn && isHovering,
-            'media__thumb-frame-crossfade--portrait': isShort,
-          })}>
+          <div
+            className={classnames('media__thumb-frame-crossfade', {
+              'media__thumb-frame-crossfade--active': framesFadedIn && isHovering,
+              'media__thumb-frame-crossfade--portrait': isShort,
+            })}
+          >
             <img
               src={vodPreview.previous || vodPreview.current}
               className="media__thumb-frame-preview"

@@ -6,10 +6,7 @@ const manifestCache = new Map<string, { manifestUrl: string; basePath: string } 
 const streamingUrlCache = new Map<string, string>();
 let activePreviewUri: string | null = null;
 
-function resolveStreamingUrl(
-  streamingUrl: string | null | undefined,
-  uri: string
-): Promise<string | null> {
+function resolveStreamingUrl(streamingUrl: string | null | undefined, uri: string): Promise<string | null> {
   if (streamingUrl) return Promise.resolve(streamingUrl);
 
   const cached = streamingUrlCache.get(uri);
@@ -29,13 +26,17 @@ function resolveStreamingUrl(
 
 function resolveManifestUrl(streamingUrl: string): Promise<{ manifestUrl: string; basePath: string } | null> {
   if (manifestCache.has(streamingUrl)) {
-    return Promise.resolve(manifestCache.get(streamingUrl)!);
+    return Promise.resolve(manifestCache.get(streamingUrl) ?? null);
   }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5000);
 
-  return fetch(streamingUrl, { method: 'HEAD', cache: 'no-store', signal: controller.signal })
+  return fetch(streamingUrl, {
+    method: 'HEAD',
+    cache: 'no-store',
+    signal: controller.signal,
+  })
     .then((response) => {
       clearTimeout(timeout);
 
@@ -91,7 +92,7 @@ export default function useHlsVideoPreview(
     let canceled = false;
     activePreviewUri = uri;
 
-    resolveStreamingUrl(streamingUrl, uri!).then((resolvedUrl) => {
+    resolveStreamingUrl(streamingUrl, uri).then((resolvedUrl) => {
       if (canceled || !resolvedUrl || activePreviewUri !== uri) return;
 
       return Promise.all([resolveManifestUrl(resolvedUrl), loadHlsConstructor()]).then(([manifest, Hls]) => {
