@@ -29,7 +29,8 @@ export default function ChaptersCard(props: Props) {
 
   const description = descriptionProp !== undefined ? descriptionProp : metadata?.description;
   const visible = visibleProp !== undefined ? visibleProp : reduxVisible;
-  const setVisible = setVisibleProp || ((val: boolean) => dispatch(doSetClientSetting(SETTINGS.CHAPTERS_CARD_VISIBLE, val)));
+  const setVisible =
+    setVisibleProp || ((val: boolean) => dispatch(doSetClientSetting(SETTINGS.CHAPTERS_CARD_VISIBLE, val)));
 
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const [activeIndex, setActiveIndex] = React.useState(-1);

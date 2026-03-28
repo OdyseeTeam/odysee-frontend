@@ -13,7 +13,6 @@ import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
 import Spinner from 'component/spinner';
-import HomePage from 'page/home';
 import { getPathForPage, htmlDecode } from 'util/url';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
@@ -107,6 +106,13 @@ const FypPage = lazyImport(
     import(
       'web/page/fyp'
       /* webpackChunkName: "fyp" */
+    )
+);
+const HomePage = lazyImport(
+  () =>
+    import(
+      'page/home'
+      /* webpackChunkName: "home" */
     )
 );
 const YouTubeTOSPage = lazyImport(
@@ -211,7 +217,7 @@ const ChannelsFollowingManage = lazyImport(
   () =>
     import(
       'page/channelsFollowingManage'
-      /* webpackChunkName: "channelsFollowing" */
+      /* webpackChunkName: "channelsFollowingManage" */
     )
 );
 const ChannelsPage = lazyImport(
@@ -977,7 +983,10 @@ function AppRouter(props: Props) {
 
         <Route
           path={`/$/${PAGES.LATEST}/:channelName`}
-          element={renderLegacyPage(ClaimPage, { uri, latestContentPath: true })}
+          element={renderLegacyPage(ClaimPage, {
+            uri,
+            latestContentPath: true,
+          })}
         />
         <Route
           path={`/$/${PAGES.LIVE_NOW}/:channelName`}

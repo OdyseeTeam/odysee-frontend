@@ -13,7 +13,11 @@ import Lbry from 'lbry';
 import { toHex } from 'util/hex';
 import usePersistedState from 'effects/use-persisted-state';
 import { getLivestreamWhipIngestUrl } from 'constants/livestream';
-import { getWebrtcPublishEncodingOptions, type WebrtcPublishPresetId, type WebrtcPublishVideoCodecPreference } from 'constants/webrtcPublish';
+import {
+  getWebrtcPublishEncodingOptions,
+  type WebrtcPublishPresetId,
+  type WebrtcPublishVideoCodecPreference,
+} from 'constants/webrtcPublish';
 import { startWhipPublish } from 'util/livestreamWhip';
 import { LIVESTREAM_SERVER_API } from 'config';
 import { doToast } from 'redux/actions/notifications';
@@ -47,7 +51,10 @@ export default function LivestreamPublisherFloating() {
     qualityLimitationDurations,
   } = state;
   const [cameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
-  const [presetId] = usePersistedState('livestream-quality-preset', 'balanced') as [WebrtcPublishPresetId, (v: WebrtcPublishPresetId) => void];
+  const [presetId] = usePersistedState('livestream-quality-preset', 'balanced') as [
+    WebrtcPublishPresetId,
+    (v: WebrtcPublishPresetId) => void,
+  ];
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const floatingRef = React.useRef<HTMLDivElement>(null);
   const [showStopConfirm, setShowStopConfirm] = React.useState(false);
@@ -69,7 +76,13 @@ export default function LivestreamPublisherFloating() {
     }
   }, [channelId, channelName]);
   const isLiveForMetrics = status === 'live' && !isOnLivestreamPage;
-  const serverMetrics = useLivestreamMetrics(channelId, channelName, sigData.signature, sigData.signing_ts, isLiveForMetrics);
+  const serverMetrics = useLivestreamMetrics(
+    channelId,
+    channelName,
+    sigData.signature,
+    sigData.signing_ts,
+    isLiveForMetrics
+  );
 
   // Viewer count: use commentron WSS only.
   const selectMyLivestreamClaims = React.useMemo(
@@ -78,29 +91,36 @@ export default function LivestreamPublisherFloating() {
   );
   const myLivestreamClaims = useAppSelector(selectMyLivestreamClaims);
   const hasApprovedLivestreamClaim = (myLivestreamClaims?.length || 0) > 0;
-  const streamKey = channelId && channelName && sigData.signature && sigData.signing_ts
-    ? `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`
-    : null;
+  const streamKey =
+    channelId && channelName && sigData.signature && sigData.signing_ts
+      ? `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`
+      : null;
   const whipUrl = streamKey ? getLivestreamWhipIngestUrl(streamKey) : null;
-  const canStartFromPreview = status === 'preview' && Boolean(mediaStream && hasApprovedLivestreamClaim && whipUrl && LIVESTREAM_SERVER_API);
+  const canStartFromPreview =
+    status === 'preview' && Boolean(mediaStream && hasApprovedLivestreamClaim && whipUrl && LIVESTREAM_SERVER_API);
   const nextStreamUri = myLivestreamClaims?.[0]?.permanent_url;
-  const activeClaimId = useAppSelector((state) => nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined);
-  const totalViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined) ?? 0;
+  const activeClaimId = useAppSelector((state) =>
+    nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined
+  );
+  const totalViewers =
+    useAppSelector((state) => (activeClaimId ? selectViewersForId(state, activeClaimId) : undefined)) ?? 0;
 
   // Claim title for info bar
-  const claimTitle = useAppSelector((state) => nextStreamUri ? selectTitleForUri(state, nextStreamUri) : undefined);
+  const claimTitle = useAppSelector((state) => (nextStreamUri ? selectTitleForUri(state, nextStreamUri) : undefined));
   const claimNavigateUrl = nextStreamUri ? formatLbryUrlForWeb(nextStreamUri) : null;
   const isStreaming = status === 'live' || status === 'connecting' || status === 'preview';
   const notOnStreamPage = isStreaming && mediaStream && !isOnLivestreamPage;
   // Both mobile and desktop can toggle full preview. Mobile defaults to pill on first navigate-away.
   const showFullPreview = notOnStreamPage && floatingPreviewEnabled;
   const showMinimalPill = notOnStreamPage && !floatingPreviewEnabled;
-  const throughputBps = serverMetrics?.live && serverMetrics.throughput
-    ? serverMetrics.throughput.in_bps
-    : (videoBitrateKbps ?? 0) * 1000;
-  const throughputLabel = throughputBps > 0
-    ? (throughputBps >= 1000000 ? `${(throughputBps / 1000000).toFixed(1)} Mbps` : `${Math.round(throughputBps / 1000)} kbps`)
-    : null;
+  const throughputBps =
+    serverMetrics?.live && serverMetrics.throughput ? serverMetrics.throughput.in_bps : (videoBitrateKbps ?? 0) * 1000;
+  const throughputLabel =
+    throughputBps > 0
+      ? throughputBps >= 1000000
+        ? `${(throughputBps / 1000000).toFixed(1)} Mbps`
+        : `${Math.round(throughputBps / 1000)} kbps`
+      : null;
   const resolutionLabel = formatResolutionLabel(resolution);
   const fpsLabel = fps && fps > 0 ? `${Math.round(fps)} fps` : null;
   const infoTitle = claimTitle || __('Attach a stream claim');
@@ -109,7 +129,10 @@ export default function LivestreamPublisherFloating() {
     qualityLimitationReason && qualityLimitationReason !== 'none'
       ? (() => {
           if (!qualityLimitationDurations) return qualityLimitationReason;
-          const total = Object.values(qualityLimitationDurations).reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+          const total = Object.values(qualityLimitationDurations).reduce(
+            (sum, value) => sum + (Number.isFinite(value) ? value : 0),
+            0
+          );
           const current = qualityLimitationDurations[qualityLimitationReason];
           return total && Number.isFinite(current)
             ? `${qualityLimitationReason} ${Math.round((current / total) * 100)}%`
@@ -145,7 +168,8 @@ export default function LivestreamPublisherFloating() {
         return;
       } catch (error: unknown) {
         lastErr = error;
-        const isNetworkError = error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('network'));
+        const isNetworkError =
+          error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('network'));
         if (isNetworkError) break;
       }
     }
@@ -161,7 +185,14 @@ export default function LivestreamPublisherFloating() {
   // On mobile, default to pill when first navigating away from stream page
   const mobileInitRef = React.useRef(false);
   React.useEffect(() => {
-    if (isMobile && !isOnLivestreamPage && isStreaming && mediaStream && floatingPreviewEnabled && !mobileInitRef.current) {
+    if (
+      isMobile &&
+      !isOnLivestreamPage &&
+      isStreaming &&
+      mediaStream &&
+      floatingPreviewEnabled &&
+      !mobileInitRef.current
+    ) {
       mobileInitRef.current = true;
       actions.setFloatingPreviewEnabled(false);
     }
@@ -234,7 +265,9 @@ export default function LivestreamPublisherFloating() {
       const dy = e.clientY - d.startY;
       if (!d.dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
         d.dragging = true;
-        try { node!.setPointerCapture(d.pointerId); } catch {} // eslint-disable-line no-empty
+        try {
+          node!.setPointerCapture(d.pointerId);
+        } catch {} // eslint-disable-line no-empty
       }
       if (!d.dragging) return;
       e.preventDefault();
@@ -253,7 +286,9 @@ export default function LivestreamPublisherFloating() {
       const wasDrag = d.dragging;
       d.active = false;
       d.dragging = false;
-      try { node!.releasePointerCapture(d.pointerId); } catch {} // eslint-disable-line no-empty
+      try {
+        node!.releasePointerCapture(d.pointerId);
+      } catch {} // eslint-disable-line no-empty
       if (wasDrag) {
         setPos({ x: d.lastX, y: d.lastY });
       }
@@ -288,7 +323,16 @@ export default function LivestreamPublisherFloating() {
 
           {isLive && totalViewers > 0 && (
             <span className="livestream-floating-pill__meta">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
@@ -297,7 +341,9 @@ export default function LivestreamPublisherFloating() {
           )}
           {resolutionLabel && <span className="livestream-floating-pill__meta">{resolutionLabel}</span>}
           {!isMobile && isLive && fpsLabel && <span className="livestream-floating-pill__meta">{fpsLabel}</span>}
-          {!isMobile && isLive && throughputLabel && <span className="livestream-floating-pill__meta">{throughputLabel}</span>}
+          {!isMobile && isLive && throughputLabel && (
+            <span className="livestream-floating-pill__meta">{throughputLabel}</span>
+          )}
           {!isMobile && isLive && videoCodec && <span className="livestream-floating-pill__meta">{videoCodec}</span>}
 
           <button
@@ -305,7 +351,16 @@ export default function LivestreamPublisherFloating() {
             onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
             title={__('Go to stream page')}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
               <line x1="8" y1="21" x2="16" y2="21" />
               <line x1="12" y1="17" x2="12" y2="21" />
@@ -317,7 +372,16 @@ export default function LivestreamPublisherFloating() {
             onClick={() => actions.setFloatingPreviewEnabled(true)}
             title={__('Show preview')}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
@@ -341,7 +405,16 @@ export default function LivestreamPublisherFloating() {
               onClick={() => actions.stopStream()}
               title={__('Close preview')}
             >
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -381,9 +454,7 @@ export default function LivestreamPublisherFloating() {
   if (!showFullPreview) return null;
 
   const isLive = status === 'live';
-  const posStyle = pos
-    ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const }
-    : {};
+  const posStyle = pos ? { left: pos.x, top: pos.y, right: 'auto' as const, bottom: 'auto' as const } : {};
 
   return (
     <div
@@ -394,13 +465,7 @@ export default function LivestreamPublisherFloating() {
       style={posStyle}
     >
       <div className="livestream-floating__inner">
-        <video
-          ref={videoRef}
-          className="livestream-floating__video"
-          playsInline
-          muted
-          autoPlay
-        />
+        <video ref={videoRef} className="livestream-floating__video" playsInline muted autoPlay />
         <div className="livestream-floating__overlay">
           <div className="livestream-floating__top-bar">
             <span
@@ -414,9 +479,7 @@ export default function LivestreamPublisherFloating() {
           </div>
           <div className="livestream-floating__bottom-bar">
             {throughputLabel ? (
-              <span className="livestream-floating__meta">
-                {throughputLabel}
-              </span>
+              <span className="livestream-floating__meta">{throughputLabel}</span>
             ) : videoBitrateKbps != null && videoBitrateKbps > 0 ? (
               <span className="livestream-floating__meta">
                 {videoBitrateKbps >= 1000
@@ -445,7 +508,16 @@ export default function LivestreamPublisherFloating() {
             onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
             title={__('Go to stream page')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
               <line x1="8" y1="21" x2="16" y2="21" />
               <line x1="12" y1="17" x2="12" y2="21" />
@@ -457,7 +529,16 @@ export default function LivestreamPublisherFloating() {
             onClick={() => actions.setFloatingPreviewEnabled(false)}
             title={__('Minimize to pill')}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </button>
@@ -468,7 +549,16 @@ export default function LivestreamPublisherFloating() {
               onClick={() => actions.stopStream()}
               title={__('Close preview')}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -503,7 +593,16 @@ export default function LivestreamPublisherFloating() {
           <div className="livestream-floating__info-stats">
             {isLive && totalViewers > 0 && (
               <span className="livestream-floating__info-pill">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="9"
+                  height="9"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
@@ -512,19 +611,24 @@ export default function LivestreamPublisherFloating() {
             )}
             {isLive && throughputLabel && (
               <span className="livestream-floating__info-pill">
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="8"
+                  height="8"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <line x1="12" y1="19" x2="12" y2="5" />
                   <polyline points="5 12 12 5 19 12" />
                 </svg>
                 {throughputLabel}
               </span>
             )}
-            {resolutionLabel && (
-              <span className="livestream-floating__info-pill">{resolutionLabel}</span>
-            )}
-            {fpsLabel && (
-              <span className="livestream-floating__info-pill">{fpsLabel}</span>
-            )}
+            {resolutionLabel && <span className="livestream-floating__info-pill">{resolutionLabel}</span>}
+            {fpsLabel && <span className="livestream-floating__info-pill">{fpsLabel}</span>}
           </div>
         </div>
       )}

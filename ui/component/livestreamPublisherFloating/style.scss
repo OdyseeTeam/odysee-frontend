@@ -142,7 +142,9 @@
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition:
+      background 0.15s ease,
+      transform 0.1s ease;
     backdrop-filter: blur(4px);
 
     &:hover {
@@ -177,13 +179,21 @@
       min-width: 96px;
       padding: 0 14px;
       border-radius: 999px;
-      background: linear-gradient(135deg, rgba(var(--color-primary-dynamic), 0.92), rgba(var(--color-primary-dynamic), 0.72));
+      background: linear-gradient(
+        135deg,
+        rgba(var(--color-primary-dynamic), 0.92),
+        rgba(var(--color-primary-dynamic), 0.72)
+      );
       box-shadow:
         0 10px 24px rgba(var(--color-primary-dynamic), 0.24),
         inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, rgba(var(--color-primary-dynamic), 1), rgba(var(--color-primary-dynamic), 0.78));
+        background: linear-gradient(
+          135deg,
+          rgba(var(--color-primary-dynamic), 1),
+          rgba(var(--color-primary-dynamic), 0.78)
+        );
       }
     }
 

@@ -113,7 +113,9 @@ export default function CommentList(props: Props) {
   const commentsEnabledSetting = useAppSelector((state) => selectCommentsEnabledSettingForChannelId(state, channelId));
   const myReactsByCommentId = useAppSelector(selectMyReacts);
   const othersReactsById = useAppSelector(selectOthersReacts);
-  const pinnedComments: Array<any> | undefined = useAppSelector((state) => selectPinnedCommentsForUri(state, uri)) as Array<any> | undefined;
+  const pinnedComments: Array<any> | undefined = useAppSelector((state) => selectPinnedCommentsForUri(state, uri)) as
+    | Array<any>
+    | undefined;
   const threadCommentAncestors = useAppSelector((state) => selectCommentAncestorsForId(state, threadCommentId));
   const topLevelComments: Array<any> = useAppSelector((state) => (selectTopLevelCommentsForUri as any)(state, uri));
   const topLevelTotalPages = useAppSelector((state) => selectTopLevelTotalPagesForUri(state, uri));

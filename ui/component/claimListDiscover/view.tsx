@@ -473,7 +473,12 @@ function ClaimListDiscover(props: Props) {
     options.release_time = releaseTime;
   } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
     if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
-      options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam as moment.unitOfTime.DurationConstructor).startOf('hour').unix())}`;
+      options.release_time = `>${Math.floor(
+        moment()
+          .subtract(1, freshnessParam as moment.unitOfTime.DurationConstructor)
+          .startOf('hour')
+          .unix()
+      )}`;
     } else if (orderParam === CS.ORDER_BY_NEW || orderParam === CS.ORDER_BY_TRENDING) {
       // Warning - hack below
       // If users are following more than 10 channels or tags, limit results to stuff less than a year old

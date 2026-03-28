@@ -633,7 +633,11 @@ function ChannelForm(props: Props) {
                     title={__('Delete Channel')}
                     body={
                       <div className="publish-row">
-                        <ClaimAbandonButton uri={uri} abandonActionCallback={() => navigate(`/$/${PAGES.CHANNELS}`, { replace: true })} iconSize={18} />
+                        <ClaimAbandonButton
+                          uri={uri}
+                          abandonActionCallback={() => navigate(`/$/${PAGES.CHANNELS}`, { replace: true })}
+                          iconSize={18}
+                        />
                       </div>
                     }
                   />

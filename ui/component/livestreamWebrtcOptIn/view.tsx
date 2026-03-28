@@ -36,7 +36,16 @@ export default function LivestreamWebrtcOptIn({ onEnable }: Props) {
     <div className="webrtc-opt-in">
       <div className="webrtc-opt-in__content">
         <div className="webrtc-opt-in__icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
         </div>
@@ -53,8 +62,21 @@ export default function LivestreamWebrtcOptIn({ onEnable }: Props) {
           <button className="webrtc-opt-in__btn webrtc-opt-in__btn--secondary" onClick={handleEnableAlways}>
             {__('Always')}
           </button>
-          <button className="webrtc-opt-in__btn webrtc-opt-in__btn--dismiss" onClick={handleDismiss} title={__('Dismiss')}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <button
+            className="webrtc-opt-in__btn webrtc-opt-in__btn--dismiss"
+            onClick={handleDismiss}
+            title={__('Dismiss')}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>

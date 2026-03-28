@@ -564,9 +564,7 @@ function VideoRenderFloating(props: Props) {
     const onPause = () => setIsShortsFloatingPaused(true);
 
     const attach = () => {
-      const el: HTMLVideoElement | null | undefined = document.querySelector(
-        '.content__viewer--shorts-floating video'
-      );
+      const el: HTMLVideoElement | null | undefined = document.querySelector('.content__viewer--shorts-floating video');
 
       if (el && el !== videoEl) {
         if (videoEl) {
@@ -603,9 +601,7 @@ function VideoRenderFloating(props: Props) {
     let cleanupFn = null;
 
     const attachListener = () => {
-      const el: HTMLVideoElement | null | undefined = document.querySelector(
-        '.content__viewer--shorts-floating video'
-      );
+      const el: HTMLVideoElement | null | undefined = document.querySelector('.content__viewer--shorts-floating video');
       if (!el || el === videoEl) return !!videoEl;
       if (cleanupFn) cleanupFn();
       videoEl = el;
@@ -677,7 +673,18 @@ function VideoRenderFloating(props: Props) {
     }
   }, [collectionId, dispatch, floatingPlayerEnabled, overrideFloating, primaryUri, uri]);
 
-  const dragRef = React.useRef({ active: false, dragging: false, pointerId: 0, startX: 0, startY: 0, origX: 0, origY: 0, lastX: 0, lastY: 0, backdrop: null });
+  const dragRef = React.useRef({
+    active: false,
+    dragging: false,
+    pointerId: 0,
+    startX: 0,
+    startY: 0,
+    origX: 0,
+    origY: 0,
+    lastX: 0,
+    lastY: 0,
+    backdrop: null,
+  });
   const positionRef = React.useRef(position);
   positionRef.current = position;
 
@@ -803,232 +810,232 @@ function VideoRenderFloating(props: Props) {
         />
       ) : null}
 
+      <div
+        ref={draggableNodeRef}
+        className={classnames('player-fullscreen-target', {
+          [CONTENT_VIEWER_CLASS]: !isShortVideo,
+          [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
+          [FLOATING_PLAYER_CLASS]: isFloating,
+          'content__viewer--shorts-floating': isShortsFloating && !isMobile,
+          'shorts-floating--paused': isShortsFloatingPaused,
+          'shorts-floating--fire-glow': fireGlow,
+          'shorts-floating--slime-effect': slimeEffect,
+          'content__viewer--inline': !isFloating,
+          'content__viewer--secondary': isComment,
+          'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
+          'content__viewer--disable-click': false,
+          'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
+          'content__viewer--portrait': isPortraitVideo.current,
+          'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,
+        })}
+        style={
+          isFloating
+            ? { transform: `translate(${position.x}px, ${position.y}px)` }
+            : fileViewerRect
+              ? {
+                  width: fileViewerRect.width,
+                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
+                  left: fileViewerRect.x,
+                  top:
+                    isMobile && !playingUriSource
+                      ? HEADER_HEIGHT_MOBILE
+                      : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
+                }
+              : {}
+        }
+      >
         <div
-          ref={draggableNodeRef}
-          className={classnames('player-fullscreen-target', {
-            [CONTENT_VIEWER_CLASS]: !isShortVideo,
-            [SHORTS_VIEWER_CLASS]: isShortVideo && !isFloating,
-            [FLOATING_PLAYER_CLASS]: isFloating,
-            'content__viewer--shorts-floating': isShortsFloating && !isMobile,
-            'shorts-floating--paused': isShortsFloatingPaused,
-            'shorts-floating--fire-glow': fireGlow,
-            'shorts-floating--slime-effect': slimeEffect,
-            'content__viewer--inline': !isFloating,
-            'content__viewer--secondary': isComment,
-            'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
-            'content__viewer--disable-click': false,
-            'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
-            'content__viewer--portrait': isPortraitVideo.current,
-            'shorts__viewer--panel-open': isShortVideo && sidePanelOpen && !isMobile,
+          className={classnames('content__wrapper', {
+            'content__wrapper--floating': isFloating,
+            'content__wrapper--shorts-floating': isShortsFloating,
           })}
-          style={
-            isFloating
-              ? { transform: `translate(${position.x}px, ${position.y}px)` }
-              : fileViewerRect
-                ? {
-                    width: fileViewerRect.width,
-                    height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
-                    left: fileViewerRect.x,
-                    top:
-                      isMobile && !playingUriSource
-                        ? HEADER_HEIGHT_MOBILE
-                        : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
-                  }
-                : {}
-          }
+          ref={shortsFloatingWrapperRef}
         >
-          <div
-            className={classnames('content__wrapper', {
-              'content__wrapper--floating': isFloating,
-              'content__wrapper--shorts-floating': isShortsFloating,
-            })}
-            ref={shortsFloatingWrapperRef}
-          >
-            {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
+          {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
 
-            {isFloating && (
-              <TypedButton
-                title={__('Close')}
-                onClick={() => {
-                  if (hasClaimInQueue) {
-                    doOpenModal(MODALS.CONFIRM, {
-                      title: __('Close Player'),
-                      subtitle: __('Are you sure you want to close the player and clear the current Queue?'),
-                      onConfirm: (closeModal) => {
-                        doSetShowAutoplayCountdownForUri({
-                          uri,
-                          show: false,
-                        });
-                        doClearPlayingUri();
-                        doClearQueueList();
-                        closeModal();
-                      },
-                    });
-                  } else {
-                    doClearPlayingUri();
-                    doSetShowAutoplayCountdownForUri({
-                      uri,
-                      show: false,
-                    });
-                  }
-                }}
-                icon={ICONS.REMOVE}
-                button="primary"
-                className="content__floating-close"
-              />
-            )}
-
-            {isFloating && isMobile && !isShortsFloating && <MiniPlayerPlayButton />}
-
-            {autoplayCountdownUri && !showStreamPlaceholder && (
-              <div
-                className={classnames('content__autoplay-countdown', {
-                  draggable,
-                  playing: !isAutoplayCountdown,
-                })}
-              >
-                <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
-              </div>
-            )}
-
-            {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
-            {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
-              <FloatingRender
-                uri={uri}
-                draggable={draggable}
-                isShortsContext={isShortVideo}
-                isFloatingContext={isFloating}
-                forceRenderStream={isFloating}
-              />
-            )}
-
-            {isFloating && isMobile && !isShortsFloating && navigateUrl && (
-              <div
-                role="button"
-                tabIndex={0}
-                style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
-                onClick={() => navigate(navigateUrl)}
-              />
-            )}
-
-            {isShortsFloating && (
-              <FloatingShortsActions
-                uri={uri}
-                claimId={claimId}
-                channelUrl={channelUrl}
-                navigateUrl={navigateUrl}
-                onPrevious={hasPreviousShort ? goToPreviousShort : null}
-                onNext={hasNextShort ? goToNextShort : null}
-                onFireGlow={() => {
-                  setFireGlow(false);
-                  clearTimeout(fireGlowTimeout.current);
-                  requestAnimationFrame(() => {
-                    setFireGlow(true);
-                    fireGlowTimeout.current = setTimeout(() => setFireGlow(false), 2000);
+          {isFloating && (
+            <TypedButton
+              title={__('Close')}
+              onClick={() => {
+                if (hasClaimInQueue) {
+                  doOpenModal(MODALS.CONFIRM, {
+                    title: __('Close Player'),
+                    subtitle: __('Are you sure you want to close the player and clear the current Queue?'),
+                    onConfirm: (closeModal) => {
+                      doSetShowAutoplayCountdownForUri({
+                        uri,
+                        show: false,
+                      });
+                      doClearPlayingUri();
+                      doClearQueueList();
+                      closeModal();
+                    },
                   });
-                }}
-                onSlimeEffect={() => {
-                  setSlimeEffect(false);
-                  clearTimeout(slimeEffectTimeout.current);
-                  requestAnimationFrame(() => {
-                    setSlimeEffect(true);
-                    slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                } else {
+                  doClearPlayingUri();
+                  doSetShowAutoplayCountdownForUri({
+                    uri,
+                    show: false,
                   });
-                }}
-              />
-            )}
-
-            {isFloating && !isShortsFloating && uri && <FloatingReactions uri={uri} claimId={claimId} />}
-
-            {fireGlow && isShortsFloating && (
-              <div className="shorts-floating-flames">
-                {Array.from(
-                  {
-                    length: 50,
-                  },
-                  (_, i) => (
-                    <div
-                      key={i}
-                      className="shorts-floating-flames__particle"
-                      style={{
-                        left: `calc(${(i / 50) * 100}% - 35px)`,
-                        animationDelay: `${Math.random()}s`,
-                      }}
-                    />
-                  )
-                )}
-              </div>
-            )}
-
-            {isFloating && (
-              <div
-                className={classnames('content__info', {
-                  draggable: !isMobile,
-                  'content__info--shorts-floating': isShortsFloating && !isMobile,
-                  'content-info__playlist': playingCollection,
-                })}
-              >
-                <div className="content-info__text">
-                  <div className="claim-preview__title" title={title || uri}>
-                    <TypedButton
-                      label={title || uri}
-                      navigate={navigateUrl}
-                      button="link"
-                      className="content__floating-link"
-                    />
-                  </div>
-                  {isShortsFloating ? (
-                    channelNavigateUrl ? (
-                      <TypedButton navigate={channelNavigateUrl} button="link" className="content__shorts-floating-channel">
-                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
-                        {shortsMetaLabel && (
-                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
-                        )}
-                      </TypedButton>
-                    ) : (
-                      <div className="content__shorts-floating-channel">
-                        <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
-                        {shortsMetaLabel && (
-                          <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>
-                        )}
-                      </div>
-                    )
-                  ) : (
-                    <ChannelThumbnail xxsmall uri={channelUrl} />
-                  )}
-                  {!isShortsFloating && <UriIndicator link uri={uri} />}
-                </div>
-
-                {!isShortsFloating && playingCollection && collectionSidebarId !== collectionId && (
-                  <React.Suspense fallback={null}>
-                    <PlaylistCard
-                      id={collectionId}
-                      uri={uri}
-                      disableClickNavigation
-                      doDisablePlayerDrag={setForceDisable}
-                      isFloating
-                    />
-                  </React.Suspense>
-                )}
-              </div>
-            )}
-          </div>
-
-          {uri && (
-            <VideoFullscreenActions
-              uri={uri}
-              isShort={isShortVideo}
-              isLivestreamClaim={isCurrentClaimLive}
-              onNext={hasNextShort ? goToNextShort : undefined}
-              onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
-              isAtStart={!hasPreviousShort}
-              isAtEnd={!hasNextShort}
-              hasPlaylist={!!playingCollection}
-              autoPlayNextShort={autoPlayNextShort}
-              doToggleShortsAutoplay={doToggleShortsAutoplay}
+                }
+              }}
+              icon={ICONS.REMOVE}
+              button="primary"
+              className="content__floating-close"
             />
           )}
+
+          {isFloating && isMobile && !isShortsFloating && <MiniPlayerPlayButton />}
+
+          {autoplayCountdownUri && !showStreamPlaceholder && (
+            <div
+              className={classnames('content__autoplay-countdown', {
+                draggable,
+                playing: !isAutoplayCountdown,
+              })}
+            >
+              <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
+            </div>
+          )}
+
+          {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
+          {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
+            <FloatingRender
+              uri={uri}
+              draggable={draggable}
+              isShortsContext={isShortVideo}
+              isFloatingContext={isFloating}
+              forceRenderStream={isFloating}
+            />
+          )}
+
+          {isFloating && isMobile && !isShortsFloating && navigateUrl && (
+            <div
+              role="button"
+              tabIndex={0}
+              style={{ position: 'absolute', inset: 0, zIndex: 1, cursor: 'pointer' }}
+              onClick={() => navigate(navigateUrl)}
+            />
+          )}
+
+          {isShortsFloating && (
+            <FloatingShortsActions
+              uri={uri}
+              claimId={claimId}
+              channelUrl={channelUrl}
+              navigateUrl={navigateUrl}
+              onPrevious={hasPreviousShort ? goToPreviousShort : null}
+              onNext={hasNextShort ? goToNextShort : null}
+              onFireGlow={() => {
+                setFireGlow(false);
+                clearTimeout(fireGlowTimeout.current);
+                requestAnimationFrame(() => {
+                  setFireGlow(true);
+                  fireGlowTimeout.current = setTimeout(() => setFireGlow(false), 2000);
+                });
+              }}
+              onSlimeEffect={() => {
+                setSlimeEffect(false);
+                clearTimeout(slimeEffectTimeout.current);
+                requestAnimationFrame(() => {
+                  setSlimeEffect(true);
+                  slimeEffectTimeout.current = setTimeout(() => setSlimeEffect(false), 3000);
+                });
+              }}
+            />
+          )}
+
+          {isFloating && !isShortsFloating && uri && <FloatingReactions uri={uri} claimId={claimId} />}
+
+          {fireGlow && isShortsFloating && (
+            <div className="shorts-floating-flames">
+              {Array.from(
+                {
+                  length: 50,
+                },
+                (_, i) => (
+                  <div
+                    key={i}
+                    className="shorts-floating-flames__particle"
+                    style={{
+                      left: `calc(${(i / 50) * 100}% - 35px)`,
+                      animationDelay: `${Math.random()}s`,
+                    }}
+                  />
+                )
+              )}
+            </div>
+          )}
+
+          {isFloating && (
+            <div
+              className={classnames('content__info', {
+                draggable: !isMobile,
+                'content__info--shorts-floating': isShortsFloating && !isMobile,
+                'content-info__playlist': playingCollection,
+              })}
+            >
+              <div className="content-info__text">
+                <div className="claim-preview__title" title={title || uri}>
+                  <TypedButton
+                    label={title || uri}
+                    navigate={navigateUrl}
+                    button="link"
+                    className="content__floating-link"
+                  />
+                </div>
+                {isShortsFloating ? (
+                  channelNavigateUrl ? (
+                    <TypedButton
+                      navigate={channelNavigateUrl}
+                      button="link"
+                      className="content__shorts-floating-channel"
+                    >
+                      <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
+                      {shortsMetaLabel && <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>}
+                    </TypedButton>
+                  ) : (
+                    <div className="content__shorts-floating-channel">
+                      <ChannelThumbnail key={channelUrl} xxsmall uri={channelUrl} />
+                      {shortsMetaLabel && <span className="content__shorts-floating-subtitle">{shortsMetaLabel}</span>}
+                    </div>
+                  )
+                ) : (
+                  <ChannelThumbnail xxsmall uri={channelUrl} />
+                )}
+                {!isShortsFloating && <UriIndicator link uri={uri} />}
+              </div>
+
+              {!isShortsFloating && playingCollection && collectionSidebarId !== collectionId && (
+                <React.Suspense fallback={null}>
+                  <PlaylistCard
+                    id={collectionId}
+                    uri={uri}
+                    disableClickNavigation
+                    doDisablePlayerDrag={setForceDisable}
+                    isFloating
+                  />
+                </React.Suspense>
+              )}
+            </div>
+          )}
         </div>
+
+        {uri && (
+          <VideoFullscreenActions
+            uri={uri}
+            isShort={isShortVideo}
+            isLivestreamClaim={isCurrentClaimLive}
+            onNext={hasNextShort ? goToNextShort : undefined}
+            onPrevious={hasPreviousShort ? goToPreviousShort : undefined}
+            isAtStart={!hasPreviousShort}
+            isAtEnd={!hasNextShort}
+            hasPlaylist={!!playingCollection}
+            autoPlayNextShort={autoPlayNextShort}
+            doToggleShortsAutoplay={doToggleShortsAutoplay}
+          />
+        )}
+      </div>
     </VideoRenderFloatingContext.Provider>
   );
 }

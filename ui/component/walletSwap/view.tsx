@@ -626,14 +626,16 @@ function WalletSwap() {
             primaryButton
             copyable={getCoinSendAmountStr(coin)}
             snackMessage={__('Amount copied.')}
-            onCopy={((inputElem: HTMLInputElement) => {
-              const inputStr = inputElem.value;
-              const selectEndIndex = inputStr.lastIndexOf(' ');
+            onCopy={
+              ((inputElem: HTMLInputElement) => {
+                const inputStr = inputElem.value;
+                const selectEndIndex = inputStr.lastIndexOf(' ');
 
-              if (selectEndIndex > -1 && inputStr.substring(0, selectEndIndex).match(/[\d.]/)) {
-                inputElem.setSelectionRange(0, selectEndIndex, 'forward');
-              }
-            }) as any}
+                if (selectEndIndex > -1 && inputStr.substring(0, selectEndIndex).match(/[\d.]/)) {
+                  inputElem.setSelectionRange(0, selectEndIndex, 'forward');
+                }
+              }) as any
+            }
           />
           <div className="help">{__('Use the copy button to ensure the EXACT amount is sent!')}</div>
           {getGap()}

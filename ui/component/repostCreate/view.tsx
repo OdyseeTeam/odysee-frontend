@@ -11,12 +11,12 @@ import { creditsToString } from 'util/format-credits';
 import analytics from 'analytics';
 import LbcSymbol from 'component/common/lbc-symbol';
 import ClaimPreview from 'component/claimPreview';
+import { REPOST_PARAMS } from 'constants/repost';
 import { URL as SITE_URL, URL_LOCAL, URL_DEV } from 'config';
 import HelpLink from 'component/common/help-link';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import BidHelpText from 'component/publish/shared/publishBid/bid-help-text';
 import Spinner from 'component/spinner';
-import { REPOST_PARAMS } from 'page/repost/view';
 import './style.scss';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
@@ -322,7 +322,9 @@ function RepostCreate(props: Props) {
               button="link"
               label={__('Open Repost in new tab')}
               iconRight={ICONS.EXTERNAL}
-              href={`/$/${PAGES.REPOST_NEW}?${REPOST_PARAMS.FROM}=${encodeURIComponent(uri)}&to=${encodeURIComponent(enteredRepostName)}`}
+              href={`/$/${PAGES.REPOST_NEW}?${REPOST_PARAMS.FROM}=${encodeURIComponent(uri)}&to=${encodeURIComponent(
+                enteredRepostName
+              )}`}
               navigateTarget="_blank"
             />
           )

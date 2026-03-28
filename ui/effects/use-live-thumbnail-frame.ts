@@ -51,7 +51,7 @@ function refreshLiveThumbnail(source: string, entry: LiveThumbnailEntry) {
   const nextUrl = getCacheBustedUrl(source);
   const img = new Image();
 
-  img.onload = () => {
+  const handleLoad = () => {
     const currentEntry = liveThumbnailEntries.get(source);
     if (!currentEntry || currentEntry !== entry) return;
 
@@ -61,7 +61,7 @@ function refreshLiveThumbnail(source: string, entry: LiveThumbnailEntry) {
     scheduleNextRefresh(source, entry, LIVE_THUMB_REFRESH_MS);
   };
 
-  img.onerror = () => {
+  const handleError = () => {
     const currentEntry = liveThumbnailEntries.get(source);
     if (!currentEntry || currentEntry !== entry) return;
 
@@ -69,6 +69,8 @@ function refreshLiveThumbnail(source: string, entry: LiveThumbnailEntry) {
     scheduleNextRefresh(source, entry, LIVE_THUMB_RETRY_MS);
   };
 
+  img.addEventListener('load', handleLoad, { once: true });
+  img.addEventListener('error', handleError, { once: true });
   img.src = nextUrl;
 }
 

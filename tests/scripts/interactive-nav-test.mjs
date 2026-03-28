@@ -20,7 +20,12 @@ function resetCounters() {
 function setupListeners(page) {
   page.on('pageerror', (err) => {
     const msg = err.message.substring(0, 150);
-    if (!msg.includes('TenantFeatures') && !msg.includes('postMessage') && !msg.includes('wander.app') && !msg.includes('AudioContext')) {
+    if (
+      !msg.includes('TenantFeatures') &&
+      !msg.includes('postMessage') &&
+      !msg.includes('wander.app') &&
+      !msg.includes('AudioContext')
+    ) {
       globalErrors.push(msg);
     }
   });
@@ -55,7 +60,7 @@ function report(stepName, elapsed) {
     `  ${status} ${stepName.padEnd(45)} ${(elapsed + 'ms').padEnd(8)} ${errs ? 'ERR:' + errs : ''} ${warns ? 'w:' + warns : ''} ${apiSummary}`
   );
   if (errs > 0) {
-    globalErrors.slice(0, 2).forEach(e => console.log(`      ✗ ${e}`));
+    globalErrors.slice(0, 2).forEach((e) => console.log(`      ✗ ${e}`));
   }
   resetCounters();
 }
@@ -152,7 +157,9 @@ async function main() {
 
   // 7. Click channel tabs
   await timedStep('7. Channel tabs (Playlists)', async () => {
-    const playlistTab = await page.$('button:has-text("Playlists"), a:has-text("Playlists"), [role="tab"]:has-text("Playlists")');
+    const playlistTab = await page.$(
+      'button:has-text("Playlists"), a:has-text("Playlists"), [role="tab"]:has-text("Playlists")'
+    );
     if (playlistTab) {
       await playlistTab.click();
       await page.waitForTimeout(4000);
@@ -172,7 +179,9 @@ async function main() {
 
   // 8. Click into a playlist from the channel
   await timedStep('8. Click into a playlist', async () => {
-    const playlistLink = await page.$('.claim-preview__wrapper[href*="playlist"], a[href*="/$/playlist/"], .collection-preview a, .claim-preview a');
+    const playlistLink = await page.$(
+      '.claim-preview__wrapper[href*="playlist"], a[href*="/$/playlist/"], .collection-preview a, .claim-preview a'
+    );
     if (playlistLink) {
       await playlistLink.click();
       await page.waitForTimeout(5000);
@@ -205,7 +214,9 @@ async function main() {
 
   // 11. Click play button on playlist
   await timedStep('11. Click play on playlist', async () => {
-    const playBtn = await page.$('button:has-text("Play"), button:has-text("Shuffle"), .playlist-play-button, button[aria-label*="Play"]');
+    const playBtn = await page.$(
+      'button:has-text("Play"), button:has-text("Shuffle"), .playlist-play-button, button[aria-label*="Play"]'
+    );
     if (playBtn) {
       await playBtn.click();
       await page.waitForTimeout(5000);

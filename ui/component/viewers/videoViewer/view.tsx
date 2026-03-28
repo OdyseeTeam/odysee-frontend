@@ -20,7 +20,6 @@ const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 
-
 function VideoViewer(props) {
   const {
     uri,

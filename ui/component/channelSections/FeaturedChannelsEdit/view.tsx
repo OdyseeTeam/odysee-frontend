@@ -67,7 +67,6 @@ export default function FeaturedChannelsEdit(props: Props) {
       const index = fc ? entries.findIndex((x) => x.id === fc.id) : -1;
 
       if (index > -1) {
-  
         const newFc: FeaturedChannelsSection = { ...fc, value: { ...fc.value, title: name, uris: uris } };
         entries.splice(index, 1, newFc);
       } else {

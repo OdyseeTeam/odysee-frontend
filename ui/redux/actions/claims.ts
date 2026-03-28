@@ -195,12 +195,14 @@ export function doResolveUris(
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
 
-              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined));
+              costInfos.add(
+                getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined)
+              );
             }
 
             const channelId = getChannelIdFromClaim(uriResolveInfo);
             if (channelId) channelClaimIds.add(channelId);
-            resolveInfo[uri] = resultResponse as typeof resolveInfo[string];
+            resolveInfo[uri] = resultResponse as (typeof resolveInfo)[string];
           }
         }
 
@@ -706,7 +708,9 @@ export function doUpdateChannel(params: any, cb: any) {
     });
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
-    const channelClaim = (myChannels as Array<ChannelClaim>).find((myChannel) => myChannel.claim_id === params.claim_id);
+    const channelClaim = (myChannels as Array<ChannelClaim>).find(
+      (myChannel) => myChannel.claim_id === params.claim_id
+    );
     const updateParams: Record<string, any> = {
       claim_id: params.claim_id,
       bid: creditsToString(params.amount),
@@ -870,7 +874,9 @@ export function doClaimSearch(
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           const isProtected = isClaimProtected(stream);
           if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
-          costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined));
+          costInfos.add(
+            getCostInfoForFee(stream.claim_id, stream.value ? (stream.value as StreamMetadata).fee : undefined)
+          );
         }
 
         if (stream.value_type === 'collection') {
@@ -883,7 +889,11 @@ export function doClaimSearch(
         const channelId = getChannelIdFromClaim(stream);
         if (channelId) channelClaimIds.add(channelId);
 
-        if (!options.has_no_source && stream.claim_id && (hasFiatTags(stream) || (stream.value as StreamMetadata)?.fee)) {
+        if (
+          !options.has_no_source &&
+          stream.claim_id &&
+          (hasFiatTags(stream) || (stream.value as StreamMetadata)?.fee)
+        ) {
           fiatClaimIds.push(stream.claim_id);
         }
       });
@@ -925,8 +935,7 @@ export function doClaimSearch(
           sdkPaidClaimIds = settledCostInfosById
             .filter((costInfo) => Number(costInfo.cost) > 0)
             .map((costInfo) => costInfo.claimId);
-        } catch (costErr) {
-        }
+        } catch (costErr) {}
       }
 
       // Dispatch all synchronous state updates as one commit
@@ -996,9 +1005,11 @@ export function doClaimSearch(
     };
 
     const successCallback = settings?.useAutoPagination ? autoPaginate() : success;
-    return await Lbry.claim_search(options).then(successCallback, failure).catch((err) => {
-      failure(err);
-    });
+    return await Lbry.claim_search(options)
+      .then(successCallback, failure)
+      .catch((err) => {
+        failure(err);
+      });
   };
 }
 export function doRepost(options: StreamRepostOptions) {

@@ -211,12 +211,13 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     const normalized = url.toLowerCase();
     return normalized.includes('missing-thumb-png') || normalized.includes('missing-thumb');
   }, []);
-  const backgroundImage = thumbnailFromClaim && !isMissingThumbLike(thumbnailFromClaim)
-    ? getThumbnailCdnUrl({
-        thumbnail: thumbnailFromClaim,
-        quality: 85,
-      })
-    : undefined;
+  const backgroundImage =
+    thumbnailFromClaim && !isMissingThumbLike(thumbnailFromClaim)
+      ? getThumbnailCdnUrl({
+          thumbnail: thumbnailFromClaim,
+          quality: 85,
+        })
+      : undefined;
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {
     if (channelSubCount === undefined) {
@@ -258,7 +259,9 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     }
   }
 
-  const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
+  const ariaLabelData = isChannelUri
+    ? title
+    : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
   const navigateUrl =
     isCollection && listId && defaultCollectionAction === COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
@@ -539,7 +542,13 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
                       </div>
                     )}
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties uri={uri} small={type === 'small'} isSubscribed={false} iconOnly={false} xsmall={smallThumbnail} />
+                      <PreviewOverlayProperties
+                        uri={uri}
+                        small={type === 'small'}
+                        isSubscribed={false}
+                        iconOnly={false}
+                        xsmall={smallThumbnail}
+                      />
                     </div>
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
@@ -549,7 +558,14 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
                 <>
                   <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties uri={uri} small={type === 'small'} isSubscribed={false} iconOnly={false} xsmall={smallThumbnail} pending />
+                      <PreviewOverlayProperties
+                        uri={uri}
+                        small={type === 'small'}
+                        isSubscribed={false}
+                        iconOnly={false}
+                        xsmall={smallThumbnail}
+                        pending
+                      />
                     </div>
                   </FileThumbnail>
                 </>

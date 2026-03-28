@@ -103,7 +103,9 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
         // hit backend to save restricted memberships
         if (channelClaimId) {
           const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
-          dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined));
+          dispatch(
+            doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined)
+          );
         }
       };
 
@@ -219,7 +221,9 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
       // hit backend to save restricted memberships
       if (channelClaimId) {
         const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
-        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined));
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds, undefined)
+        );
       }
     };
 
@@ -1353,7 +1357,8 @@ export function doUpdateUploadAdd(
   };
 }
 export const doUpdateUploadProgress =
-  (props: { guid: string; progress?: string; status?: UploadStatus; publishId?: string | number }) => (dispatch: Dispatch) =>
+  (props: { guid: string; progress?: string; status?: UploadStatus; publishId?: string | number }) =>
+  (dispatch: Dispatch) =>
     dispatch({
       type: ACTIONS.UPDATE_UPLOAD_PROGRESS,
       data: props,

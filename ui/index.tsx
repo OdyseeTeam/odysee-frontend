@@ -6,7 +6,10 @@ import { setGlobalDevModeChecks } from 'reselect';
 // for the same arguments. This is useful for finding perf bugs, but fires 250+
 // times on page load due to legacy selectors. Set to 'once' so each unique site
 // logs only a single warning instead of flooding the console.
-setGlobalDevModeChecks({ inputStabilityCheck: 'once', identityFunctionCheck: 'once' });
+setGlobalDevModeChecks({
+  inputStabilityCheck: 'once',
+  identityFunctionCheck: 'once',
+});
 
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
@@ -14,13 +17,7 @@ import SnackBar from 'component/snackBar';
 import * as MODALS from 'constants/modal_types';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import {
-  doDaemonReady,
-  doOpenModal,
-  doHideModal,
-  doToggle3PAnalytics,
-  doMinVersionSubscribe,
-} from 'redux/actions/app';
+import { doDaemonReady, doOpenModal, doHideModal, doToggle3PAnalytics, doMinVersionSubscribe } from 'redux/actions/app';
 import Lbry, { apiCall } from 'lbry';
 import { setSearchApi } from 'redux/actions/search';
 import { doResolveSubscriptions } from 'redux/actions/subscriptions';
@@ -33,7 +30,6 @@ import {
 } from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
 import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
-import rewards from 'rewards';
 import { store, persistor } from 'store';
 import app from './app';
 import { BrowserRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
@@ -57,8 +53,60 @@ import 'scss/third-party.scss';
 // If a style is not necessary for the initial page load, it should be removed from `all.scss`
 // and loaded dynamically in the component that consumes it
 import 'scss/all.scss';
-// These overrides can't live in web/ because they need to use the same instance of `Lbry`
-import apiPublishCallViaWeb from 'web/setup/publish';
+
+type CancelScheduledWork = () => void;
+
+function scheduleAfterPaint(callback: () => void): CancelScheduledWork {
+  let animationFrameId = 0;
+  let timeoutId: number | undefined;
+
+  animationFrameId = window.requestAnimationFrame(() => {
+    animationFrameId = 0;
+    timeoutId = window.setTimeout(callback, 0);
+  });
+
+  return () => {
+    if (animationFrameId) {
+      window.cancelAnimationFrame(animationFrameId);
+    }
+
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId);
+    }
+  };
+}
+
+function scheduleWhenIdle(callback: () => void, timeout = 1500): CancelScheduledWork {
+  const requestIdleCallback = (window as any).requestIdleCallback;
+
+  if (typeof requestIdleCallback === 'function') {
+    const idleId = requestIdleCallback(callback, { timeout });
+    return () => {
+      const cancelIdleCallback = (window as any).cancelIdleCallback;
+
+      if (typeof cancelIdleCallback === 'function') {
+        cancelIdleCallback(idleId);
+      }
+    };
+  }
+
+  const timeoutId = window.setTimeout(callback, 200);
+  return () => window.clearTimeout(timeoutId);
+}
+
+function setupRewardCallbacks() {
+  void import('rewards').then(({ default: rewards }) => {
+    rewards.setCallback('claimFirstRewardSuccess', () => {
+      app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
+    });
+    rewards.setCallback('claimRewardSuccess', (reward) => {
+      if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
+        app.store.dispatch(doHideModal());
+      }
+    });
+  });
+}
+
 analytics.init();
 // Handle IndexedDB errors gracefully (e.g., "Connection to Indexed Database server lost")
 // These can happen due to browser storage issues, too many tabs, or private browsing restrictions.
@@ -82,16 +130,20 @@ Lbry.setOverride(
   'publish',
   (params) =>
     new Promise((resolve, reject) => {
-      apiPublishCallViaWeb(
-        apiCall,
-        Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
-          ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
-          : '',
-        'publish',
-        params,
-        resolve,
-        reject
-      );
+      void import('web/setup/publish')
+        .then(({ default: apiPublishCallViaWeb }) =>
+          apiPublishCallViaWeb(
+            apiCall,
+            Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
+              ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
+              : '',
+            'publish',
+            params,
+            resolve,
+            reject
+          )
+        )
+        .catch(reject);
     })
 );
 analytics.event.initAppStartTime(Date.now());
@@ -120,14 +172,7 @@ Lbryio.setOverride(
       resolve(authTokenToReturn);
     })
 );
-rewards.setCallback('claimFirstRewardSuccess', () => {
-  app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
-});
-rewards.setCallback('claimRewardSuccess', (reward) => {
-  if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
-    app.store.dispatch(doHideModal());
-  }
-});
+scheduleAfterPaint(setupRewardCallbacks);
 document.addEventListener('dragover', (event) => {
   event.preventDefault();
 });
@@ -159,8 +204,12 @@ function AppWrapper() {
   const [persistDone, setPersistDone] = useState(false);
   useEffect(() => {
     if (persistDone) {
-      app.store.dispatch(doToggle3PAnalytics(null, true));
-      app.store.dispatch(doSendPastRecsysEntries());
+      const cancelIdle = scheduleWhenIdle(() => {
+        app.store.dispatch(doToggle3PAnalytics(null, true));
+        app.store.dispatch(doSendPastRecsysEntries());
+      });
+
+      return cancelIdle;
     }
   }, [persistDone]);
   useEffect(() => {
@@ -168,26 +217,27 @@ function AppWrapper() {
       app.store.dispatch(doDaemonReady());
       app.store.dispatch(doLoadBuiltInHomepageData());
       app.store.dispatch(doFetchHomepages());
-      const timer = setTimeout(() => {
+
+      const cancelAfterPaint = scheduleAfterPaint(() => {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
 
-        // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedDataSubscribe());
         app.store.dispatch(doFilteredDataSubscribe());
         app.store.dispatch(doFetchUserLocale());
         app.store.dispatch(doResolveSubscriptions());
-      }, 25);
-      const nonCriticalTimer = setTimeout(() => {
+        analytics.event.startup(Date.now());
+      });
+      const cancelIdle = scheduleWhenIdle(() => {
         app.store.dispatch(doMinVersionSubscribe());
         app.store.dispatch(doFetchDevStrings());
       }, 5000);
-      analytics.event.startup(Date.now());
+
       return () => {
-        clearTimeout(timer);
-        clearTimeout(nonCriticalTimer);
+        cancelAfterPaint();
+        cancelIdle();
       };
     }
   }, [persistDone]);

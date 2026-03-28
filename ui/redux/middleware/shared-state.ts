@@ -73,7 +73,15 @@ export const buildSharedStateMiddleware =
         if (!isEqual(oldShared, shared)) {
           // only update if the preference changed from last call in the same session
           oldShared = shared;
-          dispatch(doPreferenceSet(currentPreferenceKey, shared, SHARED_PREFERENCE_VERSION, () => {}, () => {}));
+          dispatch(
+            doPreferenceSet(
+              currentPreferenceKey,
+              shared,
+              SHARED_PREFERENCE_VERSION,
+              () => {},
+              () => {}
+            )
+          );
         }
 
         clearTimeout(timeout);

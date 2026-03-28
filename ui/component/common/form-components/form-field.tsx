@@ -111,9 +111,7 @@ export function FormField(props: Props) {
   const mdOnChange = React.useCallback(
     (value: string) => {
       const normalizedValue =
-        textAreaMaxLength && value.length > textAreaMaxLength
-          ? value.substring(0, textAreaMaxLength)
-          : value;
+        textAreaMaxLength && value.length > textAreaMaxLength ? value.substring(0, textAreaMaxLength) : value;
       inputProps.onChange?.(normalizedValue);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -259,9 +257,7 @@ export function FormField(props: Props) {
                   {max && typeof textAreaValue === 'string' && (
                     <label
                       className={
-                        Number(max) - String(textAreaValue).length > 0
-                          ? 'input-max-counter'
-                          : 'input-max-counter-error'
+                        Number(max) - String(textAreaValue).length > 0 ? 'input-max-counter' : 'input-max-counter-error'
                       }
                     >
                       {Number(max) - String(textAreaValue).length}
@@ -278,7 +274,7 @@ export function FormField(props: Props) {
 
               {hideSuggestions ? (
                 <textarea
-                  {...inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>}
+                  {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
                   id={name}
                   maxLength={max || textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
                   ref={input}
@@ -287,7 +283,7 @@ export function FormField(props: Props) {
               ) : (
                 <React.Suspense fallback={null}>
                   <TextareaWithSuggestions
-                    {...inputProps as any}
+                    {...(inputProps as any)}
                     spellCheck
                     uri={uri}
                     type={type}

@@ -447,21 +447,26 @@ export default function ClaimList(props: Props) {
                       const topForDrawer = Number(
                         document.documentElement?.style?.getPropertyValue('--content-height') || 0
                       );
-                      const playerInfo = isDraggingFromFloatingPlayer && (document.querySelector('.content__info') as HTMLElement | null);
-                      const playerElem = isDraggingFromFloatingPlayer && (document.querySelector('.content__viewer') as HTMLElement | null);
+                      const playerInfo =
+                        isDraggingFromFloatingPlayer &&
+                        (document.querySelector('.content__info') as HTMLElement | null);
+                      const playerElem =
+                        isDraggingFromFloatingPlayer &&
+                        (document.querySelector('.content__viewer') as HTMLElement | null);
                       const playerTransform = playerElem && playerElem.style.transform;
-                      let playerTop =
+                      const playerTop =
                         playerTransform &&
                         Number(
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
+                      const playerInfoOffsetTop = playerInfo?.offsetTop || 0;
                       assert(dp.style, 'Invalid style detected. Please fix Flow warnings below.');
                       const dpStyle = draggableProvided.draggableProps.style as Record<string, any>;
                       // prettier-ignore
                       const style = { ...draggableProvided.draggableProps.style,
                 transform,
                 top: isDraggingFromFloatingPlayer
-                ? dpStyle.top - (playerInfo as HTMLElement | null)?.offsetTop! - Number(playerTop) : isDraggingFromMobile
+                ? dpStyle.top - playerInfoOffsetTop - Number(playerTop) : isDraggingFromMobile
                 ? dpStyle.top - topForDrawer
                 : dpStyle.top,
                 left: isDraggingFromFloatingPlayer ? undefined : dpStyle.left,

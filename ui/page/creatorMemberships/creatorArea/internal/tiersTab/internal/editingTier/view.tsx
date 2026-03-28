@@ -49,7 +49,9 @@ function MembershipEditTier(props: Props) {
   const defaultPerkIds: Array<number | string> = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
   const currentPerkIds: Array<number | string> = membership.perks.map((perk) => perk.id);
   const editablePerkIds: Array<number | string> = [...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS];
-  const perksIdsShownInEditForm: Array<number | string> = Array.from(new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS]));
+  const perksIdsShownInEditForm: Array<number | string> = Array.from(
+    new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS])
+  );
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',

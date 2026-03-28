@@ -3,16 +3,11 @@ import Page from 'component/page';
 import { useLocation } from 'react-router-dom';
 import RepostCreate from 'component/repostCreate';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import { REPOST_PARAMS } from 'constants/repost';
 import useThrottle from 'effects/use-throttle';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectBalance } from 'redux/selectors/wallet';
-
-export const REPOST_PARAMS = {
-  FROM: 'from',
-  TO: 'to',
-  REDIRECT: 'redirect',
-};
 
 function RepostPage() {
   const dispatch = useAppDispatch();

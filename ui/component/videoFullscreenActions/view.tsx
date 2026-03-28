@@ -103,7 +103,6 @@ export default function VideoFullscreenActions(props: Props) {
   const isMobile = isMobileSize || window.matchMedia('(pointer: coarse)').matches;
   const useSidePanel = isLandscape || !isMobileSize;
 
-
   React.useEffect(() => {
     const onFsChange = () => setIsFs(!!getFullscreenElement());
     onFullscreenChange(document, 'add', onFsChange);

@@ -69,9 +69,11 @@ function PublishName(props: Props) {
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
   }, [publishFormName]);
   useEffect(() => {
-    dispatch(doUpdatePublishForm({
-      name: nameThrottled || '',
-    }));
+    dispatch(
+      doUpdatePublishForm({
+        name: nameThrottled || '',
+      })
+    );
   }, [nameThrottled, dispatch]);
   useEffect(() => {
     if (!blurred && !name) {

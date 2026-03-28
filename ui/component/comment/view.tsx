@@ -27,7 +27,7 @@ import { parseURI } from 'util/lbryURI';
 import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import Expandable from 'component/common/expandable';
-import MarkdownPreview from 'component/common/markdown-preview';
+import DeferredMarkdown from 'component/common/deferredMarkdown';
 import CommentBadge from 'component/common/comment-badge';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu, MenuButton } from 'component/common/menu';
@@ -141,7 +141,11 @@ function CommentView(props: Props) {
   } = props;
 
   const dispatch = useAppDispatch();
-  const { comment_id: commentId, channel_url: channelUrl, channel_id: channelId } = comment || ({} as Partial<CommentData>);
+  const {
+    comment_id: commentId,
+    channel_url: channelUrl,
+    channel_id: channelId,
+  } = comment || ({} as Partial<CommentData>);
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
@@ -161,7 +165,9 @@ function CommentView(props: Props) {
   const creatorMembership =
     useAppSelector((state) => selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channelId)) || '';
   const repliesFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, commentId));
-  const fetchedReplies = useAppSelector((state) => (selectRepliesForParentId as any)(state, commentId)) as Array<CommentData>;
+  const fetchedReplies = useAppSelector((state) =>
+    (selectRepliesForParentId as any)(state, commentId)
+  ) as Array<CommentData>;
   const authorTitle = useAppSelector((state) => (channelUrl ? selectTitleForUri(state, channelUrl) : null));
   const commentElemRef = React.useRef<HTMLDivElement>(null);
   const {
@@ -218,7 +224,8 @@ function CommentView(props: Props) {
   const slimedToDeath =
     !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
-  const isSprout = channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
+  const isSprout =
+    channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
   let channelOwnerOfContent;
 
   try {
@@ -289,7 +296,12 @@ function CommentView(props: Props) {
 
   function handleSubmit() {
     dispatch(doCommentUpdate(commentId, editedMessage));
-    if (setQuickReply) setQuickReply({ ...quickReply, comment_id: commentId, comment: editedMessage });
+    if (setQuickReply)
+      setQuickReply({
+        ...quickReply,
+        comment_id: commentId,
+        comment: editedMessage,
+      });
     setEditing(false);
     dispatch(doClearPlayingSource());
   }
@@ -337,7 +349,8 @@ function CommentView(props: Props) {
 
         if (elem) {
           elem.scrollTo({
-            top: node.getBoundingClientRect().top + (mobileChatElem ? 0 : (elem as Window).scrollY) - ROUGH_HEADER_HEIGHT,
+            top:
+              node.getBoundingClientRect().top + (mobileChatElem ? 0 : (elem as Window).scrollY) - ROUGH_HEADER_HEIGHT,
             left: 0,
             behavior: 'smooth',
           });
@@ -427,10 +440,12 @@ function CommentView(props: Props) {
                 className="comment__time"
                 onClick={handleTimeClick}
                 label={
-                  (<>
-                    <DateTime date={timePosted} timeAgo />
-                    {commentIsEdited && <span className="comment__edited">{__('(edited)')}</span>}
-                  </>) as any
+                  (
+                    <>
+                      <DateTime date={timePosted} timeAgo />
+                      {commentIsEdited && <span className="comment__edited">{__('(edited)')}</span>}
+                    </>
+                  ) as any
                 }
               />
 
@@ -512,7 +527,7 @@ function CommentView(props: Props) {
                     </div>
                   ) : (
                     <Expandable>
-                      <MarkdownPreview
+                      <DeferredMarkdown
                         content={message}
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}

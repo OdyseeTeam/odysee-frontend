@@ -21,19 +21,13 @@ import { doClearPublish } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doFetchNoSourceClaimsForChannelId } from 'redux/actions/claims';
 import { selectUser } from 'redux/selectors/user';
-import {
-  selectPendingLivestreamsForChannelId,
-  selectLivestreamsForChannelId,
-} from 'redux/selectors/livestream';
+import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamWebRtcPublisher from 'component/livestreamWebRtcPublisher';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
-import {
-  WEBRTC_PUBLISH_PRESET_ORDER,
-  type WebrtcPublishPresetId,
-} from 'constants/webrtcPublish';
+import { WEBRTC_PUBLISH_PRESET_ORDER, type WebrtcPublishPresetId } from 'constants/webrtcPublish';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import LivestreamMetrics from 'component/livestreamMetrics/view';
@@ -50,8 +44,12 @@ export default function LivestreamSetupPage() {
   const editingURI = publishFormValues?.editingURI;
   const hasChannels = useAppSelector(selectHasChannels);
   const fetchingChannels = useAppSelector(selectFetchingMyChannels);
-  const myLivestreamClaims = useAppSelector((state) => selectLivestreamsForChannelId(state, channelId)) as Array<StreamClaim>;
-  const pendingClaims = useAppSelector((state) => selectPendingLivestreamsForChannelId(state, channelId)) as Array<StreamClaim>;
+  const myLivestreamClaims = useAppSelector((state) =>
+    selectLivestreamsForChannelId(state, channelId)
+  ) as Array<StreamClaim>;
+  const pendingClaims = useAppSelector((state) =>
+    selectPendingLivestreamsForChannelId(state, channelId)
+  ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
   const { search } = useLocation();
@@ -64,8 +62,14 @@ export default function LivestreamSetupPage() {
   const { odysee_live_disabled: liveDisabled } = user || {};
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !liveDisabled);
   const [isClear, setIsClear] = React.useState(false);
-  const [presetId, setPresetId] = usePersistedState('livestream-quality-preset', 'balanced') as [WebrtcPublishPresetId, (v: WebrtcPublishPresetId) => void];
-  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
+  const [presetId, setPresetId] = usePersistedState('livestream-quality-preset', 'balanced') as [
+    WebrtcPublishPresetId,
+    (v: WebrtcPublishPresetId) => void,
+  ];
+  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [
+    boolean,
+    (v: boolean) => void,
+  ];
   const publishCtx = useLivestreamPublish();
   const isStreamActive = publishCtx.state.status === 'live' || publishCtx.state.status === 'connecting';
 
@@ -114,7 +118,13 @@ export default function LivestreamSetupPage() {
 
   // Stream metrics (active when live via any method -- WebRTC or RTMP)
   const metricsActive = tab === 'Setup';
-  const serverMetrics = useLivestreamMetrics(channelId, channelName, sigData.signature, sigData.signing_ts, metricsActive);
+  const serverMetrics = useLivestreamMetrics(
+    channelId,
+    channelName,
+    sigData.signature,
+    sigData.signing_ts,
+    metricsActive
+  );
 
   React.useEffect(() => {
     if (editingURI) setTab('Publish');
@@ -237,7 +247,16 @@ export default function LivestreamSetupPage() {
               onClick={() => setCameraAutoStart(!cameraAutoStart)}
               title={cameraAutoStart ? __('Camera auto-start on') : __('Camera auto-start off')}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M23 7l-7 5 7 5V7z" />
                 <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
               </svg>
@@ -250,7 +269,16 @@ export default function LivestreamSetupPage() {
               onClick={() => publishCtx.actions.setFloatingPreviewEnabled(!publishCtx.state.floatingPreviewEnabled)}
               title={publishCtx.state.floatingPreviewEnabled ? __('Floating preview on') : __('Floating preview off')}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                 <line x1="8" y1="21" x2="16" y2="21" />
                 <line x1="12" y1="17" x2="12" y2="21" />
@@ -297,9 +325,7 @@ export default function LivestreamSetupPage() {
       )}
 
       {/* Publish Tab */}
-      {tab === 'Publish' && hasChannels && (
-        <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />
-      )}
+      {tab === 'Publish' && hasChannels && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
 
       {/* RTMP Setup Tab */}
       {tab === 'Setup' && (
@@ -349,9 +375,7 @@ export default function LivestreamSetupPage() {
                         name="livestream-key"
                         label={__('Stream Key')}
                         copyable={
-                          !streamKey || totalLivestreamClaims.length === 0
-                            ? getLivestreamIngestRtmpUrl()
-                            : streamKey
+                          !streamKey || totalLivestreamClaims.length === 0 ? getLivestreamIngestRtmpUrl() : streamKey
                         }
                         snackMessage={__('Copied stream key.')}
                       />
@@ -360,9 +384,7 @@ export default function LivestreamSetupPage() {
 
                   {/* OBS Tips */}
                   <details className="livestream-setup__tips">
-                    <summary className="livestream-setup__tips-summary">
-                      {__('Recommended OBS settings')}
-                    </summary>
+                    <summary className="livestream-setup__tips-summary">{__('Recommended OBS settings')}</summary>
                     <div className="livestream-setup__tips-body">
                       <ul>
                         <li>{__('Bitrate: 1000-2500 kbps')}</li>

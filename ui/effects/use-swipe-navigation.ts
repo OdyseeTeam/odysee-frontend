@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 type SwipeNavigationOptions = {
-  onSwipeNext?: () => void,
-  onSwipePrevious?: () => void,
-  isEnabled?: boolean,
-  minSwipeDistance?: number,
-  tapDuration?: number,
-  onTap?: () => void,
+  onSwipeNext?: () => void;
+  onSwipePrevious?: () => void;
+  isEnabled?: boolean;
+  minSwipeDistance?: number;
+  tapDuration?: number;
+  onTap?: () => void;
 };
 
 export default function useSwipeNavigation(options: SwipeNavigationOptions) {

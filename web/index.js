@@ -13,7 +13,7 @@ if (fs.existsSync(hpDir)) {
     if (f.endsWith('.cjs')) {
       const fp = path.join(hpDir, f);
       const content = fs.readFileSync(fp, 'utf8');
-      const fixed = content.replace(/require\((['"])(.+?)\.js\1\)/g, "require($1$2.cjs$1)");
+      const fixed = content.replace(/require\((['"])(.+?)\.js\1\)/g, 'require($1$2.cjs$1)');
       if (fixed !== content) fs.writeFileSync(fp, fixed);
     }
   });

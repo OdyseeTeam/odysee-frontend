@@ -28,11 +28,7 @@ function CompactMetrics({ metrics }: { metrics: StreamMetrics }) {
   return (
     <div className="stream-metrics stream-metrics--compact">
       {/* Source type */}
-      {metrics.source_type && (
-        <span className="stream-metrics__chip">
-          {formatSourceType(metrics.source_type)}
-        </span>
-      )}
+      {metrics.source_type && <span className="stream-metrics__chip">{formatSourceType(metrics.source_type)}</span>}
       {/* Video info */}
       {metrics.video && (
         <span className="stream-metrics__chip">
@@ -43,7 +39,16 @@ function CompactMetrics({ metrics }: { metrics: StreamMetrics }) {
       {tp && tp.in_bps > 0 && (
         <span className="stream-metrics__chip" title={`avg ${formatBps(tp.avg_in_bps)}`}>
           {/* Arrow up icon */}
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="12" y1="19" x2="12" y2="5" />
             <polyline points="5 12 12 5 19 12" />
           </svg>
@@ -71,16 +76,23 @@ function OverlayMetrics({ metrics }: { metrics: StreamMetrics }) {
   return (
     <div className="stream-metrics stream-metrics--overlay">
       <span className="stream-metrics__viewers-badge">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
         <span>{viewers}</span>
       </span>
       {metrics.source_type && (
-        <span className="stream-metrics__source-badge">
-          {formatSourceType(metrics.source_type)}
-        </span>
+        <span className="stream-metrics__source-badge">{formatSourceType(metrics.source_type)}</span>
       )}
     </div>
   );
@@ -105,7 +117,16 @@ function FullMetrics({ metrics }: { metrics: StreamMetrics }) {
       {/* Top row: viewers + source */}
       <div className="stream-metrics__full-header">
         <div className="stream-metrics__full-viewers">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
@@ -204,7 +225,16 @@ function CardMetrics({ metrics }: { metrics: StreamMetrics }) {
           <span className="stream-metrics__card-source">{formatSourceType(metrics.source_type)}</span>
         )}
         <span className="stream-metrics__card-viewers">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>

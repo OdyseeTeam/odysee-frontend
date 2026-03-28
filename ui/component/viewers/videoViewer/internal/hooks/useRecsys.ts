@@ -10,7 +10,12 @@ function newRecsysPlayerEvent(eventType: number, offset: number, arg?: number) {
   return arg != null ? { event: eventType, offset, arg } : { event: eventType, offset };
 }
 
-export default function useRecsys(videoId: string, userId: string | undefined, embedded: boolean, shareTelemetry: boolean) {
+export default function useRecsys(
+  videoId: string,
+  userId: string | undefined,
+  embedded: boolean,
+  shareTelemetry: boolean
+) {
   const store = Player.usePlayer();
   const media = Player.useMedia();
 

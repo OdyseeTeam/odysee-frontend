@@ -1,7 +1,6 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
-import moment from 'moment';
 import { toCapitalCase } from 'util/string';
 import { CUSTOM_HOMEPAGE } from 'config';
 export type HomepageCat = {
@@ -37,6 +36,33 @@ function getLimitPerChannel(size, isChannel) {
   } else {
     return size < 250 ? (size < 150 ? 3 : 2) : 1;
   }
+}
+
+type RelativeTimeUnit = 'day' | 'days' | 'month' | 'months' | 'year' | 'years';
+type TimeBoundary = 'day' | 'hour' | 'week';
+
+function getRelativeUnixTimestamp(amount: number, unit: RelativeTimeUnit, boundary: TimeBoundary) {
+  const date = new Date();
+
+  if (unit === 'day' || unit === 'days') {
+    date.setDate(date.getDate() - amount);
+  } else if (unit === 'month' || unit === 'months') {
+    date.setMonth(date.getMonth() - amount);
+  } else if (unit === 'year' || unit === 'years') {
+    date.setFullYear(date.getFullYear() - amount);
+  }
+
+  if (boundary === 'hour') {
+    date.setMinutes(0, 0, 0);
+  } else {
+    date.setHours(0, 0, 0, 0);
+
+    if (boundary === 'week') {
+      date.setDate(date.getDate() - date.getDay());
+    }
+  }
+
+  return Math.floor(date.getTime() / 1000);
 }
 
 export function getAllIds(all: any) {
@@ -129,12 +155,7 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
       searchLanguages: cat.searchLanguages,
       duration: cat.duration || undefined,
       excludeShorts: cat.exclude_shorts ? true : undefined,
-      releaseTime: `>${Math.floor(
-        moment()
-          .subtract(cat.daysOfContent || 30, 'days')
-          .startOf('hour')
-          .unix()
-      )}`,
+      releaseTime: `>${getRelativeUnixTimestamp(cat.daysOfContent || 30, 'days', 'hour')}`,
     },
   };
 };
@@ -174,8 +195,8 @@ export function GetLinksData(
         orderBy: CS.ORDER_BY_NEW,
         releaseTime:
           subscribedChannelIds.length > 20
-            ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
-            : `>${Math.floor(moment().subtract(1, 'year').startOf('week').unix())}`,
+            ? `>${getRelativeUnixTimestamp(9, 'months', 'week')}`
+            : `>${getRelativeUnixTimestamp(1, 'year', 'week')}`,
         pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4, true),
         streamTypes: null,
         channelIds: subscribedChannelIds,
@@ -303,7 +324,9 @@ export function GetLinksData(
   ];
   const YOUTUBE_CREATOR_ROW = {
     title: __('CableTube Escape Artists'),
-    link: `/$/${PAGES.DISCOVER}?${CS.CLAIM_TYPE}=${CS.CLAIM_STREAM}&${CS.CHANNEL_IDS_KEY}=${YOUTUBER_CHANNEL_IDS.join(',')}`,
+    link: `/$/${PAGES.DISCOVER}?${CS.CLAIM_TYPE}=${CS.CLAIM_STREAM}&${
+      CS.CHANNEL_IDS_KEY
+    }=${YOUTUBER_CHANNEL_IDS.join(',')}`,
     hideSort: false,
     options: {
       claimType: ['stream'],
@@ -311,7 +334,7 @@ export function GetLinksData(
       pageSize: getPageSize(12),
       channelIds: YOUTUBER_CHANNEL_IDS,
       limitClaimsPerChannel: 1,
-      releaseTime: `>${Math.floor(moment().subtract(1, 'months').startOf('week').unix())}`,
+      releaseTime: `>${getRelativeUnixTimestamp(1, 'month', 'week')}`,
     },
   };
   const TOP_CONTENT_TODAY = {
@@ -323,7 +346,7 @@ export function GetLinksData(
       orderBy: CS.ORDER_BY_TOP,
       claimType: ['stream'],
       limitClaimsPerChannel: 2,
-      releaseTime: `>${Math.floor(moment().subtract(1, 'day').startOf('day').unix())}`,
+      releaseTime: `>${getRelativeUnixTimestamp(1, 'day', 'day')}`,
     },
   };
   const TOP_CHANNELS = {

@@ -141,9 +141,11 @@ function HomeTabSection(props: Props) {
         if (section.type === 'playlists' && res) {
           const streams = Object.values(res);
           const claimIds = streams.map((s: any) => s?.stream?.claim_id);
-          dispatch(doFetchThumbnailClaimsForCollectionIdsAction({
-            collectionIds: claimIds,
-          }));
+          dispatch(
+            doFetchThumbnailClaimsForCollectionIdsAction({
+              collectionIds: claimIds,
+            })
+          );
         }
       });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- DOESN'T FEEL RIGHT WITHOUT optionsStringified

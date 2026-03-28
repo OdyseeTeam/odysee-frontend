@@ -178,9 +178,11 @@ export default function Portals(props: Props) {
               <NavLink
                 aria-hidden
                 tabIndex={-1}
-                to={{
-                  pathname: '/$/portal/' + portal.name,
-                } as any}
+                to={
+                  {
+                    pathname: '/$/portal/' + portal.name,
+                  } as any
+                }
                 state={portal as any}
               >
                 <div

@@ -44,9 +44,11 @@ function PledgesTab(props: Props) {
 
     let amountSortDesc = (a: any, b: any) => b.subscription.current_price.amount - a.subscription.current_price.amount;
 
-    let renewBySortAsc = (a: any, b: any) => (getRenewByMoment(a)?.valueOf() || 0) - (getRenewByMoment(b)?.valueOf() || 999999999999999); // if null, make it really big so it's last
+    let renewBySortAsc = (a: any, b: any) =>
+      (getRenewByMoment(a)?.valueOf() || 0) - (getRenewByMoment(b)?.valueOf() || 999999999999999); // if null, make it really big so it's last
 
-    let renewBySortDesc = (a: any, b: any) => (getRenewByMoment(b)?.valueOf() || 999999999999999) - (getRenewByMoment(a)?.valueOf() || 0); // if null, make it really big so it's last
+    let renewBySortDesc = (a: any, b: any) =>
+      (getRenewByMoment(b)?.valueOf() || 999999999999999) - (getRenewByMoment(a)?.valueOf() || 0); // if null, make it really big so it's last
 
     const defaultSort = renewBySortAsc;
     let sortFn;

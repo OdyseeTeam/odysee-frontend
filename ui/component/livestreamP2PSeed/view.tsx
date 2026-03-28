@@ -8,7 +8,11 @@ const P2P_SEED_PLAYLIST_TIMEOUT_MS = 30000;
 
 function getP2PIceServers() {
   const turnServer = getLivestreamTurnServer();
-  return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, ...(turnServer ? [turnServer] : [])];
+  return [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' },
+    ...(turnServer ? [turnServer] : []),
+  ];
 }
 
 function serializeP2PError(error: any) {
@@ -96,7 +100,8 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
   const connectedPeersRef = React.useRef<Set<string>>(new Set());
 
   React.useEffect(() => {
-    if (P2P_DEBUG) console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
+    if (P2P_DEBUG)
+      console.log('[P2P Seed] Effect:', { active, videoUrl: videoUrl?.slice(-40), hlsSupported: Hls.isSupported() }); // eslint-disable-line no-console
     if (!active || !videoUrl || !Hls.isSupported()) return;
 
     const video = videoRef.current;
@@ -211,7 +216,8 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
                 core.streams.forEach((stream: any) => {
                   if (stream.peers) totalPeers += stream.peers.size;
                 });
-                if (P2P_DEBUG) console.log(`[P2P Seed] Peers: ${connectedPeersRef.current.size}, Streams: ${core.streams.size}`); // eslint-disable-line no-console
+                if (P2P_DEBUG)
+                  console.log(`[P2P Seed] Peers: ${connectedPeersRef.current.size}, Streams: ${core.streams.size}`); // eslint-disable-line no-console
               }
             } catch {} // eslint-disable-line no-empty
           }, 10000);
@@ -247,7 +253,9 @@ export default function LivestreamP2PSeed({ videoUrl, active, trackerUrl, swarmI
         }
         if (data.fatal && data.type === Hls.ErrorTypes.NETWORK_ERROR && retryCount < MAX_RETRIES) {
           retryCount++;
-          console.log(`[P2P Seed] Stream not ready, retrying in ${RETRY_DELAY_MS / 1000}s (${retryCount}/${MAX_RETRIES})...`); // eslint-disable-line no-console
+          console.log(
+            `[P2P Seed] Stream not ready, retrying in ${RETRY_DELAY_MS / 1000}s (${retryCount}/${MAX_RETRIES})...`
+          ); // eslint-disable-line no-console
           setTimeout(() => {
             if (!destroyed) {
               hls.loadSource(videoUrl);

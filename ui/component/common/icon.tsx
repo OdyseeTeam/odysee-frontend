@@ -46,7 +46,16 @@ function getIconColor(color: string) {
   }
 }
 
-function IconComponent({ icon, tooltip, customTooltipText, iconColor, size, className, sectionIcon = false, ...rest }: Props) {
+function IconComponent({
+  icon,
+  tooltip,
+  customTooltipText,
+  iconColor,
+  size,
+  className,
+  sectionIcon = false,
+  ...rest
+}: Props) {
   const Icon = icons[icon];
 
   if (!Icon) {

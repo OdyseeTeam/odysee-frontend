@@ -525,7 +525,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               <CollectionItemsList
                 collectionId={id}
                 {...({
-                  type: "small",
+                  type: 'small',
                   activeUri: playingItemUrl,
                   empty: __('Playlist is Empty'),
                   showEdit: showEdit,

@@ -52,20 +52,39 @@
     opacity: 0;
     transform-origin: 32px 32px;
 
-    &--1 { animation: signal-ring-expand 2s ease-out 0s infinite; }
-    &--2 { animation: signal-ring-expand 2s ease-out 0.4s infinite; }
-    &--3 { animation: signal-ring-expand 2s ease-out 0.8s infinite; }
+    &--1 {
+      animation: signal-ring-expand 2s ease-out 0s infinite;
+    }
+    &--2 {
+      animation: signal-ring-expand 2s ease-out 0.4s infinite;
+    }
+    &--3 {
+      animation: signal-ring-expand 2s ease-out 0.8s infinite;
+    }
   }
 }
 
 @keyframes signal-dot-pulse {
-  0%, 100% { opacity: 1; r: 4; }
-  50% { opacity: 0.6; r: 5; }
+  0%,
+  100% {
+    opacity: 1;
+    r: 4;
+  }
+  50% {
+    opacity: 0.6;
+    r: 5;
+  }
 }
 
 @keyframes signal-ring-expand {
-  0% { opacity: 0.8; transform: scale(0.5); }
-  100% { opacity: 0; transform: scale(1.3); }
+  0% {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
 }
 
 // ---- Pulse Rings (camera icon with pulsing circles) ----
@@ -93,17 +112,20 @@
     border: 2px solid var(--color-primary);
 
     &--1 {
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       margin: -25px 0 0 -25px;
       animation: pulse-ring-grow 1.8s ease-out 0s infinite;
     }
     &--2 {
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       margin: -25px 0 0 -25px;
       animation: pulse-ring-grow 1.8s ease-out 0.5s infinite;
     }
     &--3 {
-      width: 50px; height: 50px;
+      width: 50px;
+      height: 50px;
       margin: -25px 0 0 -25px;
       animation: pulse-ring-grow 1.8s ease-out 1s infinite;
     }
@@ -111,13 +133,24 @@
 }
 
 @keyframes pulse-rings-icon-bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 @keyframes pulse-ring-grow {
-  0% { transform: scale(0.6); opacity: 0.7; }
-  100% { transform: scale(2.2); opacity: 0; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 // ---- Orbit (particles orbiting a center dot) ----
@@ -142,9 +175,15 @@
     position: absolute;
     inset: 0;
 
-    &--1 { animation: orbit-spin 2.5s linear infinite; }
-    &--2 { animation: orbit-spin 3.2s linear infinite reverse; }
-    &--3 { animation: orbit-spin 4s linear infinite; }
+    &--1 {
+      animation: orbit-spin 2.5s linear infinite;
+    }
+    &--2 {
+      animation: orbit-spin 3.2s linear infinite reverse;
+    }
+    &--3 {
+      animation: orbit-spin 4s linear infinite;
+    }
   }
 
   &__particle {
@@ -155,28 +194,37 @@
     background: #fff;
 
     .orbit-anim__track--1 & {
-      top: 4px; left: 50%;
+      top: 4px;
+      left: 50%;
       margin-left: -3px;
       box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
     }
     .orbit-anim__track--2 & {
-      top: 50%; right: 2px;
+      top: 50%;
+      right: 2px;
       margin-top: -3px;
-      width: 5px; height: 5px;
+      width: 5px;
+      height: 5px;
       opacity: 0.7;
     }
     .orbit-anim__track--3 & {
-      bottom: 8px; left: 50%;
+      bottom: 8px;
+      left: 50%;
       margin-left: -3px;
-      width: 4px; height: 4px;
+      width: 4px;
+      height: 4px;
       opacity: 0.5;
     }
   }
 }
 
 @keyframes orbit-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // ---- Waveform (audio equalizer bars) ----
@@ -195,8 +243,15 @@
 }
 
 @keyframes waveform-bounce {
-  0%, 100% { height: 8px; opacity: 0.3; }
-  50% { height: 40px; opacity: 1; }
+  0%,
+  100% {
+    height: 8px;
+    opacity: 0.3;
+  }
+  50% {
+    height: 40px;
+    opacity: 1;
+  }
 }
 
 // ---- Countdown (circular progress + number) ----
@@ -229,22 +284,41 @@
 }
 
 @keyframes countdown-sweep {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: 188.5; } // 2 * PI * 30
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 188.5;
+  } // 2 * PI * 30
 }
 
 @keyframes countdown-pop {
-  0% { transform: scale(1); opacity: 1; }
-  15% { transform: scale(1.2); }
-  30% { transform: scale(1); }
-  80% { opacity: 1; }
-  100% { opacity: 0.4; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  15% {
+    transform: scale(1.2);
+  }
+  30% {
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.4;
+  }
 }
 
 // ---- Transition to live (smooth reveal) ----
 @keyframes connecting-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // The overlay dissolves smoothly from center outward

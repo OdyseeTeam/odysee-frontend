@@ -32,8 +32,7 @@ function DocxViewer({ source }: Props) {
       .catch(() => {
         setError(true);
         setLoading(false);
-      })
-      ;
+      });
   }, [source]);
 
   const loadingMessage = __('Rendering document.');

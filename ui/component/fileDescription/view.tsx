@@ -3,7 +3,7 @@ import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import classnames from 'classnames';
 import { formatCredits } from 'util/format-credits';
-import MarkdownPreview from 'component/common/markdown-preview';
+import DeferredMarkdown from 'component/common/deferredMarkdown';
 import ClaimTags from 'component/claimTags';
 import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -67,7 +67,7 @@ export default function FileDescription(props: Props) {
       >
         <div className="mediaInfo__description">
           {previewDescription && (
-            <MarkdownPreview
+            <DeferredMarkdown
               className="markdown-preview--description"
               content={previewDescription}
               simpleLinks

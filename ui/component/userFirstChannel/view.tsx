@@ -96,11 +96,16 @@ function UserFirstChannel(props: Props) {
 
   function handleCreateChannel() {
     dispatch(
-      doCreateChannel(`@${channel}`, DEFAULT_BID_FOR_FIRST_CHANNEL, {
-        title: title,
-        thumbnailUrl: params.thumbnailUrl,
-        languages: primaryLanguage,
-      }, undefined)
+      doCreateChannel(
+        `@${channel}`,
+        DEFAULT_BID_FOR_FIRST_CHANNEL,
+        {
+          title: title,
+          thumbnailUrl: params.thumbnailUrl,
+          languages: primaryLanguage,
+        },
+        undefined
+      )
     ).then((channelClaim) => {
       if (channelClaim) {
         analytics.apiLog.publish(channelClaim);

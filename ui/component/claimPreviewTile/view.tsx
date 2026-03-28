@@ -147,7 +147,9 @@ function ClaimPreviewTile(props: Props) {
   const channelTitle = signingChannel && ((signingChannel.value && signingChannel.value.title) || signingChannel.name);
   const isChannelPage = React.useContext(ChannelPageContext);
   const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
-  const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
+  const ariaLabelData = isChannel
+    ? title
+    : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
   const useShortsThumb = sectionTitle === 'Shorts' || queryParams.get('view') === 'shortsTab';
   let shouldHide = false;
 

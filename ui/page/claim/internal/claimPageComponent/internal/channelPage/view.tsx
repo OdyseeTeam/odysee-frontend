@@ -105,7 +105,10 @@ function ChannelPage(props: Props) {
   const myMembershipsFetched = useAppSelector(selectMembershipMineFetched);
   const isOdyseeChannel = useAppSelector((state) => selectIsClaimOdyseeChannelForUri(state, uri));
   const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
-  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as { filtered?: boolean; blacklisted?: boolean };
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as {
+    filtered?: boolean;
+    blacklisted?: boolean;
+  };
   const isMature = claim ? isClaimNsfw(claim) : false;
   const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));

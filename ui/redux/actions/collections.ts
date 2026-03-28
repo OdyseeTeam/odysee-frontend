@@ -513,9 +513,17 @@ const doFetchCollectionItems =
 
         if (items.some((item) => failedItems.includes(item))) {
           // itemsWereFetching stays true
-        } else if (batches.every((b) => b.uris.length === 0) && batches.some((b) => b.ids.length > 0) && resolvingIds.length === 0) {
+        } else if (
+          batches.every((b) => b.uris.length === 0) &&
+          batches.some((b) => b.ids.length > 0) &&
+          resolvingIds.length === 0
+        ) {
           itemsWereFetching = false;
-        } else if (batches.every((b) => b.ids.length === 0) && batches.some((b) => b.uris.length > 0) && resolvingUris.length === 0) {
+        } else if (
+          batches.every((b) => b.ids.length === 0) &&
+          batches.some((b) => b.uris.length > 0) &&
+          resolvingUris.length === 0
+        ) {
           itemsWereFetching = false;
         } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
           itemsWereFetching = false;
@@ -694,7 +702,7 @@ export const doSortCollectionByKey =
     // Save unresolved uris
     const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
     const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
-    const sortedClaims = [...resolvedClaims].sort((a, b) => {
+    const sortedClaims = [...resolvedClaims].toSorted((a, b) => {
       if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
         const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
         const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;

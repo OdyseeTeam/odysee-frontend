@@ -36,7 +36,7 @@ import { doOpenModal, doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
 import { GetLinksData } from 'util/buildHomepage';
-import { getSortedRowData } from 'page/home/helper';
+import { getSortedRowData } from 'util/homepageOrder';
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
 // ****************************************************************************

@@ -22,7 +22,9 @@ function killPreviousInstance() {
     try {
       process.kill(-oldPid, 'SIGTERM');
     } catch {
-      try { process.kill(oldPid, 'SIGTERM'); } catch {}
+      try {
+        process.kill(oldPid, 'SIGTERM');
+      } catch {}
     }
     fs.unlinkSync(PID_FILE);
   } catch {}
@@ -36,7 +38,9 @@ function writePidFile() {
 }
 
 function removePidFile() {
-  try { fs.unlinkSync(PID_FILE); } catch {}
+  try {
+    fs.unlinkSync(PID_FILE);
+  } catch {}
 }
 
 killPreviousInstance();

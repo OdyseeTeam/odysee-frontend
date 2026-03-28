@@ -113,8 +113,7 @@ function PublishFile(props: Props) {
 
       if (data && data.length > 0) {
         for (const dataItem of data) {
-          const statusNorm =
-            typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
+          const statusNorm = typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
           if (statusNorm === 'inprogress' || statusNorm === 'ready') {
             const objectToPush = {
               data: {

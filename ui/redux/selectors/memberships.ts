@@ -427,7 +427,10 @@ export const selectCreatorHasMembershipsByUri = createSelector(
   selectArEnabledMembershipTiersForChannelUri,
   (memberships) => Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
 );
-export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier | undefined => {
+export const selectMyPurchasedMembershipTierForCreatorUri = (
+  state: State,
+  creatorId: string
+): MembershipTier | undefined => {
   const myPurchasedCreatorMemberships = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
   if (!myPurchasedCreatorMemberships) return myPurchasedCreatorMemberships;
   const creatorMembershipTiers = selectMembershipTiersForCreatorId(state, creatorId);
@@ -602,7 +605,8 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
       (membership: MembershipTier) =>
         membership.perks &&
         membership.perks.some(
-          (perk: MembershipOdyseePerk) => String(perk.id) === String(MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id)
+          (perk: MembershipOdyseePerk) =>
+            String(perk.id) === String(MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id)
         )
     )
 );

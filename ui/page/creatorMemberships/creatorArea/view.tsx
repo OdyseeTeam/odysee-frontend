@@ -74,11 +74,7 @@ const CreatorArea = (props: Props) => {
 
   const disabledMessage = __('Monetization is not enabled. Please set up your wallet first.');
 
-  const channelsToList = allSelected
-    ? myChannelClaims
-    : activeChannelClaim
-      ? [activeChannelClaim]
-      : null;
+  const channelsToList = allSelected ? myChannelClaims : activeChannelClaim ? [activeChannelClaim] : null;
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   // if tiers are saved, then go to balance, otherwise go to tiers

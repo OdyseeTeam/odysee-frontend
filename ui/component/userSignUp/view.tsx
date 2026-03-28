@@ -8,7 +8,6 @@ import UserEmailVerify from 'component/userEmailVerify';
 import UserFirstChannel from 'component/userFirstChannel';
 import UserChannelFollowIntro from 'component/userChannelFollowIntro';
 import UserTagFollowIntro from 'component/userTagFollowIntro';
-import YoutubeSync from 'page/youtubeSync';
 import { DEFAULT_BID_FOR_FIRST_CHANNEL } from 'component/userFirstChannel/view';
 import { YOUTUBE_STATUSES } from 'lbryinc';
 import REWARDS from 'rewards';
@@ -38,6 +37,13 @@ const YoutubeTransferStatus = lazyImport(
       /* webpackChunkName: "youtubeTransferStatus" */
     )
 );
+const YoutubeSyncStep = lazyImport(
+  () =>
+    import(
+      'page/youtubeSync'
+      /* webpackChunkName: "youtubeSync" */
+    )
+);
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
 const STEP_PARAM = 'step';
@@ -57,7 +63,9 @@ function UserSignUp() {
   const channels = useAppSelector(selectMyChannelClaims);
   const claimedRewards = useAppSelector(selectClaimedRewards);
   const claimingReward = useAppSelector((state) =>
-    makeSelectIsRewardClaimPending()(state, { reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL })
+    makeSelectIsRewardClaimPending()(state, {
+      reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL,
+    })
   );
   const balance = useAppSelector(selectBalance);
   const fetchingChannels = useAppSelector(selectFetchingMyChannels);
@@ -74,7 +82,12 @@ function UserSignUp() {
   const prefsReady = useAppSelector(selectPrefsReady);
 
   const claimConfirmEmailReward = React.useCallback(
-    () => dispatch(doClaimRewardType(REWARD_TYPES.TYPE_CONFIRM_EMAIL, { notifyError: false })),
+    () =>
+      dispatch(
+        doClaimRewardType(REWARD_TYPES.TYPE_CONFIRM_EMAIL, {
+          notifyError: false,
+        })
+      ),
     [dispatch]
   );
   const claimNewUserReward = React.useCallback(
@@ -182,7 +195,9 @@ function UserSignUp() {
     ),
     showChannelCreation &&
       (interestedInYoutubeSync ? (
-        <YoutubeSync inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
+        <React.Suspense fallback={<Spinner />}>
+          <YoutubeSyncStep inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
+        </React.Suspense>
       ) : (
         <UserFirstChannel doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
       )),

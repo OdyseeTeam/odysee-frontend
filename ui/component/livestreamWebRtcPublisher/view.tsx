@@ -20,7 +20,11 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import usePersistedState from 'effects/use-persisted-state';
-import { makeSelectLivestreamsForChannelId, selectViewersForId, selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
+import {
+  makeSelectLivestreamsForChannelId,
+  selectViewersForId,
+  selectActiveLivestreamForChannel,
+} from 'redux/selectors/livestream';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimIdForUri } from 'redux/selectors/claims';
@@ -40,14 +44,7 @@ type Props = {
   signingTs?: string;
 };
 
-type Status =
-  | 'idle'
-  | 'requesting_permission'
-  | 'preview'
-  | 'connecting'
-  | 'live'
-  | 'stopping'
-  | 'error';
+type Status = 'idle' | 'requesting_permission' | 'preview' | 'connecting' | 'live' | 'stopping' | 'error';
 
 const WEBRTC_DEBUG = process.env.NODE_ENV === 'development';
 
@@ -79,19 +76,20 @@ function computeBitrateKbps(
   previousTimestampMs: number | undefined
 ): number | null {
   if (
-    currentBytes == null || previousBytes == null ||
-    currentTimestampMs == null || previousTimestampMs == null ||
+    currentBytes == null ||
+    previousBytes == null ||
+    currentTimestampMs == null ||
+    previousTimestampMs == null ||
     currentTimestampMs <= previousTimestampMs
-  ) return null;
+  )
+    return null;
   const byteDiff = currentBytes - previousBytes;
   const secondDiff = (currentTimestampMs - previousTimestampMs) / 1000;
   if (byteDiff < 0 || secondDiff <= 0) return null;
   return (byteDiff * 8) / secondDiff / 1000;
 }
 
-function getIdealConstraintValue(
-  value: ConstrainULong | ConstrainDouble | undefined
-): number | null {
+function getIdealConstraintValue(value: ConstrainULong | ConstrainDouble | undefined): number | null {
   if (typeof value === 'number') return value;
   if (value && typeof value === 'object' && 'ideal' in value && typeof value.ideal === 'number') {
     return value.ideal;
@@ -101,7 +99,7 @@ function getIdealConstraintValue(
 
 function getCameraConstraintAttempts(
   presetId: import('constants/webrtcPublish').WebrtcPublishPresetId,
-  facingMode?: 'user' | 'environment',
+  facingMode?: 'user' | 'environment'
 ): MediaTrackConstraints[] {
   const base = getWebrtcPublishVideoConstraints(presetId, facingMode);
   const targetWidth = getIdealConstraintValue(base.width as ConstrainULong | undefined);
@@ -235,7 +233,9 @@ function formatQualityLimitationSummary(
   return `${reason} ${Math.round((current / total) * 100)}%`;
 }
 
-function classifyEncoderImplementation(encoderImplementation: string | null | undefined): 'hardware' | 'software' | 'unknown' {
+function classifyEncoderImplementation(
+  encoderImplementation: string | null | undefined
+): 'hardware' | 'software' | 'unknown' {
   if (!encoderImplementation) return 'unknown';
 
   const normalized = encoderImplementation.toLowerCase();
@@ -340,7 +340,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       // Require 3 consecutive not-live polls (15s) to avoid false positives
       if (metricsNotLiveCountRef.current >= 3) {
         if (WEBRTC_DEBUG) console.warn('[WebRTC] Server reports stream no longer live'); // eslint-disable-line no-console
-        dispatch(doToast({ isError: true, message: __('Stream connection lost. The server reports the stream is no longer active.') }));
+        dispatch(
+          doToast({
+            isError: true,
+            message: __('Stream connection lost. The server reports the stream is no longer active.'),
+          })
+        );
         publishCtx.actions.stopStream({ preservePreview: Boolean(cameraAutoStart) });
       }
     } else {
@@ -352,9 +357,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelId));
   // Use the public (non-LLHLS) URL for seeding, with ?format=ts to match what viewers load
   const rawHlsVideoUrl = (activeLivestream as any)?.videoUrlPublic || activeLivestream?.videoUrl;
-  const hlsVideoUrl = rawHlsVideoUrl && !rawHlsVideoUrl.includes('format=ts')
-    ? `${rawHlsVideoUrl}${rawHlsVideoUrl.includes('?') ? '&' : '?'}format=ts`
-    : rawHlsVideoUrl;
+  const hlsVideoUrl =
+    rawHlsVideoUrl && !rawHlsVideoUrl.includes('format=ts')
+      ? `${rawHlsVideoUrl}${rawHlsVideoUrl.includes('?') ? '&' : '?'}format=ts`
+      : rawHlsVideoUrl;
   const p2pTrackerUrl = (activeLivestream as any)?.p2pTrackerUrl || null;
   const p2pSwarmId = (activeLivestream as any)?.p2pSwarmId || null;
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
@@ -362,11 +368,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const [showP2pConfirm, setShowP2pConfirm] = React.useState(false);
 
   // Detect if another stream is already active on this channel (e.g. RTMP, or another browser tab)
-  const existingStreamActive = Boolean(activeLivestream && status !== 'live' && status !== 'connecting' && status !== 'stopping');
+  const existingStreamActive = Boolean(
+    activeLivestream && status !== 'live' && status !== 'connecting' && status !== 'stopping'
+  );
 
   // Viewer count from commentron WebSocket (actual HLS viewer count, not OME's always-1)
-  const activeClaimId = useAppSelector((state) => nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined);
-  const totalViewers = useAppSelector((state) => activeClaimId ? selectViewersForId(state, activeClaimId) : undefined) ?? 0;
+  const activeClaimId = useAppSelector((state) =>
+    nextStreamUri ? selectClaimIdForUri(state, nextStreamUri) : undefined
+  );
+  const totalViewers =
+    useAppSelector((state) => (activeClaimId ? selectViewersForId(state, activeClaimId) : undefined)) ?? 0;
 
   // Poll livestream status: detects existing streams + gets HLS URL for P2P seeding
   React.useEffect(() => {
@@ -393,15 +404,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Debug P2P seed conditions
   React.useEffect(() => {
     if (status === 'live') {
-      if (WEBRTC_DEBUG) console.log('[P2P Seed] Conditions:', {
-        p2pEnabled,
-        isLive: status === 'live',
-        selectedVideoUrl: hlsVideoUrl || null,
-        preferredVideoUrl: activeLivestream?.videoUrl || null,
-        publicVideoUrl: (activeLivestream as any)?.videoUrlPublic || null,
-        trackerUrl: p2pTrackerUrl,
-        swarmId: p2pSwarmId,
-      }); // eslint-disable-line no-console
+      if (WEBRTC_DEBUG)
+        console.log('[P2P Seed] Conditions:', {
+          p2pEnabled,
+          isLive: status === 'live',
+          selectedVideoUrl: hlsVideoUrl || null,
+          preferredVideoUrl: activeLivestream?.videoUrl || null,
+          publicVideoUrl: (activeLivestream as any)?.videoUrlPublic || null,
+          trackerUrl: p2pTrackerUrl,
+          swarmId: p2pSwarmId,
+        }); // eslint-disable-line no-console
     }
   }, [activeLivestream, p2pEnabled, status, hlsVideoUrl, p2pSwarmId, p2pTrackerUrl]);
 
@@ -426,11 +438,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     typeof RTCPeerConnection !== 'undefined' &&
     Boolean(navigator.mediaDevices?.getUserMedia);
   const canStartStream =
-    browserPublishSupported && livestreamEnabled && hasApprovedLivestreamClaim &&
+    browserPublishSupported &&
+    livestreamEnabled &&
+    hasApprovedLivestreamClaim &&
     Boolean(streamKey && whipUrl && LIVESTREAM_SERVER_API);
 
   // Camera auto-start: remember if user previously allowed camera
-  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
+  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [
+    boolean,
+    (v: boolean) => void,
+  ];
   const [cameraAutoStarting, setCameraAutoStarting] = React.useState(Boolean(cameraAutoStart));
 
   // Auto-request camera on mount if previously allowed
@@ -449,11 +466,14 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     // Not auto-start - check browser permission as fallback
     autoRequestedRef.current = true;
     setCameraAutoStarting(false);
-    navigator.permissions?.query?.({ name: 'camera' as PermissionName }).then((result) => {
-      if (result.state === 'granted') {
-        requestCameraPreview();
-      }
-    }).catch(() => {});
+    navigator.permissions
+      ?.query?.({ name: 'camera' as PermissionName })
+      .then((result) => {
+        if (result.state === 'granted') {
+          requestCameraPreview();
+        }
+      })
+      .catch(() => {});
   }, [browserPublishSupported, livestreamEnabled, status, cameraAutoStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function requestCameraStream(overrideFacingMode?: 'user' | 'environment') {
@@ -471,7 +491,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         });
         const videoTrack = stream.getVideoTracks()[0];
         const videoSettings = videoTrack?.getSettings();
-        console.log('[WebRTC] Camera:', videoSettings?.width + 'x' + videoSettings?.height, '@', Math.round(videoSettings?.frameRate || 0) + 'fps'); // eslint-disable-line no-console
+        console.log(
+          '[WebRTC] Camera:',
+          videoSettings?.width + 'x' + videoSettings?.height,
+          '@',
+          Math.round(videoSettings?.frameRate || 0) + 'fps'
+        ); // eslint-disable-line no-console
         logCameraTrackInfo(videoTrack);
         return stream;
       } catch (e: unknown) {
@@ -496,7 +521,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     setErrorMessage(null);
     try {
       const stream = await requestCameraStream();
-      stream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
+      stream.getAudioTracks().forEach((t) => {
+        t.enabled = micEnabled;
+      });
       setMediaStream(stream);
       setStatus('preview');
       // Remember that camera was successfully opened for auto-start next time
@@ -516,8 +543,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     setErrorMessage(null);
     try {
       const nextStream = await requestCameraStream(nextFacing);
-      nextStream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
-      nextStream.getVideoTracks().forEach((t) => { t.enabled = cameraEnabled; });
+      nextStream.getAudioTracks().forEach((t) => {
+        t.enabled = micEnabled;
+      });
+      nextStream.getVideoTracks().forEach((t) => {
+        t.enabled = cameraEnabled;
+      });
       // Stop old tracks only after new stream is ready
       mediaStream?.getTracks().forEach((t) => t.stop());
       setMediaStream(nextStream);
@@ -548,8 +579,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           return;
         }
 
-        nextStream.getAudioTracks().forEach((track) => { track.enabled = micEnabled; });
-        nextStream.getVideoTracks().forEach((track) => { track.enabled = cameraEnabled; });
+        nextStream.getAudioTracks().forEach((track) => {
+          track.enabled = micEnabled;
+        });
+        nextStream.getVideoTracks().forEach((track) => {
+          track.enabled = cameraEnabled;
+        });
         setMediaStream(nextStream);
         currentStream.getTracks().forEach((track) => track.stop());
       } catch (e: unknown) {
@@ -588,10 +623,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   }, [mediaStream]);
 
   React.useEffect(() => {
-    const video = videoRef.current as (HTMLVideoElement & {
-      requestVideoFrameCallback?: (cb: (now: number, metadata: any) => void) => number;
-      cancelVideoFrameCallback?: (handle: number) => void;
-    }) | null;
+    const video = videoRef.current as
+      | (HTMLVideoElement & {
+          requestVideoFrameCallback?: (cb: (now: number, metadata: any) => void) => number;
+          cancelVideoFrameCallback?: (handle: number) => void;
+        })
+      | null;
 
     if (!mediaStream || !video || typeof video.requestVideoFrameCallback !== 'function') {
       setPreviewFrameFps(null);
@@ -632,13 +669,17 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Mic toggle
   React.useEffect(() => {
     if (!mediaStream) return;
-    mediaStream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
+    mediaStream.getAudioTracks().forEach((t) => {
+      t.enabled = micEnabled;
+    });
   }, [micEnabled, mediaStream]);
 
   // Camera toggle
   React.useEffect(() => {
     if (!mediaStream) return;
-    mediaStream.getVideoTracks().forEach((t) => { t.enabled = cameraEnabled; });
+    mediaStream.getVideoTracks().forEach((t) => {
+      t.enabled = cameraEnabled;
+    });
   }, [cameraEnabled, mediaStream]);
 
   // Warn before closing/refreshing while live
@@ -719,7 +760,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
         stats.forEach((report) => {
           const current = report as Record<string, any>;
-          if (current.type === 'codec') { codecs.set(current.id, current); return; }
+          if (current.type === 'codec') {
+            codecs.set(current.id, current);
+            return;
+          }
           if (current.type !== 'outbound-rtp' || current.isRemote) return;
           const kind = current.kind || current.mediaType;
           if (kind === 'video' && !videoOutbound) videoOutbound = current;
@@ -733,13 +777,29 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         const newStats = {
           connectionState: pc.connectionState || 'live',
           videoCodec: videoOutbound?.codecId
-            ? formatCodecLabel(codecs.get(videoOutbound.codecId)?.mimeType || '', codecs.get(videoOutbound.codecId)?.sdpFmtpLine)
+            ? formatCodecLabel(
+                codecs.get(videoOutbound.codecId)?.mimeType || '',
+                codecs.get(videoOutbound.codecId)?.sdpFmtpLine
+              )
             : null,
           audioCodec: audioOutbound?.codecId
-            ? formatCodecLabel(codecs.get(audioOutbound.codecId)?.mimeType || '', codecs.get(audioOutbound.codecId)?.sdpFmtpLine)
+            ? formatCodecLabel(
+                codecs.get(audioOutbound.codecId)?.mimeType || '',
+                codecs.get(audioOutbound.codecId)?.sdpFmtpLine
+              )
             : null,
-          videoBitrateKbps: computeBitrateKbps(videoOutbound?.bytesSent, previous.videoBytes, timestampMs, previous.timestampMs),
-          audioBitrateKbps: computeBitrateKbps(audioOutbound?.bytesSent, previous.audioBytes, timestampMs, previous.timestampMs),
+          videoBitrateKbps: computeBitrateKbps(
+            videoOutbound?.bytesSent,
+            previous.videoBytes,
+            timestampMs,
+            previous.timestampMs
+          ),
+          audioBitrateKbps: computeBitrateKbps(
+            audioOutbound?.bytesSent,
+            previous.audioBytes,
+            timestampMs,
+            previous.timestampMs
+          ),
           fps: typeof videoOutbound?.framesPerSecond === 'number' ? Math.round(videoOutbound.framesPerSecond) : null,
           // @ts-ignore - encoderImplementation exists on RTCOutboundRtpStreamStats in Chrome
           encoderImpl: videoOutbound?.encoderImplementation || null,
@@ -751,11 +811,12 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               : null,
           qualityLimitationReason: videoOutbound?.qualityLimitationReason || null,
           qualityLimitationDurations: videoOutbound?.qualityLimitationDurations || null,
-          resolution: videoOutbound?.frameWidth && videoOutbound?.frameHeight
-            ? `${videoOutbound.frameWidth}x${videoOutbound.frameHeight}`
-            : localVideoSettings?.width && localVideoSettings?.height
-              ? `${localVideoSettings.width}x${localVideoSettings.height}`
-              : null,
+          resolution:
+            videoOutbound?.frameWidth && videoOutbound?.frameHeight
+              ? `${videoOutbound.frameWidth}x${videoOutbound.frameHeight}`
+              : localVideoSettings?.width && localVideoSettings?.height
+                ? `${localVideoSettings.width}x${localVideoSettings.height}`
+                : null,
         };
 
         setRuntimeStats(newStats);
@@ -798,7 +859,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
     void collectStats();
     const interval = window.setInterval(() => void collectStats(), 1500);
-    return () => { canceled = true; window.clearInterval(interval); };
+    return () => {
+      canceled = true;
+      window.clearInterval(interval);
+    };
   }, [status, mediaStream]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- Actions ----
@@ -809,7 +873,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       setStatus('requesting_permission');
       try {
         const stream = await requestCameraStream();
-        stream.getAudioTracks().forEach((t) => { t.enabled = micEnabled; });
+        stream.getAudioTracks().forEach((t) => {
+          t.enabled = micEnabled;
+        });
         setMediaStream(stream);
 
         if (!canStartStream) {
@@ -849,7 +915,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             if (isAbortError(e)) break;
             // Network errors (Failed to fetch) - don't try next codec, just fail
             // Only try next codec for actual negotiation/codec errors
-            const isNetworkError = e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
+            const isNetworkError =
+              e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
             if (isNetworkError) {
               console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
               break;
@@ -886,7 +953,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       const ac = new AbortController();
       connectAbortRef.current = ac;
       const enc = getWebrtcPublishEncodingOptions(presetId);
-        const codecAttempts = getCodecAttemptOrder(undefined);
+      const codecAttempts = getCodecAttemptOrder(undefined);
       let lastErr: unknown;
       for (const codec of codecAttempts) {
         if (ac.signal.aborted) break;
@@ -909,7 +976,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         } catch (e: unknown) {
           lastErr = e;
           if (isAbortError(e)) break;
-          const isNetworkError = e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
+          const isNetworkError =
+            e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
           if (isNetworkError) {
             console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
             break;
@@ -918,7 +986,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         }
       }
       connectAbortRef.current = null;
-      if (isAbortError(lastErr)) { setStatus('preview'); return; }
+      if (isAbortError(lastErr)) {
+        setStatus('preview');
+        return;
+      }
       const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
       setErrorMessage(msg);
       setStatus('preview');
@@ -965,7 +1036,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
     return (
       <div className="livestream-webrtc">
         <div className="livestream-webrtc__disabled">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M23 7l-7 5 7 5V7z" />
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
           </svg>
@@ -985,26 +1065,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             'livestream-webrtc__preview--live': isLive,
           })}
         >
-          <video
-            ref={videoRef}
-            className="livestream-webrtc__video"
-            playsInline
-            muted
-            autoPlay
-          />
+          <video ref={videoRef} className="livestream-webrtc__video" playsInline muted autoPlay />
 
           {/* Connecting animation overlay (only during WHIP connection, not camera request) */}
-          {isConnecting && (
-            <LivestreamConnectingAnimation status="connecting" />
-          )}
+          {isConnecting && <LivestreamConnectingAnimation status="connecting" />}
 
           {/* Flash transition when going live */}
-          {justWentLive && (
-            <LivestreamConnectingAnimation
-              status="connecting"
-              onLive
-            />
-          )}
+          {justWentLive && <LivestreamConnectingAnimation status="connecting" onLive />}
 
           {hasCamera && (
             <div className="livestream-webrtc__preview-overlay">
@@ -1035,7 +1102,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                     {/* Viewers (only if > 0) */}
                     {totalViewers > 0 && (
                       <span className="livestream-webrtc__pill">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
@@ -1054,21 +1130,32 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 {/* Resolution */}
                 {(() => {
                   const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
-                  const res = cs?.width && cs?.height
-                    ? formatResolutionLabel(`${cs.width}x${cs.height}`)
-                    : formatResolutionLabel(runtimeStats.resolution);
+                  const res =
+                    cs?.width && cs?.height
+                      ? formatResolutionLabel(`${cs.width}x${cs.height}`)
+                      : formatResolutionLabel(runtimeStats.resolution);
                   return res ? <span className="livestream-webrtc__pill">{res}</span> : null;
                 })()}
                 {isLive && (
                   <>
                     {/* Bitrate from server metrics or client stats */}
                     {(() => {
-                      const bps = serverMetrics?.live && serverMetrics.throughput
-                        ? serverMetrics.throughput.in_bps / 1000
-                        : runtimeStats.videoBitrateKbps;
+                      const bps =
+                        serverMetrics?.live && serverMetrics.throughput
+                          ? serverMetrics.throughput.in_bps / 1000
+                          : runtimeStats.videoBitrateKbps;
                       return bps != null && bps > 0 ? (
                         <span className="livestream-webrtc__pill">
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            width="9"
+                            height="9"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <line x1="12" y1="19" x2="12" y2="5" />
                             <polyline points="5 12 12 5 19 12" />
                           </svg>
@@ -1114,7 +1201,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               {!cameraAutoStarting && !errorMessage && (
                 <>
                   <div className="livestream-webrtc__placeholder-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M23 7l-7 5 7 5V7z" />
                       <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                     </svg>
@@ -1135,16 +1231,22 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               {errorMessage && (
                 <>
                   <div className="livestream-webrtc__placeholder-icon livestream-webrtc__placeholder-icon--error">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <line x1="1" y1="1" x2="23" y2="23" />
                       <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
                     </svg>
                   </div>
                   <p className="livestream-webrtc__placeholder-error">{errorMessage}</p>
-                  <button
-                    className="livestream-webrtc__allow-camera-btn"
-                    onClick={requestCameraPreview}
-                  >
+                  <button className="livestream-webrtc__allow-camera-btn" onClick={requestCameraPreview}>
                     {__('Try Again')}
                   </button>
                 </>
@@ -1164,7 +1266,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               disabled={isStopping}
               title={micEnabled ? __('Mute microphone') : __('Unmute microphone')}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 {micEnabled ? (
                   <>
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
@@ -1192,7 +1303,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               disabled={isStopping}
               title={cameraEnabled ? __('Turn off camera') : __('Turn on camera')}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 {cameraEnabled ? (
                   <>
                     <path d="M23 7l-7 5 7 5V7z" />
@@ -1214,7 +1334,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 disabled={isStopping}
                 title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M16 3h5v5" />
                   <path d="M8 21H3v-5" />
                   <path d="M21 3l-7 7" />
@@ -1240,7 +1369,16 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 }}
                 title={p2pEnabled ? __('P2P seeding active - click to disable') : __('Enable P2P seeding')}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
               </button>
@@ -1291,16 +1429,23 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         {errorMessage && (status === 'error' || status === 'preview') && (
           <p className="livestream-webrtc__error-msg">{errorMessage}</p>
         )}
-        {disabledReason && !hasCamera && (
-          <p className="livestream-webrtc__hint-msg">{disabledReason}</p>
-        )}
+        {disabledReason && !hasCamera && <p className="livestream-webrtc__hint-msg">{disabledReason}</p>}
       </div>
 
       {/* P2P seeding banner for streamer - hidden once enabled */}
       {isLive && !p2pEnabled && !showP2pConfirm && (
         <div className="livestream-webrtc__p2p-banner">
           <div className="livestream-webrtc__p2p-banner-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
@@ -1310,10 +1455,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               {__('Seed your stream directly to viewers via peer-to-peer. Reduces server load.')}
             </span>
           </div>
-          <button
-            className="livestream-webrtc__p2p-banner-btn"
-            onClick={() => setShowP2pConfirm(true)}
-          >
+          <button className="livestream-webrtc__p2p-banner-btn" onClick={() => setShowP2pConfirm(true)}>
             {__('Enable')}
           </button>
         </div>
@@ -1375,12 +1517,23 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       {showP2pConfirm && (
         <div className="livestream-webrtc__p2p-confirm">
           <div className="livestream-webrtc__p2p-confirm-card">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
             <h4>{__('Enable P2P delivery?')}</h4>
             <p>
-              {__('Your stream will be shared peer-to-peer with viewers. This reduces server load but your IP address may be visible to viewers. This also applies when you watch other livestreams.')}
+              {__(
+                'Your stream will be shared peer-to-peer with viewers. This reduces server load but your IP address may be visible to viewers. This also applies when you watch other livestreams.'
+              )}
             </p>
             <div className="livestream-webrtc__p2p-confirm-actions">
               <button

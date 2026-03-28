@@ -7,16 +7,14 @@ import * as PAGES from 'constants/pages';
 import * as SETTINGS from 'constants/settings';
 import Button from 'component/button';
 import classnames from 'classnames';
-import HeaderMenuButtons from 'component/headerMenuButtons';
-import HeaderProfileMenuButton from 'component/headerProfileMenuButton';
 import Logo from 'component/logo';
 import NotificationBubble from 'component/notificationBubble';
 import React from 'react';
+import { lazyImport } from 'util/lazyImport';
 import Skeleton from '@mui/material/Skeleton';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
-import WanderButton from '../wanderButton';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doClearEmailEntry, doClearPasswordEntry } from 'redux/actions/user';
@@ -30,6 +28,29 @@ import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
 import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
 import { selectAPIArweaveActiveAccounts } from 'redux/selectors/payments';
 import { selectIsPlayerFloating } from 'redux/selectors/content';
+
+const HeaderMenuButtons = lazyImport(
+  () =>
+    import(
+      'component/headerMenuButtons'
+      /* webpackChunkName: "headerMenuButtons" */
+    )
+);
+const HeaderProfileMenuButton = lazyImport(
+  () =>
+    import(
+      'component/headerProfileMenuButton'
+      /* webpackChunkName: "headerProfileMenuButton" */
+    )
+);
+const WanderButton = lazyImport(
+  () =>
+    import(
+      'component/wanderButton'
+      /* webpackChunkName: "wanderButton" */
+    )
+);
+
 type Props = {
   authHeader: boolean;
   authRedirect?: string;
@@ -145,7 +166,9 @@ const Header = (props: Props) => {
           {!hideWallet && (
             <>
               {arweaveAccounts.length > 0 ? (
-                <WanderButton hideBalance={hideBalance} />
+                <React.Suspense fallback={null}>
+                  <WanderButton hideBalance={hideBalance} />
+                </React.Suspense>
               ) : (
                 <Tooltip
                   title={
@@ -180,11 +203,17 @@ const Header = (props: Props) => {
             </>
           )}
 
-          {!hideProfile && <HeaderProfileMenuButton />}
+          {!hideProfile && (
+            <React.Suspense fallback={null}>
+              <HeaderProfileMenuButton />
+            </React.Suspense>
+          )}
         </>
       ) : !isMobile ? (
         <>
-          <HeaderProfileMenuButton />
+          <React.Suspense fallback={null}>
+            <HeaderProfileMenuButton />
+          </React.Suspense>
           <div className="header__authButtons">
             <Button
               navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
@@ -201,7 +230,9 @@ const Header = (props: Props) => {
           </div>
         </>
       ) : (
-        <HeaderProfileMenuButton />
+        <React.Suspense fallback={null}>
+          <HeaderProfileMenuButton />
+        </React.Suspense>
       )}
     </div>
   );
@@ -296,7 +327,9 @@ const Header = (props: Props) => {
             {!authHeader && !isMobile && (
               <div className="header__center">
                 <WunderBar />
-                <HeaderMenuButtons authRedirect={authRedirect} />
+                <React.Suspense fallback={null}>
+                  <HeaderMenuButtons authRedirect={authRedirect} />
+                </React.Suspense>
               </div>
             )}
 

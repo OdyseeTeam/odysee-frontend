@@ -6,6 +6,10 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
 
+function logLivestreamSource(label, payload) {
+  console.log(`[Livestream Viewer] ${label}`, payload); // eslint-disable-line no-console
+}
+
 export default function useResolvedSource(
   source,
   sourceType,
@@ -18,9 +22,6 @@ export default function useResolvedSource(
 ) {
   const [resolved, setResolved] = useState(null);
   const playerServerRef = useRef(null);
-  const logLivestreamSource = (label, payload) => {
-    console.log(`[Livestream Viewer] ${label}`, payload); // eslint-disable-line no-console
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +53,10 @@ export default function useResolvedSource(
             type: HLS_FILETYPE,
             isHls: true,
             originalSrc: null,
-            hlsSrc: { src: protectedResponse.streaming_url, type: HLS_FILETYPE },
+            hlsSrc: {
+              src: protectedResponse.streaming_url,
+              type: HLS_FILETYPE,
+            },
             thumbnailBasePath: null,
           });
         } else if (activeLivestreamForChannel && activeLivestreamForChannel.videoUrl) {
@@ -80,7 +84,11 @@ export default function useResolvedSource(
       const timeout = setTimeout(() => controller.abort(), 5000);
       let response;
       try {
-        response = await fetch(source, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+        response = await fetch(source, {
+          method: 'HEAD',
+          cache: 'no-store',
+          signal: controller.signal,
+        });
       } catch (e) {
         if (cancelled) return;
         if (source) {
@@ -134,9 +142,11 @@ export default function useResolvedSource(
 
       if (response.status >= 400) {
         Lbryio.call('event', 'desktop_error', {
-          error_message: `PlayerSourceLoadError: Url: ${response.url} | Redirected: ${String(
-            response.redirected
-          )} | Status: ${response.status} | X-Powered-By: ${playerServerRef.current || 'header missing'}`,
+          error_message: `PlayerSourceLoadError: Url: ${
+            response.url
+          } | Redirected: ${String(response.redirected)} | Status: ${
+            response.status
+          } | X-Powered-By: ${playerServerRef.current || 'header missing'}`,
         });
       }
 

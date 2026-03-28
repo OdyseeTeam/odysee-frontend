@@ -45,7 +45,6 @@ export default function CollectionsListMine(props: Props) {
           {/* Filter Options */}
           <div className="claim-search__menu-group">
             <div className="claim-search__menu-subgroup">
-              
               {Object.values(COLS.LIST_TYPE).map((value) => (
                 <Button
                   label={__(String(value))}
@@ -73,7 +72,6 @@ export default function CollectionsListMine(props: Props) {
               >
                 {Object.entries(COLS.SORT_VALUES).map(([key, value]) => (
                   <option key={key} value={key}>
-                    
                     {__(value.str)}
                   </option>
                 ))}

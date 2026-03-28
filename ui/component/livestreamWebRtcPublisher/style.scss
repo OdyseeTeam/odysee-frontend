@@ -247,7 +247,9 @@
     background: rgba(var(--color-header-button-base), 0.15);
     color: var(--color-text);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
       background: rgba(var(--color-header-button-base), 0.25);
@@ -378,7 +380,11 @@
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.03),
       0 10px 24px rgba(0, 0, 0, 0.08);
-    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
 
     &:hover,
     &:focus-within {
@@ -515,7 +521,6 @@
     color: var(--color-text-subtitle);
     text-align: center;
   }
-
 
   // ---- Settings ----
   &__settings {
@@ -702,18 +707,36 @@
 
 // ---- Animations ----
 @keyframes webrtc-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes webrtc-dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.8); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
 }
 
 @keyframes webrtc-settings-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ---- P2P banner (streamer opt-in) ----
@@ -820,7 +843,8 @@
 }
 
 @keyframes p2p-bolt-glow {
-  0%, 100% {
+  0%,
+  100% {
     filter: drop-shadow(0 0 0 transparent);
   }
   50% {

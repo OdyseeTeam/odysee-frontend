@@ -116,9 +116,7 @@ function prioritizeVideoCodec(
   preference: WebrtcPublishVideoCodecPreference | undefined
 ): WhipCodecCapability[] {
   const preferredOrder: Exclude<WebrtcPublishVideoCodecPreference, 'auto'>[] =
-    !preference || preference === 'auto'
-      ? ['hevc', 'h264', 'vp9', 'av1']
-      : [preference];
+    !preference || preference === 'auto' ? ['hevc', 'h264', 'vp9', 'av1'] : [preference];
 
   const preferred: WhipCodecCapability[] = [];
   const used = new Set<WhipCodecCapability>();
@@ -143,7 +141,7 @@ function reorderVideoCodecsForIngest(
   const prioritized = prioritizeVideoCodec(codecs, preference);
   const h264Preferred = preference === 'h264';
 
-  return [...prioritized].sort((a, b) => {
+  return [...prioritized].toSorted((a, b) => {
     const aIsH264 = a.mimeType.toLowerCase() === 'video/h264';
     const bIsH264 = b.mimeType.toLowerCase() === 'video/h264';
 
@@ -222,7 +220,10 @@ function applyOutgoingCodecPreferencesForIngest(
 
 async function applyOutboundVideoEncoding(
   pc: RTCPeerConnection,
-  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'>
+  options: Pick<
+    StartWhipPublishOptions,
+    'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'
+  >
 ): Promise<void> {
   const { maxVideoBitrateBps, maxVideoFramerate, maxVideoWidth, maxVideoHeight, degradationPreference } = options;
 
@@ -234,7 +235,9 @@ async function applyOutboundVideoEncoding(
         audioParams.encodings = [{}];
       }
       audioParams.encodings[0].maxBitrate = 128_000;
-      try { await sender.setParameters(audioParams); } catch {} // eslint-disable-line no-empty
+      try {
+        await sender.setParameters(audioParams);
+      } catch {} // eslint-disable-line no-empty
     }
   }
 
@@ -256,7 +259,10 @@ async function applyOutboundVideoEncoding(
       const actualHeight = settings.height || 0;
       if (actualHeight > maxVideoHeight * 1.1) {
         enc.scaleResolutionDownBy = actualHeight / maxVideoHeight;
-        if (WHIP_DEBUG) console.log(`[WHIP] Scaling down: ${actualHeight}p -> ${maxVideoHeight}p (factor ${enc.scaleResolutionDownBy.toFixed(2)})`); // eslint-disable-line no-console
+        if (WHIP_DEBUG)
+          console.log(
+            `[WHIP] Scaling down: ${actualHeight}p -> ${maxVideoHeight}p (factor ${enc.scaleResolutionDownBy.toFixed(2)})`
+          ); // eslint-disable-line no-console
       }
     }
 
@@ -276,7 +282,10 @@ async function applyOutboundVideoEncoding(
 
 export async function updateWhipVideoEncodingPolicy(
   pc: RTCPeerConnection | null,
-  options: Pick<StartWhipPublishOptions, 'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'>
+  options: Pick<
+    StartWhipPublishOptions,
+    'maxVideoBitrateBps' | 'maxVideoFramerate' | 'maxVideoWidth' | 'maxVideoHeight' | 'degradationPreference'
+  >
 ): Promise<void> {
   if (!pc) return;
   await applyOutboundVideoEncoding(pc, options);
@@ -386,10 +395,14 @@ export async function startWhipPublish(
                 stats.forEach((r: any) => {
                   if (r.id === localId) {
                     const relayInfo = r.relayProtocol ? ` (relay via ${r.relayProtocol.toUpperCase()})` : '';
-                    if (WHIP_DEBUG) console.log(`[WHIP] Connected local: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}${relayInfo}`); // eslint-disable-line no-console
+                    if (WHIP_DEBUG)
+                      console.log(
+                        `[WHIP] Connected local: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}${relayInfo}`
+                      ); // eslint-disable-line no-console
                   }
                   if (r.id === remoteId) {
-                    if (WHIP_DEBUG) console.log(`[WHIP] Connected remote: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}`); // eslint-disable-line no-console
+                    if (WHIP_DEBUG)
+                      console.log(`[WHIP] Connected remote: ${r.protocol} ${r.candidateType} ${r.address}:${r.port}`); // eslint-disable-line no-console
                   }
                 });
               }

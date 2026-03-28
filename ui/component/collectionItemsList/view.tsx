@@ -77,12 +77,7 @@ const CollectionItemsList = (props: Props) => {
   }
 
   return (
-    <ClaimList
-      collectionId={collectionId}
-      uris={collectionUrls}
-      isEditPreview={isEditPreview}
-      {...claimListProps}
-    />
+    <ClaimList collectionId={collectionId} uris={collectionUrls} isEditPreview={isEditPreview} {...claimListProps} />
   );
 };
 

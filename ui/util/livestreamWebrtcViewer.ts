@@ -22,6 +22,17 @@ type ViewerCodecCapability = {
   mimeType: string;
 };
 
+function codecScore(c: ViewerCodecCapability): number {
+  const mime = c.mimeType.toLowerCase();
+  if (mime === 'video/h265' || mime === 'video/hevc') return 0;
+  if (mime === 'video/h264') return 1;
+  if (mime === 'video/vp9') return 2;
+  if (mime === 'video/vp8') return 3;
+  if (mime === 'video/av1') return 4;
+  if (mime.includes('rtx') || mime.includes('red') || mime.includes('ulpfec')) return 100;
+  return 50;
+}
+
 /**
  * Reorder receiver codec preferences to prefer H.265 > H.264 > VP9 > VP8.
  * H.265 gives ~50% better compression than H.264 at the same quality.
@@ -45,19 +56,6 @@ function applyReceiverCodecPreferences(pc: RTCPeerConnection): void {
 
         const codecs = [...caps.codecs];
 
-        // Score codecs: lower = higher priority
-        function codecScore(c: ViewerCodecCapability): number {
-          const mime = c.mimeType.toLowerCase();
-          if (mime === 'video/h265' || mime === 'video/hevc') return 0;
-          if (mime === 'video/h264') return 1;
-          if (mime === 'video/vp9') return 2;
-          if (mime === 'video/vp8') return 3;
-          if (mime === 'video/av1') return 4;
-          // Filter out RTX, RED, etc but keep them at the end
-          if (mime.includes('rtx') || mime.includes('red') || mime.includes('ulpfec')) return 100;
-          return 50;
-        }
-
         codecs.sort((a, b) => codecScore(a) - codecScore(b));
         transceiver.setCodecPreferences(codecs);
 
@@ -70,10 +68,7 @@ function applyReceiverCodecPreferences(pc: RTCPeerConnection): void {
   }
 }
 
-export async function startWebrtcViewer(
-  signalingUrl: string,
-  signal?: AbortSignal
-): Promise<WebrtcViewerResult> {
+export async function startWebrtcViewer(signalingUrl: string, signal?: AbortSignal): Promise<WebrtcViewerResult> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
       reject(new DOMException('Aborted', 'AbortError'));
@@ -108,30 +103,36 @@ export async function startWebrtcViewer(
 
         // Log the negotiated codec after a short delay (stats need time to populate)
         setTimeout(() => {
-          pc.getStats().then((stats) => {
-            stats.forEach((report: any) => {
-              if (report.type === 'inbound-rtp' && report.kind === 'video') {
-                const codecId = report.codecId;
-                if (codecId) {
-                  stats.forEach((r: any) => {
-                    if (r.id === codecId) {
-                      console.log(`[WebRTC Viewer] Playing: ${r.mimeType}${r.sdpFmtpLine ? ' (' + r.sdpFmtpLine + ')' : ''}`); // eslint-disable-line no-console
-                    }
-                  });
+          pc.getStats()
+            .then((stats) => {
+              stats.forEach((report: any) => {
+                if (report.type === 'inbound-rtp' && report.kind === 'video') {
+                  const codecId = report.codecId;
+                  if (codecId) {
+                    stats.forEach((r: any) => {
+                      if (r.id === codecId) {
+                        console.log(
+                          `[WebRTC Viewer] Playing: ${r.mimeType}${r.sdpFmtpLine ? ' (' + r.sdpFmtpLine + ')' : ''}`
+                        ); // eslint-disable-line no-console
+                      }
+                    });
+                  }
                 }
-              }
-            });
-          }).catch(() => {});
+              });
+            })
+            .catch(() => {});
         }, 2000);
       }
     };
 
     pc.onicecandidate = (event) => {
       if (event.candidate && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          command: 'candidate',
-          candidates: [event.candidate],
-        }));
+        ws.send(
+          JSON.stringify({
+            command: 'candidate',
+            candidates: [event.candidate],
+          })
+        );
       }
     };
 
@@ -144,26 +145,30 @@ export async function startWebrtcViewer(
     };
     signal?.addEventListener('abort', onAbort);
 
-    function cleanup() {
+    let cleanup = () => {
       signal?.removeEventListener('abort', onAbort);
-    }
+    };
 
     const timeout = setTimeout(() => {
       if (!settled) {
         settled = true;
         cleanup();
-        try { ws.close(); } catch {} // eslint-disable-line no-empty
-        try { pc.close(); } catch {} // eslint-disable-line no-empty
+        try {
+          ws.close();
+        } catch {} // eslint-disable-line no-empty
+        try {
+          pc.close();
+        } catch {} // eslint-disable-line no-empty
         reject(new Error('WebRTC viewer signaling timeout'));
       }
     }, 10000);
 
-    ws.onopen = () => {
+    const handleOpen = () => {
       // OME expects the client to send a request_offer command
       ws.send(JSON.stringify({ command: 'request_offer' }));
     };
 
-    ws.onmessage = async (event) => {
+    const handleMessage = async (event: MessageEvent) => {
       try {
         const msg = JSON.parse(event.data);
 
@@ -191,15 +196,17 @@ export async function startWebrtcViewer(
           if (VIEWER_DEBUG) console.log('[WebRTC Viewer] Sending answer'); // eslint-disable-line no-console
 
           // OME expects the answer in the same format it sent the offer
-          ws.send(JSON.stringify({
-            command: 'answer',
-            id: msg.id,
-            peer_id: msg.peer_id,
-            sdp: {
-              type: 'answer',
-              sdp: answer.sdp,
-            },
-          }));
+          ws.send(
+            JSON.stringify({
+              command: 'answer',
+              id: msg.id,
+              peer_id: msg.peer_id,
+              sdp: {
+                type: 'answer',
+                sdp: answer.sdp,
+              },
+            })
+          );
 
           // Process any ICE candidates included in the offer message
           if (msg.candidates) {
@@ -230,31 +237,53 @@ export async function startWebrtcViewer(
       }
     };
 
-    ws.onerror = () => {
+    const handleError = () => {
       if (!settled) {
         settled = true;
         clearTimeout(timeout);
         cleanup();
-        try { pc.close(); } catch {} // eslint-disable-line no-empty
+        try {
+          pc.close();
+        } catch {} // eslint-disable-line no-empty
         reject(new Error('WebRTC signaling connection failed'));
       }
     };
 
-    ws.onclose = () => {
+    const handleClose = () => {
       clearTimeout(timeout);
       if (!settled) {
         settled = true;
         cleanup();
-        try { pc.close(); } catch {} // eslint-disable-line no-empty
+        try {
+          pc.close();
+        } catch {} // eslint-disable-line no-empty
         reject(new Error('WebRTC signaling closed before stream started'));
       }
+    };
+
+    ws.addEventListener('open', handleOpen);
+    ws.addEventListener('message', handleMessage);
+    ws.addEventListener('error', handleError);
+    ws.addEventListener('close', handleClose);
+
+    const previousCleanup = cleanup;
+    cleanup = () => {
+      ws.removeEventListener('open', handleOpen);
+      ws.removeEventListener('message', handleMessage);
+      ws.removeEventListener('error', handleError);
+      ws.removeEventListener('close', handleClose);
+      previousCleanup();
     };
   });
 }
 
 export function stopWebrtcViewer(result: WebrtcViewerResult | null) {
   if (!result) return;
-  try { result.ws.close(); } catch {} // eslint-disable-line no-empty
-  try { result.pc.close(); } catch {} // eslint-disable-line no-empty
+  try {
+    result.ws.close();
+  } catch {} // eslint-disable-line no-empty
+  try {
+    result.pc.close();
+  } catch {} // eslint-disable-line no-empty
   result.stream.getTracks().forEach((t) => t.stop());
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import MarkdownPreview from 'component/common/markdown-preview';
+import DeferredMarkdown from 'component/common/deferredMarkdown';
 import { useAppSelector } from 'redux/hooks';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { getClaimMetadata } from 'util/claim';
@@ -15,7 +15,7 @@ function ClaimDescription(props: Props) {
   const metadata = claim && getClaimMetadata(claim);
   const description = hasPassedDescription ? descriptionProp : metadata && metadata.description;
   return !description ? null : (
-    <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
+    <DeferredMarkdown className="markdown-preview--description" content={description} simpleLinks />
   );
 }
 

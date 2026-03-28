@@ -163,8 +163,9 @@ export default function ChatLayout(props: Props) {
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;
   const commentsLength = commentsToDisplay && commentsToDisplay.length;
   const pinnedComment = pinnedComments.length > 0 ? pinnedComments[0] : null;
-  const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } =
-    getTipValues(superChatsByChronologicalOrder as any);
+  const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } = getTipValues(
+    superChatsByChronologicalOrder as any
+  );
   const scrolledPastRecent = Boolean(
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
     (!isMobile ? scrollPos < -2 : scrollPos < minScrollHeight)

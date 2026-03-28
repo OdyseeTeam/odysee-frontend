@@ -109,10 +109,17 @@ async function main() {
     const result = await checkPage(page, pageInfo);
     results.push(result);
 
-    const status = result.errors.length > 0 ? '✗ ERRORS' :
-                   result.claimSearchSpam ? '⚠ SPAM' :
-                   result.warningCount > 5 ? '⚠ WARNS' : '✓ OK';
-    console.log(`${status.padEnd(12)} ${result.elapsed}ms  cs:${result.requests.claim_search} res:${result.requests.resolve} mod:${result.requests['moderation.AmI']}`);
+    const status =
+      result.errors.length > 0
+        ? '✗ ERRORS'
+        : result.claimSearchSpam
+          ? '⚠ SPAM'
+          : result.warningCount > 5
+            ? '⚠ WARNS'
+            : '✓ OK';
+    console.log(
+      `${status.padEnd(12)} ${result.elapsed}ms  cs:${result.requests.claim_search} res:${result.requests.resolve} mod:${result.requests['moderation.AmI']}`
+    );
   }
 
   console.log(`\n${'='.repeat(70)}`);

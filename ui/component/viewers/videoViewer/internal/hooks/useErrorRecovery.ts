@@ -1,6 +1,5 @@
-
 import { useEffect, useRef, useCallback } from 'react';
-import Hls from 'hls.js';
+import { HLS_EVENT_ERROR, HLS_ERROR_TYPE_MEDIA, HLS_ERROR_TYPE_NETWORK } from '../hls';
 import Player from '../player';
 
 const BACKOFF_DELAYS = [250, 1000, 5000, 15000];
@@ -76,9 +75,9 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
     const onHlsError = (event, data) => {
       if (!data.fatal) return;
 
-      if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+      if (data.type === HLS_ERROR_TYPE_NETWORK) {
         attemptRecovery('networkError');
-      } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+      } else if (data.type === HLS_ERROR_TYPE_MEDIA) {
         attemptRecovery('mediaError');
       } else {
         attemptRecovery(null);
@@ -89,7 +88,7 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
       const checkHls = () => {
         const hls = media._hls;
         if (hls) {
-          hls.on(Hls.Events.ERROR, onHlsError);
+          hls.on(HLS_EVENT_ERROR, onHlsError);
         }
       };
       if (media._hls) {
@@ -109,7 +108,7 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
       media.removeEventListener('playing', resetAttempts);
       const hls = media._hls;
       if (hls) {
-        hls.off(Hls.Events.ERROR, onHlsError);
+        hls.off(HLS_EVENT_ERROR, onHlsError);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

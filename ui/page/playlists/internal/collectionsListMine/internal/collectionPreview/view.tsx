@@ -243,10 +243,9 @@ function CollectionPreview(props: Props) {
                   button="alt"
                   icon={ICONS.PLAY}
                   onClick={() =>
-                    navigate(
-                      `${firstItemPath}${generateListSearchUrlParams(collectionId)}`,
-                      { state: { forceAutoplay: true } }
-                    )
+                    navigate(`${firstItemPath}${generateListSearchUrlParams(collectionId)}`, {
+                      state: { forceAutoplay: true },
+                    })
                   }
                 />
               )}

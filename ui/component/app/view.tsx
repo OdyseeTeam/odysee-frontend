@@ -1,9 +1,11 @@
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
+import * as URL_PARAMS from 'constants/urlParams';
 import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
@@ -15,11 +17,9 @@ import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import usePrevious from 'effects/use-previous';
-import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
-import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
 import {
@@ -42,7 +42,6 @@ import {
 import { doUserSetReferrerForUri } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
 import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import {
   selectLanguage,
@@ -55,6 +54,7 @@ import {
 import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { selectPersonalRecommendations } from 'redux/selectors/search';
+import { selectAutoplayCountdownUri, selectPlayingUri } from 'redux/selectors/content';
 import {
   doOpenAnnouncements,
   doSetLanguage,
@@ -65,6 +65,7 @@ import {
 import { doToast } from 'redux/actions/notifications';
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import { selectError } from 'redux/selectors/notifications';
 import {
   doFetchModBlockedList,
   doFetchCommentModAmIList,
@@ -176,10 +177,19 @@ const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.j
 const LATEST_PATH = `/$/${PAGES.LATEST}/`;
 const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
 const EMBED_PATH = `/$/${PAGES.EMBED}/`;
+const RTL_LANGUAGE_CODES = new Set(['ar', 'fa', 'he', 'ur']);
+const REWARD_TYPE_REFEREE = 'referee';
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
+
+function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
+  const { state } = useLivestreamPublish();
+  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
+
+  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
+}
 
 function App() {
   const dispatch = useAppDispatch();
@@ -193,11 +203,16 @@ function App() {
   const syncError = useAppSelector(selectGetSyncErrorMessage);
   const syncIsLocked = useAppSelector(selectSyncIsLocked);
   const uploadCount = useAppSelector(selectUploadCount);
-  const rewards = useAppSelector(selectUnclaimedRewards);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const currentModal = useAppSelector(selectModal);
+  const modalError = useAppSelector(selectError);
   const syncFatalError = useAppSelector(selectSyncFatalError);
   const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const autoplayCountdownUri = useAppSelector(selectAutoplayCountdownUri);
+  const referredRewardAvailable = useAppSelector((state) =>
+    Boolean(state.rewards?.unclaimedRewards?.some((reward) => reward.reward_type === REWARD_TYPE_REFEREE))
+  );
   const myChannelClaimIds = useAppSelector(selectMyChannelClaimIds);
   const defaultChannelClaim = useAppSelector(selectDefaultChannelClaim);
   const announcement = useAppSelector(selectHomepageAnnouncement);
@@ -223,8 +238,6 @@ function App() {
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
-  // referral claiming
-  const referredRewardAvailable = rewards && rewards.some((reward) => reward.reward_type === REWARDS.TYPE_REFEREE);
   const urlParams = new URLSearchParams(search);
   const rawReferrerParam = urlParams.get('r');
   const fromLbrytvParam = urlParams.get('sunset');
@@ -243,6 +256,9 @@ function App() {
   const liveContentPath = urlPath.startsWith(LIVE_PATH);
   const featureParam = urlParams.get('feature');
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
+  const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
+  const shouldMountModalRouter = Boolean(currentModal || modalError || hasModalUrlParam);
+  const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
   let path;
 
@@ -296,7 +312,14 @@ function App() {
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
     if (!connectionStatus.online) {
-      return <Nag {...({ type: 'helpful', message: __('You are offline. Check your internet connection.') } as any)} />;
+      return (
+        <Nag
+          {...({
+            type: 'helpful',
+            message: __('You are offline. Check your internet connection.'),
+          } as any)}
+        />
+      );
     }
 
     // Only 1 nag is possible, so show the most important:
@@ -352,7 +375,15 @@ function App() {
       const msg =
         reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
       assert(reloadRequired === 'newVersionFound' || reloadRequired === 'lazyImportFailed');
-      return <Nag {...({ message: __(msg), actionText: __('Refresh'), onClick: () => window.location.reload() } as any)} />;
+      return (
+        <Nag
+          {...({
+            message: __(msg),
+            actionText: __('Refresh'),
+            onClick: () => window.location.reload(),
+          } as any)}
+        />
+      );
     }
   }
 
@@ -458,7 +489,10 @@ function App() {
         onConfirm: (closeModal) => {
           closeModal();
           const active = homepageOrder?.active || [];
-          const newHomePageOrder = { ...homepageOrder, active: ['FYP', ...active] };
+          const newHomePageOrder = {
+            ...homepageOrder,
+            active: ['FYP', ...active],
+          };
           dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
           dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
           dispatch(
@@ -470,7 +504,10 @@ function App() {
         onCancel: (closeModal) => {
           closeModal();
           const hidden = homepageOrder?.hidden || [];
-          const newHomePageOrder = { ...homepageOrder, hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden] };
+          const newHomePageOrder = {
+            ...homepageOrder,
+            hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden],
+          };
           dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
           dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
         },
@@ -484,8 +521,8 @@ function App() {
     if (!languages.includes(language)) {
       dispatch(doFetchLanguage(language));
 
-      if (document && document.documentElement && LANGUAGES[language] && LANGUAGES[language].length >= 3) {
-        document.documentElement.dir = LANGUAGES[language][2];
+      if (document && document.documentElement && RTL_LANGUAGE_CODES.has(language)) {
+        document.documentElement.dir = 'rtl';
       }
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, languages]);
@@ -656,12 +693,10 @@ function App() {
               <Router uri={uri} />
             </React.Suspense>
             <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
-            <React.Suspense fallback={null}>
-              <ModalRouter />
-            </React.Suspense>
+            <React.Suspense fallback={null}>{shouldMountModalRouter && <ModalRouter />}</React.Suspense>
             <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-            <React.Suspense fallback={null}>{!embedPath && <VideoRenderFloating />}</React.Suspense>
-            <React.Suspense fallback={null}>{!embedPath && <LivestreamPublisherFloating />}</React.Suspense>
+            <React.Suspense fallback={null}>{shouldMountFloatingPlayer && <VideoRenderFloating />}</React.Suspense>
+            <LivestreamPublisherFloatingGate embedPath={embedPath} />
             <React.Suspense fallback={null}>
               {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
               {!hasVerifiedEmail && <YoutubeWelcome />}

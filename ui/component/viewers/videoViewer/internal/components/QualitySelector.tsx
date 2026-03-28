@@ -2,12 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Player from '../player';
 import * as QUALITY_OPTIONS from 'constants/player';
 
-export default function QualitySelector({
-  defaultQuality,
-  originalVideoHeight,
-  isLivestream,
-  onQualityChanged,
-}) {
+export default function QualitySelector({ defaultQuality, originalVideoHeight, isLivestream, onQualityChanged }) {
   const media = Player.useMedia();
   const [levels, setLevels] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
@@ -60,8 +55,8 @@ export default function QualitySelector({
     currentLevel === -1
       ? QUALITY_OPTIONS.AUTO
       : levels[currentLevel]
-      ? `${levels[currentLevel].height}p`
-      : QUALITY_OPTIONS.AUTO;
+        ? `${levels[currentLevel].height}p`
+        : QUALITY_OPTIONS.AUTO;
 
   return (
     <div className="media-quality-selector">
@@ -77,7 +72,7 @@ export default function QualitySelector({
         <div className="media-quality-menu media-surface">
           {levels
             .slice()
-            .sort((a, b) => a.height - b.height)
+            .toSorted((a, b) => a.height - b.height)
             .map((level) => (
               <button
                 key={level.index}

@@ -46,9 +46,11 @@ export const icons = {
       {...props}
       id="Layer_1"
       strokeWidth="0"
-      style={{
-        enableBackground: 'new 0 0 103.1 103.1',
-      } as React.CSSProperties}
+      style={
+        {
+          enableBackground: 'new 0 0 103.1 103.1',
+        } as React.CSSProperties
+      }
       version="1.1"
       viewBox="0 0 103.1 103.1"
       x="0px"
@@ -3084,13 +3086,15 @@ export const icons = {
         />
       </g>
       <image
-        style={{
-          overflow: 'visible',
-          width: '172',
-          height: '154',
-          xlinkHref: '#SVGID_00000170984886341847456420000000262070696033326467_',
-          transform: 'matrix(0.2544 0 0 0.2544 10.7103 -58.8974)',
-        } as React.CSSProperties}
+        style={
+          {
+            overflow: 'visible',
+            width: '172',
+            height: '154',
+            xlinkHref: '#SVGID_00000170984886341847456420000000262070696033326467_',
+            transform: 'matrix(0.2544 0 0 0.2544 10.7103 -58.8974)',
+          } as React.CSSProperties
+        }
       />
       <path className="live-membership--st2" d="M13.9,20.9v-9.7l6.9,4.7L13.9,20.9z M15.1,13.4v5.1l3.7-2.7L15.1,13.4z" />
       <g>

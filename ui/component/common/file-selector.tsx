@@ -14,7 +14,17 @@ type Props = {
   name?: string;
 };
 
-function FileSelector({ type = 'file', currentPath, onFileChosen, label, placeholder, accept, error, disabled, autoFocus = false }: Props) {
+function FileSelector({
+  type = 'file',
+  currentPath,
+  onFileChosen,
+  label,
+  placeholder,
+  accept,
+  error,
+  disabled,
+  autoFocus = false,
+}: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const handleFileInputSelection = useCallback(() => {
@@ -57,7 +67,7 @@ function FileSelector({ type = 'file', currentPath, onFileChosen, label, placeho
         accept={accept}
         ref={fileInput}
         onChange={handleFileInputSelection}
-        {...(type === 'openDirectory' ? { webkitdirectory: 'True' } as any : {})}
+        {...(type === 'openDirectory' ? ({ webkitdirectory: 'True' } as any) : {})}
       />
     </React.Fragment>
   );

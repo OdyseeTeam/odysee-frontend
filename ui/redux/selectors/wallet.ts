@@ -191,7 +191,10 @@ export const selectFilteredTransactions = createSelector(
   }
 );
 export const selectTxoPageParams = (state) => selectState(state).txoFetchParams;
-export const selectTxoPage = createSelector(selectState, (state) => (state.txoPage && state.txoPage.items) || EMPTY_ARRAY);
+export const selectTxoPage = createSelector(
+  selectState,
+  (state) => (state.txoPage && state.txoPage.items) || EMPTY_ARRAY
+);
 export const selectTxoPageNumber = createSelector(selectState, (state) => (state.txoPage && state.txoPage.page) || 1);
 export const selectTxoItemCount = createSelector(
   selectState,

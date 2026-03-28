@@ -7,6 +7,7 @@ type: project
 **Tech stack:** React 18 + Redux 5 (RTK) + React Router 7 + Vite 8 + TypeScript 5.4 + Koa SSR + pnpm
 
 **Key directories:**
+
 - `ui/` - Main frontend: component/, page/, redux/ (actions/reducers/selectors/middleware), modal/, effects/, hocs/, constants/, util/, scss/
 - `web/` - Koa server for SSR (CommonJS, port 1337)
 - `electron/` - Desktop app integration
@@ -17,10 +18,11 @@ type: project
 **28 Redux slices:** router, app, settings, claims, content, fileInfo, publish, collections, search, tags, shorts, comments, reactions, user, sync, rewards, wallet, stripe, arwallet, coinSwap, memberships, subscriptions, notifications, blocked, blacklist, filtered, livestream, stats
 
 **Build patterns:**
+
 - `@if TARGET='web'` / `@if TARGET='app'` preprocessor directives in source
 - Vite plugins: uiModuleResolverPlugin, preprocessPlugin, providePlugin, ssrTemplatePlugin
 - Path aliases: component/, redux/, constants/, types/, etc. all resolve to ui/ subdirs
-- Global providers: Buffer, __() (i18n), assert()
+- Global providers: Buffer, \_\_() (i18n), assert()
 
 **Commands:** `yarn dev` (dev server), `yarn build` (prod), `yarn check` (lint), `yarn test:e2e` (Playwright)
 

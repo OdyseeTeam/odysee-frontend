@@ -68,17 +68,20 @@ export default function CopyableText(props: Props) {
     }
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(copyable).then(showCopySuccessToast).catch(() => {
-        try {
-          if (selectedInput && document.execCommand('copy')) {
-            showCopySuccessToast();
-          } else {
+      navigator.clipboard
+        .writeText(copyable)
+        .then(showCopySuccessToast)
+        .catch(() => {
+          try {
+            if (selectedInput && document.execCommand('copy')) {
+              showCopySuccessToast();
+            } else {
+              showCopyFailedToast();
+            }
+          } catch {
             showCopyFailedToast();
           }
-        } catch {
-          showCopyFailedToast();
-        }
-      });
+        });
       return;
     }
 

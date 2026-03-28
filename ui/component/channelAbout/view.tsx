@@ -1,6 +1,6 @@
 import { SIMPLE_SITE } from 'config';
 import React, { Fragment } from 'react';
-import MarkdownPreview from 'component/common/markdown-preview';
+import DeferredMarkdown from 'component/common/deferredMarkdown';
 import ClaimTags from 'component/claimTags';
 import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
@@ -26,6 +26,14 @@ const formatEmail = (email: string) => {
   return null;
 };
 
+const formatWebsite = (website: string) => {
+  if (!website) {
+    return null;
+  }
+
+  return /^(https?:)?\/\//i.test(website) ? website : `https://${website}`;
+};
+
 function ChannelAbout(props: Props) {
   const { uri } = props;
 
@@ -45,7 +53,7 @@ function ChannelAbout(props: Props) {
             <>
               <label>{__('Description')}</label>
               <div className="media__info-text media__info-text--constrained">
-                <MarkdownPreview content={description} />
+                <DeferredMarkdown content={description} />
               </div>
             </>
           )}
@@ -53,7 +61,7 @@ function ChannelAbout(props: Props) {
             <Fragment>
               <label>{__('Contact')}</label>
               <div className="media__info-text">
-                <MarkdownPreview content={formatEmail(email)} simpleLinks />
+                <a href={formatEmail(email) || undefined}>{email}</a>
               </div>
             </Fragment>
           )}
@@ -61,7 +69,9 @@ function ChannelAbout(props: Props) {
             <Fragment>
               <label>{__('Site')}</label>
               <div className="media__info-text">
-                <MarkdownPreview content={website} simpleLinks />
+                <a href={formatWebsite(website) || undefined} target="_blank" rel="noopener noreferrer">
+                  {website}
+                </a>
               </div>
             </Fragment>
           )}
@@ -106,10 +116,7 @@ function ChannelAbout(props: Props) {
 
           <label>{__('Staked Credits')}</label>
           <div className="media__info-text">
-            <CreditAmount
-              amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)}
-              precision={8}
-            />{' '}
+            <CreditAmount amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)} precision={8} />{' '}
             {SIMPLE_SITE && (
               <Button
                 button="link"

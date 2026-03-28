@@ -13,7 +13,11 @@ export const defaultCollectionState: Collection = {
 };
 export function getClaimIdsInCollectionClaim(claim: CollectionClaim | null | undefined) {
   if (!claim) return claim;
-  return (claim.value as any)?.claims || ((claim as any).claims && (claim as any).claims.map((claim: any) => claim.claim_id)) || [];
+  return (
+    (claim.value as any)?.claims ||
+    ((claim as any).claims && (claim as any).claims.map((claim: any) => claim.claim_id)) ||
+    []
+  );
 }
 export function claimToStoredCollection(claim: CollectionClaim) {
   const storedCollection: Collection = Object.assign({}, defaultCollectionState);

@@ -420,7 +420,9 @@ export function doAnalyticsBuffer(uri: string, bufferData: any) {
     const fileSize = isLivestream ? 0 : source.size; // size in bytes
 
     const fileSizeInBits: number = isLivestream ? 0 : (fileSize as number) * 8;
-    const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(String(fileSizeInBits / fileDurationInSeconds));
+    const bitRate = isLivestream
+      ? bufferData.bitrateAsBitsPerSecond
+      : parseInt(String(fileSizeInBits / fileDurationInSeconds));
     const userId = user && user.id.toString();
 
     // if there's a logged in user, send buffer event data to watchman

@@ -1273,12 +1273,16 @@ html.ios-fullscreen .shorts-page__container {
   }
 
   .shorts-page__navigation {
-    transition: opacity 300ms ease-out 500ms, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      opacity 300ms ease-out 500ms,
+      right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &:has(.media-controls[data-visible]) .shorts-page__navigation,
   &:has([data-paused]) .shorts-page__navigation {
-    transition: opacity 100ms ease-out, right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      opacity 100ms ease-out,
+      right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &.shorts-page__container--panel-open {

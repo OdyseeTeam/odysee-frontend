@@ -435,7 +435,15 @@ export const selectChannelMentionData = createCachedSelector(
   selectSubscriptionUris,
   selectMentionSearchResults,
   selectMentionQuery,
-  (uri: string, claimIdsByUri: any, claimsById: any, topLevelComments: CommentData[], subscriptionUris: string[], searchUris: string[], query: string) => {
+  (
+    uri: string,
+    claimIdsByUri: any,
+    claimsById: any,
+    topLevelComments: CommentData[],
+    subscriptionUris: string[],
+    searchUris: string[],
+    query: string
+  ) => {
     let canonicalCreatorUri;
     const commentorUris = [];
     const canonicalCommentors = [];

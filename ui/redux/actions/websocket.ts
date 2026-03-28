@@ -112,95 +112,96 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
     'notification'
   );
 };
-export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, isProtected?: any) => (dispatch, getState) => {
-  const state = getState();
-  const creatorId = selectChannelClaimIdForUri(state, uri);
-  const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
-  const claim = selectClaimForId(state, claimId);
-  const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
-  // have to reverse here if protected, because the comments list expects the claim id to be proper
-  const reversedClaimId = claimId.split('').toReversed().join('');
-  // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
-  const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
-  const url =
-    subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
-      ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
-      : getCommentSocketUrl(claimIdForSocketUrl, channelName);
-  doSocketConnect(
-    url,
-    (response) => {
-      if (response.type === 'delta') {
-        const newComment = response.data.comment;
-        dispatch({
-          type: ACTIONS.COMMENT_RECEIVED,
-          data: {
-            comment: newComment,
-            claimId,
-            uri,
-          },
-        });
-      }
+export const doCommentSocketConnect =
+  (uri, channelName, claimId, subCategory, isProtected?: any) => (dispatch, getState) => {
+    const state = getState();
+    const creatorId = selectChannelClaimIdForUri(state, uri);
+    const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+    const claim = selectClaimForId(state, claimId);
+    const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
+    // have to reverse here if protected, because the comments list expects the claim id to be proper
+    const reversedClaimId = claimId.split('').toReversed().join('');
+    // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
+    const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
+    const url =
+      subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
+        ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
+        : getCommentSocketUrl(claimIdForSocketUrl, channelName);
+    doSocketConnect(
+      url,
+      (response) => {
+        if (response.type === 'delta') {
+          const newComment = response.data.comment;
+          dispatch({
+            type: ACTIONS.COMMENT_RECEIVED,
+            data: {
+              comment: newComment,
+              claimId,
+              uri,
+            },
+          });
+        }
 
-      if (response.type === 'viewers') {
-        const connected = response.data.connected;
-        dispatch({
-          type: ACTIONS.VIEWERS_RECEIVED,
-          data: {
-            connected,
-            claimId,
-          },
-        });
-      }
+        if (response.type === 'viewers') {
+          const connected = response.data.connected;
+          dispatch({
+            type: ACTIONS.VIEWERS_RECEIVED,
+            data: {
+              connected,
+              claimId,
+            },
+          });
+        }
 
-      if (response.type === 'pinned') {
-        const pinnedComment = response.data.comment;
-        dispatch({
-          type: ACTIONS.COMMENT_PIN_COMPLETED,
-          data: {
-            pinnedComment: pinnedComment,
-            claimId,
-            unpin: !pinnedComment.is_pinned,
-          },
-        });
-      }
+        if (response.type === 'pinned') {
+          const pinnedComment = response.data.comment;
+          dispatch({
+            type: ACTIONS.COMMENT_PIN_COMPLETED,
+            data: {
+              pinnedComment: pinnedComment,
+              claimId,
+              unpin: !pinnedComment.is_pinned,
+            },
+          });
+        }
 
-      if (response.type === 'removed') {
-        const { comment_id } = response.data.comment;
-        dispatch({
-          type: ACTIONS.COMMENT_MARK_AS_REMOVED,
-          data: {
-            comment_id,
-          },
-        });
-      }
+        if (response.type === 'removed') {
+          const { comment_id } = response.data.comment;
+          dispatch({
+            type: ACTIONS.COMMENT_MARK_AS_REMOVED,
+            data: {
+              comment_id,
+            },
+          });
+        }
 
-      if (response.type === 'setting') {
-        const state = getState();
-        const creatorId = selectChannelClaimIdForUri(state, uri);
-        dispatch({
-          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-          data: {
-            responseData: response.data,
-            creatorId,
-          },
-        });
-      }
+        if (response.type === 'setting') {
+          const state = getState();
+          const creatorId = selectChannelClaimIdForUri(state, uri);
+          dispatch({
+            type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+            data: {
+              responseData: response.data,
+              creatorId,
+            },
+          });
+        }
 
-      if (response.type === 'livestream') {
-        // update the live status for the stream
-        dispatch(doFetchChannelIsLiveForId(creatorId));
-      }
-    },
-    `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
-  );
+        if (response.type === 'livestream') {
+          // update the live status for the stream
+          dispatch(doFetchChannelIsLiveForId(creatorId));
+        }
+      },
+      `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
+    );
 
-  if (isLiveFetchPending) {
-    // update the live status for the stream
-    dispatch(doFetchChannelIsLiveForId(creatorId));
-  }
+    if (isLiveFetchPending) {
+      // update the live status for the stream
+      dispatch(doFetchChannelIsLiveForId(creatorId));
+    }
 
-  dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
-};
+    dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
+  };
 export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => (dispatch, getState) => {
   const state = getState();
   const claim = selectClaimForId(state, claimId);

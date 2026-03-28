@@ -7,8 +7,6 @@ import classnames from 'classnames';
 import Header from 'component/header';
 import React from 'react';
 import Wallpaper from 'component/wallpaper';
-import SettingsSideNavigation from 'component/settingsSideNavigation';
-import SideNavigation from 'component/sideNavigation';
 import usePersistedState from 'effects/use-persisted-state';
 import { useAppSelector } from 'redux/hooks';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
@@ -20,6 +18,20 @@ const Footer = lazyImport(
     import(
       'web/component/footer'
       /* webpackChunkName: "footer" */
+    )
+);
+const SettingsSideNavigation = lazyImport(
+  () =>
+    import(
+      'component/settingsSideNavigation'
+      /* webpackChunkName: "settingsSideNavigation" */
+    )
+);
+const SideNavigation = lazyImport(
+  () =>
+    import(
+      'component/sideNavigation'
+      /* webpackChunkName: "sideNavigation" */
     )
 );
 type Props = {
@@ -113,19 +125,22 @@ function Page(props: Props) {
           'main--popout-chat': isPopoutWindow,
         })}
       >
-        {!authPage &&
-          (settingsPage ? (
-            <SettingsSideNavigation />
-          ) : (
-            !noSideNavigation && (
-              <SideNavigation
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={openSidebar}
-                isMediumScreen={isSmallScreen}
-                isOnFilePage={isOnFilePage}
-              />
-            )
-          ))}
+        {!authPage && (
+          <React.Suspense fallback={null}>
+            {settingsPage ? (
+              <SettingsSideNavigation />
+            ) : (
+              !noSideNavigation && (
+                <SideNavigation
+                  sidebarOpen={sidebarOpen}
+                  setSidebarOpen={openSidebar}
+                  isMediumScreen={isSmallScreen}
+                  isOnFilePage={isOnFilePage}
+                />
+              )
+            )}
+          </React.Suspense>
+        )}
 
         <div
           className={classnames({

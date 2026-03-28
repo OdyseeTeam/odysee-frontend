@@ -319,7 +319,7 @@ export default function ModalUploadTemplates() {
   }, [orderedChannelClaims, templatesByChannelId]);
   const sortedTemplates = React.useMemo(
     () =>
-      [...allTemplateEntries].sort((a, b) => {
+      [...allTemplateEntries].toSorted((a, b) => {
         const pinnedDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
         if (pinnedDiff !== 0) return pinnedDiff;
         const byLastUsed = getTemplateSortTimestamp(b) - getTemplateSortTimestamp(a);

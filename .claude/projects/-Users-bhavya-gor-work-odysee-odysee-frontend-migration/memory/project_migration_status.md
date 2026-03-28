@@ -9,6 +9,7 @@ The odysee-frontend-migration repo is undergoing a massive modernization of the 
 **Branch:** `claude/flow-to-typescript-migration-59qwW` (225 commits ahead of master as of 2026-03-25)
 
 **Migration scope completed on this branch:**
+
 1. Flow -> TypeScript (all files converted, flow-typed/ removed)
 2. Webpack -> Vite 8 (custom plugins for module resolution, preprocessing, SSR)
 3. React 16 -> 18, react-redux 7 -> 9, Redux 3 -> 5 (RTK)

@@ -1,9 +1,9 @@
 import 'scss/component/_videojs-skin.scss';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Video } from '@videojs/react/video';
-import Hls from 'hls.js';
 import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
+import { HLS_EVENT_LEVEL_LOADED, HLS_EVENT_MANIFEST_PARSED, loadHlsConstructor } from './hls';
 import useResolvedSource from './hooks/useResolvedSource';
 import useRecsys from './hooks/useRecsys';
 import {
@@ -48,7 +48,11 @@ function getP2PAnnounceTrackers(trackerUrl?: string | null): string[] {
 
 function getP2PIceServers() {
   const turnServer = getLivestreamTurnServer();
-  return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }, ...(turnServer ? [turnServer] : [])];
+  return [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' },
+    ...(turnServer ? [turnServer] : []),
+  ];
 }
 
 function serializeP2PError(error: any) {
@@ -191,8 +195,12 @@ function VideoJsInner(props) {
     const peerCount = p2pActivityRef.current.peers.size;
     const hasRecentDownload = now - p2pActivityRef.current.lastDownloadAt < P2P_ACTIVITY_WINDOW_MS;
     const hasRecentUpload = now - p2pActivityRef.current.lastUploadAt < P2P_ACTIVITY_WINDOW_MS;
-    p2pActivityRef.current.downloadSamples = p2pActivityRef.current.downloadSamples.filter((s) => now - s.at < P2P_RATE_WINDOW_MS);
-    p2pActivityRef.current.uploadSamples = p2pActivityRef.current.uploadSamples.filter((s) => now - s.at < P2P_RATE_WINDOW_MS);
+    p2pActivityRef.current.downloadSamples = p2pActivityRef.current.downloadSamples.filter(
+      (s) => now - s.at < P2P_RATE_WINDOW_MS
+    );
+    p2pActivityRef.current.uploadSamples = p2pActivityRef.current.uploadSamples.filter(
+      (s) => now - s.at < P2P_RATE_WINDOW_MS
+    );
     const downloadBytes = p2pActivityRef.current.downloadSamples.reduce((t, s) => t + s.bytes, 0);
     const uploadBytes = p2pActivityRef.current.uploadSamples.reduce((t, s) => t + s.bytes, 0);
     const rawDownload = Math.round((downloadBytes * 1000) / P2P_RATE_WINDOW_MS);
@@ -200,20 +208,37 @@ function VideoJsInner(props) {
 
     // Exponential moving average: smooth jumps but still respond to changes
     const prev = smoothedRatesRef.current;
-    const downloadRateBps = Math.round(rawDownload > 0
-      ? prev.download * (1 - SMOOTH_FACTOR) + rawDownload * SMOOTH_FACTOR
-      : prev.download * 0.85); // decay slowly when no data
-    const uploadRateBps = Math.round(rawUpload > 0
-      ? prev.upload * (1 - SMOOTH_FACTOR) + rawUpload * SMOOTH_FACTOR
-      : prev.upload * 0.85);
-    smoothedRatesRef.current = { download: downloadRateBps, upload: uploadRateBps };
+    const downloadRateBps = Math.round(
+      rawDownload > 0 ? prev.download * (1 - SMOOTH_FACTOR) + rawDownload * SMOOTH_FACTOR : prev.download * 0.85
+    ); // decay slowly when no data
+    const uploadRateBps = Math.round(
+      rawUpload > 0 ? prev.upload * (1 - SMOOTH_FACTOR) + rawUpload * SMOOTH_FACTOR : prev.upload * 0.85
+    );
+    smoothedRatesRef.current = {
+      download: downloadRateBps,
+      upload: uploadRateBps,
+    };
 
-    const transferDirection = hasRecentDownload && hasRecentUpload ? 'both' : hasRecentDownload ? 'download' : hasRecentUpload ? 'upload' : 'none';
+    const transferDirection =
+      hasRecentDownload && hasRecentUpload
+        ? 'both'
+        : hasRecentDownload
+          ? 'download'
+          : hasRecentUpload
+            ? 'upload'
+            : 'none';
 
     setP2PUiState({
       enabled: Boolean(p2pEnabled && isLivestream),
       peerCount,
-      status: !p2pEnabled || !isLivestream ? 'off' : transferDirection !== 'none' ? 'active' : peerCount > 0 ? 'peered' : 'enabled',
+      status:
+        !p2pEnabled || !isLivestream
+          ? 'off'
+          : transferDirection !== 'none'
+            ? 'active'
+            : peerCount > 0
+              ? 'peered'
+              : 'enabled',
       transferDirection,
       downloadRateBps,
       uploadRateBps,
@@ -357,7 +382,11 @@ function VideoJsInner(props) {
       one: (event, fn) => media.addEventListener(event, fn, { once: true }),
       pause: () => media.pause(),
       play: () => media.play(),
-      controlBar: { addChild: () => {}, getChild: () => null, removeChild: () => {} },
+      controlBar: {
+        addChild: () => {},
+        getChild: () => null,
+        removeChild: () => {},
+      },
     };
 
     window.player = playerApi;
@@ -380,12 +409,15 @@ function VideoJsInner(props) {
     if (!media || !resolvedSource || !resolvedSource.src) return;
     const src = resolvedSource.src;
     const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
-
-    if (!isHls || !Hls.isSupported()) {
+    const clearHls = () => {
       if (media._hls) {
         media._hls.destroy();
         delete media._hls;
       }
+    };
+
+    if (!isHls) {
+      clearHls();
       media.src = src;
       return;
     }
@@ -393,14 +425,15 @@ function VideoJsInner(props) {
     const announceTrackers = getP2PAnnounceTrackers(activeLivestreamForChannel?.p2pTrackerUrl || null);
     const swarmId = activeLivestreamForChannel?.p2pSwarmId || null;
     if (p2pEnabled && isLivestreamClaim) {
-      if (P2P_DEBUG) console.log('[P2P] Viewer livestream source:', {
-        src: shortenP2PUrl(src),
-        isHls,
-        preferredVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrl || null),
-        publicVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrlPublic || null),
-        trackerUrl: activeLivestreamForChannel?.p2pTrackerUrl || null,
-        swarmId,
-      }); // eslint-disable-line no-console
+      if (P2P_DEBUG)
+        console.log('[P2P] Viewer livestream source:', {
+          src: shortenP2PUrl(src),
+          isHls,
+          preferredVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrl || null),
+          publicVideoUrl: shortenP2PUrl(activeLivestreamForChannel?.videoUrlPublic || null),
+          trackerUrl: activeLivestreamForChannel?.p2pTrackerUrl || null,
+          swarmId,
+        }); // eslint-disable-line no-console
     }
 
     let destroyed = false;
@@ -457,39 +490,41 @@ function VideoJsInner(props) {
       hls.loadSource(src);
       media._hls = hls;
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      hls.on(HLS_EVENT_MANIFEST_PARSED, () => {
         p2pActivityRef.current.peers.clear();
         syncP2PUiState();
         if (p2pEnabled && isLivestreamClaim) {
-          if (P2P_DEBUG) console.log('[P2P] Viewer manifest parsed:', {
-            requestedUrl: shortenP2PUrl(src),
-            trackers: announceTrackers,
-            swarmId,
-            highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
-            lowLatencyMode: !(p2pEnabled && isLivestreamClaim && P2P_FORCE_SEGMENT_MODE),
-            liveSyncDuration: P2P_LIVE_SYNC_DURATION,
-            liveMaxLatencyDuration: P2P_LIVE_MAX_LATENCY_DURATION,
-            iceServers: p2pIceServers.map((server) => server.urls),
-            manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
-            streamSummaries: hls.p2pEngine?.core?.streams ? summarizeP2PStreams(hls.p2pEngine.core.streams) : [],
-          }); // eslint-disable-line no-console
+          if (P2P_DEBUG)
+            console.log('[P2P] Viewer manifest parsed:', {
+              requestedUrl: shortenP2PUrl(src),
+              trackers: announceTrackers,
+              swarmId,
+              highDemandTimeWindow: P2P_LIVE_HIGH_DEMAND_WINDOW,
+              lowLatencyMode: !(p2pEnabled && isLivestreamClaim && P2P_FORCE_SEGMENT_MODE),
+              liveSyncDuration: P2P_LIVE_SYNC_DURATION,
+              liveMaxLatencyDuration: P2P_LIVE_MAX_LATENCY_DURATION,
+              iceServers: p2pIceServers.map((server) => server.urls),
+              manifestResponseUrl: shortenP2PUrl(hls.p2pEngine?.core?.manifestResponseUrl || null),
+              streamSummaries: hls.p2pEngine?.core?.streams ? summarizeP2PStreams(hls.p2pEngine.core.streams) : [],
+            }); // eslint-disable-line no-console
         }
       });
 
-      hls.on(Hls.Events.LEVEL_LOADED, (_: any, data: any) => {
+      hls.on(HLS_EVENT_LEVEL_LOADED, (_: any, data: any) => {
         if (p2pEnabled && isLivestreamClaim) {
-          if (P2P_DEBUG) console.log('[P2P] Viewer playlist loaded:', {
-            url: shortenP2PUrl(data?.details?.url || data?.url || null),
-            fragments: data?.details?.fragments?.length ?? 0,
-            live: Boolean(data?.details?.live),
-            targetDuration: data?.details?.targetduration ?? null,
-          }); // eslint-disable-line no-console
+          if (P2P_DEBUG)
+            console.log('[P2P] Viewer playlist loaded:', {
+              url: shortenP2PUrl(data?.details?.url || data?.url || null),
+              fragments: data?.details?.fragments?.length ?? 0,
+              live: Boolean(data?.details?.live),
+              targetDuration: data?.details?.targetduration ?? null,
+            }); // eslint-disable-line no-console
         }
       });
 
       // Restore play state after HLS reattaches
       if (wasPlaying) {
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        hls.on(HLS_EVENT_MANIFEST_PARSED, () => {
           media.play().catch(() => {});
         });
       }
@@ -519,12 +554,18 @@ function VideoJsInner(props) {
           engine.addEventListener('onChunkDownloaded', (bytesLength, downloadSource, peerId) => {
             if (downloadSource === 'http' && !peerId) return;
             p2pActivityRef.current.lastDownloadAt = Date.now();
-            p2pActivityRef.current.downloadSamples.push({ at: Date.now(), bytes: bytesLength || 0 });
+            p2pActivityRef.current.downloadSamples.push({
+              at: Date.now(),
+              bytes: bytesLength || 0,
+            });
             syncP2PUiState();
           });
           engine.addEventListener('onChunkUploaded', (bytesLength, peerId) => {
             p2pActivityRef.current.lastUploadAt = Date.now();
-            p2pActivityRef.current.uploadSamples.push({ at: Date.now(), bytes: bytesLength || 0 });
+            p2pActivityRef.current.uploadSamples.push({
+              at: Date.now(),
+              bytes: bytesLength || 0,
+            });
             syncP2PUiState();
           });
           if (P2P_DEBUG) {
@@ -541,27 +582,42 @@ function VideoJsInner(props) {
       }
     }
 
-    if (p2pEnabled && isLivestreamClaim) {
-      import('p2p-media-loader-hlsjs').then(({ HlsJsP2PEngine }) => {
+    loadHlsConstructor()
+      .then((HlsConstructor) => {
         if (destroyed) return;
-        // injectMixin RETURNS a new class that extends Hls with P2P support
-        const HlsWithP2P = HlsJsP2PEngine.injectMixin(Hls);
-        console.log('[P2P] P2P delivery enabled'); // eslint-disable-line no-console
-        createHls(HlsWithP2P);
-      }).catch((e) => {
-        console.warn('[P2P] Failed to load p2p-media-loader, falling back to standard HLS:', e); // eslint-disable-line no-console
-        createHls(Hls);
+
+        if (!HlsConstructor?.isSupported?.()) {
+          clearHls();
+          media.src = src;
+          return;
+        }
+
+        if (p2pEnabled && isLivestreamClaim) {
+          import('p2p-media-loader-hlsjs')
+            .then(({ HlsJsP2PEngine }) => {
+              if (destroyed) return;
+              // injectMixin RETURNS a new class that extends Hls with P2P support
+              const HlsWithP2P = HlsJsP2PEngine.injectMixin(HlsConstructor);
+              console.log('[P2P] P2P delivery enabled'); // eslint-disable-line no-console
+              createHls(HlsWithP2P);
+            })
+            .catch((e) => {
+              console.warn('[P2P] Failed to load p2p-media-loader, falling back to standard HLS:', e); // eslint-disable-line no-console
+              createHls(HlsConstructor);
+            });
+        } else {
+          createHls(HlsConstructor);
+        }
+      })
+      .catch((error) => {
+        console.warn('[Video] Failed to load hls.js, falling back to native playback:', error); // eslint-disable-line no-console
+        clearHls();
+        media.src = src;
       });
-    } else {
-      createHls(Hls);
-    }
 
     return () => {
       destroyed = true;
-      if (media._hls) {
-        media._hls.destroy();
-        delete media._hls;
-      }
+      clearHls();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
@@ -597,11 +653,11 @@ function VideoJsInner(props) {
     const hls = media._hls;
     if (hls) {
       const onReady = () => {
-        hls.off(Hls.Events.MANIFEST_PARSED, onReady);
+        hls.off(HLS_EVENT_MANIFEST_PARSED, onReady);
         media.removeEventListener('canplay', onReady);
         attemptPlay();
       };
-      hls.on(Hls.Events.MANIFEST_PARSED, onReady);
+      hls.on(HLS_EVENT_MANIFEST_PARSED, onReady);
       media.addEventListener('canplay', onReady, { once: true });
     } else {
       attemptPlay();
@@ -691,7 +747,12 @@ function VideoJsInner(props) {
   }, []);
 
   return (
-    <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
+    <div
+      className={classnames('video-js-parent', {
+        'video-js-parent--ios': IS_IOS,
+      })}
+      ref={containerRef}
+    >
       <OdyseeSkin
         isLivestream={Boolean(isLivestream)}
         isMarkdownOrComment={isMarkdownOrComment}

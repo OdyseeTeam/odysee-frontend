@@ -86,7 +86,13 @@ export default function LivestreamLayout(props: Props) {
     }
   }, [myChannelId, myChannelName]);
   const metricsActive = Boolean(claimIsMine && isCurrentClaimLive);
-  const serverMetrics = useLivestreamMetrics(myChannelId, myChannelName, sigData.signature, sigData.signing_ts, metricsActive);
+  const serverMetrics = useLivestreamMetrics(
+    myChannelId,
+    myChannelName,
+    sigData.signature,
+    sigData.signing_ts,
+    metricsActive
+  );
 
   // P2P delivery opt-in for viewers
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
@@ -126,12 +132,8 @@ export default function LivestreamLayout(props: Props) {
       <section className="file-page__media-actions">
         {noticeContent}
         <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
-        {claimIsMine && serverMetrics?.live && (
-          <LivestreamMetrics metrics={serverMetrics} mode="compact" />
-        )}
-        {showP2POptIn && (
-          <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
-        )}
+        {claimIsMine && serverMetrics?.live && <LivestreamMetrics metrics={serverMetrics} mode="compact" />}
+        {showP2POptIn && <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />}
         <FileTitleSection uri={uri} expandOverride />
       </section>
     );
@@ -179,12 +181,8 @@ export default function LivestreamLayout(props: Props) {
           <div className="section card-stack">
             {noticeContent}
             <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
-            {claimIsMine && serverMetrics?.live && (
-              <LivestreamMetrics metrics={serverMetrics} mode="compact" />
-            )}
-            {showP2POptIn && (
-              <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />
-            )}
+            {claimIsMine && serverMetrics?.live && <LivestreamMetrics metrics={serverMetrics} mode="compact" />}
+            {showP2POptIn && <LivestreamWebrtcOptIn onEnable={() => setPlayerKey((k) => k + 1)} />}
             <FileTitleSection uri={uri} />
           </div>
         </div>

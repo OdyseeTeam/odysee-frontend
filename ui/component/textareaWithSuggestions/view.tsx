@@ -127,14 +127,18 @@ export default function TextareaWithSuggestions(props: Props) {
     isBackgroundSearch: false,
     [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS,
   };
-  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0) as { results: string[] | undefined; loading: boolean };
+  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0) as {
+    results: string[] | undefined;
+    loading: boolean;
+  };
   const stringifiedResults = JSON.stringify(results);
   const hasMinLength = suggestionTerm && isMention && suggestionTerm.length >= LIGHTHOUSE_MIN_CHARACTERS;
   const isTyping = isMention && debouncedTerm !== suggestionTerm;
   const showPlaceholder =
     isMention && !invalidTerm && (isTyping || loading || (results && results.length > 0 && !hasNewResolvedResults));
 
-  const shouldFilter = (uri: string, previous?: string[]) => uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
+  const shouldFilter = (uri: string, previous?: string[]) =>
+    uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
 
   const filteredCommentors = canonicalCommentors && canonicalCommentors.filter((uri: string) => shouldFilter(uri));
   const filteredSubs = canonicalSubs && canonicalSubs.filter((uri) => shouldFilter(uri, filteredCommentors));

@@ -31,6 +31,8 @@ function componentLoader<T extends React.ComponentType<any>>(
   });
 }
 
-export function lazyImport<T extends React.ComponentType<any>>(componentImport: LazyComponentImport<T>): React.LazyExoticComponent<T> {
+export function lazyImport<T extends React.ComponentType<any>>(
+  componentImport: LazyComponentImport<T>
+): React.LazyExoticComponent<T> {
   return React.lazy(() => componentLoader(componentImport, RETRY_ATTEMPTS));
 }

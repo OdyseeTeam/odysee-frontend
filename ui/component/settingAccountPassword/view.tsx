@@ -34,9 +34,11 @@ export default function SettingAccountPassword() {
   React.useEffect(() => {
     if (passwordSetSuccess) {
       navigate(-1);
-      dispatch(doToastAction({
-        message: __('Password updated successfully.'),
-      }));
+      dispatch(
+        doToastAction({
+          message: __('Password updated successfully.'),
+        })
+      );
       dispatch(doClearPasswordEntryAction());
       setOldPassword('');
       setNewPassword('');

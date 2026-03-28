@@ -52,9 +52,11 @@ function PublishBid(props: Props) {
     }
 
     setBidError(bidError);
-    dispatch(doUpdatePublishForm({
-      bidError: bidError,
-    }));
+    dispatch(
+      doUpdatePublishForm({
+        bidError: bidError,
+      })
+    );
   }, [bid, previousBidAmount, balance, dispatch]);
   return bidHasExceededDefaultAmount ? (
     <Card

@@ -412,8 +412,12 @@
   }
   &:hover {
     background-color: rgba(var(--color-header-button-base), 0.6);
-    td label { cursor: pointer; }
-    input { cursor: pointer; }
+    td label {
+      cursor: pointer;
+    }
+    input {
+      cursor: pointer;
+    }
     fieldset-section.radio {
       label::before {
         box-shadow: 0 0 0 2px var(--color-primary) inset;
@@ -461,15 +465,33 @@
 }
 
 .table--livestream-data {
-  td:nth-of-type(1) { max-width: 4rem; }
-  td:nth-of-type(2) { min-width: 8.5rem; }
-  td:nth-of-type(3) { width: 4rem; min-width: 9rem; }
-  td:nth-of-type(4) { display: none; }
+  td:nth-of-type(1) {
+    max-width: 4rem;
+  }
+  td:nth-of-type(2) {
+    min-width: 8.5rem;
+  }
+  td:nth-of-type(3) {
+    width: 4rem;
+    min-width: 9rem;
+  }
+  td:nth-of-type(4) {
+    display: none;
+  }
   @media (min-width: $breakpoint-small) {
-    td:nth-of-type(1) { max-width: 4rem; }
-    td:nth-of-type(2) { width: 40%; }
-    td:nth-of-type(3) { width: 5rem; }
-    td:nth-of-type(4) { width: 100%; display: table-cell; }
+    td:nth-of-type(1) {
+      max-width: 4rem;
+    }
+    td:nth-of-type(2) {
+      width: 40%;
+    }
+    td:nth-of-type(3) {
+      width: 5rem;
+    }
+    td:nth-of-type(4) {
+      width: 100%;
+      display: table-cell;
+    }
   }
 }
 

@@ -25,7 +25,11 @@ const LastReleaseChanges = (props: Props) => {
       <I18nMessage
         tokens={{
           release_notes: (
-            <Button button="link" label={__('release notes')} href="https://github.com/OdyseeTeam/odysee-frontend/releases" />
+            <Button
+              button="link"
+              label={__('release notes')}
+              href="https://github.com/OdyseeTeam/odysee-frontend/releases"
+            />
           ),
         }}
       >

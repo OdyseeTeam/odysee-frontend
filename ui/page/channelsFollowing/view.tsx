@@ -4,13 +4,12 @@ import * as CS from 'constants/claim_search';
 import * as SETTINGS from 'constants/settings';
 import { SIMPLE_SITE } from 'config';
 import React from 'react';
-import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
-import LivestreamSection from 'page/discover/internal/livestreamSection';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { filterActiveLivestreamUris } from 'util/livestream';
+import { lazyImport } from 'util/lazyImport';
 import { tagSearchCsOptionsHook } from 'util/search';
 import UpcomingClaims from 'component/upcomingClaims';
 import useComponentDidMount from 'effects/use-component-did-mount';
@@ -24,6 +23,21 @@ import {
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doFetchAllActiveLivestreamsForQuery as doFetchAllActiveLivestreamsForQueryAction } from 'redux/actions/livestream';
+
+const ChannelsFollowingDiscoverPage = lazyImport(
+  () =>
+    import(
+      'page/channelsFollowingDiscover'
+      /* webpackChunkName: "channelsFollowingDiscover" */
+    )
+);
+const LivestreamSection = lazyImport(
+  () =>
+    import(
+      'page/discover/internal/livestreamSection'
+      /* webpackChunkName: "discoverLivestreamSection" */
+    )
+);
 
 function ChannelsFollowingPage() {
   const dispatch = useAppDispatch();
@@ -41,7 +55,9 @@ function ChannelsFollowingPage() {
     dispatch(doFetchAllActiveLivestreamsForQueryAction());
   });
   return !hasSubscribedChannels ? (
-    <ChannelsFollowingDiscoverPage />
+    <React.Suspense fallback={null}>
+      <ChannelsFollowingDiscoverPage />
+    </React.Suspense>
   ) : (
     <Page noFooter fullWidthPage={tileLayout} className="main__channelsFollowing">
       {!fetchingActiveLivestreams && (
@@ -81,7 +97,11 @@ function ChannelsFollowingPage() {
                 />
               </>
             }
-            subSection={<LivestreamSection tileLayout={tileLayout} channelIds={channelIds} />}
+            subSection={
+              <React.Suspense fallback={null}>
+                <LivestreamSection tileLayout={tileLayout} channelIds={channelIds} />
+              </React.Suspense>
+            }
             hasSource
             csOptionsHook={tagSearchCsOptionsHook}
           />

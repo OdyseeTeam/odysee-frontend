@@ -87,7 +87,9 @@
     background: rgba(var(--color-header-button-base), 0.06);
     color: var(--color-text);
     font-size: var(--font-body);
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
 
     &::placeholder {
       color: var(--color-text-subtitle);
@@ -235,7 +237,10 @@
     font-weight: 700;
     letter-spacing: 0.01em;
     cursor: pointer;
-    transition: filter 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+    transition:
+      filter 0.15s ease,
+      opacity 0.15s ease,
+      transform 0.1s ease;
     box-shadow: 0 4px 16px rgba(var(--color-primary-dynamic), 0.2);
 
     &:hover:not(:disabled) {

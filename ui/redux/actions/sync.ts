@@ -136,7 +136,8 @@ export const doGetSyncDesktop =
     const setSyncPending = selectSetSyncIsPending(state);
     const syncLocked = selectSyncIsLocked(state);
     return getSavedPassword().then((savedPassword) => {
-      const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : String(savedPassword);
+      const passwordArgument =
+        password || password === '' ? password : savedPassword === null ? '' : String(savedPassword);
 
       if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
         return dispatch(doGetSync(passwordArgument, cb));
@@ -168,7 +169,9 @@ export function doSyncLoop(noInterval?: boolean, syncId?: number) {
           const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
 
           if (syncEnabled) {
-            dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData, undefined))));
+            dispatch(
+              doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData, undefined)))
+            );
           }
         }, SYNC_INTERVAL);
       }

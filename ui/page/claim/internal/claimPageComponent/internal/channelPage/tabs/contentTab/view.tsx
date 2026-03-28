@@ -200,7 +200,7 @@ function ContentTab(props: Props) {
             tileLayout={tileLayout}
             uris={searchQuery.length > 2 || isSearching ? [] : null}
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={searchQuery.length < 3 ? [claimId].filter(Boolean) as string[] : undefined}
+            channelIds={searchQuery.length < 3 ? ([claimId].filter(Boolean) as string[]) : undefined}
             claimType={claimType}
             feeAmount={undefined}
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}

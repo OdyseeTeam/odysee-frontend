@@ -147,16 +147,13 @@ type PushNotificationsApi = {
   validate: (userId: number) => Promise<void>;
 };
 
-export default new Proxy(
-  {} as PushNotificationsApi,
-  {
-    get(target, prop) {
-      if (pushSystem) {
-        return pushSystem[prop as string];
-      } else {
-        if (prop === 'supported') return false;
-        throw new Error('Push notifications are not supported in this browser environment.');
-      }
-    },
-  }
-);
+export default new Proxy({} as PushNotificationsApi, {
+  get(target, prop) {
+    if (pushSystem) {
+      return pushSystem[prop as string];
+    } else {
+      if (prop === 'supported') return false;
+      throw new Error('Push notifications are not supported in this browser environment.');
+    }
+  },
+});

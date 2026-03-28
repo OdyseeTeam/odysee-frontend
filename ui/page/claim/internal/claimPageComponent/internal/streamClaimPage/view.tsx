@@ -11,10 +11,10 @@ import * as TAGS from 'constants/tags';
 import FileTitleSection from 'component/fileTitleSection';
 import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
-import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -69,6 +69,13 @@ const LivestreamPage = lazyImport(
     )
 );
 const ShortsPage = lazyImport(() => import('./internal/shorts'));
+const RecommendedContent = lazyImport(
+  () =>
+    import(
+      'component/recommendedContent'
+      /* webpackChunkName: "recommendedContent" */
+    )
+);
 type Props = {
   uri: string;
   collectionId?: string;
@@ -113,6 +120,24 @@ function filteredInfo() {
         <Button button="link" href="https://help.odysee.tv/communityguidelines/" label={__('Read More')} />
       </div>
     </section>
+  );
+}
+
+function DeferredRecommendedContent({ uri, skipWait }: { uri: string; skipWait?: boolean }) {
+  const content = (
+    <React.Suspense fallback={null}>
+      <RecommendedContent uri={uri} />
+    </React.Suspense>
+  );
+
+  if (skipWait) {
+    return content;
+  }
+
+  return (
+    <WaitUntilOnPage yOffset={1200} placeholder={null}>
+      {content}
+    </WaitUntilOnPage>
   );
 }
 
@@ -191,7 +216,9 @@ const StreamClaimPage = (props: Props) => {
     } else if (!isShortVideo && shortsView) {
       urlParams.delete('view');
       const newSearch = urlParams.toString();
-      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, {
+        replace: true,
+      });
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShortVideo, location.pathname, navigate, search, shortsView]);
   React.useEffect(() => {
@@ -269,7 +296,7 @@ const StreamClaimPage = (props: Props) => {
     return (
       <>
         <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
-        <RecommendedContent uri={uri} />
+        <DeferredRecommendedContent uri={uri} skipWait />
       </>
     );
   }
@@ -313,7 +340,7 @@ const StreamClaimPage = (props: Props) => {
         )}
       </div>
 
-      <RecommendedContent uri={uri} />
+      <DeferredRecommendedContent uri={uri} />
     </>
   );
 };

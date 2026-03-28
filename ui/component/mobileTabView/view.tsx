@@ -1,10 +1,7 @@
-
 import * as React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
-
-
 
 const DRAWER_TRANSITION = 'transform 0.2s ease';
 const SWIPE_THRESHOLD = 50;
@@ -42,7 +39,8 @@ export default function MobileTabView(props: Props) {
     relatedContent,
     initialTab = 0,
     useDrawer = false,
-    drawerOpenRef, tabDefs: tabDefsProp,
+    drawerOpenRef,
+    tabDefs: tabDefsProp,
     onTabChange,
     onDrawerClose,
     onSwipeDismiss,

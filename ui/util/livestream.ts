@@ -7,7 +7,9 @@ type StreamData = {
   s: string;
   t: string;
 };
-export function getTipValues(hyperChatsByAmount: Array<{ is_fiat?: boolean; support_amount?: number; channel_url?: string; [key: string]: any }>) {
+export function getTipValues(
+  hyperChatsByAmount: Array<{ is_fiat?: boolean; support_amount?: number; channel_url?: string; [key: string]: any }>
+) {
   let superChatsChannelUrls = [];
   let superChatsFiatAmount = 0;
   let superChatsLBCAmount = 0;

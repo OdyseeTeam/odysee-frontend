@@ -257,9 +257,11 @@ function PostForm(props: Props) {
     if (uri && isValid && name) {
       dispatch(doResolveUri(uri));
       dispatch(doCheckPublishNameAvailability(name));
-      dispatch(doUpdatePublishForm({
-        uri,
-      }));
+      dispatch(
+        doUpdatePublishForm({
+          uri,
+        })
+      );
     }
   }, [name, activeChannelName, dispatch]);
   // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
@@ -270,15 +272,19 @@ function PostForm(props: Props) {
   }, [editingURI, dispatch]);
   useEffect(() => {
     if (incognito) {
-      dispatch(doUpdatePublishForm({
-        channel: undefined,
-        channelId: undefined,
-      }));
+      dispatch(
+        doUpdatePublishForm({
+          channel: undefined,
+          channelId: undefined,
+        })
+      );
     } else if (activeChannelName) {
-      dispatch(doUpdatePublishForm({
-        channel: activeChannelName,
-        channelId: activeChannelId,
-      }));
+      dispatch(
+        doUpdatePublishForm({
+          channel: activeChannelName,
+          channelId: activeChannelId,
+        })
+      );
     }
   }, [activeChannelName, activeChannelId, incognito, dispatch]);
 

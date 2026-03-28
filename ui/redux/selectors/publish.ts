@@ -102,10 +102,13 @@ export const selectMyClaimForUri = createCachedSelector(
     }
   }
 )((state, caseSensitive = true) => `selectMyClaimForUri-${caseSensitive ? '1' : '0'}`);
-export const selectPrevFileSizeTooBig = createSelector((state: any) => selectMyClaimForUri(state, true), (claim) => {
-  const size = claim && claim.value && claim.value.source && claim.value.source.size;
-  return size ? Number(size) > WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824 : false;
-});
+export const selectPrevFileSizeTooBig = createSelector(
+  (state: any) => selectMyClaimForUri(state, true),
+  (claim) => {
+    const size = claim && claim.value && claim.value.source && claim.value.source.size;
+    return size ? Number(size) > WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824 : false;
+  }
+);
 export const selectIsResolvingPublishUris = createSelector(
   selectState,
   selectResolvingUris,

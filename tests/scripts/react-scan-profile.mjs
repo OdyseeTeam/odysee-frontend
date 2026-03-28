@@ -16,37 +16,52 @@ async function installProfiler(page) {
     if (!hook || hook.__profiled) return 'already_patched_or_no_hook';
     hook.__profiled = true;
     const origCommit = hook.onCommitFiberRoot;
+
+    // Must live inside page.evaluate so it exists in the browser context.
+    // eslint-disable-next-line unicorn/consistent-function-scoping
+    function walkFiberTree(fiber) {
+      if (!fiber) return;
+
+      if (fiber.alternate) {
+        const name = fiber.type?.displayName || fiber.type?.name;
+        if (name && typeof name === 'string' && /^[A-Z]/.test(name)) {
+          window.__rc[name] = (window.__rc[name] || 0) + 1;
+          window.__rt++;
+        }
+      }
+
+      walkFiberTree(fiber.child);
+      walkFiberTree(fiber.sibling);
+    }
+
     hook.onCommitFiberRoot = function (id, root, ...rest) {
       try {
-        (function walk(fiber) {
-          if (!fiber) return;
-          if (fiber.alternate) {
-            const n = fiber.type?.displayName || fiber.type?.name;
-            if (n && typeof n === 'string' && /^[A-Z]/.test(n)) {
-              window.__rc[n] = (window.__rc[n] || 0) + 1;
-              window.__rt++;
-            }
-          }
-          walk(fiber.child);
-          walk(fiber.sibling);
-        })(root?.current);
+        walkFiberTree(root?.current);
       } catch {}
+
       return origCommit.call(this, id, root, ...rest);
     };
+
     return 'patched';
   });
 }
 
 function resetCounts(page) {
-  return page.evaluate(() => { window.__rc = {}; window.__rt = 0; });
+  return page.evaluate(() => {
+    window.__rc = {};
+    window.__rt = 0;
+  });
 }
 
 function getCounts(page) {
   return page.evaluate(() => {
-    const c = window.__rc || {};
-    const t = window.__rt || 0;
-    const top = Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 20);
-    return { total: t, top, nComps: Object.keys(c).length };
+    const counts = window.__rc || {};
+    const total = window.__rt || 0;
+    const top = Object.entries(counts)
+      .toSorted((a, b) => b[1] - a[1])
+      .slice(0, 20);
+
+    return { total, top, nComps: Object.keys(counts).length };
   });
 }
 
@@ -58,15 +73,22 @@ async function scroll(page, n = 3) {
 }
 
 function printPage(name, ms, data, perf, errors) {
-  const s = errors.length ? '✗' : data.total > 5000 ? '⚠' : '✓';
-  console.log(`\n  ${s} ${name}  (${ms}ms, ${data.total} renders, ${data.nComps} components, DOM:${perf.dom} Heap:${perf.heap}MB)`);
-  if (errors.length) errors.slice(0, 2).forEach(e => console.log(`      ✗ ${e}`));
+  const status = errors.length ? 'x' : data.total > 5000 ? '!' : 'OK';
+
+  console.log(
+    `\n  ${status} ${name}  (${ms}ms, ${data.total} renders, ${data.nComps} components, DOM:${perf.dom} Heap:${perf.heap}MB)`
+  );
+
+  if (errors.length) {
+    errors.slice(0, 2).forEach((error) => console.log(`      x ${error}`));
+  }
+
   if (data.top.length) {
     console.log('    Top renderers:');
-    data.top.forEach(([c, n]) => {
-      const pct = data.total ? Math.round((n / data.total) * 100) : 0;
-      const bar = '█'.repeat(Math.min(30, Math.round(pct * 0.3)));
-      console.log(`      ${String(n).padStart(5)}  ${(pct + '%').padStart(4)}  ${c.padEnd(35)} ${bar}`);
+    data.top.forEach(([component, count]) => {
+      const pct = data.total ? Math.round((count / data.total) * 100) : 0;
+      const bar = '#'.repeat(Math.min(30, Math.round(pct * 0.3)));
+      console.log(`      ${String(count).padStart(5)}  ${(pct + '%').padStart(4)}  ${component.padEnd(35)} ${bar}`);
     });
   } else {
     console.log('    (no renders captured)');
@@ -75,19 +97,22 @@ function printPage(name, ms, data, perf, errors) {
 
 async function profilePage(page, name, navFn, opts = {}) {
   const errors = [];
-  const eh = (err) => {
-    const m = err.message;
-    if (!/TenantFeatures|postMessage|wander\.app|AudioContext/.test(m)) errors.push(m.substring(0, 120));
+  const handlePageError = (err) => {
+    const message = err.message;
+    if (!/TenantFeatures|postMessage|wander\.app|AudioContext/.test(message)) {
+      errors.push(message.substring(0, 120));
+    }
   };
-  page.on('pageerror', eh);
 
-  const t0 = Date.now();
+  page.on('pageerror', handlePageError);
+
+  const startedAt = Date.now();
   await navFn();
   await page.waitForTimeout(2000);
   await installProfiler(page);
   await resetCounts(page);
 
-  // Measure steady-state renders after initial load
+  // Measure steady-state renders after initial load.
   await page.waitForTimeout(SETTLE_MS);
   await scroll(page, opts.scroll || 3);
   await page.waitForTimeout(2000);
@@ -97,8 +122,9 @@ async function profilePage(page, name, navFn, opts = {}) {
     dom: document.querySelectorAll('*').length,
     heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : 'n/a',
   }));
-  const elapsed = Date.now() - t0;
-  page.off('pageerror', eh);
+  const elapsed = Date.now() - startedAt;
+
+  page.off('pageerror', handlePageError);
 
   printPage(name, elapsed, data, perf, errors);
   return { name, data, errors };
@@ -111,7 +137,7 @@ async function main() {
   const page = await ctx.newPage();
 
   console.log('\n' + '='.repeat(80));
-  console.log('  REACT RENDER PROFILER — signed in, 1920x1080');
+  console.log('  REACT RENDER PROFILER - signed in, 1920x1080');
   console.log('  Measures renders AFTER initial load (steady-state + scroll)');
   console.log('='.repeat(80));
 
@@ -125,7 +151,7 @@ async function main() {
   await page.waitForTimeout(500);
   await installProfiler(page);
   await resetCounts(page);
-  const t0 = Date.now();
+  const homepageVideoStartedAt = Date.now();
   const videoLink = await page.$('.claim-grid a[href^="/@"], .claim-preview a[href^="/@"]');
   if (videoLink) {
     await videoLink.click();
@@ -133,42 +159,59 @@ async function main() {
     await scroll(page, 3);
     await page.waitForTimeout(2000);
   }
-  const vidData = await getCounts(page);
-  const vidPerf = await page.evaluate(() => ({
+  const homepageVideoData = await getCounts(page);
+  const homepageVideoPerf = await page.evaluate(() => ({
     dom: document.querySelectorAll('*').length,
     heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : 'n/a',
   }));
-  printPage('Homepage → Video (SPA click)', Date.now() - t0, vidData, vidPerf, []);
+  printPage(
+    'Homepage -> Video (SPA click)',
+    Date.now() - homepageVideoStartedAt,
+    homepageVideoData,
+    homepageVideoPerf,
+    []
+  );
 
   // 3. Channel @ComeAndReason
-  await profilePage(page, 'Channel @ComeAndReason', () =>
-    page.goto(BASE_URL + '/@ComeAndReason:4', { waitUntil: 'domcontentloaded', timeout: 15000 }),
+  await profilePage(
+    page,
+    'Channel @ComeAndReason',
+    () => page.goto(BASE_URL + '/@ComeAndReason:4', { waitUntil: 'domcontentloaded', timeout: 15000 }),
     { scroll: 5 }
   );
 
   // 4. Playlists tab (SPA click)
   await installProfiler(page);
   await resetCounts(page);
-  const t1 = Date.now();
-  const pTab = await page.$('button:has-text("Playlists"), a:has-text("Playlists")');
-  if (pTab) {
-    await pTab.click();
+  const playlistsTabStartedAt = Date.now();
+  const playlistsTab = await page.$('button:has-text("Playlists"), a:has-text("Playlists")');
+  if (playlistsTab) {
+    await playlistsTab.click();
     await page.waitForTimeout(SETTLE_MS);
     await scroll(page, 2);
     await page.waitForTimeout(1500);
   }
-  const tabData = await getCounts(page);
-  const tabPerf = await page.evaluate(() => ({
+  const playlistsTabData = await getCounts(page);
+  const playlistsTabPerf = await page.evaluate(() => ({
     dom: document.querySelectorAll('*').length,
     heap: performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : 'n/a',
   }));
-  printPage('Channel → Playlists tab (SPA)', Date.now() - t1, tabData, tabPerf, []);
+  printPage(
+    'Channel -> Playlists tab (SPA)',
+    Date.now() - playlistsTabStartedAt,
+    playlistsTabData,
+    playlistsTabPerf,
+    []
+  );
 
   // 5. Click into a playlist
   await profilePage(page, 'Click playlist from channel', async () => {
-    const pl = await page.$('.claim-preview a[href^="/@"], a.collection-preview');
-    if (pl) await pl.click();
-    else await page.goto(BASE_URL + '/$/playlist/fave', { waitUntil: 'domcontentloaded', timeout: 15000 });
+    const playlist = await page.$('.claim-preview a[href^="/@"], a.collection-preview');
+    if (playlist) {
+      await playlist.click();
+    } else {
+      await page.goto(BASE_URL + '/$/playlist/fave', { waitUntil: 'domcontentloaded', timeout: 15000 });
+    }
   });
 
   // 6. Playlists page

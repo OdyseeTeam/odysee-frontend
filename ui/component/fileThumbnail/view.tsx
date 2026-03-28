@@ -75,11 +75,9 @@ function FileThumbnail(props: Props) {
   const gettingThumbnail =
     !shownThumbnailRef.current &&
     preferredClaimThumbnail === undefined &&
-    (
-      preferredResolvedThumbnail === null ||
+    (preferredResolvedThumbnail === null ||
       (!thumbnail && !hasResolvedClaim) ||
-      (isActiveLivestream && !liveThumbnail)
-    );
+      (isActiveLivestream && !liveThumbnail));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   const [isHovering, setIsHovering] = React.useState(false);
@@ -89,16 +87,20 @@ function FileThumbnail(props: Props) {
     if (!liveFrameUrl) return;
     let canceled = false;
     const img = new Image();
-    img.onload = () => {
+    const handleLoad = () => {
       if (!canceled) setLoadedLiveUrl(liveFrameUrl);
     };
-    img.onerror = () => {
+    const handleError = () => {
       if (!canceled) setLoadedLiveUrl((prev) => prev);
     };
+    img.addEventListener('load', handleLoad, { once: true });
+    img.addEventListener('error', handleError, { once: true });
     img.src = liveFrameUrl;
 
     return () => {
       canceled = true;
+      img.removeEventListener('load', handleLoad);
+      img.removeEventListener('error', handleError);
     };
   }, [liveFrameUrl]);
   const enableLiveCrossfade = Boolean(isHovering && liveThumbnail && loadedLiveUrl);

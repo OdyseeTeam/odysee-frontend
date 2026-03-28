@@ -444,10 +444,18 @@ function TxoList() {
               </div>
               {/* listing of the transactions */}
               {fiatType === 'incoming' && (
-                <WalletFiatAccountHistory transactionType={transactionType} page={Number(page)} pageSize={Number(pageSize)} />
+                <WalletFiatAccountHistory
+                  transactionType={transactionType}
+                  page={Number(page)}
+                  pageSize={Number(pageSize)}
+                />
               )}
               {fiatType === 'outgoing' && (
-                <WalletFiatPaymentHistory transactionType={transactionType as 'tips' | 'rentals-purchases'} page={Number(page)} pageSize={Number(pageSize)} />
+                <WalletFiatPaymentHistory
+                  transactionType={transactionType as 'tips' | 'rentals-purchases'}
+                  page={Number(page)}
+                  pageSize={Number(pageSize)}
+                />
               )}
             </div>
           </div>

@@ -124,9 +124,11 @@ function FileDrop() {
     if (!drag && files.length) {
       // Handle multiple files selection
       if (files.length > 1) {
-        dispatch(doOpenModal(MODALS.FILE_SELECTION, {
-          files: files,
-        }));
+        dispatch(
+          doOpenModal(MODALS.FILE_SELECTION, {
+            files: files,
+          })
+        );
         setFiles([]);
       } else if (files.length === 1) {
         // Handle single file selection

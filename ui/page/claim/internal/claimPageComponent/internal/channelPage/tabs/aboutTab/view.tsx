@@ -142,10 +142,7 @@ function AboutTab(props: Props) {
 
           <label>{__('Staked Credits')}</label>
           <div className="media__info-text">
-            <CreditAmount
-              amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)}
-              precision={8}
-            />{' '}
+            <CreditAmount amount={parseFloat(claim.amount) + parseFloat(claim.meta.support_amount)} precision={8} />{' '}
             {SIMPLE_SITE && (
               <Button
                 button="link"

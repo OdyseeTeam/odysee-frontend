@@ -1,21 +1,17 @@
 /** Presets for browser WHIP / WebRTC publishing (getUserMedia + outbound RTP caps). */
 import { platform } from 'util/platform';
 
-export type WebrtcPublishPresetId = "data_saver" | "balanced" | "hd";
-export type WebrtcPublishVideoCodecPreference =
-  | "auto"
-  | "hevc"
-  | "vp9"
-  | "av1"
-  | "h264";
+export type WebrtcPublishPresetId = 'data_saver' | 'balanced' | 'hd';
+export type WebrtcPublishVideoCodecPreference = 'auto' | 'hevc' | 'vp9' | 'av1' | 'h264';
 
-export const WEBRTC_PUBLISH_PRESET_ORDER: WebrtcPublishPresetId[] = [
-  "data_saver",
-  "balanced",
-  "hd",
+export const WEBRTC_PUBLISH_PRESET_ORDER: WebrtcPublishPresetId[] = ['data_saver', 'balanced', 'hd'];
+export const WEBRTC_PUBLISH_VIDEO_CODEC_ORDER: WebrtcPublishVideoCodecPreference[] = [
+  'auto',
+  'hevc',
+  'vp9',
+  'av1',
+  'h264',
 ];
-export const WEBRTC_PUBLISH_VIDEO_CODEC_ORDER: WebrtcPublishVideoCodecPreference[] =
-  ["auto", "hevc", "vp9", "av1", "h264"];
 
 export const WEBRTC_PUBLISH_PRESETS: Record<
   WebrtcPublishPresetId,
@@ -28,7 +24,7 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
   }
 > = {
   data_saver: {
-    label: "480p",
+    label: '480p',
     video: {
       width: { ideal: 854 },
       height: { ideal: 480 },
@@ -39,7 +35,7 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
     maxVideoFramerate: 30,
   },
   balanced: {
-    label: "720p",
+    label: '720p',
     video: {
       width: { ideal: 1280 },
       height: { ideal: 720 },
@@ -50,7 +46,7 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
     maxVideoFramerate: 30,
   },
   hd: {
-    label: "1080p",
+    label: '1080p',
     video: {
       width: { ideal: 1920 },
       height: { ideal: 1080 },
@@ -64,7 +60,7 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
 
 export function getWebrtcPublishVideoConstraints(
   presetId: WebrtcPublishPresetId,
-  facingMode?: 'user' | 'environment',
+  facingMode?: 'user' | 'environment'
 ): MediaTrackConstraints {
   const video = { ...WEBRTC_PUBLISH_PRESETS[presetId].video };
 
@@ -77,9 +73,7 @@ export function getWebrtcPublishVideoConstraints(
   return video;
 }
 
-export function getWebrtcPublishEncodingOptions(
-  presetId: WebrtcPublishPresetId,
-): {
+export function getWebrtcPublishEncodingOptions(presetId: WebrtcPublishPresetId): {
   maxVideoBitrateBps: number;
   maxVideoFramerate: number;
   maxVideoWidth: number;
@@ -96,20 +90,18 @@ export function getWebrtcPublishEncodingOptions(
   };
 }
 
-export function getWebrtcPublishVideoCodecLabel(
-  codecPreference: WebrtcPublishVideoCodecPreference,
-): string {
+export function getWebrtcPublishVideoCodecLabel(codecPreference: WebrtcPublishVideoCodecPreference): string {
   switch (codecPreference) {
-    case "hevc":
-      return "HEVC";
-    case "vp9":
-      return "VP9";
-    case "av1":
-      return "AV1";
-    case "h264":
-      return "H.264";
-    case "auto":
+    case 'hevc':
+      return 'HEVC';
+    case 'vp9':
+      return 'VP9';
+    case 'av1':
+      return 'AV1';
+    case 'h264':
+      return 'H.264';
+    case 'auto':
     default:
-      return "Auto";
+      return 'Auto';
   }
 }

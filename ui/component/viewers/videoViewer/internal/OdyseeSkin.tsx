@@ -134,7 +134,11 @@ function CastProgressBar({ castState, castActions }) {
       {hoverFrac !== null && (
         <div
           className="odysee-slider-preview"
-          style={{ position: 'absolute', left: `${hoverFrac * 100}%`, transform: 'translateX(-50%)' }}
+          style={{
+            position: 'absolute',
+            left: `${hoverFrac * 100}%`,
+            transform: 'translateX(-50%)',
+          }}
         >
           <span className="odysee-slider-preview__time">{formatCastTime(hoverFrac * castState.duration)}</span>
         </div>
@@ -202,7 +206,10 @@ const OdyseeSettings = icons[ICONS.SETTINGS];
 const OdyseeRepeat = icons[ICONS.REPEAT];
 const OdyseeCamera = icons[ICONS.CAMERA];
 
-const Btn = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(function Btn({ className, ...props }, ref) {
+const Btn = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(function Btn(
+  { className, ...props },
+  ref
+) {
   return <button ref={ref} type="button" className={`media-button ${className || ''}`} {...props} />;
 });
 
@@ -223,7 +230,10 @@ function handleSnapshotFn(media, title) {
   if (!video) return;
   const width = video.videoWidth;
   const height = video.videoHeight;
-  const canvas = Object.assign(document.createElement('canvas'), { width, height });
+  const canvas = Object.assign(document.createElement('canvas'), {
+    width,
+    height,
+  });
   canvas.getContext('2d').drawImage(video, 0, 0, width, height);
   const link = document.createElement('a');
   link.href = canvas.toDataURL('image/jpeg');
@@ -284,7 +294,7 @@ function useQualityLevels() {
         const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
         setActiveHeight(playing >= 0 && h.levels[playing] ? h.levels[playing].height : 0);
       };
-      const onFragChanged = (_, data) => {
+      onFragChanged = (_, data) => {
         if (data && data.frag && data.frag.level >= 0 && h.levels[data.frag.level]) {
           setActiveHeight(h.levels[data.frag.level].height);
         }
@@ -322,7 +332,14 @@ function useQualityLevels() {
 
   const isHD = activeHeight >= 720;
 
-  return { levels, currentLevel, currentLabel, selectQuality, isHD, activeHeight };
+  return {
+    levels,
+    currentLevel,
+    currentLabel,
+    selectQuality,
+    isHD,
+    activeHeight,
+  };
 }
 
 function SettingsMenuContent({
@@ -417,7 +434,7 @@ function SettingsMenuContent({
         </button>
         {levels
           .slice()
-          .sort((a, b) => b.height - a.height)
+          .toSorted((a, b) => b.height - a.height)
           .map((level) => (
             <button
               key={level.index}
@@ -821,7 +838,13 @@ function P2PTrafficGlyph({ transferDirection }) {
           viewBox="0 0 10 10"
           fill="none"
         >
-          <path d="M5 1.5v5.1M3 4.6 5 6.7l2-2.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M5 1.5v5.1M3 4.6 5 6.7l2-2.1"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       )}
       {(transferDirection === 'upload' || transferDirection === 'both') && (
@@ -832,7 +855,13 @@ function P2PTrafficGlyph({ transferDirection }) {
           viewBox="0 0 10 10"
           fill="none"
         >
-          <path d="M5 8.5V3.4M3 5.4 5 3.3l2 2.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M5 8.5V3.4M3 5.4 5 3.3l2 2.1"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       )}
     </span>
@@ -895,15 +924,24 @@ function P2PControl({ isLivestream, p2pEnabled, p2pUiState, compact = false, onT
         title={buttonLabel}
         onClick={onToggle}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
         </svg>
       </button>
       {showIndicator && (
         <span
-          className={`media-p2p-indicator ${status === 'active' ? 'media-p2p-indicator--active' : ''} ${
-            compact ? 'media-p2p-indicator--compact' : ''
-          }`}
+          className={`media-p2p-indicator ${
+            status === 'active' ? 'media-p2p-indicator--active' : ''
+          } ${compact ? 'media-p2p-indicator--compact' : ''}`}
           title={indicatorTitle}
         >
           <span className="media-p2p-indicator__dot" />
@@ -1033,9 +1071,9 @@ export default function OdyseeSkin(props) {
 
   return (
     <Player.Container
-      className={`media-default-skin media-default-skin--video odysee-skin ${isCasting ? 'odysee-skin--casting' : ''} ${
-        className || ''
-      }`}
+      className={`media-default-skin media-default-skin--video odysee-skin ${
+        isCasting ? 'odysee-skin--casting' : ''
+      } ${className || ''}`}
       {...rest}
     >
       {children}
@@ -1169,7 +1207,11 @@ export default function OdyseeSkin(props) {
                       activePanel === 'info' ? 'media-button--active' : ''
                     }`}
                     onClick={() =>
-                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'info' } }))
+                      window.dispatchEvent(
+                        new CustomEvent('fullscreen-panel', {
+                          detail: { mode: 'info' },
+                        })
+                      )
                     }
                   >
                     <OdyseeInfo size={18} color="currentColor" />
@@ -1181,7 +1223,11 @@ export default function OdyseeSkin(props) {
                         activePanel === 'chapters' ? 'media-button--active' : ''
                       }`}
                       onClick={() =>
-                        window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'chapters' } }))
+                        window.dispatchEvent(
+                          new CustomEvent('fullscreen-panel', {
+                            detail: { mode: 'chapters' },
+                          })
+                        )
                       }
                     >
                       <svg
@@ -1210,7 +1256,11 @@ export default function OdyseeSkin(props) {
                       activePanel === 'comments' || activePanel === 'chat' ? 'media-button--active' : ''
                     }`}
                     onClick={() =>
-                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'comments' } }))
+                      window.dispatchEvent(
+                        new CustomEvent('fullscreen-panel', {
+                          detail: { mode: 'comments' },
+                        })
+                      )
                     }
                   >
                     {isLivestream ? (
@@ -1225,7 +1275,11 @@ export default function OdyseeSkin(props) {
                       activePanel === 'related' ? 'media-button--active' : ''
                     }`}
                     onClick={() =>
-                      window.dispatchEvent(new CustomEvent('fullscreen-panel', { detail: { mode: 'related' } }))
+                      window.dispatchEvent(
+                        new CustomEvent('fullscreen-panel', {
+                          detail: { mode: 'related' },
+                        })
+                      )
                     }
                   >
                     <OdyseeDiscover size={18} color="currentColor" />

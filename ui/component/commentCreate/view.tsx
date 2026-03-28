@@ -671,7 +671,13 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [dryRun] Optional flag to simulate the comment creation
    */
-  async function handleCreateComment(txid?: any, payment_intent_id?: any, payment_tx_id?: any, environment?: any, dryRun = false) {
+  async function handleCreateComment(
+    txid?: any,
+    payment_intent_id?: any,
+    payment_tx_id?: any,
+    environment?: any,
+    dryRun = false
+  ) {
     if (isSubmitting || disableInput || !claimId) return;
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getCommentsMembersOnlyRestriction(

@@ -35,7 +35,16 @@ export function doRewardList() {
       });
   };
 }
-export function doClaimRewardType(rewardType: string, options: { failSilently?: boolean; callbacks?: any; params?: any; callback?: (...args: any[]) => void; notifyError?: boolean } = {}) {
+export function doClaimRewardType(
+  rewardType: string,
+  options: {
+    failSilently?: boolean;
+    callbacks?: any;
+    params?: any;
+    callback?: (...args: any[]) => void;
+    notifyError?: boolean;
+  } = {}
+) {
   return (dispatch, getState) => {
     const state = getState();
     const userIsRewardApproved = selectUserIsRewardApproved(state);

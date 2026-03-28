@@ -159,7 +159,7 @@
   },
   "resolutions": {},
   "engines": {
-    "node": "^22.0.0"
+    "node": ">=22.12.0"
   },
   "packageManager": "pnpm@10.29.3",
   "pnpm": {

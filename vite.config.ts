@@ -279,8 +279,9 @@ function uiModuleResolverPlugin() {
 }
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isServeCommand = process.argv.some((arg) => arg === 'dev' || arg === 'serve');
 
-// Post-build plugin: injects Vite-built asset tags into the SSR template (index-web.html)
+// Post-build plugin: injects Vite-built asset tags into the SSR template (`index-web.html`)
 // so the Koa web server can serve pages with the correct JS/CSS references.
 function ssrTemplatePlugin() {
   return {
@@ -318,98 +319,73 @@ function ssrTemplatePlugin() {
   };
 }
 
-function getManualChunkName(id) {
-  const normalizedId = id.replace(/\\/g, '/');
+const codeSplittingGroups = [
+  {
+    name: 'vendor-react',
+    test: /node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/,
+    priority: 100,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-state',
+    test: /node_modules[\\/](redux|react-redux|@reduxjs[\\/]toolkit|reselect|re-reselect|redux-persist|redux-state-sync)[\\/]/,
+    priority: 90,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-markdown',
+    test: /node_modules[\\/](react-markdown|remark(?:-.+)?|rehype-.+|hast-util-sanitize|unist-util-visit|parse-entities|strip-markdown|remove-markdown)[\\/]/,
+    priority: 80,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-video-core',
+    test: /node_modules[\\/]video\.js[\\/]/,
+    priority: 70,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-video-streaming',
+    test: /node_modules[\\/](@videojs|mux\.js|m3u8-parser|mpd-parser|aes-decrypter|videojs-vtt\.js|hls\.js|p2p-media-loader-hlsjs)[\\/]/,
+    priority: 65,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-video-cast',
+    test: /node_modules[\\/](@silvermine|player\.js)[\\/]/,
+    priority: 60,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-video-plugins',
+    test: /node_modules[\\/](videojs-vtt-thumbnails|videojs-contrib-quality-levels|videojs-event-tracking|videojs-.+)[\\/]/,
+    priority: 55,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-codemirror',
+    test: /node_modules[\\/](@codemirror|codemirror)[\\/]/,
+    priority: 50,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-ui',
+    test: /node_modules[\\/](@mui|@emotion)[\\/]/,
+    priority: 40,
+    entriesAware: true,
+  },
+  {
+    name: 'vendor-dnd',
+    test: /node_modules[\\/]@hello-pangea[\\/]dnd[\\/]/,
+    priority: 30,
+    entriesAware: true,
+  },
+];
 
-  if (!normalizedId.includes('/node_modules/')) {
-    return null;
-  }
-
-  if (
-    normalizedId.includes('/node_modules/react/') ||
-    normalizedId.includes('/node_modules/react-dom/') ||
-    normalizedId.includes('/node_modules/react-router/') ||
-    normalizedId.includes('/node_modules/react-router-dom/')
-  ) {
-    return 'vendor-react';
-  }
-
-  if (
-    normalizedId.includes('/node_modules/redux/') ||
-    normalizedId.includes('/node_modules/react-redux/') ||
-    normalizedId.includes('/node_modules/@reduxjs/toolkit/') ||
-    normalizedId.includes('/node_modules/reselect/') ||
-    normalizedId.includes('/node_modules/re-reselect/') ||
-    normalizedId.includes('/node_modules/redux-persist/') ||
-    normalizedId.includes('/node_modules/redux-state-sync/')
-  ) {
-    return 'vendor-state';
-  }
-
-  if (
-    normalizedId.includes('/node_modules/react-markdown/') ||
-    normalizedId.includes('/node_modules/remark/') ||
-    normalizedId.includes('/node_modules/remark-') ||
-    normalizedId.includes('/node_modules/rehype-') ||
-    normalizedId.includes('/node_modules/hast-util-sanitize/') ||
-    normalizedId.includes('/node_modules/unist-util-visit/') ||
-    normalizedId.includes('/node_modules/parse-entities/') ||
-    normalizedId.includes('/node_modules/strip-markdown/') ||
-    normalizedId.includes('/node_modules/remove-markdown/')
-  ) {
-    return 'vendor-markdown';
-  }
-
-  if (normalizedId.includes('/node_modules/video.js/')) {
-    return 'vendor-video-core';
-  }
-
-  if (
-    normalizedId.includes('/node_modules/@videojs/') ||
-    normalizedId.includes('/node_modules/mux.js/') ||
-    normalizedId.includes('/node_modules/m3u8-parser/') ||
-    normalizedId.includes('/node_modules/mpd-parser/') ||
-    normalizedId.includes('/node_modules/aes-decrypter/') ||
-    normalizedId.includes('/node_modules/videojs-vtt.js/')
-  ) {
-    return 'vendor-video-streaming';
-  }
-
-  if (
-    normalizedId.includes('/node_modules/videojs-vtt-thumbnails/') ||
-    normalizedId.includes('/node_modules/videojs-contrib-quality-levels/') ||
-    normalizedId.includes('/node_modules/videojs-event-tracking/')
-  ) {
-    return 'vendor-video-plugins';
-  }
-
-  if (normalizedId.includes('/node_modules/@silvermine/') || normalizedId.includes('/node_modules/player.js/')) {
-    return 'vendor-video-cast';
-  }
-
-  if (normalizedId.includes('/node_modules/videojs-')) {
-    return 'vendor-video-plugins';
-  }
-
-  if (normalizedId.includes('/node_modules/codemirror/') || normalizedId.includes('/node_modules/@codemirror/')) {
-    return 'vendor-codemirror';
-  }
-
-  if (normalizedId.includes('/node_modules/@mui/') || normalizedId.includes('/node_modules/@emotion/')) {
-    return 'vendor-ui';
-  }
-
-  if (normalizedId.includes('/node_modules/@hello-pangea/dnd/')) {
-    return 'vendor-dnd';
-  }
-
-  return null;
-}
-
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   root: __dirname,
   publicDir: 'static',
-  base: command === 'serve' ? '/' : '/public/',
+  base: isServeCommand ? '/' : '/public/',
 
   define: {
     ...buildEnvDefines(),
@@ -538,7 +514,10 @@ export default defineConfig(({ command }) => ({
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
       output: {
-        manualChunks: getManualChunkName,
+        codeSplitting: {
+          minSize: 20_000,
+          groups: codeSplittingGroups,
+        },
       },
     },
   },
@@ -592,6 +571,6 @@ export default defineConfig(({ command }) => ({
     },
     // tsgo type checking available via: pnpm typecheck
     // Enable typeAware + typeCheck here once strict types are added
-    ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed'],
+    ignorePatterns: ['node_modules', 'web/dist', 'dist', 'build', 'static', 'flow-typed', 'web/stubs/buffer-esm.js'],
   },
-}));
+});

@@ -84,9 +84,11 @@ function PublishLivestream(props: Props) {
     const livestreamData = JSON.parse(livestreamDataStr);
 
     if (selectedFileIndex !== null && livestreamData && livestreamData.length) {
-      dispatch(doUpdatePublishFormAction({
-        remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
-      }));
+      dispatch(
+        doUpdatePublishFormAction({
+          remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
+        })
+      );
     }
   }, [selectedFileIndex, dispatch, livestreamDataStr]);
 

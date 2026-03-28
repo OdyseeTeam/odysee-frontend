@@ -240,8 +240,7 @@ function LivestreamForm(props: Props) {
 
       if (data && data.length > 0) {
         for (const dataItem of data) {
-          const statusNorm =
-            typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
+          const statusNorm = typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
           if (statusNorm === 'inprogress' || statusNorm === 'ready') {
             const objectToPush: LivestreamReplayItem = {
               data: {
@@ -341,9 +340,11 @@ function LivestreamForm(props: Props) {
     if (uri && isValid && name) {
       dispatch(doResolveUri(uri));
       dispatch(doCheckPublishNameAvailability(name));
-      dispatch(doUpdatePublishForm({
-        uri,
-      }));
+      dispatch(
+        doUpdatePublishForm({
+          uri,
+        })
+      );
     }
   }, [name, activeChannelName, dispatch]);
   // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
@@ -360,10 +361,12 @@ function LivestreamForm(props: Props) {
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
   useEffect(() => {
-    dispatch(doUpdatePublishForm({
-      channel: activeChannelName || undefined,
-      channelId: activeChannelId || undefined,
-    }));
+    dispatch(
+      doUpdatePublishForm({
+        channel: activeChannelName || undefined,
+        channelId: activeChannelId || undefined,
+      })
+    );
   }, [activeChannelName, activeChannelId, dispatch]);
 
   async function handlePublish() {
@@ -500,7 +503,7 @@ function LivestreamForm(props: Props) {
                   <SelectThumbnail />
                 </div>
               }
-              {...{ livestreamData } as any}
+              {...({ livestreamData } as any)}
             />
 
             {/* @ts-ignore -- isStillEditing is resolved internally */}

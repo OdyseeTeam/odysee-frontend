@@ -86,12 +86,7 @@ export default function LivestreamWebrtcViewer({ channelClaimId, isCurrentClaimL
         'webrtc-viewer--error': viewerStatus === 'error',
       })}
     >
-      <video
-        ref={videoRef}
-        className="webrtc-viewer__video"
-        playsInline
-        autoPlay
-      />
+      <video ref={videoRef} className="webrtc-viewer__video" playsInline autoPlay />
 
       {viewerStatus === 'connecting' && (
         <div className="webrtc-viewer__overlay">
@@ -114,13 +109,31 @@ export default function LivestreamWebrtcViewer({ channelClaimId, isCurrentClaimL
       {viewerStatus === 'playing' && (
         <div className="webrtc-viewer__top-bar">
           <span className="webrtc-viewer__badge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
             {__('P2P')}
           </span>
           <button className="webrtc-viewer__exit-btn" onClick={handleExit} title={__('Exit P2P mode')}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>

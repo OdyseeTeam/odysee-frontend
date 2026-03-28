@@ -256,7 +256,11 @@ const CollectionPublishForm = (props: Props) => {
 
         <div className="section__actions">
           <Submit
-            {...({ button: 'primary', disabled: publishingClaimWithNoChanges || publishPending, label: publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit') } as any)}
+            {...({
+              button: 'primary',
+              disabled: publishingClaimWithNoChanges || publishPending,
+              label: publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit'),
+            } as any)}
           />
           <Button button="link" label={__('Cancel')} onClick={handleCancelButton} />
 

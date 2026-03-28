@@ -168,11 +168,17 @@ function ClaimMenuListInner(props: Props) {
 
   // -- dispatch helpers --
   const openModal = React.useCallback((id: string, params: {}) => dispatch(doOpenModal(id, params)), [dispatch]);
-  const prepareEdit = React.useCallback((c: any, editUri: string) => dispatch(doPrepareEdit(c, editUri, '')), [dispatch]);
+  const prepareEdit = React.useCallback(
+    (c: any, editUri: string) => dispatch(doPrepareEdit(c, editUri, '')),
+    [dispatch]
+  );
   const doToast = React.useCallback((params: any) => dispatch(doToastAction(params)), [dispatch]);
   const doChannelMute = React.useCallback((u: string) => dispatch(doChannelMuteAction(u)), [dispatch]);
   const doChannelUnmute = React.useCallback((u: string) => dispatch(doChannelUnmuteAction(u)), [dispatch]);
-  const doCommentModBlock = React.useCallback((u: string) => dispatch(doCommentModBlockAction(u, undefined, undefined)), [dispatch]);
+  const doCommentModBlock = React.useCallback(
+    (u: string) => dispatch(doCommentModBlockAction(u, undefined, undefined)),
+    [dispatch]
+  );
   const doCommentModUnBlock = React.useCallback((u: string) => dispatch(doCommentModUnBlockAction(u)), [dispatch]);
   const doCommentModBlockAsAdmin = React.useCallback(
     (commenterUri: string, offendingCommentId?: string | null, blockerId?: string | null) =>

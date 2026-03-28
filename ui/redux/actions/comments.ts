@@ -416,7 +416,11 @@ export function doFetchMyCommentedChannels(claimId: string | null | undefined) {
           });
         })
         .catch((err) => {
-          (assert as (condition: any, msg?: string, data?: any) => void)(false, 'doFetchMyCommentedChannels failed', err);
+          (assert as (condition: any, msg?: string, data?: any) => void)(
+            false,
+            'doFetchMyCommentedChannels failed',
+            err
+          );
         });
     });
   };
@@ -735,7 +739,10 @@ export function doCommentReact(commentId: string, type: string) {
 
     // --- Check if already commented from another channel ---
     if (checkIfAlreadyReacted) {
-      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaims(state) as Claim[] | null);
+      const reactedChannelNames = await getReactedChannelNames(
+        commentId,
+        selectMyChannelClaims(state) as Claim[] | null
+      );
 
       if (!reactedChannelNames) {
         // Couldn't determine. Probably best to just stop the operation.
@@ -835,7 +842,8 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
 
     const channelSwitchCutoffTimestamp = Date.now() - commentChannelChangeCooldown;
     const previousCommenterChannelRaw = LocalStorage.getItem(`commenter_${targetClaimId}`);
-    const previousCommenterChannel: { claim_id: string; name: string; last_comment_timestamp: number } | null = previousCommenterChannelRaw ? JSON.parse(previousCommenterChannelRaw) : null;
+    const previousCommenterChannel: { claim_id: string; name: string; last_comment_timestamp: number } | null =
+      previousCommenterChannelRaw ? JSON.parse(previousCommenterChannelRaw) : null;
 
     if (
       previousCommenterChannel &&
@@ -1594,7 +1602,9 @@ export function doCommentModUnBlock(commenterUri: string, showLink: boolean = tr
  */
 export function doCommentModUnBlockAsAdmin(commenterUri: string, blockerId: string) {
   return (dispatch: Dispatch) => {
-    return dispatch(doCommentModToggleBlock(true, commenterUri, '', blockerId ? [blockerId] : [], BLOCK_LEVEL.ADMIN, undefined));
+    return dispatch(
+      doCommentModToggleBlock(true, commenterUri, '', blockerId ? [blockerId] : [], BLOCK_LEVEL.ADMIN, undefined)
+    );
   };
 }
 
@@ -1610,7 +1620,14 @@ export function doCommentModUnBlockAsAdmin(commenterUri: string, blockerId: stri
 export function doCommentModUnBlockAsModerator(commenterUri: string, creatorUri: string, blockerId: string) {
   return (dispatch: Dispatch) => {
     return dispatch(
-      doCommentModToggleBlock(true, commenterUri, creatorUri, blockerId ? [blockerId] : [], BLOCK_LEVEL.MODERATOR, undefined)
+      doCommentModToggleBlock(
+        true,
+        commenterUri,
+        creatorUri,
+        blockerId ? [blockerId] : [],
+        BLOCK_LEVEL.MODERATOR,
+        undefined
+      )
     );
   };
 }
@@ -1676,7 +1693,13 @@ export function doFetchModBlockedList() {
             const moderatorSeen = new Set();
 
             for (let i = 0; i < blockListsPerChannel.length; ++i) {
-              const storeList = async (fetchedList: any, blockedList: any, seenSet: Set<string>, timeoutMap: any, blockedByMap?: any) => {
+              const storeList = async (
+                fetchedList: any,
+                blockedList: any,
+                seenSet: Set<string>,
+                timeoutMap: any,
+                blockedByMap?: any
+              ) => {
                 if (fetchedList) {
                   for (let j = 0; j < fetchedList.length; ++j) {
                     const blockedChannel = fetchedList[j];
@@ -1754,21 +1777,21 @@ export function doFetchModBlockedList() {
                   personalBlockList.length > 0
                     ? personalBlockList
                         .slice()
-                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 adminBlockList:
                   adminBlockList.length > 0
                     ? adminBlockList
                         .slice()
-                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockList:
                   moderatorBlockList.length > 0
                     ? moderatorBlockList
                         .slice()
-                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockListDelegatorsMap: moderatorBlockListDelegatorsMap,

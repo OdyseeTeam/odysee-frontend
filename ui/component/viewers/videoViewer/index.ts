@@ -34,7 +34,13 @@ import {
 import { selectContentPositionForUri, selectPlayingUri, selectIsPlayerFloating } from 'redux/selectors/content';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
-import { toggleVideoTheaterMode, toggleAutoplayNext, toggleFloatingPlayer, toggleAutoplayMedia, doSetClientSetting } from 'redux/actions/settings';
+import {
+  toggleVideoTheaterMode,
+  toggleAutoplayNext,
+  toggleFloatingPlayer,
+  toggleAutoplayMedia,
+  doSetClientSetting,
+} from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
@@ -94,7 +100,8 @@ function VideoViewerWithRedux(props: any) {
   const recomendedContent = useAppSelector((state) => selectRecommendedContentForUri(state, uri));
   const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
   const isFloating = useAppSelector(selectIsPlayerFloating);
-  const autoplayNext = !isMarkdownOrComment && useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
+  const autoplayNext =
+    !isMarkdownOrComment && useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
   const floatingPlayer = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER)) ?? true;
   const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
 

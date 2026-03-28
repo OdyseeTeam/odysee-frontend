@@ -286,7 +286,9 @@ export default function PublishTemplateButton() {
       [...allTemplates].toSorted((a, b) => {
         const pinnedDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
         if (pinnedDiff !== 0) return pinnedDiff;
-        const byLastUsed = getTemplateSortTimestamp(b as unknown as { createdAt: number; lastUsedAt?: number }) - getTemplateSortTimestamp(a as unknown as { createdAt: number; lastUsedAt?: number });
+        const byLastUsed =
+          getTemplateSortTimestamp(b as unknown as { createdAt: number; lastUsedAt?: number }) -
+          getTemplateSortTimestamp(a as unknown as { createdAt: number; lastUsedAt?: number });
         if (byLastUsed !== 0) return byLastUsed;
         const byCreated = Number(b.createdAt || 0) - Number(a.createdAt || 0);
         if (byCreated !== 0) return byCreated;

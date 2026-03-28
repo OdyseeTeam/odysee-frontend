@@ -157,26 +157,27 @@ export const doPopOutInlinePlayer =
       return dispatch(doClearPlayingUri());
     }
   };
+
+const normalizePlayingUriForCompare = (value: PlayingUri | null | undefined) => ({
+  uri: value?.uri || null,
+  source: value?.source || null,
+  sourceId: value?.sourceId || null,
+  commentId: value?.commentId || null,
+  isShort: typeof value?.isShort === 'boolean' ? value.isShort : null,
+  location: {
+    pathname: value?.location?.pathname || '',
+    search: value?.location?.search || '',
+  },
+  collection: {
+    collectionId: value?.collection?.collectionId || null,
+    loop: Boolean(value?.collection?.loop),
+    shuffle: Boolean(value?.collection?.shuffle),
+  },
+});
+
 export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const currentPlayingUri = selectPlayingUri(state);
-
-  const normalizePlayingUriForCompare = (value: PlayingUri | null | undefined) => ({
-    uri: value?.uri || null,
-    source: value?.source || null,
-    sourceId: value?.sourceId || null,
-    commentId: value?.commentId || null,
-    isShort: typeof value?.isShort === 'boolean' ? value.isShort : null,
-    location: {
-      pathname: value?.location?.pathname || '',
-      search: value?.location?.search || '',
-    },
-    collection: {
-      collectionId: value?.collection?.collectionId || null,
-      loop: Boolean(value?.collection?.loop),
-      shuffle: Boolean(value?.collection?.shuffle),
-    },
-  });
 
   const nextSnapshot = normalizePlayingUriForCompare(playingUri);
   const currentSnapshot = normalizePlayingUriForCompare(currentPlayingUri);
@@ -258,18 +259,32 @@ export const doStartFloatingPlayingUri =
           type: COL_TYPES.PLAYLIST,
         })
       );
-      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection, ...shortData }));
+      return dispatch(
+        doChangePlayingUri({
+          ...playingOptions,
+          collection: playingCollection,
+          ...shortData,
+        })
+      );
     }
 
     if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
       // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
       return dispatch(
-        doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection }, ...shortData })
+        doChangePlayingUri({
+          ...playingOptions,
+          collection: { ...playingCollection, ...collection },
+          ...shortData,
+        })
       );
     }
 
     return dispatch(
-      doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {}, ...shortData })
+      doChangePlayingUri({
+        ...playingOptions,
+        collection: collectionId ? collection : {},
+        ...shortData,
+      })
     );
   };
 export const doPlayNextUri =

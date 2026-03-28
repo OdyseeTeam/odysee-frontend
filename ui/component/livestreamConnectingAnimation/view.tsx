@@ -38,18 +38,13 @@ export default function LivestreamConnectingAnimation({ status, onLive }: Props)
     return () => clearInterval(interval);
   }, [variant]);
 
-  const message =
-    status === 'requesting_permission'
-      ? __('Activating camera') + dots
-      : __('Going live') + dots;
+  const message = status === 'requesting_permission' ? __('Activating camera') + dots : __('Going live') + dots;
 
   if (onLive) {
     // Smooth reveal: content shrinks away, overlay dissolves, subtle glow appears
     return (
       <div className="livestream-connecting livestream-connecting--live-reveal">
-        <div className="livestream-connecting__live-badge">
-          {__('LIVE')}
-        </div>
+        <div className="livestream-connecting__live-badge">{__('LIVE')}</div>
       </div>
     );
   }
@@ -79,9 +74,33 @@ function SignalAnimation() {
         {/* Center dot */}
         <circle cx="32" cy="32" r="4" fill="currentColor" className="signal-anim__dot" />
         {/* Expanding signal arcs */}
-        <circle cx="32" cy="32" r="14" stroke="currentColor" strokeWidth="2" fill="none" className="signal-anim__ring signal-anim__ring--1" />
-        <circle cx="32" cy="32" r="22" stroke="currentColor" strokeWidth="1.5" fill="none" className="signal-anim__ring signal-anim__ring--2" />
-        <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="1" fill="none" className="signal-anim__ring signal-anim__ring--3" />
+        <circle
+          cx="32"
+          cy="32"
+          r="14"
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+          className="signal-anim__ring signal-anim__ring--1"
+        />
+        <circle
+          cx="32"
+          cy="32"
+          r="22"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          fill="none"
+          className="signal-anim__ring signal-anim__ring--2"
+        />
+        <circle
+          cx="32"
+          cy="32"
+          r="30"
+          stroke="currentColor"
+          strokeWidth="1"
+          fill="none"
+          className="signal-anim__ring signal-anim__ring--3"
+        />
       </svg>
     </div>
   );
@@ -124,11 +143,7 @@ function WaveformAnimation() {
   return (
     <div className="waveform-anim">
       {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-        <div
-          key={i}
-          className="waveform-anim__bar"
-          style={{ animationDelay: `${i * 0.08}s` }}
-        />
+        <div key={i} className="waveform-anim__bar" style={{ animationDelay: `${i * 0.08}s` }} />
       ))}
     </div>
   );

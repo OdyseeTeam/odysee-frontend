@@ -25,11 +25,11 @@ export const useArStatus = () => {
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   const hasArAddress = Boolean(arStatus.address);
   const isSigningIn =
-    (wanderAuth?.authStatus === 'loading' ||
-      wanderAuth?.authStatus === 'onboarding') &&
-    walletType === 'embedded';
+    (wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded';
   const hasConnection =
-    ((wanderAuth?.authStatus && wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) &&
+    (wanderAuth?.authStatus &&
+      wanderAuth?.authStatus !== 'not-authenticated' &&
+      !isSigningIn &&
       walletType === 'embedded') ||
     (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
   const activeArStatus = hasArConnection

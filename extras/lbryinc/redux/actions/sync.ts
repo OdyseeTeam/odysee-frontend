@@ -108,7 +108,13 @@ export function doGetSync(passedPassword?: string | null, callback?: (error: any
     dispatch({
       type: ACTIONS.GET_SYNC_STARTED,
     });
-    const data: { unlockFailed?: boolean; syncHash?: string; syncData?: string; changed?: boolean; hasSyncedWallet?: boolean } = {};
+    const data: {
+      unlockFailed?: boolean;
+      syncHash?: string;
+      syncData?: string;
+      changed?: boolean;
+      hasSyncedWallet?: boolean;
+    } = {};
     Lbry.wallet_status()
       .then((status) => {
         if (status.is_locked) {

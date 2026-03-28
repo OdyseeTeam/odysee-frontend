@@ -202,25 +202,27 @@ const ShortsActions = React.memo<Props>(
             className={classnames('shorts-page__ratings', {
               'shorts-page__ratings--no-slime': disableSlimes,
             })}
-            style={({
-              ...(disableReactions
-                ? {
-                    visibility: 'hidden',
-                    pointerEvents: 'none',
-                  }
-                : {}),
-              '--ratings-gradient': (() => {
-                if (!Number.isInteger(likeCount) || !Number.isInteger(dislikeCount)) return 'var(--color-border)';
-                const total = likeCount + (disableSlimes ? 0 : dislikeCount);
-                if (total === 0) return 'var(--color-border)';
-                const likePercent = (likeCount / total) * 100;
-                if (likePercent === 100) return 'var(--color-fire)';
-                if (likePercent === 0) return 'var(--color-slime)';
-                const fireStop = Math.max(0, likePercent - 15);
-                const slimeStop = Math.min(100, likePercent + 15);
-                return `linear-gradient(to bottom, var(--color-fire) ${fireStop}%, var(--color-slime) ${slimeStop}%)`;
-              })(),
-            } as React.CSSProperties)}
+            style={
+              {
+                ...(disableReactions
+                  ? {
+                      visibility: 'hidden',
+                      pointerEvents: 'none',
+                    }
+                  : {}),
+                '--ratings-gradient': (() => {
+                  if (!Number.isInteger(likeCount) || !Number.isInteger(dislikeCount)) return 'var(--color-border)';
+                  const total = likeCount + (disableSlimes ? 0 : dislikeCount);
+                  if (total === 0) return 'var(--color-border)';
+                  const likePercent = (likeCount / total) * 100;
+                  if (likePercent === 100) return 'var(--color-fire)';
+                  if (likePercent === 0) return 'var(--color-slime)';
+                  const fireStop = Math.max(0, likePercent - 15);
+                  const slimeStop = Math.min(100, likePercent + 15);
+                  return `linear-gradient(to bottom, var(--color-fire) ${fireStop}%, var(--color-slime) ${slimeStop}%)`;
+                })(),
+              } as React.CSSProperties
+            }
           >
             <div className="fire-and-count">
               <Button

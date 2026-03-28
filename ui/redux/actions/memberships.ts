@@ -724,9 +724,12 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
   const pendingPromises = [];
   myChannelClaims.map((channelClaim: any, index) => {
     pendingPromises[index] = dispatch(
-      doMembershipList({
-        channel_claim_id: channelClaim.claim_id,
-      }, null)
+      doMembershipList(
+        {
+          channel_claim_id: channelClaim.claim_id,
+        },
+        null
+      )
     );
   });
   return await Promise.all(pendingPromises)

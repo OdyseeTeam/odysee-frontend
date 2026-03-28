@@ -23,12 +23,16 @@ function ButtonAddToQueue(props: any) {
     const claim = playingUri?.uri ? selectClaimForUri(state, playingUri.uri) : undefined;
     return claim?.permanent_url;
   });
-  const hasClaimInQueue = useAppSelector((state) => selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri));
+  const hasClaimInQueue = useAppSelector((state) =>
+    selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri)
+  );
   const hasPlayingUriInQueue = useAppSelector((state) =>
     Boolean(playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl))
   );
   const playingCollectionUrls = useAppSelector((state) =>
-    collectionId && collectionId !== COLLECTIONS_CONSTS.QUEUE_ID ? selectUrlsForCollectionId(state, collectionId) : undefined
+    collectionId && collectionId !== COLLECTIONS_CONSTS.QUEUE_ID
+      ? selectUrlsForCollectionId(state, collectionId)
+      : undefined
   );
 
   async function handleQueue(e) {
@@ -40,9 +44,9 @@ function ButtonAddToQueue(props: any) {
 
     dispatch(
       doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
-      uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
-      remove: hasClaimInQueue,
-      type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,
+        uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
+        remove: hasClaimInQueue,
+        type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,
       })
     );
 

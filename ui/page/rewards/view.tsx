@@ -96,13 +96,15 @@ function RewardsPage() {
     return (
       <RewardTile
         key={(REWARD_TYPES as any).TYPE_GENERATED_CODE}
-        reward={{
-          reward_type: (REWARD_TYPES as any).TYPE_GENERATED_CODE,
-          reward_title: __('Custom Code'),
-          reward_description: __(
-            'Are you a supermodel or rockstar that received a custom Credits code? Claim it here.'
-          ),
-        } as any}
+        reward={
+          {
+            reward_type: (REWARD_TYPES as any).TYPE_GENERATED_CODE,
+            reward_title: __('Custom Code'),
+            reward_description: __(
+              'Are you a supermodel or rockstar that received a custom Credits code? Claim it here.'
+            ),
+          } as any
+        }
         disabled={isNotEligible}
       />
     );

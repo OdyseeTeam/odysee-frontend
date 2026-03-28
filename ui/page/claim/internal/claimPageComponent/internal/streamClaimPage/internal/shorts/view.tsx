@@ -144,12 +144,8 @@ export default function ShortsPage(props: Props) {
       ? shortsRecommendedUris[currentIndex + 1]
       : null;
   const prevShortUri = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
-  const nextShortClaimValue = useAppSelector((state) =>
-    nextShortUri ? selectClaimForUri(state, nextShortUri) : null
-  );
-  const prevShortClaimValue = useAppSelector((state) =>
-    prevShortUri ? selectClaimForUri(state, prevShortUri) : null
-  );
+  const nextShortClaimValue = useAppSelector((state) => (nextShortUri ? selectClaimForUri(state, nextShortUri) : null));
+  const prevShortClaimValue = useAppSelector((state) => (prevShortUri ? selectClaimForUri(state, prevShortUri) : null));
   const nextThumbnail = nextShortClaimValue?.value?.thumbnail?.url || null;
   const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
   const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
@@ -288,16 +284,18 @@ export default function ShortsPage(props: Props) {
           : null;
 
       if (mode === 'channel' && channelId) {
-        dispatch(doClaimSearchAction({
-          channel_ids: [channelId],
-          duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
-          content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
-          order_by: ['release_time'],
-          page_size: 50,
-          page: 1,
-          claim_type: ['stream'],
-          has_source: true,
-        }));
+        dispatch(
+          doClaimSearchAction({
+            channel_ids: [channelId],
+            duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
+            content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
+            order_by: ['release_time'],
+            page_size: 50,
+            page: 1,
+            claim_type: ['stream'],
+            has_source: true,
+          })
+        );
       } else {
         dispatch(doFetchShortsRecommendedContentAction(uri, fypParam));
       }
@@ -314,11 +312,13 @@ export default function ShortsPage(props: Props) {
     [dispatch, fetchForMode, setLocalViewMode]
   );
   const handleShareClick = React.useCallback(() => {
-    dispatch(doOpenModalAction(MODALS.SOCIAL_SHARE, {
-      uri,
-      webShareable,
-      collectionId,
-    }));
+    dispatch(
+      doOpenModalAction(MODALS.SOCIAL_SHARE, {
+        uri,
+        webShareable,
+        collectionId,
+      })
+    );
   }, [dispatch, uri, webShareable, collectionId]);
   const handleCommentsClick = React.useCallback(() => {
     if (sidePanelOpen && panelMode === 'comments') {

@@ -129,7 +129,9 @@
 }
 
 @keyframes webrtc-viewer-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: $breakpoint-small) {

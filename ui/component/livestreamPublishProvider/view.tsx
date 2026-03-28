@@ -43,7 +43,9 @@ export default function LivestreamPublishProvider({ children }: Props) {
       getState: () => stateRef.current,
       subscribe: (fn: () => void) => {
         listenersRef.current.add(fn);
-        return () => { listenersRef.current.delete(fn); };
+        return () => {
+          listenersRef.current.delete(fn);
+        };
       },
       actions: {
         setStatus: (status: LivestreamPublishStatus) => updateState({ status }),
@@ -52,8 +54,12 @@ export default function LivestreamPublishProvider({ children }: Props) {
         setClaimUri: (claimUri: string | null) => updateState({ claimUri }),
         setFloatingPreviewEnabled: (floatingPreviewEnabled: boolean) => updateState({ floatingPreviewEnabled }),
         updateStats: (stats: Partial<LivestreamPublishState>) => updateState(stats),
-        setPc: (pc: RTCPeerConnection | null) => { pcRef.current = pc; },
-        setResourceUrl: (url: string | null) => { resourceUrlRef.current = url; },
+        setPc: (pc: RTCPeerConnection | null) => {
+          pcRef.current = pc;
+        },
+        setResourceUrl: (url: string | null) => {
+          resourceUrlRef.current = url;
+        },
         stopStream: async (options?: { preservePreview?: boolean }) => {
           const stream = stateRef.current.mediaStream;
           if (!stream) return;

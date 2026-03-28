@@ -144,7 +144,11 @@ export default function YoutubeSync(props: Props) {
         {showYoutubeTransferStatus ? (
           <React.Suspense fallback={null}>
             <>
-              <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel as any} autoOpenSync={shouldAutoOpenSync} />
+              <YoutubeTransferStatus
+                alwaysShow
+                addNewChannel={handleNewChannel as any}
+                autoOpenSync={shouldAutoOpenSync}
+              />
             </>
           </React.Suspense>
         ) : (

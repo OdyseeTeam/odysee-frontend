@@ -49,9 +49,7 @@ function resolveNodeVersion(spec) {
 }
 
 const packageJson = readPackageJson();
-const spec =
-  (packageJson.volta && packageJson.volta.node) ||
-  (packageJson.engines && packageJson.engines.node);
+const spec = (packageJson.volta && packageJson.volta.node) || (packageJson.engines && packageJson.engines.node);
 const version = resolveNodeVersion(spec);
 
 if (!version) {

@@ -93,7 +93,8 @@ export default function ChatComment(props: Props) {
   const creatorMembership = useAppSelector((state) =>
     selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channelId)
   );
-  const isSprout = channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
+  const isSprout =
+    channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
   const [exchangeRate, setExchangeRate] = React.useState(0);
   React.useEffect(() => {
     if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
