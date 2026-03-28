@@ -299,7 +299,7 @@ const Header = (props: Props) => {
               {pathname === '/' && (
                 <Button
                   title="Changelog"
-                  className="badge--alert"
+                  className="header__changelog-button"
                   label="Changelog"
                   icon={ICONS.FEEDBACK}
                   onClick={() =>

@@ -24,6 +24,7 @@ import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doOpenModal } from 'redux/actions/app';
 import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
 import {
@@ -230,30 +231,22 @@ function HomePage() {
     [sortedRowData]
   );
   const hasFetchedWatchLaterItemsRef = React.useRef(false);
-  const CustomizeHomepage = () => {
-    return (
-      <Button
-        button="link"
-        iconRight={ICONS.SETTINGS}
-        onClick={() => (authenticated ? openCustomizeHomepage() : signupDriver())}
-        title={__('Sort and customize your homepage')}
-        label={__('Customize --[Short label for "Customize Homepage"]--')}
-      />
-    );
-  };
+  const customizeButton = (
+    <Button
+      button="link"
+      iconRight={ICONS.SETTINGS}
+      onClick={() => (authenticated ? openCustomizeHomepage() : signupDriver())}
+      title={__('Sort and customize your homepage')}
+      label={__('Customize --[Short label for "Customize Homepage"]--')}
+    />
+  );
 
   function signupDriver() {
     navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
   }
 
   function openCustomizeHomepage() {
-    const searchParams = getModalUrlParam(MODALS.CUSTOMIZE_HOMEPAGE);
-
-    navigate({
-      pathname: location.pathname,
-      search: `?${searchParams}`,
-      hash: location.hash,
-    });
+    dispatch(doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE));
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
@@ -267,7 +260,7 @@ function HomePage() {
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
-          {cache.topGrid === -1 && <CustomizeHomepage />}
+          {cache.topGrid === -1 && customizeButton}
           <UpcomingClaims
             name="homepage_following"
             channelIds={subscribedChannelIds}
@@ -333,9 +326,9 @@ function HomePage() {
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
               {(index === cache.topGrid ||
-                (index && index - 1 === cache.topGrid && visibleSortedRowData[cache.topGrid].id === 'UPCOMING')) && (
-                <CustomizeHomepage />
-              )}
+                (index && index - 1 === cache.topGrid && visibleSortedRowData[cache.topGrid].id === 'UPCOMING')) &&
+                customizeButton
+              }
             </div>
           )}
         </>
@@ -394,7 +387,7 @@ function HomePage() {
           <Yrbl
             alwaysShow
             title={__('Clean as a whistle! --[title for empty homepage]--')}
-            actions={<CustomizeHomepage />}
+            actions={customizeButton}
           />
         </div>
       )}

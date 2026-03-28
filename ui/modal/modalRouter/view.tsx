@@ -217,11 +217,15 @@ function ModalRouter() {
       );
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
   }, [dispatch, search, modal]);
+  const prevPathnameRef = React.useRef(pathname);
   React.useEffect(() => {
-    if (!modalUrlId) {
-      dispatch(doHideModal());
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on pathname
-  }, [pathname, dispatch]);
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      if (!modalUrlId) {
+        dispatch(doHideModal());
+      }
+    }
+  }, [pathname, modalUrlId, dispatch]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];

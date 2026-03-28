@@ -839,3 +839,41 @@
     }
   }
 }
+
+.header__changelog-button {
+  background-image: var(--color-odysee-memberships) !important;
+  color: white !important;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xxs) var(--spacing-s);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-xsmall);
+  border: none;
+
+  .icon {
+    stroke: white !important;
+  }
+
+  .button__label {
+    color: white !important;
+  }
+
+  .button__content {
+    color: white !important;
+  }
+
+  &:hover,
+  &:hover .button__label,
+  &:hover .button__content,
+  &:hover .icon {
+    color: white !important;
+    stroke: white !important;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-left: var(--spacing-s);
+
+    .button__label {
+      display: none;
+    }
+  }
+}
