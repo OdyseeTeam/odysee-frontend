@@ -119,7 +119,7 @@ const validate = async (userId: number) => {
   }
 };
 
-(async () => {
+const initPromise = (async () => {
   const supported = await isPushSupported();
 
   if (supported) {
@@ -135,10 +135,11 @@ const validate = async (userId: number) => {
       validate,
     };
   }
-})(); // Proxy will forward to push system if it's supported.
+})();
 
-type PushNotificationsApi = {
+export type PushNotificationsApi = {
   supported: boolean;
+  ready: Promise<void>;
   subscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
   unsubscribe: (userId: number, permanent?: boolean) => Promise<boolean>;
   subscribed: (userId: number) => Promise<boolean>;
@@ -149,11 +150,12 @@ type PushNotificationsApi = {
 
 export default new Proxy({} as PushNotificationsApi, {
   get(target, prop) {
+    if (prop === 'ready') return initPromise;
     if (pushSystem) {
       return pushSystem[prop as string];
     } else {
       if (prop === 'supported') return false;
-      throw new Error('Push notifications are not supported in this browser environment.');
+      return () => Promise.reject(new Error('Push notifications are not supported in this browser environment.'));
     }
   },
 });
