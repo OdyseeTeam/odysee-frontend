@@ -51,6 +51,19 @@
   }
 }
 
+// VOD hover preview: smooth crossfade when cycling through preview frames
+.media__thumb--preview-active {
+  .claim-preview__file-property-overlay,
+  .claim-preview-progress {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  background-size: cover !important;
+  transition: background-image 0.3s ease;
+}
+
 .media__thumb--small {
   width: calc(var(--file-list-thumbnail-width) / 1.5) !important;
 

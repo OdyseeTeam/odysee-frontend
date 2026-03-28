@@ -2,13 +2,15 @@ import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from 'config';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
 import useLiveThumbnailFrame from 'effects/use-live-thumbnail-frame';
+import useVideoPreviewOnHover from 'effects/use-video-preview-on-hover';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
 import { useAppSelector } from 'redux/hooks';
-import { selectHasResolvedClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+import { selectHasResolvedClaimForUri, selectThumbnailForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectIsActiveLivestreamForUri, selectLiveThumbnailForUri } from 'redux/selectors/livestream';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 
 const FALLBACK = MISSING_THUMB_DEFAULT
   ? getThumbnailCdnUrl({
@@ -80,8 +82,20 @@ function FileThumbnail(props: Props) {
       (isActiveLivestream && !liveThumbnail));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
+  // VOD hover preview: get streaming URL and duration for non-livestream video content
+  const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
+  const streamingUrl = useAppSelector((state) => (uri ? selectStreamingUrlForUri(state, uri) : undefined));
+  const isVideoContent = Boolean(claim?.value?.video || claim?.value?.source?.media_type?.startsWith('video'));
+  const videoDuration = (claim?.value as any)?.video?.duration || 0;
+  const canPreviewOnHover = isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
+
   const [isHovering, setIsHovering] = React.useState(false);
   const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
+  const vodPreviewFrame = useVideoPreviewOnHover(
+    canPreviewOnHover ? streamingUrl : null,
+    videoDuration,
+    isHovering && canPreviewOnHover
+  );
   const [loadedLiveUrl, setLoadedLiveUrl] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (!liveFrameUrl) return;
@@ -106,7 +120,7 @@ function FileThumbnail(props: Props) {
   const enableLiveCrossfade = Boolean(isHovering && liveThumbnail && loadedLiveUrl);
   const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
 
-  const hoverHandlers = liveThumbnail
+  const hoverHandlers = liveThumbnail || canPreviewOnHover
     ? {
         onMouseEnter: () => setIsHovering(true),
         onMouseLeave: () => setIsHovering(false),
@@ -153,7 +167,13 @@ function FileThumbnail(props: Props) {
     url = loadedLiveUrl;
   }
 
+  // VOD hover preview frame overrides thumbnail while hovering
+  if (vodPreviewFrame && isHovering) {
+    url = vodPreviewFrame;
+  }
+
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
+  const isPreviewActive = Boolean(vodPreviewFrame && isHovering);
 
   if (!gettingThumbnail) {
     return (
@@ -163,6 +183,7 @@ function FileThumbnail(props: Props) {
         fallback={FALLBACK}
         className={classnames(className, {
           'media__thumb--live': Boolean(liveThumbnail),
+          'media__thumb--preview-active': isPreviewActive,
           'media__thumb--live-refreshing': isLiveRefreshing,
         })}
         forceReload={forceReload}
