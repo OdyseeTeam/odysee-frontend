@@ -56,8 +56,7 @@ import {
 } from 'redux/selectors/content';
 import { doResolveUri, doResolveClaimIds } from 'redux/actions/claims';
 
-export function doUpdateLoadStatus(uri: string, outpoint: string) {
-}
+export function doUpdateLoadStatus(uri: string, outpoint: string) {}
 export const doSetPrimaryUri = (uri: string | null | undefined) => async (dispatch: Dispatch, getState: GetState) =>
   dispatch({
     type: ACTIONS.SET_PRIMARY_URI,

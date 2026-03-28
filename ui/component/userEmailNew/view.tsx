@@ -15,11 +15,7 @@ import LoginGraphic from 'component/loginGraphic';
 import { LocalStorage, LS } from 'util/storage';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { doClearEmailEntry, doUserSignUp } from 'redux/actions/user';
-import {
-  selectEmailNewIsPending,
-  selectEmailNewErrorMessage,
-  selectEmailAlreadyExists,
-} from 'redux/selectors/user';
+import { selectEmailNewIsPending, selectEmailNewErrorMessage, selectEmailAlreadyExists } from 'redux/selectors/user';
 import { selectDaemonSettings } from 'redux/selectors/settings';
 
 type Props = {

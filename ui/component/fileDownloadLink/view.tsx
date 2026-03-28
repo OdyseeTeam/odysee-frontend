@@ -6,10 +6,7 @@ import { webDownloadClaim } from 'util/downloadClaim';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { selectContentStates } from 'redux/selectors/content';
-import {
-  makeSelectFileInfoForUri,
-  selectStreamingUrlForUri,
-} from 'redux/selectors/file_info';
+import { makeSelectFileInfoForUri, selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doOpenModal } from 'redux/actions/app';
 import { doClearPlayingUri, doDownloadUri } from 'redux/actions/content';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
@@ -22,13 +19,7 @@ type Props = {
 };
 
 function FileDownloadLink(props: Props) {
-  const {
-    uri,
-    buttonType,
-    focusable = true,
-    showLabel = false,
-    hideOpenButton = false,
-  } = props;
+  const { uri, buttonType, focusable = true, showLabel = false, hideOpenButton = false } = props;
   const dispatch = useAppDispatch();
 
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));

@@ -85,80 +85,80 @@ const WalletPage = () => {
   const loading = totalBalance === undefined;
   return (
     <Page className="transactionsPage-wrapper">
-        <Tabs onChange={onTabChange} index={tabIndex}>
-          <TabList className="tabs__list--collection-edit-page">
-            <Tab>{__('Balance')}</Tab>
-            <Tab>{__('Credits')}</Tab>
-            <Tab>{__('Tips')}</Tab>
-            <Tab>{__('Rentals/Purchases')}</Tab>
-          </TabList>
-          <TabPanels>
-            {/* balances for lbc and fiat */}
-            <TabPanel>
-              <div className="tmp-lbc-announcement">
-                <img src="https://thumbnails.odycdn.com/optimize/s:140:0/quality:95/plain/https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
-                <h3>
-                  <Icon icon={ICONS.LBC} />
-                  LBC will be going away soon
-                </h3>
-                <p>Odysee will be using AR cryptocurrency for Payments and Monetization.</p>
+      <Tabs onChange={onTabChange} index={tabIndex}>
+        <TabList className="tabs__list--collection-edit-page">
+          <Tab>{__('Balance')}</Tab>
+          <Tab>{__('Credits')}</Tab>
+          <Tab>{__('Tips')}</Tab>
+          <Tab>{__('Rentals/Purchases')}</Tab>
+        </TabList>
+        <TabPanels>
+          {/* balances for lbc and fiat */}
+          <TabPanel>
+            <div className="tmp-lbc-announcement">
+              <img src="https://thumbnails.odycdn.com/optimize/s:140:0/quality:95/plain/https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
+              <h3>
+                <Icon icon={ICONS.LBC} />
+                LBC will be going away soon
+              </h3>
+              <p>Odysee will be using AR cryptocurrency for Payments and Monetization.</p>
+            </div>
+            <WalletBalance />
+          </TabPanel>
+          {/* credits tab */}
+          <TabPanel>
+            <div className="section card-stack">
+              <div className="lbc-transactions">
+                {loading && (
+                  <div className="main--empty">
+                    <Spinner delayed />
+                  </div>
+                )}
+                {!loading && (
+                  <>
+                    {showIntro && <YrblWalletEmpty includeWalletLink />}
+                    <div className="card-stack">{tabIndex === 1 && <TxoList />}</div>
+                  </>
+                )}
               </div>
-              <WalletBalance />
-            </TabPanel>
-            {/* credits tab */}
-            <TabPanel>
-              <div className="section card-stack">
-                <div className="lbc-transactions">
-                  {loading && (
-                    <div className="main--empty">
-                      <Spinner delayed />
-                    </div>
-                  )}
-                  {!loading && (
-                    <>
-                      {showIntro && <YrblWalletEmpty includeWalletLink />}
-                      <div className="card-stack">{tabIndex === 1 && <TxoList />}</div>
-                    </>
-                  )}
-                </div>
+            </div>
+          </TabPanel>
+          {/* tips tab */}
+          <TabPanel>
+            <div className="section card-stack">
+              <div className="lbc-transactions">
+                {loading && (
+                  <div className="main--empty">
+                    <Spinner delayed />
+                  </div>
+                )}
+                {!loading && (
+                  <>
+                    <div className="card-stack">{tabIndex === 2 && <TxoList />}</div>
+                  </>
+                )}
               </div>
-            </TabPanel>
-            {/* tips tab */}
-            <TabPanel>
-              <div className="section card-stack">
-                <div className="lbc-transactions">
-                  {loading && (
-                    <div className="main--empty">
-                      <Spinner delayed />
-                    </div>
-                  )}
-                  {!loading && (
-                    <>
-                      <div className="card-stack">{tabIndex === 2 && <TxoList />}</div>
-                    </>
-                  )}
-                </div>
+            </div>
+          </TabPanel>
+          {/* rentals/purchases tab */}
+          <TabPanel>
+            <div className="section card-stack">
+              <div className="lbc-transactions">
+                {loading && (
+                  <div className="main--empty">
+                    <Spinner delayed />
+                  </div>
+                )}
+                {!loading && (
+                  <>
+                    <div className="card-stack">{tabIndex === 3 && <TxoList />}</div>
+                  </>
+                )}
               </div>
-            </TabPanel>
-            {/* rentals/purchases tab */}
-            <TabPanel>
-              <div className="section card-stack">
-                <div className="lbc-transactions">
-                  {loading && (
-                    <div className="main--empty">
-                      <Spinner delayed />
-                    </div>
-                  )}
-                  {!loading && (
-                    <>
-                      <div className="card-stack">{tabIndex === 3 && <TxoList />}</div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Page>
   );
 };
