@@ -17,6 +17,7 @@ import { SOURCE_SELECT } from 'constants/publish_sources';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import Icon from 'component/common/icon';
 import VideoOptimizer from 'component/videoOptimizer/view';
+import VideoFormatNotice from 'component/videoFormatNotice/view';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectBalance } from 'redux/selectors/wallet';
 import {
@@ -48,6 +49,10 @@ function PublishFile(props: Props) {
   const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
   const fileBitrate = useAppSelector((state) => state.publish.fileBitrate);
   const fileSizeTooBig = useAppSelector((state) => state.publish.fileSizeTooBig);
+  const fileNeedsTransmux = useAppSelector((state) => state.publish.fileNeedsTransmux);
+  const fileFormat = useAppSelector((state) => state.publish.fileFormat);
+  const fileVideoCodec = useAppSelector((state) => state.publish.fileVideoCodec);
+  const fileAudioCodec = useAppSelector((state) => state.publish.fileAudioCodec);
   const isStillEditing = useAppSelector(selectIsStillEditing);
   const balance = useAppSelector(selectBalance);
   const duration = useAppSelector((state) => selectPublishFormValue(state, 'fileDur'));
@@ -289,6 +294,14 @@ function PublishFile(props: Props) {
                   fileBitrate={fileBitrate}
                   onOptimized={handleOptimizedFile}
                   onSkip={() => setOptimizerDismissed(true)}
+                />
+              )}
+              {fileNeedsTransmux && filePath instanceof File && fileFormat && (
+                <VideoFormatNotice
+                  file={filePath}
+                  format={fileFormat}
+                  videoCodec={fileVideoCodec || ''}
+                  audioCodec={fileAudioCodec || ''}
                 />
               )}
               {hasLivestreamData && linkReplays()}
