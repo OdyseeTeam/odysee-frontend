@@ -584,17 +584,18 @@
   }
 
   .menu__list--notifications-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid rgba(var(--color-header-button-base), 0.08);
-    padding: 0 var(--spacing-xs);
+    position: relative;
   }
 
   .menu__list--notifications-push {
+    position: absolute;
+    right: var(--spacing-xs);
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 11px !important;
-    opacity: 0.6;
+    opacity: 0.5;
     white-space: nowrap;
+    z-index: 1;
 
     .icon {
       width: 12px;
