@@ -26,11 +26,10 @@
 
 $RADIO_HELP_INDENT: calc(var(--spacing-l) + 3px); // @FixMe
 
-p.publish-visibility__radio-help {
-  font-size: var(--font-small);
+.publish-visibility__radio-help {
+  font-size: var(--font-xsmall);
   color: var(--color-text-subtitle);
-  margin-left: $RADIO_HELP_INDENT;
-  margin-top: 0;
+  margin-left: var(--spacing-xs);
 }
 
 p.publish-visibility__warning {

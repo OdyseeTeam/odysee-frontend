@@ -401,15 +401,15 @@ function UploadForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title page__title--margin page__title--upload">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.PUBLISH} />
-        <label>{formTitle}</label>
-        <div className="page__title-actions">
-          {!inEditMode && <PublishTemplateButton />}
+        <label>
+          {formTitle}
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
           )}
-        </div>
+          {!inEditMode && <PublishTemplateButton />}
+        </label>
       </h1>
 
       <Card
@@ -464,56 +464,59 @@ function UploadForm(props: Props) {
 
           <PublishVisibility />
 
-          <PublishProtectedContent claim={myClaimForUri} />
-
-          <PublishPrice disabled={formDisabled} />
-
-          <h2
-            className="card__title"
-            style={{
-              marginTop: 'var(--spacing-l)',
-            }}
-          >
+          <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
 
-          <Card
-            background
-            body={
-              <div className="publish-row">
-                <TagsSelect
-                  suggestMature={!SIMPLE_SITE}
-                  disableAutoFocus
-                  hideHeader
-                  label={__('Selected Tags')}
-                  empty={__('No tags added')}
-                  limitSelect={TAGS_LIMIT}
-                  help={__(
+          <TagsSelect
+            suggestMature={!SIMPLE_SITE}
+            disableAutoFocus
+            hideHeader
+            label={__('Selected Tags')}
+            empty={__('No tags added')}
+            limitSelect={TAGS_LIMIT}
+            help={
+              <span
+                style={{
+                  fontSize: 'var(--font-xsmall)',
+                  color: 'var(--color-text-subtitle)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-xs)',
+                }}
+              >
+                <Icon icon={ICONS.INFO} size={12} />
+                <span>
+                  {__(
                     "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
                   )}
-                  placeholder={__('gaming, crypto')}
-                  onSelect={(newTags) => {
-                    const validatedTags = [];
-                    newTags.forEach((newTag) => {
-                      if (!tags.some((tag) => tag.name === newTag.name)) {
-                        validatedTags.push(newTag);
-                      }
-                    });
-                    updatePublishForm({
-                      tags: [...tags, ...validatedTags],
-                    });
-                  }}
-                  onRemove={(clickedTag) => {
-                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                    updatePublishForm({
-                      tags: newTags,
-                    });
-                  }}
-                  tagsChosen={tags}
-                />
-              </div>
+                </span>
+              </span>
             }
+            placeholder={__('gaming, crypto')}
+            onSelect={(newTags) => {
+              const validatedTags = [];
+              newTags.forEach((newTag) => {
+                if (!tags.some((tag) => tag.name === newTag.name)) {
+                  validatedTags.push(newTag);
+                }
+              });
+              updatePublishForm({
+                tags: [...tags, ...validatedTags],
+              });
+            }}
+            onRemove={(clickedTag) => {
+              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+              updatePublishForm({
+                tags: newTags,
+              });
+            }}
+            tagsChosen={tags}
           />
+
+          <PublishProtectedContent claim={myClaimForUri} />
+
+          <PublishPrice disabled={formDisabled} />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>

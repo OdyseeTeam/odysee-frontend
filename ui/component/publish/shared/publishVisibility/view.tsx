@@ -44,20 +44,28 @@ const PublishVisibility = () => {
                 type="radio"
                 name="visibility::public"
                 checked={visibility === 'public'}
-                label={__('Public')}
+                label={
+                  <>
+                    {__('Public')}
+                    <span className="publish-visibility__radio-help">{__(HELP.public)}</span>
+                  </>
+                }
                 onChange={() => setVisibility('public')}
               />
-              <p className="publish-visibility__radio-help">{__(HELP.public)}</p>
 
               <FormField
                 type="radio"
                 name="visibility::unlisted"
                 checked={visibility === 'unlisted'}
                 disabled={!isNonPublicAllowed}
-                label={__('Unlisted')}
+                label={
+                  <>
+                    {__('Unlisted')}
+                    <span className="publish-visibility__radio-help">{__(HELP.unlisted)}</span>
+                  </>
+                }
                 onChange={() => setVisibility('unlisted')}
               />
-              <p className="publish-visibility__radio-help">{__(HELP.unlisted)}</p>
               {visibility === 'unlisted' && <p className="publish-visibility__warning">{__(HELP.chain_warning)}</p>}
               {visibility === 'unlisted' && showEditWarning && (
                 <p className="publish-visibility__caution">{__(HELP.edit_warning)}</p>
@@ -68,10 +76,14 @@ const PublishVisibility = () => {
                 name="visibility::scheduled"
                 checked={visibility === 'scheduled'}
                 disabled={!isNonPublicAllowed}
-                label={__('Scheduled')}
+                label={
+                  <>
+                    {__('Scheduled')}
+                    <span className="publish-visibility__radio-help">{__(HELP.scheduled)}</span>
+                  </>
+                }
                 onChange={() => setVisibility('scheduled')}
               />
-              <p className="publish-visibility__radio-help">{__(HELP.scheduled)}</p>
               {visibility === 'scheduled' && <p className="publish-visibility__warning">{__(HELP.chain_warning)}</p>}
               {visibility === 'scheduled' && showEditWarning && (
                 <p className="publish-visibility__caution">{__(HELP.edit_warning)}</p>

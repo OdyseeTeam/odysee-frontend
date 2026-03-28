@@ -237,17 +237,21 @@ function PublishFile(props: Props) {
           className="help"
           style={{
             marginBottom: 0,
+            fontSize: 'var(--font-xsmall)',
+            color: 'var(--color-text-subtitle)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-xs)',
           }}
         >
-          <Icon icon={ICONS.INFO} />
-          {__(
-            'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
-            {
-              SITE_NAME,
-              limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
-            }
-          )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
+          <Icon icon={ICONS.INFO} size={12} />
+          <span>
+            {__(
+              'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
+              { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
+            )}{' '}
+            <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
+          </span>
         </p>
       );
     } // @endif

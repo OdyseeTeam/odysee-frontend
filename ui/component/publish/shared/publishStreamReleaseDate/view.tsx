@@ -6,6 +6,8 @@ import * as SETTINGS from 'constants/settings';
 import { selectPublishFormValue, selectIsScheduled } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -120,7 +122,19 @@ const PublishStreamReleaseDate = (props: Props) => {
           )}
         </div>
 
-        <p className={'form-field__hint mt-m'}>{helpText}</p>
+        <p
+          className={'form-field__hint mt-m'}
+          style={{
+            fontSize: 'var(--font-xsmall)',
+            color: 'var(--color-text-subtitle)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-xs)',
+          }}
+        >
+          <Icon icon={ICONS.INFO} size={12} />
+          <span>{helpText}</span>
+        </p>
       </div>
     </>
   );

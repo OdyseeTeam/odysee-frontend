@@ -167,6 +167,12 @@ function PublishProtectedContent(props: Props) {
           title={__('Restrict Content')}
           body={
             <div className="publish-row publish-row-tiers">
+              {paywall !== PAYWALL.FREE && (
+                <div className="error__text" style={{ marginBottom: 'var(--spacing-m)' }}>
+                  {__('This file has an attached price, disable it in order to add content restrictions.')}
+                </div>
+              )}
+
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}
@@ -195,12 +201,6 @@ function PublishProtectedContent(props: Props) {
                       <div key={tier.membership_id} className="dummy-tier" />
                     );
                   })}
-                </div>
-              )}
-
-              {paywall !== PAYWALL.FREE && (
-                <div className="error__text">
-                  {__('This file has an attached price, disable it in order to add content restrictions.')}
                 </div>
               )}
             </div>

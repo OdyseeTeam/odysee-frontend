@@ -9,6 +9,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
  */
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Lbry from 'lbry';
@@ -506,49 +507,60 @@ function LivestreamForm(props: Props) {
               {...({ livestreamData } as any)}
             />
 
+            <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+              {__('Tags')}
+            </h2>
+
+            <TagsSelect
+              suggestMature={!SIMPLE_SITE}
+              disableAutoFocus
+              hideHeader
+              label={__('Selected Tags')}
+              excludedControlTags={null}
+              limitSelect={TAGS_LIMIT}
+              help={
+                <span
+                  style={{
+                    fontSize: 'var(--font-xsmall)',
+                    color: 'var(--color-text-subtitle)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-xs)',
+                  }}
+                >
+                  <Icon icon={ICONS.INFO} size={12} />
+                  <span>
+                    {__(
+                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                    )}
+                  </span>
+                </span>
+              }
+              placeholder={__('gaming, crypto')}
+              onSelect={(newTags) => {
+                const validatedTags = [];
+                newTags.forEach((newTag) => {
+                  if (!tags.some((tag) => tag.name === newTag.name)) {
+                    validatedTags.push(newTag);
+                  }
+                });
+                updatePublishForm({
+                  tags: [...tags, ...validatedTags],
+                });
+              }}
+              onRemove={(clickedTag) => {
+                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                updatePublishForm({
+                  tags: newTags,
+                });
+              }}
+              tagsChosen={tags}
+            />
+
             {/* @ts-ignore -- isStillEditing is resolved internally */}
             <PublishProtectedContent claim={myClaimForUri} />
 
             {liveCreateType === 'choose_replay' && <PublishPrice {...({ disabled: !!disabled } as any)} />}
-
-            <Card
-              background
-              title={__('Tags')}
-              body={
-                <div className="publish-row">
-                  <TagsSelect
-                    suggestMature={!SIMPLE_SITE}
-                    disableAutoFocus
-                    hideHeader
-                    label={__('Selected Tags')}
-                    excludedControlTags={null}
-                    limitSelect={TAGS_LIMIT}
-                    help={__(
-                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                    )}
-                    placeholder={__('gaming, crypto')}
-                    onSelect={(newTags) => {
-                      const validatedTags = [];
-                      newTags.forEach((newTag) => {
-                        if (!tags.some((tag) => tag.name === newTag.name)) {
-                          validatedTags.push(newTag);
-                        }
-                      });
-                      updatePublishForm({
-                        tags: [...tags, ...validatedTags],
-                      });
-                    }}
-                    onRemove={(clickedTag) => {
-                      const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                      updatePublishForm({
-                        tags: newTags,
-                      });
-                    }}
-                    tagsChosen={tags}
-                  />
-                </div>
-              }
-            />
 
             <PublishAdditionalOptions
               isLivestream
