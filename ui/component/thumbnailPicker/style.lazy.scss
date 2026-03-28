@@ -130,6 +130,21 @@
   gap: var(--spacing-m);
 }
 
+.thumbnail-picker__manual-video {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+}
+
+.thumbnail-picker__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .thumbnail-picker__manual-controls {
   display: flex;
   flex-direction: column;

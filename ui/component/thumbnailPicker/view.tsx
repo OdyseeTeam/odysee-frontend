@@ -49,6 +49,8 @@ function ThumbnailPicker(props: Props) {
 
   const inputRef = useRef<Input | null>(null);
   const frameUrlsRef = useRef<string[]>([]);
+  const manualVideoRef = useRef<HTMLVideoElement>(null);
+  const manualVideoUrlRef = useRef<string | null>(null);
   const extractionIdRef = useRef(0);
   const manualFrameUrlRef = useRef<string | null>(null);
 
@@ -80,6 +82,10 @@ function ThumbnailPicker(props: Props) {
     cleanupFrameUrls();
     cleanupManualFrame();
     cleanupInput();
+    if (manualVideoUrlRef.current) {
+      URL.revokeObjectURL(manualVideoUrlRef.current);
+      manualVideoUrlRef.current = null;
+    }
   }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame]);
 
   const extractFrames = useCallback(
@@ -302,104 +308,117 @@ function ThumbnailPicker(props: Props) {
 
   return (
     <div className="thumbnail-picker">
-      <div className="thumbnail-picker__mode-header">
-        <div>
-          <h3 className="thumbnail-picker__title">{__('Auto-generated video thumbnails')}</h3>
-          <p className="thumbnail-picker__subtitle">
-            {__('Start with generated suggestions. If none fit, switch to manual frame selection.')}
-          </p>
-        </div>
-        {duration > 0 && mode === 'auto' && (
-          <Button
-            button="link"
-            label={__('Manual frame selection')}
-            onClick={handleShowManualMode}
-            disabled={loading || uploading}
-          />
-        )}
-      </div>
-
-      {loading && (
-        <div className="thumbnail-picker__loading">
-          <div className="thumbnail-picker__grid thumbnail-picker__grid--skeleton">
-            {DEFAULT_PERCENTAGES.map((_, i) => (
-              <div key={i} className="thumbnail-picker__item thumbnail-picker__item--skeleton">
-                <div className="thumbnail-picker__skeleton-box" />
-              </div>
-            ))}
-          </div>
-          <div className="thumbnail-picker__spinner">
-            <Spinner type="small" text={<span>{__('Extracting frames')}...</span>} />
-          </div>
-        </div>
-      )}
-
-      {!loading && error && (
-        <div className="thumbnail-picker__error">
-          <p>{error}</p>
-          <Button
-            button="secondary"
-            label={mode === 'manual' ? __('Preview frame') : __('Try again')}
-            onClick={mode === 'manual' ? handleManualPreview : handleRegenerate}
-          />
-        </div>
-      )}
-
-      {!loading && !error && mode === 'auto' && frames.length > 0 && (
+      {mode === 'auto' && (
         <>
-          <div className="thumbnail-picker__grid">
-            {frames.map((frame, index) => (
-              <button
-                key={frame.blobUrl}
-                className={
-                  'thumbnail-picker__item' + (selectedIndex === index ? ' thumbnail-picker__item--selected' : '')
-                }
-                onClick={() => setSelectedIndex(index)}
-                type="button"
-              >
-                <img
-                  src={frame.blobUrl}
-                  alt={__('Thumbnail at %timestamp%', {
-                    timestamp: frame.label,
-                  })}
-                  className="thumbnail-picker__image"
-                />
-                <span className="thumbnail-picker__label">{frame.label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="thumbnail-picker__actions">
-            <Button
-              button="primary"
-              label={uploading ? __('Uploading...') : __('Use selected thumbnail')}
-              disabled={selectedIndex === null || uploading}
-              onClick={handleUpload}
-            />
-            <Button
-              button="link"
-              label={__('Regenerate suggestions')}
-              onClick={handleRegenerate}
-              disabled={uploading}
-            />
+          <div className="thumbnail-picker__mode-header">
+            <div>
+              <h3 className="thumbnail-picker__title">{__('Auto-generated thumbnails')}</h3>
+              <p className="thumbnail-picker__subtitle">{__('Select one, or switch to manual frame selection.')}</p>
+            </div>
             {duration > 0 && (
               <Button
                 button="link"
-                label={__('Manual frame selection')}
+                label={__('Manual selection')}
                 onClick={handleShowManualMode}
-                disabled={uploading}
+                disabled={loading || uploading}
               />
             )}
           </div>
+
+          {loading && (
+            <div className="thumbnail-picker__loading">
+              <div className="thumbnail-picker__grid thumbnail-picker__grid--skeleton">
+                {DEFAULT_PERCENTAGES.map((_, i) => (
+                  <div key={i} className="thumbnail-picker__item thumbnail-picker__item--skeleton">
+                    <div className="thumbnail-picker__skeleton-box" />
+                  </div>
+                ))}
+              </div>
+              <div className="thumbnail-picker__spinner">
+                <Spinner type="small" text={<span>{__('Extracting frames')}...</span>} />
+              </div>
+            </div>
+          )}
+
+          {!loading && error && (
+            <div className="thumbnail-picker__error">
+              <p>{error}</p>
+              <Button button="secondary" label={__('Try again')} onClick={handleRegenerate} />
+            </div>
+          )}
+
+          {!loading && !error && frames.length > 0 && (
+            <>
+              <div className="thumbnail-picker__grid">
+                {frames.map((frame, index) => (
+                  <button
+                    key={frame.blobUrl}
+                    className={
+                      'thumbnail-picker__item' + (selectedIndex === index ? ' thumbnail-picker__item--selected' : '')
+                    }
+                    onClick={() => setSelectedIndex(index)}
+                    type="button"
+                  >
+                    <img
+                      src={frame.blobUrl}
+                      alt={__('Thumbnail at %timestamp%', { timestamp: frame.label })}
+                      className="thumbnail-picker__image"
+                    />
+                    <span className="thumbnail-picker__label">{frame.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="thumbnail-picker__actions">
+                <Button
+                  button="primary"
+                  label={uploading ? __('Uploading...') : __('Use selected thumbnail')}
+                  disabled={selectedIndex === null || uploading}
+                  onClick={handleUpload}
+                />
+                <Button button="link" label={__('Regenerate')} onClick={handleRegenerate} disabled={uploading} />
+              </div>
+            </>
+          )}
         </>
       )}
 
-      {!loading && mode === 'manual' && duration > 0 && (
+      {mode === 'manual' && duration > 0 && (
         <div className="thumbnail-picker__manual">
+          <div className="thumbnail-picker__mode-header">
+            <div>
+              <h3 className="thumbnail-picker__title">{__('Manual frame selection')}</h3>
+              <p className="thumbnail-picker__subtitle">{__('Scrub through the video to find the perfect frame.')}</p>
+            </div>
+            <Button
+              button="link"
+              label={__('Back to auto')}
+              onClick={() => {
+                setError(null);
+                setMode('auto');
+              }}
+              disabled={manualLoading || uploading}
+            />
+          </div>
+
+          {/* Video scrubber */}
+          <div className="thumbnail-picker__manual-video">
+            <video
+              ref={(el) => {
+                manualVideoRef.current = el;
+                if (el && !manualVideoUrlRef.current) {
+                  manualVideoUrlRef.current = URL.createObjectURL(filePath);
+                  el.src = manualVideoUrlRef.current;
+                  el.currentTime = manualTimestamp;
+                }
+              }}
+              className="thumbnail-picker__video"
+              muted
+              playsInline
+            />
+          </div>
+
           <div className="thumbnail-picker__manual-controls">
-            <label className="thumbnail-picker__manual-label" htmlFor="thumbnail-picker-manual-range">
-              {__('Choose a frame')}
-            </label>
             <div className="thumbnail-picker__manual-range-row">
               <input
                 id="thumbnail-picker-manual-range"
@@ -409,26 +428,27 @@ function ThumbnailPicker(props: Props) {
                 max={duration}
                 step={Math.max(duration / 200, 0.25)}
                 value={manualTimestamp}
-                onChange={(event) => setManualTimestamp(Number(event.target.value))}
+                onChange={(event) => {
+                  const ts = Number(event.target.value);
+                  setManualTimestamp(ts);
+                  if (manualVideoRef.current) manualVideoRef.current.currentTime = ts;
+                }}
               />
               <span className="thumbnail-picker__manual-timestamp">{formatTimestamp(manualTimestamp)}</span>
             </div>
           </div>
 
+          {error && (
+            <div className="thumbnail-picker__error">
+              <p>{error}</p>
+            </div>
+          )}
+
           <div className="thumbnail-picker__actions">
             <Button
               button="secondary"
-              label={manualLoading ? __('Loading frame...') : __('Preview frame')}
+              label={manualLoading ? __('Capturing...') : __('Capture this frame')}
               onClick={handleManualPreview}
-              disabled={manualLoading || uploading}
-            />
-            <Button
-              button="link"
-              label={__('Back to suggestions')}
-              onClick={() => {
-                setError(null);
-                setMode('auto');
-              }}
               disabled={manualLoading || uploading}
             />
           </div>
@@ -438,24 +458,21 @@ function ThumbnailPicker(props: Props) {
               <div className="thumbnail-picker__item thumbnail-picker__item--selected">
                 <img
                   src={manualFrame.blobUrl}
-                  alt={__('Thumbnail at %timestamp%', {
-                    timestamp: manualFrame.label,
-                  })}
+                  alt={__('Thumbnail at %timestamp%', { timestamp: manualFrame.label })}
                   className="thumbnail-picker__image"
                 />
                 <span className="thumbnail-picker__label">{manualFrame.label}</span>
               </div>
+              <div className="thumbnail-picker__actions">
+                <Button
+                  button="primary"
+                  label={uploading ? __('Uploading...') : __('Use this frame')}
+                  disabled={manualLoading || uploading}
+                  onClick={handleUpload}
+                />
+              </div>
             </div>
           )}
-
-          <div className="thumbnail-picker__actions">
-            <Button
-              button="primary"
-              label={uploading ? __('Uploading...') : __('Use this frame')}
-              disabled={!manualFrame || manualLoading || uploading}
-              onClick={handleUpload}
-            />
-          </div>
         </div>
       )}
     </div>
