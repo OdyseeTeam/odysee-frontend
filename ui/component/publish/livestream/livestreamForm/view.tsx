@@ -84,14 +84,12 @@ type ReplayApiItem = {
 };
 
 type Props = {
-  liveCreateType?: LiveCreateTypeValue;
-  liveEditType?: LiveEditTypeValue;
   setClearStatus?: (arg0: boolean) => void;
   disabled?: boolean;
 };
 
 function LivestreamForm(props: Props) {
-  const { liveCreateType, liveEditType, setClearStatus } = props;
+  const { setClearStatus } = props;
 
   const dispatch = useAppDispatch();
   const formValues = useAppSelector((state) => selectPublishFormValues(state));
@@ -111,6 +109,8 @@ function LivestreamForm(props: Props) {
     description,
     name,
     publishing,
+    liveCreateType = 'new_placeholder',
+    liveEditType = 'use_replay',
   } = formValues;
   const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
