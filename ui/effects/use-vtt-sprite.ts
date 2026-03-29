@@ -30,7 +30,7 @@ function buildBinarySplitOrder(count: number): number[] {
   const queue: [number, number][] = [[0, count - 1]];
 
   while (queue.length > 0) {
-    const [lo, hi] = queue.shift()!;
+    const [lo, hi] = queue.shift();
     if (lo >= hi) continue;
     const mid = Math.floor((lo + hi) / 2);
     if (mid !== lo) {
@@ -129,34 +129,38 @@ export default function useVttSprite(
     function emitVtt() {
       if (canceled) return;
 
-      canvas.toBlob((blob) => {
-        if (canceled || !blob) return;
+      canvas.toBlob(
+        (blob) => {
+          if (canceled || !blob) return;
 
-        const spriteUrl = URL.createObjectURL(blob);
-        blobUrlsRef.current.push(spriteUrl);
+          const spriteUrl = URL.createObjectURL(blob);
+          blobUrlsRef.current.push(spriteUrl);
 
-        let vtt = 'WEBVTT\n\n';
-        for (let i = 0; i < frameCount; i++) {
-          const startTime = i * INTERVAL_SECONDS;
-          const endTime = (i + 1) * INTERVAL_SECONDS;
-          const closest = findClosestCaptured(i);
-          if (closest !== null) {
-            vtt += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-            vtt += `${spriteUrl}#xywh=${spriteCoords(closest)}\n\n`;
-          } else {
-            vtt += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
-            vtt += `${black}#xywh=0,0,${THUMB_WIDTH},${THUMB_HEIGHT}\n\n`;
+          let vtt = 'WEBVTT\n\n';
+          for (let i = 0; i < frameCount; i++) {
+            const startTime = i * INTERVAL_SECONDS;
+            const endTime = (i + 1) * INTERVAL_SECONDS;
+            const closest = findClosestCaptured(i);
+            if (closest !== null) {
+              vtt += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+              vtt += `${spriteUrl}#xywh=${spriteCoords(closest)}\n\n`;
+            } else {
+              vtt += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`;
+              vtt += `${black}#xywh=0,0,${THUMB_WIDTH},${THUMB_HEIGHT}\n\n`;
+            }
           }
-        }
 
-        const vttBlob = new Blob([vtt], { type: 'text/vtt' });
-        const vttBlobUrl = URL.createObjectURL(vttBlob);
-        blobUrlsRef.current.push(vttBlobUrl);
+          const vttBlob = new Blob([vtt], { type: 'text/vtt' });
+          const vttBlobUrl = URL.createObjectURL(vttBlob);
+          blobUrlsRef.current.push(vttBlobUrl);
 
-        if (!canceled) {
-          setVttUrl(vttBlobUrl);
-        }
-      }, 'image/jpeg', 0.7);
+          if (!canceled) {
+            setVttUrl(vttBlobUrl);
+          }
+        },
+        'image/jpeg',
+        0.7
+      );
     }
 
     function captureFrame() {
@@ -169,7 +173,7 @@ export default function useVttSprite(
       const frameIdx = seekOrder[orderIndex - 1];
       const col = frameIdx % COLUMNS;
       const row = Math.floor(frameIdx / COLUMNS);
-      ctx!.drawImage(video, col * THUMB_WIDTH, row * THUMB_HEIGHT, THUMB_WIDTH, THUMB_HEIGHT);
+      ctx.drawImage(video, col * THUMB_WIDTH, row * THUMB_HEIGHT, THUMB_WIDTH, THUMB_HEIGHT);
       capturedFrames.add(frameIdx);
       capturedCount++;
 

@@ -699,6 +699,16 @@ function VideoRenderFloating(props: Props) {
       if (isDraggingPlayerControl(e)) return;
 
       const d = dragRef.current;
+      if (d.active) {
+        d.active = false;
+        d.dragging = false;
+        if (d.backdrop) {
+          d.backdrop.remove();
+          d.backdrop = null;
+        }
+        node.classList.remove('content__viewer--disable-click');
+      }
+      e.preventDefault();
       d.active = true;
       d.dragging = false;
       d.pointerId = e.pointerId;
@@ -766,17 +776,26 @@ function VideoRenderFloating(props: Props) {
       }
     }
 
+    function onBlur() {
+      const d = dragRef.current;
+      if (d.active) {
+        onPointerUp({ pointerId: d.pointerId } as PointerEvent);
+      }
+    }
+
     node.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
     document.addEventListener('pointercancel', onPointerUp);
     node.addEventListener('lostpointercapture', onLostCapture);
+    window.addEventListener('blur', onBlur);
     return () => {
       node.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
       document.removeEventListener('pointercancel', onPointerUp);
       node.removeEventListener('lostpointercapture', onLostCapture);
+      window.removeEventListener('blur', onBlur);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draggable]);

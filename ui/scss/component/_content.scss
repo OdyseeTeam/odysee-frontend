@@ -63,6 +63,7 @@
   background-color: #000;
   border-radius: var(--border-radius);
   will-change: transform;
+  touch-action: none;
 
   .file-render--video {
     border-top-right-radius: var(--border-radius);

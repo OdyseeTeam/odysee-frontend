@@ -1,4 +1,5 @@
 import React from 'react';
+import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Spinner from 'component/spinner';
@@ -43,6 +44,7 @@ export default function ModalConfirm(props: Props) {
 
   return (
     <Modal isOpen type="custom" width="wide">
+      <Button button="close" icon={ICONS.REMOVE} aria-label={__('Close')} onClick={hideModal} />
       <Card
         title={title}
         subtitle={subtitle}

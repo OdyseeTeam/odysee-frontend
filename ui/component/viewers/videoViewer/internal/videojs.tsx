@@ -43,6 +43,17 @@ const P2P_ACTIVITY_WINDOW_MS = 10000; // show P2P status as "active" for 10s aft
 const P2P_RATE_WINDOW_MS = 8000; // average throughput over 8s (covers ~2 segment cycles)
 const P2P_FORCE_SEGMENT_MODE = true; // use full segments (not LL-HLS parts) for better P2P sharing
 
+function parseVttTime(str: string): number | null {
+  const parts = str.split(':');
+  if (parts.length < 2) return null;
+  const secParts = parts.pop().split('.');
+  const s = parseInt(secParts[0]) + (secParts[1] ? parseInt(secParts[1]) / 1000 : 0);
+  const m = parseInt(parts.pop());
+  const h = parts.length > 0 ? parseInt(parts.pop()) : 0;
+  const result = h * 3600 + m * 60 + s;
+  return isNaN(result) ? null : result;
+}
+
 function getP2PAnnounceTrackers(trackerUrl?: string | null): string[] {
   if (!trackerUrl) return [];
   return [trackerUrl];
@@ -727,17 +738,39 @@ function VideoJsInner(props: Props) {
   }, [media, resolvedSource?.src]);
 
   // Inject generated VTT sprite for non-HLS videos
+  const generatedTrackRef = useRef<HTMLTrackElement | null>(null);
+  const prevVttUrlRef = useRef<string | null>(null);
   useEffect(() => {
     if (!media || !generatedVttUrl || IS_MOBILE) return;
-    const track = document.createElement('track');
-    track.kind = 'metadata';
-    track.label = 'thumbnails';
-    track.default = true;
-    track.src = generatedVttUrl;
-    media.appendChild(track);
-    return () => {
-      if (track.parentNode) track.parentNode.removeChild(track);
-    };
+
+    if (!generatedTrackRef.current) {
+      const track = document.createElement('track');
+      track.kind = 'metadata';
+      track.label = 'thumbnails';
+      track.default = true;
+      track.src = generatedVttUrl;
+      prevVttUrlRef.current = generatedVttUrl;
+      media.appendChild(track);
+      generatedTrackRef.current = track;
+    } else if (prevVttUrlRef.current !== generatedVttUrl) {
+      const oldTrack = generatedTrackRef.current;
+      const newTrack = document.createElement('track');
+      newTrack.kind = 'metadata';
+      newTrack.label = 'thumbnails';
+      newTrack.default = true;
+      newTrack.src = generatedVttUrl;
+      newTrack.addEventListener(
+        'load',
+        () => {
+          if (oldTrack.parentNode) oldTrack.parentNode.removeChild(oldTrack);
+          newTrack.track.mode = 'hidden';
+        },
+        { once: true }
+      );
+      media.appendChild(newTrack);
+      generatedTrackRef.current = newTrack;
+      prevVttUrlRef.current = generatedVttUrl;
+    }
   }, [media, generatedVttUrl]);
 
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
