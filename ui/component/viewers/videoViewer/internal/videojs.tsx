@@ -18,6 +18,7 @@ import useErrorRecovery from './hooks/useErrorRecovery';
 import useLivestreamEdge from './hooks/useLivestreamEdge';
 import useMediaSession from './hooks/useMediaSession';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
+import useVttSprite from 'effects/use-vtt-sprite';
 import useAnalytics from './hooks/useAnalytics';
 import useChromecast, { isCastSessionActive } from './hooks/useChromecast';
 import MobileTouchOverlay from './components/MobileTouchOverlay';
@@ -303,6 +304,12 @@ function VideoJsInner(props: Props) {
     activeLivestreamForChannel,
     uri,
     doSetVideoSourceLoaded
+  );
+
+  const generatedVttUrl = useVttSprite(
+    resolvedSource && !resolvedSource.thumbnailBasePath ? source : null,
+    claimValues?.video?.duration,
+    Boolean(resolvedSource?.thumbnailBasePath)
   );
 
   useEffect(() => {
@@ -718,6 +725,20 @@ function VideoJsInner(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, resolvedSource?.src]);
+
+  // Inject generated VTT sprite for non-HLS videos
+  useEffect(() => {
+    if (!media || !generatedVttUrl || IS_MOBILE) return;
+    const track = document.createElement('track');
+    track.kind = 'metadata';
+    track.label = 'thumbnails';
+    track.default = true;
+    track.src = generatedVttUrl;
+    media.appendChild(track);
+    return () => {
+      if (track.parentNode) track.parentNode.removeChild(track);
+    };
+  }, [media, generatedVttUrl]);
 
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
   useEffect(() => {
