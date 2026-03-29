@@ -773,20 +773,75 @@ function VideoJsInner(props: Props) {
     }
   }, [media, generatedVttUrl]);
 
+  // Load native VTT thumbnail sprite for HLS videos
+  const nativeTrackRef = useRef<TextTrack | null>(null);
+  useEffect(() => {
+    if (!media || !resolvedSource?.thumbnailBasePath || IS_MOBILE) return;
+    const vttUrl = resolvedSource.thumbnailBasePath + '/stream_sprite.vtt';
+    const basePath = resolvedSource.thumbnailBasePath + '/';
+    let canceled = false;
+
+    fetch(vttUrl)
+      .then((r) => r.text())
+      .then((vttText) => {
+        if (canceled || !media) return;
+
+        if (!nativeTrackRef.current) {
+          nativeTrackRef.current = media.addTextTrack('metadata', 'thumbnails');
+          nativeTrackRef.current.mode = 'hidden';
+        }
+
+        const track = nativeTrackRef.current;
+        const lines = vttText.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+          if (!lines[i].includes('-->')) continue;
+          const [startStr, endStr] = lines[i].split('-->').map((s) => s.trim());
+          const cueText = lines[i + 1]?.trim();
+          if (!cueText) continue;
+          const start = parseVttTime(startStr);
+          const end = parseVttTime(endStr);
+          if (start !== null && end !== null) {
+            const absoluteCueText = cueText.startsWith('./') ? basePath + cueText.slice(2) : cueText;
+            track.addCue(new VTTCue(start, end, absoluteCueText));
+          }
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      canceled = true;
+    };
+  }, [media, resolvedSource?.thumbnailBasePath]);
+
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
   useEffect(() => {
     if (!media) return;
-    const enableTracks = () => {
-      for (let i = 0; i < media.textTracks.length; i++) {
-        const track = media.textTracks[i];
-        if (track.kind === 'metadata' && track.mode === 'disabled') {
-          track.mode = 'hidden';
-        }
+
+    const enableTrack = (track: TextTrack) => {
+      if (track.kind === 'metadata' && track.mode === 'disabled') {
+        track.mode = 'hidden';
       }
     };
-    enableTracks();
-    media.textTracks.addEventListener('addtrack', enableTracks);
-    return () => media.textTracks.removeEventListener('addtrack', enableTracks);
+
+    const onAddTrack = (e: TrackEvent) => {
+      if (e.track) enableTrack(e.track);
+    };
+
+    // Enable existing tracks
+    for (let i = 0; i < media.textTracks.length; i++) {
+      enableTrack(media.textTracks[i]);
+    }
+
+    // Also wait for track elements to load and re-enable
+    const trackElements = media.querySelectorAll('track');
+    trackElements.forEach((trackEl) => {
+      trackEl.addEventListener('load', () => {
+        if (trackEl.track) enableTrack(trackEl.track);
+      });
+    });
+
+    media.textTracks.addEventListener('addtrack', onAddTrack);
+    return () => media.textTracks.removeEventListener('addtrack', onAddTrack);
   }, [media]);
 
   useEffect(() => {
@@ -901,16 +956,7 @@ function VideoJsInner(props: Props) {
             playsInline
             crossOrigin="anonymous"
             className={classnames({ livestreamPlayer: isLivestream })}
-          >
-            {resolvedSource.thumbnailBasePath && !IS_MOBILE && (
-              <track
-                kind="metadata"
-                label="thumbnails"
-                default
-                src={resolvedSource.thumbnailBasePath + '/stream_sprite.vtt'}
-              />
-            )}
-          </Video>
+          ></Video>
         )}
 
         {IS_MOBILE && !embedded && (
