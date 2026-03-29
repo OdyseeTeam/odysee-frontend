@@ -84,6 +84,9 @@
     }
 
     @media (max-width: $breakpoint-desktop-compact) and (min-width: ($breakpoint-medium + 1)) {
+      padding: var(--spacing-xs);
+      padding-bottom: var(--spacing-xxxs);
+
       .banner-latest-claims__tiles .claim-preview__wrapper:nth-child(3) {
         display: none;
       }
@@ -92,6 +95,11 @@
     @media (max-width: $breakpoint-medium) {
       .banner-latest-claims__tiles {
         display: none;
+      }
+
+      .banner-latest-claims__header {
+        width: auto;
+        min-width: 0;
       }
     }
   }
@@ -251,10 +259,10 @@
 
     @media (max-width: $breakpoint-medium) {
       &.left {
-        left: var(--spacing-m);
+        left: var(--spacing-s);
       }
       &.right {
-        right: var(--spacing-m);
+        right: var(--spacing-s);
       }
     }
 
