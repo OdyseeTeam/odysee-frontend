@@ -17,7 +17,13 @@ export default function QualitySelector({ defaultQuality, originalVideoHeight, i
 
     const updateLevels = () => {
       if (hls.levels) {
-        setLevels(hls.levels.map((l, i) => ({ height: l.height, index: i })));
+        setLevels(
+          hls.levels.map((l, i) => {
+            // For portrait streams (height > width), use width as the quality label
+            const qualityHeight = l.width && l.height && l.height > l.width ? l.width : l.height;
+            return { height: qualityHeight, index: i };
+          })
+        );
         setCurrentLevel(hls.currentLevel);
       }
     };
