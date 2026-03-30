@@ -65,9 +65,16 @@ export function getWebrtcPublishVideoConstraints(
   const video = { ...WEBRTC_PUBLISH_PRESETS[presetId].video };
 
   if (platform.isMobile()) {
-    // Use { exact } so the browser never silently falls back to another camera
-    // (e.g. picking the rear camera just because it natively supports 1080p).
-    video.facingMode = { exact: facingMode || 'user' };
+    const facing = facingMode || 'user';
+    video.facingMode = { exact: facing };
+
+    // Front camera on mobile is portrait — swap width/height so constraints
+    // match the camera's native orientation (e.g., 720x1280 not 1280x720)
+    if (facing === 'user') {
+      const origWidth = video.width;
+      video.width = video.height;
+      video.height = origWidth;
+    }
   }
 
   return video;

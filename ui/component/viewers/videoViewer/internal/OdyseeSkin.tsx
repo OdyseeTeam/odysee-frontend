@@ -281,10 +281,19 @@ function useQualityLevels() {
       clearInterval(interval);
       const updateLevels = () => {
         if (h.levels) {
-          setLevels(h.levels.map((l, i) => ({ height: l.height, index: i })));
+          setLevels(
+            h.levels.map((l, i) => {
+              // For portrait streams (height > width), use the shorter dimension
+              const qualityHeight = l.width && l.height && l.height > l.width ? l.width : l.height;
+              return { height: qualityHeight, index: i };
+            })
+          );
           setCurrentLevel(h.currentLevel);
           const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
-          setActiveHeight(playing >= 0 && h.levels[playing] ? h.levels[playing].height : 0);
+          const playingLevel = playing >= 0 && h.levels[playing] ? h.levels[playing] : null;
+          const playingHeight =
+            playingLevel && playingLevel.height > playingLevel.width ? playingLevel.width : playingLevel?.height || 0;
+          setActiveHeight(playingHeight);
         }
       };
       updateLevels();
@@ -292,7 +301,8 @@ function useQualityLevels() {
       onSwitched = () => {
         setCurrentLevel(h.currentLevel);
         const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
-        setActiveHeight(playing >= 0 && h.levels[playing] ? h.levels[playing].height : 0);
+        const lvl = playing >= 0 && h.levels[playing] ? h.levels[playing] : null;
+        setActiveHeight(lvl && lvl.height > lvl.width ? lvl.width : lvl?.height || 0);
       };
       onFragChanged = (_, data) => {
         if (data && data.frag && data.frag.level >= 0 && h.levels[data.frag.level]) {
@@ -1006,6 +1016,35 @@ export default function OdyseeSkin(props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const liveTimeFormat = useLiveTimeFormat();
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
+
+  // Detect portrait video from actual stream dimensions and add class to container
+  const media = Player.useMedia();
+  const [isPortraitStream, setIsPortraitStream] = useState(false);
+  useEffect(() => {
+    if (!media) return;
+    const videoEl = media instanceof HTMLVideoElement ? media : media.querySelector?.('video');
+    if (!videoEl) return;
+
+    const checkOrientation = () => {
+      const vw = videoEl.videoWidth;
+      const vh = videoEl.videoHeight;
+      if (vw > 0 && vh > 0) {
+        setIsPortraitStream(vh > vw);
+      }
+    };
+
+    videoEl.addEventListener('loadedmetadata', checkOrientation);
+    videoEl.addEventListener('resize', checkOrientation);
+    // Check immediately in case already loaded
+    checkOrientation();
+
+    return () => {
+      videoEl.removeEventListener('loadedmetadata', checkOrientation);
+      videoEl.removeEventListener('resize', checkOrientation);
+    };
+  }, [media]);
+
+  const isVertical = isVerticalVideo || isPortraitStream;
   const castIsPaused = castState ? castState.isPaused : true;
   const castTogglePlay = React.useCallback(() => {
     if (!castActions) return;
@@ -1073,7 +1112,7 @@ export default function OdyseeSkin(props) {
     <Player.Container
       className={`media-default-skin media-default-skin--video odysee-skin ${
         isCasting ? 'odysee-skin--casting' : ''
-      } ${className || ''}`}
+      } ${isVertical ? 'odysee-skin--portrait' : ''} ${className || ''}`}
       {...rest}
     >
       {children}
@@ -1122,7 +1161,7 @@ export default function OdyseeSkin(props) {
             </Slider.Track>
             <Slider.Thumb className="media-slider__thumb odysee-slider__thumb" />
             <Slider.Preview className="odysee-slider-preview">
-              {!isVerticalVideo ? (
+              {!isVertical ? (
                 <div className="odysee-slider-preview__thumbnail-frame">
                   <Slider.Thumbnail className="odysee-slider-preview__thumbnail" />
                 </div>

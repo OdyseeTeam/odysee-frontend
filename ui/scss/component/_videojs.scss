@@ -129,6 +129,14 @@ $control-bar-height-mobile: 44px;
   }
 }
 
+// Portrait stream: switch to 9:16 aspect ratio
+.odysee-skin--portrait {
+  aspect-ratio: 9 / 16 !important;
+  max-height: 80vh;
+  width: auto !important;
+  margin: 0 auto;
+}
+
 .odysee-skin:has(.odysee-mobile-controls) {
   --media-border-radius: 0;
   --media-surface-background-color: var(--player-overlay-bg);
