@@ -1,7 +1,7 @@
 import React from 'react';
 import DateTime from 'component/dateTime';
 import { LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import I18nMessage from 'component/i18nMessage';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
@@ -56,9 +56,7 @@ const LivestreamDateTime = (props: Props) => {
   }
 
   if (
-    moment
-      .unix(releaseTime as any)
-      .isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
+    dayjs.unix(releaseTime as any).isBetween(dayjs().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), dayjs())
   ) {
     return __('Starting Soon');
   }

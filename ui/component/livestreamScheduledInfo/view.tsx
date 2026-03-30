@@ -1,7 +1,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
 import { useAppSelector } from 'redux/hooks';
@@ -19,7 +19,7 @@ export default function LivestreamScheduledInfo(props: Props) {
 
   const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
   const [inPast, setInPast] = React.useState<boolean | undefined>();
-  const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
+  const startDate = React.useMemo(() => dayjs(releaseTimeMs).format('LLL'), [releaseTimeMs]);
   React.useEffect(() => {
     const calcTime = () => {
       const zeroDurationStr = '---';

@@ -2,7 +2,7 @@ import * as ICONS from 'constants/icons';
 import { BLOCK_LEVEL } from 'constants/comment';
 import React from 'react';
 import classnames from 'classnames';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import humanizeDuration from 'humanize-duration';
 import BlockList from 'component/blockList';
 import ClaimPreview from 'component/claimPreview';
@@ -94,7 +94,7 @@ function ListBlocked() {
         <div>
           <div className="help">
             <blockquote>
-              {moment(timeoutInfo.blockedAt).format('LLL')}
+              {dayjs(timeoutInfo.blockedAt).format('LLL')}
               <br />
               {getDurationStr(timeoutInfo.bannedFor)}{' '}
               {__('(Remaining: %duration%) --[timeout ban duration]--', {

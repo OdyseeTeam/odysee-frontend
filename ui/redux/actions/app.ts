@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
@@ -690,23 +690,23 @@ export const doSetVideoSourceLoaded = (uri: string) => (dispatch: Dispatch) =>
     type: ACTIONS.SET_VIDEO_SOURCE_LOADED,
     data: uri,
   });
-const MOMENT_LOCALE_MAP = {
+const DAYJS_LOCALE_MAP = {
   no: 'nn',
   'zh-Hans': 'zh-cn',
   'zh-Hant': 'zh-tw',
 };
 export function doSetChronoLocale(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
-    const lang = MOMENT_LOCALE_MAP[language] || language;
+    const lang = DAYJS_LOCALE_MAP[language] || language;
 
     if (lang === 'en' || (lang && lang.startsWith('en-'))) {
-      moment.locale('en');
+      dayjs.locale('en');
     } else {
-      import(/* @vite-ignore */ `moment/locale/${lang}`)
-        .then(() => moment.locale(lang))
+      import(/* @vite-ignore */ `dayjs/locale/${lang}.js`)
+        .then(() => dayjs.locale(lang))
         .catch((err) => {
           assert(false, 'Failed to load locale:', err);
-          moment.locale('en');
+          dayjs.locale('en');
         });
     }
   };

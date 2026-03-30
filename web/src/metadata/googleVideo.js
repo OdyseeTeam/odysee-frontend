@@ -1,4 +1,6 @@
-const moment = require('moment');
+const dayjs = require('dayjs');
+const duration = require('dayjs/plugin/duration');
+dayjs.extend(duration);
 
 const removeMd = require('remove-markdown');
 
@@ -113,7 +115,7 @@ async function buildGoogleVideoMetadata(uri, claim) {
     thumbnailUrl: `${claimThumbnail}`,
     uploadDate: `${new Date(releaseTime * 1000).toISOString()}`,
     // --- Recommended ---
-    duration: mediaDuration ? moment.duration(mediaDuration * 1000).toISOString() : undefined,
+    duration: mediaDuration ? dayjs.duration(mediaDuration * 1000).toISOString() : undefined,
     url: lbryToOdyseeUrl(claim),
     contentUrl: claimStreamUrl,
     embedUrl: generateEmbedUrlEncoded(claim.canonical_url),

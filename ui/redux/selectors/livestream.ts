@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
@@ -247,10 +247,10 @@ export const selectLatestLiveClaimForChannel = (state: State, channelId: string)
   return latestLiveUri && selectClaimForUri(state, latestLiveUri);
 };
 export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
-  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), moment())
+  releaseTime.isBetween(dayjs().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), dayjs())
 );
 export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
-  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
+  releaseTime.isBetween(dayjs().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), dayjs())
 );
 export const selectShouldShowLivestreamForUri = (state: State, uri: string) => {
   const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);

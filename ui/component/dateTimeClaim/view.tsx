@@ -1,6 +1,6 @@
 import type { ClaimTsList } from 'redux/selectors/claims';
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { formatDateStr } from './helper';
 import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import { useAppSelector } from 'redux/hooks';
@@ -24,7 +24,7 @@ function DateTimeClaim(props: Props) {
   const tags = useAppSelector((state) => selectTagsRawForUri(state, uri));
   const date: Date | null | undefined = resolveDate(tags, claimTsList);
   const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
-  const title = moment(date).format(`LL ${clockFormat}`);
+  const title = dayjs(date).format(`LL ${clockFormat}`);
 
   function resolveDate(tags: Array<string> | null | undefined, claimTsList: ClaimTsList): Date | null | undefined {
     // Defaults should match selectDateForUri()
@@ -36,7 +36,7 @@ function DateTimeClaim(props: Props) {
   function getDateElem() {
     if (date) {
       if (disableFromNowFormat) {
-        return moment(date).format(format === 'date-only' ? 'LL' : clockFormat);
+        return dayjs(date).format(format === 'date-only' ? 'LL' : clockFormat);
       } else {
         const isScheduled = tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE));
         const datePassed = isDatePassed(date);

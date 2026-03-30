@@ -14,7 +14,7 @@ import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { useLocation } from 'react-router-dom';
 import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
@@ -189,7 +189,7 @@ function DiscoverPage(props: Props) {
     if (isWildWest) {
       // The homepage definition currently does not support 'start-of-week', so
       // continue to hardcode here for now.
-      return `>${Math.floor(moment().subtract(0, 'hour').startOf('week').unix())}`;
+      return `>${Math.floor(dayjs().subtract(0, 'hour').startOf('week').unix())}`;
     }
 
     if (categoryReleaseTime && !isOrderTop) {

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
@@ -481,7 +481,7 @@ export const selectReleaseTimeForUri = (state: State, uri: string) => {
   return claim?.value?.release_time;
 };
 export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
-  const releaseTime: moment.Moment = moment.unix(claimReleaseTime || 0);
+  const releaseTime = dayjs.unix(claimReleaseTime || 0);
   return releaseTime;
 });
 export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>

@@ -2,7 +2,7 @@ import React from 'react';
 import UriIndicator from 'component/uriIndicator';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { buildURI } from 'util/lbryURI';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import CopyableText from 'component/copyableText';
 import Tooltip from 'component/common/tooltip';
 import { toCapitalCase } from 'util/string';
@@ -45,8 +45,8 @@ function View(props: IProps) {
   return (
     <tr key={transaction.transaction_id}>
       <td>
-        <Tooltip title={moment(new Date(transaction.initiated_at)).format('LLL')}>
-          <div>{moment(new Date(transaction.initiated_at)).format('LL')}</div>
+        <Tooltip title={dayjs(new Date(transaction.initiated_at)).format('LLL')}>
+          <div>{dayjs(new Date(transaction.initiated_at)).format('LL')}</div>
         </Tooltip>
       </td>
       <td className="channelThumbnail">

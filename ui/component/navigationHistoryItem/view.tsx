@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import classnames from 'classnames';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
@@ -52,7 +52,7 @@ function NavigationHistoryItem(props: Props) {
       })}
     >
       {!slim && <FormField checked={selected} type="checkbox" onChange={onSelect} />}
-      <span className="">{moment(lastViewed).from(moment())}</span>
+      <span className="">{dayjs(lastViewed).from(dayjs())}</span>
       <Button className="item-list__element" button="link" label={uri} navigate={uri} />
       <span className="item-list__element">{title}</span>
     </div>

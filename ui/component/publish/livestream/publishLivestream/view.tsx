@@ -7,7 +7,7 @@ import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import 'component/common/paginate.scss';
@@ -291,7 +291,7 @@ function PublishLivestream(props: Props) {
                                       <td>
                                         {durationElem}
                                         <div className="table__item-label">
-                                          {moment(item.data.uploadedAt).from(moment())}
+                                          {dayjs(item.data.uploadedAt).from(dayjs())}
                                         </div>
                                       </td>
                                       <td>

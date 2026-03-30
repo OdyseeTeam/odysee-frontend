@@ -251,6 +251,7 @@
         align-self: flex-start;
         width: 100% !important;
         height: 100vh !important;
+        height: 100dvh !important;
         flex: none !important;
         transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }

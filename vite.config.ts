@@ -16,17 +16,37 @@ const __dirname = path.dirname(__filename);
 
 const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
-// Resolve pnpm's nested node_modules directories for SCSS loadPaths
+// Resolve pnpm's nested node_modules directories for SCSS loadPaths.
+// Only include directories that actually contain SCSS files to avoid
+// inflating the Sass resolver's search space with 800 irrelevant paths.
 function resolvePnpmNodeModules() {
-  const pnpmDir = path.resolve(__dirname, 'node_modules/.pnpm');
-  if (!fs.existsSync(pnpmDir)) return [path.resolve(__dirname, 'node_modules')];
+  const base = path.resolve(__dirname, 'node_modules');
+  const pnpmDir = path.join(base, '.pnpm');
+  if (!fs.existsSync(pnpmDir)) return [base];
   try {
     return fs
       .readdirSync(pnpmDir)
-      .filter((d) => fs.existsSync(path.join(pnpmDir, d, 'node_modules')))
+      .filter((d) => {
+        const nm = path.join(pnpmDir, d, 'node_modules');
+        if (!fs.existsSync(nm)) return false;
+        // Quick check: only include if a nested package contains .scss files
+        try {
+          return fs.readdirSync(nm).some((pkg) => {
+            const pkgPath = path.join(nm, pkg);
+            try {
+              if (!fs.statSync(pkgPath).isDirectory()) return false;
+              return fs.readdirSync(pkgPath).some((f) => f.endsWith('.scss'));
+            } catch {
+              return false;
+            }
+          });
+        } catch {
+          return false;
+        }
+      })
       .map((d) => path.join(pnpmDir, d, 'node_modules'));
   } catch {
-    return [path.resolve(__dirname, 'node_modules')];
+    return [base];
   }
 }
 
@@ -229,6 +249,7 @@ function uiModuleResolverPlugin() {
   );
 
   const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
+  const resolveCache = new Map();
 
   function tryResolve(basePath) {
     // Try direct file
@@ -257,23 +278,27 @@ function uiModuleResolverPlugin() {
       if (!importer || importer.includes('node_modules')) return null;
       if (source.startsWith('.') || source.startsWith('/') || source.startsWith('\0')) return null;
 
+      // Return cached resolution if available
+      if (resolveCache.has(source)) return resolveCache.get(source);
+
       // Get the top-level segment of the import
       const segments = source.split('/');
       const topLevel = segments[0];
 
+      let result = null;
+
       // Check if this is a ui/ directory import (e.g. 'component/foo', 'redux/actions/app')
       if (uiDirs.has(topLevel)) {
-        const resolved = tryResolve(path.join(UI_ROOT, source));
-        if (resolved) return resolved;
+        result = tryResolve(path.join(UI_ROOT, source));
       }
 
       // Check if this is a ui/ file import (e.g. 'lbry', 'rewards', 'store')
-      if (segments.length === 1 && uiFiles.has(topLevel)) {
-        const resolved = tryResolve(path.join(UI_ROOT, source));
-        if (resolved) return resolved;
+      if (!result && segments.length === 1 && uiFiles.has(topLevel)) {
+        result = tryResolve(path.join(UI_ROOT, source));
       }
 
-      return null;
+      resolveCache.set(source, result);
+      return result;
     },
   };
 }
@@ -505,6 +530,15 @@ export default defineConfig({
   server: {
     port: parseInt(process.env.WEB_SERVER_PORT || process.env.WEBPACK_WEB_PORT || '9090', 10),
     open: false,
+    warmup: {
+      clientFiles: [
+        'ui/index.tsx',
+        'ui/component/app/view.tsx',
+        'ui/component/router/view.tsx',
+        'ui/store.ts',
+        'ui/redux/selectors/claims.ts',
+      ],
+    },
   },
 
   build: {
@@ -533,12 +567,11 @@ export default defineConfig({
       'reselect',
       '@emotion/styled',
       '@emotion/react',
-      'prop-types',
       'react-router',
       'react-router-dom',
       'react-top-loading-bar',
       'classnames',
-      'moment',
+      'dayjs',
       'uuid',
       'localforage',
       'redux-persist',

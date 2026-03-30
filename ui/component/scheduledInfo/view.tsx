@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import './style.scss';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
@@ -19,7 +19,7 @@ function ScheduledInfo(props: Props) {
   const isLivestream = useAppSelector((state) => selectIsLivestreamClaimForUri(state, uri));
   const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
   const [inPast, setInPast] = React.useState<boolean | undefined>();
-  const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
+  const startDate = React.useMemo(() => dayjs(releaseTimeMs).format('LLL'), [releaseTimeMs]);
   const icon = isLivestream ? ICONS.LIVESTREAM_SOLID : ICONS.TIME;
   const text = isLivestream ? 'Live %time_date%' : 'Available %time_date%';
   React.useEffect(() => {
