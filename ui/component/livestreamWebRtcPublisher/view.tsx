@@ -1087,9 +1087,18 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           className={classnames('livestream-webrtc__preview', {
             'livestream-webrtc__preview--active': hasCamera,
             'livestream-webrtc__preview--live': isLive,
+            'livestream-webrtc__preview--portrait': isMobile && facingMode === 'user',
           })}
         >
-          <video ref={videoRef} className="livestream-webrtc__video" playsInline muted autoPlay />
+          <video
+            ref={videoRef}
+            className={classnames('livestream-webrtc__video', {
+              'livestream-webrtc__video--mirrored': facingMode === 'user',
+            })}
+            playsInline
+            muted
+            autoPlay
+          />
 
           {/* Connecting animation overlay (only during WHIP connection, not camera request) */}
           {isConnecting && <LivestreamConnectingAnimation status="connecting" />}
@@ -1368,10 +1377,11 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M16 3h5v5" />
-                  <path d="M8 21H3v-5" />
-                  <path d="M21 3l-7 7" />
-                  <path d="M3 21l7-7" />
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <path d="M9 13a3 3 0 0 0 3 3" />
+                  <path d="M15 13a3 3 0 0 0-3-3" />
+                  <path d="M9 10l-1-1" />
+                  <path d="M15 16l1 1" />
                 </svg>
               </button>
             )}
