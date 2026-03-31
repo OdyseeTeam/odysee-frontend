@@ -224,6 +224,7 @@ function FileThumbnail(props: Props) {
           'media__thumb--has-preview': canPreviewOnHover,
           'media__thumb--preview-active': isPreviewActive,
           'media__thumb--live-refreshing': isLiveRefreshing,
+          media__thumb__short: isShort,
         })}
         forceReload={forceReload}
         enableLiveCrossfade={enableLiveCrossfade}
@@ -279,6 +280,7 @@ function FileThumbnail(props: Props) {
       className={classnames('media__thumb', className, {
         'media__thumb--resolving': !hasResolvedClaim,
         'media__thumb--small': small,
+        media__thumb__short: isShort,
       })}
     >
       {children}
