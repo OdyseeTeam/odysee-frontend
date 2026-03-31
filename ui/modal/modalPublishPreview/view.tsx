@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import type { DoPublishDesktop } from 'redux/actions/publish';
 import './style.scss';
 import Button from 'component/button';
@@ -114,7 +114,7 @@ const ModalPublishPreview = (props: Props) => {
     return {
       userEntered: rtStore !== undefined,
       value: rtPayload,
-      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter(),
+      valueIsInFuture: rtPayload && dayjs(rtPayload * 1000).isAfter(dayjs()),
     };
   }, [rtPayload, rtStore]);
   const livestream =
@@ -294,7 +294,7 @@ const ModalPublishPreview = (props: Props) => {
 
   function getReleaseTimeValue() {
     if (releaseTimeInfo.value) {
-      return moment(new Date(releaseTimeInfo.value * 1000)).format('LLL');
+      return dayjs(new Date(releaseTimeInfo.value * 1000)).format('LLL');
     } else {
       return '';
     }

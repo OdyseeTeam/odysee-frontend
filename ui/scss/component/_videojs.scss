@@ -18,10 +18,12 @@ $control-bar-height-mobile: 44px;
 .odysee-skin {
   $__surface-bg: oklch(0 0 0 / 0.4);
   $__overlay-bg: oklch(0.2 0 0 / 0.65);
+  $__hover-bg-fallback: rgba(255, 255, 255, 0.1);
   $__hover-bg: oklch(from currentColor l c h / 0.1);
 
   --player-surface-bg: #{$__surface-bg};
   --player-overlay-bg: #{$__overlay-bg};
+  --player-hover-bg: #{$__hover-bg-fallback};
   --player-hover-bg: #{$__hover-bg};
   --media-border-radius: var(--border-radius);
   --media-border-color: transparent;
@@ -32,6 +34,7 @@ $control-bar-height-mobile: 44px;
   @at-root .video-fullscreen__actions {
     --player-surface-bg: #{$__surface-bg};
     --player-overlay-bg: #{$__overlay-bg};
+    --player-hover-bg: #{$__hover-bg-fallback};
     --player-hover-bg: #{$__hover-bg};
     --media-surface-background-color: var(--player-surface-bg);
   }
@@ -124,6 +127,14 @@ $control-bar-height-mobile: 44px;
   to {
     transform: rotate(360deg);
   }
+}
+
+// Portrait stream: switch to 9:16 aspect ratio
+.odysee-skin--portrait {
+  aspect-ratio: 9 / 16 !important;
+  max-height: 80vh;
+  width: auto !important;
+  margin: 0 auto;
 }
 
 .odysee-skin:has(.odysee-mobile-controls) {
@@ -1422,6 +1433,7 @@ html.ios-fullscreen .player-fullscreen-target {
   align-items: center;
   width: 100vw !important;
   height: 100vh !important;
+  height: 100dvh !important;
   margin: 0 !important;
   padding: 0 !important;
   inset: 0 !important;
@@ -2095,6 +2107,7 @@ html.ios-fullscreen .player-fullscreen-target {
         align-self: flex-start;
         width: 100% !important;
         height: 100vh !important;
+        height: 100dvh !important;
         flex: none !important;
         transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }

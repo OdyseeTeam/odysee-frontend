@@ -1,5 +1,5 @@
 import { getTimeAgoStr } from 'util/time';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import React, { useRef, useEffect } from 'react';
 import { useAppSelector } from 'redux/hooks';
 import { selectDateForUri } from 'redux/selectors/claims';
@@ -42,11 +42,11 @@ function DateTimeInner({
 
   const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
   return (
-    <span className="date_time" title={timeAgo && moment(date).format(`LL ${clockFormat}`)}>
+    <span className="date_time" title={timeAgo && dayjs(date).format(`LL ${clockFormat}`)}>
       {date
         ? timeAgo
           ? getTimeAgoStr(date, showFutureDate, genericSeconds)
-          : moment(date).format(type === 'date' ? 'LL' : clockFormat)
+          : dayjs(date).format(type === 'date' ? 'LL' : clockFormat)
         : '...'}
     </span>
   );
@@ -54,7 +54,7 @@ function DateTimeInner({
 
 function arePropsEqual(prevProps: Props, nextProps: Props): boolean {
   if (
-    moment(prevProps.date).diff(moment(nextProps.date)) !== 0 ||
+    dayjs(prevProps.date).diff(dayjs(nextProps.date)) !== 0 ||
     prevProps.timeAgo !== nextProps.timeAgo ||
     prevProps.minUpdateDeltaMs !== nextProps.minUpdateDeltaMs ||
     prevProps.type !== nextProps.type

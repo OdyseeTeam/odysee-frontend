@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS from 'constants/collections';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { getSubsetFromKeysArray } from 'util/sync-settings';
 import { UNSYNCED_SETTINGS } from 'config';
 const { CLIENT_SYNC_KEYS } = SHARED_PREFERENCES;
@@ -145,10 +145,10 @@ reducers[ACTIONS.CLIENT_SETTING_CHANGED] = (state, action) => {
 
 reducers[ACTIONS.UPDATE_IS_NIGHT] = (state) => {
   const { from, to } = state.clientSettings[SETTINGS.DARK_MODE_TIMES];
-  const momentNow = moment();
-  const startNightMoment = moment(from.formattedTime, 'HH:mm');
-  const endNightMoment = moment(to.formattedTime, 'HH:mm');
-  const isNight = !(momentNow.isAfter(endNightMoment) && momentNow.isBefore(startNightMoment));
+  const now = dayjs();
+  const startNightMoment = dayjs(from.formattedTime, 'HH:mm');
+  const endNightMoment = dayjs(to.formattedTime, 'HH:mm');
+  const isNight = !(now.isAfter(endNightMoment) && now.isBefore(startNightMoment));
   return Object.assign({}, state, {
     isNight,
   });

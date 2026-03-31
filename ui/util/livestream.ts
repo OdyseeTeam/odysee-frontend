@@ -1,7 +1,7 @@
 import { LIVESTREAM_KILL } from 'constants/livestream';
 import { toHex } from 'util/hex';
 import Lbry from 'lbry';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 type StreamData = {
   d: string;
   s: string;
@@ -79,7 +79,7 @@ export const transformNewLivestreamData = (data: Array<any>): LivestreamInfoByCr
           videoUrlPublic: normalized.VideoURL || null,
           p2pTrackerUrl: normalized.P2PTrackerURL || null,
           p2pSwarmId: normalized.P2PSwarmID || null,
-          startedStreaming: moment(normalized.Start),
+          startedStreaming: dayjs(normalized.Start),
         }
       : {
           uri: '',
@@ -89,7 +89,7 @@ export const transformNewLivestreamData = (data: Array<any>): LivestreamInfoByCr
           videoUrlPublic: normalized.VideoURL || null,
           p2pTrackerUrl: normalized.P2PTrackerURL || null,
           p2pSwarmId: normalized.P2PSwarmID || null,
-          startedStreaming: moment(normalized.Start),
+          startedStreaming: dayjs(normalized.Start),
         };
 
     acc[normalized.ChannelClaimID] = {

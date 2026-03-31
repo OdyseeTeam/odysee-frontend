@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { ChannelPageContext } from 'contexts/channel';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
@@ -43,14 +43,14 @@ const JoinMembershipButton = (props: Props) => {
   const membershipStatus = validUserMembershipForChannel?.subscription.status;
   const firstPaymentDue = validUserMembershipForChannel?.membership.first_payment_due_at;
   const acceptsPayments = validUserMembershipForChannel?.membership.accepts_payments;
-  const nowMoment = moment();
-  const fpdaInFuture = firstPaymentDue && nowMoment.diff(moment(firstPaymentDue)) < 0;
-  const endsInFuture = endsAt && nowMoment.diff(moment(endsAt)) < 0;
+  const nowMoment = dayjs();
+  const fpdaInFuture = firstPaymentDue && nowMoment.diff(dayjs(firstPaymentDue)) < 0;
+  const endsInFuture = endsAt && nowMoment.diff(dayjs(endsAt)) < 0;
   const shouldRenew =
     firstPaymentDue &&
     acceptsPayments &&
     endsAt &&
-    moment().isAfter(moment(endsAt).subtract(7, 'days')) &&
+    dayjs().isAfter(dayjs(endsAt).subtract(7, 'days')) &&
     (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
   const pending =
@@ -58,11 +58,11 @@ const JoinMembershipButton = (props: Props) => {
 
   const getDeadline = () => {
     if (fpdaInFuture) {
-      return moment(firstPaymentDue).format('L');
+      return dayjs(firstPaymentDue).format('L');
     }
 
     if (endsInFuture) {
-      return moment(endsAt).format('L');
+      return dayjs(endsAt).format('L');
     }
 
     return null;

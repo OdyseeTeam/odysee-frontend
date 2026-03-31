@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { buildURI } from 'util/lbryURI';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Yrbl from 'component/yrbl';
@@ -173,10 +173,10 @@ const SupportersTab = (props: Props) => {
                               </td>
                               <td>{supporter.membership_name}</td>
                               <td>${supporter.price / 100} USD / Month</td>
-                              <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
+                              <td>{dayjs(new Date(supporter.joined_at)).format('LL')}</td>
                               <td>
                                 {paymentsBySubscriber[supporter.subscriber_channel_claim_id]
-                                  ? moment(
+                                  ? dayjs(
                                       new Date(
                                         getDateOfLastPayment(
                                           paymentsBySubscriber[supporter.subscriber_channel_claim_id]

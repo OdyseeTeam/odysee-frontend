@@ -1,10 +1,10 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
   supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
 export const getLastMonthPayments = (payments: any) => {
-  const monthago = moment().subtract(30, 'days');
+  const monthago = dayjs().subtract(30, 'days');
   return payments
-    .filter((p) => p.completed_at && moment(p.completed_at).diff(monthago) > 0)
+    .filter((p) => p.completed_at && dayjs(p.completed_at).diff(monthago) > 0)
     .reduce((total, payment) => {
       return total + payment.usd_amount;
     }, 0);
@@ -70,9 +70,9 @@ export function membershipIsExpired(ends_at: any) {
 }
 export const getRenewByMoment = (membershipSub: MembershipSub) => {
   const fpda = membershipSub.membership.first_payment_due_at;
-  const fpdaMoment = moment(fpda);
-  const endsAtMoment = moment(membershipSub.subscription.ends_at);
-  const nowMoment = moment();
+  const fpdaMoment = dayjs(fpda);
+  const endsAtMoment = dayjs(membershipSub.subscription.ends_at);
+  const nowMoment = dayjs();
   const fpdaInFuture = nowMoment.diff(fpdaMoment) < 0;
   const endsAtInPast = endsAtMoment && nowMoment.diff(endsAtMoment) > 0;
   const hasPendingPayment = membershipSub.payments.some((m) => m.status === 'submitted');

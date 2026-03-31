@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import classnames from 'classnames';
 import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
@@ -20,7 +20,7 @@ import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 
 function getUpcomingReleaseTime() {
-  return `>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`;
+  return `>${dayjs().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`;
 }
 
 function buildUpcomingOptions(

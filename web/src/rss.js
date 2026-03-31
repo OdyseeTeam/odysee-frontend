@@ -4,7 +4,7 @@ const { URL, SITE_NAME, PROXY_URL } = require('../../config.cjs');
 
 const Rss = require('rss');
 
-const moment = require('moment');
+const dayjs = require('dayjs');
 
 const { generateContentUrl } = require('./fetchStreamUrl');
 
@@ -60,7 +60,7 @@ async function getClaimsFromChannel(claimId, count) {
     order_by: ['release_time'],
     no_totals: true,
     not_tags: restrictedTags,
-    release_time: `<${Math.floor(moment().startOf('minute').unix())}`,
+    release_time: `<${Math.floor(dayjs().startOf('minute').unix())}`,
   };
   return await doClaimSearch(options);
 }

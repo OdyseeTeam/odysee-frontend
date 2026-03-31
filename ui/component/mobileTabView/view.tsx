@@ -362,7 +362,7 @@ export default function MobileTabView(props: Props) {
       if (deltaY > panelH * 0.3) {
         if (cw) {
           cw.style.removeProperty('transition');
-          cw.style.setProperty('height', '100vh', 'important');
+          cw.style.setProperty('height', '100dvh', 'important');
           setTimeout(() => {
             cw.style.removeProperty('height');
             cw.style.removeProperty('transition');
@@ -440,7 +440,7 @@ export default function MobileTabView(props: Props) {
       if (dy > sheet.offsetHeight * 0.3) {
         if (cw) {
           cw.style.removeProperty('transition');
-          cw.style.setProperty('height', '100vh', 'important');
+          cw.style.setProperty('height', '100dvh', 'important');
           setTimeout(() => {
             cw.style.removeProperty('height');
             cw.style.removeProperty('transition');

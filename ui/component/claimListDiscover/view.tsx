@@ -7,7 +7,7 @@ import { resolveLangForClaimSearch } from 'util/default-languages';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 import Button from 'component/button';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
 import ClaimPreviewTile from 'component/claimPreviewTile';
@@ -474,8 +474,8 @@ function ClaimListDiscover(props: Props) {
   } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
     if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
       options.release_time = `>${Math.floor(
-        moment()
-          .subtract(1, freshnessParam as moment.unitOfTime.DurationConstructor)
+        dayjs()
+          .subtract(1, freshnessParam as dayjs.ManipulateType)
           .startOf('hour')
           .unix()
       )}`;
@@ -489,15 +489,15 @@ function ClaimListDiscover(props: Props) {
         (options.channel_ids && options.channel_ids.length > 20) ||
         (options.any_tags && options.any_tags.length > 20)
       ) {
-        options.release_time = `>${Math.floor(moment().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
+        options.release_time = `>${Math.floor(dayjs().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
       } else if (
         (options.channel_ids && options.channel_ids.length > 10) ||
         (options.any_tags && options.any_tags.length > 10)
       ) {
-        options.release_time = `>${Math.floor(moment().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
+        options.release_time = `>${Math.floor(dayjs().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
       } else {
         // Hack for at least the New page until https://github.com/lbryio/lbry-sdk/issues/2591 is fixed
-        options.release_time = `<${Math.floor(moment().startOf('minute').unix())}`;
+        options.release_time = `<${Math.floor(dayjs().startOf('minute').unix())}`;
       }
     }
   }

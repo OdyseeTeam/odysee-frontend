@@ -20,8 +20,6 @@ import remarkFrontMatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkStrip from 'strip-markdown';
 import ZoomableImage from 'component/zoomableImage';
-// import { TWEMOTEARRAY } from 'constants/emotes';
-// const visit = require('unist-util-visit');
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
 function isEmote(title, src) {

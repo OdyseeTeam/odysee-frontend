@@ -2,7 +2,7 @@ import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
 import CopyableText from 'component/copyableText';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
@@ -92,7 +92,7 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getDate(transaction) {
-    return moment(transaction.created_at).format('LLL');
+    return dayjs(transaction.created_at).format('LLL');
   }
 
   function getTransactionType(transaction) {

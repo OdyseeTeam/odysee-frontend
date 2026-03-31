@@ -13,7 +13,7 @@ import { selectIndexForCreatorMembership } from 'redux/selectors/memberships';
 import { doMembershipList } from 'redux/actions/memberships';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import { getFormattedRenewBy } from 'util/memberships';
 type Props = {
   membershipSub: MembershipSub;
@@ -134,7 +134,7 @@ export default function MembershipRow(props: Props) {
       </td>
 
       <td>{membershipSub.membership.name}</td>
-      <td>{moment(membershipSub.subscription.ends_at).format('L')}</td>
+      <td>{dayjs(membershipSub.subscription.ends_at).format('L')}</td>
 
       <td>{monthsSupported}</td>
 

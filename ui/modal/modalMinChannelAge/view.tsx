@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form-components/form-field';
@@ -33,7 +33,7 @@ export default function ModalMinChannelAge(props: Props) {
 
   function handleOnInputResolved(valueInSeconds) {
     if (valueInSeconds > 0) {
-      const minCreationDate = moment().subtract(valueInSeconds, 'seconds').toDate();
+      const minCreationDate = dayjs().subtract(valueInSeconds, 'seconds').toDate();
       setShowLimitationWarning(minCreationDate.getTime() < CHANNEL_AGE_LIMIT_MIN_DATE.getTime());
       setMinChannelAgeMinutes(Math.ceil(valueInSeconds / 60));
     } else {

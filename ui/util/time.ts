@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 export function secondsToHms(seconds: number): string {
   seconds = Math.floor(seconds);
   var hours = Math.floor(seconds / 3600);
@@ -84,9 +84,9 @@ export function getTimeAgoStr(
   let suffix = '';
   let str = '';
   suffixList.some((s) => {
-    // moment() is very liberal with it's rounding.
+    // dayjs() is very liberal with it's rounding.
     // Always round down dates for better youtube parity.
-    duration = Math.floor(moment().diff(date, s as any));
+    duration = Math.floor(dayjs().diff(date, s as any));
     suffix = s;
     return duration > 0 || (showFutureDate && duration * -1 > 0);
   });
@@ -109,6 +109,6 @@ export function getTimeAgoStr(
 }
 export const getCurrentTimeInSec = (): number => Math.floor(Date.now() / 1000);
 export const formatDateToMonthAndDay = (date: Date | string | number): string =>
-  moment(new Date(date)).format('MMMM DD');
+  dayjs(new Date(date)).format('MMMM DD');
 export const formatDateToMonthDayAndYear = (date: Date | string | number): string =>
-  moment(new Date(date)).format('MMMM DD YYYY');
+  dayjs(new Date(date)).format('MMMM DD YYYY');

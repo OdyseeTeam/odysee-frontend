@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: string = 'Just now') {
   const suffixList = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
   const showFutureDate = true;
@@ -7,9 +7,9 @@ export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: 
   let suffix = '';
   let str = '';
   suffixList.some((s) => {
-    // moment() is very liberal with it's rounding.
+    // dayjs() is very liberal with it's rounding.
     // Always round down dates for better youtube parity.
-    duration = Math.floor(moment().diff(date, s as any));
+    duration = Math.floor(dayjs().diff(date, s as any));
     suffix = s;
     return duration > 0 || (showFutureDate && duration * -1 > 0);
   });

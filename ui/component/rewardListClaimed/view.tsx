@@ -1,6 +1,6 @@
 import React from 'react';
 import ButtonTransaction from 'component/common/transaction-link';
-import moment from 'moment';
+import dayjs from 'util/dayjs';
 import LbcSymbol from 'component/common/lbc-symbol';
 import Card from 'component/common/card';
 import { useAppSelector } from 'redux/hooks';
@@ -51,7 +51,7 @@ const RewardListClaimed = (props: Props) => {
                   <td>{reward.reward_title}</td>
                   <td>{reward.reward_amount}</td>
                   <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
-                  <td>{moment(reward.created_at).format('LLL')}</td>
+                  <td>{dayjs(reward.created_at).format('LLL')}</td>
                 </tr>
               ))}
             </tbody>

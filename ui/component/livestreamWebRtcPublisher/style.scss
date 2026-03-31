@@ -44,9 +44,17 @@
     aspect-ratio: 16 / 9;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
     overflow: hidden;
+    transition: aspect-ratio 0.3s ease;
 
     &--active {
       background: #000;
+    }
+
+    &--portrait {
+      aspect-ratio: 9 / 16;
+      max-height: 70vh;
+      width: auto;
+      margin: 0 auto;
     }
   }
 
@@ -55,6 +63,10 @@
     height: 100%;
     object-fit: cover;
     display: block;
+
+    &--mirrored {
+      transform: scaleX(-1);
+    }
   }
 
   &__preview-overlay {
