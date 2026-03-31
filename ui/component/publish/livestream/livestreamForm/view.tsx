@@ -220,23 +220,31 @@ function LivestreamForm(props: Props) {
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   async function fetchLivestreams(channelId: string | undefined, channelName: string | undefined) {
+    if (!channelId || !channelName) {
+      setCheckingLivestreams(false);
+      return;
+    }
+
     setCheckingLivestreams(true);
-    let signedMessage;
 
-    await Lbry.channel_sign({
-      channel_id: channelId,
-      hexdata: toHex(channelName || ''),
-    }).then((data) => {
-      signedMessage = data;
-    });
+    try {
+      const signedMessage = await Lbry.channel_sign({
+        channel_id: channelId,
+        hexdata: toHex(channelName),
+      });
 
-    if (signedMessage) {
-      const encodedChannelName = encodeURIComponent(channelName || '');
+      if (!signedMessage?.signature) {
+        setCheckingLivestreams(false);
+        return;
+      }
+
+      const encodedChannelName = encodeURIComponent(channelName);
       const newEndpointUrl =
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName || ''}`;
+        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName}`;
       const responseFromNewApi = await fetch(newEndpointUrl);
-      const data: Array<ReplayApiItem> = (await responseFromNewApi.json()).data;
+      const json = await responseFromNewApi.json();
+      const data: Array<ReplayApiItem> = json?.data || json || [];
       const newData: Array<LivestreamReplayItem> = [];
 
       if (data && data.length > 0) {
@@ -263,6 +271,9 @@ function LivestreamForm(props: Props) {
       }
 
       setLivestreamData(newData);
+    } catch (e) {
+      console.warn('[LivestreamForm] Failed to fetch replays:', e); // eslint-disable-line no-console
+    } finally {
       setCheckingLivestreams(false);
     }
   }
