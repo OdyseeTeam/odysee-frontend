@@ -1,4 +1,5 @@
 import dayjs from 'util/dayjs';
+
 export function formatDateStr(date: Date, prefix: string = '', zeroDurationStr: string = 'Just now') {
   const suffixList = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
   const showFutureDate = true;
