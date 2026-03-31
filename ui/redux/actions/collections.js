@@ -74,12 +74,15 @@ export const doFetchCollectionListMine =
       };
 
       const dispatchResults = () => {
-        const actions = [];
-        if (fullResponseObj.items.length > 0) {
-          actions.push({ type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: fullResponseObj } });
-        }
-        actions.push({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
-        return dispatch(batchActions(...actions));
+        return dispatch(
+          batchActions(
+            {
+              type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+              data: { result: fullResponseObj, isCollectionList: true },
+            },
+            { type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE }
+          )
+        );
       };
 
       const next = async (response: CollectionListResponse) => {

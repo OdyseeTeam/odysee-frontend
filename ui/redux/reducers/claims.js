@@ -396,11 +396,13 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
     setNewPageItems,
     isAllMyClaimsFetched,
     isPublicationOnlyClaimList,
+    isCollectionList,
   }: {
     result: ClaimListResponse,
     setNewPageItems?: boolean,
     isAllMyClaimsFetched?: boolean,
     isPublicationOnlyClaimList?: boolean,
+    isCollectionList?: boolean,
   } = action.data;
   const claims = result.items;
   const page = result.page;
@@ -412,7 +414,13 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
 
   const myClaimIds = new Set(state.myClaims);
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
-  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
+  // For collection_list results, ensure myCollectionClaimIds is initialized to a Set
+  // (even if empty) so it becomes [] instead of staying undefined after a 0-result fetch.
+  let newMyCollectionClaimIds = state.myCollectionClaimIds
+    ? new Set(state.myCollectionClaimIds)
+    : isCollectionList
+    ? new Set()
+    : undefined;
   let urlsForCurrentPage = [];
 
   claims.forEach((claim: Claim) => {
