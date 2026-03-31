@@ -13,6 +13,7 @@ import {
   selectHasCollections,
   selectIsFetchingMyCollections,
 } from 'redux/selectors/collections';
+import { selectMyCollectionClaimIds } from 'redux/selectors/claims';
 import { doFetchCollectionListMine } from 'redux/actions/collections';
 import { doOpenModal } from 'redux/actions/app';
 import './style.scss';
@@ -24,14 +25,18 @@ const PlaylistsPage = () => {
   const areBuiltinCollectionsEmpty = useAppSelector(selectAreBuiltinCollectionsEmpty);
   const hasCollections = useAppSelector(selectHasCollections);
   const isFetchingCollections = useAppSelector(selectIsFetchingMyCollections);
+  const myCollectionClaimIds = useAppSelector(selectMyCollectionClaimIds);
 
   function handleCreatePlaylist() {
     dispatch(doOpenModal(MODALS.COLLECTION_CREATE));
   }
 
   React.useEffect(() => {
-    if (isFetchingCollections === undefined) dispatch(doFetchCollectionListMine());
-  }, [isFetchingCollections, dispatch]);
+    if (isFetchingCollections === undefined || (isFetchingCollections === false && !myCollectionClaimIds)) {
+      dispatch(doFetchCollectionListMine());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!hasCollections) {
     if (isFetchingCollections) {

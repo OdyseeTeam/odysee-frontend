@@ -2,7 +2,11 @@ import React from 'react';
 import { CollectionsListContext } from 'page/playlists/internal/collectionsListMine/view';
 
 const FilteredTextLabel = () => {
-  const { totalLength, searchText, filteredCollectionsLength } = React.useContext(CollectionsListContext);
+  const { totalLength, searchText, filteredCollectionsLength, isFetchingCollections } =
+    React.useContext(CollectionsListContext);
+  if (isFetchingCollections) {
+    return <div className="collection-grid__results-summary">{__('Loading playlists...')}</div>;
+  }
   if (!searchText) return null;
   return (
     <div className="collection-grid__results-summary">

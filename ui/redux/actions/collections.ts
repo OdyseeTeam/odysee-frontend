@@ -76,16 +76,9 @@ export const doFetchCollectionListMine =
         total_items: 0,
       };
 
-      const next = async (response: CollectionListResponse) => {
-        const { items, ...rest } = response;
-        const moreData = response.items.length === options.page_size;
-        fullResponseObj.items = fullResponseObj.items.concat(items);
-        Object.assign(fullResponseObj, rest);
-        options.page++;
-
-        if (!moreData) {
-          // -- Add collection claims to myClaims
-          return dispatch(
+      const dispatchResults = () => {
+        if (fullResponseObj.items.length > 0) {
+          dispatch(
             batchActions(
               {
                 type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
@@ -98,13 +91,27 @@ export const doFetchCollectionListMine =
               }
             )
           );
+        } else {
+          dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
+        }
+      };
+
+      const next = async (response: CollectionListResponse) => {
+        const { items, ...rest } = response;
+        const moreData = response.items.length === options.page_size;
+        fullResponseObj.items = fullResponseObj.items.concat(items);
+        Object.assign(fullResponseObj, rest);
+        options.page++;
+
+        if (!moreData) {
+          return dispatchResults();
         }
 
         try {
           const data = await Lbry.collection_list(options);
           return next(data);
         } catch (err) {
-          failure(err);
+          dispatchResults();
         }
       };
 

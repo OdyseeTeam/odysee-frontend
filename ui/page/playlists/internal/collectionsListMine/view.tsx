@@ -30,6 +30,7 @@ export const CollectionsListContext = React.createContext<any>({
   setSearchText: () => {},
   totalLength: 0,
   filteredCollectionsLength: 0,
+  isFetchingCollections: false,
 });
 export default function CollectionsListMine(props: Props) {
   const dispatch = useAppDispatch();
@@ -217,6 +218,7 @@ export default function CollectionsListMine(props: Props) {
           setSearchText,
           totalLength,
           filteredCollectionsLength,
+          isFetchingCollections,
         }}
       >
         <CollectionListHeader

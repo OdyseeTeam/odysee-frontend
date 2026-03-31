@@ -11,12 +11,20 @@ import Button from 'component/button';
 import { useAppDispatch } from 'redux/hooks';
 import { doOpenModal } from 'redux/actions/app';
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 const RightSideActions = () => {
   const dispatch = useAppDispatch();
   const { searchText, setSearchText } = React.useContext(CollectionsListContext);
   const navigate = useNavigate();
   const { search } = useLocation();
-  const urlParams = new URLSearchParams(search);
+  const debounceTimer = React.useRef<ReturnType<typeof setTimeout>>();
+
+  React.useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
   function handleCreatePlaylist() {
     dispatch(doOpenModal(MODALS.COLLECTION_CREATE));
@@ -25,14 +33,19 @@ const RightSideActions = () => {
   function handleSearchTextChange(value) {
     setSearchText(value);
 
-    if (value === '') {
-      urlParams.get(COLS.SEARCH_TERM_KEY) && urlParams.delete(COLS.SEARCH_TERM_KEY);
-    } else {
-      urlParams.set(COLS.SEARCH_TERM_KEY, value);
-    }
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      const urlParams = new URLSearchParams(search);
+      urlParams.delete('page');
 
-    const url = `?${urlParams.toString()}`;
-    navigate(url);
+      if (value === '') {
+        urlParams.delete(COLS.SEARCH_TERM_KEY);
+      } else {
+        urlParams.set(COLS.SEARCH_TERM_KEY, value);
+      }
+
+      navigate(`?${urlParams.toString()}`, { replace: true });
+    }, SEARCH_DEBOUNCE_MS);
   }
 
   function escapeListener(e: any) {

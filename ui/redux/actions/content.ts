@@ -595,13 +595,18 @@ export function doSetContentHistoryItem(uri: string) {
   };
 }
 export function doClearContentHistoryUri(uri: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.CLEAR_CONTENT_HISTORY_URI,
       data: {
         uri,
       },
     });
+
+    const claimId = selectClaimIdForUri(getState(), uri);
+    if (claimId) {
+      dispatch(doDeleteRemoteViewHistory(claimId));
+    }
   };
 }
 export function doClearContentHistoryAll() {
