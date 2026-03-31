@@ -10,6 +10,8 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 
+const SEARCH_DEBOUNCE_MS = 300;
+
 type Props = {
   // -- redux --
   doOpenModal: (id: string) => void,
@@ -21,10 +23,9 @@ const RightSideActions = (props: Props) => {
   const { searchText, setSearchText } = React.useContext(CollectionsListContext);
 
   const history = useHistory();
-  const {
-    location: { search },
-  } = history;
-  const urlParams = new URLSearchParams(search);
+
+  // Debounce URL updates to avoid excessive history entries
+  const debounceTimerRef = React.useRef<any>(null);
 
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
@@ -33,20 +34,35 @@ const RightSideActions = (props: Props) => {
   function handleSearchTextChange(value) {
     setSearchText(value);
 
-    if (value === '') {
-      urlParams.get(COLS.SEARCH_TERM_KEY) && urlParams.delete(COLS.SEARCH_TERM_KEY);
-    } else {
-      urlParams.set(COLS.SEARCH_TERM_KEY, value);
-    }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
-    const url = `?${urlParams.toString()}`;
-    history.push(url);
+    debounceTimerRef.current = setTimeout(() => {
+      const currentParams = new URLSearchParams(history.location.search);
+
+      if (value === '') {
+        currentParams.delete(COLS.SEARCH_TERM_KEY);
+      } else {
+        currentParams.set(COLS.SEARCH_TERM_KEY, value);
+      }
+
+      // Reset page when search changes
+      currentParams.delete('page');
+
+      const url = `?${currentParams.toString()}`;
+      history.replace(url);
+    }, SEARCH_DEBOUNCE_MS);
   }
+
+  React.useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
 
   function escapeListener(e: SyntheticKeyboardEvent<*>) {
     if (e.keyCode === KEYCODES.ESCAPE) {
       e.preventDefault();
-      setSearchText('');
+      handleSearchTextChange('');
     }
   }
 

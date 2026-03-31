@@ -537,11 +537,18 @@ export function doSetContentHistoryItem(uri: string) {
 }
 
 export function doClearContentHistoryUri(uri: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claimId = selectClaimIdForUri(state, uri);
+
     dispatch({
       type: ACTIONS.CLEAR_CONTENT_HISTORY_URI,
       data: { uri },
     });
+
+    if (claimId) {
+      dispatch(doDeleteRemoteViewHistory(claimId));
+    }
   };
 }
 

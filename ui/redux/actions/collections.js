@@ -57,48 +57,61 @@ export const doFetchCollectionListMine =
   async (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_STARTED });
 
-    const failure = (error) => dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
+    const requestOptions = {
+      resolve: true,
+      page: 1,
+      page_size: 50,
+      ...options,
+    };
 
     const autoPaginate = () => {
       const fullResponseObj: CollectionListResponse = {
         items: [],
         page: 0,
-        page_size: options.page_size,
+        page_size: requestOptions.page_size,
         total_pages: 0,
         total_items: 0,
       };
 
+      const dispatchResults = () => {
+        const actions = [];
+        if (fullResponseObj.items.length > 0) {
+          actions.push({ type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: fullResponseObj } });
+        }
+        actions.push({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
+        return dispatch(batchActions(...actions));
+      };
+
       const next = async (response: CollectionListResponse) => {
         const { items, ...rest } = response;
-        const moreData = response.items.length === options.page_size;
+        const hasMorePages =
+          Number.isFinite(response.total_pages) && response.total_pages > 0
+            ? response.page < response.total_pages
+            : response.items.length === requestOptions.page_size;
 
         fullResponseObj.items = fullResponseObj.items.concat(items);
         Object.assign(fullResponseObj, rest);
 
-        options.page++;
+        requestOptions.page = (response.page || requestOptions.page || 1) + 1;
 
-        if (!moreData) {
-          // -- Add collection claims to myClaims
-          return dispatch(
-            batchActions(
-              { type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: fullResponseObj } },
-              { type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE }
-            )
-          );
+        if (!hasMorePages) {
+          return dispatchResults();
         }
 
         try {
-          const data = await Lbry.collection_list(options);
+          const data = await Lbry.collection_list(requestOptions);
           return next(data);
         } catch (err) {
-          failure(err);
+          // Dispatch whatever we accumulated so far instead of discarding
+          return dispatchResults();
         }
       };
 
       return next;
     };
 
-    return await Lbry.collection_list(options).then(autoPaginate(), failure);
+    const failure = () => dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
+    return await Lbry.collection_list(requestOptions).then(autoPaginate(), failure);
   };
 
 export function doCollectionPublish(options: CollectionPublishCreateParams, collectionId: string, cb?: () => void) {

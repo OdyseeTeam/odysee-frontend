@@ -23,6 +23,7 @@ type Props = {
   updatedCollections: CollectionGroup,
   savedCollections: CollectionGroup,
   savedCollectionIds: ClaimIds,
+  isFetchingCollections: ?boolean,
   collectionsById: { [collectionId: string]: Collection },
   doResolveClaimIds: (collectionIds: ClaimIds) => void,
   doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
@@ -40,6 +41,7 @@ export default function CollectionsListMine(props: Props) {
     updatedCollections,
     savedCollections,
     savedCollectionIds,
+    isFetchingCollections,
     collectionsById,
     doResolveClaimIds,
     doFetchThumbnailClaimsForCollectionIds,
@@ -233,6 +235,7 @@ export default function CollectionsListMine(props: Props) {
           setSearchText,
           totalLength,
           filteredCollectionsLength,
+          isFetchingCollections,
         }}
       >
         <CollectionListHeader

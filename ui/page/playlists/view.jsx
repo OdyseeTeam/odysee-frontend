@@ -18,13 +18,20 @@ type Props = {
   areBuiltinCollectionsEmpty: boolean,
   hasCollections: boolean,
   isFetchingCollections: ?boolean,
+  myCollectionClaimIds: ?Array<string>,
   doOpenModal: (id: string) => void,
   doFetchCollectionListMine: () => void,
 };
 
 const PlaylistsPage = (props: Props) => {
-  const { areBuiltinCollectionsEmpty, hasCollections, isFetchingCollections, doOpenModal, doFetchCollectionListMine } =
-    props;
+  const {
+    areBuiltinCollectionsEmpty,
+    hasCollections,
+    isFetchingCollections,
+    myCollectionClaimIds,
+    doOpenModal,
+    doFetchCollectionListMine,
+  } = props;
 
   const { push } = useHistory();
 
@@ -33,8 +40,12 @@ const PlaylistsPage = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (isFetchingCollections === undefined) doFetchCollectionListMine();
-  }, [isFetchingCollections, doFetchCollectionListMine]);
+    // Fetch if: never fetched (undefined), or fetch failed and we have no published collections
+    const needsFetch =
+      isFetchingCollections === undefined || (isFetchingCollections === false && !myCollectionClaimIds);
+    if (needsFetch) doFetchCollectionListMine();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on mount
+  }, []);
 
   if (!hasCollections) {
     if (isFetchingCollections !== false) {

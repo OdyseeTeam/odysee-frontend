@@ -5,6 +5,7 @@ import {
   selectHasCollections,
   selectIsFetchingMyCollections,
 } from 'redux/selectors/collections';
+import { selectMyCollectionClaimIds } from 'redux/selectors/claims';
 
 import { doFetchCollectionListMine } from 'redux/actions/collections';
 import { doOpenModal } from 'redux/actions/app';
@@ -15,6 +16,7 @@ const select = (state) => ({
   areBuiltinCollectionsEmpty: selectAreBuiltinCollectionsEmpty(state),
   hasCollections: selectHasCollections(state),
   isFetchingCollections: selectIsFetchingMyCollections(state),
+  myCollectionClaimIds: selectMyCollectionClaimIds(state),
 });
 
 const perform = {
