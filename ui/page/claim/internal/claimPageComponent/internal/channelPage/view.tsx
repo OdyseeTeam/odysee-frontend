@@ -10,6 +10,7 @@ import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from 'component/button';
+import Lbry from 'lbry';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -34,7 +35,6 @@ import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
-import { SEARCH_OPTIONS } from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import './style.scss';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -58,7 +58,6 @@ import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
 import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doMembershipMine as doMembershipMineAction } from 'redux/actions/memberships';
-import { lighthouse } from 'redux/actions/search';
 import { PREFERENCE_EMBED } from 'constants/tags';
 const HiddenNsfwClaims = lazyImport(
   () =>
@@ -207,18 +206,20 @@ function ChannelPage(props: Props) {
       setHasShorts(true);
     }
 
-    lighthouse
-      .search(
-        `channel_id=${encodeURIComponent(claimId)}` +
-          `&size=1` +
-          `&nsfw=false` +
-          `&media_type=${SEARCH_OPTIONS.MEDIA_VIDEO}` +
-          `&${SEARCH_OPTIONS.MAX_DURATION}=${SETTINGS.SHORTS_DURATION_LTE}` +
-          `&${SEARCH_OPTIONS.MAX_ASPECT_RATIO}=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`
-      )
-      .then(({ body }) => {
+    // Use claim_search instead of lighthouse to detect shorts
+    Lbry.claim_search({
+      channel_ids: [claimId],
+      page_size: 1,
+      stream_types: ['video'],
+      duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
+      content_aspect_ratio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
+      order_by: ['release_time'],
+      no_totals: true,
+    })
+      .then((result: any) => {
         if (!cancelled) {
-          setHasShorts(Array.isArray(body) && body.length > 0);
+          const items = result?.items || [];
+          setHasShorts(items.length > 0);
         }
       })
       .catch(() => {
