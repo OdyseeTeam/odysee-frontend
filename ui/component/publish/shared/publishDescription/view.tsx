@@ -30,6 +30,7 @@ function PublishDescription(props: Props) {
           <FormField
             type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}
             name="content_description"
+            hideSuggestions
             placeholder={__(
               'What is your content about? Use this space to include any other relevant details you may like to share about your content and channel.'
             )}

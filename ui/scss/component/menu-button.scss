@@ -195,6 +195,13 @@ reach-portal {
   }
 }
 
+.menu__list--preview {
+  [data-reach-menu-item] {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+}
+
 .menu__list--header {
   @extend .menu__list;
   z-index: 100002 !important;

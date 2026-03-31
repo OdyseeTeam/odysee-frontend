@@ -24,10 +24,10 @@ function saveMessageWeb(message) {
 
   if (!window.app_strings[message] && !window.new_strings[message]) {
     window.new_strings[message] = removeContextMetadata(message);
-    // @if REPORT_NEW_STRINGS='true'
-    if (reportTimer) clearTimeout(reportTimer);
-    reportTimer = setTimeout(() => console.log(window.new_strings), 2000); // eslint-disable-line no-console
-    // @endif
+    if (process.env.REPORT_NEW_STRINGS === 'true') {
+      if (reportTimer) clearTimeout(reportTimer);
+      reportTimer = setTimeout(() => console.log(window.new_strings), 2000); // eslint-disable-line no-console
+    }
   }
 }
 

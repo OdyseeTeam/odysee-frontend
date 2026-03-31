@@ -8,7 +8,7 @@
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-s) var(--spacing-m);
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     background: rgba(var(--color-header-button-base), 0.06);
     border: 1px solid rgba(var(--color-header-button-base), 0.12);
   }
@@ -27,52 +27,28 @@
     color: var(--color-text-subtitle);
   }
 
-  // ---- Card ----
-  &__card {
-    padding: var(--spacing-m);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 180, 0, 0.2);
-    background:
-      linear-gradient(135deg, rgba(255, 180, 0, 0.06), transparent 60%), rgba(var(--color-header-button-base), 0.04);
-    animation: video-opt-in 0.3s ease;
-  }
+  &__label {
+    font-size: var(--font-xsmall);
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: var(--spacing-xs);
+    vertical-align: middle;
 
-  // ---- Header ----
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-s);
-    margin-bottom: var(--spacing-m);
-  }
+    &--error {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: rgba(255, 180, 0, 0.15);
-    color: #f5a623;
-  }
+    &--mandatory {
+      background: rgba(255, 180, 0, 0.15);
+      color: #f5a623;
+    }
 
-  &__header-text {
-    min-width: 0;
-  }
-
-  &__title {
-    margin: 0 0 2px;
-    font-size: var(--font-body);
-    font-weight: 700;
-    color: var(--color-text);
-  }
-
-  &__subtitle {
-    margin: 0;
-    font-size: var(--font-small);
-    color: var(--color-text-subtitle);
-    line-height: 1.4;
+    &--recommended {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
   }
 
   // ---- Stats ----
@@ -81,7 +57,6 @@
     align-items: center;
     gap: var(--spacing-s);
     padding: var(--spacing-s);
-    margin-bottom: var(--spacing-m);
     border-radius: 8px;
     background: rgba(var(--color-header-button-base), 0.08);
     flex-wrap: wrap;
@@ -111,11 +86,11 @@
     white-space: nowrap;
 
     &--warn {
-      color: #f5a623;
+      color: #f5a623 !important;
     }
 
     &--good {
-      color: #4caf50;
+      color: #4caf50 !important;
     }
   }
 
@@ -124,6 +99,128 @@
     align-items: center;
     color: var(--color-text-subtitle);
     flex-shrink: 0;
+  }
+
+  // ---- Options ----
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-m);
+  }
+
+  &__option {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-s);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    margin-top: 0 !important;
+    background: rgba(var(--color-header-button-base), 0.04);
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+
+    &:hover:not(&--selected) {
+      border-color: rgba(76, 175, 80, 0.5);
+
+      .publish-status-card--mandatory & {
+        border-color: rgba(255, 180, 0, 0.5);
+      }
+    }
+
+    &--selected {
+      border-color: #4caf50;
+      background: rgba(76, 175, 80, 0.06);
+      cursor: default;
+
+      .publish-status-card--mandatory & {
+        border-color: #f5a623;
+        background: rgba(255, 180, 0, 0.06);
+      }
+    }
+
+    input[type='radio'] {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px;
+      min-height: 18px;
+      border: 2px solid rgba(76, 175, 80, 0.4) !important;
+
+      .publish-status-card--mandatory & {
+        border-color: rgba(255, 180, 0, 0.4) !important;
+      }
+      border-radius: 50% !important;
+      margin: 2px 0 0 !important;
+      padding: 0 !important;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      background: transparent !important;
+
+      &:focus,
+      &:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+
+      &:hover {
+        border-color: #4caf50 !important;
+        box-shadow: none !important;
+
+        .publish-status-card--mandatory & {
+          border-color: #f5a623 !important;
+        }
+      }
+
+      &:checked {
+        border-color: #4caf50 !important;
+        background: #4caf50 !important;
+
+        .publish-status-card--mandatory & {
+          border-color: #f5a623 !important;
+          background: #f5a623 !important;
+        }
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #000;
+        }
+      }
+    }
+  }
+
+  &__option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: var(--font-small);
+      color: var(--color-text);
+    }
+
+    span {
+      font-size: var(--font-xsmall);
+      color: var(--color-text-subtitle);
+    }
+  }
+
+  &__option-size {
+    font-weight: 600;
+    color: var(--color-text) !important;
   }
 
   // ---- Progress ----
@@ -181,9 +278,7 @@
 
   // ---- Actions ----
   &__actions {
-    display: flex;
-    gap: var(--spacing-xs);
-    flex-wrap: wrap;
+    margin-top: var(--spacing-s);
   }
 
   &__btn {
@@ -198,19 +293,7 @@
     cursor: pointer;
     transition: all 0.15s ease;
 
-    &--primary {
-      border: none;
-      background: linear-gradient(135deg, rgba(255, 180, 0, 0.9), rgba(245, 166, 35, 0.8));
-      color: #000;
-      box-shadow: 0 2px 8px rgba(255, 180, 0, 0.2);
-
-      &:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 4px 12px rgba(255, 180, 0, 0.3);
-      }
-    }
-
-    &--secondary {
+    &--cancel {
       border: 1px solid rgba(var(--color-header-button-base), 0.18);
       background: rgba(var(--color-header-button-base), 0.06);
       color: var(--color-text-subtitle);
@@ -243,24 +326,6 @@
 // ---- Mobile ----
 @media (max-width: $breakpoint-small) {
   .video-optimizer {
-    &__card {
-      padding: var(--spacing-s);
-    }
-
-    &__header {
-      gap: var(--spacing-xs);
-    }
-
-    &__icon {
-      width: 32px;
-      height: 32px;
-
-      svg {
-        width: 16px;
-        height: 16px;
-      }
-    }
-
     &__stats {
       gap: var(--spacing-xs);
       padding: var(--spacing-xs);

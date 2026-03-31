@@ -48,9 +48,13 @@ function SelectThumbnail(props: Props) {
   const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;
-  const [showVideoPicker, setShowVideoPicker] = React.useState(false);
   const videoPickerFile = filePath instanceof File ? filePath : undefined;
   const isSupportedVideo = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'video');
+  const [showVideoPicker, setShowVideoPicker] = React.useState(isSupportedVideo);
+
+  React.useEffect(() => {
+    if (isSupportedVideo) setShowVideoPicker(true);
+  }, [isSupportedVideo]);
 
   function handleThumbnailChange(e: any) {
     const newThumbnail = e.target.value.replace(' ', '');
@@ -128,6 +132,20 @@ function SelectThumbnail(props: Props) {
       />
     </div>
   );
+  if (publishForm || !updateThumbnailParams) {
+    return (
+      <React.Suspense
+        fallback={
+          <div className="main--empty empty">
+            <Spinner type="small" />
+          </div>
+        }
+      >
+        <ThumbnailPicker filePath={videoPickerFile} hasVideo={isSupportedVideo} />
+      </React.Suspense>
+    );
+  }
+
   return (
     <>
       {optional && <h2 className="card__title">{__('Thumbnail (Optional)')}</h2>}
@@ -192,13 +210,6 @@ function SelectThumbnail(props: Props) {
                     })
                   }
                 />
-                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && IS_WEB && (
-                  <Button
-                    button="link"
-                    label={showVideoPicker ? __('Hide video thumbnail tools') : __('Auto-generate from video')}
-                    onClick={() => setShowVideoPicker(!showVideoPicker)}
-                  />
-                )}
               </div>
             </div>
           )}
@@ -208,20 +219,6 @@ function SelectThumbnail(props: Props) {
       {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           <p>{__('Uploading thumbnail')}...</p>
-        </div>
-      )}
-
-      {showVideoPicker && videoPickerFile && (
-        <div className="card--thumbnail card--thumbnail-picker">
-          <React.Suspense
-            fallback={
-              <div className="main--empty empty">
-                <Spinner type="small" />
-              </div>
-            }
-          >
-            <ThumbnailPicker filePath={videoPickerFile} onThumbnailSelected={() => setShowVideoPicker(false)} />
-          </React.Suspense>
         </div>
       )}
     </>

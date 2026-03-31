@@ -1080,7 +1080,7 @@ $actions-z-index: 2;
   }
 
   .channel-selector__item {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
 
   .icon--ChevronDown {

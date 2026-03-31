@@ -75,6 +75,9 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload'
   /* webpackChunkName: "modalConfirmThumbnailUpload" */
   )),
+  [MODALS.CONFIRM_THUMBNAIL_URL]: lazyImport(() => import('modal/modalConfirmThumbnailUrl'
+  /* webpackChunkName: "modalConfirmThumbnailUrl" */
+  )),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction'
   /* webpackChunkName: "modalConfirmTransaction" */
   )),

@@ -329,9 +329,10 @@ function FileListPublished() {
   function getClaimListResultsJsx() {
     const startIndex = (page - 1) * Number(pageSize);
     const endIndex = startIndex + Number(pageSize);
-    const claimUrls = !isFilteringEnabled
+    const baseUrls = !isFilteringEnabled
       ? urls
       : filteredClaims.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
+    const claimUrls = baseUrls;
     const totalClaims = !isFilteringEnabled ? urlTotal : filteredClaims?.length;
     return (
       <>

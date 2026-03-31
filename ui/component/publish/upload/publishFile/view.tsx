@@ -337,6 +337,7 @@ function PublishFile(props: Props) {
                 <VideoOptimizer
                   file={filePath}
                   fileBitrate={fileBitrate}
+                  variant={fileSizeTooBig ? 'mandatory' : 'recommended'}
                   onOptimized={handleOptimizedFile}
                   onSkip={() => setOptimizerDismissed(true)}
                 />
@@ -347,6 +348,7 @@ function PublishFile(props: Props) {
                   format={fileFormat}
                   videoCodec={fileVideoCodec || ''}
                   audioCodec={fileAudioCodec || ''}
+                  variant="recommended"
                 />
               )}
               {hasLivestreamData && linkReplays()}

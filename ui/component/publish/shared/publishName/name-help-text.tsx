@@ -39,13 +39,20 @@ function NameHelpText(props: Props) {
       </div>
     );
   } else if (uri && myClaimForUri) {
-    const editUri = buildURI({
-      streamName: myClaimForUri.name,
-      streamClaimId: myClaimForUri.claim_id,
-    });
-    nameHelpText = (
-      <React.Fragment>
+    const isPreviewClaim = myClaimForUri.claim_id?.startsWith('__preview_');
+    if (isPreviewClaim) {
+      nameHelpText = (
         <div className="error__text">
+          {__('Another upload is already using this URL. Please choose a different one.')}
+        </div>
+      );
+    } else {
+      const editUri = buildURI({
+        streamName: myClaimForUri.name,
+        streamClaimId: myClaimForUri.claim_id,
+      });
+      nameHelpText = (
+        <div className="error__text" style={{ marginLeft: 0 }}>
           <I18nMessage
             tokens={{
               existing_uri: (
@@ -56,15 +63,15 @@ function NameHelpText(props: Props) {
             }}
           >
             You already have a claim at %existing_uri%. Publishing will update (overwrite) your existing claim.
-          </I18nMessage>
+          </I18nMessage>{' '}
+          <Button
+            button="link"
+            label={__('Edit existing claim instead')}
+            onClick={() => onEditMyClaim(myClaimForUri, editUri)}
+          />
         </div>
-        <Button
-          button="link"
-          label={__('Edit existing claim instead')}
-          onClick={() => onEditMyClaim(myClaimForUri, editUri)}
-        />
-      </React.Fragment>
-    );
+      );
+    }
   } else if (uri && myClaimForUriCaseInsensitive) {
     nameHelpText = <div className="error__text">{__('You already have a claim with this name.')}</div>;
   }

@@ -1,83 +1,50 @@
 @import 'init/breakpoints';
 
 .format-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-s);
-  padding: var(--spacing-s) var(--spacing-m);
-  margin-top: var(--spacing-s);
-  border-radius: 10px;
-  border: 1px solid rgba(100, 160, 255, 0.2);
-  background:
-    linear-gradient(135deg, rgba(100, 160, 255, 0.06), transparent 60%), rgba(var(--color-header-button-base), 0.04);
-  animation: format-notice-in 0.25s ease;
+  &__label {
+    font-size: var(--font-xsmall);
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: var(--spacing-xs);
+    vertical-align: middle;
+  }
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: rgba(100, 160, 255, 0.12);
-    color: #64a0ff;
+  .publish-status-card--error &__label {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+  }
+
+  .publish-status-card--mandatory &__label {
+    background: rgba(255, 180, 0, 0.15);
+    color: #f5a623;
+  }
+
+  .publish-status-card--recommended &__label {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
   }
 
   &__body {
-    flex: 1;
     min-width: 0;
   }
 
-  &__text {
-    margin: 0 0 var(--spacing-xs);
-    font-size: var(--font-small);
-    color: var(--color-text);
-    line-height: 1.4;
-
-    &--error {
-      color: var(--color-text-error);
-    }
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-s);
-    flex-wrap: wrap;
-  }
-
-  &__btn {
+  &__btn--cancel {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: var(--font-small);
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: var(--font-xsmall);
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s ease;
+    border: 1px solid rgba(var(--color-header-button-base), 0.15);
+    background: none;
+    color: var(--color-text-subtitle);
 
-    &--convert {
-      border: none;
-      background: rgba(100, 160, 255, 0.15);
-      color: #64a0ff;
-
-      &:hover {
-        background: rgba(100, 160, 255, 0.25);
-      }
-    }
-
-    &--cancel {
-      border: 1px solid rgba(var(--color-header-button-base), 0.15);
-      background: none;
-      color: var(--color-text-subtitle);
-      padding: 4px 12px;
-      font-size: var(--font-xsmall);
-
-      &:hover {
-        color: var(--color-text);
-      }
+    &:hover {
+      color: var(--color-text);
     }
   }
 
@@ -104,7 +71,7 @@
   &__progress-fill {
     height: 100%;
     border-radius: 2px;
-    background: #64a0ff;
+    background: #f5a623;
     transition: width 0.3s ease;
   }
 
@@ -112,7 +79,7 @@
     font-size: var(--font-xsmall);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: #64a0ff;
+    color: #f5a623;
     min-width: 32px;
     text-align: right;
   }

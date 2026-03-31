@@ -671,6 +671,14 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePen
   });
 };
 
+reducers[ACTIONS.REMOVE_PENDING_CLAIM_BY_ID] = (state: ClaimsState, action: any): ClaimsState => {
+  const { claimId } = action.data;
+  if (!state.pendingById[claimId]) return state;
+  const pendingById = { ...state.pendingById };
+  delete pendingById[claimId];
+  return { ...state, pendingById };
+};
+
 reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): ClaimsState => {
   const {
     claims: confirmedClaims,
@@ -1025,6 +1033,33 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (state: ClaimsState): ClaimsState => {
 
 reducers[ACTIONS.CLEAR_PURCHASED_URI_SUCCESS] = (state: ClaimsState): ClaimsState => {
   return { ...state, purchaseUriSuccess: false };
+};
+
+reducers[ACTIONS.REHYDRATE] = (state: ClaimsState, action: any) => {
+  const incoming = action?.payload?.claims;
+  if (!incoming) return state;
+  const byId = { ...incoming.byId };
+  const claimsByUri = { ...incoming.claimsByUri };
+  const myClaims = incoming.myClaims ? [...incoming.myClaims] : undefined;
+  const pendingById = incoming.pendingById ? { ...incoming.pendingById } : {};
+
+  Object.keys(byId).forEach((id) => {
+    if (id.startsWith('__preview_')) {
+      delete byId[id];
+      delete pendingById[id];
+    }
+  });
+  Object.keys(claimsByUri).forEach((uri) => {
+    if (
+      claimsByUri[uri]?.startsWith?.('__preview_') ||
+      (typeof claimsByUri[uri] === 'string' && claimsByUri[uri].startsWith('__preview_'))
+    ) {
+      delete claimsByUri[uri];
+    }
+  });
+  const filteredMyClaims = myClaims?.filter((id: string) => !id.startsWith('__preview_'));
+
+  return { ...defaultState, ...incoming, byId, claimsByUri, myClaims: filteredMyClaims, pendingById };
 };
 
 export function claimsReducer(state: ClaimsState = defaultState, action: any) {

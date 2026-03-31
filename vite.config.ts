@@ -13,6 +13,8 @@ dotenvDefaults.config({ silent: false, defaults: '.env.defaults' });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const LOCAL_USAGI_ROOT = path.resolve(__dirname, '../../odysee-media-usagi');
+const useLocalUsagi = process.env.USE_LOCAL_USAGI === 'true';
 
 const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
@@ -172,6 +174,7 @@ function providePlugin() {
     transform(code, id) {
       // Normalize backslashes for Windows compatibility
       const nid = id.replace(/\\/g, '/');
+      if (nid.includes('/odysee-media-usagi/')) return null;
       if (nid.includes('node_modules')) return null;
       if (!nid.match(/\.(tsx?|jsx?)$/)) return null;
 
@@ -200,6 +203,190 @@ function providePlugin() {
         return { code: imports.join('\n') + '\n' + code, map: null };
       }
       return null;
+    },
+  };
+}
+
+function mediabunnyPausePatchPlugin() {
+  const conversionPattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]conversion\.js($|\?)/;
+  const mediaSinkPattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]media-sink\.js($|\?)/;
+  const sourcePattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]source\.js($|\?)/;
+  const readerPattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]reader\.js($|\?)/;
+  const matroskaPattern =
+    /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]matroska[/\\]matroska-demuxer\.js($|\?)/;
+
+  return {
+    name: 'mediabunny-pause-patch',
+    transform(code, id) {
+      if (
+        !conversionPattern.test(id) &&
+        !mediaSinkPattern.test(id) &&
+        !sourcePattern.test(id) &&
+        !readerPattern.test(id) &&
+        !matroskaPattern.test(id)
+      )
+        return null;
+      if (code.includes('globalThis.__mediabunnyPauseGate')) return null;
+
+      let result = code;
+
+      const injectPauseHelper = (from: string) =>
+        `${from}\nconst maybePause = async () => {\n\tconst pauseGate = globalThis.__mediabunnyPauseGate;\n\tif (pauseGate) {\n\t\tawait pauseGate();\n\t}\n};`;
+
+      const insertions: Array<[string, string]> = conversionPattern.test(id)
+        ? [
+            [
+              "import { NullTarget } from './target.js';",
+              injectPauseHelper("import { NullTarget } from './target.js';"),
+            ],
+            [
+              'for await (const packet of sink.packets(undefined, endPacket, { verifyKeyPackets: true })) {',
+              'for await (const packet of sink.packets(undefined, endPacket, { verifyKeyPackets: true })) {\n\t\t\t\t\tawait maybePause();',
+            ],
+            [
+              'for await (const packet of sink.packets(undefined, endPacket)) {',
+              'for await (const packet of sink.packets(undefined, endPacket)) {\n\t\t\t\t\tawait maybePause();',
+            ],
+            [
+              'for await (const sample of sink.samples(this._startTimestamp, this._endTimestamp)) {',
+              'for await (const sample of sink.samples(this._startTimestamp, this._endTimestamp)) {\n\t\t\t\t\tawait maybePause();',
+            ],
+            [
+              'for await (const sample of sink.samples(undefined, this._endTimestamp)) {',
+              'for await (const sample of sink.samples(undefined, this._endTimestamp)) {\n\t\t\t\t\t\tawait maybePause();',
+            ],
+            [
+              'for await (const sample of iterator) {',
+              'for await (const sample of iterator) {\n\t\t\t\tawait maybePause();',
+            ],
+            [
+              'async _registerVideoSample(track, trackOptions, source, sample) {',
+              'async _registerVideoSample(track, trackOptions, source, sample) {\n\t\tawait maybePause();',
+            ],
+            [
+              'async _registerAudioSample(track, trackOptions, source, sample) {',
+              'async _registerAudioSample(track, trackOptions, source, sample) {\n\t\tawait maybePause();',
+            ],
+            [
+              'for (const finalSample of finalSamples) {',
+              'for (const finalSample of finalSamples) {\n\t\t\tawait maybePause();',
+            ],
+            [
+              'for (let i = 1; i < frameDifference; i++) {',
+              'for (let i = 1; i < frameDifference; i++) {\n\t\t\t\t\t\tawait maybePause();',
+            ],
+            ['async add(audioSample) {', 'async add(audioSample) {\n\t\tawait maybePause();'],
+            [
+              'for (let outputFrame = outputStartFrame; outputFrame < outputEndFrame; outputFrame++) {',
+              'for (let outputFrame = outputStartFrame; outputFrame < outputEndFrame; outputFrame++) {\n\t\t\tif ((outputFrame - outputStartFrame) % 1024 === 0) {\n\t\t\t\tawait maybePause();\n\t\t\t}',
+            ],
+            ['async finalizeCurrentBuffer() {', 'async finalizeCurrentBuffer() {\n\t\tawait maybePause();'],
+          ]
+        : mediaSinkPattern.test(id)
+          ? [
+              [
+                "import { AudioSample, clampCropRectangle, validateCropRectangle, VideoSample } from './sample.js';",
+                injectPauseHelper(
+                  "import { AudioSample, clampCropRectangle, validateCropRectangle, VideoSample } from './sample.js';"
+                ),
+              ],
+              [
+                'while (packet && !terminated && !this._track.input._disposed) {',
+                'while (packet && !terminated && !this._track.input._disposed) {\n\t\t\t\tawait maybePause();',
+              ],
+              ['async next() {', 'async next() {\n\t\t\t\tawait maybePause();'],
+              ['while (true) {', 'while (true) {\n\t\t\t\t\tawait maybePause();'],
+              [
+                'const packet = await packetIterator.next();',
+                'await maybePause();\n\t\t\t\tconst packet = await packetIterator.next();',
+              ],
+            ]
+          : sourcePattern.test(id)
+            ? [
+                [
+                  "import { InputDisposedError } from './input.js';",
+                  injectPauseHelper("import { InputDisposedError } from './input.js';"),
+                ],
+                [
+                  'while (worker.currentPos < worker.targetPos && !worker.aborted) {',
+                  'while (worker.currentPos < worker.targetPos && !worker.aborted) {\n\t\t\tawait maybePause();',
+                ],
+                ['while (true) {', 'while (true) {\n\t\t\tawait maybePause();'],
+                [
+                  'const { done, value } = await reader.read();',
+                  'await maybePause();\n\t\t\t\tconst { done, value } = await reader.read();',
+                ],
+                [
+                  'const { done, value } = await this._reader.read();',
+                  'await maybePause();\n\t\t\tconst { done, value } = await this._reader.read();',
+                ],
+                ['data = await data;', 'await maybePause();\n\t\t\t\tdata = await data;'],
+              ]
+            : readerPattern.test(id)
+              ? [
+                  [
+                    "import { assert, clamp, getUint24, toDataView } from './misc.js';",
+                    "import { assert, clamp, getUint24, toDataView } from './misc.js';\nconst maybePause = () => {\n\tconst pauseGate = globalThis.__mediabunnyPauseGate;\n\treturn pauseGate ? pauseGate() : null;\n};",
+                  ],
+                  [
+                    '    requestSlice(start, length) {',
+                    '    requestSlice(start, length) {\n        const paused = maybePause();\n        if (paused) {\n            return paused.then(() => this.requestSlice(start, length));\n        }',
+                  ],
+                  [
+                    '    requestSliceRange(start, minLength, maxLength) {',
+                    '    requestSliceRange(start, minLength, maxLength) {\n        const paused = maybePause();\n        if (paused) {\n            return paused.then(() => this.requestSliceRange(start, minLength, maxLength));\n        }',
+                  ],
+                ]
+              : [
+                  [
+                    "import { AUDIO_CODECS, VIDEO_CODECS } from '../codec-ids.js';",
+                    "import { AUDIO_CODECS, VIDEO_CODECS } from '../codec-ids.js';\nconst maybePause = async () => {\n\tconst pauseGate = globalThis.__mediabunnyPauseGate;\n\tif (pauseGate) {\n\t\tawait pauseGate();\n\t}\n};",
+                  ],
+                  ['            while (true) {', '            while (true) {\n                await maybePause();'],
+                  [
+                    '        while (this.currentSegment.elementEndPos === null || currentPos < this.currentSegment.elementEndPos) {',
+                    '        while (this.currentSegment.elementEndPos === null || currentPos < this.currentSegment.elementEndPos) {\n            await maybePause();',
+                  ],
+                  [
+                    '        for (const [, trackData] of cluster.trackData) {',
+                    '        await maybePause();\n        for (const [, trackData] of cluster.trackData) {',
+                  ],
+                  [
+                    '            for (let i = 0; i < trackData.blocks.length; i++) {',
+                    '            for (let i = 0; i < trackData.blocks.length; i++) {\n                if ((i & 255) === 0) {\n                    await maybePause();\n                }',
+                  ],
+                  [
+                    '            for (let i = 0; i < trackData.presentationTimestamps.length; i++) {',
+                    '            for (let i = 0; i < trackData.presentationTimestamps.length; i++) {\n                if ((i & 255) === 0) {\n                    await maybePause();\n                }',
+                  ],
+                  [
+                    '        while (segment.elementEndPos === null || currentPos <= segment.elementEndPos - MIN_HEADER_SIZE) {',
+                    '        while (segment.elementEndPos === null || currentPos <= segment.elementEndPos - MIN_HEADER_SIZE) {\n            await maybePause();',
+                  ],
+                ];
+
+      for (const [from, to] of insertions) {
+        result = result.replace(from, to);
+      }
+
+      if (
+        (conversionPattern.test(id) ||
+          mediaSinkPattern.test(id) ||
+          sourcePattern.test(id) ||
+          readerPattern.test(id) ||
+          matroskaPattern.test(id)) &&
+        result.includes('maybePause') &&
+        !result.includes('const maybePause = async () => {') &&
+        !result.includes('const maybePause = () => {')
+      ) {
+        result = `${injectPauseHelper('')}\n${result}`;
+      }
+
+      if (result === code) {
+        return null;
+      }
+
+      return { code: result, map: null };
     },
   };
 }
@@ -405,6 +592,7 @@ export default defineConfig({
     alias: {
       // Explicit aliases for things that aren't in ui/
       config: path.resolve(__dirname, 'config.ts'),
+      ...(useLocalUsagi ? { 'odysee-media-usagi': LOCAL_USAGI_ROOT } : {}),
       lbryinc: path.resolve(__dirname, 'extras/lbryinc'),
       recsys: path.resolve(__dirname, 'extras/recsys'),
       '__router-dom-real__': path.resolve(__dirname, 'node_modules/react-router-dom/dist/index.js'),
@@ -467,6 +655,7 @@ export default defineConfig({
     uiModuleResolverPlugin(),
     preprocessPlugin(),
     providePlugin(),
+    mediabunnyPausePatchPlugin(),
     // React Scan is opt-in in dev. Always injecting it proved too expensive on some heavy claim pages.
     // Set REACT_SCAN=1 when you explicitly want the overlay/instrumentation.
     {
@@ -505,6 +694,13 @@ export default defineConfig({
   server: {
     port: parseInt(process.env.WEB_SERVER_PORT || process.env.WEBPACK_WEB_PORT || '9090', 10),
     open: false,
+    fs: {
+      allow: [path.resolve(__dirname), ...(useLocalUsagi ? [LOCAL_USAGI_ROOT] : [])],
+    },
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+    },
   },
 
   build: {
@@ -524,6 +720,7 @@ export default defineConfig({
 
   optimizeDeps: {
     entries: ['index.html'],
+    exclude: ['odysee-media-usagi'],
     include: [
       'react',
       'react-dom',

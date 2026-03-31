@@ -1,0 +1,170 @@
+@import 'init/breakpoints';
+
+.publish-status-card {
+  padding: var(--spacing-m);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-s);
+  animation: publish-status-card-in 0.25s ease;
+  background-color: var(--color-card-background);
+
+  &--error {
+    .publish-status-card__icon {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+
+    .publish-status-card__action {
+      background: linear-gradient(135deg, #e53935, #c62828);
+      color: #fff;
+    }
+  }
+
+  &--mandatory {
+    .publish-status-card__icon {
+      background: rgba(255, 180, 0, 0.15);
+      color: #f5a623;
+    }
+
+    .publish-status-card__action {
+      background: linear-gradient(135deg, rgba(255, 180, 0, 0.9), rgba(245, 166, 35, 0.8));
+      color: #000;
+
+      input[type='checkbox'] {
+        border-color: #000 !important;
+
+        &:checked::after {
+          color: #000;
+        }
+      }
+    }
+  }
+
+  &--recommended {
+    .publish-status-card__icon {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+
+    .publish-status-card__action {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.8));
+      color: #fff;
+    }
+  }
+}
+
+.publish-status-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-s);
+}
+
+.publish-status-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--border-radius);
+}
+
+.publish-status-card__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.publish-status-card__title {
+  margin: 0 0 2px;
+  font-size: var(--font-body);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.publish-status-card__description {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  line-height: 1.4;
+}
+
+.publish-status-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: auto;
+  margin-top: 0 !important;
+  border: none;
+
+  input[type='checkbox'] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
+    min-height: 16px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 2px solid currentColor !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    cursor: pointer;
+    position: relative;
+    box-shadow: none !important;
+
+    &:checked::after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 1px;
+      font-size: 12px;
+      font-weight: bold;
+      color: currentColor;
+    }
+
+    &:hover {
+      border-color: currentColor !important;
+      box-shadow: none !important;
+    }
+  }
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.publish-status-card__body {
+  margin-top: var(--spacing-m);
+}
+
+@keyframes publish-status-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: $breakpoint-small) {
+  .publish-status-card {
+    padding: var(--spacing-s);
+  }
+
+  .publish-status-card__header {
+    flex-wrap: wrap;
+  }
+
+  .publish-status-card__action {
+    width: 100%;
+    justify-content: center;
+  }
+}

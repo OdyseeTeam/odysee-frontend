@@ -96,6 +96,10 @@ const defaultState: PublishState = {
   currentUploads: {},
   visibility: 'public',
   scheduledShow: false,
+  pipelineItems: {},
+  savedForms: {},
+  activeFormId: null,
+  activeStep: 0,
 };
 const PATHNAME_TO_PUBLISH_TYPE = {
   [`/$/${PAGES.UPLOAD}`]: 'file',
@@ -117,7 +121,18 @@ export const publishReducer = handleActions(
       // states, we need `type` to always be correct as the reference variable
       // for the rest of the logic here.
       if (type && type !== state.type) {
-        return { ...state, type };
+        if (state.activeFormId) {
+          return { ...state, type };
+        }
+        return {
+          ...defaultState,
+          type,
+          savedForms: state.savedForms,
+          pipelineItems: state.pipelineItems,
+          currentUploads: state.currentUploads,
+          activeFormId: null,
+          activeStep: 0,
+        };
       } else {
         return state;
       }
@@ -228,6 +243,9 @@ export const publishReducer = handleActions(
       optimize: state.optimize,
       languages: [action.data.language || state.language],
       currentUploads: state.currentUploads,
+      savedForms: state.savedForms,
+      pipelineItems: state.pipelineItems,
+      activeFormId: state.activeFormId,
     }),
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({
       ...state,
@@ -342,6 +360,59 @@ export const publishReducer = handleActions(
 
       return state;
     },
+    [ACTIONS.PUBLISH_PIPELINE_ADD]: (state: PublishState, action) => {
+      const item = action.data;
+      return { ...state, pipelineItems: { ...state.pipelineItems, [item.id]: item } };
+    },
+    [ACTIONS.PUBLISH_PIPELINE_UPDATE]: (state: PublishState, action) => {
+      const { id, updates } = action.data;
+      const existing = state.pipelineItems[id];
+      if (!existing) return state;
+      return { ...state, pipelineItems: { ...state.pipelineItems, [id]: { ...existing, ...updates } } };
+    },
+    [ACTIONS.PUBLISH_PIPELINE_REMOVE]: (state: PublishState, action) => {
+      const { id } = action.data;
+      const pipelineItems = { ...state.pipelineItems };
+      delete pipelineItems[id];
+      return { ...state, pipelineItems };
+    },
+    [ACTIONS.PUBLISH_SAVE_FORM]: (state: PublishState, action) => {
+      const { id } = action.data;
+      const snapshot: any = {};
+      const EXCLUDE = ['savedForms', 'pipelineItems', 'activeFormId', 'currentUploads', 'claimToEdit'];
+      for (const key of Object.keys(state)) {
+        if (!EXCLUDE.includes(key)) snapshot[key] = (state as any)[key];
+      }
+      return {
+        ...state,
+        savedForms: { ...state.savedForms, [id]: snapshot },
+      };
+    },
+    [ACTIONS.PUBLISH_RESTORE_FORM]: (state: PublishState, action) => {
+      const { id } = action.data;
+      const saved = state.savedForms[id];
+      if (!saved) {
+        return {
+          ...defaultState,
+          type: state.type,
+          savedForms: state.savedForms,
+          pipelineItems: state.pipelineItems,
+          currentUploads: state.currentUploads,
+          activeFormId: id,
+        };
+      }
+      return {
+        ...defaultState,
+        ...saved,
+        savedForms: state.savedForms,
+        pipelineItems: state.pipelineItems,
+        currentUploads: state.currentUploads,
+        activeFormId: id,
+      };
+    },
+    [ACTIONS.PUBLISH_SET_ACTIVE_FORM]: (state: PublishState, action) => {
+      return { ...state, activeFormId: action.data.id };
+    },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {
         // -- Cleanup for 'publish'
@@ -354,6 +425,12 @@ export const publishReducer = handleActions(
         // Delete obsolete states
         delete newPublish.channelClaimId;
         delete newPublish.isLivestreamPublish;
+
+        // Pipeline items are not valid after reload — clear them
+        newPublish.pipelineItems = {};
+        newPublish.claimToEdit = undefined;
+        newPublish.editingURI = undefined;
+        newPublish.savedForms = {};
 
         // -- Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {

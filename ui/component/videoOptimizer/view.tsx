@@ -1,4 +1,5 @@
 import React from 'react';
+import { WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { useAppDispatch } from 'redux/hooks';
 import { doToast } from 'redux/actions/notifications';
 import { cacheOptimizedFile } from 'util/uploadCache';
@@ -6,13 +7,15 @@ import './style.scss';
 
 // Lazy-import mediabunny to keep it out of the main bundle
 async function loadMediaBunny() {
-  const mb = await import('mediabunny');
+  const mb = await import('odysee-media-usagi');
   return mb;
 }
 
 type Props = {
   file: File;
   fileBitrate: number; // bps
+  fileSizeTooBig?: boolean;
+  variant: 'error' | 'mandatory' | 'recommended';
   onOptimized: (optimizedFile: File) => void;
   onSkip: () => void;
 };
@@ -44,29 +47,25 @@ function formatBitrate(bps: number): string {
 }
 
 /** Resolution-aware target bitrate. Never targets higher than the current bitrate. */
-function getTargetBitrate(height: number, currentMbps: number): number {
-  let target: number;
-  if (height >= 2160)
-    target = 12; // 4K
-  else if (height >= 1440)
-    target = 8; // 1440p
-  else if (height >= 1080)
-    target = 5; // 1080p
-  else if (height >= 720)
-    target = 3; // 720p
-  else if (height >= 480)
-    target = 1.5; // 480p
-  else target = 1; // below 480p
-  // Don't target higher than what the file already has
-  return Math.min(target, currentMbps * 0.7);
+function getTargetBitrate(height: number): number {
+  if (height >= 2160) return 18;
+  if (height >= 1440) return 12;
+  if (height >= 1080) return 8;
+  if (height >= 720) return 5;
+  if (height >= 480) return 2.5;
+  return 1;
 }
 
-export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip }: Props) {
+export default function VideoOptimizer({ file, fileBitrate, fileSizeTooBig, variant, onOptimized, onSkip }: Props) {
   const dispatch = useAppDispatch();
   const [state, setState] = React.useState<OptimizeState>('idle');
   const [analysis, setAnalysis] = React.useState<AnalysisResult | null>(null);
   const [progress, setProgress] = React.useState(0);
   const [estimatedSize, setEstimatedSize] = React.useState<number | null>(null);
+  const [altTargetBitrateMbps, setAltTargetBitrateMbps] = React.useState(5);
+  const [altHeight, setAltHeight] = React.useState(720);
+  const [altEstimatedSize, setAltEstimatedSize] = React.useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = React.useState<'bitrate' | 'resolution'>('bitrate');
   const cancelRef = React.useRef<(() => void) | null>(null);
   const [targetBitrateMbps, setTargetBitrateMbps] = React.useState(5);
 
@@ -108,11 +107,23 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
         };
 
         setAnalysis(result);
-        // Resolution-aware target bitrate (Mbps)
-        const targetMbps = getTargetBitrate(height, bitrateMbps);
+
+        const maxBytes = WEB_PUBLISH_SIZE_LIMIT_GB * 1e9 * 0.95;
+        const maxBitrateMbps = duration && duration > 0 ? (maxBytes * 8) / (duration * 1e6) : Infinity;
+        const resolutionCap = getTargetBitrate(height);
+        const targetMbps = Math.min(bitrateMbps, resolutionCap, maxBitrateMbps);
+
         setTargetBitrateMbps(targetMbps);
-        // Estimate output size
         setEstimatedSize(((targetMbps * 1e6 * (duration || 0)) / 8) * 1.05);
+
+        const lowerHeight =
+          height >= 2160 ? 1440 : height >= 1440 ? 1080 : height >= 1080 ? 720 : height >= 720 ? 480 : 360;
+        const altResolutionCap = getTargetBitrate(lowerHeight);
+        const altBitrate = Math.min(bitrateMbps, altResolutionCap, maxBitrateMbps);
+
+        setAltHeight(lowerHeight);
+        setAltTargetBitrateMbps(altBitrate);
+        setAltEstimatedSize(((altBitrate * 1e6 * (duration || 0)) / 8) * 1.05);
 
         setState('ready');
       } catch (e) {
@@ -249,10 +260,9 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
 
   return (
     <div className="video-optimizer">
-      <div className="video-optimizer__card">
-        {/* Header */}
-        <div className="video-optimizer__header">
-          <div className="video-optimizer__icon">
+      <div className={`publish-status-card publish-status-card--${variant}`}>
+        <div className="publish-status-card__header">
+          <div className="publish-status-card__icon">
             <svg
               width="20"
               height="20"
@@ -266,59 +276,115 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
-          <div className="video-optimizer__header-text">
-            <h3 className="video-optimizer__title">{__('Optimize Video')}</h3>
-            <p className="video-optimizer__subtitle">
-              {__('Your video bitrate is %bitrate%. Optimizing improves playback reliability.', {
-                bitrate: formatBitrate(analysis.bitrateMbps * 1e6),
-              })}
+          <div className="publish-status-card__text">
+            <h3 className="publish-status-card__title">
+              {__('Optimize Video')}
+              <span className={`video-optimizer__label video-optimizer__label--${variant}`}>
+                {variant === 'mandatory' ? __('Mandatory') : variant === 'error' ? __('Required') : __('Recommended')}
+              </span>
+            </h3>
+            <p className="publish-status-card__description">
+              {fileSizeTooBig
+                ? __(
+                    'Your file size exceeds the upload limit. Choose between reducing the bitrate or lowering the resolution to fit.'
+                  )
+                : __(
+                    'Your video bitrate is %bitrate%. Choose between reducing the bitrate or lowering the resolution.',
+                    {
+                      bitrate: formatBitrate(analysis.bitrateMbps * 1e6),
+                    }
+                  )}
             </p>
           </div>
+          {state === 'ready' && (
+            <label
+              className="publish-status-card__action"
+              style={variant === 'mandatory' ? { pointerEvents: 'none', opacity: 0.7 } : undefined}
+            >
+              <input type="checkbox" defaultChecked readOnly={variant === 'mandatory'} />
+              <span>{__('Optimize')}</span>
+            </label>
+          )}
         </div>
 
-        {/* Stats row */}
-        <div className="video-optimizer__stats">
-          <div className="video-optimizer__stat">
-            <span className="video-optimizer__stat-label">{__('Current')}</span>
-            <span className="video-optimizer__stat-value video-optimizer__stat-value--warn">
-              {formatBitrate(analysis.bitrateMbps * 1e6)}
-            </span>
-          </div>
-          <div className="video-optimizer__stat-arrow">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </div>
-          <div className="video-optimizer__stat">
-            <span className="video-optimizer__stat-label">{__('Target')}</span>
-            <span className="video-optimizer__stat-value video-optimizer__stat-value--good">
-              {formatBitrate(targetBitrateMbps * 1e6)}
-            </span>
-          </div>
-          <div className="video-optimizer__stat">
-            <span className="video-optimizer__stat-label">{__('Resolution')}</span>
-            <span className="video-optimizer__stat-value">{analysis.height}p</span>
-          </div>
-          <div className="video-optimizer__stat">
-            <span className="video-optimizer__stat-label">{__('Duration')}</span>
-            <span className="video-optimizer__stat-value">{formatDuration(analysis.duration)}</span>
-          </div>
-          {estimatedSize && (
-            <div className="video-optimizer__stat">
-              <span className="video-optimizer__stat-label">{__('Est. Size')}</span>
-              <span className="video-optimizer__stat-value">{formatSize(estimatedSize)}</span>
+        {/* Options */}
+        <div className="video-optimizer__options">
+          <label
+            className={`video-optimizer__option ${selectedOption === 'bitrate' ? 'video-optimizer__option--selected' : ''}`}
+          >
+            <input
+              type="radio"
+              name="optimize_mode"
+              checked={selectedOption === 'bitrate'}
+              onChange={() => setSelectedOption('bitrate')}
+            />
+            <div className="video-optimizer__option-info">
+              <strong>{__('Reduce Bitrate')}</strong>
+              <div className="video-optimizer__stats">
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Bitrate')}</span>
+                  <span className="video-optimizer__stat-value video-optimizer__stat-value--warn">
+                    {formatBitrate(analysis.bitrateMbps * 1e6)}
+                  </span>
+                </div>
+                <div className="video-optimizer__stat-arrow">→</div>
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Target')}</span>
+                  <span className="video-optimizer__stat-value video-optimizer__stat-value--good">
+                    {formatBitrate(targetBitrateMbps * 1e6)}
+                  </span>
+                </div>
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Resolution')}</span>
+                  <span className="video-optimizer__stat-value">{analysis.height}p</span>
+                </div>
+                {estimatedSize && (
+                  <div className="video-optimizer__stat">
+                    <span className="video-optimizer__stat-label">{__('Est. Size')}</span>
+                    <span className="video-optimizer__stat-value">{formatSize(estimatedSize)}</span>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </label>
+          <label
+            className={`video-optimizer__option ${selectedOption === 'resolution' ? 'video-optimizer__option--selected' : ''}`}
+          >
+            <input
+              type="radio"
+              name="optimize_mode"
+              checked={selectedOption === 'resolution'}
+              onChange={() => setSelectedOption('resolution')}
+            />
+            <div className="video-optimizer__option-info">
+              <strong>{__('Lower Resolution')}</strong>
+              <div className="video-optimizer__stats">
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Bitrate')}</span>
+                  <span className="video-optimizer__stat-value video-optimizer__stat-value--warn">
+                    {formatBitrate(analysis.bitrateMbps * 1e6)}
+                  </span>
+                </div>
+                <div className="video-optimizer__stat-arrow">→</div>
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Target')}</span>
+                  <span className="video-optimizer__stat-value video-optimizer__stat-value--good">
+                    {formatBitrate(altTargetBitrateMbps * 1e6)}
+                  </span>
+                </div>
+                <div className="video-optimizer__stat">
+                  <span className="video-optimizer__stat-label">{__('Resolution')}</span>
+                  <span className="video-optimizer__stat-value">{altHeight}p</span>
+                </div>
+                {altEstimatedSize && (
+                  <div className="video-optimizer__stat">
+                    <span className="video-optimizer__stat-label">{__('Est. Size')}</span>
+                    <span className="video-optimizer__stat-value">{formatSize(altEstimatedSize)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </label>
         </div>
 
         {/* Progress bar (during optimization) */}
@@ -353,33 +419,9 @@ export default function VideoOptimizer({ file, fileBitrate, onOptimized, onSkip 
           </div>
         )}
 
-        {/* Actions */}
-        {state === 'ready' && (
-          <div className="video-optimizer__actions">
-            <button className="video-optimizer__btn video-optimizer__btn--primary" onClick={handleOptimize}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-              {__('Optimize Video')}
-            </button>
-            <button className="video-optimizer__btn video-optimizer__btn--secondary" onClick={onSkip}>
-              {__('Skip & Publish Original')}
-            </button>
-          </div>
-        )}
-
         {state === 'optimizing' && (
           <div className="video-optimizer__actions">
-            <button className="video-optimizer__btn video-optimizer__btn--secondary" onClick={handleCancel}>
+            <button className="video-optimizer__btn video-optimizer__btn--cancel" onClick={handleCancel}>
               {__('Cancel')}
             </button>
           </div>

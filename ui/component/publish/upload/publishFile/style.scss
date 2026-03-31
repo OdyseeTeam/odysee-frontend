@@ -39,6 +39,11 @@
       color: #4caf50;
       background: rgba(76, 175, 80, 0.1);
     }
+
+    &--error {
+      color: var(--color-text-error);
+      background: rgba(var(--color-text-error-base, 244, 67, 54), 0.12);
+    }
   }
 
   // Separator dot between groups

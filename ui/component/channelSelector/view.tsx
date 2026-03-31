@@ -113,7 +113,7 @@ function ChannelSelector(props: Props) {
               ) : (incognito && !hideAnon) || !activeChannelUrl ? (
                 <IncognitoSelector isSelected />
               ) : (
-                <ChannelListItem channelId={activeChannelId} isSelected />
+                <ChannelListItem key={activeChannelId} channelId={activeChannelId} isSelected />
               )}
             </MenuButton>
           )}

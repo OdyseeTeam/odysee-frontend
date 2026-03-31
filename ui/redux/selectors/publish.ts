@@ -33,8 +33,13 @@ export const selectIsStillEditing = createSelector(selectState, (publishState) =
     return false;
   }
 
-  const { isChannel: currentIsChannel, streamName: currentClaimName, channelName: currentContentName } = parseURI(uri);
-  const { isChannel: editIsChannel, streamName: editClaimName, channelName: editContentName } = parseURI(editingURI);
+  let currentIsChannel, currentClaimName, currentContentName, editIsChannel, editClaimName, editContentName;
+  try {
+    ({ isChannel: currentIsChannel, streamName: currentClaimName, channelName: currentContentName } = parseURI(uri));
+    ({ isChannel: editIsChannel, streamName: editClaimName, channelName: editContentName } = parseURI(editingURI));
+  } catch {
+    return false;
+  }
   // Depending on the previous/current use of a channel, we need to compare different things
   // ex: going from a channel to anonymous, the new uri won't return contentName, so we need to use claimName
   const currentName = currentIsChannel ? currentContentName : currentClaimName;
@@ -70,38 +75,57 @@ export const selectPublishFormValues = createSelector(
   }
 );
 export const selectPublishFormValue = (state: State, item: string) => selectState(state)[item];
-export const selectMyClaimForUri = createCachedSelector(
-  selectPublishFormValues,
-  selectIsStillEditing,
-  selectClaimsById,
-  selectMyClaimsWithoutChannels,
-  (state, caseSensitive) => caseSensitive,
-  ({ editingURI, uri }, isStillEditing, claimsById, myClaims, caseSensitive = true) => {
-    let { channelName: contentName, streamName: claimName } = parseURI(uri);
-    const { streamClaimId: editClaimId } = parseURI(editingURI);
+export const selectMyClaimForUri = (state: any, caseSensitive = true) => {
+  const { editingURI, uri, activeFormId, savedForms } = selectPublishFormValues(state);
+  const isStillEditing = selectIsStillEditing(state);
+  const claimsById = selectClaimsById(state);
+  const myClaims = selectMyClaimsWithoutChannels(state);
 
-    // If isStillEditing
-    // They clicked "edit" from the file page
-    // They haven't changed the channel/name after clicking edit
-    // Get the claim so they can edit without re-uploading a new file
-    if (isStillEditing) {
-      return claimsById[editClaimId];
-    } else {
-      if (caseSensitive) {
-        return myClaims.find((claim) =>
-          !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName
-        );
-      } else {
-        contentName = contentName ? contentName.toLowerCase() : contentName;
-        claimName = claimName ? claimName.toLowerCase() : claimName;
-        return myClaims.find((claim) => {
-          const n = claim && claim.name ? claim.name.toLowerCase() : null;
-          return !contentName ? n === claimName : n === contentName || n === claimName;
-        });
+  let contentName, claimName, editClaimId;
+  try {
+    ({ channelName: contentName, streamName: claimName } = parseURI(uri));
+  } catch {
+    return undefined;
+  }
+  try {
+    ({ streamClaimId: editClaimId } = parseURI(editingURI));
+  } catch {
+    editClaimId = undefined;
+  }
+
+  if (isStillEditing) {
+    return claimsById[editClaimId];
+  }
+
+  // Check real claims
+  const nameMatch = caseSensitive
+    ? (n: string) => (!contentName ? n === claimName : n === contentName || n === claimName)
+    : (n: string) => {
+        const nl = n?.toLowerCase();
+        const cl = claimName?.toLowerCase();
+        const cn = contentName?.toLowerCase();
+        return !cn ? nl === cl : nl === cn || nl === cl;
+      };
+
+  const realClaim = myClaims.find((claim: any) => {
+    if (claim.claim_id?.startsWith('__preview_')) return false;
+    return claim.name && nameMatch(claim.name);
+  });
+  if (realClaim) return realClaim;
+
+  // Check other in-progress forms for duplicate names
+  if (savedForms && claimName) {
+    for (const [formId, formData] of Object.entries(savedForms)) {
+      if (formId === activeFormId) continue;
+      const saved = formData as any;
+      if (saved.name && nameMatch(saved.name)) {
+        return { claim_id: `__draft_${formId}__`, name: saved.name, _isDraftConflict: true };
       }
     }
   }
-)((state, caseSensitive = true) => `selectMyClaimForUri-${caseSensitive ? '1' : '0'}`);
+
+  return undefined;
+};
 export const selectPrevFileSizeTooBig = createSelector(
   (state: any) => selectMyClaimForUri(state, true),
   (claim) => {
@@ -277,3 +301,13 @@ export const selectIsNonPublicVisibilityAllowed = (state: State) => {
   const channel = selectPublishFormValue(state, 'channel');
   return channel && channel !== CHANNEL_ANONYMOUS;
 };
+
+export const selectPipelineItems = (state: State) => state.publish.pipelineItems || {};
+export const selectPipelineItemCount = (state: State) => Object.keys(state.publish.pipelineItems || {}).length;
+export const selectActivePipelineItems = createSelector(
+  (state: State) => state.publish.pipelineItems,
+  (pipelineItems) => {
+    const items = pipelineItems || {};
+    return Object.values(items).filter((item: any) => item.stage !== 'idle');
+  }
+);

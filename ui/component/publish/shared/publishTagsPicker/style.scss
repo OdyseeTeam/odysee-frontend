@@ -1,0 +1,48 @@
+.publish-tags-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-m);
+}
+
+.publish-tags-picker__selected,
+.publish-tags-picker__suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+  padding: var(--spacing-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-card-background);
+  height: 250px;
+  overflow-y: auto;
+}
+
+.publish-tags-picker__label {
+  font-size: var(--font-xsmall);
+  font-weight: 600;
+  color: var(--color-text-subtitle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.publish-tags-picker__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xxs);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.publish-tags-picker__empty {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+}
+
+.publish-tags-picker input[type='text'] {
+  background: rgba(var(--color-text-base), 0.06) !important;
+}
+
+.publish-tags-picker .tag {
+  background-color: rgba(var(--color-text-base), 0.06) !important;
+}

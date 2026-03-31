@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
-import { Input, BlobSource, VideoSampleSink, ALL_FORMATS } from 'mediabunny';
-import type { VideoSample } from 'mediabunny';
+import { Input, BlobSource, VideoSampleSink, ALL_FORMATS } from 'odysee-media-usagi';
+import type { VideoSample } from 'odysee-media-usagi';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
-import { useAppDispatch } from 'redux/hooks';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doUploadThumbnail } from 'redux/actions/publish';
+import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import './style.lazy.scss';
 
@@ -28,12 +32,18 @@ function formatTimestamp(seconds: number): string {
 }
 
 type Props = {
-  filePath: File;
+  filePath?: File;
+  hasVideo?: boolean;
   onThumbnailSelected?: (thumbnailUrl: string) => void;
 };
 
 function ThumbnailPicker(props: Props) {
-  const { filePath, onThumbnailSelected } = props;
+  const { filePath, hasVideo = false, onThumbnailSelected } = props;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
+  const [urlThumbUrl, setUrlThumbUrl] = useState<string | null>(null);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInputValue, setUrlInputValue] = useState('');
   const dispatch = useAppDispatch();
 
   const [frames, setFrames] = useState<FrameData[]>([]);
@@ -41,6 +51,7 @@ function ThumbnailPicker(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [extractionFailed, setExtractionFailed] = useState(false);
   const [mode, setMode] = useState<PickerMode>('auto');
   const [duration, setDuration] = useState(0);
   const [manualTimestamp, setManualTimestamp] = useState(0);
@@ -95,6 +106,7 @@ function ThumbnailPicker(props: Props) {
 
       setLoading(true);
       setError(null);
+      setExtractionFailed(false);
       setSelectedIndex(null);
       setFrames([]);
       setDuration(0);
@@ -160,15 +172,17 @@ function ThumbnailPicker(props: Props) {
         frameUrlsRef.current = newFrameUrls;
         setFrames(newFrames);
 
-        if (newFrames.length === 0) {
+        if (newFrames.length > 0) {
+          setSelectedIndex(0);
+          uploadFrame(newFrames[0]);
+        } else {
           setError(__('Could not extract any frames from the video.'));
         }
       } catch (err) {
-        console.error('ThumbnailPicker: frame extraction failed', err); // eslint-disable-line no-console
+        console.warn('[ThumbnailPicker] Frame extraction not supported for this format'); // eslint-disable-line no-console
         cleanupFrameUrls(newFrameUrls);
-
         if (extractionId === extractionIdRef.current) {
-          setError(__("Something didn't work. Please try again."));
+          setExtractionFailed(true);
         }
       } finally {
         if (inputRef.current === input) {
@@ -189,7 +203,11 @@ function ThumbnailPicker(props: Props) {
     setMode('auto');
     setManualTimestamp(0);
     setManualFrame(null);
-    extractFrames(DEFAULT_PERCENTAGES);
+    if (hasVideo && filePath) {
+      extractFrames(DEFAULT_PERCENTAGES);
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       cleanup();
@@ -270,8 +288,48 @@ function ThumbnailPicker(props: Props) {
     }
   }
 
+  async function uploadFrame(frame: FrameData) {
+    if (uploading) return;
+    setUploading(true);
+    try {
+      let file = new File([frame.blob], 'thumbnail.jpeg', { type: 'image/jpeg' });
+      if (file.size > THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+        const lowerBlob = await reEncodeBlob(frame.blobUrl, 0.7);
+        if (lowerBlob) {
+          file = new File([lowerBlob], 'thumbnail.jpeg', { type: 'image/jpeg' });
+        }
+      }
+      await Promise.resolve(
+        dispatch(doUploadThumbnail(undefined, file, undefined, undefined, undefined, onThumbnailSelected))
+      );
+    } catch (err) {
+      dispatch(doToast({ isError: true, message: __("Something didn't work. Please try again.") }));
+    }
+    setUploading(false);
+  }
+
+  async function captureCustomFrame(): Promise<FrameData | null> {
+    const video = manualVideoRef.current;
+    if (!video || !video.videoWidth) return null;
+    const scale = Math.min(1, THUMBNAIL_WIDTH / video.videoWidth);
+    const w = Math.round(video.videoWidth * scale);
+    const h = Math.round(video.videoHeight * scale);
+    const canvas = new OffscreenCanvas(w, h);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(video, 0, 0, w, h);
+    const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+    const blobUrl = URL.createObjectURL(blob);
+    return { blobUrl, blob, timestamp: video.currentTime, label: formatTimestamp(video.currentTime) };
+  }
+
   async function handleUpload() {
-    const frame = mode === 'manual' ? manualFrame : selectedIndex !== null ? frames[selectedIndex] : null;
+    let frame: FrameData | null = null;
+    if (selectedIndex === -1) {
+      frame = await captureCustomFrame();
+    } else if (selectedIndex !== null && frames[selectedIndex]) {
+      frame = frames[selectedIndex];
+    }
 
     if (!frame) return;
     setUploading(true);
@@ -310,25 +368,10 @@ function ThumbnailPicker(props: Props) {
     <div className="thumbnail-picker">
       {mode === 'auto' && (
         <>
-          <div className="thumbnail-picker__mode-header">
-            <div>
-              <h3 className="thumbnail-picker__title">{__('Auto-generated thumbnails')}</h3>
-              <p className="thumbnail-picker__subtitle">{__('Select one, or switch to manual frame selection.')}</p>
-            </div>
-            {duration > 0 && (
-              <Button
-                button="link"
-                label={__('Manual selection')}
-                onClick={handleShowManualMode}
-                disabled={loading || uploading}
-              />
-            )}
-          </div>
-
           {loading && (
             <div className="thumbnail-picker__loading">
               <div className="thumbnail-picker__grid thumbnail-picker__grid--skeleton">
-                {DEFAULT_PERCENTAGES.map((_, i) => (
+                {Array.from({ length: 8 }, (_, i) => (
                   <div key={i} className="thumbnail-picker__item thumbnail-picker__item--skeleton">
                     <div className="thumbnail-picker__skeleton-box" />
                   </div>
@@ -347,16 +390,151 @@ function ThumbnailPicker(props: Props) {
             </div>
           )}
 
-          {!loading && !error && frames.length > 0 && (
+          {!loading && !error && (
             <>
               <div className="thumbnail-picker__grid">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.gif,.webp"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      dispatch(
+                        doOpenModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
+                          file,
+                          cb: (url: string) => {
+                            setUploadedThumbUrl(url);
+                            setSelectedIndex(-2);
+                            onThumbnailSelected?.(url);
+                          },
+                        })
+                      );
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <button
+                  className={
+                    'thumbnail-picker__item' +
+                    (uploadedThumbUrl ? '' : ' thumbnail-picker__item--action') +
+                    (selectedIndex === -2 ? ' thumbnail-picker__item--selected' : '')
+                  }
+                  onClick={() => {
+                    if (uploadedThumbUrl) {
+                      setSelectedIndex(-2);
+                    } else {
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  type="button"
+                >
+                  {uploadedThumbUrl ? (
+                    <img src={uploadedThumbUrl} className="thumbnail-picker__image" alt={__('Uploaded thumbnail')} />
+                  ) : (
+                    <div className="thumbnail-picker__action-content">
+                      <Icon icon={ICONS.PUBLISH} size={24} />
+                      <span>{__('Upload')}</span>
+                    </div>
+                  )}
+                </button>
+                <button
+                  className={
+                    'thumbnail-picker__item' +
+                    (urlThumbUrl ? '' : ' thumbnail-picker__item--action') +
+                    (selectedIndex === -3 ? ' thumbnail-picker__item--selected' : '')
+                  }
+                  onClick={() => {
+                    if (urlThumbUrl) {
+                      setSelectedIndex(-3);
+                    } else {
+                      dispatch(
+                        doOpenModal(MODALS.CONFIRM_THUMBNAIL_URL, {
+                          cb: (url: string) => {
+                            setUrlThumbUrl(url);
+                            setSelectedIndex(-3);
+                          },
+                        })
+                      );
+                    }
+                  }}
+                  type="button"
+                >
+                  {urlThumbUrl ? (
+                    <img src={urlThumbUrl} className="thumbnail-picker__image" alt={__('URL thumbnail')} />
+                  ) : (
+                    <div className="thumbnail-picker__action-content">
+                      <Icon icon={ICONS.COPY_LINK} size={24} />
+                      <span>{__('URL')}</span>
+                    </div>
+                  )}
+                </button>
+                {hasVideo && filePath && !extractionFailed && (
+                  <button
+                    className={
+                      'thumbnail-picker__item thumbnail-picker__item--custom' +
+                      (selectedIndex === -1 ? ' thumbnail-picker__item--selected' : '')
+                    }
+                    type="button"
+                    onClick={async () => {
+                      setSelectedIndex(-1);
+                      const frame = await captureCustomFrame();
+                      if (frame) uploadFrame(frame);
+                    }}
+                  >
+                    <video
+                      ref={(el) => {
+                        manualVideoRef.current = el;
+                        if (el && !manualVideoUrlRef.current) {
+                          manualVideoUrlRef.current = URL.createObjectURL(filePath);
+                          el.src = manualVideoUrlRef.current;
+                          el.currentTime = 0;
+                        }
+                      }}
+                      className="thumbnail-picker__custom-video"
+                      muted
+                      playsInline
+                    />
+                    <div className="thumbnail-picker__custom-overlay">
+                      <Icon icon={ICONS.CAMERA} size={24} />
+                      <span>{__('Custom')}</span>
+                    </div>
+                    <input
+                      className="thumbnail-picker__custom-slider"
+                      type="range"
+                      min={0}
+                      max={duration || 1}
+                      step={Math.max((duration || 1) / 200, 0.25)}
+                      value={manualTimestamp}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        const ts = Number(e.target.value);
+                        setManualTimestamp(ts);
+                        setSelectedIndex(-1);
+                        if (manualVideoRef.current) manualVideoRef.current.currentTime = ts;
+                      }}
+                      onMouseUp={async () => {
+                        const frame = await captureCustomFrame();
+                        if (frame) uploadFrame(frame);
+                      }}
+                      onTouchEnd={async () => {
+                        const frame = await captureCustomFrame();
+                        if (frame) uploadFrame(frame);
+                      }}
+                    />
+                  </button>
+                )}
                 {frames.map((frame, index) => (
                   <button
                     key={frame.blobUrl}
                     className={
                       'thumbnail-picker__item' + (selectedIndex === index ? ' thumbnail-picker__item--selected' : '')
                     }
-                    onClick={() => setSelectedIndex(index)}
+                    onClick={() => {
+                      setSelectedIndex(index);
+                      uploadFrame(frames[index]);
+                    }}
                     type="button"
                   >
                     <img
@@ -367,16 +545,6 @@ function ThumbnailPicker(props: Props) {
                     <span className="thumbnail-picker__label">{frame.label}</span>
                   </button>
                 ))}
-              </div>
-
-              <div className="thumbnail-picker__actions">
-                <Button
-                  button="primary"
-                  label={uploading ? __('Uploading...') : __('Use selected thumbnail')}
-                  disabled={selectedIndex === null || uploading}
-                  onClick={handleUpload}
-                />
-                <Button button="link" label={__('Regenerate')} onClick={handleRegenerate} disabled={uploading} />
               </div>
             </>
           )}

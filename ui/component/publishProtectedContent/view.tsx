@@ -183,26 +183,27 @@ function PublishProtectedContent(props: Props) {
                 onChange={toggleMemberRestrictionOn}
               />
 
-              {memberRestrictionOn && (
-                <div className="tier-list">
-                  {myMembershipTiers.map((tier: CreatorMembership) => {
-                    const show = validTierIds && validTierIds.includes(tier.membership_id);
-                    return show ? (
-                      <FormField
-                        disabled={paywall !== PAYWALL.FREE}
-                        key={tier.membership_id}
-                        type="checkbox"
-                        checked={memberRestrictionTierIds.includes(tier.membership_id)}
-                        label={tier.name}
-                        name={tier.membership_id}
-                        onChange={() => toggleMemberRestrictionTierId(tier.membership_id)}
-                      />
-                    ) : (
-                      <div key={tier.membership_id} className="dummy-tier" />
-                    );
-                  })}
-                </div>
-              )}
+              <div
+                className="tier-list"
+                style={!memberRestrictionOn ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
+              >
+                {myMembershipTiers.map((tier: CreatorMembership) => {
+                  const show = validTierIds && validTierIds.includes(tier.membership_id);
+                  return show ? (
+                    <FormField
+                      disabled={paywall !== PAYWALL.FREE || !memberRestrictionOn}
+                      key={tier.membership_id}
+                      type="checkbox"
+                      checked={memberRestrictionTierIds.includes(tier.membership_id)}
+                      label={tier.name}
+                      name={tier.membership_id}
+                      onChange={() => toggleMemberRestrictionTierId(tier.membership_id)}
+                    />
+                  ) : (
+                    <div key={tier.membership_id} className="dummy-tier" />
+                  );
+                })}
+              </div>
             </div>
           }
         />

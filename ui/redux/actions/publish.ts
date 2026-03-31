@@ -35,10 +35,11 @@ import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/a
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import { sanitizeName } from 'util/lbryURI';
+import { sanitizeName, buildURI } from 'util/lbryURI';
 import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
 import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
@@ -270,17 +271,25 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   });
 };
 export const doBeginPublish = (type: PublishType, name: string = '', customPath: string = '') => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     assert(PUBLISH_PATH_MAP[type], 'invalid type', type);
-    dispatch(doClearPublish());
-    dispatch({
-      type: ACTIONS.UPDATE_PUBLISH_FORM,
-      data: name
-        ? {
-            name,
-          }
-        : {},
-    });
+
+    const state = getState();
+    const currentType = state.publish.type;
+    const currentFormId = state.publish.activeFormId;
+
+    if (!(currentType === type && currentFormId)) {
+      if (currentFormId) {
+        dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: currentFormId } });
+      }
+      dispatch(doClearPublish());
+      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: null } });
+      dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { type } });
+    }
+
+    if (name) {
+      dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { name } });
+    }
 
     if (customPath) {
       navigateTo(customPath);
@@ -303,6 +312,19 @@ export const doClearPublish = () => (dispatch: Dispatch, getState: GetState) => 
   });
   return dispatch(doResetThumbnailStatus());
 };
+export const doSavePublishForm = (id: string) => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.PUBLISH_SAVE_FORM, data: { id } });
+
+export const doRestorePublishForm = (id: string) => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.PUBLISH_RESTORE_FORM, data: { id } });
+
+export const doSwitchPublishForm = (targetId: string, currentId?: string) => (dispatch: Dispatch) => {
+  if (currentId) {
+    dispatch({ type: ACTIONS.PUBLISH_SAVE_FORM, data: { id: currentId } });
+  }
+  dispatch({ type: ACTIONS.PUBLISH_RESTORE_FORM, data: { id: targetId } });
+};
+
 export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
@@ -442,6 +464,9 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
       isTextPost = MARKDOWN_FILE_EXTENSIONS.includes(extension);
     }
 
+    const fileExtension = file.name?.toLowerCase().split('.').pop() || '';
+    const isMp4Container = fileExtension === 'mp4' || fileExtension === 'mov' || fileExtension === 'm4v';
+
     const formUpdates: UpdatePublishState = {
       fileSize: file.size,
       fileMime: file.type,
@@ -450,11 +475,11 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
       fileBitrate: 0,
       fileVideoCodec: '',
       fileAudioCodec: '',
-      fileFormat: '',
+      fileFormat: fileExtension,
       fileWidth: 0,
       fileHeight: 0,
       fileFps: 0,
-      fileNeedsTransmux: false,
+      fileNeedsTransmux: isVideo && !isMp4Container,
       fileSizeTooBig: false,
       fileText: undefined,
     };
@@ -462,7 +487,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     // --- Async metadata extraction via MediaBunny ---
     const isMedia = isVideo || (contentType && contentType[0] === 'audio');
     if (isMedia) {
-      import('mediabunny')
+      import('odysee-media-usagi')
         .then(async (mb) => {
           let input;
 
@@ -493,9 +518,7 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
             }
 
             // Detect non-MP4 containers for transmux prompt
-            const ext = file.name?.toLowerCase().split('.').pop() || '';
-            const isMp4Container = ext === 'mp4' || ext === 'mov' || ext === 'm4v';
-            metadataUpdates.fileFormat = isMp4Container ? 'mp4' : ext;
+            metadataUpdates.fileFormat = isMp4Container ? 'mp4' : fileExtension;
             metadataUpdates.fileNeedsTransmux = isVideo && !isMp4Container;
 
             if (shouldApplyMetadata()) {
@@ -1344,6 +1367,127 @@ export const doPublish =
       //   });
     }, fail);
   };
+export const doPublishWithEarlyUpload =
+  (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
+    dispatch({ type: ACTIONS.PUBLISH_START });
+    navigateTo(`/$/${PAGES.UPLOADS}`);
+
+    try {
+      const { tusUrl } = await tusUrlPromise;
+
+      const state = getState();
+      const myClaimForUri = state.publish.claimToEdit;
+      const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+      const publishData = selectPublishFormValues(state);
+      const { memberRestrictionTierIds, name } = publishData;
+      const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+      const publishPayload = resolvePublishPayload(
+        publishData,
+        myClaimForUri,
+        myChannels,
+        memberRestrictionStatus,
+        false
+      );
+      const { channel_id: channelClaimId } = publishPayload;
+      const existingClaimId = myClaimForUri?.claim_id || '';
+
+      if (channelClaimId) {
+        dispatch(
+          doSaveMembershipRestrictionsForContent(
+            channelClaimId,
+            existingClaimId,
+            name,
+            memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [],
+            existingClaimId ? undefined : true
+          )
+        );
+      }
+
+      const { createClaim } = await import('web/setup/publish-v4-tasks');
+      const { pollPublishStatus } = await import('web/setup/publish-v4');
+
+      const token =
+        Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
+          ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
+          : '';
+
+      const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload;
+
+      const publishId = await createClaim(token, tusUrl, sdkParams, {
+        onSuccess: () => {},
+        onFailure: () => {},
+      });
+
+      const publishedUri = buildURI(
+        { streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj,
+        true
+      );
+      const signingChannel = myChannels?.find((ch: any) => ch.claim_id === channelClaimId);
+      const pendingClaimId = `pending-${guid}`;
+      const fakePendingClaim: any = {
+        claim_id: pendingClaimId,
+        name: publishData.name,
+        permanent_url: publishedUri,
+        canonical_url: publishedUri,
+        short_url: publishedUri,
+        type: 'claim',
+        value_type: 'stream',
+        confirmations: 0,
+        is_channel_signature_valid: !!signingChannel,
+        value: {
+          title: publishData.title,
+          description: publishData.description,
+          thumbnail: { url: publishData.thumbnail },
+          tags: publishData.tags?.map((t: any) => t.name) || [],
+          source: { media_type: 'video/mp4' },
+        },
+        signing_channel: signingChannel
+          ? {
+              claim_id: signingChannel.claim_id,
+              name: signingChannel.name,
+              permanent_url: signingChannel.permanent_url,
+              canonical_url: signingChannel.canonical_url,
+              value: signingChannel.value,
+            }
+          : undefined,
+        txid: pendingClaimId,
+        nout: 0,
+        meta: { effective_amount: '0' },
+        timestamp: Math.floor(Date.now() / 1000),
+      };
+
+      dispatch({
+        type: ACTIONS.UPDATE_PENDING_CLAIMS,
+        data: { claims: [fakePendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+      } as UpdatePendingClaimsAction);
+      dispatch({
+        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+        data: { id: guid, updates: { stage: 'published', progress: 100, uri: publishedUri } },
+      });
+      dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: null } });
+      dispatch({ type: ACTIONS.PUBLISH_SUCCESS, data: {} });
+
+      pollPublishStatus(token, publishId, guid, dispatch)
+        .then((sdkResult) => {
+          const pendingClaim = sdkResult.outputs[0];
+          dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
+          dispatch({
+            type: ACTIONS.UPDATE_PENDING_CLAIMS,
+            data: { claims: [pendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+          } as UpdatePendingClaimsAction);
+          dispatch(doCheckPendingClaims(undefined));
+        })
+        .catch(() => {});
+    } catch (error: any) {
+      dispatch({ type: ACTIONS.PUBLISH_FAIL });
+      dispatch({
+        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+        data: { id: guid, updates: { stage: 'error', error: error?.message } },
+      });
+      dispatch(doError({ message: typeof error === 'string' ? error : error.message, cause: error.cause }));
+    }
+  };
+
 // Calls file_list until any reflecting files are done
 export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();

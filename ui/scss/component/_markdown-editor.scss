@@ -7,9 +7,7 @@
 }
 
 .markdown-editor {
-  border: 1px solid var(--color-input-border);
   border-radius: var(--border-radius);
-  background: rgba(var(--color-header-background-base), 1);
   color: var(--color-input);
   overflow: hidden;
 }
@@ -20,8 +18,9 @@
   justify-content: space-between;
   gap: var(--spacing-s);
   flex-wrap: wrap;
-  padding: var(--spacing-xs);
+  padding: 0.5rem;
   background-color: var(--color-border);
+  color: rgba(var(--color-text-base), 0.7);
   border-bottom: 1px solid var(--color-input-border);
 }
 
@@ -62,7 +61,7 @@
 .markdown-editor__textarea,
 .markdown-editor__preview {
   width: 100%;
-  min-height: 14rem;
+  min-height: 20rem;
   background: transparent;
   color: var(--color-input);
 }
@@ -108,7 +107,7 @@
   gap: var(--spacing-s);
   flex-wrap: wrap;
   padding: var(--spacing-xs) var(--spacing-s);
-  border-top: 1px solid var(--color-input-border);
+  border-radius: var(--border-radius);
   background-color: rgba(var(--color-header-background-base), 0.5);
   font-size: var(--font-xsmall);
   color: var(--color-input-label);

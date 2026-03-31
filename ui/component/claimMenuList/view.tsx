@@ -80,6 +80,7 @@ type Props = {
   fypId?: string;
   channelUri?: string;
   autoOpen?: boolean;
+  isPreview?: boolean;
 };
 
 function ClaimMenuList(props: Props) {
@@ -108,7 +109,7 @@ function ClaimMenuList(props: Props) {
 }
 
 function ClaimMenuListInner(props: Props) {
-  const { uri, inline = false, collectionId, fypId, autoOpen } = props;
+  const { uri, inline = false, collectionId, fypId, autoOpen, isPreview } = props;
   const dispatch = useAppDispatch();
   const autoOpenRef = React.useRef<HTMLButtonElement>(null);
 
@@ -540,7 +541,7 @@ function ClaimMenuListInner(props: Props) {
       >
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
-      <MenuList className="menu__list">
+      <MenuList className={classnames('menu__list', { 'menu__list--preview': isPreview })}>
         {claim.value_type === 'deleted' && collectionId ? (
           <AddToCollectionContext />
         ) : (

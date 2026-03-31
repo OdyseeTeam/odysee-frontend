@@ -11,11 +11,12 @@ type Props = {
   format: string;
   videoCodec: string;
   audioCodec: string;
+  variant: 'error' | 'mandatory' | 'recommended';
 };
 
 type TransmuxState = 'idle' | 'transmuxing' | 'done' | 'error';
 
-export default function VideoFormatNotice({ file, format, videoCodec, audioCodec }: Props) {
+export default function VideoFormatNotice({ file, format, videoCodec, audioCodec, variant }: Props) {
   const dispatch = useAppDispatch();
   const [state, setState] = React.useState<TransmuxState>('idle');
   const [progress, setProgress] = React.useState(0);
@@ -34,7 +35,7 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
     let input;
 
     try {
-      const mb = await import('mediabunny');
+      const mb = await import('odysee-media-usagi');
       input = new mb.Input({
         formats: mb.ALL_FORMATS,
         source: new mb.BlobSource(file),
@@ -119,45 +120,69 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
   const progressPercent = Math.round(progress * 100);
 
   return (
-    <div className="format-notice">
-      <div className="format-notice__icon">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-        </svg>
-      </div>
+    <div className={`format-notice publish-status-card publish-status-card--${variant}`}>
+      <div className="publish-status-card__header">
+        <div className="publish-status-card__icon">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </div>
 
-      <div className="format-notice__body">
-        {state === 'idle' && (
-          <>
-            <p className="format-notice__text">
-              {canTransmux
-                ? __('Your %format% file can be quickly converted to MP4 for better playback compatibility.', {
+        <div className="publish-status-card__text">
+          <h3 className="publish-status-card__title">
+            {__('Format Conversion')}
+            <span className="format-notice__label">
+              {variant === 'mandatory' ? __('Mandatory') : variant === 'error' ? __('Required') : __('Recommended')}
+            </span>
+          </h3>
+          <p className="publish-status-card__description">
+            {variant === 'mandatory'
+              ? canTransmux
+                ? __('Your %format% file must be converted to MP4 for playback compatibility.', {
                     format: format.toUpperCase(),
                   })
                 : __('Your %format% file needs transcoding to MP4 for reliable playback. This may take a moment.', {
                     format: format.toUpperCase(),
+                  })
+              : canTransmux
+                ? __('Your %format% file will be automatically converted to MP4 for better playback compatibility.', {
+                    format: format.toUpperCase(),
+                  })
+                : __('Your %format% file will be automatically transcoded to MP4 for reliable playback.', {
+                    format: format.toUpperCase(),
                   })}
-            </p>
-            <div className="format-notice__actions">
-              <button className="format-notice__btn format-notice__btn--convert" onClick={handleConvert}>
-                {canTransmux ? __('Convert to MP4') : __('Transcode to MP4')}
-              </button>
-              <span className="format-notice__hint">
-                {canTransmux ? __('Near-instant, no quality loss') : __('Re-encodes to H.264/AAC')}
-              </span>
-            </div>
-          </>
-        )}
+          </p>
+          <span className="format-notice__hint">
+            {canTransmux ? __('Fast, no quality loss') : __('May take a few minutes, slight quality change')}
+          </span>
+        </div>
+
+        {state === 'idle' &&
+          (variant === 'mandatory' ? (
+            <label className="publish-status-card__action" style={{ pointerEvents: 'none', opacity: 0.7 }}>
+              <input type="checkbox" checked readOnly />
+              <span>{__('Convert')}</span>
+            </label>
+          ) : (
+            <label className="publish-status-card__action" onClick={handleConvert}>
+              <input type="checkbox" defaultChecked />
+              <span>{__('Convert')}</span>
+            </label>
+          ))}
+      </div>
+
+      <div className="format-notice__body">
+        {state === 'idle' && null}
 
         {state === 'transmuxing' && (
           <>

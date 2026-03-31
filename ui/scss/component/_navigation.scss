@@ -145,6 +145,14 @@
   @extend .navigation;
   transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
 
+  @media (min-width: $breakpoint-medium) {
+    &:hover {
+      width: calc(var(--side-nav-width) + var(--scrollbar-width));
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+  }
+
   .navigation-inner-container {
     ul:nth-child(4) {
       border-bottom: unset;

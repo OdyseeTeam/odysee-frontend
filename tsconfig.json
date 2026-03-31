@@ -51,6 +51,7 @@
       "web/component/*": ["./web/component/*"],
       "web/effects/*": ["./web/effects/*"],
       "web/page/*": ["./web/page/*"],
+      "web/setup/*": ["./web/setup/*"],
       "homepage": ["./ui/util/homepage"],
       "homepage/*": ["./ui/util/homepage/*"],
       "homepages": ["./custom/homepages/v2"],

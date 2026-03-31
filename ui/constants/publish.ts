@@ -11,3 +11,8 @@ export const BITRATE = Object.freeze({
   RECOMMENDED: 9500000,
   MAX: 19500000,
 });
+export const PIPELINE_CONCURRENCY = Object.freeze({
+  converting: 1,
+  optimizing: 1,
+  uploading: 3,
+});

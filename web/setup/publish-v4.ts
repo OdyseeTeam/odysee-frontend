@@ -17,10 +17,40 @@ import {
 } from 'redux/actions/publish';
 // ****************************************************************************
 // ****************************************************************************
-const SDK_STATUS_INITIAL_DELAY_MS = 2000;
-const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
+export const SDK_STATUS_INITIAL_DELAY_MS = 2000;
+export const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
 const MAX_PREVIEW_RETRIES = 2;
 const DUMMY_REQUEST = new XMLHttpRequest(); // TODO
+
+export async function pollPublishStatus(token: string, publishId: number, guid: string, dispatch: any): Promise<any> {
+  await yieldThread(SDK_STATUS_INITIAL_DELAY_MS);
+
+  while (true) {
+    const status: PublishStatus = await checkPublishStatus(token, publishId);
+
+    switch (status.status) {
+      case 'success':
+        dispatch(remove(guid));
+        return status.sdkResult;
+
+      case 'pending':
+        await yieldThread(SDK_STATUS_RETRY_INTERVAL_MS);
+        break;
+
+      case 'not_found':
+        dispatch(progress({ guid, status: { status: 'error' } }));
+        throw new Error('The upload does not exist.');
+
+      case 'error':
+        dispatch(progress({ guid, status: { status: 'error' } }));
+        throw status.error;
+
+      default:
+        dispatch(progress({ guid, status: { status: 'error' } }));
+        throw new Error('Unhandled status');
+    }
+  }
+}
 
 // ****************************************************************************
 // makeV4UploadRequest

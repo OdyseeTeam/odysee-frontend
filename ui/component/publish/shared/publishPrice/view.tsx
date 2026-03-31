@@ -7,6 +7,8 @@ import Card from 'component/common/card';
 import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 import { PAYWALL } from 'constants/publish';
 import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
@@ -297,54 +299,163 @@ function PublishPrice(props: Props) {
     }
   }, [bankAccountNotFetched, dispatch]);
 
+  const isPaid = paywall === PAYWALL.FIAT || paywall === PAYWALL.SDK;
+
   if (paymentDisallowed) {
     return (
       <div className="publish-price">
-        <Card
-          background
-          isBodyList
-          className="card--enable-overflows"
-          title={__('Price')}
-          body={
-            <div className="publish-price__reason">
-              {__('Payment options are not available for Unlisted or Scheduled content.')}
-            </div>
-          }
-        />
+        <h3 className="publish-details__title">{__('Price')}</h3>
+        <p className="publish-price__reason">
+          {__('Payment options are not available for Unlisted or Scheduled content.')}
+        </p>
       </div>
     );
   }
 
   return (
     <div className="publish-price">
-      <Card
-        background
-        isBodyList
-        className="card--enable-overflows"
-        title={__('Price')}
-        body={
-          <>
-            {expanded && (
-              <div
-                className={classnames('settings-row', {
-                  'settings-row--disabled': paymentDisallowed,
-                })}
-              >
-                {restrictedWithoutPrice && getRestrictionWarningRow()}
-                {getPaywallOptionsRow()}
-                {paywall === PAYWALL.FIAT && (
-                  <div className="publish-price__group">
-                    {getPurchaseRow()}
-                    {getRentalRow()}
-                    {getTncRow()}
-                  </div>
-                )}
-                {paywall === PAYWALL.SDK && <div className="publish-price__group">{getLbcPurchaseRow()}</div>}
-              </div>
-            )}
-          </>
-        }
+      <h3 className="publish-details__title">{__('Price')}</h3>
+
+      {restrictedWithoutPrice && getRestrictionWarningRow()}
+
+      <FormField
+        type="checkbox"
+        name="content_paid"
+        label={__('Enable paid content (Purchase / Rent)')}
+        checked={isPaid}
+        disabled={disabled || !monetizationStatus || restrictedWithoutPrice}
+        onChange={() => {
+          if (isPaid) {
+            updatePublishForm({ paywall: PAYWALL.FREE, fiatPurchaseEnabled: false, fiatRentalEnabled: false });
+          } else {
+            updatePublishForm({ paywall: PAYWALL.FIAT });
+          }
+        }}
       />
+
+      <div className="publish-price__options">
+        <button
+          type="button"
+          className={
+            'publish-price__option' +
+            (!fiatPurchaseEnabled && !fiatRentalEnabled ? ' publish-price__option--selected' : '')
+          }
+          onClick={() => updatePublishForm({ paywall: PAYWALL.FREE })}
+        >
+          <div className="publish-price__option-header">
+            <Icon icon={ICONS.UNLOCK} size={18} />
+            <span>{__('Free')}</span>
+          </div>
+          <p className="publish-price__option-desc">{__('Anyone can view this content.')}</p>
+        </button>
+
+        <div
+          className={
+            'publish-price__option' +
+            (isPaid && fiatPurchaseEnabled ? ' publish-price__option--selected' : '') +
+            (!isPaid ? ' publish-price__option--disabled' : '')
+          }
+          onClick={() => {
+            if (!isPaid) return;
+            const next = !fiatPurchaseEnabled;
+            const updates: any = { paywall: PAYWALL.FIAT, fiatPurchaseEnabled: next };
+            if (!next && !fiatRentalEnabled) updates.paywall = PAYWALL.FREE;
+            updatePublishForm(updates);
+          }}
+        >
+          <div className="publish-price__option-header">
+            <FormField
+              type="checkbox"
+              name="purchase_toggle"
+              checked={fiatPurchaseEnabled}
+              disabled={!isPaid}
+              onChange={() => {
+                updatePublishForm({ paywall: PAYWALL.FIAT, fiatPurchaseEnabled: !fiatPurchaseEnabled });
+              }}
+              label={__('Purchase')}
+            />
+          </div>
+          <p className="publish-price__option-desc">{__('One-time purchase with USD.')}</p>
+          {paywall === PAYWALL.FIAT && fiatPurchaseEnabled && (
+            <div className="publish-price__option-content" onClick={(e) => e.stopPropagation()}>
+              <FormFieldPrice
+                name="fiat_purchase_fee"
+                min={0.01}
+                price={fiatPurchaseFee}
+                onChange={(fee) => updatePublishForm({ fiatPurchaseFee: fee })}
+                onBlur={() => sanitizeFee('fiatPurchaseFee')}
+                currencies={CURRENCY_OPTIONS}
+              />
+              <div className="publish-price__fees">
+                <FeeBreakdown
+                  amount={fiatPurchaseFee.amount}
+                  currency={fiatPurchaseFee.currency}
+                  doCustomerPurchaseCost={doCustomerPurchaseCost}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div
+          className={
+            'publish-price__option' +
+            (isPaid && fiatRentalEnabled ? ' publish-price__option--selected' : '') +
+            (!isPaid ? ' publish-price__option--disabled' : '')
+          }
+          onClick={() => {
+            if (!isPaid) return;
+            const next = !fiatRentalEnabled;
+            const updates: any = { paywall: PAYWALL.FIAT, fiatRentalEnabled: next };
+            if (!next && !fiatPurchaseEnabled) updates.paywall = PAYWALL.FREE;
+            updatePublishForm(updates);
+          }}
+        >
+          <div className="publish-price__option-header">
+            <FormField
+              type="checkbox"
+              name="rental_toggle"
+              checked={fiatRentalEnabled}
+              disabled={!isPaid}
+              onChange={() => {
+                updatePublishForm({ paywall: PAYWALL.FIAT, fiatRentalEnabled: !fiatRentalEnabled });
+              }}
+              label={__('Rent')}
+            />
+          </div>
+          <p className="publish-price__option-desc">{__('Rent for a limited time with USD.')}</p>
+          {paywall === PAYWALL.FIAT && fiatRentalEnabled && (
+            <div className="publish-price__option-content" onClick={(e) => e.stopPropagation()}>
+              <FormFieldPrice
+                name="fiat_rental_fee"
+                min={0.01}
+                price={fiatRentalFee}
+                onChange={(fee) => updatePublishForm({ fiatRentalFee: fee })}
+                onBlur={() => sanitizeFee('fiatRentalFee')}
+                currencies={CURRENCY_OPTIONS}
+              />
+              <FormFieldDurationCombo
+                label={__('Duration')}
+                name="fiat_rental_expiration"
+                min={1}
+                duration={fiatRentalExpiration}
+                onChange={(duration) => updatePublishForm({ fiatRentalExpiration: duration })}
+                onBlur={() => sanitizeDuration()}
+                units={['months', 'weeks', 'days', 'hours']}
+              />
+              <div className="publish-price__fees">
+                <FeeBreakdown
+                  amount={fiatRentalFee.amount}
+                  currency={fiatRentalFee.currency}
+                  doCustomerPurchaseCost={doCustomerPurchaseCost}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {(fiatPurchaseEnabled || fiatRentalEnabled) && getTncRow()}
     </div>
   );
 }

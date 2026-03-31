@@ -7,8 +7,10 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
+import UploadManagerMenu from 'component/header/uploadManagerMenu';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectActivePipelineItems, selectCurrentUploads } from 'redux/selectors/publish';
 import { doBeginPublish as doBeginPublishAction } from 'redux/actions/publish';
 type HeaderMenuButtonProps = {
   authRedirect?: string;
@@ -21,16 +23,15 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const doBeginPublish = (type: PublishType) => dispatch(doBeginPublishAction(type));
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
+  const pipelineItems = useAppSelector(selectActivePipelineItems);
+  const currentUploads = useAppSelector(selectCurrentUploads);
+  const hasUploadActivity = (pipelineItems as any[]).length > 0 || Object.keys(currentUploads || {}).length > 0;
   const uploadProps = {
     requiresAuth: !authenticated,
   };
   return authenticated ? (
     <div className="header__buttons">
-      <Tooltip title={__('Upload')}>
-        <Button className="header__navigationItem--icon" onClick={() => doBeginPublish(PUBLISH_TYPES.FILE)}>
-          <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
-        </Button>
-      </Tooltip>
+      <UploadManagerMenu hasActivity={hasUploadActivity} onUploadClick={() => doBeginPublish(PUBLISH_TYPES.FILE)} />
       {livestreamEnabled && (
         <Tooltip title={__('Go live')}>
           <Button

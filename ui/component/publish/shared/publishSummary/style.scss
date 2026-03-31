@@ -1,0 +1,114 @@
+.publish-summary__columns {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--spacing-m);
+  align-items: stretch;
+}
+
+.publish-summary__left {
+  min-width: 0;
+
+  .table {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-m);
+    background: var(--color-card-background);
+  }
+}
+
+.publish-summary__preview-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  a {
+    pointer-events: none;
+  }
+}
+
+.publish-summary__right {
+  display: flex;
+  flex-direction: column;
+
+  .claim-preview--tile {
+    width: 100% !important;
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-m);
+    background: var(--color-card-background);
+    flex: 1;
+  }
+}
+
+.publish-summary__description {
+  max-height: 100px;
+  overflow: hidden;
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+}
+
+.publish-summary__channel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.publish-summary__price-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+}
+
+.publish-summary__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xxs);
+}
+
+.publish-summary__preview-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: var(--color-card-background);
+}
+
+.publish-summary__preview-thumb {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.publish-summary__preview-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-header-button);
+}
+
+.publish-summary__preview-info {
+  padding: var(--spacing-s);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xxs);
+}
+
+.publish-summary__preview-title {
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.publish-summary__preview-channel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+}

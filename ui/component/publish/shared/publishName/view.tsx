@@ -91,7 +91,7 @@ function PublishName(props: Props) {
     setNameError(nameError);
   }, [name, blurred]);
   return (
-    <>
+    <div>
       <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
         <fieldset-section>
           <label>{__('URL')}</label>
@@ -108,7 +108,6 @@ function PublishName(props: Props) {
           autoComplete="off"
         />
       </fieldset-group>
-
       <div className="form-field__help">
         <NameHelpText
           uri={uri}
@@ -119,7 +118,7 @@ function PublishName(props: Props) {
           onEditMyClaim={editExistingClaim}
         />
       </div>
-    </>
+    </div>
   );
 }
 

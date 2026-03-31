@@ -588,7 +588,19 @@ export const makeSelectAvatarForUri = (uri: string) =>
   });
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;
 export const selectIsFetchingClaimListMineSuccess = (state: State) => selectState(state).isFetchingClaimListMineSuccess;
-export const selectMyClaimsPage = createSelector(selectState, (state) => state.myClaimsPageResults || EMPTY_ARRAY);
+export const selectMyClaimsPage = createSelector(selectState, (state) => {
+  const results = state.myClaimsPageResults || EMPTY_ARRAY;
+  const pendingById = state.pendingById;
+  if (!pendingById) return results;
+  const pendingUris: string[] = [];
+  for (const [id, claim] of Object.entries(pendingById)) {
+    const c = claim as any;
+    if (id.startsWith('pending-') && c.permanent_url && !results.includes(c.permanent_url)) {
+      pendingUris.push(c.permanent_url);
+    }
+  }
+  return pendingUris.length > 0 ? [...pendingUris, ...results] : results;
+});
 export const selectMyClaimsPageNumber = createSelector(
   selectState,
   (state) => (state.claimListMinePage && state.claimListMinePage.items) || EMPTY_ARRAY,

@@ -114,9 +114,10 @@ function ClaimPreviewTile(props: Props) {
   const isEmbed = React.useContext(EmbedContext);
   const { search } = useLocation();
   const navigate = useNavigate();
+  const isPreview = claim && claim.claim_id && claim.claim_id.startsWith('__preview_');
   const isRepost = claim && claim.repost_channel_url;
   const isStream = claim && claim.value_type === 'stream';
-  const isAbandoned = !isResolvingUri && !claim;
+  const isAbandoned = !isResolvingUri && !claim && !isPreview;
   const showCollectionContext = isClaimAllowedForCollection(claim);
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, !!placeholder);
@@ -137,6 +138,10 @@ function ClaimPreviewTile(props: Props) {
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {
+      if (isPreview) {
+        e.preventDefault();
+        return;
+      }
       onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
     },
   };
@@ -183,6 +188,7 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
   // **************************************************************************
   function handleClick() {
+    if (isPreview) return;
     if (navigateUrl && !isEmbed) {
       navigate(navigateUrl);
     }
@@ -244,6 +250,10 @@ function ClaimPreviewTile(props: Props) {
         tabIndex={-1}
         aria-hidden
         onClick={(e) => {
+          if (isPreview) {
+            e.preventDefault();
+            return;
+          }
           if (onClickHandledByParent) {
             e.preventDefault();
           } else {
@@ -255,7 +265,7 @@ function ClaimPreviewTile(props: Props) {
             }
           }
         }}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: isPreview ? 'default' : 'pointer' }}
       >
         <FileThumbnail
           isShort={isShort}
@@ -311,7 +321,13 @@ function ClaimPreviewTile(props: Props) {
                 )}
               </h2>
             </NavLink>
-            <ClaimMenuList uri={uri} collectionId={listId} fypId={fypId} channelUri={channelUri} />
+            <ClaimMenuList
+              uri={uri}
+              collectionId={listId}
+              fypId={fypId}
+              channelUri={channelUri}
+              isPreview={isPreview}
+            />
           </div>
           <div>
             <div
@@ -332,9 +348,15 @@ function ClaimPreviewTile(props: Props) {
                   <div className="claim-tile__about">
                     <UriIndicator uri={uri} link external={isEmbed} />
                     <div className="claim-tile__about--counts">
-                      <FileViewCountInline uri={uri} />
-                      {isLivestream && <LivestreamDateTime uri={uri} />}
-                      {!isLivestream && <DateTimeClaim uri={uri} />}
+                      {isPreview ? (
+                        <span>{__('142 views · 3 hours ago')}</span>
+                      ) : (
+                        <>
+                          <FileViewCountInline uri={uri} />
+                          {isLivestream && <LivestreamDateTime uri={uri} />}
+                          {!isLivestream && <DateTimeClaim uri={uri} />}
+                        </>
+                      )}
                     </div>
                   </div>
                 </React.Fragment>

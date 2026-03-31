@@ -81,7 +81,12 @@ export function doResolveUris(
   additionalOptions: any = {}
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
-    const normalizedUris = uris.map(normalizeURI);
+    const normalizedUris = uris.reduce((acc: string[], uri) => {
+      try {
+        acc.push(normalizeURI(uri));
+      } catch {}
+      return acc;
+    }, []);
     const state = getState();
     const resolvingUrisSet = new Set(selectResolvingUris(state));
     const cachedClaims: ResolveResponse | {} = {};
