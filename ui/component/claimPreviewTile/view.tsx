@@ -268,7 +268,7 @@ function ClaimPreviewTile(props: Props) {
         style={{ cursor: isPreview ? 'default' : 'pointer' }}
       >
         <FileThumbnail
-          isShort={isShort}
+          isShort={isShort && sectionTitle === 'Shorts'}
           thumbnail={thumbnailUrl}
           allowGifs
           tileLayout
