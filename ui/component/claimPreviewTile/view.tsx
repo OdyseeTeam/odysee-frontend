@@ -242,6 +242,7 @@ function ClaimPreviewTile(props: Props) {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
         'claim-preview__wrapper--short': isShort && sectionTitle === 'Shorts',
+        'claim-preview__wrapper--short-cover': isShort && isShortFromChannelPage,
       })}
     >
       {/* Use div instead of NavLink to avoid invalid <a> nesting with hover action buttons */}
@@ -268,7 +269,7 @@ function ClaimPreviewTile(props: Props) {
         style={{ cursor: isPreview ? 'default' : 'pointer' }}
       >
         <FileThumbnail
-          isShort={isShort && sectionTitle === 'Shorts'}
+          isShort={isShort}
           thumbnail={thumbnailUrl}
           allowGifs
           tileLayout

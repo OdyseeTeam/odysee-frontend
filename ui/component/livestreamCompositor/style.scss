@@ -1,0 +1,102 @@
+.livestream-compositor {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+}
+
+.livestream-compositor__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.livestream-compositor__layer-outline {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &--selected {
+    border: 2px solid var(--color-primary);
+  }
+}
+
+.livestream-compositor__layer-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 4px;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  .livestream-compositor__layer-outline:hover &,
+  .livestream-compositor__layer-outline--selected & {
+    opacity: 1;
+  }
+}
+
+.livestream-compositor__layer-label {
+  font-size: 10px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.livestream-compositor__layer-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.livestream-compositor__layer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &--close:hover {
+    background: rgba(244, 67, 54, 0.8);
+  }
+}
+
+.livestream-compositor__handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--color-primary);
+  border: 1px solid #fff;
+  border-radius: 2px;
+  pointer-events: all;
+}
+
+.livestream-compositor__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-small);
+}

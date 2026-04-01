@@ -24,6 +24,8 @@ import { selectUser } from 'redux/selectors/user';
 import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 import LivestreamWebRtcPublisher from 'component/livestreamWebRtcPublisher';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
@@ -33,7 +35,7 @@ import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import LivestreamMetrics from 'component/livestreamMetrics/view';
 import './style.scss';
 
-const VALID_LIVESTREAM_TABS = ['Stream', 'Publish', 'Setup'];
+const ALL_LIVESTREAM_TABS = ['Stream', 'Publish', 'Setup'];
 
 export default function LivestreamSetupPage() {
   const LIVESTREAM_CLAIM_POLL_IN_MS = 60000;
@@ -52,6 +54,10 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
+  const browserStreamEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_BROWSER_STREAM));
+  const VALID_LIVESTREAM_TABS = browserStreamEnabled
+    ? ALL_LIVESTREAM_TABS
+    : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
@@ -113,7 +119,8 @@ export default function LivestreamSetupPage() {
     };
   }, [channelId, pendingLength, dispatch]);
 
-  const initialTab = urlTab && VALID_LIVESTREAM_TABS.includes(urlTab) ? urlTab : 'Stream';
+  const defaultTab = browserStreamEnabled ? 'Stream' : 'Publish';
+  const initialTab = urlTab && VALID_LIVESTREAM_TABS.includes(urlTab) ? urlTab : defaultTab;
   const [tab, setTab] = React.useState(initialTab);
 
   // Stream metrics (active when live via any method -- WebRTC or RTMP)
@@ -184,14 +191,16 @@ export default function LivestreamSetupPage() {
 
       <div className="livestream-setup__toolbar">
         <div className="livestream-setup__tabs">
-          <button
-            className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Stream' })}
-            onClick={() => setTab('Stream')}
-            disabled={balance < 0.01}
-          >
-            <Icon icon={ICONS.CAMERA} size={16} />
-            {__('Browser Stream')}
-          </button>
+          {browserStreamEnabled && (
+            <button
+              className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Stream' })}
+              onClick={() => setTab('Stream')}
+              disabled={balance < 0.01}
+            >
+              <Icon icon={ICONS.CAMERA} size={16} />
+              {__('Browser Stream')}
+            </button>
+          )}
           <button
             className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Publish' })}
             onClick={() => setTab('Publish')}

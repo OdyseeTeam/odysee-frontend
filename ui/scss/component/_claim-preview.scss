@@ -106,18 +106,16 @@
 
 .claim-preview__wrapper--short {
   .media__thumb {
-    background-size: cover;
     aspect-ratio: 9 / 16;
-  }
-
-  &:hover {
-    .media__thumb {
-      background-size: cover;
-      aspect-ratio: 9 / 16;
-    }
   }
   @media (max-width: $breakpoint-small) {
     width: 48.5% !important;
+  }
+}
+
+.claim-preview__wrapper--short-cover {
+  .media__thumb.media__thumb--has-preview {
+    background-size: cover !important;
   }
 }
 

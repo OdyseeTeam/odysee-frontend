@@ -34,6 +34,11 @@ import LivestreamConnectingAnimation from 'component/livestreamConnectingAnimati
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import classnames from 'classnames';
 import describeUnknown from 'util/describeUnknown';
+import LivestreamSourceSelector from 'component/livestreamSourceSelector/view';
+import type { VideoSource, AudioSource } from 'component/livestreamSourceSelector/view';
+import LivestreamCompositor from 'component/livestreamCompositor/view';
+import type { CompositorLayer } from 'component/livestreamCompositor/view';
+import { AudioMixer } from 'util/audioMixer';
 import './style.scss';
 
 type Props = {
@@ -299,6 +304,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const [micEnabled, setMicEnabled] = React.useState(true);
   const [cameraEnabled, setCameraEnabled] = React.useState(true);
   const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
+  const [compositorLayers, setCompositorLayers] = React.useState<CompositorLayer[]>([]);
+  const [selectedLayerId, setSelectedLayerId] = React.useState<string | null>(null);
+  const [activeVideoIds, setActiveVideoIds] = React.useState<Set<string>>(new Set());
+  const [activeAudioIds, setActiveAudioIds] = React.useState<Set<string>>(new Set());
+  const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
+  const audioMixerRef = React.useRef<AudioMixer | null>(null);
+  const compositorCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const isMobile = platform.isMobile();
   const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
   const [previewFrameFps, setPreviewFrameFps] = React.useState<number | null>(null);
@@ -567,6 +579,161 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       const msg = describeUnknown(e);
       setErrorMessage(msg);
     }
+  }
+
+  function getOutputWidth(): number {
+    const preset = getWebrtcPublishVideoConstraints(presetId);
+    const w = preset.width;
+    return typeof w === 'number' ? w : w && typeof w === 'object' && 'ideal' in w ? w.ideal : 1280;
+  }
+  function getOutputHeight(): number {
+    const preset = getWebrtcPublishVideoConstraints(presetId);
+    const h = preset.height;
+    return typeof h === 'number' ? h : h && typeof h === 'object' && 'ideal' in h ? h.ideal : 720;
+  }
+
+  function buildCompositorStream(): MediaStream {
+    const canvas = compositorCanvasRef.current;
+    if (!canvas) return new MediaStream();
+    const videoStream = canvas.captureStream(30);
+    if (!audioMixerRef.current) audioMixerRef.current = new AudioMixer();
+    const audioStream = audioMixerRef.current.getOutputStream();
+    const combined = new MediaStream([...videoStream.getVideoTracks(), ...audioStream.getAudioTracks()]);
+    return combined;
+  }
+
+  async function handleToggleVideo(source: VideoSource) {
+    setErrorMessage(null);
+    const id = source.deviceId;
+
+    if (activeVideoIds.has(id)) {
+      const stream = sourceStreamsRef.current.get(id);
+      if (stream) {
+        stream.getVideoTracks().forEach((t) => t.stop());
+        sourceStreamsRef.current.delete(id);
+      }
+      setActiveVideoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
+      if (selectedLayerId === id) setSelectedLayerId(null);
+      updateOutputStream();
+      return;
+    }
+
+    try {
+      let stream: MediaStream;
+      if (source.kind === 'screen') {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+          handleToggleVideo(source);
+        });
+      } else {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: source.deviceId } },
+          audio: false,
+        });
+      }
+      sourceStreamsRef.current.set(id, stream);
+      setActiveVideoIds((prev) => new Set(prev).add(id));
+
+      const outW = getOutputWidth();
+      const outH = getOutputHeight();
+      const track = stream.getVideoTracks()[0];
+
+      const resolveSourceSize = (): Promise<{ w: number; h: number }> =>
+        new Promise((resolve) => {
+          const settings = track?.getSettings();
+          if (settings?.width && settings?.height) {
+            resolve({ w: settings.width, h: settings.height });
+            return;
+          }
+          const tempVideo = document.createElement('video');
+          tempVideo.muted = true;
+          tempVideo.playsInline = true;
+          tempVideo.srcObject = new MediaStream([track]);
+          tempVideo.addEventListener('loadedmetadata', () => {
+            resolve({ w: tempVideo.videoWidth || outW, h: tempVideo.videoHeight || outH });
+            tempVideo.srcObject = null;
+          });
+          tempVideo.play().catch(() => resolve({ w: outW, h: outH }));
+          setTimeout(() => resolve({ w: outW, h: outH }), 2000);
+        });
+
+      const { w: srcW, h: srcH } = await resolveSourceSize();
+      const scale = Math.min(outW / srcW, outH / srcH);
+      const layerW = Math.round(srcW * scale);
+      const layerH = Math.round(srcH * scale);
+
+      const newLayer: CompositorLayer = {
+        id,
+        label: source.label,
+        stream,
+        x: Math.round((outW - layerW) / 2),
+        y: Math.round((outH - layerH) / 2),
+        width: layerW,
+        height: layerH,
+        aspectRatio: srcW / srcH,
+        zIndex: compositorLayers.length,
+        visible: true,
+      };
+      setCompositorLayers((prev) => [...prev, newLayer]);
+      setSelectedLayerId(id);
+
+      if (status === 'idle') setStatus('preview');
+      updateOutputStream();
+    } catch (e: unknown) {
+      if (!isAbortError(e)) setErrorMessage(describeUnknown(e));
+    }
+  }
+
+  async function handleToggleAudio(source: AudioSource) {
+    setErrorMessage(null);
+    const id = source.deviceId;
+
+    if (!audioMixerRef.current) audioMixerRef.current = new AudioMixer();
+    const mixer = audioMixerRef.current;
+
+    if (activeAudioIds.has(id)) {
+      mixer.removeSource(id);
+      const stream = sourceStreamsRef.current.get(`audio-${id}`);
+      if (stream) {
+        stream.getTracks().forEach((t) => t.stop());
+        sourceStreamsRef.current.delete(`audio-${id}`);
+      }
+      setActiveAudioIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      updateOutputStream();
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: { exact: id }, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      sourceStreamsRef.current.set(`audio-${id}`, stream);
+      mixer.addSource(id, stream);
+      setActiveAudioIds((prev) => new Set(prev).add(id));
+      updateOutputStream();
+    } catch (e: unknown) {
+      if (!isAbortError(e)) setErrorMessage(describeUnknown(e));
+    }
+  }
+
+  function updateOutputStream() {
+    if (compositorCanvasRef.current && (activeVideoIds.size > 0 || activeAudioIds.size > 0)) {
+      const combined = buildCompositorStream();
+      setMediaStream(combined);
+    }
+  }
+
+  function handleLayerUpdate(id: string, updates: Partial<CompositorLayer>) {
+    setCompositorLayers((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
   }
 
   // Detect connecting→live transition for the flash animation
@@ -882,19 +1049,32 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   async function handleGoLive() {
     if (status === 'idle' || status === 'error') {
       setErrorMessage(null);
-      setStatus('requesting_permission');
-      try {
-        const stream = await requestCameraStream();
-        stream.getAudioTracks().forEach((t) => {
-          t.enabled = micEnabled;
-        });
-        setMediaStream(stream);
 
-        if (!canStartStream) {
-          setStatus('preview');
+      let stream: MediaStream;
+      if (compositorLayers.length > 0) {
+        stream = buildCompositorStream();
+        setMediaStream(stream);
+      } else {
+        setStatus('requesting_permission');
+        try {
+          stream = await requestCameraStream();
+          stream.getAudioTracks().forEach((t) => {
+            t.enabled = micEnabled;
+          });
+          setMediaStream(stream);
+        } catch (e: unknown) {
+          setErrorMessage(describeUnknown(e));
+          setStatus('error');
           return;
         }
+      }
 
+      if (!canStartStream) {
+        setStatus('preview');
+        return;
+      }
+
+      try {
         setStatus('connecting');
         const ac = new AbortController();
         connectAbortRef.current = ac;
@@ -969,7 +1149,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         );
       }
     } else if (status === 'preview') {
-      if (!mediaStream || !whipUrl) return;
+      const liveStream = compositorLayers.length > 0 ? buildCompositorStream() : mediaStream;
+      if (!liveStream || !whipUrl) return;
+      setMediaStream(liveStream);
       setErrorMessage(null);
       setStatus('connecting');
       const ac = new AbortController();
@@ -981,7 +1163,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         if (ac.signal.aborted) break;
         try {
           console.log(`[WebRTC] Trying codec preference: ${codec}`); // eslint-disable-line no-console
-          const { pc, resourceUrl } = await startWhipPublish(whipUrl, mediaStream, {
+          const { pc, resourceUrl } = await startWhipPublish(whipUrl, liveStream, {
             signal: ac.signal,
             maxVideoBitrateBps: enc.maxVideoBitrateBps,
             maxVideoFramerate: enc.maxVideoFramerate,
@@ -1044,7 +1226,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const isLive = status === 'live';
   const isConnecting = status === 'connecting';
   const isStopping = status === 'stopping';
-  const hasCamera = Boolean(mediaStream);
+  const hasCamera = compositorLayers.length > 0 || Boolean(mediaStream);
 
   const disabledReason = !browserPublishSupported
     ? __('Your browser does not support WebRTC streaming.')
@@ -1081,107 +1263,79 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
   return (
     <div className="livestream-webrtc">
-      {/* Main Stage */}
-      <div className="livestream-webrtc__stage">
-        <div
-          className={classnames('livestream-webrtc__preview', {
-            'livestream-webrtc__preview--active': hasCamera,
-            'livestream-webrtc__preview--live': isLive,
-            'livestream-webrtc__preview--portrait': isMobile && facingMode === 'user',
-          })}
-        >
-          <video
-            ref={videoRef}
-            className={classnames('livestream-webrtc__video', {
-              'livestream-webrtc__video--mirrored': facingMode === 'user',
+      {/* Main Stage + Sources */}
+      <div className="livestream-webrtc__stage-row">
+        <div className="livestream-webrtc__stage">
+          <div
+            className={classnames('livestream-webrtc__preview', {
+              'livestream-webrtc__preview--active': hasCamera,
+              'livestream-webrtc__preview--live': isLive,
+              'livestream-webrtc__preview--portrait': isMobile && facingMode === 'user',
             })}
-            playsInline
-            muted
-            autoPlay
-          />
+          >
+            <LivestreamCompositor
+              layers={compositorLayers}
+              onLayerUpdate={handleLayerUpdate}
+              onLayerSelect={setSelectedLayerId}
+              onLayerRemove={(id) => {
+                const stream = sourceStreamsRef.current.get(id);
+                if (stream) {
+                  stream.getVideoTracks().forEach((t) => t.stop());
+                  sourceStreamsRef.current.delete(id);
+                }
+                setActiveVideoIds((prev) => {
+                  const next = new Set(prev);
+                  next.delete(id);
+                  return next;
+                });
+                setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
+                if (selectedLayerId === id) setSelectedLayerId(null);
+                updateOutputStream();
+              }}
+              selectedLayerId={selectedLayerId}
+              outputWidth={getOutputWidth()}
+              outputHeight={getOutputHeight()}
+              canvasRef={compositorCanvasRef}
+            />
 
-          {/* Connecting animation overlay (only during WHIP connection, not camera request) */}
-          {isConnecting && <LivestreamConnectingAnimation status="connecting" />}
+            {/* Connecting animation overlay (only during WHIP connection, not camera request) */}
+            {isConnecting && <LivestreamConnectingAnimation status="connecting" />}
 
-          {/* Flash transition when going live */}
-          {justWentLive && <LivestreamConnectingAnimation status="connecting" onLive />}
+            {/* Flash transition when going live */}
+            {justWentLive && <LivestreamConnectingAnimation status="connecting" onLive />}
 
-          {hasCamera && (
-            <div className="livestream-webrtc__preview-overlay">
-              <div className="livestream-webrtc__overlay-top">
-                <span
-                  className={classnames('livestream-webrtc__status-badge', {
-                    'livestream-webrtc__status-badge--live': isLive,
-                    'livestream-webrtc__status-badge--connecting': isConnecting,
-                  })}
-                >
+            {hasCamera && (
+              <div className="livestream-webrtc__preview-overlay">
+                <div className="livestream-webrtc__overlay-top">
+                  <span
+                    className={classnames('livestream-webrtc__status-badge', {
+                      'livestream-webrtc__status-badge--live': isLive,
+                      'livestream-webrtc__status-badge--connecting': isConnecting,
+                    })}
+                  >
+                    {isLive && (
+                      <>
+                        <span className="livestream-webrtc__status-dot" />
+                        {__('LIVE')}
+                      </>
+                    )}
+                    {isConnecting && __('CONNECTING...')}
+                    {status === 'preview' && __('PREVIEW')}
+                    {status === 'requesting_permission' && __('STARTING...')}
+                  </span>
+                  {isLive && elapsedSeconds > 0 && (
+                    <span className="livestream-webrtc__elapsed">{formatElapsed(elapsedSeconds)}</span>
+                  )}
+                </div>
+                <div className="livestream-webrtc__overlay-bottom">
                   {isLive && (
                     <>
-                      <span className="livestream-webrtc__status-dot" />
-                      {__('LIVE')}
-                    </>
-                  )}
-                  {isConnecting && __('CONNECTING...')}
-                  {status === 'preview' && __('PREVIEW')}
-                  {status === 'requesting_permission' && __('STARTING...')}
-                </span>
-                {isLive && elapsedSeconds > 0 && (
-                  <span className="livestream-webrtc__elapsed">{formatElapsed(elapsedSeconds)}</span>
-                )}
-              </div>
-              <div className="livestream-webrtc__overlay-bottom">
-                {isLive && (
-                  <>
-                    {/* Viewers (only if > 0) */}
-                    {totalViewers > 0 && (
-                      <span className="livestream-webrtc__pill">
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                        {totalViewers}
-                      </span>
-                    )}
-                  </>
-                )}
-                {(() => {
-                  const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
-                  const fps = isLive
-                    ? formatFpsLabel(runtimeStats.fps ?? cs?.frameRate)
-                    : formatFpsLabel(previewFrameFps ?? cs?.frameRate ?? runtimeStats.fps);
-                  return fps ? <span className="livestream-webrtc__pill">{fps}</span> : null;
-                })()}
-                {/* Resolution */}
-                {(() => {
-                  const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
-                  const res =
-                    cs?.width && cs?.height
-                      ? formatResolutionLabel(`${cs.width}x${cs.height}`)
-                      : formatResolutionLabel(runtimeStats.resolution);
-                  return res ? <span className="livestream-webrtc__pill">{res}</span> : null;
-                })()}
-                {isLive && (
-                  <>
-                    {/* Bitrate from server metrics or client stats */}
-                    {(() => {
-                      const bps =
-                        serverMetrics?.live && serverMetrics.throughput
-                          ? serverMetrics.throughput.in_bps / 1000
-                          : runtimeStats.videoBitrateKbps;
-                      return bps != null && bps > 0 ? (
+                      {/* Viewers (only if > 0) */}
+                      {totalViewers > 0 && (
                         <span className="livestream-webrtc__pill">
                           <svg
-                            width="9"
-                            height="9"
+                            width="10"
+                            height="10"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -1189,183 +1343,159 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            <line x1="12" y1="19" x2="12" y2="5" />
-                            <polyline points="5 12 12 5 19 12" />
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
                           </svg>
-                          {formatBitrate(bps)}
+                          {totalViewers}
                         </span>
-                      ) : null;
-                    })()}
-                    {/* Codec pill */}
-                    {runtimeStats.videoCodec && (
-                      <span className="livestream-webrtc__pill" title={runtimeStats.encoderImpl || ''}>
-                        {runtimeStats.videoCodec}
-                        {runtimeStats.encoderImpl && (
-                          <span className="livestream-webrtc__pill-hw">
-                            {classifyEncoderImplementation(runtimeStats.encoderImpl) === 'hardware' ? 'HW' : 'SW'}
+                      )}
+                    </>
+                  )}
+                  {(() => {
+                    const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
+                    const fps = isLive
+                      ? formatFpsLabel(runtimeStats.fps ?? cs?.frameRate)
+                      : formatFpsLabel(previewFrameFps ?? cs?.frameRate ?? runtimeStats.fps);
+                    return fps ? <span className="livestream-webrtc__pill">{fps}</span> : null;
+                  })()}
+                  {/* Resolution */}
+                  {(() => {
+                    const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
+                    const res =
+                      cs?.width && cs?.height
+                        ? formatResolutionLabel(`${cs.width}x${cs.height}`)
+                        : formatResolutionLabel(runtimeStats.resolution);
+                    return res ? <span className="livestream-webrtc__pill">{res}</span> : null;
+                  })()}
+                  {isLive && (
+                    <>
+                      {/* Bitrate from server metrics or client stats */}
+                      {(() => {
+                        const bps =
+                          serverMetrics?.live && serverMetrics.throughput
+                            ? serverMetrics.throughput.in_bps / 1000
+                            : runtimeStats.videoBitrateKbps;
+                        return bps != null && bps > 0 ? (
+                          <span className="livestream-webrtc__pill">
+                            <svg
+                              width="9"
+                              height="9"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="12" y1="19" x2="12" y2="5" />
+                              <polyline points="5 12 12 5 19 12" />
+                            </svg>
+                            {formatBitrate(bps)}
                           </span>
-                        )}
-                      </span>
-                    )}
-                    {runtimeStats.qualityLimitationReason && runtimeStats.qualityLimitationReason !== 'none' && (
-                      <span
-                        className="livestream-webrtc__pill"
-                        title={JSON.stringify(runtimeStats.qualityLimitationDurations || {})}
+                        ) : null;
+                      })()}
+                      {/* Codec pill */}
+                      {runtimeStats.videoCodec && (
+                        <span className="livestream-webrtc__pill" title={runtimeStats.encoderImpl || ''}>
+                          {runtimeStats.videoCodec}
+                          {runtimeStats.encoderImpl && (
+                            <span className="livestream-webrtc__pill-hw">
+                              {classifyEncoderImplementation(runtimeStats.encoderImpl) === 'hardware' ? 'HW' : 'SW'}
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      {runtimeStats.qualityLimitationReason && runtimeStats.qualityLimitationReason !== 'none' && (
+                        <span
+                          className="livestream-webrtc__pill"
+                          title={JSON.stringify(runtimeStats.qualityLimitationDurations || {})}
+                        >
+                          {formatQualityLimitationSummary(
+                            runtimeStats.qualityLimitationReason,
+                            runtimeStats.qualityLimitationDurations
+                          )}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!hasCamera && (
+              <div className="livestream-webrtc__placeholder">
+                {cameraAutoStarting && !errorMessage && (
+                  <p className="livestream-webrtc__placeholder-text" style={{ opacity: 0.5 }}>
+                    {__('Starting camera...')}
+                  </p>
+                )}
+                {!cameraAutoStarting && !errorMessage && (
+                  <>
+                    <div className="livestream-webrtc__placeholder-icon">
+                      <svg
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        {formatQualityLimitationSummary(
-                          runtimeStats.qualityLimitationReason,
-                          runtimeStats.qualityLimitationDurations
-                        )}
-                      </span>
+                        <path d="M23 7l-7 5 7 5V7z" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                      </svg>
+                    </div>
+                    {disabledReason ? (
+                      <p className="livestream-webrtc__placeholder-text">{disabledReason}</p>
+                    ) : (
+                      <button
+                        className="livestream-webrtc__allow-camera-btn"
+                        onClick={requestCameraPreview}
+                        disabled={status === 'requesting_permission'}
+                      >
+                        {status === 'requesting_permission' ? __('Requesting...') : __('Allow Camera Preview')}
+                      </button>
                     )}
+                  </>
+                )}
+                {errorMessage && (
+                  <>
+                    <div className="livestream-webrtc__placeholder-icon livestream-webrtc__placeholder-icon--error">
+                      <svg
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                        <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
+                      </svg>
+                    </div>
+                    <p className="livestream-webrtc__placeholder-error">{errorMessage}</p>
+                    <button className="livestream-webrtc__allow-camera-btn" onClick={requestCameraPreview}>
+                      {__('Try Again')}
+                    </button>
                   </>
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {!hasCamera && (
-            <div className="livestream-webrtc__placeholder">
-              {cameraAutoStarting && !errorMessage && (
-                <p className="livestream-webrtc__placeholder-text" style={{ opacity: 0.5 }}>
-                  {__('Starting camera...')}
-                </p>
-              )}
-              {!cameraAutoStarting && !errorMessage && (
-                <>
-                  <div className="livestream-webrtc__placeholder-icon">
-                    <svg
-                      width="48"
-                      height="48"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M23 7l-7 5 7 5V7z" />
-                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                    </svg>
-                  </div>
-                  {disabledReason ? (
-                    <p className="livestream-webrtc__placeholder-text">{disabledReason}</p>
-                  ) : (
-                    <button
-                      className="livestream-webrtc__allow-camera-btn"
-                      onClick={requestCameraPreview}
-                      disabled={status === 'requesting_permission'}
-                    >
-                      {status === 'requesting_permission' ? __('Requesting...') : __('Allow Camera Preview')}
-                    </button>
-                  )}
-                </>
-              )}
-              {errorMessage && (
-                <>
-                  <div className="livestream-webrtc__placeholder-icon livestream-webrtc__placeholder-icon--error">
-                    <svg
-                      width="40"
-                      height="40"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                      <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
-                    </svg>
-                  </div>
-                  <p className="livestream-webrtc__placeholder-error">{errorMessage}</p>
-                  <button className="livestream-webrtc__allow-camera-btn" onClick={requestCameraPreview}>
-                    {__('Try Again')}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Controls bar */}
-        {hasCamera && (
-          <div className="livestream-webrtc__controls">
-            <button
-              className={classnames('livestream-webrtc__control-btn', {
-                'livestream-webrtc__control-btn--off': !micEnabled,
-              })}
-              onClick={() => setMicEnabled(!micEnabled)}
-              disabled={isStopping}
-              title={micEnabled ? __('Mute microphone') : __('Unmute microphone')}
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {micEnabled ? (
-                  <>
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                    <line x1="12" y1="19" x2="12" y2="23" />
-                    <line x1="8" y1="23" x2="16" y2="23" />
-                  </>
-                ) : (
-                  <>
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                    <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
-                    <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.5-.35 2.18" />
-                    <line x1="12" y1="19" x2="12" y2="23" />
-                    <line x1="8" y1="23" x2="16" y2="23" />
-                  </>
-                )}
-              </svg>
-            </button>
-
-            <button
-              className={classnames('livestream-webrtc__control-btn', {
-                'livestream-webrtc__control-btn--off': !cameraEnabled,
-              })}
-              onClick={() => setCameraEnabled(!cameraEnabled)}
-              disabled={isStopping}
-              title={cameraEnabled ? __('Turn off camera') : __('Turn on camera')}
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {cameraEnabled ? (
-                  <>
-                    <path d="M23 7l-7 5 7 5V7z" />
-                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-                  </>
-                ) : (
-                  <>
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                    <path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m2-3h6l2 3h4a2 2 0 0 1 2 2v9.34" />
-                  </>
-                )}
-              </svg>
-            </button>
-
-            {isMobile && (
+          {/* Controls bar */}
+          {hasCamera && (
+            <div className="livestream-webrtc__controls">
               <button
-                className="livestream-webrtc__control-btn"
-                onClick={flipCamera}
+                className={classnames('livestream-webrtc__control-btn', {
+                  'livestream-webrtc__control-btn--off': !micEnabled,
+                })}
+                onClick={() => setMicEnabled(!micEnabled)}
                 disabled={isStopping}
-                title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
+                title={micEnabled ? __('Mute microphone') : __('Unmute microphone')}
               >
                 <svg
                   width="20"
@@ -1377,35 +1507,36 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                  <path d="M9 13a3 3 0 0 0 3 3" />
-                  <path d="M15 13a3 3 0 0 0-3-3" />
-                  <path d="M9 10l-1-1" />
-                  <path d="M15 16l1 1" />
+                  {micEnabled ? (
+                    <>
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" y1="19" x2="12" y2="23" />
+                      <line x1="8" y1="23" x2="16" y2="23" />
+                    </>
+                  ) : (
+                    <>
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                      <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                      <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.13 1.5-.35 2.18" />
+                      <line x1="12" y1="19" x2="12" y2="23" />
+                      <line x1="8" y1="23" x2="16" y2="23" />
+                    </>
+                  )}
                 </svg>
               </button>
-            )}
 
-            <div className="livestream-webrtc__controls-spacer" />
-
-            {(isLive || p2pEnabled) && (
               <button
-                className={classnames('livestream-webrtc__control-btn livestream-webrtc__control-btn--p2p', {
-                  'livestream-webrtc__control-btn--p2p-active': p2pEnabled,
-                  'livestream-webrtc__control-btn--p2p-pulse': p2pEnabled,
+                className={classnames('livestream-webrtc__control-btn', {
+                  'livestream-webrtc__control-btn--off': !cameraEnabled,
                 })}
-                onClick={() => {
-                  if (p2pEnabled) {
-                    dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false, prefsReady));
-                  } else {
-                    setShowP2pConfirm(true);
-                  }
-                }}
-                title={p2pEnabled ? __('P2P seeding active - click to disable') : __('Enable P2P seeding')}
+                onClick={() => setCameraEnabled(!cameraEnabled)}
+                disabled={isStopping}
+                title={cameraEnabled ? __('Turn off camera') : __('Turn on camera')}
               >
                 <svg
-                  width="16"
-                  height="16"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -1413,22 +1544,98 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  {cameraEnabled ? (
+                    <>
+                      <path d="M23 7l-7 5 7 5V7z" />
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                    </>
+                  ) : (
+                    <>
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                      <path d="M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m2-3h6l2 3h4a2 2 0 0 1 2 2v9.34" />
+                    </>
+                  )}
                 </svg>
               </button>
-            )}
 
-            {(isLive || isConnecting) && (
-              <Button
-                button="primary"
-                className="livestream-webrtc__stop-btn"
-                onClick={isConnecting ? handleCancel : handleStop}
-                disabled={isStopping}
-                label={isStopping ? __('Ending...') : isConnecting ? __('Cancel') : __('End Stream')}
-              />
-            )}
-          </div>
-        )}
+              {isMobile && (
+                <button
+                  className="livestream-webrtc__control-btn"
+                  onClick={flipCamera}
+                  disabled={isStopping}
+                  title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <path d="M9 13a3 3 0 0 0 3 3" />
+                    <path d="M15 13a3 3 0 0 0-3-3" />
+                    <path d="M9 10l-1-1" />
+                    <path d="M15 16l1 1" />
+                  </svg>
+                </button>
+              )}
+
+              <div className="livestream-webrtc__controls-spacer" />
+
+              {(isLive || p2pEnabled) && (
+                <button
+                  className={classnames('livestream-webrtc__control-btn livestream-webrtc__control-btn--p2p', {
+                    'livestream-webrtc__control-btn--p2p-active': p2pEnabled,
+                    'livestream-webrtc__control-btn--p2p-pulse': p2pEnabled,
+                  })}
+                  onClick={() => {
+                    if (p2pEnabled) {
+                      dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, false, prefsReady));
+                    } else {
+                      setShowP2pConfirm(true);
+                    }
+                  }}
+                  title={p2pEnabled ? __('P2P seeding active - click to disable') : __('Enable P2P seeding')}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                </button>
+              )}
+
+              {(isLive || isConnecting) && (
+                <Button
+                  button="primary"
+                  className="livestream-webrtc__stop-btn"
+                  onClick={isConnecting ? handleCancel : handleStop}
+                  disabled={isStopping}
+                  label={isStopping ? __('Ending...') : isConnecting ? __('Cancel') : __('End Stream')}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        <LivestreamSourceSelector
+          activeVideoIds={activeVideoIds}
+          activeAudioIds={activeAudioIds}
+          onToggleVideo={handleToggleVideo}
+          onToggleAudio={handleToggleAudio}
+          disabled={status === 'connecting' || status === 'stopping'}
+        />
       </div>
 
       {/* Primary Action */}

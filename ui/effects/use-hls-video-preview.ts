@@ -126,16 +126,18 @@ export default function useHlsVideoPreview(
 
           const levels = hls.levels;
           if (levels && levels.length > 0) {
-            let lowestIdx = 0;
-            let lowestHeight = levels[0].height;
+            const TARGET_HEIGHT = 480;
+            let bestIdx = 0;
+            let bestDiff = Math.abs(levels[0].height - TARGET_HEIGHT);
             for (let i = 1; i < levels.length; i++) {
-              if (levels[i].height < lowestHeight) {
-                lowestHeight = levels[i].height;
-                lowestIdx = i;
+              const diff = Math.abs(levels[i].height - TARGET_HEIGHT);
+              if (diff < bestDiff) {
+                bestDiff = diff;
+                bestIdx = i;
               }
             }
-            hls.currentLevel = lowestIdx;
-            hls.nextLevel = lowestIdx;
+            hls.currentLevel = bestIdx;
+            hls.nextLevel = bestIdx;
           }
 
           if (videoRef.current) {
