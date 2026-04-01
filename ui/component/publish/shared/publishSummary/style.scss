@@ -52,6 +52,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
+
+  .channel-thumbnail {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0;
+  }
 }
 
 .publish-summary__price-row {

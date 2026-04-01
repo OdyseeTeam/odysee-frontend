@@ -48,6 +48,14 @@
     .publish-status-card__action {
       background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.8));
       color: #fff;
+
+      input[type='checkbox'] {
+        border-color: #fff !important;
+
+        &:checked::after {
+          color: #fff;
+        }
+      }
     }
   }
 }

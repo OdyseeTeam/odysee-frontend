@@ -61,8 +61,11 @@ export default function UploadManagerMenu(props: Props) {
   const uploadEntries: any[] = [];
   const activeFormId = useAppSelector((state) => selectPublishFormValue(state, 'activeFormId'));
 
-  function handleEntryClick(itemId: string) {
+  function handleEntryClick(itemId: string, step?: number) {
     dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: itemId } });
+    if (step !== undefined) {
+      dispatch({ type: 'PUBLISH_SAVE_STEP', data: { formId: itemId, activeStep: step } });
+    }
     navigate(`/$/${PAGES.UPLOAD}`);
     handleClose();
   }
@@ -125,7 +128,7 @@ export default function UploadManagerMenu(props: Props) {
           }
         }}
       >
-        <div className="upload-manager__icon">
+        <div className={'upload-manager__icon' + (item.stage === 'ready' ? ' upload-manager__icon--ready' : '')}>
           <Icon
             sectionIcon
             icon={(() => {
@@ -164,7 +167,7 @@ export default function UploadManagerMenu(props: Props) {
                 <div className="upload-manager__steps">
                   {displaySteps.map((step, i) => {
                     const isDone = allDone || (isReady && step !== 'processing') || (stepIndex >= 0 && i < stepIndex);
-                    const isActive = !allDone && !isReady && i === stepIndex;
+                    const isActive = (!allDone && !isReady && i === stepIndex) || (isReady && step === 'processing');
                     return (
                       <React.Fragment key={step}>
                         {i > 0 && <span className="upload-manager__step-separator">›</span>}
@@ -181,10 +184,14 @@ export default function UploadManagerMenu(props: Props) {
                     );
                   })}
                 </div>
-                {item.stage !== 'error' && item.stage !== 'published' && item.stage !== 'queued' && (
-                  <span className="upload-manager__percent">
-                    {item.stage === 'ready' ? '100' : formatPipelineProgress(item.progress)}%
-                  </span>
+                {item.stage === 'ready' ? (
+                  <span className="upload-manager__ready-badge">{__('Action required')}</span>
+                ) : (
+                  item.stage !== 'error' &&
+                  item.stage !== 'published' &&
+                  item.stage !== 'queued' && (
+                    <span className="upload-manager__percent">{formatPipelineProgress(item.progress)}%</span>
+                  )
                 )}
               </div>
             );
@@ -314,6 +321,11 @@ export default function UploadManagerMenu(props: Props) {
         return;
       }
 
+      if (item.stage === 'paused' || item.stage === 'pausing' || item.stage === 'ready' || item.stage === 'queued') {
+        snapshots.delete(item.id);
+        return;
+      }
+
       if (item.stage === 'uploading' && item.uploadSpeed && item.uploadSpeed > 0 && item.fileSize) {
         const remainingBytes = item.fileSize * (1 - item.progress / 100);
         totalSecondsLeft += remainingBytes / item.uploadSpeed;
@@ -389,6 +401,8 @@ export default function UploadManagerMenu(props: Props) {
     }
   }, [open]);
 
+  const readyCount = pipelineItems.filter((item) => item.stage === 'ready').length;
+
   const ringStroke = 8;
   const ringRadius = 50 - ringStroke / 2;
   const ringCircumference = 2 * Math.PI * ringRadius;
@@ -421,6 +435,13 @@ export default function UploadManagerMenu(props: Props) {
             </svg>
           )}
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
+          {readyCount > 0 && (
+            <span className="notification__bubble">
+              <span className={'notification__count' + (readyCount > 9 ? ' notification__bubble--small' : '')}>
+                {readyCount}
+              </span>
+            </span>
+          )}
         </Button>
       </Tooltip>
 
@@ -432,7 +453,13 @@ export default function UploadManagerMenu(props: Props) {
                 let totalSpeed = 0;
                 const stageCounts: Record<string, number> = {};
                 pipelineItems.forEach((item) => {
-                  if (item.uploadSpeed && item.stage !== 'paused' && item.stage !== 'pausing')
+                  if (
+                    item.uploadSpeed &&
+                    item.stage !== 'paused' &&
+                    item.stage !== 'pausing' &&
+                    item.stage !== 'ready' &&
+                    item.stage !== 'queued'
+                  )
                     totalSpeed += item.uploadSpeed;
                   const stage =
                     item.stage === 'paused' || item.stage === 'pausing' ? item.previousStage || item.stage : item.stage;

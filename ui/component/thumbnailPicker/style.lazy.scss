@@ -121,10 +121,10 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 16 / 9;
-  background: rgba(var(--color-header-button-base), 0.06);
+  background-color: var(--color-card-background);
 
   &:hover {
-    background: rgba(var(--color-header-button-base), 0.12);
+    background-color: var(--color-card-background);
   }
 
   &:disabled {

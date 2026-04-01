@@ -113,29 +113,10 @@ export const publishReducer = handleActions(
       const { location } = action.payload;
       const { pathname } = location || {};
       const type: PublishType | null | undefined = PATHNAME_TO_PUBLISH_TYPE[pathname];
-
-      // `type` used to be set in doBeginPublish, but it gets un-synchronized
-      // when doing `POP`, F5, or direct URL access.
-      // Since the "Submit" button is currently tied to the current page
-      // (i.e. no floating Publish forms), and that all 3 forms share the same
-      // states, we need `type` to always be correct as the reference variable
-      // for the rest of the logic here.
       if (type && type !== state.type) {
-        if (state.activeFormId) {
-          return { ...state, type };
-        }
-        return {
-          ...defaultState,
-          type,
-          savedForms: state.savedForms,
-          pipelineItems: state.pipelineItems,
-          currentUploads: state.currentUploads,
-          activeFormId: null,
-          activeStep: 0,
-        };
-      } else {
-        return state;
+        return { ...state, type };
       }
+      return state;
     },
     [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: { data: Partial<PublishState> }): PublishState => {
       const { data } = action;
@@ -412,6 +393,18 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.PUBLISH_SET_ACTIVE_FORM]: (state: PublishState, action) => {
       return { ...state, activeFormId: action.data.id };
+    },
+    ['PUBLISH_SAVE_STEP']: (state: PublishState, action) => {
+      const { formId, activeStep } = action.data;
+      const saved = state.savedForms[formId];
+      return {
+        ...state,
+        activeStep,
+        savedForms: {
+          ...state.savedForms,
+          ...(saved ? { [formId]: { ...saved, activeStep } } : {}),
+        },
+      };
     },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {

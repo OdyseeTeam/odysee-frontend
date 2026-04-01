@@ -28,6 +28,7 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishTemplateButton from 'component/publish/shared/publishTemplateButton';
 import PublishWizard from 'component/publish/shared/publishWizard';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import PublishControlTags from 'component/publish/shared/publishControlTags/view';
 import PublishSummary from 'component/publish/shared/publishSummary/view';
 import PublishTagsPicker from 'component/publish/shared/publishTagsPicker/view';
@@ -53,7 +54,9 @@ import {
   selectPublishFormValue,
   selectMyClaimForUri,
   selectPrevFileSizeTooBig,
+  selectActivePipelineItems,
 } from 'redux/selectors/publish';
+import type { PipelineItem } from 'redux/actions/publishPipeline';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as SETTINGS from 'constants/settings';
@@ -137,8 +140,8 @@ function UploadForm(props: Props) {
   const claimInitialRewards = React.useCallback(() => dispatch(doClaimInitialRewards()), [dispatch]);
   const fetchCreatorSettings = React.useCallback((cid: string) => dispatch(doFetchCreatorSettings(cid)), [dispatch]);
 
+  const pipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
   const inEditMode = Boolean(editingURI);
-  const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
   const mode: string = PUBLISH_MODES.FILE;
   const [prevName, setPrevName] = React.useState<string | false>(false);
   const [fileEdited, setFileEdited] = React.useState(false);
@@ -408,23 +411,6 @@ function UploadForm(props: Props) {
   React.useEffect(() => {
     if (!(window as any).__pipelineHandles) (window as any).__pipelineHandles = {};
     if (!(window as any).__earlyUploadHandles) (window as any).__earlyUploadHandles = {};
-    const id = pipelineItemIdRef.current;
-    (window as any).__pipelineHandles[id] = {
-      handleRef: pipelineHandleRef,
-      pause: () => {
-        pipelinePausedRef.current = true;
-      },
-      resume: () => {
-        pipelinePausedRef.current = false;
-        if (pipelineResumeRef.current) {
-          pipelineResumeRef.current();
-          pipelineResumeRef.current = null;
-        }
-      },
-    };
-    return () => {
-      delete (window as any).__pipelineHandles?.[id];
-    };
   }, []);
 
   React.useEffect(() => {
@@ -485,7 +471,25 @@ function UploadForm(props: Props) {
     });
   }
 
+  function registerPipelineHandle(pipelineId: string) {
+    if (!(window as any).__pipelineHandles) (window as any).__pipelineHandles = {};
+    (window as any).__pipelineHandles[pipelineId] = {
+      handleRef: pipelineHandleRef,
+      pause: () => {
+        pipelinePausedRef.current = true;
+      },
+      resume: () => {
+        pipelinePausedRef.current = false;
+        if (pipelineResumeRef.current) {
+          pipelineResumeRef.current();
+          pipelineResumeRef.current = null;
+        }
+      },
+    };
+  }
+
   async function startPipeline(file: File, pipelineId: string, needsConvert: boolean, needsOptimize: boolean) {
+    registerPipelineHandle(pipelineId);
     pipelineInFlightRef.current = true;
     preparedSourceFileRef.current = file;
     preparedOutputFileRef.current = null;
@@ -650,7 +654,59 @@ function UploadForm(props: Props) {
     <div className="card-stack">
       <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.PUBLISH} />
-        <label>{formTitle}</label>
+        {(() => {
+          const currentFilename =
+            filePath instanceof File ? filePath.name : typeof filePath === 'string' ? filePath : null;
+          const unpublishedItems = pipelineItems.filter((item) => item.stage !== 'published' && item.stage !== 'error');
+          if (inEditMode) {
+            return <label>{__('Edit Upload')}</label>;
+          }
+          if (!currentFilename && unpublishedItems.length === 0) {
+            return <label>{__('Upload a file')}</label>;
+          }
+          const displayName = currentFilename || __('New file');
+          if (unpublishedItems.length === 0 || (unpublishedItems.length <= 1 && currentFilename)) {
+            return (
+              <label>
+                {__('Upload')} {displayName}
+              </label>
+            );
+          }
+          return (
+            <label className="publish-wizard__title-label">
+              {__('Upload')}
+              <Menu>
+                <MenuButton className="publish-wizard__title-select">
+                  {displayName}
+                  <Icon icon={ICONS.DOWN} size={10} />
+                </MenuButton>
+                <MenuList className="menu__list publish-wizard__title-menu">
+                  {unpublishedItems.map((item) => (
+                    <MenuItem
+                      key={item.id}
+                      className="menu__link"
+                      onSelect={() => {
+                        dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: item.formId || item.id } });
+                      }}
+                    >
+                      {item.filename}
+                    </MenuItem>
+                  ))}
+                  <hr className="publish-wizard__title-menu-separator" />
+                  <MenuItem
+                    className="menu__link"
+                    onSelect={() => {
+                      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: '__new__' } });
+                    }}
+                  >
+                    <Icon icon={ICONS.ADD} size={14} />
+                    {__('Upload More')}
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </label>
+          );
+        })()}
         <span className="publish-wizard__title-actions">
           {!isClear && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />

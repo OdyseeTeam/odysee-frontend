@@ -92,6 +92,15 @@
       background-color: var(--color-header-button);
     }
 
+    .upload-manager__icon--ready .icon__wrapper {
+      background-color: var(--color-notification);
+
+      .icon {
+        color: #fff !important;
+        stroke: #fff !important;
+      }
+    }
+
     .upload-manager__name {
       color: var(--color-primary);
     }
@@ -109,6 +118,15 @@
     color: var(--color-text);
     width: 2rem;
     height: 2rem;
+  }
+
+  &--ready .icon__wrapper {
+    background-color: var(--color-notification);
+
+    .icon {
+      color: #fff !important;
+      stroke: #fff !important;
+    }
   }
 }
 
@@ -186,6 +204,13 @@
 .upload-manager__percent {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.upload-manager__ready-badge {
+  font-weight: 600;
+  font-size: var(--font-xsmall);
+  color: var(--color-notification);
+  white-space: nowrap;
 }
 
 .upload-manager__speed {
