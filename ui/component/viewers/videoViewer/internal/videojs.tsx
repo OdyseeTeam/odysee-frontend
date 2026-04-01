@@ -950,7 +950,10 @@ function VideoJsInner(props: Props) {
 
         {resolvedSource && (
           <Video
-            ref={videoRef}
+            ref={(el: HTMLVideoElement | null) => {
+              (videoRef as any).current = el;
+              if (el) el.disablePictureInPicture = true;
+            }}
             src={resolvedSource.src}
             poster={isAudio ? poster : ''}
             playsInline

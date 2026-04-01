@@ -238,6 +238,7 @@ function FileThumbnail(props: Props) {
           >
             <video
               ref={hlsVideoRef}
+              disablePictureInPicture
               className={classnames('media__thumb-video-preview', {
                 'media__thumb-video-preview--portrait': isShort,
               })}
