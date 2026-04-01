@@ -50,6 +50,7 @@ import {
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
   selectIsPlayerFloating,
+  selectPrimaryUri,
   selectIsCollectionPlayingForId,
   selectIsPlayableForUri,
   selectCanPlaybackFileForUri,
@@ -408,11 +409,16 @@ export function doPlaylistAddAndAllowPlaying({
     };
 
     if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID) {
-      const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
-      const hasPlayingUriInQueue = Boolean(
-        playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
+      const freshState = getState();
+      const freshPlayingUri = selectPlayingUri(freshState);
+      const { permanent_url: playingUrl } = selectClaimForUri(freshState, freshPlayingUri.uri) || {};
+      const isActuallyPlaying = Boolean(
+        playingUrl && (selectIsPlayerFloating(freshState) || selectPrimaryUri(freshState) === freshPlayingUri.uri)
       );
-      const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
+      const hasPlayingUriInQueue = Boolean(
+        playingUrl && selectCollectionForIdHasClaimUrl(freshState, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
+      );
+      const hasClaimInQueue = selectCollectionForIdHasClaimUrl(freshState, COLLECTIONS_CONSTS.QUEUE_ID, uri);
 
       if (!hasClaimInQueue) {
         const paramsToAdd = {
@@ -422,11 +428,9 @@ export function doPlaylistAddAndAllowPlaying({
           source: COLLECTIONS_CONSTS.QUEUE_ID,
         };
 
-        if (playingUrl) {
-          // adds the queue collection id to the playingUri data so it can be used and updated by other components
+        if (isActuallyPlaying && playingUrl) {
           if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
         } else if (uri) {
-          // Ensure claim is fully resolved so isPlayable check passes
           await dispatch(doResolveUri(uri, false));
           dispatch(doFileGetForUri(uri));
           dispatch(
@@ -446,13 +450,14 @@ export function doPlaylistAddAndAllowPlaying({
         collectionUrls = selectUrlsForCollectionId(state, collectionId);
       }
 
-      const handleEdit = () =>
-        navigateTo({
-          pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`,
-          state: {
-            showEdit: true,
-          },
-        });
+      const handleEdit = () => {
+        const target = `/$/${PAGES.PLAYLIST}/${collectionId}`;
+        if (window.location.pathname === target) {
+          window.location.reload();
+        } else {
+          navigateTo(target);
+        }
+      };
 
       dispatch(
         doToast({
