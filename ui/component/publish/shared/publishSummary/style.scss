@@ -1,8 +1,14 @@
+@import 'init/breakpoints';
+
 .publish-summary__columns {
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: var(--spacing-m);
   align-items: stretch;
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .publish-summary__left {

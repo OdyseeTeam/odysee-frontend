@@ -115,6 +115,10 @@
   font-size: var(--font-body);
   font-weight: 700;
   color: var(--color-text);
+
+  @media (max-width: $breakpoint-small) {
+    margin: 0;
+  }
 }
 
 .publish-file-picker__selected-name {

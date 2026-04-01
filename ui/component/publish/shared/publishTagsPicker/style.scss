@@ -1,7 +1,13 @@
+@import 'init/breakpoints';
+
 .publish-tags-picker {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-m);
+
+  @media (max-width: $breakpoint-small) {
+    gap: var(--spacing-s);
+  }
 }
 
 .publish-tags-picker__selected,

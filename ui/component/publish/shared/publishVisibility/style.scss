@@ -4,6 +4,15 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-s);
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xs);
+  }
+
+  @media (max-width: $breakpoint-xxsmall) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .publish-visibility__option {
@@ -17,6 +26,10 @@
   cursor: pointer;
   text-align: left;
   transition: border-color 0.15s ease;
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: var(--spacing-xs);
+  }
 
   &:hover:not(:disabled) {
     border-color: var(--color-primary);

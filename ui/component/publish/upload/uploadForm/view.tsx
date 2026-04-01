@@ -667,8 +667,8 @@ function UploadForm(props: Props) {
           const displayName = currentFilename || __('New file');
           if (unpublishedItems.length === 0 || (unpublishedItems.length <= 1 && currentFilename)) {
             return (
-              <label>
-                {__('Upload')} {displayName}
+              <label className="publish-wizard__title-label">
+                {__('Upload')} <span className="publish-wizard__title-filename">{displayName}</span>
               </label>
             );
           }

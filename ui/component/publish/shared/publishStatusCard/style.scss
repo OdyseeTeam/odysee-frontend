@@ -64,6 +64,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-s);
+  flex-wrap: wrap;
 }
 
 .publish-status-card__icon {

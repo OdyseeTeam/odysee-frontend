@@ -1,7 +1,18 @@
+@import 'init/breakpoints';
+
 .publish-control-tags__groups {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-s);
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xs);
+  }
+
+  @media (max-width: $breakpoint-xxsmall) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .publish-control-tags__group {
@@ -9,6 +20,10 @@
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   background: var(--color-card-background);
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: var(--spacing-xs);
+  }
 }
 
 .publish-control-tags__group-header {
