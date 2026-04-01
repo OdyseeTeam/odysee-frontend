@@ -21,6 +21,7 @@ import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
+import usePersistedState from 'effects/use-persisted-state';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doSetClientSetting } from 'redux/actions/settings';
@@ -387,13 +388,17 @@ function SettingsMenuContent({
   const isShorts =
     !!document.querySelector('.shorts-page__container') ||
     !!document.querySelector('.content__viewer--shorts-floating');
-  const [looped, setLooped] = useState(false);
+  const [looped, setLooped] = usePersistedState('video-loop', false);
+  React.useEffect(() => {
+    if (media) media.loop = looped;
+  }, [media, looped]);
   const handleToggleLoop = useCallback(() => {
-    if (media) {
-      media.loop = !media.loop;
-      setLooped(media.loop);
-    }
-  }, [media]);
+    setLooped((prev: boolean) => {
+      const next = !prev;
+      if (media) media.loop = next;
+      return next;
+    });
+  }, [media, setLooped]);
 
   const [localFloating, setLocalFloating] = useState(floatingPlayer);
   const handleToggleFloating = useCallback(() => {

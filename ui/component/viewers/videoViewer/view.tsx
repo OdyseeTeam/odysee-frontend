@@ -222,6 +222,12 @@ function VideoViewer(props: Props) {
   }, [doPlayNextUri, playPreviousUri, videoNode]);
 
   const onVideoEnded = React.useCallback(() => {
+    if (videoNode?.loop) {
+      videoNode.currentTime = 0;
+      videoNode.play().catch(() => {});
+      return;
+    }
+
     videoEnded.current = true;
     analytics.video.videoIsPlaying(false, window.player);
 
