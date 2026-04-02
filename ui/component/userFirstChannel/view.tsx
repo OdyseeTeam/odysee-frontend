@@ -31,7 +31,7 @@ function UserFirstChannel(props: Props) {
   const user = useAppSelector(selectUser);
   const creatingChannel = useAppSelector(selectCreatingChannel);
   const createChannelError = useAppSelector(selectCreateChannelError);
-  const { primary_email: primaryEmail } = user;
+  const primaryEmail = user?.primary_email;
   const initialChannel = primaryEmail ? primaryEmail.split('@')[0] : '';
   const [channel, setChannel] = useState(initialChannel);
   const [title, setTitle] = useState(initialChannel);
@@ -40,8 +40,8 @@ function UserFirstChannel(props: Props) {
     thumbnail: false,
   });
   const [thumbError, setThumbError] = React.useState(false);
-  const [params, setParams]: [any, (arg0: any) => void] = React.useState(getChannelParams());
   const [languageParam, setLanguageParam] = useState([]);
+  const [params, setParams]: [any, (arg0: any) => void] = React.useState(getChannelParams());
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const [nameError, setNameError] = useState(undefined);
 
