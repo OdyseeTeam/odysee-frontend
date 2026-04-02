@@ -60,7 +60,7 @@ const creatorIcon = (channelUrl, channelThumbnail) => (
   </UriIndicator>
 );
 
-export default function Notification(props: Props) {
+function Notification(props: Props) {
   const { menuButton = false, notification } = props;
   const dispatch = useAppDispatch();
   const doReadNotificationsAction = (ids: Array<number>) => dispatch(doReadNotifications(ids));
@@ -286,3 +286,5 @@ export default function Notification(props: Props) {
     </div>
   );
 }
+
+export default React.memo(Notification);

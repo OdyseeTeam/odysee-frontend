@@ -155,6 +155,7 @@ $recent-msg-button__height: 2rem;
     min-width: var(--livestream-comments-width);
     width: var(--livestream-comments-width);
     max-height: calc(100vh - var(--header-height) - var(--spacing-l));
+    max-height: calc(100dvh - var(--header-height) - var(--spacing-l));
     right: 0;
     top: 0px;
     bottom: 0;
@@ -1291,6 +1292,7 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 50px) !important;
+        height: calc(100dvh - 50px) !important;
       }
     }
     .chat__comment-create {
@@ -1308,6 +1310,7 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 55px) !important;
+        height: calc(100dvh - 55px) !important;
       }
     }
   }

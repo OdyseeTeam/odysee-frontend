@@ -3,9 +3,11 @@
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
 
   @media (max-width: $breakpoint-small) {
     height: calc(100vh - var(--header-height-mobile));
+    height: calc(100dvh - var(--header-height-mobile));
   }
 
   *:focus-visible:not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(
@@ -49,6 +51,7 @@
   top: var(--header-height);
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
   background: var(--color-header-background);
@@ -91,6 +94,7 @@
   @media (max-width: $breakpoint-small) {
     top: var(--header-height-mobile);
     height: calc(100vh - var(--header-height-mobile));
+    height: calc(100dvh - var(--header-height-mobile));
     width: var(--side-nav-width);
   }
 
@@ -510,6 +514,7 @@
   position: fixed;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--color-background-overlay);
   z-index: 3;
   left: 0;

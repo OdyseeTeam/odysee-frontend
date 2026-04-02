@@ -651,4 +651,4 @@ function CommentView(props: Props) {
   );
 }
 
-export default CommentView;
+export default React.memo(CommentView);

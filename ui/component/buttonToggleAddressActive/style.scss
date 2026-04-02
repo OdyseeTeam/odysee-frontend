@@ -2,6 +2,7 @@
   position: relative;
   width: 40px;
   height: 20px;
+  background: #301e1e;
   background: color-mix(in srgb, var(--color-text) 70%, #930000 10%);
   border-radius: 10px;
 
@@ -17,6 +18,7 @@
   }
 
   &.toggle-wrapper--active {
+    background: #1e3024;
     background: color-mix(in srgb, var(--color-text) 70%, #00932e 10%);
     .toggle-status {
       left: 20px;

@@ -2057,6 +2057,7 @@ html.ios-fullscreen .player-fullscreen-target {
       left: 0;
       width: 100%;
       height: calc(100vh - 56.25vw);
+      height: calc(100dvh - 56.25vw);
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       border-radius: 12px 12px 0 0;
@@ -2067,6 +2068,7 @@ html.ios-fullscreen .player-fullscreen-target {
 
       &.video-fullscreen__side-panel--chat {
         height: calc(100vh - 56.25vw);
+        height: calc(100dvh - 56.25vw);
         width: 100%;
         right: 0;
 
@@ -2147,6 +2149,7 @@ html.ios-fullscreen .player-fullscreen-target {
         bottom: 0;
         left: 0;
         right: 0;
+        background: var(--color-header-background);
         background: color-mix(in srgb, var(--color-header-background) 80%, transparent);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);

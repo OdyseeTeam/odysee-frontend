@@ -12,6 +12,7 @@ import MobileTabView from 'component/mobileTabView';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as TAGS from 'constants/tags';
@@ -556,9 +557,7 @@ export default function ShortsPage(props: Props) {
       setTransitionDirection(null);
       setTransitionThumbnailUrl(null);
 
-      if (document.body) {
-        document.body.style.overflow = '';
-      }
+      unlockBodyScroll();
 
       if (shouldContinueQueue) {
         requestAnimationFrame(() => {
@@ -599,9 +598,7 @@ export default function ShortsPage(props: Props) {
         window.player.pause();
       }
 
-      if (document.body) {
-        document.body.style.overflow = 'hidden';
-      }
+      lockBodyScroll();
 
       transitionTimerRef.current = setTimeout(() => {
         const activeTransition = activeTransitionRef.current;
@@ -668,9 +665,7 @@ export default function ShortsPage(props: Props) {
       activeTransitionRef.current = null;
       isTransitioningRef.current = false;
 
-      if (document.body) {
-        document.body.style.overflow = '';
-      }
+      unlockBodyScroll();
     };
   }, [clearTransitionTimers]);
   const handleScroll = React.useCallback(

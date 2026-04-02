@@ -5,6 +5,7 @@ import * as ICONS from 'constants/icons';
 import FileTitleSection from 'component/fileTitleSection';
 import Empty from 'component/common/empty';
 import Button from 'component/button';
+import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
 import './style.scss';
 const CommentsList = lazyImport(
   () =>
@@ -54,14 +55,12 @@ export default function MobilePanel(props: Props) {
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // $FlowIssue
-      if (document.body?.style) document.body.style.overflow = 'hidden';
+      lockBodyScroll();
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      // $FlowIssue
-      if (document.body?.style) document.body.style.overflow = 'unset';
+      if (isOpen) unlockBodyScroll();
     };
   }, [isOpen, handleClose]);
 

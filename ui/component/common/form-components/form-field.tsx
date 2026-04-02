@@ -6,8 +6,9 @@ import { lazyImport } from 'util/lazyImport';
 import React, { useRef, useState, useEffect } from 'react';
 import { InputSimple, BlockWrapWrapper } from './input-simple';
 import { InputSelect } from './input-select';
-import MarkdownEditor from './markdown-editor';
 import { CountInfo, QuickAction, Label } from './common';
+
+const MarkdownEditor = lazyImport(() => import('./markdown-editor'));
 import { TextareaWrapper } from './slim-input-field';
 // prettier-ignore
 const TextareaWithSuggestions = lazyImport(() => import('component/textareaWithSuggestions'
@@ -210,12 +211,14 @@ export function FormField(props: Props) {
                 <QuickAction {...quickActionProps} />
               </div>
 
-              <MarkdownEditor
-                {...inputProps}
-                id={name}
-                inputRef={input as React.RefObject<HTMLTextAreaElement>}
-                onChange={mdOnChange}
-              />
+              <React.Suspense fallback={<div className="form-field__loading" />}>
+                <MarkdownEditor
+                  {...inputProps}
+                  id={name}
+                  inputRef={input as React.RefObject<HTMLTextAreaElement>}
+                  onChange={mdOnChange}
+                />
+              </React.Suspense>
 
               <CountInfo {...countInfoProps} />
             </fieldset-section>

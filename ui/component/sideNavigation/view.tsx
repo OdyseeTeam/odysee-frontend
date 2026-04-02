@@ -8,6 +8,7 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as SETTINGS from 'constants/settings';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
+import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
 import Button from 'component/button';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import Icon from 'component/common/icon';
@@ -486,10 +487,10 @@ function SideNavigation(props: Props) {
   // **************************************************************************
   // **************************************************************************
   React.useEffect(() => {
-    document.body.style.overflowY = showOverlay ? 'hidden' : '';
-    return () => {
-      document.body.style.overflowY = '';
-    };
+    if (showOverlay) {
+      lockBodyScroll();
+      return () => unlockBodyScroll();
+    }
   }, [showOverlay]);
   React.useEffect(() => {
     if (purchaseSuccess) {
