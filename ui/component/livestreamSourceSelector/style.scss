@@ -2,23 +2,45 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-s);
-  min-width: 220px;
+  flex: 1;
 }
 
 .livestream-sources__box {
   background-color: var(--color-header-button);
   border-radius: var(--border-radius);
-  padding: var(--spacing-s);
+  padding: var(--spacing-xxs);
+  width: 100%;
 }
 
 .livestream-sources__title {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  margin: 0 0 var(--spacing-xs);
+  margin: 0;
   font-size: var(--font-small);
   font-weight: 600;
   color: var(--color-text);
+}
+
+.livestream-sources__subbox {
+  background-color: var(--color-background);
+  border-radius: calc(var(--border-radius) / 2);
+  padding: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.livestream-sources__subbox-label {
+  display: block;
+  font-size: var(--font-xxsmall);
+  font-weight: 600;
+  color: var(--color-text-subtitle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--spacing-xxs);
 }
 
 .livestream-sources__list {
@@ -84,6 +106,70 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.livestream-sources__active-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  .livestream-sources__item {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.livestream-sources__reorder-btns {
+  display: flex;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.livestream-sources__reorder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 14px;
+  border: none;
+  background: none;
+  color: var(--color-text-subtitle);
+  cursor: pointer;
+  padding: 0;
+
+  &:hover:not(:disabled) {
+    color: var(--color-text);
+  }
+
+  &:disabled {
+    opacity: 0.2;
+    cursor: default;
+  }
+}
+
+.livestream-sources__add-icon {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text-subtitle);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.livestream-sources__remove-icon {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text-subtitle);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text-error);
+  }
 }
 
 .livestream-sources__empty {

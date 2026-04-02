@@ -24,9 +24,7 @@ import { selectUser } from 'redux/selectors/user';
 import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
-import { selectClientSetting } from 'redux/selectors/settings';
-import * as SETTINGS from 'constants/settings';
-import LivestreamWebRtcPublisher from 'component/livestreamWebRtcPublisher';
+import LivestreamStudio from 'component/livestreamStudio';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
 import { WEBRTC_PUBLISH_PRESET_ORDER, type WebrtcPublishPresetId } from 'constants/webrtcPublish';
@@ -54,8 +52,8 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const browserStreamEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_BROWSER_STREAM));
-  const VALID_LIVESTREAM_TABS = browserStreamEnabled
+  const BROWSER_STREAM_ENABLED = true;
+  const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
   const { search } = useLocation();
@@ -119,7 +117,7 @@ export default function LivestreamSetupPage() {
     };
   }, [channelId, pendingLength, dispatch]);
 
-  const defaultTab = browserStreamEnabled ? 'Stream' : 'Publish';
+  const defaultTab = BROWSER_STREAM_ENABLED ? 'Stream' : 'Publish';
   const initialTab = urlTab && VALID_LIVESTREAM_TABS.includes(urlTab) ? urlTab : defaultTab;
   const [tab, setTab] = React.useState(initialTab);
 
@@ -191,7 +189,7 @@ export default function LivestreamSetupPage() {
 
       <div className="livestream-setup__toolbar">
         <div className="livestream-setup__tabs">
-          {browserStreamEnabled && (
+          {BROWSER_STREAM_ENABLED && (
             <button
               className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Stream' })}
               onClick={() => setTab('Stream')}
@@ -315,7 +313,7 @@ export default function LivestreamSetupPage() {
             />
           )}
           {!fetchingChannels && channelId && approvedLivestreamClaimCount > 0 && (
-            <LivestreamWebRtcPublisher
+            <LivestreamStudio
               streamKey={streamKey}
               livestreamEnabled={livestreamEnabled}
               hasApprovedLivestreamClaim

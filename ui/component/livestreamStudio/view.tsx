@@ -37,6 +37,8 @@ import describeUnknown from 'util/describeUnknown';
 import LivestreamSourceSelector from 'component/livestreamSourceSelector/view';
 import type { VideoSource, AudioSource } from 'component/livestreamSourceSelector/view';
 import LivestreamCompositor from 'component/livestreamCompositor/view';
+import LivestreamCropSelector from 'component/livestreamCropSelector/view';
+import LivestreamSourceSettings from 'component/livestreamSourceSettings/view';
 import type { CompositorLayer } from 'component/livestreamCompositor/view';
 import { AudioMixer } from 'util/audioMixer';
 import './style.scss';
@@ -55,7 +57,7 @@ type MediaTrackConstraintsWithResizeMode = MediaTrackConstraints & {
   resizeMode?: 'none' | 'crop-and-scale';
 };
 
-const WEBRTC_DEBUG = process.env.NODE_ENV === 'development';
+const STUDIO_DEBUG = process.env.NODE_ENV === 'development';
 
 function isAbortError(e: unknown): boolean {
   return e instanceof DOMException && e.name === 'AbortError';
@@ -197,9 +199,9 @@ function logCameraTrackInfo(track: MediaStreamTrack | undefined) {
   const settings = track.getSettings();
   const capabilities = typeof track.getCapabilities === 'function' ? track.getCapabilities() : undefined;
 
-  if (WEBRTC_DEBUG) console.log('[WebRTC] Camera settings:', settings); // eslint-disable-line no-console
+  if (STUDIO_DEBUG) console.log('[Studio] Camera settings:', settings); // eslint-disable-line no-console
   if (capabilities) {
-    if (WEBRTC_DEBUG) console.log('[WebRTC] Camera capabilities:', capabilities); // eslint-disable-line no-console
+    if (STUDIO_DEBUG) console.log('[Studio] Camera capabilities:', capabilities); // eslint-disable-line no-console
   }
 }
 
@@ -269,6 +271,30 @@ function classifyEncoderImplementation(
   return 'unknown';
 }
 
+function StreamPreview({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasElement | null> }) {
+  const mirrorRef = React.useRef<HTMLCanvasElement>(null);
+  React.useEffect(() => {
+    const mirror = mirrorRef.current;
+    const src = canvasRef.current;
+    if (!mirror || !src) return;
+    let frame: number;
+    const draw = () => {
+      if (src.width > 0 && src.height > 0) {
+        if (mirror.width !== src.width || mirror.height !== src.height) {
+          mirror.width = src.width;
+          mirror.height = src.height;
+        }
+        const ctx = mirror.getContext('2d');
+        if (ctx) ctx.drawImage(src, 0, 0);
+      }
+      frame = requestAnimationFrame(draw);
+    };
+    frame = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frame);
+  }, [canvasRef]);
+  return <canvas ref={mirrorRef} className="livestream-studio__preview-canvas" />;
+}
+
 function getCodecAttemptOrder(
   preferredCodec: WebrtcPublishVideoCodecPreference | undefined
 ): WebrtcPublishVideoCodecPreference[] {
@@ -283,7 +309,7 @@ function getCodecAttemptOrder(
   return [preferredCodec, 'auto', 'h264'];
 }
 
-export default function LivestreamWebRtcPublisher(props: Props) {
+export default function LivestreamStudio(props: Props) {
   const { streamKey, livestreamEnabled, hasApprovedLivestreamClaim, presetId, signature, signingTs } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -306,6 +332,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
   const [compositorLayers, setCompositorLayers] = React.useState<CompositorLayer[]>([]);
   const [selectedLayerId, setSelectedLayerId] = React.useState<string | null>(null);
+  const [previewTab, setPreviewTab] = React.useState<'preview' | 'compositor' | string>('preview');
   const [activeVideoIds, setActiveVideoIds] = React.useState<Set<string>>(new Set());
   const [activeAudioIds, setActiveAudioIds] = React.useState<Set<string>>(new Set());
   const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
@@ -355,7 +382,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       metricsNotLiveCountRef.current += 1;
       // Require 3 consecutive not-live polls (15s) to avoid false positives
       if (metricsNotLiveCountRef.current >= 3) {
-        if (WEBRTC_DEBUG) console.warn('[WebRTC] Server reports stream no longer live'); // eslint-disable-line no-console
+        if (STUDIO_DEBUG) console.warn('[Studio] Server reports stream no longer live'); // eslint-disable-line no-console
         dispatch(
           doToast({
             isError: true,
@@ -422,7 +449,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   // Debug P2P seed conditions
   React.useEffect(() => {
     if (status === 'live') {
-      if (WEBRTC_DEBUG)
+      if (STUDIO_DEBUG)
         console.log('[P2P Seed] Conditions:', {
           p2pEnabled,
           isLive: status === 'live',
@@ -500,7 +527,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
     for (let index = 0; index < attempts.length; index += 1) {
       const videoConstraints = attempts[index];
-      if (WEBRTC_DEBUG) console.log('[WebRTC] Requesting camera:', JSON.stringify(videoConstraints)); // eslint-disable-line no-console
+      if (STUDIO_DEBUG) console.log('[Studio] Requesting camera:', JSON.stringify(videoConstraints)); // eslint-disable-line no-console
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -514,7 +541,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         const videoTrack = stream.getVideoTracks()[0];
         const videoSettings = videoTrack?.getSettings();
         console.log(
-          '[WebRTC] Camera:',
+          '[Studio] Camera:',
           videoSettings?.width + 'x' + videoSettings?.height,
           '@',
           Math.round(videoSettings?.frameRate || 0) + 'fps'
@@ -528,7 +555,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           (e.name === 'OverconstrainedError' || e.name === 'NotFoundError' || e.name === 'ConstraintNotSatisfiedError');
 
         if (isConstraintFailure && index < attempts.length - 1) {
-          if (WEBRTC_DEBUG) console.warn('[WebRTC] Camera constraint fallback:', e); // eslint-disable-line no-console
+          if (STUDIO_DEBUG) console.warn('[Studio] Camera constraint fallback:', e); // eslint-disable-line no-console
           continue;
         }
 
@@ -604,7 +631,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
   async function handleToggleVideo(source: VideoSource) {
     setErrorMessage(null);
-    const id = source.deviceId;
+    let id = source.deviceId;
 
     if (activeVideoIds.has(id)) {
       const stream = sourceStreamsRef.current.get(id);
@@ -625,7 +652,31 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
     try {
       let stream: MediaStream;
-      if (source.kind === 'screen') {
+      if (source.kind === 'image') {
+        const file = await new Promise<File | null>((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.onchange = () => resolve(input.files?.[0] || null);
+          input.click();
+        });
+        if (!file) return;
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        await new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.src = url;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        stream = canvas.captureStream(0);
+        source = { ...source, deviceId: `__image_${Date.now()}__`, label: file.name.replace(/\.[^.]+$/, '') };
+        id = source.deviceId;
+      } else if (source.kind === 'screen') {
         stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
         stream.getVideoTracks()[0]?.addEventListener('ended', () => {
           handleToggleVideo(source);
@@ -878,7 +929,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
     const onIceChange = () => {
       const state = pc.iceConnectionState;
-      if (WEBRTC_DEBUG) console.log('[WebRTC] ICE state:', state); // eslint-disable-line no-console
+      if (STUDIO_DEBUG) console.log('[Studio] ICE state:', state); // eslint-disable-line no-console
       if (state === 'failed' || state === 'closed') {
         dispatch(doToast({ isError: true, message: __('Stream connection lost.') }));
         publishCtx.actions.stopStream({
@@ -1006,7 +1057,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           encoderLoggedRef.current = true;
           const impl = (newStats as any).encoderImpl;
           const acceleration = classifyEncoderImplementation(impl);
-          console.log(`[WebRTC] Encoder: ${impl} (${acceleration.toUpperCase()})`); // eslint-disable-line no-console
+          console.log(`[Studio] Encoder: ${impl} (${acceleration.toUpperCase()})`); // eslint-disable-line no-console
         }
 
         const encoderAcceleration = classifyEncoderImplementation((newStats as any).encoderImpl);
@@ -1020,7 +1071,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           void updateWhipVideoEncodingPolicy(pc, {
             degradationPreference: 'maintain-framerate',
           });
-          if (WEBRTC_DEBUG) console.log('[WebRTC] Switching to maintain-framerate'); // eslint-disable-line no-console
+          if (STUDIO_DEBUG) console.log('[Studio] Switching to maintain-framerate'); // eslint-disable-line no-console
         } else if (!shouldPreferFramerate && adaptivePolicyRef.current !== 'balanced') {
           adaptivePolicyRef.current = 'balanced';
           void updateWhipVideoEncodingPolicy(pc, {
@@ -1084,7 +1135,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
         for (const codec of codecAttempts) {
           if (ac.signal.aborted) break;
           try {
-            if (WEBRTC_DEBUG) console.log(`[WebRTC] Trying codec: ${codec}`); // eslint-disable-line no-console
+            if (STUDIO_DEBUG) console.log(`[Studio] Trying codec: ${codec}`); // eslint-disable-line no-console
             const { pc, resourceUrl } = await startWhipPublish(whipUrl, stream, {
               signal: ac.signal,
               maxVideoBitrateBps: enc.maxVideoBitrateBps,
@@ -1110,10 +1161,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             const isNetworkError =
               e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
             if (isNetworkError) {
-              console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
+              console.warn(`[Studio] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
               break;
             }
-            console.warn(`[WebRTC] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
+            console.warn(`[Studio] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
           }
         }
         connectAbortRef.current = null;
@@ -1162,7 +1213,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
       for (const codec of codecAttempts) {
         if (ac.signal.aborted) break;
         try {
-          console.log(`[WebRTC] Trying codec preference: ${codec}`); // eslint-disable-line no-console
+          console.log(`[Studio] Trying codec preference: ${codec}`); // eslint-disable-line no-console
           const { pc, resourceUrl } = await startWhipPublish(whipUrl, liveStream, {
             signal: ac.signal,
             maxVideoBitrateBps: enc.maxVideoBitrateBps,
@@ -1183,10 +1234,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           const isNetworkError =
             e instanceof TypeError && (e.message.includes('fetch') || e.message.includes('network'));
           if (isNetworkError) {
-            console.warn(`[WebRTC] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
+            console.warn(`[Studio] Network error on codec ${codec}, not retrying other codecs`, e); // eslint-disable-line no-console
             break;
           }
-          console.warn(`[WebRTC] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
+          console.warn(`[Studio] Codec ${codec} failed, trying next...`, e); // eslint-disable-line no-console
         }
       }
       connectAbortRef.current = null;
@@ -1240,8 +1291,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
   if (!livestreamEnabled) {
     return (
-      <div className="livestream-webrtc">
-        <div className="livestream-webrtc__disabled">
+      <div className="livestream-studio">
+        <div className="livestream-studio__disabled">
           <svg
             width="48"
             height="48"
@@ -1262,41 +1313,119 @@ export default function LivestreamWebRtcPublisher(props: Props) {
   }
 
   return (
-    <div className="livestream-webrtc">
+    <div
+      className="livestream-studio"
+      onMouseDown={(e) => {
+        if (!(e.target as HTMLElement).closest('.livestream-compositor')) {
+          setSelectedLayerId(null);
+        }
+      }}
+    >
       {/* Main Stage + Sources */}
-      <div className="livestream-webrtc__stage-row">
-        <div className="livestream-webrtc__stage">
+      <div className="livestream-studio__stage-row">
+        <div className="livestream-studio__stage">
+          <div className="livestream-studio__preview-tabs">
+            <button
+              className={classnames('livestream-studio__preview-tab', {
+                'livestream-studio__preview-tab--active': previewTab === 'preview',
+              })}
+              onClick={() => setPreviewTab('preview')}
+            >
+              {__('Preview')}
+            </button>
+            <button
+              className={classnames('livestream-studio__preview-tab', {
+                'livestream-studio__preview-tab--active': previewTab === 'compositor',
+              })}
+              onClick={() => setPreviewTab('compositor')}
+            >
+              {__('Compositor')}
+            </button>
+            {compositorLayers
+              .filter((l) => !l.minimized)
+              .map((layer) => (
+                <button
+                  key={layer.id}
+                  className={classnames('livestream-studio__preview-tab', {
+                    'livestream-studio__preview-tab--active': previewTab === layer.id,
+                  })}
+                  onClick={() => setPreviewTab(layer.id)}
+                >
+                  {layer.label}
+                </button>
+              ))}
+          </div>
+
           <div
-            className={classnames('livestream-webrtc__preview', {
-              'livestream-webrtc__preview--active': hasCamera,
-              'livestream-webrtc__preview--live': isLive,
-              'livestream-webrtc__preview--portrait': isMobile && facingMode === 'user',
+            className={classnames('livestream-studio__preview', {
+              'livestream-studio__preview--active': hasCamera,
+              'livestream-studio__preview--live': isLive,
+              'livestream-studio__preview--portrait': isMobile && facingMode === 'user',
             })}
           >
-            <LivestreamCompositor
-              layers={compositorLayers}
-              onLayerUpdate={handleLayerUpdate}
-              onLayerSelect={setSelectedLayerId}
-              onLayerRemove={(id) => {
-                const stream = sourceStreamsRef.current.get(id);
-                if (stream) {
-                  stream.getVideoTracks().forEach((t) => t.stop());
-                  sourceStreamsRef.current.delete(id);
-                }
-                setActiveVideoIds((prev) => {
-                  const next = new Set(prev);
-                  next.delete(id);
-                  return next;
-                });
-                setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
-                if (selectedLayerId === id) setSelectedLayerId(null);
-                updateOutputStream();
-              }}
-              selectedLayerId={selectedLayerId}
-              outputWidth={getOutputWidth()}
-              outputHeight={getOutputHeight()}
-              canvasRef={compositorCanvasRef}
-            />
+            {previewTab === 'preview' && <StreamPreview canvasRef={compositorCanvasRef} />}
+            {previewTab !== 'compositor' &&
+              previewTab !== 'preview' &&
+              (() => {
+                const layer = compositorLayers.find((l) => l.id === previewTab);
+                if (!layer) return null;
+                const cssFilters: string[] = [];
+                if (layer.brightness != null && layer.brightness !== 100)
+                  cssFilters.push(`brightness(${layer.brightness}%)`);
+                if (layer.contrast != null && layer.contrast !== 100) cssFilters.push(`contrast(${layer.contrast}%)`);
+                if (layer.saturation != null && layer.saturation !== 100)
+                  cssFilters.push(`saturate(${layer.saturation}%)`);
+                return (
+                  <LivestreamCropSelector
+                    stream={layer.stream}
+                    videoStyle={{
+                      filter: cssFilters.length > 0 ? cssFilters.join(' ') : undefined,
+                      opacity: layer.opacity ?? 1,
+                      borderRadius: layer.borderRadius ? `${layer.borderRadius}px` : undefined,
+                    }}
+                    crop={layer.crop}
+                    onCropChange={(crop) => {
+                      handleLayerUpdate(layer.id, {
+                        crop,
+                        aspectRatio: crop
+                          ? crop.sw / crop.sh
+                          : layer.stream.getVideoTracks()[0]?.getSettings()?.width /
+                              layer.stream.getVideoTracks()[0]?.getSettings()?.height || layer.aspectRatio,
+                      });
+                    }}
+                  />
+                );
+              })()}
+            <div
+              style={
+                previewTab !== 'compositor' ? { position: 'absolute', opacity: 0, pointerEvents: 'none' } : undefined
+              }
+            >
+              <LivestreamCompositor
+                layers={compositorLayers}
+                onLayerUpdate={handleLayerUpdate}
+                onLayerSelect={setSelectedLayerId}
+                onLayerRemove={(id) => {
+                  const stream = sourceStreamsRef.current.get(id);
+                  if (stream) {
+                    stream.getVideoTracks().forEach((t) => t.stop());
+                    sourceStreamsRef.current.delete(id);
+                  }
+                  setActiveVideoIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(id);
+                    return next;
+                  });
+                  setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
+                  if (selectedLayerId === id) setSelectedLayerId(null);
+                  updateOutputStream();
+                }}
+                selectedLayerId={selectedLayerId}
+                outputWidth={getOutputWidth()}
+                outputHeight={getOutputHeight()}
+                canvasRef={compositorCanvasRef}
+              />
+            </div>
 
             {/* Connecting animation overlay (only during WHIP connection, not camera request) */}
             {isConnecting && <LivestreamConnectingAnimation status="connecting" />}
@@ -1305,34 +1434,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             {justWentLive && <LivestreamConnectingAnimation status="connecting" onLive />}
 
             {hasCamera && (
-              <div className="livestream-webrtc__preview-overlay">
-                <div className="livestream-webrtc__overlay-top">
-                  <span
-                    className={classnames('livestream-webrtc__status-badge', {
-                      'livestream-webrtc__status-badge--live': isLive,
-                      'livestream-webrtc__status-badge--connecting': isConnecting,
-                    })}
-                  >
-                    {isLive && (
-                      <>
-                        <span className="livestream-webrtc__status-dot" />
-                        {__('LIVE')}
-                      </>
-                    )}
-                    {isConnecting && __('CONNECTING...')}
-                    {status === 'preview' && __('PREVIEW')}
-                    {status === 'requesting_permission' && __('STARTING...')}
-                  </span>
-                  {isLive && elapsedSeconds > 0 && (
-                    <span className="livestream-webrtc__elapsed">{formatElapsed(elapsedSeconds)}</span>
-                  )}
-                </div>
-                <div className="livestream-webrtc__overlay-bottom">
+              <div className="livestream-studio__preview-overlay">
+                <div className="livestream-studio__overlay-bottom">
                   {isLive && (
                     <>
                       {/* Viewers (only if > 0) */}
                       {totalViewers > 0 && (
-                        <span className="livestream-webrtc__pill">
+                        <span className="livestream-studio__pill">
                           <svg
                             width="10"
                             height="10"
@@ -1356,16 +1464,14 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                     const fps = isLive
                       ? formatFpsLabel(runtimeStats.fps ?? cs?.frameRate)
                       : formatFpsLabel(previewFrameFps ?? cs?.frameRate ?? runtimeStats.fps);
-                    return fps ? <span className="livestream-webrtc__pill">{fps}</span> : null;
+                    return fps ? <span className="livestream-studio__pill">{fps}</span> : null;
                   })()}
                   {/* Resolution */}
                   {(() => {
-                    const cs = mediaStream?.getVideoTracks()[0]?.getSettings();
-                    const res =
-                      cs?.width && cs?.height
-                        ? formatResolutionLabel(`${cs.width}x${cs.height}`)
-                        : formatResolutionLabel(runtimeStats.resolution);
-                    return res ? <span className="livestream-webrtc__pill">{res}</span> : null;
+                    const outW = getOutputWidth();
+                    const outH = getOutputHeight();
+                    const res = formatResolutionLabel(`${outW}x${outH}`);
+                    return res ? <span className="livestream-studio__pill">{res}</span> : null;
                   })()}
                   {isLive && (
                     <>
@@ -1376,7 +1482,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                             ? serverMetrics.throughput.in_bps / 1000
                             : runtimeStats.videoBitrateKbps;
                         return bps != null && bps > 0 ? (
-                          <span className="livestream-webrtc__pill">
+                          <span className="livestream-studio__pill">
                             <svg
                               width="9"
                               height="9"
@@ -1396,10 +1502,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                       })()}
                       {/* Codec pill */}
                       {runtimeStats.videoCodec && (
-                        <span className="livestream-webrtc__pill" title={runtimeStats.encoderImpl || ''}>
+                        <span className="livestream-studio__pill" title={runtimeStats.encoderImpl || ''}>
                           {runtimeStats.videoCodec}
                           {runtimeStats.encoderImpl && (
-                            <span className="livestream-webrtc__pill-hw">
+                            <span className="livestream-studio__pill-hw">
                               {classifyEncoderImplementation(runtimeStats.encoderImpl) === 'hardware' ? 'HW' : 'SW'}
                             </span>
                           )}
@@ -1407,7 +1513,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                       )}
                       {runtimeStats.qualityLimitationReason && runtimeStats.qualityLimitationReason !== 'none' && (
                         <span
-                          className="livestream-webrtc__pill"
+                          className="livestream-studio__pill"
                           title={JSON.stringify(runtimeStats.qualityLimitationDurations || {})}
                         >
                           {formatQualityLimitationSummary(
@@ -1423,15 +1529,15 @@ export default function LivestreamWebRtcPublisher(props: Props) {
             )}
 
             {!hasCamera && (
-              <div className="livestream-webrtc__placeholder">
+              <div className="livestream-studio__placeholder">
                 {cameraAutoStarting && !errorMessage && (
-                  <p className="livestream-webrtc__placeholder-text" style={{ opacity: 0.5 }}>
+                  <p className="livestream-studio__placeholder-text" style={{ opacity: 0.5 }}>
                     {__('Starting camera...')}
                   </p>
                 )}
                 {!cameraAutoStarting && !errorMessage && (
                   <>
-                    <div className="livestream-webrtc__placeholder-icon">
+                    <div className="livestream-studio__placeholder-icon">
                       <svg
                         width="48"
                         height="48"
@@ -1447,10 +1553,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                       </svg>
                     </div>
                     {disabledReason ? (
-                      <p className="livestream-webrtc__placeholder-text">{disabledReason}</p>
+                      <p className="livestream-studio__placeholder-text">{disabledReason}</p>
                     ) : (
                       <button
-                        className="livestream-webrtc__allow-camera-btn"
+                        className="livestream-studio__allow-camera-btn"
                         onClick={requestCameraPreview}
                         disabled={status === 'requesting_permission'}
                       >
@@ -1461,7 +1567,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 )}
                 {errorMessage && (
                   <>
-                    <div className="livestream-webrtc__placeholder-icon livestream-webrtc__placeholder-icon--error">
+                    <div className="livestream-studio__placeholder-icon livestream-studio__placeholder-icon--error">
                       <svg
                         width="40"
                         height="40"
@@ -1476,8 +1582,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                         <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10" />
                       </svg>
                     </div>
-                    <p className="livestream-webrtc__placeholder-error">{errorMessage}</p>
-                    <button className="livestream-webrtc__allow-camera-btn" onClick={requestCameraPreview}>
+                    <p className="livestream-studio__placeholder-error">{errorMessage}</p>
+                    <button className="livestream-studio__allow-camera-btn" onClick={requestCameraPreview}>
                       {__('Try Again')}
                     </button>
                   </>
@@ -1488,10 +1594,10 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
           {/* Controls bar */}
           {hasCamera && (
-            <div className="livestream-webrtc__controls">
+            <div className="livestream-studio__taskbar">
               <button
-                className={classnames('livestream-webrtc__control-btn', {
-                  'livestream-webrtc__control-btn--off': !micEnabled,
+                className={classnames('livestream-studio__control-btn', {
+                  'livestream-studio__control-btn--off': !micEnabled,
                 })}
                 onClick={() => setMicEnabled(!micEnabled)}
                 disabled={isStopping}
@@ -1527,8 +1633,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               </button>
 
               <button
-                className={classnames('livestream-webrtc__control-btn', {
-                  'livestream-webrtc__control-btn--off': !cameraEnabled,
+                className={classnames('livestream-studio__control-btn', {
+                  'livestream-studio__control-btn--off': !cameraEnabled,
                 })}
                 onClick={() => setCameraEnabled(!cameraEnabled)}
                 disabled={isStopping}
@@ -1560,7 +1666,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
               {isMobile && (
                 <button
-                  className="livestream-webrtc__control-btn"
+                  className="livestream-studio__control-btn"
                   onClick={flipCamera}
                   disabled={isStopping}
                   title={facingMode === 'user' ? __('Switch to rear camera') : __('Switch to front camera')}
@@ -1584,13 +1690,33 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 </button>
               )}
 
-              <div className="livestream-webrtc__controls-spacer" />
+              <div className="livestream-studio__taskbar-spacer" />
+
+              {compositorLayers
+                .filter((l) => l.minimized)
+                .map((layer) => (
+                  <button
+                    key={layer.id}
+                    className={classnames('livestream-studio__taskbar-item', {
+                      'livestream-studio__taskbar-item--active': layer.id === selectedLayerId,
+                    })}
+                    onClick={() => {
+                      setCompositorLayers((prev) =>
+                        prev.map((l) => (l.id === layer.id ? { ...l, minimized: false, visible: true } : l))
+                      );
+                      setSelectedLayerId(layer.id);
+                    }}
+                    title={layer.label}
+                  >
+                    {layer.label}
+                  </button>
+                ))}
 
               {(isLive || p2pEnabled) && (
                 <button
-                  className={classnames('livestream-webrtc__control-btn livestream-webrtc__control-btn--p2p', {
-                    'livestream-webrtc__control-btn--p2p-active': p2pEnabled,
-                    'livestream-webrtc__control-btn--p2p-pulse': p2pEnabled,
+                  className={classnames('livestream-studio__control-btn livestream-studio__control-btn--p2p', {
+                    'livestream-studio__control-btn--p2p-active': p2pEnabled,
+                    'livestream-studio__control-btn--p2p-pulse': p2pEnabled,
                   })}
                   onClick={() => {
                     if (p2pEnabled) {
@@ -1619,7 +1745,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               {(isLive || isConnecting) && (
                 <Button
                   button="primary"
-                  className="livestream-webrtc__stop-btn"
+                  className="livestream-studio__stop-btn"
                   onClick={isConnecting ? handleCancel : handleStop}
                   disabled={isStopping}
                   label={isStopping ? __('Ending...') : isConnecting ? __('Cancel') : __('End Stream')}
@@ -1629,22 +1755,53 @@ export default function LivestreamWebRtcPublisher(props: Props) {
           )}
         </div>
 
-        <LivestreamSourceSelector
-          activeVideoIds={activeVideoIds}
-          activeAudioIds={activeAudioIds}
-          onToggleVideo={handleToggleVideo}
-          onToggleAudio={handleToggleAudio}
-          disabled={status === 'connecting' || status === 'stopping'}
-        />
+        {(() => {
+          const sourceTabLayer =
+            previewTab !== 'preview' && previewTab !== 'compositor'
+              ? compositorLayers.find((l) => l.id === previewTab)
+              : null;
+          if (sourceTabLayer) {
+            return (
+              <LivestreamSourceSettings
+                layer={sourceTabLayer}
+                onUpdate={(updates) => handleLayerUpdate(sourceTabLayer.id, updates)}
+              />
+            );
+          }
+          return (
+            <LivestreamSourceSelector
+              activeVideoIds={activeVideoIds}
+              activeAudioIds={activeAudioIds}
+              activeVideoOrder={[...compositorLayers].toSorted((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
+              activeImageSources={compositorLayers
+                .filter((l) => l.id.startsWith('__image_'))
+                .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const }))}
+              onToggleVideo={handleToggleVideo}
+              onToggleAudio={handleToggleAudio}
+              onReorderVideo={(fromId, toId) => {
+                setCompositorLayers((prev) => {
+                  const sorted = [...prev].toSorted((a, b) => b.zIndex - a.zIndex);
+                  const fromIdx = sorted.findIndex((l) => l.id === fromId);
+                  const toIdx = sorted.findIndex((l) => l.id === toId);
+                  if (fromIdx === -1 || toIdx === -1) return prev;
+                  const [moved] = sorted.splice(fromIdx, 1);
+                  sorted.splice(toIdx, 0, moved);
+                  return sorted.map((l, i) => ({ ...l, zIndex: sorted.length - 1 - i }));
+                });
+              }}
+              disabled={status === 'connecting' || status === 'stopping'}
+            />
+          );
+        })()}
       </div>
 
       {/* Primary Action */}
-      <div className="livestream-webrtc__action-area">
+      <div className="livestream-studio__action-area">
         {(status === 'idle' || status === 'error' || status === 'preview' || status === 'requesting_permission') && (
           <>
             <Button
               button="primary"
-              className="livestream-webrtc__go-live-btn"
+              className="livestream-studio__go-live-btn"
               onClick={handleGoLive}
               disabled={Boolean(disabledReason) || status === 'requesting_permission' || existingStreamActive}
               label={
@@ -1661,22 +1818,22 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               icon={status !== 'requesting_permission' ? ICONS.LIVESTREAM : undefined}
             />
             {existingStreamActive && (
-              <p className="livestream-webrtc__hint-msg">
+              <p className="livestream-studio__hint-msg">
                 {__('A stream is already live on this channel. End it before starting a new one.')}
               </p>
             )}
           </>
         )}
         {errorMessage && (status === 'error' || status === 'preview') && (
-          <p className="livestream-webrtc__error-msg">{errorMessage}</p>
+          <p className="livestream-studio__error-msg">{errorMessage}</p>
         )}
-        {disabledReason && !hasCamera && <p className="livestream-webrtc__hint-msg">{disabledReason}</p>}
+        {disabledReason && !hasCamera && <p className="livestream-studio__hint-msg">{disabledReason}</p>}
       </div>
 
       {/* P2P seeding banner for streamer - hidden once enabled */}
       {isLive && !p2pEnabled && !showP2pConfirm && (
-        <div className="livestream-webrtc__p2p-banner">
-          <div className="livestream-webrtc__p2p-banner-icon">
+        <div className="livestream-studio__p2p-banner">
+          <div className="livestream-studio__p2p-banner-icon">
             <svg
               width="18"
               height="18"
@@ -1690,13 +1847,13 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
-          <div className="livestream-webrtc__p2p-banner-text">
-            <span className="livestream-webrtc__p2p-banner-title">{__('Help viewers with P2P')}</span>
-            <span className="livestream-webrtc__p2p-banner-sub">
+          <div className="livestream-studio__p2p-banner-text">
+            <span className="livestream-studio__p2p-banner-title">{__('Help viewers with P2P')}</span>
+            <span className="livestream-studio__p2p-banner-sub">
               {__('Seed your stream directly to viewers via peer-to-peer. Reduces server load.')}
             </span>
           </div>
-          <button className="livestream-webrtc__p2p-banner-btn" onClick={() => setShowP2pConfirm(true)}>
+          <button className="livestream-studio__p2p-banner-btn" onClick={() => setShowP2pConfirm(true)}>
             {__('Enable')}
           </button>
         </div>
@@ -1704,24 +1861,24 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
       {/* Claim Preview - AFTER the button */}
       {nextStreamUri && (
-        <div className="livestream-webrtc__claim-section">
-          <div className="livestream-webrtc__claim-header">
-            <span className="livestream-webrtc__claim-label">
+        <div className="livestream-studio__claim-section">
+          <div className="livestream-studio__claim-header">
+            <span className="livestream-studio__claim-label">
               {__('Streaming to')}
               {existingStreamActive && !isLive && (
-                <span className="livestream-webrtc__claim-live-badge">{__('LIVE')}</span>
+                <span className="livestream-studio__claim-live-badge">{__('LIVE')}</span>
               )}
             </span>
-            <div className="livestream-webrtc__claim-actions">
+            <div className="livestream-studio__claim-actions">
               <button
-                className="livestream-webrtc__claim-action"
+                className="livestream-studio__claim-action"
                 onClick={() => navigate(`/$/${PAGES.LIVESTREAM}?t=Publish`)}
                 title={__('Edit this stream')}
               >
                 {__('Edit')}
               </button>
               <button
-                className="livestream-webrtc__claim-action"
+                className="livestream-studio__claim-action"
                 onClick={() => navigate(`/$/${PAGES.LIVESTREAM}?t=Publish&new=1`)}
                 title={__('Create a new livestream')}
               >
@@ -1729,14 +1886,14 @@ export default function LivestreamWebRtcPublisher(props: Props) {
               </button>
             </div>
           </div>
-          <div className="livestream-webrtc__claim-card">
+          <div className="livestream-studio__claim-card">
             <ClaimPreview uri={nextStreamUri} type="small" />
           </div>
         </div>
       )}
 
       {!nextStreamUri && (
-        <div className="livestream-webrtc__no-claim">
+        <div className="livestream-studio__no-claim">
           <p>{__('No livestream claim found.')}</p>
           <Button
             button="link"
@@ -1756,8 +1913,8 @@ export default function LivestreamWebRtcPublisher(props: Props) {
 
       {/* P2P confirmation dialog */}
       {showP2pConfirm && (
-        <div className="livestream-webrtc__p2p-confirm">
-          <div className="livestream-webrtc__p2p-confirm-card">
+        <div className="livestream-studio__p2p-confirm">
+          <div className="livestream-studio__p2p-confirm-card">
             <svg
               width="24"
               height="24"
@@ -1776,9 +1933,9 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 'Your stream will be shared peer-to-peer with viewers. This reduces server load but your IP address may be visible to viewers. This also applies when you watch other livestreams.'
               )}
             </p>
-            <div className="livestream-webrtc__p2p-confirm-actions">
+            <div className="livestream-studio__p2p-confirm-actions">
               <button
-                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--primary"
+                className="livestream-studio__p2p-confirm-btn livestream-studio__p2p-confirm-btn--primary"
                 onClick={() => {
                   dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true, prefsReady));
                   setShowP2pConfirm(false);
@@ -1787,7 +1944,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 {__('Always')}
               </button>
               <button
-                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--outline"
+                className="livestream-studio__p2p-confirm-btn livestream-studio__p2p-confirm-btn--outline"
                 onClick={() => {
                   // Session only - set in redux but don't push to wallet
                   dispatch(doSetClientSetting(SETTINGS.P2P_DELIVERY, true));
@@ -1797,7 +1954,7 @@ export default function LivestreamWebRtcPublisher(props: Props) {
                 {__('Try now')}
               </button>
               <button
-                className="livestream-webrtc__p2p-confirm-btn livestream-webrtc__p2p-confirm-btn--secondary"
+                className="livestream-studio__p2p-confirm-btn livestream-studio__p2p-confirm-btn--secondary"
                 onClick={() => setShowP2pConfirm(false)}
               >
                 {__('Not now')}

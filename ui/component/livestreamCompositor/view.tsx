@@ -2,6 +2,13 @@ import React from 'react';
 import classnames from 'classnames';
 import './style.scss';
 
+export type CropRegion = {
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+};
+
 export type CompositorLayer = {
   id: string;
   label: string;
@@ -13,6 +20,14 @@ export type CompositorLayer = {
   aspectRatio: number;
   zIndex: number;
   visible: boolean;
+  minimized?: boolean;
+  locked?: boolean;
+  crop?: CropRegion;
+  borderRadius?: number;
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  opacity?: number;
 };
 
 type Props = {
@@ -39,6 +54,7 @@ type DragState = {
 };
 
 const HANDLE_SIZE = 8;
+const HANDLE_HIT_SIZE = 16;
 const HANDLES = ['nw', 'ne', 'sw', 'se'];
 
 function getHandleCursor(handle: string): string {
@@ -65,20 +81,18 @@ export default function LivestreamCompositor(props: Props) {
   const dragRef = React.useRef<DragState | null>(null);
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
 
-  const scaleX = containerSize.width / outputWidth;
-  const scaleY = containerSize.height / outputHeight;
+  const scaleX = containerSize.width > 0 ? containerSize.width / outputWidth : 1;
+  const scaleY = containerSize.height > 0 ? containerSize.height / outputHeight : 1;
 
   React.useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const obs = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) {
-        const { width } = entry.contentRect;
-        const height = width * (outputHeight / outputWidth);
-        setContainerSize({ width, height });
-      }
-    });
+    const update = () => {
+      const rect = container.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
+    };
+    update();
+    const obs = new ResizeObserver(update);
     obs.observe(container);
     return () => obs.disconnect();
   }, [outputWidth, outputHeight]);
@@ -126,7 +140,41 @@ export default function LivestreamCompositor(props: Props) {
         if (!layer.visible) continue;
         const video = videoElementsRef.current.get(layer.id);
         if (!video || video.readyState < 2) continue;
-        ctx.drawImage(video, layer.x, layer.y, layer.width, layer.height);
+
+        ctx.save();
+        ctx.globalAlpha = layer.opacity ?? 1;
+        ctx.filter = 'none';
+
+        const filters: string[] = [];
+        if (layer.brightness != null && layer.brightness !== 100) filters.push(`brightness(${layer.brightness}%)`);
+        if (layer.contrast != null && layer.contrast !== 100) filters.push(`contrast(${layer.contrast}%)`);
+        if (layer.saturation != null && layer.saturation !== 100) filters.push(`saturate(${layer.saturation}%)`);
+        if (filters.length > 0) ctx.filter = filters.join(' ');
+
+        if (layer.borderRadius && layer.borderRadius > 0) {
+          const r = layer.borderRadius;
+          ctx.beginPath();
+          ctx.roundRect(layer.x, layer.y, layer.width, layer.height, r);
+          ctx.clip();
+        }
+
+        if (layer.crop) {
+          ctx.drawImage(
+            video,
+            layer.crop.sx,
+            layer.crop.sy,
+            layer.crop.sw,
+            layer.crop.sh,
+            layer.x,
+            layer.y,
+            layer.width,
+            layer.height
+          );
+        } else {
+          ctx.drawImage(video, layer.x, layer.y, layer.width, layer.height);
+        }
+
+        ctx.restore();
       }
       animFrameRef.current = requestAnimationFrame(draw);
     }
@@ -135,16 +183,15 @@ export default function LivestreamCompositor(props: Props) {
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [layers, outputWidth, outputHeight, canvasRef]);
 
-  function getLayerAtPoint(px: number, py: number): CompositorLayer | null {
+  function getLayersAtPoint(px: number, py: number): CompositorLayer[] {
     const sorted = [...layers].filter((l) => l.visible).toSorted((a, b) => b.zIndex - a.zIndex);
-    for (const layer of sorted) {
+    return sorted.filter((layer) => {
       const lx = layer.x * scaleX;
       const ly = layer.y * scaleY;
       const lw = layer.width * scaleX;
       const lh = layer.height * scaleY;
-      if (px >= lx && px <= lx + lw && py >= ly && py <= ly + lh) return layer;
-    }
-    return null;
+      return px >= lx && px <= lx + lw && py >= ly && py <= ly + lh;
+    });
   }
 
   function getHandleAtPoint(px: number, py: number, layer: CompositorLayer): string | null {
@@ -152,7 +199,7 @@ export default function LivestreamCompositor(props: Props) {
     const ly = layer.y * scaleY;
     const lw = layer.width * scaleX;
     const lh = layer.height * scaleY;
-    const hs = HANDLE_SIZE;
+    const hs = HANDLE_HIT_SIZE;
 
     for (const handle of HANDLES) {
       let hx = 0,
@@ -175,27 +222,30 @@ export default function LivestreamCompositor(props: Props) {
     return null;
   }
 
+  const didDragRef = React.useRef(false);
+
   function handleMouseDown(e: React.MouseEvent) {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
+    didDragRef.current = false;
 
     if (selectedLayerId) {
-      const selectedLayer = layers.find((l) => l.id === selectedLayerId);
-      if (selectedLayer) {
-        const handle = getHandleAtPoint(mx, my, selectedLayer);
+      const selLayer = layers.find((l) => l.id === selectedLayerId && l.visible && !l.locked);
+      if (selLayer) {
+        const handle = getHandleAtPoint(mx, my, selLayer);
         if (handle) {
           dragRef.current = {
-            layerId: selectedLayer.id,
+            layerId: selLayer.id,
             mode: 'resize',
             handle,
             startMouseX: mx,
             startMouseY: my,
-            startLayerX: selectedLayer.x,
-            startLayerY: selectedLayer.y,
-            startLayerW: selectedLayer.width,
-            startLayerH: selectedLayer.height,
+            startLayerX: selLayer.x,
+            startLayerY: selLayer.y,
+            startLayerW: selLayer.width,
+            startLayerH: selLayer.height,
           };
           e.preventDefault();
           return;
@@ -203,23 +253,43 @@ export default function LivestreamCompositor(props: Props) {
       }
     }
 
-    const layer = getLayerAtPoint(mx, my);
-    if (layer) {
-      onLayerSelect(layer.id);
+    const hitLayers = getLayersAtPoint(mx, my);
+
+    if (hitLayers.length === 0) {
+      onLayerSelect(null);
+      return;
+    }
+
+    const selectedInHit = selectedLayerId ? hitLayers.find((l) => l.id === selectedLayerId) : null;
+
+    if (selectedInHit && !selectedInHit.locked) {
       dragRef.current = {
-        layerId: layer.id,
+        layerId: selectedInHit.id,
         mode: 'move',
         startMouseX: mx,
         startMouseY: my,
-        startLayerX: layer.x,
-        startLayerY: layer.y,
-        startLayerW: layer.width,
-        startLayerH: layer.height,
+        startLayerX: selectedInHit.x,
+        startLayerY: selectedInHit.y,
+        startLayerW: selectedInHit.width,
+        startLayerH: selectedInHit.height,
       };
       e.preventDefault();
-    } else {
-      onLayerSelect(null);
+      return;
     }
+
+    const target = hitLayers[0];
+    onLayerSelect(target.id);
+    dragRef.current = {
+      layerId: target.id,
+      mode: 'move',
+      startMouseX: mx,
+      startMouseY: my,
+      startLayerX: target.x,
+      startLayerY: target.y,
+      startLayerW: target.width,
+      startLayerH: target.height,
+    };
+    e.preventDefault();
   }
 
   function handleMouseMove(e: React.MouseEvent) {
@@ -231,6 +301,10 @@ export default function LivestreamCompositor(props: Props) {
     const my = e.clientY - rect.top;
     const dx = (mx - drag.startMouseX) / scaleX;
     const dy = (my - drag.startMouseY) / scaleY;
+
+    if (Math.abs(mx - drag.startMouseX) > 3 || Math.abs(my - drag.startMouseY) > 3) {
+      didDragRef.current = true;
+    }
 
     if (drag.mode === 'move') {
       onLayerUpdate(drag.layerId, {
@@ -271,8 +345,27 @@ export default function LivestreamCompositor(props: Props) {
     }
   }
 
-  function handleMouseUp() {
+  function handleMouseUp(e: React.MouseEvent) {
+    const wasDrag = didDragRef.current;
+    const drag = dragRef.current;
     dragRef.current = null;
+    didDragRef.current = false;
+
+    if (!wasDrag && drag && selectedLayerId) {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const hitLayers = getLayersAtPoint(mx, my);
+        if (hitLayers.length > 1) {
+          const idx = hitLayers.findIndex((l) => l.id === selectedLayerId);
+          if (idx !== -1) {
+            const next = hitLayers[(idx + 1) % hitLayers.length];
+            onLayerSelect(next.id);
+          }
+        }
+      }
+    }
   }
 
   return (
@@ -332,7 +425,7 @@ export default function LivestreamCompositor(props: Props) {
                   </button>
                   <button
                     className="livestream-compositor__layer-btn"
-                    title={__('Minimize')}
+                    title={__('Picture in picture')}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       const ar = layer.aspectRatio;
@@ -354,6 +447,57 @@ export default function LivestreamCompositor(props: Props) {
                     </svg>
                   </button>
                   <button
+                    className="livestream-compositor__layer-btn"
+                    title={__('Minimize to taskbar')}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      onLayerUpdate(layer.id, {
+                        minimized: true,
+                        visible: false,
+                      });
+                    }}
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="4" y1="20" x2="20" y2="20" />
+                    </svg>
+                  </button>
+                  <button
+                    className={classnames('livestream-compositor__layer-btn', {
+                      'livestream-compositor__layer-btn--locked': layer.locked,
+                    })}
+                    title={layer.locked ? __('Unlock') : __('Lock')}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      onLayerUpdate(layer.id, { locked: !layer.locked });
+                    }}
+                  >
+                    {layer.locked ? (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
                     className="livestream-compositor__layer-btn livestream-compositor__layer-btn--close"
                     title={__('Remove')}
                     onMouseDown={(e) => {
@@ -369,6 +513,7 @@ export default function LivestreamCompositor(props: Props) {
                 </div>
               </div>
               {isSelected &&
+                !layer.locked &&
                 HANDLES.map((handle) => {
                   const style: React.CSSProperties = { cursor: getHandleCursor(handle) };
                   if (handle.includes('n')) style.top = -HANDLE_SIZE / 2;

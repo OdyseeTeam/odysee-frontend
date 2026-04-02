@@ -1,6 +1,6 @@
 @import 'init/breakpoints';
 
-.livestream-webrtc {
+.livestream-studio {
   margin-top: var(--spacing-s);
   display: flex;
   flex-direction: column;
@@ -37,13 +37,61 @@
     align-self: center;
     border-radius: 12px;
     overflow: clip;
-    border: 2px solid var(--color-card-background);
+    border: 2px solid var(--color-header-button);
     background: #000;
     transition: border-color 0.3s ease;
 
-    &:has(.livestream-webrtc__preview--live) {
+    &:has(.livestream-studio__preview--live) {
       border-color: rgba(var(--color-primary-dynamic), 0.5);
     }
+  }
+
+  &__preview-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 4px 4px 0;
+    background: var(--color-header-button);
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__preview-tab {
+    padding: var(--spacing-xxs) var(--spacing-s);
+    border: none;
+    border-radius: 6px 6px 0 0;
+    background: rgba(var(--color-header-button-base), 0.15);
+    color: var(--color-text-subtitle);
+    font-size: var(--font-xsmall);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(var(--color-header-button-base), 0.25);
+      color: var(--color-text);
+    }
+
+    &--active {
+      background: var(--color-card-background);
+      color: var(--color-text);
+      font-weight: 600;
+    }
+  }
+
+  &__preview-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__source-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
   }
 
   &__preview {
@@ -96,6 +144,7 @@
 
   &__overlay-bottom {
     justify-content: flex-end;
+    margin-top: auto;
   }
 
   // ---- Status badge ----
@@ -246,13 +295,13 @@
     }
   }
 
-  // ---- Controls bar ----
-  &__controls {
+  // ---- Taskbar ----
+  &__taskbar {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-s);
-    background: rgba(var(--color-header-button-base), 0.08);
+    background: var(--color-header-button);
     border-top: 1px solid rgba(var(--color-header-button-base), 0.12);
   }
 
@@ -313,8 +362,34 @@
     }
   }
 
-  &__controls-spacer {
+  &__taskbar-spacer {
     flex: 1;
+  }
+
+  &__taskbar-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-xxs) var(--spacing-xs);
+    border: 1px solid rgba(var(--color-header-button-base), 0.2);
+    border-radius: calc(var(--border-radius) / 2);
+    background: rgba(var(--color-header-button-base), 0.1);
+    color: var(--color-text-subtitle);
+    font-size: var(--font-xsmall);
+    cursor: pointer;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(var(--color-header-button-base), 0.2);
+      color: var(--color-text);
+    }
+
+    &--active {
+      border-color: var(--color-primary);
+      color: var(--color-text);
+    }
   }
 
   &__stop-btn {
@@ -636,7 +711,7 @@
     transition: background 0.2s ease;
     flex-shrink: 0;
 
-    .livestream-webrtc__toggle-switch--on & {
+    .livestream-studio__toggle-switch--on & {
       background: var(--color-primary);
     }
   }
@@ -652,7 +727,7 @@
     transition: transform 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
-    .livestream-webrtc__toggle-switch--on & {
+    .livestream-studio__toggle-switch--on & {
       transform: translateX(16px);
     }
   }
@@ -760,7 +835,7 @@
 }
 
 // ---- P2P banner (streamer opt-in) ----
-.livestream-webrtc__p2p-banner {
+.livestream-studio__p2p-banner {
   display: flex;
   align-items: center;
   gap: var(--spacing-s);
@@ -771,7 +846,7 @@
   animation: webrtc-settings-in 0.3s ease;
 }
 
-.livestream-webrtc__p2p-banner-icon {
+.livestream-studio__p2p-banner-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -783,12 +858,12 @@
   color: var(--color-primary);
 }
 
-.livestream-webrtc__p2p-banner-text {
+.livestream-studio__p2p-banner-text {
   flex: 1;
   min-width: 0;
 }
 
-.livestream-webrtc__p2p-banner-title {
+.livestream-studio__p2p-banner-title {
   display: block;
   font-size: var(--font-small);
   font-weight: 600;
@@ -796,7 +871,7 @@
   line-height: 1.3;
 }
 
-.livestream-webrtc__p2p-banner-sub {
+.livestream-studio__p2p-banner-sub {
   display: block;
   font-size: 11px;
   color: var(--color-text-subtitle);
@@ -804,7 +879,7 @@
   margin-top: 1px;
 }
 
-.livestream-webrtc__p2p-banner-btn {
+.livestream-studio__p2p-banner-btn {
   flex-shrink: 0;
   padding: 6px 14px;
   border: none;
@@ -822,7 +897,7 @@
 }
 
 // ---- P2P active indicator ----
-.livestream-webrtc__p2p-active {
+.livestream-studio__p2p-active {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -832,21 +907,21 @@
   border: 1px solid rgba(var(--color-primary-dynamic), 0.12);
 }
 
-.livestream-webrtc__p2p-active-icon {
+.livestream-studio__p2p-active-icon {
   display: flex;
   align-items: center;
   color: var(--color-primary);
   animation: p2p-bolt-glow 2s ease-in-out infinite;
 }
 
-.livestream-webrtc__p2p-active-text {
+.livestream-studio__p2p-active-text {
   flex: 1;
   font-size: var(--font-small);
   font-weight: 600;
   color: var(--color-primary);
 }
 
-.livestream-webrtc__p2p-active-off {
+.livestream-studio__p2p-active-off {
   padding: 3px 10px;
   border: 1px solid rgba(var(--color-header-button-base), 0.15);
   border-radius: 4px;
@@ -873,7 +948,7 @@
 }
 
 // ---- P2P confirm dialog ----
-.livestream-webrtc__p2p-confirm {
+.livestream-studio__p2p-confirm {
   position: fixed;
   inset: 0;
   z-index: 100002;
@@ -884,7 +959,7 @@
   animation: webrtc-settings-in 0.2s ease;
 }
 
-.livestream-webrtc__p2p-confirm-card {
+.livestream-studio__p2p-confirm-card {
   max-width: 360px;
   padding: var(--spacing-l);
   border-radius: 12px;
@@ -913,13 +988,13 @@
   }
 }
 
-.livestream-webrtc__p2p-confirm-actions {
+.livestream-studio__p2p-confirm-actions {
   display: flex;
   gap: var(--spacing-xs);
   justify-content: center;
 }
 
-.livestream-webrtc__p2p-confirm-btn {
+.livestream-studio__p2p-confirm-btn {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: var(--font-small);
@@ -961,7 +1036,7 @@
 
 // ---- Mobile ----
 @media (max-width: $breakpoint-small) {
-  .livestream-webrtc {
+  .livestream-studio {
     &__stage {
       width: 100%;
     }
@@ -970,7 +1045,7 @@
       width: 100%;
     }
 
-    &__controls {
+    &__taskbar {
       padding: var(--spacing-xxs) var(--spacing-xs);
     }
 
