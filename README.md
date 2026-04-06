@@ -26,18 +26,20 @@ Go to the website to interact on this frontend.
 ### Prerequisites
 
 - [Git](https://git-scm.com/downloads)
-- [Node.js](https://nodejs.org/en/download/) (24.x LTS required, includes npm 11.x)
-- [Yarn](https://yarnpkg.com/en/docs/install)
+- [Node.js](https://nodejs.org/en/download/) 22.x
+- [pnpm](https://pnpm.io/installation) 10.x (or `corepack enable`)
 
 1. Clone (or [fork](https://help.github.com/articles/fork-a-repo/)) this repository: `git clone https://github.com/OdyseeTeam/odysee-frontend`
 2. Change directory into the cloned repository: `cd odysee-frontend`
-3. Install the dependencies: `yarn`
+3. Enable Corepack if needed: `corepack enable`
+4. Install the dependencies: `pnpm install`
 
 ### Run the web app for development
 
-`yarn dev:web`
+`pnpm dev`
 
-- This uses `webpack-dev-server` and includes hot-reloading. If you want to debug the [web server we use in production](https://github.com/OdyseeTeam/odysee-frontend/blob/master/web/index.js) you can run `yarn dev:web-server`. This starts a server at `localhost:1337` and does not include hot reloading.
+- This uses Vite and includes hot-reloading.
+- If you want to debug the [web server we use in production](https://github.com/OdyseeTeam/odysee-frontend/blob/master/web/index.js), run `pnpm dev:ssr`. This starts the SSR server at `localhost:1337`.
 
 ### Customization and troubleshooting
 
@@ -45,7 +47,7 @@ Go to the website to interact on this frontend.
 <details>
   <summary>Customize the web app</summary>
 
-- In root directory, duplicate the `.env.default` file as `.env` and make customizations there.
+- In root directory, duplicate the `.env.defaults` file as `.env` and make customizations there.
   ```
   cp .env.defaults .env
   nano .env
@@ -57,25 +59,44 @@ Go to the website to interact on this frontend.
 - To customize the homepage content:
   1. Add `CUSTOM_HOMEPAGE=true` to the .env file.
   2. Copy `/custom/homepage.example.js` to `/custom/homepage.js` and make desired changes to `homepage.js`.
-- Finally, run `NODE_ENV=production yarn compile:web` to rebuild. - _Note: You do not need to edit the `.env` file in the `/web` folder - that is copied during compilation._
+- Finally, run `NODE_ENV=production pnpm build` to rebuild. - _Note: You do not need to edit the `.env` file in the `/web` folder._
 </details>
 
 <details>
   <summary>Deploy the web app</summary>
 
 1. Create a server with a domain name and a reverse proxy https to port 1337.
-2. Install `pm2`, `node` 24.x LTS, and `yarn`.
+2. Install `pm2`, `node` 22.x, and `pnpm` (or enable Corepack).
 3. Clone this repo.
 4. Make any customizations as above.
-5. Run `yarn` to install.
-6. Run `NODE_ENV=production yarn compile:web` to build.
+5. Run `pnpm install`.
+6. Run `NODE_ENV=production pnpm build`.
 7. Set up pm2 to start `./web/index.js`.
+</details>
+
+<details>
+  <summary>Run with Docker</summary>
+
+Build the production image:
+
+```
+docker build -t odysee-frontend .
+```
+
+Run it on port 1337:
+
+```
+docker run --rm -p 1337:1337 odysee-frontend
+```
+
+To override defaults at runtime, pass environment variables with `-e` or provide an env file. The image uses `.env.defaults` baked into the repo as its baseline configuration.
+
 </details>
 
 <details>
   <summary>Resetting your packages</summary>
 
-If the app isn't building, or `yarn xxx` commands aren't working you may need to just reset your `node_modules`. To do so you can run: `rm -r node_modules && yarn` or `del /s /q node_modules && yarn` on Windows.
+If the app isn't building, or `pnpm` commands aren't working, you may need to reset `node_modules`. To do so you can run: `rm -r node_modules && pnpm install` or `del /s /q node_modules && pnpm install` on Windows.
 
 If you _really_ think something might have gone wrong, you can force your repo to clear everything that doesn't match the repo with `git reset --hard HEAD && git clean -fxd && git pull -r`
 
