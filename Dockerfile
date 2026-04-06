@@ -36,10 +36,12 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lo
 ARG NODE_ENV=production
 ARG COMMIT_ID=
 ARG BUILD_REV=
+ARG CUSTOM_HOMEPAGE=false
 
 ENV NODE_ENV=$NODE_ENV
 ENV COMMIT_ID=$COMMIT_ID
 ENV BUILD_REV=$BUILD_REV
+ENV CUSTOM_HOMEPAGE=$CUSTOM_HOMEPAGE
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm build
 

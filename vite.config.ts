@@ -18,6 +18,10 @@ const useLocalUsagi = process.env.USE_LOCAL_USAGI === 'true';
 
 const UI_ROOT = path.resolve(__dirname, 'ui');
 const WEB_ROOT = path.resolve(__dirname, 'web');
+const CUSTOM_HOMEPAGES_ROOT = path.resolve(__dirname, 'custom/homepages/v2');
+const CUSTOM_MEMES_ROOT = path.resolve(__dirname, 'custom/homepages/meme/index');
+const useCustomHomepages = process.env.CUSTOM_HOMEPAGE === 'true' && fs.existsSync(CUSTOM_HOMEPAGES_ROOT);
+const useCustomMemes = process.env.CUSTOM_HOMEPAGE === 'true' && fs.existsSync(CUSTOM_MEMES_ROOT);
 // Resolve pnpm's nested node_modules directories for SCSS loadPaths.
 // Only include directories that actually contain SCSS files to avoid
 // inflating the Sass resolver's search space with 800 irrelevant paths.
@@ -622,14 +626,8 @@ export default defineConfig({
       recsys: path.resolve(__dirname, 'extras/recsys'),
       '__router-dom-real__': path.resolve(__dirname, 'node_modules/react-router-dom/dist/index.js'),
       homepage: path.resolve(UI_ROOT, 'util/homepage'),
-      homepages:
-        process.env.CUSTOM_HOMEPAGE === 'true'
-          ? path.resolve(__dirname, 'custom/homepages/v2')
-          : path.resolve(__dirname, 'homepages'),
-      memes:
-        process.env.CUSTOM_HOMEPAGE === 'true'
-          ? path.resolve(__dirname, 'custom/homepages/meme/index')
-          : path.resolve(__dirname, 'homepages/meme/index'),
+      homepages: useCustomHomepages ? CUSTOM_HOMEPAGES_ROOT : path.resolve(__dirname, 'homepages'),
+      memes: useCustomMemes ? CUSTOM_MEMES_ROOT : path.resolve(__dirname, 'homepages/meme/index'),
 
       // Web platform
       web: WEB_ROOT,

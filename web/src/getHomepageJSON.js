@@ -1,3 +1,5 @@
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const memo = {};
@@ -5,9 +7,62 @@ const FORMAT = {
   ROKU: 'roku',
 };
 
-const loadAnnouncements = (homepageKeys) => {
-  const fs = require('fs');
+function walkFiles(dir, handler) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
 
+  entries.forEach((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      walkFiles(fullPath, handler);
+      return;
+    }
+
+    handler(fullPath);
+  });
+}
+
+function normalizeHomepageDir(dir) {
+  walkFiles(dir, (fullPath) => {
+    if (fullPath.endsWith('.js')) {
+      fs.renameSync(fullPath, fullPath.replace(/\.js$/, '.cjs'));
+    }
+  });
+
+  walkFiles(dir, (fullPath) => {
+    if (fullPath.endsWith('.cjs')) {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const fixed = content.replace(/require\((['"])(.+?)\.js\1\)/g, 'require($1$2.cjs$1)');
+
+      if (fixed !== content) {
+        fs.writeFileSync(fullPath, fixed);
+      }
+    }
+  });
+}
+
+function getHomepageSourceDir() {
+  return process.env.CUSTOM_HOMEPAGE_DIR || path.resolve(__dirname, '../../custom/homepages/v2');
+}
+
+function getPreparedHomepageDir() {
+  if (memo.preparedHomepageDir !== undefined) {
+    return memo.preparedHomepageDir;
+  }
+
+  const sourceDir = getHomepageSourceDir();
+  if (!fs.existsSync(sourceDir)) {
+    memo.preparedHomepageDir = null;
+    return memo.preparedHomepageDir;
+  }
+
+  const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'odysee-homepages-'));
+  fs.cpSync(sourceDir, runtimeDir, { recursive: true });
+  normalizeHomepageDir(runtimeDir);
+  memo.preparedHomepageDir = runtimeDir;
+  return memo.preparedHomepageDir;
+}
+
+const loadAnnouncements = (homepageKeys) => {
   const announcements = {};
   homepageKeys.forEach((key) => {
     const file = path.join(__dirname, `../dist/announcement/${key.toLowerCase()}.md`);
@@ -26,7 +81,13 @@ const loadAnnouncements = (homepageKeys) => {
 if (!memo.homepageData) {
   if (process.env.CUSTOM_HOMEPAGE === 'true') {
     try {
-      const customPath = path.resolve(__dirname, '../../custom/homepages/v2/index.cjs');
+      const preparedDir = getPreparedHomepageDir();
+      const customPath = preparedDir && path.join(preparedDir, 'index.cjs');
+
+      if (!customPath) {
+        throw new Error(`Custom homepage directory not found at ${getHomepageSourceDir()}`);
+      }
+
       memo.homepageData = require(customPath);
       memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
     } catch (err) {
