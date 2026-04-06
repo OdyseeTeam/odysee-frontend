@@ -7,12 +7,13 @@ name: Node.js CI
 on:
   push:
     branches: [master]
+    tags: ['v*']
   pull_request:
     branches: [master]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  DOCKERHUB_IMAGE: odyseeteam/odysee-frontend
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   # ─── Lint ────────────────────────────────────────────────────────────────────
@@ -31,6 +32,11 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
+
+      # Lockfile resolves odysee-media-usagi to SSH (git@github.com:) which
+      # fails without SSH keys. Rewrite to HTTPS so pnpm can clone it.
+      - name: Use HTTPS for git deps
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -55,6 +61,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
 
+      - name: Use HTTPS for git deps
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -66,11 +75,13 @@ jobs:
           BUILD_REV: ${{ github.sha }}
 
   # ─── Docker Image ────────────────────────────────────────────────────────────
+  # Builds on: push to master (tagged as `latest` + sha)
+  #            push of a tag like v1.2.3 (tagged as `1.2.3`, `1.2`, `1`, `latest`)
   docker:
     name: docker
     needs: [build]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push'
 
     permissions:
       contents: read
@@ -79,24 +90,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
+            # On master push: sha + latest
             type=sha,prefix=
-            type=raw,value=latest
+            type=raw,value=latest,enable={{is_default_branch}}
+            # On version tag push: semver tags (v1.2.3 → 1.2.3, 1.2, 1)
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
