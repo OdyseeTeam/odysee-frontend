@@ -630,19 +630,24 @@ export const doFetchItemsInCollection =
       const valueTypes = new Set<string>();
       const streamTypes = new Set<string>();
       const newItems = new Set<string>();
-      claimIds.forEach((claimId, index) => {
-        const collectionItem = collectionItems[index];
+
+      const resolvedById: Record<string, any> = {};
+      collectionItems.forEach((item: any) => {
+        resolvedById[item.claim_id] = item;
+      });
+
+      claimIds.forEach((claimId) => {
+        const collectionItem = resolvedById[claimId];
 
         if (collectionItem) {
           newItems.add(collectionItem.claim_id);
           valueTypes.add(collectionItem.value_type);
-
-          if (collectionItem.value.stream_type) {
+          if (collectionItem.value && collectionItem.value.stream_type) {
             streamTypes.add(collectionItem.value.stream_type);
           }
-        } else {
-          newItems.add(claimId);
         }
+        // Skip unresolvable items — they don't exist on the network
+        // and would block the selector (undefined in claimsById).
       });
       const collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
       const newStoreCollectionClaim = {
