@@ -1,18 +1,14 @@
-import { useEffect, useState } from 'react';
-export default function useKonamiListener() {
+import { useEffect, useState, useCallback } from 'react';
+export default function useKonamiListener(): [boolean, () => void] {
   const [isActive, setIsActive] = useState(false);
   useEffect(() => {
-    let listener;
-
-    if (!listener) {
-      listener = new Konami(() => setIsActive(!isActive));
-    }
-
+    const listener = new Konami(() => setIsActive(true));
     return () => {
-      listener = null;
+      listener.unload();
     };
-  }, [isActive]);
-  return isActive;
+  }, []);
+  const dismiss = useCallback(() => setIsActive(false), []);
+  return [isActive, dismiss];
 }
 /* eslint-disable */
 
