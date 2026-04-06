@@ -154,6 +154,15 @@ function UploadForm(props: Props) {
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
   const formDisabled = emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
+
+  React.useEffect(() => {
+    if (!isInProgress) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [!!isInProgress]);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const fileMimeType =
