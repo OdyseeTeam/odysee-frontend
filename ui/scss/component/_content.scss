@@ -386,6 +386,10 @@
   height: var(--floating-viewer-height);
   width: var(--floating-viewer-width);
 
+  &:has(.content-info__playlist) {
+    overflow: visible;
+  }
+
   @media (min-width: $breakpoint-small) {
     .file-render--video {
       z-index: 1;
