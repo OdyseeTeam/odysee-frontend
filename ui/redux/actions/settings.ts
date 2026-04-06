@@ -382,7 +382,7 @@ export function doOpenAnnouncements() {
 export function doFetchHomepages(hp?: string) {
   return (dispatch: Dispatch) => {
     const param = hp ? `?hp=${hp}` : '';
-    return fetch(`https://odysee.com/$/api/content/v2/get${param}`)
+    return fetch(`/$/api/content/v2/get${param}`)
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
