@@ -52,7 +52,7 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const BROWSER_STREAM_ENABLED = true;
+  const BROWSER_STREAM_ENABLED = false;
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
