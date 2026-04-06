@@ -354,7 +354,7 @@ const Header = (props: Props) => {
 
                         if (syncError) signOut();
 
-                        if ((isSignInPage && !emailToVerify) || isSignUpPage || isPwdResetPage || iYTSyncPage) {
+                        if ((isSignInPage && !emailToVerify) || isPwdResetPage || iYTSyncPage) {
                           navigate(-1);
                         } else {
                           navigate('/');
