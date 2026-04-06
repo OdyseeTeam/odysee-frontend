@@ -3,13 +3,13 @@ services:
     image: haproxy:lts
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
+      - '${HTTP_PORT:-80}:80'
     volumes:
       - ./docker/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     networks:
       - odysee
     labels:
-      com.centurylinklabs.watchtower.enable: "false"
+      com.centurylinklabs.watchtower.enable: 'false'
 
   frontend:
     image: odyseeteam/odysee-frontend:${ODYSEE_FRONTEND_TAG:-latest}
@@ -23,11 +23,11 @@ services:
       CHAINQUERY_MYSQL_PASSWORD: ${CHAINQUERY_MYSQL_PASSWORD:?set CHAINQUERY_MYSQL_PASSWORD}
       LBRY_WEB_API: ${LBRY_WEB_API:-https://api.odysee.com}
     expose:
-      - "1337"
+      - '1337'
     networks:
       - odysee
     labels:
-      com.centurylinklabs.watchtower.enable: "true"
+      com.centurylinklabs.watchtower.enable: 'true'
       com.centurylinklabs.watchtower.stop-signal: SIGTERM
 
   watchtower:
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     command:
       - --interval
-      - "${WATCHTOWER_POLL_INTERVAL:-300}"
+      - '${WATCHTOWER_POLL_INTERVAL:-300}'
       - --cleanup
       - --rolling-restart
       - --label-enable
@@ -48,7 +48,7 @@ services:
     networks:
       - odysee
     labels:
-      com.centurylinklabs.watchtower.enable: "false"
+      com.centurylinklabs.watchtower.enable: 'false'
 
 networks:
   odysee:

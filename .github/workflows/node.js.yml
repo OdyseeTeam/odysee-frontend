@@ -172,7 +172,7 @@ jobs:
           python3 - <<'PY'
           import json
           import os
-          
+
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
               fh.write(f"payload={json.dumps({'text': os.environ['TEXT']})}\n")
           PY
