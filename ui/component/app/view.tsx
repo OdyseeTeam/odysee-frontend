@@ -15,6 +15,7 @@ import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
+import SpaceInvaders from 'component/spaceInvaders/view';
 import Yrbl from 'component/yrbl';
 import usePrevious from 'effects/use-previous';
 import usePersistedState from 'effects/use-persisted-state';
@@ -225,7 +226,7 @@ function App() {
     [dispatch]
   );
   const isMobile = useIsMobile();
-  const isEnhancedLayout = useKonamiListener();
+  const [isEnhancedLayout, dismissEnhancedLayout] = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
   const hasVerifiedEmail = user && Boolean(user.has_verified_email);
   const isRewardApproved = user && user.is_reward_approved;
@@ -698,7 +699,7 @@ function App() {
             <React.Suspense fallback={null}>{shouldMountFloatingPlayer && <VideoRenderFloating />}</React.Suspense>
             <LivestreamPublisherFloatingGate embedPath={embedPath} />
             <React.Suspense fallback={null}>
-              {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
+              {isEnhancedLayout && <SpaceInvaders onClose={dismissEnhancedLayout} />}
               {!hasVerifiedEmail && <YoutubeWelcome />}
               {!shouldHideNag && <NagContinueFirstRun />}
               {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
