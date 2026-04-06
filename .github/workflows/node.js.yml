@@ -6,14 +6,13 @@ name: Node.js CI
 
 on:
   push:
-    branches: [master]
+    branches: ['**']
     tags: ['v*']
   pull_request:
-    branches: [master]
+    branches: ['**']
 
 env:
   DOCKERHUB_IMAGE: odyseeteam/odysee-frontend
-  GHCR_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   # ─── Lint ────────────────────────────────────────────────────────────────────
@@ -75,8 +74,6 @@ jobs:
           BUILD_REV: ${{ github.sha }}
 
   # ─── Docker Image ────────────────────────────────────────────────────────────
-  # Builds on: push to master (tagged as `latest` + sha)
-  #            push of a tag like v1.2.3 (tagged as `1.2.3`, `1.2`, `1`, `latest`)
   docker:
     name: docker
     needs: [build]
@@ -85,7 +82,6 @@ jobs:
 
     permissions:
       contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -99,25 +95,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.DOCKERHUB_IMAGE }}
-            ${{ env.GHCR_IMAGE }}
+          images: ${{ env.DOCKERHUB_IMAGE }}
           tags: |
-            # On master push: sha + latest
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
-            # On version tag push: semver tags (v1.2.3 → 1.2.3, 1.2, 1)
+            type=ref,event=branch,enable=${{ github.ref != 'refs/heads/master' }}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
@@ -135,3 +121,74 @@ jobs:
             NODE_ENV=production
             COMMIT_ID=${{ github.sha }}
             BUILD_REV=${{ github.sha }}
+
+  notify-slack:
+    name: notify-slack
+    needs: [lint, build, docker]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build Slack payload
+        id: payload
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DOCKER_RESULT: ${{ needs.docker.result }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPOSITORY: ${{ github.repository }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+          RUN_STARTED_AT: ${{ github.run_started_at }}
+          ACTOR: ${{ github.actor }}
+          HEAD_COMMIT_AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          HEAD_COMMIT_AUTHOR_EMAIL: ${{ github.event.head_commit.author.email }}
+          PR_USER: ${{ github.event.pull_request.user.login }}
+        run: |
+          if [[ "$LINT_RESULT" == "failure" || "$BUILD_RESULT" == "failure" || "$DOCKER_RESULT" == "failure" ]]; then
+            STATUS="failure"
+          elif [[ "$LINT_RESULT" == "cancelled" || "$BUILD_RESULT" == "cancelled" || "$DOCKER_RESULT" == "cancelled" ]]; then
+            STATUS="cancelled"
+          else
+            STATUS="success"
+          fi
+
+          AUTHOR="$ACTOR"
+          if [[ -n "$HEAD_COMMIT_AUTHOR_NAME" && -n "$HEAD_COMMIT_AUTHOR_EMAIL" ]]; then
+            AUTHOR="$HEAD_COMMIT_AUTHOR_NAME <$HEAD_COMMIT_AUTHOR_EMAIL>"
+          elif [[ -n "$PR_USER" ]]; then
+            AUTHOR="$PR_USER"
+          fi
+
+          START_EPOCH=$(date -u -d "$RUN_STARTED_AT" +%s)
+          NOW_EPOCH=$(date -u +%s)
+          ELAPSED_MINUTES=$(( (NOW_EPOCH - START_EPOCH + 59) / 60 ))
+          if (( ELAPSED_MINUTES < 1 )); then
+            ELAPSED_MINUTES=1
+          fi
+
+          TEXT=$(printf 'CI/CD\n%s (%s) of %s@%s by %s %s in %s min' "$WORKFLOW_NAME" "${SHA::8}" "$REPOSITORY" "$REF" "$AUTHOR" "$STATUS" "$ELAPSED_MINUTES")
+          export TEXT
+          python3 - <<'PY'
+          import json
+          import os
+          
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"payload={json.dumps({'text': os.environ['TEXT']})}\n")
+          PY
+
+      - name: Post to Slack
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          PAYLOAD: ${{ steps.payload.outputs.payload }}
+        run: |
+          if [[ -z "$SLACK_WEBHOOK" ]]; then
+            exit 0
+          fi
+
+          curl --fail --silent --show-error \
+            -X POST \
+            -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            "$SLACK_WEBHOOK"
