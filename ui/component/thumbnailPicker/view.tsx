@@ -42,6 +42,8 @@ function ThumbnailPicker(props: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
   const [urlThumbUrl, setUrlThumbUrl] = useState<string | null>(null);
+  const currentThumbnail = useAppSelector((state) => state.publish.thumbnail);
+  const editingURI = useAppSelector((state) => state.publish.editingURI);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
   const dispatch = useAppDispatch();
@@ -203,7 +205,10 @@ function ThumbnailPicker(props: Props) {
     setMode('auto');
     setManualTimestamp(0);
     setManualFrame(null);
-    if (hasVideo && filePath) {
+    if (editingURI && currentThumbnail) {
+      setSelectedIndex(-4);
+      setLoading(false);
+    } else if (hasVideo && filePath) {
       extractFrames(DEFAULT_PERCENTAGES);
     } else {
       setLoading(false);
@@ -470,6 +475,21 @@ function ThumbnailPicker(props: Props) {
                     </div>
                   )}
                 </button>
+                {editingURI && currentThumbnail && (
+                  <button
+                    className={
+                      'thumbnail-picker__item' + (selectedIndex === -4 ? ' thumbnail-picker__item--selected' : '')
+                    }
+                    onClick={() => {
+                      setSelectedIndex(-4);
+                      onThumbnailSelected?.(currentThumbnail);
+                    }}
+                    type="button"
+                  >
+                    <img src={currentThumbnail} className="thumbnail-picker__image" alt={__('Current thumbnail')} />
+                    <span className="thumbnail-picker__label">{__('Current')}</span>
+                  </button>
+                )}
                 {hasVideo && filePath && !extractionFailed && (
                   <button
                     className={

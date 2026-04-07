@@ -248,6 +248,11 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+    min-width: 0;
+  }
+
+  .channel-thumbnail {
+    flex-shrink: 0;
   }
 }
 
@@ -261,6 +266,9 @@
   font-weight: 600;
   color: var(--color-button-secondary-text);
   font-size: var(--font-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   .dashboard__channel-card:hover & {
     color: var(--color-button-secondary-text-hover);

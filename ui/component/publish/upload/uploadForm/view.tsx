@@ -347,11 +347,11 @@ function UploadForm(props: Props) {
   if (isClaimingInitialRewards) {
     submitLabel = __('Claiming credits...');
   } else if (publishing) {
-    submitLabel = __('Publishing...');
+    submitLabel = inEditMode ? __('Updating...') : __('Publishing...');
   } else if (previewing) {
     submitLabel = <Spinner type="small" />;
   } else {
-    submitLabel = __('Publish');
+    submitLabel = inEditMode ? __('Update') : __('Publish');
   }
 
   const isFormIncomplete =
@@ -378,7 +378,10 @@ function UploadForm(props: Props) {
   }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   React.useLayoutEffect(() => {
-    dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: pipelineIdForForm.current } });
+    const currentPublish = window.store?.getState?.()?.publish;
+    if (!currentPublish?.editingURI) {
+      dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: pipelineIdForForm.current } });
+    }
     dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: pipelineIdForForm.current } });
     const s = window.store?.getState?.()?.publish;
     setActiveStep(s?.activeStep ?? 0);
@@ -391,6 +394,12 @@ function UploadForm(props: Props) {
       }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    if (editingURI && title && name && activeStep === 0) {
+      setActiveStep(1);
+    }
+  }, [editingURI, title, name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useLayoutEffect(() => {
     if (activeFormId && activeFormId !== pipelineIdForForm.current) {
@@ -629,11 +638,11 @@ function UploadForm(props: Props) {
 
   const wizardSteps = [
     {
-      label: 'File',
-      validate: () => !missingRequiredFile,
+      label: inEditMode ? 'File (Optional)' : 'File',
+      validate: () => inEditMode || !missingRequiredFile,
     },
     {
-      label: 'Content',
+      label: 'Details',
       validate: () =>
         !!title &&
         !!name &&
@@ -647,7 +656,7 @@ function UploadForm(props: Props) {
       label: 'Visibility',
     },
     {
-      label: 'Publish',
+      label: inEditMode ? 'Update' : 'Publish',
     },
   ];
 
@@ -717,7 +726,7 @@ function UploadForm(props: Props) {
           );
         })()}
         <span className="publish-wizard__title-actions">
-          {!isClear && (
+          {!isClear && !inEditMode && (
             <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
           )}
           {!inEditMode && <PublishTemplateButton />}

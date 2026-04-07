@@ -1893,6 +1893,55 @@ export default function OdyseeSkin(props) {
                 </Tooltip.Root>
               )}
 
+              {!isMobileDevice &&
+                !embedded &&
+                !isFloating &&
+                !isMarkdownOrComment &&
+                typeof HTMLVideoElement.prototype.requestPictureInPicture === 'function' && (
+                  <Tooltip.Root side="top">
+                    <Tooltip.Trigger
+                      render={
+                        <Btn
+                          className="media-button--icon"
+                          aria-label="Picture-in-Picture"
+                          onClick={() => {
+                            const video =
+                              media instanceof HTMLVideoElement
+                                ? media
+                                : (media as Element | null)?.querySelector?.('video') ||
+                                  document.querySelector('video');
+                            if (!video) return;
+                            if (document.pictureInPictureElement) {
+                              document.exitPictureInPicture().catch(() => {});
+                            } else {
+                              video.disablePictureInPicture = false;
+                              video.requestPictureInPicture().catch(() => {});
+                            }
+                          }}
+                        >
+                          <svg
+                            className="media-icon"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width={19}
+                            height={19}
+                            fill="none"
+                            stroke="#fff"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <rect x="2" y="3" width="20" height="18" rx="2" ry="2" />
+                            <rect x="12" y="11" width="8" height="8" rx="1" fill="#fff" stroke="none" />
+                          </svg>
+                        </Btn>
+                      }
+                    />
+                    <Tooltip.Popup className="media-tooltip">{__('Picture-in-Picture')}</Tooltip.Popup>
+                  </Tooltip.Root>
+                )}
+
               {!isMarkdownOrComment && !embedded && !isFloating && onToggleTheaterMode && (
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger

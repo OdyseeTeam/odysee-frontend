@@ -248,7 +248,15 @@ export const publishReducer = handleActions(
         channelName: channel,
         streamName: name,
       });
-      return { ...defaultState, ...publishData, editingURI: uri, uri: shortUri, currentUploads: state.currentUploads };
+      return {
+        ...defaultState,
+        ...publishData,
+        editingURI: uri,
+        uri: shortUri,
+        currentUploads: state.currentUploads,
+        savedForms: state.savedForms,
+        pipelineItems: state.pipelineItems,
+      };
     },
     [ACTIONS.UPDATE_UPLOAD_ADD]: (state: PublishState, action) => {
       const { file, params, uploader, backend } = action.data;
