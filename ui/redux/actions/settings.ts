@@ -352,11 +352,18 @@ export function doLoadBuiltInHomepageData() {
     import('homepages').then((mod) => {
       const enHp = mod.en || mod.default?.en || mod.default || mod;
       if (enHp) {
-        window.homepages = {};
+        const existingHomepages = window.homepages || {};
         const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
 
-        keys.forEach((hp) => (window.homepages[hp] = undefined));
-        window.homepages['en'] = enHp;
+        window.homepages = { ...existingHomepages };
+        keys.forEach((hp) => {
+          if (!(hp in window.homepages)) {
+            window.homepages[hp] = undefined;
+          }
+        });
+        if (!window.homepages['en']) {
+          window.homepages['en'] = enHp;
+        }
         populateCategoryTitles(window.homepages?.en?.categories);
         dispatch({
           type: ACTIONS.FETCH_HOMEPAGES_DONE,
