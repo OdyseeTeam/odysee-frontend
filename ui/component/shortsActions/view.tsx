@@ -449,16 +449,18 @@ const ShortsActions = React.memo<Props>(
             )}
           </div>
           <div className="shorts-actions__group shorts-actions__group--bottom">
-            <div className="shorts-actions__item">
-              <Button
-                className="shorts-page__actions-button shorts-page__actions-button--share"
-                onClick={handleShareClick}
-                icon={ICONS.SHARE}
-                iconSize={16}
-                title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-              />
-              <p>{__('Share')}</p>
-            </div>
+            {(!isUnlisted || claimIsMine) && (
+              <div className="shorts-actions__item">
+                <Button
+                  className="shorts-page__actions-button shorts-page__actions-button--share"
+                  onClick={handleShareClick}
+                  icon={ICONS.SHARE}
+                  iconSize={16}
+                  title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+                />
+                <p>{__('Share')}</p>
+              </div>
+            )}
             <div className="shorts-actions__item">
               <Button
                 className={classnames('shorts-page__actions-button button-bubble', {
