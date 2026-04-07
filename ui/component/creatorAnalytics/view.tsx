@@ -3,17 +3,28 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import { Lbryio } from 'lbryinc';
 import ClaimPreview from 'component/claimPreview';
-import Card from 'component/common/card';
 import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
+import ChannelThumbnail from 'component/channelThumbnail';
 import { useNavigate } from 'react-router-dom';
-import analytics from 'analytics';
-import { getChannelSubCountStr } from 'util/formatMediaDuration';
+import { formatLbryUrlForWeb } from 'util/url';
+import Comments from 'comments';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
-import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
+import { makeSelectClaimForUri, selectClaimsById } from 'redux/selectors/claims';
+import { doResolveUris as doResolveUrisAction, doFetchClaimListMine } from 'redux/actions/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectMembershipTiersForCreatorId,
+  selectMonthlyIncomeForChannelId,
+  selectSupportersAmountForChannelId,
+} from 'redux/selectors/memberships';
+import { selectModerationBlockList } from 'redux/selectors/comments';
+import { doFetchViewCount } from 'lbryinc';
+import { selectViewCount } from 'lbryinc';
+import './style.scss';
+
 type ChannelStats = {
   ChannelSubs: number;
   ChannelSubChange: number;
@@ -33,258 +44,441 @@ type ChannelStats = {
 type Props = {
   uri: string;
 };
-const UNAUTHENTICATED_ERROR = 'unauthenticated';
-const GENERIC_ERROR = 'error';
+
+function formatNumber(n: number): string {
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
+
+function formatCurrency(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+function TrendIndicator({ value, suffix = '' }: { value: number; suffix?: string }) {
+  if (value === 0) {
+    return <span className="dashboard__trend dashboard__trend--neutral">0{suffix}</span>;
+  }
+  const isPositive = value > 0;
+  return (
+    <span className={`dashboard__trend ${isPositive ? 'dashboard__trend--up' : 'dashboard__trend--down'}`}>
+      <Icon icon={isPositive ? ICONS.TRENDING : ICONS.DOWN} size={10} />
+      {isPositive ? '+' : ''}
+      {value}
+      {suffix}
+    </span>
+  );
+}
+
 export default function CreatorAnalytics(props: Props) {
   const { uri } = props;
   const dispatch = useAppDispatch();
-  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
-  const doResolveUris = (uris: Array<string>) => dispatch(doResolveUrisAction(uris));
   const navigate = useNavigate();
+  const claim = useAppSelector((state) => makeSelectClaimForUri(uri)(state));
+  const claimId = claim?.claim_id;
+  const activeChannel = useAppSelector(selectActiveChannelClaim);
+
   const [stats, setStats] = React.useState<ChannelStats | null>(null);
   const [error, setError] = React.useState<string | null>(null);
-  const [fetchingStats, setFetchingStats] = React.useState(false);
-  const claimId = claim && claim.claim_id;
-  // TODO: put this back when hubs are fixed
-  // const channelHasClaims = claim && claim.meta && claim.meta.claims_in_channel && claim.meta.claims_in_channel > 0 || true;
-  const channelHasClaims = true;
+  const [fetching, setFetching] = React.useState(false);
+  const [recentComments, setRecentComments] = React.useState<any[]>([]);
+  const blockedChannels = useAppSelector(selectModerationBlockList);
+
+  const membershipTiers = useAppSelector((state) =>
+    claimId ? selectMembershipTiersForCreatorId(state, claimId) : undefined
+  );
+  const hasMemberships = membershipTiers && membershipTiers.length > 0;
+  const monthlyIncome = useAppSelector((state) => (claimId ? selectMonthlyIncomeForChannelId(state, claimId) : 0));
+  const supporterCount = useAppSelector((state) => (claimId ? selectSupportersAmountForChannelId(state, claimId) : 0));
+
+  const claimsById = useAppSelector(selectClaimsById);
+  const [channelClaimIds, setChannelClaimIds] = React.useState<string[]>([]);
+  const viewCountById = useAppSelector(selectViewCount);
+
+  React.useEffect(() => {
+    if (!claimId) return;
+    dispatch(doFetchClaimListMine(1, 20, true, ['stream'], true, [claimId]));
+  }, [claimId, dispatch]);
+
+  React.useEffect(() => {
+    if (!claimId || !claimsById) return;
+    const ids = Object.keys(claimsById)
+      .filter((id) => {
+        const c = claimsById[id];
+        return c && c.signing_channel?.claim_id === claimId && c.value_type === 'stream';
+      })
+      .toSorted((a, b) => (claimsById[b]?.timestamp || 0) - (claimsById[a]?.timestamp || 0));
+    setChannelClaimIds(ids);
+  }, [claimId, claimsById]);
+
+  const channelClaims = channelClaimIds.map((id) => claimsById[id]).filter(Boolean);
+  const recentClaims = channelClaims.slice(0, 10);
+
+  React.useEffect(() => {
+    if (recentClaims.length > 0) {
+      const ids = recentClaims.map((c: any) => c.claim_id).join(',');
+      dispatch(doFetchViewCount(ids));
+    }
+  }, [channelClaimIds.length, claimId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useEffect(() => {
     setStats(null);
+    setError(null);
   }, [claimId]);
+
   React.useEffect(() => {
-    if (stats) {
-      let { VideoURITopAllTime, VideoURITopCommentNew, VideoURITopNew } = stats;
-      let uris = [];
-      if (VideoURITopAllTime) uris.push(VideoURITopAllTime);
-      if (VideoURITopCommentNew) uris.push(VideoURITopCommentNew);
-      if (VideoURITopNew) uris.push(VideoURITopNew);
-      doResolveUris(uris);
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [stats]);
-  const channelForEffect = JSON.stringify(claim);
-  React.useEffect(() => {
-    if (claimId && channelForEffect && channelHasClaims) {
-      setFetchingStats(true);
-      Lbryio.call('channel', 'stats', {
-        claim_id: claimId,
+    if (!claimId) return;
+    setFetching(true);
+    Lbryio.call('channel', 'stats', { claim_id: claimId })
+      .then((res: ChannelStats) => {
+        setStats(res);
+        setFetching(false);
+        const uris = [res.VideoURITopNew, res.VideoURITopCommentNew, res.VideoURITopAllTime].filter(Boolean);
+        if (uris.length > 0) dispatch(doResolveUrisAction(uris));
       })
-        .then((res: ChannelStats) => {
-          setFetchingStats(false);
-          setStats(res);
+      .catch(() => {
+        setError('error');
+        setFetching(false);
+      });
+  }, [claimId, dispatch]);
+
+  React.useEffect(() => {
+    if (!channelClaimIds.length || !claimId || !claim) return;
+    const channelName = claim.name;
+    const claimTitles: Record<string, string> = {};
+    const claimUrlMap: Record<string, string> = {};
+    channelClaimIds.forEach((id) => {
+      const c = claimsById[id];
+      if (c) {
+        claimTitles[id] = c.value?.title || c.name;
+        claimUrlMap[id] = formatLbryUrlForWeb(c.canonical_url || c.permanent_url);
+      }
+    });
+
+    const fetchPromises = channelClaimIds.slice(0, 20).map((cid: string) =>
+      Comments.comment_list({
+        page: 1,
+        claim_id: cid,
+        page_size: 1,
+        sort_by: 0,
+        channel_id: claimId,
+        channel_name: channelName,
+        top_level: true,
+      } as any)
+        .then((r: any) =>
+          (r?.items || []).map((item: any) => ({
+            ...item,
+            _claimTitle: claimTitles[cid] || '',
+            _claimUrl: claimUrlMap[cid] || '',
+          }))
+        )
+        .catch(() => [])
+    );
+
+    Promise.all(fetchPromises).then((results) => {
+      const all = results.flat();
+      const filtered = all.filter((c: any) => c.comment && c.comment.trim() && c.channel_id && c.channel_name);
+      filtered.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0));
+      const top = filtered.slice(0, 10);
+      if (top.length === 0) return;
+
+      const channelUrls = [...new Set(top.map((c: any) => c.channel_url).filter(Boolean))] as string[];
+      dispatch(doResolveUrisAction(channelUrls))
+        .then(() => {
+          const freshClaimsByUri = window.store?.getState?.()?.claims?.claimsByUri || {};
+          const valid = top.filter((c: any) => !c.channel_url || freshClaimsByUri[c.channel_url] != null);
+          setRecentComments(valid.slice(0, 5));
         })
-        .catch((error) => {
-          if (error.response?.status === 401) {
-            setError(UNAUTHENTICATED_ERROR);
-            const channelToSend = JSON.parse(channelForEffect);
-            analytics.apiLog.publish(channelToSend);
-          } else {
-            setError(GENERIC_ERROR);
-          }
+        .catch(() => setRecentComments(top.slice(0, 5)));
+    });
+  }, [channelClaimIds.length, claimId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-          setFetchingStats(false);
-        });
-    }
-  }, [claimId, channelForEffect, channelHasClaims, setFetchingStats, setStats]);
+  if (!stats && fetching) {
+    return (
+      <div className="main--empty">
+        <Spinner delayed />
+      </div>
+    );
+  }
+
+  if (error || (!stats && !fetching)) {
+    return (
+      <Yrbl
+        type="sad"
+        title={__('No stats available')}
+        subtitle={__('Stats will appear once your content gets some views. Make sure data sharing is enabled.')}
+        actions={
+          <div className="section__actions">
+            <Button button="primary" label={__('Upload Something')} onClick={() => navigate(`/$/${PAGES.UPLOAD}`)} />
+          </div>
+        }
+      />
+    );
+  }
+
+  if (!stats) return null;
+
   return (
-    <React.Fragment>
-      {!stats && (
-        <div className="main--empty">
-          {fetchingStats ? (
-            <Spinner delayed />
-          ) : (
-            <div>
-              {error && (
-                <Yrbl
-                  type="sad"
-                  title={error === GENERIC_ERROR ? __('No stats found') : __('Error fetching stats')}
-                  subtitle={
-                    error === GENERIC_ERROR
-                      ? __(
-                          'There are no stats for this channel yet, it will take a few views. Make sure you are signed in with the correct email and have data sharing turned on.'
-                        )
-                      : __(
-                          "You are not able to see this channel's stats. Make sure you are signed in with the correct email and have data sharing turned on."
-                        )
-                  }
-                />
+    <div className="dashboard">
+      <div className="dashboard__overview">
+        <div className="dashboard__stat-card">
+          <div className="dashboard__stat-icon dashboard__stat-icon--red">
+            <Icon icon={ICONS.SUBSCRIBE} size={28} />
+          </div>
+          <div className="dashboard__stat-body">
+            <span className="dashboard__stat-value">{formatNumber(stats.ChannelSubs)}</span>
+            <span className="dashboard__stat-label">{__('Followers')}</span>
+            <TrendIndicator value={stats.ChannelSubChange} suffix={__(' this week')} />
+          </div>
+        </div>
+
+        <div className="dashboard__stat-card">
+          <div className="dashboard__stat-icon dashboard__stat-icon--green">
+            <Icon icon={ICONS.EYE} size={28} />
+          </div>
+          <div className="dashboard__stat-body">
+            <span className="dashboard__stat-value">{formatNumber(stats.AllContentViews)}</span>
+            <span className="dashboard__stat-label">{__('Total Views')}</span>
+            <TrendIndicator value={stats.AllContentViewChange} suffix={__(' this week')} />
+          </div>
+        </div>
+
+        <div className="dashboard__stat-card">
+          <div className="dashboard__stat-icon dashboard__stat-icon--blue">
+            <Icon icon={ICONS.PUBLISH} size={28} />
+          </div>
+          <div className="dashboard__stat-body">
+            <span className="dashboard__stat-value">{channelClaims.length}</span>
+            <span className="dashboard__stat-label">{__('Uploads')}</span>
+          </div>
+        </div>
+
+        {hasMemberships && (
+          <>
+            <div className="dashboard__stat-card">
+              <div className="dashboard__stat-icon">
+                <Icon icon={ICONS.MEMBERSHIP} size={20} />
+              </div>
+              <div className="dashboard__stat-body">
+                <span className="dashboard__stat-value">{supporterCount}</span>
+                <span className="dashboard__stat-label">{__('Members')}</span>
+              </div>
+            </div>
+
+            <div className="dashboard__stat-card">
+              <div className="dashboard__stat-icon">
+                <Icon icon={ICONS.FINANCE} size={20} />
+              </div>
+              <div className="dashboard__stat-body">
+                <span className="dashboard__stat-value">{formatCurrency(monthlyIncome || 0)}</span>
+                <span className="dashboard__stat-label">{__('Monthly Income')}</span>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="dashboard__sections">
+        <div className="dashboard__main">
+          <div className="dashboard__section">
+            <h2 className="dashboard__section-title">{__('Top Content')}</h2>
+            <div className="dashboard__top-content">
+              {stats.VideoURITopNew && (
+                <div className="dashboard__top-item">
+                  <span className="dashboard__top-badge">{__('Trending')}</span>
+                  <ClaimPreview uri={stats.VideoURITopNew} />
+                  <div className="dashboard__top-meta">
+                    <span>
+                      {formatNumber(stats.VideoViewsTopNew)} {__('views')}
+                    </span>
+                    <span className="dashboard__top-meta-dot">·</span>
+                    <TrendIndicator value={stats.VideoViewChangeTopNew} suffix={__(' this week')} />
+                  </div>
+                </div>
               )}
 
-              {!error && !channelHasClaims ? (
-                <Yrbl
-                  type="sad"
-                  title={__("You haven't uploaded anything")}
-                  subtitle={__('Upload something to start tracking your stats!')}
-                  actions={
-                    <div className="section__actions">
-                      <Button
-                        button="primary"
-                        label={__('Upload Something')}
-                        onClick={() => {
-                          navigate(`/$/${PAGES.UPLOAD}`);
-                        }}
-                      />
-                    </div>
-                  }
-                />
-              ) : (
-                <Yrbl
-                  title={
-                    channelHasClaims
-                      ? __('No recent uploads')
-                      : __("You haven't uploaded anything with this channel yet!")
-                  }
-                  actions={
-                    <div className="section__actions">
-                      <Button
-                        button="primary"
-                        label={__('Upload Something')}
-                        onClick={() => navigate(`/$/${PAGES.UPLOAD}`)}
-                      />
-                    </div>
-                  }
-                />
+              {stats.VideoURITopCommentNew && stats.VideoCommentTopCommentNew > 0 && (
+                <div className="dashboard__top-item">
+                  <span className="dashboard__top-badge">{__('Most Discussed')}</span>
+                  <ClaimPreview uri={stats.VideoURITopCommentNew} />
+                  <div className="dashboard__top-meta">
+                    <span>
+                      {formatNumber(stats.VideoCommentTopCommentNew)} {__('comments')}
+                    </span>
+                    <span className="dashboard__top-meta-dot">·</span>
+                    <TrendIndicator value={stats.VideoCommentChangeTopCommentNew} suffix={__(' this week')} />
+                  </div>
+                </div>
               )}
+
+              {stats.VideoURITopAllTime && (
+                <div className="dashboard__top-item">
+                  <span className="dashboard__top-badge">{__('All-Time Best')}</span>
+                  <ClaimPreview uri={stats.VideoURITopAllTime} />
+                  <div className="dashboard__top-meta">
+                    <span>
+                      {formatNumber(stats.VideoViewsTopAllTime)} {__('views')}
+                    </span>
+                    <span className="dashboard__top-meta-dot">·</span>
+                    <TrendIndicator value={stats.VideoViewChangeTopAllTime} suffix={__(' this week')} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {recentClaims.length > 0 && (
+            <div className="dashboard__section">
+              <div className="dashboard__section-header">
+                <h2 className="dashboard__section-title">{__('Recent Uploads')}</h2>
+                <Button button="link" label={__('View all')} navigate={`/$/${PAGES.UPLOADS}`} />
+              </div>
+              <table className="dashboard__table">
+                <thead>
+                  <tr>
+                    <th>{__('Title')}</th>
+                    <th>{__('Views')}</th>
+                    <th>{__('Published')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentClaims.map((c: any) => {
+                    const views = viewCountById?.[c.claim_id] ?? null;
+                    const title = c.value?.title || c.name;
+                    const date = c.timestamp ? new Date(c.timestamp * 1000) : null;
+                    return (
+                      <tr
+                        key={c.claim_id}
+                        className="dashboard__table-row"
+                        onClick={() => navigate(formatLbryUrlForWeb(c.canonical_url || c.permanent_url))}
+                      >
+                        <td className="dashboard__table-title">{title}</td>
+                        <td className="dashboard__table-views">{views !== null ? formatNumber(views) : '--'}</td>
+                        <td className="dashboard__table-date">{date ? date.toLocaleDateString() : '--'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {recentComments.length > 0 && (
+            <div className="dashboard__section">
+              <h2 className="dashboard__section-title">{__('Recent Comments')}</h2>
+              <div className="dashboard__comments">
+                {recentComments.map((comment: any) => (
+                  <div
+                    key={comment.comment_id}
+                    className="dashboard__comment"
+                    onClick={() => comment._claimUrl && navigate(`${comment._claimUrl}?lc=${comment.comment_id}`)}
+                  >
+                    {blockedChannels.includes(comment.channel_url) && (
+                      <span className="dashboard__comment-badge dashboard__comment-badge--blocked">
+                        {__('Blocked')}
+                      </span>
+                    )}
+                    <div className="dashboard__comment-header">
+                      {comment.channel_url ? (
+                        <span
+                          className="dashboard__comment-author dashboard__link"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(formatLbryUrlForWeb(comment.channel_url));
+                          }}
+                        >
+                          {comment.channel_name}
+                        </span>
+                      ) : (
+                        <span className="dashboard__comment-author">{__('Anonymous')}</span>
+                      )}
+                      <span className="dashboard__comment-time">
+                        {comment.timestamp ? new Date(comment.timestamp * 1000).toLocaleDateString() : ''}
+                      </span>
+                    </div>
+                    <p className="dashboard__comment-text">{comment.comment}</p>
+                    {comment._claimTitle && (
+                      <span
+                        className="dashboard__comment-claim dashboard__link"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(comment._claimUrl);
+                        }}
+                      >
+                        {__('on')} {comment._claimTitle}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
-      )}
 
-      {stats && (
-        <div className="section">
-          <div className="columns">
-            <Card
-              iconColor
-              title={<span>{getChannelSubCountStr(stats.ChannelSubs)}</span>}
-              icon={ICONS.SUBSCRIBE}
-              subtitle={
-                <div className="card__data-subtitle">
-                  <span>
-                    {stats.ChannelSubChange > 0 && '+'}{' '}
-                    {__('%follower_count_weekly_change% this week', {
-                      follower_count_weekly_change: stats.ChannelSubChange || 0,
-                    })}
-                  </span>
-                  {stats.ChannelSubChange > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                </div>
-              }
-            />
-            <Card
-              icon={ICONS.EYE}
-              title={
-                <span>
-                  {__('%all_content_views% views', {
-                    all_content_views: stats.AllContentViews,
-                  })}
-                </span>
-              }
-              subtitle={
-                <div className="card__data-subtitle">
-                  <span>
-                    {__('+ %all_content_views_weekly_change% this week', {
-                      all_content_views_weekly_change: stats.AllContentViewChange || 0,
-                    })}
-                  </span>
-                  {stats.AllContentViewChange > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                </div>
-              }
-            />
+        <div className="dashboard__sidebar">
+          <div className="dashboard__section">
+            <h2 className="dashboard__section-title">{__('Quick Actions')}</h2>
+            <div className="dashboard__actions">
+              <Button button="secondary" icon={ICONS.PUBLISH} label={__('Upload')} navigate={`/$/${PAGES.UPLOAD}`} />
+              <Button button="secondary" icon={ICONS.POST} label={__('Post')} navigate={`/$/${PAGES.POST}`} />
+              <Button
+                button="secondary"
+                icon={ICONS.LIVESTREAM}
+                label={__('Go Live')}
+                navigate={`/$/${PAGES.LIVESTREAM}`}
+              />
+              <Button
+                button="secondary"
+                icon={ICONS.SETTINGS}
+                label={__('Settings')}
+                navigate={
+                  activeChannel?.canonical_url
+                    ? formatLbryUrlForWeb(activeChannel.canonical_url) + '?view=settings'
+                    : undefined
+                }
+              />
+            </div>
           </div>
 
-          {stats.VideoURITopNew ? (
-            <Card
-              className="section"
-              title={__('Most viewed recent content')}
-              body={
-                <React.Fragment>
-                  <div className="card--inline">
-                    <ClaimPreview uri={stats.VideoURITopNew} />
-                  </div>
-                  <div className="section__subtitle card__data-subtitle">
-                    <span>
-                      {stats.VideoViewsTopNew === 1
-                        ? __('1 view')
-                        : __('%view_count% views - %view_count_change% this week', {
-                            view_count: stats.VideoViewsTopNew,
-                            view_count_change: stats.VideoViewChangeTopNew,
-                          })}
-                    </span>
-                    {stats.VideoViewChangeTopNew > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                  </div>
-                </React.Fragment>
-              }
-            />
-          ) : (
-            <Card
-              className="section"
-              title={__('Your recent content')}
-              subtitle={
-                !stats.VideoURITopNew &&
-                __("No recent uploads found for this channel. Upload something new and track how it's performing here.")
-              }
-              actions={
-                <div className="section__actions">
-                  <Button
-                    button="primary"
-                    icon={ICONS.PUBLISH}
-                    label={__('Upload')}
-                    onClick={() => navigate(`/$/${PAGES.UPLOAD}`)}
-                  />
+          {activeChannel && (
+            <div className="dashboard__section">
+              <h2 className="dashboard__section-title">{__('Channel')}</h2>
+              <Button
+                button="secondary"
+                className="dashboard__channel-card"
+                navigate={formatLbryUrlForWeb(activeChannel.canonical_url || activeChannel.permanent_url)}
+              >
+                <ChannelThumbnail uri={activeChannel.permanent_url} xsmall />
+                <div className="dashboard__channel-info">
+                  <span className="dashboard__channel-name">{activeChannel.value?.title || activeChannel.name}</span>
+                  <span className="dashboard__channel-url">{activeChannel.name}</span>
                 </div>
-              }
-            />
+              </Button>
+            </div>
           )}
 
-          {stats.VideoURITopCommentNew && stats.VideoCommentTopCommentNew > 0 && (
-            <Card
-              className="section"
-              title={__('Most commented recent content')}
-              body={
-                <React.Fragment>
-                  <div className="card--inline">
-                    <ClaimPreview uri={stats.VideoURITopCommentNew} />
-                  </div>
-                  <div className="section__subtitle card__data-subtitle">
-                    <span>
-                      {stats.VideoCommentTopCommentNew === 1
-                        ? __('1 comment')
-                        : __('%comment_count% comments - %comment_count_change% this week', {
-                            comment_count: stats.VideoCommentTopCommentNew,
-                            comment_count_change: stats.VideoCommentChangeTopCommentNew,
-                          })}
-                    </span>
-                    {stats.VideoCommentChangeTopCommentNew > 0 && (
-                      <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />
-                    )}
-                  </div>
-                </React.Fragment>
-              }
-            />
-          )}
-
-          {stats.VideoURITopAllTime && (
-            <Card
-              className="section"
-              title={__('Most viewed content all time')}
-              body={
-                <React.Fragment>
-                  <div className="card--inline">
-                    <ClaimPreview uri={stats.VideoURITopAllTime} />
-                  </div>
-                  <div className="section__subtitle card__data-subtitle">
-                    <span>
-                      {__('%all_time_top_views% views - %all_time_views_weekly_change% this week', {
-                        all_time_top_views: stats.VideoViewsTopAllTime,
-                        all_time_views_weekly_change: stats.VideoViewChangeTopAllTime,
-                      })}
-                    </span>
-                    {stats.VideoViewChangeTopAllTime > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                  </div>
-                </React.Fragment>
-              }
-            />
+          {hasMemberships && (
+            <div className="dashboard__section">
+              <h2 className="dashboard__section-title">{__('Membership')}</h2>
+              <div className="dashboard__membership-summary">
+                <div className="dashboard__membership-row">
+                  <span>{__('Members')}</span>
+                  <span>{supporterCount}</span>
+                </div>
+                <div className="dashboard__membership-row">
+                  <span>{__('Tiers')}</span>
+                  <span>{membershipTiers?.length || 0}</span>
+                </div>
+                <div className="dashboard__membership-row">
+                  <span>{__('Monthly')}</span>
+                  <span>{formatCurrency(monthlyIncome || 0)}</span>
+                </div>
+              </div>
+              <Button button="link" label={__('Manage Memberships')} navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} />
+            </div>
           )}
         </div>
-      )}
-    </React.Fragment>
+      </div>
+    </div>
   );
 }
