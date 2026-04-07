@@ -87,6 +87,9 @@ function buildEnvDefines() {
   defines['process.env.SDK_API_URL'] = JSON.stringify(process.env.SDK_API_URL || process.env.LBRY_WEB_API || '');
   defines['process.env.BUILD_REV'] = JSON.stringify(process.env.BUILD_REV || '');
   defines['process.env.SEARCH_API_URL'] = JSON.stringify(process.env.SEARCH_API_URL || '');
+  defines['process.env.DEV_CHANGELOG'] = JSON.stringify(
+    process.env.NODE_ENV === 'production' ? '' : process.env.DEV_CHANGELOG || ''
+  );
   return defines;
 }
 

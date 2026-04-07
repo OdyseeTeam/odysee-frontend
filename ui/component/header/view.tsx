@@ -295,8 +295,7 @@ const Header = (props: Props) => {
                 <Logo />
               </Button>
 
-              {/* @if process.env.DEV_CHANGELOG */}
-              {pathname === '/' && (
+              {pathname === '/' && process.env.NODE_ENV !== 'production' && process.env.DEV_CHANGELOG && (
                 <Button
                   title="Changelog"
                   className="header__changelog-button"
