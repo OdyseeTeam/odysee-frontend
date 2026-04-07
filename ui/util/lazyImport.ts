@@ -1,5 +1,6 @@
 import React from 'react';
 import * as ACTIONS from 'constants/action_types';
+import { reloadOnceForDynamicImportError } from 'util/importFailure';
 const RETRY_DELAY_MS = 3000;
 const RETRY_ATTEMPTS = 5;
 
@@ -13,6 +14,10 @@ function componentLoader<T extends React.ComponentType<any>>(
     lazyComponent()
       .then(resolve)
       .catch((error) => {
+        if (reloadOnceForDynamicImportError(error)) {
+          return;
+        }
+
         setTimeout(() => {
           if (attemptsLeft === 1) {
             window.store.dispatch({

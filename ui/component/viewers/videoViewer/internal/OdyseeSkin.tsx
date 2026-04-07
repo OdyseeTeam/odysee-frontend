@@ -21,6 +21,7 @@ import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
+import { isEmbedPath } from 'util/embed';
 import usePersistedState from 'effects/use-persisted-state';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -376,6 +377,7 @@ function SettingsMenuContent({
   const media = Player.useMedia();
   const rate = Player.usePlayer((s) => s.playbackRate) || 1;
   const rateLabel = `${rate}x`;
+  const isEmbeddedPlayback = Boolean(embedded || isEmbedPath(window.location.pathname));
 
   const handleSelectRate = useCallback(
     (r) => {
@@ -530,7 +532,7 @@ function SettingsMenuContent({
 
   return (
     <div key="main" className="media-settings-menu">
-      {!isMobileDevice && !embedded && !isShorts && (
+      {!isMobileDevice && !isEmbeddedPlayback && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleShowShortcuts}>
           <svg
             className="media-settings-menu__icon"
@@ -555,7 +557,7 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
         </button>
       )}
-      {!embedded && (
+      {!isEmbeddedPlayback && (
         <button
           type="button"
           className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
@@ -582,7 +584,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!embedded && (
+      {!isEmbeddedPlayback && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplay}>
           <svg
             className="media-settings-menu__icon"
@@ -605,7 +607,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!embedded && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
+      {!isEmbeddedPlayback && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
@@ -614,7 +616,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!embedded && !isShorts && (
+      {!isEmbeddedPlayback && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
           <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
           <span className="media-settings-menu__label">{__('Loop')}</span>
@@ -1011,6 +1013,7 @@ export default function OdyseeSkin(props) {
   const isShorts =
     !!document.querySelector('.shorts-page__container') ||
     !!document.querySelector('.content__viewer--shorts-floating');
+  const isEmbeddedPlayback = Boolean(embedded || isEmbedPath(window.location.pathname));
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showRemaining, setShowRemaining] = useState(false);
@@ -1373,7 +1376,7 @@ export default function OdyseeSkin(props) {
                     onCloseMenu={() => setSettingsOpen(false)}
                     quality={quality}
                     isFloating={isFloating}
-                    embedded={embedded}
+                    embedded={isEmbeddedPlayback}
                     isCasting={isCasting}
                   />
                 </Popover.Popup>
@@ -1496,7 +1499,7 @@ export default function OdyseeSkin(props) {
                     if (getFullscreenElement()) {
                       exitFullscreen();
                     } else {
-                      const target = embedded
+                      const target = isEmbeddedPlayback
                         ? e.currentTarget.closest('.video-js-parent')
                         : e.currentTarget.closest('.player-fullscreen-target');
                       if (target) requestFullscreen(target);
@@ -1852,7 +1855,7 @@ export default function OdyseeSkin(props) {
                     onCloseMenu={() => setSettingsOpen(false)}
                     quality={quality}
                     isFloating={isFloating}
-                    embedded={embedded}
+                    embedded={isEmbeddedPlayback}
                     isCasting={isCasting}
                   />
                 </Popover.Popup>
@@ -1894,7 +1897,7 @@ export default function OdyseeSkin(props) {
               )}
 
               {!isMobileDevice &&
-                !embedded &&
+                !isEmbeddedPlayback &&
                 !isFloating &&
                 !isMarkdownOrComment &&
                 typeof HTMLVideoElement.prototype.requestPictureInPicture === 'function' && (
@@ -1942,7 +1945,7 @@ export default function OdyseeSkin(props) {
                   </Tooltip.Root>
                 )}
 
-              {!isMarkdownOrComment && !embedded && !isFloating && onToggleTheaterMode && (
+              {!isMarkdownOrComment && !isEmbeddedPlayback && !isFloating && onToggleTheaterMode && (
                 <Tooltip.Root side="top">
                   <Tooltip.Trigger
                     render={
@@ -1977,7 +1980,7 @@ export default function OdyseeSkin(props) {
                           exitFullscreen();
                         } else {
                           const target = e.currentTarget.closest(
-                            embedded ? '.video-js-parent' : '.player-fullscreen-target'
+                            isEmbeddedPlayback ? '.video-js-parent' : '.player-fullscreen-target'
                           );
                           if (target) requestFullscreen(target);
                         }
@@ -2026,9 +2029,9 @@ export default function OdyseeSkin(props) {
         )}
       </Controls.Root>
 
-      {!embedded && <div className="media-overlay" />}
+      {!isEmbeddedPlayback && <div className="media-overlay" />}
 
-      {embedded && (
+      {isEmbeddedPlayback && (
         <div className="odysee-embed-header">
           <a
             className="odysee-embed-header__title"

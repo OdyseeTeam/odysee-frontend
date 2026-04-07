@@ -46,6 +46,7 @@ import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import withPlaybackUris from 'hocs/withPlaybackUris';
+import { isEmbedPath } from 'util/embed';
 
 function VideoViewerWithRedux(props: any) {
   const { uri, ...rest } = props;
@@ -54,6 +55,7 @@ function VideoViewerWithRedux(props: any) {
   const params = useParams();
   const navigate = useNavigate();
   const { search, pathname, hash } = location;
+  const isEmbeddedPlayback = Boolean(rest.embedded) || isEmbedPath(pathname);
 
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');
@@ -99,10 +101,12 @@ function VideoViewerWithRedux(props: any) {
   );
   const recomendedContent = useAppSelector((state) => selectRecommendedContentForUri(state, uri));
   const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
-  const isFloating = useAppSelector(selectIsPlayerFloating);
+  const isFloating = isEmbeddedPlayback ? false : useAppSelector(selectIsPlayerFloating);
   const autoplayNext =
     !isMarkdownOrComment && useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
-  const floatingPlayer = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER)) ?? true;
+  const floatingPlayer = isEmbeddedPlayback
+    ? false
+    : (useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER)) ?? true);
   const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
 
   const match = { params, path: pathname, url: pathname, isExact: true };
@@ -142,7 +146,7 @@ function VideoViewerWithRedux(props: any) {
     autoPlayNextShort,
     isFloating,
     floatingPlayer,
-    toggleFloatingPlayer: () => dispatch(toggleFloatingPlayer()),
+    toggleFloatingPlayer: isEmbeddedPlayback ? () => {} : () => dispatch(toggleFloatingPlayer()),
     autoplayMedia: autoplayMedia ?? true,
     toggleAutoplayMedia: () => dispatch(toggleAutoplayMedia()),
     doSyncLastPosition: (u: string, p: number) => {}, // TODO: wire to sync action

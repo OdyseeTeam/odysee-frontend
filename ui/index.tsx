@@ -47,6 +47,7 @@ import {
 } from 'redux/router';
 import { useAppDispatch } from 'redux/hooks';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
+import { reloadOnceForDynamicImportError } from 'util/importFailure';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -124,6 +125,13 @@ window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault(); // Prevent the error from being reported to Sentry
 
     console.warn('IndexedDB error (handled):', errorMessage);
+  }
+});
+window.addEventListener('vite:preloadError', (event) => {
+  const preloadEvent = event as Event & { payload?: unknown };
+
+  if (reloadOnceForDynamicImportError(preloadEvent.payload)) {
+    event.preventDefault();
   }
 });
 Lbry.setDaemonConnectionString(PROXY_URL);

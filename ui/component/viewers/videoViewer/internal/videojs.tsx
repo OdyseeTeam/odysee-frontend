@@ -32,6 +32,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { getLivestreamTurnServer } from 'constants/livestream';
 import type { MediaWithHls, HlsWithP2P, P2PHlsConfig } from './types';
+import { isEmbedPath } from 'util/embed';
 
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
@@ -172,6 +173,14 @@ type Props = {
   autoPlayNextShort?: boolean;
 };
 
+type AirPlayVideoElement = HTMLVideoElement & {
+  webkitShowPlaybackTargetPicker?: () => void;
+};
+
+type AirPlayAvailabilityEvent = Event & {
+  availability?: 'available' | 'not-available';
+};
+
 function VideoJsInner(props: Props) {
   const {
     claimId,
@@ -232,6 +241,7 @@ function VideoJsInner(props: Props) {
   });
   const containerRef = useRef(null);
   const videoRef = useRef(null);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
   const [p2pUiState, setP2PUiState] = useState({
@@ -376,8 +386,48 @@ function VideoJsInner(props: Props) {
   });
   useAnalytics();
   const { castAvailable, isCasting, castState, castActions } = useChromecast();
+  const [airPlayAvailable, setAirPlayAvailable] = useState(false);
   const castStateRef = useRef(castState);
   castStateRef.current = castState;
+  const embeddedPlayback = Boolean(embedded || embeddedInternal || isEmbedPath(window.location.pathname));
+
+  useEffect(() => {
+    if (!videoElement) {
+      setAirPlayAvailable(false);
+      return;
+    }
+
+    const airPlayVideoElement = videoElement as AirPlayVideoElement;
+    const hasAirPlayApi =
+      'WebKitPlaybackTargetAvailabilityEvent' in window &&
+      typeof airPlayVideoElement.webkitShowPlaybackTargetPicker === 'function';
+
+    if (!hasAirPlayApi) {
+      setAirPlayAvailable(false);
+      return;
+    }
+
+    setAirPlayAvailable(true);
+
+    const handleAirPlayAvailabilityChanged = (event: AirPlayAvailabilityEvent) => {
+      const { availability } = event;
+
+      if (availability === 'available' || availability === 'not-available') {
+        setAirPlayAvailable(availability === 'available');
+      }
+    };
+
+    videoElement.addEventListener(
+      'webkitplaybacktargetavailabilitychanged',
+      handleAirPlayAvailabilityChanged as EventListener
+    );
+
+    return () =>
+      videoElement.removeEventListener(
+        'webkitplaybacktargetavailabilitychanged',
+        handleAirPlayAvailabilityChanged as EventListener
+      );
+  }, [videoElement]);
 
   const onCastToggle = useCallback(() => {
     if (isCasting) {
@@ -388,11 +438,33 @@ function VideoJsInner(props: Props) {
         media.play();
       }
     } else {
+      const localVideo = (videoElement ||
+        (media instanceof HTMLVideoElement
+          ? media
+          : (media as Element | null)?.querySelector?.('video'))) as AirPlayVideoElement | null;
+
+      if (airPlayAvailable && localVideo && typeof localVideo.webkitShowPlaybackTargetPicker === 'function') {
+        localVideo.webkitShowPlaybackTargetPicker();
+        return;
+      }
+
       const cast = window.cast;
       const ctx = cast && cast.framework && cast.framework.CastContext && cast.framework.CastContext.getInstance();
       if (ctx) ctx.requestSession();
     }
-  }, [isCasting, castActions, media]);
+  }, [airPlayAvailable, castActions, isCasting, media, videoElement]);
+
+  const setVideoRef = useCallback(
+    (el: HTMLVideoElement | null) => {
+      (videoRef as any).current = el;
+      setVideoElement(el);
+      if (!el) return;
+      el.setAttribute('x-webkit-airplay', 'allow');
+      el.setAttribute('airplay', 'allow');
+      if (typeof el.requestPictureInPicture === 'function') el.disablePictureInPicture = embeddedPlayback;
+    },
+    [embeddedPlayback]
+  );
 
   const castLoadedSrcRef = useRef(null);
   const castSrc = resolvedSource ? resolvedSource.src : null;
@@ -937,9 +1009,9 @@ function VideoJsInner(props: Props) {
         title={title}
         description={claimValues?.description}
         isFloating={isFloating}
-        embedded={embedded}
+        embedded={embeddedPlayback}
         uri={uri}
-        castAvailable={castAvailable}
+        castAvailable={castAvailable || airPlayAvailable}
         isCasting={isCasting}
         onCastToggle={onCastToggle}
         castState={castState}
@@ -950,19 +1022,17 @@ function VideoJsInner(props: Props) {
 
         {resolvedSource && (
           <Video
-            ref={(el: HTMLVideoElement | null) => {
-              (videoRef as any).current = el;
-              if (el && typeof el.requestPictureInPicture === 'function') el.disablePictureInPicture = true;
-            }}
+            ref={setVideoRef}
             src={resolvedSource.src}
             poster={isAudio ? poster : ''}
             playsInline
+            disablePictureInPicture={embeddedPlayback || undefined}
             crossOrigin="anonymous"
             className={classnames({ livestreamPlayer: isLivestream })}
           ></Video>
         )}
 
-        {IS_MOBILE && !embedded && (
+        {IS_MOBILE && !embeddedPlayback && (
           <MobileTouchOverlay
             onPlayNext={playNext}
             onPlayPrevious={playPrevious}

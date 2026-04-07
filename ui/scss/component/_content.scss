@@ -1220,7 +1220,7 @@
   }
 }
 
-.content__cover > *:not(.content__cover-live-img) {
+.content__cover > *:not(.content__cover-live-img):not(.file-viewer__embedded-header) {
   position: relative;
   z-index: 1;
 }

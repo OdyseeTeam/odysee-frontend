@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
+import { isEmbedPath } from 'util/embed';
 import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
@@ -243,7 +244,7 @@ function App() {
   const rawReferrerParam = urlParams.get('r');
   const fromLbrytvParam = urlParams.get('sunset');
   const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
-  const embedPath = pathname.startsWith(EMBED_PATH);
+  const embedPath = isEmbedPath(pathname);
   const shouldHideNag = embedPath || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;

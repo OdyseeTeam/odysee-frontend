@@ -14,6 +14,7 @@ import { isClaimUnlisted } from 'util/claim';
 import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
+import { isEmbedPath } from 'util/embed';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const POSITION_SYNC_INTERVAL_MS = 30000;
@@ -155,7 +156,7 @@ function VideoViewer(props: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const embedContext = useContext(EmbedContext);
-  const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
+  const isEmbedded = Boolean(embedContext) || embedded || isEmbedPath(window.location.pathname);
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
   const [videoNode, setVideoNode] = useState<HTMLVideoElement | null>(null);
