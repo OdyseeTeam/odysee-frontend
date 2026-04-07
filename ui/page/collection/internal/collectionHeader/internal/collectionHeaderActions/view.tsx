@@ -23,6 +23,7 @@ import {
   selectCollectionIsPublishingForId,
   selectCollectionPublishErrorForId,
   selectCollectionHasEditsForId,
+  selectCollectionSavedForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
 import {
@@ -49,6 +50,7 @@ function CollectionHeaderActions(props: Props) {
   const isPublishing = useAppSelector((state) => selectCollectionIsPublishingForId(state, collectionId));
   const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
   const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
   const navigate = useNavigate();
   const isNotADefaultList = collectionId !== 'watchlater' && collectionId !== 'favorites';
   return (
@@ -146,8 +148,8 @@ function CollectionHeaderActions(props: Props) {
                   onSelect={() => dispatch(doToggleCollectionSavedForId(claimId))}
                 >
                   <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
-                    {__('Save')}
+                    <Icon aria-hidden icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD} />
+                    {collectionSavedForId ? __('Unsave') : __('Save')}
                   </div>
                 </MenuItem>
               )}
