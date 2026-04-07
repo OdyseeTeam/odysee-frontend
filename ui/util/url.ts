@@ -229,7 +229,13 @@ export const generateShortShareUrl = async (
   // -- Fetch the short url:
   const shortUrl = await ShortUrl.createFrom(urlToShorten.toString())
     .then((res: ShortUrlResponse) => {
-      return res.short_url;
+      const normalizedShortUrl = res.shortUrl || res.short_url;
+
+      if (!normalizedShortUrl) {
+        throw new Error('ShortUrl response missing url');
+      }
+
+      return normalizedShortUrl;
     })
     .catch((err) => {
       assert(false, 'ShortUrl api failed, returning original', err);
