@@ -47,7 +47,12 @@ package-lock.json
 analyzeResults*.html
 ecosystem.config.js
 
-.claude/settings.local.json
+### AI tools (user-specific) ###
+.claude/
+.cursor/
+
+### Scratch / temp ###
+.tmp/
 
 ### Local tooling ###
 .pnpm-store/
