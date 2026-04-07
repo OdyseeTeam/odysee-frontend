@@ -87,9 +87,9 @@ export default function CreatorAnalytics(props: Props) {
   const membershipTiers = useAppSelector((state) =>
     claimId ? selectMembershipTiersForCreatorId(state, claimId) : undefined
   );
-  const hasMemberships = membershipTiers && membershipTiers.length > 0;
   const monthlyIncome = useAppSelector((state) => (claimId ? selectMonthlyIncomeForChannelId(state, claimId) : 0));
   const supporterCount = useAppSelector((state) => (claimId ? selectSupportersAmountForChannelId(state, claimId) : 0));
+  const hasMemberships = membershipTiers && membershipTiers.length > 0 && (supporterCount > 0 || monthlyIncome > 0);
 
   const claimsById = useAppSelector(selectClaimsById);
   const [channelClaimIds, setChannelClaimIds] = React.useState<string[]>([]);
