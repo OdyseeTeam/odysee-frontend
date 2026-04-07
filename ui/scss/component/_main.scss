@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 body {
   overflow-x: hidden;
 }
@@ -260,16 +262,23 @@ body {
     .file-page__secondary-content {
       margin: 0;
       padding: 0;
+
+      @media (max-width: $breakpoint-small) and (orientation: landscape) {
+        padding: var(--spacing-xxs);
+      }
     }
 
     .card {
       border-radius: 0;
       margin-bottom: 0px !important;
-      padding: var(--spacing-xxs);
     }
 
     .file-page__recommended {
       margin-top: 0px !important;
+
+      @media (orientation: landscape) {
+        padding: var(--spacing-xxs);
+      }
     }
   }
 }
@@ -390,7 +399,7 @@ body {
     }
   }
 
-  @media (min-width: 1750px) {
+  @media (min-width: $breakpoint-desktop-wide) {
     padding: 0;
     width: 100%;
     max-width: var(--page-max-width--filepage);
@@ -414,8 +423,7 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s);
-    padding-top: 0;
+    padding: 0;
 
     .card {
       margin: 0;
@@ -755,10 +763,6 @@ body {
     background-color: var(--color-card-background);
     margin-bottom: 2rem;
   }
-
-  .sm:bg-grey-lighter {
-    background-color: var(--color-card-background);
-  }
 }
 
 .main--send {
@@ -827,6 +831,7 @@ body {
 .main--launching {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--color-background);
 }
 
@@ -941,15 +946,6 @@ body {
   fieldset-section,
   .checkbox {
     margin-bottom: var(--spacing-m);
-  }
-
-  .card--youtube-sync {
-    .nag--error.nag--relative {
-      left: 0;
-      right: 0;
-      bottom: auto;
-      margin-top: var(--spacing-s);
-    }
   }
 }
 

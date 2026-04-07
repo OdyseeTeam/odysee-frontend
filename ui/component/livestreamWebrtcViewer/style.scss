@@ -1,0 +1,142 @@
+@import 'init/breakpoints';
+
+.webrtc-viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
+
+  // When inside the floating player wrapper, fill it completely
+  .content__viewer--floating & {
+    aspect-ratio: unset;
+    height: 100%;
+  }
+}
+
+.webrtc-viewer__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+// ---- Overlays (connecting / error) ----
+.webrtc-viewer__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-s);
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2;
+}
+
+.webrtc-viewer__overlay-text {
+  margin: 0;
+  font-size: var(--font-small);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.webrtc-viewer__overlay-sub {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  max-width: 20rem;
+  text-align: center;
+}
+
+.webrtc-viewer__overlay-btn {
+  margin-top: var(--spacing-xs);
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+}
+
+.webrtc-viewer__spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: webrtc-viewer-spin 0.7s linear infinite;
+}
+
+// ---- Top bar (badge + exit) ----
+.webrtc-viewer__top-bar {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+
+  .webrtc-viewer:hover & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.webrtc-viewer__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(var(--color-primary-dynamic), 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.webrtc-viewer__exit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+@keyframes webrtc-viewer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: $breakpoint-small) {
+  .webrtc-viewer__top-bar {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

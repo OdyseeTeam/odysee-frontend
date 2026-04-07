@@ -48,7 +48,8 @@
 }
 
 @keyframes vertical-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -59,7 +60,8 @@
 }
 
 @keyframes vertical-fade {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
   }
   50% {

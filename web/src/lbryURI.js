@@ -1,22 +1,19 @@
 // Disabled flow in this copy. This copy is for uncompiled web server ES5 require()s.
-
 // Placeholder until i18n can be adapted for node usage
 const __ = (msg) => msg;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
-
 // see https://spec.lbry.com/#urls
 const regexInvalidURI =
-  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u; // eslint-disable-line no-control-regex
 // const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
-const regexPartModifierSeparator = '([:$#]?)([^/]*)';
+const regexPartModifierSeparator = '([:$#]?)([0-9a-f]*)';
 const queryStringBreaker = '^([\\S]+)([?][\\S]*)';
 const separateQuerystring = new RegExp(queryStringBreaker);
-
 const MOD_SEQUENCE_SEPARATOR = '*';
 const MOD_CLAIM_ID_SEPARATOR_OLD = '#';
 const MOD_CLAIM_ID_SEPARATOR = ':';
@@ -38,10 +35,8 @@ const MOD_BID_POSITION_SEPARATOR = '$';
  *   - primaryBidPosition (int, if present)
  *   - secondaryBidPosition (int, if present)
  */
-
 function parseURI(url, requireProto = false) {
   // Break into components. Empty sub-matches are converted to null
-
   const componentsRegex = new RegExp(
     regexPartProtocol + // protocol
       regexPartStreamOrChannelName + // stream or channel name (stops at the first separator or end)
@@ -53,6 +48,7 @@ function parseURI(url, requireProto = false) {
   // chop off the querystring first
   let QSStrippedURL, qs;
   const qsRegexResult = separateQuerystring.exec(url);
+
   if (qsRegexResult) {
     [QSStrippedURL, qs] = qsRegexResult.slice(1).map((match) => match || null);
   }
@@ -70,7 +66,7 @@ function parseURI(url, requireProto = false) {
     secondaryModSeparator,
     secondaryModValue,
   ] = rest;
-  const primaryModValue = rawPrimaryModValue && rawPrimaryModValue.replace(/[^\x00-\x7F]/g, '');
+  const primaryModValue = rawPrimaryModValue && rawPrimaryModValue.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   const searchParams = new URLSearchParams(qs || '');
   const startTime = searchParams.get('t');
 
@@ -89,7 +85,6 @@ function parseURI(url, requireProto = false) {
       throw new Error(__('URL can not include a space'));
     }
   });
-
   const includesChannel = streamNameOrChannelName.startsWith('@');
   const isChannel = streamNameOrChannelName.startsWith('@') && !possibleStreamName;
   const channelName = includesChannel && streamNameOrChannelName.slice(1);
@@ -121,27 +116,73 @@ function parseURI(url, requireProto = false) {
   const streamClaimId = includesChannel ? secondaryClaimId : primaryClaimId;
   const channelClaimId = includesChannel && primaryClaimId;
   const pathHash = primaryPathHash || secondaryPathHash;
-
   return {
     isChannel,
     path,
-    ...(streamName ? { streamName } : {}),
-    ...(streamClaimId ? { streamClaimId } : {}),
-    ...(channelName ? { channelName } : {}),
-    ...(channelClaimId ? { channelClaimId } : {}),
-    ...(primaryClaimSequence ? { primaryClaimSequence: parseInt(primaryClaimSequence, 10) } : {}),
-    ...(secondaryClaimSequence ? { secondaryClaimSequence: parseInt(secondaryClaimSequence, 10) } : {}),
-    ...(primaryBidPosition ? { primaryBidPosition: parseInt(primaryBidPosition, 10) } : {}),
-    ...(secondaryBidPosition ? { secondaryBidPosition: parseInt(secondaryBidPosition, 10) } : {}),
-    ...(startTime ? { startTime: parseInt(startTime, 10) } : {}),
-    ...(pathHash ? { pathHash } : {}),
-
+    ...(streamName
+      ? {
+          streamName,
+        }
+      : {}),
+    ...(streamClaimId
+      ? {
+          streamClaimId,
+        }
+      : {}),
+    ...(channelName
+      ? {
+          channelName,
+        }
+      : {}),
+    ...(channelClaimId
+      ? {
+          channelClaimId,
+        }
+      : {}),
+    ...(primaryClaimSequence
+      ? {
+          primaryClaimSequence: parseInt(primaryClaimSequence, 10),
+        }
+      : {}),
+    ...(secondaryClaimSequence
+      ? {
+          secondaryClaimSequence: parseInt(secondaryClaimSequence, 10),
+        }
+      : {}),
+    ...(primaryBidPosition
+      ? {
+          primaryBidPosition: parseInt(primaryBidPosition, 10),
+        }
+      : {}),
+    ...(secondaryBidPosition
+      ? {
+          secondaryBidPosition: parseInt(secondaryBidPosition, 10),
+        }
+      : {}),
+    ...(startTime
+      ? {
+          startTime: parseInt(startTime, 10),
+        }
+      : {}),
+    ...(pathHash
+      ? {
+          pathHash,
+        }
+      : {}),
     // The values below should not be used for new uses of parseURI
     // They will not work properly with canonical_urls
     claimName: streamNameOrChannelName,
     claimId: primaryClaimId,
-    ...(streamName ? { contentName: streamName } : {}),
-    ...(qs ? { queryString: qs } : {}),
+    ...(streamName
+      ? {
+          contentName: streamName,
+        }
+      : {}),
+    ...(qs
+      ? {
+          queryString: qs,
+        }
+      : {}),
   };
 }
 
@@ -153,7 +194,11 @@ function parseURIModifier(modSeperator, modValue) {
 
   if (modSeperator) {
     if (!modValue) {
-      throw new Error(__(`No modifier provided after separator ${modSeperator}.`, { modSeperator }));
+      throw new Error(
+        __(`No modifier provided after separator ${modSeperator}.`, {
+          modSeperator,
+        })
+      );
     }
 
     if (modSeperator === MOD_CLAIM_ID_SEPARATOR || MOD_CLAIM_ID_SEPARATOR_OLD) {
@@ -175,8 +220,16 @@ function parseURIModifier(modSeperator, modValue) {
       // validate the new claimId length and characters again after stripping off the pathHash
       [claimId] = parseURIModifier(modSeperator, claimId);
     } else {
-      console.log({ modSeperator, modValue }); // eslint-disable-line no-console
-      throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
+      console.log({
+        modSeperator,
+        modValue,
+      }); // eslint-disable-line no-console
+
+      throw new Error(
+        __(`Invalid claim ID %claimId%.`, {
+          claimId,
+        })
+      );
     }
   }
 
@@ -216,9 +269,11 @@ function buildURI(UrlObj, suppressErrors = false, includeProto = true, protoDefa
       if (claimId) {
         console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")); // eslint-disable-line no-console
       }
+
       if (claimName) {
         console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead")); // eslint-disable-line no-console
       }
+
       if (contentName) {
         console.error(__("'contentName' should no longer be used. Use 'streamName' instead")); // eslint-disable-line no-console
       }
@@ -237,11 +292,8 @@ function buildURI(UrlObj, suppressErrors = false, includeProto = true, protoDefa
   const primaryClaimId = claimId || (formattedChannelName ? channelClaimId : streamClaimId);
   const secondaryClaimName = (!claimName && contentName) || (formattedChannelName ? streamName : null);
   const secondaryClaimId = secondaryClaimName && streamClaimId;
-
   return (
-    (includeProto ? protoDefault : '') +
-    // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
-    // $FlowFixMe
+    (includeProto ? protoDefault : '') + // primaryClaimName will always exist here because we throw above if there is no "name" value passed in
     primaryClaimName +
     (primaryClaimId ? `#${primaryClaimId}` : '') +
     (primaryClaimSequence ? `:${primaryClaimSequence}` : '') +
@@ -267,7 +319,6 @@ function normalizeURI(URL) {
     secondaryBidPosition,
     startTime,
   } = parseURI(URL);
-
   return buildURI({
     streamName,
     streamClaimId,
@@ -297,6 +348,7 @@ function isNameValid(claimName) {
 
 function isURIClaimable(URL) {
   let parts;
+
   try {
     parts = parseURI(normalizeURI(URL));
   } catch (error) {
@@ -344,6 +396,7 @@ function splitBySeparator(uri) {
 function isURIEqual(uriA, uriB) {
   const parseA = parseURI(normalizeURI(uriA));
   const parseB = parseURI(normalizeURI(uriB));
+
   if (parseA.isChannel) {
     if (parseB.isChannel && parseA.channelClaimId === parseB.channelClaimId) {
       return true;

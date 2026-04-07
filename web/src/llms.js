@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+
 const path = require('path');
 
 const LLMS_TXT_PATH = path.resolve(__dirname, '../../llms.txt');
@@ -11,4 +12,6 @@ async function getLlmsTxt() {
   }
 }
 
-module.exports = { getLlmsTxt };
+module.exports = {
+  getLlmsTxt,
+};

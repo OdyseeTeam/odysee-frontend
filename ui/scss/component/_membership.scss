@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 /** CONFIRM / CANCEL PREMIUM MODAL **/
 
 .stripe__confirm-remove-membership {
@@ -471,7 +473,7 @@
 
   .membership-tier__header {
     position: relative;
-    background-image: url('~static/img/spaceman_pattern.png');
+    background-image: url('/img/spaceman_pattern.png');
     background-size: 34px;
     padding: var(--spacing-m);
     width: 100%;
@@ -556,7 +558,7 @@
     }
   }
 
-  @media (max-width: 1000px) {
+  @media (max-width: $breakpoint-small-plus) {
     flex-basis: 66%;
   }
 
@@ -759,8 +761,8 @@
     padding-right: 0 !important;
     width: 50px;
     .channel-thumbnail__custom {
-      position:absolute;
-      top:0;
+      position: absolute;
+      top: 0;
       height: 100%;
     }
     .channel-thumbnail--xxsmall {
@@ -822,8 +824,8 @@
     padding-right: 0 !important;
     width: 50px;
     .channel-thumbnail__custom {
-      position:absolute;
-      top:0;
+      position: absolute;
+      top: 0;
       height: 100%;
     }
     .channel-thumbnail--xxsmall {
@@ -1008,7 +1010,7 @@
 
   .membership__plan-header {
     padding: var(--spacing-m);
-    background-image: url('~static/img/spaceman_pattern.png');
+    background-image: url('/img/spaceman_pattern.png');
     background-size: 34px;
     span {
       padding: var(--spacing-xxs);
@@ -1023,7 +1025,7 @@
     background-color: rgba(var(--color-header-button-base), 0.6);
     padding: var(--spacing-m);
     box-sizing: border-box;
-    margin-bottom:var(--spacing-l);
+    margin-bottom: var(--spacing-l);
 
     div {
       margin-bottom: var(--spacing-s);
@@ -1049,7 +1051,7 @@
   }
 
   .membership__plan-actions {
-    display:flex;
+    display: flex;
     margin-top: var(--spacing-l);
   }
 }

@@ -1,0 +1,30 @@
+.space-invaders__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.space-invaders__modal {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(247, 121, 55, 0.3);
+}
+
+.space-invaders__canvas {
+  display: block;
+}
+
+.space-invaders__controls {
+  background: #111;
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: monospace;
+}

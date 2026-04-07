@@ -1,0 +1,65 @@
+import { useLocation } from 'react-router-dom';
+import { SEARCH_IN_LANGUAGE } from 'constants/hashes';
+import { SETTINGS_GRP } from 'constants/settings';
+import React from 'react';
+import * as SETTINGS from 'constants/settings';
+import Card from 'component/common/card';
+import { FormField } from 'component/common/form';
+import HomepageSelector from 'component/homepageSelector';
+import SettingLanguage from 'component/settingLanguage';
+import SettingsRow from 'component/settingsRow';
+import ThemeSelector from 'component/themeSelector';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectClientSetting, selectHomepageKeys } from 'redux/selectors/settings';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doSetClientSetting } from 'redux/actions/settings';
+
+export default function SettingAppearance() {
+  const dispatch = useAppDispatch();
+  const clock24h = useAppSelector((state) => selectClientSetting(state, SETTINGS.CLOCK_24H));
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const homepageKeys = useAppSelector(selectHomepageKeys);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const hideBalance = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_BALANCE));
+  const hideTitleNotificationCount = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT));
+  const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
+  const setSearchInLanguage = (value: boolean) => dispatch(doSetClientSetting(SETTINGS.SEARCH_IN_LANGUAGE, value));
+  const { hash } = useLocation();
+  const highlightSearchInLanguage = hash === `#${SEARCH_IN_LANGUAGE}`;
+  return <>
+      <Card id={SETTINGS_GRP.APPEARANCE} title={__('Appearance')} background isBodyList body={<>
+            {homepageKeys.length > 1 && <SettingsRow title={__('Homepage')} subtitle={__('Tailor your experience.')}>
+                <HomepageSelector />
+              </SettingsRow>}
+
+            <SettingsRow title={__('Language')} subtitle={__(HELP.LANGUAGE)}>
+              <SettingLanguage />
+            </SettingsRow>
+
+            <SettingsRow title={__('Search only in the selected language by default')} highlighted={highlightSearchInLanguage}>
+              <FormField name="search-in-language" type="checkbox" checked={searchInLanguage} onChange={() => setSearchInLanguage(!searchInLanguage)} />
+            </SettingsRow>
+
+            <SettingsRow title={__('Theme')}>
+              <ThemeSelector />
+            </SettingsRow>
+
+            <SettingsRow title={__('24-hour clock')}>
+              <FormField type="checkbox" name="clock24h" onChange={() => setClientSetting(SETTINGS.CLOCK_24H, !clock24h)} checked={clock24h} />
+            </SettingsRow>
+
+            {(isAuthenticated || !IS_WEB) && <SettingsRow title={__('Hide wallet balance in header')}>
+                <FormField type="checkbox" name="hide_balance" onChange={() => setClientSetting(SETTINGS.HIDE_BALANCE, !hideBalance)} checked={hideBalance} />
+              </SettingsRow>}
+
+            <SettingsRow title={__('Hide notification count in title bar')}>
+              <FormField type="checkbox" name="hide_title_notification_count" onChange={() => setClientSetting(SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT, !hideTitleNotificationCount)} checked={hideTitleNotificationCount} />
+            </SettingsRow>
+          </>} />
+    </>;
+} // prettier-ignore
+
+const HELP = {
+  LANGUAGE:
+    'Multi-language support is community-driven and may be incomplete for some languages. Switching your language may have unintended consequences, like glossolalia.',
+};

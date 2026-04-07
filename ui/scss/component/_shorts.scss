@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .shorts-transition-preview {
   --shorts-preview-translate-x: calc(-50% - 6px);
   position: fixed;
@@ -19,11 +21,11 @@
   &--panel-open {
     --shorts-preview-translate-x: -130%;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       left: 20px;
       width: 350px !important;
@@ -44,11 +46,11 @@
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+  @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     --shorts-preview-translate-x: 0;
     left: 0;
     width: 100vw;
@@ -81,12 +83,12 @@
   &--panel-open {
     --shorts-preview-translate-x: -130%;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       width: 350px !important;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       --shorts-preview-translate-x: 0;
       left: 20px;
       width: 350px !important;
@@ -107,11 +109,11 @@
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+  @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
     width: var(--shorts-viewer-width, var(--shorts-viewer-width-default));
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     --shorts-preview-translate-x: 0;
     left: 0;
     width: 100vw;
@@ -160,7 +162,7 @@
 
 .shorts-page,
 .main--shorts-page {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     & ~ .header,
     & + .header {
       background-color: transparent !important;
@@ -172,9 +174,11 @@
 
 body:has(.shorts-page),
 body:has(.main--shorts-page) {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .header {
-      transition: background-color var(--resizing-animation-timing), backdrop-filter var(--resizing-animation-timing),
+      transition:
+        background-color var(--resizing-animation-timing),
+        backdrop-filter var(--resizing-animation-timing),
         -webkit-backdrop-filter var(--resizing-animation-timing);
     }
   }
@@ -182,7 +186,7 @@ body:has(.main--shorts-page) {
 
 body:has(.shorts-page):not(:has(.navigation__overlay--active)),
 body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .header {
       background-color: transparent !important;
       backdrop-filter: none !important;
@@ -222,6 +226,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 .shorts-page__video-container {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   position: relative;
   display: flex;
   align-items: center;
@@ -234,13 +239,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   right: -720px;
   width: 720px;
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   background: var(--color-card-background);
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
   display: flex;
   flex-direction: column;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-  padding-top: 10px;
+  padding-top: 0;
   isolation: isolate !important;
 }
 
@@ -260,8 +266,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 10px;
-  padding: 10px 20px;
+  margin-top: 0;
+  padding: 5px 20px;
 }
 
 .shorts-page__close-button {
@@ -273,7 +279,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     background: var(--color-button-secondary-bg-hover);
     border-radius: 5px;
   }
-  @media screen and (max-width: 1020px) {
+  @media screen and (max-width: $breakpoint-shorts) {
     background: transparent;
     border: none;
     color: var(--color-text);
@@ -349,14 +355,18 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
   }
 
-  @media (max-width: 1180px) and (min-width: 1020px) {
+  .shorts-page__navigation:not(.shorts-page__navigation--mobile-desktop) {
+    display: none;
+  }
+
+  @media (max-width: $breakpoint-shorts-large) and (min-width: $breakpoint-shorts) {
     .menu__button {
       right: calc(50% - 500px / 2 + 270px - 60px);
     }
   }
 }
 
-@media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+@media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
   .shorts-page__back-button {
     left: calc(50% - 390px / 2 - 60px);
   }
@@ -383,7 +393,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   padding-bottom: 0;
   overflow: hidden;
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     right: 10px;
   }
 
@@ -392,7 +402,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     bottom: 0;
     height: auto;
     margin-top: 0;
-    padding-bottom: 60px;
+    padding-bottom: 80px;
   }
 
   @media (pointer: coarse) {
@@ -504,7 +514,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   p {
     font-size: 0.7rem;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
     }
   }
@@ -530,7 +540,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     font-size: 0.7rem;
     line-height: 1.8;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.833);
     }
   }
@@ -549,7 +559,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     left: calc(54% - 85vw / 2 - 60px);
   }
 
-  @media (max-width: 1400px) and (min-width: 1020px) {
+  @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       left: calc(403px - var(--spacing-xs)) !important;
       right: auto !important;
@@ -578,19 +588,19 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (min-height: 750px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (min-height: 750px) {
     .shorts-page__navigation {
       left: 300px !important;
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (min-height: 850px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (min-height: 850px) {
     .shorts-page__navigation {
       left: calc(var(--shorts-viewer-width-default) - 50px) !important;
     }
   }
 
-  @media (max-width: 1150px) and (min-width: 1020px) and (max-height: 750px) {
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-shorts) and (max-height: 750px) {
     .shorts-page__navigation {
       left: 270px !important;
       padding-bottom: 70px !important;
@@ -600,6 +610,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts-page--blocked {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -607,7 +618,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   background: var(--color-background);
 }
 
-@media (max-width: 1400px) and (min-width: 1020px) {
+@media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
   .shorts-page__side-panel {
     width: min(calc(100vw - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) - 40px), 640px);
     right: calc(var(--shorts-viewer-width, var(--shorts-viewer-width-default)) + 40px - 100vw);
@@ -626,7 +637,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 .shorts-page__container--panel-open {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       right: 15px;
     }
@@ -636,14 +647,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+@media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
   .shorts-page__navigation {
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 60px);
   }
 }
 
 .shorts-page__container--panel-open {
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .shorts-page__navigation {
       right: 15px;
     }
@@ -704,8 +715,12 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       border-radius: 30px;
       padding: 2px;
       background: var(--ratings-gradient, linear-gradient(to bottom, var(--color-fire) 35%, var(--color-slime) 65%));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
@@ -736,7 +751,9 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 
   .shorts-page__actions-button {
-    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    transition:
+      opacity 0.2s ease-in-out,
+      visibility 0.2s ease-in-out;
 
     &--hidden {
       opacity: 0.3;
@@ -780,6 +797,10 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     overflow: visible;
     width: fit-content;
     right: calc(50% - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) / 2 - 110px);
+
+    @media (max-width: $breakpoint-shorts) {
+      right: 10px;
+    }
   }
 
   .shorts-page__actions-button--info {
@@ -916,13 +937,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   }
 }
 
-@media (max-width: 1050px) {
+@media (max-width: $breakpoint-shorts-medium) {
   .shorts-page__view-toggle {
     display: none;
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: $breakpoint-shorts) {
   .shorts-page__view-toggle {
     display: none;
   }
@@ -939,8 +960,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     display: flex;
     gap: 8px;
     pointer-events: auto;
-    transition: opacity 300ms ease;
-    animation: toggle-fade-in 300ms ease;
+    transition: opacity 100ms ease-out;
 
     &.shorts-page__view-toggle--hidden {
       opacity: 0 !important;
@@ -976,14 +996,14 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 .shorts__viewer {
   .shorts-page__view-toggle--overlay {
-    @media (min-width: 1020px) {
+    @media (min-width: $breakpoint-shorts) {
       opacity: 0;
-      transition: opacity 200ms ease;
+      transition: opacity 100ms ease-out;
     }
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: $breakpoint-shorts) {
   .shorts__viewer,
   .content__cover--shorts {
     .shorts-page__view-toggle--overlay {
@@ -1041,17 +1061,17 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     &.content__cover--panel-open {
       transform: translate(-130%, 0%) !important;
 
-      @media (max-width: 1020px) {
+      @media (max-width: $breakpoint-shorts) {
         transform: none !important;
       }
 
-      @media (max-width: 1400px) and (min-width: 1020px) {
+      @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
         left: 20px !important;
         transform: none !important;
       }
     }
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       width: 100vw !important;
       height: 100vh !important;
       height: 100svh !important;
@@ -1072,17 +1092,17 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
 
-    @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+    @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
       width: 350px !important;
     }
     &.content__cover--side-panel-open {
       transform: translate(-130%, 0%) !important;
 
-      @media (max-width: 1020px) {
+      @media (max-width: $breakpoint-shorts) {
         transform: none !important;
       }
 
-      @media (max-width: 1400px) and (min-width: 1020px) {
+      @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
         left: 20px !important;
         transform: none !important;
       }
@@ -1162,5 +1182,120 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     opacity: 0;
     top: -50%;
     transform: translateX(0) scale(0.5);
+  }
+}
+
+.shorts-page__container:fullscreen,
+html.ios-fullscreen .shorts-page__container {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  inset: 0 !important;
+
+  .shorts-page__main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .shorts-page__video-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: relative;
+
+    > .shorts-page__video-section {
+      display: none;
+    }
+  }
+
+  .shorts__viewer {
+    height: 100% !important;
+    width: auto !important;
+    aspect-ratio: 9 / 16;
+    max-height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    position: relative !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+
+    video {
+      object-fit: contain !important;
+    }
+
+    .media-default-skin {
+      border-radius: 0;
+    }
+  }
+
+  .shorts-page__navigation {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease-out 500ms;
+  }
+
+  &:has(.media-controls[data-visible]),
+  &:has([data-paused]) {
+    .shorts-page__navigation {
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 100ms ease-out;
+    }
+  }
+
+  .shorts-page__side-panel {
+    top: 0;
+    height: 100%;
+    z-index: 200;
+  }
+
+  .shorts-page__main-content {
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .shorts-page__navigation {
+    transition:
+      opacity 300ms ease-out 500ms,
+      right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:has(.media-controls[data-visible]) .shorts-page__navigation,
+  &:has([data-paused]) .shorts-page__navigation {
+    transition:
+      opacity 100ms ease-out,
+      right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &.shorts-page__container--panel-open {
+    .shorts-page__main-content {
+      margin-right: 720px;
+    }
+
+    .shorts-page__navigation {
+      right: 744px;
+    }
   }
 }

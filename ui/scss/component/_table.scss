@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .table {
   width: 100%;
   position: relative;
@@ -136,7 +138,7 @@ td {
   .channelName-header {
     width: 160px;
   }
-  .transactionType-header{
+  .transactionType-header {
     max-width: 160px;
   }
   .amount-header {

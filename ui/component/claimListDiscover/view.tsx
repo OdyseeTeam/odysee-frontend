@@ -1,0 +1,910 @@
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import * as CS from 'constants/claim_search';
+import * as TAGS from 'constants/tags';
+import React from 'react';
+import { MATURE_TAGS } from 'constants/tags';
+import { resolveLangForClaimSearch } from 'util/default-languages';
+import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptHelper } from 'util/claim-search';
+import Button from 'component/button';
+import dayjs from 'util/dayjs';
+import ClaimList from 'component/claimList';
+import ClaimPreview from 'component/claimPreview';
+import ClaimPreviewTile from 'component/claimPreviewTile';
+import I18nMessage from 'component/i18nMessage';
+import LangFilterIndicator from 'component/langFilterIndicator';
+import ClaimListHeader from 'component/claimListHeader';
+import { useIsLargeScreen } from 'effects/use-screensize';
+import usePersistentUserParam from 'effects/use-persistent-user-param';
+import usePersistedState from 'effects/use-persisted-state';
+import type { HomepageTitles } from 'util/buildHomepage';
+import * as SETTINGS from 'constants/settings';
+import { NavigationType, useLocation, useNavigationType } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectById,
+  selectClaimsByUri,
+  selectClaimSearchByQuery,
+  selectClaimSearchByQueryLastPageReached,
+  selectFetchingClaimSearch,
+} from 'redux/selectors/claims';
+import {
+  doClaimSearch as doClaimSearchAction,
+  doResolveClaimIds as doResolveClaimIdsAction,
+  doResolveUris as doResolveUrisAction,
+} from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForCollectionIdsAction } from 'redux/actions/collections';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
+import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChannelIdsAction } from 'redux/actions/memberships';
+import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
+
+function resolveHideMembersOnly(global: any, override: any) {
+  return override === undefined || override === null ? global : override;
+}
+type Props = {
+  uris?: Array<string>;
+  prefixUris?: Array<string>;
+  pins?: {
+    urls?: Array<string>;
+    claimIds?: Array<string>;
+    onlyPinForOrder?: string;
+  };
+  name?: string;
+  type?: string;
+  pageSize?: number;
+  duration?: string;
+  fetchViewCount?: boolean;
+  hideMembersOnly?: boolean;
+  // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
+  hideRepostsOverride?: boolean;
+  // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this override.
+  hasNoSource?: boolean;
+  hasSource?: boolean;
+  hideAdvancedFilter?: boolean;
+  hideFilters?: boolean;
+  includeSupportAction?: boolean;
+  infiniteScroll?: boolean;
+  isChannel?: boolean;
+  personalView?: boolean;
+  showHeader?: boolean;
+  showHiddenByUser?: boolean;
+  showNoSourceClaims?: boolean;
+  tileLayout?: boolean;
+  searchLanguages?: Array<string>;
+  ignoreSearchInLanguage?: boolean;
+  // Negate the redux setting where it doesn't make sense.
+  orderBy?: Array<string>;
+  // Trending, New, Top
+  defaultOrderBy?: string;
+  sortBy?: Array<string>;
+  // Newest First, Oldest First
+  freshness?: string;
+  defaultFreshness?: string;
+  tags?: string;
+  // these are just going to be string. pass a CSV if you want multi
+  notTags?: Array<string>;
+  defaultTags?: string;
+  claimType?: string | Array<string>;
+  defaultClaimType?: Array<string>;
+  streamType?: string | Array<string>;
+  defaultStreamType?: string | Array<string>;
+  contentType?: string;
+  empty?: string;
+  feeAmount?: string;
+  releaseTime?: string;
+  repostedClaimId?: string;
+  scrollAnchor?: string;
+  maxPages?: number;
+  limitClaimsPerChannel?: number;
+  channelIds?: Array<string>;
+  excludedChannelIds?: Array<string>;
+  claimIds?: Array<string>;
+  subscribedChannels?: Array<Subscription>;
+  header?: React.ReactNode;
+  headerLabel?: string | React.ReactNode;
+  hiddenNsfwMessage?: React.ReactNode;
+  injectedItem?: ListInjectedItem;
+  meta?: React.ReactNode;
+  subSection?: React.ReactNode;
+  // Additional section below [Header|Meta]
+  renderProperties?: (arg0: Claim) => React.ReactNode;
+  csOptionsHook?: (options: any) => any;
+  // Final client-side tweak of Claim Search options.
+  expandFilters?: boolean;
+  loading?: any;
+  hideLayoutButton?: boolean;
+  loadedCallback?: (arg0: number) => void;
+  maxClaimRender?: number;
+  useSkeletonScreen?: boolean;
+  excludeUris?: Array<string>;
+  isShortFromChannelPage?: boolean;
+  sectionTitle?: HomepageTitles;
+  contentAspectRatio?: string;
+  excludeShortsAspectRatio?: boolean;
+  channelIsMine?: boolean | Claim;
+};
+
+function getNonPaginationOptionsKey(options) {
+  const normalizedOptions = { ...options };
+  normalizedOptions.page = -1;
+  normalizedOptions.release_time = '';
+  return JSON.stringify(normalizedOptions);
+}
+
+function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
+  if (hideRepostOverride === undefined || hideRepostOverride === null) {
+    return hideRepostSetting;
+  } else {
+    return hideRepostOverride;
+  }
+}
+
+function injectPinUrls(uris: any, order: any, pins: any, resolvedPinUris: any) {
+  // TODO/BEWARE if you are editing this function.
+  //
+  // This function probably does not handle all clients correctly. It's mixing
+  // mutable and immutable changes, AND there are both clients that take the
+  // return value and ones that don't.
+  //
+  // It needs to sync up with ClaimTilesDiscover, or wait until the
+  // consolidation task.
+  if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+    return uris;
+  }
+
+  if (resolvedPinUris) {
+    if (uris.length < resolvedPinUris.length) {
+      return uris.concat(resolvedPinUris);
+    }
+
+    resolvedPinUris.forEach((pin) => {
+      if (uris.includes(pin)) {
+        uris.splice(uris.indexOf(pin), 1);
+      }
+    });
+    uris.splice(2, 0, ...resolvedPinUris);
+    return uris;
+  }
+
+  return uris;
+}
+
+function filterExcludedUris(uris: any, excludeUris: any) {
+  if (uris && excludeUris && excludeUris.length) {
+    return uris.filter((uri: any) => !excludeUris.includes(uri));
+  }
+
+  return uris;
+}
+
+function ClaimListDiscover(props: Props) {
+  const {
+    showHeader = true,
+    type,
+    duration,
+    tags,
+    notTags,
+    defaultTags,
+    meta,
+    subSection,
+    channelIds,
+    excludedChannelIds,
+    fetchViewCount,
+    hiddenNsfwMessage,
+    defaultOrderBy,
+    sortBy,
+    orderBy,
+    headerLabel,
+    header,
+    name,
+    claimType,
+    defaultClaimType,
+    streamType,
+    defaultStreamType,
+    contentType,
+    freshness,
+    defaultFreshness = CS.FRESH_WEEK,
+    renderProperties,
+    csOptionsHook,
+    includeSupportAction,
+    repostedClaimId,
+    hideAdvancedFilter,
+    infiniteScroll = true,
+    injectedItem,
+    feeAmount,
+    uris,
+    prefixUris,
+    pins,
+    tileLayout,
+    hideFilters = false,
+    claimIds,
+    maxPages,
+    hideRepostsOverride,
+    searchLanguages,
+    ignoreSearchInLanguage,
+    limitClaimsPerChannel,
+    releaseTime,
+    scrollAnchor,
+    showHiddenByUser = false,
+    hasSource,
+    hasNoSource,
+    isChannel = false,
+    showNoSourceClaims,
+    empty,
+    hideLayoutButton = false,
+    loadedCallback,
+    maxClaimRender,
+    useSkeletonScreen = true,
+    excludeUris = [],
+    isShortFromChannelPage,
+    sectionTitle,
+    contentAspectRatio,
+    excludeShortsAspectRatio,
+  } = props;
+
+  const dispatch = useAppDispatch();
+  // -- redux selectors --
+  const followedTags = useAppSelector(selectFollowedTags);
+  const claimSearchByQuery = useAppSelector(selectClaimSearchByQuery);
+  const claimSearchByQueryLastPageReached = useAppSelector(selectClaimSearchByQueryLastPageReached);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const claimsById = useAppSelector(selectById);
+  const loading = props.loading !== undefined ? props.loading : useAppSelector(selectFetchingClaimSearch);
+  const showNsfw = useAppSelector(selectShowMatureContent);
+  const hideMembersOnly = resolveHideMembersOnly(
+    useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT)),
+    props.hideMembersOnly
+  );
+  const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const languageSetting = useAppSelector(selectLanguage);
+  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  // -- dispatch --
+  const doClaimSearch = React.useCallback(
+    (o: ClaimSearchOptions, s?: DoClaimSearchSettings | null) => dispatch(doClaimSearchAction(o, s)),
+    [dispatch]
+  );
+  const doFetchOdyseeMembershipForChannelIds = React.useCallback(
+    (ids: ClaimIds) => dispatch(doFetchOdyseeMembershipForChannelIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveClaimIds = React.useCallback(
+    (ids: Array<string>) => dispatch(doResolveClaimIdsAction(ids)),
+    [dispatch]
+  );
+  const doResolveUris = React.useCallback(
+    (u: Array<string>, returnCached: boolean) => dispatch(doResolveUrisAction(u, returnCached)),
+    [dispatch]
+  );
+  const doFetchThumbnailClaimsForCollectionIds = React.useCallback(
+    (params: { collectionIds: Array<string> }) => dispatch(doFetchThumbnailClaimsForCollectionIdsAction(params)),
+    [dispatch]
+  );
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const { pathname, search } = location;
+  const hasPins = pins && (pins.claimIds || pins.urls);
+  const resolvedPinUris = React.useMemo(() => {
+    if (!hasPins) return undefined;
+    let resolvedPinUris = [];
+
+    if (pins && pins.claimIds) {
+      pins.claimIds.some((id) => {
+        const claim = claimsById[id];
+
+        if (!claim) {
+          resolvedPinUris = undefined;
+          return true;
+        }
+
+        const uri = claim.canonical_url || claim.permanent_url;
+        resolvedPinUris.push(uri);
+      });
+    }
+
+    return resolvedPinUris;
+  }, [claimsById, hasPins, pins]);
+  const didNavigateForward = navigationType === NavigationType.Push;
+  const prevUris = React.useRef();
+  const [page, setPage] = React.useState(1);
+  const [forceRefresh, setForceRefresh] = React.useState<number>();
+  const isLargeScreen = useIsLargeScreen();
+  const followed = (followedTags && followedTags.map((t) => t.name)) || [];
+  const urlParams = new URLSearchParams(search);
+  const tagsParam = // can be 'x,y,z' or 'x' or ['x','y'] or CS.CONSTANT
+    (tags && getParamFromTags(tags)) ||
+    (urlParams.get(CS.TAGS_KEY) !== null && urlParams.get(CS.TAGS_KEY)) ||
+    (defaultTags && getParamFromTags(defaultTags));
+  const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
+  const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
+  const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
+  const [finalUris, setFinalUris] = React.useState<string[]>();
+  const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
+  const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
+  const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
+  let claimTypeParam = claimType || defaultClaimType || null;
+  let streamTypeParam = streamType || defaultStreamType || null;
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
+
+  if (contentTypeParam) {
+    switch (contentTypeParam) {
+      case CS.CLAIM_COLLECTION:
+        claimTypeParam = contentTypeParam;
+        streamTypeParam = undefined;
+        break;
+
+      case CS.CLAIM_REPOST:
+        claimTypeParam = contentTypeParam;
+        break;
+
+      case CS.CLAIM_CHANNEL:
+        claimTypeParam = CS.CLAIM_CHANNEL;
+        streamTypeParam = undefined;
+        break;
+
+      case CS.FILE_VIDEO:
+      case CS.FILE_AUDIO:
+      case CS.FILE_IMAGE:
+      case CS.FILE_MODEL:
+      case CS.FILE_BINARY:
+      case CS.FILE_DOCUMENT:
+        streamTypeParam = contentTypeParam;
+        break;
+
+      case CS.CONTENT_ALL:
+        claimTypeParam = undefined;
+        streamTypeParam = undefined;
+        break;
+
+      default:
+        assert(false, 'Invalid or unhandled CONTENT_KEY:', contentTypeParam);
+        break;
+    }
+  }
+
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION.ALL], 'durUser', null);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${pathname}`, null);
+  const [hideAnonymous] = usePersistedState(`hideAnonymous-${pathname}`, false);
+  const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
+  const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
+  const excludedIdsParam = excludedChannelIds;
+  const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
+  const originalPageSize = 12;
+  const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
+  const notTagInput: NotTagInput = {
+    notTags,
+    showNsfw,
+    hideMembersOnly,
+  };
+  const orderParam = usePersistentUserParam(
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    'orderUser',
+    CS.ORDER_BY_TRENDING
+  );
+  const durationOption =
+    claimIds && claimIds.length > 0
+      ? undefined
+      : CsOptHelper.duration(
+          contentTypeParam,
+          claimTypeParam,
+          durationParam,
+          duration,
+          minDurationMinutes,
+          maxDurationMinutes
+        );
+  let options: ClaimSearchOptions = {
+    page_size: dynamicPageSize,
+    page,
+    name,
+    claim_type: claimType || ['stream', 'repost', 'channel'],
+    // no_totals makes it so the sdk doesn't have to calculate total number pages for pagination
+    // it's faster, but we will need to remove it if we start using total_pages
+    no_totals: true,
+    not_channel_ids: isChannel ? undefined : mutedAndBlockedChannelIds,
+    not_tags: CsOptHelper.not_tags(notTagInput),
+    order_by: resolveOrderByOption(orderParam, sortByParam),
+    remove_duplicates: isChannel ? undefined : true,
+    content_aspect_ratio: undefined,
+    ...(durationOption
+      ? {
+          duration: durationOption,
+        }
+      : {}),
+  };
+
+  if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
+    options.has_no_source = true;
+  } else if (hasSource || (!ENABLE_NO_SOURCE_CLAIMS && (!claimType || claimType === 'stream'))) {
+    options.has_source = true;
+  }
+
+  if (limitClaimsPerChannel) {
+    options.limit_claims_per_channel = limitClaimsPerChannel;
+  }
+
+  if (feeAmountParam && claimType !== CS.CLAIM_CHANNEL) {
+    if (feeAmountParam === CS.FEE_ONLY_PURCHASE) {
+      options.all_tags = [TAGS.PURCHASE_TAG];
+    } else if (feeAmountParam === CS.FEE_ONLY_RENT) {
+      options.all_tags = [TAGS.RENTAL_TAG];
+    } else if (feeAmountParam === CS.FEE_AMOUNT_ONLY_FREE) {
+      if (!options.not_tags) options.not_tags = [];
+      options.not_tags = options.not_tags.concat([TAGS.PURCHASE_TAG, TAGS.RENTAL_TAG]);
+      options.fee_amount = feeAmountParam;
+    } else {
+      options.fee_amount = feeAmountParam;
+    }
+  }
+
+  if (claimIds) {
+    options.claim_ids = claimIds;
+  }
+
+  if (channelIdsParam) {
+    options.channel_ids = channelIdsParam;
+  }
+
+  if (excludedIdsParam) {
+    options.not_channel_ids = (options.not_channel_ids || []).concat(excludedIdsParam);
+  }
+
+  if (tagsParam) {
+    if (tagsParam !== CS.TAGS_ALL && tagsParam !== '') {
+      if (tagsParam === CS.TAGS_FOLLOWED) {
+        options.any_tags = followed;
+      } else if (Array.isArray(tagsParam)) {
+        options.any_tags = tagsParam;
+      } else {
+        options.any_tags = tagsParam.split(',');
+      }
+    }
+  }
+
+  if (repostedClaimId) {
+    // SDK chokes on reposted_claim_id of null or false, needs to not be present if no value
+    options.reposted_claim_id = repostedClaimId;
+  }
+
+  // IF release time, set it, else set fallback release times using the hack below.
+  if (releaseTime && claimTypeParam !== CS.CLAIM_CHANNEL) {
+    options.release_time = releaseTime;
+  } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
+    if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
+      options.release_time = `>${Math.floor(
+        dayjs()
+          .subtract(1, freshnessParam as dayjs.ManipulateType)
+          .startOf('hour')
+          .unix()
+      )}`;
+    } else if (orderParam === CS.ORDER_BY_NEW || orderParam === CS.ORDER_BY_TRENDING) {
+      // Warning - hack below
+      // If users are following more than 10 channels or tags, limit results to stuff less than a year old
+      // For more than 20, drop it down to 6 months
+      // This helps with timeout issues for users that are following a ton of stuff
+      // https://github.com/lbryio/lbry-sdk/issues/2420
+      if (
+        (options.channel_ids && options.channel_ids.length > 20) ||
+        (options.any_tags && options.any_tags.length > 20)
+      ) {
+        options.release_time = `>${Math.floor(dayjs().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
+      } else if (
+        (options.channel_ids && options.channel_ids.length > 10) ||
+        (options.any_tags && options.any_tags.length > 10)
+      ) {
+        options.release_time = `>${Math.floor(dayjs().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
+      } else {
+        // Hack for at least the New page until https://github.com/lbryio/lbry-sdk/issues/2591 is fixed
+        options.release_time = `<${Math.floor(dayjs().startOf('minute').unix())}`;
+      }
+    }
+  }
+
+  if (hideAnonymous) {
+    options.has_channel_signature = true;
+    options.valid_channel_signature = true;
+  }
+
+  if (streamTypeParam && streamTypeParam !== CS.CONTENT_ALL && claimType !== CS.CLAIM_CHANNEL) {
+    options.stream_types = typeof streamTypeParam === 'string' ? [streamTypeParam] : streamTypeParam;
+  }
+
+  if (claimTypeParam) {
+    if (claimTypeParam !== CS.CONTENT_ALL) {
+      if (Array.isArray(claimTypeParam)) {
+        options.claim_type = claimTypeParam;
+      } else {
+        options.claim_type = [claimTypeParam];
+      }
+    }
+  }
+
+  if (languageParams) {
+    if (languageParams !== CS.LANGUAGES_ALL) {
+      options.any_languages = languageParams.split(',');
+    }
+  }
+
+  if (tagsParam) {
+    if (tagsParam !== CS.TAGS_ALL && tagsParam !== '') {
+      if (tagsParam === CS.TAGS_FOLLOWED) {
+        options.any_tags = followed;
+      } else if (Array.isArray(tagsParam)) {
+        options.any_tags = tagsParam;
+      } else {
+        options.any_tags = tagsParam.split(',');
+      }
+    }
+  }
+
+  if (hideRepostsEffective && !options.reposted_claim_id) {
+    if (Array.isArray(options.claim_type)) {
+      if (options.claim_type.length > 1) {
+        options.claim_type = options.claim_type.filter((claimType) => claimType !== 'repost');
+      }
+    } else {
+      options.claim_type = ['stream', 'channel'];
+    }
+  }
+
+  if (csOptionsHook) {
+    options = csOptionsHook(options);
+  }
+
+  if (excludeShortsAspectRatio || hideShorts) {
+    options.exclude_shorts = true;
+    options.exclude_shorts_aspect_ratio_lte = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
+    options.exclude_shorts_duration_lte = SETTINGS.SHORTS_DURATION_LTE;
+  } else if (contentAspectRatio) {
+    options.content_aspect_ratio = contentAspectRatio;
+  }
+
+  const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
+  const searchKey = createNormalizedClaimSearchKey(options);
+  const claimSearchResult = claimSearchByQuery[searchKey];
+  const claimSearchResultLastPageReached = claimSearchByQueryLastPageReached[searchKey];
+  const isUnfetchedClaimSearch = claimSearchResult === undefined;
+  // uncomment to fix an item on a page
+  //   const fixUri = 'lbry://@corbettreport#0/lbryodysee#5';
+  //   if (
+  //     orderParam === CS.ORDER_BY_NEW &&
+  //     claimSearchResult &&
+  //     claimSearchResult.length > 2 &&
+  //     window.location.pathname === '/$/rabbithole'
+  //   ) {
+  //     if (claimSearchResult.indexOf(fixUri) !== -1) {
+  //       claimSearchResult.splice(claimSearchResult.indexOf(fixUri), 1);
+  //     } else {
+  //       claimSearchResult.pop();
+  //     }
+  //     claimSearchResult.splice(2, 0, fixUri);
+  //   }
+  const prevOptionsKeyRef = React.useRef<string | null>(null);
+  const nonPaginationOptionsKey = getNonPaginationOptionsKey(options);
+  const didSearchCriteriaChange =
+    prevOptionsKeyRef.current !== null && prevOptionsKeyRef.current !== nonPaginationOptionsKey;
+  let effectivePage = page;
+
+  if (didSearchCriteriaChange) {
+    if (didNavigateForward) {
+      effectivePage = 1;
+    } else if (claimSearchResult) {
+      effectivePage = Math.max(1, Math.ceil(claimSearchResult.length / dynamicPageSize));
+    }
+  }
+
+  options.page = effectivePage;
+
+  const shouldPerformSearch = // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
+    hasPins && !channelIdsParam
+      ? false
+      : !uris &&
+        (claimSearchResult === undefined ||
+          didNavigateForward ||
+          (!loading &&
+            !claimSearchResultLastPageReached &&
+            claimSearchResult &&
+            claimSearchResult.length &&
+            claimSearchResult.length < dynamicPageSize * options.page &&
+            claimSearchResult.length % dynamicPageSize === 0));
+
+  // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
+  const optionsStringForEffect = JSON.stringify(options);
+  const timedOutMessage = (
+    <div>
+      <p>
+        <I18nMessage
+          tokens={{
+            again: (
+              <Button
+                button="link"
+                label={__('try again in a few seconds.')}
+                onClick={() => setForceRefresh(Date.now())}
+              />
+            ),
+          }}
+        >
+          Sorry, your request timed out. Modify your options or %again%
+        </I18nMessage>
+      </p>
+      <p>
+        <I18nMessage
+          tokens={{
+            contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
+          }}
+        >
+          If you continue to have issues, please %contact_support%.
+        </I18nMessage>
+      </p>
+    </div>
+  );
+  // **************************************************************************
+  // **************************************************************************
+  React.useEffect(() => {
+    if (prevOptionsKeyRef.current !== nonPaginationOptionsKey) {
+      prevOptionsKeyRef.current = nonPaginationOptionsKey;
+    }
+
+    if (effectivePage !== page) {
+      setPage(effectivePage);
+    }
+  }, [effectivePage, nonPaginationOptionsKey, page]);
+  React.useEffect(() => {
+    if (!hasPins) return;
+
+    if (pins.claimIds) {
+      doResolveClaimIds(pins.claimIds);
+    } else if (pins.urls) {
+      doResolveUris(pins.urls, true);
+    }
+  }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
+  const excludeUrisStr = JSON.stringify(excludeUris);
+  React.useEffect(() => {
+    const excludeUris = JSON.parse(excludeUrisStr);
+
+    if (uris) {
+      // --- direct uris
+      const newUris = uris && Array.from(new Set(uris));
+      injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+      const newFinalUris = filterExcludedUris(newUris, excludeUris);
+      setFinalUris(newFinalUris);
+    } else if (claimSearchResult) {
+      // --- searched uris
+      if (isUnfetchedClaimSearch && prevUris.current) {
+        setFinalUris(prevUris.current);
+      } else if (!hasPins) {
+        setFinalUris(claimSearchResult);
+        prevUris.current = claimSearchResult;
+      } else {
+        const newUris = Array.from(new Set(claimSearchResult));
+        const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+        const newFinalUris = filterExcludedUris(injected, excludeUris);
+        setFinalUris(newFinalUris);
+        prevUris.current = newFinalUris;
+      }
+    } else if (resolvedPinUris && !channelIdsParam) {
+      setFinalUris(resolvedPinUris);
+    } else {
+    }
+  }, [
+    channelIdsParam,
+    claimSearchResult,
+    excludeUrisStr,
+    hasPins,
+    isUnfetchedClaimSearch,
+    orderParam,
+    pins,
+    resolvedPinUris,
+    uris,
+  ]);
+
+  // **************************************************************************
+  // Helpers
+  // **************************************************************************
+  function getParamFromTags(t) {
+    if (t === CS.TAGS_ALL || t === CS.TAGS_FOLLOWED) {
+      return t;
+    } else if (Array.isArray(t)) {
+      return t.join(',');
+    }
+  }
+
+  function handleScrollBottom() {
+    if (maxPages !== undefined && page === maxPages) {
+      return;
+    }
+
+    if (!loading && infiniteScroll) {
+      if (claimSearchResult && !claimSearchResultLastPageReached) {
+        setPage(page + 1);
+      }
+    }
+  }
+
+  function resolveOrderByOption(orderBy: string | Array<string>, sortBy: string | Array<string>) {
+    let order_by;
+
+    switch (orderBy) {
+      case CS.ORDER_BY_TRENDING:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+        break;
+
+      case CS.ORDER_BY_NEW:
+        order_by = CS.ORDER_BY_NEW_VALUE;
+        break;
+
+      case CS.ORDER_BY_NEW_CREATED:
+        order_by = CS.ORDER_BY_NEW_CREATED_VALUE;
+        break;
+
+      case CS.ORDER_BY_NEW_ASC:
+        order_by = CS.ORDER_BY_NEW_ASC_VALUE;
+        break;
+
+      case CS.ORDER_BY_NAME_ASC:
+        order_by = CS.ORDER_BY_NAME_ASC_VALUE;
+        break;
+
+      default:
+        order_by = CS.ORDER_BY_TOP_VALUE;
+    }
+
+    if (orderBy === CS.ORDER_BY_NEW && sortBy === CS.SORT_BY.OLDEST.key) {
+      return order_by.map((x) => `${CS.SORT_BY.OLDEST.opt}${x}`);
+    }
+
+    return order_by;
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
+  React.useEffect(() => {
+    if (claimSearchResult && claimType && claimType.includes('collection')) {
+      const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
+      doFetchThumbnailClaimsForCollectionIds({
+        collectionIds: claimIds,
+      });
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimSearchResult, claimType, doFetchThumbnailClaimsForCollectionIds]);
+  React.useEffect(() => {
+    if (shouldPerformSearch) {
+      const searchOptions = JSON.parse(optionsStringForEffect);
+      const searchSettings = fetchViewCount
+        ? {
+            fetch: {
+              viewCount: true,
+            },
+          }
+        : {};
+      doClaimSearch(searchOptions, searchSettings);
+    } else {
+    }
+  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
+  const headerToUse = header || (
+    <ClaimListHeader
+      channelIds={channelIds}
+      defaultTags={defaultTags}
+      tags={tags}
+      freshness={freshness}
+      defaultFreshness={defaultFreshness}
+      claimType={claimType}
+      streamType={streamType}
+      defaultStreamType={defaultStreamType}
+      feeAmount={feeAmount} // ENABLE_PAID_CONTENT_DISCOVER or something
+      orderBy={orderBy}
+      defaultOrderBy={defaultOrderBy}
+      hideAdvancedFilter={hideAdvancedFilter}
+      hasMatureTags={hasMatureTags}
+      hiddenNsfwMessage={hiddenNsfwMessage}
+      setPage={setPage}
+      tileLayout={tileLayout}
+      hideLayoutButton={hideLayoutButton}
+      hideFilters={hideFilters}
+      scrollAnchor={scrollAnchor}
+      contentType={contentType}
+      meta={meta}
+    />
+  );
+  const claimListLoading =
+    loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
+  return (
+    <React.Fragment>
+      {headerLabel}
+      {tileLayout ? (
+        <div>
+          {!repostedClaimId && showHeader && (
+            <div className="section__header--actions">
+              <div className="section__actions section__actions-span">
+                {headerToUse}
+                {searchInSelectedLang && <LangFilterIndicator />}
+              </div>
+            </div>
+          )}
+          {subSection && <div>{subSection}</div>}
+          <ClaimList
+            tileLayout
+            loading={claimListLoading}
+            uris={finalUris}
+            prefixUris={prefixUris}
+            onScrollBottom={handleScrollBottom}
+            page={page}
+            pageSize={dynamicPageSize}
+            timedOutMessage={timedOutMessage}
+            renderProperties={renderProperties}
+            includeSupportAction={includeSupportAction}
+            injectedItem={injectedItem}
+            showHiddenByUser={showHiddenByUser}
+            searchOptions={options}
+            showNoSourceClaims={showNoSourceClaims}
+            empty={empty}
+            maxClaimRender={maxClaimRender}
+            loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
+          />
+
+          {claimListLoading && useSkeletonScreen && (
+            <div className="claim-grid">
+              {Array.from({ length: dynamicPageSize }, (_, i) => (
+                <ClaimPreviewTile key={i} placeholder="loading" pulse />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          {showHeader && (
+            <div className="section__header--actions">
+              <div className="section__actions">
+                {headerToUse}
+                {searchInSelectedLang && <LangFilterIndicator />}
+              </div>
+            </div>
+          )}
+          {subSection && <div>{subSection}</div>}
+          <ClaimList
+            type={type}
+            loading={claimListLoading}
+            uris={finalUris}
+            prefixUris={prefixUris}
+            onScrollBottom={handleScrollBottom}
+            page={page}
+            pageSize={dynamicPageSize}
+            timedOutMessage={timedOutMessage}
+            renderProperties={renderProperties}
+            includeSupportAction={includeSupportAction}
+            injectedItem={injectedItem}
+            showHiddenByUser={showHiddenByUser}
+            searchOptions={options}
+            showNoSourceClaims={hasNoSource || showNoSourceClaims}
+            empty={empty}
+            maxClaimRender={maxClaimRender}
+            loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
+          />
+
+          {claimListLoading &&
+            useSkeletonScreen &&
+            Array.from({ length: dynamicPageSize }, (_, i) => (
+              <ClaimPreview
+                showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                key={i}
+                placeholder="loading"
+                type={type}
+              />
+            ))}
+        </div>
+      )}
+    </React.Fragment>
+  );
+}
+
+export default ClaimListDiscover;

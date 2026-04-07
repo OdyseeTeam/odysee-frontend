@@ -1,4 +1,4 @@
-@import '~scss/init/vars';
+@import 'init/vars';
 
 .swipe-navigation-overlay {
   position: fixed;
@@ -10,7 +10,7 @@
   &--enabled {
     pointer-events: auto;
 
-    @media (min-width: 1020px) {
+    @media (min-width: $breakpoint-shorts) {
       pointer-events: none;
     }
   }
@@ -24,18 +24,18 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 10px;
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       width: 100%;
       height: 83%;
       overflow: hidden;
     }
 
-    @media (min-width: 1150px) {
+    @media (min-width: $breakpoint-medium) {
       width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
       overflow: hidden;
     }
 
-    @media (max-width: 1380px) and (min-width: 1020px) and (max-height: 860px) {
+    @media (max-width: $breakpoint-shorts-wide) and (min-width: $breakpoint-shorts) and (max-height: 860px) {
       width: var(--shorts-viewer-width, var(--shorts-viewer-width-default)) !important;
     }
   }
@@ -44,20 +44,20 @@
     transform: translate(-130%, 0%) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    @media (max-width: 1020px) {
+    @media (max-width: $breakpoint-shorts) {
       transform: none !important;
     }
 
-    @media (max-width: 1400px) and (min-width: 1020px) {
+    @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
       left: 20px !important;
       transform: none !important;
     }
 
-    @media (min-width: 1600px) {
+    @media (min-width: $breakpoint-large) {
       transform: translate(-130%, 0%) !important;
     }
 
-    @media (min-width: 2500px) {
+    @media (min-width: $breakpoint-xlarge) {
       transform: translate(-129%, 0%) !important;
     }
   }
@@ -84,14 +84,15 @@
 
 .shorts-mobile-panel__actions {
   position: fixed;
-  bottom: 0;
-  right: 10px;
+  bottom: 2px;
+  right: 2px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   z-index: 10001;
   pointer-events: auto;
   padding: 10px 0 0 0;
+  transition: opacity 300ms ease-out;
 }
 
 .shorts-mobile-panel__action-item {
@@ -104,8 +105,8 @@
   overflow: visible;
 }
 
-button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
-  background: rgba(45, 44, 44, 0.6);
+.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
+  background: oklch(0.25 0 0 / 0.45);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -119,7 +120,7 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   position: relative;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  box-shadow: none;
   overflow: visible;
 
   .button__label {
@@ -143,11 +144,7 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   }
 
   &.button-bubble--active {
-    background: var(--color-primary);
-
-    &:hover {
-      background: var(--color-primary-alt);
-    }
+    background: var(--color-primary) !important;
   }
 }
 
@@ -228,22 +225,77 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
 
 @keyframes mobileSlimeDrip {
   0% {
-    background-position: 10% -15px, 30% -80px, 55% -15px, 75% -120px, 90% -40px, 45% -100px, 5% -140px, 65% -20px,
-      20% -160px, 82% -50px, 40% -130px, 95% -15px;
-    background-size: 20px 20px, 16px 16px, 24px 24px, 14px 14px, 18px 18px, 16px 16px, 12px 12px, 22px 22px, 14px 14px,
-      18px 18px, 10px 10px, 24px 24px;
+    background-position:
+      10% -15px,
+      30% -80px,
+      55% -15px,
+      75% -120px,
+      90% -40px,
+      45% -100px,
+      5% -140px,
+      65% -20px,
+      20% -160px,
+      82% -50px,
+      40% -130px,
+      95% -15px;
+    background-size:
+      20px 20px,
+      16px 16px,
+      24px 24px,
+      14px 14px,
+      18px 18px,
+      16px 16px,
+      12px 12px,
+      22px 22px,
+      14px 14px,
+      18px 18px,
+      10px 10px,
+      24px 24px;
     opacity: 1;
   }
   40% {
-    background-size: 22px 45px, 16px 60px, 28px 40px, 14px 65px, 20px 50px, 18px 58px, 12px 52px, 24px 42px, 15px 62px,
-      20px 46px, 10px 55px, 26px 38px;
+    background-size:
+      22px 45px,
+      16px 60px,
+      28px 40px,
+      14px 65px,
+      20px 50px,
+      18px 58px,
+      12px 52px,
+      24px 42px,
+      15px 62px,
+      20px 46px,
+      10px 55px,
+      26px 38px;
     opacity: 0.8;
   }
   100% {
-    background-position: 12% 550px, 28% 250px, 58% 500px, 72% 180px, 88% 400px, 48% 200px, 7% 150px, 62% 520px,
-      22% 120px, 80% 450px, 38% 180px, 93% 530px;
-    background-size: 22px 70px, 16px 80px, 28px 60px, 14px 90px, 20px 75px, 18px 85px, 12px 78px, 24px 65px, 15px 88px,
-      20px 72px, 10px 82px, 26px 58px;
+    background-position:
+      12% 550px,
+      28% 250px,
+      58% 500px,
+      72% 180px,
+      88% 400px,
+      48% 200px,
+      7% 150px,
+      62% 520px,
+      22% 120px,
+      80% 450px,
+      38% 180px,
+      93% 530px;
+    background-size:
+      22px 70px,
+      16px 80px,
+      28px 60px,
+      14px 90px,
+      20px 75px,
+      18px 85px,
+      12px 78px,
+      24px 65px,
+      15px 88px,
+      20px 72px,
+      10px 82px,
+      26px 58px;
     opacity: 0;
   }
 }
@@ -253,7 +305,8 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   inset: 0;
   z-index: 10000;
   pointer-events: none;
-  background: radial-gradient(ellipse, rgba(129, 197, 84, 0.75) 40%, transparent 70%),
+  background:
+    radial-gradient(ellipse, rgba(129, 197, 84, 0.75) 40%, transparent 70%),
     radial-gradient(ellipse, rgba(100, 180, 60, 0.7) 40%, transparent 70%),
     radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
     radial-gradient(ellipse, rgba(110, 190, 70, 0.7) 40%, transparent 70%),
@@ -265,16 +318,38 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
     radial-gradient(ellipse, rgba(129, 197, 84, 0.65) 40%, transparent 70%),
     radial-gradient(ellipse, rgba(110, 185, 65, 0.6) 40%, transparent 70%),
     radial-gradient(ellipse, rgba(129, 197, 84, 0.7) 40%, transparent 70%);
-  background-size: 20px 20px, 16px 16px, 24px 24px, 14px 14px, 18px 18px, 16px 16px, 12px 12px, 22px 22px, 14px 14px,
-    18px 18px, 10px 10px, 24px 24px;
-  background-position: 10% -15px, 30% -80px, 55% -15px, 75% -120px, 90% -40px, 45% -100px, 5% -140px, 65% -20px,
-    20% -160px, 82% -50px, 40% -130px, 95% -15px;
+  background-size:
+    20px 20px,
+    16px 16px,
+    24px 24px,
+    14px 14px,
+    18px 18px,
+    16px 16px,
+    12px 12px,
+    22px 22px,
+    14px 14px,
+    18px 18px,
+    10px 10px,
+    24px 24px;
+  background-position:
+    10% -15px,
+    30% -80px,
+    55% -15px,
+    75% -120px,
+    90% -40px,
+    45% -100px,
+    5% -140px,
+    65% -20px,
+    20% -160px,
+    82% -50px,
+    40% -130px,
+    95% -15px;
   background-repeat: no-repeat;
   filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='4' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='25'/%3E%3C/filter%3E%3C/svg%3E#f");
   animation: mobileSlimeDrip 3s ease-in forwards;
 }
 
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: $breakpoint-tablet) and (orientation: landscape) {
   .shorts-mobile-panel__actions {
     bottom: 5vh;
     gap: 6px;
@@ -288,9 +363,25 @@ button.shorts-mobile-panel__action-button.shorts-mobile-panel__action-button {
   }
 }
 
-@media (min-width: 1021px), (pointer: fine) {
+@media (min-width: #{$breakpoint-shorts + 1}), (pointer: fine) {
   .shorts-mobile-panel__actions {
     display: none;
+  }
+}
+
+html[data-shorts-playing] {
+  .shorts-viewer__content-info,
+  .shorts-page__view-toggle--overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition-delay: 0ms !important;
+    transition-duration: 50ms !important;
+  }
+}
+
+html[data-shorts-transitioning] {
+  .content__cover {
+    visibility: hidden !important;
   }
 }
 

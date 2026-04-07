@@ -34,7 +34,7 @@
   }
 
   .card--thumbnail,
-  .EasyMDEContainer {
+  .markdown-editor {
     padding: var(--spacing-s);
   }
   .card--thumbnail {
@@ -58,7 +58,7 @@
     .form-field__two-column {
       display: none;
     }
-    .EasyMDEContainer {
+    .markdown-editor {
       background-color: var(--color-header-button);
       border-radius: var(--border-radius);
     }

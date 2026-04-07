@@ -1,4 +1,5 @@
 const fs = require('fs');
+
 const path = require('path');
 
 async function appStringsMiddleware(ctx, next) {
@@ -13,6 +14,7 @@ async function appStringsMiddleware(ctx, next) {
       ctx.status = 204;
       return;
     }
+
     try {
       ctx.body = fs.readFileSync(path.join(__dirname, `../dist${requestPath}`), 'utf8');
       ctx.set('Content-Type', 'application/json');

@@ -177,7 +177,6 @@ Three token forms appear across clients:
 
 Key scripts (`package.json`):
 - Web dev: `yarn dev:web`
-- Electron dev: `yarn dev:electron`
 - Web compile: `yarn compile:web`
 - Production compile: `yarn compile`
 

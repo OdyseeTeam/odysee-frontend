@@ -1,22 +1,31 @@
 const { fetchStreamUrl } = require('./fetchStreamUrl');
-const config = require('../../config');
+
+const config = require('../../config.cjs');
+
 const { getHomepage } = require('./homepageApi');
+
 const { getHtml } = require('./html');
+
 const { getMinVersion } = require('./minVersion');
+
 const { getOEmbed } = require('./oEmbed');
+
 const { getRss } = require('./rss');
+
 const { getFarcasterManifest } = require('./farcaster');
+
 const { handleFramePost } = require('./frame');
+
 const { getTempFile } = require('./tempfile');
+
 const { getSpinnerHtml } = require('./spinner');
+
 const { getLlmsTxt } = require('./llms');
 
-const fetch = require('node-fetch');
 const Router = require('@koa/router');
 
 // So any code from 'lbry-redux'/'lbryinc' that uses `fetch` can be run on the server
-global.fetch = fetch;
-
+global.fetch = globalThis.fetch;
 const router = new Router();
 
 async function getStreamUrl(ctx) {
@@ -26,9 +35,11 @@ async function getStreamUrl(ctx) {
 
 const rssMiddleware = async (ctx) => {
   const rss = await getRss(ctx);
+
   if (rss.startsWith('<?xml')) {
     ctx.set('Content-Type', 'application/xml');
   }
+
   ctx.body = rss;
 };
 
@@ -49,43 +60,37 @@ const fcManifestMiddleware = async (ctx) => {
 };
 
 router.get(`/$/minVersion/v1/get`, async (ctx) => getMinVersion(ctx));
-
 router.get(`/$/api/content/v1/get`, async (ctx) => getHomepage(ctx, 1));
 router.get(`/$/api/content/v2/get`, async (ctx) => getHomepage(ctx, 2));
-
 router.get(`/$/download/:claimName/:claimId`, async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);
+
   if (streamUrl) {
     const downloadUrl = `${streamUrl}?download=true&magic=${Number(Math.round(Date.now() / 1000))}`;
     ctx.append('odysee-download', 'true');
     ctx.redirect(downloadUrl);
   }
 });
-
 router.get(`/$/stream/:claimName/:claimId`, async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);
+
   if (streamUrl) {
     ctx.redirect(streamUrl);
   }
 });
-
 router.get(`/$/activate`, async (ctx) => {
   ctx.redirect(`https://sso.odysee.com/auth/realms/Users/device`);
 });
 // to add a path for a temp file on the server, customize this path
 router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
-
 router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
-
 router.get(`/$/oembed`, oEmbedMiddleware);
-
 router.get(`/$/spinner`, async (ctx) => {
   ctx.set('Content-Type', 'text/html');
   ctx.body = getSpinnerHtml(ctx);
 });
-
 router.get(`/$/llms.txt`, async (ctx) => {
   const llmsTxt = await getLlmsTxt();
 
@@ -98,7 +103,6 @@ router.get(`/$/llms.txt`, async (ctx) => {
   ctx.set('Content-Type', 'text/plain; charset=utf-8');
   ctx.body = llmsTxt;
 });
-
 router.post(`/$/frame`, async (ctx) => {
   // Minimal JSON parser to avoid external dependencies
   try {
@@ -108,6 +112,7 @@ router.post(`/$/frame`, async (ctx) => {
       ctx.req.on('end', resolve);
     });
     const raw = Buffer.concat(chunks).toString('utf8');
+
     try {
       ctx.request.body = raw ? JSON.parse(raw) : {};
     } catch (e) {
@@ -116,11 +121,17 @@ router.post(`/$/frame`, async (ctx) => {
   } catch (e) {
     ctx.request.body = {};
   }
+
   await handleFramePost(ctx);
 });
-
 router.get('*', async (ctx, next) => {
   const requestedUrl = ctx.url;
+
+  // Dev SSE livereload (web/index.js) must not be served as SPA HTML — router runs before that middleware.
+  if (ctx.path === '/__livereload') {
+    await next();
+    return;
+  }
 
   if (config.DYNAMIC_ROUTES_FIRST) {
     // Dynamic-first: let static middleware handle assets
@@ -129,8 +140,19 @@ router.get('*', async (ctx, next) => {
       return;
     }
   } else {
-    // Static-first (prod): if a /public/*.js wasn't found by static, avoid claim collision
-    if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
+    // Static-first (prod): if a /public/ asset wasn't found by static, avoid claim collision
+    if (
+      requestedUrl.startsWith('/public/') &&
+      (requestedUrl.endsWith('.js') || requestedUrl.endsWith('.css') || requestedUrl.startsWith('/public/assets/'))
+    ) {
+      ctx.status = 404;
+      ctx.body = 'Resource not found';
+      ctx.set('Cache-Control', 'no-store');
+      return;
+    }
+    // Don't serve HTML for missing static files — return 404 so the browser
+    // doesn't register HTML as a service worker or parse it as JSON.
+    if (requestedUrl === '/sw.js' || requestedUrl.endsWith('.json') || requestedUrl.endsWith('.map')) {
       ctx.status = 404;
       ctx.body = 'Resource not found';
       ctx.set('Cache-Control', 'no-store');
@@ -139,10 +161,12 @@ router.get('*', async (ctx, next) => {
   }
 
   const html = await getHtml(ctx);
+
   // Only set body if not already redirecting (3xx status)
   if (ctx.status < 300 || ctx.status >= 400) {
+    ctx.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    ctx.set('Content-Type', 'text/html; charset=utf-8');
     ctx.body = html;
   }
 });
-
 module.exports = router;

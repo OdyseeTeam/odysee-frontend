@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 //  M E D I A
 //  T H U M B
 
@@ -14,6 +16,153 @@
 
 .media__thumb__short {
   aspect-ratio: 9 / 16;
+}
+
+// Live thumbnail: subtle border glow to indicate live content
+.media__thumb--live {
+  box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.3);
+}
+
+// Double-buffered live thumbnail images (stacked, crossfade on swap)
+.media__thumb-live-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.22s ease-out;
+  will-change: opacity;
+  pointer-events: none;
+
+  &--active {
+    opacity: 1;
+  }
+}
+
+// When hovering a live thumbnail (auto-refreshing frame-by-frame), hide overlays
+.media__thumb--live-refreshing {
+  .claim-preview__file-property-overlay,
+  .button--play,
+  .claim-preview-progress {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+}
+
+// VOD hover preview: smooth crossfade when cycling through preview frames
+.media__thumb.media__thumb--has-preview {
+  background-size: 100% !important;
+}
+
+.media__thumb--preview-active {
+  .claim-preview-progress {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .claim-preview__file-property-overlay {
+    z-index: 4;
+  }
+
+  background-size: 100% !important;
+}
+
+.media__thumb-frame-crossfade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  &--active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+}
+
+.media__thumb-frame-crossfade--portrait {
+  background: black;
+
+  .media__thumb-frame-preview {
+    object-fit: contain;
+    transform: scale(1.35);
+  }
+}
+
+.media__thumb-frame-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &--front {
+    opacity: 0;
+    animation: frameFadeIn 0.65s ease-in-out forwards;
+  }
+}
+
+@keyframes frameFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.media__thumb-video-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  &--active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+}
+
+.media__thumb-video-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &--portrait {
+    object-fit: contain;
+    background: black;
+    transform: scale(1.35);
+  }
 }
 
 .media__thumb--small {

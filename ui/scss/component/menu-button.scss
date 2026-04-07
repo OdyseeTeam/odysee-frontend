@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 // Extends reach-ui menu button base stylesheet
 /* Used to detect in JavaScript if apps have loaded styles or not. */
 :root {
@@ -29,6 +31,10 @@ reach-portal {
   z-index: 999999;
   font-size: var(--font-body);
   max-width: calc(100% - var(--height-button) - var(--spacing-xs));
+}
+
+.menu__wrapper {
+  display: contents;
 }
 
 .MuiMenuItem-root {
@@ -189,6 +195,13 @@ reach-portal {
   }
 }
 
+.menu__list--preview {
+  [data-reach-menu-item] {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+}
+
 .menu__list--header {
   @extend .menu__list;
   z-index: 100002 !important;
@@ -211,6 +224,18 @@ reach-portal {
   .channel-selector {
     margin: 0px;
     display: flex;
+
+    > .menu__wrapper > .menu__link:hover,
+    > .menu__wrapper > .menu__link:focus-visible,
+    > .menu__wrapper > .menu__link[aria-expanded='true'] {
+      background-color: var(--color-navigation-hover) !important;
+      color: var(--color-primary-contrast) !important;
+      border-radius: var(--border-radius);
+
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
 
     .icon--ChevronDown {
       margin-left: var(--spacing-s);
@@ -250,10 +275,13 @@ reach-portal {
 }
 
 .MuiList-root {
-  .menu__link:hover {
-    color: white;
-    background-color: var(--color-navigation-hover);
-    border-radius: var(--border-radius);
+  .MuiMenuItem-root > .menu__link:hover {
+    color: inherit !important;
+    background-color: transparent !important;
+
+    .icon {
+      stroke: currentColor !important;
+    }
   }
 }
 
@@ -261,6 +289,12 @@ reach-portal {
   margin-left: 0px !important;
   font-size: var(--font-small) !important;
   display: block !important;
+}
+
+.MuiMenuItem-root.menu__link:hover {
+  color: var(--color-primary-contrast) !important;
+  background-color: var(--color-navigation-hover) !important;
+  border-radius: var(--border-radius);
 }
 
 .menu__link {
@@ -284,6 +318,18 @@ reach-portal {
       stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);
     }
+  }
+}
+
+.menu__link--sign-out {
+  .menu__link-help {
+    display: block;
+    font-size: var(--font-xxsmall);
+    color: var(--color-text-subtitle);
+  }
+
+  &:hover .menu__link-help {
+    color: var(--color-primary-contrast);
   }
 }
 

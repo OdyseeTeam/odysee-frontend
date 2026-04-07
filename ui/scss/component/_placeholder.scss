@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .placeholder__wrapper {
   width: 100%;
   margin-top: var(--spacing-xxxs);
@@ -38,7 +40,7 @@
       }
     }
 
-    .media__thumb__short{
+    .media__thumb__short {
       aspect-ratio: 9 / 16;
     }
   }

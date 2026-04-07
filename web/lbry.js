@@ -5,7 +5,6 @@ const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 //
 // Basic LBRY sdk connection config
 // Offers a proxy to call LBRY sdk methods
-
 //
 const Lbry = {
   isConnected: false,
@@ -13,17 +12,18 @@ const Lbry = {
   daemonConnectionString: 'http://localhost:5279',
   alternateConnectionString: '',
   methodsUsingAlternateConnectionString: [],
-  apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
-
+  apiRequestHeaders: {
+    'Content-Type': 'application/json-rpc',
+  },
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: (value) => {
     Lbry.daemonConnectionString = value;
   },
-
   setApiHeader: (key, value) => {
-    Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, { [key]: value });
+    Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, {
+      [key]: value,
+    });
   },
-
   unsetApiHeader: (key) => {
     Object.keys(Lbry.apiRequestHeaders).includes(key) && delete Lbry.apiRequestHeaders['key'];
   },
@@ -33,7 +33,6 @@ const Lbry = {
     Lbry.overrides[methodName] = newMethod;
   },
   getApiRequestHeaders: () => Lbry.apiRequestHeaders,
-
   // Returns a human readable media type based on the content type or extension of a file that is returned by the sdk
   getMediaType: (contentType, fileName) => {
     if (fileName) {
@@ -48,24 +47,22 @@ const Lbry = {
         [/\.(cbr|cbt|cbz)$/i, 'comic-book'],
         [/\.(lbry)$/i, 'application'],
       ];
-
       const res = formats.reduce((ret, testpair) => {
         switch (testpair[0].test(ret)) {
           case true:
             return testpair[1];
+
           default:
             return ret;
         }
       }, fileName);
       return res === fileName ? 'unknown' : res;
     } else if (contentType) {
-      // $FlowFixMe
       return /^[^/]+/.exec(contentType)[0];
     }
 
     return 'unknown';
   },
-
   //
   // Lbry SDK Methods
   // https://lbry.tech/api/sdk
@@ -73,7 +70,6 @@ const Lbry = {
   status: (params = {}) => daemonCallWithResult('status', params),
   stop: () => daemonCallWithResult('stop', {}),
   version: () => daemonCallWithResult('version', {}),
-
   // Claim fetching and manipulation
   resolve: (params) => daemonCallWithResult('resolve', params),
   get: (params) => daemonCallWithResult('get', params),
@@ -94,14 +90,12 @@ const Lbry = {
   collection_list: (params) => daemonCallWithResult('collection_list', params),
   collection_create: (params) => daemonCallWithResult('collection_create', params),
   collection_update: (params) => daemonCallWithResult('collection_update', params),
-
   // File fetching and manipulation
   file_list: (params = {}) => daemonCallWithResult('file_list', params),
   file_delete: (params = {}) => daemonCallWithResult('file_delete', params),
   file_set_status: (params = {}) => daemonCallWithResult('file_set_status', params),
   blob_delete: (params = {}) => daemonCallWithResult('blob_delete', params),
   blob_list: (params = {}) => daemonCallWithResult('blob_list', params),
-
   // Wallet utilities
   wallet_balance: (params = {}) => daemonCallWithResult('wallet_balance', params),
   wallet_decrypt: () => daemonCallWithResult('wallet_decrypt', {}),
@@ -118,26 +112,23 @@ const Lbry = {
   support_abandon: (params = {}) => daemonCallWithResult('support_abandon', params),
   purchase_list: (params = {}) => daemonCallWithResult('purchase_list', params),
   txo_list: (params = {}) => daemonCallWithResult('txo_list', params),
-
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
-
   // Preferences
   preference_get: (params = {}) => daemonCallWithResult('preference_get', params),
   preference_set: (params = {}) => daemonCallWithResult('preference_set', params),
-
   // Comments
   comment_list: (params = {}) => daemonCallWithResult('comment_list', params),
   comment_create: (params = {}) => daemonCallWithResult('comment_create', params),
   comment_hide: (params = {}) => daemonCallWithResult('comment_hide', params),
   comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
   comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
-
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
       Lbry.connectPromise = new Promise((resolve, reject) => {
         let tryNum = 0;
+
         // Check every half second to see if the daemon is accepting connections
         function checkDaemonStarted() {
           tryNum += 1;
@@ -157,10 +148,8 @@ const Lbry = {
     }
 
     // Flow thinks this could be empty, but it will always reuturn a promise
-    // $FlowFixMe
     return Lbry.connectPromise;
   },
-
   publish: (params = {}) =>
     new Promise((resolve, reject) => {
       if (Lbry.overrides.publish) {
@@ -175,14 +164,17 @@ function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
   }
+
   return response.json().then((json) => {
     let error;
+
     if (json.error) {
       const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
       error = new Error(errorMessage);
     } else {
       error = new Error('Protocol error with unknown response signature');
     }
+
     return Promise.reject(error);
   });
 }
@@ -199,7 +191,6 @@ function apiCall(method, params, resolve, reject) {
       id: counter,
     }),
   };
-
   const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
     ? Lbry.alternateConnectionString
     : Lbry.daemonConnectionString;
@@ -211,6 +202,7 @@ function apiCall(method, params, resolve, reject) {
       if (error) {
         return reject(error);
       }
+
       return resolve(response.result);
     })
     .catch(reject);
@@ -243,5 +235,7 @@ const lbryProxy = new Proxy(Lbry, {
       });
   },
 });
-
-module.exports = { lbryProxy, apiCall };
+module.exports = {
+  lbryProxy,
+  apiCall,
+};

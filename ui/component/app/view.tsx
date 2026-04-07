@@ -1,0 +1,718 @@
+import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
+import * as URL_PARAMS from 'constants/urlParams';
+import React, { useEffect, useState } from 'react';
+import { AppContext } from 'contexts/app';
+export { AppContext };
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
+import LivestreamPublishProvider from 'component/livestreamPublishProvider';
+import { lazyImport } from 'util/lazyImport';
+import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
+import analytics from 'analytics';
+import { setSearchUserId } from 'redux/actions/search';
+import { parseURI, buildURI } from 'util/lbryURI';
+import { generateGoogleCacheUrl } from 'util/url';
+import ReactModal from 'react-modal';
+import useKonamiListener from 'util/enhanced-layout';
+import SpaceInvaders from 'component/spaceInvaders/view';
+import Yrbl from 'component/yrbl';
+import usePrevious from 'effects/use-previous';
+import usePersistedState from 'effects/use-persisted-state';
+import useConnectionStatus from 'effects/use-connection-status';
+import Spinner from 'component/spinner';
+import { BeforeUnload, Unload } from 'util/beforeUnload';
+import { platform } from 'util/platform';
+import {
+  useDegradedPerformance,
+  STATUS_OK,
+  STATUS_DEGRADED,
+  STATUS_FAILING,
+  STATUS_DOWN,
+} from 'web/effects/use-degraded-performance';
+import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import { useIsMobile } from 'effects/use-screensize';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectGetSyncErrorMessage,
+  selectPrefsReady,
+  selectSyncFatalError,
+  selectSyncIsLocked,
+} from 'redux/selectors/sync';
+import { doUserSetReferrerForUri } from 'redux/actions/user';
+import { doSetLastViewedAnnouncement } from 'redux/actions/content';
+import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import {
+  selectLanguage,
+  selectLoadedLanguages,
+  selectThemePath,
+  selectDefaultChannelClaim,
+  selectHomepageAnnouncement,
+  selectClientSetting,
+} from 'redux/selectors/settings';
+import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectUploadCount } from 'redux/selectors/publish';
+import { selectPersonalRecommendations } from 'redux/selectors/search';
+import { selectAutoplayCountdownUri, selectPlayingUri } from 'redux/selectors/content';
+import {
+  doOpenAnnouncements,
+  doSetLanguage,
+  doSetDefaultChannel,
+  doFetchLanguage,
+  doSetClientSetting,
+} from 'redux/actions/settings';
+import { doToast } from 'redux/actions/notifications';
+import { doSyncLoop } from 'redux/actions/sync';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import { selectError } from 'redux/selectors/notifications';
+import {
+  doFetchModBlockedList,
+  doFetchCommentModAmIList,
+  doCommentModListDelegatesForMyChannels,
+} from 'redux/actions/comments';
+const DebugLog = lazyImport(
+  () =>
+    import(
+      'component/debugLog'
+      /* webpackChunkName: "debugLog" */
+    )
+);
+const FileDrop = lazyImport(
+  () =>
+    import(
+      'component/fileDrop'
+      /* webpackChunkName: "fileDrop" */
+    )
+);
+const Router = lazyImport(
+  () =>
+    import(
+      'component/router/index'
+      /* webpackChunkName: "router" */
+    )
+);
+const Nag = lazyImport(
+  () =>
+    import(
+      'component/nag'
+      /* webpackChunkName: "nag" */
+    )
+);
+const NagContinueFirstRun = lazyImport(
+  () =>
+    import(
+      'component/nagContinueFirstRun'
+      /* webpackChunkName: "nagCFR" */
+    )
+);
+const NagDegradedPerformance = lazyImport(
+  () =>
+    import(
+      'web/component/nag-degraded-performance'
+      /* webpackChunkName: "NagDegradedPerformance" */
+    )
+);
+const NagNoUser = lazyImport(
+  () =>
+    import(
+      'web/component/nag-no-user'
+      /* webpackChunkName: "nag-no-user" */
+    )
+);
+const NagSunset = lazyImport(
+  () =>
+    import(
+      'web/component/nag-sunset'
+      /* webpackChunkName: "nag-sunset" */
+    )
+);
+const SyncFatalError = lazyImport(
+  () =>
+    import(
+      'component/syncFatalError'
+      /* webpackChunkName: "syncFatalError" */
+    )
+);
+const ModalRouter = lazyImport(
+  () =>
+    import(
+      'modal/modalRouter'
+      /* webpackChunkName: "modalRouter" */
+    )
+);
+const VideoRenderFloating = lazyImport(
+  () =>
+    import(
+      'component/videoRenderFloating'
+      /* webpackChunkName: "videoRenderFloating" */
+    )
+);
+const LivestreamPublisherFloating = lazyImport(
+  () =>
+    import(
+      'component/livestreamPublisherFloating'
+      /* webpackChunkName: "livestreamPublisherFloating" */
+    )
+);
+const Wander = lazyImport(
+  () =>
+    import(
+      'component/wander'
+      /* webpackChunkName: "wander" */
+    )
+);
+const YoutubeWelcome = lazyImport(
+  () =>
+    import(
+      'web/component/youtubeReferralWelcome'
+      /* webpackChunkName: "youtubeReferralWelcome" */
+    )
+);
+// ****************************************************************************
+export const MAIN_WRAPPER_CLASS = 'main-wrapper';
+export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
+// const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
+const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
+const LATEST_PATH = `/$/${PAGES.LATEST}/`;
+const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
+const EMBED_PATH = `/$/${PAGES.EMBED}/`;
+const RTL_LANGUAGE_CODES = new Set(['ar', 'fa', 'he', 'ur']);
+const REWARD_TYPE_REFEREE = 'referee';
+type HomepageOrder = {
+  active: Array<string> | null | undefined;
+  hidden: Array<string> | null | undefined;
+};
+
+function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
+  const { state } = useLivestreamPublish();
+  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
+
+  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
+}
+
+function App() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const locale = useAppSelector(selectUserLocale);
+  const theme = useAppSelector(selectThemePath);
+  const language = useAppSelector(selectLanguage);
+  const languages = useAppSelector(selectLoadedLanguages);
+  const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
+  const prefsReady = useAppSelector(selectPrefsReady);
+  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const syncIsLocked = useAppSelector(selectSyncIsLocked);
+  const uploadCount = useAppSelector(selectUploadCount);
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const currentModal = useAppSelector(selectModal);
+  const modalError = useAppSelector(selectError);
+  const syncFatalError = useAppSelector(selectSyncFatalError);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const autoplayCountdownUri = useAppSelector(selectAutoplayCountdownUri);
+  const referredRewardAvailable = useAppSelector((state) =>
+    Boolean(state.rewards?.unclaimedRewards?.some((reward) => reward.reward_type === REWARD_TYPE_REFEREE))
+  );
+  const myChannelClaimIds = useAppSelector(selectMyChannelClaimIds);
+  const defaultChannelClaim = useAppSelector(selectDefaultChannelClaim);
+  const announcement = useAppSelector(selectHomepageAnnouncement);
+  const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER)) as HomepageOrder;
+  const isFypModalShown = useAppSelector((state) => selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN));
+  const personalRecommendations = useAppSelector(selectPersonalRecommendations);
+
+  const doSetAssignedLbrynetServer_ = React.useCallback(
+    (...args: Parameters<typeof doSetAssignedLbrynetServer>) => dispatch(doSetAssignedLbrynetServer(...args)),
+    [dispatch]
+  );
+  const isMobile = useIsMobile();
+  const [isEnhancedLayout, dismissEnhancedLayout] = useKonamiListener();
+  const [hasSignedIn, setHasSignedIn] = useState(false);
+  const hasVerifiedEmail = user && Boolean(user.has_verified_email);
+  const isRewardApproved = user && user.is_reward_approved;
+  const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
+  const previousRewardApproved = usePrevious(isRewardApproved);
+  const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { pathname, hash, search } = location;
+  const [retryingSync, setRetryingSync] = useState(false);
+  const [langRenderKey, setLangRenderKey] = useState(0);
+  const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
+  const urlParams = new URLSearchParams(search);
+  const rawReferrerParam = urlParams.get('r');
+  const fromLbrytvParam = urlParams.get('sunset');
+  const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
+  const embedPath = pathname.startsWith(EMBED_PATH);
+  const shouldHideNag = embedPath || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
+  const userId = user && user.id;
+  const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
+  const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
+  const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
+  const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
+  const useDebugLog = process.env.NODE_ENV !== 'production' || process.env.IS_TEST_INSTANCE === 'true';
+  const connectionStatus = useConnectionStatus();
+  const urlPath = pathname + hash;
+  const latestContentPath = urlPath.startsWith(LATEST_PATH);
+  const liveContentPath = urlPath.startsWith(LIVE_PATH);
+  const featureParam = urlParams.get('feature');
+  const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
+  const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
+  const shouldMountModalRouter = Boolean(currentModal || modalError || hasModalUrlParam);
+  const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
+  const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
+  let path;
+
+  if (isNewestPath) {
+    path = urlPath.replace(embedLatestPath ? EMBED_PATH : latestContentPath ? LATEST_PATH : LIVE_PATH, '');
+  } else {
+    // Remove the leading "/" added by the browser
+    path = urlPath.slice(1);
+  }
+
+  path = path.replace(/:/g, '#');
+
+  if (isNewestPath && !path.startsWith('@')) {
+    path = `@${path}`;
+  }
+
+  if (search && search.startsWith('?q=cache:')) {
+    generateGoogleCacheUrl(search, path);
+  }
+
+  let uri;
+
+  try {
+    // Ensure the path is fully decoded (React Router v7 may leave some
+    // multi-byte characters like emoji URL-encoded in certain cases).
+    let decodedPath = path;
+    try {
+      decodedPath = decodeURIComponent(path);
+    } catch {}
+
+    // here queryString and startTime are "removed" from the buildURI process
+    // to build only the uri itself
+    const { queryString, startTime, ...parsedUri } = parseURI(decodedPath);
+    uri = buildURI({ ...parsedUri }, true);
+  } catch (e) {
+    // If parsing failed, try with the raw (non-decoded) path
+    try {
+      const { queryString, startTime, ...parsedUri } = parseURI(path);
+      uri = buildURI({ ...parsedUri }, true);
+    } catch {
+      const match = path.match(/[#/:]/);
+
+      if (!path.startsWith('$/') && match && match.index) {
+        uri = `lbry://${path.slice(0, match.index)}`;
+      } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
+        uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
+      }
+    }
+  }
+
+  function getStatusNag() {
+    // Handle "offline" first. Everything else is meaningless if it's offline.
+    if (!connectionStatus.online) {
+      return (
+        <Nag
+          {...({
+            type: 'helpful',
+            message: __('You are offline. Check your internet connection.'),
+          } as any)}
+        />
+      );
+    }
+
+    // Only 1 nag is possible, so show the most important:
+    // Active uploads warning (show globally so users know why the browser prompts on leave)
+    if (uploadCount > 0 && !embedPath) {
+      const uploadPathname = location && location.pathname;
+      const onUploadPage =
+        (uploadPathname && uploadPathname.startsWith(`/$/${PAGES.UPLOAD}`)) ||
+        (uploadPathname && uploadPathname.startsWith(`/$/${PAGES.UPLOADS}`));
+
+      if (!onUploadPage) {
+        return (
+          <Nag
+            {...({
+              type: 'helpful',
+              message: __('Upload in progress. Closing or reloading may interrupt your upload.'),
+              actionText: __('View Uploads'),
+              onClick: () => navigate(`/$/${PAGES.UPLOADS}`),
+            } as any)}
+          />
+        );
+      }
+    }
+
+    if (user === null && !embedPath) {
+      return <NagNoUser />;
+    }
+
+    if (lbryTvApiStatus === STATUS_DEGRADED || lbryTvApiStatus === STATUS_FAILING) {
+      if (!shouldHideNag) {
+        return <NagDegradedPerformance {...({ onClose: () => setLbryTvApiStatus(STATUS_OK) } as any)} />;
+      }
+    }
+
+    if (syncFatalError) {
+      if (!retryingSync) {
+        return (
+          <Nag
+            {...({
+              type: 'error',
+              message: __('Failed to synchronize settings. Wait a while before retrying.'),
+              actionText: __('Retry'),
+              onClick: () => {
+                dispatch(doSyncLoop(true));
+                setRetryingSync(true);
+                setTimeout(() => setRetryingSync(false), 4000);
+              },
+            } as any)}
+          />
+        );
+      }
+    } else if (reloadRequired) {
+      const msg =
+        reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
+      assert(reloadRequired === 'newVersionFound' || reloadRequired === 'lazyImportFailed');
+      return (
+        <Nag
+          {...({
+            message: __(msg),
+            actionText: __('Refresh'),
+            onClick: () => window.location.reload(),
+          } as any)}
+        />
+      );
+    }
+  }
+
+  useEffect(() => {
+    if (userId) {
+      analytics.setUser(userId);
+      setSearchUserId(userId);
+    }
+  }, [userId]);
+  useEffect(() => {
+    if (syncIsLocked) {
+      const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
+
+      const handleBeforeUnload = (event) => {
+        event.preventDefault();
+        event.returnValue = msg;
+      };
+
+      BeforeUnload.register(handleBeforeUnload, msg);
+      return () => BeforeUnload.unregister(handleBeforeUnload);
+    }
+  }, [syncIsLocked]);
+  useEffect(() => {
+    if (!uploadCount) return;
+    const msg = 'Unfinished uploads.';
+
+    const handleUnload = () => tusUnlockAndNotify();
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
+    };
+
+    Unload.register(handleUnload);
+    BeforeUnload.register(handleBeforeUnload, msg);
+    return () => {
+      Unload.unregister(handleUnload);
+      BeforeUnload.unregister(handleBeforeUnload);
+    };
+  }, [uploadCount]);
+  useEffect(() => {
+    if (!uploadCount) return;
+
+    const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
+
+    window.addEventListener('storage', onStorageUpdate);
+    return () => window.removeEventListener('storage', onStorageUpdate);
+  }, [uploadCount]);
+  // allows user to pause miniplayer using the spacebar without the page scrolling down
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
+  useEffect(() => {
+    if (referredRewardAvailable && sanitizedReferrerParam) {
+      dispatch(doUserSetReferrerForUri(sanitizedReferrerParam));
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sanitizedReferrerParam, referredRewardAvailable]);
+  useEffect(() => {
+    document.documentElement.setAttribute('theme', theme);
+  }, [theme]);
+  useEffect(() => {
+    if (hasNoChannels) {
+      dispatch(doSetIncognito(true));
+    }
+
+    if (hasMyChannels) {
+      dispatch(doFetchModBlockedList());
+      dispatch(doFetchCommentModAmIList());
+      dispatch(doCommentModListDelegatesForMyChannels());
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, hasMyChannels, hasNoChannels]);
+  useEffect(() => {
+    if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
+      dispatch(doSetDefaultChannel(activeChannelClaim.claim_id));
+    }
+  }, [dispatch, activeChannelClaim, defaultChannelClaim, hasMyChannels, prefsReady]);
+  useEffect(() => {
+    if (
+      isFypModalShown ||
+      !prefsReady ||
+      homepageOrder.active?.includes('FYP') ||
+      homepageOrder.hidden?.includes('FYP') ||
+      !personalRecommendations.uris.length
+    ) {
+      return;
+    }
+
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Homepage recommendations available'),
+        subtitle: __(
+          'Would you like to enable them? Homepage recommendations placement can be configured from the homepage customization.'
+        ),
+        labelOk: __('Yes!'),
+        labelCancel: __('Later'),
+        onConfirm: (closeModal) => {
+          closeModal();
+          const active = homepageOrder?.active || [];
+          const newHomePageOrder = {
+            ...homepageOrder,
+            active: ['FYP', ...active],
+          };
+          dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+          dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
+          dispatch(
+            doToast({
+              message: __('Homepage recommendations enabled.'),
+            })
+          );
+        },
+        onCancel: (closeModal) => {
+          closeModal();
+          const hidden = homepageOrder?.hidden || [];
+          const newHomePageOrder = {
+            ...homepageOrder,
+            hidden: hidden.includes('FYP') ? hidden : ['FYP', ...hidden],
+          };
+          dispatch(doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, newHomePageOrder, true));
+          dispatch(doSetClientSetting(SETTINGS.FYP_MODAL_SHOWN, true, true));
+        },
+      })
+    );
+  }, [dispatch, isFypModalShown, prefsReady, homepageOrder, personalRecommendations]);
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', language);
+  }, [language]);
+  useEffect(() => {
+    if (!languages.includes(language)) {
+      dispatch(doFetchLanguage(language));
+
+      if (document && document.documentElement && RTL_LANGUAGE_CODES.has(language)) {
+        document.documentElement.dir = 'rtl';
+      }
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, languages]);
+  useEffect(() => {
+    if (shouldMigrateLanguage) {
+      dispatch(doSetLanguage(shouldMigrateLanguage));
+    }
+  }, [dispatch, shouldMigrateLanguage]);
+  useEffect(() => {
+    // Check that previousHasVerifiedEmail was not undefined instead of just not truthy
+    // This ensures we don't fire the emailVerified event on the initial user fetch
+    if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
+      analytics.event.emailVerified();
+    }
+  }, [previousHasVerifiedEmail, hasVerifiedEmail]);
+  useEffect(() => {
+    if (previousRewardApproved === false && isRewardApproved) {
+      analytics.event.rewardEligible();
+    }
+  }, [previousRewardApproved, isRewardApproved]);
+  // Load IMA3 SDK for aniview
+  // useEffect(() => {
+  //   if (!isAuthenticated && SHOW_ADS) {
+  //     const script = document.createElement('script');
+  //     script.src = imaLibraryPath;
+  //     script.async = true;
+  //     document.body.appendChild(script);
+  //     return () => {
+  //       document.body.removeChild(script);
+  //     };
+  //   }
+  // }, []);
+  // add OneTrust script
+  useEffect(() => {
+    // don't add script for embedded content
+    function inIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    }
+
+    if (inIframe()) return;
+
+    const hostname = window?.location?.hostname || '';
+    const useProductionOneTrust =
+      process.env.NODE_ENV === 'production' && (hostname === 'odysee.com' || hostname.endsWith('.odysee.com'));
+
+    if (!useProductionOneTrust) return;
+
+    const script = document.createElement('script');
+    script.src = oneTrustScriptSrc;
+    script.setAttribute('charset', 'UTF-8');
+
+    script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606');
+
+    const secondScript = document.createElement('script');
+    // OneTrust asks to add this. Guard missing callback in local/dev environments.
+    secondScript.innerHTML =
+      'function OptanonWrapper() { if (typeof window.gdprCallback === "function") { window.gdprCallback() } }';
+    document.head.appendChild(script);
+    document.head.appendChild(secondScript);
+    return () => {
+      try {
+        document.head.removeChild(script);
+        document.head.removeChild(secondScript);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
+      }
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
+  }, [locale]);
+  // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
+  useEffect(() => {
+    // signInSyncPref is cleared after sharedState loop.
+    const syncLoopWithoutInterval = () => dispatch(doSyncLoop(true));
+
+    if (hasSignedIn && hasVerifiedEmail) {
+      // In case we are syncing.
+      dispatch(doSyncLoop());
+      window.addEventListener('focus', syncLoopWithoutInterval);
+    }
+
+    return () => {
+      window.removeEventListener('focus', syncLoopWithoutInterval);
+    };
+  }, [dispatch, hasSignedIn, hasVerifiedEmail]);
+  useEffect(() => {
+    if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
+      navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncError, pathname, isAuthenticated, navigate]);
+  useEffect(() => {
+    if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
+      dispatch(doOpenAnnouncements());
+    }
+  }, [dispatch, announcement, isAuthenticated, pathname, prefsReady]);
+  useEffect(() => {
+    window.clearLastViewedAnnouncement = () => {
+      console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
+
+      dispatch(doSetLastViewedAnnouncement('clear'));
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+  }, []);
+  // Keep this at the end to ensure initial setup effects are run first
+  useEffect(() => {
+    if (!hasSignedIn && hasVerifiedEmail) {
+      dispatch(doSignIn());
+      setHasSignedIn(true);
+    }
+  }, [dispatch, hasVerifiedEmail, hasSignedIn]);
+  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer_);
+  useEffect(() => {
+    if (!syncIsLocked) {
+      // When language is changed or translations are fetched, we render.
+      setLangRenderKey(Date.now());
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- don't respond to syncIsLocked, but skip action when locked.
+  }, [language, languages]);
+  const appRef = React.useCallback((wrapperElement) => {
+    if (wrapperElement) {
+      ReactModal.setAppElement(wrapperElement);
+    }
+  }, []);
+
+  // Require an internal-api user on lbry.tv
+  // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time
+  // It's not needed on desktop since there is no un-authed state
+  if (user === undefined) {
+    return (
+      <div className="main--empty">
+        <Spinner delayed />
+      </div>
+    );
+  }
+
+  if (connectionStatus.online && lbryTvApiStatus === STATUS_DOWN) {
+    // TODO: Rename `SyncFatalError` since it has nothing to do with syncing.
+    return (
+      <React.Suspense fallback={null}>
+        <SyncFatalError {...({ lbryTvApiStatus } as any)} />
+      </React.Suspense>
+    );
+  }
+
+  return (
+    <LivestreamPublishProvider>
+      <div className={MAIN_WRAPPER_CLASS} ref={appRef} key={langRenderKey}>
+        {lbryTvApiStatus === STATUS_DOWN ? (
+          <Yrbl
+            className="main--empty"
+            title={__('odysee.com is currently down')}
+            subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
+          />
+        ) : (
+          <AppContext.Provider
+            value={{
+              uri,
+            }}
+          >
+            <React.Suspense
+              fallback={
+                <div className="main--empty">
+                  <Spinner delayed />
+                </div>
+              }
+            >
+              <Router uri={uri} />
+            </React.Suspense>
+            <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
+            <React.Suspense fallback={null}>{shouldMountModalRouter && <ModalRouter />}</React.Suspense>
+            <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
+            <React.Suspense fallback={null}>{shouldMountFloatingPlayer && <VideoRenderFloating />}</React.Suspense>
+            <LivestreamPublisherFloatingGate embedPath={embedPath} />
+            <React.Suspense fallback={null}>
+              {isEnhancedLayout && <SpaceInvaders onClose={dismissEnhancedLayout} />}
+              {!hasVerifiedEmail && <YoutubeWelcome />}
+              {!shouldHideNag && <NagContinueFirstRun />}
+              {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
+                <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
+              )}
+              {getStatusNag()}
+              {useDebugLog && <DebugLog />}
+            </React.Suspense>
+          </AppContext.Provider>
+        )}
+      </div>
+    </LivestreamPublishProvider>
+  );
+}
+
+export default App;

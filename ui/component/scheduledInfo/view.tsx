@@ -1,0 +1,70 @@
+import React from 'react';
+import dayjs from 'util/dayjs';
+import './style.scss';
+import Icon from 'component/common/icon';
+import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
+import { getTimeAgoStr } from 'util/time';
+import { useAppSelector } from 'redux/hooks';
+import { selectIsLivestreamClaimForUri, selectMomentReleaseTimeForUri } from 'redux/selectors/claims';
+const CALC_TIME_INTERVAL_MS = 1000;
+type Props = {
+  uri: string | null | undefined;
+};
+
+function ScheduledInfo(props: Props) {
+  const { uri } = props;
+  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
+  const isLivestream = useAppSelector((state) => selectIsLivestreamClaimForUri(state, uri));
+  const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
+  const [inPast, setInPast] = React.useState<boolean | undefined>();
+  const startDate = React.useMemo(() => dayjs(releaseTimeMs).format('LLL'), [releaseTimeMs]);
+  const icon = isLivestream ? ICONS.LIVESTREAM_SOLID : ICONS.TIME;
+  const text = isLivestream ? 'Live %time_date%' : 'Available %time_date%';
+  React.useEffect(() => {
+    const calcTime = () => {
+      const zeroDurationStr = '---';
+      const timeAgoStr = getTimeAgoStr(releaseTimeMs, true, true, zeroDurationStr);
+      const isZeroDuration = timeAgoStr === zeroDurationStr;
+
+      if (isZeroDuration) {
+        setInPast(true);
+      } else {
+        setStartDateFromNow(timeAgoStr);
+        setInPast(releaseTimeMs < Date.now());
+      }
+    };
+
+    calcTime();
+    const intervalId = setInterval(calcTime, CALC_TIME_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [releaseTimeMs]);
+
+  // **************************************************************************
+  // **************************************************************************
+  if (!startDateFromNow) {
+    return null;
+  }
+
+  return (
+    <div className="scheduled-info">
+      <Icon icon={icon} size={32} />
+      {inPast && <div className="scheduled-info__text">{__('Starting Soon')}</div>}
+      {!inPast && (
+        <div className="scheduled-info__text">
+          <I18nMessage
+            tokens={{
+              time_date: startDateFromNow,
+            }}
+          >
+            {text}
+          </I18nMessage>
+          <div className="scheduled-info__date">{startDate}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ScheduledInfo;

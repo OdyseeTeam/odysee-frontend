@@ -1,21 +1,26 @@
 const { lbryProxy: Lbry } = require('../lbry');
-const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
-const Rss = require('rss');
-const moment = require('moment');
-const { generateContentUrl } = require('./fetchStreamUrl');
-Lbry.setDaemonConnectionString(PROXY_URL);
 
+const { URL, SITE_NAME, PROXY_URL } = require('../../config.cjs');
+
+const Rss = require('rss');
+
+const dayjs = require('dayjs');
+
+const { generateContentUrl } = require('./fetchStreamUrl');
+
+Lbry.setDaemonConnectionString(PROXY_URL);
 const NUM_ENTRIES = 500;
 
 // ****************************************************************************
 // Fetch claim info
 // ****************************************************************************
-
 async function doClaimSearch(options) {
   let results;
+
   try {
     results = await Lbry.claim_search(options);
   } catch {}
+
   return results ? results.items : undefined;
 }
 
@@ -25,7 +30,10 @@ async function getChannelClaim(name, claimId) {
 
   try {
     const url = `lbry://${name}#${claimId}`;
-    const response = await Lbry.resolve({ urls: [url] });
+    const response = await Lbry.resolve({
+      urls: [url],
+    });
+
     if (response && response[url] && !response[url].error) {
       claim = response && response[url];
     }
@@ -35,7 +43,10 @@ async function getChannelClaim(name, claimId) {
     error = 'The RSS URL is invalid or is not associated with any channel.';
   }
 
-  return { claim, error };
+  return {
+    claim,
+    error,
+  };
 }
 
 async function getClaimsFromChannel(claimId, count) {
@@ -49,16 +60,14 @@ async function getClaimsFromChannel(claimId, count) {
     order_by: ['release_time'],
     no_totals: true,
     not_tags: restrictedTags,
-    release_time: `<${Math.floor(moment().startOf('minute').unix())}`,
+    release_time: `<${Math.floor(dayjs().startOf('minute').unix())}`,
   };
-
   return await doClaimSearch(options);
 }
 
 // ****************************************************************************
 // Helpers
 // ****************************************************************************
-
 function encodeWithSpecialCharEncode(string) {
   // encodeURIComponent doesn't encode `'` and others
   // which other services may not like
@@ -79,6 +88,7 @@ function fetchStreamUrls(claims) {
   try {
     if (!claims || !Array.isArray(claims)) {
       console.error('Claims is undefined or not an array in fetchStreamUrls.'); // eslint-disable-line no-console
+
       return [];
     }
 
@@ -86,18 +96,19 @@ function fetchStreamUrls(claims) {
     return results;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
+
     return [];
   }
 }
 
 function generateEnclosureForClaimContent(claim, streamUrl) {
   const value = claim.value;
+
   if (!value || !value.stream_type) {
     return undefined;
   }
 
   // const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
-
   switch (value.stream_type) {
     case 'video':
       return {
@@ -112,12 +123,14 @@ function generateEnclosureForClaimContent(claim, streamUrl) {
         type: (value.source && value.source.media_type) || 'audio/mpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
+
     case 'image':
       return {
         url: streamUrl,
         type: (value.source && value.source.media_type) || 'image/jpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
+
     case 'document':
     case 'software':
       return {
@@ -135,7 +148,6 @@ const getLanguageValue = (claim) => {
   const {
     value: { languages },
   } = claim;
-
   return languages && languages.length > 0 ? languages[0] : 'en';
 };
 
@@ -163,13 +175,22 @@ const generateItunesOwnerElement = (claim) => {
   }
 
   return {
-    'itunes:owner': [{ 'itunes:name': name }, { 'itunes:email': email }],
+    'itunes:owner': [
+      {
+        'itunes:name': name,
+      },
+      {
+        'itunes:email': email,
+      },
+    ],
   };
 };
 
 const generateItunesExplicitElement = (claim) => {
   const tags = (claim && claim.value && claim.value.tags) || [];
-  return { 'itunes:explicit': tags.includes('mature') ? 'true' : 'false' };
+  return {
+    'itunes:explicit': tags.includes('mature') ? 'true' : 'false',
+  };
 };
 
 const getItunesCategory = (claim) => {
@@ -194,11 +215,11 @@ const getItunesCategory = (claim) => {
     'True Crime',
     'TV & Film',
   ];
-
   const tags = (claim && claim.value && claim.value.tags) || [];
 
   for (let i = 0; i < itunesCategories.length; ++i) {
     const itunesCategory = itunesCategories[i];
+
     if (tags.includes(itunesCategory.toLowerCase())) {
       // "Note: Although you can specify more than one category and subcategory
       // in your RSS feed, Apple Podcasts only recognizes the first category and
@@ -216,6 +237,7 @@ const getItunesCategory = (claim) => {
 
 const generateItunesDurationElement = (claim) => {
   let duration;
+
   if (claim && claim.value) {
     if (claim.value.video) {
       duration = claim.value.video.duration;
@@ -225,15 +247,22 @@ const generateItunesDurationElement = (claim) => {
   }
 
   if (duration) {
-    return { 'itunes:duration': `${duration}` };
+    return {
+      'itunes:duration': `${duration}`,
+    };
   }
 };
 
 const generateItunesImageElement = (claim) => {
   const thumbnailUrl = (claim && claim.value && claim.value.thumbnail && claim.value.thumbnail.url) || '';
+
   if (thumbnailUrl) {
     return {
-      'itunes:image': { _attr: { href: thumbnailUrl } },
+      'itunes:image': {
+        _attr: {
+          href: thumbnailUrl,
+        },
+      },
     };
   }
 };
@@ -243,7 +272,6 @@ const getFormattedDescription = (claim) => replaceLineFeeds(claim.value.descript
 // ****************************************************************************
 // Generate
 // ****************************************************************************
-
 async function generateFeed(feedLink, channelClaim, claimsInChannel) {
   // --- Channel ---
   let channelTitle = (channelClaim.value && channelClaim.value.title) || channelClaim.name;
@@ -255,9 +283,13 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
     site_url: (channelClaim.value && channelClaim.value.website_url) || channelURL,
     image_url: (channelClaim.value && channelClaim.value.thumbnail && channelClaim.value.thumbnail.url) || undefined,
     language: getLanguageValue(channelClaim),
-    custom_namespaces: { itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd' },
+    custom_namespaces: {
+      itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+    },
     custom_elements: [
-      { 'itunes:author': channelTitle },
+      {
+        'itunes:author': channelTitle,
+      },
       {
         'itunes:category': [
           {
@@ -272,7 +304,6 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
       generateItunesExplicitElement(channelClaim),
     ],
   });
-
   // --- Parallel pre-fetch of stream url ---
   const streamUrls = fetchStreamUrls(claimsInChannel);
 
@@ -285,24 +316,27 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
       ? `<p><img src="${thumbnailUrl}" width="480" alt="thumbnail" title="${title}" /></p>`
       : '';
     const description = thumbnailHtml + getFormattedDescription(c);
-
     const url = `${URL}/${encodeWithSpecialCharEncode(c.name)}:${c.claim_id}`;
     const date =
       c.value && c.value.release_time ? c.value.release_time * 1000 : c.meta && c.meta.creation_timestamp * 1000;
-
     const claimStreamUrl = streamUrls ? streamUrls[i] : '';
-
     feed.item({
       title: title,
       description: description,
       url: url,
-      guid: undefined, // defaults to 'url'
-      author: undefined, // defaults feed author property
+      guid: undefined,
+      // defaults to 'url'
+      author: undefined,
+      // defaults feed author property
       date: new Date(date),
       enclosure: generateEnclosureForClaimContent(c, claimStreamUrl),
       custom_elements: [
-        { 'itunes:title': title },
-        { 'itunes:author': channelTitle },
+        {
+          'itunes:title': title,
+        },
+        {
+          'itunes:author': channelTitle,
+        },
         generateItunesImageElement(c),
         generateItunesDurationElement(c),
         generateItunesExplicitElement(c),
@@ -319,11 +353,13 @@ async function getRss(ctx) {
   }
 
   const { claim: channelClaim, error } = await getChannelClaim(ctx.params.claimName, ctx.params.claimId);
+
   if (error) {
     return error;
   }
 
   const latestClaimsInChannel = await getClaimsFromChannel(channelClaim.claim_id, NUM_ENTRIES);
+
   if (!latestClaimsInChannel) {
     return 'No content found in channel or we cannot fetch it at this time. Please try again later or contact us at hello@odysee.com';
   }
@@ -332,4 +368,6 @@ async function getRss(ctx) {
   return feed.xml();
 }
 
-module.exports = { getRss };
+module.exports = {
+  getRss,
+};

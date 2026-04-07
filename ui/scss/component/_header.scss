@@ -579,9 +579,26 @@
     backdrop-filter: blur(4px) !important;
   }
 
-  a:nth-child(1) {
-    .menu__list--notification {
-      border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
+  .menu__list--notification:first-child {
+    border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
+  }
+
+  .menu__list--notifications-push {
+    position: absolute;
+    right: var(--spacing-s);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px !important;
+    opacity: 0.45;
+    white-space: nowrap;
+
+    .icon {
+      width: 12px;
+      height: 12px;
+    }
+
+    &:hover {
+      opacity: 1;
     }
   }
 
@@ -599,7 +616,15 @@
       border-top: 1px solid var(--color-header-background);
       transition: border-left 0.4s;
 
+      .menu__list--notification-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+      }
+
       .notification__icon {
+        position: relative;
+        z-index: 1;
         margin-top: 0;
         margin-left: 0;
         .icon__wrapper {
@@ -653,6 +678,9 @@
               color: rgba(var(--color-text-base), 0.6);
               font-size: var(--font-xsmall);
               font-weight: 400;
+              p:hover {
+                color: rgba(var(--color-text-base), 1);
+              }
             }
           }
 
@@ -769,6 +797,7 @@
       top: var(--spacing-xs);
       right: var(--spacing-xxs);
       opacity: 0;
+      z-index: 1;
       .icon__wrapper {
         width: 20px;
         height: 20px;
@@ -797,6 +826,7 @@
   }
 
   .menu__list--notifications-more {
+    position: relative;
     color: var(--color-text);
     background-color: rgba(var(--color-header-background-base), 1);
     padding: var(--spacing-s) var(--spacing-xs);
@@ -806,6 +836,44 @@
     &:hover {
       cursor: pointer;
       color: var(--color-primary);
+    }
+  }
+}
+
+.header__changelog-button {
+  background-image: var(--color-odysee-memberships) !important;
+  color: white !important;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xxs) var(--spacing-s);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-xsmall);
+  border: none;
+
+  .icon {
+    stroke: white !important;
+  }
+
+  .button__label {
+    color: white !important;
+  }
+
+  .button__content {
+    color: white !important;
+  }
+
+  &:hover,
+  &:hover .button__label,
+  &:hover .button__content,
+  &:hover .icon {
+    color: white !important;
+    stroke: white !important;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-left: var(--spacing-s);
+
+    .button__label {
+      display: none;
     }
   }
 }

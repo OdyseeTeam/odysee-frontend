@@ -1,0 +1,148 @@
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import Button from 'component/button';
+import Tag from 'component/tag';
+import TagsSearch from 'component/tagsSearch';
+import usePersistedState from 'effects/use-persisted-state';
+import analytics from 'analytics';
+import Card from 'component/common/card';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { selectFollowedTags } from 'redux/selectors/tags';
+import { doToggleTagFollowDesktop as doToggleTagFollowDesktopAction } from 'redux/actions/tags';
+type Props = {
+  showClose?: boolean;
+  suggestMature?: boolean;
+  // Overrides
+  // The default component is for following tags
+  title?: string | boolean;
+  help?: string | boolean | React.ReactNode;
+  label?: string;
+  tagsChosen?: Array<Tag>;
+  onSelect?: (arg0: Array<Tag>) => void;
+  onRemove?: (arg0: Tag) => void;
+  placeholder?: string;
+  disableAutoFocus?: boolean;
+  hideHeader?: boolean;
+  limitShow?: number;
+  limitSelect?: number;
+  empty?: string;
+  excludedControlTags?: Array<string> | null | undefined;
+};
+/*
+  Displays tagsChosen if it exists, otherwise followedTags.
+ */
+
+export default function TagsSelect(props: Props) {
+  const {
+    showClose,
+    title,
+    help,
+    tagsChosen,
+    onSelect,
+    onRemove,
+    suggestMature,
+    disableAutoFocus,
+    placeholder,
+    hideHeader,
+    label,
+    limitShow,
+    limitSelect,
+    excludedControlTags,
+  } = props;
+  const dispatch = useAppDispatch();
+  const followedTags = useAppSelector(selectFollowedTags);
+  const doToggleTagFollowDesktop = (tag: string) => dispatch(doToggleTagFollowDesktopAction(tag));
+  const [hasClosed, setHasClosed] = usePersistedState('tag-select:has-closed', false);
+  const tagsToDisplay = tagsChosen || followedTags;
+  const tagCount = tagsToDisplay.length;
+  const hasMatureTag = tagsToDisplay.map((tag) => tag.name).includes('mature');
+
+  function handleClose() {
+    setHasClosed(true);
+  }
+
+  function handleTagClick(tag) {
+    if (onRemove) {
+      onRemove(tag);
+    } else if (doToggleTagFollowDesktop) {
+      doToggleTagFollowDesktop(tag.name);
+      const wasFollowing = followedTags.map((tag) => tag.name).includes(tag.name);
+      const nowFollowing = !wasFollowing;
+      analytics.event.tagFollow(tag.name, nowFollowing, 'tag-select');
+    }
+  }
+
+  React.useEffect(() => {
+    if (tagCount === 0 && showClose) {
+      setHasClosed(false);
+    }
+  }, [tagCount, setHasClosed, showClose]);
+  return (
+    ((showClose && !hasClosed) || !showClose) && (
+      <React.Fragment>
+        <Card
+          background
+          className="card--tags"
+          title={
+            hideHeader ? null : (
+              <React.Fragment>
+                {title}
+                {showClose && tagsToDisplay.length > 0 && !hasClosed && (
+                  <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />
+                )}
+              </React.Fragment>
+            )
+          }
+          body={
+            <div className="publish-row">
+              <TagsSearch
+                label={label}
+                onRemove={handleTagClick}
+                onSelect={onSelect}
+                suggestMature={suggestMature && !hasMatureTag}
+                disableAutoFocus={disableAutoFocus}
+                tagsPassedIn={tagsToDisplay}
+                placeholder={placeholder}
+                limitShow={limitShow}
+                limitSelect={limitSelect}
+                excludedControlTags={excludedControlTags}
+                disableControlTags
+                help={
+                  help !== false && (
+                    <span>
+                      {help || __("The tags you follow will change what's trending for you.")}{' '}
+                      <Button
+                        button="link"
+                        label={__('Learn more')}
+                        href="https://help.odysee.tv/category-contentdiscovery/search/"
+                      />
+                    </span>
+                  )
+                }
+              />
+            </div>
+          }
+        />
+        {onSelect && (
+          <Card
+            background
+            className="card--tags card--control-tags"
+            title={__('User Interactions')}
+            body={
+              <div className="publish-row">
+                <TagsSearch
+                  onRemove={handleTagClick}
+                  onSelect={onSelect}
+                  tagsPassedIn={tagsToDisplay}
+                  excludedControlTags={excludedControlTags}
+                  hideInputField
+                  hideSuggestions
+                />
+              </div>
+            }
+          />
+        )}
+      </React.Fragment>
+    )
+  );
+}

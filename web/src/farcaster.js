@@ -8,7 +8,7 @@ const {
   FARCASTER_SPLASH_IMAGE_URL,
   FARCASTER_SPLASH_BACKGROUND_COLOR,
   FARCASTER_HERO_IMAGE_URL,
-} = require('../../config.js');
+} = require('../../config.cjs');
 
 function getFarcasterManifest(ctx) {
   const iconUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
@@ -16,7 +16,6 @@ function getFarcasterManifest(ctx) {
   const splashImageUrl = FARCASTER_SPLASH_IMAGE_URL || iconUrl;
   const splashBackgroundColor = FARCASTER_SPLASH_BACKGROUND_COLOR || '#ffffff';
   const heroImageUrl = FARCASTER_HERO_IMAGE_URL || iconUrl;
-
   const manifest = {
     accountAssociation: undefined,
     frame: {
@@ -42,4 +41,6 @@ function getFarcasterManifest(ctx) {
   return JSON.stringify(manifest);
 }
 
-module.exports = { getFarcasterManifest };
+module.exports = {
+  getFarcasterManifest,
+};

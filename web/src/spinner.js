@@ -5,10 +5,8 @@ function getSpinnerHtml(ctx) {
   const tokenMatch = launchParam && launchParam.match(/^odysee:\/\/token\/([A-Za-z0-9_-]{8,512})$/);
   const launchUrl = tokenMatch ? `odysee://token/${tokenMatch[1]}` : null;
   const launchHref = launchUrl ? escapeHtmlAttribute(launchUrl) : null;
-
   // If no theme param, we'll use CSS media query to detect browser preference
   const useSystemTheme = !theme;
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,10 +37,10 @@ function getSpinnerHtml(ctx) {
       background-color: #0b0b0d;
       `
           : theme === 'dark'
-          ? `
+            ? `
       background-color: #0b0b0d;
       `
-          : `
+            : `
       background-color: #f7f7f7;
       `
       }
@@ -218,4 +216,6 @@ function escapeHtmlAttribute(value) {
     .replace(/>/g, '&gt;');
 }
 
-module.exports = { getSpinnerHtml };
+module.exports = {
+  getSpinnerHtml,
+};

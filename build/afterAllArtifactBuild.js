@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-module.exports = async function(params) {
+module.exports = async function (params) {
   const { artifactPaths } = params;
 
   for (var i = 0; i < artifactPaths.length; i++) {

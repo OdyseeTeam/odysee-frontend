@@ -13,6 +13,7 @@ function queryPool(sql, params) {
     pool.query(sql, params, (error, rows) => {
       if (error) {
         console.log('error', error); // eslint-disable-line
+
         resolve();
         return;
       }
@@ -24,7 +25,6 @@ function queryPool(sql, params) {
 
 module.exports.getClaim = async function getClaim(claimName, claimId, channelName, channelClaimId) {
   let params = [claimName];
-
   let sql =
     'SELECT channel_claim.name as channel, claim.claim_id, claim.name, claim.description, claim.language, claim.thumbnail_url, claim.title, claim.source_media_type, claim.frame_width, claim.frame_height, claim.fee, claim.release_time, claim.duration, claim.audio_duration, ' +
     'repost_channel.name as repost_channel, reposted_claim.claim_id as reposted_claim_id, reposted_claim.name as reposted_name, reposted_claim.description as reposted_description, reposted_claim.language as reposted_language, reposted_claim.thumbnail_url as reposted_thumbnail_url, reposted_claim.title as reposted_title, reposted_claim.source_media_type as reposted_source_media_type, reposted_claim.frame_width as reposted_frame_width, reposted_claim.frame_height as reposted_frame_height, reposted_claim.fee as reposted_fee ' +
@@ -46,6 +46,7 @@ module.exports.getClaim = async function getClaim(claimName, claimId, channelNam
   if (claimName[0] !== '@' && channelName) {
     sql += ' AND channel_claim.name = ?';
     params.push('@' + channelName);
+
     if (channelClaimId) {
       sql += ' AND channel_claim.claim_id LIKE ?';
       params.push(channelClaimId + '%');
@@ -55,6 +56,5 @@ module.exports.getClaim = async function getClaim(claimName, claimId, channelNam
   }
 
   sql += ' ORDER BY claim.bid_state DESC LIMIT 1';
-
   return queryPool(sql, params);
 };

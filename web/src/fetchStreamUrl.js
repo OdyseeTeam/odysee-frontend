@@ -1,11 +1,19 @@
 const Mime = require('mime-types');
-const { PLAYER_SERVER } = require('../../config.js');
+
+const { PLAYER_SERVER } = require('../../config.cjs');
+
 const { lbryProxy: Lbry } = require('../lbry');
+
 const { buildURI } = require('./lbryURI');
 
 async function fetchStreamUrl(claimName, claimId) {
-  const uri = buildURI({ claimName, claimId });
-  return await Lbry.get({ uri })
+  const uri = buildURI({
+    claimName,
+    claimId,
+  });
+  return await Lbry.get({
+    uri,
+  })
     .then(({ streaming_url }) => streaming_url)
     .catch((error) => {
       return '';
@@ -26,6 +34,7 @@ function generateContentUrl(claim) {
   };
 
   const value = claim?.value;
+
   if (value?.source?.media_type && value?.source?.sd_hash) {
     const fileExt = `.${Mime.extension(value.source.media_type)}`;
     const sdHash = value.source.sd_hash.slice(0, 6);

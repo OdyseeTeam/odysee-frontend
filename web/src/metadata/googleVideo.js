@@ -1,16 +1,21 @@
-const moment = require('moment');
+const dayjs = require('dayjs');
+const duration = require('dayjs/plugin/duration');
+dayjs.extend(duration);
+
 const removeMd = require('remove-markdown');
 
 // TODO: fix relative path for server
 const { generateContentUrl } = require('../fetchStreamUrl');
+
 const { parseURI } = require('../lbryURI');
-const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
-const { generateEmbedUrlEncoded, getThumbnailCardCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
+
+const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.cjs');
+
+const { generateEmbedUrlEncoded, getThumbnailCardCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web.cjs');
 
 // ****************************************************************************
 // Utils
 // ****************************************************************************
-
 function lbryToOdyseeUrl(claim) {
   if (claim.canonical_url) {
     return `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
@@ -28,29 +33,31 @@ function truncateDescription(description, maxChars = 200) {
 
 // ****************************************************************************
 // ****************************************************************************
-
 const Generate = {
   author: (claim) => {
     const channelName = claim?.signing_channel?.value?.title || claim?.signing_channel?.name;
     const channelUrl = claim?.signing_channel && lbryToOdyseeUrl(claim.signing_channel);
+
     if (channelName && channelUrl) {
-      return { '@type': 'Person', name: channelName, url: channelUrl };
+      return {
+        '@type': 'Person',
+        name: channelName,
+        url: channelUrl,
+      };
     }
   },
-
   height: (claim) => {
     return claim?.value?.video?.height;
   },
-
   keywords: (claim) => {
     const tags = claim?.value?.tags;
+
     if (tags) {
       // Some claims, probably created from cli, have a crazy amount of tags.
       // Limit that to 10.
       return tags.slice(0, 10).join(',');
     }
   },
-
   potentialAction: (claim) => {
     // https://developers.google.com/search/docs/advanced/structured-data/video?hl=en#seek
     if ((claim?.value?.video || claim?.value?.audio) && claim.canonical_url) {
@@ -61,12 +68,13 @@ const Generate = {
       };
     }
   },
-
   thumbnail: (url) => {
     // We don't have 'width' and 'height' from the claim :(
-    return { '@type': 'ImageObject', url };
+    return {
+      '@type': 'ImageObject',
+      url,
+    };
   },
-
   width: (claim) => {
     return claim?.value?.video?.width;
   },
@@ -75,7 +83,6 @@ const Generate = {
 // ****************************************************************************
 // buildGoogleVideoMetadata
 // ****************************************************************************
-
 async function buildGoogleVideoMetadata(uri, claim) {
   const { claimName } = parseURI(uri);
   const { meta, value } = claim;
@@ -86,7 +93,6 @@ async function buildGoogleVideoMetadata(uri, claim) {
   const mediaDuration = media && media.duration;
   const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
   const releaseTime = (value && value.release_time) || (meta && meta.creation_timestamp) || 0;
-
   const claimDescription =
     value && value.description && value.description.length > 0
       ? escapeHtmlProperty(truncateDescription(value.description))
@@ -98,9 +104,7 @@ async function buildGoogleVideoMetadata(uri, claim) {
 
   const claimThumbnail =
     escapeHtmlProperty(thumbnail) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
-
   const claimStreamUrl = generateContentUrl(claim);
-
   // https://developers.google.com/search/docs/data-types/video
   const googleVideoMetadata = {
     // --- Must ---
@@ -111,7 +115,7 @@ async function buildGoogleVideoMetadata(uri, claim) {
     thumbnailUrl: `${claimThumbnail}`,
     uploadDate: `${new Date(releaseTime * 1000).toISOString()}`,
     // --- Recommended ---
-    duration: mediaDuration ? moment.duration(mediaDuration * 1000).toISOString() : undefined,
+    duration: mediaDuration ? dayjs.duration(mediaDuration * 1000).toISOString() : undefined,
     url: lbryToOdyseeUrl(claim),
     contentUrl: claimStreamUrl,
     embedUrl: generateEmbedUrlEncoded(claim.canonical_url),
@@ -132,9 +136,9 @@ async function buildGoogleVideoMetadata(uri, claim) {
     return '';
   }
 
-  return (
-    '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n' + '</script>\n'
-  );
+  return '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n</script>\n';
 }
 
-module.exports = { buildGoogleVideoMetadata };
+module.exports = {
+  buildGoogleVideoMetadata,
+};

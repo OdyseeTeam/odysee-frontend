@@ -1,0 +1,68 @@
+import React from 'react';
+import Page from 'component/page';
+import { useLocation } from 'react-router-dom';
+import RepostCreate from 'component/repostCreate';
+import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import { REPOST_PARAMS } from 'constants/repost';
+import useThrottle from 'effects/use-throttle';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResolveUri } from 'redux/actions/claims';
+import { selectBalance } from 'redux/selectors/wallet';
+
+function RepostPage() {
+  const dispatch = useAppDispatch();
+  const balance = useAppSelector(selectBalance);
+  const resolveUri = React.useCallback((uri: string) => dispatch(doResolveUri(uri)), [dispatch]);
+
+  const { search } = useLocation();
+  const [contentUri, setContentUri] = React.useState('');
+  const [repostUri, setRepostUri] = React.useState('');
+  const urlParams = new URLSearchParams(search);
+  const repostFrom = urlParams.get(REPOST_PARAMS.FROM);
+  const redirectUri = urlParams.get(REPOST_PARAMS.REDIRECT);
+  const repostTo = urlParams.get(REPOST_PARAMS.TO);
+  const decodedFrom = repostFrom && decodeURIComponent(repostFrom);
+  const throttledContentValue = useThrottle(contentUri, 500);
+  const throttledRepostValue = useThrottle(repostUri, 500);
+  React.useEffect(() => {
+    if (throttledContentValue) {
+      resolveUri(throttledContentValue);
+    }
+  }, [throttledContentValue, resolveUri]);
+  React.useEffect(() => {
+    if (throttledRepostValue) {
+      resolveUri(throttledRepostValue);
+    }
+  }, [throttledRepostValue, resolveUri]);
+  React.useEffect(() => {
+    if (repostTo) {
+      resolveUri(repostTo);
+    }
+  }, [repostTo, resolveUri]);
+  return (
+    <Page
+      noFooter
+      noSideNavigation
+      backout={{
+        title: __('Repost'),
+        backLabel: __('Back'),
+      }}
+    >
+      {balance === 0 && <YrblWalletEmpty />}
+      <div className={balance === 0 ? 'card--disabled' : undefined}>
+        <RepostCreate
+          uri={decodedFrom}
+          name={repostTo}
+          redirectUri={redirectUri}
+          repostUri={repostUri}
+          contentUri={contentUri}
+          setContentUri={setContentUri}
+          setRepostUri={setRepostUri}
+          isRepostPage
+        />
+      </div>
+    </Page>
+  );
+}
+
+export default RepostPage;

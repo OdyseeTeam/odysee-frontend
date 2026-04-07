@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .MuiAutocomplete-inputRoot {
   @media (min-width: $breakpoint-small) {
     padding: 0 !important;
@@ -8,6 +10,7 @@
 
     .create__comment {
       min-height: calc(var(--height-input) * 1.5) !important;
+      padding: var(--spacing-xs) !important;
     }
   }
 
@@ -39,10 +42,16 @@
     @media (min-width: $breakpoint-small) {
       margin-bottom: var(--spacing-s);
     }
+
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-m) !important;
+    }
   }
 
   #comment__signup-prompt {
     background-color: var(--color-header-button);
+    height: 60px !important;
+    padding: var(--spacing-xs);
   }
 }
 
@@ -139,7 +148,7 @@
 
 .MuiDrawer-root {
   .comment-create__min-amount-notice {
-    display:flex;
+    display: flex;
     justify-content: center;
     align-items: center;
     margin-left: var(--spacing-xxxs);
@@ -273,8 +282,15 @@
   color: var(--color-text) !important;
 }
 
+.MuiDrawer-paperAnchorBottom {
+  @media (max-width: $breakpoint-small) {
+    bottom: calc(var(--header-height-mobile) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
 .MuiPaper-root {
-  background-color: var(--mui-background);
+  background-color: var(--mui-background) !important;
+  color: var(--color-text) !important;
   .form-field__two-column {
     display: flex;
     justify-content: space-between;

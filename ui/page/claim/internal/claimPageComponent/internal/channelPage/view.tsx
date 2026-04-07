@@ -1,0 +1,715 @@
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import React from 'react';
+import { getChannelSubCountStr } from 'util/formatMediaDuration';
+import { ChannelPageContext } from 'contexts/channel';
+import { parseURI } from 'util/lbryURI';
+import { YOUTUBE_STATUSES } from 'lbryinc';
+import SubscribeButton from 'component/subscribeButton';
+import ClaimShareButton from 'component/claimShareButton';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Button from 'component/button';
+import Lbry from 'lbry';
+import { formatLbryUrlForWeb } from 'util/url';
+import { CHANNEL_PAGE } from 'constants/urlParams';
+import ChannelThumbnail from 'component/channelThumbnail';
+import ChannelEdit from 'component/channelEdit';
+import SectionList from 'component/channelSections/SectionList';
+import classnames from 'classnames';
+import HelpLink from 'component/common/help-link';
+import ClaimSupportButton from 'component/claimSupportButton';
+import ClaimMenuList from 'component/claimMenuList';
+import Yrbl from 'component/yrbl';
+import I18nMessage from 'component/i18nMessage';
+import TruncatedText from 'component/common/truncated-text';
+import Tooltip from 'component/common/tooltip';
+import { toCompactNotation } from 'util/string';
+import { lazyImport } from 'util/lazyImport';
+import MembershipBadge from 'component/membershipBadge';
+import JoinMembershipButton from 'component/joinMembershipButton';
+import HomeTab from './tabs/homeTab';
+import ContentTab from './tabs/contentTab';
+import MembershipTab from './tabs/membershipTab';
+import CommunityTab from './tabs/communityTab';
+import AboutTab from './tabs/aboutTab';
+import CreatorSettingsTab from './tabs/creatorSettingsTab';
+import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
+import './style.scss';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimIsMine,
+  selectTitleForUri,
+  makeSelectCoverForUri,
+  selectClaimForUri,
+  selectIsClaimOdyseeChannelForUri,
+  makeSelectClaimIsPending,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
+import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
+import { doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
+import { selectYoutubeChannels, selectUser } from 'redux/selectors/user';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectModerationBlockList } from 'redux/selectors/comments';
+import { selectMutedChannels } from 'redux/selectors/blocked';
+import { doOpenModal } from 'redux/actions/app';
+import { selectLanguage, selectClientSetting } from 'redux/selectors/settings';
+import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
+import { doMembershipMine as doMembershipMineAction } from 'redux/actions/memberships';
+import { PREFERENCE_EMBED } from 'constants/tags';
+const HiddenNsfwClaims = lazyImport(
+  () =>
+    import(
+      'component/hiddenNsfwClaims'
+      /* webpackChunkName: "hiddenNsfwClaims" */
+    )
+) as React.LazyExoticComponent<React.ComponentType<{ uri?: string; mature?: boolean }>>;
+const TABS_FOR_CHANNELS_WITH_CONTENT = [
+  CHANNEL_PAGE.VIEWS.HOME,
+  CHANNEL_PAGE.VIEWS.CONTENT,
+  CHANNEL_PAGE.VIEWS.PLAYLISTS,
+  CHANNEL_PAGE.VIEWS.CHANNELS,
+];
+type Props = {
+  uri: string;
+  location?: any;
+  match?: {
+    params: {
+      attribute: string | null | undefined;
+    };
+  };
+};
+
+function ChannelPage(props: Props) {
+  const navigate = useNavigate();
+  const { search, pathname } = useLocation();
+  const { uri, match } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const title = useAppSelector((state) => selectTitleForUri(state, uri));
+  const thumbnail = getThumbnailFromClaim(claim);
+  const coverUrl = useAppSelector((state) => makeSelectCoverForUri(uri)(state));
+  const channelIsMine = useAppSelector((state) => selectClaimIsMine(state, claim));
+  const isSubscribed = useAppSelector((state) => selectIsSubscribedForUri(state, uri));
+  const subCount = useAppSelector((state) => selectSubCountForUri(state, uri));
+  const pending = useAppSelector((state) => makeSelectClaimIsPending(uri)(state));
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+  const blockedChannels = useAppSelector(selectModerationBlockList);
+  const mutedChannels = useAppSelector(selectMutedChannels);
+  const unpublishedCollections = useAppSelector(selectMyUnpublishedCollections);
+  const lang = useAppSelector(selectLanguage);
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, claim?.claim_id));
+  const myMembershipsFetched = useAppSelector(selectMembershipMineFetched);
+  const isOdyseeChannel = useAppSelector((state) => selectIsClaimOdyseeChannelForUri(state, uri));
+  const preferEmbed = useAppSelector((state) => makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state));
+  const banState = useAppSelector((state) => selectBanStateForUri(state, uri)) as {
+    filtered?: boolean;
+    blacklisted?: boolean;
+  };
+  const isMature = claim ? isClaimNsfw(claim) : false;
+  const isGlobalMod = Boolean(useAppSelector(selectUser)?.global_mod);
+  const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const isEmbedPath = pathname && pathname.startsWith('/$/embed');
+  const { meta } = claim;
+  const { claims_in_channel } = meta;
+  const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
+  const channelIsBlackListed = banState.blacklisted;
+  // Show About tab for blacklisted channels (DMCA message) or channels with content
+  const hideAboutTab = !showClaims && !isGlobalMod && !channelIsBlackListed;
+  const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
+  const urlParams = new URLSearchParams(search);
+  const viewParam = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW);
+  const isHomeTab = !viewParam;
+  let currentView = viewParam || CHANNEL_PAGE.VIEWS.HOME;
+
+  if (
+    !showClaims &&
+    (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam) || viewParam === CHANNEL_PAGE.VIEWS.ABOUT)
+  ) {
+    currentView = hideAboutTab ? CHANNEL_PAGE.VIEWS.DISCUSSION : CHANNEL_PAGE.VIEWS.ABOUT;
+  }
+
+  const editing = currentView === CHANNEL_PAGE.VIEWS.EDIT;
+  const { channelName } = parseURI(uri);
+  const { permanent_url: permanentUrl } = claim;
+  const claimId = claim.claim_id;
+  const compactSubCount = toCompactNotation(subCount, lang, 10000);
+  const formattedSubCount = Number(subCount).toLocaleString();
+  const isBlocked = claim && blockedChannels.includes(claim.permanent_url);
+  const isMuted = claim && mutedChannels.includes(claim.permanent_url);
+  const isMyYouTubeChannel =
+    claim &&
+    youtubeChannels &&
+    youtubeChannels.some(({ channel_claim_id, sync_status, transfer_state }) => {
+      if (
+        channel_claim_id === claim.claim_id &&
+        sync_status !== YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED &&
+        transfer_state !== YOUTUBE_STATUSES.YOUTUBE_SYNC_COMPLETED_TRANSFER
+      ) {
+        return true;
+      }
+    });
+  const showDiscussion = currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
+  const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
+  const [filters, setFilters] = React.useState<any>(undefined);
+  const [hasShorts, setHasShorts] = React.useState(true);
+  const [displayView, setDisplayView] = React.useState(currentView);
+  const [legacyHeader, setLegacyHeader] = React.useState(false);
+  React.useEffect(() => {
+    setDisplayView(currentView);
+  }, [currentView]);
+  React.useEffect(() => {
+    const image = new Image();
+
+    if (coverUrl) {
+      image.src = coverUrl;
+
+      image.addEventListener('load', function () {
+        if (image.naturalWidth / image.naturalHeight < 2.2) {
+          setLegacyHeader(true);
+        }
+      });
+    }
+  }, [coverUrl]);
+  const [scrollPast, setScrollPast] = React.useState<boolean>(false);
+
+  const onScroll = () => {
+    if (window.pageYOffset > 240) {
+      setScrollPast(true);
+    } else {
+      setScrollPast(false);
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const handleShortsLoaded = React.useCallback((count: number) => {
+    setHasShorts(count > 0);
+  }, []);
+  React.useEffect(() => {
+    let cancelled = false;
+
+    if (!showClaims || hideShorts || !claimId) {
+      setHasShorts(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+      setHasShorts(true);
+    }
+
+    // Use claim_search instead of lighthouse to detect shorts
+    Lbry.claim_search({
+      channel_ids: [claimId],
+      page_size: 1,
+      stream_types: ['video'],
+      duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
+      content_aspect_ratio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
+      order_by: ['release_time'],
+      no_totals: true,
+    })
+      .then((result: any) => {
+        if (!cancelled) {
+          const items = result?.items || [];
+          setHasShorts(items.length > 0);
+        }
+      })
+      .catch(() => {
+        if (!cancelled && currentView !== CHANNEL_PAGE.VIEWS.SHORTS) {
+          setHasShorts(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [claimId, currentView, hideShorts, showClaims]);
+  let collectionEmpty;
+
+  if (channelIsMine) {
+    collectionEmpty = hasUnpublishedCollections ? (
+      <section className="main--empty">
+        {
+          <p>
+            <I18nMessage
+              tokens={{
+                pick: <Button button="link" navigate={`/$/${PAGES.PLAYLISTS}`} label={__('Pick')} />,
+              }}
+            >
+              You have unpublished playlists! %pick% one and publish it!
+            </I18nMessage>
+          </p>
+        }
+      </section>
+    ) : (
+      <section className="main--empty">{__('You have no playlists! Create one from any playable content.')}</section>
+    );
+  } else {
+    collectionEmpty = <section className="main--empty">{__('No Playlists found')}</section>;
+  }
+
+  // If a user changes tabs, update the url so it stays on the same page if they refresh.
+  // We don't want to use links here because we can't animate the tab change and using links
+  // would alter the Tab label's role attribute, which should stay role="tab" to work with keyboards/screen readers.
+  const activeView = displayView;
+  let tabIndex;
+
+  switch (activeView) {
+    case CHANNEL_PAGE.VIEWS.HOME:
+      tabIndex = 0;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.CONTENT:
+      tabIndex = 1;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.SHORTS:
+      tabIndex = 2;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
+      tabIndex = 3;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.CHANNELS:
+      tabIndex = 4;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
+      if (!isOdyseeChannel) tabIndex = 5;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.DISCUSSION:
+      tabIndex = 6;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.ABOUT:
+      tabIndex = 7;
+      break;
+
+    case CHANNEL_PAGE.VIEWS.SETTINGS:
+      tabIndex = 8;
+      break;
+
+    default:
+      tabIndex = 0;
+      break;
+  }
+
+  function onTabChange(newTabIndex: number, keepFilters?: boolean) {
+    const baseUrl = formatLbryUrlForWeb(uri);
+    const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
+    let newSearch = '';
+    let nextView = CHANNEL_PAGE.VIEWS.HOME;
+    if (!keepFilters) setFilters(undefined);
+
+    switch (newTabIndex) {
+      case 0:
+        nextView = CHANNEL_PAGE.VIEWS.HOME;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+        break;
+
+      case 1:
+        nextView = CHANNEL_PAGE.VIEWS.CONTENT;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        break;
+
+      case 2:
+        nextView = CHANNEL_PAGE.VIEWS.SHORTS;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
+        break;
+
+      case 3:
+        nextView = CHANNEL_PAGE.VIEWS.PLAYLISTS;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        break;
+
+      case 4:
+        nextView = CHANNEL_PAGE.VIEWS.CHANNELS;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        break;
+
+      case 5:
+        if (!isOdyseeChannel) {
+          nextView = CHANNEL_PAGE.VIEWS.MEMBERSHIP;
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+        }
+
+        break;
+
+      case 6:
+        nextView = CHANNEL_PAGE.VIEWS.DISCUSSION;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        break;
+
+      case 7:
+        if (!hideAboutTab) {
+          nextView = CHANNEL_PAGE.VIEWS.ABOUT;
+          newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        }
+
+        break;
+
+      case 8:
+        nextView = CHANNEL_PAGE.VIEWS.SETTINGS;
+        newSearch += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        break;
+    }
+
+    setDisplayView(nextView);
+
+    // Replace instead of push to avoid flooding browser history when tabs
+    // change programmatically (e.g., from @reach/tabs onChange firing on
+    // index prop changes during render).
+    const newFullUrl = `${url}${newSearch}`;
+    const currentFullUrl = `${pathname}${search}`;
+
+    if (newFullUrl !== currentFullUrl) {
+      navigate(newFullUrl, { replace: true });
+    }
+  }
+
+  // Fetch each load? doMembershipContentForStreamClaimIds([claim.claim_id])
+  // React.useEffect(() => {
+  //   if (claim) getMembershipTiersForChannel(claim.claim_id);
+  //
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [claim]);
+  React.useEffect(() => {
+    dispatch(doFetchSubCount(claimId));
+  }, [uri, dispatch, claimId]);
+  React.useEffect(() => {
+    if (!myMembershipsFetched) {
+      dispatch(doMembershipMineAction());
+    }
+  }, [dispatch, myMembershipsFetched]);
+  React.useEffect(() => {
+    if (hideShorts && currentView === CHANNEL_PAGE.VIEWS.SHORTS) {
+      const baseUrl = formatLbryUrlForWeb(uri);
+      const url = isEmbedPath ? `/$/embed${baseUrl}` : baseUrl;
+      const search = `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+      navigate(`${url}${search}`);
+    }
+  }, [hideShorts, currentView, uri, navigate, isEmbedPath]);
+
+  if (editing) {
+    return <ChannelEdit uri={uri} onDone={() => navigate(-1)} disabled={false} />;
+  }
+
+  function handleViewMore(section: any) {
+    function getOrderBy() {
+      return section.order_by && section.order_by[0] === 'trending_group'
+        ? CS.ORDER_BY_TRENDING
+        : section.order_by[0] === 'effective_amount'
+          ? CS.ORDER_BY_TOP
+          : CS.ORDER_BY_NEW;
+    }
+
+    function getFileType() {
+      return section.file_type && section.file_type.length === 1 && section.file_type[0] === 'video'
+        ? CS.FILE_VIDEO
+        : section.file_type &&
+            section.file_type.length === 1 &&
+            section.file_type[0] &&
+            section.file_type[0] === 'audio'
+          ? CS.FILE_AUDIO
+          : section.file_type &&
+              section.file_type.length === 1 &&
+              section.file_type[0] &&
+              section.file_type[0] === 'document'
+            ? CS.FILE_DOCUMENT
+            : section.file_type &&
+                section.file_type.length === 1 &&
+                section.file_type[0] &&
+                section.file_type[0] === 'image'
+              ? CS.FILE_IMAGE
+              : undefined;
+    }
+
+    switch (section.type) {
+      case 'content':
+        setFilters({
+          order_by: getOrderBy(),
+          file_type: getFileType(),
+        });
+        onTabChange(1, true);
+        break;
+
+      case 'playlist':
+        navigate(`/$/playlist/${section.claim_id}`);
+        break;
+
+      case 'playlists':
+        setFilters({
+          order_by: getOrderBy(),
+          file_type: getFileType(),
+        });
+        onTabChange(2, true);
+        break;
+
+      case 'channels':
+        onTabChange(3, true);
+        break;
+
+      case 'reposts':
+        setFilters({
+          order_by: getOrderBy(),
+        });
+        onTabChange(1, true);
+        break;
+    }
+  }
+
+  return (
+    <ChannelPageContext.Provider value>
+      <header
+        className={classnames('channel-cover', {
+          'channel-cover-legacy': legacyHeader,
+        })}
+        style={
+          coverUrl && {
+            backgroundImage: 'url(' + String(coverUrl) + ')',
+          }
+        }
+      >
+        <div className="channel-header-content">
+          <div className="channel__quick-actions">
+            {isMyYouTubeChannel && (
+              <Button
+                button="alt"
+                label={__('Claim Your Channel')}
+                icon={ICONS.YOUTUBE}
+                navigate={`/$/${PAGES.CHANNELS}`}
+              />
+            )}
+            {!(isBlocked || isMuted || isMature) && <JoinMembershipButton uri={uri} />}
+            {!(isBlocked || isMuted || isMature || channelIsBlackListed) && (
+              <ClaimShareButton uri={uri} webShareable shrinkOnMobile />
+            )}
+            {!(isBlocked || isMuted || isMature) && <ClaimSupportButton uri={uri} shrinkOnMobile />}
+            {!(isBlocked || isMuted || isMature) && (!channelIsBlackListed || isSubscribed) && (
+              <SubscribeButton uri={permanentUrl} shrinkOnMobile />
+            )}
+            <ClaimMenuList uri={claim.permanent_url} inline collectionId="" />
+          </div>
+          <div className="channel__primary-info">
+            <h1 className="channel__title">
+              <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
+              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
+            </h1>
+            <div className="channel__meta">
+              <Tooltip title={formattedSubCount} followCursor placement="top">
+                <span>
+                  {getChannelSubCountStr(subCount, compactSubCount)}
+                  {Number.isInteger(subCount) ? (
+                    <HelpLink href="https://help.odysee.tv/category-interaction/following/" />
+                  ) : (
+                    '\u00A0'
+                  )}
+                </span>
+              </Tooltip>
+            </div>
+            <div className="channel__edit">
+              {channelIsMine && (
+                <>
+                  {pending ? (
+                    <span>{__('Your changes will be live in a few minutes')}</span>
+                  ) : (
+                    <Button
+                      button="alt"
+                      title={__('Edit')}
+                      onClick={() => navigate(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
+                      icon={ICONS.EDIT}
+                      iconSize={18}
+                      disabled={pending}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {isMature ? (
+        <React.Suspense fallback={null}>
+          <HiddenNsfwClaims uri={uri} mature />
+        </React.Suspense>
+      ) : (isBlocked || isMuted) && !viewBlockedChannel ? (
+        <div className="main--empty">
+          <Yrbl
+            title={isBlocked ? __('This channel is blocked') : __('This channel is hidden')}
+            subtitle={
+              isBlocked
+                ? __('Are you sure you want to view this content? Viewing will not unblock @%channel%', {
+                    channel: channelName,
+                  })
+                : __('Are you sure you want to view this content? Viewing will not unhide @%channel%', {
+                    channel: channelName,
+                  })
+            }
+            actions={
+              <div className="section__actions">
+                <Button button="primary" label={__('View Content')} onClick={() => setViewBlockedChannel(true)} />
+              </div>
+            }
+          />
+        </div>
+      ) : (
+        <Tabs onChange={onTabChange as (arg0: number) => void} index={tabIndex}>
+          <div
+            className={classnames('tab__wrapper', {
+              'tab__wrapper--fixed': scrollPast,
+            })}
+          >
+            <div
+              onClick={() =>
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth',
+                })
+              }
+            >
+              <ChannelThumbnail
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
+                uri={uri}
+                allowGifs
+                isChannel
+                hideStakedIndicator
+              />
+            </div>
+            <TabList>
+              <Tab aria-selected={tabIndex === 0} disabled={editing || !showClaims} onClick={() => onTabChange(0)}>
+                {__('Home')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
+                {__('Content')}
+              </Tab>
+              <Tab
+                disabled={editing || !showClaims || !hasShorts}
+                className={classnames({
+                  'tab--hidden': !hasShorts || hideShorts,
+                })}
+                aria-selected={tabIndex === 2}
+                onClick={() => onTabChange(2)}
+              >
+                {__('Shorts')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
+                {__('Playlists')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 4} disabled={editing || !showClaims} onClick={() => onTabChange(4)}>
+                {__('Channels')}
+              </Tab>
+              <Tab
+                className="tab--membership"
+                aria-selected={tabIndex === 5}
+                disabled={editing || isOdyseeChannel}
+                onClick={() => onTabChange(5)}
+              >
+                {__('Membership')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 6} disabled={editing} onClick={() => onTabChange(6)}>
+                {__('Community')}
+              </Tab>
+              <Tab
+                className={classnames({
+                  'tab--hidden': hideAboutTab,
+                })}
+                aria-selected={tabIndex === 7}
+                onClick={() => onTabChange(7)}
+              >
+                {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 8} disabled={editing} onClick={() => onTabChange(8)}>
+                {channelIsMine && __('Settings')}
+              </Tab>
+            </TabList>
+          </div>
+
+          <TabPanels>
+            <TabPanel>
+              {activeView === CHANNEL_PAGE.VIEWS.HOME && (
+                <HomeTab uri={uri} editMode={!!channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {activeView === CHANNEL_PAGE.VIEWS.CONTENT && (
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={!!channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream', 'repost'] as any}
+                  empty={(<section className="main--empty">{__('No Content Found')}</section>) as any}
+                  filters={filters}
+                  excludeShorts
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
+              <div
+                style={{
+                  display: activeView === CHANNEL_PAGE.VIEWS.SHORTS ? 'block' : 'none',
+                }}
+              >
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={!!channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream', 'repost'] as any}
+                  empty={(<section className="main--empty">{__('No Shorts Found')}</section>) as any}
+                  filters={filters}
+                  loadedCallback={handleShortsLoaded}
+                  shortsOnly
+                />
+              </div>
+            </TabPanel>
+            <TabPanel>
+              {activeView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
+                <ContentTab
+                  claimType={'collection'}
+                  uri={uri}
+                  channelIsBlackListed={!!channelIsBlackListed}
+                  viewHiddenChannels
+                  empty={collectionEmpty}
+                  filters={filters}
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {activeView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={!!channelIsMine} />}
+            </TabPanel>
+            <TabPanel>
+              {activeView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
+            </TabPanel>
+            <TabPanel>
+              {(showDiscussion || activeView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
+            </TabPanel>
+            <TabPanel>
+              {!hideAboutTab && activeView === CHANNEL_PAGE.VIEWS.ABOUT && (
+                <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {channelIsMine && activeView === CHANNEL_PAGE.VIEWS.SETTINGS && (
+                <CreatorSettingsTab activeChannelClaim={claim} />
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      )}
+    </ChannelPageContext.Provider>
+  );
+}
+
+export default ChannelPage;
