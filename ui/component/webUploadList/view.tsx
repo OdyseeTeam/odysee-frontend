@@ -50,7 +50,8 @@ export default function WebUploadList() {
   const dispatch = useAppDispatch();
   const currentUploads = useAppSelector(selectCurrentUploads);
   const uploadCount = useAppSelector(selectUploadCount);
-  const pipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
+  const allPipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
+  const pipelineItems = allPipelineItems.filter((item) => item.stage !== 'published');
   const doPublishResume = (arg0: any) => dispatch(doPublishResumeAction(arg0));
   const doUpdateUploadRemove = (arg0: string, arg1: any) => dispatch(doUpdateUploadRemoveAction(arg0, arg1));
   const doOpenModal = (arg0: string, arg1: {}) => dispatch(doOpenModalAction(arg0, arg1));
