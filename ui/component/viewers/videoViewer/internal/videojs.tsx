@@ -517,7 +517,14 @@ function VideoJsInner(props: Props) {
 
     // Set initial state
     const state = store.state;
-    if (startMuted) state.toggleMuted();
+    if (startMuted) {
+      try {
+        state.toggleMuted();
+      } catch {
+        // Store target not yet attached — fall back to muting the element directly
+        media.muted = true;
+      }
+    }
 
     // Call onPlayerReady with a compatible API object
     const playerApi = {
