@@ -59,6 +59,8 @@ function ThumbnailPicker(props: Props) {
   const [manualTimestamp, setManualTimestamp] = useState(0);
   const [manualFrame, setManualFrame] = useState<FrameData | null>(null);
   const [manualLoading, setManualLoading] = useState(false);
+  const [extractorExpanded, setExtractorExpanded] = useState(false);
+  const expandedVideoRef = useRef<HTMLVideoElement>(null);
 
   const inputRef = useRef<Input | null>(null);
   const frameUrlsRef = useRef<string[]>([]);
@@ -515,6 +517,7 @@ function ThumbnailPicker(props: Props) {
                       className="thumbnail-picker__custom-video"
                       muted
                       playsInline
+                      disablePictureInPicture
                     />
                     <div className="thumbnail-picker__custom-overlay">
                       <Icon icon={ICONS.CAMERA} size={24} />
@@ -543,6 +546,30 @@ function ThumbnailPicker(props: Props) {
                         if (frame) uploadFrame(frame);
                       }}
                     />
+                    <button
+                      className="thumbnail-picker__expand-btn"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExtractorExpanded(true);
+                      }}
+                    >
+                      <svg
+                        width={14}
+                        height={14}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    </button>
                   </button>
                 )}
                 {frames.map((frame, index) => (
@@ -661,6 +688,64 @@ function ThumbnailPicker(props: Props) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {extractorExpanded && filePath && (
+        <div className="thumbnail-picker__lightbox" onClick={() => setExtractorExpanded(false)}>
+          <div className="thumbnail-picker__lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <video
+              ref={(el) => {
+                expandedVideoRef.current = el;
+                if (el && manualVideoUrlRef.current) {
+                  el.src = manualVideoUrlRef.current;
+                  el.currentTime = manualTimestamp;
+                }
+              }}
+              className="thumbnail-picker__lightbox-video"
+              muted
+              playsInline
+              disablePictureInPicture
+            />
+            <input
+              className="thumbnail-picker__lightbox-slider"
+              type="range"
+              min={0}
+              max={duration || 1}
+              step={Math.max((duration || 1) / 500, 0.1)}
+              value={manualTimestamp}
+              onChange={(e) => {
+                const ts = Number(e.target.value);
+                setManualTimestamp(ts);
+                if (expandedVideoRef.current) expandedVideoRef.current.currentTime = ts;
+                if (manualVideoRef.current) manualVideoRef.current.currentTime = ts;
+              }}
+            />
+            <div className="thumbnail-picker__lightbox-info">
+              <span className="thumbnail-picker__lightbox-timestamp">{formatTimestamp(manualTimestamp)}</span>
+            </div>
+            <div className="thumbnail-picker__lightbox-actions">
+              <Button
+                button="primary"
+                label={uploading ? __('Uploading...') : __('Use this frame')}
+                disabled={uploading}
+                onClick={async () => {
+                  setSelectedIndex(-1);
+                  const frame = await captureCustomFrame();
+                  if (frame) uploadFrame(frame);
+                  setExtractorExpanded(false);
+                }}
+              />
+              <Button button="secondary" label={__('Close')} onClick={() => setExtractorExpanded(false)} />
+            </div>
+            <button
+              className="thumbnail-picker__lightbox-close"
+              type="button"
+              onClick={() => setExtractorExpanded(false)}
+            >
+              <Icon icon={ICONS.REMOVE} size={20} />
+            </button>
+          </div>
         </div>
       )}
     </div>
