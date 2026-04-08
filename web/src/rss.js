@@ -387,6 +387,7 @@ async function getRss(ctx) {
 
 module.exports = {
   getRss,
+  parseRssParams,
 };
 
 function parseRssParams(params) {

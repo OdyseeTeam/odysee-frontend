@@ -199,7 +199,7 @@ function devRssRoutesPlugin() {
     name: 'dev-rss-routes',
     apply: 'serve',
     configureServer(server) {
-      const { getRss } = require('./web/src/rss');
+      const { getRss, parseRssParams } = require('./web/src/rss');
 
       server.middlewares.use(async (req, res, next) => {
         const requestUrl = req.url || '';
@@ -220,25 +220,14 @@ function devRssRoutesPlugin() {
           return next();
         }
 
-        const slashIndex = rawRef.indexOf('/');
-        const colonIndex = rawRef.indexOf(':');
-        let params;
-
-        if (slashIndex !== -1) {
-          params = {
-            claimName: rawRef.slice(0, slashIndex),
-            claimId: rawRef.slice(slashIndex + 1),
-          };
-        } else if (colonIndex !== -1) {
-          params = {
-            claimName: rawRef.slice(0, colonIndex),
-            claimId: rawRef.slice(colonIndex + 1),
-          };
-        } else {
-          params = {
-            channelRef: rawRef,
-          };
-        }
+        const params = rawRef.includes('/')
+          ? {
+              claimName: rawRef.slice(0, rawRef.lastIndexOf('/')),
+              claimId: rawRef.slice(rawRef.lastIndexOf('/') + 1),
+            }
+          : parseRssParams({ channelRef: rawRef }) || {
+              channelRef: rawRef,
+            };
 
         try {
           const rss = await getRss({

@@ -195,11 +195,15 @@ jobs:
               }.get(result, ":grey_question:")
               return f"{emoji} {name}: {result}"
 
+          def escape_mrkdwn(text):
+              return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
           author = os.environ["ACTOR"]
           if os.environ.get("HEAD_COMMIT_AUTHOR_NAME") and os.environ.get("HEAD_COMMIT_AUTHOR_EMAIL"):
               author = f'{os.environ["HEAD_COMMIT_AUTHOR_NAME"]} <{os.environ["HEAD_COMMIT_AUTHOR_EMAIL"]}>'
           elif os.environ.get("PR_USER"):
               author = os.environ["PR_USER"]
+          author_text = escape_mrkdwn(author)
 
           started_at = ""
           api_url = os.environ.get("API_URL", "")
@@ -223,22 +227,21 @@ jobs:
               except Exception:
                   started_at = ""
 
-          elapsed_seconds = 0
+          duration = "unknown"
           if started_at:
               try:
                   start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
                   elapsed_seconds = max(0, int((datetime.now(timezone.utc) - start).total_seconds()))
+                  hours, remainder = divmod(elapsed_seconds, 3600)
+                  minutes, seconds = divmod(remainder, 60)
+                  if hours:
+                      duration = f"{hours}h {minutes}m"
+                  elif minutes:
+                      duration = f"{minutes}m {seconds}s"
+                  else:
+                      duration = f"{seconds}s"
               except ValueError:
-                  elapsed_seconds = 0
-
-          hours, remainder = divmod(elapsed_seconds, 3600)
-          minutes, seconds = divmod(remainder, 60)
-          if hours:
-              duration = f"{hours}h {minutes}m"
-          elif minutes:
-              duration = f"{minutes}m {seconds}s"
-          else:
-              duration = f"{seconds}s"
+                  duration = "unknown"
 
           workflow_name = os.environ["WORKFLOW_NAME"]
           server_url = os.environ["SERVER_URL"]
@@ -248,7 +251,7 @@ jobs:
           run_url = f"{repo_url}/actions/runs/{run_id}"
           commit_url = f"{repo_url}/commit/{sha}"
 
-          ref_text = os.environ["REF"]
+          ref_text = escape_mrkdwn(os.environ["REF"])
           ref_name = os.environ.get("REF_NAME", "")
           ref_type = os.environ.get("REF_TYPE", "")
           event_name = os.environ.get("EVENT_NAME", "")
@@ -257,20 +260,22 @@ jobs:
 
           if event_name == "pull_request" and pr_html_url:
               label = f"PR #{pr_number}" if pr_number else ref_name or "pull request"
+              label = escape_mrkdwn(label)
               ref_text = f"<{pr_html_url}|{label}>"
           elif ref_name:
+              ref_name_text = escape_mrkdwn(ref_name)
               if ref_type == "branch":
                   ref_url = f"{repo_url}/tree/{quote(ref_name, safe='')}"
-                  ref_text = f"<{ref_url}|{ref_name}>"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
               elif ref_type == "tag":
                   ref_url = f"{repo_url}/releases/tag/{quote(ref_name, safe='')}"
-                  ref_text = f"<{ref_url}|{ref_name}>"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
 
           text = (
               f"CI/CD\n"
               f"<{run_url}|{workflow_name}> "
               f"(<{commit_url}|{short_sha}>) of "
-              f"<{repo_url}|{repository}>@{ref_text} by {author} "
+              f"<{repo_url}|{repository}>@{ref_text} by {author_text} "
               f"{status} in {duration}"
           )
 
@@ -288,7 +293,7 @@ jobs:
                       {"type": "mrkdwn", "text": f"*Repository*\n<{repo_url}|{repository}>"},
                       {"type": "mrkdwn", "text": f"*Ref*\n{ref_text}"},
                       {"type": "mrkdwn", "text": f"*Commit*\n<{commit_url}|{short_sha}>"},
-                      {"type": "mrkdwn", "text": f"*Author*\n{author}"},
+                      {"type": "mrkdwn", "text": f"*Author*\n{author_text}"},
                   ],
               },
               {
