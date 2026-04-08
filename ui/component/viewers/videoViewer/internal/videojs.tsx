@@ -175,6 +175,7 @@ type Props = {
 
 type AirPlayVideoElement = HTMLVideoElement & {
   webkitShowPlaybackTargetPicker?: () => void;
+  webkitCurrentPlaybackTargetIsWireless?: boolean;
 };
 
 type AirPlayAvailabilityEvent = Event & {
@@ -428,6 +429,33 @@ function VideoJsInner(props: Props) {
         handleAirPlayAvailabilityChanged as EventListener
       );
   }, [videoElement]);
+
+  useEffect(() => {
+    if (!videoElement || !media || !resolvedSource) return;
+    const src = resolvedSource.src;
+    const isHls = resolvedSource.isHls || src.includes('.m3u8');
+    if (!isHls) return;
+
+    const handleWirelessChanged = () => {
+      const isWireless = (videoElement as AirPlayVideoElement).webkitCurrentPlaybackTargetIsWireless;
+      const hlsMedia = media;
+      if (isWireless) {
+        const currentTime = media.currentTime;
+        const wasPlaying = !media.paused;
+        if (hlsMedia._hls) {
+          hlsMedia._hls.destroy();
+          delete hlsMedia._hls;
+        }
+        media.src = src;
+        media.currentTime = currentTime;
+        if (wasPlaying) media.play().catch(() => {});
+      }
+    };
+
+    videoElement.addEventListener('webkitcurrentplaybacktargetiswirelesschanged', handleWirelessChanged);
+    return () =>
+      videoElement.removeEventListener('webkitcurrentplaybacktargetiswirelesschanged', handleWirelessChanged);
+  }, [videoElement, media, resolvedSource]);
 
   const onCastToggle = useCallback(() => {
     if (isCasting) {
