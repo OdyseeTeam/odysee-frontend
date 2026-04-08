@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ElementRef } from 'react';
 import { FormField } from 'component/common/form';
 import * as CS from 'constants/claim_search';
 import Button from 'component/button';
@@ -15,7 +14,6 @@ type Props = {
 
 function TagSearch(props: Props) {
   const { urlParams, handleChange, standalone } = props;
-  const inputRef: ElementRef<any> = React.useRef();
   const [tagSearchQuery, setTagSearchQuery] = React.useState(urlParams.get(CS.TAGS_KEY) || '');
   const handleChangeDebounced = React.useCallback(
     debounce(
@@ -38,7 +36,6 @@ function TagSearch(props: Props) {
       {!standalone && <label>{__('Tags')}</label>}
       <div className="clh-tag-search__input_group">
         <FormField
-          ref={inputRef}
           placeholder={__('Search tags')}
           type="text"
           className="clh-tag-search__input"

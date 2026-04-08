@@ -124,7 +124,7 @@ export const selectTransactionItems = createSelector(selectTransactionsById, (by
       })
     );
   });
-  return items.toSorted((tx1, tx2) => {
+  return [...items].toSorted((tx1, tx2) => {
     if (!tx1.timestamp && !tx2.timestamp) {
       return 0;
     } else if (!tx1.timestamp && tx2.timestamp) {

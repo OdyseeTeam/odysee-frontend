@@ -650,10 +650,10 @@ export const selectMyScheduledClaims = createSelector(selectMyClaims, (myClaims)
   })
 );
 export const selectMyClaimsWithoutChannels = createSelector(selectMyClaims, (myClaims) =>
-  myClaims.filter((claim) => claim && !claim.name.match(/^@/)).sort((a, b) => a.timestamp - b.timestamp)
+  myClaims.filter((claim) => claim && !claim.name.match(/^@/)).toSorted((a, b) => a.timestamp - b.timestamp)
 );
 export const selectMyClaimUrisWithoutChannels = createSelector(selectMyClaimsWithoutChannels, (myClaims) => {
-  return myClaims
+  return [...myClaims]
     .toSorted((a, b) => {
       if (a.height < 1) {
         return -1;
