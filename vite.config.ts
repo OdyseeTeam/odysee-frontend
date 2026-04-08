@@ -807,6 +807,7 @@ export default defineConfig({
       'typescript/no-redundant-type-constituents': 'off',
       'typescript/no-unnecessary-boolean-literal-compare': 'off',
       'typescript/no-unsafe-type-assertion': 'off',
+      'unicorn/no-array-sort': 'off',
     },
     ignorePatterns: [
       'node_modules',

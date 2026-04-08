@@ -1772,7 +1772,7 @@ export default function LivestreamStudio(props: Props) {
             <LivestreamSourceSelector
               activeVideoIds={activeVideoIds}
               activeAudioIds={activeAudioIds}
-              activeVideoOrder={[...compositorLayers].toSorted((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
+              activeVideoOrder={[...compositorLayers].sort((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
               activeImageSources={compositorLayers
                 .filter((l) => l.id.startsWith('__image_'))
                 .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const }))}
@@ -1780,7 +1780,7 @@ export default function LivestreamStudio(props: Props) {
               onToggleAudio={handleToggleAudio}
               onReorderVideo={(fromId, toId) => {
                 setCompositorLayers((prev) => {
-                  const sorted = [...prev].toSorted((a, b) => b.zIndex - a.zIndex);
+                  const sorted = [...prev].sort((a, b) => b.zIndex - a.zIndex);
                   const fromIdx = sorted.findIndex((l) => l.id === fromId);
                   const toIdx = sorted.findIndex((l) => l.id === toId);
                   if (fromIdx === -1 || toIdx === -1) return prev;

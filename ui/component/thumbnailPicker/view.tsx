@@ -223,7 +223,7 @@ function ThumbnailPicker(props: Props) {
   }, [filePath]);
 
   function handleRegenerate() {
-    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).toSorted((a, b) => a - b);
+    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).sort((a, b) => a - b);
     extractFrames(randomPercentages);
   }
 

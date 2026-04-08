@@ -714,7 +714,7 @@ export const doSortCollectionByKey =
     // Save unresolved uris
     const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
     const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
-    const sortedClaims = [...resolvedClaims].toSorted((a, b) => {
+    const sortedClaims = [...resolvedClaims].sort((a, b) => {
       if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
         const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
         const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;

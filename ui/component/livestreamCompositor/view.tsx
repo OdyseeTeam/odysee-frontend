@@ -135,7 +135,7 @@ export default function LivestreamCompositor(props: Props) {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-      const sorted = [...layers].toSorted((a, b) => a.zIndex - b.zIndex);
+      const sorted = [...layers].sort((a, b) => a.zIndex - b.zIndex);
       for (const layer of sorted) {
         if (!layer.visible) continue;
         const video = videoElementsRef.current.get(layer.id);
@@ -184,7 +184,7 @@ export default function LivestreamCompositor(props: Props) {
   }, [layers, outputWidth, outputHeight, canvasRef]);
 
   function getLayersAtPoint(px: number, py: number): CompositorLayer[] {
-    const sorted = [...layers].filter((l) => l.visible).toSorted((a, b) => b.zIndex - a.zIndex);
+    const sorted = [...layers].filter((l) => l.visible).sort((a, b) => b.zIndex - a.zIndex);
     return sorted.filter((layer) => {
       const lx = layer.x * scaleX;
       const ly = layer.y * scaleY;

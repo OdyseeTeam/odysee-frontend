@@ -83,13 +83,13 @@ const ClaimCollectionAdd = (props: Props) => {
           ))}
           {unpublishedCollections
             .filter((collection) => matchName(collection.name))
-            .toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
             ))}
           {publishedCollections
             .filter((collection) => matchName(collection.name))
-            .toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
             ))}

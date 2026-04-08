@@ -34,7 +34,7 @@ export default function ClaimTags(props: Props) {
     }
   }
 
-  const sortedTags = [...tags].toSorted((a, b) => a.localeCompare(b));
+  const sortedTags = [...tags].sort((a, b) => a.localeCompare(b));
 
   for (let i = 0; i < sortedTags.length; i++) {
     const tag = sortedTags[i];

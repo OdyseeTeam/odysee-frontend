@@ -33,7 +33,7 @@ function PaymentsTab(props: IProps) {
     channelIdsToList && channelIdsToList.length
       ? transactions.filter((t) => channelIdsToList.includes(t.creator_channel_claim_id))
       : transactions
-  ).toSorted((a, b) => new Date(b.initiated_at).getTime() - new Date(a.initiated_at).getTime());
+  ).sort((a, b) => new Date(b.initiated_at).getTime() - new Date(a.initiated_at).getTime());
   return (
     <>
       <div className="membership-payments-table__wrapper">

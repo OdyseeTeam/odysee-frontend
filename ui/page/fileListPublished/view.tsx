@@ -239,7 +239,7 @@ function FileListPublished() {
     }
 
     // Then the sorting selected setting
-    return result.toSorted((claimA, claimB) => {
+    return result.sort((claimA, claimB) => {
       const nameComparisonClaimA = claimA.reposted_claim ? claimA.reposted_claim : claimA;
       const nameComparisonClaimB = claimB.reposted_claim ? claimB.reposted_claim : claimB;
       let firstComparisonItem =

@@ -654,7 +654,7 @@ export const selectMyClaimsWithoutChannels = createSelector(selectMyClaims, (myC
 );
 export const selectMyClaimUrisWithoutChannels = createSelector(selectMyClaimsWithoutChannels, (myClaims) => {
   return [...myClaims]
-    .toSorted((a, b) => {
+    .sort((a, b) => {
       if (a.height < 1) {
         return -1;
       } else if (b.height < 1) {

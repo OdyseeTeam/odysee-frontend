@@ -33,7 +33,7 @@ export const getDefaultHomepageKey = () => {
  * @returns {[string, string][]}
  */
 export function sortLanguageMap(languages: Record<string, string>) {
-  return Object.entries(languages).toSorted((a, b) => {
+  return Object.entries(languages).sort((a, b) => {
     const lhs = a[1];
     const rhs = b[1];
     if (lhs < rhs) return -1;

@@ -68,14 +68,12 @@ export const selectFilteredActiveLivestreamUris = createCachedSelector(
       }
     }
 
-    const sortedLivestreams = [...filteredLivestreams].toSorted(
-      (a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
-        const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
-        if (viewCountA < viewCountB) return 1;
-        if (viewCountA > viewCountB) return -1;
-        return 0;
-      }
-    );
+    const sortedLivestreams = [...filteredLivestreams].sort((a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
+      const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
+      if (viewCountA < viewCountB) return 1;
+      if (viewCountA > viewCountB) return -1;
+      return 0;
+    });
     return sortedLivestreams.map((activeLivestream: LivestreamActiveClaim) => activeLivestream.uri);
   }
 )(
@@ -140,7 +138,7 @@ export const selectLivestreamsForChannelId = (state: State, channelId?: string) 
       claim.signing_channel &&
       claim.signing_channel.claim_id === channelId
   );
-  return filtered.length === 0 ? EMPTY_ARRAY : [...filtered].toSorted((a, b) => b.timestamp - a.timestamp);
+  return filtered.length === 0 ? EMPTY_ARRAY : [...filtered].sort((a, b) => b.timestamp - a.timestamp);
 };
 
 export const selectPendingLivestreamsForChannelId = (state: State, channelId?: string) => {

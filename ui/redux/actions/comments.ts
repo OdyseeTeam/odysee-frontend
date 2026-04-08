@@ -1780,21 +1780,21 @@ export function doFetchModBlockedList() {
                   personalBlockList.length > 0
                     ? personalBlockList
                         .slice()
-                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 adminBlockList:
                   adminBlockList.length > 0
                     ? adminBlockList
                         .slice()
-                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockList:
                   moderatorBlockList.length > 0
                     ? moderatorBlockList
                         .slice()
-                        .toSorted((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
+                        .sort((a: any, b: any) => new Date(a.blockedAt).getTime() - new Date(b.blockedAt).getTime())
                         .map((blockedChannel: any) => blockedChannel.channelUri)
                     : null,
                 moderatorBlockListDelegatorsMap: moderatorBlockListDelegatorsMap,

@@ -98,7 +98,7 @@ const SupportersTab = (props: Props) => {
             const supportersForChannel = supportersList
               ? supportersList
                   .filter((supporter) => listedChannelClaim.name === supporter.supported_channel_name)
-                  .toSorted((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
+                  .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
               : [];
             const supportersWithChannel = supportersForChannel
               ? supportersForChannel.filter((supporter) => supporter.subscriber_channel_name !== 'anonymous')

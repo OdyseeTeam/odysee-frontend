@@ -451,7 +451,7 @@ function SettingsMenuContent({
         </button>
         {levels
           .slice()
-          .toSorted((a, b) => b.height - a.height)
+          .sort((a, b) => b.height - a.height)
           .map((level) => (
             <button
               key={level.index}

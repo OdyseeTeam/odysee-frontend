@@ -41,7 +41,7 @@ export default function PublishTagsPicker({ tags, limitSelect, onAdd, onRemove }
 
     const channelClaims = myStreamClaims
       .filter((claim: any) => claim.signing_channel?.claim_id === channelId && claim.value?.tags)
-      .toSorted((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))
+      .sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))
       .slice(0, 50);
 
     channelClaims.forEach((claim: any) => {
@@ -51,7 +51,7 @@ export default function PublishTagsPicker({ tags, limitSelect, onAdd, onRemove }
     });
 
     return Object.entries(tagCounts)
-      .toSorted((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1] - a[1])
       .map(([name]) => name);
   }, [activeChannelClaim, myStreamClaims]);
 

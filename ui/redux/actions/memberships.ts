@@ -649,7 +649,7 @@ export const doSaveMembershipRestrictionsForContent =
         claim_id: contentClaimId,
         membership_ids: memberRestrictionTierIds
           .slice()
-          .toSorted((a, b) => a - b)
+          .sort((a, b) => a - b)
           .join(','),
         channel_id: channelClaimId,
         claim_name: contentClaimName, // pending_claim: pendingClaim,

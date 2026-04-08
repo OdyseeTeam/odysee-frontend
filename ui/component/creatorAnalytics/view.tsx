@@ -122,7 +122,7 @@ export default function CreatorAnalytics(props: Props) {
           c.confirmations > 0
         );
       })
-      .toSorted((a, b) => (claimsById[b]?.timestamp || 0) - (claimsById[a]?.timestamp || 0));
+      .sort((a, b) => (claimsById[b]?.timestamp || 0) - (claimsById[a]?.timestamp || 0));
     setChannelClaimIds(ids);
   }, [claimId, claimsById]);
 

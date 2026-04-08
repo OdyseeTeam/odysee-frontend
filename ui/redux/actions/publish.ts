@@ -942,7 +942,7 @@ const RECENT_PAGE_SIZE = 100;
 const SEARCH_PAGE_SIZE_PER_CHANNEL = 24;
 
 function sortClaimsByNewest(claims: Array<StreamClaim>): Array<StreamClaim> {
-  return [...claims].toSorted((a, b) => {
+  return [...claims].sort((a, b) => {
     const aTime = Number(a?.value?.release_time || a?.meta?.creation_timestamp || 0);
     const bTime = Number(b?.value?.release_time || b?.meta?.creation_timestamp || 0);
     return bTime - aTime;

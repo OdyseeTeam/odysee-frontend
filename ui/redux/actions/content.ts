@@ -789,7 +789,7 @@ export const doEnableCollectionShuffle =
         item,
         sort: Math.random(),
       }))
-      .toSorted((a, b) => a.sort - b.sort)
+      .sort((a, b) => a.sort - b.sort)
       .map(({ item }) => item);
 
     // the currently playing URI should be first in list or else

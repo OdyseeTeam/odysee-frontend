@@ -259,8 +259,8 @@ function fieldWouldChangeValue(
       return normalizeStringForCompare(metadata.description) !== normalizeStringForCompare(formValues.description);
 
     case 'tags': {
-      const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags).toSorted();
-      const targetTags = normalizeTagValuesForCompare(formValues.tags).toSorted();
+      const sourceTags = normalizeTagValuesForCompare(metadata.filteredTags).sort();
+      const targetTags = normalizeTagValuesForCompare(formValues.tags).sort();
       return !areArraysEqualForCompare(sourceTags, targetTags);
     }
 
@@ -268,8 +268,8 @@ function fieldWouldChangeValue(
       return normalizeStringForCompare(metadata.thumbnailUrl) !== normalizeStringForCompare(formValues.thumbnail);
 
     case 'languages': {
-      const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null).toSorted();
-      const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language).toSorted();
+      const sourceLanguages = normalizeLanguageValuesForCompare(metadata.languageList, null).sort();
+      const targetLanguages = normalizeLanguageValuesForCompare(formValues.languages, formValues.language).sort();
       return !areArraysEqualForCompare(sourceLanguages, targetLanguages);
     }
 
