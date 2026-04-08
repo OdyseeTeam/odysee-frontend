@@ -259,7 +259,7 @@ export const generateRssUrl = (
     return '';
   }
 
-  const url = `${domain}/$/rss/${channelClaim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
+  const url = `${domain}/rss/${channelClaim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
   return url;
 };
 export const generateListSearchUrlParams = (collectionId: string): string => {

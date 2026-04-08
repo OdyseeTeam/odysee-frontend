@@ -84,6 +84,8 @@ router.get(`/$/activate`, async (ctx) => {
 // to add a path for a temp file on the server, customize this path
 router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
+router.get(`/rss/:claimName/:claimId`, rssMiddleware);
+router.get(`/rss/:claimName::claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
 router.get(`/$/oembed`, oEmbedMiddleware);
