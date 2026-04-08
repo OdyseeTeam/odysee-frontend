@@ -5,7 +5,7 @@ import dayjs from 'util/dayjs';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
 import { useAppSelector } from 'redux/hooks';
-import { selectMomentReleaseTimeForUri } from 'redux/selectors/claims';
+import { selectDayjsReleaseTimeForUri } from 'redux/selectors/claims';
 import './style.lazy.scss';
 
 const CALC_TIME_INTERVAL_MS = 1000;
@@ -14,7 +14,7 @@ type Props = {
 };
 export default function LivestreamScheduledInfo(props: Props) {
   const { uri } = props;
-  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const releaseTime = useAppSelector((state) => selectDayjsReleaseTimeForUri(state, uri));
   const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
 
   const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();

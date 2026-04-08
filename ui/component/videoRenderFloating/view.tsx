@@ -1129,42 +1129,49 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
     if (appDrawerOpen) return;
 
+    let rafId: number | null = null;
+
     function handleScroll() {
-      const rootEl = getRootEl();
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const rootEl = getRootEl();
 
-      if (justChanged.current) {
-        justChanged.current = false;
-        return;
-      }
+        if (justChanged.current) {
+          justChanged.current = false;
+          return;
+        }
 
-      const viewer = document.querySelector<HTMLElement>(`.${CONTENT_VIEWER_CLASS}`);
-      const videoNode = document.querySelector<HTMLVideoElement>('.video-js-parent video');
-      const touchOverlay = document.querySelector<HTMLElement>('.odysee-touch-overlay');
+        const viewer = document.querySelector<HTMLElement>(`.${CONTENT_VIEWER_CLASS}`);
+        const videoNode = document.querySelector<HTMLVideoElement>('.video-js-parent video');
+        const touchOverlay = document.querySelector<HTMLElement>('.odysee-touch-overlay');
 
-      if (rootEl && viewer) {
-        const scrollTop = window.pageYOffset || rootEl.scrollTop;
-        const playerHeight = initialPlayerHeight.current || 0;
-        const isHigherThanLandscape = scrollTop < playerHeight - maxLandscapeHeight;
+        if (rootEl && viewer) {
+          const scrollTop = window.pageYOffset || rootEl.scrollTop;
+          const playerHeight = initialPlayerHeight.current || 0;
+          const isHigherThanLandscape = scrollTop < playerHeight - maxLandscapeHeight;
 
-        if (videoNode) {
-          if (isHigherThanLandscape) {
-            if (playerHeight > maxLandscapeHeight) {
-              const result = playerHeight - scrollTop;
-              const amountNeededToCenter = getAmountNeededToCenterVideo(videoNode.offsetHeight, result);
-              videoNode.style.top = `${amountNeededToCenter}px`;
-              if (touchOverlay) touchOverlay.style.height = `${result}px`;
-              viewer.style.height = `${result}px`;
+          if (videoNode) {
+            if (isHigherThanLandscape) {
+              if (playerHeight > maxLandscapeHeight) {
+                const result = playerHeight - scrollTop;
+                const amountNeededToCenter = getAmountNeededToCenterVideo(videoNode.offsetHeight, result);
+                videoNode.style.top = `${amountNeededToCenter}px`;
+                if (touchOverlay) touchOverlay.style.height = `${result}px`;
+                viewer.style.height = `${result}px`;
+              }
+            } else {
+              if (touchOverlay) touchOverlay.style.height = `${maxLandscapeHeight}px`;
+              viewer.style.height = `${maxLandscapeHeight}px`;
             }
-          } else {
-            if (touchOverlay) touchOverlay.style.height = `${maxLandscapeHeight}px`;
-            viewer.style.height = `${maxLandscapeHeight}px`;
           }
         }
-      }
+      });
     }
 
     window.addEventListener('scroll', handleScroll);
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       const touchOverlay = document.querySelector<HTMLElement>('.odysee-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
       window.removeEventListener('scroll', handleScroll);

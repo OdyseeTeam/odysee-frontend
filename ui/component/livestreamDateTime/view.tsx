@@ -5,7 +5,7 @@ import dayjs from 'util/dayjs';
 import I18nMessage from 'component/i18nMessage';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
-  selectMomentReleaseTimeForUri,
+  selectDayjsReleaseTimeForUri,
   selectChannelClaimIdForUri,
   selectClaimReleaseInFutureForUri,
 } from 'redux/selectors/claims';
@@ -23,7 +23,7 @@ const LivestreamDateTime = (props: Props) => {
   const { uri } = props;
   const dispatch = useAppDispatch();
   const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));
-  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const releaseTime = useAppSelector((state) => selectDayjsReleaseTimeForUri(state, uri));
   const activeLivestream = useAppSelector((state) => selectActiveLivestreamForChannel(state, channelClaimId));
   const isCurrentClaimLive = useAppSelector((state) => selectClaimIsActiveChannelLivestreamForUri(state, uri));
   const releaseInFuture = useAppSelector((state) => selectClaimReleaseInFutureForUri(state, uri));

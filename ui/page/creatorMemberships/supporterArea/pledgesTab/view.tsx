@@ -3,7 +3,7 @@ import Yrbl from 'component/yrbl';
 import Spinner from 'component/spinner';
 import MembershipRow from './internal/membershipRow';
 import ButtonSort from 'component/buttonSort';
-import { getRenewByMoment } from 'util/memberships';
+import { getRenewByDate } from 'util/memberships';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectMembershipMineFetching, selectMyPurchasedMembershipsFromCreators } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -45,10 +45,10 @@ function PledgesTab(props: Props) {
     let amountSortDesc = (a: any, b: any) => b.subscription.current_price.amount - a.subscription.current_price.amount;
 
     let renewBySortAsc = (a: any, b: any) =>
-      (getRenewByMoment(a)?.valueOf() || 0) - (getRenewByMoment(b)?.valueOf() || 999999999999999); // if null, make it really big so it's last
+      (getRenewByDate(a)?.valueOf() || 0) - (getRenewByDate(b)?.valueOf() || 999999999999999); // if null, make it really big so it's last
 
     let renewBySortDesc = (a: any, b: any) =>
-      (getRenewByMoment(b)?.valueOf() || 999999999999999) - (getRenewByMoment(a)?.valueOf() || 0); // if null, make it really big so it's last
+      (getRenewByDate(b)?.valueOf() || 999999999999999) - (getRenewByDate(a)?.valueOf() || 0); // if null, make it really big so it's last
 
     const defaultSort = renewBySortAsc;
     let sortFn;

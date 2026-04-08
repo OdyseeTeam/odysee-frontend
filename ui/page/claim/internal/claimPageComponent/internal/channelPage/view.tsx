@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Button from 'component/button';
 import Lbry from 'lbry';
 import { formatLbryUrlForWeb } from 'util/url';
+import debounce from 'util/debounce';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelEdit from 'component/channelEdit';
@@ -175,19 +176,20 @@ function ChannelPage(props: Props) {
   }, [coverUrl]);
   const [scrollPast, setScrollPast] = React.useState<boolean>(false);
 
-  const onScroll = () => {
-    if (window.pageYOffset > 240) {
-      setScrollPast(true);
-    } else {
-      setScrollPast(false);
-    }
-  };
-
   React.useEffect(() => {
-    window.addEventListener('scroll', onScroll, {
-      passive: true,
-    });
-    return () => window.removeEventListener('scroll', onScroll);
+    const onScroll = debounce(() => {
+      if (window.pageYOffset > 240) {
+        setScrollPast(true);
+      } else {
+        setScrollPast(false);
+      }
+    }, 100);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      onScroll.cancel();
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
   const handleShortsLoaded = React.useCallback((count: number) => {
     setHasShorts(count > 0);

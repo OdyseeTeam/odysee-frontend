@@ -12,6 +12,7 @@ import LivestreamMenu from 'component/livestreamMenu';
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
+import throttle from 'util/throttle';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
@@ -234,21 +235,27 @@ export default function ChatLayout(props: Props) {
   React.useEffect(() => {
     if (discussionElement && !openedPopoutWindow) setChatElement(discussionElement as HTMLElement);
   }, [discussionElement, openedPopoutWindow]);
-  // Register scroll handler (TODO: Should throttle/debounce)
   React.useEffect(() => {
-    function handleScroll() {
-      if (chatElement) {
-        const scrollTop = chatElement.scrollTop;
+    const handleScroll = throttle(
+      () => {
+        if (chatElement) {
+          const scrollTop = chatElement.scrollTop;
 
-        if (scrollTop !== scrollPos) {
-          setScrollPos(scrollTop);
+          if (scrollTop !== scrollPos) {
+            setScrollPos(scrollTop);
+          }
         }
-      }
-    }
+      },
+      100,
+      { trailing: true }
+    );
 
     if (chatElement) {
       chatElement.addEventListener('scroll', handleScroll);
-      return () => chatElement.removeEventListener('scroll', handleScroll);
+      return () => {
+        handleScroll.cancel();
+        chatElement.removeEventListener('scroll', handleScroll);
+      };
     }
   }, [chatElement, scrollPos]);
   // Retain scrollPos=0 when receiving new messages.

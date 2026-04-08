@@ -480,14 +480,14 @@ export const selectReleaseTimeForUri = (state: State, uri: string) => {
   if (!claim) return claim;
   return claim?.value?.release_time;
 };
-export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
+export const selectDayjsReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
   const releaseTime = dayjs.unix(claimReleaseTime || 0);
   return releaseTime;
 });
 export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
-  selectMomentReleaseTimeForUri(state, uri).isAfter();
+  selectDayjsReleaseTimeForUri(state, uri).isAfter();
 export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
-  selectMomentReleaseTimeForUri(state, uri).isBefore();
+  selectDayjsReleaseTimeForUri(state, uri).isBefore();
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
