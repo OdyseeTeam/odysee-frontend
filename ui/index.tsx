@@ -1,3 +1,17 @@
+if (typeof AbortSignal.any !== 'function') {
+  AbortSignal.any = (signals: AbortSignal[]) => {
+    const controller = new AbortController();
+    for (const signal of signals) {
+      if (signal.aborted) {
+        controller.abort(signal.reason);
+        return controller.signal;
+      }
+      signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+    }
+    return controller.signal;
+  };
+}
+
 import React, { useState, useEffect } from 'react';
 // core-js polyfills are loaded by Vite automatically via browserslist
 import { setGlobalDevModeChecks } from 'reselect';
