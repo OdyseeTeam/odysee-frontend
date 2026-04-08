@@ -29,6 +29,13 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error, errorInfo) {
+    console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
+    try {
+      sessionStorage.setItem(
+        '__errorBoundary',
+        JSON.stringify({ message: error?.message, stack: error?.stack?.substring(0, 500) })
+      );
+    } catch {} // eslint-disable-line no-console
     analytics.sentryError(error, errorInfo).then((sentryEventId) => {
       this.setState({
         sentryEventId,

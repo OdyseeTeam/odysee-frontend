@@ -62,7 +62,9 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       /* channelName, */
       isChannel,
     } = parseURI(uri);
-    const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
+    const claimIsRestricted =
+      !claimIsMine &&
+      ((geoRestriction !== null && geoRestriction !== undefined) || isClaimBlackListed || isClaimFiltered);
     const resolveRequired =
       claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated);
     const lastResolveKeyRef = React.useRef<string | undefined>();
