@@ -2027,6 +2027,42 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+.web-upload-item .claim-upload__progress--outer {
+  margin-top: 0;
+}
+
+.web-upload-item__round-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-card-background);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
+}
+
+.web-upload-item__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-top: var(--spacing-m);
+  margin-bottom: 0;
+}
+
 .claim-list__scroll-to-recent {
   position: absolute;
   display: flex;

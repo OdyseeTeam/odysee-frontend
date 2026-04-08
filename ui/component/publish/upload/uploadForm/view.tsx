@@ -2,6 +2,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
+import { useStore } from 'react-redux';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -85,6 +86,7 @@ type Props = {
 function UploadForm(props: Props) {
   const { disabled = false } = props;
   const dispatch = useAppDispatch();
+  const reduxStore = useStore();
 
   const publishFormValues = useAppSelector(selectPublishFormValues);
   const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
@@ -417,6 +419,14 @@ function UploadForm(props: Props) {
 
   // -- Pipeline --
   const pipelineItemIdRef = React.useRef<string>(uuid());
+
+  React.useEffect(() => {
+    const id = pipelineItemIdRef.current;
+    const items = (reduxStore.getState() as any).publish.pipelineItems || {};
+    if (items[id] && (thumbnail || title)) {
+      dispatch(doUpdatePipelineItem(id, { ...(thumbnail ? { thumbnail } : {}), ...(title ? { title } : {}) }));
+    }
+  }, [thumbnail, title]); // eslint-disable-line react-hooks/exhaustive-deps
   const pipelineHandleRef = React.useRef<{ pause: () => Promise<void>; resume: () => void } | null>(null);
   const pipelinePausedRef = React.useRef(false);
   const pipelineResumeRef = React.useRef<(() => void) | null>(null);
@@ -596,6 +606,8 @@ function UploadForm(props: Props) {
             steps,
             fileSize: file.size,
             formId: pipelineIdForForm.current,
+            title: title || filename,
+            thumbnail,
           })
         );
 
@@ -618,6 +630,8 @@ function UploadForm(props: Props) {
             steps: ['uploading'],
             fileSize: file.size,
             formId: pipelineIdForForm.current,
+            title: title || filename,
+            thumbnail,
           })
         );
 
