@@ -1133,6 +1133,13 @@ export const doCheckPendingClaims =
       const state = getState();
       const pendingById = Object.assign({}, selectPendingClaimsById(state));
 
+      for (const id of Object.keys(pendingById)) {
+        if (id.startsWith('pending-')) {
+          dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: id } });
+          delete pendingById[id];
+        }
+      }
+
       if (Object.keys(pendingById).length) {
         return Lbry.claim_list({
           claim_id: Object.keys(pendingById),

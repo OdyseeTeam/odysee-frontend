@@ -1477,9 +1477,12 @@ export const doPublishWithEarlyUpload =
           } as UpdatePendingClaimsAction);
           dispatch(doCheckPendingClaims(undefined));
         })
-        .catch(() => {});
+        .catch(() => {
+          dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
+        });
     } catch (error: any) {
       dispatch({ type: ACTIONS.PUBLISH_FAIL });
+      dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: `pending-${guid}` } });
       dispatch({
         type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
         data: { id: guid, updates: { stage: 'error', error: error?.message } },
