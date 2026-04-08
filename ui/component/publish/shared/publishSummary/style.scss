@@ -52,6 +52,11 @@
   overflow: hidden;
   font-size: var(--font-small);
   color: var(--color-text-subtitle);
+  transition: max-height 0.3s ease;
+}
+
+.publish-summary__description--expanded {
+  max-height: none;
 }
 
 .publish-summary__channel {

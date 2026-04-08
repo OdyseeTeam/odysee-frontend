@@ -62,8 +62,9 @@ export default function PublishTagsPicker({ tags, limitSelect, onAdd, onRemove }
   }, [followedTags, unfollowedTags]);
 
   const suggestions = useMemo(() => {
-    const source = channelTags.length > 0 ? channelTags : fallbackTags;
-    return source
+    const channelSet = new Set(channelTags);
+    const combined = [...channelTags, ...fallbackTags.filter((name) => !channelSet.has(name))];
+    return combined
       .filter((name) => !selectedSet.has(name))
       .filter((name) => (search ? name.toLowerCase().includes(search.toLowerCase()) : true))
       .slice(0, 30);

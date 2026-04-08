@@ -12,6 +12,7 @@ import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 import { getLanguageName } from 'constants/languages';
 import { COPYRIGHT, OTHER } from 'constants/licenses';
+import Button from 'component/button';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectPublishFormValues, selectMemberRestrictionStatus } from 'redux/selectors/publish';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
@@ -36,6 +37,7 @@ function truncate(str: string | undefined, max: number) {
 }
 
 export default function PublishSummary() {
+  const [descExpanded, setDescExpanded] = React.useState(false);
   const dispatch = useAppDispatch();
   const pf = useAppSelector(selectPublishFormValues);
   const myChannels = useAppSelector(selectMyChannelClaims);
@@ -216,9 +218,24 @@ export default function PublishSummary() {
               {createRow(
                 __('Description'),
                 description ? (
-                  <div className="publish-summary__description">
-                    <MarkdownPreview content={description} simpleLinks />
-                  </div>
+                  <>
+                    <div
+                      className={
+                        descExpanded
+                          ? 'publish-summary__description publish-summary__description--expanded'
+                          : 'publish-summary__description'
+                      }
+                    >
+                      <MarkdownPreview content={description} simpleLinks />
+                    </div>
+                    {description.length > 200 && (
+                      <Button
+                        button="link"
+                        label={descExpanded ? __('Show less') : __('Show more')}
+                        onClick={() => setDescExpanded(!descExpanded)}
+                      />
+                    )}
+                  </>
                 ) : null
               )}
               {createRow(
