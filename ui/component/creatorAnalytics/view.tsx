@@ -97,7 +97,7 @@ export default function CreatorAnalytics(props: Props) {
 
   React.useEffect(() => {
     if (!claimId) return;
-    dispatch(doFetchClaimListMine(1, 20, true, ['stream'], true, [claimId]));
+    dispatch(doFetchClaimListMine(1, 99999, true, ['stream'], true, [claimId]));
   }, [claimId, dispatch]);
 
   React.useEffect(() => {

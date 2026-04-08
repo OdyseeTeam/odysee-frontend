@@ -325,21 +325,52 @@ function UploadForm(props: Props) {
     }
 
     if (runPublish) {
-      const pipelineItems = window.store?.getState?.()?.publish?.pipelineItems || {};
-      const activePipelineItem = Object.values(pipelineItems).find(
+      const items = (reduxStore.getState() as any).publish.pipelineItems || {};
+      const activePipelineItem = Object.values(items).find(
         (item: any) => item.formId === pipelineIdForForm.current && item.stage !== 'error' && item.stage !== 'published'
       ) as any;
       const pipelineId = activePipelineItem?.id || pipelineItemIdRef.current;
+      const pipelineStage = activePipelineItem?.stage;
 
-      dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+      if (
+        mode === PUBLISH_MODES.FILE &&
+        pipelineStage &&
+        ['queued', 'converting', 'optimizing', 'paused', 'pausing'].includes(pipelineStage)
+      ) {
+        dispatch(doUpdatePipelineItem(pipelineId, { stage: pipelineStage }));
+        const uploadPromise = await new Promise<Promise<{ tusUrl: string }> | null>((resolve) => {
+          const check = () => {
+            const handle = (window as any).__earlyUploadHandles?.[pipelineId];
+            const promise = earlyUploadPromiseRef.current || handle?.promise;
+            if (promise) {
+              resolve(promise);
+              return;
+            }
+            const currentItems = (reduxStore.getState() as any).publish.pipelineItems || {};
+            const current = currentItems[pipelineId];
+            if (!current || current.stage === 'error') {
+              resolve(null);
+              return;
+            }
+            setTimeout(check, 500);
+          };
+          check();
+        });
 
-      const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
-      const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
-
-      if (uploadPromise && mode === PUBLISH_MODES.FILE) {
-        dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
+        if (!uploadPromise) return;
+        dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+        dispatch(doPublishWithEarlyUpload(uploadPromise as any, pipelineId));
       } else {
-        publish(outputFile, false);
+        dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+
+        const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
+        const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
+
+        if (uploadPromise && mode === PUBLISH_MODES.FILE) {
+          dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
+        } else {
+          publish(outputFile, false);
+        }
       }
     }
   }
