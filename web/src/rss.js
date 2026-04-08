@@ -363,11 +363,13 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
 }
 
 async function getRss(ctx) {
-  if (!ctx.params.claimName || !ctx.params.claimId) {
+  const rssParams = parseRssParams(ctx.params || {});
+
+  if (!rssParams) {
     return 'Invalid URL';
   }
 
-  const { claim: channelClaim, error } = await getChannelClaim(ctx.params.claimName, ctx.params.claimId);
+  const { claim: channelClaim, error } = await getChannelClaim(rssParams.claimName, rssParams.claimId);
 
   if (error) {
     return error;
@@ -386,3 +388,30 @@ async function getRss(ctx) {
 module.exports = {
   getRss,
 };
+
+function parseRssParams(params) {
+  const { claimName, claimId, channelRef } = params;
+
+  if (claimName && claimId) {
+    return {
+      claimName,
+      claimId,
+    };
+  }
+
+  if (!channelRef) {
+    return null;
+  }
+
+  const decodedRef = safeDecodeURIComponent(channelRef);
+  const separatorIndex = Math.max(decodedRef.lastIndexOf(':'), decodedRef.lastIndexOf('#'));
+
+  if (separatorIndex <= 0 || separatorIndex === decodedRef.length - 1) {
+    return null;
+  }
+
+  return {
+    claimName: decodedRef.slice(0, separatorIndex),
+    claimId: decodedRef.slice(separatorIndex + 1),
+  };
+}

@@ -86,8 +86,10 @@ router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
 router.get(`/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/rss/:claimName::claimId`, rssMiddleware);
+router.get(`/rss/:channelRef`, rssMiddleware);
 router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
+router.get(`/$/rss/:channelRef`, rssMiddleware);
 router.get(`/$/oembed`, oEmbedMiddleware);
 router.get(`/$/spinner`, async (ctx) => {
   ctx.set('Content-Type', 'text/html');
