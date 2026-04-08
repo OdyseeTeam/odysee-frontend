@@ -2,6 +2,7 @@ import React from 'react';
 import { WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { useAppDispatch } from 'redux/hooks';
 import { doToast } from 'redux/actions/notifications';
+import { doUpdatePublishForm } from 'redux/actions/publish';
 import { cacheOptimizedFile } from 'util/uploadCache';
 import './style.scss';
 
@@ -58,6 +59,7 @@ function getTargetBitrate(height: number): number {
 
 export default function VideoOptimizer({ file, fileBitrate, fileSizeTooBig, variant, onOptimized, onSkip }: Props) {
   const dispatch = useAppDispatch();
+  const [optimizeEnabled, setOptimizeEnabled] = React.useState(true);
   const [state, setState] = React.useState<OptimizeState>('idle');
   const [analysis, setAnalysis] = React.useState<AnalysisResult | null>(null);
   const [progress, setProgress] = React.useState(0);
@@ -301,7 +303,17 @@ export default function VideoOptimizer({ file, fileBitrate, fileSizeTooBig, vari
               className="publish-status-card__action"
               style={variant === 'mandatory' ? { pointerEvents: 'none', opacity: 0.7 } : undefined}
             >
-              <input type="checkbox" defaultChecked readOnly={variant === 'mandatory'} />
+              <input
+                type="checkbox"
+                checked={optimizeEnabled}
+                readOnly={variant === 'mandatory'}
+                onChange={(e) => {
+                  if (variant !== 'mandatory') {
+                    setOptimizeEnabled(e.target.checked);
+                    dispatch(doUpdatePublishForm({ skipOptimize: !e.target.checked }));
+                  }
+                }}
+              />
               <span>{__('Optimize')}</span>
             </label>
           )}

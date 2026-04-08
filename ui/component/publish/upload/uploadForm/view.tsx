@@ -570,8 +570,8 @@ function UploadForm(props: Props) {
   function handleStepChange(newStep: number, source: 'next' | 'back' | 'step') {
     if (activeStep === 0 && newStep === 1 && source === 'next' && filePath && filePath instanceof File) {
       const filename = filePath.name;
-      const needsConvert = fileFormat && fileFormat.toLowerCase() === 'mkv';
-      const needsOptimize = fileBitrate > BITRATE.RECOMMENDED;
+      const needsConvert = fileFormat && fileFormat.toLowerCase() === 'mkv' && !publishFormValues.skipConvert;
+      const needsOptimize = fileBitrate > BITRATE.RECOMMENDED && !publishFormValues.skipOptimize;
       const pipelineAlreadyHandled =
         pipelineInFlightRef.current ||
         filePath === preparedSourceFileRef.current ||

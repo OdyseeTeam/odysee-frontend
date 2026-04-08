@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppDispatch } from 'redux/hooks';
-import { doUpdateFile } from 'redux/actions/publish';
+import { doUpdateFile, doUpdatePublishForm } from 'redux/actions/publish';
 import { doToast } from 'redux/actions/notifications';
 import { cacheOptimizedFile } from 'util/uploadCache';
 import classnames from 'classnames';
@@ -20,6 +20,7 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
   const dispatch = useAppDispatch();
   const [state, setState] = React.useState<TransmuxState>('idle');
   const [progress, setProgress] = React.useState(0);
+  const [convertEnabled, setConvertEnabled] = React.useState(true);
   const cancelRef = React.useRef<(() => void) | null>(null);
 
   // Check if the codecs are compatible with MP4 transmuxing (no re-encode needed)
@@ -174,8 +175,15 @@ export default function VideoFormatNotice({ file, format, videoCodec, audioCodec
               <span>{__('Convert')}</span>
             </label>
           ) : (
-            <label className="publish-status-card__action" onClick={handleConvert}>
-              <input type="checkbox" defaultChecked />
+            <label className="publish-status-card__action">
+              <input
+                type="checkbox"
+                checked={convertEnabled}
+                onChange={(e) => {
+                  setConvertEnabled(e.target.checked);
+                  dispatch(doUpdatePublishForm({ skipConvert: !e.target.checked }));
+                }}
+              />
               <span>{__('Convert')}</span>
             </label>
           ))}

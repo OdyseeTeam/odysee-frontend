@@ -42,6 +42,8 @@ const defaultState: PublishState = {
   fileHeight: 0,
   fileFps: 0,
   fileNeedsTransmux: false,
+  skipConvert: false,
+  skipOptimize: false,
   remoteFileUrl: undefined,
   contentIsFree: true,
   publishType: 'file',
