@@ -311,6 +311,6 @@
 
 .publish-details textarea:not(.markdown-editor__textarea) {
   min-height: 120px !important;
-  height: auto !important;
+  height: auto;
   padding: var(--spacing-s);
 }

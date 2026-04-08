@@ -928,6 +928,9 @@
   // Keep publish-description textarea spacing stable against global/form overrides.
   textarea#content_description {
     padding: var(--spacing-s) !important;
+    resize: vertical;
+    overflow-y: auto;
+    field-sizing: content;
   }
 
   p {

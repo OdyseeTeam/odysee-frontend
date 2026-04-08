@@ -1,6 +1,6 @@
 import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { FormField } from 'component/common/form';
 import usePersistedState from 'effects/use-persisted-state';
 import Card from 'component/common/card';
@@ -17,6 +17,18 @@ function PublishDescription(props: Props) {
   const description = useAppSelector((state) => selectPublishFormValue(state, 'description'));
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [advancedEditor, setAdvancedEditor] = usePersistedState('publish-form-description-mode', false);
+
+  const autoResize = useCallback(() => {
+    const el = document.getElementById('content_description') as HTMLTextAreaElement | null;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+  }, []);
+
+  useEffect(() => {
+    autoResize();
+  }, [description, autoResize]);
 
   function toggleMarkdown() {
     setAdvancedEditor(!advancedEditor);
