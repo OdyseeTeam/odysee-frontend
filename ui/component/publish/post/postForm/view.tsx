@@ -227,15 +227,6 @@ function PostForm(props: Props) {
   else if (previewing) submitLabel = <Spinner type="small" />;
   else submitLabel = __('Publish');
 
-  if (publishing) {
-    return (
-      <div className="main--empty">
-        <h1 className="section__subtitle">{__('Publishing...')}</h1>
-        <Spinner delayed />
-      </div>
-    );
-  }
-
   const wizardSteps = [
     { label: 'Post', validate: () => !emptyPostError && !!title },
     { label: 'Content' },

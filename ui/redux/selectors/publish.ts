@@ -60,7 +60,7 @@ export const selectPublishFormValues = createSelector(
     // in the View. Later, when creating the SDK payload, do the logic below.
     const { languages, ...formValues } = publishState;
     const language = languages && languages.length && languages[0];
-    const { clientSettings } = settingsState;
+    const { clientSettings = {} } = settingsState || {};
     const { language: languageSet } = clientSettings;
     let actualLanguage;
 
