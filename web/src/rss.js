@@ -27,15 +27,22 @@ async function doClaimSearch(options) {
 async function getChannelClaim(name, claimId) {
   let claim;
   let error;
+  const normalizedName = safeDecodeURIComponent(name);
+  const normalizedClaimId = safeDecodeURIComponent(claimId);
+  const urls = [`lbry://${normalizedName}#${normalizedClaimId}`, `lbry://${normalizedName}:${normalizedClaimId}`];
 
   try {
-    const url = `lbry://${name}#${claimId}`;
     const response = await Lbry.resolve({
-      urls: [url],
+      urls,
     });
 
-    if (response && response[url] && !response[url].error) {
-      claim = response && response[url];
+    if (response) {
+      for (const url of urls) {
+        if (response[url] && !response[url].error) {
+          claim = response[url];
+          break;
+        }
+      }
     }
   } catch {}
 
@@ -47,6 +54,14 @@ async function getChannelClaim(name, claimId) {
     claim,
     error,
   };
+}
+
+function safeDecodeURIComponent(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 async function getClaimsFromChannel(claimId, count) {
@@ -348,11 +363,13 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
 }
 
 async function getRss(ctx) {
-  if (!ctx.params.claimName || !ctx.params.claimId) {
+  const rssParams = parseRssParams(ctx.params || {});
+
+  if (!rssParams) {
     return 'Invalid URL';
   }
 
-  const { claim: channelClaim, error } = await getChannelClaim(ctx.params.claimName, ctx.params.claimId);
+  const { claim: channelClaim, error } = await getChannelClaim(rssParams.claimName, rssParams.claimId);
 
   if (error) {
     return error;
@@ -370,4 +387,32 @@ async function getRss(ctx) {
 
 module.exports = {
   getRss,
+  parseRssParams,
 };
+
+function parseRssParams(params) {
+  const { claimName, claimId, channelRef } = params;
+
+  if (claimName && claimId) {
+    return {
+      claimName,
+      claimId,
+    };
+  }
+
+  if (!channelRef) {
+    return null;
+  }
+
+  const decodedRef = safeDecodeURIComponent(channelRef);
+  const separatorIndex = Math.max(decodedRef.lastIndexOf(':'), decodedRef.lastIndexOf('#'));
+
+  if (separatorIndex <= 0 || separatorIndex === decodedRef.length - 1) {
+    return null;
+  }
+
+  return {
+    claimName: decodedRef.slice(0, separatorIndex),
+    claimId: decodedRef.slice(separatorIndex + 1),
+  };
+}
