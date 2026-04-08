@@ -89,8 +89,8 @@ function Paginate(props: Props) {
           <ReactPaginate
             pageCount={totalPages}
             pageRangeDisplayed={2}
-            previousLabel="â€¹"
-            nextLabel="â€º"
+            previousLabel="‹"
+            nextLabel="›"
             activeClassName="pagination__item--selected"
             pageClassName="pagination__item"
             previousClassName="pagination__item pagination__item--previous"
