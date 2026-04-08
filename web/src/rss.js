@@ -27,15 +27,22 @@ async function doClaimSearch(options) {
 async function getChannelClaim(name, claimId) {
   let claim;
   let error;
+  const normalizedName = safeDecodeURIComponent(name);
+  const normalizedClaimId = safeDecodeURIComponent(claimId);
+  const urls = [`lbry://${normalizedName}#${normalizedClaimId}`, `lbry://${normalizedName}:${normalizedClaimId}`];
 
   try {
-    const url = `lbry://${name}#${claimId}`;
     const response = await Lbry.resolve({
-      urls: [url],
+      urls,
     });
 
-    if (response && response[url] && !response[url].error) {
-      claim = response && response[url];
+    if (response) {
+      for (const url of urls) {
+        if (response[url] && !response[url].error) {
+          claim = response[url];
+          break;
+        }
+      }
     }
   } catch {}
 
@@ -47,6 +54,14 @@ async function getChannelClaim(name, claimId) {
     claim,
     error,
   };
+}
+
+function safeDecodeURIComponent(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 async function getClaimsFromChannel(claimId, count) {
