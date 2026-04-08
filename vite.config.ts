@@ -194,6 +194,80 @@ function preprocessPlugin() {
   };
 }
 
+function devRssRoutesPlugin() {
+  return {
+    name: 'dev-rss-routes',
+    apply: 'serve',
+    configureServer(server) {
+      const { getRss } = require('./web/src/rss');
+
+      server.middlewares.use(async (req, res, next) => {
+        const requestUrl = req.url || '';
+        const pathname = requestUrl.split('?')[0];
+
+        if (!(pathname.startsWith('/rss/') || pathname.startsWith('/$/rss/') || pathname.startsWith('/%24/rss/'))) {
+          return next();
+        }
+
+        const basePath = pathname.startsWith('/$/rss/')
+          ? '/$/rss/'
+          : pathname.startsWith('/%24/rss/')
+            ? '/%24/rss/'
+            : '/rss/';
+        const rawRef = pathname.slice(basePath.length);
+
+        if (!rawRef) {
+          return next();
+        }
+
+        const slashIndex = rawRef.indexOf('/');
+        const colonIndex = rawRef.indexOf(':');
+        let params;
+
+        if (slashIndex !== -1) {
+          params = {
+            claimName: rawRef.slice(0, slashIndex),
+            claimId: rawRef.slice(slashIndex + 1),
+          };
+        } else if (colonIndex !== -1) {
+          params = {
+            claimName: rawRef.slice(0, colonIndex),
+            claimId: rawRef.slice(colonIndex + 1),
+          };
+        } else {
+          params = {
+            channelRef: rawRef,
+          };
+        }
+
+        try {
+          const rss = await getRss({
+            params,
+            request: {
+              url: requestUrl,
+            },
+          });
+
+          if (typeof rss === 'string' && rss.startsWith('<?xml')) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/xml');
+            res.end(rss);
+            return;
+          }
+
+          res.statusCode = 404;
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          res.end(rss || 'Invalid URL');
+        } catch (error) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          res.end(error instanceof Error ? error.message : 'Internal Server Error');
+        }
+      });
+    },
+  };
+}
+
 // Plugin to provide global variables (replaces webpack ProvidePlugin)
 function providePlugin() {
   return {
@@ -680,6 +754,7 @@ export default defineConfig({
   plugins: [
     uiModuleResolverPlugin(),
     preprocessPlugin(),
+    devRssRoutesPlugin(),
     providePlugin(),
     mediabunnyPausePatchPlugin(),
     // React Scan is opt-in in dev. Always injecting it proved too expensive on some heavy claim pages.
