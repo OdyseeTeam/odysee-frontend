@@ -14,6 +14,7 @@ import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
 import Spinner from 'component/spinner';
 import { getPathForPage, htmlDecode } from 'util/url';
+import { useStore } from 'react-redux';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectHasNavigated, selectScrollStartingPosition } from 'redux/selectors/app';
@@ -565,6 +566,17 @@ type PrivateRouteProps = {
   [key: string]: any;
 };
 
+function AutoplayClearWrapper({ uri }: { uri: string }) {
+  const store = useStore();
+  const state = store.getState() as any;
+  const autoplay = state.settings?.clientSettings?.autoplay;
+  const currentPlayingUri = state.content?.playingUri?.uri;
+  if (autoplay && currentPlayingUri && currentPlayingUri !== uri) {
+    store.dispatch({ type: 'SET_PLAYING_URI', data: { uri: null, collection: {} } });
+  }
+  return <ClaimPage uri={uri} />;
+}
+
 function PrivateRoute(props: PrivateRouteProps) {
   const location = useLocation();
   const { component: Component, isAuthenticated, ...rest } = props;
@@ -1006,8 +1018,8 @@ function AppRouter(props: Props) {
           <Route path="/$/:nonExistingPage" element={renderLegacyPage(FourOhFourPage)} />
         )}
 
-        <Route path="/:claimName" element={renderLegacyPage(ClaimPage, { uri })} />
-        <Route path="/:claimName/:streamName" element={renderLegacyPage(ClaimPage, { uri })} />
+        <Route path="/:claimName" element={<AutoplayClearWrapper key={uri} uri={uri} />} />
+        <Route path="/:claimName/:streamName" element={<AutoplayClearWrapper key={uri} uri={uri} />} />
         <Route path="*" element={renderLegacyPage(FourOhFourPage)} />
       </Routes>
     </React.Suspense>

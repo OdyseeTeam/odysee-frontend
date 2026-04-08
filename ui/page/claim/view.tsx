@@ -17,7 +17,6 @@ type Props = {
 
 const ClaimPage = (props: Props) => {
   const { uri, latestContentPath, liveContentPath } = props;
-
   const isMarkdownPost = useAppSelector((state) => selectIsMarkdownPostForUri(state, uri));
   const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
   const channelClaimId = useAppSelector((state) => selectChannelClaimIdForUri(state, uri));

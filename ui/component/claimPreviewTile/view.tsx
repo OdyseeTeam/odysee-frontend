@@ -266,6 +266,12 @@ function ClaimPreviewTile(props: Props) {
             }
           }
         }}
+        onAuxClick={(e: React.MouseEvent) => {
+          if (e.button === 1 && navigateUrl && !isPreview) {
+            e.preventDefault();
+            window.open(navigateUrl, '_blank');
+          }
+        }}
         style={{ cursor: isPreview ? 'default' : 'pointer' }}
       >
         <FileThumbnail

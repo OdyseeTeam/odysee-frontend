@@ -235,6 +235,7 @@ function FileThumbnail(props: Props) {
             className={classnames('media__thumb-video-wrap', {
               'media__thumb-video-wrap--active': hlsPreviewActive,
             })}
+            style={{ pointerEvents: 'none' }}
           >
             <video
               ref={hlsVideoRef}

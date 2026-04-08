@@ -195,7 +195,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       !claimLinkId &&
       !isCastSessionActive() &&
       (autoplayEnabled || playingCollectionId) &&
-      (!alreadyPlaying.current || currentUriPlaying) &&
+      (!alreadyPlaying.current || currentUriPlaying || (!isFloatingContext && autoplay)) &&
       isPlayable;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
@@ -400,7 +400,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       !hasStreamSource ||
       embeddedLivestreamPendingStart ||
       livestreamUnplayable ||
-      (isPlayable && !currentUriPlaying && !forceRenderStream)
+      (isPlayable && !currentUriPlaying && !forceRenderStream && !(autoplayVideo && !isFloatingContext))
     ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --

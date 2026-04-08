@@ -305,7 +305,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     },
     onClick: handleNavLinkClick,
     // if items play on click, don't play on auxClick
-    onAuxClick: playItemsOnClick ? undefined : handleNavLinkClick,
+    onAuxClick: undefined,
   };
   let shouldHide =
     placeholder !== 'loading' &&
@@ -469,6 +469,12 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
       ref={ref}
       role="link"
       onClick={pending || type === 'inline' ? undefined : handleOnClick}
+      onAuxClick={(e: any) => {
+        if (e.button === 1 && navigateUrl && !pending && !disableNavigation) {
+          e.preventDefault();
+          window.open(navigateUrl, '_blank');
+        }
+      }}
       className={classnames('claim-preview__wrapper', {
         'claim-preview__wrapper--row': !type,
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
