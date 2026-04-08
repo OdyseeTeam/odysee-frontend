@@ -66,7 +66,14 @@ import {
 } from 'redux/actions/settings';
 import { doToast } from 'redux/actions/notifications';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import {
+  doSignIn,
+  doSetIncognito,
+  doSetAssignedLbrynetServer,
+  doOpenModal,
+  doChangeVolume,
+  doChangeMute,
+} from 'redux/actions/app';
 import { selectError } from 'redux/selectors/notifications';
 import {
   doFetchModBlockedList,
@@ -389,6 +396,19 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const localForage = (await import('localforage')).default;
+        const preserved: any = await localForage.getItem('preservedAcrossLogout');
+        if (!preserved) return;
+        await localForage.removeItem('preservedAcrossLogout');
+        if (preserved.volume != null) dispatch(doChangeVolume(preserved.volume));
+        if (preserved.muted != null) dispatch(doChangeMute(preserved.muted));
+        if (preserved.homepage != null) dispatch(doSetClientSetting(SETTINGS.HOMEPAGE, preserved.homepage));
+      } catch (e) {}
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (userId) {
       analytics.setUser(userId);
