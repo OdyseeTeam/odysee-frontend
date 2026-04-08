@@ -33,6 +33,13 @@
 }
 */
 
+.comment-create {
+  .markdown-editor {
+    margin-top: 4px;
+    background-color: var(--color-input-bg);
+  }
+}
+
 .comment-create__auth {
   .MuiAutocomplete-root {
     @media (min-width: $breakpoint-small) {
