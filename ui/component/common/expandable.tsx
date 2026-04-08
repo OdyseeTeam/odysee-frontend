@@ -27,13 +27,13 @@ export default function Expandable(props: Props) {
   React.useLayoutEffect(() => {
     if (ref.current) {
       const childElem = ref.current.children[0];
-      setRect(childElem.getBoundingClientRect());
+      if (childElem) setRect(childElem.getBoundingClientRect());
     }
   }, [children]);
   const expandableRef = React.useCallback((node) => {
     if (node) {
       const childElem = node.children[0];
-      setRect(childElem.getBoundingClientRect());
+      if (childElem) setRect(childElem.getBoundingClientRect());
       ref.current = node;
     }
   }, []);
