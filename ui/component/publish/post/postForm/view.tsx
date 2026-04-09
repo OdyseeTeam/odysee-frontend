@@ -90,7 +90,10 @@ function PostForm(props: Props) {
     dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: formIdRef.current } });
     if (!bid) updatePublishForm({ bid: 0.001 });
     return () => {
-      dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: formIdRef.current } });
+      const currentState = (window as any).store?.getState?.()?.publish;
+      if (currentState?.activeFormId === formIdRef.current) {
+        dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: formIdRef.current } });
+      }
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

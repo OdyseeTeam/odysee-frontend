@@ -283,8 +283,12 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
         dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: currentFormId } });
       }
       dispatch(doClearPublish());
-      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: null } });
-      dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { type } });
+      dispatch(
+        batchActions(
+          { type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: null } },
+          { type: ACTIONS.UPDATE_PUBLISH_FORM, data: { type } }
+        )
+      );
     }
 
     if (name) {
