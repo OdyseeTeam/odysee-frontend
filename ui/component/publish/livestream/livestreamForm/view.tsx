@@ -512,7 +512,9 @@ function LivestreamForm(props: Props) {
               title={__('Thumbnail')}
               body={
                 <div className="publish-row">
-                  <SelectThumbnail />
+                  <React.Suspense fallback={null}>
+                    <SelectThumbnail />
+                  </React.Suspense>
                 </div>
               }
               {...({ livestreamData } as any)}
@@ -571,7 +573,11 @@ function LivestreamForm(props: Props) {
             {/* @ts-ignore -- isStillEditing is resolved internally */}
             <PublishProtectedContent claim={myClaimForUri} />
 
-            {liveCreateType === 'choose_replay' && <PublishPrice {...({ disabled: !!disabled } as any)} />}
+            {liveCreateType === 'choose_replay' && (
+              <React.Suspense fallback={null}>
+                <PublishPrice {...({ disabled: !!disabled } as any)} />
+              </React.Suspense>
+            )}
 
             <PublishAdditionalOptions
               isLivestream
