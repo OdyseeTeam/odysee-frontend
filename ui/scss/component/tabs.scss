@@ -117,6 +117,10 @@
   }
 }
 
+.tab--selected {
+  background-color: var(--color-background);
+}
+
 .tab--hidden {
   display: none !important;
 }

@@ -233,7 +233,6 @@ export function CommentCreate(props: Props) {
   const { pathname } = useLocation();
   const { activeArStatus } = useArStatus();
   const isMobile = useIsMobile();
-  const formFieldRef = React.useRef<any>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setSubmitting] = React.useState(false);
@@ -292,9 +291,49 @@ export function CommentCreate(props: Props) {
     disableInput;
   const minUSDAmountRef = React.useRef(minUSDAmount);
   minUSDAmountRef.current = minUSDAmount;
-  const addEmoteToComment = React.useCallback((emote: string) => {
-    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
-  }, []);
+  const cursorPosRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    const cls = isReply ? 'create__reply' : 'create__comment';
+    const textarea = document.querySelector<HTMLTextAreaElement>(`.${cls} textarea, textarea.${cls}, textarea#${cls}`);
+    if (!textarea) return;
+    const saveCursor = () => {
+      cursorPosRef.current = textarea.selectionStart;
+    };
+    textarea.addEventListener('keyup', saveCursor);
+    textarea.addEventListener('click', saveCursor);
+    textarea.addEventListener('blur', saveCursor);
+    return () => {
+      textarea.removeEventListener('keyup', saveCursor);
+      textarea.removeEventListener('click', saveCursor);
+      textarea.removeEventListener('blur', saveCursor);
+    };
+  });
+  const addEmoteToComment = React.useCallback(
+    (emote: string) => {
+      const cls = isReply ? 'create__reply' : 'create__comment';
+      const textarea = document.querySelector<HTMLTextAreaElement>(
+        `.${cls} textarea, textarea.${cls}, textarea#${cls}`
+      );
+      const pos = cursorPosRef.current ?? textarea?.value?.length ?? 0;
+
+      setCommentValue((prev) => {
+        const before = prev.substring(0, pos);
+        const after = prev.substring(pos);
+        const spaceBefore = before.length > 0 && before.charAt(before.length - 1) !== ' ' ? ' ' : '';
+        const spaceAfter = after.length > 0 && after.charAt(0) !== ' ' ? ' ' : '';
+        const insertion = spaceBefore + emote + spaceAfter;
+        const newPos = pos + insertion.length;
+        requestAnimationFrame(() => {
+          if (textarea) {
+            textarea.focus();
+            textarea.setSelectionRange(newPos, newPos);
+          }
+        });
+        return before + insertion + after;
+      });
+    },
+    [isReply]
+  );
   const handleSelectSticker = React.useCallback(
     (sticker: any) => {
       setSelectedSticker(sticker);
@@ -818,9 +857,9 @@ export function CommentCreate(props: Props) {
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
     function altEnterListener(e: any) {
-      const inputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input;
+      const inputEl = document.getElementById(isReply ? 'create__reply' : 'create__comment');
 
-      if (inputRef && inputRef.current === document.activeElement) {
+      if (inputEl && inputEl === document.activeElement) {
         const isTyping = Boolean(e.target.attributes['typing-term']);
 
         if (((isLivestream && !isTyping) || e.ctrlKey || e.metaKey) && e.keyCode === KEYCODES.ENTER) {
@@ -829,7 +868,8 @@ export function CommentCreate(props: Props) {
         }
 
         if (isLivestream && isTyping && e.keyCode === KEYCODES.ENTER) {
-          inputRef.current.removeAttribute('typing-term');
+          const inputEl = document.getElementById(isReply ? 'create__reply' : 'create__comment');
+          if (inputEl) inputEl.removeAttribute('typing-term');
         }
       }
     }
@@ -855,7 +895,13 @@ export function CommentCreate(props: Props) {
             ? commentValue + textInjection + ' '
             : commentValue + ' ' + textInjection + ' '
       );
-      return formFieldRef?.current?.input?.current?.focus();
+      requestAnimationFrame(() => {
+        const cls = isReply ? 'create__reply' : 'create__comment';
+        const textarea = document.querySelector<HTMLTextAreaElement>(
+          `.${cls} textarea, textarea.${cls}, textarea#${cls}`
+        );
+        if (textarea) textarea.focus();
+      });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [textInjection]);
   const notAuthedToLiveChat = Boolean(
@@ -1006,7 +1052,6 @@ export function CommentCreate(props: Props) {
               quickActionLabel={
                 !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
               }
-              ref={formFieldRef}
               textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
               type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
               value={commentValue}
