@@ -156,6 +156,7 @@ jobs:
           PR_USER: ${{ github.event.pull_request.user.login }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 - <<'PY'
@@ -198,6 +199,10 @@ jobs:
           def escape_mrkdwn(text):
               return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+          def summarize_commit_message(message):
+              lines = [line.strip() for line in message.splitlines() if line.strip()]
+              return lines[0] if lines else ""
+
           author = os.environ["ACTOR"]
           if os.environ.get("HEAD_COMMIT_AUTHOR_NAME") and os.environ.get("HEAD_COMMIT_AUTHOR_EMAIL"):
               author = f'{os.environ["HEAD_COMMIT_AUTHOR_NAME"]} <{os.environ["HEAD_COMMIT_AUTHOR_EMAIL"]}>'
@@ -209,7 +214,9 @@ jobs:
           api_url = os.environ.get("API_URL", "")
           repository = os.environ["REPOSITORY"]
           run_id = os.environ["RUN_ID"]
+          sha = os.environ["SHA"]
           github_token = os.environ.get("GITHUB_TOKEN", "")
+          commit_message = summarize_commit_message(os.environ.get("HEAD_COMMIT_MESSAGE", ""))
 
           if api_url and repository and run_id and github_token:
               request = urllib.request.Request(
@@ -226,6 +233,22 @@ jobs:
                       started_at = run_data.get("run_started_at") or ""
               except Exception:
                   started_at = ""
+
+          if not commit_message and api_url and repository and sha and github_token:
+              request = urllib.request.Request(
+                  f"{api_url}/repos/{repository}/commits/{sha}",
+                  headers={
+                      "Authorization": f"Bearer {github_token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      commit_data = json.load(response)
+                      commit_message = summarize_commit_message(commit_data.get("commit", {}).get("message", ""))
+              except Exception:
+                  commit_message = ""
 
           duration = "unknown"
           if started_at:
@@ -245,11 +268,11 @@ jobs:
 
           workflow_name = os.environ["WORKFLOW_NAME"]
           server_url = os.environ["SERVER_URL"]
-          sha = os.environ["SHA"]
           short_sha = sha[:8]
           repo_url = f"{server_url}/{repository}"
           run_url = f"{repo_url}/actions/runs/{run_id}"
           commit_url = f"{repo_url}/commit/{sha}"
+          commit_message_text = escape_mrkdwn(commit_message) if commit_message else "unknown"
 
           ref_text = escape_mrkdwn(os.environ["REF"])
           ref_name = os.environ.get("REF_NAME", "")
@@ -276,7 +299,8 @@ jobs:
               f"<{run_url}|{workflow_name}> "
               f"(<{commit_url}|{short_sha}>) of "
               f"<{repo_url}|{repository}>@{ref_text} by {author_text} "
-              f"{status} in {duration}"
+              f"{status} in {duration}\n"
+              f"Message: {commit_message_text}"
           )
 
           blocks = [
@@ -295,6 +319,13 @@ jobs:
                       {"type": "mrkdwn", "text": f"*Commit*\n<{commit_url}|{short_sha}>"},
                       {"type": "mrkdwn", "text": f"*Author*\n{author_text}"},
                   ],
+              },
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": f"*Message*\n{commit_message_text}",
+                  },
               },
               {
                   "type": "section",
