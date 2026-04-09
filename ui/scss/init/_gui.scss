@@ -704,6 +704,12 @@ img {
   }
 }
 
+.button--external-link-wrap {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
 .markdown-link-favicon {
   display: inline-block;
   width: 14px;
