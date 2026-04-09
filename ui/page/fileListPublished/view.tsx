@@ -38,7 +38,7 @@ import {
   selectMyPaidClaims,
   selectMyPaidClaimsLegacy,
 } from 'redux/selectors/claims';
-import { selectUploadCount } from 'redux/selectors/publish';
+import { selectUploadCount, selectActiveUploadActivity } from 'redux/selectors/publish';
 import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { selectUploadsFilteringSetting } from 'redux/selectors/settings';
@@ -80,6 +80,7 @@ function FileListPublished() {
   const myPaidClaims = useAppSelector(selectMyPaidClaims);
   const myPaidClaimsLegacy = useAppSelector(selectMyPaidClaimsLegacy);
   const uploadCount = useAppSelector(selectUploadCount);
+  const uploadActivity = useAppSelector(selectActiveUploadActivity);
   const myChannelIds = useAppSelector(selectMyChannelClaimIds);
   const isFilteringEnabled = filteringSettings.isFilteringEnabled;
   const sortOption = filteringSettings.sortOption;
@@ -421,7 +422,7 @@ function FileListPublished() {
     } else {
       dispatch(doClearClaimSearch());
     }
-  }, [uploadCount, params, filterType, dispatch, method, isFilteringEnabled, channelIdsClaimList]);
+  }, [uploadCount, uploadActivity, params, filterType, dispatch, method, isFilteringEnabled, channelIdsClaimList]);
   useEffect(() => {
     if (!isFilteringEnabled || isAllMyClaimsFetched) {
       return;

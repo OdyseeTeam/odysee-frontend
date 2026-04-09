@@ -9,10 +9,12 @@ import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import {
   doPublishResume as doPublishResumeAction,
   doUpdateUploadRemove as doUpdateUploadRemoveAction,
+  doSwitchPublishForm,
 } from 'redux/actions/publish';
 import { selectCurrentUploads, selectUploadCount, selectActivePipelineItems } from 'redux/selectors/publish';
 import { doUpdatePipelineItem } from 'redux/actions/publishPipeline';
 import type { PipelineItem } from 'redux/actions/publishPipeline';
+import { useNavigate } from 'react-router-dom';
 
 const STAGE_LABELS: Record<string, string> = {
   queued: 'Queued',
@@ -48,8 +50,10 @@ function getProgressText(item: PipelineItem) {
 
 export default function WebUploadList() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const currentUploads = useAppSelector(selectCurrentUploads);
   const uploadCount = useAppSelector(selectUploadCount);
+  const activeFormId = useAppSelector((state) => state.publish.activeFormId);
   const allPipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
   const pipelineItems = allPipelineItems.filter((item) => item.stage !== 'published');
   const doPublishResume = (arg0: any) => dispatch(doPublishResumeAction(arg0));
@@ -74,7 +78,18 @@ export default function WebUploadList() {
               <FileThumbnail thumbnail={item.thumbnail} />
               <div className="claim-preview-metadata">
                 <div className="claim-preview-info">
-                  <div className="claim-preview__title">{item.title || item.filename}</div>
+                  <div
+                    className="claim-preview__title"
+                    style={item.formId ? { cursor: 'pointer' } : undefined}
+                    onClick={() => {
+                      if (item.formId) {
+                        dispatch(doSwitchPublishForm(item.formId, activeFormId || undefined));
+                        navigate(`/$/${'upload'}`);
+                      }
+                    }}
+                  >
+                    {item.title || item.filename}
+                  </div>
                   {canPause(item) && (
                     <button
                       className="web-upload-item__round-btn"

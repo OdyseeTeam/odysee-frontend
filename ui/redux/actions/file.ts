@@ -98,6 +98,11 @@ export function doDeleteFileAndMaybeGoBack(
 export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSuccess?: (arg0: GetResponse) => any) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state: State = getState();
+    const claim = selectClaimForUri(state, uri);
+    if (claim?.claim_id?.startsWith('pending-')) {
+      return;
+    }
+
     const alreadyFetching = selectOutpointFetchingForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
 
@@ -196,6 +201,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
         // supress no source error if it's a livestream
         const isLivestreamClaim = selectIsLivestreamClaimForUri(state, uri);
         if (isLivestreamClaim && error.message === "stream doesn't have source data") return;
+        if (error?.message && /pending-/.test(error.message)) return;
         dispatch(
           doToast({
             message: __('Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.'),

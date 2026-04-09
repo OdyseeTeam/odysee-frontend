@@ -397,7 +397,7 @@ function UploadForm(props: Props) {
 
   // -- Form persistence --
   const activeFormId = useAppSelector((state) => selectPublishFormValue(state, 'activeFormId'));
-  const pipelineIdForForm = React.useRef(activeFormId && activeFormId !== '__new__' ? activeFormId : uuid());
+  const pipelineIdForForm = React.useRef(activeFormId && !activeFormId.startsWith('__new_') ? activeFormId : uuid());
   const previewOrderRef = React.useRef(++previewOrderCounter);
 
   const savedStep = useAppSelector((state) => state.publish.activeStep);
@@ -437,7 +437,7 @@ function UploadForm(props: Props) {
   React.useLayoutEffect(() => {
     if (activeFormId && activeFormId !== pipelineIdForForm.current) {
       dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: pipelineIdForForm.current } });
-      const isNew = activeFormId === '__new__';
+      const isNew = activeFormId.startsWith('__new_');
       const newId = isNew ? uuid() : activeFormId;
       pipelineIdForForm.current = newId;
       dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: newId } });
@@ -759,7 +759,7 @@ function UploadForm(props: Props) {
                   <MenuItem
                     className="menu__link"
                     onSelect={() => {
-                      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: '__new__' } });
+                      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: `__new_${uuid()}` } });
                     }}
                   >
                     <Icon icon={ICONS.ADD} size={14} />

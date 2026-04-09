@@ -254,6 +254,18 @@ export const selectUploadCount = createSelector(
   selectCurrentUploads,
   (currentUploads) => currentUploads && Object.keys(currentUploads).length
 );
+export const selectActiveUploadActivity = createSelector(
+  selectCurrentUploads,
+  (state: State) => state.publish.pipelineItems,
+  (currentUploads, pipelineItems) => {
+    const legacyCount = currentUploads ? Object.keys(currentUploads).length : 0;
+    const items = pipelineItems ? Object.values(pipelineItems) : [];
+    const activeCount = (items as any[]).filter(
+      (item) => item.stage !== 'published' && item.stage !== 'error' && item.stage !== 'idle'
+    ).length;
+    return legacyCount + activeCount;
+  }
+);
 // ****************************************************************************
 // ****************************************************************************
 export const selectIsScheduled = (state: State) =>

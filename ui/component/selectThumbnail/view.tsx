@@ -51,6 +51,7 @@ function SelectThumbnail(props: Props) {
   const remoteFileUrl = publishFormValues.remoteFileUrl;
   const videoPickerFile = filePath instanceof File ? filePath : undefined;
   const isSupportedVideo = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'video');
+  const isSupportedImage = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'image');
   const hasRemoteVideo = Boolean(!videoPickerFile && remoteFileUrl);
   const [showVideoPicker, setShowVideoPicker] = React.useState(isSupportedVideo);
 
@@ -147,6 +148,7 @@ function SelectThumbnail(props: Props) {
           filePath={videoPickerFile}
           hasVideo={isSupportedVideo || hasRemoteVideo}
           remoteVideoUrl={hasRemoteVideo ? remoteFileUrl : undefined}
+          imageFile={isSupportedImage ? videoPickerFile : undefined}
         />
       </React.Suspense>
     );
@@ -158,67 +160,57 @@ function SelectThumbnail(props: Props) {
       {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           {thumbPreview}
-          {publishForm && thumbUploaded ? (
-            <div className="column__item">
-              <p>{__('Upload complete.')}</p>
-              <div className="section__actions">
-                <Button button="link" label={__('New thumbnail')} onClick={resetThumbnailStatus} />
-              </div>
-            </div>
-          ) : (
-            <div className="column__item">
-              {manualInput ? (
-                <>
-                  <FormField
-                    type="text"
-                    name="content_thumbnail"
-                    placeholder="https://images.fbi.gov/alien"
-                    value={thumbnail}
-                    disabled={formDisabled}
-                    onChange={handleThumbnailChange}
-                  />
-                  {!thumbUploaded && <p className="help">{__('Enter a URL for your thumbnail.')}</p>}
-                </>
-              ) : (
-                <>
-                  <FileSelector
-                    currentPath={thumbnailPath}
-                    placeholder={__('Choose an enticing thumbnail')}
-                    accept={accept}
-                    onFileChosen={(file) =>
-                      openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
-                        file,
-                        cb: (url) =>
-                          !publishForm &&
-                          updateThumbnailParams({
-                            thumbnail_url: url,
-                          }),
-                      })
-                    }
-                  />
-                  {!thumbUploaded && (
-                    <p className="help">
-                      {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
-                        domain: DOMAIN,
-                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                      })}
-                    </p>
-                  )}
-                </>
-              )}
-              <div className="card__actions">
-                <Button
-                  button="link"
-                  label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
-                  onClick={() =>
-                    updatePublishForm({
-                      uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
+          <div className="column__item">
+            {manualInput ? (
+              <>
+                <FormField
+                  type="text"
+                  name="content_thumbnail"
+                  placeholder="https://images.fbi.gov/alien"
+                  value={thumbnail}
+                  disabled={formDisabled}
+                  onChange={handleThumbnailChange}
+                />
+                {!thumbUploaded && <p className="help">{__('Enter a URL for your thumbnail.')}</p>}
+              </>
+            ) : (
+              <>
+                <FileSelector
+                  currentPath={thumbnailPath}
+                  placeholder={__('Choose an enticing thumbnail')}
+                  accept={accept}
+                  onFileChosen={(file) =>
+                    openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
+                      file,
+                      cb: (url) =>
+                        updateThumbnailParams({
+                          thumbnail_url: url,
+                        }),
                     })
                   }
                 />
-              </div>
+                {!thumbUploaded && (
+                  <p className="help">
+                    {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
+                      domain: DOMAIN,
+                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                    })}
+                  </p>
+                )}
+              </>
+            )}
+            <div className="card__actions">
+              <Button
+                button="link"
+                label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
+                onClick={() =>
+                  updatePublishForm({
+                    uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
+                  })
+                }
+              />
             </div>
-          )}
+          </div>
         </div>
       )}
 

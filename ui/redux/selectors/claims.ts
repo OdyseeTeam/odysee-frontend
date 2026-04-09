@@ -592,14 +592,17 @@ export const selectMyClaimsPage = createSelector(selectState, (state) => {
   const results = state.myClaimsPageResults || EMPTY_ARRAY;
   const pendingById = state.pendingById;
   if (!pendingById) return results;
+  const seen = new Set(results);
   const pendingUris: string[] = [];
   for (const [id, claim] of Object.entries(pendingById)) {
     const c = claim as any;
-    if (id.startsWith('pending-') && c.permanent_url && !results.includes(c.permanent_url)) {
+    if (id.startsWith('pending-') && c.permanent_url && !seen.has(c.permanent_url)) {
       pendingUris.push(c.permanent_url);
+      seen.add(c.permanent_url);
     }
   }
-  return pendingUris.length > 0 ? [...pendingUris, ...results] : results;
+  const combined = pendingUris.length > 0 ? [...pendingUris, ...results] : results;
+  return [...new Set(combined)];
 });
 export const selectMyClaimsPageNumber = createSelector(
   selectState,
