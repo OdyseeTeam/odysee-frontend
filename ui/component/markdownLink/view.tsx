@@ -151,7 +151,22 @@ function MarkdownLink(props: Props) {
     const faviconUrl = !isLbryLink && linkUrlObject ? `https://${linkUrlObject.host}/favicon.ico` : null;
     element = (
       <span className="button--external-link-wrap">
-        {faviconUrl && <span className="markdown-link-favicon" style={{ backgroundImage: `url(${faviconUrl})` }} />}
+        {faviconUrl && (
+          <span
+            ref={(el) => {
+              if (!el || el.dataset.init) return;
+              el.dataset.init = '1';
+              el.style.backgroundImage = `url(${faviconUrl})`;
+              const img = new Image();
+              img.onload = () => {};
+              img.onerror = () => {
+                el.style.backgroundImage = `url(https://icons.duckduckgo.com/ip3/${linkUrlObject.host}.ico)`;
+              };
+              img.src = faviconUrl;
+            }}
+            className="markdown-link-favicon"
+          />
+        )}
         <Button
           button="link"
           iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
