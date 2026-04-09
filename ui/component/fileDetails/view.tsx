@@ -61,6 +61,13 @@ const FileDetails = React.memo(function FileDetails({ uri }: Props) {
             </div>
           )}
 
+          {fileSize && (
+            <div className="media__details">
+              <span>{__('File size')}</span>
+              <span>{fileSize}</span>
+            </div>
+          )}
+
           <div className="media__details">
             <span>{__('License')}</span>
             <span>{license}</span>
