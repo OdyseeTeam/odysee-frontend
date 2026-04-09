@@ -288,6 +288,11 @@ function VideoViewer(props: Props) {
       }
       node.volume = volume;
       node.playbackRate = videoPlaybackRate;
+      const restoreRate = () => {
+        node.playbackRate = videoPlaybackRate;
+      };
+      node.addEventListener('canplay', restoreRate, { once: true });
+      node.addEventListener('playing', restoreRate, { once: true });
 
       // Listen for ended event
       const handleEnded = () => onVideoEnded();
@@ -308,8 +313,9 @@ function VideoViewer(props: Props) {
       const handleVolumeChange = () => {
         updateVolumeState(node.volume, node.muted);
       };
+      let unmounted = false;
       const handleRateChange = () => {
-        if (node.readyState > 0) {
+        if (node.readyState > 0 && !unmounted) {
           setVideoPlaybackRate(node.playbackRate);
         }
       };
@@ -320,6 +326,7 @@ function VideoViewer(props: Props) {
       node.addEventListener('ratechange', handleRateChange);
 
       return () => {
+        unmounted = true;
         node.removeEventListener('ended', handleEnded);
         node.removeEventListener('play', handlePlay);
         node.removeEventListener('pause', handlePause);

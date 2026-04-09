@@ -644,8 +644,13 @@ function SettingsMenuContent({
         <span className="media-settings-menu__label">{__('Playback Speed')}</span>
         <span className="media-settings-menu__value">{rateLabel}</span>
       </button>
-      {levels.length > 0 && !isCasting && (
-        <button type="button" className="media-settings-menu__item" onClick={() => setView('quality')}>
+      {!isCasting && (
+        <button
+          type="button"
+          className="media-settings-menu__item"
+          disabled={levels.length === 0}
+          onClick={() => setView('quality')}
+        >
           <svg
             className="media-settings-menu__icon"
             width={16}
@@ -668,7 +673,7 @@ function SettingsMenuContent({
             <line x1={17} y1={16} x2={23} y2={16} />
           </svg>
           <span className="media-settings-menu__label">{__('Quality')}</span>
-          <span className="media-settings-menu__value">{currentLabel}</span>
+          <span className="media-settings-menu__value">{levels.length > 0 ? currentLabel : __('Original')}</span>
         </button>
       )}
     </div>
