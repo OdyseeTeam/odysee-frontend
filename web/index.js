@@ -18,6 +18,8 @@ const cacheControlMiddleware = require('./middleware/cache-control');
 
 const iframeDestroyerMiddleware = require('./middleware/iframe-destroyer');
 
+const compress = require('koa-compress');
+
 const app = new Koa();
 const DIST_ROOT = path.resolve(__dirname, 'dist');
 app.proxy = true;
@@ -31,6 +33,7 @@ app.use(async (ctx, next) => {
     ctx.body = err.message;
   }
 });
+app.use(compress());
 app.use(logger());
 app.use(cacheControlMiddleware);
 app.use(redirectMiddleware);

@@ -78,20 +78,34 @@ export const selectLatestClaimForUri = createSelector(
   }
 );
 export const selectClaimsByUri = createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
-  const claims = {};
-  Object.keys(byUri).forEach((uri) => {
-    const claimId = byUri[uri];
-
-    // NOTE returning a null claim allows us to differentiate between an
-    // undefined (never fetched claim) and one which just doesn't exist. Not
-    // the cleanest solution but couldn't think of anything better right now
-    if (claimId === null) {
-      claims[uri] = null;
-    } else {
-      claims[uri] = byId[claimId];
-    }
+  // Use a Proxy for lazy O(1) lookups instead of eagerly rebuilding an O(n) object.
+  // NOTE returning a null claim allows us to differentiate between an
+  // undefined (never fetched claim) and one which just doesn't exist.
+  return new Proxy(byUri, {
+    get(_target, prop: string) {
+      const claimId = byUri[prop];
+      if (claimId === undefined) return undefined;
+      if (claimId === null) return null;
+      return byId[claimId];
+    },
+    has(_target, prop: string) {
+      return prop in byUri;
+    },
+    ownKeys() {
+      return Object.keys(byUri);
+    },
+    getOwnPropertyDescriptor(_target, prop: string) {
+      if (prop in byUri) {
+        const claimId = byUri[prop];
+        return {
+          configurable: true,
+          enumerable: true,
+          value: claimId === null ? null : byId[claimId],
+        };
+      }
+      return undefined;
+    },
   });
-  return claims;
 });
 
 /**

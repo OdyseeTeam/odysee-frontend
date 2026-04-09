@@ -82,6 +82,7 @@
     "hls.js": "^1.6.7",
     "humanize-duration": "^3.27.0",
     "imagesloaded": "^4.1.4",
+    "koa-compress": "^5.2.1",
     "lbry-format": "https://github.com/lbryio/lbry-format.git",
     "localforage": "^1.7.1",
     "lodash-es": "^4.17.14",
