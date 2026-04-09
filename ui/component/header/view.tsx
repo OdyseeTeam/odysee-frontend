@@ -58,6 +58,7 @@ type Props = {
   backout: {
     backLabel?: string;
     backNavDefault?: string;
+    onBack?: () => void;
     title: string | React.ReactNode;
     simpleTitle?: string; // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   };
@@ -105,7 +106,7 @@ const Header = (props: Props) => {
     iYTSyncPage && (urlParams.get('error') === 'true' || Boolean(urlParams.get('error_message')));
   // For pages that allow for "backing out", shows a backout option instead of the Home logo
   const canBackout = Boolean(backout);
-  const { backLabel, backNavDefault, title: backTitle, simpleTitle: simpleBackTitle } = backout || {};
+  const { backLabel, backNavDefault, onBack, title: backTitle, simpleTitle: simpleBackTitle } = backout || {};
   const hideWallet = isMobile && isFloatingPlayerOpen;
   const balanceLoading = totalBalance === undefined;
   const roundedSpendableBalance = formatCredits(balance, 2, true);
@@ -138,6 +139,11 @@ const Header = (props: Props) => {
       }
 
       if (e.type !== 'popstate') {
+        if (onBack) {
+          onBack();
+          return;
+        }
+
         if (returnPath) {
           navigate(returnPath);
         } else if (hasNavigated && !backNavDefault) {
@@ -148,7 +154,7 @@ const Header = (props: Props) => {
         }
       }
     }, // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-    [backNavDefault, hasNavigated, navigate, returnPath]
+    [backNavDefault, hasNavigated, navigate, onBack, returnPath]
   );
   React.useEffect(() => {
     if (canBackout) {

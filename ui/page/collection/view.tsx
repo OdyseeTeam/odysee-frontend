@@ -128,12 +128,18 @@ const CollectionPage = (props: Props) => {
     const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
 
     const doReturnForId = (id) => navigate(getPagePath(id));
+    const closePublishView = () => {
+      dispatch(doRemoveUnsavedAction(collectionId));
+      window.location.assign(getPagePath(collectionId));
+    };
 
     return (
       <Page
         noFooter
         noSideNavigation
         backout={{
+          backNavDefault: `/$/${PAGES.PLAYLIST}/${collectionId}`,
+          onBack: closePublishView,
           title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name,
         }}
       >

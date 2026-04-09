@@ -239,13 +239,38 @@ export const doPlayNextUri =
     const isNextUriInCollection =
       nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
     const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+    const shouldNavigateInline = ((!collectionId && !isFloating) || !floatingPlayerEnabled) && Boolean(nextUri);
+    const nextPathname = formatLbryUrlForWeb(nextUri);
+    const nextSearch = isNextUriInCollection ? generateListSearchUrlParams(nextCollectionId) : '';
 
-    if ((!collectionId && !isFloating) || !floatingPlayerEnabled) {
+    if (shouldNavigateInline) {
+      const nextClaim = selectClaimForUri(state, nextUri);
+      const nextPlayingCollection =
+        isNextUriInCollection && nextCollectionId
+          ? { ...selectPlayingCollection(state), collectionId: nextCollectionId }
+          : {};
+
+      // Keep the inline player attached to the upcoming route immediately.
+      // Otherwise the old item can momentarily detach and render as a floating
+      // player while the router is transitioning to the next playlist item.
+      dispatch(doSetPrimaryUri(nextUri));
+      dispatch(
+        doSetPlayingUri({
+          uri: nextUri,
+          location: {
+            pathname: nextPathname,
+            search: nextSearch,
+          },
+          collection: nextPlayingCollection,
+          isShort: nextClaim ? isClaimShort(nextClaim) : undefined,
+        })
+      );
+
       navigateTo({
-        pathname: formatLbryUrlForWeb(nextUri),
+        pathname: nextPathname,
         ...(isNextUriInCollection
           ? {
-              search: generateListSearchUrlParams(nextCollectionId),
+              search: nextSearch,
               state: {
                 collectionId: nextCollectionId,
               },
@@ -264,6 +289,10 @@ export const doPlayNextUri =
     const shouldShowCountdown = !isLastCollectionItem || isFloating || autoPlayNextEnabled;
 
     if (!canStartloatingPlayer) {
+      if (shouldNavigateInline) {
+        return;
+      }
+
       dispatch(
         doChangePlayingUri({
           uri: null,
@@ -282,6 +311,10 @@ export const doPlayNextUri =
         );
       }
 
+      return;
+    }
+
+    if (shouldNavigateInline) {
       return;
     }
 
@@ -451,6 +484,22 @@ export function doPlaylistAddAndAllowPlaying({
       }
 
       const handleEdit = () => {
+        const freshState = getState();
+        const currentPlayingUri = selectPlayingUri(freshState);
+        const currentClaim = currentPlayingUri?.uri ? selectClaimForUri(freshState, currentPlayingUri.uri) : undefined;
+        const isEditingFromActiveShort =
+          Boolean(uri) &&
+          selectIsUriCurrentlyPlaying(freshState, uri) &&
+          Boolean(currentPlayingUri?.uri) &&
+          isClaimShort(currentClaim);
+
+        if (isEditingFromActiveShort) {
+          // Detach the active short from the current page before route navigation
+          // so the player can transition into floating mode instead of staying
+          // visually attached to the shorts detail view.
+          dispatch(doSetPrimaryUri(null));
+        }
+
         const target = `/$/${PAGES.PLAYLIST}/${collectionId}`;
         if (window.location.pathname === target) {
           window.location.reload();
