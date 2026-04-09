@@ -25,7 +25,9 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
   const pipelineItems = useAppSelector(selectActivePipelineItems);
   const currentUploads = useAppSelector(selectCurrentUploads);
-  const hasUploadActivity = (pipelineItems as any[]).length > 0 || Object.keys(currentUploads || {}).length > 0;
+  const hasUploadActivity =
+    (pipelineItems as any[]).some((item: any) => item.stage !== 'error') ||
+    Object.keys(currentUploads || {}).length > 0;
   const uploadProps = {
     requiresAuth: !authenticated,
   };
