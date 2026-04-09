@@ -679,6 +679,7 @@ function SideNavigation(props: Props) {
               {getLink(getHomeButton(() => dispatch(doClearClaimSearch())))}
               {getLink(RECENT_FROM_FOLLOWING)}
               {showMicroMenu && getLink(WATCH_LATER)}
+              {showMicroMenu && getLink(PLAYLISTS)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
             <ul className="navigation-links--absolute mobile-only">
@@ -693,7 +694,7 @@ function SideNavigation(props: Props) {
               {!showMicroMenu && email && <SectionHeader title={__('Lists')} />}
               {!showMicroMenu && getLink(WATCH_LATER)}
               {!showMicroMenu && getLink(FAVORITES)}
-              {getLink(PLAYLISTS)}
+              {!showMicroMenu && getLink(PLAYLISTS)}
               {!showMicroMenu && getLink(WATCH_HISTORY)}
             </ul>
 

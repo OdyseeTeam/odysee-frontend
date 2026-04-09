@@ -28,6 +28,22 @@ class ErrorBoundary extends React.Component<Props, State> {
     };
   }
 
+  componentDidUpdate(_prevProps: Props, prevState: State) {
+    if (this.state.hasError && !prevState.hasError && this.retryCount < 2) {
+      this.retryCount++;
+      this.retryTimer = setTimeout(() => {
+        this.setState({ hasError: false, sentryEventId: undefined });
+      }, 500);
+    }
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.retryTimer);
+  }
+
+  private retryTimer: any;
+  private retryCount = 0;
+
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
     if (error?.message && /[._]result\.default|reading 'default'|_result is undefined/.test(error.message)) {
