@@ -66,8 +66,22 @@ router.get(`/$/favicon`, async (ctx) => {
     return;
   }
 
+  const faviconCache = router._faviconCache || (router._faviconCache = new Map());
+  const cached = faviconCache.get(domain);
+  if (cached) {
+    if (cached.status === 404) {
+      ctx.status = 404;
+      ctx.body = '';
+      return;
+    }
+    ctx.set('Content-Type', cached.contentType);
+    ctx.set('Cache-Control', 'public, max-age=604800');
+    ctx.body = cached.buffer;
+    return;
+  }
+
   async function tryFetch(url) {
-    const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(3000) });
+    const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
     if (res.ok) {
       const ct = res.headers.get('content-type') || '';
       if (ct.startsWith('image/') || ct.includes('icon')) {
@@ -77,21 +91,26 @@ router.get(`/$/favicon`, async (ctx) => {
     return null;
   }
 
-  const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
-  for (const p of paths) {
-    try {
-      const result = await tryFetch(`https://${domain}${p}`);
-      if (result) {
-        ctx.set('Content-Type', result.contentType);
-        ctx.set('Cache-Control', 'public, max-age=604800');
-        ctx.body = result.buffer;
-        return;
-      }
-    } catch {}
+  function serve(result) {
+    faviconCache.set(domain, result);
+    ctx.set('Content-Type', result.contentType);
+    ctx.set('Cache-Control', 'public, max-age=604800');
+    ctx.body = result.buffer;
   }
 
+  // Try common paths in parallel
+  const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
+  const results = await Promise.allSettled(paths.map((p) => tryFetch(`https://${domain}${p}`)));
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) {
+      serve(r.value);
+      return;
+    }
+  }
+
+  // Fallback: parse HTML for <link rel="icon">
   try {
-    const html = await fetch(`https://${domain}`, { redirect: 'follow', signal: AbortSignal.timeout(5000) }).then((r) =>
+    const html = await fetch(`https://${domain}`, { redirect: 'follow', signal: AbortSignal.timeout(3000) }).then((r) =>
       r.text()
     );
     const match =
@@ -104,14 +123,13 @@ router.get(`/$/favicon`, async (ctx) => {
       else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
       const result = await tryFetch(iconUrl);
       if (result) {
-        ctx.set('Content-Type', result.contentType);
-        ctx.set('Cache-Control', 'public, max-age=604800');
-        ctx.body = result.buffer;
+        serve(result);
         return;
       }
     }
   } catch {}
 
+  faviconCache.set(domain, { status: 404 });
   ctx.status = 404;
   ctx.body = '';
 });

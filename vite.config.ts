@@ -791,32 +791,49 @@ export default defineConfig({
             res.end();
             return;
           }
+          const cache = ((globalThis as any).__faviconCache || ((globalThis as any).__faviconCache = new Map())) as Map<
+            string,
+            any
+          >;
+          const cached = cache.get(domain);
+          if (cached) {
+            if (cached.status === 404) {
+              res.statusCode = 404;
+              res.end();
+              return;
+            }
+            res.setHeader('Content-Type', cached.ct);
+            res.setHeader('Cache-Control', 'public, max-age=604800');
+            res.end(cached.buf);
+            return;
+          }
           async function tryFetch(u: string) {
-            const r = await fetch(u, { redirect: 'follow', signal: AbortSignal.timeout(3000) });
+            const r = await fetch(u, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
             if (r.ok) {
               const ct = r.headers.get('content-type') || '';
-              if (ct.startsWith('image/') || ct.includes('icon')) {
+              if (ct.startsWith('image/') || ct.includes('icon'))
                 return { buf: Buffer.from(await r.arrayBuffer()), ct };
-              }
             }
             return null;
           }
+          function serve(result: any) {
+            cache.set(domain, result);
+            res.setHeader('Content-Type', result.ct);
+            res.setHeader('Cache-Control', 'public, max-age=604800');
+            res.end(result.buf);
+          }
           const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
-          for (const p of paths) {
-            try {
-              const result = await tryFetch(`https://${domain}${p}`);
-              if (result) {
-                res.setHeader('Content-Type', result.ct);
-                res.setHeader('Cache-Control', 'public, max-age=604800');
-                res.end(result.buf);
-                return;
-              }
-            } catch {}
+          const results = await Promise.allSettled(paths.map((p) => tryFetch(`https://${domain}${p}`)));
+          for (const r of results) {
+            if (r.status === 'fulfilled' && r.value) {
+              serve(r.value);
+              return;
+            }
           }
           try {
             const html = await fetch(`https://${domain}`, {
               redirect: 'follow',
-              signal: AbortSignal.timeout(5000),
+              signal: AbortSignal.timeout(3000),
             }).then((r: any) => r.text());
             const match =
               html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i) ||
@@ -828,13 +845,12 @@ export default defineConfig({
               else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
               const result = await tryFetch(iconUrl);
               if (result) {
-                res.setHeader('Content-Type', result.ct);
-                res.setHeader('Cache-Control', 'public, max-age=604800');
-                res.end(result.buf);
+                serve(result);
                 return;
               }
             }
           } catch {}
+          cache.set(domain, { status: 404 });
           res.statusCode = 404;
           res.end();
         });
