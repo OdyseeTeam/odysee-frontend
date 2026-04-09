@@ -779,6 +779,38 @@ export default defineConfig({
     },
     react(),
     ssrTemplatePlugin(),
+    {
+      name: 'favicon-proxy',
+      configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          if (!req.url?.startsWith('/$/favicon?')) return next();
+          const url = new URL(req.url, 'http://localhost');
+          const domain = url.searchParams.get('d');
+          if (!domain || !/^[a-z0-9.-]+$/i.test(domain)) {
+            res.statusCode = 400;
+            res.end();
+            return;
+          }
+          const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
+          for (const p of paths) {
+            try {
+              const r = await fetch(`https://${domain}${p}`, { redirect: 'follow', signal: AbortSignal.timeout(3000) });
+              if (r.ok) {
+                const ct = r.headers.get('content-type') || 'image/x-icon';
+                if (!ct.startsWith('image/') && !ct.includes('icon')) continue;
+                const buf = Buffer.from(await r.arrayBuffer());
+                res.setHeader('Content-Type', ct);
+                res.setHeader('Cache-Control', 'public, max-age=604800');
+                res.end(buf);
+                return;
+              }
+            } catch {}
+          }
+          res.statusCode = 404;
+          res.end();
+        });
+      },
+    },
   ],
 
   server: {

@@ -59,6 +59,37 @@ const fcManifestMiddleware = async (ctx) => {
   ctx.body = manifest;
 };
 
+router.get(`/$/favicon`, async (ctx) => {
+  const domain = ctx.query.d;
+  if (!domain || typeof domain !== 'string' || !/^[a-z0-9.-]+$/i.test(domain)) {
+    ctx.status = 400;
+    return;
+  }
+
+  const paths = [`/favicon.ico`, `/favicon-32x32.png`, `/favicon-16x16.png`, `/apple-touch-icon.png`];
+
+  for (const p of paths) {
+    try {
+      const res = await fetch(`https://${domain}${p}`, {
+        redirect: 'follow',
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) {
+        const contentType = res.headers.get('content-type') || 'image/x-icon';
+        if (!contentType.startsWith('image/') && !contentType.includes('icon')) continue;
+        const buffer = Buffer.from(await res.arrayBuffer());
+        ctx.set('Content-Type', contentType);
+        ctx.set('Cache-Control', 'public, max-age=604800');
+        ctx.body = buffer;
+        return;
+      }
+    } catch {}
+  }
+
+  ctx.status = 404;
+  ctx.body = '';
+});
+
 router.get(`/$/minVersion/v1/get`, async (ctx) => getMinVersion(ctx));
 router.get(`/$/api/content/v1/get`, async (ctx) => getHomepage(ctx, 1));
 router.get(`/$/api/content/v2/get`, async (ctx) => getHomepage(ctx, 2));

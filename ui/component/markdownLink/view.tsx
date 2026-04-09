@@ -148,7 +148,8 @@ function MarkdownLink(props: Props) {
     (protocol && (protocol[0] === 'http:' || protocol[0] === 'https:' || protocol[0] === 'mailto:'))
   ) {
     const isLbryLink = href.startsWith('lbry://');
-    const faviconUrl = !isLbryLink && linkUrlObject ? `https://${linkUrlObject.host}/favicon.ico` : null;
+    const isMailto = href.startsWith('mailto:');
+    const faviconUrl = !isLbryLink && !isMailto && linkUrlObject ? `/$/favicon?d=${linkUrlObject.host}` : null;
     element = (
       <span className="button--external-link-wrap">
         {faviconUrl && (
@@ -157,12 +158,6 @@ function MarkdownLink(props: Props) {
               if (!el || el.dataset.init) return;
               el.dataset.init = '1';
               el.style.backgroundImage = `url(${faviconUrl})`;
-              const img = new Image();
-              img.onload = () => {};
-              img.onerror = () => {
-                el.style.backgroundImage = `url(https://icons.duckduckgo.com/ip3/${linkUrlObject.host}.ico)`;
-              };
-              img.src = faviconUrl;
             }}
             className="markdown-link-favicon"
           />
