@@ -98,11 +98,6 @@ export function doDeleteFileAndMaybeGoBack(
 export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSuccess?: (arg0: GetResponse) => any) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state: State = getState();
-    const claim = selectClaimForUri(state, uri);
-    if (claim?.claim_id?.startsWith('pending-')) {
-      return;
-    }
-
     const alreadyFetching = selectOutpointFetchingForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
 

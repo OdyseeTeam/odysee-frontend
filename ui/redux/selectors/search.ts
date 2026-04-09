@@ -132,7 +132,8 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
         isEqualUri = recClaimId === currentClaimId;
       } catch (e) {}
 
-      return !isEqualUri && !isRecChannelBlocked;
+      const isPending = recClaim?.claim_id?.startsWith('pending-') || recClaim?.confirmations === 0;
+      return !isEqualUri && !isRecChannelBlocked && !isPending;
     });
   }
 )((state, uri) => String(uri));

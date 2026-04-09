@@ -361,14 +361,13 @@ function UploadForm(props: Props) {
         dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
         dispatch(doPublishWithEarlyUpload(uploadPromise as any, pipelineId));
       } else {
-        dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
-
         const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
         const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
 
         if (uploadPromise && mode === PUBLISH_MODES.FILE) {
           dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
         } else {
+          dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
           publish(outputFile, false);
         }
       }

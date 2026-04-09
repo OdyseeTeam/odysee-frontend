@@ -1378,6 +1378,10 @@ export const doPublishWithEarlyUpload =
 
     try {
       const { tusUrl } = await tusUrlPromise;
+      dispatch({
+        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+        data: { id: guid, updates: { stage: 'processing', progress: 0 } },
+      });
 
       const state = getState();
       const myClaimForUri = state.publish.claimToEdit;
