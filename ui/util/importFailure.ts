@@ -5,6 +5,7 @@ const DYNAMIC_IMPORT_ERROR_PATTERNS = [
   /Importing a module script failed/i,
   /Unable to preload CSS/i,
   /[._]result\.default/i,
+  /_result is undefined/i,
 ];
 
 export function getDynamicImportErrorMessage(error: unknown): string {
