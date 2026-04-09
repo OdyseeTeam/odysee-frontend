@@ -78,11 +78,15 @@ export default function PublishSummary() {
     const name = pf.name || 'untitled';
     if (!isNameValid(name)) return null;
     try {
+      const channelBaseUrl = channelClaim?.short_url || channelClaim?.canonical_url || channelClaim?.permanent_url;
+      if (channelBaseUrl) {
+        return `${channelBaseUrl}/${name}`;
+      }
       return buildURI({ streamName: name, channelName: channel || undefined } as any, true);
     } catch {
       return null;
     }
-  }, [pf.name, channel]);
+  }, [pf.name, channel, channelClaim]);
 
   const previewBlobUrl = React.useMemo(() => {
     if (filePath instanceof File) return URL.createObjectURL(filePath);

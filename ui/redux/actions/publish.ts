@@ -1426,11 +1426,12 @@ export const doPublishWithEarlyUpload =
         onFailure: () => {},
       });
 
-      const publishedUri = buildURI(
-        { streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj,
-        true
-      );
       const signingChannel = myChannels?.find((ch: any) => ch.claim_id === channelClaimId);
+      const channelBaseUrl =
+        signingChannel?.short_url || signingChannel?.canonical_url || signingChannel?.permanent_url;
+      const publishedUri = channelBaseUrl
+        ? `${channelBaseUrl}/${publishData.name}`
+        : buildURI({ streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj, true);
       const pendingClaimId = `pending-${guid}`;
       const fakePendingClaim: any = {
         claim_id: pendingClaimId,
