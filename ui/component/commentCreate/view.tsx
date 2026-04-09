@@ -1048,12 +1048,14 @@ export function CommentCreate(props: Props) {
               showSelectors={showSelectors}
               tipModalOpen={tipModalOpen}
               placeholder={__(commentLabelText)}
-              quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
+              quickActionHandler={!SIMPLE_SITE && !isLivestream ? () => setAdvancedEditor(!advancedEditor) : undefined}
               quickActionLabel={
-                !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
+                !SIMPLE_SITE &&
+                !isLivestream &&
+                (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
               }
               textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-              type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
+              type={!SIMPLE_SITE && advancedEditor && !isReply && !isLivestream ? 'markdown' : 'textarea'}
               value={commentValue}
               uri={uri}
             />

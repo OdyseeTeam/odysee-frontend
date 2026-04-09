@@ -446,6 +446,7 @@ function LivestreamForm(props: Props) {
               className={classnames('button-toggle', {
                 'button-toggle--active': liveCreateType === 'choose_replay',
               })}
+              style={{ borderRadius: '0 var(--border-radius) var(--border-radius) 0' }}
             />
           )}
           {liveCreateType === 'edit_placeholder' && (
@@ -456,6 +457,7 @@ function LivestreamForm(props: Props) {
               label={__('Edit / Update')}
               button="alt"
               className="button-toggle button-toggle--active"
+              style={{ borderRadius: '0 var(--border-radius) var(--border-radius) 0' }}
             />
           )}
           {/* @ts-ignore -- selectedChannelUrl is managed internally */}

@@ -204,11 +204,7 @@ function PublishLivestream(props: Props) {
                           key="reuse-replay"
                           type="radio"
                           checked={liveEditType === 'update_only'}
-                          onClick={() =>
-                            updatePublishForm({
-                              liveEditType: 'update_only',
-                            })
-                          }
+                          onChange={() => updatePublishForm({ liveEditType: 'update_only' })}
                         />
                       )}
                     </label>
@@ -229,7 +225,7 @@ function PublishLivestream(props: Props) {
                         key="show-replays"
                         type="radio"
                         checked={liveEditType === 'use_replay'}
-                        onClick={() =>
+                        onChange={() =>
                           updatePublishForm({
                             liveEditType: 'use_replay',
                           })
@@ -349,7 +345,7 @@ function PublishLivestream(props: Props) {
                         key="show-replays"
                         type="radio"
                         checked={liveEditType === 'use_replay'}
-                        onClick={() =>
+                        onChange={() =>
                           updatePublishForm({
                             liveEditType: 'use_replay',
                           })
@@ -383,7 +379,7 @@ function PublishLivestream(props: Props) {
                         key="show-replays-spin"
                         type="radio"
                         checked={liveEditType === 'use_replay'}
-                        onClick={() =>
+                        onChange={() =>
                           updatePublishForm({
                             liveEditType: 'use_replay',
                           })
@@ -409,11 +405,7 @@ function PublishLivestream(props: Props) {
                       label={__('Upload Replay')}
                       type="radio"
                       checked={liveEditType === 'upload_replay'}
-                      onClick={() =>
-                        updatePublishForm({
-                          liveEditType: 'upload_replay',
-                        })
-                      }
+                      onChange={() => updatePublishForm({ liveEditType: 'upload_replay' })}
                     />
                   </label>
                   <FileSelector
