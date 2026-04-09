@@ -949,6 +949,7 @@ export default defineConfig({
       'typescript/no-unnecessary-boolean-literal-compare': 'off',
       'typescript/no-unsafe-type-assertion': 'off',
       'unicorn/no-array-sort': 'off',
+      'unicorn/no-array-reverse': 'off',
     },
     ignorePatterns: [
       'node_modules',

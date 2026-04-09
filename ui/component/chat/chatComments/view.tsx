@@ -98,7 +98,8 @@ export default function ChatComments(props: Props) {
       <div ref={discussionRef} className="livestream__comments--mobile">
         {comments
           .slice(0)
-          .toReversed()
+          .slice()
+          .reverse()
           .map((comment) => (
             <ChatComment
               {...commentProps}

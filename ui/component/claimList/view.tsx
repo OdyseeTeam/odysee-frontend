@@ -162,7 +162,7 @@ export default function ClaimList(props: Props) {
     return maxClaimRender ? x.slice(0, maxClaimRender) : x;
   }, [prefixUris, uris, maxClaimRender]);
   const totalLength = tileUris.length;
-  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().toReversed())) || [];
+  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
   // -- Progressive rendering for large lists (#3206) --
   const isLargeList = droppableProvided && sortedUris.length > INITIAL_VISIBLE_COUNT;
   const activeIndex = isLargeList && activeUri ? sortedUris.indexOf(activeUri) : 0;

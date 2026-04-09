@@ -120,7 +120,7 @@ export const doCommentSocketConnect =
     const claim = selectClaimForId(state, claimId);
     const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
     // have to reverse here if protected, because the comments list expects the claim id to be proper
-    const reversedClaimId = claimId.split('').toReversed().join('');
+    const reversedClaimId = claimId.split('').reverse().join('');
     // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
     const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
     const url =
@@ -207,7 +207,7 @@ export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => 
   const claim = selectClaimForId(state, claimId);
   const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
   // have to reverse here if protected, because the comments list expects the claim id to be proper
-  const reversedClaimId = claimId.split('').toReversed().join('');
+  const reversedClaimId = claimId.split('').reverse().join('');
   // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
   const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
   const url =

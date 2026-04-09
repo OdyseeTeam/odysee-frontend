@@ -46,14 +46,17 @@ const RewardListClaimed = (props: Props) => {
               </tr>
             </thead>
             <tbody>
-              {rewards.toReversed().map((reward) => (
-                <tr key={reward.id}>
-                  <td>{reward.reward_title}</td>
-                  <td>{reward.reward_amount}</td>
-                  <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
-                  <td>{dayjs(reward.created_at).format('LLL')}</td>
-                </tr>
-              ))}
+              {rewards
+                .slice()
+                .reverse()
+                .map((reward) => (
+                  <tr key={reward.id}>
+                    <td>{reward.reward_title}</td>
+                    <td>{reward.reward_amount}</td>
+                    <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
+                    <td>{dayjs(reward.created_at).format('LLL')}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
