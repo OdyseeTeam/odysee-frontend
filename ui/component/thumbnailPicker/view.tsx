@@ -14,7 +14,7 @@ import { doToast } from 'redux/actions/notifications';
 import './style.lazy.scss';
 
 const DEFAULT_PERCENTAGES = [0.1, 0.25, 0.5, 0.75, 0.9];
-const THUMBNAIL_WIDTH = 320;
+const THUMBNAIL_MAX_WIDTH = 1920;
 
 type FrameData = {
   blobUrl: string;
@@ -444,7 +444,7 @@ function ThumbnailPicker(props: Props) {
   async function captureCustomFrame(): Promise<FrameData | null> {
     const video = manualVideoRef.current;
     if (!video || !video.videoWidth) return null;
-    const scale = Math.min(1, THUMBNAIL_WIDTH / video.videoWidth);
+    const scale = Math.min(1, THUMBNAIL_MAX_WIDTH / video.videoWidth);
     const w = Math.round(video.videoWidth * scale);
     const h = Math.round(video.videoHeight * scale);
     const canvas = new OffscreenCanvas(w, h);
@@ -915,7 +915,7 @@ async function videoSampleToBlob(sample: VideoSample): Promise<Blob | null> {
       return null;
     }
 
-    const scale = Math.min(1, THUMBNAIL_WIDTH / width);
+    const scale = Math.min(1, THUMBNAIL_MAX_WIDTH / width);
     const canvasWidth = Math.round(width * scale);
     const canvasHeight = Math.round(height * scale);
 
