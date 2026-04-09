@@ -148,17 +148,21 @@ function MarkdownLink(props: Props) {
     (protocol && (protocol[0] === 'http:' || protocol[0] === 'https:' || protocol[0] === 'mailto:'))
   ) {
     const isLbryLink = href.startsWith('lbry://');
+    const faviconUrl = !isLbryLink && linkUrlObject ? `https://${linkUrlObject.host}/favicon.ico` : null;
     element = (
-      <Button
-        button="link"
-        iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
-        iconSize={isMobile && 12}
-        title={title || decodedUri}
-        label={children}
-        className="button--external-link"
-        navigate={isLbryLink ? href : undefined}
-        href={isLbryLink ? undefined : href}
-      />
+      <span className="button--external-link-wrap">
+        {faviconUrl && <span className="markdown-link-favicon" style={{ backgroundImage: `url(${faviconUrl})` }} />}
+        <Button
+          button="link"
+          iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
+          iconSize={isMobile && 12}
+          title={title || decodedUri}
+          label={children}
+          className="button--external-link"
+          navigate={isLbryLink ? href : undefined}
+          href={isLbryLink ? undefined : href}
+        />
+      </span>
     );
   }
 

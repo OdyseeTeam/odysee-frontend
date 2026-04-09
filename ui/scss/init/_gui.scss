@@ -704,6 +704,18 @@ img {
   }
 }
 
+.markdown-link-favicon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .comments .markdown-preview .claim-link,
 .content__viewer--secondary {
   li,

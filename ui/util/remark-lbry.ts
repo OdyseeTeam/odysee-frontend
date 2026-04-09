@@ -12,6 +12,37 @@ interface MdastNode {
 
 const protocol = 'lbry://';
 const uriRegex = /(lbry:\/\/)[^\s"]*[^)]/;
+
+const BARE_LINK_DOMAINS = [
+  'youtube.com',
+  'youtu.be',
+  'twitter.com',
+  'x.com',
+  'facebook.com',
+  'fb.com',
+  'instagram.com',
+  'tiktok.com',
+  'reddit.com',
+  'twitch.tv',
+  'kick.com',
+  'rumble.com',
+  'bitchute.com',
+  'github.com',
+  'discord.gg',
+  'discord.com',
+  't.me',
+  'telegram.me',
+  'open.spotify.com',
+  'spotify.com',
+  'soundcloud.com',
+  'linkedin.com',
+  'medium.com',
+  'substack.com',
+  'patreon.com',
+  'gofundme.com',
+];
+const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
+const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
 const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
@@ -45,6 +76,15 @@ function handlePunctuation(value: string): string {
   });
 
   return punctuationIndex ? value.substring(0, punctuationIndex) : value;
+}
+
+function locateBareLink(value: string, fromIndex: number): number {
+  const sub = value.slice(fromIndex);
+  const match = bareLinkRegex.exec(sub);
+  if (!match) return -1;
+  const idx = fromIndex + (match.index ?? 0);
+  if (idx > 0 && /\S/.test(value.charAt(idx - 1))) return locateBareLink(value, idx + 1);
+  return idx;
 }
 
 function locateMention(value: string, fromIndex: number): number {
@@ -118,7 +158,8 @@ function splitTextNode(value: string): MdastNode[] {
   while (cursor < value.length) {
     const nextMention = locateMention(value, cursor);
     const nextUri = locateURI(value, cursor);
-    const candidates = [nextMention, nextUri].filter((candidate) => candidate >= 0);
+    const nextBare = locateBareLink(value, cursor);
+    const candidates = [nextMention, nextUri, nextBare].filter((candidate) => candidate >= 0);
 
     if (!candidates.length) {
       nodes.push(createTextNode(value.slice(cursor)));
@@ -132,11 +173,28 @@ function splitTextNode(value: string): MdastNode[] {
     }
 
     const nextValue = value.slice(nextIndex);
-    const rawMatch = nextIndex === nextUri ? nextValue.match(uriRegex)?.[0] : nextValue.match(mentionRegex)?.[0];
+    let rawMatch: string | undefined;
+    if (nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention) {
+      rawMatch = nextValue.match(bareLinkRegex)?.[0];
+    } else {
+      rawMatch = nextIndex === nextUri ? nextValue.match(uriRegex)?.[0] : nextValue.match(mentionRegex)?.[0];
+    }
 
     if (!rawMatch) {
       nodes.push(createTextNode(value.charAt(nextIndex)));
       cursor = nextIndex + 1;
+      continue;
+    }
+
+    const isBareLink = nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention;
+    if (isBareLink) {
+      const cleaned = rawMatch.replace(/[.,;:!?)}\]]+$/, '');
+      nodes.push({
+        type: 'link',
+        url: `https://${cleaned}`,
+        children: [{ type: 'text', value: cleaned }],
+      });
+      cursor = nextIndex + cleaned.length;
       continue;
     }
 
