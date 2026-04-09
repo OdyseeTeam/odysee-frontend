@@ -197,6 +197,23 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
         const isLivestreamClaim = selectIsLivestreamClaimForUri(state, uri);
         if (isLivestreamClaim && error.message === "stream doesn't have source data") return;
         if (error?.message && /pending-/.test(error.message)) return;
+        const fileClaim = selectClaimForUri(getState(), uri);
+        if (fileClaim?.claim_id?.startsWith('pending-') || fileClaim?.confirmations === 0) {
+          const retryDelays = [3000, 5000, 8000, 12000, 20000];
+          const retryPending = async (attempt: number) => {
+            if (attempt >= retryDelays.length) return;
+            await new Promise((r) => setTimeout(r, retryDelays[attempt]));
+            const s = getState();
+            const c = selectClaimForUri(s, uri);
+            if (c?.claim_id?.startsWith('pending-') || c?.confirmations === 0) {
+              retryPending(attempt + 1);
+            } else {
+              dispatch(doFileGetForUri(uri, opt, onSuccess));
+            }
+          };
+          retryPending(0);
+          return;
+        }
         dispatch(
           doToast({
             message: __('Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.'),
