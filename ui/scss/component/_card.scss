@@ -984,7 +984,7 @@
 .publish__actions {
   gap: 0 !important;
   .button--primary {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 }
 

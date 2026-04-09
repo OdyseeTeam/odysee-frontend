@@ -33,45 +33,49 @@ function PublishAdditionalOptions(props: Props) {
   return (
     <div className="publish-additional">
       {showReleaseDate && <PublishReleaseDate />}
-      <FormField
-        label={__('Language')}
-        type="select"
-        name="content_language"
-        value={language}
-        onChange={(event) =>
-          updatePublishForm({
-            languages: [event.target.value],
-          })
-        }
-      >
-        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, unknown]) => (
-          <option key={langKey} value={langKey}>
-            {langName as string}
-          </option>
-        ))}
-      </FormField>
+      <div style={{ marginTop: 'var(--spacing-m)' }}>
+        <FormField
+          label={__('Language')}
+          type="select"
+          name="content_language"
+          value={language}
+          onChange={(event) =>
+            updatePublishForm({
+              languages: [event.target.value],
+            })
+          }
+        >
+          {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]: [string, unknown]) => (
+            <option key={langKey} value={langKey}>
+              {langName as string}
+            </option>
+          ))}
+        </FormField>
+      </div>
 
-      <LicenseType
-        licenseType={licenseType}
-        otherLicenseDescription={otherLicenseDescription}
-        licenseUrl={licenseUrl}
-        handleLicenseChange={(newLicenseType, newLicenseUrl) =>
-          updatePublishForm({
-            licenseType: newLicenseType,
-            licenseUrl: newLicenseUrl,
-          })
-        }
-        handleLicenseDescriptionChange={(event: any) =>
-          updatePublishForm({
-            otherLicenseDescription: event.target.value,
-          })
-        }
-        handleLicenseUrlChange={(event: any) =>
-          updatePublishForm({
-            licenseUrl: event.target.value,
-          })
-        }
-      />
+      <div style={{ marginTop: 'var(--spacing-m)', marginBottom: 'var(--spacing-m)' }}>
+        <LicenseType
+          licenseType={licenseType}
+          otherLicenseDescription={otherLicenseDescription}
+          licenseUrl={licenseUrl}
+          handleLicenseChange={(newLicenseType, newLicenseUrl) =>
+            updatePublishForm({
+              licenseType: newLicenseType,
+              licenseUrl: newLicenseUrl,
+            })
+          }
+          handleLicenseDescriptionChange={(event: any) =>
+            updatePublishForm({
+              otherLicenseDescription: event.target.value,
+            })
+          }
+          handleLicenseUrlChange={(event: any) =>
+            updatePublishForm({
+              licenseUrl: event.target.value,
+            })
+          }
+        />
+      </div>
 
       <PublishBid />
     </div>

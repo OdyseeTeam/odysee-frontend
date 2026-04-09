@@ -951,6 +951,7 @@ video {
   display: flex;
   flex-flow: row;
   align-items: center;
+  min-height: 36px;
 
   svg {
     width: 2rem;

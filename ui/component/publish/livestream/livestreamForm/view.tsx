@@ -582,9 +582,9 @@ function LivestreamForm(props: Props) {
         )}
         <section>
           <div className="section__actions publish__actions">
-            <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
             {/* @ts-ignore -- selectedChannelUrl is managed internally */}
             <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
+            <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
           </div>
           <div className="help">
             {!formDisabled && !formValid ? (

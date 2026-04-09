@@ -308,7 +308,7 @@
   .channel-selector {
     button {
       .channel-selector__item {
-        background-color: var(--color-background);
+        background-color: var(--color-header-button);
       }
       &:hover,
       &[aria-expanded='true'] {
