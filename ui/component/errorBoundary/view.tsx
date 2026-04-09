@@ -29,11 +29,11 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidUpdate(_prevProps: Props, prevState: State) {
-    if (this.state.hasError && !prevState.hasError && this.retryCount < 3) {
+    if (this.state.hasError && !prevState.hasError && this.retryCount < 5) {
       this.retryCount++;
       this.retryTimer = setTimeout(() => {
         this.setState({ hasError: false, sentryEventId: undefined });
-      }, 100);
+      }, 200);
     }
   }
 
@@ -82,7 +82,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     const { sentryEventId } = this.state;
     const errorWasReported = sentryEventId !== null;
 
-    if (hasError && this.retryCount < 3) {
+    if (hasError && this.retryCount < 5) {
       return null;
     }
 

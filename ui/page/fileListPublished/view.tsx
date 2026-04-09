@@ -24,6 +24,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectIsFetchingClaimListMine,
+  selectIsFetchingClaimListMineSuccess,
   selectMyClaimsPage,
   selectMyClaimsPageItemCount,
   selectMyChannelClaimIds,
@@ -66,6 +67,7 @@ function FileListPublished() {
   const filteringSettings = useAppSelector(selectUploadsFilteringSetting);
   const activeChannel = useAppSelector(selectActiveChannelClaim);
   const fetching = useAppSelector(selectIsFetchingClaimListMine);
+  const isFetchComplete = useAppSelector(selectIsFetchingClaimListMineSuccess);
   const urls = useAppSelector(selectMyClaimsPage);
   const urlTotal = useAppSelector(selectMyClaimsPageItemCount);
   const isAllMyClaimsFetched = useAppSelector(selectIsAllMyClaimsFetched);
@@ -479,7 +481,7 @@ function FileListPublished() {
         {method === FILE_LIST.METHOD.CLAIM_LIST && getClaimListResultsJsx()}
         {method === FILE_LIST.METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && (
+      {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && isFetchComplete && (
         <React.Fragment>
           {!fetching && !hasClaims ? (
             <section className="main--empty">
