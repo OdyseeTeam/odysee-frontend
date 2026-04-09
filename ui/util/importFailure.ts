@@ -4,7 +4,7 @@ const DYNAMIC_IMPORT_ERROR_PATTERNS = [
   /ChunkLoadError/i,
   /Importing a module script failed/i,
   /Unable to preload CSS/i,
-  /reading 'default'/i,
+  /[._]result\.default/i,
 ];
 
 export function getDynamicImportErrorMessage(error: unknown): string {
