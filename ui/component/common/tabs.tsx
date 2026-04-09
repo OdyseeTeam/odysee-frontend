@@ -53,7 +53,7 @@ function Tabs(props: TabsProps) {
     if (selectedTab instanceof HTMLElement) {
       setSelectedRect(selectedTab.getBoundingClientRect());
     }
-  }, []);
+  }, [selectedIndex]);
 
   useOnResize(measureTabs);
   useLayoutEffect(() => {

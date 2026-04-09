@@ -124,7 +124,8 @@ const CollectionPublishForm = (props: Props) => {
 
     if (editing) {
       dispatch(doCollectionEdit(collectionId, trimmedParams));
-      return onDoneForId(collectionId);
+      navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`);
+      return;
     }
 
     if (hasUnavailableClaims) {
