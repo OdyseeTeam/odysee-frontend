@@ -688,6 +688,7 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
     pending: Record<string, Claim>;
   } = action.data;
   const byIdDelta = {};
+  const confirmedUrls = new Set<string>();
   confirmedClaims.forEach((claim: GenericClaim) => {
     const { claim_id: claimId, type } = claim;
     let newClaim = claim;
@@ -700,10 +701,28 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
     if (type && type.match(/claim|update|channel/)) {
       updateIfClaimChanged(state.byId, byIdDelta, claimId, newClaim);
     }
+    if ((claim as any).permanent_url) confirmedUrls.add((claim as any).permanent_url);
   });
+  const cleanedPending = { ...pendingClaims };
+  for (const [id, claim] of Object.entries(cleanedPending)) {
+    if (id.startsWith('pending-') && confirmedUrls.has((claim as any).permanent_url)) {
+      delete cleanedPending[id];
+    }
+  }
+  const pageResults = state.myClaimsPageResults;
+  let newPageResults = pageResults;
+  if (confirmedClaims.length > 0 && pageResults) {
+    const confirmedPageUrls = confirmedClaims
+      .map((c: any) => c.permanent_url)
+      .filter((url: string) => url && !pageResults.includes(url));
+    if (confirmedPageUrls.length > 0) {
+      newPageResults = [...confirmedPageUrls, ...pageResults];
+    }
+  }
   return Object.assign({}, state, {
-    pendingById: pendingClaims,
+    pendingById: cleanedPending,
     byId: resolveDelta(state.byId, byIdDelta),
+    myClaimsPageResults: newPageResults,
   });
 };
 
