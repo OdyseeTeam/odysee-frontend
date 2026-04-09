@@ -48,8 +48,10 @@ function SelectThumbnail(props: Props) {
   const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;
+  const remoteFileUrl = publishFormValues.remoteFileUrl;
   const videoPickerFile = filePath instanceof File ? filePath : undefined;
   const isSupportedVideo = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'video');
+  const hasRemoteVideo = Boolean(!videoPickerFile && remoteFileUrl);
   const [showVideoPicker, setShowVideoPicker] = React.useState(isSupportedVideo);
 
   React.useEffect(() => {
@@ -141,7 +143,11 @@ function SelectThumbnail(props: Props) {
           </div>
         }
       >
-        <ThumbnailPicker filePath={videoPickerFile} hasVideo={isSupportedVideo} />
+        <ThumbnailPicker
+          filePath={videoPickerFile}
+          hasVideo={isSupportedVideo || hasRemoteVideo}
+          remoteVideoUrl={hasRemoteVideo ? remoteFileUrl : undefined}
+        />
       </React.Suspense>
     );
   }

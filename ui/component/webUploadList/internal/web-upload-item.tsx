@@ -82,6 +82,10 @@ export default function WebUploadItem(props: Props) {
   }
 
   function getProgressElem() {
+    const status =
+      typeof uploadItem.status === 'object' && uploadItem.status !== null
+        ? uploadItem.status.status || 'notify_ok'
+        : uploadItem.status;
     if (locked) {
       return __('File being uploaded in another tab or window.');
     }
@@ -117,7 +121,7 @@ export default function WebUploadItem(props: Props) {
             return __('Failed to process file. Please try again.');
 
           default:
-            return typeof status === 'string' ? status : JSON.stringify(status);
+            return typeof status === 'string' ? status : __('Processing...');
         }
       } else {
         const progressInt = parseInt(progress);

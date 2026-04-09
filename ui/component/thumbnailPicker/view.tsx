@@ -34,11 +34,12 @@ function formatTimestamp(seconds: number): string {
 type Props = {
   filePath?: File;
   hasVideo?: boolean;
+  remoteVideoUrl?: string;
   onThumbnailSelected?: (thumbnailUrl: string) => void;
 };
 
 function ThumbnailPicker(props: Props) {
-  const { filePath, hasVideo = false, onThumbnailSelected } = props;
+  const { filePath, hasVideo = false, remoteVideoUrl, onThumbnailSelected } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
   const [urlThumbUrl, setUrlThumbUrl] = useState<string | null>(null);
@@ -203,6 +204,67 @@ function ThumbnailPicker(props: Props) {
     [cleanupFrameUrls, cleanupInput, filePath]
   );
 
+  const extractRemoteFrames = useCallback(
+    async (videoUrl: string, percentages: number[]) => {
+      const extractionId = extractionIdRef.current + 1;
+      extractionIdRef.current = extractionId;
+      setLoading(true);
+      setError(null);
+      setExtractionFailed(false);
+      setSelectedIndex(null);
+      setFrames([]);
+      cleanupFrameUrls();
+
+      try {
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.preload = 'auto';
+        video.src = videoUrl;
+
+        await new Promise<void>((resolve, reject) => {
+          video.onloadedmetadata = () => resolve();
+          video.onerror = () => reject(new Error('Failed to load video'));
+        });
+
+        const dur = video.duration;
+        if (extractionId === extractionIdRef.current) setDuration(dur);
+        const timestamps = percentages.map((p) => p * dur);
+        const newFrames: FrameData[] = [];
+        const newUrls: string[] = [];
+
+        for (const ts of timestamps) {
+          if (extractionId !== extractionIdRef.current) break;
+          video.currentTime = ts;
+          await new Promise<void>((resolve) => {
+            video.onseeked = () => resolve();
+          });
+          const canvas = new OffscreenCanvas(video.videoWidth || 320, video.videoHeight || 180);
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+            const blobUrl = URL.createObjectURL(blob);
+            newUrls.push(blobUrl);
+            newFrames.push({ blobUrl, blob, timestamp: ts, label: formatTimestamp(ts) });
+          }
+        }
+
+        if (extractionId === extractionIdRef.current) {
+          frameUrlsRef.current = newUrls;
+          setFrames(newFrames);
+        }
+      } catch {
+        if (extractionId === extractionIdRef.current) {
+          setExtractionFailed(true);
+        }
+      }
+
+      if (extractionId === extractionIdRef.current) setLoading(false);
+    },
+    [cleanupFrameUrls]
+  );
+
   useEffect(() => {
     setMode('auto');
     setManualTimestamp(0);
@@ -212,6 +274,8 @@ function ThumbnailPicker(props: Props) {
       setLoading(false);
     } else if (hasVideo && filePath) {
       extractFrames(DEFAULT_PERCENTAGES);
+    } else if (hasVideo && remoteVideoUrl) {
+      extractRemoteFrames(remoteVideoUrl, DEFAULT_PERCENTAGES);
     } else {
       setLoading(false);
     }
@@ -220,7 +284,7 @@ function ThumbnailPicker(props: Props) {
       cleanup();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filePath]);
+  }, [filePath, remoteVideoUrl]);
 
   function handleRegenerate() {
     const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).sort((a, b) => a - b);
@@ -492,7 +556,7 @@ function ThumbnailPicker(props: Props) {
                     <span className="thumbnail-picker__label">{__('Current')}</span>
                   </button>
                 )}
-                {hasVideo && filePath && !extractionFailed && (
+                {hasVideo && (filePath || remoteVideoUrl) && !extractionFailed && (
                   <button
                     className={
                       'thumbnail-picker__item thumbnail-picker__item--custom' +
@@ -509,9 +573,15 @@ function ThumbnailPicker(props: Props) {
                       ref={(el) => {
                         manualVideoRef.current = el;
                         if (el && !manualVideoUrlRef.current) {
-                          manualVideoUrlRef.current = URL.createObjectURL(filePath);
-                          el.src = manualVideoUrlRef.current;
-                          el.currentTime = 0;
+                          if (filePath) {
+                            manualVideoUrlRef.current = URL.createObjectURL(filePath);
+                          } else if (remoteVideoUrl) {
+                            manualVideoUrlRef.current = remoteVideoUrl;
+                          }
+                          if (manualVideoUrlRef.current) {
+                            el.src = manualVideoUrlRef.current;
+                            el.currentTime = 0;
+                          }
                         }
                       }}
                       className="thumbnail-picker__custom-video"
@@ -691,7 +761,7 @@ function ThumbnailPicker(props: Props) {
         </div>
       )}
 
-      {extractorExpanded && filePath && (
+      {extractorExpanded && (filePath || remoteVideoUrl) && (
         <div className="thumbnail-picker__lightbox" onClick={() => setExtractorExpanded(false)}>
           <div className="thumbnail-picker__lightbox-content" onClick={(e) => e.stopPropagation()}>
             <video
