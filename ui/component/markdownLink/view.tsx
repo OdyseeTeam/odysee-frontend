@@ -157,7 +157,14 @@ function MarkdownLink(props: Props) {
             ref={(el) => {
               if (!el || el.dataset.init) return;
               el.dataset.init = '1';
-              el.style.backgroundImage = `url(${faviconUrl})`;
+              const img = new Image();
+              img.onload = () => {
+                el.style.backgroundImage = `url(${faviconUrl})`;
+              };
+              img.onerror = () => {
+                el.style.display = 'none';
+              };
+              img.src = faviconUrl;
             }}
             className="markdown-link-favicon"
           />

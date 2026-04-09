@@ -66,25 +66,51 @@ router.get(`/$/favicon`, async (ctx) => {
     return;
   }
 
-  const paths = [`/favicon.ico`, `/favicon-32x32.png`, `/favicon-16x16.png`, `/apple-touch-icon.png`];
+  async function tryFetch(url) {
+    const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      const ct = res.headers.get('content-type') || '';
+      if (ct.startsWith('image/') || ct.includes('icon')) {
+        return { buffer: Buffer.from(await res.arrayBuffer()), contentType: ct };
+      }
+    }
+    return null;
+  }
 
+  const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
   for (const p of paths) {
     try {
-      const res = await fetch(`https://${domain}${p}`, {
-        redirect: 'follow',
-        signal: AbortSignal.timeout(3000),
-      });
-      if (res.ok) {
-        const contentType = res.headers.get('content-type') || 'image/x-icon';
-        if (!contentType.startsWith('image/') && !contentType.includes('icon')) continue;
-        const buffer = Buffer.from(await res.arrayBuffer());
-        ctx.set('Content-Type', contentType);
+      const result = await tryFetch(`https://${domain}${p}`);
+      if (result) {
+        ctx.set('Content-Type', result.contentType);
         ctx.set('Cache-Control', 'public, max-age=604800');
-        ctx.body = buffer;
+        ctx.body = result.buffer;
         return;
       }
     } catch {}
   }
+
+  try {
+    const html = await fetch(`https://${domain}`, { redirect: 'follow', signal: AbortSignal.timeout(5000) }).then((r) =>
+      r.text()
+    );
+    const match =
+      html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i) ||
+      html.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
+    if (match && match[1]) {
+      let iconUrl = match[1];
+      if (iconUrl.startsWith('//')) iconUrl = 'https:' + iconUrl;
+      else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
+      else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
+      const result = await tryFetch(iconUrl);
+      if (result) {
+        ctx.set('Content-Type', result.contentType);
+        ctx.set('Cache-Control', 'public, max-age=604800');
+        ctx.body = result.buffer;
+        return;
+      }
+    }
+  } catch {}
 
   ctx.status = 404;
   ctx.body = '';
