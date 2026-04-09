@@ -657,14 +657,14 @@ export default function LivestreamStudio(props: Props) {
           const input = document.createElement('input');
           input.type = 'file';
           input.accept = 'image/*';
-          input.onchange = () => resolve(input.files?.[0] || null);
+          input.addEventListener('change', () => resolve(input.files?.[0] || null));
           input.click();
         });
         if (!file) return;
         const img = new Image();
         const url = URL.createObjectURL(file);
         await new Promise<void>((resolve) => {
-          img.onload = () => resolve();
+          img.addEventListener('load', () => resolve());
           img.src = url;
         });
         const canvas = document.createElement('canvas');

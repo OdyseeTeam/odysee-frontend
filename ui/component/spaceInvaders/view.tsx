@@ -115,11 +115,11 @@ export default function SpaceInvaders({ onClose }: Props) {
     let lastTime = 0;
     const primaryColor =
       getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#f7246a';
+    const hexToRgb = (hex: string) => {
+      const h = hex.replace('#', '');
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    };
     const shieldGradient = (() => {
-      const hexToRgb = (hex: string) => {
-        const h = hex.replace('#', '');
-        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-      };
       const start = hexToRgb(primaryColor.startsWith('#') ? primaryColor : '#f7246a');
       const end = hexToRgb('#f77937');
       const steps = 8;

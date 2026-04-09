@@ -70,6 +70,10 @@ function TrendIndicator({ value, suffix = '' }: { value: number; suffix?: string
   );
 }
 
+function normalizeUri(u: string) {
+  return u && !u.startsWith('lbry://') ? `lbry://${u}` : u;
+}
+
 export default function CreatorAnalytics(props: Props) {
   const { uri } = props;
   const dispatch = useAppDispatch();
@@ -148,10 +152,9 @@ export default function CreatorAnalytics(props: Props) {
       .then((res: ChannelStats) => {
         setStats(res);
         setFetching(false);
-        const normalize = (u: string) => (u && !u.startsWith('lbry://') ? `lbry://${u}` : u);
-        res.VideoURITopNew = normalize(res.VideoURITopNew);
-        res.VideoURITopCommentNew = normalize(res.VideoURITopCommentNew);
-        res.VideoURITopAllTime = normalize(res.VideoURITopAllTime);
+        res.VideoURITopNew = normalizeUri(res.VideoURITopNew);
+        res.VideoURITopCommentNew = normalizeUri(res.VideoURITopCommentNew);
+        res.VideoURITopAllTime = normalizeUri(res.VideoURITopAllTime);
         const uris = [res.VideoURITopNew, res.VideoURITopCommentNew, res.VideoURITopAllTime].filter(Boolean);
         if (uris.length > 0) dispatch(doResolveUrisAction(uris));
       })
