@@ -568,12 +568,16 @@ type PrivateRouteProps = {
 
 function AutoplayClearWrapper({ uri }: { uri: string }) {
   const store = useStore();
-  const state = store.getState() as any;
-  const autoplay = state.settings?.clientSettings?.autoplay;
-  const currentPlayingUri = state.content?.playingUri?.uri;
-  if (autoplay && currentPlayingUri && currentPlayingUri !== uri) {
-    store.dispatch({ type: 'SET_PLAYING_URI', data: { uri: null, collection: {} } });
+  const prevUriRef = React.useRef<string | null>(null);
+  if (prevUriRef.current !== null && prevUriRef.current !== uri) {
+    const state = store.getState() as any;
+    const autoplay = state.settings?.clientSettings?.autoplay;
+    const currentPlayingUri = state.content?.playingUri?.uri;
+    if (autoplay && currentPlayingUri && currentPlayingUri !== uri) {
+      store.dispatch({ type: 'SET_PLAYING_URI', data: { uri: null, collection: {} } });
+    }
   }
+  prevUriRef.current = uri;
   return <ClaimPage uri={uri} />;
 }
 
@@ -1018,8 +1022,8 @@ function AppRouter(props: Props) {
           <Route path="/$/:nonExistingPage" element={renderLegacyPage(FourOhFourPage)} />
         )}
 
-        <Route path="/:claimName" element={<AutoplayClearWrapper key={uri} uri={uri} />} />
-        <Route path="/:claimName/:streamName" element={<AutoplayClearWrapper key={uri} uri={uri} />} />
+        <Route path="/:claimName" element={<AutoplayClearWrapper uri={uri} />} />
+        <Route path="/:claimName/:streamName" element={<AutoplayClearWrapper uri={uri} />} />
         <Route path="*" element={renderLegacyPage(FourOhFourPage)} />
       </Routes>
     </React.Suspense>
