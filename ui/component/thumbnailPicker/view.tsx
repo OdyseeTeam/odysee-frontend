@@ -253,6 +253,10 @@ function ThumbnailPicker(props: Props) {
         if (extractionId === extractionIdRef.current) {
           frameUrlsRef.current = newUrls;
           setFrames(newFrames);
+          if (newFrames.length > 0) {
+            setSelectedIndex(0);
+            uploadFrame(newFrames[0]);
+          }
         }
       } catch {
         if (extractionId === extractionIdRef.current) {

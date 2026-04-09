@@ -499,16 +499,7 @@ function LivestreamForm(props: Props) {
         />
 
         {!publishing && (
-          <div
-            className={classnames({
-              'card--disabled': disabled,
-            })}
-          >
-            {(liveCreateType === 'new_placeholder' ||
-              (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only')) && (
-              <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
-            )}
-
+          <>
             <Card
               background
               title={__('Thumbnail')}
@@ -522,71 +513,82 @@ function LivestreamForm(props: Props) {
               {...({ livestreamData } as any)}
             />
 
-            <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
-              {__('Tags')}
-            </h2>
+            <div
+              className={classnames({
+                'card--disabled': disabled,
+              })}
+            >
+              {(liveCreateType === 'new_placeholder' ||
+                (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only')) && (
+                <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
+              )}
 
-            <TagsSelect
-              suggestMature={!SIMPLE_SITE}
-              disableAutoFocus
-              hideHeader
-              label={__('Selected Tags')}
-              excludedControlTags={null}
-              limitSelect={TAGS_LIMIT}
-              help={
-                <span
-                  style={{
-                    fontSize: 'var(--font-xsmall)',
-                    color: 'var(--color-text-subtitle)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-xs)',
-                  }}
-                >
-                  <Icon icon={ICONS.INFO} size={12} />
-                  <span>
-                    {__(
-                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                    )}
+              <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+                {__('Tags')}
+              </h2>
+
+              <TagsSelect
+                suggestMature={!SIMPLE_SITE}
+                disableAutoFocus
+                hideHeader
+                label={__('Selected Tags')}
+                excludedControlTags={null}
+                limitSelect={TAGS_LIMIT}
+                help={
+                  <span
+                    style={{
+                      fontSize: 'var(--font-xsmall)',
+                      color: 'var(--color-text-subtitle)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 'var(--spacing-xs)',
+                    }}
+                  >
+                    <Icon icon={ICONS.INFO} size={12} />
+                    <span>
+                      {__(
+                        "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                      )}
+                    </span>
                   </span>
-                </span>
-              }
-              placeholder={__('gaming, crypto')}
-              onSelect={(newTags) => {
-                const validatedTags = [];
-                newTags.forEach((newTag) => {
-                  if (!tags.some((tag) => tag.name === newTag.name)) {
-                    validatedTags.push(newTag);
-                  }
-                });
-                updatePublishForm({
-                  tags: [...tags, ...validatedTags],
-                });
-              }}
-              onRemove={(clickedTag) => {
-                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                updatePublishForm({
-                  tags: newTags,
-                });
-              }}
-              tagsChosen={tags}
-            />
+                }
+                placeholder={__('gaming, crypto')}
+                onSelect={(newTags) => {
+                  const validatedTags = [];
+                  newTags.forEach((newTag) => {
+                    if (!tags.some((tag) => tag.name === newTag.name)) {
+                      validatedTags.push(newTag);
+                    }
+                  });
+                  updatePublishForm({
+                    tags: [...tags, ...validatedTags],
+                  });
+                }}
+                onRemove={(clickedTag) => {
+                  const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                  updatePublishForm({
+                    tags: newTags,
+                  });
+                }}
+                tagsChosen={tags}
+              />
 
-            {/* @ts-ignore -- isStillEditing is resolved internally */}
-            <PublishProtectedContent claim={myClaimForUri} />
+              {/* @ts-ignore -- isStillEditing is resolved internally */}
+              <PublishProtectedContent claim={myClaimForUri} />
 
-            {liveCreateType === 'choose_replay' && (
-              <React.Suspense fallback={null}>
-                <PublishPrice {...({ disabled: !!disabled } as any)} />
-              </React.Suspense>
-            )}
+              {liveCreateType === 'choose_replay' && (
+                <React.Suspense fallback={null}>
+                  <PublishPrice {...({ disabled: !!disabled } as any)} />
+                </React.Suspense>
+              )}
 
-            <PublishAdditionalOptions
-              isLivestream
-              disabled={disabled}
-              showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'} // ^--- the name is wrong. should be "hide" instead
-            />
-          </div>
+              <PublishAdditionalOptions
+                isLivestream
+                disabled={disabled}
+                showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'} // ^--- the name is wrong. should be "hide" instead
+              />
+            </div>
+          </>
         )}
         <section>
           <div className="section__actions publish__actions">
