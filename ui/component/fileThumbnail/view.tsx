@@ -179,6 +179,15 @@ function FileThumbnail(props: Props) {
   }, [isMuted]);
 
   const [hoverFrac, setHoverFrac] = React.useState(0);
+  const [thumbWidth, setThumbWidth] = React.useState(320);
+  const [thumbHeight, setThumbHeight] = React.useState(180);
+  const thumbMeasureRef = React.useCallback((el: HTMLElement | null) => {
+    if (el) {
+      setThumbWidth(el.clientWidth);
+      const thumb = el.closest('.media__thumb');
+      if (thumb) setThumbHeight(thumb.clientHeight);
+    }
+  }, []);
 
   const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -465,6 +474,7 @@ function FileThumbnail(props: Props) {
             const pct = hlsProgress * 100;
             return (
               <div
+                ref={thumbMeasureRef}
                 className="media__thumb-progress-wrap"
                 onMouseMove={handleMouseMove}
                 onMouseLeave={() => setHoverFrac(0)}
@@ -484,11 +494,12 @@ function FileThumbnail(props: Props) {
                     className="media__thumb-progress-tooltip"
                     style={{
                       left: (() => {
-                        const halfW = activeCue
-                          ? Math.round(
-                              (activeCue.h > activeCue.w ? activeCue.w * (90 / activeCue.h) : activeCue.w) / 2
-                            ) + 6
-                          : 86;
+                        const vttZoom = activeCue
+                          ? activeCue.h > activeCue.w
+                            ? Math.min(1, Math.max(90, Math.min(thumbHeight * 0.3, 120)) / activeCue.h)
+                            : Math.min(1, (thumbWidth * 0.55) / activeCue.w)
+                          : 1;
+                        const halfW = activeCue ? Math.round((activeCue.w * vttZoom) / 2) + 6 : 86;
                         return `clamp(${halfW}px, ${hoverFrac * 100}%, calc(100% - ${halfW}px))`;
                       })(),
                     }}
@@ -496,8 +507,10 @@ function FileThumbnail(props: Props) {
                     {activeCue &&
                       (() => {
                         const isPortrait = activeCue.h > activeCue.w;
-                        const maxH = 90;
-                        const scale = isPortrait && activeCue.h > maxH ? maxH / activeCue.h : 1;
+                        const portraitMaxH = Math.max(90, Math.min(thumbHeight * 0.3, 120));
+                        const portraitScale = isPortrait && activeCue.h > portraitMaxH ? portraitMaxH / activeCue.h : 1;
+                        const vttScale = Math.min(1, (thumbWidth * 0.55) / activeCue.w);
+                        const scale = isPortrait ? portraitScale : vttScale;
                         return (
                           <div
                             className="media__thumb-progress-tooltip-sprite"
